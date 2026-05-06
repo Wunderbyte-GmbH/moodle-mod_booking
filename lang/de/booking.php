@@ -2906,6 +2906,7 @@ $string['taskcleanupinvalidscheduledmails'] = 'Booking: Ungültige geplante E-Ma
 $string['taskconfirmbookinganswerbymailbyruleadhoc'] = 'Booking: Freischalten von Warteliste via Regel erteilen (Adhoc-Task)';
 $string['taskenrolbookeduserstocourse'] = 'Booking: Gebuchte User in Kurs einschreiben';
 $string['taskpurgecampaigncaches'] = 'Booking: Caches für Buchungskampagne leeren';
+$string['taskprocesssourcemembershipsyncadhoc'] = 'Booking: Quellenmitgliedschafts-Sync verarbeiten (Adhoc-Task)';
 $string['taskrecalculateprices'] = 'Preise einer Buchungsaktivität werden mit der Preisformel neu berechnet';
 $string['taskremoveactivitycompletion'] = 'Booking: Activitätsabschluss entfernen';
 $string['tasksendcompletionmails'] = 'Booking: Abschluss-Mails versenden';

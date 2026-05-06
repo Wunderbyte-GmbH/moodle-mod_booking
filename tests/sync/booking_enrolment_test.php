@@ -59,11 +59,6 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @covers     \mod_booking\local\sync\booking_enrolment
  */
 final class booking_enrolment_test extends advanced_testcase {
-
-    // -------------------------------------------------------------------------
-    // Lifecycle
-    // -------------------------------------------------------------------------
-
     /**
      * Tests set up.
      */
@@ -85,15 +80,10 @@ final class booking_enrolment_test extends advanced_testcase {
         $plugingenerator->teardown();
     }
 
-    // -------------------------------------------------------------------------
-    // Helpers
-    // -------------------------------------------------------------------------
-
     /**
      * Create a minimal test environment: course, booking module, booking option,
      * two enrolled users, one cohort (with both users), one group (with both users).
      *
-     * @return array{course, booking, option, settings, user1, user2, cohort, group}
      */
     private function setup_sync_environment(): array {
         $this->setAdminUser();
@@ -239,10 +229,6 @@ final class booking_enrolment_test extends advanced_testcase {
         return $records ? reset($records) : null;
     }
 
-    // =========================================================================
-    // save_single_rule()
-    // =========================================================================
-
     /**
      * A new rule is persisted with all correct field values.
      *
@@ -375,10 +361,6 @@ final class booking_enrolment_test extends advanced_testcase {
         booking_enrolment::save_single_rule($env['option']->id, $data);
     }
 
-    // =========================================================================
-    // get_rule_for_option()
-    // =========================================================================
-
     /**
      * Returns rule record enriched with cohort source labels.
      *
@@ -421,10 +403,6 @@ final class booking_enrolment_test extends advanced_testcase {
         $this->assertNull($result);
     }
 
-    // =========================================================================
-    // delete_rule() — guard / edge cases
-    // =========================================================================
-
     /**
      * Passing a non-existent ruleid throws a moodle_exception.
      *
@@ -451,10 +429,6 @@ final class booking_enrolment_test extends advanced_testcase {
         $this->assertEquals(0, $result['affected']);
         $this->assertFalse($DB->record_exists('booking_sync_rules', ['id' => $rule->id]));
     }
-
-    // =========================================================================
-    // delete_rule() — DELETE_MODE_MANUALIZE
-    // =========================================================================
 
     /**
      * Manualize mode: rule is deleted, answers are kept, syncruleid is reset to 0.
@@ -513,10 +487,6 @@ final class booking_enrolment_test extends advanced_testcase {
         $this->assertEquals('rule_deleted_manualize', $json['syncaction'] ?? null);
     }
 
-    // =========================================================================
-    // delete_rule() — DELETE_MODE_KEEP_ORPHAN
-    // =========================================================================
-
     /**
      * Keep-orphan mode: rule is deleted, answers survive untouched (syncruleid unchanged).
      *
@@ -562,10 +532,6 @@ final class booking_enrolment_test extends advanced_testcase {
         $this->assertEquals($rule->id, $json['syncruleid'] ?? null);
         $this->assertEquals('rule_deleted_orphan', $json['syncaction'] ?? null);
     }
-
-    // =========================================================================
-    // delete_rule() — DELETE_MODE_UNENROL_SOFT_DELETE
-    // =========================================================================
 
     /**
      * Unenrol-soft-delete mode: rule is deleted and the answer is soft-deleted.
@@ -640,10 +606,6 @@ final class booking_enrolment_test extends advanced_testcase {
             'Expected a REASON_OK unenrol attempt in booking_sync_attempts'
         );
     }
-
-    // =========================================================================
-    // enrol_user_by_rule()
-    // =========================================================================
 
     /**
      * Enrolment creates a booking_answers row owned by the rule.
@@ -724,10 +686,6 @@ final class booking_enrolment_test extends advanced_testcase {
         }
         $this->assertTrue($found, 'Expected booking_history entry with syncaction=enrol');
     }
-
-    // =========================================================================
-    // unenrol_user_by_rule()
-    // =========================================================================
 
     /**
      * Unenrol soft-deletes the booking answer (row kept, status = DELETED).
@@ -832,10 +790,6 @@ final class booking_enrolment_test extends advanced_testcase {
         }
         $this->assertTrue($found, 'Expected booking_history entry with syncaction=unenrol');
     }
-
-    // =========================================================================
-    // process_source_membership()
-    // =========================================================================
 
     /**
      * Adding a user to a cohort source triggers enrolment.
@@ -943,9 +897,76 @@ final class booking_enrolment_test extends advanced_testcase {
         );
     }
 
-    // =========================================================================
-    // disable_rules_for_option()
-    // =========================================================================
+    /**
+     * Queueing source membership sync creates an adhoc task and does not run enrolment inline.
+     *
+     * @covers \mod_booking\local\sync\booking_enrolment::queue_source_membership_sync
+     */
+    public function test_queue_source_membership_sync_queues_task_without_inline_processing(): void {
+        global $DB;
+        $env      = $this->setup_sync_environment();
+        $optionid = $env['option']->id;
+
+        $this->insert_sync_rule(
+            $optionid,
+            'cohort',
+            $env['cohort']->id,
+            ['syncenrol' => 1, 'syncunenrol' => 0]
+        );
+
+        booking_enrolment::queue_source_membership_sync(
+            'cohort',
+            (int)$env['cohort']->id,
+            (int)$env['user1']->id,
+            true
+        );
+
+        $tasks = \core\task\manager::get_adhoc_tasks('\\mod_booking\\task\\process_source_membership_adhoc');
+        $this->assertCount(1, $tasks);
+        $this->assertFalse(
+            $DB->record_exists('booking_answers', [
+                'optionid' => $optionid,
+                'userid' => (int)$env['user1']->id,
+            ]),
+            'Booking sync should be queued, not executed inline in the observer request'
+        );
+    }
+
+    /**
+     * The queued source membership adhoc task executes the same enrolment sync logic.
+     *
+     * @covers \mod_booking\local\sync\booking_enrolment::queue_source_membership_sync
+     * @covers \mod_booking\task\process_source_membership_adhoc::execute
+     */
+    public function test_queue_source_membership_sync_executes_via_adhoc_task(): void {
+        global $DB;
+        $env      = $this->setup_sync_environment();
+        $optionid = $env['option']->id;
+
+        $this->insert_sync_rule(
+            $optionid,
+            'cohort',
+            $env['cohort']->id,
+            ['syncenrol' => 1, 'syncunenrol' => 0]
+        );
+
+        booking_enrolment::queue_source_membership_sync(
+            'cohort',
+            (int)$env['cohort']->id,
+            (int)$env['user1']->id,
+            true
+        );
+
+        $this->runAdhocTasks();
+
+        $this->assertTrue(
+            $DB->record_exists('booking_answers', [
+                'optionid' => $optionid,
+                'userid' => (int)$env['user1']->id,
+            ]),
+            'Queued membership sync task should eventually create the booking answer'
+        );
+    }
 
     /**
      * All enabled rules for an option are flipped to isenabled=0.
@@ -983,10 +1004,6 @@ final class booking_enrolment_test extends advanced_testcase {
 
         $this->assertEquals(0, $count);
     }
-
-    // =========================================================================
-    // apply_rule_to_current_members()
-    // =========================================================================
 
     /**
      * Applying a rule immediately enrols all cohort members.
@@ -1042,7 +1059,7 @@ final class booking_enrolment_test extends advanced_testcase {
 
         $result = booking_enrolment::apply_rule_to_current_members($rule->id);
 
-        // user1 is no longer a member → unenrol attempted.
+        // User1 is no longer a member, so unenrol is attempted.
         $this->assertGreaterThanOrEqual(1, $result['unenrolattempted']);
 
         $answer = $DB->get_record('booking_answers', [

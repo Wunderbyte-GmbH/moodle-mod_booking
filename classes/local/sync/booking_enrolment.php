@@ -335,11 +335,12 @@ class booking_enrolment {
                 $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
                 if ($settings && !empty($settings->cmid)) {
                     $option = singleton_service::get_instance_of_booking_option(
-                        (int)$settings->cmid, $optionid
+                        (int)$settings->cmid,
+                        $optionid
                     );
                     if ($option) {
                         foreach ($answers as $answer) {
-                            // user_delete_response() soft-deletes (waitinglist=DELETED, row kept)
+                            // User_delete_response() soft-deletes (waitinglist=DELETED, row kept)
                             // and writes booking_history automatically.
                             $option->user_delete_response((int)$answer->userid);
                             self::log_attempt(
@@ -555,6 +556,38 @@ class booking_enrolment {
                 }
             }
         }
+    }
+
+    /**
+     * Queue one source membership sync operation to run asynchronously.
+     *
+     * This keeps expensive booking sync work off the original cohort/group API request.
+     *
+     * @param string $sourcetype 'cohort' or 'group'.
+     * @param int $sourceid Source id.
+     * @param int $userid User id whose membership changed.
+     * @param bool $membershipadded True if added, false if removed.
+     * @return void
+     */
+    public static function queue_source_membership_sync(
+        string $sourcetype,
+        int $sourceid,
+        int $userid,
+        bool $membershipadded
+    ): void {
+        if (!in_array($sourcetype, ['cohort', 'group'], true) || $sourceid <= 0 || $userid <= 0) {
+            return;
+        }
+
+        $task = new \mod_booking\task\process_source_membership_adhoc();
+        $task->set_component('mod_booking');
+        $task->set_custom_data((object)[
+            'sourcetype' => $sourcetype,
+            'sourceid' => $sourceid,
+            'userid' => $userid,
+            'membershipadded' => $membershipadded ? 1 : 0,
+        ]);
+        \core\task\manager::reschedule_or_queue_adhoc_task($task);
     }
 
     /**
