@@ -12,10 +12,8 @@ Feature: Teacher profile option visibility follows visibility mode setting
       | Course 1 | C1        | 0        | 1                |
     And the following "course enrolments" exist:
       | user     | course | role           |
-      | teacher1 | C1     | editingteacher |
-      | teacher1 | C1     | manager        |
-      | teacher2 | C1     | editingteacher |
-      | teacher2 | C1     | manager        |
+      | teacher1 | C1     | student        |
+      | teacher2 | C1     | student        |
       | admin1   | C1     | editingteacher |
       | admin1   | C1     | manager        |
     And I clean booking cache
@@ -27,6 +25,7 @@ Feature: Teacher profile option visibility follows visibility mode setting
       | My booking | Visible assigned option  | C1     | Option desc | teacher1          | 0         |
       | My booking | Hidden assigned option   | C1     | Option desc | teacher1          | 1         |
       | My booking | Direct assigned option   | C1     | Option desc | teacher1          | 2         |
+      | My booking | Visible teacher2 option  | C1     | Option desc | teacher2          | 0         |
       | My booking | Hidden unassigned option | C1     | Option desc | teacher2          | 1         |
     And I change viewport size to "1366x10000"
 
@@ -80,4 +79,15 @@ Feature: Teacher profile option visibility follows visibility mode setting
     Then I should see "Visible assigned option" in the "#region-main" "css_element"
     And I should see "Hidden assigned option" in the "#region-main" "css_element"
     And I should see "Direct assigned option" in the "#region-main" "css_element"
+    And I should not see "Hidden unassigned option" in the "#region-main" "css_element"
+
+  @javascript
+  Scenario: Mode 3 does not apply when viewing another teacher page
+    Given the following config values are set as admin:
+      | config                    | value | plugin  |
+      | teacherpagevisibilitymode | 3     | booking |
+    And I log in as "teacher1"
+    When I visit "/mod/booking/teachers.php"
+    And I click on "Two Teacher" "text" in the "#region-main .row" "css_element"
+    Then I should see "Visible teacher2 option" in the "#region-main" "css_element"
     And I should not see "Hidden unassigned option" in the "#region-main" "css_element"
