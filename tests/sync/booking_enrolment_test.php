@@ -656,6 +656,48 @@ final class booking_enrolment_test extends advanced_testcase {
     }
 
     /**
+     * An already-booked user is not re-enrolled in override mode and gets an already-enrolled attempt log.
+     *
+     * @covers \mod_booking\local\sync\booking_enrolment::enrol_user_by_rule
+     */
+    public function test_enrol_user_by_rule_logs_already_enrolled_without_override(): void {
+        global $DB;
+        $env = $this->setup_sync_environment();
+        $optionid = $env['option']->id;
+        $userid = (int)$env['user1']->id;
+
+        $this->bookit_user($optionid, $userid);
+        $beforecount = $DB->count_records('booking_answers', [
+            'optionid' => $optionid,
+            'userid' => $userid,
+        ]);
+
+        $rule = $this->insert_sync_rule(
+            $optionid,
+            'cohort',
+            $env['cohort']->id,
+            ['conditionpolicy' => booking_enrolment::CONDITION_POLICY_OVERRIDE]
+        );
+
+        booking_enrolment::enrol_user_by_rule($rule, $userid);
+
+        $aftercount = $DB->count_records('booking_answers', [
+            'optionid' => $optionid,
+            'userid' => $userid,
+        ]);
+        $this->assertEquals($beforecount, $aftercount, 'Already-booked users must not receive another booking answer');
+        $this->assertTrue(
+            $DB->record_exists('booking_sync_attempts', [
+                'syncruleid' => $rule->id,
+                'userid' => $userid,
+                'action' => booking_enrolment::ACTION_ENROL,
+                'reasoncode' => booking_enrolment::REASON_ALREADY_ENROLLED,
+            ]),
+            'Expected an already-enrolled sync attempt log entry'
+        );
+    }
+
+    /**
      * Successful enrolment writes a booking_history entry with syncaction=enrol metadata.
      *
      * @covers \mod_booking\local\sync\booking_enrolment::enrol_user_by_rule

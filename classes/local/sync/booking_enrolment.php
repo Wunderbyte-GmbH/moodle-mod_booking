@@ -55,6 +55,9 @@ class booking_enrolment {
     /** Reason code: user's booking answer is not owned by this sync rule (so safe-unenrol is prevented). */
     const REASON_BLOCKED_NOT_SYNC_OWNED = 'blocked_not_sync_owned';
 
+    /** Reason code: user already has an active booking answer for this option. */
+    const REASON_ALREADY_ENROLLED = 'already_enrolled';
+
     /** Delete mode: reset syncruleid to 0 — answer ownership becomes manual. */
     const DELETE_MODE_MANUALIZE = 'manualize';
 
@@ -666,6 +669,18 @@ class booking_enrolment {
             return;
         }
 
+        if (self::has_active_booking_answer((int)$rule->bookingoptionid, $userid)) {
+            self::log_attempt(
+                (int)$rule->id,
+                (int)$rule->bookingoptionid,
+                $userid,
+                self::ACTION_ENROL,
+                self::REASON_ALREADY_ENROLLED,
+                'User already has an active booking answer for optionid ' . $rule->bookingoptionid
+            );
+            return;
+        }
+
         if ((int)$rule->conditionpolicy === self::CONDITION_POLICY_OVERRIDE) {
             // Override mode: force book regardless of conditions or capacity.
             $result = $option->user_submit_response(
@@ -871,6 +886,31 @@ class booking_enrolment {
         ]);
 
         return !empty($answer);
+    }
+
+    /**
+     * Check whether a user already has an active booking answer for a given option.
+     *
+     * Active means booked, waiting list, or reserved. Deleted and previously-booked rows are ignored.
+     *
+     * @param int $optionid Booking option id.
+     * @param int $userid User id.
+     * @return bool
+     */
+    public static function has_active_booking_answer(int $optionid, int $userid): bool {
+        global $DB;
+
+        [$insql, $params] = $DB->get_in_or_equal([
+            MOD_BOOKING_STATUSPARAM_BOOKED,
+            MOD_BOOKING_STATUSPARAM_WAITINGLIST,
+            MOD_BOOKING_STATUSPARAM_RESERVED,
+        ], SQL_PARAMS_NAMED, 'status');
+
+        return $DB->record_exists_select(
+            'booking_answers',
+            "optionid = :optionid AND userid = :userid AND waitinglist {$insql}",
+            ['optionid' => $optionid, 'userid' => $userid] + $params
+        );
     }
 
     /**
