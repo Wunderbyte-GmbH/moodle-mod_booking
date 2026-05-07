@@ -25,6 +25,7 @@
 namespace mod_booking\bo_availability\conditions;
 
 use local_shopping_cart\shopping_cart;
+use local_shopping_cart\shopping_cart_history;
 use mod_booking\bo_availability\bo_condition;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking;
@@ -160,14 +161,18 @@ class cancelmyself implements bo_condition {
                     class_exists('local_shopping_cart\shopping_cart')
                     && (!empty($settings->jsonobject->useprice))
                 ) {
-                    $item = (object)[
-                        'itemid' => $settings->id,
-                        'componentname' => 'mod_booking',
-                        'canceluntil' => $canceluntil,
-                    ];
-                    // Shopping cart allows to cancel.
-                    if (!shopping_cart::allowed_to_cancel_for_item($item, 'option')) {
-                        $isavailable = true;
+                    // Apply shopping cart specific cancel rules only for purchases that
+                    // were actually processed via shopping cart.
+                    if (self::has_shopping_cart_history_entry($settings->id, $userid)) {
+                        $item = (object)[
+                            'itemid' => $settings->id,
+                            'componentname' => 'mod_booking',
+                            'canceluntil' => $canceluntil,
+                        ];
+                        // Shopping cart allows to cancel.
+                        if (!shopping_cart::allowed_to_cancel_for_item($item, 'option')) {
+                            $isavailable = true;
+                        }
                     }
 
                     // If user is confirmed, we don't block.
@@ -341,6 +346,7 @@ class cancelmyself implements bo_condition {
                 if (
                     !isset($bookinginformation['onwaitinglist'])
                     && !isset($bookinginformation['iambooked']['paidwithcredits'])
+                    && self::has_shopping_cart_history_entry($settings->id, $userid)
                 ) {
                     $label = get_string('cancelsign', 'mod_booking')
                     . "&nbsp;" . get_string('cancelpurchase', 'local_shopping_cart');
@@ -385,6 +391,22 @@ class cancelmyself implements bo_condition {
         // Do not trigger billboard here.
         return get_string('cancelsign', 'mod_booking') . "&nbsp;" .
             get_string('cancelmyself', 'mod_booking');
+    }
+
+    /**
+     * Check whether this booking option was purchased via local shopping cart.
+     *
+     * @param int $optionid
+     * @param int $userid
+     * @return bool
+     */
+    private static function has_shopping_cart_history_entry(int $optionid, int $userid): bool {
+        if (!class_exists('local_shopping_cart\\shopping_cart_history')) {
+            return false;
+        }
+
+        $historyitem = shopping_cart_history::get_most_recent_historyitem('mod_booking', 'option', $optionid, $userid);
+        return !empty($historyitem->id);
     }
 
     /**
