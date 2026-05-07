@@ -91,3 +91,31 @@ Feature: Teacher profile option visibility follows visibility mode setting
     And I click on "Two Teacher" "text" in the "#region-main .row" "css_element"
     Then I should see "Visible teacher2 option" in the "#region-main" "css_element"
     And I should not see "Hidden unassigned option" in the "#region-main" "css_element"
+
+  @javascript
+  Scenario: Teacher page tabs switch correctly for duplicate booking instance names
+    Given the following config values are set as admin:
+      | config                    | value | plugin  |
+      | teacherpagevisibilitymode | 3     | booking |
+    And the following "courses" exist:
+      | fullname | shortname | category | enablecompletion |
+      | Course 2 | C2        | 0        | 1                |
+    And the following "course enrolments" exist:
+      | user     | course | role           |
+      | teacher1 | C2     | student        |
+      | admin1   | C2     | editingteacher |
+      | admin1   | C2     | manager        |
+    And the following "activities" exist:
+      | activity | course | name       | intro                  | bookingmanager | eventtype | Default view for booking options |
+      | booking  | C2     | My booking | My booking description | admin1         | Webinar   | All bookings                     |
+    And the following "mod_booking > options" exist:
+      | booking    | text                        | course | description | teachersforoption | invisible |
+      | My booking | Option only in first tab    | C1     | Option desc | teacher1          | 0         |
+      | My booking | Option only in second tab   | C2     | Option desc | teacher1          | 0         |
+    And I log in as "teacher1"
+    When I visit "/mod/booking/teachers.php"
+    And I click on "One Teacher" "text" in the "#region-main .row" "css_element"
+    Then I should see "Option only in first tab" in the ".tab-pane.active.show" "css_element"
+    And I click on "(//a[starts-with(@id, 'nav-tab-') and normalize-space()='My booking'])[2]" "xpath_element"
+    Then I should see "Option only in second tab" in the ".tab-pane.active.show" "css_element"
+    And I should not see "Option only in first tab" in the ".tab-pane.active.show" "css_element"
