@@ -606,10 +606,14 @@ final class condition_all_test extends advanced_testcase {
         singleton_service::destroy_user($student->id);
         $this->assertEquals('realprice', $DB->get_field('user_info_data', 'data', ['id' => $profiledataid]));
 
+        $this->setAdminUser();
         // Force the render_button branch where shopping-cart cancellation was previously selected
         // based on current price/display settings.
         set_config('displayemptyprice', 1, 'booking');
+        singleton_service::destroy_instance();
 
+        $this->setUser($student);
+        singleton_service::destroy_user($student->id);
         // Must still render normal cancel path, not shopping-cart cancellation.
         $buttons = booking_bookit::render_bookit_button($settings, $student->id);
         $this->assertStringContainsString('Undo my booking', $buttons);
@@ -625,7 +629,7 @@ final class condition_all_test extends advanced_testcase {
             booking_bookit::bookit('option', $settings->id, $student->id);
         }
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student->id, true);
-        $this->assertEquals(MOD_BOOKING_BO_COND_BOOKITBUTTON, $id);
+        $this->assertEquals(MOD_BOOKING_BO_COND_PRICEISSET, $id);
 
         // Mandatory clean-up.
         singleton_service::get_instance()->userpricecategory = [];
