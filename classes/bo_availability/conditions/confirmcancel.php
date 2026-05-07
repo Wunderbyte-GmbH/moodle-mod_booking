@@ -133,12 +133,12 @@ class confirmcancel implements bo_condition {
                 && empty((float)($price['price'] ?? 0))
             ) {
                 if (empty(get_config('booking', 'displayemptyprice'))) {
-                // We might want to override this, if there is a zero price.
+                    // We might want to override this, if there is a zero price.
                     $isavailable = false;
                 } else {
-                   if (isset($bookinginformation['iambooked']) && !self::has_shopping_cart_history_entry($settings->id, $userid)) {
+                    if (isset($bookinginformation['iambooked']) && !self::has_shopping_cart_history_entry($settings->id, $userid)) {
                         $isavailable = false;
-                    } 
+                    }
                 }
             }
         }
