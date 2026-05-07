@@ -1389,6 +1389,7 @@ Link: {$a->bookinglink}
 ';
 $string['error:formcapabilitymissing'] = 'Ihnen fehlt die Berechtigung, um dieses Formular zu bearbeiten. Bitte wenden Sie sich an einen Administrator.';
 $string['error:identifierexists'] = 'Wählen Sie einen anderen Identifikator. Dieser existiert bereits.';
+$string['error:installmentdatefieldcondition'] = 'Das Datumsfeld "Ratenzahlung" kann nur in Kombination mit der Bedingung "Wähle Nutzer:in, die Ratenzahlung zu leisten hat" gewählt werden.';
 $string['error:invalidcmid'] = 'Der Bericht kann nicht geöffnet werden, weil keine gültige Kursmodul-ID (cmid) übergeben wurde. Die cmid muss auf eine Buchungsinstanz verweisen!';
 $string['error:limitfactornotbetween1and2'] = 'Sie müssen einen Wert zwischen 0 und 2 eingeben. Um das Buchungslimit z.B. um 20% zu erhöhen,
  geben Sie den Wert 1,2 ein.';

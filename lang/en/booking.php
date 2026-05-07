@@ -1426,6 +1426,7 @@ Associated course: {$a->courselink}
 ';
 $string['error:formcapabilitymissing'] = 'You do not have the necessary permission to edit this form. Please contact an administrator.';
 $string['error:identifierexists'] = 'Choose another identifier. This one already exists.';
+$string['error:installmentdatefieldcondition'] = 'Installment date can only be selected in combination with the "Choose user who has to pay installments" condition.';
 $string['error:invalidcmid'] = 'The report cannot be opened because no valid course module ID (cmid) was provided. It needs to be the cmid of a booking instance!';
 $string['error:limitfactornotbetween1and2'] = 'You need to enter a value between 0 and 2, e.g. 1.2 to add 20% more bookable places.';
 $string['error:missingblockinglabel'] = 'Please enter the message to show when booking is blocked.';
