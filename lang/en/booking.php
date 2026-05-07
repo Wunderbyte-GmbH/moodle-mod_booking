@@ -374,9 +374,9 @@ $string['bocondotheroptionsavailable'] = 'Linked options not available';
 $string['bocondpreviouslybooked'] = 'User has previously booked a certain option';
 $string['bocondpreviouslybookedavailable'] = 'Book it';
 $string['bocondpreviouslybookedfullavailable'] = 'Booking is possible';
-$string['bocondpreviouslybookedfullnotavailable'] = 'Only users who have previously booked <a href="{$a}">this option</a> are allowed to book.
+$string['bocondpreviouslybookedfullnotavailable'] = 'Only users who have previously booked <a href="{$a->url}">{$a->title}</a> are allowed to book.
     <br>But you have the right to book a user anyways.';
-$string['bocondpreviouslybookednotavailable'] = 'Only users who have previously booked <a href="{$a}">this option</a> are allowed to book.';
+$string['bocondpreviouslybookednotavailable'] = 'Only users who have previously booked <a href="{$a->url}">{$a->title}</a> are allowed to book.';
 $string['bocondpreviouslybookedoptionid'] = 'Must be already booked';
 $string['bocondpreviouslybookedrequirecompletion'] = 'Require completion of the selected booking option';
 $string['bocondpreviouslybookedrestrict'] = 'User has previously booked a certain option';

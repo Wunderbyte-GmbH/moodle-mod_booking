@@ -558,9 +558,12 @@ class previouslybooked implements bo_condition {
                 'cmid' => $settings->cmid,
             ]);
 
+            $a = new stdClass();
+            $a->url = $url->out(false);
+            $a->title = $settings->get_title_with_prefix();
             $description = $full ?
-                get_string('bocondpreviouslybookedfullnotavailable', 'mod_booking', $url->out(false)) :
-                get_string('bocondpreviouslybookednotavailable', 'mod_booking', $url->out(false));
+                get_string('bocondpreviouslybookedfullnotavailable', 'mod_booking', $a) :
+                get_string('bocondpreviouslybookednotavailable', 'mod_booking', $a);
         }
 
         return $description;
