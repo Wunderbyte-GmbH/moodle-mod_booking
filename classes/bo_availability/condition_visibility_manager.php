@@ -83,6 +83,7 @@ class condition_visibility_manager {
                 break;
             case MOD_BOOKING_BO_COND_JSON_NOOVERLAPPING:
                 $this->disable_element($mform, 'bo_cond_nooverlapping_restrict');
+                $this->disable_element($mform, 'bo_cond_nooverlapping_handling');
                 break;
             case MOD_BOOKING_BO_COND_JSON_PREVIOUSLYBOOKED:
                 $this->disable_element($mform, 'bo_cond_previouslybooked_restrict');
@@ -129,6 +130,7 @@ class condition_visibility_manager {
                 break;
             case MOD_BOOKING_BO_COND_JSON_NOOVERLAPPING:
                 $this->hide_element($mform, 'bo_cond_nooverlapping_restrict');
+                $this->hide_element($mform, 'bo_cond_nooverlapping_handling');
                 break;
             case MOD_BOOKING_BO_COND_JSON_PREVIOUSLYBOOKED:
                 $this->hide_element($mform, 'bo_cond_previouslybooked_restrict');
