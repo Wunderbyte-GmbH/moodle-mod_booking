@@ -485,6 +485,153 @@ final class condition_all_test extends advanced_testcase {
     }
 
     /**
+     * Regression test for cancellation path after a zero-price booking.
+     *
+     * A user books while assigned to a 0-price category (with displayemptyprice disabled),
+     * then their category changes to a positive price. Cancellation must still use the
+     * normal mod_booking self-cancel flow and not shopping cart cancellation.
+     *
+     * @covers \mod_booking\bo_availability\conditions\cancelmyself::render_button
+     *
+     * @param array $bdata
+     * @throws \coding_exception
+     * @throws \dml_exception
+     *
+     * @dataProvider booking_common_settings_provider
+     */
+    public function test_zero_price_booking_then_positive_price_category_uses_normal_cancel(array $bdata): void {
+        global $DB;
+
+        // Setup with self-cancel enabled.
+        $bdata['cancancelbook'] = 1;
+        set_config('coolingoffperiod', 0, 'booking');
+        if (class_exists('local_shopping_cart\\shopping_cart')) {
+            set_config('cancelationfee', 0, 'local_shopping_cart');
+        }
+
+        $this->setAdminUser();
+
+        // Price categories are resolved from a custom profile field.
+        $this->getDataGenerator()->create_custom_profile_field([
+            'datatype' => 'text',
+            'shortname' => 'pricecat',
+            'name' => 'pricecat',
+        ]);
+        set_config('pricecategoryfield', 'pricecat', 'booking');
+        set_config('displayemptyprice', 0, 'booking');
+
+        $course1 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $course2 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+
+        $student = $this->getDataGenerator()->create_user(['profile_field_pricecat' => 'zeroprice']);
+        $teacher = $this->getDataGenerator()->create_user();
+        $bookingmanager = $this->getDataGenerator()->create_user();
+
+        $bdata['course'] = $course1->id;
+        $bdata['bookingmanager'] = $bookingmanager->username;
+        $booking = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        $this->getDataGenerator()->enrol_user($student->id, $course1->id, 'student');
+        $this->getDataGenerator()->enrol_user($teacher->id, $course1->id, 'editingteacher');
+        $this->getDataGenerator()->enrol_user($bookingmanager->id, $course1->id, 'editingteacher');
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+
+        $plugingenerator->create_pricecategory((object) [
+            'ordernum' => 1,
+            'name' => 'default',
+            'identifier' => 'default',
+            'defaultvalue' => 50,
+            'pricecatsortorder' => 1,
+        ]);
+        $plugingenerator->create_pricecategory((object) [
+            'ordernum' => 2,
+            'name' => 'ZeroPrice',
+            'identifier' => 'zeroprice',
+            'defaultvalue' => 0,
+            'pricecatsortorder' => 2,
+        ]);
+        $plugingenerator->create_pricecategory((object) [
+            'ordernum' => 3,
+            'name' => 'RealPrice',
+            'identifier' => 'realprice',
+            'defaultvalue' => 100,
+            'pricecatsortorder' => 3,
+        ]);
+
+        $record = new stdClass();
+        $record->bookingid = $booking->id;
+        $record->text = 'Regression option';
+        $record->chooseorcreatecourse = 1;
+        $record->courseid = $course2->id;
+        $record->maxanswers = 2;
+        $record->useprice = 1;
+        $record->importing = 1;
+
+        $option = $plugingenerator->create_option($record);
+        $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
+        singleton_service::destroy_booking_singleton_by_cmid($settings->cmid);
+        $boinfo = new bo_info($settings);
+
+        // User with zero-price category can book directly when displayemptyprice is disabled.
+        $this->setUser($student);
+        singleton_service::destroy_user($student->id);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student->id);
+        $this->assertEquals(MOD_BOOKING_BO_COND_BOOKITBUTTON, $id);
+
+        // Confirm booking (two-step flow).
+        booking_bookit::bookit('option', $settings->id, $student->id);
+        booking_bookit::bookit('option', $settings->id, $student->id);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+
+        if (class_exists('local_shopping_cart\\shopping_cart')) {
+            $historyitem = shopping_cart_history::get_most_recent_historyitem('mod_booking', 'option', $settings->id, $student->id);
+            $this->assertTrue(empty($historyitem->id));
+        }
+
+        // Change user category after booking; current price becomes > 0.
+        $fieldid = $DB->get_field('user_info_field', 'id', ['shortname' => 'pricecat']);
+        $this->assertNotEmpty($fieldid);
+        $profiledataid = $DB->get_field('user_info_data', 'id', ['userid' => $student->id, 'fieldid' => $fieldid]);
+        $this->assertNotEmpty($profiledataid);
+        $DB->update_record('user_info_data', (object)[
+            'id' => $profiledataid,
+            'userid' => $student->id,
+            'fieldid' => $fieldid,
+            'data' => 'realprice',
+        ]);
+
+        singleton_service::destroy_user($student->id);
+        $this->assertEquals('realprice', $DB->get_field('user_info_data', 'data', ['id' => $profiledataid]));
+
+        // Force the render_button branch where shopping-cart cancellation was previously selected
+        // based on current price/display settings.
+        set_config('displayemptyprice', 1, 'booking');
+
+        // Must still render normal cancel path, not shopping-cart cancellation.
+        $buttons = booking_bookit::render_bookit_button($settings, $student->id);
+        $this->assertStringContainsString('Undo my booking', $buttons);
+        $this->assertStringNotContainsString('shopping-cart-cancel-button', $buttons);
+        $this->assertStringNotContainsString('Cancel purchase', $buttons);
+
+        // Cancel via normal booking flow.
+        booking_bookit::bookit('option', $settings->id, $student->id);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student->id, true);
+        $this->assertContains($id, [MOD_BOOKING_BO_COND_CONFIRMCANCEL, MOD_BOOKING_BO_COND_BOOKITBUTTON]);
+
+        if ($id === MOD_BOOKING_BO_COND_CONFIRMCANCEL) {
+            booking_bookit::bookit('option', $settings->id, $student->id);
+        }
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_BOOKITBUTTON, $id);
+
+        // Mandatory clean-up.
+        singleton_service::get_instance()->userpricecategory = [];
+    }
+
+    /**
      * Test of booking option with fallback different displayemptyprice settings.
      *
      * @covers \mod_booking\bo_availability\conditions\priceisset::is_available
