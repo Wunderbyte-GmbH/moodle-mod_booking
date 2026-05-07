@@ -30,6 +30,7 @@ use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_option_settings;
 use mod_booking\price;
 use mod_booking\singleton_service;
+use local_shopping_cart\shopping_cart_history;
 use MoodleQuickForm;
 
 defined('MOODLE_INTERNAL') || die();
@@ -130,10 +131,15 @@ class confirmcancel implements bo_condition {
             if (
                 $isavailable
                 && empty((float)($price['price'] ?? 0))
-                && empty(get_config('booking', 'displayemptyprice'))
             ) {
+                if (empty(get_config('booking', 'displayemptyprice'))) {
                 // We might want to override this, if there is a zero price.
-                $isavailable = false;
+                    $isavailable = false;
+                } else {
+                   if (isset($bookinginformation['iambooked']) && !self::has_shopping_cart_history_entry($settings->id, $userid)) {
+                        $isavailable = false;
+                    } 
+                }
             }
         }
 
@@ -169,6 +175,22 @@ class confirmcancel implements bo_condition {
         }
 
         return $isavailable;
+    }
+
+    /**
+     * Check whether this booking option was purchased via local shopping cart.
+     *
+     * @param int $optionid
+     * @param int $userid
+     * @return bool
+     */
+    private static function has_shopping_cart_history_entry(int $optionid, int $userid): bool {
+        if (!class_exists('local_shopping_cart\\shopping_cart_history')) {
+            return false;
+        }
+
+        $historyitem = shopping_cart_history::get_most_recent_historyitem('mod_booking', 'option', $optionid, $userid);
+        return !empty($historyitem->id);
     }
 
     /**
