@@ -64,22 +64,47 @@ class condition_visibility_manager {
         switch ($conditionid) {
             case MOD_BOOKING_BO_COND_JSON_ALLOWEDTOBOOKININSTANCE:
                 $this->disable_element($mform, 'bo_cond_allowedtobookininstance_restrict');
+                $this->disable_element($mform, 'bo_cond_allowedtobookininstance_capabilitynotneeded');
+                $this->disable_element($mform, 'bo_cond_allowedtobookininstance_overrideconditioncheckbox');
+                $this->disable_element($mform, 'bo_cond_allowedtobookininstance_overrideoperator');
+                $this->disable_element($mform, 'bo_cond_allowedtobookininstance_overridecondition');
                 break;
             case MOD_BOOKING_BO_COND_BOOKING_TIME:
                 $this->disable_element($mform, 'restrictanswerperiodopening');
+                $this->disable_element($mform, 'bookingopeningtime');
                 $this->disable_element($mform, 'restrictanswerperiodclosing');
+                $this->disable_element($mform, 'bookingclosingtime');
+                $this->disable_element($mform, 'bo_cond_booking_time_sqlfiltercheck');
                 break;
             case MOD_BOOKING_BO_COND_JSON_CUSTOMFORM:
                 $this->disable_element($mform, 'bo_cond_customform_restrict');
+                $this->disable_element($mform, 'bo_cond_customform_deleteinfoscheckboxadmin');
                 break;
             case MOD_BOOKING_BO_COND_JSON_ENROLLEDINCOHORTS:
                 $this->disable_element($mform, 'bo_cond_enrolledincohorts_restrict');
+                $this->disable_element($mform, 'bo_cond_enrolledincohorts_cohortids');
+                $this->disable_element($mform, 'bo_cond_enrolledincohorts_cohortids_operator');
+                $this->disable_element($mform, 'bo_cond_enrolledincohorts_sqlfiltercheck');
+                $this->disable_element($mform, 'bo_cond_enrolledincohorts_overrideconditioncheckbox');
+                $this->disable_element($mform, 'bo_cond_enrolledincohorts_overrideoperator');
+                $this->disable_element($mform, 'bo_cond_enrolledincohorts_overridecondition');
                 break;
             case MOD_BOOKING_BO_COND_JSON_ENROLLEDINCOURSE:
                 $this->disable_element($mform, 'bo_cond_enrolledincourse_restrict');
+                $this->disable_element($mform, 'bo_cond_enrolledincourse_courseids');
+                $this->disable_element($mform, 'bo_cond_enrolledincourse_courseids_operator');
+                $this->disable_element($mform, 'bo_cond_enrolledincourse_sqlfiltercheck');
+                $this->disable_element($mform, 'bo_cond_enrolledincourse_overrideconditioncheckbox');
+                $this->disable_element($mform, 'bo_cond_enrolledincourse_overrideoperator');
+                $this->disable_element($mform, 'bo_cond_enrolledincourse_overridecondition');
                 break;
             case MOD_BOOKING_BO_COND_JSON_HASCOMPETENCY:
                 $this->disable_element($mform, 'bo_cond_hascompetency_restrict');
+                $this->disable_element($mform, 'bo_cond_hascompetency_competencyids');
+                $this->disable_element($mform, 'bo_cond_hascompetency_competencyids_operator');
+                $this->disable_element($mform, 'bo_cond_hascompetency_overrideconditioncheckbox');
+                $this->disable_element($mform, 'bo_cond_hascompetency_overrideoperator');
+                $this->disable_element($mform, 'bo_cond_hascompetency_overridecondition');
                 break;
             case MOD_BOOKING_BO_COND_JSON_NOOVERLAPPING:
                 $this->disable_element($mform, 'bo_cond_nooverlapping_restrict');
@@ -87,15 +112,41 @@ class condition_visibility_manager {
                 break;
             case MOD_BOOKING_BO_COND_JSON_PREVIOUSLYBOOKED:
                 $this->disable_element($mform, 'bo_cond_previouslybooked_restrict');
+                $this->disable_element($mform, 'bo_cond_previouslybooked_optionid');
+                $this->disable_element($mform, 'bo_cond_previouslybooked_requirecompletion');
+                $this->disable_element($mform, 'bo_cond_previouslybooked_overrideconditioncheckbox');
+                $this->disable_element($mform, 'bo_cond_previouslybooked_overrideoperator');
+                $this->disable_element($mform, 'bo_cond_previouslybooked_overridecondition');
                 break;
             case MOD_BOOKING_BO_COND_JSON_SELECTUSERS:
                 $this->disable_element($mform, 'bo_cond_selectusers_restrict');
+                $this->disable_element($mform, 'bo_cond_selectusers_userids');
+                $this->disable_element($mform, 'bo_cond_selectusers_overrideconditioncheckbox');
+                $this->disable_element($mform, 'bo_cond_selectusers_overrideoperator');
+                $this->disable_element($mform, 'bo_cond_selectusers_overridecondition');
                 break;
             case MOD_BOOKING_BO_COND_JSON_USERPROFILEFIELD:
                 $this->disable_element($mform, 'bo_cond_userprofilefield_1_default_restrict');
+                $this->disable_element($mform, 'bo_cond_userprofilefield_field');
+                $this->disable_element($mform, 'bo_cond_userprofilefield_operator');
+                $this->disable_element($mform, 'bo_cond_userprofilefield_value');
+                $this->disable_element($mform, 'bo_cond_userprofilefield_overrideconditioncheckbox');
+                $this->disable_element($mform, 'bo_cond_userprofilefield_overrideoperator');
+                $this->disable_element($mform, 'bo_cond_userprofilefield_overridecondition');
                 break;
             case MOD_BOOKING_BO_COND_JSON_CUSTOMUSERPROFILEFIELD:
                 $this->disable_element($mform, 'bo_cond_userprofilefield_2_custom_restrict');
+                $this->disable_element($mform, 'bo_cond_customuserprofilefield_field');
+                $this->disable_element($mform, 'bo_cond_customuserprofilefield_operator');
+                $this->disable_element($mform, 'bo_cond_customuserprofilefield_value');
+                $this->disable_element($mform, 'bo_cond_customuserprofilefield_connectsecondfield');
+                $this->disable_element($mform, 'bo_cond_customuserprofilefield_field2');
+                $this->disable_element($mform, 'bo_cond_customuserprofilefield_operator2');
+                $this->disable_element($mform, 'bo_cond_customuserprofilefield_value2');
+                $this->disable_element($mform, 'bo_cond_customuserprofilefield_sqlfiltercheck');
+                $this->disable_element($mform, 'bo_cond_customuserprofilefield_overrideconditioncheckbox');
+                $this->disable_element($mform, 'bo_cond_customuserprofilefield_overrideoperator');
+                $this->disable_element($mform, 'bo_cond_customuserprofilefield_overridecondition');
                 break;
         }
     }
@@ -111,22 +162,47 @@ class condition_visibility_manager {
         switch ($conditionid) {
             case MOD_BOOKING_BO_COND_JSON_ALLOWEDTOBOOKININSTANCE:
                 $this->hide_element($mform, 'bo_cond_allowedtobookininstance_restrict');
+                $this->hide_element($mform, 'bo_cond_allowedtobookininstance_capabilitynotneeded');
+                $this->hide_element($mform, 'bo_cond_allowedtobookininstance_overrideconditioncheckbox');
+                $this->hide_element($mform, 'bo_cond_allowedtobookininstance_overrideoperator');
+                $this->hide_element($mform, 'bo_cond_allowedtobookininstance_overridecondition');
                 break;
             case MOD_BOOKING_BO_COND_BOOKING_TIME:
                 $this->hide_element($mform, 'restrictanswerperiodopening');
+                $this->hide_element($mform, 'bookingopeningtime');
                 $this->hide_element($mform, 'restrictanswerperiodclosing');
+                $this->hide_element($mform, 'bookingclosingtime');
+                $this->hide_element($mform, 'bo_cond_booking_time_sqlfiltercheck');
                 break;
             case MOD_BOOKING_BO_COND_JSON_CUSTOMFORM:
                 $this->hide_element($mform, 'bo_cond_customform_restrict');
+                $this->hide_element($mform, 'bo_cond_customform_deleteinfoscheckboxadmin');
                 break;
             case MOD_BOOKING_BO_COND_JSON_ENROLLEDINCOHORTS:
                 $this->hide_element($mform, 'bo_cond_enrolledincohorts_restrict');
+                $this->hide_element($mform, 'bo_cond_enrolledincohorts_cohortids');
+                $this->hide_element($mform, 'bo_cond_enrolledincohorts_cohortids_operator');
+                $this->hide_element($mform, 'bo_cond_enrolledincohorts_sqlfiltercheck');
+                $this->hide_element($mform, 'bo_cond_enrolledincohorts_overrideconditioncheckbox');
+                $this->hide_element($mform, 'bo_cond_enrolledincohorts_overrideoperator');
+                $this->hide_element($mform, 'bo_cond_enrolledincohorts_overridecondition');
                 break;
             case MOD_BOOKING_BO_COND_JSON_ENROLLEDINCOURSE:
                 $this->hide_element($mform, 'bo_cond_enrolledincourse_restrict');
+                $this->hide_element($mform, 'bo_cond_enrolledincourse_courseids');
+                $this->hide_element($mform, 'bo_cond_enrolledincourse_courseids_operator');
+                $this->hide_element($mform, 'bo_cond_enrolledincourse_sqlfiltercheck');
+                $this->hide_element($mform, 'bo_cond_enrolledincourse_overrideconditioncheckbox');
+                $this->hide_element($mform, 'bo_cond_enrolledincourse_overrideoperator');
+                $this->hide_element($mform, 'bo_cond_enrolledincourse_overridecondition');
                 break;
             case MOD_BOOKING_BO_COND_JSON_HASCOMPETENCY:
                 $this->hide_element($mform, 'bo_cond_hascompetency_restrict');
+                $this->hide_element($mform, 'bo_cond_hascompetency_competencyids');
+                $this->hide_element($mform, 'bo_cond_hascompetency_competencyids_operator');
+                $this->hide_element($mform, 'bo_cond_hascompetency_overrideconditioncheckbox');
+                $this->hide_element($mform, 'bo_cond_hascompetency_overrideoperator');
+                $this->hide_element($mform, 'bo_cond_hascompetency_overridecondition');
                 break;
             case MOD_BOOKING_BO_COND_JSON_NOOVERLAPPING:
                 $this->hide_element($mform, 'bo_cond_nooverlapping_restrict');
@@ -134,15 +210,41 @@ class condition_visibility_manager {
                 break;
             case MOD_BOOKING_BO_COND_JSON_PREVIOUSLYBOOKED:
                 $this->hide_element($mform, 'bo_cond_previouslybooked_restrict');
+                $this->hide_element($mform, 'bo_cond_previouslybooked_optionid');
+                $this->hide_element($mform, 'bo_cond_previouslybooked_requirecompletion');
+                $this->hide_element($mform, 'bo_cond_previouslybooked_overrideconditioncheckbox');
+                $this->hide_element($mform, 'bo_cond_previouslybooked_overrideoperator');
+                $this->hide_element($mform, 'bo_cond_previouslybooked_overridecondition');
                 break;
             case MOD_BOOKING_BO_COND_JSON_SELECTUSERS:
                 $this->hide_element($mform, 'bo_cond_selectusers_restrict');
+                $this->hide_element($mform, 'bo_cond_selectusers_userids');
+                $this->hide_element($mform, 'bo_cond_selectusers_overrideconditioncheckbox');
+                $this->hide_element($mform, 'bo_cond_selectusers_overrideoperator');
+                $this->hide_element($mform, 'bo_cond_selectusers_overridecondition');
                 break;
             case MOD_BOOKING_BO_COND_JSON_USERPROFILEFIELD:
                 $this->hide_element($mform, 'bo_cond_userprofilefield_1_default_restrict');
+                $this->hide_element($mform, 'bo_cond_userprofilefield_field');
+                $this->hide_element($mform, 'bo_cond_userprofilefield_operator');
+                $this->hide_element($mform, 'bo_cond_userprofilefield_value');
+                $this->hide_element($mform, 'bo_cond_userprofilefield_overrideconditioncheckbox');
+                $this->hide_element($mform, 'bo_cond_userprofilefield_overrideoperator');
+                $this->hide_element($mform, 'bo_cond_userprofilefield_overridecondition');
                 break;
             case MOD_BOOKING_BO_COND_JSON_CUSTOMUSERPROFILEFIELD:
                 $this->hide_element($mform, 'bo_cond_userprofilefield_2_custom_restrict');
+                $this->hide_element($mform, 'bo_cond_customuserprofilefield_field');
+                $this->hide_element($mform, 'bo_cond_customuserprofilefield_operator');
+                $this->hide_element($mform, 'bo_cond_customuserprofilefield_value');
+                $this->hide_element($mform, 'bo_cond_customuserprofilefield_connectsecondfield');
+                $this->hide_element($mform, 'bo_cond_customuserprofilefield_field2');
+                $this->hide_element($mform, 'bo_cond_customuserprofilefield_operator2');
+                $this->hide_element($mform, 'bo_cond_customuserprofilefield_value2');
+                $this->hide_element($mform, 'bo_cond_customuserprofilefield_sqlfiltercheck');
+                $this->hide_element($mform, 'bo_cond_customuserprofilefield_overrideconditioncheckbox');
+                $this->hide_element($mform, 'bo_cond_customuserprofilefield_overrideoperator');
+                $this->hide_element($mform, 'bo_cond_customuserprofilefield_overridecondition');
                 break;
         }
     }
