@@ -158,6 +158,16 @@ class notifymelist implements bo_condition {
             } else if (isset($usersonwaitinglist[$userid])) {
                 // If the user is already booked on waitinglist, this is also true.
                 $isavailable = true;
+            } else if (
+                isset($bookinginformation['iambooked'])
+                && !empty($settings->jsonobject->multiplebookings ?? 0)
+            ) {
+                // User is already booked but multiple bookings (book-again) is enabled.
+                // The notification list must not block re-booking.
+                $isavailable = true;
+            } else if (isset($bookinginformation['iamreserved'])) {
+                // User already holds a reservation for this option; the notify-me button is irrelevant.
+                $isavailable = true;
             }
         }
 

@@ -2345,6 +2345,127 @@ final class condition_all_test extends advanced_testcase {
     }
 
     /**
+     * Test notifymelist::is_available() for all relevant booking states.
+     *
+     * Covers:
+     * - not-booked user when fully booked → blocked
+     * - iambooked user, multiplebookings OFF → still blocked
+     * - iambooked user, multiplebookings ON  → not blocked (book-again path)
+     * - iamreserved user                     → not blocked
+     * - user on waitinglist                  → not blocked (pre-existing behaviour)
+     *
+     * @covers \mod_booking\bo_availability\conditions\notifymelist::is_available
+     *
+     * @param array $bdata
+     * @throws \coding_exception
+     * @throws \dml_exception
+     *
+     * @dataProvider booking_common_settings_provider
+     */
+    public function test_notifymelist_blocks_correctly(array $bdata): void {
+        global $DB;
+
+        $bdata['cancancelbook'] = 1;
+
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+
+        $student1 = $this->getDataGenerator()->create_user(); // Will be booked (iambooked).
+        $student2 = $this->getDataGenerator()->create_user(); // Never booked (notbooked).
+        $student3 = $this->getDataGenerator()->create_user(); // Will be on waitinglist.
+        $reserveduser = $this->getDataGenerator()->create_user(); // Will be reserved via direct DB insert.
+
+        $bdata['course'] = $course->id;
+        $booking = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        $this->setAdminUser();
+        $this->getDataGenerator()->enrol_user($student1->id, $course->id);
+        $this->getDataGenerator()->enrol_user($student2->id, $course->id);
+        $this->getDataGenerator()->enrol_user($student3->id, $course->id);
+        $this->getDataGenerator()->enrol_user($reserveduser->id, $course->id);
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+
+        $record = new stdClass();
+        $record->bookingid = $booking->id;
+        $record->text = 'Test option notifymelist';
+        $record->courseid = 0;
+        $record->maxanswers = 1;  // Only 1 spot → will be fully booked after student1 books.
+        $record->maxoverbooking = 1; // 1 waitinglist spot.
+        $option1 = $plugingenerator->create_option($record);
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
+        singleton_service::destroy_booking_singleton_by_cmid($settings->cmid);
+        $boinfo = new bo_info($settings);
+
+        // Book student1 → option is now fully booked.
+        $this->setAdminUser();
+        $result = booking_bookit::bookit('option', $settings->id, $student1->id);
+        $result = booking_bookit::bookit('option', $settings->id, $student1->id);
+        [$id] = $boinfo->is_available($settings->id, $student1->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+
+        // Put student3 on the waitinglist.
+        $this->setUser($student3);
+        booking_bookit::bookit('option', $settings->id, $student3->id);
+        booking_bookit::bookit('option', $settings->id, $student3->id);
+        [$id] = $boinfo->is_available($settings->id, $student3->id, false);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
+
+        // Enable the notification list.
+        $this->setAdminUser();
+        set_config('usenotificationlist', 1, 'booking');
+        singleton_service::destroy_booking_singleton_by_cmid($settings->cmid);
+        $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
+
+        $condition = new \mod_booking\bo_availability\conditions\notifymelist();
+
+        // Case 1: student2 is not booked, option is fully booked → notifymelist BLOCKS.
+        $this->setUser($student2);
+        $this->assertFalse($condition->is_available($settings, $student2->id));
+
+        // Case 2: student1 is booked, multiplebookings OFF → notifymelist still BLOCKS.
+        $this->setUser($student1);
+        $this->assertFalse($condition->is_available($settings, $student1->id));
+
+        // Case 3: student1 is booked, multiplebookings ON → notifymelist does NOT block.
+        $this->setAdminUser();
+        $record->id = $option1->id;
+        $record->multiplebookings = 1;
+        $record->cmid = $settings->cmid;
+        booking_option::update($record);
+        singleton_service::destroy_booking_singleton_by_cmid($settings->cmid);
+        $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
+
+        $this->setUser($student1);
+        $this->assertTrue($condition->is_available($settings, $student1->id));
+
+        // Case 4: reserveduser has a reservation (direct DB insert) → notifymelist does NOT block.
+        $DB->insert_record('booking_answers', (object)[
+            'bookingid' => $booking->id,
+            'optionid' => $option1->id,
+            'userid' => $reserveduser->id,
+            'waitinglist' => MOD_BOOKING_STATUSPARAM_RESERVED,
+            'timebooked' => time(),
+            'timemodified' => time(),
+            'timecreated' => time(),
+        ]);
+        // Purge the booking_answers singleton and its Moodle cache so the direct DB insert is visible.
+        booking_option::purge_cache_for_answers($option1->id);
+        singleton_service::destroy_booking_singleton_by_cmid($settings->cmid);
+        $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
+
+        $this->setUser($reserveduser);
+        $this->assertTrue($condition->is_available($settings, $reserveduser->id));
+
+        // Case 5: student3 is on the waitinglist → notifymelist does NOT block (pre-existing behaviour).
+        $this->setUser($student3);
+        singleton_service::destroy_booking_singleton_by_cmid($settings->cmid);
+        $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
+        $this->assertTrue($condition->is_available($settings, $student3->id));
+    }
+
+    /**
      * Data provider for condition_bookingpolicy_test
      *
      * @return array
