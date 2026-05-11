@@ -54,6 +54,32 @@ $context = context_module::instance($cm->id);
 
 require_capability('mod/booking:view', $context);
 
+// Block site admins if legacy mail templates are still enabled but the removal has not been acknowledged.
+// This can be removed in a future release once legacy mails have been removed completely.
+if (
+    is_siteadmin()
+    && !empty(get_config('booking', 'uselegacymailtemplates'))
+    && empty(get_config('booking', 'legacymailremovalacknowledged'))
+) {
+    $settingsurl = new moodle_url(
+        '/admin/settings.php',
+        ['section' => 'modsettingbooking'],
+        'admin-uselegacymailtemplates'
+    );
+    $PAGE->set_url(new moodle_url('/mod/booking/view.php', ['id' => $cmid]));
+    $PAGE->set_context($context);
+    $PAGE->set_title(get_string('modulename', 'mod_booking'));
+    $PAGE->set_heading(get_string('modulename', 'mod_booking'));
+    echo $OUTPUT->header();
+    echo $OUTPUT->notification(
+        get_string('upgrade:legacymailacknowledgementrequired', 'mod_booking', $settingsurl->out()),
+        \core\output\notification::NOTIFY_WARNING,
+        false
+    );
+    echo $OUTPUT->footer();
+    exit;
+}
+
 // URL params.
 $urlparams = [
     'id' => $cmid,

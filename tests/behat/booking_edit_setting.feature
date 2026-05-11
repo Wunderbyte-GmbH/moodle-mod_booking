@@ -237,7 +237,6 @@ Feature: Edit booking's organizer, info and semester settings as a teacher or ad
     And I should see "Booking confirmation" in the "#id_emailsettings" "css_element"
     And I should see "Teacher notification before start" in the "#id_emailsettings" "css_element"
     And I should see "Status change message" in the "#id_emailsettings" "css_element"
-    ## Disable legacy mail templates directly to avoid JS timeout from TinyMCE editors (Bootstrap 5 / Moodle 5.1+)
     And the following config values are set as admin:
       | config                 | value | plugin  |
       | uselegacymailtemplates | 0     | booking |

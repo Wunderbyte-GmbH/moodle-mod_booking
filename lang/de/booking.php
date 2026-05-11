@@ -1711,8 +1711,8 @@ $string['lblsputtname'] = 'Alternative Bezeichnung für "Umfragelink an Trainer:
 $string['lblsurname'] = 'Bezeichnung für: Nachname';
 $string['lblteachname'] = 'Alternative Bezeichnung für "Trainer:in" verwenden';
 $string['leftandrightdate'] = '{$a->leftdate} bis {$a->righttdate}';
-$string['legacymailremovalacknowledged'] = 'Ich verstehe, dass die veralteten E-Mail-Vorlagen in naher Zukunft entfernt werden, und verpflichte mich, zu Buchungsregeln zu migrieren';
-$string['legacymailremovalacknowledged_desc'] = 'Sie verwenden noch die veralteten Legacy-E-Mail-Vorlagen. Bitte bestätigen Sie, dass Sie sich der bevorstehenden Entfernung bewusst sind und Ihre E-Mail-Vorlagen rechtzeitig zu <a href="{$a}">Buchungsregeln</a> migrieren werden. Diese Bestätigung ist erforderlich, um das Plugin-Upgrade abzuschließen.';
+$string['legacymailremovalacknowledged'] = 'Ich verstehe, dass die veralteten E-Mail-Vorlagen in naher Zukunft entfernt werden, und dass ich entsprechende Buchungsregeln einrichten muss, um die Funktionalität meiner E-Mail-Benachrichtigungen zu gewährleisten.';
+$string['legacymailremovalacknowledged_desc'] = 'Sie verwenden noch die veralteten Legacy-E-Mail-Vorlagen. Bitte bestätigen Sie, dass Sie sich der bevorstehenden Entfernung bewusst sind und Ihre E-Mail-Vorlagen rechtzeitig zu <a href="{$a}">Buchungsregeln</a> migrieren werden.';
 $string['licenseactivated'] = 'PRO-Version wurde erfolgreich aktiviert.<br>(Läuft ab am: {$a})';
 $string['licenseexpired'] = 'PRO-Version ist abgelaufen ({$a}).
 <a href="https://showroom.wunderbyte.at/course/view.php?id=62" target="_blank">
@@ -2984,8 +2984,8 @@ $string['unsubscribe:successnotificationlist'] = 'Sie wurden erfolgreich von den
 $string['until'] = 'Bis';
 $string['updatebooking'] = 'Update Buchung';
 $string['updatedrecords'] = '{$a} Eintrag/Einträge aktualisiert.';
+$string['upgrade:legacymailacknowledgementrequired'] = 'Sie verwenden noch veraltete E-Mail-Vorlagen, haben jedoch nicht bestätigt, dass Sie die bevorstehende Entfernung zur Kenntnis genommen haben. Bitte gehen Sie zu den <a href="{$a}">Booking-Plugin-Einstellungen</a>, aktivieren Sie die Bestätigungs-Checkbox und speichern Sie.';
 $string['uploadheaderimages'] = 'Header-Bilder für Buchungsoptionen';
-$string['upgrade:legacymailacknowledgementrequired'] = 'Sie verwenden noch veraltete E-Mail-Vorlagen, haben jedoch nicht bestätigt, dass Sie die bevorstehende Entfernung zur Kenntnis genommen haben. Bitte gehen Sie zu den <a href="{$a}">Booking-Plugin-Einstellungen</a>, aktivieren Sie die Bestätigungs-Checkbox und speichern Sie, bevor Sie das Upgrade durchführen.';
 $string['usecompetencies'] = 'Kompetenzen verwenden';
 $string['usecompetencies_desc'] = 'Buchungsoptionen können mit Kompetenzen versehen und entsprechend dieser Zuweisungen gruppiert angezeigt werden';
 $string['useconfirmationworkflowheader'] = 'Bestätigungs-Workflow-Überschrift verwenden';

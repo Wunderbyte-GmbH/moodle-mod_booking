@@ -2619,14 +2619,11 @@ if ($ADMIN->fulltree) {
             0
         )
     );
-
-    $url = new moodle_url('/admin/settings.php', ['section' => 'modsettingbooking']);
-    $linktosettings = $url->out();
     $settings->add(
         new admin_setting_configcheckbox(
             'booking/legacymailremovalacknowledged',
             get_string('legacymailremovalacknowledged', 'mod_booking'),
-            get_string('legacymailremovalacknowledged_desc', 'mod_booking', $linktosettings),
+            get_string('legacymailremovalacknowledged_desc', 'mod_booking', $linktorules),
             0
         )
     );
