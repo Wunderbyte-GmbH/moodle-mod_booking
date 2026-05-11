@@ -1747,6 +1747,8 @@ $string['lblsputtname'] = 'Name of label: Send poll url to teachers';
 $string['lblsurname'] = 'Name of label: Surname';
 $string['lblteachname'] = 'Name of label: Teachers';
 $string['leftandrightdate'] = '{$a->leftdate} to {$a->righttdate}';
+$string['legacymailremovalacknowledged'] = 'I understand that legacy email templates will be removed in the near future and I commit to migrating to Booking Rules';
+$string['legacymailremovalacknowledged_desc'] = 'You are still using the deprecated legacy email templates. Please confirm that you are aware of the upcoming removal and that you will migrate your email templates to <a href="{$a}">Booking Rules</a> in time. This confirmation is required to complete the plugin upgrade.';
 $string['licenseactivated'] = 'PRO version activated successfully.<br>(Expires: {$a})';
 $string['licenseexpired'] = 'PRO version has expired ({$a}).
 <a href="https://showroom.wunderbyte.at/course/view.php?id=62" target="_blank">
@@ -3116,6 +3118,7 @@ $string['until'] = 'Until';
 $string['updatebooking'] = 'Update booking';
 $string['updatedrecords'] = '{$a} record(s) updated.';
 $string['uploadheaderimages'] = 'Header images for booking options';
+$string['upgrade:legacymailacknowledgementrequired'] = 'You are still using legacy email templates but have not confirmed that you are aware of the upcoming removal. Please go to <a href="{$a}">Booking plugin settings</a>, check the acknowledgement checkbox and save before upgrading.';
 $string['usecompetencies'] = 'Use competencies';
 $string['usecompetencies_desc'] = 'Booking options can be tagged with competencies and sorted accordingly';
 $string['useconfirmationworkflowheader'] = 'Use confirmation workflow header';

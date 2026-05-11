@@ -2620,6 +2620,23 @@ if ($ADMIN->fulltree) {
         )
     );
 
+    $url = new moodle_url('/admin/settings.php', ['section' => 'modsettingbooking']);
+    $linktosettings = $url->out();
+    $settings->add(
+        new admin_setting_configcheckbox(
+            'booking/legacymailremovalacknowledged',
+            get_string('legacymailremovalacknowledged', 'mod_booking'),
+            get_string('legacymailremovalacknowledged_desc', 'mod_booking', $linktosettings),
+            0
+        )
+    );
+    $settings->hide_if(
+        'booking/legacymailremovalacknowledged',
+        'booking/uselegacymailtemplates',
+        'eq',
+        0
+    );
+
     if (!empty(get_config('booking', 'uselegacymailtemplates'))) {
         $settings->add(
             new admin_setting_confightmleditor(
