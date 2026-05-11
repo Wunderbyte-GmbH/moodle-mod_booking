@@ -109,9 +109,9 @@ Feature: Teacher profile option visibility follows visibility mode setting
       | activity | course | name       | intro                  | bookingmanager | eventtype | Default view for booking options |
       | booking  | C2     | My booking | My booking description | admin1         | Webinar   | All bookings                     |
     And the following "mod_booking > options" exist:
-      | booking    | text                        | course | description | teachersforoption | invisible |
-      | My booking | Option only in first tab    | C1     | Option desc | teacher1          | 0         |
-      | My booking | Option only in second tab   | C2     | Option desc | teacher1          | 0         |
+      | booking        | text                       | course | description | teachersforoption | invisible |
+      | My booking::C1 | Option only in second tab  | C1     | Option desc | teacher1          | 0         |
+      | My booking::C2 | Option only in first tab   | C2     | Option desc | teacher1          | 0         |
     And I log in as "teacher1"
     When I visit "/mod/booking/teachers.php"
     And I click on "One Teacher" "text" in the "#region-main .row" "css_element"
