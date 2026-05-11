@@ -42,6 +42,7 @@ use context_system;
 use context_module;
 use dml_exception;
 use html_writer;
+use local_wunderbyte_table\output\table;
 use local_wunderbyte_table\wunderbyte_table;
 use moodle_exception;
 use moodle_url;
@@ -76,6 +77,12 @@ class bookingoptions_wbtable extends wunderbyte_table {
      * @var array
      */
     public $customfieldsinfoarray = [];
+
+    /**
+     * Whether to show the favorites toggle button. Default false (hidden in shortcode context).
+     * @var bool
+     */
+    public bool $showfavoritestoggle = false;
 
     /**
      * Store additional columns information.
@@ -1053,7 +1060,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
             booking_check_if_teacher($values));
 
         $ddoptions = [];
-        $ret = '<div class="menubar pe-2" id="action-menu-' . $optionid . '-menubar" role="menubar">';
+        $ret = '<div class="menubar p-1" id="action-menu-' . $optionid . '-menubar" role="menubar">';
 
         if ($status == MOD_BOOKING_STATUSPARAM_BOOKED) {
             $ret .= html_writer::link(
@@ -1061,10 +1068,12 @@ class bookingoptions_wbtable extends wunderbyte_table {
                     '/mod/booking/viewconfirmation.php',
                     ['id' => $cmid, 'optionid' => $optionid]
                 ),
-                $OUTPUT->pix_icon('t/print', get_string('bookedtext', 'mod_booking')),
+                '<i class="icon fa fa-print fa-fw me-1" aria-hidden="true" title="' .
+                    get_string('bookedtext', 'mod_booking') .
+                '"></i>',
                 [
                     'target' => '_blank',
-                    'class' => 'text-primary pe-3',
+                    'class' => 'text-primary',
                     'aria-label' => get_string('bookedtext', 'mod_booking'),
                 ]
             );
@@ -1081,7 +1090,9 @@ class bookingoptions_wbtable extends wunderbyte_table {
                         'returnurl' => $returnurl,
                     ]
                 ),
-                $OUTPUT->pix_icon('i/edit', get_string('editbookingoption', 'mod_booking')),
+                '<i class="icon fa fa-pen fa-fw me-1" aria-hidden="true" title="' .
+                    get_string('editbookingoption', 'mod_booking') .
+                '"></i>',
                 [
                     'target' => '_self',
                     'class' => 'text-primary',
@@ -1134,6 +1145,17 @@ class bookingoptions_wbtable extends wunderbyte_table {
                     '" title="' . get_string('bookingstracker', 'mod_booking') . '" >
                     </i>' .
                     get_string('bookingstracker', 'mod_booking')
+                ) . '</div>';
+            }
+
+            if (isloggedin() && !isguestuser() && $this->showfavoritestoggle) {
+                $isfavorite = booking_option::user_has_favorite($USER->id, $optionid);
+                $ddoptions[] = '<div class="dropdown-item">' . $this->render_toggle_favorite_action_button(
+                    $optionid,
+                    $USER->id,
+                    $isfavorite,
+                    '',
+                    get_string($isfavorite ? 'removeoptionfromfavorites' : 'addoptiontofavorites', 'mod_booking')
                 ) . '</div>';
             }
 
@@ -1362,21 +1384,6 @@ class bookingoptions_wbtable extends wunderbyte_table {
                     get_string('deletethisbookingoption', 'mod_booking')
                 ) . '</div>';
             }
-            // phpcs:ignore moodle.Commenting.TodoComment.MissingInfoInline
-            // TODO: Move booking options to another option currently does not work correcly.
-            // We temporarily remove it from booking until we are sure, it works.
-            // We need to make sure it works for: teachers, optiondates, prices, answers customfields etc.
-            // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-            /* $modinfo = get_fast_modinfo($this->booking->course);
-            $bookinginstances = isset($modinfo->instances['booking']) ? count($modinfo->instances['booking']) : 0;
-            if (has_capability('mod/booking:updatebooking', context_course::instance($this->booking->course->id)) &&
-                $bookinginstances > 1) {
-                $ddoptions[] = '<div class="dropdown-item">' . html_writer::link(
-                        new moodle_url('/mod/booking/moveoption.php',
-                            array('id' => $cmid, 'optionid' => $optionid, 'sesskey' => sesskey())),
-                        $OUTPUT->pix_icon('t/move', get_string('moveoptionto', 'booking')) .
-                        get_string('moveoptionto', 'booking')) . '</div>';
-            } */
         }
         foreach (core_plugin_manager::instance()->get_plugins_of_type('bookingextension') as $plugin) {
             $class = "\\bookingextension_{$plugin->name}\\{$plugin->name}";
@@ -1388,13 +1395,27 @@ class bookingoptions_wbtable extends wunderbyte_table {
                 $ddoptions[] = $ddoptionsfromplugin;
             }
         }
+
+        // Add option to toggle favorite for users who are logged in and not guests.
+        // It must be shown for everyone who can see the booking option, so we put it outside of the capability check.
+        if (isloggedin() && !isguestuser() && $this->showfavoritestoggle) {
+            $isfavorite = booking_option::user_has_favorite($USER->id, $optionid);
+            $ret .= $this->render_toggle_favorite_action_button(
+                $optionid,
+                $USER->id,
+                $isfavorite,
+                'text-primary',
+            );
+        }
+
         if (!empty($ddoptions)) {
             $ret .= '<div class="dropdown d-inline">
-                    <button class="bookingoption-edit-button dropdown-toggle btn btn-light btn-sm" id="action-menu-toggle-' .
+                    <button class="bookingoption-edit-button dropdown-toggle btn btn-light btn-sm text-primary ms-1"
+                        id="action-menu-toggle-' .
                         $optionid .
                         '" title="" role="button" data-toggle="dropdown" data-bs-toggle="dropdown"
                         aria-haspopup="true" aria-expanded="false">
-                        <i class="icon fa fa-cog fa-fw" aria-hidden="true"
+                        <i class="icon fa fa-cog me-0" aria-hidden="true"
                             aria-label="' . get_string('settings') . '" title="' . get_string('settings') . '" >
                         </i>
                     </button>
@@ -1409,6 +1430,54 @@ class bookingoptions_wbtable extends wunderbyte_table {
         $ret .= '</div>';
 
         return $ret;
+    }
+
+    /**
+     * Render a wunderbyte action button used to toggle favorites.
+     *
+     * @param int $optionid
+     * @param int $userid
+     * @param bool $isfavorite
+     * @param string $class
+     * @param string $label
+     * @return string
+     */
+    protected function render_toggle_favorite_action_button(
+        int $optionid,
+        int $userid,
+        bool $isfavorite,
+        string $class,
+        string $label = ''
+    ): string {
+        global $OUTPUT;
+
+        $titlestring = get_string($isfavorite ? 'removeoptionfromfavorites' : 'addoptiontofavorites', 'mod_booking');
+        $ontitlestring = get_string('removeoptionfromfavorites', 'mod_booking');
+        $offtitlestring = get_string('addoptiontofavorites', 'mod_booking');
+
+        $data[] = [
+            'label' => $label,
+            'class' => $class,
+            'iclass' => 'icon ' .  ($isfavorite ? 'fa-star' : 'fa-star-o'),
+            'arialabel' => $titlestring,
+            'title' => $titlestring,
+            'ontitle' => $ontitlestring,
+            'offtitle' => $offtitlestring,
+            'id' => $optionid,
+            'name' => 'toggle-favorite-' . $optionid,
+            'methodname' => 'toggle_favorite',
+            'nomodal' => true,
+            'selectionmandatory' => false,
+            'data' => [
+                'userid' => $userid,
+                'itemid' => $optionid,
+                'favorited' => $isfavorite ? 1 : 0,
+            ],
+        ];
+
+        table::transform_actionbuttons_array($data);
+
+        return $OUTPUT->render_from_template('mod_booking/actionbutton/bookingfavorite', ['showactionbuttons' => $data]);
     }
 
     /**
@@ -1687,5 +1756,142 @@ class bookingoptions_wbtable extends wunderbyte_table {
             }
         }
         return $values->$colname ?? '';
+    }
+
+    /**
+     * Override recreateidstring to include display-only properties in the APPLICATION cache key.
+     *
+     * The wunderbyte_table encodedtables APPLICATION cache key is derived from the SQL hash only.
+     * Two shortcode invocations with identical SQL but different display settings would therefore
+     * collide in the APPLICATION cache (shared across all users/sessions). When the AJAX reload
+     * fires after an action (e.g. favorites toggle), it loads the cached table object — which
+     * might be the stale version without the correct display settings.
+     *
+     * By appending all display-only properties to the idstring, each unique display configuration
+     * gets its own APPLICATION cache entry, preventing stale AJAX reloads. This includes
+     * showdownloadbutton which is capability-based and must not leak between admin and regular users.
+     *
+     * tabletemplate and templatedata are included ONLY when the template switcher is NOT active.
+     * When the template switcher is active, these properties change at runtime via action_switchtemplates
+     * which calls return_encoded_table(true) → recreateidstring(). Including them would produce a new
+     * tablecachehash on every template change, making the old hash — still held by the JS
+     * queries[idstring].encodedtable — point to a deleted cache entry, so reloadAllTables would fail.
+     * When there is no switcher (e.g. [myfavorites type=imageright]), these properties are static
+     * configuration that must be in the hash to prevent collisions between differently-configured
+     * shortcode instances with identical SQL.
+     */
+    public function recreateidstring(): void {
+        parent::recreateidstring();
+
+        /* Append all display-only properties that can differ between shortcode invocations
+        with identical SQL but different args (favorites=1, etc.) or capabilities.
+        For myfavoritestable we include the full uniqueid rather than just a '1' flag.
+        Two myfavoritestable instances can have identical SQL/context/template but live in
+        different render contexts (shortcode vs view.php tab). Their uniqueids differ
+        (e.g. "{md5pageurl} myfavoritestable0" vs "cmid_N_userid_N myfavoritestable"), so
+        including the uniqueid gives each instance its own APPLICATION cache slot and its
+        own JS queries[idstring] entry.  Without this, a template-switcher action on one
+        table silently overwrites queries[idstring].encodedtable for the other, causing the
+        wrong template to be used on the next reloadAllTables call. */
+        $myfavoriteskey = strpos($this->uniqueid, 'myfavoritestable') !== false
+            ? 'myfavoritestable' : '0';
+
+        $realuniquestring =
+            ($this->showfavoritestoggle ? '1' : '0') . '|' .
+            ($this->showreloadbutton ? '1' : '0') . '|' .
+            ($this->showdownloadbutton ? '1' : '0') . '|' .
+            ($this->showcountlabel ? '1' : '0') . '|' .
+            ($this->showfilterontop ? '1' : '0') . '|' .
+            ($this->filteronloadinactive ? '1' : '0') . '|' .
+            $myfavoriteskey;
+
+        // Only include tabletemplate and templatedata when there is no active template switcher.
+        // With a switcher, these change dynamically and must not alter the cache key (see docblock).
+        if (empty($this->switchtemplates['templates'])) {
+            $realuniquestring .=
+                '|' . ($this->tabletemplate ?? '') .
+                '|' . json_encode($this->templatedata ?? []);
+        }
+
+        $this->idstring = md5($this->idstring . $realuniquestring);
+    }
+
+    /**
+     * Override query_db_cached to inject the favorites IN-clause from the current
+     * user preference just before each query. The myfavoritestable SQL stored in
+     * the APPLICATION cache contains no baked-in option IDs; this method supplies
+     * them dynamically so the result is always current without any cache patching.
+     *
+     * bypasscache = true ensures the rawdata SESSION cache is never used for the
+     * favorites table (user requirement: "should not be cached").
+     *
+     * @param int $pagesize
+     * @param bool $useinitialsbar
+     * @return void
+     */
+    public function query_db_cached($pagesize, $useinitialsbar = true) {
+        global $DB, $USER;
+
+        if (strpos($this->uniqueid, 'myfavoritestable') !== false) {
+            // Always query fresh — never serve stale cached results.
+            $this->bypasscache = true;
+
+            $favoriteoptionids = booking_option::get_user_favorite_optionids($USER->id);
+            if (empty($favoriteoptionids)) {
+                // Keep SQL valid for empty favorites.
+                $favoriteoptionids = [0];
+            }
+
+            [$inoptionids, $inparams] = $DB->get_in_or_equal(
+                $favoriteoptionids,
+                SQL_PARAMS_NAMED,
+                'favopt'
+            );
+
+            $this->sql->params = array_merge($this->sql->params, $inparams);
+
+            // Always append a fresh IN-clause for the current user's favorites.
+            $this->sql->where .= " AND id $inoptionids";
+        }
+
+        parent::query_db_cached($pagesize, $useinitialsbar);
+    }
+
+    /**
+     * Toggle star favorite state for the current user and option.
+     *
+     * @param int $optionid
+     * @param string $data
+     * @return array
+     */
+    public function action_toggle_favorite(int $optionid, string $data): array {
+        global $USER;
+
+        if (!isloggedin() || isguestuser()) {
+            return [
+                'success' => 0,
+                'message' => get_string('accessdenied', 'mod_booking'),
+            ];
+        }
+
+        $dataobject = json_decode($data);
+        $userid = (int)($dataobject->userid ?? 0);
+        if (empty($userid)) {
+            $userid = (int)$USER->id;
+        }
+
+        $result = booking_option::toggle_favorite_user($userid, $optionid);
+
+        if (!empty($result['error'])) {
+            return [
+                'success' => 0,
+                'message' => $result['error'],
+            ];
+        }
+
+        return [
+            'success' => 1,
+            'message' => '',
+        ];
     }
 }

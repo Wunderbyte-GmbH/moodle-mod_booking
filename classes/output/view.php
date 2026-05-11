@@ -33,6 +33,7 @@ use local_wunderbyte_table\filters\types\customfieldfilter;
 use local_wunderbyte_table\filters\types\datepicker;
 use local_wunderbyte_table\filters\types\standardfilter;
 use mod_booking\booking;
+use mod_booking\booking_option;
 use mod_booking\elective;
 use mod_booking\filters\available_places;
 use mod_booking\option\fields\competencies;
@@ -79,6 +80,9 @@ class view implements renderable, templatable {
     /** @var string $renderedmyoptionstable the rendered my options table */
     private $renderedmyoptionstable = null;
 
+    /** @var string $renderedmyfavoritestable the rendered favorites table */
+    private $renderedmyfavoritestable = null;
+
     /** @var string $renderedoptionsiteachtable the rendered table of options I teach */
     private $renderedoptionsiteachtable = null;
 
@@ -111,6 +115,9 @@ class view implements renderable, templatable {
 
     /** @var string $mybooking */
     private $mybooking = null; // We kept this name for backwards compatibility!
+
+    /** @var string $myfavorites */
+    private $myfavorites = null;
 
     /** @var string $myoptions */
     private $myoptions = null; // We kept this name for backwards compatibility!
@@ -214,6 +221,9 @@ class view implements renderable, templatable {
             case 'mybooking':
                 $this->mybooking = true;
                 break;
+            case 'myfavorites':
+                $this->myfavorites = true;
+                break;
             case 'myoptions':
                 $this->myoptions = true;
                 break;
@@ -255,7 +265,14 @@ class view implements renderable, templatable {
                 break;
         }
 
-        if (!empty($bookingsettings->iselective)) {
+        // Special case: Elective table. This is only shown when the elective feature is enabled...
+        // ... and the user is logged in (and not a guest).
+        // When the elective table is active, no other tab is shown.
+        if (
+            isloggedin()
+            && !isguestuser()
+            && !empty($bookingsettings->iselective)
+        ) {
             [$tablestring, $rawdata] = $this->get_rendered_elective_table();
 
             $this->renderelectivetable = $tablestring;
@@ -271,14 +288,19 @@ class view implements renderable, templatable {
 
             $PAGE->requires->js_call_amd('mod_booking/elective-sorting', 'electiveSorting');
 
-            return;
+            return; // Elective tab only.
         }
 
-        // All options.
+        // All options (also shown to guest users).
         if (in_array('showall', $showviews)) {
             // If we show this table first, we don't load it lazy.
             $lazy = $whichview !== 'showall';
             $this->renderedalloptionstable = $this->get_rendered_all_options_table($lazy);
+        }
+
+        // The following tables must only be shown to users who are logged in. Not to guests.
+        if (isguestuser() || !isloggedin()) {
+            return;
         }
 
         // Active options.
@@ -293,6 +315,17 @@ class view implements renderable, templatable {
             // If we show this table first, we don't load it lazy.
             $lazy = $whichview !== 'mybooking';
             $this->renderedmyoptionstable = $this->get_rendered_my_booked_options_table($lazy);
+        }
+
+        // My favorites (PRO feature, requires enablefavoritestoggle setting).
+        if (
+            in_array('myfavorites', $showviews) &&
+            wb_payment::pro_version_is_activated() &&
+            get_config('booking', 'enablefavoritestoggle')
+        ) {
+            // If we show this table first, we don't load it lazy.
+            $lazy = $whichview !== 'myfavorites';
+            $this->renderedmyfavoritestable = $this->get_rendered_my_favorite_options_table($lazy);
         }
 
         // Options I teach.
@@ -363,11 +396,11 @@ class view implements renderable, templatable {
         $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
 
         // Create the table.
-        $allbookingoptionstable = new bookingoptions_wbtable("cmid_{$cmid} electivetable");
+        $electivetable = new bookingoptions_wbtable("cmid_{$cmid} electivetable");
 
         // Initialize the default columnes, headers, settings and layout for the table.
         // In the future, we can parametrize this function so we can use it on many different places.
-        $this->wbtable_initialize_layout($allbookingoptionstable, true, true, true);
+        $this->wbtable_initialize_layout($electivetable, true, true, true);
 
         $wherearray = ['bookingid' => (int)$booking->id];
         [$fields, $from, $where, $params, $filter] =
@@ -383,13 +416,13 @@ class view implements renderable, templatable {
                     [MOD_BOOKING_STATUSPARAM_BOOKED],
                     '',
                     '',
-                    $allbookingoptionstable
+                    $electivetable
                 );
-        $allbookingoptionstable->set_filter_sql($fields, $from, $where, $filter, $params);
+        $electivetable->set_filter_sql($fields, $from, $where, $filter, $params);
 
-        $out = $allbookingoptionstable->outhtml($booking->get_pagination_setting(), true);
+        $out = $electivetable->outhtml($booking->get_pagination_setting(), true);
 
-        return [$out, $allbookingoptionstable->rawdata];
+        return [$out, $electivetable->rawdata];
     }
 
     /**
@@ -407,6 +440,10 @@ class view implements renderable, templatable {
 
         // Create the table.
         $allbookingoptionstable = new bookingoptions_wbtable("cmid_{$cmid} allbookingoptionstable");
+        // Show favorites toggle only when enabled as a PRO feature.
+        if (wb_payment::pro_version_is_activated() && get_config('booking', 'enablefavoritestoggle')) {
+            $allbookingoptionstable->showfavoritestoggle = true;
+        }
 
         // Initialize the default columnes, headers, settings and layout for the table.
         // In the future, we can parametrize this function so we can use it on many different places.
@@ -539,6 +576,60 @@ class view implements renderable, templatable {
                 = $mybookingoptionstable->lazyouthtml($booking->get_pagination_setting(), true);
         } else {
             $out = $mybookingoptionstable->outhtml($booking->get_pagination_setting(), true);
+        }
+
+        return $out;
+    }
+
+    /**
+     * Render table for my favorite options.
+     *
+     * @param bool $lazy for lazy-loading
+     * @return string the rendered table
+     */
+    public function get_rendered_my_favorite_options_table($lazy = false): string {
+        global $USER;
+
+        $cmid = $this->cmid;
+        $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
+
+        // Create the table.
+        $myfavoritestable = new bookingoptions_wbtable("cmid_{$cmid}_userid_{$USER->id} myfavoritestable");
+
+        // Initialize the default columns, headers, settings and layout for the table.
+        $this->wbtable_initialize_layout($myfavoritestable, true, true, true);
+
+        // The favorites tab always shows the toggle (it is only reachable when the feature is enabled).
+        $myfavoritestable->showfavoritestoggle = true;
+
+        $wherearray = ['bookingid' => (int)$booking->id];
+
+        [$fields, $from, $where, $params, $filter] =
+            booking::get_options_filter_sql(
+                0,
+                0,
+                '',
+                null,
+                $booking->context,
+                [],
+                $wherearray,
+                null,
+                [MOD_BOOKING_STATUSPARAM_BOOKED],
+                '',
+                '',
+                $myfavoritestable
+            );
+
+        $myfavoritestable->set_filter_sql($fields, $from, $where, $filter, $params);
+        /* We can use the same cache as for mybooking, because the favorite status
+        is stored in the user session and not in the table itself. */
+        $myfavoritestable->define_cache('mod_booking', 'mybookingoptionstable');
+
+        if ($lazy) {
+            [$idstring, $encodedtable, $out]
+                = $myfavoritestable->lazyouthtml($booking->get_pagination_setting(), true);
+        } else {
+            $out = $myfavoritestable->outhtml($booking->get_pagination_setting(), true);
         }
 
         return $out;
@@ -1774,6 +1865,7 @@ class view implements renderable, templatable {
             'whatsnewtable' => $this->renderedwhatsnewtable,
             'activeoptionstable' => $this->renderedactiveoptionstable,
             'myoptionstable' => $this->renderedmyoptionstable,
+            'myfavoritestable' => $this->renderedmyfavoritestable,
             'responsiblecontacttable' => $this->renderedresponsiblecontacttable,
             'optionsiteachtable' => $this->renderedoptionsiteachtable,
             'showonlyonetable' => $this->renderedshowonlyonetable,
@@ -1786,6 +1878,7 @@ class view implements renderable, templatable {
             'showactive' => $this->showactive,
             'showall' => $this->showall,
             'mybooking' => $this->mybooking, // My booked options. We kept the name for backward compatibility.
+            'myfavorites' => $this->myfavorites,
             'myoptions' => $this->myoptions, // Options I teach. We kept the name for backward compatibility.
             'optionsiamresponsiblefor' => $this->optionsiamresponsiblefor, // Options where I am a responsible contact.
             'myinstitution' => $this->myinstitution,

@@ -67,6 +67,7 @@ $string['addnewreporttemplate'] = 'Add new report template';
 $string['addnewtagtemplate'] = 'Add new tag template';
 $string['addoptiondate'] = 'Add date';
 $string['addoptiondateseries'] = 'Create date series';
+$string['addoptiontofavorites'] = 'Add to favorites';
 $string['addpricecategory'] = 'Add price category';
 $string['addpricecategoryinfo'] = 'You can add another price category';
 $string['address'] = 'Address';
@@ -134,7 +135,7 @@ $string['applyunitfactor_desc'] = 'If this setting is active, the educational un
  to calculate the number of educational units. This number will be used as factor for the price formula.
  Example: A booking option has a date series like "Mon, 15:00 - 16:30". So it lasts 2 educational units (45 min each).
  So a unit factor of 2 will be applied to the price formula. (Unit factor will only be applied if a price formula is present.)';
-$string['applyuserwhobookedcheckbox'] = 'Yes, I am booking the training also for myself.';
+$string['applyuserwhobookedcheckbox'] = 'Yes, I am booking the training also for myself (and consume one of the specified places).';
 $string['approvalbytrainer'] = "Approval by the teacher";
 $string['approvalsettings'] = "Approval workflows";
 $string['approvalsettings_desc'] = "Booking supports various confirmation processes when users need to have to have their bookings confirmed. In the standard process, trainers can confirm the requests from the waiting list. Other processes can be added via Bookingextension subplugins.";
@@ -350,7 +351,7 @@ $string['bocondmaxnumberofbookingsfullavailable'] = 'Booking is possible';
 $string['bocondmaxnumberofbookingsfullnotavailable'] = 'User has reached the max number of bookings';
 $string['bocondmaxnumberofbookingsnotavailable'] = 'Max. number of bookings reached';
 $string['bocondmaxoptionsfromcategory'] = 'maxoptionsfromcategory: Maximum options from category reached';
-$string['bocondnooverlapping'] = 'nooverlapping: No overlapping allowed';
+$string['bocondnooverlapping'] = 'No overlapping with other booking options allowed';
 $string['bocondnooverlappingproxy'] = 'nooverlappingproxy: Overlapping check (proxy)';
 $string['bocondnoshoppingcart'] = 'noshoppingcart: No shopping cart available';
 $string['bocondnotifymelist'] = 'Notify list';
@@ -718,6 +719,7 @@ $string['btncacname'] = 'Name of button: Confirm activity completion';
 $string['btncancelname'] = 'Name of button: Cancel booking';
 $string['btnviewavailable'] = "View available options";
 $string['bulkoperations'] = 'Zeige Liste von Buchungsoptionen um Massenoperationen zu ermöglichen';
+$string['bulkoperationsbutton'] = 'Load field to edit all selected booking options';
 $string['bulkoperationsheader'] = 'Update data for selected bookingoption(s)';
 $string['cachedef_bookedusertable'] = 'Booked users table (cache)';
 $string['cachedef_bookforuser'] = 'Book for user (Cache)';
@@ -1116,7 +1118,12 @@ doubleroom => Double Room => 5 => student:100,expert:200,default:150 => 1,2,3,4,
 </span>
 </div>';
 $string['customlabelsdeprecated'] = '[DEPRECATED] Custom labels';
+$string['custommessageattachment'] = 'Attachment';
+$string['custommessageattachment_help'] = 'Optionally upload a file to be attached to the email. The file will be deleted immediately after all mails have been sent.';
+$string['custommessagerecipients'] = 'Recipients';
+$string['custommessagerecipients_help'] = 'All currently selected users are preselected. Remove users here if they should not receive the message.';
 $string['custommessagesent'] = 'Custom message sent';
+$string['custommessagessentto'] = 'Custom messages have been sent to the following users: {$a}';
 $string['customprofilefield'] = 'Custom profile field to check';
 $string['customprofilefieldvalue'] = 'Custom profile field value to check';
 $string['customuserprofilefield'] = "Custom user profile field";
@@ -1156,6 +1163,11 @@ $string['defaultbookingoption'] = 'Default booking options';
 $string['defaultcanceldate'] = 'Default cancel date';
 $string['defaultcanceldate_desc'] = 'Define which default setting should be selected for cancellation in the booking instance.';
 $string['defaultdateformat'] = 'j.n.Y H:i:s';
+$string['defaultnooverlappingoncreate'] = 'Default no-overlapping handling for new booking options';
+$string['defaultnooverlappingoncreate:blocking'] = 'Blocking (prevent booking when overlapping)';
+$string['defaultnooverlappingoncreate:disabled'] = 'Disabled (no restriction preselected)';
+$string['defaultnooverlappingoncreate:warning'] = 'Warning (show alert, allow booking)';
+$string['defaultnooverlappingoncreate_desc'] = 'If set, newly created booking options in the option form will preselect the no-overlapping condition with the chosen handling mode.';
 $string['defaultoptionsort'] = 'Default sorting by column';
 $string['defaultpricecategoryinfoalert'] = 'The default price category always has the identifier "default" and it cannot be disabled.';
 $string['defaultpricecategoryname'] = 'Default price category name';
@@ -1325,6 +1337,10 @@ $string['enablecompletionmincompleted_help'] = 'A user must be set to "Completed
 To mark users as "Completed", open the "Configure fields and columns" section (of the Booking instance) and add the "Completed" field under "Manage responses".
 The users can then be marked as completed on the report page. This has to be done by teacher, manager or admin.';
 $string['enablecompletionminnumber'] = 'Minimum number: ';
+$string['enablefavoritestoggle'] = 'Booking favorites';
+$string['enablefavoritestoggle_desc'] = 'Allow users to mark booking options as favorites. When enabled, a star icon appears on every booking option
+so users can add or remove it from their personal favorites list. A dedicated "My favorites" tab can then be added to each Booking instance.
+<span class="text-danger">Please remember to add the "My favorites" tab in the settings of your Booking instances after activating this feature.</span>';
 $string['enddate'] = "Enddate";
 $string['endtime'] = "Endtime";
 $string['endtimemeasurement'] = "Measurement time";
@@ -1346,12 +1362,24 @@ $string['enrollink:3'] = 'Your enrolment link is invalid.';
 $string['enrollink:4'] = 'There are no more places available in the bundle.';
 $string['enrollink:5'] = 'No guestusers allowed';
 $string['enrollink:6'] = 'Your registration has been completed and must still be confirmed by an authorised person.';
+$string['enrollink:7'] = 'Enrolment not possible: {$a}';
+$string['enrollinkskipconditions'] = 'Turn off specific availability conditions for enrolment links';
+$string['enrollinkskipconditions_desc'] = 'Select which availability conditions should be bypassed when a user books via an enrolment link.';
 $string['enrollinktriggered'] = 'Enrol link generation triggered';
 $string['enrollinktriggered:description'] = 'The event as the basis for the automatic generation of an enrolment link has been triggered.';
 $string['enrolmentstatus'] = 'Enrol users at course start time (Default: Not checked &rarr; enrol them immediately.)';
 $string['enrolmentstatus_help'] = 'Notice: In order for automatic enrolment to work, you need to change the booking instance setting
  "Automatically enrol users" to "Yes".';
 $string['enrolmultipleusers'] = 'Enrol multiple users';
+$string['enrolmultipleusersformmode'] = 'Behavior of the form element "Enrol multiple users"';
+$string['enrolmultipleusersformmode:alsobookmyself'] = 'The person booking for others always participates (and consumes one of the specified places)';
+$string['enrolmultipleusersformmode:alsobookmyself:hint'] = 'Note: One of the specified places will be consumed by yourself.';
+$string['enrolmultipleusersformmode:checkbox'] = 'The person booking for others can choose themselves if they want to participate - show checkbox (default)';
+$string['enrolmultipleusersformmode:donotbookmyself'] = 'The person booking for others never participates themselves (the booking person does not consume a place)';
+$string['enrolmultipleusersformmode:donotbookmyself:hint'] = 'You are not participating in the booking yourself, but are only booking for other persons. You do not consume any of the specified places.';
+$string['enrolmultipleusersformmode_desc'] = 'Set the behavior of the form element "Enrol multiple users".
+You\'ll find this element in the editing form of booking options under "Availability conditions" &gt; "Form needs to be filled out before booking"
+&gt; Element "Enrol multiple users".';
 $string['enrolusersaction:alert'] = '<div class="alert alert-info" role="alert">
 <i class="fa fa-info-circle" aria-hidden="true"></i>
 <span>
@@ -1385,6 +1413,8 @@ $string['error:confirmthatyouaresure'] = 'Please confirm that you are sure.';
 $string['error:coursecategoryvaluemissing'] = 'You need to choose a value here as it is needed as course category
 for the automatically created Moodle course.';
 $string['error:deactivatelegacymailtemplates'] = 'If you want to use this rule you first have to <a href="{$a}" target="_blank">deactivate legacy mail templates</a>.';
+$string['error:enrolusersactionexceedscapacity'] = 'The requested number exceeds available places ({$a} left).';
+$string['error:enrolusersactionnotnumeric'] = 'You have to enter a positive number.';
 $string['error:entervalue'] = 'You have to enter a value here.';
 $string['error:failedtosendconfirmation'] = 'The following user did not receive a confirmation mail
 Booking status: {$a->status}
@@ -1616,11 +1646,18 @@ $string['importlocation'] = 'Ort einer Buchungsoption. Wird automatisch bei 100%
 $string['importmaxanswers'] = 'Maximale Anzahl von Buchungen pro Buchungsoption';
 $string['importmaxoverbooking'] = 'Maximale Anzahl an Wartelistenplätzen pro Buchungsoption';
 $string['importpartial'] = 'The import was only partially completed. There were problems with following lines and they were not imported: ';
+$string['importpreview'] = 'Save';
+$string['importpreviewlinenumber'] = 'Line';
+$string['importpreviewreason'] = 'Skip reason';
+$string['importpreviewskipped'] = 'Rows to be skipped';
+$string['importpreviewtitle'] = 'Import preview';
+$string['importpreviewvalid'] = 'Rows to be imported';
 $string['importsuccess'] = 'Import was successful. {$a} record(s) treated.';
 $string['importteacheremail'] = 'Email addresses of users on the platform who can be listed as teachers in the booking options. Use a comma as a separator for multiple email addresses (beware of escaping for comma-separated CSVs!)';
 $string['importtext'] = 'Title of a booking option (synonym for text)';
 $string['importtileprefix'] = 'Prefix (e.g., course number)';
 $string['importtitle'] = 'Title of a booking option';
+$string['importuploaddatabase'] = 'Upload';
 $string['importuseremail'] = 'Email addresses of users on the platform who have booked this option. Use a comma as a separator for multiple email addresses (beware of escaping for comma-separated CSVs!)';
 $string['inarray'] = 'user has one of these comma separated values';
 $string['includeteachers'] = 'Include teachers in the sign-in sheet';
@@ -1628,6 +1665,7 @@ $string['indexnumber'] = 'Numbering';
 $string['info:teachersforoptiondates'] = 'Go to the <a href="{$a}" target="_self">teaching journal</a>, to manage teachers for specific dates.';
 $string['infoalreadybooked'] = '<div class="infoalreadybooked"><i>You are already booked for this option.</i></div>';
 $string['infonobookingoption'] = 'In order to add a booking option please use the settings block or the settings-icon on top of the page';
+$string['infotext:favoritestoggleisdisabled'] = 'The "My favorites" feature is currently disabled. You can enable it <a href="{$a}" target="_blank">here</a>.';
 $string['infotext:installmoodlebugfix'] = 'Wunderbyte has added a bug fix to the Moodle core. This bug fix has not yet been included in your Moodle version. Therefore, you may encounter JavaScript error messages in certain areas. Starting with Moodle 4.1, it is sufficient to apply the ongoing security updates.';
 $string['infotext:onlyfordebugging'] = 'This page is only accessible in debug mode';
 $string['infotext:prolicensenecessary'] = '<a href="https://showroom.wunderbyte.at/course/view.php?id=62" target="_blank">Get your PRO license here...</a>';
@@ -1841,6 +1879,7 @@ $string['mybookingoptions'] = 'My booked options';
 $string['mybookingsbooking'] = 'Booking (Course)';
 $string['mybookingsoption'] = 'Option';
 $string['mycourselist'] = 'Show my Booking options. ';
+$string['myfavorites'] = 'My favorites';
 $string['myinstitution'] = 'My institution';
 $string['name'] = 'Name';
 $string['newcourse'] = 'Create new course...';
@@ -2310,6 +2349,10 @@ $string['profeatures:cancellationsettings'] = '<ul>
 $string['profeatures:duplicationrestoreoption'] = '<ul>
 <li><b>duplicate moodle course when duplicating a booking option</b></li>
 </ul>';
+$string['profeatures:enablefavoritestoggle'] = '<ul>
+<li>Users can mark booking options as favorites using a star icon.</li>
+<li>A personal "My favorites" tab can be enabled per Booking instance.</li>
+</ul>';
 $string['profeatures:overbooking'] = '<ul>
 <li><b>allow overbooking</b></li>
 </ul>';
@@ -2402,6 +2445,7 @@ $string['reminder1sent'] = 'First reminder sent';
 $string['reminder2sent'] = 'Second reminder sent';
 $string['reminderteachersent'] = 'Teacher reminder sent';
 $string['removeafterminutes'] = 'Remove activity completion after N minutes';
+$string['removeoptionfromfavorites'] = 'Remove from favorites';
 $string['removeresponses'] = 'Remove all responses';
 $string['removeuseronunenrol'] = 'Remove user from booking upon unenrolment from associated course?';
 $string['reoccurringdatestring'] = 'Weekday, start and end time (Day, HH:MM - HH:MM)';
@@ -2563,6 +2607,9 @@ $string['scgfselectgroups'] = 'Select group(s)';
 $string['sch_allowinstallment'] = 'Allow installments';
 $string['sch_allowrebooking'] = 'Allow rebooking';
 $string['scheduledmails'] = 'Scheduled mails';
+$string['scheduledmailscleanupinvalidbody'] = 'This checks all currently listed scheduled mails and deletes all entries with status "No".';
+$string['scheduledmailscleanupinvalidsubmit'] = 'Delete invalid entries';
+$string['scheduledmailscleanupinvalidtitle'] = 'Delete invalid scheduled mails';
 $string['screstoreitemfromreserved'] = 'Automatically put reserved items in the shopping cart';
 $string['screstoreitemfromreserved_desc'] = 'This setting will put back items in your shopping cart when the cache was deleted';
 $string['search'] = 'Search...';
@@ -2719,6 +2766,7 @@ $string['showlistoncoursepage_help'] = 'If you activate this setting, the course
                                             redirecting to the available booking options will be shown.';
 $string['showmessages'] = 'Show messages';
 $string['showmybookingsonly'] = 'My booked options';
+$string['showmyfavoritesonly'] = 'My favorites';
 $string['showmyfieldofstudyonly'] = "My field of study";
 $string['showoptiondatesextrainfo'] = 'Show additional information for dates';
 $string['showoptiondatesextrainfo_desc'] = 'Show comments and extra infos of sessions (dates) in the list of booking options
@@ -2892,6 +2940,7 @@ $string['taken'] = 'Taken';
 $string['taskadhocresetoptiondatesforsemester'] = 'Adhoc task: Reset and generate new optiondates for semester';
 $string['taskcheckanswers'] = 'Booking: Check answers';
 $string['taskcleanbookingdb'] = 'Booking: Clean database';
+$string['taskcleanupinvalidscheduledmails'] = 'Booking: Cleanup invalid scheduled mails';
 $string['taskconfirmbookinganswerbymailbyruleadhoc'] = 'Booking: Confirm booking answer from waitinglist by mail (adhoc task)';
 $string['taskenrolbookeduserstocourse'] = 'Booking: Enrol booked users to course';
 $string['taskpurgecampaigncaches'] = 'Booking: Clean caches for booking campaigns';
@@ -3190,7 +3239,9 @@ $string['whatsnew'] = 'What\'s new?';
 $string['whichview'] = 'Default view for booking options';
 $string['whichviewerror'] = 'You have to include the default view in: Views to show in the booking options overview';
 $string['withselected'] = 'With selected users:';
+$string['wrongcompletedvalue'] = 'Wrong completed value: {$a}. It should be either 0 or 1.';
 $string['wrongdataallfields'] = 'Please, fill out all fields!';
+$string['wrongdateformat'] = 'Wrong date format "{$a->format}" for the value "{$a->value}".';
 $string['wronggroup'] = 'Is this the wrong group?';
 $string['wronggroup_help'] = 'When duplicating booking instances, it is possible that the wrong group is duplicated. Click the checkbox to recreate the group.';
 $string['wronglabels'] = 'Imported CSV not containing the right labels. Column {$a} can not be imported.';

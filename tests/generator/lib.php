@@ -100,6 +100,7 @@ class mod_booking_generator extends testing_module_generator {
         optionformconfig_info::destroy_singletons();
         Mod_bookingPrice::destroy_singletons();
         rules_info::destroy_singletons();
+        bo_info::destroy_singletons();
         allowedtobookininstance::reset_instance();
         customform::reset_instance();
         enrolledincohorts::reset_instance();

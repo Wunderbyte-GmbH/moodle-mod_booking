@@ -262,22 +262,8 @@ class rule_specifictime implements booking_rule {
             return;
         }
 
-        // Self-learning courses use coursestarttime only for sorting.
-        // So if a rule is dependent on date(s) of the option, we just skip the execution.
-        if (!empty($settings->selflearningcourse)) {
-            if (
-                !empty($jsonobject->ruledata->datefield)
-                && in_array(
-                    $jsonobject->ruledata->datefield,
-                    [
-                        'coursestarttime',
-                        'courseendtime',
-                        'optiondatestarttime',
-                    ]
-                )
-            ) {
-                return;
-            }
+        if ($this->should_skip_for_selflearningcourse($settings, $jsonobject)) {
+            return;
         }
 
         // We reuse this code when we check for validity, therefore we use a separate function.
@@ -321,6 +307,12 @@ class rule_specifictime implements booking_rule {
         }
 
         if (!applybookingrules::apply_rule($optionid, $this->ruleid)) {
+            return false;
+        }
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $jsonobject = json_decode($this->rulejson);
+        if ($this->should_skip_for_selflearningcourse($settings, $jsonobject)) {
             return false;
         }
 
@@ -374,6 +366,27 @@ class rule_specifictime implements booking_rule {
     }
 
     /**
+     * Self-learning courses use some date fields only for sorting and not for reminders.
+     *
+     * @param object $settings
+     * @param stdClass $jsonobject
+     * @return bool
+     */
+    private function should_skip_for_selflearningcourse(object $settings, stdClass $jsonobject): bool {
+        return !empty($settings->selflearningcourse)
+            && !empty($jsonobject->ruledata->datefield)
+            && in_array(
+                $jsonobject->ruledata->datefield,
+                [
+                    'coursestarttime',
+                    'courseendtime',
+                    'optiondatestarttime',
+                ],
+                true
+            );
+    }
+
+    /**
      * This helperfunction builds the sql with the help of the condition and returns the records.
      * Testmode means that we don't limit by now timestamp.
      *
@@ -403,8 +416,15 @@ class rule_specifictime implements booking_rule {
         $anduserid = "";
 
         // In case it's a deprecated rule with a "days" field, we convert it to seconds.
+        $numberofseconds = 0;
+        if (isset($ruledata->seconds) && is_number($ruledata->seconds)) {
+            $numberofseconds = (int)$ruledata->seconds;
+        } else if (isset($ruledata->days) && is_number($ruledata->days)) {
+            $numberofseconds = (int)$ruledata->days * DAYSECS;
+        }
+
         $params = [
-            'numberofseconds' => ((int) $ruledata->seconds) ?? 0,
+            'numberofseconds' => $numberofseconds,
             'nowparam' => time(),
         ];
 

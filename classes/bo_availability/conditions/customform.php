@@ -158,7 +158,6 @@ class customform implements bo_condition {
      * @return bool True if available
      */
     public function is_available(booking_option_settings $settings, int $userid, bool $not = false): bool {
-
         // This is the return value. Not available to begin with.
         $isavailable = false;
 

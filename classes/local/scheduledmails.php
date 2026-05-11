@@ -16,6 +16,13 @@
 
 namespace mod_booking\local;
 
+use cache_helper;
+use core_text;
+use mod_booking\booking_rules\rules_info;
+use mod_booking\output\scheduledmails as scheduledmails_output;
+use mod_booking\table\scheduledmails_table;
+use stdClass;
+
 /**
  * Class scheduledmails
  * @package mod_booking
@@ -73,7 +80,9 @@ class scheduledmails {
                     $messagetext AS message,
                     $optionid AS optionid,
                     $cmid AS cmid,
-                    br.contextid
+                    br.isactive,
+                    br.contextid,
+                    ta.customdata
                  FROM
             {task_adhoc} ta
             JOIN {booking_rules} br
@@ -82,11 +91,138 @@ class scheduledmails {
                ON u.id = $userid
             WHERE ta.customdata LIKE '{%'      -- ensure JSON-like
                   AND ta.customdata LIKE '%\"ruleid\"%'   -- ensure ruleid exists
+                  ORDER BY ta.id ASC
                ) as s1
         ";
 
         $where = "1 = 1";
 
         return [$fields, $from, $where, []];
+    }
+
+    /**
+     * Checks if a scheduled mail task still applies according to the rule logic.
+     *
+     * @param stdClass $values
+     * @return bool
+     */
+    public static function is_task_still_valid(stdClass $values): bool {
+        if (empty($values->id) || empty($values->ruleid) || empty($values->customdata)) {
+            return false;
+        }
+
+        $taskdata = json_decode((string)$values->customdata);
+        if (empty($taskdata) || empty($taskdata->optionid) || empty($taskdata->userid)) {
+            return false;
+        }
+
+        $ruleinstance = (object)[
+            'id' => (int)$values->ruleid,
+            'rulename' => $taskdata->rulename ?? '',
+            'isactive' => (int)($values->isactive ?? 0),
+            'rulejson' => $taskdata->rulejson ?? '',
+            'contextid' => (int)($values->contextid ?? 0),
+        ];
+
+        if (empty($ruleinstance->rulename) || empty($ruleinstance->rulejson)) {
+            return false;
+        }
+
+        // Vergleiche Rule-JSON immer als Objekt, um DB-Unterschiede zu vermeiden.
+        if (!empty($taskdata->rulejson)) {
+            $taskrulejson = json_decode((string)$taskdata->rulejson);
+            $currentrulejson = json_decode((string)$ruleinstance->rulejson);
+            if (empty($taskrulejson) || empty($currentrulejson)) {
+                return false;
+            }
+            // Wenn die Rule unterschiedlich ist, ist der Task ungültig.
+            if ($taskrulejson != $currentrulejson) {
+                return false;
+            }
+        }
+
+        $rule = rules_info::get_rule($ruleinstance->rulename);
+        if (empty($rule)) {
+            return false;
+        }
+
+        try {
+            $rule->set_ruledata($ruleinstance);
+            return (bool)$rule->check_if_rule_still_applies(
+                (int)$taskdata->optionid,
+                (int)$taskdata->userid,
+                (int)($values->nextruntime ?? 0),
+                (int)($taskdata->optiondateid ?? 0)
+            );
+        } catch (\Throwable $e) {
+            return false;
+        }
+    }
+
+    /**
+     * Cleanup invalid scheduled mails for one context by using the rendered table rows.
+     *
+     * @param int $contextid
+     * @param int $pagesize
+     * @return array
+     */
+    public static function cleanup_invalid_tasks_in_context(int $contextid, int $pagesize = 100000): array {
+        $scheduledmails = new scheduledmails_output($contextid);
+        $table = $scheduledmails->return_table();
+
+        return self::cleanup_invalid_tasks_from_table($table, $pagesize);
+    }
+
+    /**
+     * Cleanup invalid scheduled mails by inspecting formatted table rows.
+     *
+     * @param scheduledmails_table $table
+     * @param int $pagesize
+     * @return array
+     */
+    public static function cleanup_invalid_tasks_from_table(scheduledmails_table $table, int $pagesize = 100000): array {
+        global $DB;
+
+        $deleted = 0;
+        $checked = 0;
+        $notasksfound = 0;
+        $nostatusfound = 0;
+        $no = core_text::strtolower(get_string('no'));
+
+        // Render enough rows to inspect all visible records on current filter set.
+        $table->printtable($pagesize, true);
+
+        foreach ($table->formatedrows as $key => $row) {
+            $checked++;
+
+            $status = core_text::strtolower(trim(strip_tags((string)($row['status'] ?? ''))));
+            if ($status === '') {
+                $nostatusfound++;
+                continue;
+            }
+
+            if ($status !== $no) {
+                continue;
+            }
+
+            $taskid = (int)$key;
+            if ($taskid < 1) {
+                $notasksfound++;
+                continue;
+            }
+
+            $DB->delete_records('task_adhoc', ['id' => $taskid]);
+            $deleted++;
+        }
+
+        cache_helper::purge_by_definition('mod_booking', 'scheduledmailscache');
+        cache_helper::purge_by_event('setbackscheduledmailscache');
+
+        return [
+            'checked' => $checked,
+            'deleted' => $deleted,
+            'nostatusfound' => $nostatusfound,
+            'notasksfound' => $notasksfound,
+        ];
     }
 }

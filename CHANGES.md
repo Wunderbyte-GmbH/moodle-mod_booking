@@ -1,3 +1,36 @@
+## Version 9.3.2 (2026043000)
+* New feature: Add direct messaging with attachments to bookings tracker.
+* Improvement: Show info texts on shortcode myfavorites if PRO license or setting not enabled.
+* Improvement: Add German certificate documentation (CERTIFICATES_DE.md)
+* Improvement: Check conditions for enrollinks and add possibility to skip them.
+* Improvement: When booking via enrollink always skip some conditions, improve defaults.
+* Improvement: Add bookingstracker URL to booking option settings.
+* Bugfix: Fix exception when waiting list was set to unlimited ("-1").
+* Bugfix: Fix some strings and wrong naming of bulk operations button.
+* Bugfix: Fix string in unit test.
+* Bugfix: Guests should not see "my booked options" in booking instance.
+* Bugfix: Make sure that enrolmultipleusers checks booking limits and improve validation and tests.
+* Bugfix: On enrolmultipleusers via form, make sure it's not possible to increase in shopping cart to a number higher than the available free places.
+
+## Version 9.3.1 (2026042400)
+* New feature: My favorites (added possibility to mark booking option as favorites)
+* New feature: Add setting to choose default behavior of enrolmultipleusers, improve strings and add tests
+* New feature: Show custom fields of related person (person affected by event) by adding "-related" to the placeholder, e.g. {myuserprofilefield-related}.
+* New feature: New {emailrelated} placeholder to show e-mail of the related user (person affected by event).
+* Improvement: Possibility to define default for nooverlapping availability condition
+* Improvement: Details about shoppingcart changes in booking option updated event
+* Improvement: Make sure that template name does not get lost when editing template and that it can be removed
+* Improvement: Add status check to new scheduledmails table
+* Improvement: Importer overhaul
+* Improvement: Major improvements for field customfield handling and custom field performance.
+* Improvement: Make sure we also add custom fields with empty value to customfieldsfortemplates array.
+* Bugfix: No reminder mails for selflearningcourse, also check on task execution
+* Bugfix: Nooverlapping not blocking when no dates given
+* Bugfix: When instance title changes, we also rebuild course cache
+* Bugfix: Service Period for selflearning courses depends on booking time
+* Bugfix: Possibility to use custom user profile field twice for availability condition.
+* Bugfix: Fix permission check in search_users web service.
+
 ## Version 9.3.0 (2026040800)
 * New feature: Add possibility to save booking option templates without title and use template name instead.
 * New feature: Add possibility for users with addeditownoption capability to actually add and edit their own option. Add new usercreated and usermodified fields to booking options and display them.

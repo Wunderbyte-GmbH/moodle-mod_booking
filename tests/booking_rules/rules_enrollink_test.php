@@ -177,7 +177,7 @@ final class rules_enrollink_test extends advanced_testcase {
         $record->enrolmentstatus = 2;
         $record->bo_cond_customform_restrict = 1;
         $record->bo_cond_customform_select_1_1 = 'enrolusersaction';
-        $record->bo_cond_customform_label_1_1 = 'Number of user';
+        $record->bo_cond_customform_label_1_1 = 'Number of users';
         $record->bo_cond_customform_value_1_1 = 1;
         // Waiting lists NOT used.
         $record->bo_cond_customform_enroluserstowaitinglist1 = null;
@@ -279,7 +279,7 @@ final class rules_enrollink_test extends advanced_testcase {
             if (strpos($message->subject, "Enrollinksubj")) {
                 // Validate email on enrol link.
                 $this->assertStringContainsString("mod/booking/enrollink.php?erlid=", $message->fullmessage);
-                $this->assertStringContainsString("Number of user: 4", $message->fullmessage);
+                $this->assertStringContainsString("Number of users: 4", $message->fullmessage);
             }
         }
 
@@ -290,7 +290,7 @@ final class rules_enrollink_test extends advanced_testcase {
         $this->assertEquals(MOD_BOOKING_AUTOENROL_STATUS_LINK_NOT_VALID, $info1);
 
         // Get erlid string.
-        $erlid = str_replace('Number of user: 4', '', $message->fullmessage);
+        $erlid = str_replace('Number of users: 4', '', $message->fullmessage);
         $erlid = (explode('=', $erlid))[1];
         $enrollink = enrollink::get_instance($erlid);
         $this->assertEquals(3, $enrollink->free_places_left());
@@ -475,7 +475,7 @@ final class rules_enrollink_test extends advanced_testcase {
         $record->enrolmentstatus = 2;
         $record->bo_cond_customform_restrict = 1;
         $record->bo_cond_customform_select_1_1 = 'enrolusersaction';
-        $record->bo_cond_customform_label_1_1 = 'Number of user';
+        $record->bo_cond_customform_label_1_1 = 'Number of users';
         $record->bo_cond_customform_value_1_1 = 1;
         // Waiting lists ARE forced.
         $record->bo_cond_customform_enroluserstowaitinglist1 = 1;
@@ -583,7 +583,7 @@ final class rules_enrollink_test extends advanced_testcase {
             if (strpos($message->subject, "Enrollinksubj")) {
                 // Validate email on enrol link.
                 $this->assertStringContainsString("mod/booking/enrollink.php?erlid=", $message->fullmessage);
-                $this->assertStringContainsString("Number of user: 3", $message->fullmessage);
+                $this->assertStringContainsString("Number of users: 3", $message->fullmessage);
             }
         }
 
@@ -594,7 +594,7 @@ final class rules_enrollink_test extends advanced_testcase {
         $this->assertEquals(MOD_BOOKING_AUTOENROL_STATUS_LINK_NOT_VALID, $info1);
 
         // Get erlid string.
-        $erlid = str_replace('Number of user: 3', '', $message->fullmessage);
+        $erlid = str_replace('Number of users: 3', '', $message->fullmessage);
         $erlid = (explode('=', $erlid))[1];
         $enrollink = enrollink::get_instance($erlid);
         $count = $enrollink->free_places_left();
@@ -690,6 +690,301 @@ final class rules_enrollink_test extends advanced_testcase {
         $this->assertEquals(MOD_BOOKING_AUTOENROL_STATUS_NO_MORE_SEATS, $info2);
         $this->assertEquals(0, $enrollink->free_places_left());
         // User Student4 remains on the waitinglist.
+    }
+
+    /**
+     * Test enrolmultipleusers mode ALSOBOOKMYSELF:
+     * when no checkbox key is submitted, the booker is always also enrolled
+     * and therefore consumes one enrollink place.
+     *
+     * @covers \mod_booking\enrollink::enroluseraction_allows_enrolment
+     *
+     * @param array $bdata
+     * @throws \coding_exception
+     *
+     * @dataProvider booking_common_settings_provider
+     */
+    public function test_enrolmultipleusers_mode_alsobookmyself(array $bdata): void {
+        global $DB;
+
+        set_config('enrolmultipleusersformmode', MOD_BOOKING_ENROLMULTIPLEUSERS_ALSOBOOKMYSELF, 'booking');
+
+        set_config('timezone', 'Europe/Kyiv');
+        set_config('forcetimezone', 'Europe/Kyiv');
+
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $course2 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $teacher1 = $this->getDataGenerator()->create_user();
+
+        $bdata['course'] = $course->id;
+        $bdata['bookingmanager'] = $teacher1->username;
+        $bdata['autoenrol'] = 1;
+
+        $booking = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        $this->setAdminUser();
+        $this->getDataGenerator()->enrol_user($teacher1->id, $course->id, 'editingteacher');
+
+        /** @var \local_shopping_cart_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('local_shopping_cart');
+        $plugingenerator->create_user_credit(['userid' => $teacher1->id, 'credit' => 300, 'currency' => 'EUR']);
+
+        /** @var \mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+
+        $actstr = '{"sendical":0,"sendicalcreateorcancel":"","subject":"Enrollinksubj",';
+        $actstr .= '"template":';
+        $actstr .= '"<p>{enrollink}<\/p><p>{#customform}<\/p><p>{customform}<\/p><p>{\/customform}<\/p>",';
+        $actstr .= '"templateformat":"1"}';
+        $plugingenerator->create_rule([
+            'name' => 'enrollink',
+            'conditionname' => 'select_student_in_bo',
+            'contextid' => 1,
+            'conditiondata' => '{"borole":"0"}',
+            'actionname' => 'send_mail',
+            'actiondata' => $actstr,
+            'rulename' => 'rule_react_on_event',
+            'ruledata' => '{"boevent":"\\\\mod_booking\\\\event\\\\enrollink_triggered","aftercompletion":"","condition":"0"}',
+        ]);
+
+        $plugingenerator->create_pricecategory((object)[
+            'ordernum' => 1, 'name' => 'default', 'identifier' => 'default',
+            'defaultvalue' => 25, 'pricecatsortorder' => 1,
+        ]);
+
+        $record = new stdClass();
+        $record->bookingid = $booking->id;
+        $record->text = 'Option-alsobookmyself';
+        $record->description = 'Mode ALSOBOOKMYSELF';
+        $record->optiondateid_0 = "0";
+        $record->daystonotify_0 = "0";
+        $record->coursestarttime_0 = strtotime('20 June 2050 15:00');
+        $record->courseendtime_0 = strtotime('20 July 2050 14:00');
+        $record->teachersforoption = $teacher1->username;
+        $record->importing = 1;
+        $record->chooseorcreatecourse = 1;
+        $record->courseid = $course2->id;
+        $record->useprice = 1;
+        $record->enrolmentstatus = 2;
+        $record->bo_cond_customform_restrict = 1;
+        $record->bo_cond_customform_select_1_1 = 'enrolusersaction';
+        $record->bo_cond_customform_label_1_1 = 'Number of users';
+        $record->bo_cond_customform_value_1_1 = 1;
+        $record->bo_cond_customform_enroluserstowaitinglist1 = null;
+        $record->waitforconfirmation = null;
+
+        $option1 = $plugingenerator->create_option($record);
+        singleton_service::destroy_booking_option_singleton($option1->id);
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
+        singleton_service::destroy_booking_singleton_by_cmid($settings->cmid);
+        $boinfo = new bo_info($settings);
+
+        $this->setUser($teacher1);
+        singleton_service::destroy_user($teacher1->id);
+
+        // Mode 1: submit customform WITHOUT the checkbox key — booker is always also enrolled.
+        $customformdata = (object) [
+            'id' => $settings->id,
+            'userid' => $teacher1->id,
+            'customform_enrolusersaction_1' => 4,
+            // No customform_enroluserwhobookedcheckbox_enrolusersaction_1 key.
+        ];
+        $customformstore = new customformstore($teacher1->id, $settings->id);
+        $customformstore->set_customform_data($customformdata);
+
+        $this->setAdminUser();
+        shopping_cart::delete_all_items_from_cart($teacher1->id);
+        shopping_cart::buy_for_user($teacher1->id);
+        cartstore::instance($teacher1->id);
+        shopping_cart::add_item_to_cart('mod_booking', 'option', $settings->id, -1);
+        shopping_cart::save_used_credit_state($teacher1->id, 1);
+        $res = shopping_cart::confirm_payment($teacher1->id, LOCAL_SHOPPING_CART_PAYMENT_METHOD_CREDITS);
+        $this->assertEmpty($res['error']);
+
+        $option = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
+        $option->user_submit_response($teacher1, 0, 0, 0, MOD_BOOKING_VERIFIED);
+        [$id] = $boinfo->is_available($settings->id, $teacher1->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+
+        ob_start();
+        $messagesink = $this->redirectMessages();
+        $this->runAdhocTasks();
+        $messages = $messagesink->get_messages();
+        ob_get_clean();
+        $messagesink->clear();
+        $messagesink->close();
+
+        $message = null;
+        foreach ($messages as $msg) {
+            if (strpos($msg->subject, 'Enrollinksubj') !== false) {
+                $message = $msg;
+                break;
+            }
+        }
+        $this->assertNotNull($message, 'Enrollinksubj message not found');
+        $this->assertStringContainsString('mod/booking/enrollink.php?erlid=', $message->fullmessage);
+
+        // Without the checkbox key, enroluseraction_allows_enrolment returns true:
+        // the booker consumes 1 of the 4 ordered places → 3 free places left.
+        preg_match('/erlid=([a-f0-9]+)/i', $message->fullmessage, $matches);
+        $erlid = $matches[1] ?? '';
+        $this->assertNotEmpty($erlid, 'erlid not found in message');
+        $enrollink = enrollink::get_instance($erlid);
+        $this->assertEquals(3, $enrollink->free_places_left());
+
+        // Assert a booking_enrollink_items row exists for teacher1, with consumed = 1.
+        $items = $DB->get_records('booking_enrollink_items', ['erlid' => $erlid, 'userid' => $teacher1->id]);
+        $this->assertCount(1, $items, 'ALSOBOOKMYSELF: one item should exist for the booker');
+        $item = reset($items);
+        $this->assertEquals(1, $item->consumed, 'ALSOBOOKMYSELF: item must be consumed');
+        $this->assertEquals($teacher1->id, $item->userid, 'ALSOBOOKMYSELF: item userid must match booker');
+    }
+
+    /**
+     * Test enrolmultipleusers mode DONOTBOOKMYSELF:
+     * when the checkbox key is submitted with value 0, the booker is never enrolled
+     * and therefore does NOT consume an enrollink place.
+     *
+     * @covers \mod_booking\enrollink::enroluseraction_allows_enrolment
+     *
+     * @param array $bdata
+     * @throws \coding_exception
+     *
+     * @dataProvider booking_common_settings_provider
+     */
+    public function test_enrolmultipleusers_mode_donotbookmyself(array $bdata): void {
+        global $DB;
+
+        set_config('enrolmultipleusersformmode', MOD_BOOKING_ENROLMULTIPLEUSERS_DONOTBOOKMYSELF, 'booking');
+
+        set_config('timezone', 'Europe/Kyiv');
+        set_config('forcetimezone', 'Europe/Kyiv');
+
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $course2 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $teacher1 = $this->getDataGenerator()->create_user();
+
+        $bdata['course'] = $course->id;
+        $bdata['bookingmanager'] = $teacher1->username;
+        $bdata['autoenrol'] = 1;
+
+        $booking = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        $this->setAdminUser();
+        $this->getDataGenerator()->enrol_user($teacher1->id, $course->id, 'editingteacher');
+
+        /** @var \local_shopping_cart_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('local_shopping_cart');
+        $plugingenerator->create_user_credit(['userid' => $teacher1->id, 'credit' => 300, 'currency' => 'EUR']);
+
+        /** @var \mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+
+        $actstr = '{"sendical":0,"sendicalcreateorcancel":"","subject":"Enrollinksubj",';
+        $actstr .= '"template":';
+        $actstr .= '"<p>{enrollink}<\/p><p>{#customform}<\/p><p>{customform}<\/p><p>{\/customform}<\/p>",';
+        $actstr .= '"templateformat":"1"}';
+        $plugingenerator->create_rule([
+            'name' => 'enrollink',
+            'conditionname' => 'select_student_in_bo',
+            'contextid' => 1,
+            'conditiondata' => '{"borole":"0"}',
+            'actionname' => 'send_mail',
+            'actiondata' => $actstr,
+            'rulename' => 'rule_react_on_event',
+            'ruledata' => '{"boevent":"\\\\mod_booking\\\\event\\\\enrollink_triggered","aftercompletion":"","condition":"0"}',
+        ]);
+
+        $plugingenerator->create_pricecategory((object)[
+            'ordernum' => 1, 'name' => 'default', 'identifier' => 'default',
+            'defaultvalue' => 25, 'pricecatsortorder' => 1,
+        ]);
+
+        $record = new stdClass();
+        $record->bookingid = $booking->id;
+        $record->text = 'Option-donotbookmyself';
+        $record->description = 'Mode DONOTBOOKMYSELF';
+        $record->optiondateid_0 = "0";
+        $record->daystonotify_0 = "0";
+        $record->coursestarttime_0 = strtotime('20 June 2050 15:00');
+        $record->courseendtime_0 = strtotime('20 July 2050 14:00');
+        $record->teachersforoption = $teacher1->username;
+        $record->importing = 1;
+        $record->chooseorcreatecourse = 1;
+        $record->courseid = $course2->id;
+        $record->useprice = 1;
+        $record->enrolmentstatus = 2;
+        $record->bo_cond_customform_restrict = 1;
+        $record->bo_cond_customform_select_1_1 = 'enrolusersaction';
+        $record->bo_cond_customform_label_1_1 = 'Number of users';
+        $record->bo_cond_customform_value_1_1 = 1;
+        $record->bo_cond_customform_enroluserstowaitinglist1 = null;
+        $record->waitforconfirmation = null;
+
+        $option1 = $plugingenerator->create_option($record);
+        singleton_service::destroy_booking_option_singleton($option1->id);
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
+        singleton_service::destroy_booking_singleton_by_cmid($settings->cmid);
+        $boinfo = new bo_info($settings);
+
+        $this->setUser($teacher1);
+        singleton_service::destroy_user($teacher1->id);
+
+        // Mode 2: submit customform WITH checkbox value 0 — booker is never enrolled.
+        $customformdata = (object) [
+            'id' => $settings->id,
+            'userid' => $teacher1->id,
+            'customform_enrolusersaction_1' => 4,
+            'customform_enroluserwhobookedcheckbox_enrolusersaction_1' => 0,
+        ];
+        $customformstore = new customformstore($teacher1->id, $settings->id);
+        $customformstore->set_customform_data($customformdata);
+
+        $this->setAdminUser();
+        shopping_cart::delete_all_items_from_cart($teacher1->id);
+        shopping_cart::buy_for_user($teacher1->id);
+        cartstore::instance($teacher1->id);
+        shopping_cart::add_item_to_cart('mod_booking', 'option', $settings->id, -1);
+        shopping_cart::save_used_credit_state($teacher1->id, 1);
+        $res = shopping_cart::confirm_payment($teacher1->id, LOCAL_SHOPPING_CART_PAYMENT_METHOD_CREDITS);
+        $this->assertEmpty($res['error']);
+
+        $option = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
+        $option->user_submit_response($teacher1, 0, 0, 0, MOD_BOOKING_VERIFIED);
+        [$id] = $boinfo->is_available($settings->id, $teacher1->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+
+        ob_start();
+        $messagesink = $this->redirectMessages();
+        $this->runAdhocTasks();
+        $messages = $messagesink->get_messages();
+        ob_get_clean();
+        $messagesink->clear();
+        $messagesink->close();
+
+        $message = null;
+        foreach ($messages as $msg) {
+            if (strpos($msg->subject, 'Enrollinksubj') !== false) {
+                $message = $msg;
+                break;
+            }
+        }
+        $this->assertNotNull($message, 'Enrollinksubj message not found');
+        $this->assertStringContainsString('mod/booking/enrollink.php?erlid=', $message->fullmessage);
+
+        // With checkbox key = 0, enroluseraction_allows_enrolment returns false:
+        // the booker does NOT consume any place → all 4 ordered places remain free.
+        preg_match('/erlid=([a-f0-9]+)/i', $message->fullmessage, $matches);
+        $erlid = $matches[1] ?? '';
+        $this->assertNotEmpty($erlid, 'erlid not found in message');
+        $enrollink = enrollink::get_instance($erlid);
+        $this->assertEquals(4, $enrollink->free_places_left());
+
+        // Assert no booking_enrollink_items row for teacher1 (booker not self-enrolled).
+        $items = $DB->get_records('booking_enrollink_items', ['erlid' => $erlid, 'userid' => $teacher1->id]);
+        $this->assertCount(0, $items, 'DONOTBOOKMYSELF: no item should exist for the booker');
     }
 
     /**

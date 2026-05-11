@@ -198,6 +198,22 @@ class option extends scope_base {
                     'optionid' => $optionid ?? 0,
                 ]
             );
+
+            if (has_capability('mod/booking:communicate', context_module::instance($cmid))) {
+                $table->actionbuttons[] = booked_users::create_action_button(
+                    'sendcustommsg',
+                    'fa fa-envelope',
+                    'mod_booking\\form\\modal_send_custom_message',
+                    [
+                        'titlestring' => 'sendcustommsg',
+                        'submitbuttonstring' => 'sendmessage',
+                        'component' => 'mod_booking',
+                        'cmid' => $cmid,
+                        'optionid' => $optionid ?? 0,
+                    ],
+                    'btn btn-primary btn-sm ms-2'
+                );
+            }
         }
 
         if (

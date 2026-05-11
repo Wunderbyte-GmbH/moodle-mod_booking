@@ -27,6 +27,7 @@
 
 namespace mod_booking\output;
 
+use context_system;
 use local_wunderbyte_table\filters\types\datepicker;
 use local_wunderbyte_table\filters\types\standardfilter;
 use local_wunderbyte_table\wunderbyte_table;
@@ -40,6 +41,7 @@ use moodle_exception;
 use renderer_base;
 use renderable;
 use templatable;
+use tool_certificate\certificate;
 
 /**
  * This file contains the definition for the renderable classes for booked users.
@@ -281,7 +283,7 @@ class booked_users implements renderable, templatable {
         $table->showreloadbutton = true;
         $table->showrowcountselect = true;
 
-        $html = $table->outhtml(10, false);
+        $html = $table->outhtml(100, false);
         return count($table->rawdata) > 0 ? $html : null;
     }
 
@@ -502,7 +504,7 @@ class booked_users implements renderable, templatable {
             'instancename',
         ]);
 
-        [$idstring, $tablecachehash, $html] = $table->lazyouthtml(20, true);
+        [$idstring, $tablecachehash, $html] = $table->lazyouthtml(100, true);
         return $html;
     }
 
@@ -590,7 +592,8 @@ class booked_users implements renderable, templatable {
      *
      */
     public static function create_certificate_button(): array {
-        if (!get_config('booking', 'certificateon')) {
+        global $USER;
+        if (!get_config('booking', 'certificateon') || !has_capability('tool/certificate:manage', context_system::instance())) {
             return [];
         }
         return [

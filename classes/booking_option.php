@@ -287,7 +287,7 @@ class booking_option {
     }
 
     /**
-     * This calculates number of user that can be booked to the connected booking option
+     * This calculates number of users that can be booked to the connected booking option
      * Looks for max participant in the connected booking given the optionid
      *
      * @param int $optionid
@@ -1095,7 +1095,12 @@ class booking_option {
                 }
 
                 // 3. If users drop out of the waiting list because of changed limits, delete and inform them.
-                while (booking_answers::count_places($usersonwaitinglist) > $settings->maxoverbooking) {
+                // Important: Keep in mind that maxoverbooking "-1" means unlimited waiting list.
+                // So only if maxoverbooking (waiting list) is >= 0, this makes sense.
+                while (
+                    ((int) $settings->maxoverbooking) >= 0
+                    && booking_answers::count_places($usersonwaitinglist) > (int) $settings->maxoverbooking
+                ) {
                     $currentanswer = array_pop($usersonwaitinglist);
                     // The fourth param needs to be false here, so we do not run into a recursion.
                     $this->user_delete_response($currentanswer->userid, false, false, false);
@@ -1227,7 +1232,9 @@ class booking_option {
             return false;
         }
 
+        bo_info::set_enrollink_context(!empty($erlid));
         $isavailable = self::option_allows_booking_for_user($this->optionid, $user->id);
+        bo_info::set_enrollink_context(false);
         switch ($status) {
             case MOD_BOOKING_BO_SUBMIT_STATUS_BOOKOTHEROPTION_FORCE:
                 $waitinglist = MOD_BOOKING_STATUSPARAM_BOOKED;
@@ -1256,6 +1263,15 @@ class booking_option {
         if ($waitinglist === false && $status != MOD_BOOKING_BO_SUBMIT_STATUS_CONFIRMATION) {
             // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
             /* echo "Couldn't subscribe user $user->id because of full waitinglist <br>";*/
+            return false;
+        }
+
+        // For enrollink bookings, check_if_limit() only respects $isavailable when the option is full.
+        // When slots are free it always returns BOOKED, bypassing hard-blocking conditions like selectusers.
+        // If a real condition blocks (i.e. not just the book-it-button or price), we must enforce that here.
+        // Conditions listed in enrollinkskipconditions are already excluded via exclude_conditions(), so they
+        // will not affect $isavailable and the booking proceeds as intended.
+        if (!empty($erlid) && !$isavailable) {
             return false;
         }
 
@@ -2744,12 +2760,12 @@ class booking_option {
                 );
             }
         }
+        $completionold = $userdata->completed;
         // If we update the answer on import we set it automatically to one.
         // We can do this because we do not toggle completion if it isn't set to 1.
         if (!empty($updateansweronimport)) {
             $userdata->completed = '1';
         } else {
-            $completionold = $userdata->completed;
             $userdata->completed = empty($completionold) ? '1' : '0';
         }
         $userdata->timemodified = empty($timebooked) ? time() : $timebooked;
@@ -3740,6 +3756,129 @@ class booking_option {
     }
 
     /**
+     * Returns true if the given option is in the user's favorites preference.
+     *
+     * @param int $userid
+     * @param int $optionid
+     * @return bool
+     */
+    public static function user_has_favorite(int $userid, int $optionid): bool {
+        if ($userid <= 0 || $optionid <= 0) {
+            return false;
+        }
+
+        $favorites = self::get_user_favorite_optionids($userid);
+        return in_array($optionid, $favorites, true);
+    }
+
+    /**
+     * Takes the user on/off the favorites list (stored in user preference bookingoptionfavorites).
+     * Returns current status and optional error.
+     *
+     * @param int $userid
+     * @param int $optionid
+     * @return array
+     */
+    public static function toggle_favorite_user(int $userid, int $optionid): array {
+        global $USER;
+
+        $error = '';
+        $status = null;
+
+        if (!isloggedin() || isguestuser()) {
+            return [
+                'status' => 0,
+                'optionid' => 0,
+                'error' => get_string('accessdenied', 'mod_booking'),
+            ];
+        }
+
+        // Favorites are always user-specific. Toggling for a different user is not allowed.
+        if ($USER->id != $userid || $optionid <= 0) {
+            return [
+                'status' => 0,
+                'optionid' => 0,
+                'error' => get_string('accessdenied', 'mod_booking'),
+            ];
+        }
+
+        $favorites = self::get_user_favorite_optionids($userid);
+
+        if (in_array($optionid, $favorites, true)) {
+            $favorites = array_values(array_filter($favorites, fn(int $id): bool => $id !== $optionid));
+            $status = 0;
+        } else {
+            $favorites[] = $optionid;
+            $status = 1;
+        }
+
+        self::set_user_favorite_optionids($userid, $favorites);
+
+        return [
+            'status' => $status,
+            'optionid' => $optionid,
+            'error' => $error,
+        ];
+    }
+
+    /**
+     * Read and normalize favorite option ids from user preference bookingoptionfavorites.
+     *
+     * @param int $userid
+     * @return array
+     */
+    public static function get_user_favorite_optionids(int $userid): array {
+        $rawvalue = get_user_preferences('bookingoptionfavorites', '[]', $userid);
+        if (!is_string($rawvalue) || $rawvalue === '') {
+            return [];
+        }
+
+        $decoded = json_decode($rawvalue, true);
+        if (!is_array($decoded)) {
+            return [];
+        }
+
+        return self::normalize_favorite_optionids($decoded);
+    }
+
+    /**
+     * Persist favorite option ids as JSON array in user preference bookingoptionfavorites.
+     *
+     * @param int $userid
+     * @param array $optionids
+     * @return void
+     */
+    private static function set_user_favorite_optionids(int $userid, array $optionids): void {
+        $normalized = self::normalize_favorite_optionids($optionids);
+        set_user_preference('bookingoptionfavorites', json_encode($normalized), $userid);
+    }
+
+    /**
+     * Normalize favorites list to unique, positive integers and keep insertion order.
+     *
+     * @param array $optionids
+     * @return array
+     */
+    private static function normalize_favorite_optionids(array $optionids): array {
+        $normalized = [];
+
+        foreach ($optionids as $optionid) {
+            if (!is_numeric($optionid)) {
+                continue;
+            }
+
+            $candidate = (int)$optionid;
+            if ($candidate <= 0 || in_array($candidate, $normalized, true)) {
+                continue;
+            }
+
+            $normalized[] = $candidate;
+        }
+
+        return $normalized;
+    }
+
+    /**
      * Function to cancel a booking option.
      * This does not delete, but only makes in unbookable and specially marked.
      *
@@ -4498,6 +4637,7 @@ class booking_option {
             $data->id = $optionid;
         }
 
+        // For some changes we need the new optionid, so we have to update once the ID is known.
         $feedbackpostchanges = fields_info::save_fields_post($data, $newoption, $updateparam);
         // We have to load waitforconfirmation status in order to know if sync_waiting_list.
         $newoption->waitforconfirmation = self::get_value_of_json_by_key($newoption->id, "waitforconfirmation");

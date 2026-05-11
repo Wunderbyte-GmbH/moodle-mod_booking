@@ -82,15 +82,15 @@ final class condition_skipableconditions_test extends advanced_testcase {
      */
     public function test_usercustomfield(array $bdata): void {
         $this->resetAfterTest();
-        set_config('skippableconditions', MOD_BOOKING_BO_COND_JSON_CUSTOMUSERPROFILEFIELD, 'booking');
+        set_config('skipableconditions', MOD_BOOKING_BO_COND_JSON_CUSTOMUSERPROFILEFIELD, 'booking');
         // Setup test data.
         $course1 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
 
         // Create custom profile field.
         $this->getDataGenerator()->create_custom_profile_field(['datatype' => 'text', 'shortname' => 'sport', 'name' => 'Sport',
-        'visible' => PROFILE_VISIBLE_ALL]);
+        'visible' => "2"]); // PROFILE_VISIBLE_ALL == "2".
         $this->getDataGenerator()->create_custom_profile_field(['datatype' => 'text', 'shortname' => 'credit', 'name' => 'Credit',
-        'visible' => PROFILE_VISIBLE_ALL]);
+        'visible' => "2"]); // PROFILE_VISIBLE_ALL == "2".
         set_config('showuseridentity', 'username,email,profile_field_sport,profile_field_credit');
         // Create users.
         $users = [
@@ -257,7 +257,7 @@ final class condition_skipableconditions_test extends advanced_testcase {
         global $DB;
 
         $this->resetAfterTest();
-        set_config('skippableconditions', MOD_BOOKING_BO_COND_JSON_ENROLLEDINCOHORTS, 'booking');
+        set_config('skipableconditions', MOD_BOOKING_BO_COND_JSON_ENROLLEDINCOHORTS, 'booking');
 
         $bdata['cancancelbook'] = 1;
 
@@ -357,7 +357,7 @@ final class condition_skipableconditions_test extends advanced_testcase {
     public function test_enrolled_in_course(array $bdata): void {
         global $DB, $PAGE;
         $this->resetAfterTest();
-        set_config('skippableconditions', MOD_BOOKING_BO_COND_JSON_ENROLLEDINCOURSE, 'booking');
+        set_config('skipableconditions', MOD_BOOKING_BO_COND_JSON_ENROLLEDINCOURSE, 'booking');
         $bdata['cancancelbook'] = 1;
 
         singleton_service::destroy_instance();

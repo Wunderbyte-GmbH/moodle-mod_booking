@@ -363,6 +363,7 @@ define('MOD_BOOKING_AUTOENROL_STATUS_LINK_NOT_VALID', 3);
 define('MOD_BOOKING_AUTOENROL_STATUS_NO_MORE_SEATS', 4);
 define('MOD_BOOKING_AUTOENROL_STATUS_LOGGED_IN_AS_GUEST', 5);
 define('MOD_BOOKING_AUTOENROL_STATUS_WAITINGLIST', 6);
+define('MOD_BOOKING_AUTOENROL_STATUS_BLOCKED_BY_CONDITION', 7);
 
 // Status for user submit response (enrolment into bookingoption).
 // 1 if we just added this booking option to the shopping cart, 2 for confirmation.
@@ -379,6 +380,11 @@ define('MOD_BOOKING_BO_SUBMIT_STATUS_BOOKOTHEROPTION_FORCE', 7);
 define('MOD_BOOKING_CANCANCELBOOK_ABSOLUTE', 0);
 define('MOD_BOOKING_CANCANCELBOOK_RELATIVE', 1);
 define('MOD_BOOKING_CANCANCELBOOK_UNLIMITED', 2);
+
+// Enrol multiple users form mode.
+define('MOD_BOOKING_ENROLMULTIPLEUSERS_CHECKBOX', 0);
+define('MOD_BOOKING_ENROLMULTIPLEUSERS_ALSOBOOKMYSELF', 1);
+define('MOD_BOOKING_ENROLMULTIPLEUSERS_DONOTBOOKMYSELF', 2);
 
 // Enrol into group of current course.
 define('MOD_BOOKING_ENROL_INTO_GROUP_OF_BOOKINGOPTION', -1);
@@ -1259,9 +1265,6 @@ function booking_update_instance($booking) {
     ]);
     $event->trigger();
 
-    // When updating an instance, we need to invalidate the cache for booking instances.
-    booking::purge_cache_for_booking_instance_by_cmid($cm->id);
-
     // Bugfix: If source of mail templates is global templates, we do not need to save instance mail templates.
     if (
         isset($booking->mailtemplatessource)
@@ -1280,7 +1283,16 @@ function booking_update_instance($booking) {
         unset($booking->userleave);
     }
 
-    return $DB->update_record('booking', $booking);
+    $updated = $DB->update_record('booking', $booking);
+
+    if ($updated) {
+        // Refresh plugin and course-module caches after the new instance name is persisted.
+        booking::purge_cache_for_booking_instance_by_cmid($cm->id);
+        \course_modinfo::purge_course_module_cache($cm->course, $cm->id);
+        rebuild_course_cache($cm->course, false, true);
+    }
+
+    return $updated;
 }
 
 /**

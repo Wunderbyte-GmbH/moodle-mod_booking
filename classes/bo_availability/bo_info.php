@@ -77,6 +77,19 @@ class bo_info {
     /** @var int userid for a given user */
     protected $userid;
 
+    /** @var bool Whether the current booking is triggered via an enrollink. */
+    private static bool $isenrollinkcontext = false;
+
+    /**
+     * Sets the enrollink context for the current booking request.
+     *
+     * @param bool $active
+     * @return void
+     */
+    public static function set_enrollink_context(bool $active): void {
+        self::$isenrollinkcontext = $active;
+    }
+
     /**
      * Constructs with item details.
      *
@@ -1508,6 +1521,7 @@ class bo_info {
         );
         return $classes;
     }
+
     /**
      * Helperfunction to exclude conditions which are set as excluded in the config from the array of conditions.
      *
@@ -1517,12 +1531,38 @@ class bo_info {
      *
      */
     private static function exclude_conditions(array &$conditions) {
-        $excludedcondition = get_config('booking', 'skippableconditions');
-        $excludedconditionarray = !empty($excludedcondition) ? explode(',', $excludedcondition) : [];
+        $excludedconditions = get_config('booking', 'skipableconditions');
+        $excludedconditionsarray = !empty($excludedconditions) ? explode(',', $excludedconditions) : [];
+        // When using an enrollink, we need to check if there are conditions to skip (setting 'enrollinkskipconditions').
+        if (self::$isenrollinkcontext) {
+            $enrollinkexcluded = get_config('booking', 'enrollinkskipconditions');
+            if (!empty($enrollinkexcluded)) {
+                $excludedconditionsarray = array_merge($excludedconditionsarray, explode(',', $enrollinkexcluded));
+            }
+            // We always skip the following conditions in the enrollink context, as they don't make sense there.
+            $excludedconditionsarray = array_merge($excludedconditionsarray, [
+                // Should be only checked for the booker, not the ones who receive the enrollink.
+                MOD_BOOKING_BO_COND_CAPBOOKINGCHOOSE,
+                MOD_BOOKING_BO_COND_JSON_ALLOWEDTOBOOKININSTANCE,
+                // Customform is only displayed to the booker, not the ones who receive the enrollink.
+                MOD_BOOKING_BO_COND_JSON_CUSTOMFORM,
+            ]);
+        }
+        // This is where the conditions are actually skipped (excluded).
         foreach ($conditions as $key => $condition) {
-            if (in_array($condition->id, $excludedconditionarray)) {
+            if (in_array($condition->id, $excludedconditionsarray)) {
                 unset($conditions[$key]);
             }
         }
+    }
+
+    /**
+     * Destroy all singletons.
+     *
+     * @return void
+     *
+     */
+    public static function destroy_singletons() {
+        self::$isenrollinkcontext = false;
     }
 }

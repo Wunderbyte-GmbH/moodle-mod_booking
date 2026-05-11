@@ -813,6 +813,84 @@ if ($ADMIN->fulltree) {
             )
         );
 
+        // For enrollinks, we skip some conditions by default, so they should not be selected here.
+        // See bo_info::exclude_conditions.
+        $enrollinkskippableconditions = array_filter(
+            $skippableconditions,
+            fn($key) => !in_array($key, [
+                MOD_BOOKING_BO_COND_CAPBOOKINGCHOOSE,
+                MOD_BOOKING_BO_COND_JSON_ALLOWEDTOBOOKININSTANCE,
+                MOD_BOOKING_BO_COND_JSON_CUSTOMFORM,
+            ]),
+            ARRAY_FILTER_USE_KEY
+        );
+
+        // Enrollink skippable conditions setting.
+        // Time-relevant conditions are skipped in default setting as the booker might not want them to be checked for enrollinks.
+        $settings->add(
+            new admin_setting_configmultiselect(
+                'booking/enrollinkskipconditions',
+                get_string('enrollinkskipconditions', 'mod_booking'),
+                get_string('enrollinkskipconditions_desc', 'mod_booking'),
+                [
+                    MOD_BOOKING_BO_COND_BOOKING_TIME,
+                    MOD_BOOKING_BO_COND_JSON_NOOVERLAPPING,
+                    MOD_BOOKING_BO_COND_OPTIONHASSTARTED,
+                ],
+                $enrollinkskippableconditions
+            )
+        );
+
+        $defaultnooverlappingoptions = [
+            MOD_BOOKING_COND_OVERLAPPING_HANDLING_EMPTY => get_string('defaultnooverlappingoncreate:disabled', 'mod_booking'),
+            MOD_BOOKING_COND_OVERLAPPING_HANDLING_WARN  => get_string('defaultnooverlappingoncreate:warning', 'mod_booking'),
+            MOD_BOOKING_COND_OVERLAPPING_HANDLING_BLOCK => get_string('defaultnooverlappingoncreate:blocking', 'mod_booking'),
+        ];
+        $settings->add(
+            new admin_setting_configselect(
+                'booking/defaultnooverlappingoncreate',
+                get_string('defaultnooverlappingoncreate', 'mod_booking'),
+                get_string('defaultnooverlappingoncreate_desc', 'mod_booking'),
+                MOD_BOOKING_COND_OVERLAPPING_HANDLING_EMPTY,
+                $defaultnooverlappingoptions
+            )
+        );
+
+        $enrolmultipleusersformmodeoptions = [
+            MOD_BOOKING_ENROLMULTIPLEUSERS_CHECKBOX =>
+                get_string('enrolmultipleusersformmode:checkbox', 'mod_booking'),
+            MOD_BOOKING_ENROLMULTIPLEUSERS_ALSOBOOKMYSELF =>
+                get_string('enrolmultipleusersformmode:alsobookmyself', 'mod_booking'),
+            MOD_BOOKING_ENROLMULTIPLEUSERS_DONOTBOOKMYSELF =>
+                get_string('enrolmultipleusersformmode:donotbookmyself', 'mod_booking'),
+        ];
+        $settings->add(
+            new admin_setting_configselect(
+                'booking/enrolmultipleusersformmode',
+                get_string('enrolmultipleusersformmode', 'mod_booking'),
+                get_string('enrolmultipleusersformmode_desc', 'mod_booking'),
+                MOD_BOOKING_ENROLMULTIPLEUSERS_CHECKBOX,
+                $enrolmultipleusersformmodeoptions
+            )
+        );
+
+        // PRO feature: Favorites toggle.
+        $settings->add(
+            new admin_setting_heading(
+                'enablefavoritestoggleheading',
+                get_string('enablefavoritestoggle', 'mod_booking') . " " . get_string('badge:pro', 'mod_booking'),
+                get_string('enablefavoritestoggle_desc', 'mod_booking')
+            )
+        );
+        $settings->add(
+            new admin_setting_configcheckbox(
+                'booking/enablefavoritestoggle',
+                get_string('enablefavoritestoggle', 'mod_booking'),
+                '',
+                0
+            )
+        );
+
         // PRO feature: "What's new" tab.
         $settings->add(
             new admin_setting_heading(
@@ -991,6 +1069,15 @@ if ($ADMIN->fulltree) {
             )
         );
     } else {
+        $settings->add(
+            new admin_setting_heading(
+                'enablefavoritestoggleheading',
+                get_string('enablefavoritestoggle', 'mod_booking') . " " . get_string('badge:pro', 'mod_booking'),
+                get_string('prolicensefeatures', 'mod_booking') .
+                get_string('profeatures:enablefavoritestoggle', 'mod_booking') .
+                get_string('infotext:prolicensenecessary', 'mod_booking')
+            )
+        );
         $settings->add(
             new admin_setting_heading(
                 'tabwhatsnew',
@@ -2323,6 +2410,7 @@ if ($ADMIN->fulltree) {
         $whichviewopts = [
             'showall' => get_string('showallbookingoptions', 'booking'),
             'mybooking' => get_string('showmybookingsonly', 'booking'),
+            'myfavorites' => get_string('showmyfavoritesonly', 'booking'),
             'myoptions' => get_string('optionsiteach', 'booking'),
             'optionsiamresponsiblefor' => get_string('optionsiamresponsiblefor', 'mod_booking'),
             'showactive' => get_string('activebookingoptions', 'booking'),

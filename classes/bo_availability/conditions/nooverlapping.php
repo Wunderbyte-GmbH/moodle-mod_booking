@@ -172,6 +172,15 @@ class nooverlapping implements bo_condition {
         // This is the return value. Not available to begin with.
         $isavailable = false;
 
+        // Without a valid date range there can be no meaningful overlap.
+        if (!$this->has_valid_timing($settings)) {
+            $isavailable = true;
+            if ($not) {
+                $isavailable = !$isavailable;
+            }
+            return $isavailable;
+        }
+
         // Check if this bookingoption forbids the overlapping.
         $forbidden = true;
         if (empty($this->return_handling_from_settings($settings))) {
@@ -229,6 +238,10 @@ class nooverlapping implements bo_condition {
      * @return bool
      */
     public function hard_block(booking_option_settings $settings, $userid): bool {
+        if (!$this->has_valid_timing($settings)) {
+            return false;
+        }
+
         $handling = $this->return_handling_from_settings($settings);
         if ($handling != MOD_BOOKING_COND_OVERLAPPING_HANDLING_BLOCK) {
             return false;
@@ -291,6 +304,16 @@ class nooverlapping implements bo_condition {
             get_string('nooverlappingselectinfo', 'mod_booking'),
             $options
         );
+
+        // For new options, prefill from admin config; user can still change before save.
+        if (empty($optionid)) {
+            $defaulthandling = (int) get_config('booking', 'defaultnooverlappingoncreate');
+            if (!empty($defaulthandling)) {
+                $mform->setDefault('bo_cond_nooverlapping_restrict', 1);
+                $mform->setDefault('bo_cond_nooverlapping_handling', $defaulthandling);
+            }
+        }
+
         $mform->hideIf('bo_cond_nooverlapping_handling', 'bo_cond_nooverlapping_restrict', 'eq', 0);
         $mform->addElement(
             'html',
@@ -442,7 +465,6 @@ class nooverlapping implements bo_condition {
      * @return void
      */
     public static function set_data(stdClass &$defaultvalues, int $optiondateid, int $idx) {
-
         $values = &$defaultvalues;
     }
 
@@ -506,10 +528,48 @@ class nooverlapping implements bo_condition {
             return MOD_BOOKING_COND_OVERLAPPING_HANDLING_EMPTY;
         }
         $availability = json_decode($settings->availability);
-        if (empty($availability[0]->nooverlapping)) {
+        if (empty($availability) || !is_array($availability)) {
             return MOD_BOOKING_COND_OVERLAPPING_HANDLING_EMPTY;
         }
-        $this->handling = $availability[0]->nooverlappinghandling ?? MOD_BOOKING_COND_OVERLAPPING_HANDLING_EMPTY;
+
+        foreach ($availability as $condition) {
+            if (empty($condition)) {
+                continue;
+            }
+
+            $isnooverlapping = !empty($condition->nooverlapping)
+                || (!empty($condition->id) && (int) $condition->id === MOD_BOOKING_BO_COND_JSON_NOOVERLAPPING)
+                || (!empty($condition->name) && $condition->name === 'nooverlapping');
+
+            if ($isnooverlapping) {
+                $this->handling = (int) ($condition->nooverlappinghandling ?? MOD_BOOKING_COND_OVERLAPPING_HANDLING_EMPTY);
+                return $this->handling;
+            }
+        }
+
+        $this->handling = MOD_BOOKING_COND_OVERLAPPING_HANDLING_EMPTY;
         return $this->handling;
+    }
+
+    /**
+     * Check if option has at least one usable date range for overlap checks.
+     *
+     * @param booking_option_settings $settings
+     * @return bool
+     */
+    private function has_valid_timing(booking_option_settings $settings): bool {
+        if (!empty($settings->coursestarttime) && !empty($settings->courseendtime)) {
+            return true;
+        }
+
+        if (!empty($settings->sessions) && is_array($settings->sessions)) {
+            foreach ($settings->sessions as $session) {
+                if (!empty($session->coursestarttime) && !empty($session->courseendtime)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }

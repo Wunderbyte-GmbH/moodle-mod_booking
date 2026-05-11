@@ -53,6 +53,7 @@ use mod_booking\table\bulkoperations_table;
 use moodle_url;
 use Throwable;
 use mod_booking\output\renderer;
+use mod_booking\utils\wb_payment;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -917,7 +918,6 @@ class shortcodes {
         }
         $wherearray = [];
         $course = $PAGE->course;
-        $perpage = self::check_perpage($args);
         $pageurl = $course->shortname . $PAGE->url->out();
         $perpage = self::check_perpage($args);
 
@@ -1041,6 +1041,162 @@ class shortcodes {
         $table->set_filter_sql($fields, $from, $where, $filter, $params);
 
         $table->define_cache('mod_booking', 'mybookingoptionstable');
+
+        try {
+            $out = $table->outhtml($perpage, true);
+        } catch (Throwable $e) {
+            $out = get_string('shortcode:error', 'mod_booking');
+            /** @var \context $syscontext */
+            $syscontext = context_system::instance();
+            if ($CFG->debug > 0 && has_capability('moodle/site:config', $syscontext)) {
+                $out .= $e->getMessage();
+            }
+        }
+
+        return $out;
+    }
+
+    /**
+     * Shortcode to show the favorite booking options of the current (or a specified) user.
+     *
+     * @param string $shortcode
+     * @param array $args
+     * @param string|null $content
+     * @param object $env
+     * @param Closure $next
+     * @return string
+     */
+    public static function myfavorites($shortcode, $args, $content, $env, $next) {
+        global $USER, $PAGE, $CFG;
+
+        if (!wb_payment::pro_version_is_activated()) {
+            return get_string('infotext:prolicensenecessarytextandlink', 'mod_booking');
+        }
+
+        if (!get_config('booking', 'enablefavoritestoggle')) {
+            $settingsurl = new moodle_url(
+                '/admin/settings.php',
+                ['section' => 'modsettingbooking'],
+                'admin-enablefavoritestoggle'
+            );
+            return get_string('infotext:favoritestoggleisdisabled', 'mod_booking', $settingsurl->out(false));
+        }
+
+        // Get rid of quotation marks.
+        self::fix_args($args);
+
+        $requiredargs = [];
+        $error = shortcodes_handler::validatecondition($shortcode, $args, true, $requiredargs);
+        if ($error['error'] === 1) {
+            return $error['message'];
+        }
+
+        if (isset($args['userid']) && !empty($args['userid'])) {
+            $userid = (int)$args['userid'];
+        } else {
+            $userid = (int)$USER->id;
+        }
+
+        $wherearray = [];
+        $course = $PAGE->course;
+        $pageurl = $course->shortname . $PAGE->url->out();
+        $perpage = self::check_perpage($args);
+
+        if (!empty($args['cmid'])) {
+            $booking = singleton_service::get_instance_of_booking_settings_by_cmid((int)$args['cmid']);
+            $wherearray['bookingid'] = (int)$booking->id;
+        }
+
+        $viewparam = self::get_viewparam($args);
+        // Append 'myfavoritestable' so query_db_cached injects the favorites filter dynamically.
+        $table = self::init_table_for_courses(null, md5($pageurl) . ' myfavoritestable', $args);
+
+        // Additional where condition from customfields.
+        $additionalcfwhere = self::set_customfield_wherearray($args, $wherearray) ?? '';
+
+        // Favorites are filtered dynamically in query_db_cached — no baked-in IN clause needed.
+        $additionalwhere = $additionalcfwhere;
+
+        // These are all possible options to be displayed in the bookingtable.
+        $possibleoptions = [
+            "description",
+            "statusdescription",
+            "attachment",
+            "teacher",
+            "responsiblecontact",
+            "showdates",
+            "dayofweektime",
+            "location",
+            "institution",
+            "minanswers",
+            "bookingopeningtime",
+            "bookingclosingtime",
+            "coursestarttime",
+            "booknow",
+        ];
+
+        if (!empty($args['exclude'])) {
+            $exclude = explode(',', $args['exclude']);
+            $optionsfields = array_diff($possibleoptions, $exclude);
+        } else {
+            $optionsfields = $possibleoptions;
+        }
+
+        $showfilter = !empty($args['filter']) ? true : false;
+        $showsort   = !empty($args['sort']) ? true : false;
+        $showsearch = !empty($args['search']) ? true : false;
+
+        view::apply_standard_params_for_bookingtable(
+            $table,
+            $optionsfields,
+            $showfilter,
+            $showsearch,
+            $showsort,
+            false,
+            true,
+            $viewparam,
+            0,
+            $args
+        );
+
+        // Possibility to add customfieldfilter.
+        $customfieldfilter = explode(',', ($args['customfieldfilter'] ?? ''));
+        if (!empty($customfieldfilter)) {
+            self::apply_customfieldfilter($table, $customfieldfilter);
+        }
+
+        // If "rightside" is in the "exclude" array, then we do not show the rightside area (containing the "Book now" button).
+        if (!empty($exclude) && in_array('rightside', $exclude)) {
+            unset($table->subcolumns['rightside']);
+        }
+
+        // Always enable favorites toggle for the [myfavoritescards] shortcode.
+        $args['favorites'] = '1';
+
+        // Set common table options requirelogin, sortorder, sortby.
+        self::set_common_table_options_from_arguments($table, $args);
+
+        [$fields, $from, $where, $params, $filter] =
+            booking::get_options_filter_sql(
+                0,
+                0,
+                '',
+                null,
+                null,
+                [],
+                $wherearray,
+                null,
+                [],
+                $additionalwhere,
+                '',
+                $table
+            );
+
+        $params['userid'] = $userid;
+
+        $table->set_filter_sql($fields, $from, $where, $filter, $params);
+
+        // Favorites are filtered dynamically in query_db_cached — no SESSION caching needed.
 
         try {
             $out = $table->outhtml($perpage, true);
@@ -1641,9 +1797,9 @@ class shortcodes {
     }
 
     /**
-     * Setting options from shortcodes arguments common for all children of wunderbyte_table .
+     * Setting options from shortcodes arguments common for all children of bookingoptions_wbtable .
      *
-     * @param wunderbyte_table $table reference to table
+     * @param bookingoptions_wbtable $table reference to table
      * @param array $args
      *
      * @return void
@@ -1683,6 +1839,10 @@ class shortcodes {
         }
         if (isset($args['progress'])) {
             $table->add_subcolumns('progress', ['progress']);
+        }
+
+        if (isset($args['favorites']) && ($args['favorites'] == '1' || $args['favorites'] == 'true')) {
+            $table->showfavoritestoggle = true;
         }
 
         if (!isset($args['perpage']) || $args['perpage'] == 0 || $args['perpage'] == "false" || $args['perpage'] == false) {
