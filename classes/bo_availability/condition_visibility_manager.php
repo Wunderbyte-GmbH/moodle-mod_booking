@@ -297,7 +297,7 @@ class condition_visibility_manager {
     }
 
     /**
-     * Freezes a specific form element and adds a warning message.
+     * Freezes a specific form element without adding a warning.
      *
      * @param MoodleQuickForm $mform
      * @param string $elementname
@@ -307,20 +307,7 @@ class condition_visibility_manager {
      */
     private function disable_element_without_warning(MoodleQuickForm &$mform, string $elementname) {
         if ($mform->elementExists($elementname)) {
-            $linktosetting = new moodle_url(
-                '/admin/settings.php',
-                ['section' => 'modsettingbooking'],
-                'admin-skipableconditions'
-            );
             $mform->freeze($elementname);
-            $warningname = $elementname . '_warning';
-            $warningelement = $mform->createElement(
-                'static',
-                $warningname,
-                '',
-                get_string('conditionsskippedwarning', 'mod_booking', $linktosetting)
-            );
-            $mform->insertElementBefore($warningelement, $elementname);
         }
     }
 
