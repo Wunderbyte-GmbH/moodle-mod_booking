@@ -115,7 +115,8 @@ class behat_mod_booking_generator extends behat_generator_base {
             } else {
                 $id = $DB->get_field('booking', 'id', ['name' => $name, 'course' => $courseid]);
                 if (!$id) {
-                    throw new Exception('The specified booking activity with name "' . $name . '" and course shortname "' . $courseshortname . '" does not exist');
+                    throw new Exception('The specified booking activity with name "'
+                        . $name . '" and course shortname "' . $courseshortname . '" does not exist');
                 }
                 return $id;
             }
