@@ -478,6 +478,7 @@ Feature: Create global booking rules as admin and insure they are working.
     When I am on the "BookingCMP" Activity page logged in as admin
     And I change viewport size to "1366x10000"
     And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
+    And I wait until the page is ready
     And I set the following fields to these values:
       | Booking option name         | Option-updated |
       | Description                 | Deskr-updated  |

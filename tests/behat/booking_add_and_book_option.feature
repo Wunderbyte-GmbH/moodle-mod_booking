@@ -122,6 +122,7 @@ Feature: In a booking instance create booking options
     And I press "Save"
     And I wait "1" seconds
     And I click on "Show recent updates..." "button"
+    And I wait until the page is ready
     And I should see "1 of 1 records found" in the "#showEventList" "css_element"
     And I should see "Title:" in the "#showEventList" "css_element"
     And I should see "Option-created" in the "#showEventList" "css_element"
