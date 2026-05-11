@@ -105,10 +105,26 @@ class behat_mod_booking_generator extends behat_generator_base {
     protected function get_booking_id(string $bookingname): int {
         global $DB;
 
-        if (!$id = $DB->get_field('booking', 'id', ['name' => $bookingname])) {
-            throw new Exception('The specified booking activity with name "' . $bookingname . '" does not exist');
+        // Support explicit disambiguation for duplicate booking names:
+        // "Booking name::COURSESHORTNAME", e.g. "My booking::C2".
+        if (strpos($bookingname, '::') !== false) {
+            [$name, $courseshortname] = array_map('trim', explode('::', $bookingname, 2));
+            $courseid = $DB->get_field('course', 'id', ['shortname' => $courseshortname]);
+            if (!$courseid) {
+                throw new Exception('The specified course shortname "' . $courseshortname . '" does not exist');
+            } else {
+                $id = $DB->get_field('booking', 'id', ['name' => $name, 'course' => $courseid]);
+                if (!$id) {
+                    throw new Exception('The specified booking activity with name "' . $name . '" and course shortname "' . $courseshortname . '" does not exist');
+                }
+                return $id;
+            }
+        } else {
+            if (!$id = $DB->get_field('booking', 'id', ['name' => $bookingname])) {
+                throw new Exception('The specified booking activity with name "' . $bookingname . '" does not exist');
+            }
+            return $id;
         }
-        return $id;
     }
 
     /**
