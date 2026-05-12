@@ -26,7 +26,6 @@ use mod_booking\bo_availability\bo_info;
 use mod_booking\customfield\booking_handler;
 use mod_booking\local\htmlcomponents;
 use mod_booking\placeholders\placeholders_info;
-use theme_boost_union\admin_setting_configtext_url;
 
 defined('MOODLE_INTERNAL') || die();
 
