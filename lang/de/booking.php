@@ -528,6 +528,8 @@ Klicken Sie auf den folgenden Link um die Änderung(en) und eine Übersicht übe
 ';
 $string['bookingchangedtextsubject'] = 'Änderungsbenachrichtigung für {$a->title}';
 $string['bookingclosingtime'] = 'Buchbar bis';
+$string['bookingclosingtimerelativeautoapply'] = '⤷ Relativen Buchungsschluss bei neuen Buchungsoptionen automatisch anwenden';
+$string['bookingclosingtimerelativeautoapply_desc'] = 'Wenn aktiviert, ist das Kontrollkästchen für den relativen Buchungsschluss beim Erstellen einer neuen Buchungsoption bereits vorausgewählt.';
 $string['bookingcondition'] = "Bedingung";
 $string['bookingconfirmationlink'] = 'Link zur Buchungsbestätigung';
 $string['bookingcustomfield'] = 'Benutzerdefinierte Felder für Buchungsoptionen';
@@ -556,6 +558,8 @@ $string['bookingname'] = 'Buchungsinstanzname';
 $string['bookingnotopenyet'] = 'Ihr Event startet erst in {$a} Minuten. Dieser Link wird Sie ab 15 Minuten vor dem Event weiterleiten.';
 $string['bookingopen'] = 'Offen';
 $string['bookingopeningtime'] = 'Buchbar ab';
+$string['bookingopeningtimerelativeautoapply'] = '⤷ Relativen Buchungsstart bei neuen Buchungsoptionen automatisch anwenden';
+$string['bookingopeningtimerelativeautoapply_desc'] = 'Wenn aktiviert, ist das Kontrollkästchen für den relativen Buchungsstart beim Erstellen einer neuen Buchungsoption bereits vorausgewählt.';
 $string['bookingoption'] = 'Buchungsoption';
 $string['bookingoptionbooked'] = 'Buchungsoption gebucht';
 $string['bookingoptionbookedotheruserdesc'] = 'NutzerIn mit ID {$a->userid} hat NutzerIn mit ID {$a->relateduserid} für die Buchung der Option Nr. {$a->objectid} gebucht.';
@@ -673,8 +677,6 @@ $string['bookingtimeclosingrelativeduration'] = 'Zeitpunkt zum Schließen der Bu
 $string['bookingtimenomode'] = 'Keine Einschränkung';
 $string['bookingtimeopeningabsolutedate'] = 'Buchung öffnet am (absolutes Datum)';
 $string['bookingtimeopeningrelativeduration'] = 'Zeitpunkt zum Öffnen der Buchung';
-$string['bookingtimerelativeautoapply'] = '⤷ Buchungszeitraum bei neuen Buchungsoptionen automatisch anwenden';
-$string['bookingtimerelativeautoapply_desc'] = 'Wenn aktiviert, sind die Kontrollkästchen für Buchungsöffnungs- und Schließzeitraum beim Erstellen einer neuen Buchungsoption bereits vorausgewählt.';
 $string['bookingtimerelativebeforeafter'] = 'Vor oder nach dem ausgewählten Datum';
 $string['bookingtimerelativedatefield'] = 'Relativ zu';
 $string['bookingtimerelativedefaultclosingbeforeafter'] = '⤷ Standard für relatives Buchungsschließen: Vor/Nach';

@@ -290,8 +290,10 @@ class booking_time implements bo_condition {
                 $openingmode = 2;
                 $closingmode = 2;
                 // Only pre-check the checkboxes when the auto-apply setting is on.
-                if (!empty(get_config('booking', 'bookingtimerelativeautoapply'))) {
+                if (!empty(get_config('booking', 'bookingopeningtimerelativeautoapply'))) {
                     $checkboxopening = 1;
+                }
+                if (!empty(get_config('booking', 'bookingclosingtimerelativeautoapply'))) {
                     $checkboxclosing = 1;
                 }
             }

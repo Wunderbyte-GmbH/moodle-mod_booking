@@ -788,6 +788,21 @@ if ($ADMIN->fulltree) {
                 0
             )
         );
+        // Opening time settings.
+        $settings->add(
+            new admin_setting_configcheckbox(
+                'booking/bookingopeningtimerelativeautoapply',
+                get_string('bookingopeningtimerelativeautoapply', 'mod_booking'),
+                get_string('bookingopeningtimerelativeautoapply_desc', 'mod_booking'),
+                0 // Auto-apply is turned off by default.
+            )
+        );
+        $settings->hide_if(
+            'booking/bookingopeningtimerelativeautoapply',
+            'booking/bookingtimerelativeenabled',
+            'eq',
+            0
+        );
         $settings->add(
             new admin_setting_configduration(
                 'booking/bookingtimerelativedefaultopeningduration',
@@ -839,6 +854,21 @@ if ($ADMIN->fulltree) {
             'eq',
             0
         );
+        // Closing time settings.
+        $settings->add(
+            new admin_setting_configcheckbox(
+                'booking/bookingclosingtimerelativeautoapply',
+                get_string('bookingclosingtimerelativeautoapply', 'mod_booking'),
+                get_string('bookingclosingtimerelativeautoapply_desc', 'mod_booking'),
+                0 // Auto-apply is turned off by default.
+            )
+        );
+        $settings->hide_if(
+            'booking/bookingclosingtimerelativeautoapply',
+            'booking/bookingtimerelativeenabled',
+            'eq',
+            0
+        );
         $settings->add(
             new admin_setting_configduration(
                 'booking/bookingtimerelativedefaultclosingduration',
@@ -886,20 +916,7 @@ if ($ADMIN->fulltree) {
             'eq',
             0
         );
-        $settings->add(
-            new admin_setting_configcheckbox(
-                'booking/bookingtimerelativeautoapply',
-                get_string('bookingtimerelativeautoapply', 'mod_booking'),
-                get_string('bookingtimerelativeautoapply_desc', 'mod_booking'),
-                0 // Auto-apply is turned off by default.
-            )
-        );
-        $settings->hide_if(
-            'booking/bookingtimerelativeautoapply',
-            'booking/bookingtimerelativeenabled',
-            'eq',
-            0
-        );
+
         // Use SQL for availability conditions.
         $settings->add(
             new admin_setting_configcheckbox(

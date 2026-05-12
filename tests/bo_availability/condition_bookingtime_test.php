@@ -538,11 +538,95 @@ final class condition_bookingtime_test extends advanced_testcase {
     }
 
     /**
+     * Test that bookingopeningtimerelativeautoapply pre-checks only the opening checkbox.
+     *
+     * @covers \mod_booking\bo_availability\conditions\booking_time::add_condition_to_mform
+     */
+    public function test_autoapply_opening_only_prechecks_opening_checkbox(): void {
+        set_config('bookingtimerelativeenabled', 1, 'booking');
+        set_config('bookingopeningtimerelativeautoapply', 1, 'booking');
+        set_config('bookingclosingtimerelativeautoapply', 0, 'booking');
+
+        $defaults = $this->get_checkbox_defaults_from_new_option_form();
+
+        $this->assertEquals(1, $defaults['restrictanswerperiodopening']);
+        $this->assertEquals(0, $defaults['restrictanswerperiodclosing']);
+    }
+
+    /**
+     * Test that bookingclosingtimerelativeautoapply pre-checks only the closing checkbox.
+     *
+     * @covers \mod_booking\bo_availability\conditions\booking_time::add_condition_to_mform
+     */
+    public function test_autoapply_closing_only_prechecks_closing_checkbox(): void {
+        set_config('bookingtimerelativeenabled', 1, 'booking');
+        set_config('bookingopeningtimerelativeautoapply', 0, 'booking');
+        set_config('bookingclosingtimerelativeautoapply', 1, 'booking');
+
+        $defaults = $this->get_checkbox_defaults_from_new_option_form();
+
+        $this->assertEquals(0, $defaults['restrictanswerperiodopening']);
+        $this->assertEquals(1, $defaults['restrictanswerperiodclosing']);
+    }
+
+    /**
+     * Test that both auto-apply settings enabled pre-checks both checkboxes.
+     *
+     * @covers \mod_booking\bo_availability\conditions\booking_time::add_condition_to_mform
+     */
+    public function test_autoapply_both_settings_prechecks_both_checkboxes(): void {
+        set_config('bookingtimerelativeenabled', 1, 'booking');
+        set_config('bookingopeningtimerelativeautoapply', 1, 'booking');
+        set_config('bookingclosingtimerelativeautoapply', 1, 'booking');
+
+        $defaults = $this->get_checkbox_defaults_from_new_option_form();
+
+        $this->assertEquals(1, $defaults['restrictanswerperiodopening']);
+        $this->assertEquals(1, $defaults['restrictanswerperiodclosing']);
+    }
+
+    /**
+     * Test that both auto-apply settings disabled leaves both checkboxes unchecked.
+     *
+     * @covers \mod_booking\bo_availability\conditions\booking_time::add_condition_to_mform
+     */
+    public function test_autoapply_none_leaves_both_checkboxes_unchecked(): void {
+        set_config('bookingtimerelativeenabled', 1, 'booking');
+        set_config('bookingopeningtimerelativeautoapply', 0, 'booking');
+        set_config('bookingclosingtimerelativeautoapply', 0, 'booking');
+
+        $defaults = $this->get_checkbox_defaults_from_new_option_form();
+
+        $this->assertEquals(0, $defaults['restrictanswerperiodopening']);
+        $this->assertEquals(0, $defaults['restrictanswerperiodclosing']);
+    }
+
+    /**
+     * Call add_condition_to_mform with a mock form for a new option (optionid=0) and return the
+     * captured setDefault values.
+     *
+     * @return array<string, mixed>
+     */
+    private function get_checkbox_defaults_from_new_option_form(): array {
+        $defaults = [];
+        $mform = $this->getMockBuilder(\MoodleQuickForm::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $mform->method('setDefault')->willReturnCallback(function ($name, $value) use (&$defaults) {
+            $defaults[$name] = $value;
+        });
+
+        $condition = new \mod_booking\bo_availability\conditions\booking_time();
+        $condition->add_condition_to_mform($mform, 0);
+
+        return $defaults;
+    }
+
+    /**
      * Data provider for condition_bookingpolicy_test
      *
      * @return array
      * @throws \UnexpectedValueException
-     *
      */
     public static function booking_common_settings_provider(): array {
         $bdata = [
