@@ -281,8 +281,9 @@ function delete_customfields_in_tool_certificate_2026030500(): void {
             );
             $handler->delete_category($categorycontroller);
         } catch (moodle_exception $e) {
-            // Handler class not found (plugin already removed) — delete directly via API.
-            \core_customfield\api::delete_category($categorycontroller);
+            // Might happen when plugin tool_certificate is not installed.
+            // In this case, we can just ignore the error and continue.
+            return;
         }
     }
 }
