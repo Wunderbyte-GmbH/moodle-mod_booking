@@ -60,6 +60,7 @@ if (
     is_siteadmin()
     && !empty(get_config('booking', 'uselegacymailtemplates'))
     && empty(get_config('booking', 'legacymailremovalacknowledged'))
+    && !defined('BEHAT_SITE_RUNNING') // Do not block in Behat tests.
 ) {
     $settingsurl = new moodle_url(
         '/admin/settings.php',
