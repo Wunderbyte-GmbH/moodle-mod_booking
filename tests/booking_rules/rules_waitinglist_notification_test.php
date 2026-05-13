@@ -533,7 +533,12 @@ final class rules_waitinglist_notification_test extends advanced_testcase {
 
         // Get adhoc tasks to see if expected ones are created.
         $tasks = \core\task\manager::get_adhoc_tasks(\mod_booking\task\confirm_bookinganswer_by_rule_adhoc::class);
-        $this->assertNotEmpty($tasks, 'Expected confirm_bookinganswer_by_rule_adhoc adhoc tasks to be created.');
+        $this->assertCount(
+            $data['numberoftasksexecuted'],
+            $tasks,
+            'Unexpected number of initial confirm_bookinganswer_by_rule_adhoc tasks '
+            . '(one direct confirm + one repeat-trigger expected for mode-2 chaining).'
+        );
 
         $tasks = \core\task\manager::get_adhoc_tasks(\mod_booking\task\send_mail_by_rule_adhoc::class);
         $this->assertNotEmpty($tasks, 'Expected send_mail_by_rule_adhoc adhoc tasks to be created.');
@@ -553,6 +558,14 @@ final class rules_waitinglist_notification_test extends advanced_testcase {
         $messages = $sink->get_messages();
         $res = ob_get_clean();
         $sink->close();
+
+        if ($data['executealltasks']) {
+            $remainingconfirmtasks = \core\task\manager::get_adhoc_tasks(\mod_booking\task\confirm_bookinganswer_by_rule_adhoc::class);
+            $this->assertEmpty(
+                $remainingconfirmtasks,
+                'Expected confirm_bookinganswer_by_rule_adhoc queue to be drained after running all tasks.'
+            );
+        }
 
         // Both tasks logged their results, so we check for the string twice.
         $this->assertTrue(substr_count($res, '_by_rule_adhoc') >= 2);
@@ -634,7 +647,7 @@ final class rules_waitinglist_notification_test extends advanced_testcase {
                     'szenario' => 'firstuserbookedconfirmedwithprice',
                     'studentprice' => 10,
                     'executealltasks' => false,
-                    'numberoftasksexecuted' => 1,
+                    'numberoftasksexecuted' => 2,
                     'studentexpectedtobebooked' => false,
                     'nstudentbooked' => 1,
                     'mailssend' => 1,
@@ -645,7 +658,7 @@ final class rules_waitinglist_notification_test extends advanced_testcase {
                     'szenario' => 'nouserbookedmanualconfirmation',
                     'studentprice' => 10,
                     'executealltasks' => true,
-                    'numberoftasksexecuted' => 1,
+                    'numberoftasksexecuted' => 2,
                     'studentexpectedtobebooked' => false,
                     'nstudentbooked' => 1,
                     'mailssend' => 2,
