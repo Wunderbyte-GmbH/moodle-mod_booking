@@ -1,3 +1,28 @@
+## Version 9.3.3 (2026051300)
+* New Feature: Booking time relative to coursestart.
+* Improvement: Add possibility to check auto-apply fields separately.
+* Improvement: Show warning on view.php instead of exception when uselegacymailtemplates is active but legacymailremovalacknowledged has not been set yet.
+* Improvement: New confirmation setting to confirm that legacy emails will soon be not supported anymore.
+* Improvement: Enable detailed changes for special classes like price.
+* Improvement: Setting if teachers see own invisible options in teachers.php
+* Bugfix: Create warning only once per condition.
+* Bugfix: Disable all possible elements of conditions with skippableconditions setting applied.
+* Bugfix: Setting skippableconditions also applies to select of nooverlappingcondition.
+* Bugfix: fix for: confirmcancel::is_available() hides the confirmation condition for priced options in most “booked” cases.
+* Bugfix: Allow cancelling with new price category.
+* Bugfix: Do not block view.php in behat tests.
+* Bugfix: Fix error on upgrade when plugin tool_certificate is missing.
+* Bugfix: Disable legacy mail templates directly to avoid JS timeout from TinyMCE editors (Bootstrap 5 / Moodle 5.1+).
+* Bugfix: Fix failing behats for Bootstrap 5 (Moodle 5+).
+* Bugfix: When a booking option can be booked again, notification list should not block (also add new unit test).
+* Bugfix: correctly retrieve and format values on bookingoption description via field controlle.
+* Bugfix: SQL error when user try to create a rule ("days before", "specific time") for installment data field.
+* Bugfix: Fix behat - previously booked warning now contains title of booking option.
+* Bugfix: Show booking option name in description of previouslybooked condition.
+* Bugfix: Correctly record price for changes.
+* Bugfix: Handling of price changes.
+* Bugfix: Catch error for 0 user when executing customfield placeholders.
+
 ## Version 9.3.2 (2026043000)
 * New feature: Add direct messaging with attachments to bookings tracker.
 * Improvement: Show info texts on shortcode myfavorites if PRO license or setting not enabled.
