@@ -369,7 +369,8 @@ if there only was one booking option. */
 }
 
 #prepage-booking-tabs li {
-    color: lightgray;
+    /*color: lightgray;*/
+    color: #767676;
     list-style-type: none;
     font-size: 15px;
     width: 25%;
@@ -557,6 +558,14 @@ We need this for teachers for example. */
 
 .bookingoption-edit-button {
     text-decoration: none;
+}
+
+/*
+ * Improve contrast for active filter chips in Moodle's core autocomplete UI.
+ * The default combination can render black text on #0f6cbf, which fails WCAG AA.
+ */
+#page-mod-booking-view .wunderbyteTableFilter .form-check-label .filterkeylabel {
+    color: #fff;
 }
 
 /* GH-936 Better distinction between availabilities. */

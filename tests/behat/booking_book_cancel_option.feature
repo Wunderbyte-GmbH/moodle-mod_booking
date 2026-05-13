@@ -48,22 +48,36 @@ Feature: In a booking instance
     And I should not see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I should not see "Undo my booking" in the ".allbookingoptionstable_r1 .booknow" "css_element"
 
-  @javascript
+  @javascript @accessibility
   Scenario: Booking option cancellation: book option as a student and self-cancell it
     Given the following "mod_booking > options" exist:
       | booking    | text          | course | description  |
       | My booking | Test option 1 | C1     | Cancellation |
     And I am on the "My booking" Activity page logged in as student1
+    ## Validate accessibility of booking options table before booking
+    And the page should meet accessibility standards
+    ## And the page should meet accessibility standards with "best-practice" extra tests
+    ## Proceed with booking and cancellation
     And I should see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
+    ## Validate accessibility of booking options table before booking
+    And the page should meet accessibility standards
     And I should see "Click again to confirm booking" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r1" "css_element"
+    ## Validate accessibility of booking options table before booking
+    And the page should meet accessibility standards
     And I should see "Start" in the ".allbookingoptionstable_r1" "css_element"
     And I should not see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
+    ## Validate accessibility of booking options table before booking
+    And the page should meet accessibility standards
     And I should see "Undo my booking" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I click on "Undo my booking" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
+    ## Validate accessibility of booking options table before booking
+    And the page should meet accessibility standards
     Then I should see "Click again to confirm cancellation" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Click again to confirm cancellation" "text" in the ".allbookingoptionstable_r1" "css_element"
+    ## Validate accessibility of booking options table before booking
+    And the page should meet accessibility standards
     And I should see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
 
   @javascript

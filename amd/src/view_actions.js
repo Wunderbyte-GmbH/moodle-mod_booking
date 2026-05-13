@@ -60,6 +60,17 @@ define(['jquery', 'core/config', 'mod_booking/jquery.barrating'],
                     });
                 });
 
+                // Remove invalid aria-controls references that point to missing IDs.
+                $('[aria-controls]').each(function() {
+                    const controls = ($(this).attr('aria-controls') || '').trim();
+                    if (!controls) {
+                        return;
+                    }
+                    if (document.getElementById(controls) === null) {
+                        $(this).removeAttr('aria-controls');
+                    }
+                });
+
                 $('#page-mod-booking-report #buttonclear')
                         .on('click',
                                 function() {

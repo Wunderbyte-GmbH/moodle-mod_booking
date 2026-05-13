@@ -283,9 +283,11 @@ class all_userbookings extends \table_sql {
                 return get_string('sharedplacenoselect', 'mod_booking', $values);
             }
 
+            $userlabel = fullname($values);
             return '<input id="check' . $values->id .
                      '" type="checkbox" class="usercheckbox" name="user[][' . $values->userid .
-                     ']" value="' . $values->userid . '" />';
+                     ']" value="' . $values->userid . '" aria-label="' .
+                     s(get_string('selectuser', 'mod_booking')) . '" />';
         } else {
             return '';
         }
@@ -558,7 +560,13 @@ class all_userbookings extends \table_sql {
                         ['class' => "transfersubmit"]
                     );
                     echo \html_writer::div(get_string('transferheading', 'mod_booking'), 'mt-2');
-                    echo $dropdown = \html_writer::select($transferto, 'transferoption');
+                    echo $dropdown = \html_writer::select(
+                        $transferto,
+                        'transferoption',
+                        '',
+                        null,
+                        ['aria-label' => get_string('transferheading', 'mod_booking')]
+                    );
                     $attributes = ['type' => 'submit',
                         'class' => 'transfersubmit btn btn-secondary btn-sm',
                         'id' => 'transfersubmit',
@@ -665,7 +673,10 @@ class all_userbookings extends \table_sql {
                 'selectpresencestatus',
                 '',
                 ['' => 'choosedots'],
-                ['class' => 'mt-3']
+                [
+                    'class' => 'mt-3',
+                    'aria-label' => get_string('selectpresencestatus', 'booking'),
+                ]
             );
 
             echo '<div class="singlebutton ms-2">' .

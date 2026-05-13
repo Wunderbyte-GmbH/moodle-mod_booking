@@ -1462,7 +1462,7 @@ class view implements renderable, templatable {
         if (in_array('dayofweektime', $optionsfields)) {
             $bowbtable->add_classes_to_subcolumns(
                 'cardlist',
-                ['columnclass' => 'text-left text-gray pe-2'],
+                ['columnclass' => 'text-start text-gray pe-2'],
                 ['dayofweektime']
             );
             $bowbtable->add_classes_to_subcolumns(
@@ -1474,14 +1474,14 @@ class view implements renderable, templatable {
         if (in_array('responsiblecontact', $optionsfields)) {
             $bowbtable->add_classes_to_subcolumns(
                 'cardlist',
-                ['columnclass' => 'text-left pe-2 text-gray d-block'],
+                ['columnclass' => 'text-start pe-2 text-gray d-block'],
                 ['responsiblecontact']
             );
         }
         if (in_array('bookingopeningtime', $optionsfields)) {
             $bowbtable->add_classes_to_subcolumns(
                 'cardlist',
-                ['columnclass' => 'text-left pe-2 text-gray d-block'],
+                ['columnclass' => 'text-start pe-2 text-gray d-block'],
                 ['bookingopeningtime']
             );
             $bowbtable->add_classes_to_subcolumns(
@@ -1493,7 +1493,7 @@ class view implements renderable, templatable {
         if (in_array('bookingclosingtime', $optionsfields)) {
             $bowbtable->add_classes_to_subcolumns(
                 'cardlist',
-                ['columnclass' => 'text-left pe-2 text-gray d-block'],
+                ['columnclass' => 'text-start pe-2 text-gray d-block'],
                 ['bookingclosingtime']
             );
             $bowbtable->add_classes_to_subcolumns(
@@ -1505,14 +1505,14 @@ class view implements renderable, templatable {
         if (in_array('showdates', $optionsfields)) {
             $bowbtable->add_classes_to_subcolumns(
                 'cardlist',
-                ['columnclass' => 'text-left pe-2 text-gray'],
+                ['columnclass' => 'text-start pe-2 text-gray'],
                 ['showdates']
             );
         }
         if (in_array('location', $optionsfields)) {
             $bowbtable->add_classes_to_subcolumns(
                 'cardlist',
-                ['columnclass' => 'text-left text-gray  pe-2'],
+                ['columnclass' => 'text-start text-gray  pe-2'],
                 ['location']
             );
             $bowbtable->add_classes_to_subcolumns(
@@ -1524,7 +1524,7 @@ class view implements renderable, templatable {
         if (in_array('institution', $optionsfields)) {
             $bowbtable->add_classes_to_subcolumns(
                 'cardlist',
-                ['columnclass' => 'text-left text-gray  pe-2'],
+                ['columnclass' => 'text-start text-gray  pe-2'],
                 ['institution']
             );
             $bowbtable->add_classes_to_subcolumns(
@@ -1535,7 +1535,7 @@ class view implements renderable, templatable {
         }
         $bowbtable->add_classes_to_subcolumns(
             'cardlist',
-            ['columnclass' => 'text-left text-gray pe-2'],
+            ['columnclass' => 'text-start text-gray pe-2'],
             ['bookings']
         );
         $bowbtable->add_classes_to_subcolumns(
@@ -1546,7 +1546,7 @@ class view implements renderable, templatable {
         if (in_array('minanswers', $optionsfields)) {
             $bowbtable->add_classes_to_subcolumns(
                 'cardlist',
-                ['columnclass' => 'text-left text-gray pe-2'],
+                ['columnclass' => 'text-start text-gray pe-2'],
                 ['minanswers']
             );
             $bowbtable->add_classes_to_subcolumns(
@@ -1566,12 +1566,12 @@ class view implements renderable, templatable {
 
         $bowbtable->add_classes_to_subcolumns('cardfooter', ['columnkeyclass' => 'd-none']);
         if (in_array('booknow', $optionsfields)) {
-            $bowbtable->add_classes_to_subcolumns('cardfooter', ['columnclass' => 'text-right'], ['booknow']);
+            $bowbtable->add_classes_to_subcolumns('cardfooter', ['columnclass' => 'text-end'], ['booknow']);
         }
 
         $bowbtable->add_classes_to_subcolumns(
             'cardfooter',
-            ['columnclass' => 'text-left mt-1 text-gray'],
+            ['columnclass' => 'text-start mt-1 text-gray'],
             ['progressbar']
         );
         $bowbtable->add_classes_to_subcolumns('cardfooter', ['columnclass' => 'mt-1'], ['ratings']);
@@ -1733,16 +1733,16 @@ class view implements renderable, templatable {
             ['columnvalueclass' => 'booking-option-info-invisible'],
             ['invisibleoption']
         );
-        $bowbtable->add_classes_to_subcolumns('leftside', ['columnclass' => 'text-left m-0 mb-1 h5'], ['text']);
-        $bowbtable->add_classes_to_subcolumns('leftside', ['columnclass' => 'text-right'], ['action']);
+        $bowbtable->add_classes_to_subcolumns('leftside', ['columnclass' => 'text-start m-0 mb-1 h5'], ['text']);
+        $bowbtable->add_classes_to_subcolumns('leftside', ['columnclass' => 'text-end'], ['action']);
         if (in_array('teacher', $optionsfields)) {
-            $bowbtable->add_classes_to_subcolumns('leftside', ['columnclass' => 'text-left font-size-sm'], ['teacher']);
+            $bowbtable->add_classes_to_subcolumns('leftside', ['columnclass' => 'text-start font-size-sm'], ['teacher']);
         }
         $bowbtable->add_classes_to_subcolumns('footer', ['columnkeyclass' => 'd-none']);
         if (in_array('dayofweektime', $optionsfields)) {
             $bowbtable->add_classes_to_subcolumns(
                 'footer',
-                ['columnclass' => 'text-left text-gray pe-2 font-size-sm'],
+                ['columnclass' => 'text-start text-gray pe-2 font-size-sm'],
                 ['dayofweektime']
             );
             $bowbtable->add_classes_to_subcolumns(
@@ -1752,12 +1752,12 @@ class view implements renderable, templatable {
             );
         }
         if (in_array('responsiblecontact', $optionsfields)) {
-            $bowbtable->add_classes_to_subcolumns('footer', ['columnclass' => 'text-left font-size-sm'], ['responsiblecontact']);
+            $bowbtable->add_classes_to_subcolumns('footer', ['columnclass' => 'text-start font-size-sm'], ['responsiblecontact']);
         }
         if (in_array('bookingopeningtime', $optionsfields)) {
             $bowbtable->add_classes_to_subcolumns(
                 'footer',
-                ['columnclass' => 'text-left pe-2 text-gray font-size-sm d-block'],
+                ['columnclass' => 'text-start pe-2 text-gray font-size-sm d-block'],
                 ['bookingopeningtime']
             );
             $bowbtable->add_classes_to_subcolumns(
@@ -1769,7 +1769,7 @@ class view implements renderable, templatable {
         if (in_array('bookingclosingtime', $optionsfields)) {
             $bowbtable->add_classes_to_subcolumns(
                 'footer',
-                ['columnclass' => 'text-left pe-2 text-gray font-size-sm d-block'],
+                ['columnclass' => 'text-start pe-2 text-gray font-size-sm d-block'],
                 ['bookingclosingtime']
             );
             $bowbtable->add_classes_to_subcolumns(
@@ -1781,14 +1781,14 @@ class view implements renderable, templatable {
         if (in_array('showdates', $optionsfields)) {
             $bowbtable->add_classes_to_subcolumns(
                 'footer',
-                ['columnclass' => 'text-left pe-2 text-gray font-size-sm'],
+                ['columnclass' => 'text-start pe-2 text-gray font-size-sm'],
                 ['showdates']
             );
         }
         if (in_array('location', $optionsfields)) {
             $bowbtable->add_classes_to_subcolumns(
                 'footer',
-                ['columnclass' => 'text-left text-gray  pe-2 font-size-sm'],
+                ['columnclass' => 'text-start text-gray  pe-2 font-size-sm'],
                 ['location']
             );
             $bowbtable->add_classes_to_subcolumns(
@@ -1800,7 +1800,7 @@ class view implements renderable, templatable {
         if (in_array('institution', $optionsfields)) {
             $bowbtable->add_classes_to_subcolumns(
                 'footer',
-                ['columnclass' => 'text-left text-gray  pe-2 font-size-sm'],
+                ['columnclass' => 'text-start text-gray  pe-2 font-size-sm'],
                 ['institution']
             );
             $bowbtable->add_classes_to_subcolumns(
@@ -1811,7 +1811,7 @@ class view implements renderable, templatable {
         }
         $bowbtable->add_classes_to_subcolumns(
             'footer',
-            ['columnclass' => 'text-left text-gray pe-2 font-size-sm'],
+            ['columnclass' => 'text-start text-gray pe-2 font-size-sm'],
             ['bookings']
         );
         $bowbtable->add_classes_to_subcolumns(
@@ -1822,7 +1822,7 @@ class view implements renderable, templatable {
         if (in_array('minanswers', $optionsfields)) {
             $bowbtable->add_classes_to_subcolumns(
                 'footer',
-                ['columnclass' => 'text-left text-gray pe-2 font-size-sm'],
+                ['columnclass' => 'text-start text-gray pe-2 font-size-sm'],
                 ['minanswers']
             );
             $bowbtable->add_classes_to_subcolumns(
@@ -1833,11 +1833,11 @@ class view implements renderable, templatable {
         }
 
         if (in_array('booknow', $optionsfields)) {
-            $bowbtable->add_classes_to_subcolumns('rightside', ['columnclass' => 'text-right'], ['booknow']);
+            $bowbtable->add_classes_to_subcolumns('rightside', ['columnclass' => 'text-end'], ['booknow']);
         }
         $bowbtable->add_classes_to_subcolumns(
             'rightside',
-            ['columnclass' => 'text-left mt-1 text-gray font-size-sm'],
+            ['columnclass' => 'text-start mt-1 text-gray font-size-sm'],
             ['progressbar']
         );
         $bowbtable->add_classes_to_subcolumns('rightside', ['columnclass' => 'mt-1'], ['ratings']);

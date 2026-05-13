@@ -595,7 +595,8 @@ if (!$tableallbookings->is_downloading()) {
     $headers = [];
 
     $columns[] = 'selected';
-    $headers[] = '<input type="checkbox" id="usercheckboxall" name="selectall" value="0" />';
+    $headers[] = '<input type="checkbox" id="usercheckboxall" name="selectall" value="0" aria-label="' .
+        s(get_string('selectallusers', 'mod_booking')) . '" />';
 
     $responsesfields = explode(',', $bookingoption->booking->settings->responsesfields);
     [$addquoted, $addquotedparams] = $DB->get_in_or_equal($responsesfields);

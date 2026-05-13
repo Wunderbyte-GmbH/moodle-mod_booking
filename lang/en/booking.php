@@ -2673,6 +2673,7 @@ $string['searchsurname'] = 'Last name';
 $string['searchtag'] = 'Search tags';
 $string['searchwaitinglist'] = 'On waiting list';
 $string['select'] = 'Selection';
+$string['selectallusers'] = 'Select all users';
 $string['selectanoption'] = 'Please, select a booking option';
 $string['selectatleastoneuser'] = 'Please, select at least 1 user!';
 $string['selectboactiontype'] = 'Select action after booking';

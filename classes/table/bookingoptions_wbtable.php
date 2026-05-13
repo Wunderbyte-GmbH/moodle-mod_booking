@@ -1060,7 +1060,8 @@ class bookingoptions_wbtable extends wunderbyte_table {
             booking_check_if_teacher($values));
 
         $ddoptions = [];
-        $ret = '<div class="menubar p-1" id="action-menu-' . $optionid . '-menubar" role="menubar">';
+        $ret = '<div class="menubar p-1" id="action-menu-' . $optionid . '-menubar" role="group" aria-label="' .
+            get_string('actions') . '">';
 
         if ($status == MOD_BOOKING_STATUSPARAM_BOOKED) {
             $ret .= html_writer::link(
@@ -1413,16 +1414,16 @@ class bookingoptions_wbtable extends wunderbyte_table {
                     <button class="bookingoption-edit-button dropdown-toggle btn btn-light btn-sm text-primary ms-1"
                         id="action-menu-toggle-' .
                         $optionid .
-                        '" title="" role="button" data-toggle="dropdown" data-bs-toggle="dropdown"
-                        aria-haspopup="true" aria-expanded="false">
+                        '" role="button" data-toggle="dropdown" data-bs-toggle="dropdown"
+                        aria-haspopup="true" aria-expanded="false" aria-label="' . get_string('settings') . '">
                         <i class="icon fa fa-cog me-0" aria-hidden="true"
-                            aria-label="' . get_string('settings') . '" title="' . get_string('settings') . '" >
-                        </i>
+                            aria-label="' . get_string('settings') . '" title="' . get_string('settings') . '"></i>
+                        <span class="visually-hidden">' . get_string('settings') . '</span>
                     </button>
                     <div class="dropdown-menu dropdown-menu-right dropdown-menu-end menu align-tr-br" id="action-menu-' .
                 $optionid .
                 '-menu" data-rel="menu-content"
-                        aria-labelledby="action-menu-toggle-3" role="menu" data-align="tr-br">';
+                        aria-labelledby="action-menu-toggle-' . $optionid . '" role="menu" data-align="tr-br">';
             $ret .= implode($ddoptions);
             $ret .= '</div></div>';
         }

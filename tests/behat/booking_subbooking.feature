@@ -78,7 +78,7 @@ Feature: Enabling subboking as admin configuring subboking as a teacher and book
     And I follow "Close"
     And I should see "Start" in the ".allbookingoptionstable_r1" "css_element"
 
-  @javascript
+  @javascript @accessibility
   Scenario: Add subbooking person via DB to a booking option and verify as students
     Given the following "mod_booking > subbookings" exist:
       | name    | type                        | option        | block | json                                                                                                                                     |
@@ -87,28 +87,46 @@ Feature: Enabling subboking as admin configuring subboking as a teacher and book
     When I am on the "Course 1" course page logged in as student1
     And I follow "My booking"
     Then I should see "Test option 1" in the ".allbookingoptionstable_r1" "css_element"
+    ## Validate accessibility of booking options table before booking
+    And the page should meet accessibility standards
     And I should see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I wait "1" seconds
     And I should see "Do you want to book Test option 1?" in the ".modal-dialog.modal-xl .modalMainContent" "css_element"
+    ## Validate accessibility of booking options table before booking
+    And the page should meet accessibility standards
     And I click on "Book now" "text" in the ".modal-dialog.modal-xl .booking-button-area" "css_element"
+    ## Validate accessibility of booking options table before booking
+    And the page should meet accessibility standards
     And I click on "Click again to confirm booking" "text" in the ".modal-dialog.modal-xl .booking-button-area" "css_element"
     And I should see "Start" in the ".modal-dialog.modal-xl .booking-button-area" "css_element"
+    ## Validate accessibility of booking options table before booking
+    And the page should meet accessibility standards
     And I follow "Continue"
     And I should see "Partner(s)" in the ".modal-dialog.modal-xl .modalMainContent" "css_element"
+    ## Validate accessibility of booking options table before booking
+    And the page should meet accessibility standards
     And I press "Partner(s)"
     And I set the field "Add additional person(s)" to "1"
     And I wait "1" seconds
+    ## Validate accessibility of booking options table before booking
+    And the page should meet accessibility standards
     And I set the following fields to these values:
       | person_firstname_1 | Ann   |
       | person_lastname_1  | Smith |
       | person_age_1       | 20    |
     And I click on "Book now" "text" in the ".subbooking-additionalperson-form" "css_element"
+    ## Validate accessibility of booking options table before booking
+    And the page should meet accessibility standards
     And I follow "Continue"
     And I should see "Thank you! You have successfully booked" in the ".modal-dialog.modal-xl .condition-confirmation" "css_element"
     And I should see "Test option 1" in the ".modal-dialog.modal-xl .condition-confirmation" "css_element"
+    ## Validate accessibility of booking options table before booking
+    And the page should meet accessibility standards
     And I follow "Close"
     And I should see "Start" in the ".allbookingoptionstable_r1" "css_element"
+    ## Validate accessibility of booking options table before booking
+    And the page should meet accessibility standards
 
   @javascript
   Scenario: Add subbooking item without price via DB to a booking option and verify as students
@@ -136,7 +154,7 @@ Feature: Enabling subboking as admin configuring subboking as a teacher and book
     And I follow "Close"
     And I should see "Start" in the ".allbookingoptionstable_r1" "css_element"
 
-  @javascript
+  @javascript @accessibility
   Scenario: Add subbooking item when price set via DB to a booking option and verify as students
     Given the following "core_payment > payment accounts" exist:
       | name           |
@@ -150,6 +168,7 @@ Feature: Enabling subboking as admin configuring subboking as a teacher and book
     And the following "local_shopping_cart > user credits" exist:
       | user     | credit | currency |
       | teacher1 | 200    | EUR      |
+      | student1 | 200    | EUR      |
     And the following "mod_booking > pricecategories" exist:
       | ordernum | identifier | name  | defaultvalue | disabled | pricecatsortorder |
       | 1        | default    | Price | 88           | 0        | 1                 |
@@ -165,22 +184,36 @@ Feature: Enabling subboking as admin configuring subboking as a teacher and book
       | item     | subbooking | default                 | 55    | EUR      |
       | item     | subbooking | discount1               | 44    | EUR      |
     ## Verify subbokings working: book as stundet with subboking item.
-    When I am on the "Course 1" course page logged in as teacher1
+    When I am on the "Course 1" course page logged in as student1
     And I follow "My booking"
     Then I should see "Option-subitem" in the ".allbookingoptionstable_r1" "css_element"
+    ## Validate accessibility of booking options table before booking
+    And the page should meet accessibility standards
     And I click on "Add to cart" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I wait "1" seconds
     And I should see "Do you want to book Option-subitem?" in the ".modal-dialog.modal-xl .modalMainContent" "css_element"
+    ## Validate accessibility of booking options table before booking
+    And the page should meet accessibility standards
     And I click on "Add to cart" "text" in the ".modal-dialog.modal-xl .modalButtonAreaContainer .pricecontainer" "css_element"
+    ## Validate accessibility of booking options table before booking (disabled due to violations in Moodle 4.5 core)
+    ## And the page should meet accessibility standards
     And I follow "Continue"
+    ## Validate accessibility of booking options table before booking (disabled due to violations in Moodle 4.5 core)
+    ## And the page should meet accessibility standards
     And I click on "Add to cart" "text" in the ".modal-dialog.modal-xl .modalMainContent .pricecontainer" "css_element"
+    ## Validate accessibility of booking options table before booking (disabled due to violations in Moodle 4.5 core)
+    ## And the page should meet accessibility standards
     And I follow "Continue"
     And I should see "Thank you! You have successfully put Option-subitem into the shopping cart." in the ".modal-dialog.modal-xl .modalMainContent" "css_element"
+    ## Validate accessibility of booking options table before booking (disabled due to violations in Moodle 4.5 core)
+    ## And the page should meet accessibility standards
     ##And I follow "Proceed to checkout"
     And I click on "Proceed to checkout" "text" in the ".modal-dialog.modal-xl .modalFooter" "css_element"
     And I wait to be redirected
     ## Verify prices and credits
     And I should see "Option-subitem" in the ".shopping-cart-checkout-items-container" "css_element"
+    ## Validate accessibility of booking options table before booking
+    And the page should meet accessibility standards
     And I should see "88.00 EUR" in the ".shopping-cart-checkout-items-container" "css_element"
     And I should see "MyItem" in the ".shopping-cart-checkout-items-container" "css_element"
     And I should see "55.00 EUR" in the ".shopping-cart-checkout-items-container" "css_element"
@@ -191,7 +224,11 @@ Feature: Enabling subboking as admin configuring subboking as a teacher and book
     And I should see "0 EUR" in the ".sc_totalprice" "css_element"
     And I press "Checkout"
     And I wait "1" seconds
+    ## Validate accessibility of booking options table before booking
+    And the page should meet accessibility standards
     And I press "Confirm"
     And I should see "Payment successful!"
     And I should see "Option-subitem" in the ".payment-success ul.list-group" "css_element"
     And I should see "MyItem" in the ".payment-success ul.list-group" "css_element"
+    ## Validate accessibility of booking options table before booking
+    And the page should meet accessibility standards

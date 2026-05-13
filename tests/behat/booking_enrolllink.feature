@@ -138,6 +138,7 @@ Feature: Create enrollink availability form for booking options with connected c
     And I set the field "customform_enrolusersaction_1" to "3"
     And I set the field "customform_enroluserwhobookedcheckbox_enrolusersaction_1" to "checked"
     And I follow "Continue"
+    And I wait "1" seconds
     And I should see "You were added to the waiting list for Option-waitinglist." in the ".modal-dialog.modal-xl .modalMainContent" "css_element"
     And I follow "Close"
     And I should not see "75.00 EUR" in the ".allbookingoptionstable_r2 .booknow" "css_element"

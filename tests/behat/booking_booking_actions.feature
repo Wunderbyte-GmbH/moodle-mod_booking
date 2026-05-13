@@ -1,4 +1,4 @@
-@mod @mod_booking @booking_actions @mod_booking_actions
+@mod @mod_booking @booking_booking_actions @mod_booking_booking_actions
 Feature: Create booking action as admin and ensure they are working as student and view history.
 
   Background:
