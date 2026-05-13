@@ -609,7 +609,6 @@ final class condition_all_test extends advanced_testcase {
         $this->setAdminUser();
         // Force the render_button branch where shopping-cart cancellation was previously selected
         // based on current price/display settings.
-        set_config('displayemptyprice', 1, 'booking');
         singleton_service::destroy_instance();
 
         $this->setUser($student);
