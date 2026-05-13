@@ -161,8 +161,8 @@ class cancelmyself implements bo_condition {
                     class_exists('local_shopping_cart\shopping_cart')
                     && (!empty($settings->jsonobject->useprice))
                 ) {
-                    // Apply shopping cart specific cancel rules only for purchases that
-                    // were actually processed via shopping cart.
+                    /* Apply shopping cart specific cancel rules only for purchases that
+                    were actually processed via shopping cart. */
                     if (self::has_shopping_cart_history_entry($settings->id, $userid)) {
                         $item = (object)[
                             'itemid' => $settings->id,
