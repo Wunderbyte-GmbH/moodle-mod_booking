@@ -607,8 +607,8 @@ final class condition_all_test extends advanced_testcase {
         $this->assertEquals('realprice', $DB->get_field('user_info_data', 'data', ['id' => $profiledataid]));
 
         $this->setAdminUser();
-        // Force the render_button branch where shopping-cart cancellation was previously selected
-        // based on current price/display settings.
+        /* Force the render_button branch where shopping-cart cancellation was previously selected
+        based on current price/display settings. */
         singleton_service::destroy_instance();
 
         $this->setUser($student);
