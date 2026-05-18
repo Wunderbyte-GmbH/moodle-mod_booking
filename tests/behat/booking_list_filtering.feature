@@ -74,6 +74,8 @@ Feature: In a booking - create options and filter it
     And I click on "//aside[contains(@class, 'wunderbyte_table_components')]" "xpath_element"
     ## Filtering by timespan
     And I click on "Course time" "button"
+    ## Validate accessibility of booking options table before booking
+    And the page should meet accessibility standards
     ## TODO: actual dates has been set as -1 day for some reason (same as in wb_table).
     And I set the following fields to these values:
       | date-coursestarttime | 2044-05-17 |
@@ -99,3 +101,5 @@ Feature: In a booking - create options and filter it
     ## Hide filter - required for a new filter tool
     ## Workaround for case when hidden "search" "input" intercepts focus - so we cannot press "Teachers" "button"
     And I click on "//aside[contains(@class, 'wunderbyte_table_components')]" "xpath_element"
+    ## Validate accessibility of booking options table before booking
+    And the page should meet accessibility standards
