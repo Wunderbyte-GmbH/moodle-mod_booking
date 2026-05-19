@@ -1209,6 +1209,7 @@ class booking_option {
      * @param string $erlid the identifier of the enrollink, if given
      * @param int $timebooked the timestamp when the booking was made
      * @param bool $updateansweronimport if set to true, the function will update existing bookinganswer on imports.
+     * @param int $syncruleid if given, this implicated that the user was enroled via a syncronisation rule with the given id.
      * @return bool true if booking was possible, false if meanwhile the booking got full
      */
     public function user_submit_response(
@@ -1530,7 +1531,7 @@ class booking_option {
      * @param int $confirmwaitinglist
      * @param string $erlid
      * @param int $historystatus
-     * @return int
+     * @return int $syncruleid
      */
     public static function write_user_answer_to_db(
         int $bookingid,
