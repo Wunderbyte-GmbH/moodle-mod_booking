@@ -1,3 +1,7 @@
+## Version 9.3.4 (2026051900)
+* Improvement: Booking option templates can now be edited via bulk operations.
+* Bugfix: Remove exception when legacymailremovalacknowledged is not checked.
+
 ## Version 9.3.3 (2026051300)
 * New Feature: Booking time relative to coursestart.
 * Improvement: Add possibility to check auto-apply fields separately.
