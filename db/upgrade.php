@@ -5270,29 +5270,5 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2026040800, 'booking');
     }
 
-    if ($oldversion < 2026051100) {
-        /* Ensure admins who still use legacy mail templates have acknowledged
-        that the feature will be removed. Without acknowledgement, the upgrade
-        is blocked so that no one accidentally misses the migration notice. */
-        $uselegacy    = get_config('booking', 'uselegacymailtemplates');
-        $acknowledged = get_config('booking', 'legacymailremovalacknowledged');
-
-        if (!empty($uselegacy) && empty($acknowledged)) {
-            $settingsurl = new moodle_url(
-                '/admin/settings.php',
-                ['section' => 'modsettingbooking'],
-                'admin-legacymailremovalacknowledged'
-            );
-            throw new moodle_exception(
-                'upgrade:legacymailacknowledgementrequired',
-                'mod_booking',
-                $settingsurl->out()
-            );
-        }
-
-        // Booking savepoint reached.
-        upgrade_mod_savepoint(true, 2026051100, 'booking');
-    }
-
     return true;
 }
