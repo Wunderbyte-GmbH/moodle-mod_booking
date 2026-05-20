@@ -29,6 +29,7 @@ namespace mod_booking\bo_availability\conditions;
 use context_system;
 use Exception;
 use mod_booking\bo_availability\bo_condition;
+use mod_booking\bo_availability\freezable_condition;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_option_settings;
 use mod_booking\local\mobile\customformstore;
@@ -271,6 +272,14 @@ class customform implements bo_condition, freezable_condition {
         ];
     }
 
+    /**
+     * Add condition-specific form elements to the booking option form.
+     *
+     * @param MoodleQuickForm $mform Booking option form instance.
+     * @param int $optionid Booking option id.
+     * @param ?\moodleform $moodleform Parent form instance.
+     * @return void
+     */
     public function add_condition_to_mform(MoodleQuickForm &$mform, int $optionid = 0, ?\moodleform $moodleform = null) {
         global $DB, $CFG;
 
