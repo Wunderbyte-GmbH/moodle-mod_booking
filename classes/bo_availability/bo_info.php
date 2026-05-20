@@ -435,9 +435,9 @@ class bo_info {
             // For each condition, add the appropriate form fields.
             $condition->add_condition_to_mform($mform, $optionid, $moodleform);
             if ($visibilitymanager->is_condition_skipped($condition->id)) {
-                $visibilitymanager->disable_elements_in_mform($mform, $condition->id, true);
+                $visibilitymanager->disable_elements_in_mform($mform, $condition, true);
             } else if ($visibilitymanager->is_condition_frozen($condition->id)) {
-                $visibilitymanager->disable_elements_in_mform($mform, $condition->id, false);
+                $visibilitymanager->disable_elements_in_mform($mform, $condition, false);
             }
         }
     }

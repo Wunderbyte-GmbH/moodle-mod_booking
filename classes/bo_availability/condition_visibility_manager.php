@@ -55,236 +55,60 @@ class condition_visibility_manager {
         return $skippedconditions;
     }
     /**
-     * Freezes form fields based on condition ID.
+     * Freezes all form fields declared by the condition and inserts a warning message.
      *
      * @param MoodleQuickForm $mform
-     * @param int $conditionid
-     * @param bool $skipandfreeze
+     * @param freezable_condition $condition
+     * @param bool $skipandfreeze True for skip-and-freeze state, false for freeze-only state.
      * @return void
      */
-    public function freeze_fields_for_condition(MoodleQuickForm &$mform, int $conditionid, bool $skipandfreeze = true): void {
-        $firstelementname = null;
-
-        switch ($conditionid) {
-            case MOD_BOOKING_BO_COND_JSON_ALLOWEDTOBOOKININSTANCE:
-                $firstelementname = 'bo_cond_allowedtobookininstance_restrict';
-                $this->disable_element_without_warning($mform, 'bo_cond_allowedtobookininstance_restrict');
-                $this->disable_element_without_warning($mform, 'bo_cond_allowedtobookininstance_capabilitynotneeded');
-                $this->disable_element_without_warning($mform, 'bo_cond_allowedtobookininstance_overrideconditioncheckbox');
-                $this->disable_element_without_warning($mform, 'bo_cond_allowedtobookininstance_overrideoperator');
-                $this->disable_element_without_warning($mform, 'bo_cond_allowedtobookininstance_overridecondition');
-                break;
-            case MOD_BOOKING_BO_COND_BOOKING_TIME:
-                $firstelementname = 'restrictanswerperiodopening';
-                $this->disable_element_without_warning($mform, 'restrictanswerperiodopening');
-                $this->disable_element_without_warning($mform, 'bookingopeningtime');
-                $this->disable_element_without_warning($mform, 'restrictanswerperiodclosing');
-                $this->disable_element_without_warning($mform, 'bookingclosingtime');
-                $this->disable_element_without_warning($mform, 'bo_cond_booking_time_sqlfiltercheck');
-                break;
-            case MOD_BOOKING_BO_COND_JSON_CUSTOMFORM:
-                $firstelementname = 'bo_cond_customform_restrict';
-                $this->disable_element_without_warning($mform, 'bo_cond_customform_restrict');
-                $this->disable_element_without_warning($mform, 'bo_cond_customform_deleteinfoscheckboxadmin');
-                break;
-            case MOD_BOOKING_BO_COND_JSON_ENROLLEDINCOHORTS:
-                $firstelementname = 'bo_cond_enrolledincohorts_restrict';
-                $this->disable_element_without_warning($mform, 'bo_cond_enrolledincohorts_restrict');
-                $this->disable_element_without_warning($mform, 'bo_cond_enrolledincohorts_cohortids');
-                $this->disable_element_without_warning($mform, 'bo_cond_enrolledincohorts_cohortids_operator');
-                $this->disable_element_without_warning($mform, 'bo_cond_enrolledincohorts_sqlfiltercheck');
-                $this->disable_element_without_warning($mform, 'bo_cond_enrolledincohorts_overrideconditioncheckbox');
-                $this->disable_element_without_warning($mform, 'bo_cond_enrolledincohorts_overrideoperator');
-                $this->disable_element_without_warning($mform, 'bo_cond_enrolledincohorts_overridecondition');
-                break;
-            case MOD_BOOKING_BO_COND_JSON_ENROLLEDINCOURSE:
-                $firstelementname = 'bo_cond_enrolledincourse_restrict';
-                $this->disable_element_without_warning($mform, 'bo_cond_enrolledincourse_restrict');
-                $this->disable_element_without_warning($mform, 'bo_cond_enrolledincourse_courseids');
-                $this->disable_element_without_warning($mform, 'bo_cond_enrolledincourse_courseids_operator');
-                $this->disable_element_without_warning($mform, 'bo_cond_enrolledincourse_sqlfiltercheck');
-                $this->disable_element_without_warning($mform, 'bo_cond_enrolledincourse_overrideconditioncheckbox');
-                $this->disable_element_without_warning($mform, 'bo_cond_enrolledincourse_overrideoperator');
-                $this->disable_element_without_warning($mform, 'bo_cond_enrolledincourse_overridecondition');
-                break;
-            case MOD_BOOKING_BO_COND_JSON_HASCOMPETENCY:
-                $firstelementname = 'bo_cond_hascompetency_restrict';
-                $this->disable_element_without_warning($mform, 'bo_cond_hascompetency_restrict');
-                $this->disable_element_without_warning($mform, 'bo_cond_hascompetency_competencyids');
-                $this->disable_element_without_warning($mform, 'bo_cond_hascompetency_competencyids_operator');
-                $this->disable_element_without_warning($mform, 'bo_cond_hascompetency_overrideconditioncheckbox');
-                $this->disable_element_without_warning($mform, 'bo_cond_hascompetency_overrideoperator');
-                $this->disable_element_without_warning($mform, 'bo_cond_hascompetency_overridecondition');
-                break;
-            case MOD_BOOKING_BO_COND_JSON_NOOVERLAPPING:
-                $firstelementname = 'bo_cond_nooverlapping_restrict';
-                $this->disable_element_without_warning($mform, 'bo_cond_nooverlapping_restrict');
-                $this->disable_element_without_warning($mform, 'bo_cond_nooverlapping_handling');
-                break;
-            case MOD_BOOKING_BO_COND_JSON_PREVIOUSLYBOOKED:
-                $firstelementname = 'bo_cond_previouslybooked_restrict';
-                $this->disable_element_without_warning($mform, 'bo_cond_previouslybooked_restrict');
-                $this->disable_element_without_warning($mform, 'bo_cond_previouslybooked_optionid');
-                $this->disable_element_without_warning($mform, 'bo_cond_previouslybooked_requirecompletion');
-                $this->disable_element_without_warning($mform, 'bo_cond_previouslybooked_overrideconditioncheckbox');
-                $this->disable_element_without_warning($mform, 'bo_cond_previouslybooked_overrideoperator');
-                $this->disable_element_without_warning($mform, 'bo_cond_previouslybooked_overridecondition');
-                break;
-            case MOD_BOOKING_BO_COND_JSON_SELECTUSERS:
-                $firstelementname = 'bo_cond_selectusers_restrict';
-                $this->disable_element_without_warning($mform, 'bo_cond_selectusers_restrict');
-                $this->disable_element_without_warning($mform, 'bo_cond_selectusers_userids');
-                $this->disable_element_without_warning($mform, 'bo_cond_selectusers_overrideconditioncheckbox');
-                $this->disable_element_without_warning($mform, 'bo_cond_selectusers_overrideoperator');
-                $this->disable_element_without_warning($mform, 'bo_cond_selectusers_overridecondition');
-                break;
-            case MOD_BOOKING_BO_COND_JSON_USERPROFILEFIELD:
-                $firstelementname = 'bo_cond_userprofilefield_1_default_restrict';
-                $this->disable_element_without_warning($mform, 'bo_cond_userprofilefield_1_default_restrict');
-                $this->disable_element_without_warning($mform, 'bo_cond_userprofilefield_field');
-                $this->disable_element_without_warning($mform, 'bo_cond_userprofilefield_operator');
-                $this->disable_element_without_warning($mform, 'bo_cond_userprofilefield_value');
-                $this->disable_element_without_warning($mform, 'bo_cond_userprofilefield_overrideconditioncheckbox');
-                $this->disable_element_without_warning($mform, 'bo_cond_userprofilefield_overrideoperator');
-                $this->disable_element_without_warning($mform, 'bo_cond_userprofilefield_overridecondition');
-                break;
-            case MOD_BOOKING_BO_COND_JSON_CUSTOMUSERPROFILEFIELD:
-                $firstelementname = 'bo_cond_userprofilefield_2_custom_restrict';
-                $this->disable_element_without_warning($mform, 'bo_cond_userprofilefield_2_custom_restrict');
-                $this->disable_element_without_warning($mform, 'bo_cond_customuserprofilefield_field');
-                $this->disable_element_without_warning($mform, 'bo_cond_customuserprofilefield_operator');
-                $this->disable_element_without_warning($mform, 'bo_cond_customuserprofilefield_value');
-                $this->disable_element_without_warning($mform, 'bo_cond_customuserprofilefield_connectsecondfield');
-                $this->disable_element_without_warning($mform, 'bo_cond_customuserprofilefield_field2');
-                $this->disable_element_without_warning($mform, 'bo_cond_customuserprofilefield_operator2');
-                $this->disable_element_without_warning($mform, 'bo_cond_customuserprofilefield_value2');
-                $this->disable_element_without_warning($mform, 'bo_cond_customuserprofilefield_sqlfiltercheck');
-                $this->disable_element_without_warning($mform, 'bo_cond_customuserprofilefield_overrideconditioncheckbox');
-                $this->disable_element_without_warning($mform, 'bo_cond_customuserprofilefield_overrideoperator');
-                $this->disable_element_without_warning($mform, 'bo_cond_customuserprofilefield_overridecondition');
-                break;
+    public function freeze_fields_for_condition(
+        MoodleQuickForm &$mform,
+        freezable_condition $condition,
+        bool $skipandfreeze = true
+    ): void {
+        $elements = $condition->get_condition_form_elements();
+        $firstelementname = $elements[0] ?? null;
+        foreach ($elements as $elementname) {
+            $this->disable_element_without_warning($mform, $elementname);
         }
-
-        $this->insert_warning_before_first_element($mform, $conditionid, $firstelementname, $skipandfreeze);
+        $this->insert_warning_before_first_element($mform, $condition->id, $firstelementname, $skipandfreeze);
     }
-
     /**
-     * Hides form fields based on condition ID.
+     * Hides all form fields declared by the condition.
      *
      * @param MoodleQuickForm $mform
-     * @param int $conditionid
+     * @param freezable_condition $condition
      * @return void
      */
-    public function hide_fields_for_condition(MoodleQuickForm &$mform, int $conditionid): void {
-        switch ($conditionid) {
-            case MOD_BOOKING_BO_COND_JSON_ALLOWEDTOBOOKININSTANCE:
-                $this->hide_element($mform, 'bo_cond_allowedtobookininstance_restrict');
-                $this->hide_element($mform, 'bo_cond_allowedtobookininstance_capabilitynotneeded');
-                $this->hide_element($mform, 'bo_cond_allowedtobookininstance_overrideconditioncheckbox');
-                $this->hide_element($mform, 'bo_cond_allowedtobookininstance_overrideoperator');
-                $this->hide_element($mform, 'bo_cond_allowedtobookininstance_overridecondition');
-                break;
-            case MOD_BOOKING_BO_COND_BOOKING_TIME:
-                $this->hide_element($mform, 'restrictanswerperiodopening');
-                $this->hide_element($mform, 'bookingopeningtime');
-                $this->hide_element($mform, 'restrictanswerperiodclosing');
-                $this->hide_element($mform, 'bookingclosingtime');
-                $this->hide_element($mform, 'bo_cond_booking_time_sqlfiltercheck');
-                break;
-            case MOD_BOOKING_BO_COND_JSON_CUSTOMFORM:
-                $this->hide_element($mform, 'bo_cond_customform_restrict');
-                $this->hide_element($mform, 'bo_cond_customform_deleteinfoscheckboxadmin');
-                break;
-            case MOD_BOOKING_BO_COND_JSON_ENROLLEDINCOHORTS:
-                $this->hide_element($mform, 'bo_cond_enrolledincohorts_restrict');
-                $this->hide_element($mform, 'bo_cond_enrolledincohorts_cohortids');
-                $this->hide_element($mform, 'bo_cond_enrolledincohorts_cohortids_operator');
-                $this->hide_element($mform, 'bo_cond_enrolledincohorts_sqlfiltercheck');
-                $this->hide_element($mform, 'bo_cond_enrolledincohorts_overrideconditioncheckbox');
-                $this->hide_element($mform, 'bo_cond_enrolledincohorts_overrideoperator');
-                $this->hide_element($mform, 'bo_cond_enrolledincohorts_overridecondition');
-                break;
-            case MOD_BOOKING_BO_COND_JSON_ENROLLEDINCOURSE:
-                $this->hide_element($mform, 'bo_cond_enrolledincourse_restrict');
-                $this->hide_element($mform, 'bo_cond_enrolledincourse_courseids');
-                $this->hide_element($mform, 'bo_cond_enrolledincourse_courseids_operator');
-                $this->hide_element($mform, 'bo_cond_enrolledincourse_sqlfiltercheck');
-                $this->hide_element($mform, 'bo_cond_enrolledincourse_overrideconditioncheckbox');
-                $this->hide_element($mform, 'bo_cond_enrolledincourse_overrideoperator');
-                $this->hide_element($mform, 'bo_cond_enrolledincourse_overridecondition');
-                break;
-            case MOD_BOOKING_BO_COND_JSON_HASCOMPETENCY:
-                $this->hide_element($mform, 'bo_cond_hascompetency_restrict');
-                $this->hide_element($mform, 'bo_cond_hascompetency_competencyids');
-                $this->hide_element($mform, 'bo_cond_hascompetency_competencyids_operator');
-                $this->hide_element($mform, 'bo_cond_hascompetency_overrideconditioncheckbox');
-                $this->hide_element($mform, 'bo_cond_hascompetency_overrideoperator');
-                $this->hide_element($mform, 'bo_cond_hascompetency_overridecondition');
-                break;
-            case MOD_BOOKING_BO_COND_JSON_NOOVERLAPPING:
-                $this->hide_element($mform, 'bo_cond_nooverlapping_restrict');
-                $this->hide_element($mform, 'bo_cond_nooverlapping_handling');
-                break;
-            case MOD_BOOKING_BO_COND_JSON_PREVIOUSLYBOOKED:
-                $this->hide_element($mform, 'bo_cond_previouslybooked_restrict');
-                $this->hide_element($mform, 'bo_cond_previouslybooked_optionid');
-                $this->hide_element($mform, 'bo_cond_previouslybooked_requirecompletion');
-                $this->hide_element($mform, 'bo_cond_previouslybooked_overrideconditioncheckbox');
-                $this->hide_element($mform, 'bo_cond_previouslybooked_overrideoperator');
-                $this->hide_element($mform, 'bo_cond_previouslybooked_overridecondition');
-                break;
-            case MOD_BOOKING_BO_COND_JSON_SELECTUSERS:
-                $this->hide_element($mform, 'bo_cond_selectusers_restrict');
-                $this->hide_element($mform, 'bo_cond_selectusers_userids');
-                $this->hide_element($mform, 'bo_cond_selectusers_overrideconditioncheckbox');
-                $this->hide_element($mform, 'bo_cond_selectusers_overrideoperator');
-                $this->hide_element($mform, 'bo_cond_selectusers_overridecondition');
-                break;
-            case MOD_BOOKING_BO_COND_JSON_USERPROFILEFIELD:
-                $this->hide_element($mform, 'bo_cond_userprofilefield_1_default_restrict');
-                $this->hide_element($mform, 'bo_cond_userprofilefield_field');
-                $this->hide_element($mform, 'bo_cond_userprofilefield_operator');
-                $this->hide_element($mform, 'bo_cond_userprofilefield_value');
-                $this->hide_element($mform, 'bo_cond_userprofilefield_overrideconditioncheckbox');
-                $this->hide_element($mform, 'bo_cond_userprofilefield_overrideoperator');
-                $this->hide_element($mform, 'bo_cond_userprofilefield_overridecondition');
-                break;
-            case MOD_BOOKING_BO_COND_JSON_CUSTOMUSERPROFILEFIELD:
-                $this->hide_element($mform, 'bo_cond_userprofilefield_2_custom_restrict');
-                $this->hide_element($mform, 'bo_cond_customuserprofilefield_field');
-                $this->hide_element($mform, 'bo_cond_customuserprofilefield_operator');
-                $this->hide_element($mform, 'bo_cond_customuserprofilefield_value');
-                $this->hide_element($mform, 'bo_cond_customuserprofilefield_connectsecondfield');
-                $this->hide_element($mform, 'bo_cond_customuserprofilefield_field2');
-                $this->hide_element($mform, 'bo_cond_customuserprofilefield_operator2');
-                $this->hide_element($mform, 'bo_cond_customuserprofilefield_value2');
-                $this->hide_element($mform, 'bo_cond_customuserprofilefield_sqlfiltercheck');
-                $this->hide_element($mform, 'bo_cond_customuserprofilefield_overrideconditioncheckbox');
-                $this->hide_element($mform, 'bo_cond_customuserprofilefield_overrideoperator');
-                $this->hide_element($mform, 'bo_cond_customuserprofilefield_overridecondition');
-                break;
+    public function hide_fields_for_condition(MoodleQuickForm &$mform, freezable_condition $condition): void {
+        foreach ($condition->get_condition_form_elements() as $elementname) {
+            $this->hide_element($mform, $elementname);
         }
     }
 
     /**
-     * Applies freeze and optionally adds warning to all fields from skipped conditions.
+     * Applies freeze or hide to all form fields of the condition based on user capability.
      *
      * @param MoodleQuickForm $mform
-     * @param int $conditionid
-     * @param bool $showwarning
+     * @param bo_condition $condition
+     * @param bool $showwarning True for skip-and-freeze warning, false for freeze-only warning.
      * @return void
      */
-    public function disable_elements_in_mform(MoodleQuickForm &$mform, int $conditionid, bool $showwarning = true): void {
-        if (has_capability('mod/booking:updatebooking', context_system::instance())) {
-            // Users with the updatebooking capability see the skipped conditions but with the fields frozen and a warning added.
-            $this->freeze_fields_for_condition($mform, $conditionid, $showwarning);
-            if (!$showwarning) {
-                return;
-            }
-        } else {
-            // A user without the updatebooking capability should not see any skipped conditions at all.
-            $this->hide_fields_for_condition($mform, $conditionid);
+    public function disable_elements_in_mform(
+        MoodleQuickForm &$mform,
+        bo_condition $condition,
+        bool $showwarning = true
+    ): void {
+        if (!($condition instanceof freezable_condition)) {
             return;
+        }
+        if (has_capability('mod/booking:updatebooking', context_system::instance())) {
+            // Users with the updatebooking capability see frozen fields with a warning.
+            $this->freeze_fields_for_condition($mform, $condition, $showwarning);
+        } else {
+            // Users without the capability do not see frozen/skipped conditions at all.
+            $this->hide_fields_for_condition($mform, $condition);
         }
     }
 

@@ -46,7 +46,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @copyright 2022 Wunderbyte GmbH
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class nooverlapping implements bo_condition {
+class nooverlapping implements bo_condition, freezable_condition {
     /** @var int $id Standard Conditions have hardcoded ids. */
     public $id = MOD_BOOKING_BO_COND_JSON_NOOVERLAPPING;
 
@@ -288,6 +288,19 @@ class nooverlapping implements bo_condition {
      * @param int $optionid
      * @return void
      */
+    /**
+     * Returns the ordered list of form element names this condition adds to the option form.
+     * The first element is used as the warning insertion anchor.
+     *
+     * @return string[]
+     */
+    public function get_condition_form_elements(): array {
+        return [
+            'bo_cond_nooverlapping_restrict',
+            'bo_cond_nooverlapping_handling',
+        ];
+    }
+
     public function add_condition_to_mform(MoodleQuickForm &$mform, int $optionid = 0) {
         $mform->addElement(
             'advcheckbox',

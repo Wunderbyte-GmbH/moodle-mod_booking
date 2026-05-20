@@ -52,7 +52,7 @@ require_once($CFG->dirroot . '/user/profile/lib.php');
  * @author Bernhard Fischer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class hascompetency implements bo_condition {
+class hascompetency implements bo_condition, freezable_condition {
     /** @var int $id Id is set via json during construction but we still need a default ID */
     public $id = MOD_BOOKING_BO_COND_JSON_HASCOMPETENCY;
 
@@ -281,6 +281,23 @@ class hascompetency implements bo_condition {
      * @param int $optionid
      * @return void
      */
+    /**
+     * Returns the ordered list of form element names this condition adds to the option form.
+     * The first element is used as the warning insertion anchor.
+     *
+     * @return string[]
+     */
+    public function get_condition_form_elements(): array {
+        return [
+            'bo_cond_hascompetency_restrict',
+            'bo_cond_hascompetency_competencyids',
+            'bo_cond_hascompetency_competencyids_operator',
+            'bo_cond_hascompetency_overrideconditioncheckbox',
+            'bo_cond_hascompetency_overrideoperator',
+            'bo_cond_hascompetency_overridecondition',
+        ];
+    }
+
     public function add_condition_to_mform(MoodleQuickForm &$mform, int $optionid = 0) {
         global $DB;
 
