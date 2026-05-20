@@ -68,6 +68,16 @@ if (optional_param('save', 0, PARAM_BOOL) && confirm_sesskey()) {
 $conditions = bo_info::get_skippable_conditions();
 ksort($conditions, SORT_NUMERIC);
 
+// Map condition IDs to their first anchor on the plugin settings page.
+// The Moodle admin settings page renders each setting with id="admin-<key>".
+// Add an entry here whenever a condition has dedicated settings on that page.
+$conditionsettingsanchors = [
+    MOD_BOOKING_BO_COND_BOOKING_TIME     => 'bookingtimerelativeenabled',
+    MOD_BOOKING_BO_COND_JSON_NOOVERLAPPING => 'defaultnooverlappingoncreate',
+];
+
+$adminsettingsbaseurl = new moodle_url('/admin/settings.php', ['section' => 'modsettingbooking']);
+
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('availabilityconditionsdashboard', 'mod_booking'));
 echo $OUTPUT->box(get_string('availabilityconditionsdashboard_desc', 'mod_booking'));
@@ -96,6 +106,11 @@ echo \html_writer::tag(
         'th',
         get_string('availabilityconditionsstatecolumn', 'mod_booking') .
         $OUTPUT->help_icon('availabilityconditionsstatecolumn', 'mod_booking')
+    ) .
+    \html_writer::tag(
+        'th',
+        get_string('availabilityconditionssettingscolumn', 'mod_booking') .
+        $OUTPUT->help_icon('availabilityconditionssettingscolumn', 'mod_booking')
     )
 );
 echo \html_writer::end_tag('thead');
@@ -108,19 +123,33 @@ $stateoptions = [
 ];
 
 foreach ($conditions as $conditionid => $conditionname) {
-    $currentstate = $statehelper->get_condition_state((int)$conditionid);
+    $conditionid = (int)$conditionid;
+    $currentstate = $statehelper->get_condition_state($conditionid);
     $select = \html_writer::select(
         $stateoptions,
-        'state[' . (int)$conditionid . ']',
+        'state[' . $conditionid . ']',
         $currentstate,
         false,
         ['class' => 'custom-select']
     );
 
+    if (isset($conditionsettingsanchors[$conditionid])) {
+        $settingsurl = clone $adminsettingsbaseurl;
+        $settingsurl->set_anchor('admin-' . $conditionsettingsanchors[$conditionid]);
+        $settingscell = \html_writer::link(
+            $settingsurl,
+            get_string('availabilityconditionssettingslink', 'mod_booking'),
+            ['class' => 'btn btn-sm btn-secondary']
+        );
+    } else {
+        $settingscell = \html_writer::tag('span', '-', ['class' => 'text-muted']);
+    }
+
     echo \html_writer::tag(
         'tr',
         \html_writer::tag('td', s($conditionname)) .
-        \html_writer::tag('td', $select)
+        \html_writer::tag('td', $select) .
+        \html_writer::tag('td', $settingscell)
     );
 }
 

@@ -169,6 +169,9 @@ $string['availabilityconditionsdashboard'] = 'Availability conditions';
 $string['availabilityconditionsdashboard_desc'] = 'Manage whether each availability condition is inactive, frozen, or skipped and frozen. Existing skip settings remain readable for backwards compatibility until the new dashboard is saved.';
 $string['availabilityconditionsheader'] = '<i class="fa fa-fw fa-key" aria-hidden="true"></i>&nbsp;Availability conditions';
 $string['availabilityconditionslegacynotice'] = 'Legacy skip settings are still active on this site. Saving the dashboard will migrate the current selection into the new state model.';
+$string['availabilityconditionssettingscolumn'] = 'Specific Settings';
+$string['availabilityconditionssettingscolumn_help'] = 'Links in this column open the exact section on the main Booking plugin settings page for conditions that provide additional advanced configuration. Conditions without dedicated settings show no link.';
+$string['availabilityconditionssettingslink'] = 'Edit in plugin settings';
 $string['availabilityconditionsstatecolumn'] = 'Skip/Freeze Condition';
 $string['availabilityconditionsstatecolumn_help'] = 'Choose how each availability condition should behave:<br><br>
 <strong>Default</strong>: The condition behaves normally. It is checked during booking, and users with permission can edit it in the option form.<br><br>
@@ -1016,6 +1019,7 @@ $string['conditionsoverwritingbillboard'] = 'Overwrite messages about blocking r
 $string['conditionsoverwritingbillboard_desc'] = 'A text can be entered in the settings of the booking instance that is displayed instead of other messages on blocking reasons of bookings.';
 $string['conditionssettings'] = 'Availability conditions settings';
 $string['conditionssettings_desc'] = 'You can opt out of certain conditions if they are not needed. This will give you a performance boost, since the system will not check these conditions anymore during the booking process.';
+$string['conditionssettingslinkdashboard'] = 'Use the <a href="{$a}" target="_blank">Availability Conditions table</a> to manage skip/freeze states and other given settings of all conditions.';
 $string['conditionsskippedwarning'] = '<div class="alert alert-warning" role="alert">This condition can not be selected because it was <a href="{$a}" target="_blank">turned off (skipped) in the settings</a>.</div>';
 $string['conditiontextfield'] = 'Value';
 $string['configurefields'] = 'Configure fields and columns';

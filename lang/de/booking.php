@@ -164,6 +164,9 @@ $string['availabilityconditionsdashboard'] = 'Verfügbarkeitsbedingungen';
 $string['availabilityconditionsdashboard_desc'] = 'Verwalten Sie pro Verfügbarkeitsbedingung, ob sie Standard, nur eingefroren oder übersprungen und eingefroren ist. Bestehende Skip-Einstellungen bleiben aus Gründen der Rückwärtskompatibilität lesbar, bis das neue Dashboard gespeichert wurde.';
 $string['availabilityconditionsheader'] = '<i class="fa fa-fw fa-key" aria-hidden="true"></i>&nbsp;Verfügbarkeit einschränken';
 $string['availabilityconditionslegacynotice'] = 'Legacy-Skip-Einstellungen sind auf dieser Seite noch aktiv. Beim Speichern des Dashboards wird die aktuelle Auswahl in das neue Zustandsmodell migriert.';
+$string['availabilityconditionssettingscolumn'] = 'Spezifische Einstellungen';
+$string['availabilityconditionssettingscolumn_help'] = 'Die Links in dieser Spalte öffnen den passenden Abschnitt auf der Hauptseite der Booking-Plugin-Einstellungen für Bedingungen mit zusätzlichen erweiterten Optionen. Bedingungen ohne eigene Einstellungen zeigen keinen Link.';
+$string['availabilityconditionssettingslink'] = 'In Plugin-Einstellungen bearbeiten';
 $string['availabilityconditionsstatecolumn'] = 'Skip/Freeze-Bedingung';
 $string['availabilityconditionsstatecolumn_help'] = 'Wählen Sie aus, wie sich jede Verfügbarkeitsbedingung verhalten soll:<br><br>
 <strong>Standard</strong>: Die Bedingung verhält sich normal. Sie wird während des Buchungsprozesses geprüft und kann von berechtigten Nutzer:innen im Optionsformular bearbeitet werden.<br><br>
@@ -996,6 +999,7 @@ $string['conditionsoverwritingbillboard'] = 'Überschreiben von Nachrichten zur 
 $string['conditionsoverwritingbillboard_desc'] = 'In den Einstellungen der Buchungsinstanz kann ein Text eingegeben werden, der anstelle von anderen Nachrichten zur (Nicht-)Buchbarkeit angezeigt wird.';
 $string['conditionssettings'] = 'Verfügbarkeitsbedingungen';
 $string['conditionssettings_desc'] = 'Konfigurieren Sie die Verfügbarkeitsbedingungen für Buchungsoptionen.';
+$string['conditionssettingslinkdashboard'] = 'Verwenden Sie die <a href="{$a}" target="_blank">Tabelle der Verfügbarkeitsbedingungen</a>, um Skip/Freeze-Zustände und ggf. weitere Einstellungen für alle Bedingungen zu verwalten.';
 $string['conditionsskippedwarning'] = '<div class="alert alert-warning" role="alert">Diese Bedingung kann nicht ausgewählt werden, da sie in den <a href="{$a}" target="_blank">Einstellungen deaktiviert (übersprungen) wurde</a>.</div>';
 $string['conditiontextfield'] = 'Wert';
 $string['configurefields'] = 'Spalten und Felder anpassen';
