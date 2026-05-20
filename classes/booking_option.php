@@ -1531,7 +1531,8 @@ class booking_option {
      * @param int $confirmwaitinglist
      * @param string $erlid
      * @param int $historystatus
-     * @return int $syncruleid
+     * @param int $syncruleid
+     * @return int
      */
     public static function write_user_answer_to_db(
         int $bookingid,
