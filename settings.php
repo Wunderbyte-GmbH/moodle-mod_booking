@@ -22,7 +22,6 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use mod_booking\bo_availability\bo_info;
 use mod_booking\customfield\booking_handler;
 use mod_booking\local\htmlcomponents;
 use mod_booking\placeholders\placeholders_info;
@@ -109,6 +108,15 @@ $ADMIN->add(
         'modbookingcustomfield',
         get_string('customfieldconfigure', 'mod_booking'),
         new moodle_url('/mod/booking/customfield.php')
+    )
+);
+
+$ADMIN->add(
+    'modbookingfolder',
+    new admin_externalpage(
+        'modbookingavailabilityconditions',
+        get_string('availabilityconditionsdashboard', 'mod_booking'),
+        new moodle_url('/mod/booking/availabilityconditions.php')
     )
 );
 
@@ -932,48 +940,6 @@ if ($ADMIN->fulltree) {
                 get_string('sqlfilterbookingtimeonlypast', 'mod_booking'),
                 get_string('sqlfilterbookingtimeonlypast_desc', 'mod_booking'),
                 0
-            )
-        );
-
-        // Skippable conditions setting.
-        $skippableconditions = bo_info::get_skippable_conditions();
-        // Add "No condition selected" as an option with value 0.
-        $skippableconditions = [0 => get_string('noconditionselected', 'mod_booking')] + $skippableconditions;
-        $settings->add(
-            new admin_setting_configmultiselect(
-                'booking/skipableconditions',
-                get_string('skipableconditions', 'mod_booking'),
-                get_string('skipableconditions_desc', 'mod_booking'),
-                [],
-                $skippableconditions
-            )
-        );
-
-        // For enrollinks, we skip some conditions by default, so they should not be selected here.
-        // See bo_info::exclude_conditions.
-        $enrollinkskippableconditions = array_filter(
-            $skippableconditions,
-            fn($key) => !in_array($key, [
-                MOD_BOOKING_BO_COND_CAPBOOKINGCHOOSE,
-                MOD_BOOKING_BO_COND_JSON_ALLOWEDTOBOOKININSTANCE,
-                MOD_BOOKING_BO_COND_JSON_CUSTOMFORM,
-            ]),
-            ARRAY_FILTER_USE_KEY
-        );
-
-        // Enrollink skippable conditions setting.
-        // Time-relevant conditions are skipped in default setting as the booker might not want them to be checked for enrollinks.
-        $settings->add(
-            new admin_setting_configmultiselect(
-                'booking/enrollinkskipconditions',
-                get_string('enrollinkskipconditions', 'mod_booking'),
-                get_string('enrollinkskipconditions_desc', 'mod_booking'),
-                [
-                    MOD_BOOKING_BO_COND_BOOKING_TIME,
-                    MOD_BOOKING_BO_COND_JSON_NOOVERLAPPING,
-                    MOD_BOOKING_BO_COND_OPTIONHASSTARTED,
-                ],
-                $enrollinkskippableconditions
             )
         );
 

@@ -160,7 +160,18 @@ $string['automaticbookingoptioncompletion_desc'] = 'Wenn aktiviert, wird die Buc
 $string['automaticcoursecreation'] = 'Automatische Erstellung von Moodle-Kursen <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['availability'] = 'Verfügbarkeit';
 $string['availabilityconditions'] = 'Verfügbarkeit einschränken';
+$string['availabilityconditionsdashboard'] = 'Verfügbarkeitsbedingungen';
+$string['availabilityconditionsdashboard_desc'] = 'Verwalten Sie pro Verfügbarkeitsbedingung, ob sie Standard, nur eingefroren oder übersprungen und eingefroren ist. Bestehende Skip-Einstellungen bleiben aus Gründen der Rückwärtskompatibilität lesbar, bis das neue Dashboard gespeichert wurde.';
 $string['availabilityconditionsheader'] = '<i class="fa fa-fw fa-key" aria-hidden="true"></i>&nbsp;Verfügbarkeit einschränken';
+$string['availabilityconditionslegacynotice'] = 'Legacy-Skip-Einstellungen sind auf dieser Seite noch aktiv. Beim Speichern des Dashboards wird die aktuelle Auswahl in das neue Zustandsmodell migriert.';
+$string['availabilityconditionsstatecolumn'] = 'Skip/Freeze-Bedingung';
+$string['availabilityconditionsstatecolumn_help'] = 'Wählen Sie aus, wie sich jede Verfügbarkeitsbedingung verhalten soll:<br><br>
+<strong>Standard</strong>: Die Bedingung verhält sich normal. Sie wird während des Buchungsprozesses geprüft und kann von berechtigten Nutzer:innen im Optionsformular bearbeitet werden.<br><br>
+<strong>Nur einfrieren</strong>: Die Bedingung wird weiterhin geprüft, aber ihre Formularfelder werden gesperrt (bzw. für Nutzer:innen ohne Berechtigung ausgeblendet). Das ist sinnvoll, wenn die Regel fest vorgegeben sein soll, aber weiterhin vollständig geprüft werden muss.<br><br>
+<strong>Überspringen und einfrieren</strong>: Die Bedingung wird während des Buchungsprozesses nicht geprüft und ihre Formularfelder werden gesperrt (bzw. für Nutzer:innen ohne Berechtigung ausgeblendet). Das kann die Performance verbessern, jedoch schützt die übersprungene Regel dann nicht mehr.';
+$string['availabilityconditionstatedefault'] = 'Standard';
+$string['availabilityconditionstatefreeze'] = 'Nur einfrieren';
+$string['availabilityconditionstateskipandfreeze'] = 'Überspringen und einfrieren';
 $string['availabilityinfotextsheading'] = 'Beschreibungstexte für verfügbare Buchungs- und Wartelistenplätze <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['available'] = 'Plätze verfügbar';
 $string['availableplaces'] = 'Verfügbare Plätze: {$a->available} von {$a->maxanswers}';
@@ -980,6 +991,7 @@ $string['conditionselectuserfromevent_desc'] = 'Nutzer:in, die mit dem Ereignis 
 $string['conditionselectuserfromeventtype'] = 'Rolle wählen';
 $string['conditionselectusershoppingcart_desc'] = "Nutzer:in mit Zahlungsverpflichtung ist ausgewählt";
 $string['conditionselectusersuserids'] = "Wähle die gewünschten Nutzer:innen";
+$string['conditionsfrozenwarning'] = '<div class="alert alert-warning" role="alert">Diese Bedingung kann nicht ausgewählt werden, da sie in den <a href="{$a}" target="_blank">Einstellungen eingefroren wurde</a>.</div>';
 $string['conditionsoverwritingbillboard'] = 'Überschreiben von Nachrichten zur Buchbarkeit bzw. deren Blockierung ermöglichen';
 $string['conditionsoverwritingbillboard_desc'] = 'In den Einstellungen der Buchungsinstanz kann ein Text eingegeben werden, der anstelle von anderen Nachrichten zur (Nicht-)Buchbarkeit angezeigt wird.';
 $string['conditionssettings'] = 'Verfügbarkeitsbedingungen';
