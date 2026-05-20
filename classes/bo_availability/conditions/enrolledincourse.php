@@ -28,6 +28,7 @@ use context_course;
 use context_system;
 use Exception;
 use mod_booking\bo_availability\bo_condition;
+use mod_booking\bo_availability\freezable_condition;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_option_settings;
 use mod_booking\singleton_service;
@@ -435,6 +436,13 @@ class enrolledincourse implements bo_condition, freezable_condition {
         ];
     }
 
+    /**
+     * Add condition-specific form elements to the booking option form.
+     *
+     * @param MoodleQuickForm $mform Booking option form instance.
+     * @param int $optionid Booking option id.
+     * @return void
+     */
     public function add_condition_to_mform(MoodleQuickForm &$mform, int $optionid = 0) {
         global $DB;
         if (empty(get_config('booking', 'usesqlfilteravailability'))) {
