@@ -44,7 +44,7 @@ use stdClass;
  * @author      Bernhard Fischer
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class enrolledincourse implements bo_condition {
+class enrolledincourse implements bo_condition, freezable_condition {
     /** @var int $id set via json during construction */
     public $id = MOD_BOOKING_BO_COND_JSON_ENROLLEDINCOURSE;
 
@@ -417,6 +417,24 @@ class enrolledincourse implements bo_condition {
      * @param int $optionid
      * @return void
      */
+    /**
+     * Returns the ordered list of form element names this condition adds to the option form.
+     * The first element is used as the warning insertion anchor.
+     *
+     * @return string[]
+     */
+    public function get_condition_form_elements(): array {
+        return [
+            'bo_cond_enrolledincourse_restrict',
+            'bo_cond_enrolledincourse_courseids',
+            'bo_cond_enrolledincourse_courseids_operator',
+            'bo_cond_enrolledincourse_sqlfiltercheck',
+            'bo_cond_enrolledincourse_overrideconditioncheckbox',
+            'bo_cond_enrolledincourse_overrideoperator',
+            'bo_cond_enrolledincourse_overridecondition',
+        ];
+    }
+
     public function add_condition_to_mform(MoodleQuickForm &$mform, int $optionid = 0) {
         global $DB;
         if (empty(get_config('booking', 'usesqlfilteravailability'))) {

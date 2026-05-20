@@ -47,7 +47,7 @@ use stdClass;
  * @copyright 2022 Wunderbyte GmbH
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class customform implements bo_condition {
+class customform implements bo_condition, freezable_condition {
     /** @var int $id Id is set via json during construction but we still need a default ID */
     public $id = MOD_BOOKING_BO_COND_JSON_CUSTOMFORM;
 
@@ -256,6 +256,21 @@ class customform implements bo_condition {
      * @param ?\moodleform $moodleform
      * @return void
      */
+    /**
+     * Returns the ordered list of form element names this condition adds to the option form.
+     * The first element is used as the warning insertion anchor.
+     * Dynamic per-entry elements (bo_cond_customform_select_1_N etc.) are not listed here
+     * as they are variable in count; freezing the restrict checkbox indicates condition state.
+     *
+     * @return string[]
+     */
+    public function get_condition_form_elements(): array {
+        return [
+            'bo_cond_customform_restrict',
+            'bo_cond_customform_deleteinfoscheckboxadmin',
+        ];
+    }
+
     public function add_condition_to_mform(MoodleQuickForm &$mform, int $optionid = 0, ?\moodleform $moodleform = null) {
         global $DB, $CFG;
 

@@ -45,7 +45,7 @@ require_once($CFG->dirroot . '/cohort/lib.php');
  * @author      Magdalena Holczik
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class enrolledincohorts implements bo_condition {
+class enrolledincohorts implements bo_condition, freezable_condition {
     /** @var int $id set via json during construction */
     public $id = MOD_BOOKING_BO_COND_JSON_ENROLLEDINCOHORTS;
 
@@ -390,6 +390,24 @@ class enrolledincohorts implements bo_condition {
      * @param int $optionid
      * @return void
      */
+    /**
+     * Returns the ordered list of form element names this condition adds to the option form.
+     * The first element is used as the warning insertion anchor.
+     *
+     * @return string[]
+     */
+    public function get_condition_form_elements(): array {
+        return [
+            'bo_cond_enrolledincohorts_restrict',
+            'bo_cond_enrolledincohorts_cohortids',
+            'bo_cond_enrolledincohorts_cohortids_operator',
+            'bo_cond_enrolledincohorts_sqlfiltercheck',
+            'bo_cond_enrolledincohorts_overrideconditioncheckbox',
+            'bo_cond_enrolledincohorts_overrideoperator',
+            'bo_cond_enrolledincohorts_overridecondition',
+        ];
+    }
+
     public function add_condition_to_mform(MoodleQuickForm &$mform, int $optionid = 0) {
         global $DB;
         // If SQL filter is not activated, the condition cannot be used.

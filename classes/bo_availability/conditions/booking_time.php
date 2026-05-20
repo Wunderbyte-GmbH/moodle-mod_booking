@@ -49,7 +49,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @copyright 2022 Wunderbyte GmbH
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class booking_time implements bo_condition {
+class booking_time implements bo_condition, freezable_condition {
     /** @var int $id Standard Conditions have hardcoded ids. */
     public $id = MOD_BOOKING_BO_COND_BOOKING_TIME;
 
@@ -271,6 +271,32 @@ class booking_time implements bo_condition {
      * @param int $optionid
      * @return void
      */
+    /**
+     * Returns the ordered list of form element names this condition adds to the option form.
+     * The first element is used as the warning insertion anchor.
+     * Relative-mode elements are included; condition_visibility_manager silently skips
+     * any element that does not exist in the form (e.g. when relative mode is disabled).
+     *
+     * @return string[]
+     */
+    public function get_condition_form_elements(): array {
+        return [
+            'restrictanswerperiodopening',
+            'booking_time_opening_mode',
+            'bookingopeningtime',
+            'booking_time_opening_relative_duration',
+            'booking_time_opening_relative_beforeafter',
+            'booking_time_opening_relative_datefield',
+            'restrictanswerperiodclosing',
+            'booking_time_closing_mode',
+            'bookingclosingtime',
+            'booking_time_closing_relative_duration',
+            'booking_time_closing_relative_beforeafter',
+            'booking_time_closing_relative_datefield',
+            'bo_cond_booking_time_sqlfiltercheck',
+        ];
+    }
+
     public function add_condition_to_mform(MoodleQuickForm &$mform, int $optionid = 0) {
         global $DB;
 
