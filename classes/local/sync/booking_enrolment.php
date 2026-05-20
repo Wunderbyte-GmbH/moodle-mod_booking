@@ -951,10 +951,9 @@ class booking_enrolment {
      * Internal helper: enrol a user by rule with a pre-fetched user object.
      * Use this in loops to avoid redundant user record fetches.
      *
-     * @param stdClass $rule   Sync rule record.
-     * @param int      $userid User ID.
-     * @param stdClass|null $user
-     * @param stdClass $user   Pre-fetched user record (optional). If provided, avoids a DB query.
+     * @param stdClass $rule Sync rule record.
+     * @param int $userid User ID.
+     * @param stdClass|null $user Pre-fetched user record (optional). If provided, avoids a DB query.
      */
     public static function enrol_user_by_rule_with_user_cache(stdClass $rule, int $userid, ?stdClass $user = null): void {
         global $DB;
