@@ -781,13 +781,22 @@ if ($ADMIN->fulltree) {
             )
         );
 
+        $conditionsdashboardurl = new moodle_url('/mod/booking/availabilityconditions.php');
+        $conditionsheadingdesc = get_string('conditionssettings_desc', 'mod_booking') .
+            '<br>' . get_string('conditionssettingslinkdashboard', 'mod_booking', $conditionsdashboardurl->out(false));
         $settings->add(
             new admin_setting_heading(
                 'conditionsheadnig',
                 get_string('conditionssettings', 'mod_booking') . " " . get_string('badge:pro', 'mod_booking'),
-                get_string('conditionssettings_desc', 'mod_booking')
+                $conditionsheadingdesc
             )
         );
+
+        // Developer note:
+        // If you add new condition-specific admin settings in this section,
+        // also add/update the matching link mapping in
+        // mod/booking/availabilityconditions.php ($conditionsettingsanchors)
+        // so the "Specific Settings" column points to the correct setting anchor.
         $settings->add(
             new admin_setting_configcheckbox(
                 'booking/bookingtimerelativeenabled',
