@@ -95,7 +95,11 @@ class condition_state_helper {
      * @return array<int,int>
      */
     private function get_configured_states(): array {
-        $configuredstates = get_config('booking', 'availabilityconditionstates');
+        $configuredstates = get_config('booking', 'availabilityconditionsettings');
+        if (empty($configuredstates)) {
+            // Backward compatibility for the previous experimental key.
+            $configuredstates = get_config('booking', 'availabilityconditionstates');
+        }
         if (empty($configuredstates)) {
             return [];
         }
@@ -107,7 +111,15 @@ class condition_state_helper {
 
         $states = [];
         foreach ($decoded as $conditionid => $state) {
-            $states[(int)$conditionid] = (int)$state;
+            if (is_array($state) && array_key_exists('skipstate', $state)) {
+                $states[(int)$conditionid] = (int)$state['skipstate'];
+                continue;
+            }
+
+            // Backward compatibility for previous flat map format.
+            if (is_scalar($state)) {
+                $states[(int)$conditionid] = (int)$state;
+            }
         }
 
         return $states;

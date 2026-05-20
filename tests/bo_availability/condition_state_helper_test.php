@@ -55,7 +55,7 @@ final class condition_state_helper_test extends advanced_testcase {
      */
     public function test_legacy_skip_settings_are_backward_compatible(): void {
         set_config('skipableconditions', MOD_BOOKING_BO_COND_BOOKING_TIME, 'booking');
-        set_config('availabilityconditionstates', '', 'booking');
+        set_config('availabilityconditionsettings', '', 'booking');
 
         $helper = new condition_state_helper();
 
@@ -73,9 +73,11 @@ final class condition_state_helper_test extends advanced_testcase {
     public function test_explicit_state_map_is_used_first(): void {
         set_config('skipableconditions', MOD_BOOKING_BO_COND_BOOKING_TIME, 'booking');
         set_config(
-            'availabilityconditionstates',
+            'availabilityconditionsettings',
             json_encode([
-                MOD_BOOKING_BO_COND_BOOKING_TIME => condition_state_helper::STATE_FREEZE,
+                MOD_BOOKING_BO_COND_BOOKING_TIME => [
+                    'skipstate' => condition_state_helper::STATE_FREEZE,
+                ],
             ]),
             'booking'
         );
@@ -95,7 +97,7 @@ final class condition_state_helper_test extends advanced_testcase {
      */
     public function test_unconfigured_condition_defaults_to_inactive(): void {
         set_config('skipableconditions', '', 'booking');
-        set_config('availabilityconditionstates', '', 'booking');
+        set_config('availabilityconditionsettings', '', 'booking');
 
         $helper = new condition_state_helper();
 
@@ -105,5 +107,30 @@ final class condition_state_helper_test extends advanced_testcase {
         );
         $this->assertFalse($helper->should_skip_condition(MOD_BOOKING_BO_COND_JSON_SELECTUSERS));
         $this->assertFalse($helper->should_freeze_condition(MOD_BOOKING_BO_COND_JSON_SELECTUSERS));
+    }
+
+    /**
+     * New object-shaped state configuration should be parsed as condition states.
+     */
+    public function test_object_state_map_with_skipstate_field_is_parsed(): void {
+        set_config(
+            'availabilityconditionsettings',
+            json_encode([
+                MOD_BOOKING_BO_COND_CAPBOOKINGCHOOSE => ['skipstate' => condition_state_helper::STATE_FREEZE],
+                MOD_BOOKING_BO_COND_JSON_NOOVERLAPPING => ['skipstate' => condition_state_helper::STATE_SKIP_AND_FREEZE],
+            ]),
+            'booking'
+        );
+
+        $helper = new condition_state_helper();
+
+        $this->assertSame(
+            condition_state_helper::STATE_FREEZE,
+            $helper->get_condition_state(MOD_BOOKING_BO_COND_CAPBOOKINGCHOOSE)
+        );
+        $this->assertSame(
+            condition_state_helper::STATE_SKIP_AND_FREEZE,
+            $helper->get_condition_state(MOD_BOOKING_BO_COND_JSON_NOOVERLAPPING)
+        );
     }
 }
