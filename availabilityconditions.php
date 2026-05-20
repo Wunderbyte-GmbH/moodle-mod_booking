@@ -41,8 +41,6 @@ admin_externalpage_setup(
     ['pagelayout' => 'report']
 );
 
-require_capability('mod/booking:updatebooking', $context);
-
 $PAGE->set_context($context);
 $PAGE->set_url($pageurl);
 $PAGE->set_title(format_string($SITE->shortname) . ': ' . get_string('availabilityconditionsdashboard', 'mod_booking'));
@@ -57,11 +55,13 @@ if (optional_param('save', 0, PARAM_BOOL) && confirm_sesskey()) {
     foreach ($submittedstates as $conditionid => $state) {
         $state = (int)$state;
         if (in_array($state, [condition_state_helper::STATE_FREEZE, condition_state_helper::STATE_SKIP_AND_FREEZE], true)) {
-            $savedstates[(int)$conditionid] = $state;
+            $savedstates[(int)$conditionid] = [
+                'skipstate' => $state,
+            ];
         }
     }
 
-    set_config('availabilityconditionstates', json_encode($savedstates), 'booking');
+    set_config('availabilityconditionsettings', json_encode($savedstates), 'booking');
     redirect($pageurl, get_string('changessaved'), null, \core\output\notification::NOTIFY_SUCCESS);
 }
 
@@ -73,7 +73,8 @@ echo $OUTPUT->heading(get_string('availabilityconditionsdashboard', 'mod_booking
 echo $OUTPUT->box(get_string('availabilityconditionsdashboard_desc', 'mod_booking'));
 
 if (
-    get_config('booking', 'availabilityconditionstates') === false
+    get_config('booking', 'availabilityconditionsettings') === false
+    && get_config('booking', 'availabilityconditionstates') === false
     && (
         !empty(get_config('booking', 'skipableconditions'))
         || !empty(get_config('booking', 'enrollinkskipconditions'))

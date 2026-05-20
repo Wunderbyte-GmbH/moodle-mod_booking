@@ -448,9 +448,11 @@ final class condition_skipableconditions_test extends advanced_testcase {
     public function test_booking_time_is_skipped_with_skip_and_freeze_state(array $bdata): void {
         set_config('skipableconditions', '', 'booking');
         set_config(
-            'availabilityconditionstates',
+            'availabilityconditionsettings',
             json_encode([
-                MOD_BOOKING_BO_COND_BOOKING_TIME => condition_state_helper::STATE_SKIP_AND_FREEZE,
+                MOD_BOOKING_BO_COND_BOOKING_TIME => [
+                    'skipstate' => condition_state_helper::STATE_SKIP_AND_FREEZE,
+                ],
             ]),
             'booking'
         );
@@ -506,9 +508,11 @@ final class condition_skipableconditions_test extends advanced_testcase {
     public function test_booking_time_is_not_skipped_with_freeze_only_state(array $bdata): void {
         set_config('skipableconditions', '', 'booking');
         set_config(
-            'availabilityconditionstates',
+            'availabilityconditionsettings',
             json_encode([
-                MOD_BOOKING_BO_COND_BOOKING_TIME => condition_state_helper::STATE_FREEZE,
+                MOD_BOOKING_BO_COND_BOOKING_TIME => [
+                    'skipstate' => condition_state_helper::STATE_FREEZE,
+                ],
             ]),
             'booking'
         );
