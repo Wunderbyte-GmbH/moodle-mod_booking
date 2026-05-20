@@ -435,7 +435,9 @@ class bo_info {
             // For each condition, add the appropriate form fields.
             $condition->add_condition_to_mform($mform, $optionid, $moodleform);
             if ($visibilitymanager->is_condition_skipped($condition->id)) {
-                $visibilitymanager->disable_elements_in_mform($mform, $condition->id);
+                $visibilitymanager->disable_elements_in_mform($mform, $condition->id, true);
+            } else if ($visibilitymanager->is_condition_frozen($condition->id)) {
+                $visibilitymanager->disable_elements_in_mform($mform, $condition->id, false);
             }
         }
     }
@@ -1531,26 +1533,10 @@ class bo_info {
      *
      */
     private static function exclude_conditions(array &$conditions) {
-        $excludedconditions = get_config('booking', 'skipableconditions');
-        $excludedconditionsarray = !empty($excludedconditions) ? explode(',', $excludedconditions) : [];
-        // When using an enrollink, we need to check if there are conditions to skip (setting 'enrollinkskipconditions').
-        if (self::$isenrollinkcontext) {
-            $enrollinkexcluded = get_config('booking', 'enrollinkskipconditions');
-            if (!empty($enrollinkexcluded)) {
-                $excludedconditionsarray = array_merge($excludedconditionsarray, explode(',', $enrollinkexcluded));
-            }
-            // We always skip the following conditions in the enrollink context, as they don't make sense there.
-            $excludedconditionsarray = array_merge($excludedconditionsarray, [
-                // Should be only checked for the booker, not the ones who receive the enrollink.
-                MOD_BOOKING_BO_COND_CAPBOOKINGCHOOSE,
-                MOD_BOOKING_BO_COND_JSON_ALLOWEDTOBOOKININSTANCE,
-                // Customform is only displayed to the booker, not the ones who receive the enrollink.
-                MOD_BOOKING_BO_COND_JSON_CUSTOMFORM,
-            ]);
-        }
+        $statehelper = new condition_state_helper();
         // This is where the conditions are actually skipped (excluded).
         foreach ($conditions as $key => $condition) {
-            if (in_array($condition->id, $excludedconditionsarray)) {
+            if ($statehelper->should_skip_condition($condition->id, self::$isenrollinkcontext)) {
                 unset($conditions[$key]);
             }
         }

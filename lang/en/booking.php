@@ -165,7 +165,18 @@ $string['automaticbookingoptioncompletion_desc'] = 'If enabled the bookingoption
 $string['automaticcoursecreation'] = 'Automatic creation of Moodle courses <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['availability'] = 'Availability';
 $string['availabilityconditions'] = 'Availability conditions';
+$string['availabilityconditionsdashboard'] = 'Availability conditions';
+$string['availabilityconditionsdashboard_desc'] = 'Manage whether each availability condition is inactive, frozen, or skipped and frozen. Existing skip settings remain readable for backwards compatibility until the new dashboard is saved.';
 $string['availabilityconditionsheader'] = '<i class="fa fa-fw fa-key" aria-hidden="true"></i>&nbsp;Availability conditions';
+$string['availabilityconditionslegacynotice'] = 'Legacy skip settings are still active on this site. Saving the dashboard will migrate the current selection into the new state model.';
+$string['availabilityconditionsstatecolumn'] = 'Skip/Freeze Condition';
+$string['availabilityconditionsstatecolumn_help'] = 'Choose how each availability condition should behave:<br><br>
+<strong>Default</strong>: The condition behaves normally. It is checked during booking, and users with permission can edit it in the option form.<br><br>
+<strong>Freeze only</strong>: The condition is still checked during booking, but its form fields are locked (or hidden for users without permission). This is useful when you want a fixed rule and still need full validation.<br><br>
+<strong>Skip and freeze</strong>: The condition is not checked during booking and its form fields are locked (or hidden for users without permission). This can improve performance, but the skipped rule no longer protects bookings.';
+$string['availabilityconditionstatedefault'] = 'Default';
+$string['availabilityconditionstatefreeze'] = 'Freeze only';
+$string['availabilityconditionstateskipandfreeze'] = 'Skip and freeze';
 $string['availabilityinfotextsheading'] = 'Availability info texts for booking places and waiting list <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['available'] = 'Places available';
 $string['availableplaces'] = 'Places available: {$a->available} of {$a->maxanswers}';
@@ -1000,6 +1011,7 @@ $string['conditionselectuserfromevent_desc'] = 'Choose a user who is somehow con
 $string['conditionselectuserfromeventtype'] = 'Choose role';
 $string['conditionselectusershoppingcart_desc'] = "User with payment obligation is chosen";
 $string['conditionselectusersuserids'] = "Select the users you want to target";
+$string['conditionsfrozenwarning'] = '<div class="alert alert-warning" role="alert">This condition can not be selected because it is <a href="{$a}" target="_blank">frozen in the settings</a>.</div>';
 $string['conditionsoverwritingbillboard'] = 'Overwrite messages about blocking reasons of bookings';
 $string['conditionsoverwritingbillboard_desc'] = 'A text can be entered in the settings of the booking instance that is displayed instead of other messages on blocking reasons of bookings.';
 $string['conditionssettings'] = 'Availability conditions settings';

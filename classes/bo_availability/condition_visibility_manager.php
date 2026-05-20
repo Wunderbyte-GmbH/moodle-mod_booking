@@ -43,24 +43,26 @@ class condition_visibility_manager {
      * @return array
      */
     public function get_skipped_conditions(): array {
-        $skippedconditions = get_config('booking', 'skipableconditions');
-        if (empty($skippedconditions)) {
-            return [];
-        }
-        $skippedconditionsarray = explode(',', $skippedconditions);
-        // Remove any zero values from the array.
-        $skippedconditionsarray = array_filter($skippedconditionsarray, fn($v) => $v != "0");
-        return $skippedconditionsarray;
-    }
+        $statehelper = new condition_state_helper();
+        $skippedconditions = [];
 
+        foreach (bo_info::get_skippable_conditions() as $conditionid => $conditionname) {
+            if ($statehelper->should_skip_condition((int)$conditionid)) {
+                $skippedconditions[] = (int)$conditionid;
+            }
+        }
+
+        return $skippedconditions;
+    }
     /**
      * Freezes form fields based on condition ID.
      *
      * @param MoodleQuickForm $mform
      * @param int $conditionid
+     * @param bool $skipandfreeze
      * @return void
      */
-    public function freeze_fields_for_condition(MoodleQuickForm &$mform, int $conditionid): void {
+    public function freeze_fields_for_condition(MoodleQuickForm &$mform, int $conditionid, bool $skipandfreeze = true): void {
         $firstelementname = null;
 
         switch ($conditionid) {
@@ -163,22 +165,7 @@ class condition_visibility_manager {
                 break;
         }
 
-        // Add warning only once, before the first element of the condition.
-        if ($firstelementname !== null && $mform->elementExists($firstelementname)) {
-            $linktosetting = new moodle_url(
-                '/admin/settings.php',
-                ['section' => 'modsettingbooking'],
-                'admin-skipableconditions'
-            );
-            $warningname = 'condition_' . $conditionid . '_warning';
-            $warningelement = $mform->createElement(
-                'static',
-                $warningname,
-                '',
-                get_string('conditionsskippedwarning', 'mod_booking', $linktosetting)
-            );
-            $mform->insertElementBefore($warningelement, $firstelementname);
-        }
+        $this->insert_warning_before_first_element($mform, $conditionid, $firstelementname, $skipandfreeze);
     }
 
     /**
@@ -280,20 +267,67 @@ class condition_visibility_manager {
     }
 
     /**
-     * Applies freeze and adds warning to all fields from skipped conditions.
+     * Applies freeze and optionally adds warning to all fields from skipped conditions.
      *
      * @param MoodleQuickForm $mform
      * @param int $conditionid
+     * @param bool $showwarning
      * @return void
      */
-    public function disable_elements_in_mform(MoodleQuickForm &$mform, int $conditionid): void {
+    public function disable_elements_in_mform(MoodleQuickForm &$mform, int $conditionid, bool $showwarning = true): void {
         if (has_capability('mod/booking:updatebooking', context_system::instance())) {
             // Users with the updatebooking capability see the skipped conditions but with the fields frozen and a warning added.
-            $this->freeze_fields_for_condition($mform, $conditionid);
+            $this->freeze_fields_for_condition($mform, $conditionid, $showwarning);
+            if (!$showwarning) {
+                return;
+            }
         } else {
             // A user without the updatebooking capability should not see any skipped conditions at all.
             $this->hide_fields_for_condition($mform, $conditionid);
+            return;
         }
+    }
+
+    /**
+     * Checks if a condition should be frozen in the option form.
+     *
+     * @param int $conditionid
+     * @return bool
+     */
+    public function is_condition_frozen(int $conditionid): bool {
+        $statehelper = new condition_state_helper();
+        return $statehelper->should_freeze_condition($conditionid);
+    }
+
+    /**
+     * Inserts a single warning before the first element of a condition block.
+     *
+     * @param MoodleQuickForm $mform
+     * @param int $conditionid
+     * @param string|null $firstelementname
+     * @param bool $skipandfreeze
+     * @return void
+     */
+    private function insert_warning_before_first_element(
+        MoodleQuickForm &$mform,
+        int $conditionid,
+        ?string $firstelementname,
+        bool $skipandfreeze
+    ): void {
+        if ($firstelementname === null || !$mform->elementExists($firstelementname)) {
+            return;
+        }
+
+        $warningkey = $skipandfreeze ? 'conditionsskippedwarning' : 'conditionsfrozenwarning';
+        $linktosetting = new moodle_url('/mod/booking/availabilityconditions.php');
+        $warningname = 'condition_' . $conditionid . '_warning';
+        $warningelement = $mform->createElement(
+            'static',
+            $warningname,
+            '',
+            get_string($warningkey, 'mod_booking', $linktosetting)
+        );
+        $mform->insertElementBefore($warningelement, $firstelementname);
     }
 
     /**
@@ -342,13 +376,7 @@ class condition_visibility_manager {
      *
      */
     public function is_condition_skipped(int $conditionid): bool {
-        $skippedconditions = $this->get_skipped_conditions();
-        if (empty($skippedconditions)) {
-            return false;
-        }
-        if (in_array($conditionid, $skippedconditions)) {
-            return true;
-        }
-        return false;
+        $statehelper = new condition_state_helper();
+        return $statehelper->should_skip_condition($conditionid);
     }
 }
