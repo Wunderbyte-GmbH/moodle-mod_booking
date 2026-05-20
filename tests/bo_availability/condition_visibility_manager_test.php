@@ -79,8 +79,22 @@ final class condition_visibility_manager_test extends advanced_testcase {
         });
         $mform->expects($this->once())->method('insertElementBefore');
 
+        $condition = new class implements freezable_condition {
+            /** @var int Condition id used for warning key generation. */
+            public int $id = MOD_BOOKING_BO_COND_BOOKING_TIME;
+
+            /**
+             * Return the form elements controlled by this condition.
+             *
+             * @return string[]
+             */
+            public function get_condition_form_elements(): array {
+                return ['restrictanswerperiodopening'];
+            }
+        };
+
         $manager = new condition_visibility_manager();
-        $manager->freeze_fields_for_condition($mform, MOD_BOOKING_BO_COND_BOOKING_TIME, $skipandfreeze);
+        $manager->freeze_fields_for_condition($mform, $condition, $skipandfreeze);
 
         $this->assertIsString($warningcontent);
         $this->assertStringContainsString($expectedfragment, $warningcontent);
