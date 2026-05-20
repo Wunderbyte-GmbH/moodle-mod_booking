@@ -51,8 +51,12 @@ class sync_rule_delete_form extends dynamic_form {
         $mform->addElement('hidden', 'ruleid', $ruleid);
         $mform->setType('ruleid', PARAM_INT);
 
-        $mform->addElement('static', 'confirmtext', '',
-            get_string('syncruledeleteconfirm', 'mod_booking'));
+        $mform->addElement(
+            'static',
+            'confirmtext',
+            '',
+            get_string('syncruledeleteconfirm', 'mod_booking')
+        );
 
         // Show how many active booking answers are owned by this rule.
         if ($ruleid > 0) {

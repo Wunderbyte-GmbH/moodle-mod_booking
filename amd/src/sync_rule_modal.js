@@ -26,9 +26,14 @@ define(['core_form/modalform'], function(ModalForm) {
         /**
          * Initialize add-rule modal button.
          *
-         * @param {String} selector CSS selector.
+         * @param {String} addSelector CSS selector for add button.
+         * @param {String} actionSelector CSS selector for action buttons.
          * @param {Number} cmid Course module id.
          * @param {Number} optionid Booking option id.
+         * @param {String} addTitle Modal title for adding rule.
+         * @param {String} editTitle Modal title for editing rule.
+         * @param {String} deleteTitle Modal title for deleting rule.
+         * @param {String} activateTitle Modal title for activating rule.
          */
         init: function(addSelector, actionSelector, cmid, optionid, addTitle, editTitle, deleteTitle, activateTitle) {
             const showModal = function(formClass, args, title, focusElement) {

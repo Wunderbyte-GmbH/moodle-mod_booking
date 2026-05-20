@@ -416,7 +416,7 @@ class booking_enrolment {
                 $enrolattempted++;
                 // Use the internal helper with cached user record to avoid per-user fetch.
                 $user = $userrecords[(int)$userid] ?? null;
-                self::_enrol_user_by_rule_with_user_cache($rule, (int)$userid, $user);
+                self::enrol_user_by_rule_with_user_cache($rule, (int)$userid, $user);
             }
         }
 
@@ -953,9 +953,10 @@ class booking_enrolment {
      *
      * @param stdClass $rule   Sync rule record.
      * @param int      $userid User ID.
+     * @param stdClass|null $user
      * @param stdClass $user   Pre-fetched user record (optional). If provided, avoids a DB query.
      */
-    public static function _enrol_user_by_rule_with_user_cache(stdClass $rule, int $userid, ?stdClass $user = null): void {
+    public static function enrol_user_by_rule_with_user_cache(stdClass $rule, int $userid, ?stdClass $user = null): void {
         global $DB;
 
         $settings = singleton_service::get_instance_of_booking_option_settings((int)$rule->bookingoptionid);
