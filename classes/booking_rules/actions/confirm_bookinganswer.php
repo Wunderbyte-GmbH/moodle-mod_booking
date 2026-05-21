@@ -136,7 +136,7 @@ class confirm_bookinganswer implements booking_rule_action {
      *   usersalreadytreated in rulejson, advance counter.
      * - counter=1 (second user): create a repeat-trigger task (repeat=1). When this task
      *   runs it re-executes the rule against a fresh WL query, naturally picking up late
-    *   joiners and continuing the chain.
+     *   joiners and continuing the chain.
      * - counter>=2: return immediately (subsequent users will be handled by the chain).
      *
      * Users already confirmed in a previous chain iteration are skipped via
@@ -148,9 +148,10 @@ class confirm_bookinganswer implements booking_rule_action {
     public function execute(stdClass $record) {
         global $DB, $USER;
 
-        // This action can be invoked indirectly (e.g. by send_mail_interval) without
-        // set_actiondata_from_json() having been called. In that case we must reload the
-        // canonical rulejson from DB so repeat tasks can re-execute the rule safely.
+        /* This action can be invoked indirectly (e.g. by send_mail_interval) without
+        set_actiondata_from_json() having been called. In that case we must reload the
+        canonical rulejson from DB so repeat tasks can re-execute the rule safely.
+        */
         $jsonobject = json_decode($this->rulejson);
         if (empty($jsonobject) || !isset($jsonobject->ruledata)) {
             $rulerecord = $DB->get_record('booking_rules', ['id' => $this->ruleid], 'rulejson', IGNORE_MISSING);
