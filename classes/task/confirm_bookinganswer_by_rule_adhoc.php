@@ -136,6 +136,13 @@ class confirm_bookinganswer_by_rule_adhoc extends \core\task\adhoc_task {
                     'optionid' => $taskdata->optionid,
                     'userid' => $taskdata->userid,
                 ]);
+                if (empty($bookinganswer)) {
+                    mtrace(
+                        'confirm_bookinganswer_by_rule_adhoc task: No booking answer found for option '
+                        . $taskdata->optionid . ' and user ' . $taskdata->userid
+                    );
+                    return;
+                }
                 if ($bookinganswer->waitinglist != MOD_BOOKING_STATUSPARAM_WAITINGLIST) {
                     mtrace(
                         'confirm_bookinganswer_by_rule_adhoc task: booking answer is not on waiting list anymore for option '
@@ -173,7 +180,7 @@ class confirm_bookinganswer_by_rule_adhoc extends \core\task\adhoc_task {
                     // Set json to null for all other users on waiting list for this option
                     // in booking answer records if confirmationonnotification is equal to 2.
                     if ($optionsettings->confirmationonnotification == 2) {
-                        // Get sprecific booking answer record.
+                        // Get all other WL users and un-confirm them (exclusive-confirmation mode).
                         $bookinganswers = $DB->get_records('booking_answers', [
                             'optionid' => $taskdata->optionid,
                             'waitinglist' => MOD_BOOKING_STATUSPARAM_WAITINGLIST,

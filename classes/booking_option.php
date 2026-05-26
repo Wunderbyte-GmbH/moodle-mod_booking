@@ -1490,6 +1490,13 @@ class booking_option {
             }
         }
 
+        /* Manual unconfirm on waiting list should trigger the next WL task immediately.
+        We keep this here (not in write_user_answer_to_db) to avoid retrigger loops
+        from automatic UN_CONFIRM updates during task processing. */
+        if ($status === MOD_BOOKING_BO_SUBMIT_STATUS_UN_CONFIRM) {
+            self::check_if_free_to_book_again($this->settings, $user->id, true);
+        }
+
         // Important: Purge caches after submitting a new user.
         self::purge_cache_for_answers($this->optionid);
 
