@@ -1457,7 +1457,8 @@ class booking_option {
             $status,
             $erlid,
             $historystatus ?? 0,
-            $syncruleid
+            $syncruleid,
+            !empty($timebooked) ? $timebooked : null
         );
 
         if (
@@ -1539,6 +1540,11 @@ class booking_option {
      * @param string $erlid
      * @param int $historystatus
      * @param int $syncruleid
+     * @param ?int $timebooked explicit booking timestamp; when null, current time() is used.
+     *                         Pass a value only for data imports or when shopping_cart provides
+     *                         an exact payment timestamp. Without shopping_cart (agnostic mode)
+     *                         the default null causes time() to be used, which equals the actual
+     *                         moment of booking confirmation.
      * @return int
      */
     public static function write_user_answer_to_db(
@@ -1552,7 +1558,8 @@ class booking_option {
         int $confirmwaitinglist = 0,
         string $erlid = "",
         int $historystatus = 0,
-        int $syncruleid = 0
+        int $syncruleid = 0,
+        ?int $timebooked = null
     ) {
 
         global $DB, $USER;
@@ -1575,6 +1582,10 @@ class booking_option {
         // The real booking time is the moment when the user's booking process is finished.
         // To determine this moment, we can check the value of the waitinglist column
         // when it is set to MOD_BOOKING_STATUSPARAM_BOOKED.
+        // We deliberately do NOT copy $timecreated here: for records that transitioned from
+        // a notify/waiting-list status, $timecreated reflects the original record creation
+        // time, NOT the actual booking time. $timebooked must always be the current moment
+        // (or an explicit value provided by the caller, e.g. for imports or shopping_cart).
         if (
             in_array(
                 $waitinglist,
@@ -1584,7 +1595,7 @@ class booking_option {
                 ]
             )
         ) {
-            $newanswer->timebooked = $timecreated ?? $now;
+            $newanswer->timebooked = $timebooked ?? $now;
         }
 
         // When a user submits a userform, we need to save this as well.
