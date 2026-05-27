@@ -995,6 +995,32 @@ final class rules_waitinglist_notification_test extends advanced_testcase {
         foreach ($allmailtasksforrule as $task) {
             $this->assertLessThanOrEqual($newnow, (int)$task->get_next_run_time());
         }
+
+        // Run the queued late-joiner tasks and verify exactly one mail for the late joiner.
+        $sink = $this->redirectMessages();
+        ob_start();
+        $this->runAdhocTasks();
+        $messages = $sink->get_messages();
+        ob_get_clean();
+        $sink->close();
+
+        $this->assertCount(1, $messages);
+        $this->assertEquals($student[4]->id, (int)$messages[0]->useridto);
+        $this->assertEquals('freeplacedelaysubj', $messages[0]->subject);
+        $this->assertEquals('freeplacedelaymsg', $messages[0]->fullmessage);
+
+        $messagekeys = [];
+        foreach ($messages as $message) {
+            $messagekey = (int)$message->useridto . ':' . $message->subject;
+            $this->assertArrayNotHasKey($messagekey, $messagekeys);
+            $messagekeys[$messagekey] = true;
+        }
+
+        $remainingmailtasksforrule = array_filter(
+            \core\task\manager::get_adhoc_tasks($mailtaskclass),
+            fn($task) => (int)($task->get_custom_data()->ruleid ?? 0) === (int)$rule->id
+        );
+        $this->assertCount(0, $remainingmailtasksforrule);
     }
 
     /**
