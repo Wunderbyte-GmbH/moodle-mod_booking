@@ -5270,7 +5270,7 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2026040800, 'booking');
     }
 
-    if ($oldversion < 2026052000) {
+    if ($oldversion < 2026060100) {
         // Create booking_sync_rules table.
         $table = new xmldb_table('booking_sync_rules');
         $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
@@ -5291,10 +5291,7 @@ function xmldb_booking_upgrade($oldversion) {
         if (!$dbman->table_exists($table)) {
             $dbman->create_table($table);
         }
-        upgrade_mod_savepoint(true, 2026052000, 'booking');
-    }
 
-    if ($oldversion < 2026052001) {
         // Create booking_sync_attempts table.
         $table = new xmldb_table('booking_sync_attempts');
         $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
@@ -5312,10 +5309,7 @@ function xmldb_booking_upgrade($oldversion) {
         if (!$dbman->table_exists($table)) {
             $dbman->create_table($table);
         }
-        upgrade_mod_savepoint(true, 2026052001, 'booking');
-    }
 
-    if ($oldversion < 2026052002) {
         // Add syncruleid to booking_answers.
         $table = new xmldb_table('booking_answers');
         $field = new xmldb_field('syncruleid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'completeddate');
@@ -5327,7 +5321,8 @@ function xmldb_booking_upgrade($oldversion) {
         if (!$dbman->index_exists($table, $index)) {
             $dbman->add_index($table, $index);
         }
-        upgrade_mod_savepoint(true, 2026052002, 'booking');
+
+        upgrade_mod_savepoint(true, 2026060100, 'booking');
     }
 
     return true;

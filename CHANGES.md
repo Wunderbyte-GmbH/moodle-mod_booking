@@ -1,3 +1,10 @@
+## Version 9.3.5 (2026060100)
+* New feature: Add possibility to synchronize users from global groups into booking options.
+* Improvement: Link settings sections.
+* Improvement: Extendable availabilityconditionsettings.
+* Bugfix: Timebooked shows wrong timestamp.
+* Bugfix: Fix wrong campaign limits time field - use timebooked instead of timecreated.
+
 ## Version 9.3.4 (2026051900)
 * Improvement: Booking option templates can now be edited via bulk operations.
 * Bugfix: Remove exception when legacymailremovalacknowledged is not checked.
