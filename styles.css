@@ -560,14 +560,6 @@ We need this for teachers for example. */
     text-decoration: none;
 }
 
-/*
- * Improve contrast for active filter chips in Moodle's core autocomplete UI.
- * The default combination can render black text on #0f6cbf, which fails WCAG AA.
- */
-#page-mod-booking-view .wunderbyteTableFilter .form-check-label .filterkeylabel {
-    color: #fff;
-}
-
 /* GH-936 Better distinction between availabilities. */
 div.checkbox:has(label[for^="id_bo_cond_allowedtobookininstance_capabilitynotneeded"]) {
     left: 20px;
