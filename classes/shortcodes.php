@@ -1854,6 +1854,18 @@ class shortcodes {
         } else {
             $table->pageable(true);
         }
+        if (
+            isset($args['showpagination'])
+            && (
+                $args['showpagination'] == "false"
+                || $args['showpagination'] == "0"
+            )
+        ) {
+            $table->showpagination = false;
+        } else {
+            // By default, showpagination is turned on.
+            $table->showpagination = true;
+        }
     }
     /**
      * Checking Perpage Argument from Shortcode for all children of wunderbyte_table .
