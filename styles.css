@@ -639,3 +639,7 @@ div.checkbox:has(label[for^="id_bo_cond_allowedtobookininstance_capabilitynotnee
 .condition-bookingpolicy-form .checkbox {
     display: flex;
 }
+
+.text-darkgreen {
+    color: #146c43;
+}

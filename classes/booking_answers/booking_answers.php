@@ -913,7 +913,7 @@ class booking_answers {
             } else {
                 // Still enough places left.
                 $bookinginformation['bookingplacesinfotext'] = get_string('bookingplacesenoughmessage', 'mod_booking');
-                $bookinginformation['bookingplacesclass'] = 'text-success avail';
+                $bookinginformation['bookingplacesclass'] = 'text-darkgreen avail';
                 $bookinginformation['bookingplacesiconclass'] = 'avail';
             }
 
@@ -932,7 +932,7 @@ class booking_answers {
             }
         } else {
             $bookinginformation['bookingplacesinfotext'] = get_string('bookingplacesunlimitedmessage', 'mod_booking');
-            $bookinginformation['bookingplacesclass'] = 'text-success avail';
+            $bookinginformation['bookingplacesclass'] = 'text-darkgreen avail';
             $bookinginformation['bookingplacesiconclass'] = 'avail';
 
             if (
