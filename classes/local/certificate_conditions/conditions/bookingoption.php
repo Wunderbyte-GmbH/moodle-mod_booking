@@ -216,8 +216,8 @@ class bookingoption implements certificate_conditions_interface {
 
         // Load required count from JSON.
         $requiredcount = 1;
-        if (!empty($record->conditionjson)) {
-            $jsonobject = json_decode($record->conditionjson);
+        if (!empty($record->logicjson)) {
+            $jsonobject = json_decode($record->logicjson);
             if ($jsonobject) {
                 $requiredcount = max(1, (int)($jsonobject->requiredcount ?? 1));
             }
