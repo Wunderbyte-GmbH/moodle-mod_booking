@@ -770,6 +770,11 @@ class shortcodes {
         } catch (Throwable $e) {
             return get_string('shortcode:cmidnotexisting', 'mod_booking', $args['cmid']);
         }
+        if (!empty($args['optionid'])) {
+            // Let get_options_filter_sql treat this as a precise record lookup.
+            $tempwherearray[] = "id = :optionid";
+            $additionalparams['optionid'] = (int)$args['optionid'];
+        }
 
         if (!empty($tempwherearray)) {
             $additionalwhere = " ( " . implode(" $operator ", $tempwherearray) . " ) ";
@@ -853,7 +858,10 @@ class shortcodes {
                 );
 
         $where = self::merge_params_into_sql($where, $params, $tempparams);
-        self::applyallarg($args, $where);
+        // A direct option lookup should not be hidden by the default "future only" time filter.
+        if (empty($args['optionid'])) {
+            self::applyallarg($args, $where);
+        }
 
         if (!empty($additionalparams)) {
             $where = self::merge_params_into_sql($where, $params, $additionalparams);
