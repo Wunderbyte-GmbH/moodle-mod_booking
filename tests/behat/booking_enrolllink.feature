@@ -108,8 +108,8 @@ Feature: Create enrollink availability form for booking options with connected c
     And I should see "-75.00 EUR" in the ".payment-success ul.list-group" "css_element"
     And I should see "Option-form" in the ".payment-success ul.list-group" "css_element"
     And I am on the "BookingCMP" Activity page
-    And I should see "3" in the ".allbookingoptionstable_r1 .col-ap-availableplaces.text-success.avail .text-success" "css_element"
-    And I should see "/ 6" in the ".allbookingoptionstable_r1 .col-ap-availableplaces.text-success.avail" "css_element"
+    And I should see "3" in the ".allbookingoptionstable_r1 .col-ap-availableplaces.avail .text-success" "css_element"
+    And I should see "/ 6" in the ".allbookingoptionstable_r1 .col-ap-availableplaces.avail" "css_element"
     And I log out
     ## Send messages via cron and verify via events log
     ## Steps below disabled because fails at GithHub (works OK locally)
@@ -170,8 +170,8 @@ Feature: Create enrollink availability form for booking options with connected c
     And I should see "-75.00 EUR" in the ".payment-success ul.list-group" "css_element"
     And I should see "Option-waitinglist" in the ".payment-success ul.list-group" "css_element"
     And I am on the "BookingCMP" Activity page
-    And I should see "3" in the ".allbookingoptionstable_r2 .col-ap-availableplaces.text-success.avail .text-success" "css_element"
-    And I should see "/ 6" in the ".allbookingoptionstable_r2 .col-ap-availableplaces.text-success.avail" "css_element"
+    And I should see "3" in the ".allbookingoptionstable_r2 .col-ap-availableplaces.avail .text-success" "css_element"
+    And I should see "/ 6" in the ".allbookingoptionstable_r2 .col-ap-availableplaces.avail" "css_element"
     And I log out
     ## Send messages via cron and verify via events log
     ## Steps below disabled because fails at GithHub (works OK locally)
