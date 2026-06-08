@@ -291,11 +291,12 @@ class shortcodes {
         $pageurl = isset($PAGE->url) ? $PAGE->url->out() : ''; // This is for unit tests.
         $pageurl = $course->shortname . $pageurl;
         $viewparam = self::get_viewparam($args);
+        $cmid = (int)$args['cmid'];
 
         try {
-            $booking = singleton_service::get_instance_of_booking_settings_by_cmid((int)$args['cmid']);
+            $booking = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
         } catch (Throwable $e) {
-            return get_string('shortcode:cmidnotexisting', 'mod_booking', $args['cmid']);
+            return get_string('shortcode:cmidnotexisting', 'mod_booking', $cmid);
         }
 
         if (empty($booking->id)) {
@@ -390,7 +391,7 @@ class shortcodes {
                     0,
                     '',
                     null,
-                    null,
+                    context_module::instance($cmid),
                     [],
                     $wherearray,
                     null,
@@ -665,10 +666,11 @@ class shortcodes {
         foreach ($optionids as $option) {
             // Only if the user has the right to see the link back, we show it.
             $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
+            $cmid = (int) $settings->cmid;
 
             if ($option->invisible == MOD_BOOKING_OPTION_INVISIBLE) {
                 /** @var \context $context */
-                $context = context_module::instance($settings->cmid);
+                $context = context_module::instance($cmid);
                 if (!has_capability('mod/booking:view', $context)) {
                     continue;
                 }
@@ -683,7 +685,7 @@ class shortcodes {
             // The current page is not /mod/booking/optionview.php.
             $url = new moodle_url("/mod/booking/optionview.php", [
                 "optionid" => (int)$settings->id,
-                "cmid" => (int)$settings->cmid,
+                "cmid" => $cmid,
                 "userid" => $USER->id,
                 'returnto' => 'url',
                 'returnurl' => $returnurl,
