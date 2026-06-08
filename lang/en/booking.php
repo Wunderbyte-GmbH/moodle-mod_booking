@@ -3058,6 +3058,7 @@ $string['tasksendnotificationmails'] = 'Booking: Send notification mails';
 $string['tasksendremindermails'] = 'Booking: Send reminder mails';
 $string['teacher'] = 'Teacher';
 $string['teacherdescription'] = 'Description';
+$string['teacherhourslabel'] = 'Hours';
 $string['teachernotfound'] = 'Teacher could not be found or does not exist.';
 $string['teacherpageshiddenbookingids'] = 'Booking instances to be hidden on teacher pages';
 $string['teacherpagevisibilitymode'] = 'Assigned teachers\' visibility of hidden options on their own teacher page';

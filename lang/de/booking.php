@@ -2926,6 +2926,7 @@ $string['tasksendnotificationmails'] = 'Booking: Benachrichtigungs-Mails versend
 $string['tasksendremindermails'] = 'Booking: Erinnerungs-Mails versenden';
 $string['teacher'] = 'Trainer:in';
 $string['teacherdescription'] = 'Beschreibung';
+$string['teacherhourslabel'] = 'Stunden';
 $string['teachernotfound'] = 'Trainer:in konnte nicht gefunden werden oder existiert nicht.';
 $string['teacherpageshiddenbookingids'] = 'Buchungsinstanzen, die auf Trainer:innen-Seiten nicht angezeigt werden sollen';
 $string['teacherpagevisibilitymode'] = 'Sichtbarkeit versteckter Optionen für zugewiesene Trainer:innen auf dem eigenen Trainerprofil';
