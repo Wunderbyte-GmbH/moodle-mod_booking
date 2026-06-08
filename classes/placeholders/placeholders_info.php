@@ -83,6 +83,13 @@ class placeholders_info {
 
         global $USER;
 
+        if (str_contains($text, '%7B')) {
+            // In case the '{}' characters have been URL encoded, we need to decode them again.
+            $encodedbrackets  = ['%7B', '%7D'];
+            $decodedbrackets = ['{', '}'];
+            $text = str_replace($encodedbrackets, $decodedbrackets, $text);
+        }
+
         // First, identify all the placeholders.
         preg_match_all('/{(?!mlang\b)(?!mlang\s)(.*?)}/', $text, $matches);
         $placeholders = $matches[1];
