@@ -288,5 +288,4 @@ class behat_mod_booking extends behat_base {
         ];
         $pg->create_instance($page);
     }
-
 }

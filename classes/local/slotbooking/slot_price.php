@@ -66,11 +66,13 @@ class slot_price {
     /**
      * Calculate the final slot booking price for a number of slots.
      *
-     * @param int $optionid booking option id
-     * @param int $numslots number of slots
-     * @param int $userid user id for price category resolution
-     * @param array<int, array{start:int, end:int}> $slots selected slots
-     * @return float final total price
+     * @param int $optionid
+     * @param int $numslots
+     * @param int $userid
+     * @param array $slots
+     *
+     * @return float
+     *
      */
     public static function calculate_price(int $optionid, int $numslots, int $userid = 0, array $slots = []): float {
         if ($numslots <= 0) {

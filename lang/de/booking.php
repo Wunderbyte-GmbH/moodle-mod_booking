@@ -614,7 +614,6 @@ $string['bookingoptionmovedupfromwaitinglistdesc'] = 'Der Nutzer mit der ID {$a-
 $string['bookingoptionname'] = 'Bezeichnung der Buchungsoption';
 $string['bookingoptionnamewithoutprefix'] = 'Name (ohne Präfix)';
 $string['bookingoptionprice'] = 'Preis';
-$string['bookingoptionview'] = 'Shortcode, um den Buchungsbutton einer bestimmten Buchungsoption anzuzeigen.';
 $string['bookingoptionsall'] = 'Shortcode um alle Buchungsoptionen anzuzeigen.';
 $string['bookingoptionsfromcondition'] = 'Shortcode um alle abgeschlossenen Kurse einer Zertifikatsbedingung zu rendern.';
 $string['bookingoptionsfromtemplatemenu'] = 'Neue Buchungsoption aus Vorlage erstellen';
@@ -624,6 +623,7 @@ $string['bookingoptiontitle'] = 'Bezeichnung der Buchungsoption';
 $string['bookingoptionuncompleted'] = 'Abschluss der Buchungsoption rückgängig gemacht';
 $string['bookingoptionupdated'] = 'Buchungsoption aktualisiert';
 $string['bookingoptionupdateddesc'] = 'NutzerIn mit ID "{$a->userid}" hat Buchungsoption "{$a->objectid}" aktualisiert.';
+$string['bookingoptionview'] = 'Shortcode, um den Buchungsbutton einer bestimmten Buchungsoption anzuzeigen.';
 $string['bookingoptionwaitinglistbooked'] = 'Auf Warteliste gebucht';
 $string['bookingorganizatorname'] = 'Name des Veranstalters';
 $string['bookingpassed'] = 'Dieses Event ist nicht mehr aktiv.';
@@ -2111,12 +2111,12 @@ $string['optiontemplates'] = 'Buchungsoptionsvorlagen';
 $string['optiontemplatessettings'] = 'Buchungsoptionsvorlagen';
 $string['optiontype'] = 'Buchungsoptionstyp';
 $string['optiontype_apply'] = 'Typ anwenden';
-$string['optiontypeprohintnoproversion'] = 'Mit <a href="{$a}" target="_blank">Booking PRO</a> erhalten Sie viele starke Funktionen wie Slot-Buchung, unbegrenzte Nachrichtenvorlagen, Shortcodes und Freigabe-Workflows.';
-$string['optiontypeslotbookinghint'] = 'Mit <a href="{$a}" target="_blank">Booking PRO</a> können Sie die Zeitslot-Buchungsfunktion nutzen.';
 $string['optiontype_slotbooking'] = 'Slot-Buchung';
 $string['optiontype_withdates'] = 'Mit Terminen';
 $string['optiontypefilternormal'] = 'Normal';
 $string['optiontypefilterslotbooking'] = 'Slot-Buchung';
+$string['optiontypeprohintnoproversion'] = 'Mit <a href="{$a}" target="_blank">Booking PRO</a> erhalten Sie viele starke Funktionen wie Slot-Buchung, unbegrenzte Nachrichtenvorlagen, Shortcodes und Freigabe-Workflows.';
+$string['optiontypeslotbookinghint'] = 'Mit <a href="{$a}" target="_blank">Booking PRO</a> können Sie die Zeitslot-Buchungsfunktion nutzen.';
 $string['optionviewcustomfields'] = 'Benutzerdefinierte Felder auf Detailseite anzeigen';
 $string['optionviewcustomfieldsdesc'] = 'Wählen Sie die benutzerdefinierten Buchungsoptionsfelder aus, die auf der Detailseite von Buchungsoptionen angezeigt werden sollen. Um die Reihenfolge der benutzerdefinierten Felder auf der Detailseite zu ändern, können Sie einfach die Reihenfolge der benutzerdefinierten Felder <a href="/mod/booking/customfield.php" target="_blank">hier</a> ändern.';
 $string['optionvisibility'] = 'Sichtbarkeit';
@@ -2322,17 +2322,17 @@ $string['profeatures:progressbars'] = '<ul>
 <li><b>Fortschrittsbalken für bereits vergangene Zeit anzeigen</b></li>
 <li><b>Fortschrittsbalken können ausgeklappt werden</b></li>
 </ul>';
-$string['profeatures:slotbooking'] = '<ul>
-<li><b>Jede Buchungsoption als flexible Slot-Buchung anbieten</b></li>
-<li><b>Teilnehmende Termine in Listen- oder Kalenderansicht auswählen lassen</b></li>
-<li><b>Erweiterte Slot-Regeln wie benutzerdefinierte Dauer und Prüferauswahl nutzen</b></li>
-</ul>';
 $string['profeatures:selflearningcourse'] = '<ul>
 <li><b>Buchungsoptionen mit fixer Dauer aktivieren (z.B. für Selbstlernkurse)</b></li>
 <li><b>Benutzerdefinierten Namen vergeben (z.B. "Selbstlernkurs")</b></li>
 </ul>';
 $string['profeatures:shortcodes'] = '<ul>
 <li><b>Shortcodes verwenden, um Buchungsoptionen auf beliebigen Seiten anzuzeigen</b></li>
+</ul>';
+$string['profeatures:slotbooking'] = '<ul>
+<li><b>Jede Buchungsoption als flexible Slot-Buchung anbieten</b></li>
+<li><b>Teilnehmende Termine in Listen- oder Kalenderansicht auswählen lassen</b></li>
+<li><b>Erweiterte Slot-Regeln wie benutzerdefinierte Dauer und Prüferauswahl nutzen</b></li>
 </ul>';
 $string['profeatures:subbookings'] = '<ul>
 <li><b>Zusatzbuchungen aktivieren</b></li>
@@ -2804,8 +2804,8 @@ $string['slot_custom_duration'] = 'Dauer';
 $string['slot_custom_max_days'] = 'Maximale Tage pro Slot';
 $string['slot_custom_max_duration'] = 'Maximale Slot-Dauer';
 $string['slot_custom_min_duration'] = 'Minimale Slot-Dauer';
-$string['slot_custom_start_interval_minutes'] = 'Intervall fuer Slot-Start (Minuten)';
 $string['slot_custom_start'] = 'Start';
+$string['slot_custom_start_interval_minutes'] = 'Intervall fuer Slot-Start (Minuten)';
 $string['slot_day_fri'] = 'Freitag';
 $string['slot_day_mon'] = 'Montag';
 $string['slot_day_sat'] = 'Samstag';
@@ -2839,8 +2839,8 @@ $string['slot_move_select'] = 'Neuen Slot auswählen';
 $string['slot_move_success'] = 'Slot wurde erfolgreich verschoben.';
 $string['slot_no_open_slots'] = 'Derzeit sind keine verfügbaren Slots vorhanden.';
 $string['slot_opening_time'] = 'Öffnungszeit (HH:MM)';
-$string['slot_price_source_info'] = 'Die Slot-Bepreisung verwendet den regulären Optionspreis aus dem Preis-Abschnitt.';
 $string['slot_price_base_info'] = 'Bei Slot-Buchungen ist der initiale Preis in diesem Abschnitt der Basispreis für alle Slots. Einzelne Slots können danach über den Slot-Regel-Editor eigene Preise erhalten.';
+$string['slot_price_source_info'] = 'Die Slot-Bepreisung verwendet den regulären Optionspreis aus dem Preis-Abschnitt.';
 $string['slot_report_numslots'] = 'Gebuchte Slots';
 $string['slot_report_price'] = 'Bezahlter Slot-Preis';
 $string['slot_report_teachers'] = 'Zugewiesene Pruefer:innen';

@@ -47,22 +47,22 @@ if (empty($date)) {
 
 $viewstart = strtotime('monday this week', $date);
 
-// Get slot configuration to determine the full range of available slots
+// Get slot configuration to determine the full range of available slots.
 $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
-$rangefrom = time(); // Default to current time
-$rangeuntil = strtotime('+365 days', time()); // Default to 1 year from now
+$rangefrom = time(); // Default to current time.
+$rangeuntil = strtotime('+365 days', time()); // Default to 1 year from now.
 
 if (!empty($settings) && !empty($settings->slotconfig)) {
     $slotconfig = $settings->slotconfig;
 
-    // Use valid_from if set, otherwise use a wide past range (2 years ago)
+    // Use valid_from if set, otherwise use a wide past range (2 years ago).
     if (!empty($slotconfig->valid_from)) {
         $rangefrom = (int)$slotconfig->valid_from;
     } else {
         $rangefrom = strtotime('-2 years', time());
     }
 
-    // Use valid_until if set, otherwise use a wide future range (2 years from now)
+    // Use valid_until if set, otherwise use a wide future range (2 years from now).
     if (!empty($slotconfig->valid_until)) {
         $rangeuntil = (int)$slotconfig->valid_until + DAYSECS;
     } else {

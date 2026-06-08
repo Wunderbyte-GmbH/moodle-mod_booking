@@ -132,7 +132,10 @@ class customform_prefill {
     /**
      * Collect prefill params from the current request using Moodle optional params.
      *
+     * @param booking_option_settings $settings
+     *
      * @return array
+     *
      */
     private static function get_prefill_params_from_request(booking_option_settings $settings): array {
         $prefillparams = [];

@@ -556,7 +556,11 @@ class slotbooking_form extends dynamic_form {
     /**
      * Return currently open slots with labels and teacher availability.
      *
-     * @return array<int, array<string, mixed>>
+     * @param int $optionid
+     * @param int $userid
+     *
+     * @return array
+     *
      */
     private static function get_open_slots(int $optionid, int $userid): array {
         $slots = slot_availability::get_slots_with_status($optionid, $userid);
@@ -669,7 +673,8 @@ class slotbooking_form extends dynamic_form {
      * Resolve default custom slot duration in seconds.
      *
      * @param object|null $config
-     * @param array<int, string> $options
+     * @param array $options
+     *
      * @return int
      */
     private static function get_default_custom_duration(?object $config, array $options): int {
@@ -684,7 +689,11 @@ class slotbooking_form extends dynamic_form {
     /**
      * Build available day entries for user-defined slot selection calendar.
      *
-     * @return array<int, array<string, mixed>>
+     * @param int $optionid
+     * @param int $userid
+     *
+     * @return array
+     *
      */
     private static function get_custom_open_days(int $optionid, int $userid): array {
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);

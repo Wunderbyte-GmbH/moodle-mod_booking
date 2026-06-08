@@ -102,9 +102,11 @@ class slot_rules {
     /**
      * Apply currently supported slot rules to generated slots.
      *
-     * @param int $optionid booking option id
-     * @param array<int, array{0:int, 1:int}> $slots generated base slots
-     * @return array<int, array{0:int, 1:int}>
+     * @param int $optionid
+     * @param array $slots
+     *
+     * @return array
+     *
      */
     public static function apply_to_slots(int $optionid, array $slots): array {
         if (empty($slots)) {
@@ -203,12 +205,14 @@ class slot_rules {
     }
 
     /**
-     * Determine if a slot remains bookable after rule filtering.
+     * Determine if a slot is allowed by the given rules.
      *
-     * @param array<int, \stdClass> $rules option rules
-     * @param int $slotstart slot start timestamp
-     * @param int $slotend slot end timestamp
+     * @param array $rules
+     * @param int $slotstart
+     * @param int $slotend
+     *
      * @return bool
+     *
      */
     private static function is_slot_allowed_by_rules(array $rules, int $slotstart, int $slotend): bool {
         foreach ($rules as $rule) {

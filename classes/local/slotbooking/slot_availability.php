@@ -675,10 +675,13 @@ class slot_availability {
     /**
      * Return booked slot ranges that overlap with the given day window.
      *
-     * @param int $optionid booking option id
-     * @param int $daystart start of day timestamp
-     * @param int $dayend end of day timestamp
-     * @return array<int, array{start:int,end:int}>
+     * @param int $optionid
+     * @param int $daystart
+     * @param int $dayend
+     * @param int $userid
+     *
+     * @return array
+     *
      */
     public static function get_booked_ranges_for_day(int $optionid, int $daystart, int $dayend, int $userid = 0): array {
         $result = [];

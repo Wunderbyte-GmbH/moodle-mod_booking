@@ -46,7 +46,6 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 final class campaign_customfield_limit_test extends advanced_testcase {
-
     /**
      * Tests set up.
      */
@@ -262,7 +261,7 @@ final class campaign_customfield_limit_test extends advanced_testcase {
 
         $settings = $this->reload_settings($option1->id);
 
-        // ceil(4 * 1.5) = 6.
+        // Note: ceil(4 * 1.5) = 6.
         $this->assertEquals(6, $settings->maxanswers);
 
         // DB value must remain unchanged.
@@ -347,7 +346,7 @@ final class campaign_customfield_limit_test extends advanced_testcase {
 
         $settings = $this->reload_settings($option1->id);
 
-        // nrofbookedusers=5 > limit=4 → ceil(4*1.1 − 4 + 5) = ceil(5.4) = 6.
+        // Note: nrofbookedusers=5 > limit=4 → ceil(4*1.1 − 4 + 5) = ceil(5.4) = 6.
         $this->assertEquals(6, $settings->maxanswers);
 
         // DB value must remain unchanged.
