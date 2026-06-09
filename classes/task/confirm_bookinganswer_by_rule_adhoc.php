@@ -135,6 +135,7 @@ class confirm_bookinganswer_by_rule_adhoc extends \core\task\adhoc_task {
                 $bookinganswer = $DB->get_record('booking_answers', [
                     'optionid' => $taskdata->optionid,
                     'userid' => $taskdata->userid,
+                    'waitinglist' => MOD_BOOKING_STATUSPARAM_WAITINGLIST,
                 ]);
                 if (empty($bookinganswer)) {
                     mtrace(
