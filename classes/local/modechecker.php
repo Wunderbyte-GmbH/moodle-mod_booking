@@ -72,8 +72,19 @@ class modechecker {
     public static function use_special_details_page_treatment() {
         global $PAGE, $USER;
 
+        // In CLI/Cron context (e.g., adhoc tasks), page URL is not set and not relevant.
+        // Always return true to skip special details page treatment in these contexts.
+        if (defined('CLI_SCRIPT') && CLI_SCRIPT && !PHPUNIT_TEST) {
+            return true;
+        }
+
         // Get the current URL without the query string.
         if (!self::is_ajax_or_webservice_request()) {
+            // Defensive check: only access PAGE->url if it has been set to avoid debugging warnings in cron.
+            if (!method_exists($PAGE, 'has_set_url') || !$PAGE->has_set_url()) {
+                // If PAGE URL is not set (e.g., in some background contexts), assume no special treatment needed.
+                return true;
+            }
             $currenturl = $PAGE->url->out_omit_querystring();
         } else {
             $currenturl = ''; // Usually should happens during unittests.
