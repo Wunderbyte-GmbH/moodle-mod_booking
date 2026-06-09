@@ -1,3 +1,9 @@
+## Version 9.3.6 (2026060900)
+* Improvement: Several accessibility improvements.
+* Bugfix: Certificate Condition form not loading correctly.
+* Bugfix: Pass module context to courselist shortcode to make invisible booking options work.
+* Bugfix: For placeholders inside URLs we need to re-decode curly brackets.
+
 ## Version 9.3.5 (2026060100)
 * New feature: Add possibility to synchronize users from global groups into booking options.
 * Improvement: Link settings sections.
