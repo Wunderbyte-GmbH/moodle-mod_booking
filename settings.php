@@ -456,6 +456,18 @@ if ($ADMIN->fulltree) {
             )
         );
     }
+    // Custom fields to be shown in the card on the detail page (optionview.php).
+    if (!empty($customfields)) {
+        $settings->add(
+            new admin_setting_configmultiselect(
+                'booking/cardviewcustomfields',
+                get_string('cardviewcustomfields', 'mod_booking'),
+                get_string('cardviewcustomfieldsdesc', 'mod_booking'),
+                [],
+                $customfieldshortnames
+            )
+        );
+    }
     $settings->add(
         new admin_setting_configcheckbox(
             'booking/alloptionsinreport',

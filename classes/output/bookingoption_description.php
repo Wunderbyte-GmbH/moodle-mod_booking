@@ -779,19 +779,30 @@ class bookingoption_description implements renderable, templatable {
         }
 
         // In plugin settings, we can choose customfields we want to have rendered together.
-        $returnarray['optionviewcustomfields'] = '';
-        if (!empty($cfstoshowstring = get_config('booking', 'optionviewcustomfields'))) {
-            $cfstoshow = explode(',', $cfstoshowstring);
-            foreach ($cfstoshow as $cftoshow) {
+        $returnarray['optionviewcustomfields'] =
+            $this->build_configcustomfields_html($returnarray, 'optionviewcustomfields', 'optionview-customfield');
+        $returnarray['cardviewcustomfields'] =
+            $this->build_configcustomfields_html($returnarray, 'cardviewcustomfields', 'cardview-customfield');
+        return $returnarray;
+    }
+
+    /**
+     * Build HTML for custom fields selected via an admin config setting.
+     * @param array $returnarray the current return array containing processed customfield values
+     * @param string $configkey the plugin config key (e.g. 'optionviewcustomfields')
+     * @param string $cssprefix CSS class prefix for each field wrapper div
+     * @return string concatenated HTML for all matching selected custom fields
+     */
+    private function build_configcustomfields_html(array $returnarray, string $configkey, string $cssprefix): string {
+        $html = '';
+        if (!empty($cfstoshowstring = get_config('booking', $configkey))) {
+            foreach (explode(',', $cfstoshowstring) as $cftoshow) {
                 if (!empty($returnarray[$cftoshow])) {
-                    $returnarray['optionviewcustomfields'] .=
-                        "<div class='optionview-customfield-$cftoshow'>" .
-                            $returnarray[$cftoshow] .
-                        "</div>";
+                    $html .= "<div class='{$cssprefix}-{$cftoshow}'>" . $returnarray[$cftoshow] . "</div>";
                 }
             }
         }
-        return $returnarray;
+        return $html;
     }
 
     /**
