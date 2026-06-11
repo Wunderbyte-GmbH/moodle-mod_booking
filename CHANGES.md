@@ -1,3 +1,9 @@
+* New feature: New "Bulk operations" tab on the booking instance view page. It is enabled via the "Views to show" instance setting, requires the 'mod/booking:executebulkoperations' capability in module context and only shows booking options of the current instance. Users without 'mod/booking:canseeinvisibleoptions' in the module context only see visible options there.
+* Improvement: The capability 'mod/booking:executebulkoperations' is now assignable in module context (system-level assignments keep working).
+* Improvement: Bulk operation forms now check capabilities on submission ('mod/booking:executebulkoperations' for bulk editing, 'mod/booking:communicate' for sending mail to teachers).
+* Improvement: All tabs on the booking instance view now show a fitting icon.
+* Bugfix: The English and German 'bulkoperations' language strings were swapped.
+
 ## Version 9.3.6 (2026060900)
 * Improvement: Several accessibility improvements.
 * Bugfix: Certificate Condition form not loading correctly.
