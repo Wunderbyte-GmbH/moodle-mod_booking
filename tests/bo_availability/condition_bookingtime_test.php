@@ -273,6 +273,9 @@ final class condition_bookingtime_test extends advanced_testcase {
 
         $this->setAdminUser();
 
+        // Single point to difine exact time to avoid random test failure.
+        $coursestarttime = strtotime('now + 1 week');
+
         $this->getDataGenerator()->enrol_user($student1->id, $course1->id);
 
         $record = new stdClass();
@@ -281,7 +284,7 @@ final class condition_bookingtime_test extends advanced_testcase {
         $record->chooseorcreatecourse = 1; // Required.
         $record->courseid = $course1->id;
         $record->maxanswers = 2;
-        $record->coursestarttime = strtotime('now + 1 week');
+        $record->coursestarttime = $coursestarttime;
         $record->restrictanswerperiodopening = 1;
         // Simulate option form submission values.
         $record->booking_time_opening_mode = 2;
@@ -297,7 +300,7 @@ final class condition_bookingtime_test extends advanced_testcase {
         $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
 
         // The opening time should be course start - 1 day.
-        $expectedopening = strtotime('now + 1 week') - 86400;
+        $expectedopening = $coursestarttime - 86400;
 
         $boinfo = new bo_info($settings);
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
@@ -330,13 +333,16 @@ final class condition_bookingtime_test extends advanced_testcase {
 
         $this->setAdminUser();
 
+        // Single point to difine exact time to avoid random test failure.
+        $coursestarttime = strtotime('now + 1 week');
+
         $record = new stdClass();
         $record->bookingid = $booking1->id;
         $record->text = 'Test option1 (relative persist db without legacy flags)';
         $record->chooseorcreatecourse = 1;
         $record->courseid = $course1->id;
         $record->maxanswers = 2;
-        $record->coursestarttime = strtotime('now + 1 week');
+        $record->coursestarttime = $coursestarttime;
 
         // Intentionally omit restrictanswerperiodopening/restrictanswerperiodclosing.
         $record->booking_time_opening_mode = 2;
@@ -350,7 +356,7 @@ final class condition_bookingtime_test extends advanced_testcase {
         $option1 = $plugingenerator->create_option($record);
 
         $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
-        $expectedopening = strtotime('now + 1 week') - 86400;
+        $expectedopening = $coursestarttime - 86400;
 
         $this->assertEqualsWithDelta($expectedopening, $settings->bookingopeningtime, 1);
         $this->assertEquals(0, (int)$settings->bookingclosingtime);
