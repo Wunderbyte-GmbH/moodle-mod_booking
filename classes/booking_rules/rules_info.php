@@ -532,7 +532,8 @@ class rules_info {
     }
 
     /**
-     * Reuse free-to-book-again interval rules for late waiting-list joins after the original chain drained.
+     * Reuse free-to-book-again chain rules (actions send_mail_interval or confirm_bookinganswer)
+     * for late waiting-list joins after the original chain drained.
      *
      * @param int $contextid
      * @param int $optionid
@@ -564,7 +565,7 @@ class rules_info {
             $rulejson = json_decode($record->rulejson);
             if (
                 empty($rulejson)
-                || ($rulejson->actionname ?? '') !== 'send_mail_interval'
+                || !in_array($rulejson->actionname ?? '', ['send_mail_interval', 'confirm_bookinganswer'], true)
                 || ($rulejson->conditionname ?? '') !== 'select_student_in_bo'
                 || self::interval_rule_has_active_tasks((int)$record->id, $optionid)
             ) {
