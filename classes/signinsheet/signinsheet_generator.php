@@ -1157,8 +1157,7 @@ class signinsheet_generator {
             'sortorder,filepath,filename',
             false
         );
-
-        if (!$files) {
+        if (!$files && !empty(get_config('booking', 'signinlogo'))) {
             $files = $fs->get_area_files(
                 \context_system::instance()->id,
                 'mod_booking',
@@ -1168,7 +1167,6 @@ class signinsheet_generator {
                 false
             );
         }
-
         if ($files) {
             $file = reset($files);
             $filepath = $file->get_filepath() . $file->get_filename();
