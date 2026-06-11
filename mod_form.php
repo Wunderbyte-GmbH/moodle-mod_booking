@@ -348,6 +348,7 @@ class mod_booking_mod_form extends moodleform_mod {
             'myinstitution' => get_string('myinstitution', 'mod_booking'),
             'showvisible' => get_string('visibleoptions', 'mod_booking'),
             'showinvisible' => get_string('invisibleoptions', 'mod_booking'),
+            'bulkoperations' => get_string('bulkoperationstab', 'mod_booking'),
         ];
 
         if ($isproversion) {

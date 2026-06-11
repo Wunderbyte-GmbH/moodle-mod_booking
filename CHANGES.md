@@ -1,3 +1,9 @@
+* New feature: New "Bulk operations" tab on the booking instance view page. It is enabled via the "Views to show" instance setting, requires the 'mod/booking:executebulkoperations' capability in module context and only shows booking options of the current instance. Users without 'mod/booking:canseeinvisibleoptions' in the module context only see visible options there. Also, the "Send mail to teachers" functionality of bulk operations now needs the 'mod/booking:communicate' capability.
+* Improvement: The capability 'mod/booking:executebulkoperations' is now assignable in module context (system-level assignments keep working).
+* Improvement: Bulk operation forms now check capabilities on submission ('mod/booking:executebulkoperations' for bulk editing, 'mod/booking:communicate' for sending mail to teachers).
+* Improvement: All tabs on the booking instance view now show a fitting icon.
+* Bugfix: The English and German 'bulkoperations' language strings were swapped.
+
 ## Version 9.4.0 (2026062201)
 * New feature: Slot booking - book and manage time slots inside a booking option: slot calendar picker and report, self-service move/cancel of booked slots, a unified "update booking" editor (move + cancel + change in one dynamic form), optional move-with-payment via shopping_cart, and per-slot booking rules (Wunderbyte-GmbH/Wunderbyte-GmbH#1596).
 * New feature: Booking AI agent integration for mod_booking (skills, providers, diagnostics).

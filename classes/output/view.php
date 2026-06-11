@@ -41,6 +41,7 @@ use mod_booking\shortcodes;
 use mod_booking\shortcodes_handler;
 use mod_booking\singleton_service;
 use mod_booking\table\bookingoptions_wbtable;
+use mod_booking\table\bulkoperations_table;
 use mod_booking\utils\wb_payment;
 use moodle_exception;
 use moodle_url;
@@ -107,6 +108,9 @@ class view implements renderable, templatable {
     /** @var string $renderedwhatsnewtable the rendered "What's new?" table */
     private $renderedwhatsnewtable = null;
 
+    /** @var string $renderedbulkoperationstable the rendered bulk operations table */
+    private $renderedbulkoperationstable = null;
+
     /** @var string $myinstitutionname */
     private $myinstitutionname = null;
 
@@ -145,6 +149,9 @@ class view implements renderable, templatable {
 
     /** @var string $showwhatsnew */
     private $showwhatsnew = null;
+
+    /** @var string $bulkoperations */
+    private $bulkoperations = null;
 
     /** @var string $renderelectivetable */
     private $renderelectivetable = null;
@@ -244,6 +251,12 @@ class view implements renderable, templatable {
                 // Tab will only be shown to users with the 'canseeinvisibleoptions' capability.
                 if (has_capability('mod/booking:canseeinvisibleoptions', $context)) {
                     $this->showinvisible = true;
+                }
+                break;
+            case 'bulkoperations':
+                // Tab will only be shown to users with the 'executebulkoperations' capability in module context.
+                if (has_capability('mod/booking:executebulkoperations', context_module::instance($cmid))) {
+                    $this->bulkoperations = true;
                 }
                 break;
             case 'showfieldofstudy':
@@ -363,6 +376,16 @@ class view implements renderable, templatable {
             // If we show this table first, we don't load it lazy.
             $lazy = $whichview !== 'showinvisible';
             $this->renderedinvisibleoptionstable = $this->get_rendered_invisible_options_table($lazy);
+        }
+
+        // Bulk operations (gated by capability in module context).
+        if (
+            in_array('bulkoperations', $showviews)
+            && has_capability('mod/booking:executebulkoperations', context_module::instance($cmid))
+        ) {
+            // If we show this table first, we don't load it lazy.
+            $lazy = $whichview !== 'bulkoperations';
+            $this->renderedbulkoperationstable = $this->get_rendered_bulkoperations_table($lazy);
         }
 
         // Field of study options.
@@ -956,6 +979,38 @@ class view implements renderable, templatable {
                 = $invisibleoptionstable->lazyouthtml($booking->get_pagination_setting(), true);
         } else {
             $out = $invisibleoptionstable->outhtml($booking->get_pagination_setting(), true);
+        }
+
+        return $out;
+    }
+
+    /**
+     * Render the bulk operations table for the current booking instance.
+     *
+     * Unlike the [bulkoperations] shortcode (system context, all instances),
+     * this table runs in module context and only shows options of this instance.
+     *
+     * @param bool $lazy for lazy-loading
+     * @return string the rendered table
+     */
+    public function get_rendered_bulkoperations_table($lazy = false) {
+        $cmid = $this->cmid;
+
+        $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
+
+        $bulkoperationstable = bulkoperations_table::create_table(
+            "cmid_{$cmid} bulkoperationstable",
+            $booking->context,
+            [],
+            (int) $booking->id,
+            $cmid
+        );
+
+        if ($lazy) {
+            [$idstring, $encodedtable, $out]
+                = $bulkoperationstable->lazyouthtml($booking->get_pagination_setting(), true);
+        } else {
+            $out = $bulkoperationstable->outhtml($booking->get_pagination_setting(), true);
         }
 
         return $out;
@@ -1886,6 +1941,7 @@ class view implements renderable, templatable {
             'visibleoptionstable' => $this->renderedvisibleoptionstable,
             'invisibleoptionstable' => $this->renderedinvisibleoptionstable,
             'fieldofstudytable' => $this->renderedfieldofstudyoptionstable,
+            'bulkoperationstable' => $this->renderedbulkoperationstable,
             'electivetable' => $this->renderelectivetable,
             'showonlyone' => $this->showonlyone,
             'showactive' => $this->showactive,
@@ -1900,6 +1956,7 @@ class view implements renderable, templatable {
             'showinvisible' => $this->showinvisible,
             'showfieldofstudy' => $this->showfieldofstudy,
             'showwhatsnew' => $this->showwhatsnew,
+            'bulkoperations' => $this->bulkoperations,
             'elective' => empty($this->renderelectivetable) ? false : $this->electivemodal,
             'showheaderimageleft' => $this->showheaderimageleft,
             'showheaderimagelefthalf' => $this->showheaderimagelefthalf,

@@ -252,6 +252,7 @@ class option_form_bulk extends dynamic_form {
      * @return void
      */
     protected function check_access_for_dynamic_submission(): void {
+        require_capability('mod/booking:executebulkoperations', $this->get_context_for_dynamic_submission());
     }
 
 

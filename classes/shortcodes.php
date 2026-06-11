@@ -1495,110 +1495,15 @@ class shortcodes {
         // Add the arguments to make sure cache is built correctly.
         $argsstring = bin2hex(implode($args));
 
-        \mod_booking\local\performance\performance_facade::start_measurement('Building table');
-
-        $table = new bulkoperations_table(bin2hex(random_bytes(8)) . '_optionbulkoperationstable_' . $argsstring);
-        $columns = [
-        'id' => get_string('id', 'local_wunderbyte_table'),
-        'text' => get_string('title', 'mod_booking'),
-        'action' => get_string('edit'),
-        'invisible' => get_string('invisible', 'mod_booking'),
-        ];
-        // Add defined customfields from args to columns.
-        if (isset($args['customfields'])) {
-            $customfieldnames = explode(",", $args['customfields']);
-            $definedcustomfields = booking_handler::get_customfields();
-            foreach ($definedcustomfields as $customfield) {
-                if (!in_array($customfield->shortname, $customfieldnames)) {
-                    continue;
-                }
-                $columns[$customfield->shortname] = $customfield->name;
-            }
-        }
-        if (isset($args['columns'])) {
-            $additionalcolumns = explode(",", $args['columns']);
-            foreach ($additionalcolumns as $additionalcolumn) {
-                if (in_array($additionalcolumn, $columns)) {
-                    continue;
-                }
-                $columns[$additionalcolumn] = $additionalcolumn;
-            }
-        }
-        if (!empty($args['download'])) {
-            $table->showdownloadbutton = true;
-        }
-
-        $table->define_headers(array_values($columns));
-        $table->define_columns(array_keys($columns));
-        $table->addcheckboxes = true;
-
-        \mod_booking\local\performance\performance_facade::end_measurement('Building table');
-
         try {
-            $filtercolumns = self::apply_bulkoperations_filter($table, $columns, $args);
+            $table = bulkoperations_table::create_table(
+                bin2hex(random_bytes(8)) . '_optionbulkoperationstable_' . $argsstring,
+                context_system::instance(),
+                $args
+            );
         } catch (Exception $e) {
             return '<div class="alert alert-danger p-1 mt-1 text-center">' . $e->getMessage() . '</div>';
         }
-
-        $table->showfilterontop = true;
-        $table->filteronloadinactive = true;
-
-        $table->define_fulltextsearchcolumns(array_keys($filtercolumns));
-        $table->define_sortablecolumns(array_keys($filtercolumns));
-        $table->sort_default_column = 'id';
-        $table->sort_default_order = SORT_DESC;
-
-        $context = context_system::instance();
-
-        [$fields, $from, $where, $params, $filter] =
-            booking::get_options_filter_sql(
-                0,
-                0,
-                '',
-                null,
-                $context,
-                [],
-                [],
-                null,
-                [],
-                '',
-                '',
-                $table
-            );
-
-        $table->set_filter_sql($fields, $from, $where, $filter, $params);
-
-        $table->actionbuttons[] = [
-        'label' => get_string('editbookingoptions', 'mod_booking'),
-        'class' => 'btn btn-warning',
-        'href' => '#',
-        'formname' => 'mod_booking\\form\\option_form_bulk',
-        'nomodal' => false,
-        'selectionmandatory' => true,
-        'id' => '-1',
-        'data' => [
-            'title' => get_string('bulkoperationsheader', 'mod_booking'),
-        ],
-        ];
-        $table->actionbuttons[] = [
-        'label' => get_string('sendmailtoteachers', 'mod_booking'),
-        'class' => 'btn btn-info',
-        'href' => '#',
-        'formname' => 'mod_booking\\form\\send_mail_to_teachers',
-        'nomodal' => false,
-        'selectionmandatory' => true,
-        'id' => '-1',
-        'data' => [
-            'title' => get_string('sendmailheading', 'mod_booking'),
-            'titlestring' => 'blabla',
-            'bodystring' => 'adddatabody',
-            'submitbuttonstring' => get_string('send', 'mod_booking'),
-        ],
-        ];
-        $table->pageable(true);
-        $table->stickyheader = true;
-        $table->showcountlabel = true;
-        $table->showrowcountselect = true;
 
         try {
             $out = $table->outhtml($perpage, true);
@@ -1703,11 +1608,17 @@ class shortcodes {
      * @param wunderbyte_table $table
      * @param array $columns
      * @param array $args
+     * @param bool $addinstancefilter whether to add the booking instance filter (pointless within a single instance)
      *
      * @return array
      *
      */
-    public static function apply_bulkoperations_filter(wunderbyte_table &$table, array $columns, array $args) {
+    public static function apply_bulkoperations_filter(
+        wunderbyte_table &$table,
+        array $columns,
+        array $args,
+        bool $addinstancefilter = true
+    ) {
 
         // Add defined intrange filter. You might need to purge your caches to make this work.
         if (isset($args['intrangefilter'])) {
@@ -1786,7 +1697,9 @@ class shortcodes {
             }
         }
 
-        self::apply_bookinginstance_filter($table);
+        if ($addinstancefilter) {
+            self::apply_bookinginstance_filter($table);
+        }
 
         $customfieldfilter = explode(',', ($args['customfieldfilter'] ?? ''));
         if (!empty($customfieldfilter)) {
