@@ -887,7 +887,12 @@ class booking_answers {
         // 2 => show free places only (1 place left).
         $bookingplacesinfotexts = get_config('booking', 'bookingplacesinfotexts');
 
-        if (!has_capability('mod/booking:updatebooking', $context) && $bookingplacesinfotexts) {
+        // Availability info texts are only shown when a user has neither the capability
+        // to see the number of bookings nor the capability to update bookings.
+        $nocapabilitytoseebookingplaces = !has_capability('mod/booking:updatebooking', $context)
+            && !has_capability('mod/booking:canseenumberofbookings', $context);
+
+        if ($nocapabilitytoseebookingplaces && $bookingplacesinfotexts) {
             $bookinginformation['showbookingplacesinfotext'] = true;
         }
 
@@ -936,7 +941,7 @@ class booking_answers {
             $bookinginformation['bookingplacesiconclass'] = 'avail';
 
             if (
-                !has_capability('mod/booking:updatebooking', $context)
+                $nocapabilitytoseebookingplaces
                 && get_config('booking', 'bookingplacesinfotexts')
             ) {
                 // We need to set maxanswers to true, to actually show the text when maxanswer is 0 (unlimited).
@@ -951,7 +956,7 @@ class booking_answers {
         $waitingplacesinfotexts = get_config('booking', 'waitinglistinfotexts');
         // Waiting list places.
         if (!empty($bookinginformation['maxoverbooking'])) {
-            if (!has_capability('mod/booking:updatebooking', $context) && $waitingplacesinfotexts) {
+            if ($nocapabilitytoseebookingplaces && $waitingplacesinfotexts) {
                 $bookinginformation['showwaitinglistplacesinfotext'] = true;
             }
 
@@ -992,7 +997,7 @@ class booking_answers {
             }
         } else {
             if (isset($bookinginformation['freeonwaitinglist']) && $bookinginformation['freeonwaitinglist'] == -1) {
-                if (!has_capability('mod/booking:updatebooking', $context) && $waitingplacesinfotexts) {
+                if ($nocapabilitytoseebookingplaces && $waitingplacesinfotexts) {
                     $bookinginformation['showwaitinglistplacesinfotext'] = true;
                     if ($waitingplacesinfotexts == '1') {
                         // Show Still enough places left.

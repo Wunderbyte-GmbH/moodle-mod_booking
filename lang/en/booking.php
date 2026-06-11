@@ -483,6 +483,7 @@ $string['booking:calculateprices'] = "Can recalculate prices";
 $string['booking:canoverbook'] = "Has permission to overbook";
 $string['booking:canreviewsubstitutions'] = "Allowed to review teacher substitutions (control checkbox)";
 $string['booking:canseeinvisibleoptions'] = 'View invisible options.';
+$string['booking:canseenumberofbookings'] = 'Can see the actual number of bookings (instead of availability info texts)';
 $string['booking:cansendmessages'] = 'Can send messages';
 $string['booking:changelockedcustomfields'] = 'Can change locked custom booking option fields.';
 $string['booking:choose'] = 'Book';

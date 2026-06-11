@@ -474,4 +474,11 @@ $capabilities = [
             'manager' => CAP_ALLOW,
         ],
     ],
+    'mod/booking:canseenumberofbookings' => [
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => [
+            'manager' => CAP_ALLOW,
+        ],
+    ],
 ];
