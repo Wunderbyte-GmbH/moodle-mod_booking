@@ -378,7 +378,7 @@ $capabilities = [
     ],
     'mod/booking:executebulkoperations' => [
         'captype' => 'write',
-        'contextlevel' => CONTEXT_SYSTEM,
+        'contextlevel' => CONTEXT_MODULE,
         'archetypes' => [
             'manager' => CAP_ALLOW,
         ],

@@ -50,7 +50,7 @@
           data-toggle="pill" data-target="#showonlyone"
           data-bs-toggle="pill" data-bs-target="#showonlyone"
           type="button" role="tab" aria-controls="showonlyone" aria-selected="true">
-          {{#str}} bookingoption, mod_booking {{/str}}
+          <i class="fa fa-ticket" aria-hidden="true"></i> {{#str}} bookingoption, mod_booking {{/str}}
         </button>
       </li>
     {{/showonlyone}}
@@ -60,7 +60,7 @@
           data-toggle="pill" data-target="#whatsnew"
           data-bs-toggle="pill" data-bs-target="#whatsnew"
           type="button" role="tab" aria-controls="whatsnew" aria-selected="true">
-          {{#whatsnewtabtitle}}{{.}}{{/whatsnewtabtitle}}
+          <i class="fa fa-bullhorn" aria-hidden="true"></i> {{#whatsnewtabtitle}}{{.}}{{/whatsnewtabtitle}}
         </button>
       </li>
     {{/whatsnewtable}}
@@ -70,7 +70,7 @@
           data-toggle="pill" data-target="#all-options"
           data-bs-toggle="pill" data-bs-target="#all-options"
           type="button" role="tab" aria-controls="all-options" aria-selected="true">
-          {{#str}} showallbookingoptions, mod_booking {{/str}}
+          <i class="fa fa-list" aria-hidden="true"></i> {{#str}} showallbookingoptions, mod_booking {{/str}}
         </button>
       </li>
     {{/alloptionstable}}
@@ -80,7 +80,7 @@
           data-toggle="pill" data-target="#active-options"
           data-bs-toggle="pill" data-bs-target="#active-options"
           type="button" role="tab" aria-controls="active-options" aria-selected="true">
-          {{#str}} activebookingoptions, mod_booking {{/str}}
+          <i class="fa fa-calendar-check-o" aria-hidden="true"></i> {{#str}} activebookingoptions, mod_booking {{/str}}
         </button>
       </li>
     {{/activeoptionstable}}
@@ -90,7 +90,7 @@
           data-toggle="pill" data-target="#my-options"
           data-bs-toggle="pill" data-bs-target="#my-options"
           type="button" role="tab" aria-controls="my-options" aria-selected="true">
-          {{#str}} showmybookingsonly, mod_booking {{/str}}
+          <i class="fa fa-check-square-o" aria-hidden="true"></i> {{#str}} showmybookingsonly, mod_booking {{/str}}
         </button>
       </li>
     {{/myoptionstable}}
@@ -110,7 +110,7 @@
           data-toggle="pill" data-target="#options-i-teach"
           data-bs-toggle="pill" data-bs-target="#options-i-teach"
           type="button" role="tab" aria-controls="options-i-teach" aria-selected="true">
-          {{#str}} optionsiteach, mod_booking {{/str}}
+          <i class="fa fa-graduation-cap" aria-hidden="true"></i> {{#str}} optionsiteach, mod_booking {{/str}}
         </button>
       </li>
     {{/optionsiteachtable}}
@@ -120,7 +120,7 @@
           data-toggle="pill" data-target="#options-i-am-responsible-for"
           data-bs-toggle="pill" data-bs-target="#options-i-am-responsible-for"
           type="button" role="tab" aria-controls="options-i-am-responsible-for" aria-selected="true">
-          {{#str}} optionsiamresponsiblefor, mod_booking {{/str}}
+          <i class="fa fa-user-circle-o" aria-hidden="true"></i> {{#str}} optionsiamresponsiblefor, mod_booking {{/str}}
         </button>
       </li>
     {{/responsiblecontacttable}}
@@ -130,7 +130,7 @@
           data-toggle="pill" data-target="#myinstitution"
           data-bs-toggle="pill" data-bs-target="#myinstitution"
           type="button" role="tab" aria-controls="myinstitution" aria-selected="true">
-          {{#str}} myinstitution, mod_booking {{/str}}{{#myinstitutionname}} ({{{.}}}){{/myinstitutionname}}
+          <i class="fa fa-university" aria-hidden="true"></i> {{#str}} myinstitution, mod_booking {{/str}}{{#myinstitutionname}} ({{{.}}}){{/myinstitutionname}}
         </button>
       </li>
     {{/myinstitutiontable}}
@@ -140,7 +140,7 @@
           data-toggle="pill" data-target="#visibleoptions"
           data-bs-toggle="pill" data-bs-target="#visibleoptions"
           type="button" role="tab" aria-controls="visibleoptions" aria-selected="true">
-          {{#str}} visibleoptions, mod_booking {{/str}}
+          <i class="fa fa-eye" aria-hidden="true"></i> {{#str}} visibleoptions, mod_booking {{/str}}
         </button>
       </li>
     {{/visibleoptionstable}}
@@ -150,17 +150,27 @@
           data-toggle="pill" data-target="#invisibleoptions"
           data-bs-toggle="pill" data-bs-target="#invisibleoptions"
           type="button" role="tab" aria-controls="invisibleoptions" aria-selected="true">
-          {{#str}} invisibleoptions, mod_booking {{/str}}
+          <i class="fa fa-eye-slash" aria-hidden="true"></i> {{#str}} invisibleoptions, mod_booking {{/str}}
         </button>
       </li>
     {{/invisibleoptionstable}}
+    {{#bulkoperationstable}}
+      <li class="nav-item me-1" role="presentation">
+        <button class="nav-link {{#bulkoperations}}active{{/bulkoperations}}" id="bulkoperations-tab"
+          data-toggle="pill" data-target="#bulkoperationsview"
+          data-bs-toggle="pill" data-bs-target="#bulkoperationsview"
+          type="button" role="tab" aria-controls="bulkoperationsview" aria-selected="true">
+          <i class="fa fa-tasks" aria-hidden="true"></i> {{#str}} bulkoperationstab, mod_booking {{/str}}
+        </button>
+      </li>
+    {{/bulkoperationstable}}
     {{#fieldofstudytable}}
       <li class="nav-item me-1" role="presentation">
         <button class="nav-link {{#showfieldofstudy}}active{{/showfieldofstudy}}" id="showfieldofstudy-tab"
           data-toggle="pill" data-target="#showfieldofstudy"
           data-bs-toggle="pill" data-bs-target="#showfieldofstudy"
           type="button" role="tab" aria-controls="showfieldofstudy" aria-selected="true">
-          {{#str}} showmyfieldofstudyonly, mod_booking {{/str}}
+          <i class="fa fa-book" aria-hidden="true"></i> {{#str}} showmyfieldofstudyonly, mod_booking {{/str}}
         </button>
       </li>
     {{/fieldofstudytable}}
@@ -171,7 +181,7 @@
         data-toggle="pill" data-target="#elective"
         data-bs-toggle="pill" data-bs-target="#elective"
         type="button" role="tab" aria-controls="elective" aria-selected="true">
-        {{#str}} elective, mod_booking {{/str}}
+        <i class="fa fa-puzzle-piece" aria-hidden="true"></i> {{#str}} elective, mod_booking {{/str}}
       </button>
     </li>
   {{/elective}}
@@ -210,6 +220,9 @@
     {{#invisibleoptionstable}}
       <div class="tab-pane fade {{#invisibleoptions}}show active{{/invisibleoptions}}" id="invisibleoptions" role="tabpanel" aria-labelledby="invisibleoptions-tab">{{{invisibleoptionstable}}}</div>
     {{/invisibleoptionstable}}
+    {{#bulkoperationstable}}
+      <div class="tab-pane fade {{#bulkoperations}}show active{{/bulkoperations}}" id="bulkoperationsview" role="tabpanel" aria-labelledby="bulkoperations-tab">{{{bulkoperationstable}}}</div>
+    {{/bulkoperationstable}}
     {{#fieldofstudytable}}
       <div class="tab-pane fade {{#showfieldofstudy}}show active{{/showfieldofstudy}}" id="showfieldofstudy" role="tabpanel" aria-labelledby="showfieldofstudy-tab">{{{fieldofstudytable}}}</div>
     {{/fieldofstudytable}}
