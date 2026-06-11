@@ -110,6 +110,8 @@ class eventslist implements renderable, templatable {
 
         $table->showrowcountselect = true;
 
+        $table->showreloadbutton = true;
+
         $table->filteronloadinactive = true;
 
         $table->define_baseurl(new moodle_url('/mod/booking/downloads/download.php'));
