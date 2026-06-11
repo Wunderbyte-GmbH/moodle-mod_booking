@@ -261,12 +261,30 @@ final class rules_waitinglist_notification_test extends advanced_testcase {
         // In the future we run tasks.
         // No free seats available, so no messages should be send.
         time_mock::set_mock_time(strtotime('+3 day', time()));
-        $sink = $this->redirectMessages();
-        ob_start();
-        $this->runAdhocTasks();
-        $messages = $sink->get_messages();
-        $res = ob_get_clean();
-        $sink->close();
+        $timearr = [];
+        $tasks1 = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
+        $tasks2 = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_confirmation_mails');
+        foreach ($tasks1 as $task) {
+            $timearr[] = $task->get_next_run_time();
+        }
+        foreach ($tasks2 as $task) {
+            $timearr[] = $task->get_next_run_time();
+        }
+        sort($timearr);
+        $res = '';
+        $messages = [];
+        foreach ($timearr as $runtime) {
+            time_mock::set_mock_time($runtime);
+            $sink = $this->redirectMessages();
+            ob_start();
+            // Execute due tasks through the scheduler so nextruntime ordering is respected.
+            // The run_all_adhoc_tasks() is not feassible.
+            $mocktime = time_mock::get_mock_time();
+            $plugingenerator->runtaskswithintime($mocktime);
+            $messages[] = $sink->get_messages();
+            $res .= ob_get_clean();
+            $sink->close();
+        }
 
         // Validate console output.
         $expected = "send_mail_by_rule_adhoc task: Rule does not apply anymore. Mail was NOT SENT for option "
