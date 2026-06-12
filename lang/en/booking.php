@@ -1703,6 +1703,7 @@ $string['importpreviewreason'] = 'Skip reason';
 $string['importpreviewskipped'] = 'Rows to be skipped';
 $string['importpreviewtitle'] = 'Import preview';
 $string['importpreviewvalid'] = 'Rows to be imported';
+$string['importrowsperpage'] = 'Rows per page:';
 $string['importsuccess'] = 'Import was successful. {$a} record(s) treated.';
 $string['importteacheremail'] = 'Email addresses of users on the platform who can be listed as teachers in the booking options. Use a comma as a separator for multiple email addresses (beware of escaping for comma-separated CSVs!)';
 $string['importtext'] = 'Title of a booking option (synonym for text)';
