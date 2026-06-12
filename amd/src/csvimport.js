@@ -36,6 +36,7 @@ const SELECTORS = {
 const DEFAULTLABELS = {
     back: 'Back',
     upload: 'Upload to database',
+    rowsperpage: 'Rows per page:',
 };
 
 /**
@@ -45,11 +46,12 @@ const DEFAULTLABELS = {
  */
 const getPreviewActionLabels = async() => {
     try {
-        const [back, upload] = await Promise.all([
+        const [back, upload, rowsperpage] = await Promise.all([
             getString('back', 'moodle'),
             getString('importuploaddatabase', 'mod_booking'),
+            getString('importrowsperpage', 'mod_booking'),
         ]);
-        return {back, upload};
+        return {back, upload, rowsperpage};
     } catch (err) {
         return DEFAULTLABELS;
     }
@@ -112,8 +114,9 @@ const renderPreviewActions = ({formContainer, previewContainer, labels, onUpload
  * Hides rows that exceed the chosen limit.  Defaults to showing the first 10.
  *
  * @param {HTMLElement} container - The element that contains the rendered preview.
+ * @param {string} rowsperpageLabel - Translated label for the selector.
  */
-const setupTablePagination = (container) => {
+const setupTablePagination = (container, rowsperpageLabel = DEFAULTLABELS.rowsperpage) => {
     container.querySelectorAll('table').forEach(table => {
         const rows = Array.from(table.querySelectorAll('tbody tr'));
         if (rows.length === 0) {
@@ -133,7 +136,7 @@ const setupTablePagination = (container) => {
 
         const label = document.createElement('label');
         label.className = 'mb-0 small';
-        label.textContent = 'Rows per page:';
+        label.textContent = rowsperpageLabel;
         label.htmlFor = uid;
 
         const select = document.createElement('select');
@@ -289,8 +292,8 @@ export const init = () => {
             const renderPreview = async() => {
                 const {html, js} = await Templates.renderForPromise('mod_booking/importer/csvpreview', templateContext);
                 Templates.replaceNodeContents(previewContainer, html, js);
-                setupTablePagination(previewContainer);
                 const labels = await getPreviewActionLabels();
+                setupTablePagination(previewContainer, labels.rowsperpage);
                 const submitButton = formContainer.querySelector(SELECTORS.SUBMITBUTTON);
                 if (!submitButton) {
                     return;
