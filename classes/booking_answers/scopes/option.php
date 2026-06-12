@@ -216,6 +216,16 @@ class option extends scope_base {
                 );
             }
 
+            // Like on report.php, the "(Un)confirm completion status" button is only shown
+            // if the completed column is configured in the responsesfields setting.
+            $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
+            $responsesfields = array_map('trim', explode(',', (string)($bookingsettings->responsesfields ?? '')));
+            if (in_array('completed', $responsesfields)) {
+                $table->actionbuttons[] = booked_users::create_completion_button(
+                    $bookingsettings->btncacname ?? ''
+                );
+            }
+
             if (has_capability('mod/booking:subscribeusers', context_module::instance($cmid))) {
                 $table->actionbuttons[] = booked_users::create_action_button(
                     'transferusers',

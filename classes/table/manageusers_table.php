@@ -149,7 +149,15 @@ class manageusers_table extends wunderbyte_table {
      * @return string
      */
     public function col_completed(stdClass $values): string {
-        return empty($values->completed) ? get_string('no') : get_string('yes');
+        if ($this->is_downloading()) {
+            return empty($values->completed) ? get_string('no') : get_string('yes');
+        }
+        if (empty($values->completed)) {
+            return '';
+        }
+        return '<i class="fa fa-check text-success" title="' .
+            get_string('completed', 'mod_booking') . '" aria-label="' .
+            get_string('completed', 'mod_booking') . '"></i>';
     }
 
     /**
@@ -738,6 +746,58 @@ class manageusers_table extends wunderbyte_table {
     }
 
     /**
+     * Toggle the completion status of the checked booking answers.
+     * Uses the transmitaction pattern (actionbutton).
+     * Same behaviour as the "(Un)confirm completion status" button on report.php.
+     *
+     * @param int $id
+     * @param string $data
+     * @return array
+     */
+    public function action_toggle_completion_booking_answers(int $id, string $data): array {
+
+        global $DB;
+
+        $jsonobject = json_decode($data);
+
+        $bookinganswerids = $jsonobject->checkedids;
+
+        foreach ($bookinganswerids as $bookinganswerid) {
+            if ($answerrecord = $DB->get_record('booking_answers', ['id' => $bookinganswerid])) {
+                $optionid = $answerrecord->optionid;
+
+                $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+                $context = context_module::instance($settings->cmid);
+
+                // Same condition as for the activitycompletion action on report.php.
+                if (
+                    !booking_check_if_teacher($optionid)
+                    && !has_capability('mod/booking:readresponses', $context)
+                ) {
+                    throw new moodle_exception('Missing capability: mod/booking:readresponses', 'mod_booking');
+                }
+
+                $option = singleton_service::get_instance_of_booking_option($settings->cmid, $optionid);
+                $option->toggle_user_completion($answerrecord->userid);
+            } else {
+                throw new moodle_exception(
+                    'invalidanswerid',
+                    'mod_booking',
+                    '',
+                    null,
+                    'Answer ID: ' . $bookinganswerid . ' not found in table booking_answers.'
+                );
+            }
+        }
+
+        return [
+            'success' => 1,
+            'message' => get_string('activitycompletionsuccess', 'mod_booking'),
+            'reload' => 1,
+        ];
+    }
+
+    /**
      * Trigger the check for the given users in the given options if the are allowed to recieve a certificate and if so,
      * issue the one that is stored in the settings.
      *
@@ -1122,14 +1182,15 @@ class manageusers_table extends wunderbyte_table {
     public function other_cols($colname, $values) {
         // Custom user profile fields configured in responsesfields/reportfields
         // are selected as "cust<shortname>" holding "datatype|data".
+        // If the value does not match that pattern, fall through: the column
+        // might be a booking option customfield with a shortname starting with "cust".
         if (substr($colname, 0, 4) === 'cust') {
-            $tmp = explode('|', $values->{$colname} ?? '');
+            $tmp = explode('|', $values->{$colname} ?? '', 2);
             if (count($tmp) == 2) {
                 return $tmp[0] == 'datetime'
                     ? userdate($tmp[1], get_string('strftimedate', 'langconfig'))
                     : format_string($tmp[1]);
             }
-            return '';
         }
         $settings = singleton_service::get_instance_of_booking_option_settings($values->optionid ?? 0);
         if ($settings->customfields[$colname] ?? false) {

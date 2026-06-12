@@ -560,6 +560,33 @@ class booked_users implements renderable, templatable {
     }
 
     /**
+     * Function to create the "(Un)confirm completion status" button.
+     *
+     * @param string $label custom button label, falls back to the default string
+     * @return array
+     *
+     */
+    public static function create_completion_button(string $label = ''): array {
+        return [
+            'iclass' => 'fa fa-check me-1',
+            'label' => !empty($label) ? $label : get_string('confirmoptioncompletion', 'mod_booking'),
+            'class' => 'btn btn-success btn-sm ms-1',
+            'href' => '#',
+            'methodname' => 'toggle_completion_booking_answers',
+            'nomodal' => false,
+            'selectionmandatory' => true,
+            'id' => -1,
+            'data' => [
+                'id' => 'id',
+                'titlestring' => 'confirmoptioncompletion',
+                'bodystring' => 'confirmoptioncompletionbody',
+                'submitbuttonstring' => 'apply',
+                'component' => 'mod_booking',
+            ],
+        ];
+    }
+
+    /**
      * Function to create delete button.
      *
      * @return array

@@ -1388,6 +1388,8 @@ $string['confirmchangesemester'] = 'YES, I really want to delete all existing da
 $string['confirmdeletebookingoption'] = 'Do you really want to delete this booking option <b>{$a}</b>?';
 $string['confirmed'] = 'Confirmed';
 $string['confirmoptioncompletion'] = '(Un)confirm completion status';
+$string['confirmoptioncompletionbody'] = 'The completion status of the selected bookings will be toggled:
+ bookings that are not yet completed will be marked as completed and vice versa.';
 $string['confirmoptioncreation'] = 'Do you want to split this booking option so that a separate booking option is created
  from each individual date of this booking option?';
 $string['confirmpresence'] = "Confirm presence";

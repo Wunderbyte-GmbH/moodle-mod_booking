@@ -61,7 +61,7 @@ final class columns_helper_test extends advanced_testcase {
 
         $booking = $this->getDataGenerator()->create_module('booking', [
             'course' => $course->id,
-            'responsesfields' => 'fullname,email,city,timecreated,supervisor',
+            'responsesfields' => 'fullname,email,city,timecreated,supervisor,completed',
             'reportsfields' => 'ignored', // Generator typo key, set real one below.
         ]);
         // The generator does not pass reportfields through, so set it directly.
@@ -93,7 +93,7 @@ final class columns_helper_test extends advanced_testcase {
         $class = $ba->return_class_for_scope('option');
         $cols = $class->return_cols_for_tables(MOD_BOOKING_STATUSPARAM_BOOKED, $option->id);
         $this->assertSame(
-            ['firstname', 'lastname', 'email', 'city', 'timecreated', 'custsupervisor', 'status', 'notes'],
+            ['firstname', 'lastname', 'email', 'city', 'timecreated', 'custsupervisor', 'completed', 'status', 'notes'],
             array_keys($cols)
         );
 
@@ -112,6 +112,24 @@ final class columns_helper_test extends advanced_testcase {
         $this->assertEquals('Vienna', $row->city);
         $this->assertEquals('Test option', $row->text);
         $this->assertObjectHasProperty('custsupervisor', $row);
+
+        // 3a. The "(Un)confirm completion status" button is added when completed is configured.
+        $completionbuttons = array_filter(
+            $table->actionbuttons,
+            fn($button) => ($button['methodname'] ?? '') === 'toggle_completion_booking_answers'
+        );
+        $this->assertCount(1, $completionbuttons);
+
+        // 3b. The action toggles the completion status of the checked answers.
+        $this->assertEquals(0, $row->completed);
+        $table->action_toggle_completion_booking_answers(0, json_encode(['checkedids' => [$row->id]]));
+        $this->assertEquals(1, $DB->get_field('booking_answers', 'completed', ['id' => $row->id]));
+        $table->action_toggle_completion_booking_answers(0, json_encode(['checkedids' => [$row->id]]));
+        $this->assertEquals(0, $DB->get_field('booking_answers', 'completed', ['id' => $row->id]));
+
+        // 3c. The completed column shows a green check mark when completed.
+        $this->assertStringContainsString('fa-check', $table->col_completed((object)['completed' => 1]));
+        $this->assertSame('', $table->col_completed((object)['completed' => 0]));
 
         // 4. Instanceanswers scope resolves the cmid directly.
         $class = $ba->return_class_for_scope('instanceanswers');
