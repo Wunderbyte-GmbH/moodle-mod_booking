@@ -33,6 +33,7 @@ use Exception;
 use html_writer;
 use local_wunderbyte_table\filters\types\customfieldfilter;
 use local_wunderbyte_table\filters\types\datepicker;
+use local_wunderbyte_table\filters\types\hierarchicalfilter;
 use local_wunderbyte_table\filters\types\intrange;
 use local_wunderbyte_table\filters\types\standardfilter;
 use local_wunderbyte_table\local\helper\actforuser;
@@ -444,11 +445,42 @@ class shortcodes {
             if (!in_array($customfield->shortname, $args)) {
                 continue;
             }
+            // Dynamicformat fields managed by taskflowadapter_tuines carry a stored parent/child
+            // hierarchy. Render those as a hierarchical filter (like local_urise does for its
+            // competency field) so ticking a parent matches every option in its subtree.
+            $hierarchyoptions = self::get_dynamicformat_hierarchy_options($customfield);
+            if (!empty($hierarchyoptions)) {
+                $hierarchicalfilter = new hierarchicalfilter($customfield->shortname, format_string($customfield->name));
+                $hierarchicalfilter->set_sql_for_fieldid($customfield->id);
+                $hierarchicalfilter->add_options($hierarchyoptions);
+                $table->add_filter($hierarchicalfilter);
+                continue;
+            }
             // Check for multi fields, explode values as settings for standardfilter.
             $customfieldfilter = new customfieldfilter($customfield->shortname, format_string($customfield->name));
             $customfieldfilter->set_sql_for_fieldid($customfield->id);
             $table->add_filter($customfieldfilter);
         }
+    }
+
+    /**
+     * Returns hierarchicalfilter options for a dynamicformat customfield, or [] when not applicable.
+     *
+     * The hierarchy lives in taskflowadapter_tuines; the dependency is soft (guarded by class_exists)
+     * so booking keeps working when that adapter is not installed.
+     *
+     * @param object $customfield a record from booking_handler::get_customfields()
+     * @return array
+     */
+    protected static function get_dynamicformat_hierarchy_options($customfield): array {
+        if (($customfield->type ?? '') !== 'dynamicformat') {
+            return [];
+        }
+        $manager = '\taskflowadapter_tuines\local\customfield_options_manager';
+        if (!class_exists($manager)) {
+            return [];
+        }
+        return $manager::get_filter_options((int) $customfield->id);
     }
 
     /**
