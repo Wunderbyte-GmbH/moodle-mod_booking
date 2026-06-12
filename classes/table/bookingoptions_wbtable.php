@@ -1418,7 +1418,6 @@ class bookingoptions_wbtable extends wunderbyte_table {
                         aria-haspopup="true" aria-expanded="false" aria-label="' . get_string('settings') . '">
                         <i class="icon fa fa-cog me-0" aria-hidden="true"
                             aria-label="' . get_string('settings') . '" title="' . get_string('settings') . '"></i>
-                        <span class="visually-hidden">' . get_string('settings') . '</span>
                     </button>
                     <div class="dropdown-menu dropdown-menu-right dropdown-menu-end menu align-tr-br" id="action-menu-' .
                 $optionid .
