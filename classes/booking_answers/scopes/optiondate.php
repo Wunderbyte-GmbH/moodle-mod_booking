@@ -28,6 +28,7 @@ use local_wunderbyte_table\filters\types\standardfilter;
 use local_wunderbyte_table\wunderbyte_table;
 use mod_booking\booking;
 use mod_booking\booking_answers\scope_base;
+use mod_booking\local\bookingstracker\columns_helper;
 use mod_booking\singleton_service;
 use context_module;
 use mod_booking\table\manageusers_table;
@@ -191,6 +192,11 @@ class optiondate extends scope_base {
         $optiondateid = $scopeid;
         $where = " 1 = 1 ";
 
+        // Subselects for the custom user profile fields configured in the instance settings.
+        [$profilefieldselect, $profilefieldparams] = columns_helper::profilefield_sql(
+            $this->get_cmid_for_scopeid($scopeid)
+        );
+
         // We need to set a limit for the query in mysqlfamily.
         $fields = 's1.*';
         $from = " (
@@ -202,16 +208,27 @@ class optiondate extends scope_base {
                 bod.courseendtime,
                 ba.userid,
                 ba.waitinglist,
+                ba.timecreated,
+                ba.completed,
+                ba.completeddate,
+                ba.numrec,
                 boda.status,
                 boda.json,
                 boda.notes,
                 bo.id optionid,
                 bo.titleprefix,
                 bo.text,
+                bo.location,
+                u.username,
                 u.firstname,
                 u.lastname,
                 u.email,
+                u.institution,
+                u.city,
+                u.department,
+                u.idnumber,
                 '" . $scope . "' AS scope
+                $profilefieldselect
             FROM {booking_optiondates} bod
             JOIN {booking_options} bo
             ON bo.id = bod.optionid
@@ -225,10 +242,10 @@ class optiondate extends scope_base {
             ORDER BY u.lastname, u.firstname, bod.coursestarttime ASC
             LIMIT 10000000000
         ) s1";
-        $params = [
+        $params = array_merge([
             'optiondateid' => $optiondateid,
             'statusparam' => MOD_BOOKING_STATUSPARAM_BOOKED,
-        ];
+        ], $profilefieldparams);
 
         return [$fields, $from, $where, $params];
     }
@@ -237,22 +254,33 @@ class optiondate extends scope_base {
      * This functions defines the columns for each scope.
      *
      * @param int $statusparam
+     * @param int $scopeid
      *
      * @return array
      *
      */
-    public function return_cols_for_tables(int $statusparam): array {
+    public function return_cols_for_tables(int $statusparam, int $scopeid = 0): array {
 
-        $columns = [
-            'firstname' => get_string('firstname', 'core'),
-            'lastname'  => get_string('lastname', 'core'),
-            'email'     => get_string('email', 'core'),
-        ];
+        // Columns configured in the instance setting "Manage responses - Page" (responsesfields).
+        $columns = columns_helper::display_columns($this->get_cmid_for_scopeid($scopeid));
+        if (empty($columns)) {
+            $columns = [
+                'firstname' => get_string('firstname', 'core'),
+                'lastname'  => get_string('lastname', 'core'),
+                'email'     => get_string('email', 'core'),
+            ];
+        }
 
         switch ($statusparam) {
             case MOD_BOOKING_STATUSPARAM_BOOKED:
-                $columns['status'] = get_string('presence', 'mod_booking');
-                $columns['notes'] = get_string('notes', 'mod_booking');
+                // In optiondate scope, status and notes hold the per-session presence and notes.
+                // They stay automatic, as the tracker action buttons edit exactly these columns.
+                if (!isset($columns['status'])) {
+                    $columns['status'] = get_string('presence', 'mod_booking');
+                }
+                if (!isset($columns['notes'])) {
+                    $columns['notes'] = get_string('notes', 'mod_booking');
+                }
                 break;
             case MOD_BOOKING_STATUSPARAM_WAITINGLIST:
                 break;
@@ -267,6 +295,46 @@ class optiondate extends scope_base {
         }
 
         return $columns;
+    }
+
+    /**
+     * This functions defines the columns for the table download.
+     *
+     * @param int $statusparam
+     * @param int $scopeid
+     *
+     * @return array
+     *
+     */
+    public function return_cols_for_download(int $statusparam, int $scopeid = 0): array {
+
+        // Columns configured in the instance setting "Manage responses - Download" (reportfields).
+        // In optiondate scope, coursestarttime/courseendtime resolve to the session times.
+        $columns = columns_helper::download_columns($this->get_cmid_for_scopeid($scopeid));
+        if (empty($columns)) {
+            return $this->return_cols_for_tables($statusparam, $scopeid);
+        }
+
+        return $columns;
+    }
+
+    /**
+     * Resolves the cmid of the booking instance for the given scopeid (optiondateid).
+     *
+     * @param int $scopeid
+     * @return int
+     */
+    public function get_cmid_for_scopeid(int $scopeid): int {
+        global $DB;
+
+        if (empty($scopeid)) {
+            return 0;
+        }
+        $optionid = $DB->get_field('booking_optiondates', 'optionid', ['id' => $scopeid]);
+        if (empty($optionid)) {
+            return 0;
+        }
+        return singleton_service::get_instance_of_booking_option_settings($optionid)->cmid ?? 0;
     }
 
     /**
@@ -299,6 +367,7 @@ class optiondate extends scope_base {
                 [
                     'scope' => self::return_classname(),
                     'statusparam' => $statusparam,
+                    'scopeid' => $scopeid,
                 ]
             );
             $table->define_baseurl($baseurl);

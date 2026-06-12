@@ -87,11 +87,12 @@ class scope_base_options extends scope_base {
      * This functions defines the columns for each scope.
      *
      * @param int $statusparam
+     * @param int $scopeid
      *
      * @return array
      *
      */
-    public function return_cols_for_tables(int $statusparam): array {
+    public function return_cols_for_tables(int $statusparam, int $scopeid = 0): array {
         $columns = [
             'titleprefix' => get_string('titleprefix', 'mod_booking'),
             'text'  => get_string('bookingoption', 'mod_booking'),

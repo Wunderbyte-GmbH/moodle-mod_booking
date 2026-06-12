@@ -56,13 +56,41 @@ class scope_base {
      * This functions defines the columns for each scope.
      *
      * @param int $statusparam
+     * @param int $scopeid
      *
      * @return array
      *
      */
-    public function return_cols_for_tables(int $statusparam): array {
+    public function return_cols_for_tables(int $statusparam, int $scopeid = 0): array {
         // Actual implementation in subclasses.
         return [];
+    }
+
+    /**
+     * This functions defines the columns for the table download of each scope.
+     * By default, the download uses the same columns as the displayed table.
+     * Scopes supporting the per-instance setting reportfields override this.
+     *
+     * @param int $statusparam
+     * @param int $scopeid
+     *
+     * @return array
+     *
+     */
+    public function return_cols_for_download(int $statusparam, int $scopeid = 0): array {
+        return $this->return_cols_for_tables($statusparam, $scopeid);
+    }
+
+    /**
+     * Resolves the cmid of the booking instance for the given scopeid.
+     * Returns 0 if the scope cannot be resolved to a single booking instance
+     * (e.g. course or system scope).
+     *
+     * @param int $scopeid
+     * @return int
+     */
+    public function get_cmid_for_scopeid(int $scopeid): int {
+        return 0;
     }
 
     /**
@@ -86,6 +114,7 @@ class scope_base {
                 [
                     'scope' => $scope,
                     'statusparam' => $statusparam,
+                    'scopeid' => $scopeid,
                 ]
             );
             $table->define_baseurl($baseurl);

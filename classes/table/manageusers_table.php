@@ -117,6 +117,52 @@ class manageusers_table extends wunderbyte_table {
     }
 
     /**
+     * Return column courseendtime.
+     *
+     * @param stdClass $values
+     * @return string
+     */
+    public function col_courseendtime(stdClass $values): string {
+        if (empty($values->courseendtime)) {
+            return '';
+        }
+        return date('d.m.Y', $values->courseendtime);
+    }
+
+    /**
+     * Return column timecreated (booking date).
+     *
+     * @param stdClass $values
+     * @return string
+     */
+    public function col_timecreated(stdClass $values): string {
+        if (empty($values->timecreated)) {
+            return '';
+        }
+        return date('d.m.Y', $values->timecreated);
+    }
+
+    /**
+     * Return column completed (activity completion).
+     *
+     * @param stdClass $values
+     * @return string
+     */
+    public function col_completed(stdClass $values): string {
+        return empty($values->completed) ? get_string('no') : get_string('yes');
+    }
+
+    /**
+     * Return column waitinglist (booking status).
+     *
+     * @param stdClass $values
+     * @return string
+     */
+    public function col_waitinglist(stdClass $values): string {
+        return $this->col_bookingstatus($values);
+    }
+
+    /**
      * Return column timebooked.
      *
      * @param stdClass $values
@@ -1074,7 +1120,18 @@ class manageusers_table extends wunderbyte_table {
      *
      */
     public function other_cols($colname, $values) {
-        $settings = singleton_service::get_instance_of_booking_option_settings($values->optionid);
+        // Custom user profile fields configured in responsesfields/reportfields
+        // are selected as "cust<shortname>" holding "datatype|data".
+        if (substr($colname, 0, 4) === 'cust') {
+            $tmp = explode('|', $values->{$colname} ?? '');
+            if (count($tmp) == 2) {
+                return $tmp[0] == 'datetime'
+                    ? userdate($tmp[1], get_string('strftimedate', 'langconfig'))
+                    : format_string($tmp[1]);
+            }
+            return '';
+        }
+        $settings = singleton_service::get_instance_of_booking_option_settings($values->optionid ?? 0);
         if ($settings->customfields[$colname] ?? false) {
             if (!isset($values->$colname)) {
                 return '';

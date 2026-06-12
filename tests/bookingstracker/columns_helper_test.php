@@ -1,0 +1,143 @@
+<?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+namespace mod_booking;
+
+use advanced_testcase;
+use mod_booking\booking_answers\booking_answers;
+use mod_booking\output\booked_users;
+use mod_booking\singleton_service;
+
+defined('MOODLE_INTERNAL') || die();
+global $CFG;
+require_once($CFG->dirroot . '/mod/booking/lib.php');
+
+/**
+ * Tests for the Bookings tracker column configuration (responsesfields / reportfields).
+ *
+ * @package mod_booking
+ * @copyright 2025 Wunderbyte GmbH <info@wunderbyte.at>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+final class columns_helper_test extends advanced_testcase {
+    /**
+     * Tests that responsesfields/reportfields drive the tracker columns and SQL runs.
+     * @covers \mod_booking\local\bookingstracker\columns_helper
+     */
+    public function test_tracker_columns_from_instance_settings(): void {
+        global $DB;
+
+        $this->resetAfterTest();
+        singleton_service::destroy_instance();
+        $this->setAdminUser();
+
+        // Custom user profile field.
+        $cat = (object)['name' => 'Cat', 'sortorder' => 1];
+        $cat->id = $DB->insert_record('user_info_category', $cat);
+        $DB->insert_record('user_info_field', (object)[
+            'shortname' => 'supervisor',
+            'name' => 'Supervisor',
+            'datatype' => 'text',
+            'categoryid' => $cat->id,
+            'sortorder' => 1,
+        ]);
+
+        $course = $this->getDataGenerator()->create_course();
+        $student = $this->getDataGenerator()->create_user(['city' => 'Vienna']);
+        $this->getDataGenerator()->enrol_user($student->id, $course->id, 'student');
+
+        $booking = $this->getDataGenerator()->create_module('booking', [
+            'course' => $course->id,
+            'responsesfields' => 'fullname,email,city,timecreated,supervisor',
+            'reportsfields' => 'ignored', // Generator typo key, set real one below.
+        ]);
+        // The generator does not pass reportfields through, so set it directly.
+        $DB->set_field('booking', 'reportfields', 'optionid,booking,location,username,email,timecreated,supervisor', [
+            'id' => $booking->id,
+        ]);
+        singleton_service::destroy_instance();
+
+        /** @var \mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $option = $plugingenerator->create_option((object)[
+            'bookingid' => $booking->id,
+            'text' => 'Test option',
+            'courseid' => $course->id,
+            'maxanswers' => 5,
+            'optiondateid_1' => '0',
+            'daystonotify_1' => '0',
+            'coursestarttime_1' => strtotime('now + 1 day'),
+            'courseendtime_1' => strtotime('now + 2 day'),
+        ]);
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
+        $boption = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
+        $boption->user_submit_response($student, 0, 0, 0, MOD_BOOKING_VERIFIED);
+
+        $ba = new booking_answers();
+
+        // 1. Option scope display columns follow responsesfields + status-specific columns.
+        $class = $ba->return_class_for_scope('option');
+        $cols = $class->return_cols_for_tables(MOD_BOOKING_STATUSPARAM_BOOKED, $option->id);
+        $this->assertSame(
+            ['firstname', 'lastname', 'email', 'city', 'timecreated', 'custsupervisor', 'status', 'notes'],
+            array_keys($cols)
+        );
+
+        // 2. Option scope download columns follow reportfields.
+        $dcols = $class->return_cols_for_download(MOD_BOOKING_STATUSPARAM_BOOKED, $option->id);
+        $this->assertSame(
+            ['optionid', 'text', 'location', 'username', 'email', 'timecreated', 'custsupervisor'],
+            array_keys($dcols)
+        );
+
+        // 3. The table SQL runs and returns the booked user including the new fields.
+        $bookedusers = new booked_users('option', $option->id, true, false, false, false, false);
+        $table = $bookedusers->return_raw_table('option', $option->id, MOD_BOOKING_STATUSPARAM_BOOKED);
+        $this->assertCount(1, $table->rawdata);
+        $row = reset($table->rawdata);
+        $this->assertEquals('Vienna', $row->city);
+        $this->assertEquals('Test option', $row->text);
+        $this->assertObjectHasProperty('custsupervisor', $row);
+
+        // 4. Instanceanswers scope resolves the cmid directly.
+        $class = $ba->return_class_for_scope('instanceanswers');
+        $cols = $class->return_cols_for_tables(MOD_BOOKING_STATUSPARAM_BOOKED, $settings->cmid);
+        $this->assertSame('titleprefix', array_key_first($cols));
+        $this->assertArrayHasKey('city', $cols);
+        $this->assertArrayHasKey('timemodified', $cols);
+        $table = $bookedusers->return_raw_table('instanceanswers', $settings->cmid, MOD_BOOKING_STATUSPARAM_BOOKED);
+        $this->assertCount(1, $table->rawdata);
+
+        // 5. Empty settings fall back to the default columns.
+        $DB->set_field('booking', 'responsesfields', '', ['id' => $booking->id]);
+        $DB->set_field('booking', 'reportfields', '', ['id' => $booking->id]);
+        singleton_service::destroy_instance();
+        \cache::make('mod_booking', 'cachedbookinginstances')->purge();
+        $class = $ba->return_class_for_scope('option');
+        $cols = $class->return_cols_for_tables(MOD_BOOKING_STATUSPARAM_BOOKED, $option->id);
+        $this->assertSame(['firstname', 'lastname', 'email', 'status', 'notes'], array_keys($cols));
+        $dcols = $class->return_cols_for_download(MOD_BOOKING_STATUSPARAM_BOOKED, $option->id);
+        $this->assertSame(array_keys($cols), array_keys($dcols));
+
+        // 6. Unsupported values are silently skipped.
+        $DB->set_field('booking', 'responsesfields', 'rating,places,userpic,fullname', ['id' => $booking->id]);
+        singleton_service::destroy_instance();
+        \cache::make('mod_booking', 'cachedbookinginstances')->purge();
+        $cols = $class->return_cols_for_tables(MOD_BOOKING_STATUSPARAM_BOOKED, $option->id);
+        $this->assertSame(['firstname', 'lastname', 'status', 'notes'], array_keys($cols));
+    }
+}

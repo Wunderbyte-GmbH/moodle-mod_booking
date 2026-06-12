@@ -37,9 +37,10 @@ class scope_base_answers extends scope_base {
     /**
      * Helper function to get the $selectpart for the return_sql_for_booked_users function.
      * @param string $scope
+     * @param string $extraselect additional select fields, prefixed with a comma
      * @return string the select part of the sql query
      */
-    public function get_selectpart(string $scope): string {
+    public function get_selectpart(string $scope, string $extraselect = ''): string {
         // If presence counter is activated, we add that to SQL.
         $selectpresencecount = '';
         $presencecountsqlpart = '';
@@ -62,21 +63,33 @@ class scope_base_answers extends scope_base {
                 u.firstname,
                 u.lastname,
                 u.email,
+                u.institution,
+                u.city,
+                u.department,
+                u.idnumber,
                 ba.waitinglist,
                 ba.status,
                 ba.notes,
                 $selectpresencecount
                 ba.timemodified,
                 ba.timecreated,
+                ba.timebooked,
+                ba.completed,
+                ba.completeddate,
+                ba.numrec,
                 cm.id AS cmid,
                 c.id AS courseid,
                 c.fullname AS coursename,
                 ba.optionid,
                 bo.titleprefix,
                 bo.text,
+                bo.location,
+                bo.coursestarttime,
+                bo.courseendtime,
                 b.name AS instancename,
                 ba.json,
                 '" . $scope . "' AS scope
+                $extraselect
             FROM {booking_answers} ba
             JOIN {booking_options} bo ON ba.optionid = bo.id
             JOIN {course_modules} cm ON bo.bookingid = cm.instance
@@ -99,11 +112,12 @@ class scope_base_answers extends scope_base {
      * This functions defines the columns for each scope.
      *
      * @param int $statusparam
+     * @param int $scopeid
      *
      * @return array
      *
      */
-    public function return_cols_for_tables(int $statusparam): array {
+    public function return_cols_for_tables(int $statusparam, int $scopeid = 0): array {
         $columns = [
             'titleprefix' => get_string('titleprefix', 'mod_booking'),
             'text' => get_string('bookingoption', 'mod_booking'),

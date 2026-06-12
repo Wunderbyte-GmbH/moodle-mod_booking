@@ -28,6 +28,7 @@ namespace mod_booking\booking_answers\scopes;
 use context_system;
 use local_wunderbyte_table\wunderbyte_table;
 use mod_booking\booking_answers\scope_base;
+use mod_booking\local\bookingstracker\columns_helper;
 use mod_booking\output\booked_users;
 use mod_booking\singleton_service;
 use context_module;
@@ -257,25 +258,39 @@ class option extends scope_base {
      * This functions defines the columns for each scope.
      *
      * @param int $statusparam
+     * @param int $scopeid
      *
      * @return array
      *
      */
-    public function return_cols_for_tables(int $statusparam): array {
+    public function return_cols_for_tables(int $statusparam, int $scopeid = 0): array {
 
-        $columns = [
-            'firstname' => get_string('firstname', 'core'),
-            'lastname'  => get_string('lastname', 'core'),
-            'email'     => get_string('email', 'core'),
-        ];
+        // Columns configured in the instance setting "Manage responses - Page" (responsesfields).
+        $columns = columns_helper::display_columns($this->get_cmid_for_scopeid($scopeid));
+        if (empty($columns)) {
+            $columns = [
+                'firstname' => get_string('firstname', 'core'),
+                'lastname'  => get_string('lastname', 'core'),
+                'email'     => get_string('email', 'core'),
+            ];
+        }
 
+        // Status-specific columns stay automatic so the tracker workflow (presence, notes,
+        // confirm/delete actions) keeps working regardless of the configured columns.
         switch ($statusparam) {
             case MOD_BOOKING_STATUSPARAM_BOOKED:
-                if (get_config('booking', 'bookingstrackerpresencecounter')) {
+                if (
+                    get_config('booking', 'bookingstrackerpresencecounter')
+                    && !isset($columns['presencecount'])
+                ) {
                     $columns['presencecount'] = get_string('presencecount', 'mod_booking');
                 }
-                $columns['status'] = get_string('presence', 'mod_booking');
-                $columns['notes'] = get_string('notes', 'mod_booking');
+                if (!isset($columns['status'])) {
+                    $columns['status'] = get_string('presence', 'mod_booking');
+                }
+                if (!isset($columns['notes'])) {
+                    $columns['notes'] = get_string('notes', 'mod_booking');
+                }
                 break;
             case MOD_BOOKING_STATUSPARAM_WAITINGLIST:
                 $columns['action_confirm_delete'] = get_string('actionsonbookinganswer', 'mod_booking');
@@ -294,14 +309,62 @@ class option extends scope_base {
             case MOD_BOOKING_STATUSPARAM_NOTBOOKED:
                 break;
             case MOD_BOOKING_STATUSPARAM_BOOKED_DELETED:
-                $columns['timemodified'] = get_string('timemodified', 'mod_booking');
+                if (!isset($columns['timemodified'])) {
+                    $columns['timemodified'] = get_string('timemodified', 'mod_booking');
+                }
                 break;
             case MOD_BOOKING_STATUSPARAM_PREVIOUSLYBOOKED:
-                $columns['timebooked'] = get_string('timebooked', 'mod_booking');
+                if (!isset($columns['timebooked'])) {
+                    $columns['timebooked'] = get_string('timebooked', 'mod_booking');
+                }
                 break;
         }
 
         return $columns;
+    }
+
+    /**
+     * This functions defines the columns for the table download.
+     *
+     * @param int $statusparam
+     * @param int $scopeid
+     *
+     * @return array
+     *
+     */
+    public function return_cols_for_download(int $statusparam, int $scopeid = 0): array {
+
+        // Columns configured in the instance setting "Manage responses - Download" (reportfields).
+        $columns = columns_helper::download_columns($this->get_cmid_for_scopeid($scopeid));
+        if (empty($columns)) {
+            return $this->return_cols_for_tables($statusparam, $scopeid);
+        }
+
+        if (
+            $statusparam == MOD_BOOKING_STATUSPARAM_WAITINGLIST
+            && get_config('booking', 'waitinglistshowplaceonwaitinglist')
+            && !isset($columns['userrank'])
+        ) {
+            $columns = array_merge(
+                ['userrank' => get_string('userrank', 'mod_booking')],
+                $columns
+            );
+        }
+
+        return $columns;
+    }
+
+    /**
+     * Resolves the cmid of the booking instance for the given scopeid (optionid).
+     *
+     * @param int $scopeid
+     * @return int
+     */
+    public function get_cmid_for_scopeid(int $scopeid): int {
+        if (empty($scopeid)) {
+            return 0;
+        }
+        return singleton_service::get_instance_of_booking_option_settings($scopeid)->cmid ?? 0;
     }
 
     /**
@@ -372,6 +435,12 @@ class option extends scope_base {
         $whereneedtoconfirm = '';
         $whereneedtoconfirmjoin = '';
 
+        // Subselects for the custom user profile fields configured in the instance settings.
+        [$profilefieldselect, $profilefieldparams] = columns_helper::profilefield_sql(
+            $this->get_cmid_for_scopeid($optionid)
+        );
+        $params = array_merge($params, $profilefieldparams);
+
         // We need to set a limit for the query in mysqlfamily.
         $fields = 's1.*';
         $from = "
@@ -385,6 +454,10 @@ class option extends scope_base {
                     u.firstname,
                     u.lastname,
                     u.email,
+                    u.institution,
+                    u.city,
+                    u.department,
+                    u.idnumber,
                     ba.waitinglist,
                     ba.status,
                     ba.notes,
@@ -392,11 +465,21 @@ class option extends scope_base {
                     ba.timemodified,
                     ba.timecreated,
                     ba.timebooked,
+                    ba.completed,
+                    ba.completeddate,
+                    ba.numrec,
                     ba.optionid,
                     ba.json,
+                    bo.text,
+                    bo.titleprefix,
+                    bo.location,
+                    bo.coursestarttime,
+                    bo.courseendtime,
                     '" . $scope . "' AS scope
+                    $profilefieldselect
                 FROM {booking_answers} ba
                 JOIN {user} u ON ba.userid = u.id
+                JOIN {booking_options} bo ON bo.id = ba.optionid
                 $whereneedtoconfirmjoin
                 $presencecountsqlpart
                 WHERE ba.waitinglist=:statusparam $whereoptionid1 $whereneedtoconfirm
@@ -440,6 +523,7 @@ class option extends scope_base {
                 [
                     'scope' => self::return_classname(),
                     'statusparam' => $statusparam,
+                    'scopeid' => $scopeid,
                 ]
             );
             $table->define_baseurl($baseurl);

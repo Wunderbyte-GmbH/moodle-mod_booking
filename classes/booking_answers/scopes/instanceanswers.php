@@ -26,6 +26,7 @@ namespace mod_booking\booking_answers\scopes;
 use context_module;
 use local_wunderbyte_table\wunderbyte_table;
 use mod_booking\booking_answers\scope_base_answers;
+use mod_booking\local\bookingstracker\columns_helper;
 use mod_booking\output\booked_users;
 use mod_booking\table\manageusers_table;
 use moodle_url;
@@ -63,7 +64,12 @@ class instanceanswers extends scope_base_answers {
             $params['statustocount'] = get_config('booking', 'bookingstrackerpresencecountervaluetocount');
         }
         $endpart = $this->get_endpart();
-        $selectpart = $this->get_selectpart($scope);
+
+        // Subselects for the custom user profile fields configured in the instance settings.
+        [$profilefieldselect, $profilefieldparams] = columns_helper::profilefield_sql($cmid);
+        $params = array_merge($params, $profilefieldparams);
+
+        $selectpart = $this->get_selectpart($scope, $profilefieldselect);
 
         // We need to set a limit for the query in mysqlfamily.
         $fields = 's1.*';
@@ -166,6 +172,86 @@ class instanceanswers extends scope_base_answers {
     }
 
     /**
+     * This functions defines the columns for each scope.
+     *
+     * @param int $statusparam
+     * @param int $scopeid
+     *
+     * @return array
+     *
+     */
+    public function return_cols_for_tables(int $statusparam, int $scopeid = 0): array {
+
+        // Columns configured in the instance setting "Manage responses - Page" (responsesfields).
+        // In instance scope, scopeid is the cmid.
+        $columns = columns_helper::display_columns($scopeid);
+        if (empty($columns)) {
+            return parent::return_cols_for_tables($statusparam, $scopeid);
+        }
+
+        // In the flat per-answer list, the booking option columns identify the row,
+        // so they always stay at the first place.
+        $columns = array_merge(
+            [
+                'titleprefix' => get_string('titleprefix', 'mod_booking'),
+                'text' => get_string('bookingoption', 'mod_booking'),
+            ],
+            $columns
+        );
+
+        if ($statusparam == 0) {
+            if (
+                get_config('booking', 'bookingstrackerpresencecounter')
+                && !isset($columns['presencecount'])
+            ) {
+                $columns['presencecount'] = get_string('presencecount', 'mod_booking');
+            }
+            if (!isset($columns['status'])) {
+                $columns['status'] = get_string('presence', 'mod_booking');
+            }
+            if (!isset($columns['notes'])) {
+                $columns['notes'] = get_string('notes', 'mod_booking');
+            }
+        }
+        // Keep timemodified, it is the default sort column in this scope.
+        if (!isset($columns['timemodified'])) {
+            $columns['timemodified'] = get_string('timemodified', 'mod_booking');
+        }
+
+        return $columns;
+    }
+
+    /**
+     * This functions defines the columns for the table download.
+     *
+     * @param int $statusparam
+     * @param int $scopeid
+     *
+     * @return array
+     *
+     */
+    public function return_cols_for_download(int $statusparam, int $scopeid = 0): array {
+
+        // Columns configured in the instance setting "Manage responses - Download" (reportfields).
+        $columns = columns_helper::download_columns($scopeid);
+        if (empty($columns)) {
+            return $this->return_cols_for_tables($statusparam, $scopeid);
+        }
+
+        return $columns;
+    }
+
+    /**
+     * Resolves the cmid of the booking instance for the given scopeid (cmid).
+     *
+     * @param int $scopeid
+     * @return int
+     */
+    public function get_cmid_for_scopeid(int $scopeid): int {
+        return $scopeid;
+    }
+
+    /**
      * Each scope can decide under which circumstances it actually adds the downloadbutton.
      *
      * @param wunderbyte_table $table
@@ -183,6 +269,7 @@ class instanceanswers extends scope_base_answers {
                 [
                     'scope' => self::return_classname(),
                     'statusparam' => $statusparam,
+                    'scopeid' => $scopeid,
                 ]
             );
             $table->define_baseurl($baseurl);
