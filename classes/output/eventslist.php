@@ -73,8 +73,9 @@ class eventslist implements renderable, templatable {
      *
      * @param int $id
      * @param array $eventnames
+     * @param string $countlabel optional lang string identifier (in mod_booking) for the records count label
      */
-    public function __construct(int $id = 0, array $eventnames = []) {
+    public function __construct(int $id = 0, array $eventnames = [], string $countlabel = '') {
 
         global $DB;
 
@@ -107,6 +108,10 @@ class eventslist implements renderable, templatable {
         $table->pageable(true);
 
         $table->showcountlabel = true;
+
+        if (!empty($countlabel)) {
+            $table->define_countlabel($countlabel, 'mod_booking');
+        }
 
         $table->showrowcountselect = true;
 

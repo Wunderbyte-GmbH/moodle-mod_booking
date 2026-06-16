@@ -1847,6 +1847,7 @@ $string['maxperuserwarning'] = 'Sie haben zur Zeit ein Limit von {$a->count}/{$a
 $string['messagebutton'] = 'Nachricht';
 $string['messageprovider:bookingconfirmation'] = "Buchungsbestätigungen";
 $string['messageprovider:sendmessages'] = 'Kann Nachrichten schicken';
+$string['messagescountlabel'] = '{$a->filteredrecords} von {$a->totalrecords} Nachrichten gefunden ';
 $string['messagesend'] = 'Die Nachricht wurde erfolgreich versandt.';
 $string['messagesent'] = 'Nachricht gesendet';
 $string['messagesubject'] = 'Betreff';
