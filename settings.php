@@ -114,6 +114,16 @@ $ADMIN->add(
 $ADMIN->add(
     'modbookingfolder',
     new admin_externalpage(
+        'modbookingmanagecustomfieldoptions',
+        get_string('managecustomfieldoptions', 'mod_booking'),
+        new moodle_url('/mod/booking/managecustomfieldoptions.php'),
+        'mod/booking:managecustomfieldoptions'
+    )
+);
+
+$ADMIN->add(
+    'modbookingfolder',
+    new admin_externalpage(
         'modbookingavailabilityconditions',
         get_string('availabilityconditionsdashboard', 'mod_booking'),
         new moodle_url('/mod/booking/availabilityconditions.php')

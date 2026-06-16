@@ -476,11 +476,7 @@ class shortcodes {
         if (($customfield->type ?? '') !== 'dynamicformat') {
             return [];
         }
-        $manager = '\taskflowadapter_tuines\local\customfield_options_manager';
-        if (!class_exists($manager)) {
-            return [];
-        }
-        return $manager::get_filter_options((int) $customfield->id);
+        return hierarchy_manager::get_filter_options((int) $customfield->id);
     }
 
     /**

@@ -294,6 +294,14 @@ $capabilities = [
         ],
     ],
     // Capability to manage optiondates.
+    'mod/booking:managecustomfieldoptions' => [
+        'riskbitmask' => RISK_CONFIG,
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => [
+            'manager' => CAP_ALLOW,
+        ],
+    ],
     'mod/booking:manageoptiondates' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,
