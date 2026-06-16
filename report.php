@@ -1279,7 +1279,7 @@ if (!$tableallbookings->is_downloading()) {
 
     // Messages can only be view by users with viewreports permission.
     if (has_capability('mod/booking:viewreports', $context)) {
-        $eventslist = new eventslist($optionid, ['\mod_booking\event\message_sent']);
+        $eventslist = new eventslist($optionid, ['\mod_booking\event\message_sent'], 'messagescountlabel');
         $eventslist->icon = 'fa fa-envelope-o';
         $eventslist->title = get_string('showmessages', 'mod_booking');
         echo $OUTPUT->render_from_template('mod_booking/eventslist', (array) $eventslist);

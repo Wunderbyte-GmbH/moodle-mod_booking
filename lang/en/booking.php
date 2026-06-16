@@ -1877,6 +1877,7 @@ $string['maxperuserwarning'] = 'You currently have used {$a->count} out of {$a->
 $string['messagebutton'] = 'Message';
 $string['messageprovider:bookingconfirmation'] = "Booking confirmations";
 $string['messageprovider:sendmessages'] = 'Can send messages';
+$string['messagescountlabel'] = '{$a->filteredrecords} of {$a->totalrecords} messages found ';
 $string['messagesend'] = 'Your message has been sent.';
 $string['messagesent'] = 'Message sent';
 $string['messagesubject'] = 'Subject';
