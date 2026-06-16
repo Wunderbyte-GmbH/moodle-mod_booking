@@ -705,6 +705,14 @@ class booking_option_settings {
             } else {
                 $this->subpluginssettings = $dbrecord->subpluginssettings ?? [];
             }
+
+            // The customfieldsfortemplates values live in the language-agnostic bookingoptionsettings
+            // cache, so resolve their human-readable display values for the CURRENT language now,
+            // on every instantiation. This keeps customfields (e.g. select labels) in sync with the
+            // active language - just like dates - instead of "sticking" to the language that first
+            // populated the cache. Only the instance is updated; $dbrecord (cache) keeps its raw keys.
+            $this->localize_customfields_for_templates();
+
             return $dbrecord;
         }
 
@@ -1140,6 +1148,32 @@ class booking_option_settings {
                 'value' => $value,
                 'type' => $type,
             ];
+        }
+    }
+
+    /**
+     * Resolve the human-readable customfield display values for the current language.
+     *
+     * The customfieldsfortemplates 'value' entries are stored in the bookingoptionsettings cache,
+     * whose key is the optionid only (no language). A value formatted via format_string() at
+     * cache-build time would therefore "stick" to that language even after the user switches the
+     * site/session language. To avoid this we re-derive the display value from the raw,
+     * language-neutral key kept in $this->customfields on every instantiation, mirroring how dates
+     * are rendered with current_language().
+     *
+     * This re-runs the exact same field controller call as load_customfields(), so the result is
+     * identical apart from honouring the current language. Only the instance is mutated; the cached
+     * stdClass returned by set_values() keeps its raw keys, so direct cache readers and
+     * return_settings_as_stdclass() consumers are unaffected.
+     */
+    private function localize_customfields_for_templates(): void {
+        foreach ($this->customfieldsfortemplates as $shortname => $unused) {
+            if (!array_key_exists($shortname, $this->customfields)) {
+                continue;
+            }
+            $fieldcontroller = wbt_field_controller_info::get_instance_by_shortname($shortname, 'mod_booking', 'booking');
+            $this->customfieldsfortemplates[$shortname]['value'] =
+                $fieldcontroller->get_option_value_by_key($this->customfields[$shortname]);
         }
     }
 
