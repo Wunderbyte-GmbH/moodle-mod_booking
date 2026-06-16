@@ -1,3 +1,11 @@
+## Version 9.3.7 (2026061601)
+* Improvement: implement showpagination argument in booking shortcodes
+* Improvement: New capability 'booking:canseenumberofbookings'
+* Improvement: Display reload button in eventslist table (report)
+* Accessibility: fix - remove "settings" text (expected to be invisible but shown)
+* Bugfix: Teacher Overview Moodle 5
+* Bugfix: Signinsheet no logo if config empty
+
 ## Version 9.3.6 (2026060900)
 * Improvement: Several accessibility improvements.
 * Bugfix: Certificate Condition form not loading correctly.
