@@ -1104,6 +1104,29 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->disabledIf('allowupdatedays', 'cancancelbook', 'eq', 0);
         $mform->disabledIf('allowupdatedays', 'disablecancel', 'eq', 1);
 
+        // Slot booking: instance default for the relative per-slot move/cancel deadline (minutes,
+        // signed). '' = inherit the site default; options can override per option.
+        $slotdeadlineoptions = [
+            '' => get_string('slot_change_deadline_inherit', 'mod_booking'),
+            1440 => get_string('slot_change_deadline_1440', 'mod_booking'),
+            720 => get_string('slot_change_deadline_720', 'mod_booking'),
+            120 => get_string('slot_change_deadline_120', 'mod_booking'),
+            60 => get_string('slot_change_deadline_60', 'mod_booking'),
+            30 => get_string('slot_change_deadline_30', 'mod_booking'),
+            0 => get_string('slot_change_deadline_0', 'mod_booking'),
+            -30 => get_string('slot_change_deadline_m30', 'mod_booking'),
+            -60 => get_string('slot_change_deadline_m60', 'mod_booking'),
+        ];
+        $mform->addElement(
+            'select',
+            'slot_change_deadline_minutes',
+            get_string('slot_change_deadline_minutes', 'mod_booking'),
+            $slotdeadlineoptions
+        );
+        $mform->addHelpButton('slot_change_deadline_minutes', 'slot_change_deadline_minutes', 'mod_booking');
+        $slotdeadlinedefault = booking::get_value_of_json_by_key((int) $bookingid, 'slot_change_deadline_minutes');
+        $mform->setDefault('slot_change_deadline_minutes', $slotdeadlinedefault === null ? '' : $slotdeadlinedefault);
+
         $mform->addElement('advcheckbox', 'disablebooking', get_string('disablebookingforinstance', 'mod_booking'));
         $mform->setType('disablebooking', PARAM_INT);
         $mform->setDefault('disablebooking', (int) booking::get_value_of_json_by_key((int) $bookingid, "disablebooking"));

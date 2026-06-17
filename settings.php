@@ -584,6 +584,32 @@ if ($ADMIN->fulltree) {
         )
     );
 
+    $slotbookingsdisplaymodes = [
+        'availableforuser' => get_string('slot_bookings_display_mode_availableforuser', 'mod_booking'),
+        'bookedvscapacity' => get_string('slot_bookings_display_mode_bookedvscapacity', 'mod_booking'),
+    ];
+    if ($proversion) {
+        $settings->add(
+            new admin_setting_configselect(
+                'booking/slot_bookings_display_mode',
+                get_string('slot_bookings_display_mode', 'mod_booking'),
+                get_string('slot_bookings_display_mode_desc', 'mod_booking'),
+                'availableforuser',
+                $slotbookingsdisplaymodes
+            )
+        );
+    } else {
+        $settings->add(
+            new admin_setting_heading(
+                'slot_bookings_display_mode',
+                get_string('slot_bookings_display_mode', 'mod_booking'),
+                get_string('prolicensefeatures', 'mod_booking') .
+                get_string('profeatures:slotbooking', 'mod_booking') .
+                get_string('infotext:prolicensenecessary', 'mod_booking')
+            )
+        );
+    }
+
     $settings->add(
         new admin_setting_configcheckbox(
             'booking/bookonlyondetailspage',
@@ -1381,6 +1407,19 @@ if ($ADMIN->fulltree) {
                 get_string('defaultcanceldate_desc', 'mod_booking'),
                 0,
                 $canceloptions
+            )
+        );
+
+        // Slot booking: ultimate default for the relative per-slot move/cancel deadline (minutes,
+        // signed: positive = before slot start, 0 = until start, negative = after start). Instance
+        // and option settings override this.
+        $settings->add(
+            new admin_setting_configtext(
+                'booking/slot_change_deadline_minutes',
+                get_string('slot_change_deadline_minutes', 'mod_booking'),
+                get_string('slot_change_deadline_minutes_desc', 'mod_booking'),
+                0,
+                PARAM_INT
             )
         );
     } else {

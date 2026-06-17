@@ -111,6 +111,10 @@ define('MOD_BOOKING_STATUSPARAM_CONFIRMATION_DELETED', 20);
 // Values for Booking Option Types.
 define('MOD_BOOKING_OPTIONTYPE_DEFAULT', 0);
 define('MOD_BOOKING_OPTIONTYPE_SELFLEARNINGCOURSE', 1);
+// NOTE: the value 2 here is an *option type*. It is unrelated to the availability
+// condition MOD_BOOKING_BO_COND_SLOTBOOKING (also 2) defined below; the two live in
+// separate enums (option types vs. bo conditions) and just happen to share the number.
+define('MOD_BOOKING_OPTIONTYPE_SLOTBOOKING', 2);
 
 // Define booking presence status parameters.
 define('MOD_BOOKING_PRESENCE_STATUS_NOTSET', 0);
@@ -136,6 +140,7 @@ define('MOD_BOOKING_MSGCONTRPARAM_VIEW_CONFIRMATION', 4);
 // Define booking availability condition ids.
 define('MOD_BOOKING_BO_COND_CONFIRMCANCEL', 170);
 define('MOD_BOOKING_BO_COND_ALREADYBOOKED', 150);
+define('MOD_BOOKING_BO_COND_SLOTMOVE', 155); // Self-service slot rebooking; above alreadybooked (150).
 define('MOD_BOOKING_BO_COND_ISCANCELLED', 130);
 define('MOD_BOOKING_BO_COND_ISBOOKABLEINSTANCE', 125);
 define('MOD_BOOKING_BO_COND_ISBOOKABLE', 120);
@@ -178,8 +183,20 @@ define('MOD_BOOKING_BO_COND_JSON_HASCOMPETENCY', 10);
 define('MOD_BOOKING_BO_COND_INSTANCEAVAILABILITY', 5);
 define('MOD_BOOKING_BO_COND_CAPBOOKINGCHOOSE', 4);
 
+// NOTE: the value 2 here is a *bo availability condition*, separate from the option type
+// MOD_BOOKING_OPTIONTYPE_SLOTBOOKING (also 2) above. Same number, different enum.
+define('MOD_BOOKING_BO_COND_SLOTBOOKING', 2);
+
 define('MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION', 1);
 define('MOD_BOOKING_BO_COND_ASKFORCONFIRMATION', 0);
+
+// Blocking conditions whose presence as top blocker means the user already holds a booked answer.
+// SLOTMOVE only ever blocks for an actually-booked, self-rebookable user (see slot_mover::
+// get_self_rebookable_answer), so it represents the same "already booked" state as ALREADYBOOKED.
+define('MOD_BOOKING_BO_COND_BOOKED_STATES', [
+    MOD_BOOKING_BO_COND_ALREADYBOOKED,
+    MOD_BOOKING_BO_COND_SLOTMOVE,
+]);
 
 define('MOD_BOOKING_BO_COND_ELECTIVENOTBOOKABLE', -5);
 define('MOD_BOOKING_BO_COND_ELECTIVEBOOKITBUTTON', -10);
@@ -236,6 +253,7 @@ define('MOD_BOOKING_OPTION_FIELD_MOVEOPTION', 28);
 define('MOD_BOOKING_OPTION_FIELD_TEMPLATE', 30);
 define('MOD_BOOKING_OPTION_FIELD_TEXT', 40);
 define('MOD_BOOKING_OPTION_FIELD_IDENTIFIER', 50);
+define('MOD_BOOKING_OPTION_FIELD_OPTIONTYPE', 55);
 define('MOD_BOOKING_OPTION_FIELD_TITLEPREFIX', 60);
 define('MOD_BOOKING_OPTION_FIELD_EASY_TEXT', 61);
 define('MOD_BOOKING_OPTION_FIELD_EASY_BOOKINGOPENINGTIME', 62);
@@ -697,6 +715,24 @@ function booking_comment_validate(stdClass $commentparam): bool {
 }
 
 /**
+ * Store the instance default for the relative per-slot move/cancel deadline in the booking JSON.
+ *
+ * An empty value (or unset) means "inherit the site default" and removes the key, so the policy
+ * falls back to the plugin admin default.
+ *
+ * @param object $booking the booking instance data (modified by reference via the json field)
+ * @return void
+ */
+function booking_store_slot_change_deadline_default($booking) {
+    $value = $booking->slot_change_deadline_minutes ?? '';
+    if ($value === '' || $value === null) {
+        booking::remove_key_from_json($booking, 'slot_change_deadline_minutes');
+    } else {
+        booking::add_data_to_json($booking, 'slot_change_deadline_minutes', (int)$value);
+    }
+}
+
+/**
  * Given an object containing all the necessary data this will create a new instance and return the id number of the new instance.
  *
  * @param object $booking
@@ -797,6 +833,8 @@ function booking_add_instance($booking) {
             }
         }
     }
+    // Slot booking: instance default for the relative per-slot move/cancel deadline ('' = inherit).
+    booking_store_slot_change_deadline_default($booking);
 
     if (isset($booking->viewparam)) {
         // Save list view as default value.
@@ -1109,6 +1147,8 @@ function booking_update_instance($booking) {
     } else {
         booking::add_data_to_json($booking, "disablecancel", 1);
     }
+    // Slot booking: instance default for the relative per-slot move/cancel deadline ('' = inherit).
+    booking_store_slot_change_deadline_default($booking);
     // View param (list view or card view) is stored in JSON.
     if (empty($booking->viewparam)) {
         // Save list view as default value.

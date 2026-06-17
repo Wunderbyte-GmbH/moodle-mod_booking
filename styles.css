@@ -1,3 +1,37 @@
+.prepage-booking-page input[data-slot-selection-checkbox="1"].form-check-input + label {
+    margin: 0 0 0 0.45rem;
+    display: inline;
+}
+
+/* Slot teacher assignments: compact layout and cleaner spacing. */
+#page-mod-booking-slotteacherassignments form.mform div.fitem {
+    border-top: 1px solid #d9d9d9;
+    padding-top: 0.6rem;
+    margin-top: 0.35rem;
+    margin-bottom: 0.45rem;
+}
+
+#page-mod-booking-slotteacherassignments form.mform .fitem .col-md-3 {
+    padding-top: 0.25rem;
+}
+
+#page-mod-booking-slotteacherassignments form.mform .fgroup .checkbox {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1rem;
+}
+
+#page-mod-booking-slotteacherassignments form.mform .fgroup .form-check {
+    margin: 0;
+}
+
+#page-mod-booking-slotteacherassignments form.mform .fgroup .form-check-input {
+    margin-top: 0.2rem;
+}
+
+#page-mod-booking-slotteacherassignments form.mform .fgroup .form-check-label {
+    margin-left: 0.35rem;
+}
 .mod-booking .results {
     border-collapse: separate;
 }
@@ -634,4 +668,253 @@ div.checkbox:has(label[for^="id_bo_cond_allowedtobookininstance_capabilitynotnee
 
 .text-darkgreen {
     color: #146c43;
+}
+
+/* ----------------------------------------------------------------------------
+ * Slotbooking picker (condition/slotBooking.js – fixed-grid & userdefined modes).
+ * Static visual styling extracted from JS inline styles (Stage 2b, step 1).
+ * Dynamic positioning (top/height in %, pixel heights) stays inline in the JS.
+ * ------------------------------------------------------------------------- */
+.booking-slot-timeline-wrapper {
+    width: 100%;
+    min-width: 0;
+}
+
+.booking-slot-timeline {
+    overflow: hidden;
+    background: linear-gradient(to bottom, #f8f9fa, #fff);
+}
+
+.booking-slot-timeline--fixed {
+    flex: 1 1 auto;
+    min-width: 12rem;
+}
+
+.booking-slot-timeline--clickable {
+    cursor: crosshair;
+}
+
+.booking-slot-timeline-labels {
+    width: 2.8rem;
+}
+
+.booking-slot-timeline-label {
+    left: 0;
+    right: 0;
+    font-size: 0.65rem;
+    line-height: 1;
+    text-align: right;
+    white-space: nowrap;
+    transform: translateY(-50%);
+}
+
+.booking-slot-timeline-tick {
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: rgba(0, 0, 0, 0.1);
+    pointer-events: none;
+}
+
+/* Fixed-grid slot blocks. */
+.booking-slot {
+    left: 1px;
+    right: 1px;
+    overflow: hidden;
+    padding: 2px 4px;
+    border-top: 1px solid transparent;
+    border-radius: 2px;
+    cursor: pointer;
+}
+
+.booking-slot--available {
+    color: rgb(20, 100, 60);
+    background: rgba(25, 135, 84, 0.12);
+    border-top-color: rgba(25, 135, 84, 0.45);
+}
+
+.booking-slot--selected {
+    color: rgb(13, 70, 170);
+    background: rgba(13, 110, 253, 0.22);
+    border-top-color: rgba(13, 110, 253, 0.75);
+}
+
+.booking-slot--booked {
+    color: rgb(73, 80, 87);
+    background: rgba(108, 117, 125, 0.22);
+    border-top-color: rgba(108, 117, 125, 0.8);
+    cursor: default;
+}
+
+/* The user's currently booked slot in the move timeline: a distinct ring on top of the
+   selected/available colour (matches the calendar grid's "current" day marker). */
+.booking-slot--current {
+    box-shadow: inset 0 0 0 2px #0d6efd;
+}
+
+/* A booked slot past its deadline in the move timeline: stays selected, cannot be given up. */
+.booking-slot--locked {
+    cursor: not-allowed;
+    opacity: 0.85;
+    box-shadow: inset 0 0 0 2px rgba(108, 117, 125, 0.85);
+}
+
+.booking-slot-header {
+    display: flex;
+    gap: 0.35rem;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.booking-slot-time {
+    overflow: hidden;
+    font-size: 0.65rem;
+    font-weight: 600;
+    line-height: 1.2;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.booking-slot-badge {
+    margin-left: auto;
+    font-size: 0.6rem;
+    font-weight: 700;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+
+.booking-slot-price {
+    margin-left: auto;
+    font-size: 0.6rem;
+    font-weight: 600;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+
+.booking-slot-teachers {
+    overflow: hidden;
+    font-size: 0.6rem;
+    line-height: 1.2;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Userdefined-mode timeline (renderCustomDayEditor). */
+.booking-slot-time-input {
+    max-width: 10rem;
+}
+
+.booking-slot-booked-range {
+    left: 0;
+    right: 0;
+    background: rgba(220, 53, 69, 0.18);
+    border-top: 1px solid rgba(220, 53, 69, 0.35);
+    border-bottom: 1px solid rgba(220, 53, 69, 0.35);
+}
+
+.booking-slot-selection {
+    left: 0;
+    right: 0;
+    background: rgba(13, 110, 253, 0.2);
+    border-top: 1px solid rgba(13, 110, 253, 0.75);
+    border-bottom: 1px solid rgba(13, 110, 253, 0.75);
+}
+
+/* List-view slot picker (multi-select, renderSlotList). */
+.booking-slot-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.booking-slot-list-item {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.4rem 0.6rem;
+    color: rgb(20, 100, 60);
+    background: rgba(25, 135, 84, 0.08);
+    border: 1px solid rgba(25, 135, 84, 0.45);
+    border-radius: 0.25rem;
+    cursor: pointer;
+}
+
+.booking-slot-list-item--selected {
+    color: rgb(13, 70, 170);
+    background: rgba(13, 110, 253, 0.18);
+    border-color: rgba(13, 110, 253, 0.75);
+}
+
+.booking-slot-list-item--booked {
+    color: rgb(73, 80, 87);
+    background: rgba(108, 117, 125, 0.18);
+    border-color: rgba(108, 117, 125, 0.6);
+    cursor: default;
+}
+
+.booking-slot-list-price {
+    margin-left: auto;
+    font-size: 0.85rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* ----------------------------------------------------------------------------
+ * Slot calendar picker engine (slotCalendarPicker.js). Static layout extracted
+ * from JS inline styles (Stage 2c). Dynamic styling (price colours, responsive
+ * column/row sizing, active-day/markmode colours) stays inline in the JS.
+ * ------------------------------------------------------------------------- */
+.booking-slot-calendar-ui {
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+}
+
+.booking-slot-calendar-toolbar {
+    gap: 0.5rem;
+}
+
+.booking-slot-calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 0.25rem;
+    align-items: stretch;
+    width: 100%;
+    min-width: 0;
+}
+
+.booking-slot-calendar-slots {
+    width: 100%;
+    min-width: 0;
+}
+
+.booking-slot-calendar-head {
+    min-width: 0;
+    padding: 0.25rem 0;
+}
+
+.booking-slot-calendar-cell {
+    min-width: 0;
+}
+
+.booking-slot-calendar-day-btn {
+    overflow-wrap: anywhere;
+    white-space: normal;
+}
+
+.booking-slot-calendar-slot-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.25rem;
+    width: 100%;
+    min-width: 0;
+}
+
+.booking-slot-calendar-slot-btn {
+    width: 100%;
+    overflow-wrap: anywhere;
+    white-space: normal;
+    text-align: left;
 }

@@ -31,6 +31,7 @@ use mod_booking\bo_availability\bo_info;
 use mod_booking\booking;
 use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
+use mod_booking\local\slotbooking\slot_change_policy;
 use mod_booking\price;
 use mod_booking\singleton_service;
 use MoodleQuickForm;
@@ -207,6 +208,20 @@ class cancelmyself implements bo_condition {
             }
         }
 
+        // Slot booking: a full self-cancellation requires every booked slot to still be actionable
+        // per the relative per-slot deadline (slot_change_policy). Locked slots stay; releasing
+        // individual slots happens via the slot picker. This is AND-combined with cancancelbook and
+        // the absolute canceluntil handled above (all must allow cancellation).
+        if (
+            !$isavailable
+            && (int)($settings->type ?? MOD_BOOKING_OPTIONTYPE_DEFAULT) === MOD_BOOKING_OPTIONTYPE_SLOTBOOKING
+        ) {
+            $answer = $bookinganswer->get_usersonlist()[$userid] ?? null;
+            if ($answer === null || !slot_change_policy::answer_all_slots_actionable($answer)) {
+                $isavailable = true; // Not fully cancellable: at least one booked slot is locked.
+            }
+        }
+
         // If it's inversed, we inverse.
         if ($not) {
             $isavailable = !$isavailable;
@@ -242,10 +257,7 @@ class cancelmyself implements bo_condition {
      * @return bool
      */
     public function hard_block(booking_option_settings $settings, $userid): bool {
-        if (empty($settings->jsonobject->multiplebookings ?? 0)) {
-            return true;
-        }
-        return false;
+        return true;
     }
 
     /**
@@ -300,6 +312,15 @@ class cancelmyself implements bo_condition {
      * @return array
      */
     public function render_page(int $optionid, int $userid = 0) {
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $alreadybooked = new alreadybooked();
+
+        if (!$alreadybooked->is_available($settings, $userid)) {
+            // If the user is not booked, we do not show the page.
+            return [];
+        }
+
         return [];
     }
 
@@ -358,7 +379,7 @@ class cancelmyself implements bo_condition {
                         $settings,
                         $userid,
                         $label,
-                        'btn btn-light btn-sm shopping-cart-cancel-button',
+                        'btn btn-light btn-sm shopping-cart-cancel-button bo-cancel-button',
                         false,
                         $fullwidth,
                         'button',
@@ -375,7 +396,7 @@ class cancelmyself implements bo_condition {
             $settings,
             $userid,
             $label,
-            'btn btn-light btn-sm',
+            'btn btn-light btn-sm bo-cancel-button',
             false,
             $fullwidth,
             'button',

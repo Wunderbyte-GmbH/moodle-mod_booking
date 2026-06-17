@@ -1,0 +1,109 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_booking/slotbooking/slot_details
+
+    Booked-slot detail panel for the slot calendar report.
+
+    Classes required for JS:
+    * none
+
+    Data attributes required for JS:
+    * none
+
+    Context variables required for this template:
+    * slot boolean whether a slot is selected
+    * daylabel string
+    * timelabel string
+    * occupancylabel string
+    * bookedcount int
+    * capacity int
+    * priceformatted string
+    * pricelabel string
+    * studentslabel string
+    * hasbookings boolean
+    * bookinganswers array of { name, status }
+    * teacherslabel string
+    * hasteachers boolean
+    * teachers array of strings
+    * moveurl string
+    * moveslotlabel string
+    * nonelabel string
+    * selectslotlabel string
+
+    Example context (json):
+    {
+        "slot": true,
+        "daylabel": "Monday, 7 January 2050",
+        "timelabel": "09:00 - 10:00",
+        "occupancylabel": "Occupancy",
+        "bookedcount": 1,
+        "capacity": 3,
+        "priceformatted": "10.00 EUR",
+        "pricelabel": "Price",
+        "studentslabel": "Booked students",
+        "hasbookings": true,
+        "bookinganswers": [{ "name": "Jane Doe", "status": "Booked" }],
+        "teacherslabel": "Booked teachers",
+        "hasteachers": false,
+        "teachers": [],
+        "moveurl": "https://example.com/mod/booking/moveslot.php?id=1&optionid=2&baid=3",
+        "moveslotlabel": "Move slot",
+        "nonelabel": "None",
+        "selectslotlabel": "Select a slot to view booked students."
+    }
+}}
+{{#slot}}
+    <div class="booking-slot-detail border rounded p-3 bg-white">
+        <div class="fw-bold">{{daylabel}}</div>
+        <div class="small mb-2">{{timelabel}}</div>
+        <div class="small mb-2">{{occupancylabel}}: {{bookedcount}}/{{capacity}}</div>
+        {{#priceformatted}}
+            <div class="small mb-2">{{pricelabel}}: {{priceformatted}}</div>
+        {{/priceformatted}}
+        <div class="small fw-bold">{{studentslabel}}</div>
+        {{#hasbookings}}
+            <ul class="mb-0">
+                {{#bookinganswers}}
+                    <li>{{name}}{{#status}} ({{status}}){{/status}}</li>
+                {{/bookinganswers}}
+            </ul>
+        {{/hasbookings}}
+        {{^hasbookings}}
+            <div class="small text-muted">{{nonelabel}}</div>
+        {{/hasbookings}}
+        <div class="small fw-bold mt-2">{{teacherslabel}}</div>
+        {{#hasteachers}}
+            <ul class="mb-0">
+                {{#teachers}}
+                    <li>{{.}}</li>
+                {{/teachers}}
+            </ul>
+        {{/hasteachers}}
+        {{^hasteachers}}
+            <div class="small text-muted">{{nonelabel}}</div>
+        {{/hasteachers}}
+        {{#moveurl}}
+            <div class="mt-3">
+                <a href="{{moveurl}}" class="btn btn-sm btn-outline-primary">{{moveslotlabel}}</a>
+            </div>
+        {{/moveurl}}
+    </div>
+{{/slot}}
+{{^slot}}
+    <div class="small text-muted">{{selectslotlabel}}</div>
+{{/slot}}

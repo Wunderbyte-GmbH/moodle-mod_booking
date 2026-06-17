@@ -11,6 +11,8 @@
 * Accessibility: fix - remove "settings" text (expected to be invisible but shown)
 * Bugfix: Teacher Overview Moodle 5
 * Bugfix: Signinsheet no logo if config empty
+## Version 9.3.8 (2026061100)
+* New feature: Slot booking self-service rebooking - participants can move their own booked slot to another free, price-equal slot (opt-in per option via "Allow rebooking" plus optional deadline, gated by the new mod/booking:moveslotsself capability).
 
 ## Version 9.3.6 (2026060900)
 * Improvement: Several accessibility improvements.
