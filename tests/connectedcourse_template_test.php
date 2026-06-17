@@ -145,10 +145,16 @@ final class connectedcourse_template_test extends advanced_testcase {
         $this->assertTrue($threw, 'A duplication from a non-existent template course must fail.');
 
         // The crux: the failure must not have switched the session to the admin user.
-        $this->assertEquals($beforeuserid, $USER->id,
-            'The interactive user must remain unchanged after a failed course duplication.');
-        $this->assertNotEquals(get_admin()->id, $USER->id,
-            'The session must not be left logged in as the admin user.');
+        $this->assertEquals(
+            $beforeuserid,
+            $USER->id,
+            'The interactive user must remain unchanged after a failed course duplication.'
+        );
+        $this->assertNotEquals(
+            get_admin()->id,
+            $USER->id,
+            'The session must not be left logged in as the admin user.'
+        );
     }
 
     /**
@@ -268,13 +274,18 @@ final class connectedcourse_template_test extends advanced_testcase {
 
         // The copy actually ran: the template's page activity now exists in the duplicated course.
         $modinfo = get_fast_modinfo($newcourseid);
-        $this->assertArrayHasKey('page', $modinfo->get_instances(),
-            'The async copy should have populated the duplicated course.');
+        $this->assertArrayHasKey(
+            'page',
+            $modinfo->get_instances(),
+            'The async copy should have populated the duplicated course.'
+        );
 
         // The teacher, whose shell enrolment the restore dropped, is re-enrolled by the finalizer.
         $coursecontext = \context_course::instance($newcourseid);
-        $this->assertTrue(is_enrolled($coursecontext, $teacher->id),
-            'The option teacher must be enrolled in the duplicated template course after finalization.');
+        $this->assertTrue(
+            is_enrolled($coursecontext, $teacher->id),
+            'The option teacher must be enrolled in the duplicated template course after finalization.'
+        );
     }
 
     /**
