@@ -1112,6 +1112,7 @@ moodle/backup:backupcourse
 moodle/restore:restorecourse
 moodle/question:add
 ';
+$string['createnewmoodlecoursefromtemplateinfo'] = '<div class="alert alert-warning" role="alert">The Moodle course is created immediately when you save, but its content is copied from the template in the background and may take a little while to appear.</div>';
 $string['createnewmoodlecoursefromtemplatewithusers'] = 'Transfer the users from the template course to the new course.';
 $string['createoptionsfromoptiondate'] = 'For each option date create a new option';
 $string['credits'] = 'Credits';
@@ -3048,6 +3049,7 @@ $string['taskcleanbookingdb'] = 'Booking: Clean database';
 $string['taskcleanupinvalidscheduledmails'] = 'Booking: Cleanup invalid scheduled mails';
 $string['taskconfirmbookinganswerbymailbyruleadhoc'] = 'Booking: Confirm booking answer from waitinglist by mail (adhoc task)';
 $string['taskenrolbookeduserstocourse'] = 'Booking: Enrol booked users to course';
+$string['taskfinalizetemplatecourse'] = 'Booking: Finalize course created from a template (adhoc task)';
 $string['taskprocesssourcemembershipsyncadhoc'] = 'Booking: Process source membership sync (adhoc task)';
 $string['taskpurgecampaigncaches'] = 'Booking: Clean caches for booking campaigns';
 $string['taskrecalculateprices'] = 'Prices of a booking instance are recalculated using the price formula';
@@ -3106,6 +3108,7 @@ $string['teamsmeeting'] = 'Teams meeting';
 $string['template'] = 'Template';
 $string['templatecategoryname'] = 'Short name of the course category where the template courses are located.';
 $string['templatecategoryname_desc'] = 'Booking options can be linked to Moodle courses. This feature allows the courses to be created upon the first saving of the booking option.';
+$string['templatecoursestillduplicating'] = 'The course created from a template is still being duplicated. The task will retry automatically.';
 $string['templatedeleted'] = 'Template was deleted!';
 $string['templatefile'] = 'Template file';
 $string['templatesuccessfullysaved'] = 'Template was saved.';

@@ -1084,6 +1084,7 @@ moodle/backup:backupcourse
 moodle/restore:restorecourse
 moodle/question:add
 ';
+$string['createnewmoodlecoursefromtemplateinfo'] = '<div class="alert alert-warning" role="alert">Der Moodle-Kurs wird beim Speichern sofort erstellt. Die Inhalte werden jedoch im Hintergrund aus der Vorlage kopiert und es kann einen Moment dauern, bis sie sichtbar sind.</div>';
 $string['createnewmoodlecoursefromtemplatewithusers'] = 'Übernehme die Nutzer:innen des Vorlagenkurses in den neuen Kurs';
 $string['createoptionsfromoptiondate'] = 'Für jeden Einzeltermin eine neue Buchungsoption erstellen';
 $string['credits'] = 'Credits';
@@ -2916,6 +2917,7 @@ $string['taskcleanbookingdb'] = 'Booking: Datenbank aufräumen';
 $string['taskcleanupinvalidscheduledmails'] = 'Booking: Ungültige geplante E-Mails bereinigen';
 $string['taskconfirmbookinganswerbymailbyruleadhoc'] = 'Booking: Freischalten von Warteliste via Regel erteilen (Adhoc-Task)';
 $string['taskenrolbookeduserstocourse'] = 'Booking: Gebuchte User in Kurs einschreiben';
+$string['taskfinalizetemplatecourse'] = 'Booking: Aus Vorlage erstellten Kurs finalisieren (Adhoc-Task)';
 $string['taskprocesssourcemembershipsyncadhoc'] = 'Booking: Quellenmitgliedschafts-Sync verarbeiten (Adhoc-Task)';
 $string['taskpurgecampaigncaches'] = 'Booking: Caches für Buchungskampagne leeren';
 $string['taskrecalculateprices'] = 'Preise einer Buchungsaktivität werden mit der Preisformel neu berechnet';
@@ -2975,6 +2977,7 @@ $string['teamsmeeting'] = 'Teams-Meeting';
 $string['template'] = 'Template';
 $string['templatecategoryname'] = 'Kurzname der Kurskategorie, in der sich die Vorlagenkurse befinden.';
 $string['templatecategoryname_desc'] = 'Buchungsoptionen können mit Moodle-Kursen verknüpft werden. Dieses Feature erlaubt es, die Kurse beim ersten Speichern der Buchungsoption zu erstellen.';
+$string['templatecoursestillduplicating'] = 'Der aus einer Vorlage erstellte Kurs wird noch dupliziert. Der Task wird automatisch wiederholt.';
 $string['templatedeleted'] = 'Vorlage wurde gelöscht!';
 $string['templatefile'] = 'Datei für Vorlage';
 $string['templatesuccessfullysaved'] = 'Vorlage wurde gespeichert';
