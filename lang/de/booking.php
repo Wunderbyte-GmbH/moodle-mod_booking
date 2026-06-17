@@ -859,6 +859,8 @@ $string['cancelsign'] = '<i class="fa fa-ban" aria-hidden="true"></i>';
 $string['cancelthisbookingoption'] = "Storniere diese Buchungsoption";
 $string['canceluntil'] = 'Stornieren nur bis zu bestimmtem Zeitpunkt erlauben';
 $string['cannotremovesubscriber'] = 'Um die Buchung zu stornieren, muss zuvor der Aktivitätsabschluss entfernt werden. Die Buchung wurde nicht storniert';
+$string['cardviewcustomfields'] = 'Benutzerdefinierte Felder in der Karte anzeigen';
+$string['cardviewcustomfieldsdesc'] = 'Wählen Sie die benutzerdefinierten Buchungsoptionsfelder aus, die in der Karte auf der Detailseite von Buchungsoptionen angezeigt werden sollen. Um die Reihenfolge der benutzerdefinierten Felder zu ändern, können Sie einfach die Reihenfolge der benutzerdefinierten Felder <a href="/mod/booking/customfield.php" target="_blank">hier</a> ändern.';
 $string['categories'] = 'Kategorien';
 $string['category'] = 'Kategorie';
 $string['categoryheader'] = '[VERALTET] Kategorie';
@@ -2147,8 +2149,6 @@ $string['optiontypeprohintnoproversion'] = 'Mit <a href="{$a}" target="_blank">B
 $string['optiontypeslotbookinghint'] = 'Mit <a href="{$a}" target="_blank">Booking PRO</a> können Sie die Zeitslot-Buchungsfunktion nutzen.';
 $string['optionviewcustomfields'] = 'Benutzerdefinierte Felder auf Detailseite anzeigen';
 $string['optionviewcustomfieldsdesc'] = 'Wählen Sie die benutzerdefinierten Buchungsoptionsfelder aus, die auf der Detailseite von Buchungsoptionen angezeigt werden sollen. Um die Reihenfolge der benutzerdefinierten Felder auf der Detailseite zu ändern, können Sie einfach die Reihenfolge der benutzerdefinierten Felder <a href="/mod/booking/customfield.php" target="_blank">hier</a> ändern.';
-$string['cardviewcustomfields'] = 'Benutzerdefinierte Felder in der Karte anzeigen';
-$string['cardviewcustomfieldsdesc'] = 'Wählen Sie die benutzerdefinierten Buchungsoptionsfelder aus, die in der Karte auf der Detailseite von Buchungsoptionen angezeigt werden sollen. Um die Reihenfolge der benutzerdefinierten Felder zu ändern, können Sie einfach die Reihenfolge der benutzerdefinierten Felder <a href="/mod/booking/customfield.php" target="_blank">hier</a> ändern.';
 $string['optionvisibility'] = 'Sichtbarkeit';
 $string['optionvisibility_help'] = 'Stellen Sie ein, ob die Buchungsoption für jede_n sichtbar sein soll oder nur für berechtigte Nutzer:innen.';
 $string['optionvisible'] = 'Für alle sichtbar (Standard)';
