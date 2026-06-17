@@ -708,8 +708,10 @@ class message_controller {
                     // Use an event to log that a message has been sent.
                     $event = \mod_booking\event\message_sent::create([
                         'context' => context_system::instance(),
-                        'userid' => $this->messagedata->userto->id,
-                        'relateduserid' => $this->messagedata->userfrom->id,
+                        // Userid is the user who triggered/sent the message (actor),
+                        // relateduserid is the user the message is sent to (receiver).
+                        'userid' => $this->messagedata->userfrom->id,
+                        'relateduserid' => $this->messagedata->userto->id,
                         'objectid' => $this->optionid ?? 0,
                         'other' => [
                             'messageparam' => $this->messageparam,

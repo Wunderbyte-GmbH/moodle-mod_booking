@@ -1353,7 +1353,20 @@ if (!$tableallbookings->is_downloading()) {
 
     // Messages can only be view by users with viewreports permission.
     if (has_capability('mod/booking:viewreports', $context)) {
-        $eventslist = new eventslist($optionid, ['\mod_booking\event\message_sent'], 'messagescountlabel');
+        // For the messages report show the recipient (relateduserid) instead of the generic "user"
+        // column, so it is unambiguous who each message was sent to (the sender is in the description).
+        $messagecolumns = [
+            'relateduserid' => get_string('messagerecipient', 'mod_booking'),
+            'eventname' => get_string('eventname', 'core'),
+            'description' => get_string('description', 'core'),
+            'timecreated' => get_string('timecreated', 'core'),
+        ];
+        $eventslist = new eventslist(
+            $optionid,
+            ['\mod_booking\event\message_sent'],
+            'messagescountlabel',
+            $messagecolumns
+        );
         $eventslist->icon = 'fa fa-envelope-o';
         $eventslist->title = get_string('showmessages', 'mod_booking');
         echo $OUTPUT->render_from_template('mod_booking/eventslist', (array) $eventslist);

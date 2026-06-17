@@ -74,8 +74,9 @@ class eventslist implements renderable, templatable {
      * @param int $id
      * @param array $eventnames
      * @param string $countlabel optional lang string identifier (in mod_booking) for the records count label
+     * @param array $columns optional column definition [columnkey => header]; defaults to the generic user column
      */
-    public function __construct(int $id = 0, array $eventnames = [], string $countlabel = '') {
+    public function __construct(int $id = 0, array $eventnames = [], string $countlabel = '', array $columns = []) {
 
         global $DB;
 
@@ -89,7 +90,9 @@ class eventslist implements renderable, templatable {
 
         $table->set_filter_sql($select, $from, $where, $filter, $params);
 
-        $columnsarray = [
+        // Allow callers to override the displayed columns (e.g. the messages report shows the
+        // recipient instead of the generic "user" column). Falls back to the default set.
+        $columnsarray = !empty($columns) ? $columns : [
             'userid' => get_string('user', 'core'),
             'eventname' => get_string('eventname', 'core'),
             'description' => get_string('description', 'core'),

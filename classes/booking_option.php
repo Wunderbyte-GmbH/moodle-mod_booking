@@ -4075,14 +4075,21 @@ class booking_option {
 
         if (!$undo) {
             $context = context_module::instance($settings->cmid);
-            $event = \mod_booking\event\bookingoption_cancelled::create([
-                                                                        'context' => $context,
-                                                                        'objectid' => $optionid,
-                                                                        'userid' => $USER->id,
-                                                                        'other' => [
-                                                                            'userstotreat' => $userstocancel ?? [],
-                                                                            ],
-                                                                        ]);
+            $eventdata = [
+                'context' => $context,
+                'objectid' => $optionid,
+                // Userid is the user who triggered the cancellation (actor).
+                'userid' => $USER->id,
+                'other' => [
+                    'userstotreat' => $userstocancel ?? [],
+                ],
+            ];
+            // When exactly one user is cancelled, set relateduserid to that affected user (receiver).
+            // For multi-user cancellations there is no single receiver, so relateduserid stays unset.
+            if (!empty($userstocancel) && count($userstocancel) === 1) {
+                $eventdata['relateduserid'] = (int) reset($userstocancel);
+            }
+            $event = \mod_booking\event\bookingoption_cancelled::create($eventdata);
             $event->trigger();
             // Deletion of booking answers and user events needs to happen in event observer.
         }

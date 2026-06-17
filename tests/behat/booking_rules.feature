@@ -117,7 +117,7 @@ Feature: Create global booking rules as admin and insure they are working.
     And I trigger cron
     And I visit "/report/loglive/index.php"
     And I should see "Teacher was added to specific option date"
-    And I should see "Custom message A message e-mail with subject \"teacher subst\" has been sent to user: \"Teacher 1\" by the user \"Admin User\""
+    And I should see "Custom message A message e-mail with subject \"teacher subst\" has been sent to user: \"Admin User\" by the user \"Teacher 1\""
     ## Logout is mandatory for admin pages to avoid error
     And I log out
 
@@ -163,9 +163,9 @@ Feature: Create global booking rules as admin and insure they are working.
     And I trigger cron
     And I visit "/report/loglive/index.php"
     ## Legacy mail templates (uselegacymailtemplates=1) must be used to have next item in the events log
-    ## And I should see "Option cancelled by teacher or system A message e-mail with subject \"Deleted booking: Option-football by Student 2\" has been sent to user: \"Teacher 1\" by the user \"Student 2\""
-    And I should see "Custom message A message e-mail with subject \"answer cancellation0\" has been sent to user: \"Teacher 1\" by the user \"Student 1\""
-    And I should see "Custom message A message e-mail with subject \"answer cancellation5\" has been sent to user: \"Teacher 1\" by the user \"Student 2\""
+    ## And I should see "Option cancelled by teacher or system A message e-mail with subject \"Deleted booking: Option-football by Student 2\" has been sent to user: \"Student 2\" by the user \"Teacher 1\""
+    And I should see "Custom message A message e-mail with subject \"answer cancellation0\" has been sent to user: \"Student 1\" by the user \"Teacher 1\""
+    And I should see "Custom message A message e-mail with subject \"answer cancellation5\" has been sent to user: \"Student 2\" by the user \"Teacher 1\""
     ## Logout is mandatory for admin pages to avoid error
     And I log out
 
@@ -200,8 +200,8 @@ Feature: Create global booking rules as admin and insure they are working.
     And I visit "/report/loglive/index.php"
     And I should see "Booking option cancelled for/by user"
     ## Legacy mail templates (uselegacymailtemplates=1) must be used to have next item in the events log
-    ## And I should see "Option cancelled by teacher or system A message e-mail with subject \"Deleted booking: Option-football by Student 1\" has been sent to user: \"Teacher 1\" by the user \"Student 1\""
-    And I should see "Custom message A message e-mail with subject \"answer cancellation\" has been sent to user: \"Teacher 1\" by the user \"Admin User\""
+    ## And I should see "Option cancelled by teacher or system A message e-mail with subject \"Deleted booking: Option-football by Student 1\" has been sent to user: \"Student 1\" by the user \"Teacher 1\""
+    And I should see "Custom message A message e-mail with subject \"answer cancellation\" has been sent to user: \"Admin User\" by the user \"Teacher 1\""
     ## Logout is mandatory for admin pages to avoid error
     And I log out
 
@@ -236,9 +236,9 @@ Feature: Create global booking rules as admin and insure they are working.
     And I trigger cron
     And I visit "/report/loglive/index.php"
     Then I should see "Teacher was deleted from specific option date"
-    And I should see "Custom message A message e-mail with subject \"teacher removed\" has been sent to user: \"Teacher 1\" by the user \"Teacher 2\""
+    And I should see "Custom message A message e-mail with subject \"teacher removed\" has been sent to user: \"Teacher 2\" by the user \"Teacher 1\""
     And I should see "Custom message A message e-mail with subject \"teacher removed\" has been sent to user: \"Teacher 1\" by the user \"Teacher 1\""
-    And I should see "Custom message A message e-mail with subject \"teacher removed\" has been sent to user: \"Teacher 1\" by the user \"Admin User\""
+    And I should see "Custom message A message e-mail with subject \"teacher removed\" has been sent to user: \"Admin User\" by the user \"Teacher 1\""
     ## Logout is mandatory for admin pages to avoid error
     And I log out
 
@@ -288,7 +288,7 @@ Feature: Create global booking rules as admin and insure they are working.
     And I visit "/report/loglive/index.php"
     And I wait until the page is ready
     Then I should see "Booking option completed"
-    And I should see "Custom message A message e-mail with subject \"completion\" has been sent to user: \"Teacher 1\" by the user \"Admin User\""
+    And I should see "Custom message A message e-mail with subject \"completion\" has been sent to user: \"Admin User\" by the user \"Teacher 1\""
     ## Update booking settings - changes booking manager
     ##And I am on the "BookingCMP" "booking activity editing" page logged in as admin
     And I am on the "BookingCMP" Activity page
@@ -338,7 +338,7 @@ Feature: Create global booking rules as admin and insure they are working.
     And I trigger cron
     And I visit "/report/loglive/index.php"
     And I should see "Booking option cancelled"
-    And I should see "Custom message A message e-mail with subject \"cancellation football\" has been sent to user: \"Teacher 1\" by the user \"Teacher 2\""
+    And I should see "Custom message A message e-mail with subject \"cancellation football\" has been sent to user: \"Teacher 2\" by the user \"Teacher 1\""
     ## Logout is mandatory for admin pages to avoid error
     And I log out
 
@@ -372,7 +372,7 @@ Feature: Create global booking rules as admin and insure they are working.
     And I trigger cron
     And I visit "/report/loglive/index.php"
     Then I should see "Booking option completed"
-    And I should see "Custom message A message e-mail with subject \"completion football\" has been sent to user: \"Teacher 1\" by the user \"Teacher 2\""
+    And I should see "Custom message A message e-mail with subject \"completion football\" has been sent to user: \"Teacher 2\" by the user \"Teacher 1\""
     ## Logout is mandatory for admin pages to avoid error
     And I log out
 
@@ -410,10 +410,9 @@ Feature: Create global booking rules as admin and insure they are working.
     And I trigger cron
     And I visit "/report/loglive/index.php"
     Then I should see "Custom message sent"
-    ## TODO: should be: "to user: \"Student 1\" by the user \"Teacher 1\ "
-    And I should see "Custom message A message e-mail with subject \"Rule send_copy_of_mail test\" has been sent to user: \"Teacher 1\" by the user \"Student 1\""
+    And I should see "Custom message A message e-mail with subject \"Rule send_copy_of_mail test\" has been sent to user: \"Student 1\" by the user \"Teacher 1\""
     And I should see "Unknown message type A message e-mail with subject \"Rule send_copy_of_mail test\" has been sent to user with id:"
-    And I should see "Custom message A message e-mail with subject \"Custom msg copy: Rule send_copy_of_mail test\" has been sent to user: \"Teacher 1\" by the user \"Admin User\""
+    And I should see "Custom message A message e-mail with subject \"Custom msg copy: Rule send_copy_of_mail test\" has been sent to user: \"Admin User\" by the user \"Teacher 1\""
     ## Logout is mandatory for admin pages to avoid error
     And I log out
 
@@ -453,9 +452,9 @@ Feature: Create global booking rules as admin and insure they are working.
     And I trigger cron
     And I visit "/report/loglive/index.php"
     Then I should see "Custom message sent"
-    And I should see "Custom message A message e-mail with subject \"Rule send_copy_of_bulk_mail test\" has been sent to user: \"Teacher 1\" by the user \"Student 3\""
+    And I should see "Custom message A message e-mail with subject \"Rule send_copy_of_bulk_mail test\" has been sent to user: \"Student 3\" by the user \"Teacher 1\""
     And I should see "A custom bulk message e-mail with subject 'Rule send_copy_of_bulk_mail test' has been sent to all users of booking option with id:"
-    And I should see "Custom message A message e-mail with subject \"Custom bulk msg copy: Rule send_copy_of_bulk_mail test\" has been sent to user: \"Teacher 1\" by the user \"Admin User\""
+    And I should see "Custom message A message e-mail with subject \"Custom bulk msg copy: Rule send_copy_of_bulk_mail test\" has been sent to user: \"Admin User\" by the user \"Teacher 1\""
     ## Logout is mandatory for admin pages to avoid error
     And I log out
 
@@ -491,7 +490,7 @@ Feature: Create global booking rules as admin and insure they are working.
     And I trigger cron
     And I visit "/report/loglive/index.php"
     Then I should see "Booking option updated"
-    And I should see "Custom message A message e-mail with subject \"OptionChanged\" has been sent to user: \"Teacher 1\" by the user \"Admin User\""
+    And I should see "Custom message A message e-mail with subject \"OptionChanged\" has been sent to user: \"Admin User\" by the user \"Teacher 1\""
     ## Logout is mandatory for admin pages to avoid error
     And I log out
 
@@ -538,7 +537,7 @@ Feature: Create global booking rules as admin and insure they are working.
     And I trigger cron
     And I visit "/report/loglive/index.php"
     And I should see "Booking option cancelled for all"
-    And I should see "Custom message A message e-mail with subject \"overridesubj\" has been sent to user: \"Teacher 1\" by the user \"Teacher 2\""
+    And I should see "Custom message A message e-mail with subject \"overridesubj\" has been sent to user: \"Teacher 2\" by the user \"Teacher 1\""
     And I should see "Custom message A message e-mail with subject \"overridesubj\" has been sent to user: \"Teacher 1\" by the user \"Teacher 1\""
     And I should not see "Custom message A message e-mail with subject \"answcancsubj\" has been sent to user"
     ## Logout is mandatory for admin pages to avoid error
