@@ -59,29 +59,16 @@ class cmvisibility {
      */
     public static function check_answer(stdClass $answer) {
 
-        global $USER;
-
         $settings = singleton_service::get_instance_of_booking_option_settings($answer->optionid);
         $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($settings->cmid);
 
-        // Ensure we check visibility for the correct user.
-        if ($USER->id != $answer->userid) {
-            $originaluser = $USER;
-            $USER = \core_user::get_user($answer->userid); // Temporarily switch user context.
-        }
-
-        $cm = get_fast_modinfo($bookingsettings->course, $USER->id)->get_cm($settings->cmid);
+        $cm = get_fast_modinfo($bookingsettings->course, $answer->userid)->get_cm($settings->cmid);
         if (!$cm) {
             return false;
         }
         // Blocking condition is: CM should generally be visible but not for this user.
         // Check for accessability, so the blocking condition inverted.
         $access = !($cm->visible == "1" && !$cm->get_user_visible());
-
-        if (!empty($originaluser)) {
-            // Restore the original user context.
-            $USER = $originaluser;
-        }
 
         return $access;
     }
