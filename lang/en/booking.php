@@ -877,6 +877,8 @@ $string['cancelsign'] = '<i class="fa fa-ban" aria-hidden="true"></i>';
 $string['cancelthisbookingoption'] = "Cancel this booking option";
 $string['canceluntil'] = 'Cancelling is only possible until certain date';
 $string['cannotremovesubscriber'] = 'You have to remove the activity completion prior to cancel the booking. Booking was not cancelled!';
+$string['cardviewcustomfields'] = 'Show customfields in the card';
+$string['cardviewcustomfieldsdesc'] = 'Select the booking option customfields that you want to be shown in the card on the details page of a booking option. To change the order of the customfields, you can just change the order of the customfields <a href="/mod/booking/customfield.php" target="_blank">here</a>';
 $string['categories'] = 'Categories';
 $string['category'] = 'Category';
 $string['categoryheader'] = '[DEPRECATED] Category';
@@ -2204,8 +2206,6 @@ $string['optiontypeprohintnoproversion'] = 'With <a href="{$a}" target="_blank">
 $string['optiontypeslotbookinghint'] = 'With <a href="{$a}" target="_blank">Booking PRO</a> you can use the time slot booking feature.';
 $string['optionviewcustomfields'] = 'Show customfields on detail page';
 $string['optionviewcustomfieldsdesc'] = 'Select the booking option customfields that you want to be shown on the details page of a booking option. To change the order of the customfields on the details page, you can just change the order of the customfields <a href="/mod/booking/customfield.php" target="_blank">here</a>';
-$string['cardviewcustomfields'] = 'Show customfields in the card';
-$string['cardviewcustomfieldsdesc'] = 'Select the booking option customfields that you want to be shown in the card on the details page of a booking option. To change the order of the customfields, you can just change the order of the customfields <a href="/mod/booking/customfield.php" target="_blank">here</a>';
 $string['optionvisibility'] = 'Visibility';
 $string['optionvisibility_help'] = 'Here you can choose whether the option should be visible for everyone or if it should be hidden from normal users and be visible to entitled users only.';
 $string['optionvisible'] = 'Visible to everyone (default)';
