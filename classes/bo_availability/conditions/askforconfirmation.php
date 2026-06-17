@@ -123,8 +123,10 @@ class askforconfirmation implements bo_condition {
         // In that case we must NOT block here: otherwise the user could be placed on the waiting list...
         // ... and later be booked automatically for free without ever paying. Instead, we leave this...
         // ... condition available and let the priceisset condition (lower id, evaluated afterwards) block.
-        if (!empty($settings->jsonobject->useprice)) {
-            $user = singleton_service::get_instance_of_user($userid);
+        if (
+            !empty($settings->jsonobject->useprice)
+            && $user = singleton_service::get_instance_of_user($userid)
+        ) {
             $price = price::get_price('option', $settings->id, $user);
             if (!isset($price['price'])) {
                 return $not ? !$isavailable : $isavailable;
