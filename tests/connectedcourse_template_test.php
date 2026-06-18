@@ -292,6 +292,7 @@ final class connectedcourse_template_test extends advanced_testcase {
      * The "with users" checkbox must transfer the template course's own enrolled users into the copy;
      * without it, only the booking option's users are present.
      *
+     * @param bool $withusers
      * @dataProvider with_users_provider
      */
     public function test_template_users_transferred_only_when_withusers_checked(bool $withusers): void {
