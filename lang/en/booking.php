@@ -3060,6 +3060,7 @@ $string['slot_day_wed'] = 'Wednesday';
 $string['slot_duration_minutes'] = 'Slot duration (minutes)';
 $string['slot_enable'] = 'Enable slot booking';
 $string['slot_error_editownonly'] = 'You can only edit your own unavailability blocks.';
+$string['slot_error_entity_occupied'] = 'This slot is unavailable because the location is already booked at this time.';
 $string['slot_error_nonnegative'] = 'Value must be 0 or greater.';
 $string['slot_error_positive'] = 'Value must be greater than 0.';
 $string['slot_error_selected_unavailable'] = 'The selected slot is no longer available. Please choose another one.';

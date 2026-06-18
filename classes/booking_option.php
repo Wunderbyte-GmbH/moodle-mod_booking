@@ -4330,11 +4330,21 @@ class booking_option {
         // At the end, we re-write into singleton.
         singleton_service::get_instance_of_booking_option_settings($optionid);
 
-        // We also purge the answers cache.
+        // We also purge the answers cache (which also targeted-purges the option-level entity
+        // occupancy cache).
         self::purge_cache_for_answers($optionid);
 
         if (class_exists('local_entities\entitiesrelation_handler')) {
+            global $DB;
             cache_helper::purge_by_event('purgecachedentities');
+
+            // Normal options can link entities at optiondate level, so targeted-purge the
+            // occupancy cache of each optiondate's entity as well.
+            $optiondateids = $DB->get_fieldset_select('booking_optiondates', 'id', 'optionid = ?', [$optionid]);
+            foreach ($optiondateids as $optiondateid) {
+                (new \local_entities\entitiesrelation_handler('mod_booking', 'optiondate', (int)$optiondateid))
+                    ->purge_dates_cache();
+            }
         }
     }
 
@@ -4359,6 +4369,12 @@ class booking_option {
         // At the end, we re-write into singleton.
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
         singleton_service::get_instance_of_booking_answers($settings);
+
+        // Booked slots feed the entity occupancy of this option's entity, so a changed answer must
+        // targeted-purge that entity's occupancy cache (resolved option -> entity by the handler).
+        if (class_exists('local_entities\entitiesrelation_handler')) {
+            (new \local_entities\entitiesrelation_handler('mod_booking', 'option', $optionid))->purge_dates_cache();
+        }
     }
 
     /**
