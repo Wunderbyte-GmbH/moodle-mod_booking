@@ -1,3 +1,7 @@
+## Version 9.4.0 (2026062201)
+* New feature: Slot booking - book and manage time slots inside a booking option: slot calendar picker and report, self-service move/cancel of booked slots, a unified "update booking" editor (move + cancel + change in one dynamic form), optional move-with-payment via shopping_cart, and per-slot booking rules (Wunderbyte-GmbH/Wunderbyte-GmbH#1596).
+* New feature: Booking AI agent integration for mod_booking (skills, providers, diagnostics).
+
 ## Version 9.3.8 (2026062200)
 * Improvement: Display specific countlabel for messages event table
 * Improvement: Implement strings for upload
@@ -11,9 +15,6 @@
 * Accessibility: fix - remove "settings" text (expected to be invisible but shown)
 * Bugfix: Teacher Overview Moodle 5
 * Bugfix: Signinsheet no logo if config empty
-## Version 9.3.8 (2026061100)
-* New feature: Slot booking self-service rebooking - participants can move their own booked slot to another free, price-equal slot (opt-in per option via "Allow rebooking" plus optional deadline, gated by the new mod/booking:moveslotsself capability).
-
 ## Version 9.3.6 (2026060900)
 * Improvement: Several accessibility improvements.
 * Bugfix: Certificate Condition form not loading correctly.

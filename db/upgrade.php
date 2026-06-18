@@ -5324,7 +5324,11 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2026060100, 'booking');
     }
 
-    if ($oldversion < 2026061602) {
+    if ($oldversion < 2026062201) {
+        // Slotbooking schema (9.4.0). The savepoint is set ABOVE the MOODLE rebase base
+        // (2026062200) so it also runs on sites already at that base; every create_table is
+        // table_exists-guarded and every add_field is field_exists-guarded, so re-running on
+        // sites that already have the tables is a safe no-op (no double creation).
         // Define table booking_slot_student_teacher to be created.
         $table = new xmldb_table('booking_slot_student_teacher');
 
@@ -5554,7 +5558,7 @@ function xmldb_booking_upgrade($oldversion) {
             $dbman->create_table($table);
         }
 
-        upgrade_mod_savepoint(true, 2026061602, 'booking');
+        upgrade_mod_savepoint(true, 2026062201, 'booking');
     }
 
     return true;
