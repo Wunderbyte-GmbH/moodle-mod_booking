@@ -41,7 +41,7 @@ require_login(0, false);
 
 $urlparams = [];
 
-if (empty($cmid) && empty($contextid)) {
+if (empty($cmid) && !empty($contextid)) {
     $contextid = context_system::instance()->id;
 } else if (!empty($cmid)) {
     [$course, $cm] = get_course_and_cm_from_cmid($cmid, 'booking');

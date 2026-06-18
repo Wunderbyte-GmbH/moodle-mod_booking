@@ -410,7 +410,7 @@ class cancelmyself implements bo_condition {
      *
      * @return string
      */
-    private function get_description_string(): string {
+    public function get_description_string(): string {
 
         // Do not trigger billboard here.
         return get_string('cancelsign', 'mod_booking') . "&nbsp;" .

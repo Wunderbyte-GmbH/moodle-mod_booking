@@ -56,33 +56,19 @@ const registerPrepageModalDelegatedListener = () => {
 
     container.addEventListener('shown.bs.modal', event => {
 
-        // eslint-disable-next-line no-console
-        console.log('modal shown', event);
-
         const modal = event.target.closest('[id^="' + SELECTORS.MODALID + '"]');
         if (!modal) {
             return;
         }
 
-        // eslint-disable-next-line no-console
-        console.log('modal shown', modal);
-
-
         if (modal.querySelector('[data-action="bookondetail"]')) {
             return;
         }
-
-        // eslint-disable-next-line no-console
-        console.log('modal bookondetail', event);
-
 
         const optionid = modal.dataset.optionid;
         const userid = modal.dataset.userid;
         const uniquid = modal.dataset.uniquid;
         const totalnumberofpages = modal.dataset.pages;
-
-        // eslint-disable-next-line no-console
-        console.log(optionid, userid, uniquid, totalnumberofpages);
 
         if (!optionid || !uniquid || !totalnumberofpages) {
             return;
@@ -239,6 +225,49 @@ const getVisibleModalBookitButtonSelector = (itemid, area) => {
 };
 
 /**
+ * Resolve a stricter replace target for rendered button markup.
+ *
+ * Some responses render the full outer booking-button-area wrapper. In that case,
+ * replacing only the inner shopping-cart button would create nested wrappers.
+ * We only climb when the DOM matches the exact wrapper chain we expect.
+ *
+ * @param {?HTMLElement} targetbutton
+ * @returns {?HTMLElement}
+ */
+const getReplaceTargetButton = targetbutton => {
+    if (!targetbutton) {
+        return targetbutton;
+    }
+
+    const addtocartarea = targetbutton.parentElement;
+    if (!addtocartarea || !addtocartarea.matches('div.bookit-addtocartbtn-area')) {
+        return targetbutton;
+    }
+
+    const pricecontainer = addtocartarea.parentElement;
+    if (!pricecontainer || !pricecontainer.matches('div.pricecontainer.mb-2.w-100')) {
+        return targetbutton;
+    }
+
+    const outerbuttonarea = pricecontainer.parentElement;
+    if (!outerbuttonarea || !outerbuttonarea.matches(
+        'div.booking-button-area.w-100.d-flex.justify-content-center[data-itemid][data-area][data-componentname="mod_booking"]'
+    )) {
+        return targetbutton;
+    }
+
+    if (
+        outerbuttonarea.dataset.itemid !== targetbutton.dataset.itemid
+        || outerbuttonarea.dataset.area !== targetbutton.dataset.area
+        || outerbuttonarea.dataset.userid !== targetbutton.dataset.userid
+    ) {
+        return targetbutton;
+    }
+
+    return outerbuttonarea;
+};
+
+/**
  * Initializes delegated bookit button handling.
  */
 export const initbookitbutton = () => {
@@ -250,37 +279,59 @@ export const initbookitbutton = () => {
 
     const bootstrapVersion = detectBootstrapVersion();
 
-    // Intercept cancel clicks before bootstrap's document modal handlers fire.
+    // Intercept all cancel clicks in capture phase before bootstrap modal handlers fire.
+    // Two distinct cancel types are handled here:
+    //   .shopping-cart-cancel-button → show shopping-cart confirmation dialog, do NOT call bookit
+    //   .bo-cancel-button             → call bookit directly (normal booking cancel)
     if (!container.dataset.bookitCancelCaptureDelegated) {
         container.dataset.bookitCancelCaptureDelegated = 'true';
 
         window.addEventListener('click', (e) => {
 
-            const cancelTarget = e.target.closest('.shopping-cart-cancel-button');
-            if (cancelTarget) {
-                // We leaave work to the shopping cart implementation.
-                return;
-            }
-
+            const shoppingCartCancelButton = e.target.closest('.shopping-cart-cancel-button');
             const cancelButton = e.target.closest('.bo-cancel-button');
-            if (!cancelButton) {
-                return;
-            }
-            const button = cancelButton.closest(SELECTORS.BOOKITBUTTON_WITH_DATA);
-            if (!button || button.classList.contains('disabled')) {
+
+            // Not a cancel click at all — let other handlers deal with it.
+            if (!shoppingCartCancelButton && !cancelButton) {
                 return;
             }
 
-            const { itemid, area, userid } = button.dataset;
-
+            // Stop propagation immediately — we own all cancel clicks regardless of DOM structure.
+            // This must happen before the container lookup so that Bootstrap's modal data-api
+            // listeners cannot fire even when the cancel button lives outside BOOKITBUTTON_WITH_DATA.
             e.preventDefault();
             e.stopImmediatePropagation();
             e.stopPropagation();
 
-            // Cancel actions must never carry overrideids — strip them from the payload.
+            if (shoppingCartCancelButton) {
+                // Shopping-cart cancel: the cancel button's direct parent booking-button-area
+                // carries componentname and other data attributes needed by confirmCancelModal.
+                const button = shoppingCartCancelButton.closest(
+                    'div.booking-button-area[data-componentname][data-itemid][data-area]'
+                );
+                if (!button || button.classList.contains('disabled')) {
+                    return;
+                }
+                import('local_shopping_cart/shistory')
+                    .then(shoppingcart => {
+                        shoppingcart.confirmCancelModal(button, 0);
+                        return true;
+                    })
+                    .catch(err => {
+                        // eslint-disable-next-line no-console
+                        console.error(err);
+                    });
+                return;
+            }
+
+            // Normal booking cancel: strip overrideids and call bookit.
+            const button = cancelButton.closest('div.booking-button-area[data-itemid][data-area]');
+            if (!button || button.classList.contains('disabled')) {
+                return;
+            }
+            const { itemid, area, userid } = button.dataset;
             const cancelData = { ...button.dataset };
             delete cancelData.overrideids;
-            // Mark if this was clicked from inside a modal or inline prepage.
             const inModal = !!button.closest('[id^="' + SELECTORS.MODALID + '"], [id^="' + SELECTORS.INLINEID + '"]');
             bookit(itemid, area, userid, cancelData, inModal);
         }, true);
@@ -296,50 +347,30 @@ export const initbookitbutton = () => {
 
         container.addEventListener('click', (e) => {
 
-            const cancelButton = e.target.closest('.bo-cancel-button');
+            // All cancel clicks are fully handled in the capture phase above.
+            if (e.target.closest('.bo-cancel-button') || e.target.closest('.shopping-cart-cancel-button')) {
+                return;
+            }
 
             const button = e.target.closest(SELECTORS.BOOKITBUTTON_WITH_DATA);
             if (!button) {
                 return;
             }
 
-            const cancelTarget = e.target.closest('.shopping-cart-cancel-button');
             const bookTarget = e.target.closest('.btn');
-
-            const iscancel = !!(cancelButton || cancelTarget);
 
             // Ignore disabled buttons
             if (button.classList.contains('disabled')) {
                 return;
             }
 
-            // Ignore disabled buttons
-            if (
-                button.dataset.nojs == 1
-                && !iscancel
-            ) {
+            if (button.dataset.nojs == 1) {
                 return;
             }
 
             const { itemid, area, userid } = button.dataset;
 
-            if (cancelTarget) {
-                import('local_shopping_cart/shistory')
-                    .then(shoppingcart => {
-                        shoppingcart.confirmCancelModal(button, 0);
-                        return true;
-                    })
-                    .catch(err => {
-                        // eslint-disable-next-line no-console
-                        console.error(err);
-                    });
-            } else if (bookTarget) {
-
-                if (iscancel) {
-                    // Handled in capture phase to beat bootstrap's modal data-api listeners.
-                    return;
-                }
-
+            if (bookTarget) {
                 if (!bookTarget.href || bookTarget.href.length < 2) {
                     const inModal = !!button.closest('[id^="' + SELECTORS.MODALID + '"], [id^="' + SELECTORS.INLINEID + '"]');
                     const buttonData = { ...button.dataset };
@@ -359,9 +390,6 @@ export const initbookitbutton = () => {
  * @param {?boolean} clickedFromModal
  */
 export function bookit(itemid, area, userid, data, clickedFromModal = null) {
-
-    // eslint-disable-next-line no-console
-    console.log('run bookit');
 
     const modalSelector = '[id^="' + SELECTORS.MODALID + '"], [id^="' + SELECTORS.INLINEID + '"]';
     let resolvedClickedFromModal = clickedFromModal;
@@ -408,6 +436,11 @@ export function bookit(itemid, area, userid, data, clickedFromModal = null) {
 
             const promises = [];
 
+            // Track which replace-target slots have already been handled.
+            // If two duplicate outer wrappers exist for the same (itemid, area, userid),
+            // the first is replaced with fresh markup; subsequent duplicates are removed.
+            const seenReplaceTargets = new Set();
+
             // We run through every button. and render the data.
             buttons.forEach(button => {
                 // Filter buttons based on whether they're in a modal context
@@ -421,8 +454,6 @@ export function bookit(itemid, area, userid, data, clickedFromModal = null) {
                     return;
                 }
 
-                // eslint-disable-next-line no-console
-                console.log('bookit values', button.dataset.nojs, res.status);
                 skipreload = true;
                 if (button.dataset.nojs == 1
                     && res.status == 0
@@ -439,10 +470,23 @@ export function bookit(itemid, area, userid, data, clickedFromModal = null) {
                     const originalbutton = button;
 
                     const replaceButtonNode = (targetbutton, html, js = '') => {
-                        if (!targetbutton) {
+                        const replacetarget = getReplaceTargetButton(targetbutton);
+                        if (!replacetarget) {
                             return;
                         }
-                        Templates.replaceNode(targetbutton, html, js);
+                        const slotKey = [
+                            replacetarget.dataset.itemid,
+                            replacetarget.dataset.area,
+                            replacetarget.dataset.userid || '',
+                        ].join('|');
+                        if (seenReplaceTargets.has(slotKey)) {
+                            // Duplicate outer wrapper — remove it to prevent the button
+                            // from appearing twice on the page.
+                            replacetarget.remove();
+                            return;
+                        }
+                        seenReplaceTargets.add(slotKey);
+                        Templates.replaceNode(replacetarget, html, js);
                         return;
                     };
 
@@ -464,9 +508,6 @@ export function bookit(itemid, area, userid, data, clickedFromModal = null) {
                                     ?? button.closest('div[data-bs-toggle="collapse"]');
                             }
                             datatorender.uniquid = shortHash;
-
-                            // eslint-disable-next-line no-console
-                            console.log('button', button);
 
                             if (button && !resolvedClickedFromModal) {
                                 const targetmodalid = button.dataset.bsTarget?.replace('#', '');
@@ -535,9 +576,6 @@ export function bookit(itemid, area, userid, data, clickedFromModal = null) {
                     }
                 }
 
-                // eslint-disable-next-line no-console
-                console.log('skipreload', skipreload, currentbookitpage[itemid], totalbookitpages[itemid]);
-
                 if (!skipreload && (!backdrop || resolvedClickedFromModal)) {
                     reloadAllTables();
                 }
@@ -578,9 +616,6 @@ const detectBootstrapVersion = () => {
  */
 export const initprepagemodal = (optionid, userid, totalnumberofpages, uniquid) => {
 
-    // eslint-disable-next-line no-console
-    console.log('initprepagemodal', optionid, userid, totalnumberofpages, uniquid);
-
     if (!optionid || !uniquid || !totalnumberofpages) {
 
         const elements = document.querySelectorAll("[id^=" + SELECTORS.MODALID);
@@ -588,8 +623,6 @@ export const initprepagemodal = (optionid, userid, totalnumberofpages, uniquid) 
         elements.forEach(element => {
 
             if (element.querySelector('[data-action="bookondetail"]')) {
-                // eslint-disable-next-line no-console
-                console.log('bookondetail abort');
                 return;
             }
 
@@ -632,9 +665,6 @@ export const initprepageinline = (optionid, userid, totalnumberofpages, uniquid)
         return;
     }
 
-    // eslint-disable-next-line no-console
-    console.log('initprepageinline', optionid, userid, totalnumberofpages, uniquid);
-
     if (optionid && totalnumberofpages) {
         currentbookitpage[optionid] = 0;
         totalbookitpages[optionid] = totalnumberofpages;
@@ -666,17 +696,9 @@ export const initprepageinline = (optionid, userid, totalnumberofpages, uniquid)
                 return;
             }
 
-            // eslint-disable-next-line no-console
-            console.log('add listener to button', button, button.dataset.action);
-
             if (button.querySelector('[data-action="bookondetail"]')) {
-                // eslint-disable-next-line no-console
-                console.log('bookondetail abort');
                 return;
             }
-
-            // eslint-disable-next-line no-console
-            console.log('e.target', e.target);
 
             const optionid = button.dataset.itemid;
             const config = getInlinePrepageConfig(optionid, button.dataset.userid);
@@ -776,8 +798,6 @@ export const loadPreBookingPage = (
                 }]);
             } else {
 
-                // eslint-disable-next-line no-console
-                console.log('closeModal');
                 closeModal(optionid, false);
                 closeInline(optionid, false);
 
@@ -829,9 +849,6 @@ async function renderTemplatesOnPage(templates, dataarray, element) {
         elementid = parent.id;
     }
 
-    // eslint-disable-next-line no-console
-    console.log(modal, elementid);
-
     modal.querySelector(SELECTORS.MODALHEADER).innerHTML = '';
     modal.querySelector(SELECTORS.INMODALDIV).innerHTML = '';
     modal.querySelector(SELECTORS.MODALBUTTONAREA).innerHTML = '';
@@ -865,9 +882,6 @@ async function renderTemplatesOnPage(templates, dataarray, element) {
                 targetelement = modal.querySelector(SELECTORS.INMODALDIV);
                 break;
         }
-
-        // eslint-disable-next-line no-console
-        console.log(data.data);
 
         await Templates.renderForPromise(template, data.data).then(({ html, js }) => {
 
@@ -953,9 +967,6 @@ function returnVisibleElement(optionid, uniquid, appendedSelector) {
  * @param {int} userid
  */
 export function continueToNextPage(optionid, userid) {
-
-    // eslint-disable-next-line no-console
-    console.log('continueToNextPage', optionid, userid, currentbookitpage[optionid], totalbookitpages[optionid]);
     if (currentbookitpage[optionid] < totalbookitpages[optionid]) {
         currentbookitpage[optionid]++;
         loadPreBookingPage(optionid, userid);

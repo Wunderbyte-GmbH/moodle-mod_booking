@@ -224,7 +224,7 @@ if ($ADMIN->fulltree) {
 
         $expirationdate = wb_payment::decryptlicensekey($licensekey);
         if (!empty($expirationdate)) {
-            $expirationdatetimestamp = strtotime($expirationdate);
+            $expirationdatetimestamp = strtotime($expirationdate, time());
             $now = time();
             if ($expirationdatetimestamp < $now) {
                 // License has expired.

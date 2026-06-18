@@ -78,8 +78,11 @@ class booking_handler extends \core_customfield\handler {
      * Run reset code after unit tests to reset the singleton usage.
      */
     public static function reset_caches(): void {
-        if (!(defined('PHPUNIT_TEST') && PHPUNIT_TEST)) {
-            throw new \coding_exception('This feature is only intended for use in unit tests');
+        $isphpunittest = defined('PHPUNIT_TEST') && PHPUNIT_TEST;
+        $isbehattest = defined('BEHAT_SITE_RUNNING') && BEHAT_SITE_RUNNING;
+
+        if (!$isphpunittest && !$isbehattest) {
+            throw new \coding_exception('This feature is only intended for use in automated tests');
         }
 
         static::$singleton = null;

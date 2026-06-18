@@ -284,7 +284,7 @@ class rules_info {
     /**
      * Save all booking rules.
      * @param stdClass $data reference to the form data
-     * @return void
+     * @return int
      */
     public static function save_booking_rule(stdClass &$data) {
 
@@ -300,10 +300,11 @@ class rules_info {
 
         // Rule has to be saved last, because it actually writes to DB.
         $ruleid = $rule->save_rule($data);
+        $data->id = $ruleid;
 
         self::execute_booking_rules($ruleid);
 
-        return;
+        return $ruleid;
     }
 
     /**
@@ -680,6 +681,7 @@ class rules_info {
      */
     public static function destroy_singletons() {
         self::$rulestoexecute = [];
+        self::$rulestocancel = [];
         self::$eventstoexecute = [];
     }
 }

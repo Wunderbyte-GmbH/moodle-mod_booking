@@ -1303,7 +1303,8 @@ class booking {
         $addgroupby = preg_replace($pattern, ',', $select1 . ",");
         $groupby .= !empty($addgroupby) ? ' , ' . $addgroupby : '';
 
-        $groupby .= '';
+        $addgroupby = preg_replace($pattern, ',', $select2 . ",");
+        $groupby .= !empty($addgroupby) ? ' , ' . $addgroupby : '';
 
         $addgroupby = preg_replace($pattern, ',', $select3 . ",");
         $groupby .= !empty($addgroupby) ? ' , ' . $addgroupby : '';

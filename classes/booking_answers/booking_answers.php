@@ -415,6 +415,66 @@ class booking_answers {
         return true;
     }
 
+    /**
+     * Reactivate the most recently set previously-booked answer back to booked status.
+     * Used when a cart reservation is removed without completing a purchase (book-again flow).
+     * Requires get_userspreviouslybooked() to have been called first to populate the candidate list.
+     *
+     * @param int $userid
+     * @return bool true if a record was reactivated, false otherwise
+     */
+    public function reactivate_latest_previouslybooked(int $userid): bool {
+        global $DB;
+
+        $candidates = $this->userspreviouslybooked[$userid] ?? [];
+
+        if (is_object($candidates)) {
+            $candidates = [$candidates];
+        }
+
+        if (!is_array($candidates) || empty($candidates)) {
+            return false;
+        }
+
+        $latest = null;
+        foreach ($candidates as $candidate) {
+            if (!is_object($candidate)) {
+                continue;
+            }
+
+            if ($latest === null) {
+                $latest = $candidate;
+                continue;
+            }
+
+            $candidateid = (int)($candidate->baid ?? $candidate->id ?? 0);
+            $latestid = (int)($latest->baid ?? $latest->id ?? 0);
+            $candidatemodified = (int)($candidate->timemodified ?? 0);
+            $latestmodified = (int)($latest->timemodified ?? 0);
+
+            if ($candidatemodified > $latestmodified || ($candidatemodified === $latestmodified && $candidateid > $latestid)) {
+                $latest = $candidate;
+            }
+        }
+
+        if ($latest === null) {
+            return false;
+        }
+
+        $latestid = (int)($latest->baid ?? $latest->id ?? 0);
+        if (empty($latestid)) {
+            return false;
+        }
+
+        $DB->update_record('booking_answers', (object)[
+            'id' => $latestid,
+            'waitinglist' => MOD_BOOKING_STATUSPARAM_BOOKED,
+            'timemodified' => time(),
+        ]);
+
+        return true;
+    }
+
 
     /**
      * Checks booking status of $userid for this booking option. If no $userid is given $USER is used (logged in user)
@@ -440,6 +500,33 @@ class booking_answers {
             return MOD_BOOKING_STATUSPARAM_BOOKED;
         } else {
             return MOD_BOOKING_STATUSPARAM_NOTBOOKED;
+        }
+    }
+
+    /**
+     * Checks booking status of $userid for this booking option. If no $userid is given $USER is used (logged in user)
+     * The return value of this function is not equal to the former user_status in booking_option.
+     *
+     * @param int $userid
+     * @return string 'reserved', 'notifyme', 'waitinglist', 'booked', 'notbooked' for booking status.
+     */
+    public function user_status_as_string(int $userid = 0) {
+        global $USER;
+
+        if ($userid == 0) {
+            $userid = $USER->id;
+        }
+
+        if (isset($this->usersreserved[$userid])) {
+            return 'reserved';
+        } else if (isset($this->userstonotify[$userid])) {
+            return 'notifyme';
+        } else if (isset($this->usersonwaitinglist[$userid])) {
+            return 'waitinglist';
+        } else if (isset($this->usersonlist[$userid])) {
+            return 'booked';
+        } else {
+            return 'notbooked';
         }
     }
 

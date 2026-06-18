@@ -1038,7 +1038,7 @@ class dates {
             }
         }
         // Fallback to strtotime.
-        $timestamp = strtotime($datestring);
+        $timestamp = strtotime($datestring, time());
         return $timestamp !== false ? $timestamp : time();
     }
 }

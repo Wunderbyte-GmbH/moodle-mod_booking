@@ -344,4 +344,12 @@ class certificate_conditions {
 
         return true;
     }
+
+    /**
+     * Reset static caches (call from tests teardown).
+     */
+    public static function reset_caches(): void {
+        self::$condition = [];
+        self::$optiontargets = null;
+    }
 }
