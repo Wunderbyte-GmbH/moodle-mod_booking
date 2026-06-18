@@ -22,6 +22,8 @@ use mod_booking\bo_availability\bo_info;
 use mod_booking\local\mobile\customformstore;
 use tool_mocktesttime\time_mock;
 
+defined('MOODLE_INTERNAL') || die();
+
 require_once(__DIR__ . '/booking_advanced_testcase.php');
 
 /**

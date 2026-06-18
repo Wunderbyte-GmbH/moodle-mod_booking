@@ -1303,7 +1303,7 @@ class booking {
         $addgroupby = preg_replace($pattern, ',', $select1 . ",");
         $groupby .= !empty($addgroupby) ? ' , ' . $addgroupby : '';
 
-        // $select2 (teachers) is an aggregate (sql_group_concat renders as
+        // Here, $select2 (teachers) is an aggregate (sql_group_concat renders as
         // GROUP_CONCAT on MySQL/MariaDB and STRING_AGG on PostgreSQL/MSSQL) and
         // must never be echoed into GROUP BY, so it is intentionally not added here.
 

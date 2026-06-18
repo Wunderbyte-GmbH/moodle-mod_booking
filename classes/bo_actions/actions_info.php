@@ -221,8 +221,6 @@ class actions_info {
         $optionid = $formdata['id'] ?? $formdata['optionid'] ?? 0;
         $cmid = $formdata['cmid'] ?? 0;
 
-        // TODO: Get existing actions not from table but from json of this option.
-
         $boactions = booking_option::get_value_of_json_by_key($optionid, 'boactions');
 
         $data = new actionslist($cmid, $optionid, $boactions ?? []);
