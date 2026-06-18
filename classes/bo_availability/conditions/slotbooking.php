@@ -349,7 +349,9 @@ class slotbooking implements bo_condition {
                 (int)$end,
                 (int)$userid,
                 $selectedteachers,
-                $excludeanswerid
+                $excludeanswerid,
+                0,
+                true
             );
             if (empty($evaluation['bookable'])) {
                 throw new moodle_exception('slot_error_selected_unavailable', 'mod_booking');

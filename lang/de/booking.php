@@ -2924,6 +2924,7 @@ $string['slot_day_wed'] = 'Mittwoch';
 $string['slot_duration_minutes'] = 'Slot-Dauer (Minuten)';
 $string['slot_enable'] = 'Slot-Buchung aktivieren';
 $string['slot_error_editownonly'] = 'Sie können nur Ihre eigenen Abwesenheitsblöcke bearbeiten.';
+$string['slot_error_entity_occupied'] = 'Dieser Slot ist nicht verfügbar, weil der Ort zu dieser Zeit bereits belegt ist.';
 $string['slot_error_nonnegative'] = 'Der Wert muss 0 oder größer sein.';
 $string['slot_error_positive'] = 'Der Wert muss größer als 0 sein.';
 $string['slot_error_selected_unavailable'] = 'Der gewählte Slot ist nicht mehr verfügbar. Bitte wählen Sie einen anderen Slot.';

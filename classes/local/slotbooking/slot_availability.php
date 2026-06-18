@@ -215,6 +215,25 @@ class slot_availability {
     }
 
     /**
+     * Returns all actively booked slot ranges for an option, flattened across all booking answers.
+     *
+     * Used by the shared entity occupancy provider (booking::return_array_of_entity_dates) so that
+     * booked slots block overlapping dates/slots of other options that share the same entity.
+     *
+     * @param int $optionid booking option id
+     * @return array list of ['start' => int, 'end' => int]
+     */
+    public static function get_booked_slot_ranges_for_option(int $optionid): array {
+        $ranges = [];
+        foreach (self::get_booked_slot_ranges_by_answer($optionid) as $answerranges) {
+            foreach ($answerranges as $range) {
+                $ranges[] = $range;
+            }
+        }
+        return $ranges;
+    }
+
+    /**
      * Extract exact booked slot ranges from booking answer JSON.
      *
      * Canonical source of a booking answer's actually-booked slots (prefers the per-slot
@@ -360,6 +379,7 @@ class slot_availability {
      * @param int[] $selectedteachers selected teacher ids for this slot
      * @param int $excludeanswerid booking answer id to ignore in overlap checks
      * @param int $excludemoveid pending move id to ignore (holder re-validating their own target)
+     * @param bool $uselivedata whether to query live (uncached) booking data
      * @return array
      */
     public static function evaluate_slot_for_user(
@@ -369,7 +389,8 @@ class slot_availability {
         int $userid = 0,
         array $selectedteachers = [],
         int $excludeanswerid = 0,
-        int $excludemoveid = 0
+        int $excludemoveid = 0,
+        bool $uselivedata = false
     ): array {
         global $CFG;
 
@@ -390,6 +411,16 @@ class slot_availability {
         $config = self::get_slot_config($optionid);
         if (empty($config)) {
             $result['errormessage'] = get_string('slot_error_selected_unavailable', 'mod_booking');
+            return $result;
+        }
+
+        // If the option is tied to an entity that is already occupied during this slot
+        // (e.g. by a normal option's optiondate, or another slot on the same entity),
+        // the slot is not available regardless of its own capacity. At booking commit time this
+        // reads live (authoritative) so two users cannot both book the same exclusive slot.
+        if (self::has_entity_conflict_for_slot($optionid, $slotstart, $slotend, $uselivedata)) {
+            $result['status'] = 'unavailable';
+            $result['errormessage'] = get_string('slot_error_entity_occupied', 'mod_booking');
             return $result;
         }
 
@@ -479,6 +510,64 @@ class slot_availability {
         }
 
         return $result;
+    }
+
+    /**
+     * Checks whether the entity linked to this option is already occupied during the given slot
+     * window by any other booking option or component (e.g. a normal option's optiondate, or a
+     * slot booked on another option that shares the same entity).
+     *
+     * Reuses the shared local_entities occupancy provider, so the same overlap data drives both
+     * normal-option conflict detection and slot availability. Dates belonging to this very option
+     * are ignored (an option never blocks its own slots).
+     *
+     * @param int $optionid booking option id
+     * @param int $slotstart slot start timestamp
+     * @param int $slotend slot end timestamp
+     * @param bool $uselive if true, read occupancy live (bypass cache) for an authoritative result;
+     *                      used at booking commit time so two users cannot both book the same slot
+     * @return bool true if the entity is occupied during the slot
+     */
+    public static function has_entity_conflict_for_slot(
+        int $optionid,
+        int $slotstart,
+        int $slotend,
+        bool $uselive = false
+    ): bool {
+
+        if (!class_exists('local_entities\entities')) {
+            return false;
+        }
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $entityid = (int)($settings->entity['id'] ?? 0);
+        if ($entityid <= 0) {
+            return false;
+        }
+
+        // Default 'none' means no overlap checking for this entity — skip cheaply (no dates query).
+        if (\local_entities\entities::get_allocation_mode($entityid) === 'none') {
+            return false;
+        }
+
+        $bookeddates = \local_entities\entities::get_all_dates_for_entity($entityid, $uselive);
+        foreach ($bookeddates as $bookeddate) {
+            // Ignore dates that belong to this very option; its own dates never block its slots.
+            $owneroptionid = 0;
+            if (!empty($bookeddate->link)) {
+                $params = $bookeddate->link->params();
+                $owneroptionid = (int)($params['optionid'] ?? 0);
+            }
+            if ($owneroptionid === $optionid) {
+                continue;
+            }
+
+            if (self::slots_overlap($slotstart, $slotend, (int)$bookeddate->starttime, (int)$bookeddate->endtime)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

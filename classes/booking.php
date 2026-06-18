@@ -32,6 +32,7 @@ use local_entities\local\entities\entitydate;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\customfield\booking_handler;
 use mod_booking\local\modechecker;
+use mod_booking\local\slotbooking\slot_availability;
 use mod_booking\teachers_handler;
 use mod_booking\utils\wb_payment;
 use local_wunderbyte_table\wunderbyte_table;
@@ -1522,8 +1523,27 @@ class booking {
 
         $returnarray = [];
 
+        // Determine which of the requested option-level items are slotbooking options. Their
+        // occupancy is defined by the individually booked slots (stored in booking_answers), not by
+        // the option's own start/end, so those are skipped below and the booked slots added instead.
+        $slotoptionids = [];
+        if (!empty($areas['option'])) {
+            foreach ($areas['option'] as $candidateoptionid) {
+                $candidatesettings = singleton_service::get_instance_of_booking_option_settings((int)$candidateoptionid);
+                if (!empty($candidatesettings) && !empty($candidatesettings->slotconfig)) {
+                    $slotoptionids[] = (int)$candidateoptionid;
+                }
+            }
+        }
+
         // Bring the result in the correct form.
         foreach ($records as $record) {
+            // Slot options expose their occupancy via booked slots (added after this loop), not
+            // via the option-level start/end, so skip the option-level row here.
+            if ($record->area === 'option' && in_array((int)$record->instanceid, $slotoptionids, true)) {
+                continue;
+            }
+
             $optionsettings = singleton_service::get_instance_of_booking_option_settings($record->optionid);
 
             if (!modechecker::is_ajax_or_webservice_request()) {
@@ -1574,6 +1594,143 @@ class booking {
             );
 
             $returnarray[] = $newentittydate;
+        }
+
+        // Fallback: an entity linked at OPTION level occupies ALL of its option's session times.
+        // The query above only returns the option-level row for options WITHOUT optiondates; for
+        // options WITH optiondates we emit each session's time here, so an option-level entity
+        // (e.g. equipment, or a room linked once for the whole option) applies to every session.
+        // Optiondates that carry their OWN relation (already requested via $areas['optiondate'])
+        // override and are skipped, implementing the optiondate-overrides-option fallback rule.
+        if (!empty($areas['option'])) {
+            $explicitoptiondates = array_flip(array_map('intval', $areas['optiondate'] ?? []));
+            foreach ($areas['option'] as $optionlevelid) {
+                $optionlevelid = (int)$optionlevelid;
+                if (in_array($optionlevelid, $slotoptionids, true)) {
+                    continue; // Slot options expose occupancy via booked slots, handled below.
+                }
+
+                $optiondates = $DB->get_records(
+                    'booking_optiondates',
+                    ['optionid' => $optionlevelid],
+                    '',
+                    'id, coursestarttime, courseendtime'
+                );
+                if (empty($optiondates)) {
+                    continue; // No optiondates → the option-level row was already returned above.
+                }
+
+                $optionsettings = singleton_service::get_instance_of_booking_option_settings($optionlevelid);
+                if (empty($optionsettings)) {
+                    continue;
+                }
+
+                $isinvisible = !empty($optionsettings->invisible) ? true : false;
+                if (
+                    $isinvisible && !has_capability(
+                        'mod/booking:canseeinvisibleoptions',
+                        context_module::instance($optionsettings->cmid)
+                    )
+                ) {
+                    continue;
+                }
+
+                if (!modechecker::is_ajax_or_webservice_request()) {
+                    $returnurl = $PAGE->url->out();
+                } else {
+                    $returnurl = '/';
+                }
+                $link = new moodle_url("/mod/booking/optionview.php", [
+                    "optionid" => (int)$optionsettings->id,
+                    "cmid" => (int)$optionsettings->cmid,
+                    "userid" => (int)$USER->id,
+                    'returnto' => 'url',
+                    'returnurl' => $returnurl,
+                ]);
+                $bgcolor = $isinvisible ? "#808080" : "#4285F4";
+                $optiontitle = $optionsettings->get_title_with_prefix();
+                if ($isinvisible) {
+                    $optiontitle = "[" . get_string('invisible', 'mod_booking') . "] " . $optiontitle;
+                }
+
+                foreach ($optiondates as $optiondate) {
+                    if (isset($explicitoptiondates[(int)$optiondate->id])) {
+                        continue; // Optiondate overrides with its own entity relation.
+                    }
+                    if (empty($optiondate->coursestarttime) || empty($optiondate->courseendtime)) {
+                        continue;
+                    }
+                    $returnarray[] = new entitydate(
+                        $optionlevelid,
+                        'mod_booking',
+                        'option',
+                        $optiontitle,
+                        (int)$optiondate->coursestarttime,
+                        (int)$optiondate->courseendtime,
+                        0,
+                        $link,
+                        $bgcolor
+                    );
+                }
+            }
+        }
+
+        // Append the actually booked slots of slotbooking options as occupancy dates, so they
+        // block overlapping dates/slots of other options that share the same entity.
+        foreach ($slotoptionids as $slotoptionid) {
+            $bookedranges = slot_availability::get_booked_slot_ranges_for_option($slotoptionid);
+            if (empty($bookedranges)) {
+                continue;
+            }
+
+            $optionsettings = singleton_service::get_instance_of_booking_option_settings($slotoptionid);
+            if (empty($optionsettings)) {
+                continue;
+            }
+
+            $isinvisible = !empty($optionsettings->invisible) ? true : false;
+            if (
+                $isinvisible && !has_capability(
+                    'mod/booking:canseeinvisibleoptions',
+                    context_module::instance($optionsettings->cmid)
+                )
+            ) {
+                continue;
+            }
+
+            if (!modechecker::is_ajax_or_webservice_request()) {
+                $returnurl = $PAGE->url->out();
+            } else {
+                $returnurl = '/';
+            }
+
+            $link = new moodle_url("/mod/booking/optionview.php", [
+                "optionid" => (int)$optionsettings->id,
+                "cmid" => (int)$optionsettings->cmid,
+                "userid" => (int)$USER->id,
+                'returnto' => 'url',
+                'returnurl' => $returnurl,
+            ]);
+
+            $bgcolor = $isinvisible ? "#808080" : "#4285F4";
+            $optiontitle = $optionsettings->get_title_with_prefix();
+            if ($isinvisible) {
+                $optiontitle = "[" . get_string('invisible', 'mod_booking') . "] " . $optiontitle;
+            }
+
+            foreach ($bookedranges as $range) {
+                $returnarray[] = new entitydate(
+                    (int)$optionsettings->id,
+                    'mod_booking',
+                    'slot',
+                    $optiontitle,
+                    (int)$range['start'],
+                    (int)$range['end'],
+                    0,
+                    $link,
+                    $bgcolor
+                );
+            }
         }
 
         return $returnarray;
