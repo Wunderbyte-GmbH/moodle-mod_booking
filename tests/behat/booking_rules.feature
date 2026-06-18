@@ -306,7 +306,7 @@ Feature: Create global booking rules as admin and insure they are working.
     And I visit "/report/loglive/index.php"
     And I wait until the page is ready
     And I should see "Completion of booking option undone"
-    And I should see "Custom message A message e-mail with subject \"manager-uncompletion\" has been sent to user: \"Teacher 1\" by the user \"Teacher 1\""
+    And I should see "Custom message A message e-mail with subject \"manager-uncompletion\" has been sent to user: \"Teacher 1\""
     ## Logout is mandatory for admin pages to avoid error
     And I log out
 

@@ -24,7 +24,7 @@
 
 namespace mod_booking;
 
-use advanced_testcase;
+use mod_booking\booking_advanced_testcase;
 use stdClass;
 use mod_booking\booking_rules\booking_rules;
 use mod_booking\booking_rules\rules_info;
@@ -49,26 +49,15 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @runInSeparateProcess
  */
-final class rules_waitinglist_test extends advanced_testcase {
+final class rules_waitinglist_test extends booking_advanced_testcase {
     /**
      * Tests set up.
      */
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest();
-        time_mock::init();
         time_mock::set_mock_time(strtotime('now'));
         singleton_service::destroy_instance();
-    }
-
-    /**
-     * Mandatory clean-up after each test.
-     */
-    public function tearDown(): void {
-        parent::tearDown();
-        /** @var mod_booking_generator $plugingenerator */
-        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
-        $plugingenerator->teardown();
     }
 
     /**
@@ -691,7 +680,9 @@ final class rules_waitinglist_test extends advanced_testcase {
         // Confirm booking as admin.
         $this->setAdminUser();
         // Book the student2 via waitinglist with intervals.
-        time_mock::set_mock_time(strtotime('+1 days', time()));
+        // Move mock time strictly forward to guarantee deterministic waitinglist ordering.
+        $time = time_mock::get_mock_time();
+        time_mock::set_mock_time($time + DAYSECS);
         $time = time_mock::get_mock_time();
         $this->setUser($student2);
         singleton_service::destroy_user($student2->id);
@@ -704,7 +695,8 @@ final class rules_waitinglist_test extends advanced_testcase {
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
 
         // Book the student3 via waitinglist.
-        time_mock::set_mock_time(strtotime('+1 days', time()));
+        $time = time_mock::get_mock_time();
+        time_mock::set_mock_time($time + DAYSECS);
         $time = time_mock::get_mock_time();
         $this->setUser($student3);
         singleton_service::destroy_user($student3->id);
@@ -717,7 +709,8 @@ final class rules_waitinglist_test extends advanced_testcase {
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
 
         // Book the student4 via waitinglist.
-        time_mock::set_mock_time(strtotime('+1 day', time()));
+        $time = time_mock::get_mock_time();
+        time_mock::set_mock_time($time + DAYSECS);
         $time = time_mock::get_mock_time();
         $this->setUser($student4);
         singleton_service::destroy_user($student4->id);
@@ -770,7 +763,19 @@ final class rules_waitinglist_test extends advanced_testcase {
         $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
         $this->assertCount(0, $tasks);
 
-        time_mock::set_mock_time(strtotime('now'));
+        $time = time_mock::get_mock_time();
+        $maxwaitingtimemodified = (int)$DB->get_field_sql(
+            'SELECT MAX(timemodified)
+               FROM {booking_answers}
+              WHERE waitinglist = :waitinglist
+                AND optionid = :optionid',
+            [
+                'waitinglist' => MOD_BOOKING_STATUSPARAM_WAITINGLIST,
+                'optionid' => $option->id,
+            ]
+        );
+        // Keep mock time monotonic and ensure this update becomes the latest waitinglist entry.
+        time_mock::set_mock_time(max($time + 60, $maxwaitingtimemodified + 60));
         $time = time_mock::get_mock_time();
         // Reorder the waitinglist - set student 3 as last on waitinglist by updating timemodified to actual time.
         $student3answer = $DB->get_record('booking_answers', [

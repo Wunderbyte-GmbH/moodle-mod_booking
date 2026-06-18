@@ -35,6 +35,13 @@ use stdClass;
  */
 class book_all_students {
     /**
+     * Cache for storing intermediate results.
+     *
+     * @var mixed
+     */
+    private $cache = null;
+
+    /**
      * Execute bulk booking for one option.
      *
      * @param int $optionid booking option id
@@ -199,7 +206,7 @@ class book_all_students {
      * @return bool
      */
     private static function has_student_archetype_role(context_course $coursecontext, int $userid): bool {
-        static $studentroleids = null;
+        $studentroleids = null;
 
         if ($studentroleids === null) {
             $studentroleids = [];
@@ -442,7 +449,7 @@ class book_all_students {
             return false;
         }
 
-        static $cache = [];
+        $cache = [];
         if (isset($cache[$optionid])) {
             return $cache[$optionid];
         }
@@ -513,5 +520,15 @@ class book_all_students {
      */
     private static function trace(int $optionid, string $message): void {
         mtrace('[mod_booking book_all_students optionid=' . $optionid . '] ' . $message);
+    }
+
+    /**
+     * Destroy all book_all_students instances.
+     *
+     * @return void
+     */
+    public static function destroy_instances() {
+        self::$studentroleids = null;
+        self::$cache = [];
     }
 }

@@ -88,7 +88,7 @@ Feature: In a booking instance with multiple bookings enabled
   Scenario: Multiple bookings enabled: wait time between bookings is respected
     Given the following "mod_booking > options" exist:
       | booking    | text          | course | description       | multiplebookings | allowtobookagainafter |
-      | My booking | Test option 1 | C1     | Multiple bookings | 1                | 1                     |
+      | My booking | Test option 1 | C1     | Multiple bookings | 1                | 2                     |
     And I am on the "My booking" Activity page logged in as student1
     # First booking
     And I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
@@ -96,8 +96,8 @@ Feature: In a booking instance with multiple bookings enabled
     Then I should see "Start" in the ".allbookingoptionstable_r1" "css_element"
     # Try to book immediately (should be blocked due to wait time)
     And I should not see "Book again" in the ".allbookingoptionstable_r1 .booknow" "css_element"
+    And I wait "3" seconds
     And I reload the page
-    And I wait until the page is ready
     And I should see "Book again (already booked 1 time)" in the ".allbookingoptionstable_r1" "css_element"
 
   @javascript
@@ -149,3 +149,57 @@ Feature: In a booking instance with multiple bookings enabled
     # After canceling all bookings, should return to "Book now"
     Then I should see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I should not see "Book again" in the ".allbookingoptionstable_r1" "css_element"
+
+  @javascript
+  Scenario: Multiple bookings enabled: prepage modal with wait time between bookings
+    Given the following "mod_booking > options" exist:
+      | booking    | text          | course | description       | multiplebookings | allowtobookagainafter |
+      | My booking | Test option 1 | C1     | Multiple bookings | 1                | 4                     |
+    And I am on the "My booking" Activity page logged in as admin
+    And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
+    And I follow "Availability conditions"
+    And I set the field "Form needs to be filled out before booking" to "checked"
+    And I wait "1" seconds
+    And I set the following fields to these values:
+      | bo_cond_customform_select_1_1   | select |
+      | bo_cond_customform_label_1_1    | Choice |
+      | bo_cond_customform_notempty_1_1 | 1      |
+    And I set the field "bo_cond_customform_value_1_1" to multiline:
+    """
+    A
+    B
+    C
+    """
+    And I press "Save"
+    And I log out
+    ## Perform multile bookking as student
+    And I am on the "My booking" Activity page logged in as student1
+    And I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
+    And I should see "A" in the ".condition-customform" "css_element"
+    And I set the field "customform_select_1" to "A"
+    And I follow "Continue"
+    And I should see "Must not be empty" in the ".modalMainContent" "css_element"
+    And I set the field "customform_select_1" to "B"
+    And I follow "Continue"
+    And I should see "Thank you! You have successfully booked Test option 1." in the ".modal-dialog.modal-xl .modalMainContent" "css_element"
+    When I follow "Close"
+    Then I should see "Start" in the ".allbookingoptionstable_r1" "css_element"
+    And I should not see "Book again" in the ".allbookingoptionstable_r1 .booknow" "css_element"
+    And I wait "3" seconds
+    And I reload the page
+    And I should see "Book again (already booked 1 time)" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Book again (already booked 1 time)" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
+    And I set the field "customform_select_1" to "C"
+    And I follow "Continue"
+    And I should see "Thank you! You have successfully booked Test option 1." in the ".modal-dialog.modal-xl .modalMainContent" "css_element"
+    And I follow "Close"
+    And I should see "Start" in the ".allbookingoptionstable_r1" "css_element"
+    And I should not see "Book again" in the ".allbookingoptionstable_r1 .booknow" "css_element"
+    And I log out
+    ## Check report as admin
+    And I am on the "My booking" Activity page logged in as admin
+    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Manage bookings" "link" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "Student 1" in the "#mod_booking_all_users_sort_new_r0" "css_element"
+    ## TODO: Expected to be "C" but actually see "2"?
+    And I should see "C" in the "#mod_booking_all_users_sort_new_r0_c8" "css_element"

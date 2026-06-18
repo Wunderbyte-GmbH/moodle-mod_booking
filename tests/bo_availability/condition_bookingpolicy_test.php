@@ -27,7 +27,7 @@
 namespace mod_booking;
 
 use cache_helper;
-use advanced_testcase;
+use mod_booking\booking_advanced_testcase;
 use coding_exception;
 use mod_booking_generator;
 use mod_booking\bo_availability\bo_info;
@@ -44,6 +44,7 @@ use tool_mocktesttime\time_mock;
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot . '/mod/booking/lib.php');
+require_once(__DIR__ . '/../booking_advanced_testcase.php');
 
 /**
  * Class handling tests for booking options policy.
@@ -55,26 +56,15 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @runInSeparateProcess
  * @runTestsInSeparateProcesses
  */
-final class condition_bookingpolicy_test extends advanced_testcase {
+final class condition_bookingpolicy_test extends booking_advanced_testcase {
     /**
      * Tests set up.
      */
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest();
-        time_mock::init();
         time_mock::set_mock_time(strtotime('now'));
         singleton_service::destroy_instance();
-    }
-
-    /**
-     * Mandatory clean-up after each test.
-     */
-    public function tearDown(): void {
-        parent::tearDown();
-        /** @var mod_booking_generator $plugingenerator */
-        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
-        $plugingenerator->teardown();
     }
 
     /**

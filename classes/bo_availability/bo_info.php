@@ -1593,5 +1593,11 @@ class bo_info {
      */
     public static function destroy_singletons() {
         self::$isenrollinkcontext = false;
+        $conditions = self::get_condition_classes();
+        foreach ($conditions as $classname => $path) {
+            if (method_exists($classname, 'destroy_instance')) {
+                $classname::destroy_instance();
+            }
+        };
     }
 }

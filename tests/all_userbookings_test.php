@@ -16,11 +16,13 @@
 
 namespace mod_booking;
 
-use advanced_testcase;
+use mod_booking\booking_advanced_testcase;
 use stdClass;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\local\mobile\customformstore;
 use tool_mocktesttime\time_mock;
+
+require_once(__DIR__ . '/booking_advanced_testcase.php');
 
 /**
  * Tests for all_userbookings::other_cols.
@@ -30,26 +32,15 @@ use tool_mocktesttime\time_mock;
  * @copyright 2026 Wunderbyte GmbH
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-final class all_userbookings_test extends advanced_testcase {
+final class all_userbookings_test extends booking_advanced_testcase {
     /**
      * Test setup.
      */
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest();
-        time_mock::init();
         time_mock::set_mock_time(strtotime('now'));
         singleton_service::destroy_instance();
-    }
-
-    /**
-     * Mandatory clean-up after each test.
-     */
-    public function tearDown(): void {
-        parent::tearDown();
-        /** @var mod_booking_generator $plugingenerator */
-        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
-        $plugingenerator->teardown();
     }
 
     /**

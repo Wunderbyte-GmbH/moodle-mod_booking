@@ -1303,8 +1303,11 @@ class booking {
         $addgroupby = preg_replace($pattern, ',', $select1 . ",");
         $groupby .= !empty($addgroupby) ? ' , ' . $addgroupby : '';
 
-        $addgroupby = preg_replace($pattern, ',', $select2 . ",");
-        $groupby .= !empty($addgroupby) ? ' , ' . $addgroupby : '';
+        // Aggregate select fragments must not be echoed back into GROUP BY.
+        if (!preg_match('/\b(group_concat|sum|count|avg|min|max)\s*\(/i', $select2)) {
+            $addgroupby = preg_replace($pattern, ',', $select2 . ",");
+            $groupby .= !empty($addgroupby) ? ' , ' . $addgroupby : '';
+        }
 
         $addgroupby = preg_replace($pattern, ',', $select3 . ",");
         $groupby .= !empty($addgroupby) ? ' , ' . $addgroupby : '';

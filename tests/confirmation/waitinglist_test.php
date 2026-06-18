@@ -25,7 +25,7 @@
 
 namespace mod_booking;
 
-use advanced_testcase;
+use mod_booking\booking_advanced_testcase;
 use mod_booking\table\manageusers_table;
 use stdClass;
 use mod_booking\bo_availability\bo_info;
@@ -49,26 +49,15 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @author Mahdi Poustini
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-final class waitinglist_test extends advanced_testcase {
+final class waitinglist_test extends booking_advanced_testcase {
     /**
      * Tests set up.
      */
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest();
-        time_mock::init();
         time_mock::set_mock_time(strtotime('now'));
         singleton_service::destroy_instance();
-    }
-
-    /**
-     * Mandatory clean-up after each test.
-     */
-    public function tearDown(): void {
-        parent::tearDown();
-        /** @var mod_booking_generator $plugingenerator */
-        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
-        $plugingenerator->teardown();
     }
 
     /**
@@ -116,12 +105,12 @@ final class waitinglist_test extends advanced_testcase {
         // Create course.
         $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
 
-        // Create users, some of them with second price category.
-        $student[1] = $this->getDataGenerator()->create_user();
-        $student[2] = $this->getDataGenerator()->create_user();
-        $student[3] = $this->getDataGenerator()->create_user(['profile_field_pricecat' => 'student'] ?? []);
-        $student[4] = $this->getDataGenerator()->create_user();
-        $student[5] = $this->getDataGenerator()->create_user();
+        // Create users with explicit price categories to keep price resolution deterministic.
+        $student[1] = $this->getDataGenerator()->create_user(['profile_field_pricecat' => 'default']);
+        $student[2] = $this->getDataGenerator()->create_user(['profile_field_pricecat' => 'default']);
+        $student[3] = $this->getDataGenerator()->create_user(['profile_field_pricecat' => 'student']);
+        $student[4] = $this->getDataGenerator()->create_user(['profile_field_pricecat' => 'default']);
+        $student[5] = $this->getDataGenerator()->create_user(['profile_field_pricecat' => 'default']);
         $teacher = $this->getDataGenerator()->create_user();
 
         $bdata['course'] = $course->id;
@@ -189,10 +178,12 @@ final class waitinglist_test extends advanced_testcase {
         $boinfo = new bo_info($settings);
 
         // Verify price.
-        $price = price::get_price('option', $settings->id);
+        $price = price::get_price('option', $settings->id, $student[1]);
+        $this->assertArrayHasKey('price', $price);
         $this->assertEquals($pricecategories['default']->defaultvalue, $price["price"]);
 
         $studnetprice = price::get_price('option', $settings->id, $student[3]);
+        $this->assertArrayHasKey('price', $studnetprice);
         $this->assertEquals($pricecategories['student']->defaultvalue, $studnetprice["price"]);
 
         // Check the button for each student.

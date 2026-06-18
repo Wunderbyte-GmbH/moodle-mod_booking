@@ -651,6 +651,7 @@ $string['bookingoptiontitle'] = 'Booking option title';
 $string['bookingoptionuncompleted'] = 'Completion of booking option undone';
 $string['bookingoptionupdated'] = 'Booking option updated';
 $string['bookingoptionupdateddesc'] = 'User with id "{$a->userid}" updated bookingoption with id "{$a->objectid}".';
+$string['bookingoptionview'] = 'Shortcode to show the booking button of a specific booking option.';
 $string['bookingoptionwaitinglistbooked'] = 'Booked on waitinglist';
 $string['bookingorganizatorname'] = 'Organizer name';
 $string['bookingpassed'] = 'Your event has ended.';
@@ -808,8 +809,11 @@ $string['cachedef_electivebookingorder'] = 'Elective booking order (Cache)';
 $string['cachedef_eventlogtable'] = 'Event log table (Cache)';
 $string['cachedef_mybookingoptionstable'] = 'My bookingoptions table (Cache)';
 $string['cachedef_scheduledmailscache'] = 'Scheduled e-mails (cache)';
+$string['cachedef_slotrulepricesbyoption'] = 'Slot rule prices by option (cache)';
+$string['cachedef_slotrulesbyoption'] = 'Slot rules by option (cache)';
 $string['cachedef_subbookingforms'] = 'Subbooking Forms (Cache)';
 $string['cachedef_syncrules'] = 'Synchronization Rules (Cache)';
+$string['cachedef_trialnonce'] = 'Trial nonce (cache)';
 $string['cachedef_usercompetenciescache'] = 'User competencies (Cache)';
 $string['cachesettings'] = 'Cache Settings';
 $string['cachesettings_desc'] = 'These changes have a significant impact on performance. Please only make changes here if you know exactly what you are doing.';
@@ -994,6 +998,7 @@ When users visit the "optionview.php" page once with the correct parameters, the
 Required parameter is <b>cvfield=userprofileshortname_desiredvalue</b>, and optionally <b>cvpwd=password</b>.
 The bypass of the restriction is specific to each booking instance and only applies to the instance for which "optionview" was last called with the "cvfield" parameter.';
 $string['circumventpassword'] = 'Password to circumvent the restrictions. Leave empty if no password should be required.';
+$string['classicview'] = 'Classic view';
 $string['close'] = 'Close';
 $string['closed'] = 'Booking closed';
 $string['cohort'] = 'Cohort';
@@ -1171,6 +1176,8 @@ $string['customform'] = "Customform";
 $string['customformnotchecked'] = 'You didn\'t accept yet.';
 $string['customformparams_desc'] = "Use parameter that are set in the customform.";
 $string['customformparamsvalue'] = "Customform parameter";
+$string['customformprefillenabled'] = 'Enable custom form URL prefill';
+$string['customformprefillenabled_desc'] = 'Allows prefill values via optionview URL parameters and shows prefill key hints in the custom form configuration.';
 $string['customformselectoptions'] = '<div class="alert alert-info" role="alert">
 <i class="fa fa-info-circle"></i>
 <span><b>Values for selection can be specified like:</b> <br>
@@ -2169,6 +2176,8 @@ $string['optiontype_slotbooking'] = 'Slot booking';
 $string['optiontype_withdates'] = 'With dates';
 $string['optiontypefilternormal'] = 'Normal';
 $string['optiontypefilterslotbooking'] = 'Slot booking';
+$string['optiontypeprohintnoproversion'] = 'With <a href="{$a}" target="_blank">Booking PRO</a> you get cool features like Slot booking, unlimited message templates, shortcodes and approval workflows.';
+$string['optiontypeslotbookinghint'] = 'With <a href="{$a}" target="_blank">Booking PRO</a> you can use the time slot booking feature.';
 $string['optionviewcustomfields'] = 'Show customfields on detail page';
 $string['optionviewcustomfieldsdesc'] = 'Select the booking option customfields that you want to be shown on the details page of a booking option. To change the order of the customfields on the details page, you can just change the order of the customfields <a href="/mod/booking/customfield.php" target="_blank">here</a>';
 $string['optionvisibility'] = 'Visibility';
@@ -2302,6 +2311,30 @@ $string['priceformulaoff_help'] = 'Activate this option, in order to prevent the
 $string['priceisalwayson'] = 'Prices always active';
 $string['priceisalwayson_desc'] = 'If you activate this checkbox, you cannot deactive prices for individual booking options.
  However, you can still set a price of 0 EUR.';
+$string['privacy:metadata:bookingaimessages'] = 'Individual messages within AI agent conversation threads.';
+$string['privacy:metadata:bookingaimessages:content'] = 'The raw message text.';
+$string['privacy:metadata:bookingaimessages:role'] = 'Message role: user, assistant, or system.';
+$string['privacy:metadata:bookingaimessages:structuredjson'] = 'Structured state extracted from the message.';
+$string['privacy:metadata:bookingaimessages:threadid'] = 'The thread this message belongs to.';
+$string['privacy:metadata:bookingaimessages:timecreated'] = 'The time the message was created.';
+$string['privacy:metadata:bookingaimessages:userid'] = 'The user ID this message belongs to.';
+$string['privacy:metadata:bookingairuns'] = 'AI agent execution runs tracking actions to be or already executed.';
+$string['privacy:metadata:bookingairuns:cmid'] = 'The course-module ID for this run.';
+$string['privacy:metadata:bookingairuns:commandsjson'] = 'Validated commands as JSON.';
+$string['privacy:metadata:bookingairuns:resultsjson'] = 'Per-command execution results as JSON.';
+$string['privacy:metadata:bookingairuns:status'] = 'Run status (pending, queued, running, completed, failed).';
+$string['privacy:metadata:bookingairuns:threadid'] = 'The thread this run belongs to.';
+$string['privacy:metadata:bookingairuns:timecreated'] = 'The time the run was created.';
+$string['privacy:metadata:bookingairuns:timemodified'] = 'The time the run was last modified.';
+$string['privacy:metadata:bookingairuns:userid'] = 'The user ID who triggered this run.';
+$string['privacy:metadata:bookingaithreads'] = 'AI conversation threads created by users for booking instances.';
+$string['privacy:metadata:bookingaithreads:bookingid'] = 'The booking instance ID.';
+$string['privacy:metadata:bookingaithreads:cmid'] = 'The course-module ID of the booking instance.';
+$string['privacy:metadata:bookingaithreads:metadatajson'] = 'Analytics metadata stored as JSON.';
+$string['privacy:metadata:bookingaithreads:status'] = 'Thread status (active or closed).';
+$string['privacy:metadata:bookingaithreads:timecreated'] = 'The time the thread was created.';
+$string['privacy:metadata:bookingaithreads:timemodified'] = 'The time the thread was last modified.';
+$string['privacy:metadata:bookingaithreads:userid'] = 'The user ID who owns this thread.';
 $string['privacy:metadata:bookinganswers'] = 'Represents a booking of an event';
 $string['privacy:metadata:bookinganswers:bookingid'] = 'ID of the booking instance';
 $string['privacy:metadata:bookinganswers:completed'] = 'User that booked has completed the task';
@@ -2710,6 +2743,8 @@ $string['screstoreitemfromreserved_desc'] = 'This setting will put back items in
 $string['search'] = 'Search...';
 $string['searchdate'] = 'Date';
 $string['searchname'] = 'First name';
+$string['searchoptionsfound'] = '{$a} option(s) found.';
+$string['searchoptionsnotfound'] = 'No matching booking options found.';
 $string['searchsurname'] = 'Last name';
 $string['searchtag'] = 'Search tags';
 $string['searchwaitinglist'] = 'On waiting list';

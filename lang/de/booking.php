@@ -631,6 +631,7 @@ $string['bookingoptiontitle'] = 'Bezeichnung der Buchungsoption';
 $string['bookingoptionuncompleted'] = 'Abschluss der Buchungsoption rückgängig gemacht';
 $string['bookingoptionupdated'] = 'Buchungsoption aktualisiert';
 $string['bookingoptionupdateddesc'] = 'NutzerIn mit ID "{$a->userid}" hat Buchungsoption "{$a->objectid}" aktualisiert.';
+$string['bookingoptionview'] = 'Shortcode, um den Buchungsbutton einer bestimmten Buchungsoption anzuzeigen.';
 $string['bookingoptionwaitinglistbooked'] = 'Auf Warteliste gebucht';
 $string['bookingorganizatorname'] = 'Name des Veranstalters';
 $string['bookingpassed'] = 'Dieses Event ist nicht mehr aktiv.';
@@ -787,8 +788,11 @@ $string['cachedef_electivebookingorder'] = 'Elective booking order (Cache)';
 $string['cachedef_eventlogtable'] = 'Eventlog-Tabelle (Cache)';
 $string['cachedef_mybookingoptionstable'] = 'Meine Buchungsoptionen (Cache)';
 $string['cachedef_scheduledmailscache'] = 'Geplante E-Mails (Cache)';
+$string['cachedef_slotrulepricesbyoption'] = 'Slot-Regelpreise pro Option (Cache)';
+$string['cachedef_slotrulesbyoption'] = 'Slot-Regeln pro Option (Cache)';
 $string['cachedef_subbookingforms'] = 'Subbooking Forms (Cache)';
 $string['cachedef_syncrules'] = 'Synchronisations-Regeln (Cache)';
+$string['cachedef_trialnonce'] = 'Test-Nonce (Cache)';
 $string['cachedef_usercompetenciescache'] = 'Kompetenzen von Nutzer:innen (Cache)';
 $string['cachesettings'] = 'Cache Einstellungen';
 $string['cachesettings_desc'] = 'Diese Änderungen haben massive Auswirkungen auf die Performance. Bitte ändern Sie hier nur etwas, wenn Sie genau wissen, was Sie tun.';
@@ -2348,6 +2352,11 @@ $string['profeatures:selflearningcourse'] = '<ul>
 $string['profeatures:shortcodes'] = '<ul>
 <li><b>Shortcodes verwenden, um Buchungsoptionen auf beliebigen Seiten anzuzeigen</b></li>
 </ul>';
+$string['profeatures:slotbooking'] = '<ul>
+<li><b>Jede Buchungsoption als flexible Slot-Buchung anbieten</b></li>
+<li><b>Teilnehmende Termine in Listen- oder Kalenderansicht auswählen lassen</b></li>
+<li><b>Erweiterte Slot-Regeln wie benutzerdefinierte Dauer und Prüferauswahl nutzen</b></li>
+</ul>';
 $string['profeatures:subbookings'] = '<ul>
 <li><b>Zusatzbuchungen aktivieren</b></li>
 </ul>';
@@ -2584,6 +2593,8 @@ $string['screstoreitemfromreserved_desc'] = 'Dadurch werden Artikel nach dem Lö
 $string['search'] = 'Suche...';
 $string['searchdate'] = 'Datum';
 $string['searchname'] = 'Vorname';
+$string['searchoptionsfound'] = '{$a} Option(en) gefunden.';
+$string['searchoptionsnotfound'] = 'Keine passenden Buchungsoptionen gefunden.';
 $string['searchsurname'] = 'Nachname';
 $string['searchtag'] = 'Schlagwortsuche';
 $string['select'] = "Dropdown-Menü";
@@ -2819,8 +2830,8 @@ $string['slot_custom_duration'] = 'Dauer';
 $string['slot_custom_max_days'] = 'Maximale Tage pro Slot';
 $string['slot_custom_max_duration'] = 'Maximale Slot-Dauer';
 $string['slot_custom_min_duration'] = 'Minimale Slot-Dauer';
-$string['slot_custom_start_interval_minutes'] = 'Intervall fuer Slot-Start (Minuten)';
 $string['slot_custom_start'] = 'Start';
+$string['slot_custom_start_interval_minutes'] = 'Intervall fuer Slot-Start (Minuten)';
 $string['slot_day_fri'] = 'Freitag';
 $string['slot_day_mon'] = 'Montag';
 $string['slot_day_sat'] = 'Samstag';
@@ -2894,8 +2905,8 @@ $string['slot_update_no_add'] = 'Hier können keine Slots hinzugefügt werden �
 $string['slot_update_unavailable'] = 'Ein ausgewählter Slot ist nicht mehr verfügbar.';
 $string['slot_no_open_slots'] = 'Derzeit sind keine verfügbaren Slots vorhanden.';
 $string['slot_opening_time'] = 'Öffnungszeit (HH:MM)';
-$string['slot_price_source_info'] = 'Die Slot-Bepreisung verwendet den regulären Optionspreis aus dem Preis-Abschnitt.';
 $string['slot_price_base_info'] = 'Bei Slot-Buchungen ist der initiale Preis in diesem Abschnitt der Basispreis für alle Slots. Einzelne Slots können danach über den Slot-Regel-Editor eigene Preise erhalten.';
+$string['slot_price_source_info'] = 'Die Slot-Bepreisung verwendet den regulären Optionspreis aus dem Preis-Abschnitt.';
 $string['slot_report_numslots'] = 'Gebuchte Slots';
 $string['slot_report_price'] = 'Bezahlter Slot-Preis';
 $string['slot_report_teachers'] = 'Zugewiesene Pruefer:innen';

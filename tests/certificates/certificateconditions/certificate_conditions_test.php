@@ -26,7 +26,7 @@
 
 namespace mod_booking;
 
-use advanced_testcase;
+use mod_booking\booking_advanced_testcase;
 use coding_exception;
 use mod_booking\table\manageusers_table;
 use mod_booking_generator;
@@ -48,7 +48,7 @@ require_once($CFG->dirroot . '/mod/booking/classes/price.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  *
  */
-final class certificate_conditions_test extends advanced_testcase {
+final class certificate_conditions_test extends booking_advanced_testcase {
     /** @var array Associative array of created user objects keyed by user name (e.g. student1, student2, bookingmanager, teacher). */
     private array $users = [];
 
@@ -68,16 +68,6 @@ final class certificate_conditions_test extends advanced_testcase {
         parent::setUp();
         $this->preventResetByRollback();
         $this->resetAfterTest(true);
-    }
-
-    /**
-     * Mandatory clean-up after each test.
-     */
-    public function tearDown(): void {
-        parent::tearDown();
-        /** @var mod_booking_generator $plugingenerator */
-        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
-        $plugingenerator->teardown();
     }
 
     /**

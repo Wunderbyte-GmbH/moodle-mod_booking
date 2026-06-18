@@ -26,7 +26,7 @@
 
 namespace mod_booking;
 
-use advanced_testcase;
+use mod_booking\booking_advanced_testcase;
 use coding_exception;
 use mod_booking\price;
 use mod_booking_generator;
@@ -51,26 +51,15 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  *
  */
-final class condition_all_test extends advanced_testcase {
+final class condition_all_test extends booking_advanced_testcase {
     /**
      * Tests set up.
      */
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest(true);
-        time_mock::init();
         time_mock::set_mock_time(strtotime('now'));
         singleton_service::destroy_instance();
-    }
-
-    /**
-     * Mandatory clean-up after each test.
-     */
-    public function tearDown(): void {
-        parent::tearDown();
-        /** @var mod_booking_generator $plugingenerator */
-        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
-        $plugingenerator->teardown();
     }
 
     /**
@@ -1353,8 +1342,8 @@ final class condition_all_test extends advanced_testcase {
         $record->courseid = $course2->id;
         $record->maxanswers = 2;
         $record->restrictanswerperiodopening = 1;
-        $record->bookingopeningtime = strtotime('now + 2 day');
-        $record->bookingclosingtime = strtotime('now + 3 day');
+        $record->bookingopeningtime = strtotime('now + 2 day', time());
+        $record->bookingclosingtime = strtotime('now + 3 day', time());
 
         /** @var mod_booking_generator $plugingenerator */
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
@@ -1984,30 +1973,30 @@ final class condition_all_test extends advanced_testcase {
         $record->courseid = 0;
         $record->maxanswers = 2;
         $record->disablebookingusers = 0;
-        $record->coursestarttime = strtotime('now + 3 day');
-        $record->courseendtime = strtotime('now + 6 day');
+        $record->coursestarttime = strtotime('now + 3 day', time());
+        $record->courseendtime = strtotime('now + 6 day', time());
 
         /** @var mod_booking_generator $plugingenerator */
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
         $option1 = $plugingenerator->create_option($record);
 
         // Times are overlapping, so expected to be blocked by this condtion.
-        $record->coursestarttime = strtotime('now + 2 day');
-        $record->courseendtime = strtotime('now + 4 day');
+        $record->coursestarttime = strtotime('now + 2 day', time());
+        $record->courseendtime = strtotime('now + 4 day', time());
         $record->bo_cond_nooverlapping_restrict = 1;
         $record->bo_cond_nooverlapping_handling = MOD_BOOKING_COND_OVERLAPPING_HANDLING_BLOCK;
         $option2 = $plugingenerator->create_option($record);
 
         // Not overlapping.
-        $record->coursestarttime = strtotime('now + 7 day');
-        $record->courseendtime = strtotime('now + 8 day');
+        $record->coursestarttime = strtotime('now + 7 day', time());
+        $record->courseendtime = strtotime('now + 8 day', time());
         $record->bo_cond_nooverlapping_restrict = 1;
         $record->bo_cond_nooverlapping_handling = MOD_BOOKING_COND_OVERLAPPING_HANDLING_BLOCK;
         $option3 = $plugingenerator->create_option($record);
 
         // Overlapping without flag. Should trigger NOOVERLAPPINGPROXY.
-        $record->coursestarttime = strtotime('now + 6 day');
-        $record->courseendtime = strtotime('now + 9 day');
+        $record->coursestarttime = strtotime('now + 6 day', time());
+        $record->courseendtime = strtotime('now + 9 day', time());
         $record->bo_cond_nooverlapping_restrict = 0;
         unset($record->bo_cond_nooverlapping_handling);
         $option4 = $plugingenerator->create_option($record);
@@ -2095,41 +2084,41 @@ final class condition_all_test extends advanced_testcase {
         $record->disablebookingusers = 0;
         $record->optiondateid_0 = "0";
         $record->daystonotify_0 = "0";
-        $record->coursestarttime_0 = strtotime('now + 3 day');
-        $record->courseendtime_0 = strtotime('now + 4 day');
+        $record->coursestarttime_0 = strtotime('now + 3 day', time());
+        $record->courseendtime_0 = strtotime('now + 4 day', time());
         $record->optiondateid_1 = "0";
         $record->daystonotify_1 = "0";
-        $record->coursestarttime_1 = strtotime('now + 6 day');
-        $record->courseendtime_1 = strtotime('now + 7 day');
+        $record->coursestarttime_1 = strtotime('now + 6 day', time());
+        $record->courseendtime_1 = strtotime('now + 7 day', time());
 
         /** @var mod_booking_generator $plugingenerator */
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
         $option1 = $plugingenerator->create_option($record);
 
         // Times are overlapping, so expected to be blocked by this condtion.
-        $record->coursestarttime_0 = strtotime('now + 2 day');
-        $record->courseendtime_0 = strtotime('now + 3 day');
-        $record->coursestarttime_1 = strtotime('now + 5 day');
-        $record->courseendtime_1 = strtotime('now + 8 day');
+        $record->coursestarttime_0 = strtotime('now + 2 day', time());
+        $record->courseendtime_0 = strtotime('now + 3 day', time());
+        $record->coursestarttime_1 = strtotime('now + 5 day', time());
+        $record->courseendtime_1 = strtotime('now + 8 day', time());
         $record->bo_cond_nooverlapping_restrict = 1;
         $record->bo_cond_nooverlapping_handling = MOD_BOOKING_COND_OVERLAPPING_HANDLING_BLOCK;
         $option2 = $plugingenerator->create_option($record);
 
         // Not overlapping.
         $record->text = '2 sessions should overlap';
-        $record->coursestarttime_0 = strtotime('now + 10 day');
-        $record->courseendtime_0 = strtotime('now + 11 day');
-        $record->coursestarttime_1 = strtotime('now + 14 day');
-        $record->courseendtime_1 = strtotime('now + 15 day');
+        $record->coursestarttime_0 = strtotime('now + 10 day', time());
+        $record->courseendtime_0 = strtotime('now + 11 day', time());
+        $record->coursestarttime_1 = strtotime('now + 14 day', time());
+        $record->courseendtime_1 = strtotime('now + 15 day', time());
         $record->bo_cond_nooverlapping_restrict = 1;
         $record->bo_cond_nooverlapping_handling = MOD_BOOKING_COND_OVERLAPPING_HANDLING_BLOCK;
         $option3 = $plugingenerator->create_option($record);
 
         // Overlapping without flag. Should trigger NOOVERLAPPINGPROXY.
-        $record->coursestarttime_0 = strtotime('now + 1 day');
-        $record->courseendtime_0 = strtotime('now + 11 day');
-        $record->coursestarttime_1 = strtotime('now + 8 day');
-        $record->courseendtime_1 = strtotime('now + 15 day');
+        $record->coursestarttime_0 = strtotime('now + 1 day', time());
+        $record->courseendtime_0 = strtotime('now + 11 day', time());
+        $record->coursestarttime_1 = strtotime('now + 8 day', time());
+        $record->courseendtime_1 = strtotime('now + 15 day', time());
         $record->bo_cond_nooverlapping_restrict = 0;
         unset($record->bo_cond_nooverlapping_handling);
         $option4 = $plugingenerator->create_option($record);
@@ -2137,8 +2126,8 @@ final class condition_all_test extends advanced_testcase {
         // Testing combinations of multiple and single sessions.
         // Only one session that isn't really overlapping.
         $record->text = 'No session, not overlapping';
-        $record->coursestarttime = strtotime('now + 12 day');
-        $record->courseendtime = strtotime('now + 13 day');
+        $record->coursestarttime = strtotime('now + 12 day', time());
+        $record->courseendtime = strtotime('now + 13 day', time());
         $record->bo_cond_nooverlapping_restrict = 1;
         unset($record->coursestarttime_0);
         unset($record->courseendtime_0);

@@ -33,11 +33,43 @@ use mod_booking\booking_rules\booking_rules;
 use mod_booking\booking_rules\rules_info;
 use mod_booking\bo_availability\conditions\maxoptionsfromcategory;
 use Behat\Gherkin\Node\TableNode;
+use Moodle\BehatExtension\Exception\SkippedException;
 
 /**
  * To create booking specific behat scearios.
  */
 class behat_mod_booking extends behat_base {
+    /** @var array Last direct cancellation diagnosis task result. */
+    private array $lastdiagnosecancellationresult = [];
+
+    /**
+     * Skip opt-in real LLM scenarios unless explicitly enabled.
+     *
+     * @Given /^real LLM mode is enabled$/
+     * @return void
+     */
+    public function real_llm_mode_is_enabled(): void {
+        if ((string)getenv('BOOKING_AI_REAL_LLM') !== '1') {
+            throw new SkippedException(
+                'Skipping real LLM Behat scenario because BOOKING_AI_REAL_LLM=1 is not set.'
+            );
+        }
+    }
+
+    /**
+     * Ensure non-real-LLM scenario runs only when real LLM mode is not requested.
+     *
+     * @Given /^real LLM mode is disabled$/
+     * @return void
+     */
+    public function real_llm_mode_is_disabled(): void {
+        if ((string)getenv('BOOKING_AI_REAL_LLM') === '1') {
+            throw new SkippedException(
+                'Skipping non-real-LLM Behat scenario because BOOKING_AI_REAL_LLM=1 is enabled.'
+            );
+        }
+    }
+
     /**
      * Create booking option in booking instance
      * @Given /^I create booking option "(?P<optionname_string>(?:[^"]|\\")*)" in "(?P<instancename_string>(?:[^"]|\\")*)"$/
@@ -96,6 +128,57 @@ class behat_mod_booking extends behat_base {
     }
 
     /**
+     * Open the edit page for a booking option identified by option text and booking name.
+     *
+     * @Given /^I open the edit booking option page for option "([^"]*)" in booking "([^"]*)"$/
+     * @param string $optiontext
+     * @param string $bookingname
+     * @return void
+     */
+    public function i_open_the_edit_booking_option_page_for_option_in_booking(
+        string $optiontext,
+        string $bookingname
+    ): void {
+        global $DB;
+
+        $booking = $DB->get_record('booking', ['name' => $bookingname], '*', IGNORE_MISSING);
+        if (!$booking) {
+            throw new \dml_missing_record_exception('booking', ['name' => $bookingname]);
+        }
+
+        // Name collisions can happen across sequential scenarios; prefer the newest instance.
+        $booking = $DB->get_records('booking', ['name' => $bookingname], 'id DESC', '*', 0, 1);
+        $booking = reset($booking);
+        $cm = get_coursemodule_from_instance('booking', (int)$booking->id, (int)$booking->course, false, MUST_EXIST);
+        $option = $DB->get_record('booking_options', [
+            'bookingid' => $booking->id,
+            'text' => $optiontext,
+        ], '*', MUST_EXIST);
+
+        $url = new \moodle_url('/mod/booking/editoptions.php', [
+            'id' => (int)$cm->id,
+            'optionid' => (int)$option->id,
+        ]);
+        $this->getSession()->visit($this->locate_path($url->out_as_local_url(false)));
+    }
+
+    /**
+     * Open the "new booking option" form page for a booking instance by name.
+     *
+     * @Given /^I open the new booking option page for booking "([^"]*)"$/
+     * @param string $bookingname
+     * @return void
+     */
+    public function i_open_the_new_booking_option_page_for_booking(string $bookingname): void {
+        $cm = $this->get_cm_by_booking_name($bookingname);
+        $url = new \moodle_url('/mod/booking/editoptions.php', [
+            'id' => (int)$cm->id,
+            'optionid' => 0,
+        ]);
+        $this->getSession()->visit($this->locate_path($url->out_as_local_url(false)));
+    }
+
+    /**
      * Fill specified HTMLQuickForm element by its number under given xpath with a value.
      * @When /^I click on the element with the number "([^"]*)" with the dynamic identifier "([^"]*)" and action "([^"]*)"$/
      * @param mixed $numberofitem
@@ -131,10 +214,10 @@ class behat_mod_booking extends behat_base {
      * @return void
      */
     public function i_clean_booking_cache() {
-        $datagenerator = \testing_util::get_data_generator();
-        /** @var mod_booking_generator $plugingenerator */
-        $plugingenerator = $datagenerator->get_plugin_generator('mod_booking');
-        $plugingenerator->teardown();
+        // Keep this Behat-safe: generator teardown triggers unit-test-only cache resets.
+        \cache_helper::purge_all();
+        singleton_service::destroy_instance();
+        singleton_service::reset_campaigns();
     }
 
     /**
@@ -237,4 +320,5 @@ class behat_mod_booking extends behat_base {
         ];
         $pg->create_instance($page);
     }
+
 }

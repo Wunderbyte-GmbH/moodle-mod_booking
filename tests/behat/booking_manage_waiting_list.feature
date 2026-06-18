@@ -47,8 +47,8 @@ Feature: In a course add a booking option and manage its waiting list
       | student2 | 150    | EUR      |
       | student3 | 200    | EUR      |
     And the following "activities" exist:
-      | activity | course | name       | intro                  | bookingmanager | eventtype | cancancelbook |
-      | booking  | C1     | My booking | My booking description | teacher1       | Webinar   | 1             |
+      | activity | course | name       | intro                  | bookingmanager | eventtype | cancancelbook | cancelrelativedate |
+      | booking  | C1     | My booking | My booking description | teacher1       | Webinar   | 1             | 2                  |
     And I change viewport size to "1366x10000"
 
   @javascript

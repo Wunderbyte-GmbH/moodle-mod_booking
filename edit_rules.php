@@ -52,7 +52,10 @@ if (empty($cmid) && !empty($contextid)) {
 }
 
 if (empty($urlparams)) {
-    $urlparams = ['contextid' => 1];
+    // No cmid and no contextid given: default to the system context so the rules
+    // overview is reachable without parameters (otherwise context::instance_by_id(0) fails).
+    $contextid = (int) context_system::instance()->id;
+    $urlparams = ['contextid' => $contextid];
 }
 
 $context = context::instance_by_id($contextid);

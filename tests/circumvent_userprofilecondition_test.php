@@ -26,7 +26,7 @@
 
 namespace mod_booking;
 
-use advanced_testcase;
+use mod_booking\booking_advanced_testcase;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\local\override_user_field;
 use stdClass;
@@ -45,15 +45,13 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  *
  */
-final class circumvent_userprofilecondition_test extends advanced_testcase {
+final class circumvent_userprofilecondition_test extends booking_advanced_testcase {
     /** @var stdClass $user */
     protected $user;
 
     protected function setUp(): void {
         $this->resetAfterTest(true);
-        time_mock::init();
         time_mock::set_mock_time(strtotime('now'));
-        singleton_service::destroy_instance();
 
         // Create a test user.
         $this->user = $this->getDataGenerator()->create_user([
@@ -67,16 +65,6 @@ final class circumvent_userprofilecondition_test extends advanced_testcase {
         $this->create_custom_profile_field('testfield');
 
         parent::setUp();
-    }
-
-    /**
-     * Mandatory clean-up after each test.
-     */
-    public function tearDown(): void {
-        parent::tearDown();
-        /** @var mod_booking_generator $plugingenerator */
-        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
-        $plugingenerator->teardown();
     }
 
     /**
@@ -344,7 +332,7 @@ final class circumvent_userprofilecondition_test extends advanced_testcase {
                 'coursestarttime_0' => strtotime('now + 1 day'),
                 'courseendtime_0' => strtotime('now + 2 day'),
                 'bo_cond_userprofilefield_1_default_restrict' => 1,
-                'bo_cond_allowedtobookininstance_capabilitynotneeded' => 1, // TODO: Check why this is needed here!
+                'bo_cond_allowedtobookininstance_capabilitynotneeded' => 1, // TODO MDL-00000: Check why this is needed here!
                 'bo_cond_allowedtobookininstance_restrict' => 1,
             ],
             'users' => [ // Number of entries corresponds to number of users.

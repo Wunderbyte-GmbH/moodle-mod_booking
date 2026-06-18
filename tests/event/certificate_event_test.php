@@ -26,7 +26,7 @@
 
 namespace mod_booking;
 
-use advanced_testcase;
+use mod_booking\booking_advanced_testcase;
 use mod_booking\local\certificateclass;
 use mod_booking\event\certificate_issued;
 use stdClass;
@@ -48,7 +48,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @covers \mod_booking\event\certificate_issued
  * @covers \mod_booking\local\certificateclass::get_required_options_data
  */
-final class certificate_event_test extends advanced_testcase {
+final class certificate_event_test extends booking_advanced_testcase {
     /**
      * Tests set up.
      *
