@@ -1303,11 +1303,9 @@ class booking {
         $addgroupby = preg_replace($pattern, ',', $select1 . ",");
         $groupby .= !empty($addgroupby) ? ' , ' . $addgroupby : '';
 
-        // Aggregate select fragments must not be echoed back into GROUP BY.
-        if (!preg_match('/\b(group_concat|sum|count|avg|min|max)\s*\(/i', $select2)) {
-            $addgroupby = preg_replace($pattern, ',', $select2 . ",");
-            $groupby .= !empty($addgroupby) ? ' , ' . $addgroupby : '';
-        }
+        // $select2 (teachers) is an aggregate (sql_group_concat renders as
+        // GROUP_CONCAT on MySQL/MariaDB and STRING_AGG on PostgreSQL/MSSQL) and
+        // must never be echoed into GROUP BY, so it is intentionally not added here.
 
         $addgroupby = preg_replace($pattern, ',', $select3 . ",");
         $groupby .= !empty($addgroupby) ? ' , ' . $addgroupby : '';
