@@ -32,6 +32,7 @@ use mod_booking\bo_availability\bo_condition;
 use mod_booking\bo_availability\freezable_condition;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_option_settings;
+use mod_booking\local\customform_prefill;
 use mod_booking\local\mobile\customformstore;
 use mod_booking\singleton_service;
 use mod_booking\utils\wb_payment;
@@ -298,6 +299,8 @@ class customform implements bo_condition, freezable_condition {
             // Up to 50 elements are possible. 20 was too few for some clients. 50 is more than enough.
             while ($counter <= 50) {
                 $buttonarray = [];
+                $selectedformtype = (string)($this->customsettings->formsarray->{$counter}->formtype ?? '');
+                $selectedlabel = (string)($this->customsettings->formsarray->{$counter}->label ?? '');
 
                 // Create a select to chose which type of form element to display.
                 $buttonarray[] =& $mform->createElement(
@@ -333,6 +336,26 @@ class customform implements bo_condition, freezable_condition {
                     'eq',
                     'deleteinfoscheckboxuser'
                 );
+
+                if (customform_prefill::is_enabled()) {
+                    $prefillidentifier = self::get_prefill_identifier_for_form_element($selectedformtype, $counter);
+                    $labelslug = self::normalize_prefill_label_key($selectedlabel);
+                    if ($labelslug === '') {
+                        $labelslug = 'label_slug';
+                    }
+                    $prefillhint = '<small class="text-muted" style="font-size:0.75rem;">'
+                        . 'Prefill key: <code>prefill_' . s($prefillidentifier) . '</code>'
+                        . ' | Label key: <code>prefill_' . s($labelslug) . '</code>'
+                        . '</small>';
+                    $mform->addElement('static', 'bo_cond_customform_prefillhint_1_' . $counter, '', $prefillhint);
+                    $mform->hideIf('bo_cond_customform_prefillhint_1_' . $counter, 'bo_cond_customform_restrict', 'notchecked');
+                    $mform->hideIf(
+                        'bo_cond_customform_prefillhint_1_' . $counter,
+                        'bo_cond_customform_select_1_' . $counter,
+                        'eq',
+                        0
+                    );
+                }
 
                 // We need to create all possible elements and hide them via "hideif" right now.
                 $mform->addElement(
@@ -792,6 +815,37 @@ class customform implements bo_condition, freezable_condition {
             }
         }
         return false;
+    }
+
+    /**
+     * Return prefill identifier pattern for one customform element row.
+     *
+     * @param string $formtype
+     * @param int $counter
+     * @return string
+     */
+    private static function get_prefill_identifier_for_form_element(string $formtype, int $counter): string {
+        if ($formtype === 'deleteinfoscheckboxuser') {
+            return 'customform_deleteinfoscheckboxuser';
+        }
+
+        if ($formtype === '' || $formtype === '0') {
+            return 'customform_<formtype>_' . $counter;
+        }
+
+        return 'customform_' . $formtype . '_' . $counter;
+    }
+
+    /**
+     * Normalize label to the slug key variant used for prefill params.
+     *
+     * @param string $label
+     * @return string
+     */
+    private static function normalize_prefill_label_key(string $label): string {
+        $label = \core_text::strtolower(trim($label));
+        $label = preg_replace('/[^[:alnum:]]+/u', '_', $label);
+        return trim((string)$label, '_');
     }
 
     /**

@@ -24,6 +24,7 @@
  */
 
 use mod_booking\local\override_user_field;
+use mod_booking\local\customform_prefill;
 use mod_booking\output\bookingoption_description;
 use mod_booking\singleton_service;
 
@@ -88,6 +89,10 @@ if ($settings && !empty($settings->id)) {
 
     if (isloggedin() && !isguestuser()) {
         $user = $USER;
+    }
+
+    if (isloggedin() && !isguestuser() && customform_prefill::is_enabled()) {
+        customform_prefill::prefill_from_request($settings, (int)$user->id);
     }
 
     // There can be cases where we are booked, but don't have the right to see.
