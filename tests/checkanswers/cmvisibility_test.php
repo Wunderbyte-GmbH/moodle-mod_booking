@@ -65,41 +65,7 @@ final class cmvisibility_test extends advanced_testcase {
         $this->setAdminUser();
 
         // Minimal booking instance with one option (the option's cm is what gets checked).
-        $course = $this->getDataGenerator()->create_course();
-        $bookingmanager = $this->getDataGenerator()->create_user();
-        $bdata = [
-            'name' => 'Visibility booking',
-            'eventtype' => 'Test event',
-            'bookedtext' => ['text' => 'text'],
-            'waitingtext' => ['text' => 'text'],
-            'notifyemail' => ['text' => 'text'],
-            'statuschangetext' => ['text' => 'text'],
-            'deletedtext' => ['text' => 'text'],
-            'pollurltext' => ['text' => 'text'],
-            'pollurlteacherstext' => ['text' => 'text'],
-            'notificationtext' => ['text' => 'text'],
-            'userleave' => ['text' => 'text'],
-            'tags' => '',
-            'course' => $course->id,
-            'bookingmanager' => $bookingmanager->username,
-        ];
-        $booking = $this->getDataGenerator()->create_module('booking', $bdata);
-
-        /** @var mod_booking_generator $plugingenerator */
-        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
-        $record = new stdClass();
-        $record->bookingid = $booking->id;
-        $record->text = 'Opt';
-        $record->description = 'Test description';
-        $record->chooseorcreatecourse = 0;
-        $record->optiondateid_0 = "0";
-        $record->daystonotify_0 = "0";
-        $record->coursestarttime_0 = strtotime('now + 3 days');
-        $record->courseendtime_0 = strtotime('now + 6 days');
-        $option = $plugingenerator->create_option($record);
-
-        $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
-        $cmid = (int) $settings->cmid;
+        [$course, $option, $cmid] = $this->create_booking_option_cm();
 
         // The answer belongs to a different user than the current $USER.
         $target = $this->getDataGenerator()->create_user();
@@ -133,5 +99,107 @@ final class cmvisibility_test extends advanced_testcase {
         $this->assertTrue($threw, 'A stale course module id must make check_answer throw.');
         $this->assertEquals($beforeuserid, (int) $USER->id, 'check_answer must not leak $USER even when it throws.');
         $this->assertNotEquals((int) $target->id, (int) $USER->id, 'The session must not be left as the answer user.');
+    }
+
+    /**
+     * check_answer() must judge visibility from the answer user's perspective, not the task user's.
+     *
+     * The activity stays generally visible (visible = 1) but a future "available from" date hides it
+     * from ordinary users, while admins/managers bypass it via
+     * moodle/course:ignoreavailabilityrestrictions. So the very same module, checked in the very same
+     * admin-run task, must report "no access" for a restricted student and "access" for the admin -
+     * proving the verdict follows the answer user and not the session user. Evaluating as the task's
+     * admin user (the pre-fix trap) would wrongly grant access to the restricted student.
+     */
+    public function test_check_answer_resolves_visibility_for_answer_user(): void {
+        global $DB;
+
+        set_config('enableavailability', 1);
+        $this->setAdminUser();
+
+        [$course, $option, $cmid] = $this->create_booking_option_cm();
+
+        // A normal student, who must not be able to bypass availability restrictions.
+        $target = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->enrol_user($target->id, $course->id, 'student');
+
+        // Keep the activity visible but make it unavailable to ordinary users via a future date.
+        $restriction = json_encode((object)[
+            'op' => '&',
+            'c' => [(object)['type' => 'date', 'd' => '>=', 't' => strtotime('+1 year')]],
+            'showc' => [false],
+        ]);
+        $DB->set_field('course_modules', 'availability', $restriction, ['id' => $cmid]);
+        rebuild_course_cache($course->id, true);
+
+        // The trap: the module is still visible and the admin running the task can see it, so
+        // resolving visibility as the session user would wrongly report access.
+        $admin = get_admin();
+        $admincm = get_fast_modinfo($course->id, $admin->id)->get_cm($cmid);
+        $this->assertEquals(1, (int) $admincm->visible, 'The activity must stay generally visible.');
+        $this->assertTrue($admincm->get_user_visible(), 'The admin must still be able to see the activity.');
+
+        // The restricted student, by contrast, cannot see it.
+        $targetcm = get_fast_modinfo($course->id, $target->id)->get_cm($cmid);
+        $this->assertFalse($targetcm->get_user_visible(), 'The restricted student must not see the activity.');
+
+        // So the check must deny access for the student, even though the task runs as admin...
+        $studentanswer = (object)['optionid' => (int) $option->id, 'userid' => (int) $target->id];
+        $this->assertFalse(
+            cmvisibility::check_answer($studentanswer),
+            'check_answer must resolve visibility as the answer user, not the admin running the task.'
+        );
+
+        // ...and grant access for a user who can see it, in the same task run.
+        $adminanswer = (object)['optionid' => (int) $option->id, 'userid' => (int) $admin->id];
+        $this->assertTrue(
+            cmvisibility::check_answer($adminanswer),
+            'check_answer must grant access when the answer user can see the activity.'
+        );
+    }
+
+    /**
+     * Creates a booking instance with a single option and returns the pieces the checks need.
+     *
+     * @return array [stdClass $course, stdClass $option, int $cmid] where $cmid is the booking
+     *               activity's course-module id - the cm whose visibility the check evaluates.
+     */
+    private function create_booking_option_cm(): array {
+        $course = $this->getDataGenerator()->create_course();
+        $bookingmanager = $this->getDataGenerator()->create_user();
+        $bdata = [
+            'name' => 'Visibility booking',
+            'eventtype' => 'Test event',
+            'bookedtext' => ['text' => 'text'],
+            'waitingtext' => ['text' => 'text'],
+            'notifyemail' => ['text' => 'text'],
+            'statuschangetext' => ['text' => 'text'],
+            'deletedtext' => ['text' => 'text'],
+            'pollurltext' => ['text' => 'text'],
+            'pollurlteacherstext' => ['text' => 'text'],
+            'notificationtext' => ['text' => 'text'],
+            'userleave' => ['text' => 'text'],
+            'tags' => '',
+            'course' => $course->id,
+            'bookingmanager' => $bookingmanager->username,
+        ];
+        $booking = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        /** @var \mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $record = new stdClass();
+        $record->bookingid = $booking->id;
+        $record->text = 'Opt';
+        $record->description = 'Test description';
+        $record->chooseorcreatecourse = 0;
+        $record->optiondateid_0 = "0";
+        $record->daystonotify_0 = "0";
+        $record->coursestarttime_0 = strtotime('now + 3 days');
+        $record->courseendtime_0 = strtotime('now + 6 days');
+        $option = $plugingenerator->create_option($record);
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
+
+        return [$course, $option, (int) $settings->cmid];
     }
 }
