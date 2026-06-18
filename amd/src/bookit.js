@@ -576,6 +576,13 @@ export function bookit(itemid, area, userid, data, clickedFromModal = null) {
                     }
                 }
 
+                // A confirmed cancellation never happens mid-prepage-flow, but the prepage
+                // counters of a previous booking flow are still set (current reset to 0 on the
+                // last page, total kept) and would wrongly suppress the table reload here.
+                if (Number(res.status || 0) === 1 && res.message === 'cancelled') {
+                    skipreload = false;
+                }
+
                 if (!skipreload && (!backdrop || resolvedClickedFromModal)) {
                     reloadAllTables();
                 }
