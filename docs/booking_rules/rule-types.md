@@ -1,6 +1,25 @@
+[Back to parent section](README.md)
+
 # Booking Rules — Rule Types (Triggers)
 
 A **rule type** defines *when* a booking rule is triggered. Currently three rule types are available.
+
+---
+## Quick setup path
+
+### React immediately when a user books (event-based)
+
+1. Open **Booking Rules**: `/mod/booking/edit_rules.php?contextid=1`
+2. Click **Add rule** → **Rule type**: *React on event*.
+3. **Event**: select `bookingoption_booked` (fires when a user books a booking option).
+4. Complete the Condition and Action, then **Save**.
+
+### Remind participants N days before a course starts (date-based)
+
+1. Open **Booking Rules**: `/mod/booking/edit_rules.php?contextid=1`
+2. Click **Add rule** → **Rule type**: *Trigger n days in relation to a certain date*.
+3. **Days**: e.g. `3`; **Date field**: `coursestarttime`.
+4. Complete the Condition and Action, then **Save**.
 
 ---
 

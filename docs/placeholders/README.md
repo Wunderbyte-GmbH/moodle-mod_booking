@@ -1,3 +1,5 @@
+[Back to parent section](../README.md)
+
 # Placeholders — Reference
 
 Placeholders are tokens in the form `{tokenname}` that mod_booking replaces with live values when it renders texts. They are available in:
@@ -8,6 +10,15 @@ Placeholders are tokens in the form `{tokenname}` that mod_booking replaces with
 - **Poll URL fields** on booking options (only placeholders that have `for_pollurl() = true`)
 
 Each placeholder maps to a PHP class under `classes/placeholders/placeholders/`. The token name is the class name surrounded by braces, e.g., class `firstname` → `{firstname}`.
+
+---
+
+## Quick setup path
+
+1. Open booking rules editor: [/mod/booking/edit_rules.php?contextid=1](/mod/booking/edit_rules.php?contextid=1).
+2. Edit the mail action template text.
+3. Insert placeholders from this page.
+4. Send a test message and verify placeholder output.
 
 ---
 

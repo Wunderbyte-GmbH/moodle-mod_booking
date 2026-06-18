@@ -1,6 +1,17 @@
+[Back to parent section](README.md)
+
 # Booking Extensions — Developer API
 
 This page describes how to build a `bookingextension_*` subplugin for mod_booking.
+
+---
+
+## Quick setup path
+
+1. Open your booking activity: [/mod/booking/view.php?id=<cmid>](/mod/booking/view.php?id=<cmid>).
+2. Open option administration: [/mod/booking/editoptions.php?id=<cmid>](/mod/booking/editoptions.php?id=<cmid>).
+3. Open the feature-specific page from this document and apply the settings.
+4. Save and verify with one test booking.
 
 ---
 
@@ -60,7 +71,7 @@ $plugin->maturity  = MATURITY_STABLE;
 
 The main plugin class must implement `mod_booking\plugininfo\bookingextension_interface`.
 
-**Namespace:** `bookingextension_<pluginname>`  
+**Namespace:** `bookingextension_<pluginname>`
 **Class file:** `classes/<pluginname>.php`
 
 ```php

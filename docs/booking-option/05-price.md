@@ -1,6 +1,17 @@
+[Back to parent section](README.md)
+
 # Price
 
 The **Price** section (header: *Price*) allows you to attach a price to a booking option. Prices are handled through the **Shopping Cart** integration (requires the [local_shopping_cart](https://github.com/Wunderbyte-GmbH/moodle-local_shopping_cart) plugin).
+
+---
+
+## Quick setup path
+
+1. Open your booking activity: [/mod/booking/view.php?id=<cmid>](/mod/booking/view.php?id=<cmid>).
+2. Open option administration: [/mod/booking/editoptions.php?id=<cmid>](/mod/booking/editoptions.php?id=<cmid>).
+3. Open the feature-specific page from this document and apply the settings.
+4. Save and verify with one test booking.
 
 ---
 

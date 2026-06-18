@@ -1,6 +1,8 @@
+[Back to parent section](README.md)
+
 # Sub-booking Type: Additional Person
 
-**Class:** `mod_booking\subbookings\sb_types\subbooking_additionalperson`  
+**Class:** `mod_booking\subbookings\sb_types\subbooking_additionalperson`
 **PRO required:** Yes 🔒
 
 ---
@@ -55,3 +57,11 @@ Each additional person is captured with their name and any other details you con
 - [Sub-bookings overview](README.md)
 - [Additional item sub-booking](subbooking_additionalitem.md)
 - [Time slot sub-booking](subbooking_timeslot.md)
+
+
+## Quick setup path
+
+1. Open option edit page: [/mod/booking/editoptions.php?id=<cmid>](/mod/booking/editoptions.php?id=<cmid>).
+2. Edit target option and open Sub-bookings section.
+3. Add or configure the sub-booking type from this page.
+4. Save and test booking flow as participant.

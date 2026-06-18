@@ -1,6 +1,10 @@
+[Back to parent section](../README.md)
+
 # Actions After Booking — Overview
 
 **Actions after booking** (also called *booking actions* or *bo_actions*) are automated actions that are triggered **immediately** when a specific booking event occurs for a user. They are distinct from [booking rules](../booking_rules/README.md), which are schedule-based or event-triggered notifications.
+
+> Important: If your question is about sending messages, reminders, or notification emails, use [Booking rules](../booking_rules/README.md) documentation, not Actions after booking.
 
 The key difference:
 
@@ -11,6 +15,15 @@ The key difference:
 | Configuration | Booking Rules administration page | Per booking option (option form → Actions section) |
 
 Actions after booking are a **PRO feature** of mod_booking.
+
+---
+
+## Quick setup path
+
+1. Open option edit page: [/mod/booking/editoptions.php?id=<cmid>](/mod/booking/editoptions.php?id=<cmid>).
+2. Edit target option and open Booking actions section.
+3. Add or edit the action type documented here.
+4. Save and test with one booking event.
 
 ---
 

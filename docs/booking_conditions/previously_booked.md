@@ -1,3 +1,5 @@
+[Back to parent section](README.md)
+
 # Previously Booked
 
 **Class:** `mod_booking\bo_availability\conditions\previouslybooked`  
@@ -15,7 +17,13 @@ This is useful for sequential or prerequisite booking flows — for example, a u
 
 ## How to configure it
 
-Open the booking option edit form and scroll to the **Availability / Booking conditions** section.
+For non-technical users, use this click path:
+
+1. Open your booking activity: [/mod/booking/view.php?id=<cmid>](/mod/booking/view.php?id=<cmid>).
+2. Open the options list: [/mod/booking/editoptions.php?id=<cmid>](/mod/booking/editoptions.php?id=<cmid>).
+3. Click **Edit** on the target option (or create one first).
+4. In the option form, scroll to **Availability / Booking conditions**.
+5. Enable this condition and save the option.
 
 > This condition is only available with an active Wunderbyte PRO licence.
 

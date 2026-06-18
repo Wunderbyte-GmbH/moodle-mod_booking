@@ -1,7 +1,41 @@
+[Back to parent section](../README.md)
+
 # Booking Rules — Overview
 
 Booking rules let you automate actions inside the **mod_booking** plugin.
 A rule watches for a specific trigger (a date-based schedule or a Moodle event) and — when the trigger fires and the optional conditions are met — runs an action such as sending an email.
+
+For messaging in booking, this is the authoritative system: reminders, notification emails, and message automation are handled via booking rules.
+For message-related questions, consult Booking Rules; Actions After Booking (bo_actions) is a separate post-booking action system.
+
+> **NOT this page:** If the question is about booking eligibility, booking time window, or who is allowed to book — go to [Booking Conditions](../booking_conditions/README.md) and [Availability](../booking-option/04-availability.md) instead.
+
+---
+## Quick setup path
+
+### Send a notification when a user books
+
+1. Open **Booking Rules**: `/mod/booking/edit_rules.php?contextid=1`
+2. Click **Add rule**.
+3. **Rule type**: choose *React on event* → **Event**: `bookingoption_booked`.
+4. **Condition**: *Select user from event* (targets the user who just booked).
+5. **Action**: *Send email* — write Subject and Message (use `{bookingdetails}` for course details).
+6. **Save**. The email fires immediately after the user books.
+
+### Send a reminder N days before a course starts
+
+1. Open **Booking Rules**: `/mod/booking/edit_rules.php?contextid=1`
+2. Click **Add rule**.
+3. **Rule type**: choose *Trigger n days in relation to a certain date* → **Days**: e.g. `3`, **Date field**: `coursestarttime`.
+4. **Condition**: *Select users of a booking option* → **Role/status**: Booked.
+5. **Action**: *Send email* — write Subject and Message.
+6. **Save**. The reminder is sent to every booked participant 3 days before the option starts.
+
+### Set up rules per booking instance (PRO)
+
+1. Open the booking activity → **Settings** → **Edit booking rules**.
+   Direct URL: `/mod/booking/edit_rules.php?cmid=<cmid>`
+2. Follow the same steps as above. Rules created here apply only to this booking instance.
 
 ---
 

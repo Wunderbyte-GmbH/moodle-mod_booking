@@ -1,6 +1,17 @@
+[Back to parent section](README.md)
+
 # Linked Moodle Course
 
 The **Moodle course** section (header: *Moodle course*) lets you connect a booking option to a Moodle course. When a user books the option, they are automatically enrolled in the linked course.
+
+---
+
+## Quick setup path
+
+1. Open your booking activity: [/mod/booking/view.php?id=<cmid>](/mod/booking/view.php?id=<cmid>).
+2. Open option administration: [/mod/booking/editoptions.php?id=<cmid>](/mod/booking/editoptions.php?id=<cmid>).
+3. Open the feature-specific page from this document and apply the settings.
+4. Save and verify with one test booking.
 
 ---
 

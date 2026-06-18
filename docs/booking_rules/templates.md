@@ -1,8 +1,21 @@
+[Back to parent section](README.md)
+
 # Booking Rules — Built-in Templates
 
 The rule editor provides a set of **pre-configured rule templates** that cover the most common notification scenarios. Loading a template pre-fills the rule type, condition, action, email subject, and email body. You can then adjust any field before saving.
 
 To load a template: click **Load a template rule** at the top of the rule editor and select the desired template from the list.
+
+---
+
+## Quick setup path
+
+If you use the booking AI assistant, you can ask it to set up one of these templates directly, for example: "Set up a booking confirmation email rule." The agent can first check existing rules and then apply a template-based setup after your confirmation.
+
+1. Open booking rules: [/mod/booking/edit_rules.php?contextid=1](/mod/booking/edit_rules.php?contextid=1).
+2. Click Add rule or edit an existing rule.
+3. Apply the configuration from this page.
+4. Save, activate, and test with one booking event.
 
 ---
 

@@ -1,6 +1,17 @@
+[Back to parent section](../README.md)
+
 # Override User Field — Access Links for Externals
 
 The **Override user field** feature lets you generate a special URL that temporarily bypasses a [user profile field availability condition](../booking_conditions/user_profile_field.md) for a specific booking instance. This is useful when you want to allow access to a restricted booking option for a specific external user without permanently changing their Moodle profile.
+
+---
+
+## Quick setup path
+
+1. Open the booking option and identify required profile field checks.
+2. Build an override URL as described on this page.
+3. Test URL with one user that should bypass and one that should not.
+4. Roll out URL only to trusted users.
 
 ---
 

@@ -1,6 +1,17 @@
+[Back to parent section](../README.md)
+
 # Booking Extensions — Full Developer API
 
 This is the complete developer reference for building `bookingextension_*` subplugins. For a shorter overview, see [Booking extensions developer API](../booking_extensions/developer-api.md).
+
+---
+
+## Quick setup path
+
+1. Open this page and start with the matching section for your use case.
+2. Follow the linked detailed pages from the table of contents for configuration details.
+3. Apply the configuration in Booking and save your changes.
+4. Test with one realistic scenario before rollout.
 
 ---
 

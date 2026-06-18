@@ -1,6 +1,8 @@
+[Back to parent section](README.md)
+
 # Action After Booking: Execute REST Script
 
-**Class:** `mod_booking\bo_actions\action_types\executerestscript`  
+**Class:** `mod_booking\bo_actions\action_types\executerestscript`
 **PRO required:** Yes 🔒
 
 ---
@@ -15,6 +17,17 @@ Use cases:
 - Trigger an external onboarding workflow via webhook.
 - Call a badge or certificate issuance API.
 - Synchronise booking data with a third-party LMS or HR system.
+
+## Click-by-click setup
+
+1. Open your booking activity: [/mod/booking/view.php?id=<cmid>](/mod/booking/view.php?id=<cmid>).
+2. Open option management: [/mod/booking/editoptions.php?id=<cmid>](/mod/booking/editoptions.php?id=<cmid>).
+3. Click Edit on the target option.
+4. In the option form, scroll to Booking actions.
+5. Click Add action and select Execute REST script.
+6. Enter REST script URL and Secret token, then set Number of days.
+7. Save the option.
+8. Make one test booking and check whether the external endpoint received the request.
 
 ---
 

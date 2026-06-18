@@ -1,6 +1,17 @@
+[Back to parent section](../README.md)
+
 # Booking Extensions — Overview
 
 **Booking extensions** are subplugins of type `bookingextension` that extend mod_booking with additional functionality. They follow Moodle's standard subplugin architecture and are installed as separate plugins under `mod/booking/bookingextension/<pluginname>/`.
+
+---
+
+## Quick setup path
+
+1. Open your booking activity: [/mod/booking/view.php?id=<cmid>](/mod/booking/view.php?id=<cmid>).
+2. Open option administration: [/mod/booking/editoptions.php?id=<cmid>](/mod/booking/editoptions.php?id=<cmid>).
+3. Open the feature-specific page from this document and apply the settings.
+4. Save and verify with one test booking.
 
 ---
 
