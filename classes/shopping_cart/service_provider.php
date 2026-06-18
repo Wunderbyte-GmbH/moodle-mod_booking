@@ -952,10 +952,20 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
             ) {
                 $user = singleton_service::get_instance_of_user($userid);
                 $item = $settings->return_booking_option_information($user, false);
+                // Without a resolvable price (no price records or no matching price
+                // category) the option cannot be sold — deny instead of letting the
+                // cartitem constructor fail on the null price.
+                if (!isset($item['price']) || !is_numeric($item['price'])) {
+                    return [
+                        'allow' => false,
+                        'info' => 'cannotbebooked',
+                        'itemname' => $settings->get_title_with_prefix() ?? '',
+                    ];
+                }
                 $cartitem = new cartitem(
                     $itemid,
                     $item['title'],
-                    $item['price'],
+                    (float)$item['price'],
                     $item['currency'],
                     'mod_booking',
                     'option',

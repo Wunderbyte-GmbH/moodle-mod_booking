@@ -157,9 +157,12 @@ class confirm_bookinganswer_by_rule_adhoc extends \core\task\adhoc_task {
                 // Get the price for the user.
                 // Sometimes the option is free for the user even when the option has a price (userprice = 1).
                 // In this case, the option should be booked automatically for the user.
+                // get_price() can return an array WITHOUT a 'price' key (no price records,
+                // or no matching price category and no default fallback) — treat that like
+                // price 0 (previous implicit PHP behaviour, now without the warning).
                 $userprice = \mod_booking\price::get_price('option', $optionsettings->id, $user);
 
-                if ($optionsettings->jsonobject->useprice == 0 || $userprice['price'] == 0) {
+                if ($optionsettings->jsonobject->useprice == 0 || ($userprice['price'] ?? 0) == 0) {
                     $option = singleton_service::get_instance_of_booking_option($optionsettings->cmid, $optionsettings->id);
                     $option->user_submit_response($user, 0, 0, 0, MOD_BOOKING_VERIFIED);
                 } else {
