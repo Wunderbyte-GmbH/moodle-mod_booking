@@ -151,11 +151,16 @@ class booking_bookit {
                     // The JUST MY ALERT prevents other buttons to be displayed.
                     if ($justmyalert === null) {
                         $justmyalert = true;
+                        $renderprepagemodal = false;
+                    } else if ($justmyalert === false) {
+                        // If we already have an other alert, we just override it with the new one.
+                        $renderprepagemodal = false;
                     }
                     $buttoncondition = $result['classname'];
                     break;
                 case MOD_BOOKING_BO_BUTTON_CANCEL:
                     if (modechecker::use_special_details_page_treatment()) {
+                        // When we show the cancel button, we can't have "just my alert", it would suppress this.
                         $justmyalert = false;
                         $extrabuttoncondition = $result['classname'];
                     }
