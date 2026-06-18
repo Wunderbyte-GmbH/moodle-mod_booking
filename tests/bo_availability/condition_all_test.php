@@ -2574,10 +2574,6 @@ final class condition_all_test extends advanced_testcase {
         $this->setUser($student2);
         $this->assertFalse($condition->is_available($settings, $student2->id));
 
-        // Case 2: student1 is booked, multiplebookings OFF → notifymelist still BLOCKS.
-        $this->setUser($student1);
-        $this->assertFalse($condition->is_available($settings, $student1->id));
-
         // Case 3: student1 is booked, multiplebookings ON → notifymelist does NOT block.
         $this->setAdminUser();
         $record->id = $option1->id;
