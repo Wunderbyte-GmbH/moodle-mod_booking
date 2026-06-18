@@ -109,7 +109,8 @@ class slotbooking extends field_base {
             'slotsettingsheader',
             '<i class="fa fa-fw fa-calendar" aria-hidden="true"></i>&nbsp;' . get_string('slot_settings_header', 'mod_booking')
         );
-        $mform->setExpanded('slotsettingsheader', false);
+        // The header's expand/collapse state is restored centrally in
+        // fields_info::restore_header_collapse_state(), so it persists across no-submit reloads.
 
         $mform->addElement('hidden', 'slot_enabled', 0);
         $mform->setType('slot_enabled', PARAM_INT);
