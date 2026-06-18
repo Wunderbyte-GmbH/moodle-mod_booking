@@ -174,7 +174,8 @@ Feature: Configure and validate different course connection settings for booking
     ## The course is created immediately as an empty shell; its content is copied from the template
     ## in the background (\core\task\asynchronous_copy_task), then finalize_template_course strips the
     ## inherited tags and re-enrols the booked users whose shell enrolment the restore dropped.
-    And I run all adhoc tasks
+    And I trigger cron
+    And I am on the "My booking" Activity page logged in as student1
     And I click on "Go to Moodle course" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Enroll_newcat" in the "#page-header" "css_element"
     And I should see "TempPage1" in the ".course-content" "css_element"
