@@ -352,12 +352,20 @@ class booking_bookit {
             $context = context_system::instance();
         }
 
-        if (
-            !empty($userid)
-            && $userid != $USER->id
-            && !has_capability('mod/booking:bookforothers', $context)
-        ) {
-            throw new moodle_exception('norighttoaccess', 'mod_booking');
+        if (!empty($userid) && $userid != $USER->id) {
+            if ($area === 'option') {
+                [$allowedtobook, ] = \mod_booking\local\bookingworkflow\bookforothers::check_booking_capability(
+                    $itemid,
+                    $USER->id,
+                    $userid
+                );
+            } else {
+                $allowedtobook = has_capability('mod/booking:bookforothers', $context);
+            }
+
+            if (!$allowedtobook) {
+                throw new moodle_exception('norighttoaccess', 'mod_booking');
+            }
         } else if (empty($userid)) {
             $userid = $USER->id;
         }

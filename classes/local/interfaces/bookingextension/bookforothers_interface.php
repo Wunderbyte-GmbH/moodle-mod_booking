@@ -32,4 +32,13 @@ interface bookforothers_interface {
      * @return array [$allowed (bool), $message (string), $reload (bool)]
      */
     public static function has_capability_to_book_for_others(int $optionid, int $agentid, int $userid): array;
+
+    /**
+     * Returns the ids of the users this agent is allowed to book for (eg. their team),
+     * used to filter user pickers. Implementations not bound by a fixed team can return [].
+     *
+     * @param int $agentid
+     * @return int[]
+     */
+    public static function get_my_team_user_ids(int $agentid): array;
 }

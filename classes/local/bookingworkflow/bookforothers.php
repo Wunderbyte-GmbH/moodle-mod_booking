@@ -17,10 +17,10 @@
 namespace mod_booking\local\bookingworkflow;
 
 /**
- * Class booking
+ * Class bookforothers
  *
  * @package    mod_booking
- * @copyright  2026 YOUR NAME <your@email.com>
+ * @copyright  2026 Wunderbyte GmbH <info@wunderbyte.at>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class bookforothers {
@@ -33,10 +33,15 @@ class bookforothers {
      * @return array [$allowed (bool), $message (string), $reload (bool)]
      */
     public static function check_booking_capability(int $optionid, int $agentid, int $userid): array {
-        global $USER;
-
         // Every user can book for himself/herself.
-        if ($USER->id === $agentid || $agentid === $userid) {
+        if ($agentid === $userid) {
+            return [true, '', false];
+        }
+
+        // Users with the unrestricted "bookforothers" capability (e.g. cashiers) are always allowed.
+        $settings = \mod_booking\singleton_service::get_instance_of_booking_option_settings($optionid);
+        $context = \context_module::instance($settings->cmid);
+        if (has_capability('mod/booking:bookforothers', $context, $agentid)) {
             return [true, '', false];
         }
 
@@ -66,5 +71,40 @@ class bookforothers {
         }
 
         return [$allowedtobook, $returnmessage, $reload];
+    }
+
+    /**
+     * Returns the ids of the users this agent is allowed to book for, for use in user pickers.
+     * Returns null when the agent is unrestricted (eg. has the "bookforothers" capability),
+     * meaning no filtering should be applied.
+     *
+     * @param int $optionid
+     * @param int $agentid
+     * @return int[]|null
+     */
+    public static function get_bookable_target_ids(int $optionid, int $agentid): ?array {
+        $settings = \mod_booking\singleton_service::get_instance_of_booking_option_settings($optionid);
+        $context = \context_module::instance($settings->cmid);
+
+        // Unrestricted agents (eg. cashiers) are not limited to a team.
+        if (has_capability('mod/booking:bookforothers', $context, $agentid)) {
+            return null;
+        }
+
+        $ids = [];
+        foreach (\core_plugin_manager::instance()->get_plugins_of_type('bookingextension') as $plugin) {
+            $classname = "\\bookingextension_{$plugin->name}\\local\\bookforothers";
+
+            if (class_exists($classname) && method_exists($classname, 'get_my_team_user_ids')) {
+                // Skip if subplugin is disabled.
+                if (!get_config('bookingextension_' . $plugin->name, str_replace('_', '', $plugin->name) . 'enabled')) {
+                    continue;
+                }
+
+                $ids = array_merge($ids, $classname::get_my_team_user_ids($agentid));
+            }
+        }
+
+        return array_unique($ids);
     }
 }

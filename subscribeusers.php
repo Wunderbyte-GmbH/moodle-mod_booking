@@ -37,6 +37,7 @@ use mod_booking\output\renderer;
 use mod_booking\singleton_service;
 use mod_booking\booking_existing_user_selector;
 use mod_booking\booking_potential_user_selector;
+use mod_booking\local\bookingworkflow\bookforothers;
 
 global $CFG, $DB, $COURSE, $PAGE, $OUTPUT;
 
@@ -79,8 +80,11 @@ $errorurl = new moodle_url('/mod/booking/view.php', ['id' => $id]);
 
 $PAGE->set_url($url);
 
-// Without the "bookforothers" capability, we do not allow anything.
-if (!has_capability('mod/booking:bookforothers', $context)) {
+// Without the "bookforothers" or "bookmyteam" capability, we do not allow anything.
+if (
+    !has_capability('mod/booking:bookforothers', $context)
+    && !has_capability('mod/booking:bookmyteam', $context)
+) {
     echo $OUTPUT->header();
     echo $OUTPUT->heading(get_string('accessdenied', 'mod_booking'), 4);
     echo get_string('nopermissiontoaccesspage', 'mod_booking');
@@ -176,6 +180,14 @@ if (!$agree && empty($formsubmitted) && (!empty($bookingoption->booking->setting
                 (booking_check_if_teacher($bookingoption->option))
             ) {
                 foreach ($users as $user) {
+                    // Restrict who this agent may actually book for (eg. supervisors and their own team).
+                    [$allowedtobook, ] = bookforothers::check_booking_capability($optionid, $USER->id, $user->id);
+                    if (!$allowedtobook) {
+                        $subscribesuccess = false;
+                        $notsubscribedusers[] = $user;
+                        continue;
+                    }
+
                     // If there is a price on the booking option, we don't want to subscribe the user directly.
                     if (
                         class_exists('local_shopping_cart\shopping_cart')
@@ -246,6 +258,19 @@ if (!$agree && empty($formsubmitted) && (!empty($bookingoption->booking->setting
             $users = $existingselector->get_selected_users();
             $unsubscribesuccess = true;
             foreach ($users as $user) {
+                // Restrict who this agent may actually remove (eg. supervisors and their own team).
+                [$allowedtobook, ] = bookforothers::check_booking_capability($optionid, $USER->id, $user->id);
+                if (!$allowedtobook) {
+                    $unsubscribesuccess = false;
+                    throw new moodle_exception(
+                        'norighttoaccess',
+                        'mod_booking',
+                        $url->out(),
+                        null,
+                        'Not allowed to unsubscribe user with id ' . $user->id
+                    );
+                }
+
                 if (!$bookingoption->user_delete_response($user->id)) {
                     $unsubscribesuccess = false;
                     throw new moodle_exception(

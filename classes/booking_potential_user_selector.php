@@ -131,6 +131,21 @@ class booking_potential_user_selector extends booking_user_selector_base {
 
         $searchparams['statusparamdeleted'] = MOD_BOOKING_STATUSPARAM_DELETED;
 
+        // Agents who are not unrestricted (eg. supervisors with only "bookmyteam") only see their own team.
+        global $USER;
+        $teamuserids = \mod_booking\local\bookingworkflow\bookforothers::get_bookable_target_ids(
+            $this->options['optionid'],
+            $USER->id
+        );
+        if ($teamuserids !== null) {
+            if (empty($teamuserids)) {
+                return [];
+            }
+            [$teamsql, $teamparams] = $DB->get_in_or_equal($teamuserids, SQL_PARAMS_NAMED, 'team');
+            $sql .= " AND u.id $teamsql";
+            $searchparams = array_merge($searchparams, $teamparams);
+        }
+
         [$sort, $sortparams] = users_order_by_sql('u', $search, $this->accesscontext);
         $order = ' ORDER BY ' . $sort;
 
