@@ -78,7 +78,7 @@ Feature: In a booking create a template
     And I wait "1" seconds
     And I set the field "Booking option name" to "New option - by template"
     And I press "Save"
-    And I wait "1" seconds
+    And I wait until the page is ready
     ## Verify template
     Then I should see "New option - by template" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Teacher 1" in the ".allbookingoptionstable_r1" "css_element"
@@ -147,7 +147,7 @@ Feature: In a booking create a template
     ## Update option, save and validate base price
     And I set the field "Booking option name" to "SelfLearning - by template"
     And I press "Save"
-    And I wait "1" seconds
+    And I wait until the page is ready
     ## Verify template
     Then I should see "SelfLearning - by template" in the ".allbookingoptionstable_r2" "css_element"
     And I should see "75.00 EUR" in the ".allbookingoptionstable_r2" "css_element"

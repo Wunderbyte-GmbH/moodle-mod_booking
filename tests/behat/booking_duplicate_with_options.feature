@@ -101,13 +101,13 @@ Feature: In a booking create booking option with multiple custom options
     When I click on "Duplicate this booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I set the field "Booking option name" to "Topic: Statistics - Copy 1"
     And I press "Save"
-    And I wait "1" seconds
+    And I wait until the page is ready
     ## Verify copy and its options
     Then I should see "Topic: Statistics - Copy 1" in the ".allbookingoptionstable_r2" "css_element"
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r2" "css_element"
     And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r2" "css_element"
     And I expand all fieldsets
-    And I wait "1" seconds
+    And I wait until the page is ready
     And I should see "Course 1" in the "//div[contains(@id, 'fitem_id_courseid_')]//span[contains(@class, 'course-suggestion')]" "xpath_element"
     And I should see "Teacher 1" in the "//fieldset[contains(@id, 'id_bookingoptionteachers_')]" "xpath_element"
     ## And I should see "Teacher 1" in the "//div[contains(@id, 'fitem_id_teachersforoption_')]//div[contains(@id, 'form_autocomplete_selection-')]" "xpath_element"

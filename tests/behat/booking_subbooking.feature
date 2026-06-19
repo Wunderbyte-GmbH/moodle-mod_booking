@@ -53,7 +53,7 @@ Feature: Enabling subboking as admin configuring subboking as a teacher and book
     Then I should see "Test option 1" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
-    And I wait "1" seconds
+    And I wait until the page is ready
     And I should see "Do you want to book Test option 1?" in the ".modal-dialog.modal-xl .modalMainContent" "css_element"
     And I click on "Book now" "text" in the ".modal-dialog.modal-xl .booking-button-area" "css_element"
     And I click on "Click again to confirm booking" "text" in the ".modal-dialog.modal-xl .booking-button-area" "css_element"
@@ -91,7 +91,7 @@ Feature: Enabling subboking as admin configuring subboking as a teacher and book
     And the page should meet accessibility standards
     And I should see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
-    And I wait "1" seconds
+    And I wait until the page is ready
     And I should see "Do you want to book Test option 1?" in the ".modal-dialog.modal-xl .modalMainContent" "css_element"
     ## Validate accessibility of booking options table before booking
     And the page should meet accessibility standards
@@ -138,7 +138,7 @@ Feature: Enabling subboking as admin configuring subboking as a teacher and book
     And I follow "My booking"
     Then I should see "Test option 1" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
-    And I wait "1" seconds
+    And I wait until the page is ready
     And I should see "Do you want to book Test option 1?" in the ".modal-dialog.modal-xl .modalMainContent" "css_element"
     And I click on "Book now" "text" in the ".modal-dialog.modal-xl .booking-button-area" "css_element"
     And I click on "Click again to confirm booking" "text" in the ".modal-dialog.modal-xl .booking-button-area" "css_element"
@@ -190,7 +190,7 @@ Feature: Enabling subboking as admin configuring subboking as a teacher and book
     ## Validate accessibility of booking options table before booking
     And the page should meet accessibility standards
     And I click on "Add to cart" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
-    And I wait "1" seconds
+    And I wait until the page is ready
     And I should see "Do you want to book Option-subitem?" in the ".modal-dialog.modal-xl .modalMainContent" "css_element"
     ## Validate accessibility of booking options table before booking
     And the page should meet accessibility standards

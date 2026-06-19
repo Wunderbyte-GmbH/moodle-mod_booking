@@ -107,7 +107,7 @@ Feature: Create global booking rules as admin and insure they are working.
     And I should see "Option-football" in the "#region-main" "css_element"
     And I should see "No teacher" in the "[id^=optiondates_teachers_table] td.teacher" "css_element"
     And I click on "Edit" "link" in the "[id^=optiondates_teachers_table] td.edit" "css_element"
-    And I wait "1" seconds
+    And I wait until the page is ready
     And I should see "Teachers" in the ".modal-header" "css_element"
     When I set the following fields to these values:
       | Teachers | teacher1   |

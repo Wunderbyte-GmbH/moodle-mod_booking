@@ -67,7 +67,7 @@ Feature: In a booking instance create booking options
       | courseendtime_2[minute]   | 00                 |
     And I press "applydate_2"
     ## Verify on booking option form page
-    And I wait "1" seconds
+    And I wait until the page is ready
     And I should see "15 March 2050" in the "#booking_optiondate_1" "css_element"
     And I should see "1:00 PM - 4:00 PM" in the "#booking_optiondate_1" "css_element"
     And I should see "20 June 2050" in the "#booking_optiondate_2" "css_element"

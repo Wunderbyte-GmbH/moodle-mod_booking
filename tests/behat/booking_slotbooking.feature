@@ -88,7 +88,7 @@ Feature: Slot booking option renders fixed calendar slots in student timezone
     And I am on the "BookingSlots" Activity page logged in as student1
     And I should see "10" in the ".allbookingoptionstable_r1 .bookings " "css_element"
     When I click on "Book now" "text" in the ".allbookingoptionstable_r1" "css_element"
-    And I wait "1" seconds
+    And I wait until the page is ready
     ## Validate correct slots
     And I should see "10" in the ".allbookingoptionstable_r1 .bookings " "css_element"
     And I should see "Monday, 7 May 2046 - 4:00 PM - 4:40 PM" in the ".booking-slotbooking-prepage" "css_element"
@@ -170,7 +170,7 @@ Feature: Slot booking option renders fixed calendar slots in student timezone
     # Book again: the same prepage must now offer a Book and a Move tab.
     And I am on the "BookingRebook" Activity page logged in as student1
     And I click on "Book again (already booked 1 time)" "text" in the ".allbookingoptionstable_r1" "css_element"
-    And I wait "1" seconds
+    And I wait until the page is ready
     Then I should see "Book another slot" in the ".booking-slotbooking-prepage" "css_element"
     And I should see "Move/Cancel your slot(s)" in the ".booking-slotbooking-prepage" "css_element"
     # Switching to the move tab reveals the "Update booking" editor (slotupdate_form DynamicForm).

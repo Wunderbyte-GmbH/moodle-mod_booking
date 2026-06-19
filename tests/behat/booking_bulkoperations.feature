@@ -154,7 +154,7 @@ Feature: As admin - apply bulk operations under booking options.
     And I should see "Option12-s" in the "//tr[contains(@id, '_optionbulkoperationstable_') and contains(@id, '_r1')]" "xpath_element"
     And I click on "Edit booking option" "link" in the "//tr[contains(@id, '_optionbulkoperationstable_') and contains(@id, '_r1')]" "xpath_element"
     ## And I wait to be redirected
-    And I wait "1" seconds
+    And I wait until the page is ready
     ## And I should see "BookingCMP" in the ".h2" "css_element"
     And I should see "BookingCMP"
     And I should see "You are editing \"0007 - Option12-s\"."

@@ -109,9 +109,15 @@ Feature: In a booking instance with multiple bookings enabled
     And I am on the "My booking" Activity page logged in as student1
     And I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r1" "css_element"
+    # Booking re-renders the table asynchronously (reloadAllTables), so wait for the
+    # AJAX to settle and reload to get a fresh, non-stale DOM before asserting the label.
+    And I wait until the page is ready
+    And I reload the page
     And I should see "Book again (already booked 1 time)" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Book again (already booked 1 time)" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r1" "css_element"
+    And I wait until the page is ready
+    And I reload the page
     And I should see "Book again (already booked 2 times)" in the ".allbookingoptionstable_r1" "css_element"
     # Student 2 books once
     And I log out
@@ -119,10 +125,13 @@ Feature: In a booking instance with multiple bookings enabled
     And I should see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     When I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r1" "css_element"
+    And I wait until the page is ready
+    And I reload the page
     Then I should see "Book again (already booked 1 time)" in the ".allbookingoptionstable_r1" "css_element"
     # Verify student 1 still shows correct count
     And I log out
     And I am on the "My booking" Activity page logged in as student1
+    And I wait until the page is ready
     And I should see "Book again (already booked 2 times)" in the ".allbookingoptionstable_r1" "css_element"
 
   @javascript
