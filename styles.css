@@ -978,3 +978,25 @@ table[id*="bulkoperationstable"] th {
     margin-right: 0.25rem;
     vertical-align: middle;
 }
+
+/*
+ * Accessibility (WCAG 2 AA color-contrast): the muted grey used for small
+ * booking meta texts (#77838f, ~3.86:1 on white) fails the minimum 4.5:1
+ * ratio. Darken to an accessible grey (#767676, ~4.57:1).
+ * Covered by booking_installments.feature "the page should meet accessibility standards".
+ */
+.booking-showdates-area,
+.booking-showdates-title b {
+    color: #767676;
+}
+
+/*
+ * The theme defines .text-gray as #77838f and aggregates it after this plugin's
+ * CSS, so a plain .text-gray rule would lose the cascade. The doubled-class
+ * selector raises specificity (0,2,0) to win without !important. Fixes the
+ * bookings count column and other muted booking meta texts (and any element
+ * inheriting the colour from a .text-gray cell, e.g. the waiting-list span).
+ */
+.text-gray.text-gray {
+    color: #767676;
+}
