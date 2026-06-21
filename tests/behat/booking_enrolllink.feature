@@ -139,6 +139,7 @@ Feature: Create enrollink availability form for booking options with connected c
     And I set the field "customform_enroluserwhobookedcheckbox_enrolusersaction_1" to "checked"
     And I follow "Continue"
     And I wait until the page is ready
+    And I wait until "You were added to the waiting list for Option-waitinglist." "text" exists
     And I should see "You were added to the waiting list for Option-waitinglist." in the ".modal-dialog.modal-xl .modalMainContent" "css_element"
     And I follow "Close"
     And I should not see "75.00 EUR" in the ".allbookingoptionstable_r2 .booknow" "css_element"
@@ -203,6 +204,7 @@ Feature: Create enrollink availability form for booking options with connected c
     And I set the field "customform_enrolusersaction_1" to "3"
     And I follow "Continue"
     And I wait until the page is ready
+    And I wait until "Thank you! You have successfully put Option-alsobookmyself into the shopping cart." "text" exists
     And I should see "Thank you! You have successfully put Option-alsobookmyself into the shopping cart." in the ".modal-dialog.modal-xl .modalMainContent" "css_element"
 
   @javascript
@@ -221,4 +223,5 @@ Feature: Create enrollink availability form for booking options with connected c
     And I set the field "customform_enrolusersaction_1" to "3"
     And I follow "Continue"
     And I wait until the page is ready
+    And I wait until "Thank you! You have successfully put Option-donotbookmyself into the shopping cart." "text" exists
     And I should see "Thank you! You have successfully put Option-donotbookmyself into the shopping cart." in the ".modal-dialog.modal-xl .modalMainContent" "css_element"
