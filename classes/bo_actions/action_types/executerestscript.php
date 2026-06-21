@@ -26,6 +26,8 @@ namespace mod_booking\bo_actions\action_types;
 
 use mod_booking\bo_actions\booking_action;
 use mod_booking\event\rest_script_success;
+use mod_booking\placeholders\placeholders\baid;
+use mod_booking\placeholders\placeholders_info;
 use mod_booking\singleton_service;
 use context_module;
 use mod_booking\event\rest_script_failed;
@@ -54,17 +56,28 @@ class executerestscript extends booking_action {
      */
     public function apply_action(stdClass $actiondata, int $userid = 0) {
 
-        global $USER;
+        global $USER, $DB;
 
         $settings = singleton_service::get_instance_of_booking_option_settings($actiondata->optionid);
-        $ba = singleton_service::get_instance_of_booking_answers($settings);
         if (empty($userid)) {
             $userid = $USER->id;
         }
 
-        $usersonlist = $ba->get_usersonlist();
-        if (isset($usersonlist[$userid])) {
-            $bajson = $usersonlist[$userid];
+        // Prefer the specific booking answer addressed by its baid. This works on
+        // cancellation too, where the answer is soft-deleted and would no longer
+        // appear in get_usersonlist() (which only returns active answers).
+        $bajson = null;
+        if (!empty($actiondata->baid)) {
+            $bajson = $DB->get_record('booking_answers', ['id' => $actiondata->baid]) ?: null;
+        }
+        if (empty($bajson)) {
+            // Legacy fallback: the active answer currently on the list.
+            $ba = singleton_service::get_instance_of_booking_answers($settings);
+            $usersonlist = $ba->get_usersonlist();
+            $bajson = $usersonlist[$userid] ?? null;
+        }
+
+        if (!empty($bajson)) {
             $restscriptresponse = self::get_script_response($bajson, $actiondata);
             if ($restscriptresponse) {
                 $event = rest_script_success::create([
@@ -121,6 +134,65 @@ class executerestscript extends booking_action {
         $params['token'] = $actiondata->secrettoken ?? '';
         $params['submit'] = true;
 
+        // Headers: keep the legacy cookie, then append any configured "Key: Value" lines.
+        $headers = ['Cookie: XDEBUG_SESSION=VSCODE'];
+        $customheaders = trim((string)($actiondata->customheaders ?? ''));
+        if ($customheaders !== '') {
+            foreach (preg_split('/\R/', $customheaders) as $line) {
+                $line = trim($line);
+                if ($line !== '' && strpos($line, ':') !== false) {
+                    $headers[] = $line;
+                }
+            }
+        }
+
+        // Body: when a JSON template is configured, substitute {placeholders} and send
+        // JSON; otherwise keep the legacy form-field POST (backward compatible).
+        $jsonbody = trim((string)($actiondata->jsonbody ?? ''));
+        $usejson = ($jsonbody !== '');
+        if ($usejson) {
+            // Make the booking-answer id available to the {baid} placeholder for this
+            // render pass. baid is the only per-purchase-unique id ("book again" lets
+            // the same user buy the same option more than once).
+            baid::$baid = (int)($actiondata->baid ?? 0);
+
+            // Resolve the configured body through the mod_booking placeholder framework,
+            // so every placeholder is rendered the same way as everywhere else:
+            // {baid}, {email}, {firstname}, {lastname}, {username}, {userid}, {optionid}, ...
+            $jsonbody = placeholders_info::render_text(
+                $jsonbody,
+                (int)($actiondata->cmid ?? 0),
+                (int)($actiondata->optionid ?? 0),
+                (int)($bookinganswer->userid ?? 0)
+            );
+
+            // Substitute the custom-form field values too. These are action-specific
+            // and not part of the placeholder framework. JSON-escape each value so
+            // quotes/backslashes cannot break the body.
+            foreach ($params as $pkey => $pvalue) {
+                if (!is_scalar($pvalue)) {
+                    continue;
+                }
+                $needle = '{' . $pkey . '}';
+                if (strpos($jsonbody, $needle) !== false) {
+                    $jsonbody = str_replace($needle, trim(json_encode((string)$pvalue), '"'), $jsonbody);
+                }
+            }
+
+            $hascontenttype = false;
+            foreach ($headers as $hline) {
+                if (stripos($hline, 'content-type:') === 0) {
+                    $hascontenttype = true;
+                    break;
+                }
+            }
+            if (!$hascontenttype) {
+                $headers[] = 'Content-Type: application/json';
+            }
+        }
+
+        $verify = !empty($actiondata->sslverify);
+
         $curl = curl_init();
 
         curl_setopt_array($curl, [
@@ -132,12 +204,10 @@ class executerestscript extends booking_action {
           CURLOPT_FOLLOWLOCATION => true,
           CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
           CURLOPT_CUSTOMREQUEST => 'POST',
-          CURLOPT_POSTFIELDS => $params,
-          CURLOPT_SSL_VERIFYPEER => false,
-          CURLOPT_SSL_VERIFYHOST => false,
-          CURLOPT_HTTPHEADER => [
-            'Cookie: XDEBUG_SESSION=VSCODE',
-          ],
+          CURLOPT_POSTFIELDS => $usejson ? $jsonbody : $params,
+          CURLOPT_SSL_VERIFYPEER => $verify,
+          CURLOPT_SSL_VERIFYHOST => $verify ? 2 : 0,
+          CURLOPT_HTTPHEADER => $headers,
         ]);
         $response = curl_exec($curl);
 
@@ -191,6 +261,26 @@ class executerestscript extends booking_action {
             get_string('userparametervalue', 'mod_booking'),
             get_string('userparameter_desc', 'mod_booking')
         );
+
+        // Optional: additional HTTP headers, one "Key: Value" per line (e.g. an
+        // Authorization bearer). Empty = current behaviour (only the cookie header).
+        $mform->addElement('textarea', 'customheaders', get_string('bocustomheaders', 'mod_booking'), ['rows' => 3]);
+        $mform->setType('customheaders', PARAM_TEXT);
+        $mform->addElement('static', 'customheaders_desc', '', get_string('bocustomheaders_desc', 'mod_booking'));
+
+        // Optional: a JSON body template. When set, the request is sent as JSON
+        // (instead of form fields), with mod_booking {placeholders} substituted via
+        // the placeholder framework - {baid} (per-purchase order id), {email},
+        // {firstname}, {lastname}, {username}, {userid}, {optionid}, ... Empty = form POST.
+        $mform->addElement('textarea', 'jsonbody', get_string('bojsonbody', 'mod_booking'), ['rows' => 4]);
+        $mform->setType('jsonbody', PARAM_RAW);
+        $mform->addElement('static', 'jsonbody_desc', '', get_string('bojsonbody_desc', 'mod_booking'));
+
+        // Optional: verify the TLS certificate of the target. Off by default to keep
+        // the existing behaviour; turn on for real external HTTPS endpoints.
+        $mform->addElement('advcheckbox', 'sslverify', get_string('bosslverify', 'mod_booking'),
+            get_string('bosslverify_desc', 'mod_booking'));
+        $mform->setType('sslverify', PARAM_INT);
     }
 
     /**
