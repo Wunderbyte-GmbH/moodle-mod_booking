@@ -758,6 +758,7 @@ class booking_option {
         }
 
         $deletedbookinganswer = false;
+        $deletedbaid = 0;
 
         if ($cancelreservation) {
             $ba = singleton_service::get_instance_of_booking_answers($optionsettings);
@@ -794,6 +795,9 @@ class booking_option {
 
                     if ($ba->delete_answer_record($result, $openruleexecution, $reactivatepreviouslybooked)) {
                         $deletedbookinganswer = true;
+                        // Remember the baid of the answer we just (soft-)deleted, so the
+                        // on-cancel after-actions can address exactly this purchase.
+                        $deletedbaid = (int)$result->id;
                     }
 
                     if (!empty($slotcancelother['bookedslots'])) {
@@ -863,6 +867,13 @@ class booking_option {
         ]);
         $event->trigger(); // This will trigger the observer function and delete calendar events.
         $this->unenrol_user($user->id);
+
+        // Fire after-actions flagged to run on cancellation, but ONLY on a genuine
+        // delete (a booked answer transitioned to the deleted state). Reservation
+        // cancels return earlier and never reach this point.
+        if ($deletedbookinganswer) {
+            actions_info::apply_actions($optionsettings, $userid, 'cancel', $deletedbaid);
+        }
 
         // We only send messages for booking answers for individual cancellations!
         // If a whole booking option was cancelled, we can use the new global booking rules...
@@ -1633,7 +1644,7 @@ class booking_option {
 
         // To avoid a problem with the payment process, we catch any error that might occur.
         try {
-            $this->after_successful_booking_routine($user, $waitinglist, $timebooked);
+            $this->after_successful_booking_routine($user, $waitinglist, $timebooked, $baid);
             return true;
         } catch (Exception $e) {
             // We do not want this to fail if there was an exception.
@@ -1909,6 +1920,7 @@ class booking_option {
         }
 
         $counter = 0;
+        $baid = 0;
         foreach ($currentanswers as $currentanswer) {
             // This should never happen, but if we have more than one reservation, we just confirm the first and delete the rest.
             if ($counter > 0) {
@@ -1921,7 +1933,7 @@ class booking_option {
                 $currentanswer->timemodified = time();
                 $currentanswer->waitinglist = MOD_BOOKING_STATUSPARAM_BOOKED;
 
-                self::write_user_answer_to_db(
+                $baid = self::write_user_answer_to_db(
                     $this->settings->bookingid,
                     $currentanswer->frombookingid ?? 0,
                     $currentanswer->userid,
@@ -1937,7 +1949,7 @@ class booking_option {
 
         if ($counter > 0) {
             try {
-                $this->after_successful_booking_routine($user, MOD_BOOKING_STATUSPARAM_BOOKED);
+                $this->after_successful_booking_routine($user, MOD_BOOKING_STATUSPARAM_BOOKED, 0, $baid);
                 return true;
             } catch (Exception $e) {
                 // We do not want this to fail if there was an exception.
@@ -1971,7 +1983,7 @@ class booking_option {
      * @param int $timebooked
      * @return bool
      */
-    public function after_successful_booking_routine(stdClass $user, int $waitinglist, int $timebooked = 0) {
+    public function after_successful_booking_routine(stdClass $user, int $waitinglist, int $timebooked = 0, int $baid = 0) {
 
         global $DB, $USER;
 
@@ -1986,7 +1998,7 @@ class booking_option {
 
         // At this point, we trigger the after booking actions.
         // Depending on the status, we have different ways of continueing.
-        if (actions_info::apply_actions($this->settings, $user->id) == 1) {
+        if (actions_info::apply_actions($this->settings, $user->id, 'book', $baid) == 1) {
             return true;
         }
 
