@@ -104,6 +104,17 @@ class slotbooking extends field_base {
     ) {
         global $DB;
 
+        // Only display slot booking settings if the option type is slot booking.
+        $fallbacktype = null;
+        $currentoptionid = (int)($formdata['optionid'] ?? $formdata['id'] ?? 0);
+        if ($currentoptionid > 0) {
+            $settings = singleton_service::get_instance_of_booking_option_settings($currentoptionid);
+            $fallbacktype = (int)($settings->type ?? MOD_BOOKING_OPTIONTYPE_DEFAULT);
+        }
+        if (type_resolver::resolve_type((object)$formdata, $fallbacktype) !== MOD_BOOKING_OPTIONTYPE_SLOTBOOKING) {
+            return;
+        }
+
         $mform->addElement(
             'header',
             'slotsettingsheader',
@@ -114,8 +125,6 @@ class slotbooking extends field_base {
 
         $mform->addElement('hidden', 'slot_enabled', 0);
         $mform->setType('slot_enabled', PARAM_INT);
-
-        $mform->hideIf('slotsettingsheader', 'optiontype', 'neq', MOD_BOOKING_OPTIONTYPE_SLOTBOOKING);
 
         $mform->addElement('static', 'slot_price_source_info', '', get_string('slot_price_source_info', 'mod_booking'));
         $mform->hideIf('slot_price_source_info', 'optiontype', 'neq', MOD_BOOKING_OPTIONTYPE_SLOTBOOKING);
