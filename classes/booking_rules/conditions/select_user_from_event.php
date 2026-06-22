@@ -125,18 +125,21 @@ class select_user_from_event implements booking_rule_condition {
             $eventnameonly = str_replace("\\mod_booking\\event\\", "", $ajaxformdata["rule_react_on_event_event"]);
         }
 
-        self::add_userselect_to_mform($mform);
+        self::add_userselect_to_mform($mform, $eventnameonly);
     }
 
     /**
      * Add select to choose if the user should be the one who triggered the event or the related user.
      *
      * @param MoodleQuickForm $mform
+     * @param string $eventnameonly the selected event (short name, no namespace); when given,
+     *                              "user affected by event" (relateduserid) is only offered for
+     *                              events that actually set relateduserid.
      *
      * @return void
      *
      */
-    public static function add_userselect_to_mform(MoodleQuickForm &$mform) {
+    public static function add_userselect_to_mform(MoodleQuickForm &$mform, string $eventnameonly = '') {
         // This is a list of events supporting relateduserid (affected user of the event).
         $eventssupportingrelateduserid = [
             'bookingoption_completed',
