@@ -21,6 +21,7 @@ This `docs/` directory is the central reference for administrators, teachers, an
 | Let participants choose add-ons or time slots | [Sub-bookings](subbookings/README.md) |
 | Trigger actions automatically when someone books | [Actions after booking](actions_after_booking/README.md) |
 | Understand scheduled background tasks | [Scheduled tasks](scheduled_tasks/README.md) |
+| Automatically remove bookings when a user loses access | [Check answers](developer-guides/CHECKANSWERS_API.md) |
 | Allow external links to bypass profile-field restrictions | [Override user field](override_user_field/README.md) |
 | Build or install a booking extension (subplugin) | [Booking extensions](booking_extensions/README.md) |
 
