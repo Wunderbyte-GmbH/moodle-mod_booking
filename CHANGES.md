@@ -1,3 +1,9 @@
+## Version 9.3.8 (2026062200)
+* Improvement: Display specific countlabel for messages event table
+* Improvement: Implement strings for upload
+* Bugfix: Waitinglist confirmation task handle late joiners
+* Bugfix: Display customfields in correct language
+
 ## Version 9.3.7 (2026061601)
 * Improvement: implement showpagination argument in booking shortcodes
 * Improvement: New capability 'booking:canseenumberofbookings'
