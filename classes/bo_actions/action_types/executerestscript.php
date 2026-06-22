@@ -156,28 +156,40 @@ class executerestscript extends booking_action {
             // the same user buy the same option more than once).
             baid::$baid = (int)($actiondata->baid ?? 0);
 
-            // Resolve the configured body through the mod_booking placeholder framework,
-            // so every placeholder is rendered the same way as everywhere else:
-            // {baid}, {email}, {firstname}, {lastname}, {username}, {userid}, {optionid}, ...
-            $jsonbody = placeholders_info::render_text(
-                $jsonbody,
-                (int)($actiondata->cmid ?? 0),
-                (int)($actiondata->optionid ?? 0),
-                (int)($bookinganswer->userid ?? 0)
-            );
+            $phcmid = (int)($actiondata->cmid ?? 0);
+            $phoptionid = (int)($actiondata->optionid ?? 0);
+            $phuserid = (int)($bookinganswer->userid ?? 0);
 
-            // Substitute the custom-form field values too. These are action-specific
-            // and not part of the placeholder framework. JSON-escape each value so
-            // quotes/backslashes cannot break the body.
-            foreach ($params as $pkey => $pvalue) {
-                if (!is_scalar($pvalue)) {
-                    continue;
-                }
-                $needle = '{' . $pkey . '}';
-                if (strpos($jsonbody, $needle) !== false) {
-                    $jsonbody = str_replace($needle, trim(json_encode((string)$pvalue), '"'), $jsonbody);
-                }
-            }
+            // Resolve each {placeholder} token INDIVIDUALLY. We must NOT hand the whole
+            // JSON body to render_text: its matcher ( /{(.*?)}/ ) is not JSON-aware, so the
+            // object's own opening "{" pairs with the first inner "}" and swallows the first
+            // placeholder. The pattern below matches ONLY real placeholder tokens ({word});
+            // the JSON structural braces are followed by a quote, not a word char, so they
+            // are never touched. Each value is JSON-escaped so quotes/backslashes are safe.
+            $jsonbody = preg_replace_callback(
+                '/\{(\w+)\}/',
+                function (array $m) use ($params, $phcmid, $phoptionid, $phuserid): string {
+                    $token = $m[1];
+                    // Custom-form field values are action-specific, not framework placeholders.
+                    if (array_key_exists($token, $params) && is_scalar($params[$token])) {
+                        $value = (string)$params[$token];
+                    } else {
+                        $value = placeholders_info::render_text(
+                            '{' . $token . '}',
+                            $phcmid,
+                            $phoptionid,
+                            $phuserid
+                        );
+                        // Unknown placeholder: render_text returns the token unchanged.
+                        // Emit empty rather than leaving a stray brace inside the JSON.
+                        if ($value === '{' . $token . '}') {
+                            $value = '';
+                        }
+                    }
+                    return trim(json_encode($value), '"');
+                },
+                $jsonbody
+            );
 
             $hascontenttype = false;
             foreach ($headers as $hline) {
