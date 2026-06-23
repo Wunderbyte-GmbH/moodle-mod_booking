@@ -1334,7 +1334,12 @@ class bookingoptions_wbtable extends wunderbyte_table {
             }
 
             // Book other users.
+            // Slot booking options manage their participants per slot and cannot have users
+            // booked here directly, so the "book other users" action is hidden for them.
+            $isslotoption = (int)($settings->type ?? MOD_BOOKING_OPTIONTYPE_DEFAULT)
+                === MOD_BOOKING_OPTIONTYPE_SLOTBOOKING;
             if (
+                !$isslotoption &&
                 has_capability('mod/booking:bookforothers', $context) &&
                 (has_capability('mod/booking:subscribeusers', $context) ||
                     booking_check_if_teacher($values))

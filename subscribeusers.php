@@ -94,6 +94,30 @@ if (!booking_check_if_teacher($bookingoption->option)) {
     }
 }
 
+// Slot booking options manage their participants per slot. Booking users here directly is not
+// possible, so instead of the subscribe form we show an explanatory warning and a way back.
+if ((int)($optionsettings->type ?? MOD_BOOKING_OPTIONTYPE_DEFAULT) === MOD_BOOKING_OPTIONTYPE_SLOTBOOKING) {
+    $PAGE->set_title(get_string('modulename', 'booking'));
+    $PAGE->set_heading($COURSE->fullname);
+    $PAGE->navbar->add(get_string('booking:subscribeusers', 'booking'), $url);
+
+    echo $OUTPUT->header();
+    echo $OUTPUT->heading(format_string($optionsettings->get_title_with_prefix()), 3);
+
+    $warning = get_string('slot_nosubscribe', 'mod_booking');
+    if (class_exists('local_shopping_cart\shopping_cart')) {
+        $warning .= ' ' . get_string('slot_nosubscribe_cashier', 'mod_booking');
+    }
+    $warning .= ' ' . get_string('slot_nosubscribe_unenrol', 'mod_booking');
+    echo $OUTPUT->notification($warning, notification::NOTIFY_WARNING);
+
+    $backurl = new moodle_url('/mod/booking/report.php', ['id' => $cm->id, 'optionid' => $optionid]);
+    echo $OUTPUT->single_button($backurl, get_string('backtoresponses', 'booking'), 'get');
+
+    echo $OUTPUT->footer();
+    die();
+}
+
 if (($synctoggle || $syncdisableall) && has_capability('mod/booking:updatebooking', $context) && confirm_sesskey()) {
     if ($syncdisableall) {
         \mod_booking\local\sync\booking_enrolment::disable_rules_for_option($optionid);

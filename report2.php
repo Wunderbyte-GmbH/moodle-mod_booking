@@ -440,8 +440,15 @@ if (!empty($optionid) && empty($optiondateid)) {
     $optionsettings = singleton_service::get_instance_of_booking_option_settings($optionid);
     $cmid = $optionsettings->cmid;
     $context = context_module::instance($cmid);
+
+    // Slot booking options manage their participants per slot, so users cannot be
+    // booked here directly. The "book other users" button is therefore hidden.
+    $isslotoption = (int)($optionsettings->type ?? MOD_BOOKING_OPTIONTYPE_DEFAULT)
+        === MOD_BOOKING_OPTIONTYPE_SLOTBOOKING;
+
     if (
-        has_capability('mod/booking:bookforothers', $context)
+        !$isslotoption
+        && has_capability('mod/booking:bookforothers', $context)
         && (
             has_capability('mod/booking:subscribeusers', $context)
             || booking_check_if_teacher($optionsettings)
