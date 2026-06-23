@@ -98,6 +98,27 @@ session)
 [Visit Moodle docs wiki](https://docs.moodle.org/311/en/Booking_module) for documentation.
 For installation documentation see [installation](https://docs.moodle.org/35/en/Installing_plugins)
 
+## Optional language variant: "Deutsch mit Genderslash" (de_gs)
+
+`de_gs` is a child language of `de` that overrides only the gender-fair strings with slash
+spelling (e.g. `Nutzer:innen` → `Nutzer/innen`). The overrides ship in `lang/de_gs/booking.php`;
+everything else is inherited from `de`. Activation is **manual / opt-in** — nothing changes unless
+an admin enables it. Works on Moodle 4.5 and 5.x.
+
+To enable it on a site:
+
+1. Copy the language registration into moodledata (Moodle only lists languages found under
+   `<dataroot>/lang`, not plugin folders):
+   ```bash
+   mkdir -p "$CFG_dataroot/lang/de_gs"
+   cp mod/booking/lang/de_gs/langconfig.php "$CFG_dataroot/lang/de_gs/langconfig.php"
+   ```
+2. Purge caches: `php admin/cli/purge_caches.php`.
+3. Add it under *Site administration → Language → Language settings*, then select it per user,
+   per course, or site-wide.
+
+To remove it again, delete `<dataroot>/lang/de_gs/` and purge caches.
+
 ## Communication
 + [Twitter: @wunderbyte8](https://twitter.com/wunderbyte8)
 + [Github: @dasistwas](https://github.com/dasistwas)
