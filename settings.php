@@ -677,11 +677,16 @@ if ($ADMIN->fulltree) {
     );
 
     $settings->add(
-        new admin_setting_configcheckbox(
+        new admin_setting_configselect(
             'booking/openbookingdetailinsametab',
             get_string('openbookingdetailinsametab', 'mod_booking'),
             get_string('openbookingdetailinsametab_desc', 'mod_booking'),
-            0
+            0,
+            [
+                0 => get_string('openbookingdetailinsametabnewwindow', 'mod_booking'),
+                1 => get_string('openbookingdetailinsametabsamewindow', 'mod_booking'),
+                2 => get_string('openbookingdetailinsametabnolink', 'mod_booking'),
+            ]
         )
     );
 
