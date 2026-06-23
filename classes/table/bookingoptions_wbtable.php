@@ -436,11 +436,14 @@ class bookingoptions_wbtable extends wunderbyte_table {
             $title = $titleprefix . ' - ' . $title;
         }
 
-        if (!get_config('booking', 'openbookingdetailinsametab')) {
-            $title = "<div class='bookingoptions-wbtable-option-title'><a href='$url' target='_blank'>$title</a></div>";
-        } else {
-            $title = "<div class='bookingoptions-wbtable-option-title'><a href='$url'>$title</a></div>";
-        }
+        $title = match ((int) get_config('booking', 'openbookingdetailinsametab')) {
+            // 1 is with link in same window.
+            1 => "<div class='bookingoptions-wbtable-option-title'><a href='$url'>$title</a></div>",
+            // 2 is no link.
+            2 => "<div class='bookingoptions-wbtable-option-title'>$title</div>",
+            // Default is with link in new window.
+            default => "<div class='bookingoptions-wbtable-option-title'><a href='$url' target='_blank'>$title</a></div>",
+        };
 
         return $title;
     }
