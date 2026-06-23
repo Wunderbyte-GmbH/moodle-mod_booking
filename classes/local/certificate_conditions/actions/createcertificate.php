@@ -36,25 +36,32 @@ class createcertificate implements action_interface {
      *
      * @var int
      */
-    public $certid = 0;
+    private $certid = 0;
     /**
      * Expiry date type for the issued certificate.
      *
      * @var int
      */
-    public $expirydatetype = 0;
+    private $expirydatetype = 0;
     /**
      * Absolute expiry date for the issued certificate.
      *
      * @var int
      */
-    public $expirydateabsolute = 0;
+    private $expirydateabsolute = 0;
     /**
      * Relative expiry date for the issued certificate.
      *
      * @var int
      */
-    public $expirydaterelative = 0;
+    private $expirydaterelative = 0;
+    /**
+     * Per-condition override for the global issuemultiplecertificates setting.
+     * 0 = use global setting, 1 = prevent multiple, 2 = allow multiple.
+     *
+     * @var int
+     */
+    private int $issuemultiplecertificates = 0;
 
     /**
      * Add action fields to the dynamic form.
@@ -75,6 +82,18 @@ class createcertificate implements action_interface {
         if (class_exists('tool_certificate\\certificate')) {
             toolCertificate::add_expirydate_to_form($mform);
         }
+
+        $mform->addElement(
+            'select',
+            'action_createcertificate_issuemultiplecertificates',
+            get_string('action_createcertificate_issuemultiplecertificates', 'mod_booking'),
+            [
+                0 => get_string('action_createcertificate_issuemultiplecertificates_useglobal', 'mod_booking'),
+                1 => get_string('action_createcertificate_issuemultiplecertificates_prevent', 'mod_booking'),
+                2 => get_string('action_createcertificate_issuemultiplecertificates_allow', 'mod_booking'),
+            ]
+        );
+        $mform->setType('action_createcertificate_issuemultiplecertificates', PARAM_INT);
     }
 
     /**
@@ -122,6 +141,7 @@ class createcertificate implements action_interface {
         $obj->expirydatetype = (int)($data->expirydatetype ?? 0);
         $obj->expirydateabsolute = (int)($data->expirydateabsolute ?? 0);
         $obj->expirydaterelative = (int)($data->expirydaterelative ?? 0);
+        $obj->issuemultiplecertificates = (int)($data->action_createcertificate_issuemultiplecertificates ?? 0);
         $data->actionjson = json_encode($obj);
     }
 
@@ -139,6 +159,7 @@ class createcertificate implements action_interface {
             $data->expirydatetype = (int)($obj->expirydatetype ?? 0);
             $data->expirydateabsolute = (int)($obj->expirydateabsolute ?? 0);
             $data->expirydaterelative = (int)($obj->expirydaterelative ?? 0);
+            $data->action_createcertificate_issuemultiplecertificates = (int)($obj->issuemultiplecertificates ?? 0);
         }
     }
 
@@ -164,6 +185,7 @@ class createcertificate implements action_interface {
             $this->expirydatetype = (int)($obj->expirydatetype ?? 0);
             $this->expirydateabsolute = (int)($obj->expirydateabsolute ?? 0);
             $this->expirydaterelative = (int)($obj->expirydaterelative ?? 0);
+            $this->issuemultiplecertificates = (int)($obj->issuemultiplecertificates ?? 0);
         }
     }
 
@@ -195,7 +217,13 @@ class createcertificate implements action_interface {
         if (empty($this->certid)) {
             return;
         }
-        if (empty(get_config('booking', 'issuemultiplecertificates'))) {
+        // 0 = use global, 1 = prevent multiple, 2 = allow multiple.
+        $allowmultiple = match ($this->issuemultiplecertificates) {
+            1 => false,
+            2 => true,
+            default => !empty(get_config('booking', 'issuemultiplecertificates')),
+        };
+        if (!$allowmultiple) {
             $existing = actions_info::certificate_already_issued($condition->id, (int)$this->certid, $userid);
             if ($existing) {
                 return;
