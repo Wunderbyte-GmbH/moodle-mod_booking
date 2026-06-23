@@ -377,7 +377,6 @@ if there only was one booking option. */
 #page-mod-booking-teachers_instance_report .dropdown-menu,
 #page-mod-booking-recalculateprices .dropdown-menu,
 #page-mod-booking-mod .dropdown-menu,
-#page-mod-booking-view .dropdown-menu,
 #page-mod-booking-instancetemplateadd .dropdown-menu,
 #page-mod-booking-importoptions .dropdown-menu,
 #page-mod-booking-tagtemplates .dropdown-menu,
@@ -386,6 +385,11 @@ if there only was one booking option. */
 #page-mod-booking-subscribeusers .dropdown-menu,
 #page-mod-booking-viewconfirmation .dropdown-menu,
 #page-mod-booking-editoptions .dropdown-menu {
+    width: max-content;
+}
+
+/* Special rule to keep the dropdown menu of the table filter within width limits of the .dropdownMenuButton element */
+#page-mod-booking-view .dropdown:not(.wunderbyteTableFilter .dropdown) > .dropdown-menu {
     width: max-content;
 }
 
