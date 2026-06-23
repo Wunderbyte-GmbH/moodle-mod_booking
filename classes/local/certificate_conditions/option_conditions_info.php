@@ -21,6 +21,7 @@ use html_writer;
 use moodle_url;
 use MoodleQuickForm;
 use stdClass;
+use mod_booking\singleton_service;
 
 /**
  * Helper to display certificate condition references on booking option form.
@@ -55,7 +56,10 @@ class option_conditions_info {
         $optionid = (int)($formdata['id'] ?? $formdata['optionid'] ?? 0);
         $conditioninfos = [];
         if (!empty($optionid)) {
-            $conditioninfos = self::get_condition_infos_targeting_option($optionid);
+            $conditioninfos = array_merge(
+                self::get_condition_infos_targeting_option($optionid),
+                self::get_instance_conditions_for_option($optionid)
+            );
         }
 
         $items = [];
@@ -104,6 +108,64 @@ class option_conditions_info {
             ORDER BY c.name ASC";
 
         $records = $DB->get_records_sql($sql, ['optionid' => $optionid]);
+        if (empty($records)) {
+            return [];
+        }
+
+        $conditioninfos = [];
+        foreach ($records as $record) {
+            $url = null;
+
+            if ((int)$record->contextlevel === CONTEXT_SYSTEM) {
+                $url = new moodle_url('/mod/booking/edit_certificateconditions.php', [
+                    'contextid' => (int)$record->contextid,
+                ]);
+            } else if ((int)$record->contextlevel === CONTEXT_MODULE) {
+                $url = new moodle_url('/mod/booking/edit_certificateconditions.php', [
+                    'cmid' => (int)$record->instanceid,
+                ]);
+            }
+
+            $conditioninfos[] = [
+                'name' => (string)($record->name ?? ''),
+                'url' => $url,
+            ];
+        }
+        return $conditioninfos;
+    }
+
+    /**
+     * Return infos of all instance certificate conditions covering the booking instance this option belongs to.
+     *
+     * Uses the sentinel row (area = 'bookinginstance', itemid = booking.id) written by the instance condition's
+     * save_items(), so the lookup goes through the existing area index — no JSON scanning.
+     *
+     * @param int $optionid
+     * @return array
+     */
+    private static function get_instance_conditions_for_option(int $optionid): array {
+        global $DB;
+
+        $booking = singleton_service::get_instance_of_booking_by_optionid($optionid);
+        if (empty($booking)) {
+            return [];
+        }
+
+        $sql = "SELECT i.id AS itemrowid,
+                    c.name,
+                    c.contextid,
+                    ctx.contextlevel,
+                    ctx.instanceid
+                FROM {booking_cert_cond_item} i
+                JOIN {booking_cert_cond} c
+                    ON c.id = i.conditionid
+            LEFT JOIN {context} ctx
+                    ON ctx.id = c.contextid
+                WHERE i.area = 'bookinginstance'
+                  AND i.itemid = :bookingid
+            ORDER BY c.name ASC";
+
+        $records = $DB->get_records_sql($sql, ['bookingid' => $booking->id]);
         if (empty($records)) {
             return [];
         }
