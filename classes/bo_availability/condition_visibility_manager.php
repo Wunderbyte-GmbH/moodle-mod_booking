@@ -55,11 +55,16 @@ class condition_visibility_manager {
         return $skippedconditions;
     }
     /**
-     * Freezes all form fields declared by the condition and inserts a warning message.
+     * Freezes all form fields declared by the condition and adds the warning as a normal static
+     * element.
+     *
+     * By default the warning is placed above the condition's fields (the standard behaviour). When
+     * the 'conditionwarningatbottom' admin setting is enabled, it is instead placed at the bottom
+     * of the condition, above its trailing <hr> divider.
      *
      * @param MoodleQuickForm $mform
      * @param freezable_condition $condition
-     * @param bool $skipandfreeze True for skip-and-freeze state, false for freeze-only state.
+     * @param bool $skipandfreeze True for the skip-and-freeze warning, false for freeze-only.
      * @return void
      */
     public function freeze_fields_for_condition(
@@ -68,11 +73,41 @@ class condition_visibility_manager {
         bool $skipandfreeze = true
     ): void {
         $elements = $condition->get_condition_form_elements();
-        $firstelementname = $elements[0] ?? null;
         foreach ($elements as $elementname) {
             $this->disable_element_without_warning($mform, $elementname);
         }
-        $this->insert_warning_before_first_element($mform, $condition->id, $firstelementname, $skipandfreeze);
+
+        $firstelementname = $elements[0] ?? null;
+        if ($firstelementname === null || !$mform->elementExists($firstelementname)) {
+            return;
+        }
+
+        $warningkey = $skipandfreeze ? 'conditionsskippedwarning' : 'conditionsfrozenwarning';
+        $linktosetting = new moodle_url('/mod/booking/availabilityconditions.php');
+        $warningelement = $mform->createElement(
+            'static',
+            $firstelementname . '_frozenwarning',
+            '',
+            get_string($warningkey, 'mod_booking', $linktosetting)
+        );
+
+        if (empty(get_config('booking', 'conditionwarningatbottom'))) {
+            // Standard behaviour: warning above the condition's fields.
+            $mform->insertElementBefore($warningelement, $firstelementname);
+            return;
+        }
+
+        // Optional behaviour: warning at the bottom of the condition, above its trailing <hr>
+        // divider. Conditions end with an unnamed <hr> divider element, and QuickForm indexes
+        // every unnamed element under the empty name, so when that divider is the last element on
+        // the form the empty anchor targets it - letting us drop the warning in just above it.
+        $lastkey = array_key_last($mform->_elements);
+        $last = $lastkey === null ? null : $mform->_elements[$lastkey];
+        if ($last !== null && $last->getType() === 'html' && strpos($last->toHtml(), '<hr') !== false) {
+            $mform->insertElementBefore($warningelement, '');
+        } else {
+            $mform->addElement($warningelement);
+        }
     }
     /**
      * Hides all form fields declared by the condition.
@@ -92,20 +127,20 @@ class condition_visibility_manager {
      *
      * @param MoodleQuickForm $mform
      * @param bo_condition $condition
-     * @param bool $showwarning True for skip-and-freeze warning, false for freeze-only warning.
+     * @param bool $skipandfreeze True for the skip-and-freeze warning, false for freeze-only.
      * @return void
      */
     public function disable_elements_in_mform(
         MoodleQuickForm &$mform,
         bo_condition $condition,
-        bool $showwarning = true
+        bool $skipandfreeze = true
     ): void {
         if (!($condition instanceof freezable_condition)) {
             return;
         }
         if (has_capability('mod/booking:updatebooking', context_system::instance())) {
             // Users with the updatebooking capability see frozen fields with a warning.
-            $this->freeze_fields_for_condition($mform, $condition, $showwarning);
+            $this->freeze_fields_for_condition($mform, $condition, $skipandfreeze);
         } else {
             // Users without the capability do not see frozen/skipped conditions at all.
             $this->hide_fields_for_condition($mform, $condition);
@@ -121,37 +156,6 @@ class condition_visibility_manager {
     public function is_condition_frozen(int $conditionid): bool {
         $statehelper = new condition_state_helper();
         return $statehelper->should_freeze_condition($conditionid);
-    }
-
-    /**
-     * Inserts a single warning before the first element of a condition block.
-     *
-     * @param MoodleQuickForm $mform
-     * @param int $conditionid
-     * @param string|null $firstelementname
-     * @param bool $skipandfreeze
-     * @return void
-     */
-    private function insert_warning_before_first_element(
-        MoodleQuickForm &$mform,
-        int $conditionid,
-        ?string $firstelementname,
-        bool $skipandfreeze
-    ): void {
-        if ($firstelementname === null || !$mform->elementExists($firstelementname)) {
-            return;
-        }
-
-        $warningkey = $skipandfreeze ? 'conditionsskippedwarning' : 'conditionsfrozenwarning';
-        $linktosetting = new moodle_url('/mod/booking/availabilityconditions.php');
-        $warningname = 'condition_' . $conditionid . '_warning';
-        $warningelement = $mform->createElement(
-            'static',
-            $warningname,
-            '',
-            get_string($warningkey, 'mod_booking', $linktosetting)
-        );
-        $mform->insertElementBefore($warningelement, $firstelementname);
     }
 
     /**

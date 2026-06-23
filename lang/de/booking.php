@@ -1023,6 +1023,8 @@ $string['conditionssettings_desc'] = 'Konfigurieren Sie die Verfügbarkeitsbedin
 $string['conditionssettingslinkdashboard'] = 'Verwenden Sie die <a href="{$a}" target="_blank">Tabelle der Verfügbarkeitsbedingungen</a>, um Skip/Freeze-Zustände und ggf. weitere Einstellungen für alle Bedingungen zu verwalten.';
 $string['conditionsskippedwarning'] = '<div class="alert alert-warning" role="alert">Diese Bedingung kann nicht ausgewählt werden, da sie in den <a href="{$a}" target="_blank">Einstellungen deaktiviert (übersprungen) wurde</a>.</div>';
 $string['conditiontextfield'] = 'Wert';
+$string['conditionwarningatbottom'] = 'Warnung für eingefrorene Bedingung unterhalb der Felder anzeigen';
+$string['conditionwarningatbottom_desc'] = 'Wenn aktiviert, wird die Warnung für eine eingefrorene oder übersprungene Verfügbarkeitsbedingung am unteren Ende der Bedingung (oberhalb der Trennlinie) angezeigt, anstatt oberhalb der Felder der Bedingung.';
 $string['configurefields'] = 'Spalten und Felder anpassen';
 $string['confirmationdeleted'] = 'Bestätigung gelöscht';
 $string['confirmationmessagesettings'] = 'Buchungsbestätigungseinstellungen';

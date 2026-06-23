@@ -1043,6 +1043,8 @@ $string['conditionssettings_desc'] = 'You can opt out of certain conditions if t
 $string['conditionssettingslinkdashboard'] = 'Use the <a href="{$a}" target="_blank">Availability Conditions table</a> to manage skip/freeze states and other given settings of all conditions.';
 $string['conditionsskippedwarning'] = '<div class="alert alert-warning" role="alert">This condition can not be selected because it was <a href="{$a}" target="_blank">turned off (skipped) in the settings</a>.</div>';
 $string['conditiontextfield'] = 'Value';
+$string['conditionwarningatbottom'] = 'Show frozen condition warning below the fields';
+$string['conditionwarningatbottom_desc'] = 'When enabled, the warning shown for a frozen or skipped availability condition is placed at the bottom of the condition (above the separator line) instead of above the condition\'s fields.';
 $string['configurefields'] = 'Configure fields and columns';
 $string['confirmactivtyfrom'] = 'Confirm users activity from';
 $string['confirmationdeleted'] = 'Confirmation deleted';

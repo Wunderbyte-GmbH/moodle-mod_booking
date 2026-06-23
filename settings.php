@@ -390,7 +390,7 @@ if ($ADMIN->fulltree) {
             )
         );
 
-        // Choose which presence options should be vailabile.
+        // Choose which presence options should be availabile.
 
         $presenceoptions = [
             5 => get_string('statusunknown', 'booking'),
@@ -824,6 +824,15 @@ if ($ADMIN->fulltree) {
                 'conditionsheadnig',
                 get_string('conditionssettings', 'mod_booking') . " " . get_string('badge:pro', 'mod_booking'),
                 $conditionsheadingdesc
+            )
+        );
+
+        $settings->add(
+            new admin_setting_configcheckbox(
+                'booking/conditionwarningatbottom',
+                get_string('conditionwarningatbottom', 'mod_booking'),
+                get_string('conditionwarningatbottom_desc', 'mod_booking'),
+                0
             )
         );
 
