@@ -2278,13 +2278,6 @@ $string['priceformulaoff_help'] = 'Aktivieren Sie diese Option, um zu verhindern
 $string['priceisalwayson'] = 'Preise immer aktiviert';
 $string['priceisalwayson_desc'] = 'Wenn Sie dieses Häkchen aktivieren, können Preise für einzelne Buchungsoptionen NICHT abgeschalten werden.
  Es ist aber dennoch möglich, 0 EUR als Preis einzustellen.';
-$string['problemsofcohortorgroupbooking'] = '<br><p>Es konnten nicht alle Buchungen durchgeführt werden:</p>
-<ul>
-<li>{$a->notenrolledusers} Nutzer:innen sind nicht in den Kurs eingeschrieben</li>
-<li>{$a->notsubscribedusers} Nutzer:innen konnten aus anderen Gründen nicht gebucht werden</li>
-</ul>
-<p>Der Grund ist wahrscheinlich, dass die zu Buchenden nicht in diesen Kurs eingeschrieben sind und Sie nicht das Recht mod_booking:bookanyone haben</p>';
-$string['problemwithdate'] = 'Bitte die Daten überprüfen';
 $string['privacy:metadata:bookingaimessages'] = 'Einzelne Nachrichten innerhalb von Konversations-Threads des KI-Agenten.';
 $string['privacy:metadata:bookingaimessages:content'] = 'Der unverarbeitete Nachrichtentext.';
 $string['privacy:metadata:bookingaimessages:role'] = 'Rolle der Nachricht: Nutzer:in, Assistent oder System.';
@@ -2309,6 +2302,13 @@ $string['privacy:metadata:bookingaithreads:status'] = 'Status des Threads (aktiv
 $string['privacy:metadata:bookingaithreads:timecreated'] = 'Der Zeitpunkt, zu dem der Thread erstellt wurde.';
 $string['privacy:metadata:bookingaithreads:timemodified'] = 'Der Zeitpunkt der letzten Änderung des Threads.';
 $string['privacy:metadata:bookingaithreads:userid'] = 'Die Nutzer-ID, der dieser Thread gehört.';
+$string['problemsofcohortorgroupbooking'] = '<br><p>Es konnten nicht alle Buchungen durchgeführt werden:</p>
+<ul>
+<li>{$a->notenrolledusers} Nutzer:innen sind nicht in den Kurs eingeschrieben</li>
+<li>{$a->notsubscribedusers} Nutzer:innen konnten aus anderen Gründen nicht gebucht werden</li>
+</ul>
+<p>Der Grund ist wahrscheinlich, dass die zu Buchenden nicht in diesen Kurs eingeschrieben sind und Sie nicht das Recht mod_booking:bookanyone haben</p>';
+$string['problemwithdate'] = 'Bitte die Daten überprüfen';
 $string['profeatures:appearance'] = '<ul>
 <li><b>Wunderbyte Logo und Link ausblenden</b></li>
 <li><b>Beschreibungen einklappen</b></li>
@@ -3012,9 +3012,9 @@ $string['slot_update_confirm_removed'] = 'Storniert';
 $string['slot_update_confirm_save'] = 'Aktualisierung bestätigen';
 $string['slot_update_confirm_title'] = 'Buchungsaktualisierung bestätigen';
 $string['slot_update_delta_label'] = 'Preisänderung';
-$string['slot_update_tab'] = 'Ihre Slot(s) verschieben/stornieren';
 $string['slot_update_locked_kept'] = 'Ein gesperrter Slot (Deadline überschritten) kann nicht storniert oder verschoben werden.';
 $string['slot_update_no_add'] = 'Hier können keine Slots hinzugefügt werden – dafür ist „Book another slot". Dieser Tab bearbeitet nur deine aktuellen Slots.';
+$string['slot_update_tab'] = 'Ihre Slot(s) verschieben/stornieren';
 $string['slot_update_unavailable'] = 'Ein ausgewählter Slot ist nicht mehr verfügbar.';
 $string['slot_valid_from'] = 'Gültig von';
 $string['slot_valid_until'] = 'Gültig bis';
