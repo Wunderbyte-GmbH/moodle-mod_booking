@@ -27,6 +27,7 @@ namespace mod_booking;
 
 use mod_booking\booking_advanced_testcase;
 use mod_booking\form\condition\slotbooking_form;
+use mod_booking\local\slotbooking\slot_answer;
 use mod_booking\local\slotbooking\slot_dto;
 
 defined('MOODLE_INTERNAL') || die();
@@ -83,6 +84,46 @@ final class slot_dto_test extends booking_advanced_testcase {
             // Only weekday Monday (1) and Friday (5) slots exist for this config.
             $this->assertContains((int)date('N', (int)$slot['start']), [1, 5]);
         }
+    }
+
+    /**
+     * Report slot counts must reflect the actually booked slots, not the booking answer's
+     * overall [startdate, enddate] envelope. Booking two non-contiguous slots must leave the
+     * slot lying between them at zero bookings (regression: it used to be counted as full).
+     */
+    public function test_report_slots_count_only_booked_slots(): void {
+        global $DB;
+
+        [$option, $userid] = $this->create_fixed_slot_option();
+        $bookingid = (int)$DB->get_field('booking_options', 'bookingid', ['id' => $option->id], MUST_EXIST);
+
+        // Pick three consecutive, non-overlapping slots on the same day: 09-10, 10-11, 11-12.
+        $byday = [];
+        foreach (slot_dto::build_picker_slots($option->id, $userid) as $slot) {
+            $byday[$slot['daykey']][date('H', (int)$slot['start'])] = $slot;
+        }
+        $chosen = null;
+        foreach ($byday as $slots) {
+            if (isset($slots['09'], $slots['10'], $slots['11'])) {
+                $chosen = $slots;
+                break;
+            }
+        }
+        $this->assertNotNull($chosen, 'Need a day exposing 09/10/11 slots.');
+        [$first, $middle, $third] = [$chosen['09'], $chosen['10'], $chosen['11']];
+
+        // Book only the outer two slots; the stored envelope (09:00-12:00) spans the middle
+        // slot even though it is not actually booked.
+        $this->book_slots($option->id, $bookingid, $userid, [$first, $third]);
+
+        $bookings = [];
+        foreach (slot_dto::build_report_slots($option->id, $option->id)['slots'] as $slot) {
+            $bookings[$slot['key']] = (int)$slot['bookings'];
+        }
+
+        $this->assertSame(1, $bookings[$first['key']], 'First slot is booked.');
+        $this->assertSame(0, $bookings[$middle['key']], 'Middle slot must not count the enveloping booking.');
+        $this->assertSame(1, $bookings[$third['key']], 'Third slot is booked.');
     }
 
     /**
@@ -209,6 +250,35 @@ final class slot_dto_test extends booking_advanced_testcase {
 
         singleton_service::destroy_instance();
         return [$option, (int)$student->id];
+    }
+
+    /**
+     * Insert one BOOKED answer for the given slots, storing the canonical slot payload.
+     *
+     * @param int $optionid
+     * @param int $bookingid
+     * @param int $userid
+     * @param array $slots list of picker slots (each with start/end)
+     * @return int baid
+     */
+    private function book_slots(int $optionid, int $bookingid, int $userid, array $slots): int {
+        global $DB;
+        usort($slots, static fn(array $a, array $b): int => (int)$a['start'] <=> (int)$b['start']);
+        $payload = array_map(static fn(array $s): array => ['start' => (int)$s['start'], 'end' => (int)$s['end']], $slots);
+        $answer = (object) [
+            'bookingid' => $bookingid,
+            'optionid' => $optionid,
+            'userid' => $userid,
+            'waitinglist' => MOD_BOOKING_STATUSPARAM_BOOKED,
+            'places' => 1,
+            'timecreated' => time(),
+            'timemodified' => time(),
+            'startdate' => (int)$slots[0]['start'],
+            'enddate' => (int)$slots[count($slots) - 1]['end'],
+            'json' => '',
+        ];
+        slot_answer::set_slot_data($answer, ['slots' => $payload, 'teachers' => []]);
+        return (int) $DB->insert_record('booking_answers', $answer);
     }
 
     /**

@@ -236,13 +236,28 @@ class slot_dto {
         foreach ($bookinganswers as $bookinganswer) {
             $studentid = (int)$bookinganswer->userid;
             $studentids[$studentid] = true;
-            $bookingranges[] = [
-                'baid' => (int)$bookinganswer->id,
-                'userid' => $studentid,
-                'start' => (int)$bookinganswer->startdate,
-                'end' => (int)$bookinganswer->enddate,
-                'waitinglist' => (int)$bookinganswer->waitinglist,
-            ];
+
+            // A booking answer can hold several non-contiguous slots. Match each booked slot
+            // individually (the canonical ranges that also drive availability/occupancy) instead
+            // of the overall [startdate, enddate] envelope, which would otherwise flag every
+            // unbooked slot lying between the first and last booking as taken.
+            $bookedranges = slot_availability::extract_booked_ranges_from_answer($bookinganswer);
+            if (empty($bookedranges)) {
+                // Legacy answers without a slot payload: fall back to the overall range.
+                $bookedranges = [[
+                    'start' => (int)$bookinganswer->startdate,
+                    'end' => (int)$bookinganswer->enddate,
+                ]];
+            }
+            foreach ($bookedranges as $bookedrange) {
+                $bookingranges[] = [
+                    'baid' => (int)$bookinganswer->id,
+                    'userid' => $studentid,
+                    'start' => (int)$bookedrange['start'],
+                    'end' => (int)$bookedrange['end'],
+                    'waitinglist' => (int)$bookinganswer->waitinglist,
+                ];
+            }
 
             $slotdata = slot_answer::get_slot_data($bookinganswer);
             if (empty($slotdata) || !is_array($slotdata)) {

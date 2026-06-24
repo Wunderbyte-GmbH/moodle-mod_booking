@@ -217,10 +217,14 @@ class slot_availability {
     /**
      * Extract exact booked slot ranges from booking answer JSON.
      *
-     * @param object $answer booking answer row
-     * @return array
+     * Canonical source of a booking answer's actually-booked slots (prefers the per-slot
+     * teacher entries, falls back to the plain selected slots). Shared with the report DTO so
+     * occupancy and reporting agree on which slots a multi-slot booking really occupies.
+     *
+     * @param object $answer booking answer row (must carry the `json` field)
+     * @return array list of ['start' => int, 'end' => int]
      */
-    private static function extract_booked_ranges_from_answer(object $answer): array {
+    public static function extract_booked_ranges_from_answer(object $answer): array {
         $ranges = [];
         $slotdata = slot_answer::get_slot_data($answer);
 
