@@ -29,6 +29,7 @@ use mod_booking\booking_option_settings;
 use mod_booking\option\field_base;
 use mod_booking\option\fields_info;
 use mod_booking\option\type_resolver;
+use mod_booking\local\slotbooking\slot_feature;
 use mod_booking\singleton_service;
 use mod_booking\utils\wb_payment;
 use MoodleQuickForm;
@@ -131,7 +132,7 @@ class optiontype extends field_base {
             MOD_BOOKING_OPTIONTYPE_SELFLEARNINGCOURSE => $selflearningcourselabel,
         ];
 
-        if (wb_payment::pro_version_is_activated()) {
+        if (slot_feature::is_enabled()) {
             $options[MOD_BOOKING_OPTIONTYPE_SLOTBOOKING] = get_string('optiontype_slotbooking', 'mod_booking');
         }
 
@@ -216,7 +217,7 @@ class optiontype extends field_base {
             $data->selflearningcourse = 1;
         }
 
-        if (!wb_payment::pro_version_is_activated() && (int)$data->optiontype === MOD_BOOKING_OPTIONTYPE_SLOTBOOKING) {
+        if (!slot_feature::is_enabled() && (int)$data->optiontype === MOD_BOOKING_OPTIONTYPE_SLOTBOOKING) {
             $data->optiontype = MOD_BOOKING_OPTIONTYPE_DEFAULT;
         }
 
@@ -235,9 +236,16 @@ class optiontype extends field_base {
         global $DB;
 
         $type = (int)($data['optiontype'] ?? MOD_BOOKING_OPTIONTYPE_DEFAULT);
-        if ($type === MOD_BOOKING_OPTIONTYPE_SLOTBOOKING && !wb_payment::pro_version_is_activated()) {
-            $errors['optiontype'] = get_string('proversiononly', 'mod_booking');
-            return $errors;
+        if ($type === MOD_BOOKING_OPTIONTYPE_SLOTBOOKING) {
+            if (!wb_payment::pro_version_is_activated()) {
+                $errors['optiontype'] = get_string('proversiononly', 'mod_booking');
+                return $errors;
+            }
+            if (!slot_feature::is_enabled()) {
+                // PRO is active but the admin toggle (booking/slotbookingactive) is off.
+                $errors['optiontype'] = get_string('turnthisoninsettings', 'mod_booking');
+                return $errors;
+            }
         }
 
         if ($type === MOD_BOOKING_OPTIONTYPE_SELFLEARNINGCOURSE) {

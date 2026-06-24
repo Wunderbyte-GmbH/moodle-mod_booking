@@ -611,6 +611,17 @@ if ($ADMIN->fulltree) {
         'bookedvscapacity' => get_string('slot_bookings_display_mode_bookedvscapacity', 'mod_booking'),
     ];
     if ($proversion) {
+        // Global on/off switch for the whole slot booking feature (default on, so existing PRO
+        // sites keep it). When off, slot booking is hidden everywhere: option type, prepage
+        // condition, agent skill and the slot entry scripts/webservices (see slot_feature).
+        $settings->add(
+            new admin_setting_configcheckbox(
+                'booking/slotbookingactive',
+                get_string('slotbookingactive', 'mod_booking'),
+                get_string('slotbookingactive_desc', 'mod_booking'),
+                1
+            )
+        );
         $settings->add(
             new admin_setting_configselect(
                 'booking/slot_bookings_display_mode',

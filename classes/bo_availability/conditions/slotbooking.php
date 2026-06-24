@@ -31,6 +31,7 @@ use mod_booking\singleton_service;
 use mod_booking\local\mobile\slotbookingstore;
 use mod_booking\local\slotbooking\slot_answer;
 use mod_booking\local\slotbooking\slot_availability;
+use mod_booking\local\slotbooking\slot_feature;
 use mod_booking\local\slotbooking\slot_mover;
 use mod_booking\local\slotbooking\slot_price;
 use MoodleQuickForm;
@@ -424,7 +425,7 @@ class slotbooking implements bo_condition {
      * @return bool
      */
     private function is_slot_booking_available_in_license(): bool {
-        return wb_payment::pro_version_is_activated();
+        return slot_feature::is_enabled();
     }
 
     /**
