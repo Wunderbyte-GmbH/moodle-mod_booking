@@ -169,7 +169,18 @@ export const renderFixedSlotsEditor = async(container, daySlots, selection, time
     const heightForShortestSlot = Math.round((span / shortestSlotDuration) * minReadableSlotPx);
     const heightForSlotCount = 110 + (daySlots.length * 6);
     const timelineHeight = Math.max(140, Math.min(420, Math.max(heightForShortestSlot, heightForSlotCount)));
-    const minSlotHeightPercent = (minReadableSlotPx / timelineHeight) * 100;
+    // Smallest gap between consecutive slot starts: the readability floor must never exceed it,
+    // otherwise back-to-back slots would render taller than their grid spacing and overlap.
+    const sortedStarts = daySlots.map(s => Number(s.start || 0)).sort((a, b) => a - b);
+    let minStartGap = span;
+    for (let i = 1; i < sortedStarts.length; i++) {
+        const gap = sortedStarts[i] - sortedStarts[i - 1];
+        if (gap > 0 && gap < minStartGap) {
+            minStartGap = gap;
+        }
+    }
+    const maxNonOverlapPercent = (minStartGap / span) * 100;
+    const minSlotHeightPercent = Math.min((minReadableSlotPx / timelineHeight) * 100, maxNonOverlapPercent);
 
     const labels = [];
     const ticks = [];
