@@ -1351,20 +1351,6 @@ if ($ADMIN->fulltree) {
             get_string('useconfirmationworkflowheader_desc', 'mod_booking'),
             0 // Default: off.
         ));
-
-        // Load all settings from booking extensions.
-        foreach (core_plugin_manager::instance()->get_plugins_of_type('bookingextension') as $plugin) {
-            $fullclassname = "\\bookingextension_{$plugin->name}\\{$plugin->name}";
-            if (!class_exists($fullclassname)) {
-                continue; // Skip if the class does not exist.
-            }
-            $plugin = new $fullclassname();
-            if (!$plugin instanceof bookingextension_interface) {
-                continue; // Skip if the plugin does not implement the interface.
-            }
-            // Todo: This is not very stable. Maybe alter $settings object.
-            $plugin->load_settings($ADMIN, 'modbookingfolder', $hassiteconfig);
-        }
     } else {
         $settings->add(
             new admin_setting_heading(
@@ -1385,6 +1371,23 @@ if ($ADMIN->fulltree) {
                  get_string('infotext:prolicensenecessary', 'mod_booking')
              )
          );
+    }
+
+    // Load all settings from booking extensions. This runs regardless of the Booking PRO license:
+    // booking extensions (e.g. the Wunderbyte Agent) ship their own settings and license handling,
+    // so their settings page must always appear and their defaults must be seeded on install even
+    // when no Booking PRO key is present.
+    foreach (core_plugin_manager::instance()->get_plugins_of_type('bookingextension') as $plugin) {
+        $fullclassname = "\\bookingextension_{$plugin->name}\\{$plugin->name}";
+        if (!class_exists($fullclassname)) {
+            continue; // Skip if the class does not exist.
+        }
+        $plugin = new $fullclassname();
+        if (!$plugin instanceof bookingextension_interface) {
+            continue; // Skip if the plugin does not implement the interface.
+        }
+        // Todo: This is not very stable. Maybe alter $settings object.
+        $plugin->load_settings($ADMIN, 'modbookingfolder', $hassiteconfig);
     }
 
     // PRO feature: Cancellation settings.
