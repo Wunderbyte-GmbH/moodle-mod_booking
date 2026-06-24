@@ -95,9 +95,13 @@ class scheduledmails {
                ) as s1
         ";
 
-        $where = "1 = 1";
+        // Only list scheduled mails whose generating rule lives in the requested context, so a
+        // booking instance shows its own mails and the system context (contextid 1, "global")
+        // shows only site-wide rules' mails -- not every rule's mails across the whole site.
+        $where = "s1.contextid = :scheduledmailscontextid";
+        $params = ['scheduledmailscontextid' => $contextid];
 
-        return [$fields, $from, $where, []];
+        return [$fields, $from, $where, $params];
     }
 
     /**

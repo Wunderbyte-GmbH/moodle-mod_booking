@@ -75,7 +75,7 @@ class scheduledmails implements renderable, templatable {
         unset($columns['status']);
         unset($columns['action']);
         $table->define_sortablecolumns(array_keys($columns));
-        [$fields, $from, $where, $params] = \mod_booking\local\scheduledmails::get_sql();
+        [$fields, $from, $where, $params] = \mod_booking\local\scheduledmails::get_sql($contextid);
         $table->set_sql($fields, $from, $where, $params);
         $sql = "SELECT $fields FROM $from WHERE $where";
 
