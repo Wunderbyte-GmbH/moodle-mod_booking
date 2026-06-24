@@ -418,11 +418,12 @@ export class SlotCalendarPicker {
             return days;
         }
 
+        // Only render the days that actually belong to the current month. The leading
+        // weekday alignment is handled with empty filler cells in renderCalendarGrid().
         const first = new Date(base.getFullYear(), base.getMonth(), 1);
-        const offset = (first.getDay() + 6) % 7;
-        first.setDate(first.getDate() - offset);
+        const daysInMonth = new Date(base.getFullYear(), base.getMonth() + 1, 0).getDate();
 
-        for (let i = 0; i < 42; i++) {
+        for (let i = 0; i < daysInMonth; i++) {
             const date = cloneDate(first);
             date.setDate(first.getDate() + i);
             days.push(date);
@@ -471,6 +472,17 @@ export class SlotCalendarPicker {
 
         const days = this.getVisibleDays();
         const month = this.currentDate.getMonth();
+
+        // In month view, pad the start of the grid so the first day lands under the
+        // correct weekday column without rendering days from the previous month.
+        if (this.viewMode === 'month' && days.length > 0) {
+            const leading = (days[0].getDay() + 6) % 7;
+            for (let i = 0; i < leading; i++) {
+                const filler = document.createElement('div');
+                filler.className = 'booking-slot-calendar-cell';
+                this.calendarGrid.appendChild(filler);
+            }
+        }
 
         days.forEach(date => {
             const dayKey = toDateKeyFromDate(date);
