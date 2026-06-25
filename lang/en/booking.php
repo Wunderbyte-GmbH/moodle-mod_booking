@@ -190,10 +190,10 @@ $string['available'] = 'Places available';
 $string['availableplaces'] = 'Places available: {$a->available} of {$a->maxanswers}';
 $string['availplacesfull'] = 'Full';
 $string['back'] = 'Back';
-$string['baid'] = 'Booking answer ID';
 $string['backtoresponses'] = '&lt;&lt; Back to responses';
 $string['badge:exp'] = '<span class="badge bg-danger text-light"><i class="fa fa-flask" aria-hidden="true"></i> Experimental</span>';
 $string['badge:pro'] = '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
+$string['baid'] = 'Booking answer ID';
 $string['banusernames'] = 'Ban usernames';
 $string['banusernames_help'] = 'To limit which usernames can`t apply just write in this field, and separate with coma. To ban usernames, that end with gmail.com and yahoo.com just write: gmail.com, yahoo.com';
 $string['banusernameswarning'] = "Your username is banned so you can't book.";
@@ -220,6 +220,8 @@ of bookings is reached. Before that happens, booking is only possible for cashie
 $string['boactioncancelbookingdesc'] = "Used for options which can be bought multiple times";
 $string['boactioncancelbookingvalue'] = "Activate immediate cancellation";
 $string['boactionname'] = "Name of action";
+$string['boactiononcancel'] = "Run on cancellation";
+$string['boactiononcancel_desc'] = "Execute this action when a booking is cancelled instead of when it is booked.";
 $string['boactions'] = 'Actions after booking <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span> <span class="badge bg-danger text-light"><i class="fa fa-flask" aria-hidden="true"></i> Experimental</span>';
 $string['boactions_desc'] = "Booking actions after booking are still an EXPERIMENTAL feature. You can try them if you want.
 But do not use them in a productive environment yet!";
@@ -450,6 +452,10 @@ $string['boconduserprofilefieldfullnotavailable'] = 'Only users with user profil
 $string['boconduserprofilefieldnotavailable'] = 'Not allowed to book';
 $string['boconduserprofilefieldoperator'] = 'Operator';
 $string['boconduserprofilefieldvalue'] = 'Value';
+$string['bocustomheaders'] = "Additional HTTP headers";
+$string['bocustomheaders_desc'] = "Optional. One \"Header-Name: value\" per line, e.g. \"Authorization: Bearer abc123\". Sent in addition to the default header.";
+$string['bojsonbody'] = "JSON body";
+$string['bojsonbody_desc'] = "Optional. When set, the request is sent as JSON instead of form fields. Placeholders: {baid} (unique booking answer id, use this as order_id), {email}, {firstname}, {lastname}, {username}, {userid}, {optionid}, any other mod_booking placeholder and any custom-form field {key}.";
 $string['bonumberofdays'] = "Number of days";
 $string['bookagain'] = "Book again";
 $string['bookagainwithcountplural'] = 'Book again (already booked {$a} times)';
@@ -774,14 +780,8 @@ $string['bookwithcreditsprofilefield_desc'] = "To use this functionality, please
 $string['bookwithcreditsprofilefieldoff'] = 'Do not show';
 $string['bopathtoscript'] = "Path to rest script";
 $string['bosecrettoken'] = "Secret token";
-$string['bocustomheaders'] = "Additional HTTP headers";
-$string['bocustomheaders_desc'] = "Optional. One \"Header-Name: value\" per line, e.g. \"Authorization: Bearer abc123\". Sent in addition to the default header.";
-$string['bojsonbody'] = "JSON body";
-$string['bojsonbody_desc'] = "Optional. When set, the request is sent as JSON instead of form fields. Placeholders: {baid} (unique booking answer id, use this as order_id), {email}, {firstname}, {lastname}, {username}, {userid}, {optionid}, any other mod_booking placeholder and any custom-form field {key}.";
 $string['bosslverify'] = "Verify SSL certificate";
 $string['bosslverify_desc'] = "Verify the target's TLS certificate (recommended for external HTTPS endpoints).";
-$string['boactiononcancel'] = "Run on cancellation";
-$string['boactiononcancel_desc'] = "Execute this action when a booking is cancelled instead of when it is booked.";
 $string['bstcourse'] = 'Course';
 $string['bstcoursestarttime'] = 'Date / Time';
 $string['bstinstitution'] = 'Institution';
