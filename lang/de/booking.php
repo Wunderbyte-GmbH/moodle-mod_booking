@@ -1923,6 +1923,7 @@ $string['multiplebookings_afterduration'] = 'Nach fester Wartezeit erlauben';
 $string['multiplebookings_afterlastslot'] = 'Nach Ende des zuletzt gebuchten Slots erlauben';
 $string['multiplebookings_disabled'] = 'Erneute Buchung nicht erlauben';
 $string['multipledayofweektimestringshint'] = '<b>Pro Zeile</b> können Sie eine Kombination aus Wochentag und Uhrzeit angeben.<br>Beispiel: "Montag, 10:00 - 12:00" und "Dienstag, 15:00 - 16:30"';
+$string['multiselect'] = 'Mehrfachauswahl';
 $string['mustchooseone'] = 'Sie müssen eine Option auswählen';
 $string['mustcombine'] = 'Notwendige Buchungsoptionen';
 $string['mustcombine_help'] = 'Buchungsoptionen mit denen diese Buchungsoption kombiniert werden muss';
