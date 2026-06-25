@@ -2196,6 +2196,7 @@ $string['optiontemplatenotsavednovalidlicense'] = 'Booking option template could
 Upgrade to PRO version to save an unlimited number of templates.';
 $string['optiontemplates'] = 'Booking option templates';
 $string['optiontemplatessettings'] = 'Booking option templates';
+$string['optiontoplevel'] = 'Top level';
 $string['optiontype'] = 'Option type';
 $string['optiontype_apply'] = 'Apply type';
 $string['optiontype_slotbooking'] = 'Slot booking';
