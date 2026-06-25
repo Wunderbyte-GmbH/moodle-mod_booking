@@ -213,6 +213,8 @@ bis dahin kann nur an der Kassa oder durch einen Admin gebucht werden.';
 $string['boactioncancelbookingdesc'] = "Wird verwendet, wenn eine Option mehrmals gekauft werden können soll.";
 $string['boactioncancelbookingvalue'] = "Aktiviere sofortige Ausbuchung";
 $string['boactionname'] = "Name der Aktion";
+$string['boactiononcancel'] = "Beim Stornieren ausführen";
+$string['boactiononcancel_desc'] = "Diese Aktion beim Stornieren einer Buchung ausführen statt beim Buchen.";
 $string['boactions'] = 'Aktionen nach der Buchung <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span> <span class="badge bg-danger text-light"><i class="fa fa-flask" aria-hidden="true"></i> Experimentell</span>';
 $string['boactions_desc'] = "Aktionen nach der Buchung sind derzeit ein experimentelles Feature.
 Sie können es ausprobieren, aber bitte verwenden Sie es noch auf keiner Produktivplattform!";
@@ -440,6 +442,10 @@ $string['boconduserprofilefieldfullnotavailable'] = 'Nur Benutzer:innen, bei den
 $string['boconduserprofilefieldnotavailable'] = 'Buchen nicht möglich';
 $string['boconduserprofilefieldoperator'] = 'Operator';
 $string['boconduserprofilefieldvalue'] = 'Wert';
+$string['bocustomheaders'] = "Zusätzliche HTTP-Header";
+$string['bocustomheaders_desc'] = "Optional. Ein \"Header-Name: Wert\" pro Zeile, z. B. \"Authorization: Bearer abc123\". Wird zusätzlich zum Standard-Header gesendet.";
+$string['bojsonbody'] = "JSON-Body";
+$string['bojsonbody_desc'] = "Optional. Wenn gesetzt, wird die Anfrage als JSON statt als Formularfelder gesendet. Platzhalter: {email}, {firstname}, {lastname}, {username}, {userid}, {optionid} sowie jedes Custom-Form-Feld {key}.";
 $string['bonumberofdays'] = "Anzahl der tage";
 $string['bookagain'] = 'Erneut buchen';
 $string['bookagainwithcountplural'] = 'Erneut buchen (bereits {$a} Mal gebucht)';
@@ -756,6 +762,8 @@ $string['bookwithcreditsprofilefield_desc'] = "Um die Funktion nutzen zu können
 $string['bookwithcreditsprofilefieldoff'] = 'Nicht anzeigen';
 $string['bopathtoscript'] = "Pfad zur REST-Skript";
 $string['bosecrettoken'] = "Sicherheits-Token";
+$string['bosslverify'] = "SSL-Zertifikat prüfen";
+$string['bosslverify_desc'] = "Das TLS-Zertifikat des Ziels prüfen (empfohlen für externe HTTPS-Endpunkte).";
 $string['bstcourse'] = 'Kurs';
 $string['bstcoursestarttime'] = 'Datum / Uhrzeit';
 $string['bstinstitution'] = 'Institution';
