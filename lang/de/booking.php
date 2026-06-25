@@ -2139,6 +2139,7 @@ $string['optiontemplatenotsavednovalidlicense'] = 'Buchungsoption konnte nicht a
 Holen Sie sich die PRO-Version, um beliebig viele Vorlagen erstellen zu können.';
 $string['optiontemplates'] = 'Buchungsoptionsvorlagen';
 $string['optiontemplatessettings'] = 'Buchungsoptionsvorlagen';
+$string['optiontoplevel'] = 'Oberste Ebene';
 $string['optiontype'] = 'Buchungsoptionstyp';
 $string['optiontype_apply'] = 'Typ anwenden';
 $string['optiontype_slotbooking'] = 'Slot-Buchung';
