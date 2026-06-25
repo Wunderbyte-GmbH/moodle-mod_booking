@@ -62,6 +62,9 @@ class create_dynamicfield_form extends moodleform {
         $mform->addRule('newfieldshortname', get_string('required'), 'required', null, 'client');
         $mform->addHelpButton('newfieldshortname', 'newfieldshortname', 'mod_booking');
 
+        $mform->addElement('checkbox', 'newfieldmultiselect', get_string('multiselect', 'mod_booking'));
+        $mform->setDefault('newfieldmultiselect', 0);
+
         $mform->addElement('submit', 'createfield', get_string('createfield', 'mod_booking'));
     }
 
