@@ -31,6 +31,7 @@ Feature: Book equipment that is available at a location on a booking option
   Scenario: Equipment fields appear for the chosen location and the quantity persists
     Given I am on the "BookingEq" Activity page logged in as admin
     And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Add entity" "link"
     And I set the following fields to these values:
       | Entity | Gym |
     And I press "Show equipment for the selected location"
@@ -39,5 +40,6 @@ Feature: Book equipment that is available at a location on a booking option
     And I press "Save"
     ## Re-open the option and verify the equipment quantity was stored.
     And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Add entity" "link"
     And I press "Show equipment for the selected location"
     Then the field "Quantity: Beamers" matches value "1"
