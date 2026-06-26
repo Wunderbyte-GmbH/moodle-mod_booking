@@ -280,8 +280,12 @@ class actions_info {
 
         // Type-agnostic trigger flag: when set, the action runs on cancellation of a
         // booking instead of on booking. Default off keeps the existing on-booking behaviour.
-        $mform->addElement('advcheckbox', 'boactiononcancel', get_string('boactiononcancel', 'mod_booking'),
-            get_string('boactiononcancel_desc', 'mod_booking'));
+        $mform->addElement(
+            'advcheckbox',
+            'boactiononcancel',
+            get_string('boactiononcancel', 'mod_booking'),
+            get_string('boactiononcancel_desc', 'mod_booking')
+        );
         $mform->setType('boactiononcancel', PARAM_INT);
     }
 

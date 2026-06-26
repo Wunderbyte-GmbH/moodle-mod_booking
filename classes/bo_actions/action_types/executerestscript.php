@@ -290,8 +290,12 @@ class executerestscript extends booking_action {
 
         // Optional: verify the TLS certificate of the target. Off by default to keep
         // the existing behaviour; turn on for real external HTTPS endpoints.
-        $mform->addElement('advcheckbox', 'sslverify', get_string('bosslverify', 'mod_booking'),
-            get_string('bosslverify_desc', 'mod_booking'));
+        $mform->addElement(
+            'advcheckbox',
+            'sslverify',
+            get_string('bosslverify', 'mod_booking'),
+            get_string('bosslverify_desc', 'mod_booking')
+        );
         $mform->setType('sslverify', PARAM_INT);
     }
 
