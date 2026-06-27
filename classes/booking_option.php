@@ -1171,13 +1171,19 @@ class booking_option {
                         continue;
                     }
 
-                    // user_submit_response() purges the answers cache itself (its final
-                    // self::purge_cache_for_answers), and enrol_user_coursestart() does not touch
-                    // booking answers, so the explicit purges that used to bracket this call were
-                    // redundant. Removed to avoid firing system-wide cache invalidations per
-                    // promoted user during waiting-list sync. The pre-loop purge keeps the first
-                    // iteration fresh; each submit's own purge keeps the following ones fresh.
-                    $result = $this->user_submit_response($user, 0, 0, 0, MOD_BOOKING_VERIFIED);
+                    // user_submit_response() refreshes this option's answers cache itself, and
+                    // enrol_user_coursestart() does not touch booking answers, so no explicit
+                    // purge is needed around this call. We defer the system-wide broadcasts: the
+                    // submit only refreshes this option per iteration and we broadcast once after
+                    // the loop, instead of invalidating every user's caches per promoted user.
+                    $result = $this->user_submit_response(
+                        $user,
+                        0,
+                        0,
+                        0,
+                        MOD_BOOKING_VERIFIED,
+                        deferbroadcastpurge: true
+                    );
                     $this->enrol_user_coursestart($currentanswer->userid);
 
                     $messagecontroller = new message_controller(
@@ -1190,6 +1196,8 @@ class booking_option {
                     );
                     $messagecontroller->send_or_queue();
                 }
+                // The promotions above deferred their broadcasts; issue a single one for the batch.
+                self::broadcast_answer_caches();
             }
             if (!$syncshared) {
                 sharedplaces::sync_sharedplaces_options($settings->id, false);
@@ -1353,6 +1361,8 @@ class booking_option {
      * @param int $timebooked the timestamp when the booking was made
      * @param bool $updateansweronimport if set to true, the function will update existing bookinganswer on imports.
      * @param int $syncruleid if given, this implicated that the user was enroled via a syncronisation rule with the given id.
+     * @param bool $deferbroadcastpurge if true, only refresh this option's answers cache and skip the
+     *                                  system-wide broadcast purges (caller must broadcast once afterwards).
      * @return bool true if booking was possible, false if meanwhile the booking got full
      */
     public function user_submit_response(
@@ -1365,6 +1375,7 @@ class booking_option {
         $timebooked = 0,
         $updateansweronimport = false,
         int $syncruleid = 0,
+        bool $deferbroadcastpurge = false,
     ) {
 
         global $USER;
@@ -1640,8 +1651,15 @@ class booking_option {
             self::check_if_free_to_book_again($this->settings, $user->id, true);
         }
 
-        // Important: Purge caches after submitting a new user.
-        self::purge_cache_for_answers($this->optionid);
+        // Important: refresh the answers cache after submitting a new user. During a bulk
+        // waiting-list sync ($deferbroadcastpurge) only the option-scoped refresh runs; the
+        // caller issues a single broadcast_answer_caches() at the end, instead of invalidating
+        // every user's session/booked-user/my-options caches once per promoted user.
+        if ($deferbroadcastpurge) {
+            self::refresh_answers_for_option($this->optionid);
+        } else {
+            self::purge_cache_for_answers($this->optionid);
+        }
 
         // To avoid a problem with the payment process, we catch any error that might occur.
         try {
