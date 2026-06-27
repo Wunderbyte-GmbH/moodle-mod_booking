@@ -208,7 +208,7 @@ class enrolledincohorts implements bo_condition, freezable_condition {
             if ($databasetype == 'postgres') {
                 $where = "
                     (
-                        availability IS NOT NULL
+                        COALESCE(availability, '[]') IS NOT NULL
                         AND NOT EXISTS (
                             SELECT 1 FROM jsonb_array_elements(availability::jsonb) AS obj
                             WHERE (obj->>'id')::int = $conditionid
@@ -221,7 +221,7 @@ class enrolledincohorts implements bo_condition, freezable_condition {
             ) {
                 $where = "
                     (
-                        availability IS NOT NULL
+                        COALESCE(availability, '[]') IS NOT NULL
                         AND NOT EXISTS (
                             SELECT 1 FROM JSON_TABLE(availability, '$[*]' COLUMNS (
                                 id INT PATH '$.id',
@@ -242,7 +242,7 @@ class enrolledincohorts implements bo_condition, freezable_condition {
             $appendwhere2 = implode(', ', $cohortidstext);
 
             $where = "
-            availability IS NOT NULL
+            COALESCE(availability, '[]') IS NOT NULL
             AND
             (
                 (
@@ -288,7 +288,7 @@ class enrolledincohorts implements bo_condition, freezable_condition {
             $appendwhere = implode(', ', $cohortidstext);
 
             $where = "
-                availability IS NOT NULL
+                COALESCE(availability, '[]') IS NOT NULL
                 AND (
                         (
                             NOT EXISTS (
