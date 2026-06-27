@@ -145,10 +145,18 @@ class bookings extends external_api {
                         $categoryies = explode(',', $bookingdata->settings->categoryid);
 
                         if (!empty($categoryies) && count($categoryies) > 0) {
+                            // Bulk-load all category names in a single query instead of one per category.
+                            $categorynames = $DB->get_records_list(
+                                'booking_category',
+                                'id',
+                                $categoryies,
+                                '',
+                                'id, name'
+                            );
                             foreach ($categoryies as $category) {
                                 $cat = [];
                                 $cat['id'] = $category;
-                                $cat['name'] = $DB->get_field('booking_category', 'name', ['id' => $category]);
+                                $cat['name'] = $categorynames[$category]->name ?? '';
 
                                 $ret['categories'][] = $cat;
                             }
