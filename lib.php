@@ -2888,6 +2888,13 @@ function mod_booking_tool_certificate_fields() {
 function db_is_at_least_mariadb_106_or_mysql_8() {
     global $DB;
 
+    // The DB server version cannot change within a request, so cache the result.
+    // This avoids firing "SELECT VERSION()" once per availability condition per options query.
+    static $cache = null;
+    if ($cache !== null) {
+        return $cache;
+    }
+
     $versionstring = $DB->get_field_sql(
         "SELECT VERSION() AS version"
     );
@@ -2895,20 +2902,20 @@ function db_is_at_least_mariadb_106_or_mysql_8() {
         // Extract the version number from the string.
         preg_match('/\d+\.\d+\.\d+/', $versionstring, $matches);
         if (empty($matches)) {
-            return false; // If we cannot extract the version, return false.
+            return $cache = false; // If we cannot extract the version, return false.
         }
         if (version_compare($matches[0], '10.6', '>=')) {
             // If it's a MariaDB and the version is 10.6 or higher, return true.
-            return true;
+            return $cache = true;
         }
     } else if ($DB->get_dbfamily() == 'mysql') {
         if (version_compare($versionstring, '8.0', '>=')) {
             // If it's MySQL and the version is 8.0 or higher, return true.
-            return true;
+            return $cache = true;
         }
     }
     // No MariaDB >= 10.6 or MySQL > 8.0.
-    return false;
+    return $cache = false;
 }
 
 // With this function, we can execute code at the last moment.
