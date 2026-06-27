@@ -1171,14 +1171,15 @@ class booking_option {
                         continue;
                     }
 
-                    // We delete the booking answers cache - because settings (limits, etc.) could be changed!
-                    self::purge_cache_for_answers($this->optionid);
-
+                    // user_submit_response() purges the answers cache itself (its final
+                    // self::purge_cache_for_answers), and enrol_user_coursestart() does not touch
+                    // booking answers, so the explicit purges that used to bracket this call were
+                    // redundant. Removed to avoid firing system-wide cache invalidations per
+                    // promoted user during waiting-list sync. The pre-loop purge keeps the first
+                    // iteration fresh; each submit's own purge keeps the following ones fresh.
                     $result = $this->user_submit_response($user, 0, 0, 0, MOD_BOOKING_VERIFIED);
                     $this->enrol_user_coursestart($currentanswer->userid);
 
-                    // Before sending, we delete the booking answers cache again.
-                    self::purge_cache_for_answers($this->optionid);
                     $messagecontroller = new message_controller(
                         MOD_BOOKING_MSGCONTRPARAM_QUEUE_ADHOC,
                         MOD_BOOKING_MSGPARAM_STATUS_CHANGED,
@@ -4382,17 +4383,31 @@ class booking_option {
      */
     public static function purge_cache_for_answers(int $optionid) {
 
+        // Behaviour unchanged: the system-wide broadcasts plus the option-scoped refresh.
+        // The two parts are also callable on their own (see refresh_answers_for_option()
+        // and broadcast_answer_caches()) so bulk operations can refresh each option but
+        // broadcast only once. The order of these independent cache clears does not affect
+        // the final state; the answers rebuild inside the refresh still runs last.
+        self::broadcast_answer_caches();
+        self::refresh_answers_for_option($optionid);
+    }
+
+    /**
+     * Invalidate and rebuild the answer caches that belong to ONE booking option.
+     *
+     * This is the option-scoped part of {@see self::purge_cache_for_answers()} and does
+     * NOT touch the system-wide caches (session answers / booked-user table / my-options
+     * table). Use it together with {@see self::broadcast_answer_caches()} when a bulk
+     * operation refreshes many options but should broadcast only once.
+     *
+     * @param int $optionid
+     */
+    public static function refresh_answers_for_option(int $optionid) {
+
         cache_helper::invalidate_by_event('setbackoptionsanswers', [$optionid]);
-        cache_helper::purge_by_event('setbacksessionanswers');
         // When we set back the booking_answers...
         // ... we have to make sure it's also deleted in the singleton service.
         singleton_service::destroy_booking_answers($optionid);
-
-        // We also need to destroy the booked_user_information.
-        cache_helper::purge_by_event('setbackbookedusertable');
-
-        // We also need to destroy the booked_user_information.
-        cache_helper::purge_by_event('setbackmyoptionstable');
 
         // At the end, we re-write into singleton.
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
@@ -4403,6 +4418,17 @@ class booking_option {
         if (class_exists('local_entities\entitiesrelation_handler')) {
             (new \local_entities\entitiesrelation_handler('mod_booking', 'option', $optionid))->purge_dates_cache();
         }
+    }
+
+    /**
+     * Purge the system-wide caches that derive from booking answers: the session answers
+     * cache, the booked-user table and the my-options table. These are not option-scoped,
+     * so they only need to be purged once regardless of how many options changed.
+     */
+    public static function broadcast_answer_caches() {
+        cache_helper::purge_by_event('setbacksessionanswers');
+        cache_helper::purge_by_event('setbackbookedusertable');
+        cache_helper::purge_by_event('setbackmyoptionstable');
     }
 
     /**
