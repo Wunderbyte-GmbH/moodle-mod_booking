@@ -1710,15 +1710,12 @@ class booking_option {
             self::check_if_free_to_book_again($this->settings, $user->id, true);
         }
 
-        // Important: refresh the answers cache after submitting a new user. During a bulk
-        // waiting-list sync ($deferbroadcastpurge) only the option-scoped refresh runs; the
-        // caller issues a single broadcast_answer_caches() at the end, instead of invalidating
-        // every user's session/booked-user/my-options caches once per promoted user.
-        if ($deferbroadcastpurge) {
-            self::refresh_answers_for_option($this->optionid);
-        } else {
-            self::purge_cache_for_answers($this->optionid);
-        }
+        // The answers cache was already invalidated by write_user_answer_to_db() above (which
+        // honours $deferbroadcastpurge: option-scoped refresh during a bulk sync, full broadcast
+        // otherwise). Nothing between that write and here mutates this option's booking answers -
+        // the AUTOENROL branch only touches booking_enrollink_items and the UN_CONFIRM branch's
+        // check_if_free_to_book_again() purges on its own - so we must not purge a second time
+        // (that produced a redundant global broadcast on every single booking).
 
         // To avoid a problem with the payment process, we catch any error that might occur.
         try {
