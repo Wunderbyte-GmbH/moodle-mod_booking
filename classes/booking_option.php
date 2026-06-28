@@ -1142,6 +1142,18 @@ class booking_option {
                 // We delete the booking answers cache - because settings (limits, etc.) could be changed!
                 self::purge_cache_for_answers($this->optionid);
 
+                // Hold the option's capacity lock ONCE for the whole promotion. This makes the batch
+                // atomic against concurrent direct bookings and avoids re-acquiring the lock + re-reading
+                // the DB per promoted user (the inner user_submit_response() calls run with $lockheld).
+                // Refresh once here so the first promotion sees committed state; the deferbroadcastpurge
+                // branch inside user_submit_response keeps it fresh for every following iteration. If the
+                // lock can't be acquired we fall back to per-call locking ($lockheld stays false).
+                $synclock = \core\lock\lock_config::get_lock_factory('mod_booking')
+                    ->get_lock('bookingoption_capacity_' . (int) $this->optionid, 10);
+                if ($synclock) {
+                    self::refresh_answers_for_option((int) $this->optionid);
+                }
+                try {
                 while ($noofuserstobook > 0) {
                     $noofuserstobook--; // Decrement.
                     $currentanswer = array_shift($usersonwaitinglist);
@@ -1182,7 +1194,8 @@ class booking_option {
                         0,
                         0,
                         MOD_BOOKING_VERIFIED,
-                        deferbroadcastpurge: true
+                        deferbroadcastpurge: true,
+                        lockheld: ($synclock !== false),
                     );
                     $this->enrol_user_coursestart($currentanswer->userid);
 
@@ -1195,6 +1208,12 @@ class booking_option {
                         $this->bookingid
                     );
                     $messagecontroller->send_or_queue();
+                }
+                } finally {
+                    // Release the batch-wide capacity lock once the whole waiting list is processed.
+                    if ($synclock) {
+                        $synclock->release();
+                    }
                 }
                 // The promotions above deferred their broadcasts; issue a single one for the batch.
                 self::broadcast_answer_caches();
@@ -1363,6 +1382,12 @@ class booking_option {
      * @param int $syncruleid if given, this implicated that the user was enroled via a syncronisation rule with the given id.
      * @param bool $deferbroadcastpurge if true, only refresh this option's answers cache and skip the
      *                                  system-wide broadcast purges (caller must broadcast once afterwards).
+     * @param bool $lockheld if true, the caller already holds this option's capacity lock (e.g.
+     *                       sync_waiting_list promotes the whole waiting list under one lock), so we
+     *                       skip the per-call lock acquire + DB refresh to avoid redundant lock churn
+     *                       and one DB read per promoted user. Capacity stays correct because the
+     *                       caller refreshes once before the loop and the $deferbroadcastpurge branch
+     *                       below refreshes this option per iteration.
      * @return bool true if booking was possible, false if meanwhile the booking got full
      */
     public function user_submit_response(
@@ -1376,6 +1401,7 @@ class booking_option {
         $updateansweronimport = false,
         int $syncruleid = 0,
         bool $deferbroadcastpurge = false,
+        bool $lockheld = false,
     ) {
 
         global $USER;
@@ -1391,6 +1417,28 @@ class booking_option {
         if (empty($this->option)) {
             return false;
         }
+
+        // Serialize the capacity check + write per option with a real cross-process lock
+        // (\core\lock -> MariaDB GET_LOCK here) to close the overbooking race when many users hit
+        // the same option at once. The write is a plain insert/update (no enclosing transaction on
+        // the concurrent web paths - direct bookit and the real-time payment gateways), so it is
+        // committed before the lock releases and the next waiter's refresh sees it. The one path
+        // that wraps delivery in a transaction (core bank-transfer gateway) is admin/cron-confirmed
+        // and serial, so it carries no concurrent overbooking risk.
+        // Refresh the answers from the DB inside the lock so the limit check sees committed state.
+        // When the caller already holds the lock ($lockheld, e.g. sync_waiting_list promoting the
+        // whole waiting list under one lock) we skip this per-call acquire + refresh to avoid the
+        // redundant lock churn and one extra DB read per promoted user.
+        $rwlock = null;
+        if (!$lockheld) {
+            $rwlock = \core\lock\lock_config::get_lock_factory('mod_booking')
+                ->get_lock('bookingoption_capacity_' . (int) $this->optionid, 10);
+            if (!$rwlock) {
+                return false;
+            }
+            self::refresh_answers_for_option((int) $this->optionid);
+        }
+        try {
 
         bo_info::set_enrollink_context(!empty($erlid));
         $isavailable = self::option_allows_booking_for_user($this->optionid, $user->id);
@@ -1613,6 +1661,16 @@ class booking_option {
             $syncruleid,
             !empty($timebooked) ? $timebooked : null
         );
+        } finally {
+            // Release the per-option capacity lock as soon as the answer is written and
+            // committed. Everything below (enrolment, notifications, after-booking actions,
+            // cache purge) does not affect capacity and runs unlocked. The next waiter
+            // refreshes from the DB, so it sees this committed write regardless of the purge.
+            // When $lockheld, the caller owns the lock and releases it after the whole batch.
+            if ($rwlock) {
+                $rwlock->release();
+            }
+        }
 
         if (
             $status === MOD_BOOKING_BO_SUBMIT_STATUS_AUTOENROL
