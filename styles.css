@@ -569,6 +569,12 @@ We need this for teachers for example. */
     white-space: nowrap;
 }
 
+.col-teacher-teacher a {
+    align-items: center;
+    display: inline-flex;
+    min-height: 24px;
+}
+
 /* Styles for new report.php */
 #accordion-usertables .columnclass.option {
     max-width: 100px;
