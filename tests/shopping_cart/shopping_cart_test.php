@@ -29,6 +29,7 @@ namespace mod_booking;
 use mod_booking\booking_advanced_testcase;
 use coding_exception;
 use mod_booking\booking_option;
+use mod_booking\booking_answers\booking_answers;
 use mod_booking\price;
 use mod_booking_generator;
 use mod_booking\bo_availability\bo_info;
@@ -539,6 +540,110 @@ final class shopping_cart_test extends booking_advanced_testcase {
             $result = service_provider::adjust_number_of_items('option', $option->id, $value, $reserveduser->id);
             $this->assertTrue($result, "nritems=$value should always be allowed when maxanswers is unlimited.");
         }
+    }
+
+    /**
+     * Characterisation test for the reserved -> booked conversion at paid checkout.
+     *
+     * Scenario probed: a user holds the LAST seat of an option as a cart reservation
+     * (waitinglist = MOD_BOOKING_STATUSPARAM_RESERVED), so the option already counts as fully
+     * booked - a reserved place is categorised into BOTH usersonlist and usersreserved by the
+     * booking_answers constructor and therefore consumes a place in freeonlist/fullybooked.
+     *
+     * When payment succeeds, service_provider::successful_checkout() converts the reservation in
+     * place via booking_option::user_confirm_response() -> write_user_answer_to_db() using the
+     * EXISTING baid (an UPDATE 2 -> 0), NOT a fresh user_submit_response() insert. The conversion is
+     * capacity-neutral: it must not create a second answer, must not add a second place, and must
+     * not be blocked by the option being "fully booked" (the seat is the user's own, already
+     * counted at reservation time).
+     *
+     * This pins that behaviour so the per-option capacity lock work - which only touches the
+     * user_submit_response() path - provably does not affect the regular checkout conversion.
+     *
+     * @covers \mod_booking\shopping_cart\service_provider::successful_checkout
+     * @covers \mod_booking\booking_option::user_confirm_response
+     *
+     * @param array $bdata
+     * @dataProvider booking_common_settings_provider
+     */
+    public function test_reserved_user_checkout_converts_last_seat_in_place(array $bdata): void {
+        global $DB;
+
+        $this->setAdminUser();
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $bdata['booking']['course'] = $course->id;
+        $booking = $this->getDataGenerator()->create_module('booking', $bdata['booking']);
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+
+        // Single-seat option, so the reserved user fills the ONLY place.
+        $record = new stdClass();
+        $record->bookingid = $booking->id;
+        $record->text = 'Reserved checkout conversion option';
+        $record->maxanswers = 1;
+        $option = $plugingenerator->create_option($record);
+
+        // The user holds the single seat as a cart reservation (waitinglist = 2, 1 place).
+        $reserveduser = $this->getDataGenerator()->create_user();
+        $DB->insert_record('booking_answers', (object)[
+            'bookingid' => $booking->id, 'optionid' => $option->id,
+            'userid' => $reserveduser->id, 'waitinglist' => MOD_BOOKING_STATUSPARAM_RESERVED,
+            'places' => 1, 'timemodified' => time(), 'timecreated' => time(),
+            'completed' => 0, 'frombookingid' => 0, 'numrec' => 0, 'status' => 0,
+        ]);
+
+        booking_option::purge_cache_for_answers($option->id);
+        singleton_service::destroy_instance();
+
+        // Precondition: the reservation already consumes the only place -> option is fully booked.
+        $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
+        $ba = singleton_service::get_instance_of_booking_answers($settings);
+        $this->assertEquals(
+            1,
+            booking_answers::count_places($ba->get_usersonlist()),
+            'Reserved place must be counted in usersonlist (it consumes the seat).'
+        );
+        $this->assertArrayHasKey($reserveduser->id, $ba->get_usersreserved(), 'User must start on the reserved list.');
+        $this->assertTrue($ba->is_fully_booked(), 'Option must be fully booked by the reservation.');
+
+        // Act: payment succeeds -> the real checkout callback converts the reservation.
+        $result = service_provider::successful_checkout('option', (int) $option->id, 0, (int) $reserveduser->id);
+        $this->assertTrue($result, 'Checkout of an own reservation on a full option must succeed.');
+
+        // Assert exactly ONE non-deleted answer survives, and it is BOOKED (no duplicate, no second seat).
+        $answers = $DB->get_records_select(
+            'booking_answers',
+            'optionid = :optionid AND userid = :userid AND waitinglist <> :deleted',
+            [
+                'optionid' => $option->id,
+                'userid' => $reserveduser->id,
+                'deleted' => MOD_BOOKING_STATUSPARAM_DELETED,
+            ]
+        );
+        $this->assertCount(1, $answers, 'Conversion must UPDATE in place, not insert a duplicate answer.');
+        $answer = reset($answers);
+        $this->assertEquals(
+            MOD_BOOKING_STATUSPARAM_BOOKED,
+            (int) $answer->waitinglist,
+            'The surviving answer must be BOOKED (waitinglist 0).'
+        );
+
+        // Assert capacity is unchanged: still exactly one place, user moved reserved -> booked.
+        booking_option::purge_cache_for_answers($option->id);
+        singleton_service::destroy_booking_answers($option->id);
+        $ba = singleton_service::get_instance_of_booking_answers($settings);
+        $this->assertEquals(
+            1,
+            booking_answers::count_places($ba->get_usersonlist()),
+            'Conversion must be capacity-neutral: still exactly one place taken.'
+        );
+        $this->assertArrayHasKey($reserveduser->id, $ba->get_usersonlist(), 'User must now be on the booked list.');
+        $this->assertArrayNotHasKey(
+            $reserveduser->id,
+            $ba->get_usersreserved(),
+            'User must no longer be on the reserved list.'
+        );
     }
 
     /**
