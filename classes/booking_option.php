@@ -1659,7 +1659,8 @@ class booking_option {
             $erlid,
             $historystatus ?? 0,
             $syncruleid,
-            !empty($timebooked) ? $timebooked : null
+            !empty($timebooked) ? $timebooked : null,
+            $deferbroadcastpurge
         );
         } finally {
             // Release the per-option capacity lock as soon as the answer is written and
@@ -1763,6 +1764,12 @@ class booking_option {
      *                         an exact payment timestamp. Without shopping_cart (agnostic mode)
      *                         the default null causes time() to be used, which equals the actual
      *                         moment of booking confirmation.
+     * @param bool $deferbroadcastpurge if true, only refresh this option's answers cache and skip the
+     *                                  system-wide broadcast purges of the derived caches (booked-user
+     *                                  table, my-options table, session answers). The caller is then
+     *                                  responsible for one broadcast_answer_caches() afterwards. Used by
+     *                                  bulk operations (e.g. waiting-list promotion) so the global purge
+     *                                  happens once for the batch instead of once per written answer.
      * @return int
      */
     public static function write_user_answer_to_db(
@@ -1777,7 +1784,8 @@ class booking_option {
         string $erlid = "",
         int $historystatus = 0,
         int $syncruleid = 0,
-        ?int $timebooked = null
+        ?int $timebooked = null,
+        bool $deferbroadcastpurge = false
     ) {
 
         global $DB, $USER;
@@ -1946,8 +1954,15 @@ class booking_option {
             $addtionalinfos
         );
 
-        // After writing an answer, cache has to be invalidated.
-        self::purge_cache_for_answers($optionid);
+        // After writing an answer, cache has to be invalidated. During a bulk operation
+        // ($deferbroadcastpurge) only refresh this option's answers cache; the caller issues a
+        // single broadcast_answer_caches() for the whole batch instead of one global purge per
+        // written answer.
+        if ($deferbroadcastpurge) {
+            self::refresh_answers_for_option($optionid);
+        } else {
+            self::purge_cache_for_answers($optionid);
+        }
         return $newanswer->id;
     }
 
