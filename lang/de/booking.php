@@ -498,6 +498,7 @@ $string['booking:conditionforms'] = "Formulare von Buchungsbedingungen abschicke
 $string['booking:deleteresponses'] = 'Buchungen löschen';
 $string['booking:downloadchecklist'] = 'Checkliste herunterladen.';
 $string['booking:downloadresponses'] = 'Buchungen herunterladen';
+$string['booking:duplicateanycourse'] = 'Beliebigen Kurs als Duplizierungsvorlage auswählen (auch Kurse, auf die der/die Nutzer:in keinen Zugriff hat)';
 $string['booking:editbookingrules'] = "Regeln bearbeiten (Pro)";
 $string['booking:editoptionformconfig'] = 'Buchungsoptionsfelder bearbeiten';
 $string['booking:editperformance'] = 'Performance testen';
