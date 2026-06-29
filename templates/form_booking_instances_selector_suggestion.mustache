@@ -29,15 +29,18 @@
     * id int booking instance id
     * text string name of the booking instance
     * coursename string name of the course
+    * visibility string visibility of the booking instance
 
     Example context (json):
     {
         "id": 1,
         "text": "My Booking Instance",
-        "coursename": "Course 101"
+        "coursename": "Course 101",
+        "visibility": "Visible"
     }
 }}
 <span>
     <span class="booking-instance-suggestion font-weight-bold">{{text}}<small> ID: {{id}}</small></span>
     <span class="d-block"><small>{{coursename}}</small></span>
+    <span class="d-block"><small>{{visibility}}</small></span>
 </span>
