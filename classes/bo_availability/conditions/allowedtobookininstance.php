@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Availability condition that checks if a user is enrolled in (a) certain course(s).
+ * Availability condition that checks if a user is allowed to book in this instance.
  *
  * @package     mod_booking
  * @copyright   2023 Wunderbyte GmbH <info@wunderbyte.at>
@@ -36,7 +36,7 @@ use MoodleQuickForm;
 use stdClass;
 
 /**
- * Availability condition that checks if a user is enrolled in (a) certain course(s).
+ * Availability condition that checks if a user is allowed to book in this instance.
  *
  * @package     mod_booking
  * @copyright   2023 Wunderbyte GmbH <info@wunderbyte.at>

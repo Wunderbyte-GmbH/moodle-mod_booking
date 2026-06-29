@@ -58,6 +58,43 @@ final class condition_enrolledincourse_test extends booking_advanced_testcase {
     }
 
     /**
+     * The enrolled-in-course condition must always be visible and selectable in the option form,
+     * regardless of the 'usesqlfilteravailability' setting. That setting only controls the optional
+     * DB-level SQL filtering applied at runtime, not whether the condition can be configured.
+     *
+     * This reproduces the bug where the whole condition disappeared from editoptions.php when the
+     * setting was off (its default), making behaviour inconsistent with the enrolledincohorts sibling.
+     *
+     * @covers \mod_booking\bo_availability\conditions\enrolledincourse::add_condition_to_mform
+     */
+    public function test_enrolledincourse_is_selectable_without_sqlfilter_setting(): void {
+        global $CFG;
+        require_once($CFG->libdir . '/formslib.php');
+
+        $this->setAdminUser();
+
+        // Explicitly disable the SQL-filter setting (this is also the registered default).
+        set_config('usesqlfilteravailability', 0, 'booking');
+
+        \mod_booking\bo_availability\conditions\enrolledincourse::reset_instance();
+        $condition = \mod_booking\bo_availability\conditions\enrolledincourse::instance();
+
+        $mform = new \MoodleQuickForm('test', 'post', '');
+        $condition->add_condition_to_mform($mform, 0);
+
+        $this->assertTrue(
+            $mform->elementExists('bo_cond_enrolledincourse_restrict'),
+            'The enrolledincourse condition must be selectable in the option form even when '
+                . 'usesqlfilteravailability is disabled.'
+        );
+        // The course selector must be present too, so the condition is actually configurable.
+        $this->assertTrue(
+            $mform->elementExists('bo_cond_enrolledincourse_courseids'),
+            'The course selector of the enrolledincourse condition must be available in the form.'
+        );
+    }
+
+    /**
      * Test of booking option availability by enrolled courses.
      *
      * @covers \mod_booking\bo_availability\conditions\enrolledincourse::is_available
