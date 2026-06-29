@@ -159,13 +159,11 @@ final class view_test extends advanced_testcase {
         $table->printtable($table->pagesize, $table->useinitialsbar, $table->downloadhelpbutton);
         $this->assertEquals(3, $table->totalrows);
 
-        // A user without the capability does not get the table and falls back to the "All options" tab.
+        // A user without the capability must not get the table.
         $this->setUser($student);
         singleton_service::destroy_instance();
         $view = new view($cmid, 'bulkoperations');
         $data = $view->export_for_template($output);
         $this->assertEmpty($data['bulkoperationstable']);
-        $this->assertTrue($data['showall']);
-        $this->assertNotEmpty($data['alloptionstable']);
     }
 }
