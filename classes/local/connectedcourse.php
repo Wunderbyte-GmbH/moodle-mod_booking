@@ -374,13 +374,19 @@ class connectedcourse {
 
         $courses = self::get_course_records($where, $params);
 
-        foreach ($courses as $key => $course) {
-            $context = context_course::instance($course->id);
-            if (
-                !has_capability('moodle/course:view', $context)
-                && !is_enrolled($context, $USER->id)
-            ) {
-                unset($courses[$key]);
+        // Users with this capability may duplicate any course, including ones they cannot
+        // otherwise see or access, so we skip the per-course access filter for them.
+        $canduplicateany = has_capability('mod/booking:duplicateanycourse', \context_system::instance());
+
+        if (!$canduplicateany) {
+            foreach ($courses as $key => $course) {
+                $context = context_course::instance($course->id);
+                if (
+                    !has_capability('moodle/course:view', $context)
+                    && !is_enrolled($context, $USER->id)
+                ) {
+                    unset($courses[$key]);
+                }
             }
         }
 
