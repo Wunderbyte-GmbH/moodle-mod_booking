@@ -16,7 +16,7 @@
 
 namespace mod_booking\output;
 
-use mod_booking\booking_advanced_testcase;
+use mod_booking\tests\booking_advanced_testcase;
 use cache_helper;
 use context_module;
 use mod_booking\singleton_service;

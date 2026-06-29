@@ -293,9 +293,16 @@ class actions_info {
      * Function to actually execute the actions of the booking option.
      * @param booking_option_settings $settings
      * @param int $userid
+     * @param string $trigger
+     * @param int $baid
      * @return int // Status. 0 is do nothing, 1 aborts after application right away.
      */
-    public static function apply_actions(booking_option_settings $settings, int $userid = 0, string $trigger = 'book', int $baid = 0) {
+    public static function apply_actions(
+        booking_option_settings $settings,
+        int $userid = 0,
+        string $trigger = 'book',
+        int $baid = 0
+    ) {
 
         global $USER;
 

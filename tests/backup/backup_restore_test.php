@@ -16,7 +16,7 @@
 
 namespace mod_booking;
 
-use mod_booking\booking_advanced_testcase;
+use mod_booking\tests\booking_advanced_testcase;
 use backup_controller;
 use restore_controller;
 use backup;
@@ -32,7 +32,6 @@ require_once($CFG->dirroot . '/backup/util/includes/backup_includes.php');
 require_once($CFG->dirroot . '/backup/util/includes/restore_includes.php');
 require_once($CFG->dirroot . '/mod/booking/locallib.php');
 require_once($CFG->dirroot . '/course/lib.php');
-require_once(__DIR__ . '/../booking_advanced_testcase.php');
 
 /**
  * Test restoring of bookkings with options into another course.

@@ -1060,6 +1060,33 @@ class booking_answers {
     }
 
     /**
+     * Public read-only accessor for all of a user's answers across a booking instance.
+     *
+     * Thin wrapper over the cached {@see self::get_all_answers_for_user_cached()} so callers
+     * (e.g. the AI agent's read-only diagnosis skill) can obtain a user's cross-option booking
+     * history without issuing their own DB queries. Performance: backed by the same per-user
+     * / per-instance MUC cache used internally — it introduces no additional uncached query path.
+     *
+     * @param int $userid
+     * @param int $bookingid Restrict to one booking instance (0 = all instances).
+     * @param array $status MOD_BOOKING_STATUSPARAM_* values to include.
+     * @return array<int,\stdClass> Answer records as returned by the cached loader.
+     */
+    public function get_all_answers_for_user(
+        int $userid,
+        int $bookingid = 0,
+        array $status = [
+            MOD_BOOKING_STATUSPARAM_BOOKED,
+            MOD_BOOKING_STATUSPARAM_WAITINGLIST,
+            MOD_BOOKING_STATUSPARAM_RESERVED,
+            MOD_BOOKING_STATUSPARAM_PREVIOUSLYBOOKED,
+            MOD_BOOKING_STATUSPARAM_DELETED,
+        ]
+    ): array {
+        return $this->get_all_answers_for_user_cached($userid, $bookingid, $status);
+    }
+
+    /**
      * Helper function to add availability info texts for available places and waiting list.
      *
      * @param  array $bookinginformation reference to booking information array.

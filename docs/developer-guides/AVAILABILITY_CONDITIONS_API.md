@@ -184,5 +184,4 @@ Choose an ID greater than 200 for custom conditions to avoid conflicts.
 
 ## See also
 
-- [Architecture overview](ARCHITECTURE.md)
-- [Availability conditions user documentation](../booking_conditions/README.md)
+- [Availability conditions user documentation](../user/booking_conditions/README.md)

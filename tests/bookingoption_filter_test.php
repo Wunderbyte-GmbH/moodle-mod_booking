@@ -16,7 +16,7 @@
 
 namespace mod_booking;
 
-use mod_booking\booking_advanced_testcase;
+use mod_booking\tests\booking_advanced_testcase;
 use context_system;
 use local_wunderbyte_table\filters\types\customfieldfilter;
 use mod_booking\table\bookingoptions_wbtable;
