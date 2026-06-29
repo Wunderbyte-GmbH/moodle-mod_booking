@@ -257,9 +257,6 @@ class view implements renderable, templatable {
                 // Tab will only be shown to users with the 'executebulkoperations' capability in module context.
                 if (has_capability('mod/booking:executebulkoperations', context_module::instance($cmid))) {
                     $this->bulkoperations = true;
-                } else {
-                    // Fallback so users without the capability do not land on an empty page.
-                    $this->showall = true;
                 }
                 break;
             case 'showfieldofstudy':
