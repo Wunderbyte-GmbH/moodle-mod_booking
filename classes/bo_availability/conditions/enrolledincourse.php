@@ -445,9 +445,6 @@ class enrolledincourse implements bo_condition, freezable_condition {
      */
     public function add_condition_to_mform(MoodleQuickForm &$mform, int $optionid = 0) {
         global $DB;
-        if (empty(get_config('booking', 'usesqlfilteravailability'))) {
-            return;
-        }
         // Check if PRO version is activated.
         if (wb_payment::pro_version_is_activated()) {
             $coursesarray = [];
