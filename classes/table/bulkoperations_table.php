@@ -66,8 +66,6 @@ class bulkoperations_table extends wunderbyte_table {
         int $cmid = 0
     ): self {
 
-        \mod_booking\local\performance\performance_facade::start_measurement('Building table');
-
         $table = new self($uniqueid);
         $columns = [
             'id' => get_string('id', 'local_wunderbyte_table'),
@@ -102,8 +100,6 @@ class bulkoperations_table extends wunderbyte_table {
         $table->define_headers(array_values($columns));
         $table->define_columns(array_keys($columns));
         $table->addcheckboxes = true;
-
-        \mod_booking\local\performance\performance_facade::end_measurement('Building table');
 
         // The booking instance filter makes no sense when the table is restricted to a single instance.
         $filtercolumns = shortcodes::apply_bulkoperations_filter($table, $columns, $args, $bookingid === 0);
