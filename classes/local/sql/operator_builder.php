@@ -251,13 +251,15 @@ class operator_builder {
                 WHEN '<' THEN (" . self::build_shortname_case('postgres', $user, $objalias, $fieldkey, $params) .
                     " <> '' AND
                         (CASE WHEN " . self::build_shortname_case('postgres', $user, $objalias, $fieldkey, $params) .
-                        " ~ '^-{0,1}[0-9]+([.][0-9]+){0,1}$' THEN " . self::build_shortname_case('postgres', $user, $objalias, $fieldkey, $params) .
+                        " ~ '^-{0,1}[0-9]+([.][0-9]+){0,1}$' THEN " .
+                        self::build_shortname_case('postgres', $user, $objalias, $fieldkey, $params) .
                         " ELSE '0' END)::numeric
                         < (CASE WHEN $condval ~ '^-{0,1}[0-9]+([.][0-9]+){0,1}$' THEN $condval ELSE '0' END)::numeric)
                 WHEN '>' THEN (" . self::build_shortname_case('postgres', $user, $objalias, $fieldkey, $params) .
                     " <> '' AND
                         (CASE WHEN " . self::build_shortname_case('postgres', $user, $objalias, $fieldkey, $params) .
-                        " ~ '^-{0,1}[0-9]+([.][0-9]+){0,1}$' THEN " . self::build_shortname_case('postgres', $user, $objalias, $fieldkey, $params) .
+                        " ~ '^-{0,1}[0-9]+([.][0-9]+){0,1}$' THEN " .
+                        self::build_shortname_case('postgres', $user, $objalias, $fieldkey, $params) .
                         " ELSE '0' END)::numeric
                         > (CASE WHEN $condval ~ '^-{0,1}[0-9]+([.][0-9]+){0,1}$' THEN $condval ELSE '0' END)::numeric)
                 WHEN '~' THEN (" . self::build_shortname_case('postgres', $user, $objalias, $fieldkey, $params) .
@@ -324,13 +326,15 @@ class operator_builder {
                 WHEN '<' THEN (TRIM(" . self::build_shortname_case('mysql', $user, $tablealias, $fieldkey, $params) .
                     ") <> '' AND
                     CAST(CASE WHEN " . self::build_shortname_case('mysql', $user, $tablealias, $fieldkey, $params) .
-                    " REGEXP '^-{0,1}[0-9]+([.][0-9]+){0,1}$' THEN " . self::build_shortname_case('mysql', $user, $tablealias, $fieldkey, $params) .
+                    " REGEXP '^-{0,1}[0-9]+([.][0-9]+){0,1}$' THEN " .
+                    self::build_shortname_case('mysql', $user, $tablealias, $fieldkey, $params) .
                     " ELSE '0' END AS DECIMAL(65,30))
                     < CAST(CASE WHEN $condval REGEXP '^-{0,1}[0-9]+([.][0-9]+){0,1}$' THEN $condval ELSE '0' END AS DECIMAL(65,30)))
                 WHEN '>' THEN (TRIM(" . self::build_shortname_case('mysql', $user, $tablealias, $fieldkey, $params) .
                     ") <> '' AND
                     CAST(CASE WHEN " . self::build_shortname_case('mysql', $user, $tablealias, $fieldkey, $params) .
-                    " REGEXP '^-{0,1}[0-9]+([.][0-9]+){0,1}$' THEN " . self::build_shortname_case('mysql', $user, $tablealias, $fieldkey, $params) .
+                    " REGEXP '^-{0,1}[0-9]+([.][0-9]+){0,1}$' THEN " .
+                    self::build_shortname_case('mysql', $user, $tablealias, $fieldkey, $params) .
                     " ELSE '0' END AS DECIMAL(65,30))
                     > CAST(CASE WHEN $condval REGEXP '^-{0,1}[0-9]+([.][0-9]+){0,1}$' THEN $condval ELSE '0' END AS DECIMAL(65,30)))
                 WHEN '~' THEN (TRIM(" . self::build_shortname_case('mysql', $user, $tablealias, $fieldkey, $params) .

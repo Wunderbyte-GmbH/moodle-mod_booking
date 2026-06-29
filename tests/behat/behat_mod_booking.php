@@ -32,6 +32,7 @@ use mod_booking\singleton_service;
 use mod_booking\booking_rules\booking_rules;
 use mod_booking\booking_rules\rules_info;
 use mod_booking\bo_availability\conditions\maxoptionsfromcategory;
+use mod_booking\local\wizard\options\skills\diagnose_cancellation_issue_skill;
 use Behat\Gherkin\Node\TableNode;
 use Moodle\BehatExtension\Exception\SkippedException;
 
@@ -320,5 +321,378 @@ class behat_mod_booking extends behat_base {
             'visible'       => 1,
         ];
         $pg->create_instance($page);
+    }
+
+    // AI instructions chat steps.
+
+    /**
+     * Navigate to the AI instructions chat page for a named booking instance.
+     *
+     * @Given /^I am on the AI instructions page for booking "(?P<bookingname_string>[^"]*)"$/
+     * @param string $bookingname
+     * @return void
+     */
+    public function i_am_on_the_ai_instructions_page_for_booking(string $bookingname): void {
+        $cm = $this->get_cm_by_booking_name($bookingname);
+        $url = new \moodle_url('/mod/booking/aiinstructions.php', ['id' => $cm->id]);
+        $this->getSession()->visit($this->locate_path($url->out_as_local_url(false)));
+    }
+
+    /**
+     * Log in as a given user and navigate to the AI instructions chat page.
+     *
+     * @Given /^I am on the AI instructions page for booking "(?P<bookingname_string>[^"]*)" logged in as (?P<username_string>\w+)$/
+     * @param string $bookingname
+     * @param string $username
+     * @return void
+     */
+    public function i_am_on_the_ai_instructions_page_for_booking_logged_in_as(
+        string $bookingname,
+        string $username
+    ): void {
+        $this->execute('behat_auth::i_log_in_as', [$username]);
+        $this->i_am_on_the_ai_instructions_page_for_booking($bookingname);
+    }
+
+    /**
+     * Log in as user, visit the AI instructions page, verify access is denied, then navigate away.
+     * Navigating away is required so that the ChainedStepTester's automatic exception check.
+     * The clean-page navigation avoids failures on the error page.
+     *
+     * @Given /^I visit the AI instructions page for booking "([^"]*)" as "([^"]*)" and expect access denied$/
+     * @param string $bookingname
+     * @param string $username
+     * @return void
+     */
+    public function i_visit_ai_instructions_and_expect_access_denied(
+        string $bookingname,
+        string $username
+    ): void {
+        $this->execute('behat_auth::i_log_in_as', [$username]);
+        $cm  = $this->get_cm_by_booking_name($bookingname);
+        $url = new \moodle_url('/mod/booking/aiinstructions.php', ['id' => $cm->id]);
+        $this->getSession()->visit($this->locate_path($url->out_as_local_url(false)));
+
+        // Verify access is denied. Moodle can render this in different wrappers
+        // depending on theme/version, so check both structure and common texts.
+        $page = $this->getSession()->getPage();
+        $errordiv = $page->find('xpath', "//div[@data-rel='fatalerror']");
+        $errorbox = $page->find('css', '.alert-danger, .errorbox, #notice');
+        $pagetext = core_text::strtolower($page->getText());
+        $hasdeniedtext =
+            str_contains($pagetext, 'you do not have permission')
+            || str_contains($pagetext, 'you do not currently have permissions')
+            || str_contains($pagetext, 'access denied')
+            || str_contains($pagetext, 'keine berechtigung')
+            || str_contains($pagetext, 'zugriff verweigert');
+
+        if (!$errordiv && !$errorbox && !$hasdeniedtext) {
+            throw new \Behat\Mink\Exception\ExpectationException(
+                'Expected a Moodle permission-denied error page but none was found.',
+                $this->getSession()
+            );
+        }
+
+        // Navigate away so that the ChainedStepTester automatic "I look for exceptions"
+        // step runs on the homepage rather than on the error page.
+        $homeurl = new \moodle_url('/');
+        $this->getSession()->visit($this->locate_path($homeurl->out_as_local_url(false)));
+    }
+
+    /**
+     * Type a message into the AI chat input and click send.
+     *
+     * @When /^I send the AI message "(?P<message_string>[^"]*)"$/
+     * @param string $message
+     * @return void
+     */
+    public function i_send_the_ai_message(string $message): void {
+        $page   = $this->getSession()->getPage();
+        $input  = $page->find('css', '#booking-ai-input');
+        if (!$input) {
+            throw new \Behat\Mink\Exception\ElementNotFoundException(
+                $this->getSession(),
+                'element',
+                'css',
+                '#booking-ai-input'
+            );
+        }
+        $input->setValue($message);
+
+        $sendbtn = $page->find('css', '#booking-ai-send');
+        if (!$sendbtn) {
+            throw new \Behat\Mink\Exception\ElementNotFoundException(
+                $this->getSession(),
+                'element',
+                'css',
+                '#booking-ai-send'
+            );
+        }
+        $sendbtn->click();
+    }
+
+    /**
+     * Click the "Confirm" button in the AI command confirmation panel.
+     *
+     * @When /^I confirm the AI action$/
+     * @return void
+     */
+    public function i_confirm_the_ai_action(): void {
+        $btn = $this->getSession()->getPage()->find('css', '#booking-ai-btn-confirm');
+        if (!$btn) {
+            throw new \Behat\Mink\Exception\ElementNotFoundException(
+                $this->getSession(),
+                'element',
+                'css',
+                '#booking-ai-btn-confirm'
+            );
+        }
+        $btn->click();
+    }
+
+    /**
+     * Click the "Cancel" button in the AI command confirmation panel.
+     *
+     * @When /^I cancel the AI action$/
+     * @return void
+     */
+    public function i_cancel_the_ai_action(): void {
+        $btn = $this->getSession()->getPage()->find('css', '#booking-ai-btn-cancel');
+        if (!$btn) {
+            throw new \Behat\Mink\Exception\ElementNotFoundException(
+                $this->getSession(),
+                'element',
+                'css',
+                '#booking-ai-btn-cancel'
+            );
+        }
+        $btn->click();
+    }
+
+    /**
+     * Wait until at least one assistant message appears in the AI chat thread.
+     *
+     * Times out after 15 seconds.
+     *
+     * @Then /^I wait for the AI response$/
+     * @return void
+     */
+    public function i_wait_for_the_ai_response(): void {
+        $this->spin(function () {
+            $el = $this->getSession()->getPage()->find('css', '.booking-ai-msg.assistant');
+            return $el !== null;
+        }, false, 15);
+    }
+
+    /**
+     * Execute cancellation diagnosis task directly for deterministic non-real-LLM validation.
+     *
+     * @When /^I run cancellation diagnosis task in booking "([^"]*)" for option "([^"]*)" with question "([^"]*)"$/
+     * @param string $bookingname
+     * @param string $optionquery
+     * @param string $question
+     * @return void
+     */
+    public function i_run_cancellation_diagnosis_task_in_booking_for_option_with_question(
+        string $bookingname,
+        string $optionquery,
+        string $question
+    ): void {
+        global $USER;
+
+        $cm = $this->get_cm_by_booking_name($bookingname);
+        $task = new diagnose_cancellation_issue_skill();
+        $this->lastdiagnosecancellationresult = $task->execute([
+            'question' => $question,
+            'optionquery' => $optionquery,
+        ], (int)$cm->id, (int)$USER->id);
+    }
+
+    /**
+     * Assert direct cancellation diagnosis reports expected issue and concrete reason marker.
+     *
+     * @Then /^the cancellation diagnosis result should report issue "([^"]*)" and reason containing "([^"]*)"$/
+     * @param string $expectedissue
+     * @param string $reasonneedle
+     * @return void
+     */
+    public function the_cancellation_diagnosis_result_should_report_issue_and_reason_containing(
+        string $expectedissue,
+        string $reasonneedle
+    ): void {
+        $result = $this->lastdiagnosecancellationresult;
+        if (empty($result)) {
+            throw new \Behat\Mink\Exception\ExpectationException(
+                'No cancellation diagnosis result is available. Run the diagnosis step first.',
+                $this->getSession()
+            );
+        }
+
+        if ((string)($result['status'] ?? '') !== 'executed') {
+            throw new \Behat\Mink\Exception\ExpectationException(
+                'Expected diagnosis status "executed", got: ' . (string)($result['status'] ?? '(missing)'),
+                $this->getSession()
+            );
+        }
+
+        $actualissue = (string)($result['diagnosis']['issue'] ?? '');
+        if ($actualissue !== $expectedissue) {
+            throw new \Behat\Mink\Exception\ExpectationException(
+                'Expected diagnosis issue "' . $expectedissue . '", got: "' . $actualissue . '".',
+                $this->getSession()
+            );
+        }
+
+        $reasons = (array)($result['diagnosis']['reasons'] ?? []);
+        $reasonstext = implode("\n", $reasons);
+        if (strpos($reasonstext, $reasonneedle) === false) {
+            throw new \Behat\Mink\Exception\ExpectationException(
+                'Expected diagnosis reasons to contain "' . $reasonneedle . '", got: ' . $reasonstext,
+                $this->getSession()
+            );
+        }
+    }
+
+    /**
+     * Assert that AI instructions page renders the correct UI for its readiness state.
+     *
+     * @Then /^the AI instructions page should render the expected readiness UI$/
+     * @return void
+     */
+    public function the_ai_instructions_page_should_render_the_expected_readiness_ui(): void {
+        $page = $this->getSession()->getPage();
+        $wrapper = $page->find('css', '#booking-ai-wrapper');
+        if (!$wrapper) {
+            throw new \Behat\Mink\Exception\ElementNotFoundException(
+                $this->getSession(),
+                'element',
+                'css',
+                '#booking-ai-wrapper'
+            );
+        }
+
+        $readyforchat = trim((string)$wrapper->getAttribute('data-ready-for-chat')) === '1';
+        if ($readyforchat) {
+            foreach (['#booking-ai-input', '#booking-ai-send', '#booking-ai-messages', '#booking-ai-thinking'] as $selector) {
+                if (!$page->find('css', $selector)) {
+                    throw new \Behat\Mink\Exception\ElementNotFoundException(
+                        $this->getSession(),
+                        'element',
+                        'css',
+                        $selector
+                    );
+                }
+            }
+            return;
+        }
+
+        if (!$page->find('css', '.booking-ai-onboarding-card')) {
+            throw new \Behat\Mink\Exception\ElementNotFoundException(
+                $this->getSession(),
+                'element',
+                'css',
+                '.booking-ai-onboarding-card'
+            );
+        }
+        if (!$page->find('css', '.booking-ai-readiness-list')) {
+            throw new \Behat\Mink\Exception\ElementNotFoundException(
+                $this->getSession(),
+                'element',
+                'css',
+                '.booking-ai-readiness-list'
+            );
+        }
+    }
+
+    /**
+     * Assert confirmation controls when chat is ready; otherwise assert onboarding view.
+     *
+     * @Then /^the AI instructions page should render confirmation controls when chat is ready$/
+     * @return void
+     */
+    public function the_ai_instructions_page_should_render_confirmation_controls_when_chat_is_ready(): void {
+        $page = $this->getSession()->getPage();
+        $wrapper = $page->find('css', '#booking-ai-wrapper');
+        if (!$wrapper) {
+            throw new \Behat\Mink\Exception\ElementNotFoundException(
+                $this->getSession(),
+                'element',
+                'css',
+                '#booking-ai-wrapper'
+            );
+        }
+
+        $readyforchat = trim((string)$wrapper->getAttribute('data-ready-for-chat')) === '1';
+        if ($readyforchat) {
+            foreach (['#booking-ai-confirm-panel', '#booking-ai-btn-confirm', '#booking-ai-btn-cancel'] as $selector) {
+                if (!$page->find('css', $selector)) {
+                    throw new \Behat\Mink\Exception\ElementNotFoundException(
+                        $this->getSession(),
+                        'element',
+                        'css',
+                        $selector
+                    );
+                }
+            }
+            return;
+        }
+
+        if (!$page->find('css', '.booking-ai-onboarding-card')) {
+            throw new \Behat\Mink\Exception\ElementNotFoundException(
+                $this->getSession(),
+                'element',
+                'css',
+                '.booking-ai-onboarding-card'
+            );
+        }
+    }
+
+    /**
+     * Confirm panel must be hidden on first load when chat is ready.
+     *
+     * @Then /^the AI confirmation panel should be hidden on initial load when chat is ready$/
+     * @return void
+     */
+    public function the_ai_confirmation_panel_should_be_hidden_on_initial_load_when_chat_is_ready(): void {
+        $page = $this->getSession()->getPage();
+        $wrapper = $page->find('css', '#booking-ai-wrapper');
+        if (!$wrapper) {
+            throw new \Behat\Mink\Exception\ElementNotFoundException(
+                $this->getSession(),
+                'element',
+                'css',
+                '#booking-ai-wrapper'
+            );
+        }
+
+        $readyforchat = trim((string)$wrapper->getAttribute('data-ready-for-chat')) === '1';
+        if ($readyforchat) {
+            $panel = $page->find('css', '#booking-ai-confirm-panel');
+            if (!$panel) {
+                throw new \Behat\Mink\Exception\ElementNotFoundException(
+                    $this->getSession(),
+                    'element',
+                    'css',
+                    '#booking-ai-confirm-panel'
+                );
+            }
+            $classes = trim((string)$panel->getAttribute('class'));
+            if (strpos(' ' . $classes . ' ', ' d-none ') === false) {
+                throw new \Behat\Mink\Exception\ExpectationException(
+                    'Expected confirmation panel to be hidden on initial page load.',
+                    $this->getSession()
+                );
+            }
+            return;
+        }
+
+        if (!$page->find('css', '.booking-ai-onboarding-card')) {
+            throw new \Behat\Mink\Exception\ElementNotFoundException(
+                $this->getSession(),
+                'element',
+                'css',
+                '.booking-ai-onboarding-card'
+            );
+        }
     }
 }

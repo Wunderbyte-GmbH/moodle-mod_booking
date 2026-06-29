@@ -26,7 +26,7 @@
 
 namespace mod_booking;
 
-use mod_booking\booking_advanced_testcase;
+use mod_booking\tests\booking_advanced_testcase;
 use coding_exception;
 use local_wunderbyte_table\wunderbyte_table;
 use mod_booking_generator;

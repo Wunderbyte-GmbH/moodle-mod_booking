@@ -34,7 +34,7 @@
 
 namespace mod_booking;
 
-use mod_booking\booking_advanced_testcase;
+use mod_booking\tests\booking_advanced_testcase;
 use cache_helper;
 use mod_booking_generator;
 use stdClass;

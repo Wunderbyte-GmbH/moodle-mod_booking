@@ -54,3 +54,8 @@ Because this shortcode can call arbitrary internal service classes, it should on
 [executeservice service="mod_booking\service\myservice" arg1="value1" arg2="value2"]
 ```
 
+---
+
+## Related shortcodes
+
+- [aiinstructions](aiinstructions.md) — safe end-user-facing UI instead of direct code execution

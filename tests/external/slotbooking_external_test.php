@@ -25,7 +25,7 @@
 
 namespace mod_booking;
 
-use mod_booking\booking_advanced_testcase;
+use mod_booking\tests\booking_advanced_testcase;
 use mod_booking\external\get_slots;
 use mod_booking\external\get_booked_slots;
 use mod_booking\external\save_slot_selection;

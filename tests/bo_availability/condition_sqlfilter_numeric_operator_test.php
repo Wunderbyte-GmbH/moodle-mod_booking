@@ -40,7 +40,7 @@
 
 namespace mod_booking;
 
-use mod_booking\booking_advanced_testcase;
+use mod_booking\tests\booking_advanced_testcase;
 use context_module;
 use mod_booking_generator;
 use stdClass;
@@ -166,7 +166,7 @@ final class condition_sqlfilter_numeric_operator_test extends booking_advanced_t
             'name' => 'Seniority years',
         ]);
 
-        // "10" must qualify for "> 9" (10 > 9). "5" must not (5 > 9 is false).
+        // Value "10" must qualify for "> 9" (10 > 9). "5" must not (5 > 9 is false).
         $tenyears = $this->getDataGenerator()->create_user();
         $fiveyears = $this->getDataGenerator()->create_user();
         $this->set_profile_value($DB, $tenyears, $profilefield, '10');
@@ -256,12 +256,12 @@ final class condition_sqlfilter_numeric_operator_test extends booking_advanced_t
         $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
         $this->assertEquals(MOD_BOOKING_SQL_FILTER_ACTIVE_JSON_BO, $settings->sqlfilter);
 
-        // "green" is in the list -> visible.
+        // Value "green" is in the list -> visible.
         $this->setUser($member);
         $rawdata = $plugingenerator->create_table_for_one_option($settings->id);
         $this->assertEquals(1, count($rawdata), "User team 'green' is in the list and must see the option.");
 
-        // "yellow" is not in the list -> hidden.
+        // Value "yellow" is not in the list -> hidden.
         $this->setUser($outsider);
         $rawdata = $plugingenerator->create_table_for_one_option($settings->id);
         $this->assertEquals(0, count($rawdata), "User team 'yellow' is not in the list and must not see the option.");

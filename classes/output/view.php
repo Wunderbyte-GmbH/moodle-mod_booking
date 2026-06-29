@@ -799,19 +799,22 @@ class view implements renderable, templatable {
     /**
      * Render table for one specific booked option.
      * @param int $optionid
+     * @param int|null $forceviewparam optional MOD_BOOKING_VIEW_PARAM_* to force (e.g. cards) instead of the instance default
      * @return string the rendered table
      */
-    public function get_rendered_showonlyone_table(int $optionid) {
+    public function get_rendered_showonlyone_table(int $optionid, ?int $forceviewparam = null) {
         $cmid = $this->cmid;
 
         $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
 
-        // Create the table.
-        $showonlyonetable = new bookingoptions_wbtable("cmid_{$cmid}_optionid_{$optionid} showonlyonetable");
+        // Create the table. A forced view gets its own unique id so it never returns a cached render
+        // of the default (e.g. list) view that was produced for the same option under the shared id.
+        $tablesuffix = $forceviewparam !== null ? "_view{$forceviewparam}" : '';
+        $showonlyonetable = new bookingoptions_wbtable("cmid_{$cmid}_optionid_{$optionid}{$tablesuffix} showonlyonetable");
 
         // Initialize the default columnes, headers, settings and layout for the table.
         // In the future, we can parametrize this function so we can use it on many different places.
-        $this->wbtable_initialize_layout($showonlyonetable, false, false, false);
+        $this->wbtable_initialize_layout($showonlyonetable, false, false, false, $forceviewparam);
 
         $wherearray = [
             'bookingid' => (int) $booking->id,
@@ -1075,12 +1078,14 @@ class view implements renderable, templatable {
      * @param bool $filter
      * @param bool $search
      * @param bool $sort
+     * @param int|null $forceviewparam optional MOD_BOOKING_VIEW_PARAM_* to force, overriding the instance default
      */
     public function wbtable_initialize_layout(
         bookingoptions_wbtable &$bowbtable,
         bool $filter = true,
         bool $search = true,
-        bool $sort = true
+        bool $sort = true,
+        ?int $forceviewparam = null
     ) {
 
         $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($this->cmid);
@@ -1133,8 +1138,15 @@ class view implements renderable, templatable {
         if (empty($viewparam)) {
             $viewparam = MOD_BOOKING_VIEW_PARAM_LIST; // List view is the default view.
         }
+        if ($forceviewparam !== null) {
+            // Callers (e.g. the AI booking-option preview) can force a specific view regardless of the
+            // instance default — the agent always shows option previews as cards.
+            $viewparam = $forceviewparam;
+        }
 
-        if ($bookingsettings->switchtemplates) {
+        // A forced view must not be reverted by the template switcher / a stored user preference,
+        // so skip the switcher wiring entirely in that case.
+        if ($bookingsettings->switchtemplates && $forceviewparam === null) {
             $selectedtemplates = $bookingsettings->switchtemplatesselection ?? [];
             // If template switcher is turned on, we add it.
             // Only add templates that have been selected in instance.

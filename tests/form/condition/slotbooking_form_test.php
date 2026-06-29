@@ -25,7 +25,7 @@
 
 namespace mod_booking;
 
-use mod_booking\booking_advanced_testcase;
+use mod_booking\tests\booking_advanced_testcase;
 use mod_booking\form\condition\slotbooking_form;
 
 defined('MOODLE_INTERNAL') || die();
@@ -143,6 +143,8 @@ final class slotbooking_form_test extends booking_advanced_testcase {
      *
      * @dataProvider slot_mode_provider
      * @param array $slotconfig
+     *
+     * @covers \mod_booking\form\condition\slotbooking_form
      */
     public function test_slot_modes_and_rendering(array $slotconfig): void {
         [$option, $userid] = $this->create_slot_option_with_config($slotconfig);
@@ -219,6 +221,8 @@ final class slotbooking_form_test extends booking_advanced_testcase {
      *
      * @dataProvider validation_provider
      * @param array $scenario
+     *
+     * @covers \mod_booking\form\condition\slotbooking_form
      */
     public function test_validation_scenarios(array $scenario): void {
         [$option, $userid] = $this->create_slot_option_with_config([

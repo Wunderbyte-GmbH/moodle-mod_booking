@@ -23,7 +23,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_booking;
+namespace mod_booking\tests;
 
 use mod_booking\singleton_service;
 use tool_mocktesttime\time_mock;

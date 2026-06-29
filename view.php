@@ -175,6 +175,21 @@ if (!empty($CFG->usetags)) {
 // Now we show the actual view.
 $view = new view($cmid, $whichview, $optionid);
 $classicview = $organizerhtml . $output->render_view($view);
+$agentextensioninstalled = false;
+if (class_exists('\\core_plugin_manager')) {
+    try {
+        $plugininfo = \core_plugin_manager::instance()->get_plugin_info('bookingextension_agent');
+        $agentextensioninstalled = ($plugininfo !== null) && (bool)$plugininfo->is_installed_and_upgraded();
+    } catch (\Throwable $e) {
+        $agentextensioninstalled = false;
+    }
+}
+
+$aireadyclass = null;
+if ($agentextensioninstalled && class_exists('\\bookingextension_agent\\local\\wizard\\aiready')) {
+    $aireadyclass = '\\bookingextension_agent\\local\\wizard\\aiready';
+}
+
 $hasoptions = $booking->get_all_options_count() > 0;
 $tabs = [
     [
@@ -184,6 +199,16 @@ $tabs = [
         'active' => $hasoptions,
     ],
 ];
+
+if (!empty($aireadyclass)) {
+    $aitemplatedata = (new $aireadyclass((int)$context->id, $USER->id))->export_for_template();
+    $tabs[] = [
+        'title' => '<i class="fa fa-magic" aria-hidden="true"></i>',
+        'label' => get_string('aiinstructions', 'bookingextension_agent'),
+        'body' => $OUTPUT->render_from_template('bookingextension_agent/aiinstructions', $aitemplatedata),
+        'active' => !$hasoptions,
+    ];
+}
 
 echo htmlcomponents::render_bootstrap_earmarks($tabs, 'booking-view-tabs-' . $cmid);
 

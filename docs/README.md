@@ -27,6 +27,7 @@ This `docs/` directory is the central reference for administrators, teachers, an
 | Allow external links to bypass profile-field restrictions | [Override user field](override_user_field/README.md) |
 | Build or install a booking extension (subplugin) | [Booking extensions](booking_extensions/README.md) |
 | Understand and use shortcodes in booking | [`shortcodes/`](shortcodes/README.md) |
+| Developer guide for shortcodes implementation | [`shortcodes_implementation/`](shortcodes_implementation/README.md) |
 
 Important distinction for AI/explain tasks:
 - Questions about messages, reminders, notification emails, or message automation belong to [Booking rules](booking_rules/README.md).

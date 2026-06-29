@@ -44,7 +44,7 @@
 
 namespace mod_booking;
 
-use mod_booking\booking_advanced_testcase;
+use mod_booking\tests\booking_advanced_testcase;
 use context_module;
 use mod_booking_generator;
 use mod_booking\bo_availability\bo_info;
@@ -110,7 +110,7 @@ final class condition_sqlfilter_marker_test extends booking_advanced_testcase {
 
         $this->setAdminUser();
 
-        // studentboth meets the course requirement, studentone does not.
+        // Studentboth meets the course requirement, studentone does not.
         $this->getDataGenerator()->enrol_user($studentboth->id, $course2->id);
         $this->getDataGenerator()->enrol_user($studentboth->id, $course3->id);
         $this->getDataGenerator()->enrol_user($studentone->id, $course2->id);
@@ -157,12 +157,12 @@ final class condition_sqlfilter_marker_test extends booking_advanced_testcase {
 
         $boinfo = new bo_info($settings);
 
-        // studentboth: passes time AND course -> must SEE the option.
+        // Studentboth: passes time AND course -> must SEE the option.
         $this->setUser($studentboth);
         $rawdata = $plugingenerator->create_table_for_one_option($settings->id);
         $this->assertEquals(1, count($rawdata), 'User enrolled in both courses must see the (time-open) option.');
 
-        // studentone: passes time, FAILS course -> must NOT see the option.
+        // Studentone: passes time, FAILS course -> must NOT see the option.
         // This is the key assertion: the JSON course filter must still apply although marker == 2.
         $this->setUser($studentone);
         $rawdata = $plugingenerator->create_table_for_one_option($settings->id);

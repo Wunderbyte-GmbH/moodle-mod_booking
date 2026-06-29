@@ -2,7 +2,7 @@
 
 # Shortcodes — Overview and Index
 
-> **Primary page** for: embedded booking lists, shortcode syntax, `[courselist]`, `[allbookingoptions]`, `[mycourselist]`, and `[bookingoptionview]`.
+> **Primary page** for: embedded booking lists, shortcode syntax, `[courselist]`, `[allbookingoptions]`, `[mycourselist]`, `[bookingoptionview]`, and the inline `[aiinstructions]` chat UI.
 
 mod_booking currently registers **14 booking-specific shortcodes** in `/db/shortcodes.php`. This folder documents the current implementation as it exists in `classes/shortcodes.php`.
 
@@ -76,6 +76,7 @@ The shortcode parser can pass many attributes, but each callback only uses the a
 | `[executeservice]` | [executeservice.md](executeservice.md) | Run an internal service class | `mod_booking\shortcodes::executeservice()` |
 | `[bookingoptionsfromcondition]` | [bookingoptionsfromcondition.md](bookingoptionsfromcondition.md) | Output completed options inside certificate-condition context | `mod_booking\shortcodes::bookingoptionsfromcondition()` |
 | `[bookingoptionview]` | [bookingoptionview.md](bookingoptionview.md) | Render one direct booking button / booking option CTA | `mod_booking\shortcodes::bookingoptionview()` |
+| `[aiinstructions]` | [aiinstructions.md](aiinstructions.md) | Render the inline Booking Agent UI for one booking activity | `mod_booking\shortcodes::aiinstructions()` |
 
 ---
 
@@ -161,6 +162,7 @@ These shortcodes render other booking UI blocks instead of the booking options t
 - [supervisorteam](supervisorteam.md)
 - [linkbacktocourse](linkbacktocourse.md)
 - [bookingoptionview](bookingoptionview.md)
+- [aiinstructions](aiinstructions.md)
 - [executeservice](executeservice.md)
 - [bookingoptionsfromcondition](bookingoptionsfromcondition.md)
 
@@ -181,7 +183,7 @@ Check these first:
 
 ### The shortcode renders an error about `cmid`
 
-`[courselist]` requires a valid **course module id** of a booking activity.
+`[courselist]` and `[aiinstructions]` require a valid **course module id** of a booking activity.
 
 ### The shortcode shows no rows
 
