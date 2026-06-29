@@ -36,9 +36,11 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+// phpcs:disable moodle.Files.MoodleInternal
 define('PHPUNIT_UTIL', true);
 require(__DIR__ . '/../../../../../vendor/autoload.php');
 require(__DIR__ . '/../../../../lib/phpunit/bootstrap.php');
+// phpcs:enable moodle.Files.MoodleInternal
 
 global $DB, $USER;
 

@@ -34,7 +34,6 @@ namespace mod_booking;
  * @covers \mod_booking\singleton_service
  */
 final class caching_db_reads_test extends \advanced_testcase {
-
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest();

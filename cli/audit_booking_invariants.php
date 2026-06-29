@@ -104,7 +104,7 @@ Examples:
 
 $asjson = ($options['format'] === 'json');
 
-// --- Build the (optional) option-scope filter on alias bo. ------------------------------------.
+// Build the (optional) option-scope filter on alias bo.
 $scopewheres = [];
 $scopeparams = [];
 
@@ -121,7 +121,7 @@ if (trim((string)$options['bookingid']) !== '') {
     $scopeparams['bookingid'] = (int)$options['bookingid'];
 }
 if (trim((string)$options['courseid']) !== '') {
-    // booking_options.bookingid -> booking.id; booking.course = courseid.
+    // Maps booking_options.bookingid -> booking.id; booking.course = courseid.
     $scopewheres[] = 'bo.bookingid IN (SELECT b.id FROM {booking} b WHERE b.course = :courseid)';
     $scopeparams['courseid'] = (int)$options['courseid'];
 }
@@ -132,12 +132,12 @@ $placestates = MOD_BOOKING_STATUSPARAM_BOOKED . ',' . MOD_BOOKING_STATUSPARAM_RE
 $waitstate   = MOD_BOOKING_STATUSPARAM_WAITINGLIST; // 1.
 // Active states a user may hold at most one of, per option (booked / reserved / waiting list).
 $activestates = MOD_BOOKING_STATUSPARAM_BOOKED . ',' . MOD_BOOKING_STATUSPARAM_WAITINGLIST . ','
-    . MOD_BOOKING_STATUSPARAM_RESERVED; // 0,1,2.
+    . MOD_BOOKING_STATUSPARAM_RESERVED; // Status params 0, 1, 2.
 
 $violations = [];
 $summaryrows = [];
 
-// --- INV1: no overbooking (booked + reserved places must not exceed maxanswers). --------------.
+// INV1: no overbooking (booked + reserved places must not exceed maxanswers).
 $sql = "SELECT bo.id AS optionid, bo.text, bo.maxanswers,
                COALESCE(SUM(COALESCE(ba.places, 1)), 0) AS occupied
           FROM {booking_options} bo
@@ -154,7 +154,7 @@ foreach ($DB->get_records_sql($sql, $scopeparams) as $row) {
     ];
 }
 
-// --- INV2: waiting list must not exceed maxoverbooking (>=0 caps; -1 = unlimited). ------------.
+// INV2: waiting list must not exceed maxoverbooking (>=0 caps; -1 = unlimited).
 $sql = "SELECT bo.id AS optionid, bo.text, bo.maxoverbooking,
                COALESCE(SUM(COALESCE(ba.places, 1)), 0) AS waiting
           FROM {booking_options} bo
@@ -171,7 +171,7 @@ foreach ($DB->get_records_sql($sql, $scopeparams) as $row) {
     ];
 }
 
-// --- INV3: a user may hold at most one active answer (booked/reserved/waiting) per option. ----.
+// INV3: a user may hold at most one active answer (booked/reserved/waiting) per option.
 // Catches the double-record race (e.g. reserved AND booked at once) under concurrency.
 $sql = "SELECT " . $DB->sql_concat('ba.optionid', "'-'", 'ba.userid') . " AS uniqkey,
                ba.optionid, ba.userid, COUNT(*) AS cnt
@@ -189,7 +189,7 @@ foreach ($DB->get_records_sql($sql, $scopeparams) as $row) {
     ];
 }
 
-// --- INV4 (opt-in): cart reservations older than the TTL are probable orphans. ----------------.
+// INV4 (opt-in): cart reservations older than the TTL are probable orphans.
 $ttl = (int)$options['reserved-ttl'];
 if ($ttl > 0) {
     $cutoff = time() - $ttl;
@@ -210,7 +210,7 @@ if ($ttl > 0) {
     }
 }
 
-// --- INV5 (opt-in, best-effort): every BOOKED user is enrolled in the option's target course. -.
+// INV5 (opt-in, best-effort): every BOOKED user is enrolled in the option target course.
 if ($options['check-enrolment']) {
     $params = $scopeparams + ['booked' => MOD_BOOKING_STATUSPARAM_BOOKED];
     $sql = "SELECT ba.id, ba.optionid, ba.userid, bo.courseid
@@ -233,7 +233,7 @@ if ($options['check-enrolment']) {
     }
 }
 
-// --- Optional per-option occupancy summary. ----------------------------------------------------.
+// Optional per-option occupancy summary.
 if ($options['summary']) {
     $sql = "SELECT bo.id AS optionid, bo.text, bo.maxanswers, bo.maxoverbooking,
                    COALESCE(SUM(CASE WHEN ba.waitinglist IN ($placestates) THEN COALESCE(ba.places, 1) ELSE 0 END), 0) AS occupied,
@@ -255,7 +255,7 @@ if ($options['summary']) {
     }
 }
 
-// --- Output. -----------------------------------------------------------------------------------.
+// Output.
 if ($asjson) {
     echo json_encode([
         'ok'         => empty($violations),

@@ -18,7 +18,7 @@ namespace mod_booking;
 
 use mod_booking\checklist\checklist_generator;
 use mod_booking\booking_option;
-use mod_booking\booking_advanced_testcase;
+use mod_booking\tests\booking_advanced_testcase;
 use ReflectionClass;
 use tool_mocktesttime\time_mock;
 

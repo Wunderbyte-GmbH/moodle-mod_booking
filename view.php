@@ -175,6 +175,9 @@ if (!empty($CFG->usetags)) {
 // Now we show the actual view.
 $view = new view($cmid, $whichview, $optionid);
 $classicview = $organizerhtml . $output->render_view($view);
+$enginecomponent = \mod_booking\local\wizard\engine_component::active();
+$aireadyclass = \mod_booking\local\wizard\engine_component::aiready_class();
+
 $hasoptions = $booking->get_all_options_count() > 0;
 $tabs = [
     [
@@ -184,6 +187,16 @@ $tabs = [
         'active' => $hasoptions,
     ],
 ];
+
+if (!empty($aireadyclass)) {
+    $aitemplatedata = (new $aireadyclass((int)$context->id, $USER->id))->export_for_template();
+    $tabs[] = [
+        'title' => '<i class="fa fa-magic" aria-hidden="true"></i>',
+        'label' => get_string('aiinstructions', $enginecomponent),
+        'body' => $OUTPUT->render_from_template($enginecomponent . '/aiinstructions', $aitemplatedata),
+        'active' => !$hasoptions,
+    ];
+}
 
 echo htmlcomponents::render_bootstrap_earmarks($tabs, 'booking-view-tabs-' . $cmid);
 

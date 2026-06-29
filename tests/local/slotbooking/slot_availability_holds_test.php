@@ -16,6 +16,7 @@
 
 namespace mod_booking;
 
+use mod_booking\tests\booking_advanced_testcase;
 use mod_booking\local\slotbooking\slot_availability;
 use mod_booking\local\slotbooking\slot_dto;
 use mod_booking\local\slotbooking\slot_move_store;

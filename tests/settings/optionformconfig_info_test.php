@@ -26,7 +26,7 @@
 
 namespace mod_booking;
 
-use mod_booking\booking_advanced_testcase;
+use mod_booking\tests\booking_advanced_testcase;
 use context_course;
 use context_system;
 use mod_booking\settings\optionformconfig\optionformconfig_info;

@@ -27,7 +27,7 @@
 namespace mod_booking;
 
 use cache_helper;
-use mod_booking\booking_advanced_testcase;
+use mod_booking\tests\booking_advanced_testcase;
 use coding_exception;
 use mod_booking_generator;
 use mod_booking\bo_availability\bo_info;
@@ -44,7 +44,6 @@ use tool_mocktesttime\time_mock;
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot . '/mod/booking/lib.php');
-require_once(__DIR__ . '/../booking_advanced_testcase.php');
 
 /**
  * Class handling tests for booking options policy.

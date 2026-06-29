@@ -232,7 +232,12 @@ if ($ADMIN->fulltree) {
     if (!empty($pluginconfig->licensekey)) {
         $licensekey = $pluginconfig->licensekey;
 
-        $expirationdate = wb_payment::decryptlicensekey($licensekey);
+        $license = wb_payment::parse_license_content(wb_payment::decryptlicensekey($licensekey));
+        $expirationdate = $license['expirationdate'];
+        // An agent-only key ('wbagent') does not unlock Booking PRO — treat as invalid here.
+        if ($license['product'] !== '' && $license['product'] !== wb_payment::PRODUCT_BOOKING_AGENT) {
+            $expirationdate = '';
+        }
         if (!empty($expirationdate)) {
             $expirationdatetimestamp = strtotime($expirationdate, time());
             $now = time();

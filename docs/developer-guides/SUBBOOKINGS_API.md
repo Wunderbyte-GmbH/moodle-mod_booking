@@ -149,5 +149,4 @@ Sub-booking types are auto-discovered by `subbookings_info`, which scans `classe
 
 ## See also
 
-- [Architecture overview](ARCHITECTURE.md)
-- [Sub-bookings user documentation](../subbookings/README.md)
+- [Sub-bookings user documentation](../user/subbookings/README.md)

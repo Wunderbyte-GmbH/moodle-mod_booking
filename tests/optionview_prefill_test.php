@@ -25,7 +25,7 @@
 
 namespace mod_booking;
 
-use mod_booking\booking_advanced_testcase;
+use mod_booking\tests\booking_advanced_testcase;
 use mod_booking\local\customform_prefill;
 use mod_booking\local\mobile\customformstore;
 use mod_booking_generator;

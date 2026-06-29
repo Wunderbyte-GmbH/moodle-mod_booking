@@ -24,7 +24,7 @@
 
 namespace mod_booking;
 
-use mod_booking\booking_advanced_testcase;
+use mod_booking\tests\booking_advanced_testcase;
 use local_shopping_cart\local\cartstore;
 use local_shopping_cart\shopping_cart;
 use mod_booking\booking_rules\rules\templates\ruletemplate_bookingoption_booked;

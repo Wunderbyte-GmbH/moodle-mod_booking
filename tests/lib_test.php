@@ -30,7 +30,7 @@ use tool_mocktesttime\time_mock;
 
 defined('MOODLE_INTERNAL') || die();
 
-use mod_booking\booking_advanced_testcase;
+use mod_booking\tests\booking_advanced_testcase;
 use stdClass;
 
 global $CFG;

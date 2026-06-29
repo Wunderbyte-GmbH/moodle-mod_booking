@@ -26,7 +26,7 @@
 
 namespace mod_booking;
 
-use mod_booking\booking_advanced_testcase;
+use mod_booking\tests\booking_advanced_testcase;
 use coding_exception;
 use completion_completion;
 use context_system;
@@ -39,7 +39,6 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 require_once($CFG->dirroot . '/mod/booking/classes/price.php');
-require_once(__DIR__ . '/booking_advanced_testcase.php');
 
 /**
  * Class handling the event that the coursecompletion triggers the bookingoption completion.

@@ -54,7 +54,6 @@ namespace mod_booking;
  * @runInSeparateProcess
  */
 final class race_baseline_test extends \advanced_testcase {
-
     /** @var int parallel booking processes. */
     private const NPROCS = 50;
 
@@ -84,6 +83,8 @@ final class race_baseline_test extends \advanced_testcase {
     }
 
     /**
+     * Data provider: one entry per benchmark run.
+     *
      * @return array<string, array{0:int}>
      */
     public static function run_provider(): array {
@@ -95,6 +96,8 @@ final class race_baseline_test extends \advanced_testcase {
     }
 
     /**
+     * Benchmark a single concurrency run.
+     *
      * @dataProvider run_provider
      * @param int $run
      */

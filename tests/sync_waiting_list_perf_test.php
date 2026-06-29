@@ -37,7 +37,6 @@ namespace mod_booking;
  * @covers \mod_booking\booking_option::sync_waiting_list
  */
 final class sync_waiting_list_perf_test extends \advanced_testcase {
-
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest();

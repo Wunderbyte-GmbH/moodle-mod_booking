@@ -16,7 +16,7 @@
 
 namespace mod_booking\output\description;
 
-use mod_booking\booking_advanced_testcase;
+use mod_booking\tests\booking_advanced_testcase;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_bookit;
 use mod_booking_generator;

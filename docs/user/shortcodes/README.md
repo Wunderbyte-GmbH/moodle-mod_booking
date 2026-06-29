@@ -1,0 +1,251 @@
+[Back to parent section](../../../README.md)
+
+# Shortcodes — Overview and Index
+
+> **Primary page** for: embedded booking lists, shortcode syntax, `[courselist]`, `[allbookingoptions]`, `[mycourselist]`, `[bookingoptionview]`, and the inline `[aiinstructions]` chat UI.
+
+> ## ⚠️ IMPORTANT — by default a shortcode shows ONLY future booking options
+>
+> Booking list shortcodes (for example `[allbookingoptions]`, `[courselist]`, `[recommendedin]`)
+> **hide past booking options by default.** Only options whose end time is today or later
+> (`courseendtime` ≥ start of today) are listed. If you expect to see an option and it does not
+> appear, this is almost always the reason.
+>
+> - To show **ALL** options (past **and** future), add the argument **`all="true"`**.
+> - To show **only past** options, use **`all="past"`**.
+>
+> Example: `[allbookingoptions all="true"]` — lists every option; `[allbookingoptions]` — future only.
+>
+> **Note for AI assistants:** never tell a user "there are no such options" from an empty
+> shortcode result without first checking whether `all="true"` is needed — the default time
+> filter may simply be hiding past options.
+
+mod_booking currently registers **14 booking-specific shortcodes** in `/db/shortcodes.php`. This folder documents the current implementation as it exists in `classes/shortcodes.php`.
+
+Use this section when you want to:
+
+- embed booking options on a Moodle page, label, block, or plugin setting that supports shortcodes
+- show a participant's own bookings
+- show approval or supervisor views outside the booking activity itself
+- render one direct booking button or the inline AI assistant
+- understand which parameters the current shortcode implementation really supports
+
+---
+
+## Quick setup path
+
+1. Enable the **Shortcodes** text filter in Moodle.
+2. Confirm that a **Booking PRO licence** is active.
+3. Open a Moodle text field that is filtered for shortcodes (for example a label, page resource, section summary, or compatible plugin setting).
+4. Insert one shortcode from this reference.
+5. Save and open the page with a user who has the required permissions.
+
+---
+
+## Prerequisites and global rules
+
+### 1. Moodle shortcode filter must be enabled
+
+Booking shortcodes are rendered through the Moodle shortcode filter setup used in this installation.
+
+- Moodle administration path: **Site administration → Plugins → Filters → Manage filters**
+- The booking CI setup installs `branchup/moodle-filter_shortcodes`.
+
+### 2. Booking shortcodes can be disabled globally
+
+If the booking setting `shortcodesoff` is enabled, all booking shortcodes return a warning instead of content.
+
+### 3. Booking shortcodes can be password-protected globally
+
+If the booking setting `shortcodespassword` is filled, every booking shortcode must include a matching `password="..."` argument.
+
+Example:
+
+```text
+[courselist cmid="42" password="top_secret123"]
+```
+
+### 4. Current implementation requires an active PRO licence
+
+All registered booking shortcodes pass through `shortcodes_handler::validatecondition()`, which currently checks the PRO licence before rendering.
+
+### 5. Unknown arguments are usually ignored
+
+The shortcode parser can pass many attributes, but each callback only uses the arguments implemented in `classes/shortcodes.php`. This documentation lists the parameters that are currently handled by the code.
+
+---
+
+## Supported shortcodes
+
+| Shortcode | Detailed page | Main use case | Implementation callback |
+|-----------|---------------|---------------|-------------------------|
+| `[allbookingoptions]` | [allbookingoptions.md](allbookingoptions.md) | Show booking options across booking activities | `mod_booking\shortcodes::allbookingoptions()` |
+| `[courselist]` | [courselist.md](courselist.md) | Show options from one specific booking activity | `mod_booking\shortcodes::courselist()` |
+| `[mycourselist]` | [mycourselist.md](mycourselist.md) | Show the current user's own bookings | `mod_booking\shortcodes::mycourselist()` |
+| `[recommendedin]` | [recommendedin.md](recommendedin.md) | Show options recommended for the current course | `mod_booking\shortcodes::recommendedin()` |
+| `[fieldofstudyoptions]` | [fieldofstudyoptions.md](fieldofstudyoptions.md) | Show options matched through Moodle groups | `mod_booking\shortcodes::fieldofstudyoptions()` |
+| `[fieldofstudycohortoptions]` | [fieldofstudycohortoptions.md](fieldofstudycohortoptions.md) | Show options matched through cohort enrolment | `mod_booking\shortcodes::fieldofstudycohortoptions()` |
+| `[bulkoperations]` | [bulkoperations.md](bulkoperations.md) | Show the bulk operations table for managers/admins | `mod_booking\shortcodes::bulkoperations()` |
+| `[linkbacktocourse]` | [linkbacktocourse.md](linkbacktocourse.md) | Show links back to booking options from a linked Moodle course | `mod_booking\shortcodes::linkbacktocourse()` |
+| `[listtoapprove]` | [listtoapprove.md](listtoapprove.md) | Show bookings waiting for approval | `mod_booking\shortcodes::listtoapprove()` |
+| `[supervisorteam]` | [supervisorteam.md](supervisorteam.md) | Show bookings of users in a supervisor's team | `mod_booking\shortcodes::supervisorteam()` |
+| `[executeservice]` | [executeservice.md](executeservice.md) | Run an internal service class | `mod_booking\shortcodes::executeservice()` |
+| `[bookingoptionsfromcondition]` | [bookingoptionsfromcondition.md](bookingoptionsfromcondition.md) | Output completed options inside certificate-condition context | `mod_booking\shortcodes::bookingoptionsfromcondition()` |
+| `[bookingoptionview]` | [bookingoptionview.md](bookingoptionview.md) | Render one direct booking button / booking option CTA | `mod_booking\shortcodes::bookingoptionview()` |
+| `[aiinstructions]` | [aiinstructions.md](aiinstructions.md) | Render the inline Booking Agent UI for one booking activity | `mod_booking\shortcodes::aiinstructions()` |
+
+---
+
+## Shared parameter patterns
+
+Not every shortcode supports every parameter below, but these patterns appear repeatedly in the current implementation.
+
+### Table rendering parameters
+
+These parameters are used by the table-based shortcodes that render booking options through `bookingoptions_wbtable`.
+
+| Parameter | Meaning | Notes |
+|-----------|---------|-------|
+| `perpage="25"` | Number of rows per page | If omitted or `0`/`false`, most table shortcodes switch to infinite scrolling. |
+| `infinitescrollpage="30"` | Number of rows loaded per infinite-scroll step | Only relevant when `perpage` is not set or is `0`/`false`. |
+| `sort="1"` | Show sort controls | Only in shortcodes that expose optional sort UI. |
+| `search="1"` | Show full-text search | Only in shortcodes that expose optional search UI. |
+| `fulltextsearchcolumns="description,shortname1"` | Add columns to the full-text search | Comma-separated list of booking option fields and/or booking custom field shortnames. Setting this implicitly enables the search box. Invalid column names are ignored. |
+| `filter="1"` | Show standard filters | In some shortcodes this is a boolean toggle; in `[bulkoperations]` it is a comma-separated filter definition. |
+| `sortby="coursestarttime"` | Default sort column | Sanitised to alphanumeric / underscore / dash characters. |
+| `sortorder="asc"` / `sortorder="desc"` | Default sort direction | Default is ascending. |
+| `countlabel="false"` | Hide the result counter | Default is visible. |
+| `progress="1"` | Add the progress subcolumn | Only where the table renderer supports it. |
+| `requirelogin="false"` | Disable table-level login enforcement | Use carefully; this does not bypass Moodle capability checks elsewhere. |
+
+### View style parameters
+
+Some booking option list shortcodes support a `type` argument:
+
+| Value | Result |
+|-------|--------|
+| `list` | Standard list view |
+| `cards` | Card view |
+| `imageleft` | List with header image on the left |
+| `imageright` | List with header image on the right |
+| `imagelefthalf` | List with half-width header image on the left |
+
+### Display shaping parameters
+
+| Parameter | Meaning |
+|-----------|---------|
+| `exclude="description,teacher,rightside"` | Removes selected standard sub-sections from the rendered booking option list. `rightside` hides the right-side action area. |
+| `includecustomfields="..."` | Adds booking option custom fields as columns to the rendered output. See [Custom field columns](#custom-field-columns-includecustomfields) below for the full syntax. |
+| `customfieldfilter="shortname1,shortname2"` | Adds filter widgets for selected booking custom fields where the shortcode supports it. |
+| `filterbookablenextdays="28"` | Adds a toggle filter switch that shows only booking options which are currently bookable and start within the next N days. Requires the filter UI (`filter="1"`). |
+| `filterontop="true"` | Moves filters to the top in the shortcodes that implement this flag. |
+| `filteronloadactive="true"` | Shows filters immediately instead of starting collapsed/inactive. |
+
+### Custom field columns (`includecustomfields`)
+
+Adds booking option custom fields (with their values per booking option) to the rendered booking option table.
+
+Simple syntax — comma-separated custom field shortnames:
+
+```text
+[courselist cmid="42" includecustomfields="cfspt1,cffrm1"]
+```
+
+Extended syntax — pipe-separated parts per field:
+
+```text
+includecustomfields="<shortname>|<region>|<iconprefix>|<iconname>|<classes>,..."
+[courselist cmid="42" includecustomfields="cfspt1|leftside|fas|fa-running,cffrm1|footer|far|fa-futbol|text-primary"]
+```
+
+| Part | Meaning |
+|------|---------|
+| `shortname` | Shortname of the booking option custom field. Unknown shortnames are silently ignored. |
+| `region` | Region of the rendered row template the column is placed in. List view: `leftside`, `footer`, `rightside`. Cards view: `cardbody`, `cardlist`, `cardfooter`. Templates of other plugins may define their own regions — the region is passed through as given, so it has to match a region of the rendered template. If the part is missing (simple syntax) or left empty (e.g. `cfspt1\|`), the field is placed in the standard region of the rendered template (`footer` in list view, `cardlist` in cards view) with the standard styling (gray, like institution) and standard position (right next to institution in the list view, right above the dates in the cards view). |
+| `iconprefix`, `iconname` | Font Awesome classes of an icon shown in front of the value, e.g. `fas\|fa-running`. Both parts have to be given for the icon to be shown. |
+| `classes` | Additional CSS classes applied to the value. |
+
+Related: the booking instance setting **"Custom fields that are to be displayed for each booking option in the overview"** (`customfieldsforview`) shows custom fields for each booking option on the standard view (view.php) without a shortcode. There, the icons come from the plugin settings (`customfieldicon_<shortname>`); if no icon is configured, the default icon (`fa-puzzle-piece`) is used.
+
+### Data restriction parameters
+
+| Pattern | Meaning |
+|---------|---------|
+| `<customfieldshortname>="value"` | Filter by a booking option custom field shortname in the shortcodes that call `set_customfield_wherearray()`. |
+| `<customfieldshortname>-not="value"` | Exclude booking options with a matching custom field value. |
+| `columnfilter_competencies="..."` | Special column filter currently implemented for the `competencies` field. |
+| `all="true"` | Include past options in the shortcodes that call `applyallarg()`. |
+| `all="past"` | Show only past options in the shortcodes that call `applyallarg()`. |
+
+### Acting for another user
+
+When the surrounding integration and permissions allow it (for example cashier scenarios), the table initialisation can resolve another target user via `actforuser::get_foruserid()`. A tested example is `urlparamforuserid=userid` in shortcode-enabled cashier content.
+
+---
+
+## Which shortcodes are table-based?
+
+### Booking option table shortcodes
+
+These shortcodes render booking options through the booking options table renderer:
+
+- [allbookingoptions](allbookingoptions.md)
+- [courselist](courselist.md)
+- [mycourselist](mycourselist.md)
+- [recommendedin](recommendedin.md)
+- [fieldofstudyoptions](fieldofstudyoptions.md)
+- [fieldofstudycohortoptions](fieldofstudycohortoptions.md)
+
+### Administrative / user-list shortcodes
+
+These shortcodes render other booking UI blocks instead of the booking options table:
+
+- [bulkoperations](bulkoperations.md)
+- [listtoapprove](listtoapprove.md)
+- [supervisorteam](supervisorteam.md)
+- [linkbacktocourse](linkbacktocourse.md)
+- [bookingoptionview](bookingoptionview.md)
+- [aiinstructions](aiinstructions.md)
+- [executeservice](executeservice.md)
+- [bookingoptionsfromcondition](bookingoptionsfromcondition.md)
+
+---
+
+## Troubleshooting checklist
+
+### Nothing is rendered
+
+Check these first:
+
+1. The Moodle shortcode filter is enabled.
+2. Booking shortcodes are not disabled globally.
+3. The PRO licence is active.
+4. The shortcode password is present when password protection is enabled.
+5. The current user has the required capabilities.
+6. Required parameters such as `cmid`, `optionid`, or `service` are present.
+
+### The shortcode renders an error about `cmid`
+
+`[courselist]` and `[aiinstructions]` require a valid **course module id** of a booking activity.
+
+### The shortcode shows no rows
+
+Typical reasons:
+
+- all matching booking options are in the past and the shortcode defaults to future/current items only
+- a custom field filter excludes all options
+- the current user is not in the required group/cohort/supervisor context
+- the current course is not linked to any matching booking option
+
+### `fieldofstudycohortoptions` does not work on MySQL
+
+That is expected. The implementation currently only supports **PostgreSQL** and **MariaDB**.
+
+---
+
+## See also
+
+- [Placeholders](../placeholders/README.md) — token replacement in texts and emails
+- [Booking conditions](../booking_conditions/README.md) — who can book and when
+- [Booking option guide](../booking-option/README.md) — where booking options are configured
+- [Capabilities](../capabilities/README.md) — permission model for booking features
