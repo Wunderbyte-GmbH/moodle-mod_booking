@@ -214,10 +214,11 @@ class behat_mod_booking extends behat_base {
      * @return void
      */
     public function i_clean_booking_cache() {
-        // Keep this Behat-safe: generator teardown triggers unit-test-only cache resets.
-        \cache_helper::purge_all();
-        singleton_service::destroy_instance();
-        singleton_service::reset_campaigns();
+        // Use phpunit's teardown() to ensure clean up the booking cache.
+        $datagenerator = \testing_util::get_data_generator();
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = $datagenerator->get_plugin_generator('mod_booking');
+        $plugingenerator->teardown();
     }
 
     /**
