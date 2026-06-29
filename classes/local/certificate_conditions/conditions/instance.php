@@ -75,16 +75,22 @@ class instance implements certificate_conditions_interface {
                 }
 
                 $record = $DB->get_record_sql(
-                    "SELECT b.id, b.name AS text, c.fullname AS coursename
+                    "SELECT b.id, b.name AS text, c.fullname AS coursename, cm.visible AS visibility
                        FROM {booking} b
                        JOIN {course} c ON c.id = b.course
-                      WHERE b.id = :id",
+                       JOIN {modules} m ON m.name = 'booking'
+                       JOIN {course_modules} cm ON cm.module = m.id AND cm.instance = b.id
+                       WHERE b.id = :id",
                     ['id' => (int)$value]
                 );
 
                 if (empty($record)) {
                     return get_string('choose...', 'mod_booking');
                 }
+
+                $record->visibility = empty($record->visible)
+                    ? get_string('hiddenfromstudents')
+                    : get_string('visible');
 
                 return $OUTPUT->render_from_template(
                     'mod_booking/form_booking_instances_selector_suggestion',

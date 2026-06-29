@@ -69,7 +69,7 @@ class search_booking_instances extends external_api {
             $bookingid = $booking->id;
         }
 
-        $searchterm = $DB->sql_like_escape($params['query']);
+        $searchterm = '%' . $DB->sql_like_escape($params['query']) . '%';
         $sqlparams = ['searchterm' => $searchterm];
         $where = $DB->sql_like('b.name', ':searchterm', false);
 
@@ -78,9 +78,11 @@ class search_booking_instances extends external_api {
             $sqlparams['bookingid'] = $bookingid;
         }
 
-        $sql = "SELECT b.id, b.name AS text, c.fullname AS coursename
+        $sql = "SELECT b.id, b.name AS text, c.fullname AS coursename, cm.visible AS visible
                 FROM {booking} b
                 JOIN {course} c ON c.id = b.course
+                JOIN {modules} m ON m.name = 'booking'
+                JOIN {course_modules} cm ON cm.module = m.id AND cm.instance = b.id
                 WHERE $where
                 ORDER BY b.name ASC";
 
@@ -92,6 +94,9 @@ class search_booking_instances extends external_api {
                 'id' => (int)$record->id,
                 'text' => (string)$record->text,
                 'coursename' => (string)$record->coursename,
+                'visibility' => empty($record->visible)
+                    ? get_string('hiddenfromstudents')
+                    : get_string('visible'),
             ];
         }
 
@@ -110,6 +115,7 @@ class search_booking_instances extends external_api {
                     'id' => new external_value(PARAM_INT, 'ID of the booking instance'),
                     'text' => new external_value(PARAM_TEXT, 'Name of the booking instance'),
                     'coursename' => new external_value(PARAM_TEXT, 'Name of the course'),
+                    'visibility' => new external_value(PARAM_TEXT, 'Visibility of the booking instance'),
                 ])
             ),
             'warnings' => new external_value(PARAM_TEXT, 'Warnings'),
