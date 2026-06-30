@@ -2,7 +2,7 @@
 
 # Booking Extensions — Full Developer API
 
-This is the complete developer reference for building `bookingextension_*` subplugins. For a shorter overview, see [Booking extensions developer API](../booking_extensions/developer-api.md).
+This is the complete developer reference for building `bookingextension_*` subplugins. For a shorter overview, see [Booking extensions developer API](../user/booking_extensions/developer-api.md).
 
 ---
 
@@ -199,7 +199,7 @@ public function uninstall_cleanup() {
 
 ## See also
 
-- [Booking extensions overview](../booking_extensions/README.md)
-- [Booking extensions quick-start](../booking_extensions/developer-api.md)
+- [Booking extensions overview](../user/booking_extensions/README.md)
+- [Booking extensions quick-start](../user/booking_extensions/developer-api.md)
 - [Architecture overview](ARCHITECTURE.md)
 - [Placeholders API](PLACEHOLDERS_API.md)

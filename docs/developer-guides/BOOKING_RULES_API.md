@@ -214,5 +214,5 @@ $rules = \mod_booking\booking_rules\rules_info::get_all_rule_types();
 ## See also
 
 - [Architecture overview](ARCHITECTURE.md)
-- [Booking rules user documentation](../booking_rules/README.md)
+- [Booking rules user documentation](../user/booking_rules/README.md)
 - [Booking extensions API](BOOKING_EXTENSIONS_API.md) — For registering custom events that rules can react to
