@@ -290,6 +290,17 @@ if ($ADMIN->fulltree) {
             )
         );
 
+        // Multilevel entity (location) tree filter. Opt-in, default off: existing installations keep
+        // the plain-text location filter until this is switched on. Requires local_entities.
+        $settings->add(
+            new admin_setting_configcheckbox(
+                'booking/entitytreefilter',
+                get_string('entitytreefilter', 'mod_booking'),
+                get_string('entitytreefilter_desc', 'mod_booking'),
+                0
+            )
+        );
+
         // Collapse descriptions.
         $collapsedescriptionoptions = [
             0 => get_string('collapsedescriptionoff', 'mod_booking'),

@@ -1688,6 +1688,9 @@ class shortcodes {
             } else if ($colname === 'text') {
                 // No dropdown filter on the title. It stays searchable and sortable.
                 continue;
+            } else if ($colname === 'location') {
+                // Multilevel entity tree filter when opted in; otherwise the unchanged text filter (BC-2/BC-3).
+                $table->add_filter(\mod_booking\local\entities_tree_provider::get_location_filter($localized));
             } else {
                 $standardfilter = new standardfilter($colname, $localized);
                 if ($colname === 'invisible') {

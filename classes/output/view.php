@@ -1418,8 +1418,11 @@ class view implements renderable, templatable {
                 $bowbtable->add_filter($standardfilter);
             }
             if (in_array('location', $optionsfields)) {
-                $standardfilter = new standardfilter('location', get_string('location', 'mod_booking'));
-                $bowbtable->add_filter($standardfilter);
+                // Multilevel entity tree filter when opted in and local_entities is present; otherwise
+                // the unchanged plain-text location filter (BC-2/BC-3).
+                $bowbtable->add_filter(
+                    \mod_booking\local\entities_tree_provider::get_location_filter(get_string('location', 'mod_booking'))
+                );
             }
             if (in_array('institution', $optionsfields)) {
                 $standardfilter = new standardfilter('institution', get_string('institution', 'mod_booking'));
