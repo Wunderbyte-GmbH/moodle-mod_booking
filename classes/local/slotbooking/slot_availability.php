@@ -25,6 +25,7 @@
 namespace mod_booking\local\slotbooking;
 
 use core_text;
+use mod_booking\local\entities_compat;
 use mod_booking\singleton_service;
 
 /**
@@ -547,7 +548,10 @@ class slot_availability {
         bool $uselive = false
     ): bool {
 
-        if (!class_exists('local_entities\entities')) {
+        // Entity occupancy uses the capacity API (get_allocation_mode / get_all_dates_for_entity),
+        // which only exists in local_entities >= 0.5.0. Without it (or an older/absent local_entities)
+        // slots simply have no cross-entity occupancy constraint — the pre-capacity behaviour.
+        if (!entities_compat::has_capacity_support()) {
             return false;
         }
 
