@@ -138,9 +138,9 @@
      <div class="norecordsfound">{{#str}} norecords, local_wunderbyte_table {{/str}}</div>
 {{/norecords}}
 {{^norecords}}
+   {{> local_wunderbyte_table/component_countlabel }}
    {{#table}}
       <div class="wunderbyte-table-list">
-         {{> local_wunderbyte_table/component_countlabel }}
          <div class="rows-container container-fluid ms-0 ps-0">
                {{#rows}}
                      {{> mod_booking/table_list_row }}
