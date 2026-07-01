@@ -132,12 +132,16 @@ final class entity_cross_option_availability_test extends booking_advanced_testc
      */
     public function setUp(): void {
         parent::setUp();
+        // These tests exercise the local_entities capacity/equipment API; skip cleanly when it is not
+        // available (local_entities absent or older than the version that ships it).
+        if (!\mod_booking\local\entities_compat::has_capacity_support()) {
+            $this->markTestSkipped('local_entities capacity API (>= '
+                . \mod_booking\local\entities_compat::MIN_VERSION . ') is required for these tests.');
+        }
         $this->resetAfterTest();
         time_mock::set_mock_time(strtotime('now'));
         singleton_service::destroy_instance();
-        if (class_exists('local_entities\entities')) {
-            \local_entities\entities::reset_caches();
-        }
+        \local_entities\entities::reset_caches();
     }
 
     /**
