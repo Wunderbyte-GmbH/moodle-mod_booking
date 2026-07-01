@@ -44,6 +44,9 @@ Feature: Enabling installments as admin configuring installments as a teacher an
       | enableinstallments  | 1     | local_shopping_cart |
       | timebetweenpayments | 2     | local_shopping_cart |
       | reminderdaysbefore  | 1     | local_shopping_cart |
+      ## Flush every log event to the DB immediately so the "Recent updates" table
+      ## (reads logstore_standard_log) never races the buffered writer's shutdown flush.
+      | buffersize          | 1     | logstore_standard   |
     And I change viewport size to "1366x10000"
     ##And I log out
 

@@ -25,6 +25,11 @@ Feature: In a booking instance create booking options
     And the following "activities" exist:
       | activity | course | name       | intro                  | bookingmanager | eventtype |
       | booking  | C1     | My booking | My booking description | teacher1       | Webinar   |
+    ## Flush every log event to the DB immediately so the "Recent updates" table
+    ## (reads logstore_standard_log) never races the buffered writer's shutdown flush.
+    And the following config values are set as admin:
+      | config     | value | plugin            |
+      | buffersize | 1     | logstore_standard |
     And I change viewport size to "1366x10000"
 
   @javascript
