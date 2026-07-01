@@ -793,13 +793,9 @@ class bookingoptions_wbtable extends wunderbyte_table {
 
         if (isset($settings->entity) && (count($settings->entity) > 0)) {
             $url = new moodle_url('/local/entities/view.php', ['id' => $settings->entity['id']]);
-            // Full name of the entity (NOT the shortname).
-
-            if (!empty($settings->entity['parentname'])) {
-                $nametobeshown = $settings->entity['parentname'] . " (" . $settings->entity['name'] . ")";
-            } else {
-                $nametobeshown = $settings->entity['name'];
-            }
+            // Full name of the entity (NOT the shortname). Byte-identical to the historical output for
+            // 1–2 levels; a full breadcrumb only for 3+ level hierarchies (BC-6). Rendered in one place.
+            $nametobeshown = \mod_booking\local\entities_tree_provider::render_location_name($settings->entity);
 
             if ($this->is_downloading()) {
                 // No hyperlink when downloading.
