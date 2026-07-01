@@ -1190,6 +1190,20 @@ class booking_option_settings {
      * return_settings_as_stdclass() consumers are unaffected.
      */
     private function localize_customfields_for_templates(): void {
+        global $PAGE;
+
+        // Textarea customfields are re-derived below via format_text(), which runs the filter chain
+        // (multilang, emoticons, ...) and therefore initialises the page theme - and that needs a
+        // page context. Back-end callers (AJAX form submissions, scheduled tasks, events, CLI) may
+        // construct booking_option_settings before any context has been established, which makes
+        // format_text() throw "$PAGE->context was not set". If no page controller has set things up
+        // yet, fall back to the system context so multilang/filters still run for every caller.
+        // Genuine page controllers set their URL first and are left untouched; they must call
+        // require_login() before formatting (see report2.php) so the correct course theme is used.
+        if (!$PAGE->has_set_url()) {
+            $PAGE->set_context(context_system::instance());
+        }
+
         foreach ($this->customfieldsfortemplates as $shortname => $unused) {
             if (!array_key_exists($shortname, $this->customfields)) {
                 continue;
