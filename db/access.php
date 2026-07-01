@@ -250,16 +250,16 @@ $capabilities = [
             'manager' => CAP_ALLOW,
         ],
     ],
-        'mod/booking:bookallstudents' => [
-            'captype' => 'write',
-            'contextlevel' => CONTEXT_MODULE,
-            'archetypes' => [
-                'teacher' => CAP_ALLOW,
-                'editingteacher' => CAP_ALLOW,
-                'manager' => CAP_ALLOW,
-            ],
+    'mod/booking:bookallstudents' => [
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => [
+            'teacher' => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW,
         ],
-	'mod/booking:bookmyteam' => [
+    ],
+    'mod/booking:bookmyteam' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,
         'archetypes' => [
