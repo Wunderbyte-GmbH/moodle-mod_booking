@@ -2106,6 +2106,14 @@ if ($ADMIN->fulltree) {
             1
         )
     );
+    $settings->add(
+        new admin_setting_configcheckbox(
+            'booking/duplicationrestorerules',
+            get_string('duplicationrestorerules', 'mod_booking'),
+            '',
+            1
+        )
+    );
 
     // PRO feature: Duplication settings.
     if ($proversion) {

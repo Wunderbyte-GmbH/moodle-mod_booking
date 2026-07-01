@@ -65,6 +65,15 @@ class restore_booking_activity_structure_step extends restore_activity_structure
             '/activity/booking/customfields/customfield'
         );
 
+        // Only restore booking rules, if config setting is set. Rules are scoped to the
+        // instance context, so they are independent of the booking options setting below.
+        if (get_config('booking', 'duplicationrestorerules')) {
+            $paths[] = new restore_path_element(
+                'booking_rule',
+                '/activity/booking/bookingrules/bookingrule'
+            );
+        }
+
         // If we don't have booking options, of course we don't have any of the below settings.
         if (get_config('booking', 'duplicationrestorebookings')) {
             $paths[] = new restore_path_element(
@@ -499,6 +508,46 @@ class restore_booking_activity_structure_step extends restore_activity_structure
         $DB->insert_record('booking_history', $data);
     }
 
+    /**
+     * Processes booking rule data.
+     *
+     * Rules are linked to an instance solely by contextid (the module context). We map the old
+     * context to the newly restored instance's module context and insert a fresh rule record.
+     *
+     * Note: rulejson->ruledata->cancelrules may reference other rule IDs; those references are
+     * not remapped to the duplicated rules, so cross-rule cancellation links between two
+     * instance rules will not survive duplication. This is a known limitation.
+     *
+     * @param array $data The instance data from the backup file.
+     * @throws dml_exception
+     */
+    protected function process_booking_rule($data) {
+        global $DB;
+
+        $data = (object) $data;
+
+        $newbookingid = $this->get_new_parentid('booking');
+
+        // Resolve the course module id of the newly restored instance (same lookup as process_booking()).
+        $cmidsql = "SELECT cm.id AS cmid
+                    FROM {course_modules} cm
+                    LEFT JOIN {modules} m
+                    ON m.id = cm.module
+                    WHERE m.name = 'booking' AND cm.instance = :newbookingid";
+
+        if (!$cmidrecord = $DB->get_record_sql($cmidsql, ['newbookingid' => $newbookingid])) {
+            // Without a target context we cannot attach the rule, so skip it.
+            debugging('process_booking_rule - could not find cmid for bookingid: ' . $newbookingid);
+            return;
+        }
+
+        // Attach the rule to the new instance's module context.
+        unset($data->id);
+        $data->contextid = context_module::instance($cmidrecord->cmid)->id;
+
+        $DB->insert_record('booking_rules', $data);
+        // No need to save this mapping as far as nothing depends on it.
+    }
 
     /**
      * Processes booking entity data for booking options.

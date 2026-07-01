@@ -1348,6 +1348,7 @@ $string['duplicationrestoreentities'] = 'Entities inkludieren';
 $string['duplicationrestoreoption'] = 'Buchungsoptionen: Duplizieren <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['duplicationrestoreoption_desc'] = 'Spezielle Einstellungen für das Duplizieren von Buchungsoptionen.';
 $string['duplicationrestoreprices'] = 'Preise inkludieren';
+$string['duplicationrestorerules'] = 'Buchungsregeln inkludieren';
 $string['duplicationrestoresubbookings'] = 'Zusatzbuchungen inkludieren <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['duplicationrestoreteachers'] = 'Trainer:innen inkludieren';
 $string['duration'] = "Dauer";

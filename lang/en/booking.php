@@ -1381,6 +1381,7 @@ $string['duplicationrestoreentities'] = 'Include entities';
 $string['duplicationrestoreoption'] = 'Booking options: Duplication settings <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['duplicationrestoreoption_desc'] = 'Special settings for the duplication of booking options.';
 $string['duplicationrestoreprices'] = 'Include prices';
+$string['duplicationrestorerules'] = 'Include booking rules';
 $string['duplicationrestoresubbookings'] = 'Include subbookings <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['duplicationrestoreteachers'] = 'Include teachers';
 $string['duration'] = "Duration";
