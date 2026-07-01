@@ -25,7 +25,7 @@
 
 namespace mod_booking;
 
-use advanced_testcase;
+use mod_booking\booking_advanced_testcase;
 use context_course;
 use stdClass;
 use tool_mocktesttime\time_mock;
@@ -38,26 +38,15 @@ use tool_mocktesttime\time_mock;
  * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-final class events_test extends advanced_testcase {
+final class events_test extends booking_advanced_testcase {
     /**
      * Tests set up.
      */
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest();
-        time_mock::init();
         time_mock::set_mock_time(strtotime('now'));
         singleton_service::destroy_instance();
-    }
-
-    /**
-     * Mandatory clean-up after each test.
-     */
-    public function tearDown(): void {
-        parent::tearDown();
-        /** @var mod_booking_generator $plugingenerator */
-        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
-        $plugingenerator->teardown();
     }
 
     /**

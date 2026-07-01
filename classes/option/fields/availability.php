@@ -73,6 +73,15 @@ class availability extends field_base {
     public static $alternativeimportidentifiers = [
         'boavenrolledincourse',
         'boavenrolledincohorts',
+        'bo_cond_enrolledincourse_restrict',
+        'bo_cond_enrolledincohorts_restrict',
+        'bo_cond_hascompetency_restrict',
+        'bo_cond_previouslybooked_restrict',
+        'bo_cond_selectusers_restrict',
+        'bo_cond_nooverlapping_restrict',
+        'bo_cond_allowedtobookininstance_restrict',
+        'bo_cond_userprofilefield_1_default_restrict',
+        'bo_cond_userprofilefield_2_custom_restrict',
         'bo_cond_customform_restrict',
     ];
 
@@ -207,7 +216,20 @@ class availability extends field_base {
 
         if (!empty($availability)) {
             $jsonobject = json_decode($availability);
-            bo_info::set_defaults($data, $jsonobject);
+
+            if (!empty($data->importing)) {
+                // Preserve explicitly imported condition values and only backfill missing fields
+                // from the existing availability JSON.
+                $defaultvalues = new stdClass();
+                bo_info::set_defaults($defaultvalues, $jsonobject);
+                foreach ($defaultvalues as $key => $value) {
+                    if (!isset($data->{$key})) {
+                        $data->{$key} = $value;
+                    }
+                }
+            } else {
+                bo_info::set_defaults($data, $jsonobject);
+            }
         }
     }
 

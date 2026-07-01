@@ -30,6 +30,7 @@ use context_system;
 use mod_booking\bo_availability\bo_condition;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_option_settings;
+use mod_booking\local\slotbooking\slot_availability;
 use mod_booking\singleton_service;
 use MoodleQuickForm;
 
@@ -112,8 +113,6 @@ class fullybooked implements bo_condition {
      */
     public function is_available(booking_option_settings $settings, int $userid, bool $not = false): bool {
 
-        global $USER;
-
         // This is the return value. Available to begin with.
         $isavailable = true;
 
@@ -124,7 +123,29 @@ class fullybooked implements bo_condition {
 
         // If the user is not yet booked, and option is not fully booked, we return true.
         if (isset($bookinginformation['notbooked'])) {
-            if (
+            $isslotoption = (int)($settings->type ?? MOD_BOOKING_OPTIONTYPE_DEFAULT) === MOD_BOOKING_OPTIONTYPE_SLOTBOOKING;
+
+            if ($isslotoption) {
+                $hasopenslots = false;
+                $slottype = (string)($settings->slotconfig->slot_type ?? 'fixed');
+
+                if ($slottype === 'userdefined') {
+                    // User-defined slots are selected dynamically in prepage; no fixed open-slot list exists up-front.
+                    $hasopenslots = true;
+                } else {
+                    $slots = slot_availability::get_slots_with_status((int)$settings->id, $userid);
+                    foreach ($slots as $slot) {
+                        if (in_array((string)($slot['status'] ?? ''), ['open', 'warning'], true)) {
+                            $hasopenslots = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (!$hasopenslots) {
+                    $isavailable = false;
+                }
+            } else if (
                 isset($bookinginformation['notbooked']['fullybooked'])
                 && $bookinginformation['notbooked']['fullybooked'] === true
                 && empty($bookinginformation['notbooked']['freeonwaitinglist'])
@@ -277,7 +298,7 @@ class fullybooked implements bo_condition {
      * @param booking_option_settings $settings
      * @return string
      */
-    private function get_description_string(bool $isavailable, bool $full, booking_option_settings $settings) {
+    public function get_description_string(bool $isavailable, bool $full, booking_option_settings $settings) {
 
         if (
             !$isavailable

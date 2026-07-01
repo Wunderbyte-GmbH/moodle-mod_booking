@@ -1,6 +1,8 @@
+[Back to parent section](README.md)
+
 # Campaign Type: Custom Field Campaign
 
-**Class:** `mod_booking\booking_campaigns\campaigns\campaign_customfield`  
+**Class:** `mod_booking\booking_campaigns\campaigns\campaign_customfield`
 **PRO required:** Yes 🔒
 
 ---
@@ -13,6 +15,17 @@ Typical uses:
 
 - **Promotional pricing:** Reduce prices by 20 % for all workshops tagged with a certain custom field during a promotional week.
 - **Temporary capacity increase:** Allow more bookings (increase the booking limit) for a subset of options during a peak enrollment period.
+
+## Click-by-click setup
+
+1. Open campaign management: [/mod/booking/edit_campaigns.php](/mod/booking/edit_campaigns.php).
+2. Click Add campaign.
+3. Choose campaign type Custom field campaign.
+4. Set Start time and End time.
+5. Enter booking option custom field, operator, and field value.
+6. Enter Price factor and Capacity factor.
+7. Optionally restrict by price category field and value.
+8. Save and verify on one matching option and one non-matching option.
 
 ---
 

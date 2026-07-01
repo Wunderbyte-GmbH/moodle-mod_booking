@@ -56,7 +56,7 @@ Feature: As a teacher - configure and use booking's semesters feature.
       | Select time period                               | NextSummer (nextsummer) |
       | Weekday, start and end time (Day, HH:MM - HH:MM) | Friday, 13:00-14:00     |
     And I press "Create date series"
-    And I wait "1" seconds
+    And I wait until the page is ready
     And I should see "## + 1 year ##%Y##" in the "#booking_optiondate_1" "css_element"
     And I should see "1:00 PM - 2:00 PM" in the "#booking_optiondate_1" "css_element"
     And I should see "Friday" in the "#booking_optiondate_1" "css_element"
@@ -66,7 +66,7 @@ Feature: As a teacher - configure and use booking's semesters feature.
     Then I should see "Option - Test Semester" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Friday, 13:00 - 14:00" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Show dates" "link" in the ".allbookingoptionstable_r1" "css_element"
-    And I wait "1" seconds
+    And I wait until the page is ready
     And I should see "## + 1 year ##%Y##" in the ".allbookingoptionstable_r1 .showdates" "css_element"
     And I should see "1:00 PM - 2:00 PM" in the ".allbookingoptionstable_r1 .showdates" "css_element"
     And I should see "June" in the ".allbookingoptionstable_r1 .showdates" "css_element"

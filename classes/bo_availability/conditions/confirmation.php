@@ -211,19 +211,22 @@ class confirmation implements bo_condition {
         $data = new bookingoption_description($optionid, null, MOD_BOOKING_DESCRIPTION_WEBSITE, true, false);
         $bodata = $data->get_returnarray();
 
-        switch ($lastresultid) {
-            case MOD_BOOKING_BO_COND_ALREADYBOOKED:
-                $bodata['alreadybooked'] = true;
-                break;
-            case MOD_BOOKING_BO_COND_ALREADYRESERVED:
-                $bodata['alreadyreserved'] = true;
-                break;
-            case MOD_BOOKING_BO_COND_ONWAITINGLIST:
-                $bodata['onwaitinglist'] = true;
-                break;
-            default:
-                $bodata['notyetbooked'] = true;
-                break;
+        // A booked-state top blocker (incl. SLOTMOVE, which only blocks for an actually-booked,
+        // self-rebookable user) means the booking succeeded — otherwise the user sees a false error.
+        if (in_array($lastresultid, MOD_BOOKING_BO_COND_BOOKED_STATES, true)) {
+            $bodata['alreadybooked'] = true;
+        } else {
+            switch ($lastresultid) {
+                case MOD_BOOKING_BO_COND_ALREADYRESERVED:
+                    $bodata['alreadyreserved'] = true;
+                    break;
+                case MOD_BOOKING_BO_COND_ONWAITINGLIST:
+                    $bodata['onwaitinglist'] = true;
+                    break;
+                default:
+                    $bodata['notyetbooked'] = true;
+                    break;
+            }
         }
 
         $dataarray[] = [

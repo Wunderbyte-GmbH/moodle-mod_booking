@@ -284,7 +284,7 @@ class rules_info {
     /**
      * Save all booking rules.
      * @param stdClass $data reference to the form data
-     * @return void
+     * @return int
      */
     public static function save_booking_rule(stdClass &$data) {
 
@@ -300,10 +300,11 @@ class rules_info {
 
         // Rule has to be saved last, because it actually writes to DB.
         $ruleid = $rule->save_rule($data);
+        $data->id = $ruleid;
 
         self::execute_booking_rules($ruleid);
 
-        return;
+        return $ruleid;
     }
 
     /**
@@ -436,6 +437,10 @@ class rules_info {
 
         $contextid = $event->contextid;
         $records = booking_rules::get_list_of_saved_rules_by_context($contextid, $eventname);
+        $records = array_merge(
+            $records,
+            self::get_companion_interval_rules_for_waitinglist_join($contextid, $optionid, $eventname, $data)
+        );
 
         // There are cases where an event is triggered twice in a very narrow timespan.
         $data['timecreated'] = strtotime(date('Y-m-d H:00:00', ($data['timecreated'] ?? time()) + 3600));
@@ -455,9 +460,10 @@ class rules_info {
 
             // We only execute if the rule in question listens to the right event.
             if (!empty($rule->boevent)) {
-                if ($data['eventname'] == $rule->boevent) {
+                if (!empty($record->forceexecuteoncurrentevent) || $data['eventname'] == $rule->boevent) {
                     self::$rulestoexecute[] = [
                         'optionid' => $optionid,
+                        'userid' => (int)($record->forceuseridfromevent ?? 0),
                         'rule' => $rule,
                         'ruleid' => $rule->ruleid,
                     ];
@@ -522,8 +528,103 @@ class rules_info {
             // Make sure we don't execute this multiple times.
             unset($rulestoexecute[$key]);
             unset(self::$rulestoexecute[$key]);
-            $rule->execute($rulearray['optionid'], 0);
+            $rule->execute($rulearray['optionid'], $rulearray['userid'] ?? 0);
         }
+    }
+
+    /**
+     * Reuse free-to-book-again chain rules (actions send_mail_interval or confirm_bookinganswer)
+     * for late waiting-list joins after the original chain drained.
+     *
+     * @param int $contextid
+     * @param int $optionid
+     * @param string $eventname
+     * @param array $data
+     * @return array
+     */
+    private static function get_companion_interval_rules_for_waitinglist_join(
+        int $contextid,
+        int $optionid,
+        string $eventname,
+        array $data
+    ): array {
+        if (
+            $eventname !== '\\mod_booking\\event\\bookingoptionwaitinglist_booked'
+            || empty($optionid)
+            || self::option_is_fully_booked($optionid)
+        ) {
+            return [];
+        }
+
+        $records = booking_rules::get_list_of_saved_rules_by_context(
+            $contextid,
+            '\\mod_booking\\event\\bookingoption_freetobookagain'
+        );
+
+        $companionrecords = [];
+        foreach ($records as $record) {
+            $rulejson = json_decode($record->rulejson);
+            if (
+                empty($rulejson)
+                || !in_array($rulejson->actionname ?? '', ['send_mail_interval', 'confirm_bookinganswer'], true)
+                || ($rulejson->conditionname ?? '') !== 'select_student_in_bo'
+                || self::interval_rule_has_active_tasks((int)$record->id, $optionid)
+            ) {
+                continue;
+            }
+
+            $record->forceexecuteoncurrentevent = true;
+            $record->forceuseridfromevent = (int)($data['relateduserid'] ?? 0);
+            $companionrecords[] = $record;
+        }
+
+        return $companionrecords;
+    }
+
+    /**
+     * Check if the option still has a free seat.
+     *
+     * @param int $optionid
+     * @return bool
+     */
+    private static function option_is_fully_booked(int $optionid): bool {
+        try {
+            singleton_service::destroy_booking_answers($optionid);
+            $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+            $bookinganswers = singleton_service::get_instance_of_booking_answers($settings);
+            return $bookinganswers->is_fully_booked();
+        } catch (\Throwable $e) {
+            return true;
+        }
+    }
+
+    /**
+     * Check whether interval-chain adhoc tasks already exist for the same rule and option.
+     *
+     * @param int $ruleid
+     * @param int $optionid
+     * @return bool
+     */
+    private static function interval_rule_has_active_tasks(int $ruleid, int $optionid): bool {
+        $taskclasses = [
+            \mod_booking\task\confirm_bookinganswer_by_rule_adhoc::class,
+            \mod_booking\task\send_mail_by_rule_adhoc::class,
+        ];
+
+        foreach ($taskclasses as $taskclass) {
+            $tasks = \core\task\manager::get_adhoc_tasks($taskclass);
+            foreach ($tasks as $task) {
+                $taskdata = $task->get_custom_data();
+                if (
+                    (int)($taskdata->ruleid ?? 0) === $ruleid
+                    && (int)($taskdata->optionid ?? 0) === $optionid
+                ) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -580,6 +681,7 @@ class rules_info {
      */
     public static function destroy_singletons() {
         self::$rulestoexecute = [];
+        self::$rulestocancel = [];
         self::$eventstoexecute = [];
     }
 }

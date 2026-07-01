@@ -138,4 +138,89 @@ class pricecategories_handler {
         global $DB;
         return $DB->get_records('booking_pricecategories', null, 'id ASC');
     }
+
+    /**
+     * Returns price categories indexed by lowercase identifier.
+     *
+     * @return array<string, stdClass>
+     */
+    public function get_pricecategories_indexed_by_identifier(): array {
+        $records = $this->get_pricecategories();
+        $indexed = [];
+
+        foreach ($records as $record) {
+            $indexed[strtolower((string)$record->identifier)] = $record;
+        }
+
+        return $indexed;
+    }
+
+    /**
+     * Create or re-enable a price category.
+     *
+     * @param string $identifier
+     * @param string $name
+     * @param float $defaultvalue
+     * @param int|null $pricecatsortorder
+     * @return array<string,mixed>
+     */
+    public function upsert_pricecategory(
+        string $identifier,
+        string $name,
+        float $defaultvalue,
+        ?int $pricecatsortorder = null
+    ): array {
+        global $DB;
+
+        $existing = $this->get_pricecategories_indexed_by_identifier();
+        $key = strtolower($identifier);
+
+        if (isset($existing[$key])) {
+            $existingcategory = $existing[$key];
+            if ((int)$existingcategory->disabled === 1) {
+                $existingcategory->disabled = 0;
+                $existingcategory->name = $name;
+                $existingcategory->defaultvalue = $defaultvalue;
+                if ($pricecatsortorder !== null) {
+                    $existingcategory->pricecatsortorder = $pricecatsortorder;
+                    $existingcategory->ordernum = $pricecatsortorder;
+                }
+                $DB->update_record('booking_pricecategories', $existingcategory);
+                cache_helper::purge_by_event('setbackpricecategories');
+
+                return [
+                    'status' => 'executed',
+                    'detail' => 'Price category re-enabled: ' . $identifier . '.',
+                    'resultid' => (int)$existingcategory->id,
+                ];
+            }
+
+            return [
+                'status' => 'error',
+                'detail' => 'Price category "' . $identifier . '" already exists.',
+                'resultid' => null,
+            ];
+        }
+
+        $sortorder = $pricecatsortorder ?? ((int)$DB->get_field_sql(
+            'SELECT COALESCE(MAX(pricecatsortorder), 0) FROM {booking_pricecategories}'
+        ) + 1);
+
+        $record = new stdClass();
+        $record->identifier = $identifier;
+        $record->name = $name;
+        $record->defaultvalue = $defaultvalue;
+        $record->pricecatsortorder = $sortorder;
+        $record->ordernum = $sortorder;
+        $record->disabled = 0;
+
+        $newid = (int)$DB->insert_record('booking_pricecategories', $record);
+        cache_helper::purge_by_event('setbackpricecategories');
+
+        return [
+            'status' => 'executed',
+            'detail' => 'Price category created: ' . $identifier . ' (default=' . $defaultvalue . ').',
+            'resultid' => $newid,
+        ];
+    }
 }

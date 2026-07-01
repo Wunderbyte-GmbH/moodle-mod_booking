@@ -85,7 +85,7 @@ Feature: Create enrollink availability form for booking options with connected c
     And I set the field "customform_enrolusersaction_1" to "3"
     And I set the field "customform_enroluserwhobookedcheckbox_enrolusersaction_1" to "checked"
     And I follow "Continue"
-    And I wait "1" seconds
+    And I wait until the page is ready
     ##And I should see "75.00 EUR" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     ##And I should see "Thank you! You have successfully put Option-form into the shopping cart. Now click on \"Proceed to checkout\" to continue." in the ".modal-dialog.modal-xl .modalMainContent" "css_element"
     And I should see "Thank you! You have successfully put Option-form into the shopping cart. Now click" in the ".modal-dialog.modal-xl .modalMainContent" "css_element"
@@ -108,8 +108,8 @@ Feature: Create enrollink availability form for booking options with connected c
     And I should see "-75.00 EUR" in the ".payment-success ul.list-group" "css_element"
     And I should see "Option-form" in the ".payment-success ul.list-group" "css_element"
     And I am on the "BookingCMP" Activity page
-    And I should see "3" in the ".allbookingoptionstable_r1 .col-ap-availableplaces.text-success.avail .text-success" "css_element"
-    And I should see "/ 6" in the ".allbookingoptionstable_r1 .col-ap-availableplaces.text-success.avail" "css_element"
+    And I should see "3" in the ".allbookingoptionstable_r1 .col-ap-availableplaces.text-darkgreen.avail .text-darkgreen" "css_element"
+    And I should see "/ 6" in the ".allbookingoptionstable_r1 .col-ap-availableplaces.text-darkgreen.avail" "css_element"
     And I log out
     ## Send messages via cron and verify via events log
     ## Steps below disabled because fails at GithHub (works OK locally)
@@ -138,6 +138,7 @@ Feature: Create enrollink availability form for booking options with connected c
     And I set the field "customform_enrolusersaction_1" to "3"
     And I set the field "customform_enroluserwhobookedcheckbox_enrolusersaction_1" to "checked"
     And I follow "Continue"
+    And I wait until the page is ready
     And I should see "You were added to the waiting list for Option-waitinglist." in the ".modal-dialog.modal-xl .modalMainContent" "css_element"
     And I follow "Close"
     And I should not see "75.00 EUR" in the ".allbookingoptionstable_r2 .booknow" "css_element"
@@ -147,11 +148,13 @@ Feature: Create enrollink availability form for booking options with connected c
     And I click on "Book other users" "link" in the ".allbookingoptionstable_r2" "css_element"
     And I click on "[data-bs-target='#accordion-item-waitinglist']" "css_element"
     And I click on ".confirmbooking-username-teacher1 i" "css_element"
-    And I wait "1" seconds
+    And I wait until the page is ready
     And I click on "Book" "button" in the ".modal-footer" "css_element"
     And I am on the "BookingCMP" Activity page
     And I should see "75.00 EUR" in the ".allbookingoptionstable_r2 .booknow" "css_element"
     And I click on "Add to cart" "text" in the ".allbookingoptionstable_r2" "css_element"
+    And I wait until the page is ready
+    And I follow "Continue"
     And I visit "/local/shopping_cart/checkout.php"
     ## Verify prices and credits
     And I should see "Option-waitinglist" in the ".shopping-cart-checkout-items-container" "css_element"
@@ -162,15 +165,15 @@ Feature: Create enrollink availability form for booking options with connected c
     And I should see "375.00 EUR" in the ".sc_price_label .sc_remainingcredit" "css_element"
     And I should see "0 EUR" in the ".sc_totalprice" "css_element"
     And I press "Checkout"
-    And I wait "1" seconds
+    And I wait until the page is ready
     And I press "Confirm"
     And I should see "Payment successful!"
     And I should see "Credits used" in the ".payment-success ul.list-group" "css_element"
     And I should see "-75.00 EUR" in the ".payment-success ul.list-group" "css_element"
     And I should see "Option-waitinglist" in the ".payment-success ul.list-group" "css_element"
     And I am on the "BookingCMP" Activity page
-    And I should see "3" in the ".allbookingoptionstable_r2 .col-ap-availableplaces.text-success.avail .text-success" "css_element"
-    And I should see "/ 6" in the ".allbookingoptionstable_r2 .col-ap-availableplaces.text-success.avail" "css_element"
+    And I should see "3" in the ".allbookingoptionstable_r2 .col-ap-availableplaces.text-darkgreen.avail .text-darkgreen" "css_element"
+    And I should see "/ 6" in the ".allbookingoptionstable_r2 .col-ap-availableplaces.text-darkgreen.avail" "css_element"
     And I log out
     ## Send messages via cron and verify via events log
     ## Steps below disabled because fails at GithHub (works OK locally)
@@ -199,7 +202,7 @@ Feature: Create enrollink availability form for booking options with connected c
     And I should not see "Do you also want to book the option for yourself?" in the ".condition-customform" "css_element"
     And I set the field "customform_enrolusersaction_1" to "3"
     And I follow "Continue"
-    And I wait "1" seconds
+    And I wait until the page is ready
     And I should see "Thank you! You have successfully put Option-alsobookmyself into the shopping cart." in the ".modal-dialog.modal-xl .modalMainContent" "css_element"
 
   @javascript
@@ -217,5 +220,5 @@ Feature: Create enrollink availability form for booking options with connected c
     And I should not see "Do you also want to book the option for yourself?" in the ".condition-customform" "css_element"
     And I set the field "customform_enrolusersaction_1" to "3"
     And I follow "Continue"
-    And I wait "1" seconds
+    And I wait until the page is ready
     And I should see "Thank you! You have successfully put Option-donotbookmyself into the shopping cart." in the ".modal-dialog.modal-xl .modalMainContent" "css_element"

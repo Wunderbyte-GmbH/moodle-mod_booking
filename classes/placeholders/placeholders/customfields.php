@@ -134,7 +134,10 @@ class customfields extends \mod_booking\placeholders\placeholder_base {
             }
 
             $user = singleton_service::get_instance_of_user($userid);
-            if (empty($user->profile)) {
+            if (
+                empty($user->profile)
+                && !empty($user->id)
+            ) {
                 require_once("$CFG->dirroot/user/profile/lib.php");
                 profile_load_data($user);
 

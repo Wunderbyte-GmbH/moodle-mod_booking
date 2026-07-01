@@ -43,127 +43,123 @@ class condition_visibility_manager {
      * @return array
      */
     public function get_skipped_conditions(): array {
-        $skippedconditions = get_config('booking', 'skipableconditions');
-        if (empty($skippedconditions)) {
-            return [];
-        }
-        $skippedconditionsarray = explode(',', $skippedconditions);
-        // Remove any zero values from the array.
-        $skippedconditionsarray = array_filter($skippedconditionsarray, fn($v) => $v != "0");
-        return $skippedconditionsarray;
-    }
+        $statehelper = new condition_state_helper();
+        $skippedconditions = [];
 
+        foreach (bo_info::get_skippable_conditions() as $conditionid => $conditionname) {
+            if ($statehelper->should_skip_condition((int)$conditionid)) {
+                $skippedconditions[] = (int)$conditionid;
+            }
+        }
+
+        return $skippedconditions;
+    }
     /**
-     * Freezes form fields based on condition ID.
+     * Freezes all form fields declared by the condition and adds the warning as a normal static
+     * element.
+     *
+     * By default the warning is placed above the condition's fields (the standard behaviour). When
+     * the 'conditionwarningatbottom' admin setting is enabled, it is instead placed at the bottom
+     * of the condition, above its trailing <hr> divider.
      *
      * @param MoodleQuickForm $mform
-     * @param int $conditionid
+     * @param freezable_condition $condition
+     * @param bool $skipandfreeze True for the skip-and-freeze warning, false for freeze-only.
      * @return void
      */
-    public function freeze_fields_for_condition(MoodleQuickForm &$mform, int $conditionid): void {
-        switch ($conditionid) {
-            case MOD_BOOKING_BO_COND_JSON_ALLOWEDTOBOOKININSTANCE:
-                $this->disable_element($mform, 'bo_cond_allowedtobookininstance_restrict');
-                break;
-            case MOD_BOOKING_BO_COND_BOOKING_TIME:
-                $this->disable_element($mform, 'restrictanswerperiodopening');
-                $this->disable_element($mform, 'restrictanswerperiodclosing');
-                break;
-            case MOD_BOOKING_BO_COND_JSON_CUSTOMFORM:
-                $this->disable_element($mform, 'bo_cond_customform_restrict');
-                break;
-            case MOD_BOOKING_BO_COND_JSON_ENROLLEDINCOHORTS:
-                $this->disable_element($mform, 'bo_cond_enrolledincohorts_restrict');
-                break;
-            case MOD_BOOKING_BO_COND_JSON_ENROLLEDINCOURSE:
-                $this->disable_element($mform, 'bo_cond_enrolledincourse_restrict');
-                break;
-            case MOD_BOOKING_BO_COND_JSON_HASCOMPETENCY:
-                $this->disable_element($mform, 'bo_cond_hascompetency_restrict');
-                break;
-            case MOD_BOOKING_BO_COND_JSON_NOOVERLAPPING:
-                $this->disable_element($mform, 'bo_cond_nooverlapping_restrict');
-                break;
-            case MOD_BOOKING_BO_COND_JSON_PREVIOUSLYBOOKED:
-                $this->disable_element($mform, 'bo_cond_previouslybooked_restrict');
-                break;
-            case MOD_BOOKING_BO_COND_JSON_SELECTUSERS:
-                $this->disable_element($mform, 'bo_cond_selectusers_restrict');
-                break;
-            case MOD_BOOKING_BO_COND_JSON_USERPROFILEFIELD:
-                $this->disable_element($mform, 'bo_cond_userprofilefield_1_default_restrict');
-                break;
-            case MOD_BOOKING_BO_COND_JSON_CUSTOMUSERPROFILEFIELD:
-                $this->disable_element($mform, 'bo_cond_userprofilefield_2_custom_restrict');
-                break;
+    public function freeze_fields_for_condition(
+        MoodleQuickForm &$mform,
+        freezable_condition $condition,
+        bool $skipandfreeze = true
+    ): void {
+        $elements = $condition->get_condition_form_elements();
+        foreach ($elements as $elementname) {
+            $this->disable_element_without_warning($mform, $elementname);
         }
-    }
 
-    /**
-     * Hides form fields based on condition ID.
-     *
-     * @param MoodleQuickForm $mform
-     * @param int $conditionid
-     * @return void
-     */
-    public function hide_fields_for_condition(MoodleQuickForm &$mform, int $conditionid): void {
-        switch ($conditionid) {
-            case MOD_BOOKING_BO_COND_JSON_ALLOWEDTOBOOKININSTANCE:
-                $this->hide_element($mform, 'bo_cond_allowedtobookininstance_restrict');
-                break;
-            case MOD_BOOKING_BO_COND_BOOKING_TIME:
-                $this->hide_element($mform, 'restrictanswerperiodopening');
-                $this->hide_element($mform, 'restrictanswerperiodclosing');
-                break;
-            case MOD_BOOKING_BO_COND_JSON_CUSTOMFORM:
-                $this->hide_element($mform, 'bo_cond_customform_restrict');
-                break;
-            case MOD_BOOKING_BO_COND_JSON_ENROLLEDINCOHORTS:
-                $this->hide_element($mform, 'bo_cond_enrolledincohorts_restrict');
-                break;
-            case MOD_BOOKING_BO_COND_JSON_ENROLLEDINCOURSE:
-                $this->hide_element($mform, 'bo_cond_enrolledincourse_restrict');
-                break;
-            case MOD_BOOKING_BO_COND_JSON_HASCOMPETENCY:
-                $this->hide_element($mform, 'bo_cond_hascompetency_restrict');
-                break;
-            case MOD_BOOKING_BO_COND_JSON_NOOVERLAPPING:
-                $this->hide_element($mform, 'bo_cond_nooverlapping_restrict');
-                break;
-            case MOD_BOOKING_BO_COND_JSON_PREVIOUSLYBOOKED:
-                $this->hide_element($mform, 'bo_cond_previouslybooked_restrict');
-                break;
-            case MOD_BOOKING_BO_COND_JSON_SELECTUSERS:
-                $this->hide_element($mform, 'bo_cond_selectusers_restrict');
-                break;
-            case MOD_BOOKING_BO_COND_JSON_USERPROFILEFIELD:
-                $this->hide_element($mform, 'bo_cond_userprofilefield_1_default_restrict');
-                break;
-            case MOD_BOOKING_BO_COND_JSON_CUSTOMUSERPROFILEFIELD:
-                $this->hide_element($mform, 'bo_cond_userprofilefield_2_custom_restrict');
-                break;
+        $firstelementname = $elements[0] ?? null;
+        if ($firstelementname === null || !$mform->elementExists($firstelementname)) {
+            return;
         }
-    }
 
-    /**
-     * Applies freeze and adds warning to all fields from skipped conditions.
-     *
-     * @param MoodleQuickForm $mform
-     * @param int $conditionid
-     * @return void
-     */
-    public function disable_elements_in_mform(MoodleQuickForm &$mform, int $conditionid): void {
-        if (has_capability('mod/booking:updatebooking', context_system::instance())) {
-            // Users with the updatebooking capability see the skipped conditions but with the fields frozen and a warning added.
-            $this->freeze_fields_for_condition($mform, $conditionid);
+        $warningkey = $skipandfreeze ? 'conditionsskippedwarning' : 'conditionsfrozenwarning';
+        $linktosetting = new moodle_url('/mod/booking/availabilityconditions.php');
+        $warningelement = $mform->createElement(
+            'static',
+            $firstelementname . '_frozenwarning',
+            '',
+            get_string($warningkey, 'mod_booking', $linktosetting)
+        );
+
+        if (empty(get_config('booking', 'conditionwarningatbottom'))) {
+            // Standard behaviour: warning above the condition's fields.
+            $mform->insertElementBefore($warningelement, $firstelementname);
+            return;
+        }
+
+        // Optional behaviour: warning at the bottom of the condition, above its trailing <hr>
+        // divider. Conditions end with an unnamed <hr> divider element, and QuickForm indexes
+        // every unnamed element under the empty name, so when that divider is the last element on
+        // the form the empty anchor targets it - letting us drop the warning in just above it.
+        $lastkey = array_key_last($mform->_elements);
+        $last = $lastkey === null ? null : $mform->_elements[$lastkey];
+        if ($last !== null && $last->getType() === 'html' && strpos($last->toHtml(), '<hr') !== false) {
+            $mform->insertElementBefore($warningelement, '');
         } else {
-            // A user without the updatebooking capability should not see any skipped conditions at all.
-            $this->hide_fields_for_condition($mform, $conditionid);
+            $mform->addElement($warningelement);
+        }
+    }
+    /**
+     * Hides all form fields declared by the condition.
+     *
+     * @param MoodleQuickForm $mform
+     * @param freezable_condition $condition
+     * @return void
+     */
+    public function hide_fields_for_condition(MoodleQuickForm &$mform, freezable_condition $condition): void {
+        foreach ($condition->get_condition_form_elements() as $elementname) {
+            $this->hide_element($mform, $elementname);
         }
     }
 
     /**
-     * Freezes a specific form element and adds a warning message.
+     * Applies freeze or hide to all form fields of the condition based on user capability.
+     *
+     * @param MoodleQuickForm $mform
+     * @param bo_condition $condition
+     * @param bool $skipandfreeze True for the skip-and-freeze warning, false for freeze-only.
+     * @return void
+     */
+    public function disable_elements_in_mform(
+        MoodleQuickForm &$mform,
+        bo_condition $condition,
+        bool $skipandfreeze = true
+    ): void {
+        if (!($condition instanceof freezable_condition)) {
+            return;
+        }
+        if (has_capability('mod/booking:updatebooking', context_system::instance())) {
+            // Users with the updatebooking capability see frozen fields with a warning.
+            $this->freeze_fields_for_condition($mform, $condition, $skipandfreeze);
+        } else {
+            // Users without the capability do not see frozen/skipped conditions at all.
+            $this->hide_fields_for_condition($mform, $condition);
+        }
+    }
+
+    /**
+     * Checks if a condition should be frozen in the option form.
+     *
+     * @param int $conditionid
+     * @return bool
+     */
+    public function is_condition_frozen(int $conditionid): bool {
+        $statehelper = new condition_state_helper();
+        return $statehelper->should_freeze_condition($conditionid);
+    }
+
+    /**
+     * Freezes a specific form element without adding a warning.
      *
      * @param MoodleQuickForm $mform
      * @param string $elementname
@@ -171,22 +167,9 @@ class condition_visibility_manager {
      * @return void
      *
      */
-    private function disable_element(MoodleQuickForm &$mform, string $elementname) {
+    private function disable_element_without_warning(MoodleQuickForm &$mform, string $elementname) {
         if ($mform->elementExists($elementname)) {
-            $linktosetting = new moodle_url(
-                '/admin/settings.php',
-                ['section' => 'modsettingbooking'],
-                'admin-skipableconditions'
-            );
             $mform->freeze($elementname);
-            $warningname = $elementname . '_warning';
-            $warningelement = $mform->createElement(
-                'static',
-                $warningname,
-                '',
-                get_string('conditionsskippedwarning', 'mod_booking', $linktosetting)
-            );
-            $mform->insertElementBefore($warningelement, $elementname);
         }
     }
 
@@ -221,13 +204,7 @@ class condition_visibility_manager {
      *
      */
     public function is_condition_skipped(int $conditionid): bool {
-        $skippedconditions = $this->get_skipped_conditions();
-        if (empty($skippedconditions)) {
-            return false;
-        }
-        if (in_array($conditionid, $skippedconditions)) {
-            return true;
-        }
-        return false;
+        $statehelper = new condition_state_helper();
+        return $statehelper->should_skip_condition($conditionid);
     }
 }

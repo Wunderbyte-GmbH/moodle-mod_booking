@@ -78,7 +78,7 @@ Feature: In a booking create a template
     And I wait "1" seconds
     And I set the field "Booking option name" to "New option - by template"
     And I press "Save"
-    And I wait "1" seconds
+    And I wait until the page is ready
     ## Verify template
     Then I should see "New option - by template" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Teacher 1" in the ".allbookingoptionstable_r1" "css_element"
@@ -121,7 +121,7 @@ Feature: In a booking create a template
     And I wait "1" seconds
     ## Validate self-learning options
     And I expand all fieldsets
-    And the field "Self-learning course" matches value "1"
+    And the field "optiontype" matches value "Self-learning course"
     And the field "duration[number]" matches value "10"
     And the field "duration[timeunit]" matches value "seconds"
     And I should not see "Enrol users at course start time"
@@ -147,7 +147,7 @@ Feature: In a booking create a template
     ## Update option, save and validate base price
     And I set the field "Booking option name" to "SelfLearning - by template"
     And I press "Save"
-    And I wait "1" seconds
+    And I wait until the page is ready
     ## Verify template
     Then I should see "SelfLearning - by template" in the ".allbookingoptionstable_r2" "css_element"
     And I should see "75.00 EUR" in the ".allbookingoptionstable_r2" "css_element"

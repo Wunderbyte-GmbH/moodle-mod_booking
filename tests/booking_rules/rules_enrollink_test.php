@@ -25,7 +25,7 @@
 
 namespace mod_booking;
 
-use advanced_testcase;
+use mod_booking\booking_advanced_testcase;
 use stdClass;
 use mod_booking\teachers_handler;
 use mod_booking\booking_rules\booking_rules;
@@ -38,6 +38,9 @@ use local_shopping_cart\local\cartstore;
 use mod_booking\enrollink;
 use tool_mocktesttime\time_mock;
 
+defined('MOODLE_INTERNAL') || die();
+require_once(__DIR__ . '/../booking_advanced_testcase.php');
+
 /**
  * Tests for booking enrollink rules.
  *
@@ -48,26 +51,15 @@ use tool_mocktesttime\time_mock;
  *
  * @runTestsInSeparateProcesses
  */
-final class rules_enrollink_test extends advanced_testcase {
+final class rules_enrollink_test extends booking_advanced_testcase {
     /**
      * Tests set up.
      */
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest();
-        time_mock::init();
         time_mock::set_mock_time(strtotime('now'));
         singleton_service::destroy_instance();
-    }
-
-    /**
-     * Mandatory clean-up after each test.
-     */
-    public function tearDown(): void {
-        parent::tearDown();
-        /** @var mod_booking_generator $plugingenerator */
-        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
-        $plugingenerator->teardown();
     }
 
     /**
@@ -532,7 +524,7 @@ final class rules_enrollink_test extends advanced_testcase {
             MOD_BOOKING_BO_SUBMIT_STATUS_CONFIRMATION,
             MOD_BOOKING_VERIFIED
         );
-        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $teacher1->id);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $teacher1->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_PRICEISSET, $id);
         // User buying the bundle.
         $option->user_submit_response(

@@ -1,6 +1,8 @@
+[Back to parent section](README.md)
+
 # Action After Booking: Book Other Options
 
-**Class:** `mod_booking\bo_actions\action_types\bookotheroptions`  
+**Class:** `mod_booking\bo_actions\action_types\bookotheroptions`
 **PRO required:** Yes 🔒
 
 ---
@@ -61,3 +63,11 @@ When this action is executed:
 - [Actions after booking overview](README.md)
 - [Cancel booking action](cancelbooking.md)
 - [Execute REST script action](executerestscript.md)
+
+
+## Quick setup path
+
+1. Open option edit page: [/mod/booking/editoptions.php?id=<cmid>](/mod/booking/editoptions.php?id=<cmid>).
+2. Edit target option and open Booking actions section.
+3. Add or edit the action type documented here.
+4. Save and test with one booking event.

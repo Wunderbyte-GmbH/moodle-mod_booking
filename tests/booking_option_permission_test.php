@@ -24,7 +24,7 @@
 
 namespace mod_booking;
 
-use advanced_testcase;
+use mod_booking\booking_advanced_testcase;
 use context_module;
 use mod_booking\teachers_handler;
 use mod_booking_generator;
@@ -37,26 +37,15 @@ use tool_mocktesttime\time_mock;
  *
  * @covers \booking_check_if_teacher
  */
-final class booking_option_permission_test extends advanced_testcase {
+final class booking_option_permission_test extends booking_advanced_testcase {
     /**
      * Tests set up.
      */
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest();
-        time_mock::init();
         time_mock::set_mock_time(strtotime('now'));
         singleton_service::destroy_instance();
-    }
-
-    /**
-     * Mandatory clean-up after each test.
-     */
-    public function tearDown(): void {
-        parent::tearDown();
-        /** @var mod_booking_generator $plugingenerator */
-        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
-        $plugingenerator->teardown();
     }
 
     /**

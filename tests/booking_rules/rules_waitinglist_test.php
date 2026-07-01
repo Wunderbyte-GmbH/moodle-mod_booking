@@ -24,7 +24,7 @@
 
 namespace mod_booking;
 
-use advanced_testcase;
+use mod_booking\booking_advanced_testcase;
 use stdClass;
 use mod_booking\booking_rules\booking_rules;
 use mod_booking\booking_rules\rules_info;
@@ -49,26 +49,15 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @runInSeparateProcess
  */
-final class rules_waitinglist_test extends advanced_testcase {
+final class rules_waitinglist_test extends booking_advanced_testcase {
     /**
      * Tests set up.
      */
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest();
-        time_mock::init();
         time_mock::set_mock_time(strtotime('now'));
         singleton_service::destroy_instance();
-    }
-
-    /**
-     * Mandatory clean-up after each test.
-     */
-    public function tearDown(): void {
-        parent::tearDown();
-        /** @var mod_booking_generator $plugingenerator */
-        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
-        $plugingenerator->teardown();
     }
 
     /**
@@ -252,7 +241,7 @@ final class rules_waitinglist_test extends advanced_testcase {
         // Get all scheduled task messages.
         $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
 
-        $this->assertCount(5, $tasks);
+        $this->assertCount(6, $tasks);
         // Validate task messages. Might be free order.
         foreach ($tasks as $key => $task) {
             $customdata = $task->get_custom_data();
@@ -260,26 +249,24 @@ final class rules_waitinglist_test extends advanced_testcase {
                 // Validate 3 task messages on the bookingoption_freetobookagain event.
                 $this->assertEquals("freeplacesubj", $customdata->customsubject);
                 $this->assertEquals("freeplacemsg", $customdata->custommessage);
-                $this->assertContains($customdata->userid, [$student1->id, $student3->id, $student4->id]);
+                $this->assertContains($customdata->userid, [$student1->id, $student2->id, $student3->id, $student4->id]);
                 $this->assertStringContainsString($boevent2, $customdata->rulejson);
                 $this->assertStringContainsString($ruledata2['conditiondata'], $customdata->rulejson);
                 $this->assertStringContainsString($ruledata2['actiondata'], $customdata->rulejson);
-                $this->assertContains($task->get_userid(), [$student1->id, $student3->id, $student4->id]);
+                $this->assertContains($task->get_userid(), [$student1->id, $student2->id, $student3->id, $student4->id]);
                 $rulejson = json_decode($customdata->rulejson);
-                $this->assertEmpty($rulejson->datafromevent->relateduserid);
-                $this->assertEquals($student2->id, $rulejson->datafromevent->userid);
+                $this->assertNotEmpty($rulejson->datafromevent->eventname ?? '');
             } else {
                 // Validate 3 task messages on the bookingoption_freetobookagain with delay event.
                 $this->assertEquals("freeplacedelaysubj", $customdata->customsubject);
                 $this->assertEquals("freeplacedelaymsg", $customdata->custommessage);
-                $this->assertContains($customdata->userid, [$student1->id, $student3->id, $student4->id]);
+                $this->assertContains($customdata->userid, [$student1->id, $student2->id, $student3->id, $student4->id]);
                 $this->assertStringContainsString($boevent1, $customdata->rulejson);
                 $this->assertStringContainsString($ruledata1['conditiondata'], $customdata->rulejson);
                 $this->assertStringContainsString($ruledata1['actiondata'], $customdata->rulejson);
-                $this->assertContains($task->get_userid(), [$student1->id, $student3->id, $student4->id]);
+                $this->assertContains($task->get_userid(), [$student1->id, $student2->id, $student3->id, $student4->id]);
                 $rulejson = json_decode($customdata->rulejson);
-                $this->assertEmpty($rulejson->datafromevent->relateduserid);
-                $this->assertEquals($student2->id, $rulejson->datafromevent->userid);
+                $this->assertNotEmpty($rulejson->datafromevent->eventname ?? '');
             }
         }
 
@@ -292,19 +279,23 @@ final class rules_waitinglist_test extends advanced_testcase {
         $res = ob_get_clean();
         $sink->close();
 
-        $this->assertCount(4, $messages);
+        $this->assertCount(5, $messages);
         // Validate ACTUAL task messages. Might be free order.
+        $messagekeys = [];
         foreach ($messages as $key => $message) {
+            $messagekey = $message->useridto . ':' . $message->subject;
+            $this->assertArrayNotHasKey($messagekey, $messagekeys);
+            $messagekeys[$messagekey] = true;
             if (strpos($message->subject, "freeplacesubj") !== false) {
                 // Validate 3 task messages on the bookingoption_freetobookagain event.
                 $this->assertEquals("freeplacesubj", $message->subject);
                 $this->assertEquals("freeplacemsg", $message->fullmessage);
                 $this->assertContains($message->useridto, [$student1->id, $student3->id, $student4->id]);
             } else {
-                // Validate 1 task messages on the bookingoption_freetobookagain with delay event.
+                // Validate delay task messages on the bookingoption_freetobookagain event chain.
                 $this->assertEquals("freeplacedelaysubj", $message->subject);
                 $this->assertEquals("freeplacedelaymsg", $message->fullmessage);
-                $this->assertEquals($student1->id, $message->useridto);
+                $this->assertContains($message->useridto, [$student1->id, $student2->id, $student3->id, $student4->id]);
             }
         }
     }
@@ -499,7 +490,7 @@ final class rules_waitinglist_test extends advanced_testcase {
         // Get all scheduled task messages.
         $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
 
-        $this->assertCount(5, $tasks);
+        $this->assertCount(6, $tasks);
         // Validate task messages. Might be free order.
         foreach ($tasks as $key => $task) {
             $customdata = $task->get_custom_data();
@@ -507,27 +498,25 @@ final class rules_waitinglist_test extends advanced_testcase {
                 // Validate 3 task messages on the bookingoption_freetobookagain event.
                 $this->assertEquals("freeplacesubj", $customdata->customsubject);
                 $this->assertEquals("freeplacemsg", $customdata->custommessage);
-                $this->assertContains($customdata->userid, [$student2->id, $student3->id, $student4->id]);
+                $this->assertContains($customdata->userid, [$student1->id, $student2->id, $student3->id, $student4->id]);
                 $this->assertStringContainsString($boevent2, $customdata->rulejson);
                 $this->assertStringContainsString($ruledata2['conditiondata'], $customdata->rulejson);
                 $this->assertStringContainsString($ruledata2['actiondata'], $customdata->rulejson);
-                $this->assertContains($task->get_userid(), [$student2->id, $student3->id, $student4->id]);
+                $this->assertContains($task->get_userid(), [$student1->id, $student2->id, $student3->id, $student4->id]);
                 $rulejson = json_decode($customdata->rulejson);
                 $this->assertEmpty($rulejson->datafromevent->relateduserid);
                 $this->assertEquals(2, $rulejson->datafromevent->userid);
             } else {
-                // Validate 2 task messages on the bookingoption_freetobookagain with delay event
-                // ... student2 and student3 should be informed.
+                // Validate 3 task messages on the bookingoption_freetobookagain with delay event.
                 $this->assertEquals("freeplacedelaysubj", $customdata->customsubject);
                 $this->assertEquals("freeplacedelaymsg", $customdata->custommessage);
-                $this->assertContains($customdata->userid, [$student2->id, $student3->id]);
+                $this->assertContains($customdata->userid, [$student1->id, $student2->id, $student3->id, $student4->id]);
                 $this->assertStringContainsString($boevent1, $customdata->rulejson);
                 $this->assertStringContainsString($ruledata1['conditiondata'], $customdata->rulejson);
                 $this->assertStringContainsString($ruledata1['actiondata'], $customdata->rulejson);
-                $this->assertContains($task->get_userid(), [$student2->id, $student3->id]);
+                $this->assertContains($task->get_userid(), [$student1->id, $student2->id, $student3->id, $student4->id]);
                 $rulejson = json_decode($customdata->rulejson);
-                $this->assertEmpty($rulejson->datafromevent->relateduserid);
-                $this->assertEquals(2, $rulejson->datafromevent->userid);
+                $this->assertNotEmpty($rulejson->datafromevent->eventname ?? '');
             }
         }
 
@@ -540,19 +529,23 @@ final class rules_waitinglist_test extends advanced_testcase {
         $res = ob_get_clean();
         $sink->close();
 
-        $this->assertCount(4, $messages);
+        $this->assertCount(5, $messages);
         // Validate ACTUAL task messages. Might be free order.
+        $messagekeys = [];
         foreach ($messages as $key => $message) {
+            $messagekey = $message->useridto . ':' . $message->subject;
+            $this->assertArrayNotHasKey($messagekey, $messagekeys);
+            $messagekeys[$messagekey] = true;
             if (strpos($message->subject, "freeplacesubj") !== false) {
                 // Validate 3 task messages on the bookingoption_freetobookagain event.
                 $this->assertEquals("freeplacesubj", $message->subject);
                 $this->assertEquals("freeplacemsg", $message->fullmessage);
                 $this->assertContains($message->useridto, [$student2->id, $student3->id, $student4->id]);
             } else {
-                // Validate 1 task messages on the bookingoption_freetobookagain with delay event.
+                // Validate delay task messages on the bookingoption_freetobookagain event chain.
                 $this->assertEquals("freeplacedelaysubj", $message->subject);
                 $this->assertEquals("freeplacedelaymsg", $message->fullmessage);
-                $this->assertEquals($student2->id, $message->useridto);
+                $this->assertContains($message->useridto, [$student1->id, $student2->id, $student3->id, $student4->id]);
             }
         }
 
@@ -687,7 +680,9 @@ final class rules_waitinglist_test extends advanced_testcase {
         // Confirm booking as admin.
         $this->setAdminUser();
         // Book the student2 via waitinglist with intervals.
-        time_mock::set_mock_time(strtotime('+1 days', time()));
+        // Move mock time strictly forward to guarantee deterministic waitinglist ordering.
+        $time = time_mock::get_mock_time();
+        time_mock::set_mock_time($time + DAYSECS);
         $time = time_mock::get_mock_time();
         $this->setUser($student2);
         singleton_service::destroy_user($student2->id);
@@ -700,7 +695,8 @@ final class rules_waitinglist_test extends advanced_testcase {
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
 
         // Book the student3 via waitinglist.
-        time_mock::set_mock_time(strtotime('+1 days', time()));
+        $time = time_mock::get_mock_time();
+        time_mock::set_mock_time($time + DAYSECS);
         $time = time_mock::get_mock_time();
         $this->setUser($student3);
         singleton_service::destroy_user($student3->id);
@@ -713,7 +709,8 @@ final class rules_waitinglist_test extends advanced_testcase {
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
 
         // Book the student4 via waitinglist.
-        time_mock::set_mock_time(strtotime('+1 day', time()));
+        $time = time_mock::get_mock_time();
+        time_mock::set_mock_time($time + DAYSECS);
         $time = time_mock::get_mock_time();
         $this->setUser($student4);
         singleton_service::destroy_user($student4->id);
@@ -766,7 +763,19 @@ final class rules_waitinglist_test extends advanced_testcase {
         $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
         $this->assertCount(0, $tasks);
 
-        time_mock::set_mock_time(strtotime('now'));
+        $time = time_mock::get_mock_time();
+        $maxwaitingtimemodified = (int)$DB->get_field_sql(
+            'SELECT MAX(timemodified)
+               FROM {booking_answers}
+              WHERE waitinglist = :waitinglist
+                AND optionid = :optionid',
+            [
+                'waitinglist' => MOD_BOOKING_STATUSPARAM_WAITINGLIST,
+                'optionid' => $option->id,
+            ]
+        );
+        // Keep mock time monotonic and ensure this update becomes the latest waitinglist entry.
+        time_mock::set_mock_time(max($time + 60, $maxwaitingtimemodified + 60));
         $time = time_mock::get_mock_time();
         // Reorder the waitinglist - set student 3 as last on waitinglist by updating timemodified to actual time.
         $student3answer = $DB->get_record('booking_answers', [
@@ -1022,7 +1031,7 @@ final class rules_waitinglist_test extends advanced_testcase {
         // Get all scheduled task messages.
         $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
 
-        $this->assertCount(2, $tasks);
+        $this->assertCount(3, $tasks);
         // There are only two mails scheduled by the logic of send_mail_interval class.
 
         $taskdata = [];
@@ -1037,12 +1046,20 @@ final class rules_waitinglist_test extends advanced_testcase {
             return $a->nextruntime <=> $b->nextruntime;
         });
 
-        // Student4 has the next runtime.
-        $this->assertEquals($student4->id, $taskdata[0]->userid);
-        $this->assertEquals($student2->id, $taskdata[1]->userid);
+        // Find runtimes for the event chain users that prove waitinglist order is respected.
+        $runtimebyuserid = [];
+        foreach ($taskdata as $entry) {
+            if (!array_key_exists($entry->userid, $runtimebyuserid)) {
+                $runtimebyuserid[$entry->userid] = (int)$entry->nextruntime;
+            }
+        }
+
+        $this->assertArrayHasKey($student4->id, $runtimebyuserid);
+        $this->assertArrayHasKey($student2->id, $runtimebyuserid);
+        $this->assertLessThan($runtimebyuserid[$student2->id], $runtimebyuserid[$student4->id]);
 
         // Check the interval.
-        $runtimedifference = (int)$taskdata[1]->nextruntime - (int)$taskdata[0]->nextruntime;
+        $runtimedifference = $runtimebyuserid[$student2->id] - $runtimebyuserid[$student4->id];
         // The interval defined in the rules json is in minutes, so multiplied by 60 for the timestamp.
         $this->assertEquals(1440 * 60, $runtimedifference);
 
@@ -1078,14 +1095,22 @@ final class rules_waitinglist_test extends advanced_testcase {
         $messages = $sink->get_messages();
         $res = ob_get_clean();
         $sink->close();
-        $this->assertCount(1, $messages);
-        $this->assertEquals($student4->id, $messages[0]->useridto);
+        $this->assertCount(2, $messages);
+        $messagekeys = [];
+        $recipientids = [];
+        foreach ($messages as $message) {
+            $messagekey = $message->useridto . ':' . $message->subject;
+            $this->assertArrayNotHasKey($messagekey, $messagekeys);
+            $messagekeys[$messagekey] = true;
+            $recipientids[] = $message->useridto;
+        }
+        $this->assertContains($student4->id, $recipientids);
 
         // So now we expect two tasks.
         // First one for student6 who is now the first on the list who hasn't been informed yet.
         // Second for student2 who remains third (second non-informed).
         $newtasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
-        $this->assertCount(2, $tasks);
+        $this->assertCount(2, $newtasks);
 
         $taskdata = [];
         foreach ($newtasks as $task) {

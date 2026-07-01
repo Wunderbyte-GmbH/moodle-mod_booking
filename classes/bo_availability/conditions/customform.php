@@ -29,8 +29,10 @@ namespace mod_booking\bo_availability\conditions;
 use context_system;
 use Exception;
 use mod_booking\bo_availability\bo_condition;
+use mod_booking\bo_availability\freezable_condition;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_option_settings;
+use mod_booking\local\customform_prefill;
 use mod_booking\local\mobile\customformstore;
 use mod_booking\singleton_service;
 use mod_booking\utils\wb_payment;
@@ -47,7 +49,7 @@ use stdClass;
  * @copyright 2022 Wunderbyte GmbH
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class customform implements bo_condition {
+class customform implements bo_condition, freezable_condition {
     /** @var int $id Id is set via json during construction but we still need a default ID */
     public $id = MOD_BOOKING_BO_COND_JSON_CUSTOMFORM;
 
@@ -163,18 +165,6 @@ class customform implements bo_condition {
 
         if (empty($this->customsettings->formsarray)) {
             $isavailable = true;
-        } else {
-            $ba = singleton_service::get_instance_of_booking_answers($settings);
-            $usersonlist = $ba->get_usersonlist();
-            $usersonwaitinglist = $ba->get_usersonwaitinglist();
-            // If the user is already on a list...
-            if (($usersonlist[$userid] ?? false) || ($usersonwaitinglist[$userid] ?? false)) {
-                $customformstore = new customformstore($userid, $settings->id);
-                // If the form is already filled out, don't show it again.
-                if ($customformstore->get_customform_data()) {
-                    $isavailable = true;
-                }
-            }
         }
 
         // If it's inversed, we inverse.
@@ -256,6 +246,29 @@ class customform implements bo_condition {
      * @param ?\moodleform $moodleform
      * @return void
      */
+    /**
+     * Returns the ordered list of form element names this condition adds to the option form.
+     * The first element is used as the warning insertion anchor.
+     * Dynamic per-entry elements (bo_cond_customform_select_1_N etc.) are not listed here
+     * as they are variable in count; freezing the restrict checkbox indicates condition state.
+     *
+     * @return string[]
+     */
+    public function get_condition_form_elements(): array {
+        return [
+            'bo_cond_customform_restrict',
+            'bo_cond_customform_deleteinfoscheckboxadmin',
+        ];
+    }
+
+    /**
+     * Add condition-specific form elements to the booking option form.
+     *
+     * @param MoodleQuickForm $mform Booking option form instance.
+     * @param int $optionid Booking option id.
+     * @param ?\moodleform $moodleform Parent form instance.
+     * @return void
+     */
     public function add_condition_to_mform(MoodleQuickForm &$mform, int $optionid = 0, ?\moodleform $moodleform = null) {
         global $DB, $CFG;
 
@@ -286,6 +299,8 @@ class customform implements bo_condition {
             // Up to 50 elements are possible. 20 was too few for some clients. 50 is more than enough.
             while ($counter <= 50) {
                 $buttonarray = [];
+                $selectedformtype = (string)($this->customsettings->formsarray->{$counter}->formtype ?? '');
+                $selectedlabel = (string)($this->customsettings->formsarray->{$counter}->label ?? '');
 
                 // Create a select to chose which type of form element to display.
                 $buttonarray[] =& $mform->createElement(
@@ -321,6 +336,26 @@ class customform implements bo_condition {
                     'eq',
                     'deleteinfoscheckboxuser'
                 );
+
+                if (customform_prefill::is_enabled()) {
+                    $prefillidentifier = self::get_prefill_identifier_for_form_element($selectedformtype, $counter);
+                    $labelslug = self::normalize_prefill_label_key($selectedlabel);
+                    if ($labelslug === '') {
+                        $labelslug = 'label_slug';
+                    }
+                    $prefillhint = '<small class="text-muted" style="font-size:0.75rem;">'
+                        . 'Prefill key: <code>prefill_' . s($prefillidentifier) . '</code>'
+                        . ' | Label key: <code>prefill_' . s($labelslug) . '</code>'
+                        . '</small>';
+                    $mform->addElement('static', 'bo_cond_customform_prefillhint_1_' . $counter, '', $prefillhint);
+                    $mform->hideIf('bo_cond_customform_prefillhint_1_' . $counter, 'bo_cond_customform_restrict', 'notchecked');
+                    $mform->hideIf(
+                        'bo_cond_customform_prefillhint_1_' . $counter,
+                        'bo_cond_customform_select_1_' . $counter,
+                        'eq',
+                        0
+                    );
+                }
 
                 // We need to create all possible elements and hide them via "hideif" right now.
                 $mform->addElement(
@@ -676,7 +711,7 @@ class customform implements bo_condition {
      * @param booking_option_settings $settings
      * @return string
      */
-    private function get_description_string(bool $isavailable, bool $full, booking_option_settings $settings) {
+    public function get_description_string(bool $isavailable, bool $full, booking_option_settings $settings) {
 
         if (
             !$isavailable
@@ -780,6 +815,37 @@ class customform implements bo_condition {
             }
         }
         return false;
+    }
+
+    /**
+     * Return prefill identifier pattern for one customform element row.
+     *
+     * @param string $formtype
+     * @param int $counter
+     * @return string
+     */
+    private static function get_prefill_identifier_for_form_element(string $formtype, int $counter): string {
+        if ($formtype === 'deleteinfoscheckboxuser') {
+            return 'customform_deleteinfoscheckboxuser';
+        }
+
+        if ($formtype === '' || $formtype === '0') {
+            return 'customform_<formtype>_' . $counter;
+        }
+
+        return 'customform_' . $formtype . '_' . $counter;
+    }
+
+    /**
+     * Normalize label to the slug key variant used for prefill params.
+     *
+     * @param string $label
+     * @return string
+     */
+    private static function normalize_prefill_label_key(string $label): string {
+        $label = \core_text::strtolower(trim($label));
+        $label = preg_replace('/[^[:alnum:]]+/u', '_', $label);
+        return trim((string)$label, '_');
     }
 
     /**

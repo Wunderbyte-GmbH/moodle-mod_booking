@@ -26,9 +26,10 @@
 
 namespace mod_booking;
 
-use advanced_testcase;
+use mod_booking\booking_advanced_testcase;
 use coding_exception;
 use context_module;
+use mod_booking\bo_availability\condition_state_helper;
 use mod_booking_generator;
 use mod_booking\bo_availability\bo_info;
 use stdClass;
@@ -46,7 +47,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @copyright 2026 Wunderbyte GmbH <info@wunderbyte.at>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-final class condition_skipableconditions_test extends advanced_testcase {
+final class condition_skipableconditions_test extends booking_advanced_testcase {
     /**
      * Tests set up.
      */
@@ -54,19 +55,8 @@ final class condition_skipableconditions_test extends advanced_testcase {
         parent::setUp();
         $this->resetAfterTest();
         $this->preventResetByRollback();
-        time_mock::init();
         time_mock::set_mock_time(strtotime('now'));
         singleton_service::destroy_instance();
-    }
-
-    /**
-     * Mandatory clean-up after each test.
-     */
-    public function tearDown(): void {
-        parent::tearDown();
-        /** @var mod_booking_generator $plugingenerator */
-        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
-        $plugingenerator->teardown();
     }
 
     /**
@@ -433,6 +423,126 @@ final class condition_skipableconditions_test extends advanced_testcase {
         $result = booking_bookit::bookit('option', $settings->id, $student2->id);
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student2->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+    }
+
+    /**
+     * Test that booking_time is still skipped when configured as skip-and-freeze in the new state map.
+     *
+     * @covers \mod_booking\bo_availability\conditions\booking_time::is_available
+     * @covers \mod_booking\bo_availability\condition_state_helper::should_skip_condition
+     *
+     * @param array $bdata
+     * @dataProvider booking_settings_provider
+     */
+    public function test_booking_time_is_skipped_with_skip_and_freeze_state(array $bdata): void {
+        set_config('skipableconditions', '', 'booking');
+        set_config(
+            'availabilityconditionsettings',
+            json_encode([
+                MOD_BOOKING_BO_COND_BOOKING_TIME => [
+                    'skipstate' => condition_state_helper::STATE_SKIP_AND_FREEZE,
+                ],
+            ]),
+            'booking'
+        );
+
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $student = $this->getDataGenerator()->create_user();
+        $bookingmanager = $this->getDataGenerator()->create_user();
+
+        $bdata['course'] = $course->id;
+        $bdata['bookingmanager'] = $bookingmanager->username;
+        $booking = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        $this->setAdminUser();
+        $this->getDataGenerator()->enrol_user($student->id, $course->id);
+        $this->getDataGenerator()->enrol_user($bookingmanager->id, $course->id, 'editingteacher');
+
+        $record = new stdClass();
+        $record->bookingid = $booking->id;
+        $record->text = 'Skip and freeze booking time';
+        $record->chooseorcreatecourse = 1;
+        $record->courseid = $course->id;
+        $record->bookingopeningtime = strtotime('now - 10 days');
+        $record->bookingclosingtime = strtotime('now - 1 day');
+        $record->restrictanswerperiodopening = 1;
+        $record->restrictanswerperiodclosing = 1;
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $option = $plugingenerator->create_option($record);
+        singleton_service::destroy_booking_option_singleton($option->id);
+
+        $this->setUser($student);
+        $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
+        $boinfo = new bo_info($settings);
+
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student->id, false);
+        $this->assertNotEquals(
+            MOD_BOOKING_BO_COND_BOOKING_TIME,
+            $id,
+            'booking_time must be skipped when state is configured as skip-and-freeze.'
+        );
+    }
+
+    /**
+     * Test that booking_time is not skipped when configured as freeze-only in the new state map.
+     *
+     * @covers \mod_booking\bo_availability\conditions\booking_time::is_available
+     * @covers \mod_booking\bo_availability\condition_state_helper::should_skip_condition
+     *
+     * @param array $bdata
+     * @dataProvider booking_settings_provider
+     */
+    public function test_booking_time_is_not_skipped_with_freeze_only_state(array $bdata): void {
+        set_config('skipableconditions', '', 'booking');
+        set_config(
+            'availabilityconditionsettings',
+            json_encode([
+                MOD_BOOKING_BO_COND_BOOKING_TIME => [
+                    'skipstate' => condition_state_helper::STATE_FREEZE,
+                ],
+            ]),
+            'booking'
+        );
+
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $student = $this->getDataGenerator()->create_user();
+        $bookingmanager = $this->getDataGenerator()->create_user();
+
+        $bdata['course'] = $course->id;
+        $bdata['bookingmanager'] = $bookingmanager->username;
+        $booking = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        $this->setAdminUser();
+        $this->getDataGenerator()->enrol_user($student->id, $course->id);
+        $this->getDataGenerator()->enrol_user($bookingmanager->id, $course->id, 'editingteacher');
+
+        $record = new stdClass();
+        $record->bookingid = $booking->id;
+        $record->text = 'Freeze only booking time';
+        $record->chooseorcreatecourse = 1;
+        $record->courseid = $course->id;
+        $record->bookingopeningtime = strtotime('now - 10 days');
+        $record->bookingclosingtime = strtotime('now - 1 day');
+        $record->restrictanswerperiodopening = 1;
+        $record->restrictanswerperiodclosing = 1;
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $option = $plugingenerator->create_option($record);
+        singleton_service::destroy_booking_option_singleton($option->id);
+
+        $this->setUser($student);
+        $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
+        $boinfo = new bo_info($settings);
+
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student->id, false);
+        $this->assertEquals(
+            MOD_BOOKING_BO_COND_BOOKING_TIME,
+            $id,
+            'booking_time must still block when state is configured as freeze-only.'
+        );
     }
 
     /**

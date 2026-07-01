@@ -1,6 +1,17 @@
+[Back to parent section](README.md)
+
 # Booking Rules — Practical Examples
 
 This page shows complete, real-world booking rule configurations. Each example lists the exact settings to use in the rule editor.
+
+---
+
+## Quick setup path
+
+1. Open booking rules: [/mod/booking/edit_rules.php?contextid=1](/mod/booking/edit_rules.php?contextid=1).
+2. Click Add rule or edit an existing rule.
+3. Apply the configuration from this page.
+4. Save, activate, and test with one booking event.
 
 ---
 

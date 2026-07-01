@@ -29,6 +29,7 @@
 use context_module;
 use context_system;
 use mod_booking\bo_availability\bo_condition;
+use mod_booking\bo_availability\freezable_condition;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_option_settings;
 use mod_booking\singleton_service;
@@ -46,7 +47,7 @@ use stdClass;
  * @copyright 2022 Wunderbyte GmbH
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class previouslybooked implements bo_condition {
+class previouslybooked implements bo_condition, freezable_condition {
     /** @var int $id Id is set via json during construction */
     public $id = MOD_BOOKING_BO_COND_JSON_PREVIOUSLYBOOKED;
 
@@ -268,6 +269,30 @@ class previouslybooked implements bo_condition {
      *
      * @param MoodleQuickForm $mform
      * @param int $optionid
+     * @return void
+     */
+    /**
+     * Returns the ordered list of form element names this condition adds to the option form.
+     * The first element is used as the warning insertion anchor.
+     *
+     * @return string[]
+     */
+    public function get_condition_form_elements(): array {
+        return [
+            'bo_cond_previouslybooked_restrict',
+            'bo_cond_previouslybooked_optionid',
+            'bo_cond_previouslybooked_requirecompletion',
+            'bo_cond_previouslybooked_overrideconditioncheckbox',
+            'bo_cond_previouslybooked_overrideoperator',
+            'bo_cond_previouslybooked_overridecondition',
+        ];
+    }
+
+    /**
+     * Add condition-specific form elements to the booking option form.
+     *
+     * @param MoodleQuickForm $mform Booking option form instance.
+     * @param int $optionid Booking option id.
      * @return void
      */
     public function add_condition_to_mform(MoodleQuickForm &$mform, int $optionid = 0) {
@@ -524,7 +549,7 @@ class previouslybooked implements bo_condition {
      * @param booking_option_settings $settings
      * @return string
      */
-    private function get_description_string(bool $isavailable, bool $full, booking_option_settings $settings) {
+    public function get_description_string(bool $isavailable, bool $full, booking_option_settings $settings) {
 
         if (
             !$isavailable
@@ -558,9 +583,12 @@ class previouslybooked implements bo_condition {
                 'cmid' => $settings->cmid,
             ]);
 
+            $a = new stdClass();
+            $a->url = $url->out(false);
+            $a->title = $settings->get_title_with_prefix();
             $description = $full ?
-                get_string('bocondpreviouslybookedfullnotavailable', 'mod_booking', $url->out(false)) :
-                get_string('bocondpreviouslybookednotavailable', 'mod_booking', $url->out(false));
+                get_string('bocondpreviouslybookedfullnotavailable', 'mod_booking', $a) :
+                get_string('bocondpreviouslybookednotavailable', 'mod_booking', $a);
         }
 
         return $description;

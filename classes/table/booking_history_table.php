@@ -25,10 +25,10 @@
 
 namespace mod_booking\table;
 
+use core_plugin_manager;
 use mod_booking\local\bookingstracker\bookingstracker_helper;
 use mod_booking\singleton_service;
 use mod_booking\booking;
-use moodle_url;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -88,6 +88,14 @@ class booking_history_table extends wunderbyte_table {
             return "";
         }
         $info = json_decode($values->json, true);
+
+        if (is_array($info)) {
+            $description = $this->get_bookingextension_history_description($values, $info);
+            if ($description !== '') {
+                return $description;
+            }
+        }
+
         $a = new stdClass();
         if (strrpos($values->json, 'presence') !== false) {
             $possiblepresences = booking::get_array_of_possible_presence_statuses();
@@ -117,6 +125,41 @@ class booking_history_table extends wunderbyte_table {
             return get_string('completionchangedhistory', 'mod_booking', $a);
         }
         return "";
+    }
+
+    /**
+     * Resolve history description from installed booking extensions.
+     *
+     * @param stdClass $values booking history row values
+     * @param array $info decoded json payload
+     * @return string
+     */
+    private function get_bookingextension_history_description(stdClass $values, array $info): string {
+        $component = (string)($info['component'] ?? '');
+        if (strpos($component, 'bookingextension_') !== 0) {
+            return '';
+        }
+
+        $pluginname = substr($component, strlen('bookingextension_'));
+        if ($pluginname === '') {
+            return '';
+        }
+
+        $plugins = core_plugin_manager::instance()->get_plugins_of_type('bookingextension');
+        if (!isset($plugins[$pluginname])) {
+            return '';
+        }
+
+        $class = "\\bookingextension_{$pluginname}\\{$pluginname}";
+        if (!class_exists($class) || !method_exists($class, 'get_booking_history_description')) {
+            return '';
+        }
+
+        try {
+            return (string)$class::get_booking_history_description($values, $info);
+        } catch (\Throwable $e) {
+            return '';
+        }
     }
 
 

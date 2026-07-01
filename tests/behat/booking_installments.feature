@@ -91,6 +91,7 @@ Feature: Enabling installments as admin configuring installments as a teacher an
     ##  | Due nr. of days before coursestart     | 2  |
     ## Validate updates of installment settings
     And I click on "Show recent updates..." "button"
+    And I wait until the page is ready
     And I should see "2 of 2 records found" in the "#showEventList" "css_element"
     And I should see "[DELETED]" in the "#showEventList .columnclass.description" "css_element"
     And I should see "Down payment : 44" in the "#showEventList .columnclass.description" "css_element"
@@ -102,24 +103,34 @@ Feature: Enabling installments as admin configuring installments as a teacher an
     And I should see "Due nr. of days before coursestart : 2" in the "#showEventList .columnclass.description" "css_element"
     And I log out
 
-  @javascript
+  @javascript @accessibility
   Scenario: Add an installment for a booking option via DB and brought it as student
     Given the following "mod_booking > options" exist:
       | booking     | text               | course | description | importing | useprice | sch_allowinstallment | sch_downpayment | sch_numberofpayments | sch_duedaysbeforecoursestart | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 |
       | BookingInst | Option-installment | C1     | Deskr2      | 1         | 1        | 1                    | 44              | 2                    | 1                            | 0              | 0              | ## +6 days ##     | ## +8 days ##   |
     And I am on the "BookingInst" Activity page logged in as student1
+    ## Validate accessibility of booking options table before booking
+    And the page should meet accessibility standards
     And I click on "Add to cart" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I visit "/local/shopping_cart/checkout.php"
     And I wait "1" seconds
+    ## Validate accessibility of booking options table before booking
+    And the page should meet accessibility standards
     And I set the field "Use installment payments" to "checked"
     And I wait "1" seconds
+    ## Validate accessibility of booking options table before booking
+    And the page should meet accessibility standards
     And I should see "Down payment for Option-installment"
     And I should see "44 EUR instead of 88 EUR"
     And I should see "Further payments"
     And I should see "2" occurrences of "22 EUR on" in the ".sc_installments .furtherpayments" "css_element"
     When I press "Checkout"
     And I wait "1" seconds
+    ## Validate accessibility of booking options table before booking
+    And the page should meet accessibility standards
     And I press "Confirm"
     Then I should see "Payment successful!"
     And I should see "Option-installment" in the ".payment-success ul.list-group" "css_element"
     And I should see "44.00 EUR" in the ".payment-success ul.list-group" "css_element"
+    ## Validate accessibility of booking options table before booking
+    And the page should meet accessibility standards

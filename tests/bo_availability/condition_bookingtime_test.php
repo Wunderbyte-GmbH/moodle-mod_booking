@@ -25,7 +25,7 @@
 
 namespace mod_booking;
 
-use advanced_testcase;
+use mod_booking\booking_advanced_testcase;
 use coding_exception;
 use context_module;
 use mod_booking\price;
@@ -52,26 +52,15 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  *
  */
-final class condition_bookingtime_test extends advanced_testcase {
+final class condition_bookingtime_test extends booking_advanced_testcase {
     /**
      * Tests set up.
      */
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest(true);
-        time_mock::init();
         time_mock::set_mock_time(strtotime('now'));
         singleton_service::destroy_instance();
-    }
-
-    /**
-     * Mandatory clean-up after each test.
-     */
-    public function tearDown(): void {
-        parent::tearDown();
-        /** @var mod_booking_generator $plugingenerator */
-        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
-        $plugingenerator->teardown();
     }
 
     /**
@@ -147,7 +136,6 @@ final class condition_bookingtime_test extends advanced_testcase {
         $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
         $this->assertEquals(MOD_BOOKING_SQL_FILTER_ACTIVE_BO_TIME, $settings->sqlfilter);
 
-        // Book the first user without any problem.
         $boinfo = new bo_info($settings);
 
         $rawdata = $plugingenerator->create_table_for_one_option($settings->id);
@@ -249,11 +237,391 @@ final class condition_bookingtime_test extends advanced_testcase {
     }
 
     /**
+     * Test bookingtime relative mode.
+     *
+     * @covers \mod_booking\bo_availability\conditions\booking_time::is_available
+     *
+     * @param array $bdata
+     * @throws \coding_exception
+     * @throws \dml_exception
+     *
+     * @dataProvider booking_common_settings_provider
+     */
+    public function test_booking_bookit_bookingtime_relative(array $bdata): void {
+        global $DB, $CFG, $PAGE;
+
+        // Setup test data.
+        $course1 = $this->getDataGenerator()->create_course(['enablecompletion' => 1, 'startdate' => strtotime('now + 1 week')]);
+
+        // Create users.
+        $student1 = $this->getDataGenerator()->create_user();
+
+        $bdata['course'] = $course1->id;
+
+        $booking1 = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        $this->setAdminUser();
+
+        // Single point to difine exact time to avoid random test failure.
+        $coursestarttime = strtotime('now + 1 week');
+
+        $this->getDataGenerator()->enrol_user($student1->id, $course1->id);
+
+        $record = new stdClass();
+        $record->bookingid = $booking1->id;
+        $record->text = 'Test option1 (relative time)';
+        $record->chooseorcreatecourse = 1; // Required.
+        $record->courseid = $course1->id;
+        $record->maxanswers = 2;
+        $record->coursestarttime = $coursestarttime;
+        $record->restrictanswerperiodopening = 1;
+        // Simulate option form submission values.
+        $record->booking_time_opening_mode = 2;
+        $record->booking_time_opening_relative_duration = 86400; // 1 day before.
+        $record->booking_time_opening_relative_beforeafter = 1; // Before.
+        $record->booking_time_opening_relative_datefield = 'coursestarttime';
+        $record->booking_time_closing_mode = 0; // No closing restriction.
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $option1 = $plugingenerator->create_option($record);
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
+
+        // The opening time should be course start - 1 day.
+        $expectedopening = $coursestarttime - 86400;
+
+        $boinfo = new bo_info($settings);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_BOOKITBUTTON, $id);
+
+        // Check that DB field is set.
+        $this->assertEquals($expectedopening, $settings->bookingopeningtime);
+
+        // Since now is before opening, should not be available.
+        $this->assertFalse($isavailable);
+    }
+
+    /**
+     * Test bookingtime relative mode persists DB timestamps without legacy restrict flags.
+     *
+     * @covers \mod_booking\bo_availability\conditions\booking_time::prepare_update_data
+     *
+     * @param array $bdata
+     * @throws \coding_exception
+     * @throws \dml_exception
+     *
+     * @dataProvider booking_common_settings_provider
+     */
+    public function test_booking_bookit_bookingtime_relative_persists_db_without_legacy_flags(array $bdata): void {
+        // Setup test data.
+        $course1 = $this->getDataGenerator()->create_course(['enablecompletion' => 1, 'startdate' => strtotime('now + 1 week')]);
+
+        $bdata['course'] = $course1->id;
+        $booking1 = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        $this->setAdminUser();
+
+        // Single point to difine exact time to avoid random test failure.
+        $coursestarttime = strtotime('now + 1 week');
+
+        $record = new stdClass();
+        $record->bookingid = $booking1->id;
+        $record->text = 'Test option1 (relative persist db without legacy flags)';
+        $record->chooseorcreatecourse = 1;
+        $record->courseid = $course1->id;
+        $record->maxanswers = 2;
+        $record->coursestarttime = $coursestarttime;
+
+        // Intentionally omit restrictanswerperiodopening/restrictanswerperiodclosing.
+        $record->booking_time_opening_mode = 2;
+        $record->booking_time_opening_relative_duration = 86400; // 1 day before.
+        $record->booking_time_opening_relative_beforeafter = 1;
+        $record->booking_time_opening_relative_datefield = 'coursestarttime';
+        $record->booking_time_closing_mode = 0;
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $option1 = $plugingenerator->create_option($record);
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
+        $expectedopening = $coursestarttime - 86400;
+
+        $this->assertEqualsWithDelta($expectedopening, $settings->bookingopeningtime, 1);
+        $this->assertEquals(0, (int)$settings->bookingclosingtime);
+    }
+
+    /**
+     * Test bookingtime relative mode blocks actual booking submission.
+     *
+     * @covers \mod_booking\bo_availability\conditions\booking_time::is_available
+     *
+     * @param array $bdata
+     * @throws \coding_exception
+     * @throws \dml_exception
+     *
+     * @dataProvider booking_common_settings_provider
+     */
+    public function test_booking_bookit_bookingtime_relative_blocks_booking(array $bdata): void {
+        global $DB;
+
+        // Setup test data.
+        $course1 = $this->getDataGenerator()->create_course(['enablecompletion' => 1, 'startdate' => strtotime('now + 1 week')]);
+
+        // Create users.
+        $student1 = $this->getDataGenerator()->create_user();
+
+        $bdata['course'] = $course1->id;
+
+        $booking1 = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        $this->setAdminUser();
+        $this->getDataGenerator()->enrol_user($student1->id, $course1->id);
+
+        $record = new stdClass();
+        $record->bookingid = $booking1->id;
+        $record->text = 'Test option1 (relative blocks booking)';
+        $record->chooseorcreatecourse = 1; // Required.
+        $record->courseid = $course1->id;
+        $record->maxanswers = 2;
+        $record->coursestarttime = strtotime('now + 1 week');
+        $record->restrictanswerperiodopening = 1;
+
+        // Simulate option form submission values: opening starts in future.
+        $record->booking_time_opening_mode = 2;
+        $record->booking_time_opening_relative_duration = 86400; // 1 day before course start.
+        $record->booking_time_opening_relative_beforeafter = 1; // Before.
+        $record->booking_time_opening_relative_datefield = 'coursestarttime';
+        $record->booking_time_closing_mode = 0;
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $option1 = $plugingenerator->create_option($record);
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
+        $boinfo = new bo_info($settings);
+
+        // Evaluate and book as student (no override capability).
+        $this->setUser($student1);
+
+        // Condition must be unavailable in hardblock mode.
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_BOOKING_TIME, $id);
+        $this->assertFalse($isavailable);
+
+        // Try booking (bookit is called twice in normal flow).
+        booking_bookit::bookit('option', $settings->id, $student1->id);
+        booking_bookit::bookit('option', $settings->id, $student1->id);
+
+        // Assert booking answer was not created.
+        $this->assertEquals(0, $DB->count_records('booking_answers', [
+            'optionid' => $settings->id,
+            'userid' => $student1->id,
+        ]));
+    }
+
+    /**
+     * Test bookingtime backwards compatibility.
+     *
+     * @covers \mod_booking\bo_availability\conditions\booking_time::is_available
+     *
+     * @param array $bdata
+     * @throws \coding_exception
+     * @throws \dml_exception
+     *
+     * @dataProvider booking_common_settings_provider
+     */
+    public function test_booking_bookit_bookingtime_backwards_compat(array $bdata): void {
+        global $DB, $CFG, $PAGE;
+
+        // Setup test data.
+        $course1 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+
+        // Create users.
+        $student1 = $this->getDataGenerator()->create_user();
+
+        $bdata['course'] = $course1->id;
+
+        $booking1 = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        $this->setAdminUser();
+
+        $this->getDataGenerator()->enrol_user($student1->id, $course1->id);
+
+        $record = new stdClass();
+        $record->bookingid = $booking1->id;
+        $record->text = 'Test option1 (backwards compat)';
+        $record->chooseorcreatecourse = 1; // Required.
+        $record->courseid = $course1->id;
+        $record->maxanswers = 2;
+        $record->restrictanswerperiodopening = 1;
+        $record->bookingopeningtime = strtotime('now - 1 day');
+        $record->restrictanswerperiodclosing = 1;
+        $record->bookingclosingtime = strtotime('now + 1 day');
+        // No availability JSON, should fall back to DB fields.
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $option1 = $plugingenerator->create_option($record);
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
+
+        $boinfo = new bo_info($settings);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_BOOKITBUTTON, $id);
+
+        $this->assertFalse($isavailable);
+    }
+
+    /**
+     * Test bookingtime absolute mode with JSON.
+     *
+     * @covers \mod_booking\bo_availability\conditions\booking_time::is_available
+     *
+     * @param array $bdata
+     * @throws \coding_exception
+     * @throws \dml_exception
+     *
+     * @dataProvider booking_common_settings_provider
+     */
+    public function test_booking_bookit_bookingtime_absolute_json(array $bdata): void {
+        global $DB, $CFG, $PAGE;
+
+        // Setup test data.
+        $course1 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+
+        // Create users.
+        $student1 = $this->getDataGenerator()->create_user();
+
+        $bdata['course'] = $course1->id;
+
+        $booking1 = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        $this->setAdminUser();
+
+        $this->getDataGenerator()->enrol_user($student1->id, $course1->id);
+
+        $record = new stdClass();
+        $record->bookingid = $booking1->id;
+        $record->text = 'Test option1 (absolute JSON)';
+        $record->chooseorcreatecourse = 1; // Required.
+        $record->courseid = $course1->id;
+        $record->maxanswers = 2;
+        $record->restrictanswerperiodopening = 1;
+        $record->bookingopeningtime = strtotime('now - 1 day');
+        $record->restrictanswerperiodclosing = 1;
+        $record->bookingclosingtime = strtotime('now + 1 day');
+        $record->availability = json_encode([
+            'id' => MOD_BOOKING_BO_COND_BOOKING_TIME,
+            'name' => 'booking_time',
+            'class' => 'mod_booking\\bo_availability\\conditions\\booking_time',
+            'openingmode' => 1, // Absolute opening, times in DB.
+            'closingmode' => 1, // Absolute closing, times in DB.
+        ]);
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $option1 = $plugingenerator->create_option($record);
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
+
+        $boinfo = new bo_info($settings);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_BOOKITBUTTON, $id);
+
+        $this->assertFalse($isavailable);
+    }
+
+    /**
+     * Test that bookingopeningtimerelativeautoapply pre-checks only the opening checkbox.
+     *
+     * @covers \mod_booking\bo_availability\conditions\booking_time::add_condition_to_mform
+     */
+    public function test_autoapply_opening_only_prechecks_opening_checkbox(): void {
+        set_config('bookingtimerelativeenabled', 1, 'booking');
+        set_config('bookingopeningtimerelativeautoapply', 1, 'booking');
+        set_config('bookingclosingtimerelativeautoapply', 0, 'booking');
+
+        $defaults = $this->get_checkbox_defaults_from_new_option_form();
+
+        $this->assertEquals(1, $defaults['restrictanswerperiodopening']);
+        $this->assertEquals(0, $defaults['restrictanswerperiodclosing']);
+    }
+
+    /**
+     * Test that bookingclosingtimerelativeautoapply pre-checks only the closing checkbox.
+     *
+     * @covers \mod_booking\bo_availability\conditions\booking_time::add_condition_to_mform
+     */
+    public function test_autoapply_closing_only_prechecks_closing_checkbox(): void {
+        set_config('bookingtimerelativeenabled', 1, 'booking');
+        set_config('bookingopeningtimerelativeautoapply', 0, 'booking');
+        set_config('bookingclosingtimerelativeautoapply', 1, 'booking');
+
+        $defaults = $this->get_checkbox_defaults_from_new_option_form();
+
+        $this->assertEquals(0, $defaults['restrictanswerperiodopening']);
+        $this->assertEquals(1, $defaults['restrictanswerperiodclosing']);
+    }
+
+    /**
+     * Test that both auto-apply settings enabled pre-checks both checkboxes.
+     *
+     * @covers \mod_booking\bo_availability\conditions\booking_time::add_condition_to_mform
+     */
+    public function test_autoapply_both_settings_prechecks_both_checkboxes(): void {
+        set_config('bookingtimerelativeenabled', 1, 'booking');
+        set_config('bookingopeningtimerelativeautoapply', 1, 'booking');
+        set_config('bookingclosingtimerelativeautoapply', 1, 'booking');
+
+        $defaults = $this->get_checkbox_defaults_from_new_option_form();
+
+        $this->assertEquals(1, $defaults['restrictanswerperiodopening']);
+        $this->assertEquals(1, $defaults['restrictanswerperiodclosing']);
+    }
+
+    /**
+     * Test that both auto-apply settings disabled leaves both checkboxes unchecked.
+     *
+     * @covers \mod_booking\bo_availability\conditions\booking_time::add_condition_to_mform
+     */
+    public function test_autoapply_none_leaves_both_checkboxes_unchecked(): void {
+        set_config('bookingtimerelativeenabled', 1, 'booking');
+        set_config('bookingopeningtimerelativeautoapply', 0, 'booking');
+        set_config('bookingclosingtimerelativeautoapply', 0, 'booking');
+
+        $defaults = $this->get_checkbox_defaults_from_new_option_form();
+
+        $this->assertEquals(0, $defaults['restrictanswerperiodopening']);
+        $this->assertEquals(0, $defaults['restrictanswerperiodclosing']);
+    }
+
+    /**
+     * Call add_condition_to_mform with a mock form for a new option (optionid=0) and return the
+     * captured setDefault values.
+     *
+     * @return array<string, mixed>
+     */
+    private function get_checkbox_defaults_from_new_option_form(): array {
+        $defaults = [];
+        $mform = $this->getMockBuilder(\MoodleQuickForm::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $mform->method('setDefault')->willReturnCallback(function ($name, $value) use (&$defaults) {
+            $defaults[$name] = $value;
+        });
+
+        $condition = new \mod_booking\bo_availability\conditions\booking_time();
+        $condition->add_condition_to_mform($mform, 0);
+
+        return $defaults;
+    }
+
+    /**
      * Data provider for condition_bookingpolicy_test
      *
      * @return array
      * @throws \UnexpectedValueException
-     *
      */
     public static function booking_common_settings_provider(): array {
         $bdata = [

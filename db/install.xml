@@ -208,6 +208,9 @@
         <FIELD NAME="timebooked" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="pricecategory" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="completeddate" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="syncruleid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="0 for manual bookings, otherwise the booking_sync_rules.id that created this booking answer."/>
+        <FIELD NAME="startdate" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="enddate" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
@@ -218,6 +221,139 @@
         <INDEX NAME="userid" UNIQUE="false" FIELDS="userid"/>
         <INDEX NAME="optionid-userid" UNIQUE="false" FIELDS="optionid, userid"/>
         <INDEX NAME="userid-bookingid-waitinglist" UNIQUE="false" FIELDS="userid, bookingid, waitinglist"/>
+        <INDEX NAME="syncruleid" UNIQUE="false" FIELDS="syncruleid"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="booking_slot_config" COMMENT="Slot booking configuration by booking option">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="optionid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="slot_type" TYPE="char" LENGTH="20" NOTNULL="true" DEFAULT="fixed" SEQUENCE="false"/>
+        <FIELD NAME="slot_duration_minutes" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="slot_interval_minutes" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="slot_start_interval_minutes" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="30" SEQUENCE="false"/>
+        <FIELD NAME="slot_max_days_per_slot" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="1" SEQUENCE="false"/>
+        <FIELD NAME="opening_time" TYPE="char" LENGTH="5" NOTNULL="true" DEFAULT="08:00" SEQUENCE="false"/>
+        <FIELD NAME="closing_time" TYPE="char" LENGTH="5" NOTNULL="true" DEFAULT="18:00" SEQUENCE="false"/>
+        <FIELD NAME="valid_from" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="valid_until" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="days_of_week" TYPE="char" LENGTH="20" NOTNULL="true" DEFAULT="1,2,3,4,5" SEQUENCE="false"/>
+        <FIELD NAME="max_participants_per_slot" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="1" SEQUENCE="false"/>
+        <FIELD NAME="max_slots_per_user" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="1" SEQUENCE="false"/>
+        <FIELD NAME="booking_interface" TYPE="char" LENGTH="20" NOTNULL="true" DEFAULT="list" SEQUENCE="false"/>
+        <FIELD NAME="teacher_pool" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="teachers_required" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="allow_self_rebooking" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="change_deadline_minutes" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Signed offset in minutes to each slot start until which a slot may be moved/cancelled. NULL = inherit instance/plugin default."/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="fk_optionid" TYPE="foreign" FIELDS="optionid" REFTABLE="booking_options" REFFIELDS="id"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="booking_teacher_unavailability" COMMENT="Teacher unavailability for slot booking">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="optionid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="teacherid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="unavailable_from" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="unavailable_until" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="reason" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="optionid-teacherid" UNIQUE="false" FIELDS="optionid, teacherid"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="booking_slot_student_teacher" COMMENT="Teacher assignments per student and slot option">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="optionid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="teacherid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="fk_optionid" TYPE="foreign" FIELDS="optionid" REFTABLE="booking_options" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="optionid-userid" UNIQUE="false" FIELDS="optionid, userid"/>
+        <INDEX NAME="optionid-teacherid" UNIQUE="false" FIELDS="optionid, teacherid"/>
+        <INDEX NAME="optionid-userid-teacherid" UNIQUE="true" FIELDS="optionid, userid, teacherid"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="booking_slot_rule" COMMENT="Rule-based slot overrides and filters per booking option">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="optionid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="ruletype" TYPE="char" LENGTH="20" NOTNULL="true" DEFAULT="closed" SEQUENCE="false"/>
+        <FIELD NAME="priority" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="100" SEQUENCE="false"/>
+        <FIELD NAME="activefrom" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="activeuntil" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="weekdays" TYPE="char" LENGTH="20" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="timerangestart" TYPE="char" LENGTH="5" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="timerangeend" TYPE="char" LENGTH="5" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="valueint" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="payloadjson" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="optionid-priority" UNIQUE="false" FIELDS="optionid, priority"/>
+        <INDEX NAME="optionid-active" UNIQUE="false" FIELDS="optionid, activefrom, activeuntil"/>
+        <INDEX NAME="optionid-ruletype" UNIQUE="false" FIELDS="optionid, ruletype"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="booking_slot_rule_price" COMMENT="Per-category price modifiers for slot rules">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="ruleid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="pricecategoryidentifier" TYPE="char" LENGTH="255" NOTNULL="true" DEFAULT="default" SEQUENCE="false"/>
+        <FIELD NAME="mode" TYPE="char" LENGTH="20" NOTNULL="true" DEFAULT="absolute" SEQUENCE="false"/>
+        <FIELD NAME="value" TYPE="number" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" DECIMALS="2"/>
+        <FIELD NAME="currency" TYPE="char" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="ruleid" UNIQUE="false" FIELDS="ruleid"/>
+        <INDEX NAME="category" UNIQUE="false" FIELDS="pricecategoryidentifier"/>
+        <INDEX NAME="ruleid-category" UNIQUE="false" FIELDS="ruleid, pricecategoryidentifier"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="booking_slot_moves" COMMENT="Pending and committed slot moves with a price difference (single source of truth for slot move payment)">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="optionid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="baid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The booking_answers row being moved"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="newslots" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Target slots as JSON [{start,end},...]"/>
+        <FIELD NAME="oldslots" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Given-up slots as JSON (audit)"/>
+        <FIELD NAME="pricedelta" TYPE="number" LENGTH="10" NOTNULL="false" SEQUENCE="false" DECIMALS="2" COMMENT="Fixed price difference (new - old) at creation time"/>
+        <FIELD NAME="status" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="0 pending, 1 committed, 2 cancelled"/>
+        <FIELD NAME="expiry" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Hold expiry timestamp (= cart expirationtime) for pending moves"/>
+        <FIELD NAME="identifier" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Shopping cart checkout identifier once committed"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="optionid-status-expiry" UNIQUE="false" FIELDS="optionid, status, expiry"/>
+        <INDEX NAME="baid-status" UNIQUE="false" FIELDS="baid, status"/>
       </INDEXES>
     </TABLE>
     <TABLE NAME="booking_category" COMMENT="Categories">
@@ -658,6 +794,51 @@
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
+    </TABLE>
+
+    <TABLE NAME="booking_sync_rules" COMMENT="Rules that sync cohort or group membership to booking option enrolments">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="bookingoptionid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The booking option this rule applies to."/>
+        <FIELD NAME="sourcetype" TYPE="char" LENGTH="20" NOTNULL="true" SEQUENCE="false" COMMENT="cohort or group"/>
+        <FIELD NAME="sourceid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="ID of the cohort or group."/>
+        <FIELD NAME="syncenrol" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="1 = enrol users when added to source."/>
+        <FIELD NAME="syncunenrol" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="1 = unenrol users when removed from source."/>
+        <FIELD NAME="conditionpolicy" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="0 = respect availability conditions, 1 = override them."/>
+        <FIELD NAME="isenabled" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="0 = rule is disabled."/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="usercreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="usermodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="bookingoptionid" TYPE="foreign" FIELDS="bookingoptionid" REFTABLE="booking_options" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="sourcetype-sourceid" UNIQUE="false" FIELDS="sourcetype, sourceid"/>
+      </INDEXES>
+    </TABLE>
+
+    <TABLE NAME="booking_sync_attempts" COMMENT="Log of individual sync enrol/unenrol attempts for diagnostics">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="syncruleid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The rule that triggered this attempt."/>
+        <FIELD NAME="bookingoptionid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="action" TYPE="char" LENGTH="20" NOTNULL="true" SEQUENCE="false" COMMENT="enrol or unenrol"/>
+        <FIELD NAME="reasoncode" TYPE="char" LENGTH="50" NOTNULL="true" SEQUENCE="false" COMMENT="ok, blocked_condition, blocked_capacity, blocked_invalid, blocked_not_sync_owned"/>
+        <FIELD NAME="reasonmessage" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="syncruleid" UNIQUE="false" FIELDS="syncruleid"/>
+        <INDEX NAME="bookingoptionid" UNIQUE="false" FIELDS="bookingoptionid"/>
+        <INDEX NAME="userid" UNIQUE="false" FIELDS="userid"/>
+      </INDEXES>
     </TABLE>
 
     <TABLE NAME="booking_performance_measurements" COMMENT="Save performance measurements">

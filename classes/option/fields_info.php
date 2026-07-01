@@ -26,6 +26,7 @@ namespace mod_booking\option;
 
 use coding_exception;
 use mod_booking\booking_option_settings;
+use mod_booking\option\type_resolver;
 use mod_booking\singleton_service;
 use moodle_exception;
 use MoodleQuickForm;
@@ -65,6 +66,8 @@ class fields_info {
         $error = [];
         // Todo: implement error handling.
 
+        type_resolver::normalize_formdata($formdata, (int)($newoption->type ?? MOD_BOOKING_OPTIONTYPE_DEFAULT));
+
         $context = context_module::instance($formdata->cmid);
         $classes = self::get_field_classes($context->id);
 
@@ -87,6 +90,11 @@ class fields_info {
                 }
             }
         }
+
+        $newoption->type = type_resolver::normalize_formdata(
+            $formdata,
+            (int)($newoption->type ?? MOD_BOOKING_OPTIONTYPE_DEFAULT)
+        );
 
         return $feedback;
     }
@@ -323,6 +331,70 @@ class fields_info {
 
             $classname::definition_after_data($mform, $formdata);
         }
+
+        // Restore the expand/collapse state of ALL headers from the submitted data. This must run
+        // after the fields (so it is the authoritative setExpanded call) and is needed because the
+        // dynamic_form base sets data-random-ids, which regenerates every element id (and thus the
+        // mform_isexpanded_<id> name) on each render, breaking the built-in round-trip. We therefore
+        // match the submitted state by the header's stable name prefix (suffix-tolerant).
+        self::restore_header_collapse_state($mform, $formdata);
+    }
+
+    /**
+     * Restores the expand/collapse state of every header in the form from the submitted data.
+     *
+     * The rendered hidden field is mform_isexpanded_id_<name>_<random> (the random suffix changes on
+     * every render because dynamic forms use data-random-ids), so we match by the stable
+     * "mform_isexpanded_<id-without-random>_" prefix and re-apply it via setExpanded().
+     *
+     * @param MoodleQuickForm $mform
+     * @param array $formdata submitted form data
+     * @return void
+     */
+    public static function restore_header_collapse_state(MoodleQuickForm &$mform, array $formdata) {
+        if (empty($formdata)) {
+            return;
+        }
+
+        foreach ($mform->_elements as $element) {
+            if ($element->getType() !== 'header') {
+                continue;
+            }
+            $headername = $element->getName();
+            if ($headername === null || $headername === '') {
+                continue;
+            }
+
+            $headerid = $element->getAttribute('id');
+            if (empty($headerid)) {
+                $element->_generateId();
+                $headerid = $element->getAttribute('id');
+            }
+
+            // Strip the random suffix that data-random-ids appended, leaving the stable id_<name>.
+            $stableid = preg_replace('/_[A-Za-z0-9]+$/', '', (string)$headerid);
+            $prefix = 'mform_isexpanded_' . $stableid . '_';
+
+            foreach ($formdata as $key => $value) {
+                if (strpos((string)$key, $prefix) === 0) {
+                    $mform->setExpanded($headername, (bool)$value);
+                    break;
+                }
+            }
+        }
+    }
+
+    /**
+     * Return field class ids currently available for the user/context.
+     *
+     * @param int $contextid
+     * @param int $save
+     * @return array<int,int>
+     */
+    public static function get_available_field_class_ids(int $contextid, int $save = -1): array {
+        $classes = self::get_field_classes($contextid, $save);
+        $ids = array_keys($classes);
+        return array_values(array_map('intval', $ids));
     }
 
     /**

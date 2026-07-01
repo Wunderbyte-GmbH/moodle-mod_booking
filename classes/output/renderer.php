@@ -755,6 +755,16 @@ class renderer extends plugin_renderer_base {
     }
 
     /**
+     * Render the inline-start pre-page (condition rendered inline, remaining pages in modal/collapse).
+     * @param object $data
+     * @return string
+     */
+    public function render_prepageinlinestart($data) {
+        $data = $data->export_for_template($this);
+        return $this->render_from_template('mod_booking/bookingpage/prepageinlinestart', $data);
+    }
+
+    /**
      * Render subbooking timeslot
      * @param object $data
      * @return string

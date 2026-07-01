@@ -24,6 +24,7 @@
 
 namespace mod_booking\table;
 use core_completion\progress;
+use mod_booking\bo_availability\conditions\alreadybooked;
 use mod_booking\booking_answers\booking_answers;
 use core_plugin_manager;
 use mod_booking\local\modechecker;
@@ -55,6 +56,8 @@ use mod_booking\output\col_availableplaces;
 use mod_booking\output\col_teacher;
 use mod_booking\price;
 use mod_booking\singleton_service;
+use mod_booking\local\slotbooking\slot_answer;
+use mod_booking\local\slotbooking\slot_availability;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -71,6 +74,14 @@ class bookingoptions_wbtable extends wunderbyte_table {
 
     /** @var string area used for customfields */
     public $customfieldarea = 'booking';
+
+    /**
+     * Condition shortname to render inline instead of behind the "Book" button.
+     * When set (e.g. 'slotbooking'), that condition's page is displayed directly on the page
+     * and a "Continue" button opens the remaining prepage modal/collapse.
+     * @var string
+     */
+    public $inlinestartpage = '';
 
     /**
      * Customfield columns.
@@ -306,7 +317,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
             $buyforuser = $USER->id;
         }
 
-        return booking_bookit::render_bookit_button($settings, $buyforuser);
+        return booking_bookit::render_bookit_button($settings, $buyforuser, $this->inlinestartpage);
     }
 
     /**
@@ -425,11 +436,14 @@ class bookingoptions_wbtable extends wunderbyte_table {
             $title = $titleprefix . ' - ' . $title;
         }
 
-        if (!get_config('booking', 'openbookingdetailinsametab')) {
-            $title = "<div class='bookingoptions-wbtable-option-title'><a href='$url' target='_blank'>$title</a></div>";
-        } else {
-            $title = "<div class='bookingoptions-wbtable-option-title'><a href='$url'>$title</a></div>";
-        }
+        $title = match ((int) get_config('booking', 'openbookingdetailinsametab')) {
+            // 1 is with link in same window.
+            1 => "<div class='bookingoptions-wbtable-option-title'><a href='$url'>$title</a></div>",
+            // 2 is no link.
+            2 => "<div class='bookingoptions-wbtable-option-title'>$title</div>",
+            // Default is with link in new window.
+            default => "<div class='bookingoptions-wbtable-option-title'><a href='$url' target='_blank'>$title</a></div>",
+        };
 
         return $title;
     }
@@ -633,6 +647,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
      * @throws coding_exception
      */
     public function col_bookings($values) {
+        global $DB, $USER;
 
         // If $values->id is missing, we show the values object in debug mode, so we can investigate what happens.
         if (empty($values->id)) {
@@ -647,7 +662,86 @@ class bookingoptions_wbtable extends wunderbyte_table {
         $output = singleton_service::get_renderer('mod_booking');
 
         $settings = singleton_service::get_instance_of_booking_option_settings($values->id, $values);
-        $buyforuser = price::return_user_to_buy_for();
+
+        $targetuserid = (int)$this->foruserid;
+        if ($targetuserid <= 0) {
+            $targetuserid = (int)$USER->id;
+        }
+        $buyforuser = singleton_service::get_instance_of_user($targetuserid);
+
+        $isslotoption = (int)($settings->type ?? MOD_BOOKING_OPTIONTYPE_DEFAULT) === MOD_BOOKING_OPTIONTYPE_SLOTBOOKING;
+        if ($isslotoption) {
+            $displaymode = (string)get_config('booking', 'slot_bookings_display_mode');
+            if (!in_array($displaymode, ['availableforuser', 'bookedvscapacity'], true)) {
+                $displaymode = 'availableforuser';
+            }
+
+            $slots = slot_availability::get_slots_with_status((int)$values->id, $targetuserid);
+            $slottype = (string)($settings->slotconfig->slot_type ?? 'fixed');
+
+            $slotcounttext = '';
+            if ($displaymode === 'bookedvscapacity') {
+                if ($slottype === 'session') {
+                    // Session-based slots map 1:1 to option sessions, so we display slot counts (booked / total slots).
+                    $bookedslots = 0;
+                    $totalslots = count($slots);
+                    foreach ($slots as $slot) {
+                        if ((int)($slot['bookings'] ?? 0) > 0) {
+                            $bookedslots++;
+                        }
+                    }
+                    $slotcounttext = $bookedslots . ' / ' . $totalslots;
+                } else {
+                    // Keep legacy places-based display for generated fixed/rolling slots.
+                    $bookedslots = 0;
+                    $bookableslots = 0;
+                    foreach ($slots as $slot) {
+                        if (($slot['status'] ?? '') === 'unavailable') {
+                            continue;
+                        }
+                        $bookedslots += max(0, (int)($slot['bookings'] ?? 0));
+                        $bookableslots += max(0, (int)($slot['capacity'] ?? 0));
+                    }
+                    $slotcounttext = $bookedslots . ' / ' . $bookableslots;
+                }
+            } else {
+                $availableuserslots = 0;
+                foreach ($slots as $slot) {
+                    if (in_array((string)($slot['status'] ?? 'unavailable'), ['open', 'warning'], true)) {
+                        $availableuserslots++;
+                    }
+                }
+                $slotcounttext = (string)$availableuserslots;
+            }
+
+            if ($this->is_downloading()) {
+                return $slotcounttext;
+            }
+
+            $cmid = (int)($settings->cmid ?? 0);
+            if ($cmid > 0) {
+                $syscontext = context_system::instance();
+                $modcontext = context_module::instance($cmid);
+                $canviewreport = (
+                    has_capability('mod/booking:viewreports', $syscontext)
+                    || has_capability('mod/booking:updatebooking', $modcontext)
+                    || has_capability('mod/booking:updatebooking', $syscontext)
+                    || booking_check_if_teacher((int)$settings->id)
+                );
+
+                if ($canviewreport) {
+                    $reporturl = new moodle_url('/mod/booking/report.php', [
+                        'id' => $cmid,
+                        'optionid' => (int)$settings->id,
+                    ]);
+
+                    return html_writer::link($reporturl, $slotcounttext, ['style' => 'text-decoration: none;']);
+                }
+            }
+
+            return $slotcounttext;
+        }
+
         // Render col_bookings using a template.
         $data = new col_availableplaces($values, $settings, $buyforuser);
 
@@ -781,12 +875,13 @@ class bookingoptions_wbtable extends wunderbyte_table {
         } else {
             $context = $this->get_context();
         }
-
+        $settings = singleton_service::get_instance_of_booking_option_settings($values->id);
         // When we have this seeting, we never show the link here.
         if (
             get_config('booking', 'linktomoodlecourseonbookedbutton')
             && (!has_capability('mod/booking:updatebooking', $context)
                 && !$isteacherofthisoption)
+            && empty($settings->jsonobject->multiplebookings)
         ) {
             return '';
         }
@@ -795,10 +890,23 @@ class bookingoptions_wbtable extends wunderbyte_table {
         $status = $answersobject->user_status($USER->id);
 
         $isteacherofthisoption = booking_check_if_teacher($values);
+        // We get the user ID from the table instance.
+        // It is 0 by default but can be set, for example,
+        // when rendering booking options for a specific user via the cashier page.
+        $buyforuser = $this->foruserid;
 
+        // We need to make sure that a user is set for the rendering of the button. When it is equal to 0,
+        // we use the logged-in user. Leaving it as 0 may cause problems in the booking process,
+        // for example when a pre-form is involved.
+        if ($buyforuser == 0) {
+            $buyforuser = $USER->id;
+        }
+        $alreadybooked = new alreadybooked();
+        $isavailable = $alreadybooked->is_available($settings, $buyforuser);
         if (
             $status == MOD_BOOKING_STATUSPARAM_BOOKED
             && get_config('booking', 'linktomoodlecourseonbookedbutton')
+            && !$isavailable
         ) {
             return '';
         }
@@ -898,6 +1006,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
      * @throws coding_exception
      */
     public function col_showdates($values) {
+        global $USER;
 
         // If $values->id is missing, we show the values object in debug mode, so we can investigate what happens.
         if (empty($values->id)) {
@@ -925,13 +1034,77 @@ class bookingoptions_wbtable extends wunderbyte_table {
         $cmid = $settings->cmid;
         $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
 
+        $isslotoption = (int)($settings->type ?? MOD_BOOKING_OPTIONTYPE_DEFAULT) === MOD_BOOKING_OPTIONTYPE_SLOTBOOKING;
+        if ($isslotoption) {
+            $answersobject = singleton_service::get_instance_of_booking_answers($settings);
+            $usersonlist = $answersobject->get_usersonlist();
+
+            if (empty($usersonlist[$USER->id])) {
+                return '';
+            }
+
+            $answer = $usersonlist[$USER->id];
+            $slotdata = slot_answer::get_slot_data($answer);
+            if (empty($slotdata['slots']) || !is_array($slotdata['slots'])) {
+                return '';
+            }
+
+            $slots = array_values(array_filter($slotdata['slots'], static function ($slot): bool {
+                return is_array($slot)
+                    && !empty($slot['start'])
+                    && !empty($slot['end'])
+                    && (int)$slot['end'] > (int)$slot['start'];
+            }));
+
+            if (empty($slots)) {
+                return '';
+            }
+
+            usort($slots, static function (array $left, array $right): int {
+                return (int)$left['start'] <=> (int)$right['start'];
+            });
+
+            $slotlines = [];
+            foreach ($slots as $slot) {
+                $start = (int)$slot['start'];
+                $end = (int)$slot['end'];
+                $slotlines[] = userdate($start, get_string('strftimedatetime', 'langconfig'))
+                    . ' - ' . userdate($end, get_string('strftimetime', 'langconfig'));
+            }
+
+            if (empty($slotlines)) {
+                return '';
+            }
+
+            $label = get_string('slot_report_numslots', 'mod_booking');
+
+            if ($this->is_downloading()) {
+                return $label . ': ' . implode(' | ', $slotlines);
+            }
+
+            $ret = html_writer::start_div('booking-showdates-area');
+            $ret .= html_writer::start_div('booking-showdates-title');
+            $ret .= html_writer::span(html_writer::tag('i', '', [
+                'class' => 'fa fa-calendar fa-fw',
+                'aria-hidden' => 'true',
+            ]));
+            $ret .= html_writer::span(html_writer::tag('b', s($label) . ':'));
+            $ret .= html_writer::end_div();
+
+            foreach ($slotlines as $line) {
+                $ret .= html_writer::div(s($line));
+            }
+
+            $ret .= html_writer::end_div();
+            return $ret;
+        }
+
         $ret = '';
         if ($this->is_downloading()) {
             $datestrings = dates_handler::return_array_of_sessions_datestrings($optionid);
             $ret = implode(' | ', $datestrings);
         } else {
             // Use the renderer to output this column.
-            global $USER;
             $lang = current_language();
             $timezone = \core_date::get_user_timezone($USER);
             $timezonetoken = str_replace('/', '_', $timezone);
@@ -1060,7 +1233,8 @@ class bookingoptions_wbtable extends wunderbyte_table {
             booking_check_if_teacher($values));
 
         $ddoptions = [];
-        $ret = '<div class="menubar p-1" id="action-menu-' . $optionid . '-menubar" role="menubar">';
+        $ret = '<div class="menubar p-1" id="action-menu-' . $optionid . '-menubar" role="group" aria-label="' .
+            get_string('actions') . '">';
 
         if ($status == MOD_BOOKING_STATUSPARAM_BOOKED) {
             $ret .= html_writer::link(
@@ -1182,6 +1356,30 @@ class bookingoptions_wbtable extends wunderbyte_table {
                             get_string('bookotherusers', 'mod_booking')
                         ) .
                         get_string('bookotherusers', 'mod_booking')
+                    ) . '</div>';
+            }
+
+            $bookallstudentscapability = 'mod/booking:bookallstudents';
+            if (
+                get_capability_info($bookallstudentscapability, false) &&
+                has_capability($bookallstudentscapability, $context)
+            ) {
+                $bookallstudentsurl = new moodle_url(
+                    '/mod/booking/bulk_book_handler.php',
+                    [
+                        'optionid' => $optionid,
+                        'sesskey' => sesskey(),
+                    ]
+                );
+
+                $ddoptions[] = '<div class="dropdown-item">' .
+                    html_writer::link(
+                        $bookallstudentsurl,
+                        $OUTPUT->pix_icon(
+                            'i/users',
+                            get_string('bookallstudents', 'mod_booking')
+                        ) .
+                        get_string('bookallstudents', 'mod_booking')
                     ) . '</div>';
             }
 
@@ -1413,16 +1611,15 @@ class bookingoptions_wbtable extends wunderbyte_table {
                     <button class="bookingoption-edit-button dropdown-toggle btn btn-light btn-sm text-primary ms-1"
                         id="action-menu-toggle-' .
                         $optionid .
-                        '" title="" role="button" data-toggle="dropdown" data-bs-toggle="dropdown"
-                        aria-haspopup="true" aria-expanded="false">
+                        '" role="button" data-toggle="dropdown" data-bs-toggle="dropdown"
+                        aria-haspopup="true" aria-expanded="false" aria-label="' . get_string('settings') . '">
                         <i class="icon fa fa-cog me-0" aria-hidden="true"
-                            aria-label="' . get_string('settings') . '" title="' . get_string('settings') . '" >
-                        </i>
+                            aria-label="' . get_string('settings') . '" title="' . get_string('settings') . '"></i>
                     </button>
                     <div class="dropdown-menu dropdown-menu-right dropdown-menu-end menu align-tr-br" id="action-menu-' .
                 $optionid .
                 '-menu" data-rel="menu-content"
-                        aria-labelledby="action-menu-toggle-3" role="menu" data-align="tr-br">';
+                        aria-labelledby="action-menu-toggle-' . $optionid . '" role="menu" data-align="tr-br">';
             $ret .= implode($ddoptions);
             $ret .= '</div></div>';
         }

@@ -3,12 +3,12 @@ name: Moodle Plugin CI
 on: [push, pull_request]
 
 jobs:
-  moodle500to501:
+  moodle500to502:
     uses: Wunderbyte-GmbH/catalyst-moodle-workflows/.github/workflows/ci.yml@main
     with:
       # Change these based on your plugin's requirements
       disable_release: true  # Use true if using the tag-based release workflow
-      moodle_branches: "MOODLE_500_STABLE MOODLE_501_STABLE"  # Optional: Only test specific Moodle versions
+      moodle_branches: "MOODLE_500_STABLE MOODLE_501_STABLE MOODLE_502_STABLE"  # Optional: Only test specific Moodle versions
       min_php: '8.2'  # Optional: Set minimum PHP version
 
       # Command to install more dependencies

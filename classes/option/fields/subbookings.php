@@ -112,7 +112,7 @@ class subbookings extends field_base {
         $applyheader = true
     ) {
 
-        // TODO: expert/simple mode needs to work with this too!
+        // TODO MDL-00000: Expert/simple mode needs to work with this too!
         // Add subbookings options.
         subbookings_info::add_subbookings_to_mform($mform, $formdata);
     }

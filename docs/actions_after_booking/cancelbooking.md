@@ -1,6 +1,8 @@
+[Back to parent section](README.md)
+
 # Action After Booking: Cancel Booking
 
-**Class:** `mod_booking\bo_actions\action_types\cancelbooking`  
+**Class:** `mod_booking\bo_actions\action_types\cancelbooking`
 **PRO required:** Yes 🔒
 
 ---
@@ -47,3 +49,11 @@ This action is typically combined with the [Custom form](../booking_conditions/c
 - [Actions after booking overview](README.md)
 - [Book other options action](bookotheroptions.md)
 - [Custom form condition](../booking_conditions/custom_form.md)
+
+
+## Quick setup path
+
+1. Open option edit page: [/mod/booking/editoptions.php?id=<cmid>](/mod/booking/editoptions.php?id=<cmid>).
+2. Edit target option and open Booking actions section.
+3. Add or edit the action type documented here.
+4. Save and test with one booking event.

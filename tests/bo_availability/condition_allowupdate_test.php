@@ -26,7 +26,7 @@
 
 namespace mod_booking;
 
-use advanced_testcase;
+use mod_booking\booking_advanced_testcase;
 use coding_exception;
 use mod_booking_generator;
 use context_system;
@@ -48,26 +48,15 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-final class condition_allowupdate_test extends advanced_testcase {
+final class condition_allowupdate_test extends booking_advanced_testcase {
     /**
      * Tests set up.
      */
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest(true);
-        time_mock::init();
         time_mock::set_mock_time(strtotime('now'));
         singleton_service::destroy_instance();
-    }
-
-    /**
-     * Mandatory clean-up after each test.
-     */
-    public function tearDown(): void {
-        parent::tearDown();
-        /** @var mod_booking_generator $plugingenerator */
-        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
-        $plugingenerator->teardown();
     }
 
     /**
@@ -465,12 +454,7 @@ final class condition_allowupdate_test extends advanced_testcase {
         $boinfo1 = new bo_info($settings1);
 
         // Validate subbooking presence.
-        $phpunitversion = (float)\PHPUnit\Runner\Version::series();
-        if ($phpunitversion < 9.6) {
-            $this->assertObjectHasAttribute('subbookings', $settings1);
-        } else {
-            $this->assertObjectHasProperty('subbookings', $settings1);
-        }
+        $this->assertTrue(property_exists($settings1, 'subbookings'));
         $this->assertIsArray($settings1->subbookings);
         $this->assertCount(1, $settings1->subbookings);
         $subbookingobj = $settings1->subbookings[0];
@@ -506,11 +490,7 @@ final class condition_allowupdate_test extends advanced_testcase {
         $boinfo2 = new bo_info($settings2);
 
         // Validate subbooking presence.
-        if ($phpunitversion < 9.6) {
-            $this->assertObjectHasAttribute('subbookings', $settings2);
-        } else {
-            $this->assertObjectHasProperty('subbookings', $settings2);
-        }
+        $this->assertTrue(property_exists($settings2, 'subbookings'));
         $this->assertIsArray($settings2->subbookings);
         $this->assertCount(1, $settings2->subbookings);
         $subbookingobj = $settings2->subbookings[0];

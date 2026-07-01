@@ -1,6 +1,19 @@
+[Back to parent section](README.md)
+
 # Availability Conditions
 
+> **Primary page** for: temporal booking restrictions (opening time, closing time, booking window), access restrictions. For automated emails and reminders, see [Booking Rules](../booking_rules/README.md).
+
 The **Availability conditions** section (header: *Availability conditions*) controls **who** can book the option and **when** bookings are accepted. It is one of the most powerful sections in the booking option form.
+
+---
+
+## Quick setup path
+
+1. Open your booking activity: [/mod/booking/view.php?id=<cmid>](/mod/booking/view.php?id=<cmid>).
+2. Open option administration: [/mod/booking/editoptions.php?id=<cmid>](/mod/booking/editoptions.php?id=<cmid>).
+3. Open the feature-specific page from this document and apply the settings.
+4. Save and verify with one test booking.
 
 ---
 

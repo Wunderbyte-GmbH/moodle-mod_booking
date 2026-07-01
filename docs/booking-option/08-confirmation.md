@@ -1,6 +1,17 @@
+[Back to parent section](README.md)
+
 # Demand Confirmation
 
 The **Demand confirmation** section (header: *Demand confirmation*) allows you to require manual approval before a booking is confirmed. This is useful for options with limited places, prerequisite checks, or any scenario where you want a human to review each registration.
+
+---
+
+## Quick setup path
+
+1. Open your booking activity: [/mod/booking/view.php?id=<cmid>](/mod/booking/view.php?id=<cmid>).
+2. Open option administration: [/mod/booking/editoptions.php?id=<cmid>](/mod/booking/editoptions.php?id=<cmid>).
+3. Open the feature-specific page from this document and apply the settings.
+4. Save and verify with one test booking.
 
 ---
 

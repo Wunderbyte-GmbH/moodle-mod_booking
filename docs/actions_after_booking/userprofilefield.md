@@ -1,6 +1,8 @@
+[Back to parent section](README.md)
+
 # Action After Booking: Set User Profile Field
 
-**Class:** `mod_booking\bo_actions\action_types\userprofilefield`  
+**Class:** `mod_booking\bo_actions\action_types\userprofilefield`
 **PRO required:** Yes 🔒
 
 ---
@@ -80,3 +82,11 @@ After booking, the user's profile field `training_programme` is set to `leadersh
 - [Execute REST script action](executerestscript.md)
 - [User profile field condition](../booking_conditions/user_profile_field.md)
 - [User profile field (custom) condition](../booking_conditions/user_profile_field_custom.md)
+
+
+## Quick setup path
+
+1. Open option edit page: [/mod/booking/editoptions.php?id=<cmid>](/mod/booking/editoptions.php?id=<cmid>).
+2. Edit target option and open Booking actions section.
+3. Add or edit the action type documented here.
+4. Save and test with one booking event.

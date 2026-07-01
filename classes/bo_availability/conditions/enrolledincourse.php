@@ -28,6 +28,7 @@ use context_course;
 use context_system;
 use Exception;
 use mod_booking\bo_availability\bo_condition;
+use mod_booking\bo_availability\freezable_condition;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_option_settings;
 use mod_booking\singleton_service;
@@ -44,7 +45,7 @@ use stdClass;
  * @author      Bernhard Fischer
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class enrolledincourse implements bo_condition {
+class enrolledincourse implements bo_condition, freezable_condition {
     /** @var int $id set via json during construction */
     public $id = MOD_BOOKING_BO_COND_JSON_ENROLLEDINCOURSE;
 
@@ -417,6 +418,31 @@ class enrolledincourse implements bo_condition {
      * @param int $optionid
      * @return void
      */
+    /**
+     * Returns the ordered list of form element names this condition adds to the option form.
+     * The first element is used as the warning insertion anchor.
+     *
+     * @return string[]
+     */
+    public function get_condition_form_elements(): array {
+        return [
+            'bo_cond_enrolledincourse_restrict',
+            'bo_cond_enrolledincourse_courseids',
+            'bo_cond_enrolledincourse_courseids_operator',
+            'bo_cond_enrolledincourse_sqlfiltercheck',
+            'bo_cond_enrolledincourse_overrideconditioncheckbox',
+            'bo_cond_enrolledincourse_overrideoperator',
+            'bo_cond_enrolledincourse_overridecondition',
+        ];
+    }
+
+    /**
+     * Add condition-specific form elements to the booking option form.
+     *
+     * @param MoodleQuickForm $mform Booking option form instance.
+     * @param int $optionid Booking option id.
+     * @return void
+     */
     public function add_condition_to_mform(MoodleQuickForm &$mform, int $optionid = 0) {
         global $DB;
         if (empty(get_config('booking', 'usesqlfilteravailability'))) {
@@ -672,7 +698,7 @@ class enrolledincourse implements bo_condition {
      * @param booking_option_settings $settings
      * @return string
      */
-    private function get_description_string(bool $isavailable, bool $full, booking_option_settings $settings) {
+    public function get_description_string(bool $isavailable, bool $full, booking_option_settings $settings) {
 
         if (
             !$isavailable

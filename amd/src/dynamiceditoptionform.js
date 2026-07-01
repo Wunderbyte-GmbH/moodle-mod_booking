@@ -37,7 +37,6 @@ const SELECTORS = {
     PAGE: '[id="page"]'
 };
 
-
 export const init = (cmid, id, optionid, bookingid, copyoptionid, returnurl) => {
     // Initialize the form - pass the container element and the form class name.
 
@@ -100,10 +99,10 @@ export const init = (cmid, id, optionid, bookingid, copyoptionid, returnurl) => 
         console.log('validation error');
     });
 
-    var checkbox1 = document.querySelector('[type="checkbox"][name="restrictanswerperiodopening"]');
-    var checkbox2 = document.querySelector('[type="checkbox"][name="restrictanswerperiodclosing"]');
-    var conditionalCheckbox = document.querySelector('[type="checkbox"][name="bo_cond_booking_time_sqlfiltercheck"]');
-    var closest = null;
+    const checkbox1 = document.querySelector('[type="checkbox"][name="restrictanswerperiodopening"]');
+    const checkbox2 = document.querySelector('[type="checkbox"][name="restrictanswerperiodclosing"]');
+    const conditionalCheckbox = document.querySelector('[type="checkbox"][name="bo_cond_booking_time_sqlfiltercheck"]');
+    let closest = null;
     if (conditionalCheckbox) {
         // Support both Moodle 4.5 (Bootstrap 4) and 5.1 (Bootstrap 5)
         closest = conditionalCheckbox.closest(
@@ -120,6 +119,25 @@ export const init = (cmid, id, optionid, bookingid, copyoptionid, returnurl) => 
         if (e.target.name == 'optiontemplateid') {
             window.skipClientValidation = true;
             let button = document.querySelector('[name="btn_changetemplate"]');
+            dynamicForm.processNoSubmitButton(button);
+        }
+
+        if (e.target.name == 'optiontype') {
+            window.skipClientValidation = true;
+            // Synchronize selflearningcourse hidden field with optiontype selection.
+            // MOD_BOOKING_OPTIONTYPE_SELFLEARNINGCOURSE = 1
+
+            let selflearningField = document.querySelector('[name="selflearningcourse"]');
+            if (selflearningField) {
+                selflearningField.value = (e.target.value == 1) ? 1 : 0;
+            }
+            let button = document.querySelector('[name="btn_optiontype"]');
+            dynamicForm.processNoSubmitButton(button);
+        }
+
+        if (e.target.name == 'slot_type') {
+            window.skipClientValidation = true;
+            let button = document.querySelector('[name="btn_slot_type"]');
             dynamicForm.processNoSubmitButton(button);
         }
 

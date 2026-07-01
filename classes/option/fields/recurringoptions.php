@@ -433,10 +433,11 @@ class recurringoptions extends field_base {
                 booking_option::add_data_to_json($templateoption, 'recurringchilddata', $childdata);
 
                 // Apply delay in bookingopening- and bookingclosingtime.
-                if (isset($data->bookingopeningtime)) {
+                // Important: Use !empty instead of isset as bookingopeningtime / bookingclosingtime might be set but 0!
+                if (!empty($data->bookingopeningtime)) {
                     $templateoption->bookingopeningtime = strtotime("+ $i $delta", $data->bookingopeningtime);
                 }
-                if (isset($data->bookingclosingtime)) {
+                if (!empty($data->bookingclosingtime)) {
                     $templateoption->bookingclosingtime = strtotime("+ $i $delta", $data->bookingclosingtime);
                 }
 

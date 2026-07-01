@@ -33,11 +33,14 @@ use Exception;
 use html_writer;
 use local_wunderbyte_table\filters\types\customfieldfilter;
 use local_wunderbyte_table\filters\types\datepicker;
+use local_wunderbyte_table\filters\types\hierarchicalfilter;
 use local_wunderbyte_table\filters\types\intrange;
 use local_wunderbyte_table\filters\types\standardfilter;
 use local_wunderbyte_table\local\helper\actforuser;
 use local_wunderbyte_table\wunderbyte_table;
 use mod_booking\booking;
+use mod_booking\booking_bookit;
+use mod_booking\customfield\hierarchy_manager;
 use mod_booking\form\dynamicdeputyselect;
 use mod_booking\local\shortcode_filterfield;
 use mod_booking\output\booked_users;
@@ -291,11 +294,12 @@ class shortcodes {
         $pageurl = isset($PAGE->url) ? $PAGE->url->out() : ''; // This is for unit tests.
         $pageurl = $course->shortname . $pageurl;
         $viewparam = self::get_viewparam($args);
+        $cmid = (int)$args['cmid'];
 
         try {
-            $booking = singleton_service::get_instance_of_booking_settings_by_cmid((int)$args['cmid']);
+            $booking = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
         } catch (Throwable $e) {
-            return get_string('shortcode:cmidnotexisting', 'mod_booking', $args['cmid']);
+            return get_string('shortcode:cmidnotexisting', 'mod_booking', $cmid);
         }
 
         if (empty($booking->id)) {
@@ -390,7 +394,7 @@ class shortcodes {
                     0,
                     '',
                     null,
-                    null,
+                    context_module::instance($cmid),
                     [],
                     $wherearray,
                     null,
@@ -442,11 +446,38 @@ class shortcodes {
             if (!in_array($customfield->shortname, $args)) {
                 continue;
             }
+            // Dynamicformat fields managed by taskflowadapter_tuines carry a stored parent/child
+            // hierarchy. Render those as a hierarchical filter (like local_urise does for its
+            // competency field) so ticking a parent matches every option in its subtree.
+            $hierarchyoptions = self::get_dynamicformat_hierarchy_options($customfield);
+            if (!empty($hierarchyoptions)) {
+                $hierarchicalfilter = new hierarchicalfilter($customfield->shortname, format_string($customfield->name));
+                $hierarchicalfilter->set_sql_for_fieldid($customfield->id);
+                $hierarchicalfilter->add_options($hierarchyoptions);
+                $table->add_filter($hierarchicalfilter);
+                continue;
+            }
             // Check for multi fields, explode values as settings for standardfilter.
             $customfieldfilter = new customfieldfilter($customfield->shortname, format_string($customfield->name));
             $customfieldfilter->set_sql_for_fieldid($customfield->id);
             $table->add_filter($customfieldfilter);
         }
+    }
+
+    /**
+     * Returns hierarchicalfilter options for a dynamicformat customfield, or [] when not applicable.
+     *
+     * The hierarchy lives in taskflowadapter_tuines; the dependency is soft (guarded by class_exists)
+     * so booking keeps working when that adapter is not installed.
+     *
+     * @param object $customfield a record from booking_handler::get_customfields()
+     * @return array
+     */
+    protected static function get_dynamicformat_hierarchy_options($customfield): array {
+        if (($customfield->type ?? '') !== 'dynamicformat') {
+            return [];
+        }
+        return hierarchy_manager::get_filter_options((int) $customfield->id);
     }
 
     /**
@@ -644,6 +675,57 @@ class shortcodes {
      * @param Closure $next
      * @return string
      */
+    public static function bookingoptionview($shortcode, $args, $content, $env, $next) {
+
+        global $USER, $CFG;
+
+        // Get rid of quotation marks.
+        self::fix_args($args);
+
+        $requiredargs = ['optionid'];
+        $error = shortcodes_handler::validatecondition($shortcode, $args, true, $requiredargs);
+        if ($error['error'] === 1) {
+            return $error['message'];
+        }
+
+        $optionid = (int)$args['optionid'];
+        $inlinestartpage = !empty($args['inlinestartpage']) ? (string)$args['inlinestartpage'] : '';
+        $userid = $USER->id;
+
+        try {
+            $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        } catch (Throwable $e) {
+            return get_string('shortcode:error', 'mod_booking');
+        }
+
+        if (empty($settings->id)) {
+            return get_string('shortcode:error', 'mod_booking');
+        }
+
+        try {
+            $out = booking_bookit::render_bookit_button($settings, $userid, $inlinestartpage);
+        } catch (Throwable $e) {
+            $out = get_string('shortcode:error', 'mod_booking');
+            /** @var \context $syscontext */
+            $syscontext = context_system::instance();
+            if ($CFG->debug > 0 && has_capability('moodle/site:config', $syscontext)) {
+                $out .= $e->getMessage();
+            }
+        }
+
+        return $out;
+    }
+
+    /**
+     * A small shortcode to add links to the booking options which link to this course.
+     *
+     * @param string $shortcode
+     * @param array $args
+     * @param string|null $content
+     * @param object $env
+     * @param Closure $next
+     * @return string
+     */
     public static function linkbacktocourse($shortcode, $args, $content, $env, $next) {
 
         global $COURSE, $USER, $DB, $PAGE;
@@ -665,10 +747,11 @@ class shortcodes {
         foreach ($optionids as $option) {
             // Only if the user has the right to see the link back, we show it.
             $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
+            $cmid = (int) $settings->cmid;
 
             if ($option->invisible == MOD_BOOKING_OPTION_INVISIBLE) {
                 /** @var \context $context */
-                $context = context_module::instance($settings->cmid);
+                $context = context_module::instance($cmid);
                 if (!has_capability('mod/booking:view', $context)) {
                     continue;
                 }
@@ -683,7 +766,7 @@ class shortcodes {
             // The current page is not /mod/booking/optionview.php.
             $url = new moodle_url("/mod/booking/optionview.php", [
                 "optionid" => (int)$settings->id,
-                "cmid" => (int)$settings->cmid,
+                "cmid" => $cmid,
                 "userid" => $USER->id,
                 'returnto' => 'url',
                 'returnurl' => $returnurl,
@@ -770,6 +853,11 @@ class shortcodes {
         } catch (Throwable $e) {
             return get_string('shortcode:cmidnotexisting', 'mod_booking', $args['cmid']);
         }
+        if (!empty($args['optionid'])) {
+            // Let get_options_filter_sql treat this as a precise record lookup.
+            $tempwherearray[] = "id = :optionid";
+            $additionalparams['optionid'] = (int)$args['optionid'];
+        }
 
         if (!empty($tempwherearray)) {
             $additionalwhere = " ( " . implode(" $operator ", $tempwherearray) . " ) ";
@@ -805,6 +893,11 @@ class shortcodes {
 
         // Set common table options requirelogin, sortorder, sortby.
         self::set_common_table_options_from_arguments($table, $args);
+
+        // If inlinestartpage is set, pass it to the table so col_booknow renders inline.
+        if (!empty($args['inlinestartpage'])) {
+            $table->inlinestartpage = $args['inlinestartpage'];
+        }
 
         $showfilter = !empty($args['filter']) ? true : false;
         $showsort = !empty($args['sort']) ? true : false;
@@ -853,7 +946,10 @@ class shortcodes {
                 );
 
         $where = self::merge_params_into_sql($where, $params, $tempparams);
-        self::applyallarg($args, $where);
+        // A direct option lookup should not be hidden by the default "future only" time filter.
+        if (empty($args['optionid'])) {
+            self::applyallarg($args, $where);
+        }
 
         if (!empty($additionalparams)) {
             $where = self::merge_params_into_sql($where, $params, $additionalparams);
@@ -1453,7 +1549,7 @@ class shortcodes {
         $table->sort_default_order = SORT_DESC;
 
         $context = context_system::instance();
-        // Templates are excluded here.
+
         [$fields, $from, $where, $params, $filter] =
             booking::get_options_filter_sql(
                 0,
@@ -1465,7 +1561,7 @@ class shortcodes {
                 [],
                 null,
                 [],
-                ' bookingid > 0',
+                '',
                 '',
                 $table
             );
@@ -1768,6 +1864,7 @@ class shortcodes {
         }
 
         $instancefilter = new standardfilter('bookingid', get_string('bookingidfilter', 'mod_booking'));
+        $filterarray[0] = get_string('optiontemplates', 'mod_booking');
         $instancefilter->add_options($filterarray);
         $table->add_filter($instancefilter);
     }
@@ -1791,6 +1888,7 @@ class shortcodes {
             [
                 0 => get_string('optiontypefilternormal', 'mod_booking'),
                 1 => $selflearningcourselabel,
+                2 => get_string('optiontypefilterslotbooking', 'mod_booking'),
             ]
         );
         $table->add_filter($optiontypefilter);
@@ -1852,6 +1950,18 @@ class shortcodes {
             $table->pageable(false);
         } else {
             $table->pageable(true);
+        }
+        if (
+            isset($args['showpagination'])
+            && (
+                $args['showpagination'] == "false"
+                || $args['showpagination'] == "0"
+            )
+        ) {
+            $table->showpagination = false;
+        } else {
+            // By default, showpagination is turned on.
+            $table->showpagination = true;
         }
     }
     /**

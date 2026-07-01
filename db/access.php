@@ -209,6 +209,34 @@ $capabilities = [
         'contextlevel' => CONTEXT_MODULE,
         'archetypes' => ['manager' => CAP_ALLOW],
     ],
+    'mod/booking:manageslotunavailability' => [
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => [
+            'teacher' => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW,
+        ],
+    ],
+    'mod/booking:moveslots' => [
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => [
+            'coursecreator' => CAP_ALLOW,
+            'manager' => CAP_ALLOW,
+        ],
+        'clonepermissionsfrom' => 'mod/booking:updatebooking',
+    ],
+    'mod/booking:moveslotsself' => [
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => [
+            'user' => CAP_ALLOW,
+            'student' => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW,
+        ],
+    ],
     'mod/booking:changelockedcustomfields' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,
@@ -222,6 +250,15 @@ $capabilities = [
             'manager' => CAP_ALLOW,
         ],
     ],
+        'mod/booking:bookallstudents' => [
+            'captype' => 'write',
+            'contextlevel' => CONTEXT_MODULE,
+            'archetypes' => [
+                'teacher' => CAP_ALLOW,
+                'editingteacher' => CAP_ALLOW,
+                'manager' => CAP_ALLOW,
+            ],
+        ],
     'mod/booking:overrideboconditions' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_SYSTEM,
@@ -257,6 +294,14 @@ $capabilities = [
         ],
     ],
     // Capability to manage optiondates.
+    'mod/booking:managecustomfieldoptions' => [
+        'riskbitmask' => RISK_CONFIG,
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => [
+            'manager' => CAP_ALLOW,
+        ],
+    ],
     'mod/booking:manageoptiondates' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,
@@ -469,6 +514,13 @@ $capabilities = [
     ],
     'mod/booking:editsemesters' => [
         'captype' => 'write',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => [
+            'manager' => CAP_ALLOW,
+        ],
+    ],
+    'mod/booking:canseenumberofbookings' => [
+        'captype' => 'read',
         'contextlevel' => CONTEXT_SYSTEM,
         'archetypes' => [
             'manager' => CAP_ALLOW,

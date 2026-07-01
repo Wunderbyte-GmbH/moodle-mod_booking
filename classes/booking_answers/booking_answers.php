@@ -332,6 +332,149 @@ class booking_answers {
         return $this->userspreviouslybooked;
     }
 
+    /**
+     * Marks one booking answer as deleted and optionally reactivates the latest previously-booked answer.
+     *
+     * @param object $answer
+     * @param bool $openruleexecution
+     * @param bool $reactivatepreviouslybooked
+     * @return bool
+     */
+    public function delete_answer_record(
+        object $answer,
+        bool $openruleexecution = false,
+        bool $reactivatepreviouslybooked = false
+    ): bool {
+        global $DB;
+
+        if (empty($answer->id) || empty($answer->userid) || empty($answer->optionid)) {
+            return false;
+        }
+
+        $now = time();
+        $deleterecord = (object)[
+            'id' => (int)$answer->id,
+            'waitinglist' => MOD_BOOKING_STATUSPARAM_DELETED,
+            'timemodified' => $now,
+            'openruleexecution' => $openruleexecution ? $now : 0,
+        ];
+
+        $DB->update_record('booking_answers', $deleterecord);
+
+        if (!$reactivatepreviouslybooked) {
+            return true;
+        }
+
+        $candidates = $this->userspreviouslybooked[$answer->userid] ?? [];
+
+        if (is_object($candidates)) {
+            $candidates = [$candidates];
+        }
+
+        if (!is_array($candidates) || empty($candidates)) {
+            return true;
+        }
+
+        $latest = null;
+        foreach ($candidates as $candidate) {
+            if (!is_object($candidate)) {
+                continue;
+            }
+
+            if ($latest === null) {
+                $latest = $candidate;
+                continue;
+            }
+
+            $candidateid = (int)($candidate->baid ?? $candidate->id ?? 0);
+            $latestid = (int)($latest->baid ?? $latest->id ?? 0);
+            $candidatemodified = (int)($candidate->timemodified ?? 0);
+            $latestmodified = (int)($latest->timemodified ?? 0);
+
+            if ($candidatemodified > $latestmodified || ($candidatemodified === $latestmodified && $candidateid > $latestid)) {
+                $latest = $candidate;
+            }
+        }
+
+        if ($latest === null) {
+            return true;
+        }
+
+        $latestid = (int)($latest->baid ?? $latest->id ?? 0);
+        if (empty($latestid)) {
+            return true;
+        }
+
+        $reactivaterecord = (object)[
+            'id' => $latestid,
+            'waitinglist' => MOD_BOOKING_STATUSPARAM_BOOKED,
+            'timemodified' => $now,
+        ];
+        $DB->update_record('booking_answers', $reactivaterecord);
+
+        return true;
+    }
+
+    /**
+     * Reactivate the most recently set previously-booked answer back to booked status.
+     * Used when a cart reservation is removed without completing a purchase (book-again flow).
+     * Requires get_userspreviouslybooked() to have been called first to populate the candidate list.
+     *
+     * @param int $userid
+     * @return bool true if a record was reactivated, false otherwise
+     */
+    public function reactivate_latest_previouslybooked(int $userid): bool {
+        global $DB;
+
+        $candidates = $this->userspreviouslybooked[$userid] ?? [];
+
+        if (is_object($candidates)) {
+            $candidates = [$candidates];
+        }
+
+        if (!is_array($candidates) || empty($candidates)) {
+            return false;
+        }
+
+        $latest = null;
+        foreach ($candidates as $candidate) {
+            if (!is_object($candidate)) {
+                continue;
+            }
+
+            if ($latest === null) {
+                $latest = $candidate;
+                continue;
+            }
+
+            $candidateid = (int)($candidate->baid ?? $candidate->id ?? 0);
+            $latestid = (int)($latest->baid ?? $latest->id ?? 0);
+            $candidatemodified = (int)($candidate->timemodified ?? 0);
+            $latestmodified = (int)($latest->timemodified ?? 0);
+
+            if ($candidatemodified > $latestmodified || ($candidatemodified === $latestmodified && $candidateid > $latestid)) {
+                $latest = $candidate;
+            }
+        }
+
+        if ($latest === null) {
+            return false;
+        }
+
+        $latestid = (int)($latest->baid ?? $latest->id ?? 0);
+        if (empty($latestid)) {
+            return false;
+        }
+
+        $DB->update_record('booking_answers', (object)[
+            'id' => $latestid,
+            'waitinglist' => MOD_BOOKING_STATUSPARAM_BOOKED,
+            'timemodified' => time(),
+        ]);
+
+        return true;
+    }
+
 
     /**
      * Checks booking status of $userid for this booking option. If no $userid is given $USER is used (logged in user)
@@ -357,6 +500,33 @@ class booking_answers {
             return MOD_BOOKING_STATUSPARAM_BOOKED;
         } else {
             return MOD_BOOKING_STATUSPARAM_NOTBOOKED;
+        }
+    }
+
+    /**
+     * Checks booking status of $userid for this booking option. If no $userid is given $USER is used (logged in user)
+     * The return value of this function is not equal to the former user_status in booking_option.
+     *
+     * @param int $userid
+     * @return string 'reserved', 'notifyme', 'waitinglist', 'booked', 'notbooked' for booking status.
+     */
+    public function user_status_as_string(int $userid = 0) {
+        global $USER;
+
+        if ($userid == 0) {
+            $userid = $USER->id;
+        }
+
+        if (isset($this->usersreserved[$userid])) {
+            return 'reserved';
+        } else if (isset($this->userstonotify[$userid])) {
+            return 'notifyme';
+        } else if (isset($this->usersonwaitinglist[$userid])) {
+            return 'waitinglist';
+        } else if (isset($this->usersonlist[$userid])) {
+            return 'booked';
+        } else {
+            return 'notbooked';
         }
     }
 
@@ -870,6 +1040,26 @@ class booking_answers {
     }
 
     /**
+     * Get the count of how many times a user has booked this option.
+     *
+     * @param int $userid
+     * @return int
+     */
+    public function count_previous_bookings(int $userid): int {
+        $count = 0;
+        foreach ($this->answers as $answer) {
+            if (
+                $answer->userid == $userid
+                && ($answer->waitinglist == MOD_BOOKING_STATUSPARAM_BOOKED
+                    || $answer->waitinglist == MOD_BOOKING_STATUSPARAM_PREVIOUSLYBOOKED)
+            ) {
+                $count++;
+            }
+        }
+        return $count;
+    }
+
+    /**
      * Helper function to add availability info texts for available places and waiting list.
      *
      * @param  array $bookinginformation reference to booking information array.
@@ -887,7 +1077,12 @@ class booking_answers {
         // 2 => show free places only (1 place left).
         $bookingplacesinfotexts = get_config('booking', 'bookingplacesinfotexts');
 
-        if (!has_capability('mod/booking:updatebooking', $context) && $bookingplacesinfotexts) {
+        // Availability info texts are only shown when a user has neither the capability
+        // to see the number of bookings nor the capability to update bookings.
+        $nocapabilitytoseebookingplaces = !has_capability('mod/booking:updatebooking', $context)
+            && !has_capability('mod/booking:canseenumberofbookings', $context);
+
+        if ($nocapabilitytoseebookingplaces && $bookingplacesinfotexts) {
             $bookinginformation['showbookingplacesinfotext'] = true;
         }
 
@@ -913,7 +1108,7 @@ class booking_answers {
             } else {
                 // Still enough places left.
                 $bookinginformation['bookingplacesinfotext'] = get_string('bookingplacesenoughmessage', 'mod_booking');
-                $bookinginformation['bookingplacesclass'] = 'text-success avail';
+                $bookinginformation['bookingplacesclass'] = 'text-darkgreen avail';
                 $bookinginformation['bookingplacesiconclass'] = 'avail';
             }
 
@@ -932,11 +1127,11 @@ class booking_answers {
             }
         } else {
             $bookinginformation['bookingplacesinfotext'] = get_string('bookingplacesunlimitedmessage', 'mod_booking');
-            $bookinginformation['bookingplacesclass'] = 'text-success avail';
+            $bookinginformation['bookingplacesclass'] = 'text-darkgreen avail';
             $bookinginformation['bookingplacesiconclass'] = 'avail';
 
             if (
-                !has_capability('mod/booking:updatebooking', $context)
+                $nocapabilitytoseebookingplaces
                 && get_config('booking', 'bookingplacesinfotexts')
             ) {
                 // We need to set maxanswers to true, to actually show the text when maxanswer is 0 (unlimited).
@@ -951,7 +1146,7 @@ class booking_answers {
         $waitingplacesinfotexts = get_config('booking', 'waitinglistinfotexts');
         // Waiting list places.
         if (!empty($bookinginformation['maxoverbooking'])) {
-            if (!has_capability('mod/booking:updatebooking', $context) && $waitingplacesinfotexts) {
+            if ($nocapabilitytoseebookingplaces && $waitingplacesinfotexts) {
                 $bookinginformation['showwaitinglistplacesinfotext'] = true;
             }
 
@@ -992,7 +1187,7 @@ class booking_answers {
             }
         } else {
             if (isset($bookinginformation['freeonwaitinglist']) && $bookinginformation['freeonwaitinglist'] == -1) {
-                if (!has_capability('mod/booking:updatebooking', $context) && $waitingplacesinfotexts) {
+                if ($nocapabilitytoseebookingplaces && $waitingplacesinfotexts) {
                     $bookinginformation['showwaitinglistplacesinfotext'] = true;
                     if ($waitingplacesinfotexts == '1') {
                         // Show Still enough places left.
@@ -1261,6 +1456,7 @@ class booking_answers {
             MOD_BOOKING_STATUSPARAM_WAITINGLIST,
             MOD_BOOKING_STATUSPARAM_RESERVED,
             MOD_BOOKING_STATUSPARAM_NOTIFYMELIST,
+            MOD_BOOKING_STATUSPARAM_PREVIOUSLYBOOKED,
         ],
         $onlycompleted = false
     ) {
@@ -1310,6 +1506,8 @@ class booking_answers {
                 ba.timecreated,
                 ba.json,
                 ba.places,
+                ba.startdate,
+                ba.enddate,
                 ba.completeddate,
                 bo.coursestarttime,
                 bo.courseendtime,

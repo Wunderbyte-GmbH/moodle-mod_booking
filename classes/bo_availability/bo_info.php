@@ -33,6 +33,7 @@ use mod_booking\booking;
 use mod_booking\booking_bookit;
 use mod_booking\booking_context_helper;
 use mod_booking\booking_option_settings;
+use mod_booking\bo_availability\conditions\bookitbutton;
 use mod_booking\output\button_notifyme;
 use mod_booking\output\col_price;
 use mod_booking\price;
@@ -121,24 +122,28 @@ class bo_info {
      * This function displays debugging() messages if the availability
      * information is invalid.
      *
-     * @param ?int $optionid
-     * @param int $userid If set, specifies a different user ID to check availability for
+     * @param int|null $optionid
+     * @param int $userid
      * @param bool $hardblock
      * @param bool $noblockingpages
-     * @return array [isavailable, description]
+     * @param array $ignoredconditionids
+     *
+     * @return array
+     *
      */
     public function is_available(
         ?int $optionid = null,
         int $userid = 0,
         bool $hardblock = false,
-        bool $noblockingpages = false
+        bool $noblockingpages = false,
+        array $ignoredconditionids = []
     ): array {
 
         if (!$optionid) {
             $optionid = $this->optionid;
         }
 
-        $results = $this->get_condition_results($optionid, $userid, $hardblock);
+        $results = $this->get_condition_results($optionid, $userid, $hardblock, $ignoredconditionids);
 
         if (count($results) === 0) {
             $id = MOD_BOOKING_BO_COND_CONFIRMATION; // This is the lowest id.
@@ -188,9 +193,15 @@ class bo_info {
      * @param int|null $optionid
      * @param int $userid
      * @param bool $onlyhardblock
+     * @param array $ignoredconditionids
      * @return array
      */
-    public static function get_condition_results(?int $optionid = null, int $userid = 0, bool $onlyhardblock = false): array {
+    public static function get_condition_results(
+        ?int $optionid = null,
+        int $userid = 0,
+        bool $onlyhardblock = false,
+        array $ignoredconditionids = []
+    ): array {
         global $USER, $CFG;
 
         require_once($CFG->dirroot . '/mod/booking/lib.php');
@@ -228,6 +239,7 @@ class bo_info {
         }
 
         $resultsarray = [];
+        $ignoredconditionkeys = array_flip(array_map('intval', $ignoredconditionids));
 
         $overrideconditions = [];
 
@@ -236,6 +248,11 @@ class bo_info {
         They come from the field 'availability' field of the booking options table. */
         while (count($conditions) > 0) {
             $condition = array_shift($conditions);
+
+            $conditionid = (int)($condition->id ?? 0);
+            if (!empty($ignoredconditionkeys) && isset($ignoredconditionkeys[$conditionid])) {
+                continue;
+            }
 
             $classname = get_class($condition);
 
@@ -435,7 +452,9 @@ class bo_info {
             // For each condition, add the appropriate form fields.
             $condition->add_condition_to_mform($mform, $optionid, $moodleform);
             if ($visibilitymanager->is_condition_skipped($condition->id)) {
-                $visibilitymanager->disable_elements_in_mform($mform, $condition->id);
+                $visibilitymanager->disable_elements_in_mform($mform, $condition, true);
+            } else if ($visibilitymanager->is_condition_frozen($condition->id)) {
+                $visibilitymanager->disable_elements_in_mform($mform, $condition, false);
             }
         }
     }
@@ -687,9 +706,10 @@ class bo_info {
      * @param int $optionid
      * @param int $pagenumber
      * @param int $userid
+     * @param string $skipcondition optional condition shortname to exclude (e.g. 'slotbooking')
      * @return array
      */
-    public static function load_pre_booking_page(int $optionid, int $pagenumber, int $userid) {
+    public static function load_pre_booking_page(int $optionid, int $pagenumber, int $userid, string $skipcondition = '') {
 
         $results = self::get_condition_results($optionid, $userid);
 
@@ -699,7 +719,7 @@ class bo_info {
         });
 
         // Sorted List of blocking conditions which also provide a proper page.
-        $conditions = self::return_sorted_conditions($results);
+        $conditions = self::return_sorted_conditions($results, $skipcondition);
         $condition = self::return_class_of_current_page($conditions, $pagenumber);
 
         // If the current condition doesn't have the "pre" key...
@@ -727,14 +747,15 @@ class bo_info {
 
                 if (
                     !(
-                        $id === MOD_BOOKING_BO_COND_ALREADYBOOKED
+                        in_array($id, MOD_BOOKING_BO_COND_BOOKED_STATES, true)
                         || $id === MOD_BOOKING_BO_COND_ONWAITINGLIST
                     )
                 ) {
-                    $response = booking_bookit::bookit('option', $optionid, $userid);
+                    $bookitdata = bookitbutton::get_book_intent_override_data_json();
+                    $response = booking_bookit::bookit('option', $optionid, $userid, $bookitdata);
                     if ($response['status'] != 1) {
                         // We need to book twice, as confirmation might be in place.
-                        $response = booking_bookit::bookit('option', $optionid, $userid);
+                        $response = booking_bookit::bookit('option', $optionid, $userid, $bookitdata);
                     }
                 }
             } else {
@@ -1084,9 +1105,10 @@ class bo_info {
      * If there are just booking & confirmation pages, we supress them.
      *
      * @param array $results
+     * @param string $skipcondition optional condition shortname to exclude (e.g. 'slotbooking')
      * @return array
      */
-    public static function return_sorted_conditions(array $results) {
+    public static function return_sorted_conditions(array $results, string $skipcondition = '') {
 
         // Make sure the keys are set.
         $prepages = [];
@@ -1118,6 +1140,15 @@ class bo_info {
             // One no button condition determines this for all.
             if ($result['button'] === MOD_BOOKING_BO_BUTTON_NOBUTTON) {
                 $showbutton = false;
+            }
+
+            // Skip a condition whose shortname matches $skipcondition (case-insensitive).
+            if (!empty($skipcondition)) {
+                $classparts = explode('\\', $result['classname']);
+                $conditionshortname = array_pop($classparts);
+                if (strcasecmp($conditionshortname, $skipcondition) === 0) {
+                    continue;
+                }
             }
 
             $newclass = [
@@ -1165,8 +1196,15 @@ class bo_info {
         // We can in the future include a setting which will allow for always showing booking modal.
         // But right now, we will always suppress the Booking modal, when there is only one page.
         // This single page has to be necessarily the confirmation page.
-        if ((count($prepages['pre']) + count($prepages['post'])) < 2) {
-            return [];
+        $total = count($prepages['pre']) + count($prepages['post']);
+        if ($total < 2) {
+            // Exception: when an inline condition was already completed ($skipcondition is set),
+            // we must show whatever pages remain – even if it's just one (e.g. the confirmation).
+            if (empty($skipcondition) || $total < 1) {
+                return [];
+            }
+            // With skipcondition and exactly 1 remaining page: return as-is.
+            // The booking action is triggered by load_pre_booking_page, not by a separate book step.
         } else if (empty($prepages['pre'])) {
             array_unshift($conditionsarray, $prepages['book']);
         }
@@ -1332,6 +1370,13 @@ class bo_info {
                 $continueaction = empty($turnoffmodals) ? 'closemodal' : 'closeinline';
                 $continuelabel = get_string('close', 'mod_booking');
             }
+        }
+
+        if ($conditions[$pagenumber]['id'] === MOD_BOOKING_BO_COND_SLOTMOVE) {
+            // Self-service slot rebooking has no "continue": the move is committed by the
+            // submit button inside the move prepage (move_slot webservice), which then closes
+            // the prepage. So no footer continue button is rendered at all.
+            $continuebutton = false;
         }
 
         $footerdata['data']['continuebutton'] = $continuebutton; // Show button at all.
@@ -1531,26 +1576,10 @@ class bo_info {
      *
      */
     private static function exclude_conditions(array &$conditions) {
-        $excludedconditions = get_config('booking', 'skipableconditions');
-        $excludedconditionsarray = !empty($excludedconditions) ? explode(',', $excludedconditions) : [];
-        // When using an enrollink, we need to check if there are conditions to skip (setting 'enrollinkskipconditions').
-        if (self::$isenrollinkcontext) {
-            $enrollinkexcluded = get_config('booking', 'enrollinkskipconditions');
-            if (!empty($enrollinkexcluded)) {
-                $excludedconditionsarray = array_merge($excludedconditionsarray, explode(',', $enrollinkexcluded));
-            }
-            // We always skip the following conditions in the enrollink context, as they don't make sense there.
-            $excludedconditionsarray = array_merge($excludedconditionsarray, [
-                // Should be only checked for the booker, not the ones who receive the enrollink.
-                MOD_BOOKING_BO_COND_CAPBOOKINGCHOOSE,
-                MOD_BOOKING_BO_COND_JSON_ALLOWEDTOBOOKININSTANCE,
-                // Customform is only displayed to the booker, not the ones who receive the enrollink.
-                MOD_BOOKING_BO_COND_JSON_CUSTOMFORM,
-            ]);
-        }
+        $statehelper = new condition_state_helper();
         // This is where the conditions are actually skipped (excluded).
         foreach ($conditions as $key => $condition) {
-            if (in_array($condition->id, $excludedconditionsarray)) {
+            if ($statehelper->should_skip_condition($condition->id, self::$isenrollinkcontext)) {
                 unset($conditions[$key]);
             }
         }
@@ -1564,5 +1593,11 @@ class bo_info {
      */
     public static function destroy_singletons() {
         self::$isenrollinkcontext = false;
+        $conditions = self::get_condition_classes();
+        foreach ($conditions as $classname => $path) {
+            if (method_exists($classname, 'destroy_instance')) {
+                $classname::destroy_instance();
+            }
+        };
     }
 }

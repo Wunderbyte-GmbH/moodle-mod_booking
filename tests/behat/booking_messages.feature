@@ -56,8 +56,8 @@ Feature: Test messaging features in a booking
     And I visit "/report/loglive/index.php"
     Then I should see "Booking option booked"
     And I should see "Unknown message type A message e-mail with subject \"Behat test\" has been sent to user with id:"
-    And I should see "Custom message A message e-mail with subject \"Behat test\" has been sent to user: \"Teacher 1\" by the user \"Student 2\""
-    And I should see "Custom message A message e-mail with subject \"Behat test\" has been sent to user: \"Teacher 1\" by the user \"Student 1\""
+    And I should see "Custom message A message e-mail with subject \"Behat test\" has been sent to user: \"Student 2\" by the user \"Teacher 1\""
+    And I should see "Custom message A message e-mail with subject \"Behat test\" has been sent to user: \"Student 1\" by the user \"Teacher 1\""
     ## Logout is mandatory for admin pages to avoid error
     And I log out
 
@@ -83,9 +83,9 @@ Feature: Test messaging features in a booking
     And I run all adhoc tasks
     And I visit "/report/loglive/index.php"
     Then I should see "Booking option booked"
-    And I should see "Reminder sent from report A message e-mail with subject \"Reminder: Your booked course\" has been sent to user: \"Teacher 1\" by the user \"Student 2\""
-    And I should see "Reminder sent from report A message e-mail with subject \"Reminder: Your booked course\" has been sent to user: \"Teacher 1\" by the user \"Student 1\""
-    And I should see "Booking confirmation A message e-mail with subject \"Booking confirmation for Option: mail to participant\" has been sent to user: \"Teacher 1\" by the user \"Student 2\""
-    And I should see "Booking confirmation A message e-mail with subject \"Booking confirmation for Option: mail to participant\" has been sent to user: \"Teacher 1\" by the user \"Student 1\""
+    And I should see "Reminder sent from report A message e-mail with subject \"Reminder: Your booked course\" has been sent to user: \"Student 2\" by the user \"Teacher 1\""
+    And I should see "Reminder sent from report A message e-mail with subject \"Reminder: Your booked course\" has been sent to user: \"Student 1\" by the user \"Teacher 1\""
+    And I should see "Booking confirmation A message e-mail with subject \"Booking confirmation for Option: mail to participant\" has been sent to user: \"Student 2\" by the user \"Teacher 1\""
+    And I should see "Booking confirmation A message e-mail with subject \"Booking confirmation for Option: mail to participant\" has been sent to user: \"Student 1\" by the user \"Teacher 1\""
     ## Logout is mandatory for admin pages to avoid error
     And I log out

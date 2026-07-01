@@ -193,6 +193,12 @@ class select_user_shopping_cart implements booking_rule_condition {
 
         $params = array_merge($params, $newparams);
 
+        // Normalize offset to seconds so sub-day precision from rule_specifictime is preserved.
+        // Rule_daysbefore passes 'numberofdays'; rule_specifictime passes 'numberofseconds'.
+        if (!isset($params['numberofseconds']) && isset($params['numberofdays'])) {
+            $params['numberofseconds'] = (int) $params['numberofdays'] * DAYSECS;
+        }
+
         $dbfamily = $DB->get_dbfamily();
 
         switch ($dbfamily) {
@@ -246,14 +252,14 @@ class select_user_shopping_cart implements booking_rule_condition {
                     $sql->where .= " AND sch.userid = :userid ";
 
                     // And we know exactly when the payment was due.
-                    $nextruntime = $nextruntime + $params['numberofdays'] * 86400;
+                    $nextruntime = (int) $nextruntime + (int) $params['numberofseconds'];
 
                     $sql->where .= " AND (payments_info.payment_data->>'timestamp')::int = :nextruntime ";
                     $params['nextruntime'] = $nextruntime;
                 } else {
                     // If we are not in testmode, we want to get all future payments.
                     $sql->where .= " AND (payments_info.payment_data->>'timestamp')::int
-                                        >= ( :nowparam + (86400 * :numberofdays ))";
+                                        >= (( :nowparam )::int + ( :numberofseconds )::int)";
                 }
                 break;
             case 'mysql':
@@ -290,7 +296,7 @@ class select_user_shopping_cart implements booking_rule_condition {
                     $sql->where .= " AND sch.userid = :userid ";
 
                     // And we know exactly when the payment was due.
-                    $nextruntime = $nextruntime + $params['numberofdays'] * 86400;
+                    $nextruntime = (int) $nextruntime + (int) $params['numberofseconds'];
 
                     $sql->where .= " AND CAST(JSON_UNQUOTE(JSON_EXTRACT(payments_info.payment_data, '$.timestamp')) AS UNSIGNED)
                                         = :nextruntime ";
@@ -298,7 +304,7 @@ class select_user_shopping_cart implements booking_rule_condition {
                 } else {
                     // If we are not in testmode, we want to get all future payments.
                     $sql->where .= " AND CAST(JSON_UNQUOTE(JSON_EXTRACT(payments_info.payment_data, '$.timestamp')) AS UNSIGNED)
-                                        >= ( :nowparam + (86400 * :numberofdays ))";
+                                        >= (CAST( :nowparam AS UNSIGNED ) + CAST( :numberofseconds AS UNSIGNED ))";
                 }
 
                 break;

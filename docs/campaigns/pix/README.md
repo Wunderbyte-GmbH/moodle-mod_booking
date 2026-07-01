@@ -1,3 +1,5 @@
+[Back to parent section](../README.md)
+
 # pix — Screenshots and Images
 
 This folder contains screenshots and images used in the campaigns documentation.

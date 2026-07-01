@@ -34,6 +34,7 @@ use mod_booking\local\modechecker;
 use mod_booking\output\bookingoption_description;
 use mod_booking\output\bookit_button;
 use mod_booking\output\prepagemodal;
+use mod_booking\output\prepageinlinestart;
 use mod_booking\output\renderer;
 use mod_booking\subbookings\subbookings_info;
 use moodle_exception;
@@ -64,15 +65,20 @@ class booking_bookit {
      *
      * @param booking_option_settings $settings
      * @param int $userid
+     * @param string $inlinestartpage optional condition shortname to render inline (e.g. 'slotbooking')
      * @return string
      */
-    public static function render_bookit_button(booking_option_settings $settings, int $userid = 0) {
+    public static function render_bookit_button(
+        booking_option_settings $settings,
+        int $userid = 0,
+        string $inlinestartpage = ''
+    ) {
 
         global $PAGE;
 
         /** @var renderer $output */
         $output = $PAGE->get_renderer('mod_booking');
-        [$templates, $datas] = self::render_bookit_template_data($settings, $userid);
+        [$templates, $datas] = self::render_bookit_template_data($settings, $userid, true, $inlinestartpage);
 
         $html = '';
 
@@ -82,6 +88,8 @@ class booking_bookit {
                 $html .= $output->render_prepagemodal($data);
             } else if ($template == 'mod_booking/bookingpage/prepageinline') {
                 $html .= $output->render_prepageinline($data);
+            } else if ($template == 'mod_booking/bookingpage/prepageinlinestart') {
+                $html .= $output->render_prepageinlinestart($data);
             } else {
                 $html .= $output->render_bookit_button($data, $template);
             }
@@ -96,13 +104,17 @@ class booking_bookit {
      * @param booking_option_settings $settings
      * @param int $userid
      * @param bool $renderprepagemodal
+     * @param string $inlinestartpage optional condition shortname to render inline (e.g. 'slotbooking')
      * @return array
      */
     public static function render_bookit_template_data(
         booking_option_settings $settings,
         int $userid = 0,
-        bool $renderprepagemodal = true
+        bool $renderprepagemodal = true,
+        string $inlinestartpage = ''
     ) {
+        global $PAGE;
+
         $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($settings->cmid);
 
         // Get blocking conditions, including prepages$prepages etc.
@@ -139,14 +151,18 @@ class booking_bookit {
                     // The JUST MY ALERT prevents other buttons to be displayed.
                     if ($justmyalert === null) {
                         $justmyalert = true;
+                        $renderprepagemodal = false;
+                    } else if ($justmyalert === false) {
+                        // If we already have an other alert, we just override it with the new one.
+                        $renderprepagemodal = false;
                     }
                     $buttoncondition = $result['classname'];
                     break;
                 case MOD_BOOKING_BO_BUTTON_CANCEL:
                     if (modechecker::use_special_details_page_treatment()) {
+                        // When we show the cancel button, we can't have "just my alert", it would suppress this.
                         $justmyalert = false;
                         $extrabuttoncondition = $result['classname'];
-                        $renderprepagemodal = false;
                     }
                     break;
             }
@@ -164,6 +180,68 @@ class booking_bookit {
         // Do we really want to render a modal?
         $showprepagemodal = (!$justmyalert && (count($prepages) > 0) && $renderprepagemodal);
 
+        // Inline-start rendering.
+        // When $inlinestartpage is set and there is a matching condition in the prepage list,
+        // render that condition server-side and display it inline.  Remaining pages open via
+        // the normal modal/inline collapse when the user clicks "Continue".
+        if ($showprepagemodal && !empty($inlinestartpage)) {
+            $skipconditionclass = null;
+            foreach ($prepages as $page) {
+                $classparts = explode('\\', $page['classname']);
+                $conditionshortname = array_pop($classparts);
+                if (strcasecmp($conditionshortname, $inlinestartpage) === 0) {
+                    $skipconditionclass = $page['classname'];
+                    break;
+                }
+            }
+
+            if ($skipconditionclass !== null && class_exists($skipconditionclass)) {
+                // Instantiate the condition and render its page data.
+                if (method_exists($skipconditionclass, 'instance')) {
+                    $skipcondition = $skipconditionclass::instance();
+                } else {
+                    $skipcondition = new $skipconditionclass();
+                }
+                $conditionrenderdata = $skipcondition->render_page($settings->id, $userid);
+
+                // Render the condition HTML via the Moodle template engine (server-side).
+                /** @var renderer $output */
+                $output = $PAGE->get_renderer('mod_booking');
+                $conditiontmpldata = $conditionrenderdata['data'][0]['data'] ?? [];
+                $conditionhtml = $output->render_from_template($conditionrenderdata['template'], $conditiontmpldata);
+
+                // Remaining pages = all prepage pages minus the one shown inline.
+                $remainingpages = count($prepages) - 1;
+
+                // Determine inline vs modal for the remaining pages container.
+                $viewparam = booking::get_value_of_json_by_key($settings->bookingid, 'viewparam');
+                $turnoffmodals = 0;
+                if (
+                    ($viewparam != MOD_BOOKING_VIEW_PARAM_CARDS)
+                    && !(
+                        $bookingsettings->switchtemplates
+                        && in_array(MOD_BOOKING_VIEW_PARAM_CARDS, $bookingsettings->switchtemplatesselection)
+                    )
+                ) {
+                    $turnoffmodals = get_config('booking', 'turnoffmodals');
+                }
+
+                $data = new prepageinlinestart(
+                    $settings->id,
+                    $userid,
+                    $conditionhtml,
+                    $inlinestartpage,
+                    $remainingpages,
+                    !empty($turnoffmodals)
+                );
+
+                $datas[] = $data;
+                $templates[] = 'mod_booking/bookingpage/prepageinlinestart';
+                return [$templates, $datas];
+            }
+        }
+        // End inline-start rendering.
+
         // Big decision: can we render the button right away, or do we need to introduce a modal.
         if ($showprepagemodal) {
             // We render the button only from the highest relevant blocking condition.
@@ -174,9 +252,8 @@ class booking_bookit {
                 $buttoncondition, // This is the button we need to render twice.
                 !$justmyalert ? $extrabuttoncondition : '', // There might be a second button to render.
                 $userid, // The userid for which all this will be rendered.
+                json_encode(array_keys($results)), // Keep button condition metadata parity with non-modal rendering.
             );
-
-            $data->results = json_encode(array_keys($results));
 
             $datas[] = $data;
 
@@ -238,6 +315,8 @@ class booking_bookit {
                 $extrabutton->data['main'] = $data['main'];
                 // Make sure that JS is turned on.
                 $extrabutton->data['nojs'] = false;
+                $extrabutton->data['overrideids'] = $data['overrideids'] ?? '';
+                $extrabutton->data['results'] = $data['results'] ?? '';
                 $datas = [$extrabutton];
                 $templates = [$template];
             } else {
@@ -263,6 +342,8 @@ class booking_bookit {
 
         global $USER, $CFG;
 
+        $requestoverrides = bookit_request_overrides::from_data($data);
+
         // Make sure the user has the right to book in principle.
         if ($area === 'option') {
             $settings = singleton_service::get_instance_of_booking_option_settings($itemid);
@@ -284,11 +365,18 @@ class booking_bookit {
         if ($area === 'option') {
             $settings = singleton_service::get_instance_of_booking_option_settings($itemid);
             $boinfo = new bo_info($settings);
+            $ignoredconditionids = $requestoverrides->consume_option_ignored_condition_ids($settings);
 
             // There are two cases where we can actually book.
             // We call thefunction with hadblock set to true.
             // This means that we only get those blocks that actually should prevent booking.
-            [$id, $isavailable, $description] = $boinfo->is_available($itemid, $userid, true);
+            [$id, $isavailable, $description] = $boinfo->is_available(
+                $itemid,
+                $userid,
+                true,
+                false,
+                $ignoredconditionids
+            );
 
             // If isavailable is true, there is actually no blocking condition at all.
             // This might never be the case, as we use this to introduce prepages and buttons (add to cart or bookit).
@@ -376,7 +464,13 @@ class booking_bookit {
 
                 // This means we can actuall book on waitinglist.
                 $isavailable = true;
-            } else if ($id === MOD_BOOKING_BO_COND_ALREADYBOOKED || $id === MOD_BOOKING_BO_COND_ONWAITINGLIST) {
+            } else if (
+                in_array($id, MOD_BOOKING_BO_COND_BOOKED_STATES, true)
+                || $id === MOD_BOOKING_BO_COND_ONWAITINGLIST
+                || $id === MOD_BOOKING_BO_COND_CANCELMYSELF
+            ) {
+                // BOOKED_STATES includes SLOTMOVE: when a booked, self-rebookable user is the top
+                // hard-blocker it must still be able to cancel (otherwise the cancel button is dead).
                 $cancelmyself = new cancelmyself();
                 // Add a layer of security to not cancel just because of unintentional double click.
                 if (

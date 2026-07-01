@@ -1,6 +1,8 @@
+[Back to parent section](README.md)
+
 # Sub-booking Type: Additional Item
 
-**Class:** `mod_booking\subbookings\sb_types\subbooking_additionalitem`  
+**Class:** `mod_booking\subbookings\sb_types\subbooking_additionalitem`
 **PRO required:** Yes 🔒
 
 ---
@@ -61,3 +63,11 @@ Participants who book the training day see a "Lunch catering — €15.00" optio
 - [Additional person sub-booking](subbooking_additionalperson.md)
 - [Time slot sub-booking](subbooking_timeslot.md)
 - [Booking option — Price settings](../booking-option/05-price.md)
+
+
+## Quick setup path
+
+1. Open option edit page: [/mod/booking/editoptions.php?id=<cmid>](/mod/booking/editoptions.php?id=<cmid>).
+2. Edit target option and open Sub-bookings section.
+3. Add or configure the sub-booking type from this page.
+4. Save and test booking flow as participant.

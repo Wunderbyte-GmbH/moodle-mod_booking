@@ -25,7 +25,7 @@
 
 namespace mod_booking;
 
-use advanced_testcase;
+use mod_booking\booking_advanced_testcase;
 use mod_booking\table\manageusers_table;
 use stdClass;
 use mod_booking\bo_availability\bo_info;
@@ -49,26 +49,15 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @author Mahdi Poustini
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-final class waitinglist_test extends advanced_testcase {
+final class waitinglist_test extends booking_advanced_testcase {
     /**
      * Tests set up.
      */
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest();
-        time_mock::init();
         time_mock::set_mock_time(strtotime('now'));
         singleton_service::destroy_instance();
-    }
-
-    /**
-     * Mandatory clean-up after each test.
-     */
-    public function tearDown(): void {
-        parent::tearDown();
-        /** @var mod_booking_generator $plugingenerator */
-        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
-        $plugingenerator->teardown();
     }
 
     /**
@@ -116,12 +105,12 @@ final class waitinglist_test extends advanced_testcase {
         // Create course.
         $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
 
-        // Create users, some of them with second price category.
-        $student[1] = $this->getDataGenerator()->create_user();
-        $student[2] = $this->getDataGenerator()->create_user();
-        $student[3] = $this->getDataGenerator()->create_user(['profile_field_pricecat' => 'student'] ?? []);
-        $student[4] = $this->getDataGenerator()->create_user();
-        $student[5] = $this->getDataGenerator()->create_user();
+        // Create users with explicit price categories to keep price resolution deterministic.
+        $student[1] = $this->getDataGenerator()->create_user(['profile_field_pricecat' => 'default']);
+        $student[2] = $this->getDataGenerator()->create_user(['profile_field_pricecat' => 'default']);
+        $student[3] = $this->getDataGenerator()->create_user(['profile_field_pricecat' => 'student']);
+        $student[4] = $this->getDataGenerator()->create_user(['profile_field_pricecat' => 'default']);
+        $student[5] = $this->getDataGenerator()->create_user(['profile_field_pricecat' => 'default']);
         $teacher = $this->getDataGenerator()->create_user();
 
         $bdata['course'] = $course->id;
@@ -189,10 +178,12 @@ final class waitinglist_test extends advanced_testcase {
         $boinfo = new bo_info($settings);
 
         // Verify price.
-        $price = price::get_price('option', $settings->id);
+        $price = price::get_price('option', $settings->id, $student[1]);
+        $this->assertArrayHasKey('price', $price);
         $this->assertEquals($pricecategories['default']->defaultvalue, $price["price"]);
 
         $studnetprice = price::get_price('option', $settings->id, $student[3]);
+        $this->assertArrayHasKey('price', $studnetprice);
         $this->assertEquals($pricecategories['student']->defaultvalue, $studnetprice["price"]);
 
         // Check the button for each student.
@@ -322,6 +313,159 @@ final class waitinglist_test extends advanced_testcase {
         $answerjson = json_decode($answer->json);
         $this->assertNotEmpty($answerjson);
         $this->assertTrue(property_exists($answerjson, 'confirmwaitinglist'));
+    }
+
+    /**
+     * Verifies that a user without a valid price category cannot be sent to the waiting list.
+     *
+     * The booking option has a price set, a single seat and an enabled waiting list.
+     * The price category fallback to the default category is turned off
+     * (pricecategoryfallback = 2), so a user whose profile field does not match any
+     * existing price category has NO determinable price (price::get_price returns []).
+     *
+     * Such a user must NOT be blocked by the askforconfirmation condition (which would
+     * place him on the waiting list and could later book him automatically for free).
+     * Instead, the priceisset condition (or noshoppingcart, if shopping cart is missing)
+     * must block the booking.
+     *
+     * Before the fix this test fails because askforconfirmation (id 0) outranks
+     * priceisset (id -70) and sends the user to the waiting list.
+     *
+     * @covers \mod_booking\bo_availability\conditions\askforconfirmation::is_available
+     *
+     * @return void
+     */
+    public function test_askforconfirmation_does_not_block_user_without_valid_price(): void {
+        global $DB;
+        $this->resetAfterTest();
+
+        $bdata = self::booking_common_settings_provider();
+
+        // Create a custom profile field to set the price category for each user.
+        $this->getDataGenerator()->create_custom_profile_field([
+            'datatype' => 'text',
+            'shortname' => 'pricecat',
+            'name' => 'pricecat',
+        ]);
+        set_config('pricecategoryfield', 'pricecat', 'booking');
+        // Turn the fallback to the default price category OFF (2 = fallbackturnedoff).
+        set_config('pricecategoryfallback', 2, 'booking');
+        // Empty/missing prices should block (do not display empty price).
+        set_config('displayemptyprice', 0, 'booking');
+
+        // Create course.
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+
+        // Booking user that fills the only seat - has a valid (student) price category.
+        $bookeduser = $this->getDataGenerator()->create_user(['profile_field_pricecat' => 'student']);
+        // The user under test has NO matching price category at all.
+        $nopriceuser = $this->getDataGenerator()->create_user(['profile_field_pricecat' => 'nonexistent']);
+        // Counter case: a user with a valid price category that simply costs 0 (student = 0).
+        // This user HAS a price (just zero), so he must still be handled normally.
+        $zeropriceuser = $this->getDataGenerator()->create_user(['profile_field_pricecat' => 'student']);
+        $teacher = $this->getDataGenerator()->create_user();
+
+        $bdata['course'] = $course->id;
+        $bdata['bookingmanager'] = $teacher->username;
+
+        $booking = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        $this->setAdminUser();
+
+        $this->getDataGenerator()->enrol_user($bookeduser->id, $course->id, 'student');
+        $this->getDataGenerator()->enrol_user($nopriceuser->id, $course->id, 'student');
+        $this->getDataGenerator()->enrol_user($zeropriceuser->id, $course->id, 'student');
+        $this->getDataGenerator()->enrol_user($teacher->id, $course->id, 'editingteacher');
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+
+        // Create price categories. There is NO category matching 'nonexistent'.
+        $pricecategories = [
+            'default' => (object) [
+                'ordernum' => 1,
+                'name' => 'default',
+                'identifier' => 'default',
+                'defaultvalue' => 100,
+                'pricecatsortorder' => 1,
+            ],
+            'student' => (object) [
+                'ordernum' => 2,
+                'name' => 'student',
+                'identifier' => 'student',
+                'defaultvalue' => 0,
+                'pricecatsortorder' => 2,
+            ],
+        ];
+        foreach ($pricecategories as $pc) {
+            $plugingenerator->create_pricecategory($pc);
+        }
+
+        // Create booking option with a price, a single seat and a waiting list.
+        $record = new stdClass();
+        $record->bookingid = $booking->id;
+        $record->text = 'pricedoption';
+        $record->maxanswers = 1; // Single seat.
+        $record->chooseorcreatecourse = 1;
+        $record->courseid = $course->id;
+        $record->maxoverbooking = 2; // Enable waiting list.
+        $record->waitforconfirmation = 0;
+        $record->description = 'Will start in 2050';
+        $record->optiondateid_0 = "0";
+        $record->daystonotify_0 = "0";
+        $record->coursestarttime_0 = strtotime('20 June 2050 15:00', time());
+        $record->courseendtime_0 = strtotime('20 July 2050 14:00', time());
+        $record->teachersforoption = $teacher->username;
+        $record->useprice = 1;
+        $record->importing = 1;
+        $option = $plugingenerator->create_option($record);
+        singleton_service::destroy_booking_option_singleton($option->id);
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
+        singleton_service::destroy_booking_singleton_by_cmid($settings->cmid); // Require to avoid caching issues.
+        $boinfo = new bo_info($settings);
+
+        // The user without a valid price category must get NO price (fallback is off).
+        $noprice = price::get_price('option', $settings->id, $nopriceuser);
+        $this->assertArrayNotHasKey('price', $noprice);
+
+        // The user with the student category HAS a price - it just happens to be zero.
+        $zeroprice = price::get_price('option', $settings->id, $zeropriceuser);
+        $this->assertArrayHasKey('price', $zeroprice);
+        $this->assertEquals(0, (float) $zeroprice['price']);
+
+        // Fill the single seat so the option is fully booked and a waiting list spot is free.
+        $plugingenerator->create_answer(['optionid' => $settings->id, 'userid' => $bookeduser->id]);
+        singleton_service::destroy_booking_answers($settings->id);
+
+        // Now the user without a valid price tries to book.
+        $this->setUser($nopriceuser);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $nopriceuser->id, true);
+
+        // The user must NOT be allowed onto the waiting list via askforconfirmation...
+        $this->assertNotEquals(
+            MOD_BOOKING_BO_COND_ASKFORCONFIRMATION,
+            $id,
+            'A user without a valid price category must not be sent to the waiting list.'
+        );
+        // ... instead the price condition must block the booking.
+        if (class_exists('local_shopping_cart\shopping_cart')) {
+            $this->assertEquals(MOD_BOOKING_BO_COND_PRICEISSET, $id);
+        } else {
+            $this->assertEquals(MOD_BOOKING_BO_COND_NOSHOPPINGCART, $id);
+        }
+
+        // Counter check: the user WITH a valid (zero) price category must be handled normally.
+        // As the option is fully booked and a waiting list spot is free, askforconfirmation
+        // must apply here and send this user to the waiting list - he is NOT skipped by the
+        // isset() guard. This proves the fix blocks only users without any price.
+        $this->setUser($zeropriceuser);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $zeropriceuser->id, true);
+        $this->assertEquals(
+            MOD_BOOKING_BO_COND_ASKFORCONFIRMATION,
+            $id,
+            'A user with a valid (zero) price category must still be sent to the waiting list.'
+        );
     }
 
     /**

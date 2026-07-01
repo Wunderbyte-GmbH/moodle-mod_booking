@@ -22,11 +22,9 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use mod_booking\bo_availability\bo_info;
 use mod_booking\customfield\booking_handler;
 use mod_booking\local\htmlcomponents;
 use mod_booking\placeholders\placeholders_info;
-use theme_boost_union\admin_setting_configtext_url;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -110,6 +108,25 @@ $ADMIN->add(
         'modbookingcustomfield',
         get_string('customfieldconfigure', 'mod_booking'),
         new moodle_url('/mod/booking/customfield.php')
+    )
+);
+
+$ADMIN->add(
+    'modbookingfolder',
+    new admin_externalpage(
+        'modbookingmanagecustomfieldoptions',
+        get_string('managecustomfieldoptions', 'mod_booking'),
+        new moodle_url('/mod/booking/managecustomfieldoptions.php'),
+        'mod/booking:managecustomfieldoptions'
+    )
+);
+
+$ADMIN->add(
+    'modbookingfolder',
+    new admin_externalpage(
+        'modbookingavailabilityconditions',
+        get_string('availabilityconditionsdashboard', 'mod_booking'),
+        new moodle_url('/mod/booking/availabilityconditions.php')
     )
 );
 
@@ -217,7 +234,7 @@ if ($ADMIN->fulltree) {
 
         $expirationdate = wb_payment::decryptlicensekey($licensekey);
         if (!empty($expirationdate)) {
-            $expirationdatetimestamp = strtotime($expirationdate);
+            $expirationdatetimestamp = strtotime($expirationdate, time());
             $now = time();
             if ($expirationdatetimestamp < $now) {
                 // License has expired.
@@ -383,7 +400,7 @@ if ($ADMIN->fulltree) {
             )
         );
 
-        // Choose which presence options should be vailabile.
+        // Choose which presence options should be availabile.
 
         $presenceoptions = [
             5 => get_string('statusunknown', 'booking'),
@@ -444,6 +461,18 @@ if ($ADMIN->fulltree) {
                 'booking/optionviewcustomfields',
                 get_string('optionviewcustomfields', 'mod_booking'),
                 get_string('optionviewcustomfieldsdesc', 'mod_booking'),
+                [],
+                $customfieldshortnames
+            )
+        );
+    }
+    // Custom fields to be shown in the card on the detail page (optionview.php).
+    if (!empty($customfields)) {
+        $settings->add(
+            new admin_setting_configmultiselect(
+                'booking/cardviewcustomfields',
+                get_string('cardviewcustomfields', 'mod_booking'),
+                get_string('cardviewcustomfieldsdesc', 'mod_booking'),
                 [],
                 $customfieldshortnames
             )
@@ -577,6 +606,32 @@ if ($ADMIN->fulltree) {
         )
     );
 
+    $slotbookingsdisplaymodes = [
+        'availableforuser' => get_string('slot_bookings_display_mode_availableforuser', 'mod_booking'),
+        'bookedvscapacity' => get_string('slot_bookings_display_mode_bookedvscapacity', 'mod_booking'),
+    ];
+    if ($proversion) {
+        $settings->add(
+            new admin_setting_configselect(
+                'booking/slot_bookings_display_mode',
+                get_string('slot_bookings_display_mode', 'mod_booking'),
+                get_string('slot_bookings_display_mode_desc', 'mod_booking'),
+                'availableforuser',
+                $slotbookingsdisplaymodes
+            )
+        );
+    } else {
+        $settings->add(
+            new admin_setting_heading(
+                'slot_bookings_display_mode',
+                get_string('slot_bookings_display_mode', 'mod_booking'),
+                get_string('prolicensefeatures', 'mod_booking') .
+                get_string('profeatures:slotbooking', 'mod_booking') .
+                get_string('infotext:prolicensenecessary', 'mod_booking')
+            )
+        );
+    }
+
     $settings->add(
         new admin_setting_configcheckbox(
             'booking/bookonlyondetailspage',
@@ -644,10 +699,24 @@ if ($ADMIN->fulltree) {
     );
 
     $settings->add(
-        new admin_setting_configcheckbox(
+        new admin_setting_configselect(
             'booking/openbookingdetailinsametab',
             get_string('openbookingdetailinsametab', 'mod_booking'),
             get_string('openbookingdetailinsametab_desc', 'mod_booking'),
+            0,
+            [
+                0 => get_string('openbookingdetailinsametabnewwindow', 'mod_booking'),
+                1 => get_string('openbookingdetailinsametabsamewindow', 'mod_booking'),
+                2 => get_string('openbookingdetailinsametabnolink', 'mod_booking'),
+            ]
+        )
+    );
+
+    $settings->add(
+        new admin_setting_configcheckbox(
+            'booking/customformprefillenabled',
+            get_string('customformprefillenabled', 'mod_booking'),
+            get_string('customformprefillenabled_desc', 'mod_booking'),
             0
         )
     );
@@ -774,13 +843,168 @@ if ($ADMIN->fulltree) {
             )
         );
 
+        $conditionsdashboardurl = new moodle_url('/mod/booking/availabilityconditions.php');
+        $conditionsheadingdesc = get_string('conditionssettings_desc', 'mod_booking') .
+            '<br>' . get_string('conditionssettingslinkdashboard', 'mod_booking', $conditionsdashboardurl->out(false));
         $settings->add(
             new admin_setting_heading(
                 'conditionsheadnig',
                 get_string('conditionssettings', 'mod_booking') . " " . get_string('badge:pro', 'mod_booking'),
-                get_string('conditionssettings_desc', 'mod_booking')
+                $conditionsheadingdesc
             )
         );
+
+        $settings->add(
+            new admin_setting_configcheckbox(
+                'booking/conditionwarningatbottom',
+                get_string('conditionwarningatbottom', 'mod_booking'),
+                get_string('conditionwarningatbottom_desc', 'mod_booking'),
+                0
+            )
+        );
+
+        // Developer note:
+        // If you add new condition-specific admin settings in this section,
+        // also add/update the matching link mapping in
+        // mod/booking/availabilityconditions.php ($conditionsettingsanchors)
+        // so the "Specific Settings" column points to the correct setting anchor.
+        $settings->add(
+            new admin_setting_configcheckbox(
+                'booking/bookingtimerelativeenabled',
+                get_string('bookingtimerelativeenabled', 'mod_booking'),
+                get_string('bookingtimerelativeenabled_desc', 'mod_booking'),
+                0
+            )
+        );
+        // Opening time settings.
+        $settings->add(
+            new admin_setting_configcheckbox(
+                'booking/bookingopeningtimerelativeautoapply',
+                get_string('bookingopeningtimerelativeautoapply', 'mod_booking'),
+                get_string('bookingopeningtimerelativeautoapply_desc', 'mod_booking'),
+                0 // Auto-apply is turned off by default.
+            )
+        );
+        $settings->hide_if(
+            'booking/bookingopeningtimerelativeautoapply',
+            'booking/bookingtimerelativeenabled',
+            'eq',
+            0
+        );
+        $settings->add(
+            new admin_setting_configduration(
+                'booking/bookingtimerelativedefaultopeningduration',
+                get_string('bookingtimerelativedefaultopeningduration', 'mod_booking'),
+                get_string('bookingtimerelativedefaultopeningduration_desc', 'mod_booking'),
+                86400 * 7 // Default: Booking possible starting 7 days before the event.
+            )
+        );
+        $settings->hide_if(
+            'booking/bookingtimerelativedefaultopeningduration',
+            'booking/bookingtimerelativeenabled',
+            'eq',
+            0
+        );
+        $settings->add(
+            new admin_setting_configselect(
+                'booking/bookingtimerelativedefaultopeningbeforeafter',
+                get_string('bookingtimerelativedefaultopeningbeforeafter', 'mod_booking'),
+                get_string('bookingtimerelativedefaultopeningbeforeafter_desc', 'mod_booking'),
+                1,
+                [
+                    1 => get_string('before', 'mod_booking'),
+                    -1 => get_string('after', 'mod_booking'),
+                ]
+            )
+        );
+        $settings->hide_if(
+            'booking/bookingtimerelativedefaultopeningbeforeafter',
+            'booking/bookingtimerelativeenabled',
+            'eq',
+            0
+        );
+        $bookingtimerelativepossibledatefields = [
+            'coursestarttime' => get_string('bookingoptionstart', 'mod_booking'),
+            'courseendtime' => get_string('bookingoptionend', 'mod_booking'),
+        ];
+        $settings->add(
+            new admin_setting_configselect(
+                'booking/bookingtimerelativedefaultopeningdatefield',
+                get_string('bookingtimerelativedefaultopeningdatefield', 'mod_booking'),
+                get_string('bookingtimerelativedefaultopeningdatefield_desc', 'mod_booking'),
+                'coursestarttime',
+                $bookingtimerelativepossibledatefields
+            )
+        );
+        $settings->hide_if(
+            'booking/bookingtimerelativedefaultopeningdatefield',
+            'booking/bookingtimerelativeenabled',
+            'eq',
+            0
+        );
+        // Closing time settings.
+        $settings->add(
+            new admin_setting_configcheckbox(
+                'booking/bookingclosingtimerelativeautoapply',
+                get_string('bookingclosingtimerelativeautoapply', 'mod_booking'),
+                get_string('bookingclosingtimerelativeautoapply_desc', 'mod_booking'),
+                0 // Auto-apply is turned off by default.
+            )
+        );
+        $settings->hide_if(
+            'booking/bookingclosingtimerelativeautoapply',
+            'booking/bookingtimerelativeenabled',
+            'eq',
+            0
+        );
+        $settings->add(
+            new admin_setting_configduration(
+                'booking/bookingtimerelativedefaultclosingduration',
+                get_string('bookingtimerelativedefaultclosingduration', 'mod_booking'),
+                get_string('bookingtimerelativedefaultclosingduration_desc', 'mod_booking'),
+                86400 // Default: Booking possible until 1 day before the event.
+            )
+        );
+        $settings->hide_if(
+            'booking/bookingtimerelativedefaultclosingduration',
+            'booking/bookingtimerelativeenabled',
+            'eq',
+            0
+        );
+        $settings->add(
+            new admin_setting_configselect(
+                'booking/bookingtimerelativedefaultclosingbeforeafter',
+                get_string('bookingtimerelativedefaultclosingbeforeafter', 'mod_booking'),
+                get_string('bookingtimerelativedefaultclosingbeforeafter_desc', 'mod_booking'),
+                1,
+                [
+                    1 => get_string('before', 'mod_booking'),
+                    -1 => get_string('after', 'mod_booking'),
+                ]
+            )
+        );
+        $settings->hide_if(
+            'booking/bookingtimerelativedefaultclosingbeforeafter',
+            'booking/bookingtimerelativeenabled',
+            'eq',
+            0
+        );
+        $settings->add(
+            new admin_setting_configselect(
+                'booking/bookingtimerelativedefaultclosingdatefield',
+                get_string('bookingtimerelativedefaultclosingdatefield', 'mod_booking'),
+                get_string('bookingtimerelativedefaultclosingdatefield_desc', 'mod_booking'),
+                'coursestarttime',
+                $bookingtimerelativepossibledatefields
+            )
+        );
+        $settings->hide_if(
+            'booking/bookingtimerelativedefaultclosingdatefield',
+            'booking/bookingtimerelativeenabled',
+            'eq',
+            0
+        );
+
         // Use SQL for availability conditions.
         $settings->add(
             new admin_setting_configcheckbox(
@@ -796,48 +1020,6 @@ if ($ADMIN->fulltree) {
                 get_string('sqlfilterbookingtimeonlypast', 'mod_booking'),
                 get_string('sqlfilterbookingtimeonlypast_desc', 'mod_booking'),
                 0
-            )
-        );
-
-        // Skippable conditions setting.
-        $skippableconditions = bo_info::get_skippable_conditions();
-        // Add "No condition selected" as an option with value 0.
-        $skippableconditions = [0 => get_string('noconditionselected', 'mod_booking')] + $skippableconditions;
-        $settings->add(
-            new admin_setting_configmultiselect(
-                'booking/skipableconditions',
-                get_string('skipableconditions', 'mod_booking'),
-                get_string('skipableconditions_desc', 'mod_booking'),
-                [],
-                $skippableconditions
-            )
-        );
-
-        // For enrollinks, we skip some conditions by default, so they should not be selected here.
-        // See bo_info::exclude_conditions.
-        $enrollinkskippableconditions = array_filter(
-            $skippableconditions,
-            fn($key) => !in_array($key, [
-                MOD_BOOKING_BO_COND_CAPBOOKINGCHOOSE,
-                MOD_BOOKING_BO_COND_JSON_ALLOWEDTOBOOKININSTANCE,
-                MOD_BOOKING_BO_COND_JSON_CUSTOMFORM,
-            ]),
-            ARRAY_FILTER_USE_KEY
-        );
-
-        // Enrollink skippable conditions setting.
-        // Time-relevant conditions are skipped in default setting as the booker might not want them to be checked for enrollinks.
-        $settings->add(
-            new admin_setting_configmultiselect(
-                'booking/enrollinkskipconditions',
-                get_string('enrollinkskipconditions', 'mod_booking'),
-                get_string('enrollinkskipconditions_desc', 'mod_booking'),
-                [
-                    MOD_BOOKING_BO_COND_BOOKING_TIME,
-                    MOD_BOOKING_BO_COND_JSON_NOOVERLAPPING,
-                    MOD_BOOKING_BO_COND_OPTIONHASSTARTED,
-                ],
-                $enrollinkskippableconditions
             )
         );
 
@@ -1051,6 +1233,22 @@ if ($ADMIN->fulltree) {
             )
         );
         $settings->add(
+            new admin_setting_configselect(
+                'booking/teacherpagevisibilitymode',
+                get_string('teacherpagevisibilitymode', 'mod_booking'),
+                get_string('teacherpagevisibilitymode_desc', 'mod_booking'),
+                MOD_BOOKING_VISIBILITY_OVERRIDE_DEFAULT,
+                [
+                    MOD_BOOKING_VISIBILITY_OVERRIDE_DEFAULT => get_string('teacherpagevisibilitymode:default', 'mod_booking'),
+                    MOD_BOOKING_VISIBILITY_OVERRIDE_FULLYINVISIBLE =>
+                        get_string('teacherpagevisibilitymode:fullyinvisible', 'mod_booking'),
+                    MOD_BOOKING_VISIBILITY_OVERRIDE_DIRECTLINKONLY =>
+                        get_string('teacherpagevisibilitymode:directlinkonly', 'mod_booking'),
+                    MOD_BOOKING_VISIBILITY_OVERRIDE_BOTH => get_string('teacherpagevisibilitymode:both', 'mod_booking'),
+                ]
+            )
+        );
+        $settings->add(
             new admin_setting_configcheckbox(
                 'booking/teachersallowmailtobookedusers',
                 get_string('teachersallowmailtobookedusers', 'mod_booking'),
@@ -1254,6 +1452,19 @@ if ($ADMIN->fulltree) {
                 get_string('defaultcanceldate_desc', 'mod_booking'),
                 0,
                 $canceloptions
+            )
+        );
+
+        // Slot booking: ultimate default for the relative per-slot move/cancel deadline (minutes,
+        // signed: positive = before slot start, 0 = until start, negative = after start). Instance
+        // and option settings override this.
+        $settings->add(
+            new admin_setting_configtext(
+                'booking/slot_change_deadline_minutes',
+                get_string('slot_change_deadline_minutes', 'mod_booking'),
+                get_string('slot_change_deadline_minutes_desc', 'mod_booking'),
+                0,
+                PARAM_INT
             )
         );
     } else {
@@ -2482,6 +2693,20 @@ if ($ADMIN->fulltree) {
             get_string('uselegacymailtemplates_desc', 'mod_booking', $linktorules),
             0
         )
+    );
+    $settings->add(
+        new admin_setting_configcheckbox(
+            'booking/legacymailremovalacknowledged',
+            get_string('legacymailremovalacknowledged', 'mod_booking'),
+            get_string('legacymailremovalacknowledged_desc', 'mod_booking', $linktorules),
+            0
+        )
+    );
+    $settings->hide_if(
+        'booking/legacymailremovalacknowledged',
+        'booking/uselegacymailtemplates',
+        'eq',
+        0
     );
 
     if (!empty(get_config('booking', 'uselegacymailtemplates'))) {

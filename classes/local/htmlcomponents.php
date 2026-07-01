@@ -45,6 +45,14 @@ class htmlcomponents {
             return '';
         }
 
+        $activeindex = 0;
+        foreach ($tabs as $index => $tab) {
+            if (!empty($tab['active'])) {
+                $activeindex = $index;
+                break;
+            }
+        }
+
         $navid = $id . '-nav';
         $contentid = $id . '-content';
 
@@ -58,7 +66,8 @@ class htmlcomponents {
         foreach ($tabs as $index => $tab) {
             $tabid = $id . '-tab-' . $index;
             $paneid = $id . '-pane-' . $index;
-            $active = ($index === 0);
+            $active = ($index === $activeindex);
+            $label = $tab['label'] ?? strip_tags((string)($tab['title'] ?? 'Tab ' . ($index + 1)));
 
             $output .= html_writer::tag(
                 'li',
@@ -92,7 +101,7 @@ class htmlcomponents {
         foreach ($tabs as $index => $tab) {
             $paneid = $id . '-pane-' . $index;
             $tabid = $id . '-tab-' . $index;
-            $active = ($index === 0);
+            $active = ($index === $activeindex);
 
             $output .= html_writer::start_div(
                 'tab-pane fade' . ($active ? ' show active' : ''),
@@ -109,6 +118,136 @@ class htmlcomponents {
         }
 
         $output .= html_writer::end_div();
+
+        return $output;
+    }
+
+    /**
+     * Render compact left-sided Bootstrap tab navigation (earmark style).
+     *
+     * @param array $tabs Array of tabs:
+     *        [
+     *          [
+     *            'title' => 'Tab title (string)',
+     *            'body'  => 'HTML content (string)',
+     *            'active' => true (optional)
+     *          ],
+     *          ...
+     *        ]
+     * @param string $id Unique ID prefix for the tabs (optional).
+     * @return string Rendered HTML.
+     */
+    public static function render_bootstrap_earmarks(array $tabs, string $id = 'moodle-earmarks'): string {
+        if (empty($tabs)) {
+            return '';
+        }
+
+        $activeindex = 0;
+        foreach ($tabs as $index => $tab) {
+            if (!empty($tab['active'])) {
+                $activeindex = $index;
+                break;
+            }
+        }
+
+        $navid = $id . '-nav';
+        $contentid = $id . '-content';
+
+        $output = html_writer::start_div('booking-earmark-tabs d-flex align-items-start gap-3');
+
+        // Left-side compact nav.
+        $output .= html_writer::start_tag('ul', [
+            'class' => 'nav flex-column nav-pills booking-earmark-nav',
+            'id' => $navid,
+            'role' => 'tablist',
+            'aria-orientation' => 'vertical',
+        ]);
+
+        foreach ($tabs as $index => $tab) {
+            $tabid = $id . '-tab-' . $index;
+            $paneid = $id . '-pane-' . $index;
+            $active = ($index === $activeindex);
+            $label = $tab['label'] ?? strip_tags((string)($tab['title'] ?? 'Tab ' . ($index + 1)));
+
+            $output .= html_writer::tag(
+                'li',
+                html_writer::link(
+                    '#' . $paneid,
+                    $tab['title'],
+                    [
+                        'class' => 'nav-link' . ($active ? ' active' : ''),
+                        'id' => $tabid,
+                        'data-toggle' => 'tab',
+                        'data-bs-toggle' => 'tab',
+                        'role' => 'tab',
+                        'aria-controls' => $paneid,
+                        'aria-selected' => $active ? 'true' : 'false',
+                        'aria-label' => $label,
+                        'title' => $label,
+                    ]
+                ),
+                [
+                    'class' => 'nav-item mb-2',
+                    'role' => 'presentation',
+                ]
+            );
+        }
+
+        $output .= html_writer::end_tag('ul');
+
+        // Right content area.
+        $output .= html_writer::start_div('tab-content flex-fill pt-1', [
+            'id' => $contentid,
+        ]);
+
+        foreach ($tabs as $index => $tab) {
+            $paneid = $id . '-pane-' . $index;
+            $tabid = $id . '-tab-' . $index;
+            $active = ($index === $activeindex);
+
+            $output .= html_writer::start_div(
+                'tab-pane fade' . ($active ? ' show active' : ''),
+                [
+                    'id' => $paneid,
+                    'role' => 'tabpanel',
+                    'aria-labelledby' => $tabid,
+                ]
+            );
+
+            $output .= $tab['body'];
+
+            $output .= html_writer::end_div();
+        }
+
+        $output .= html_writer::end_div();
+        $output .= html_writer::end_div();
+
+        // Keep styling local to this component.
+        $output .= html_writer::tag(
+            'style',
+            '.booking-earmark-nav .nav-link {' .
+            'white-space: nowrap;' .
+            'width: 2.2rem;' .
+            'height: 2.2rem;' .
+            'border-radius: .5rem;' .
+            'padding: 0;' .
+            'display: inline-flex;' .
+            'align-items: center;' .
+            'justify-content: center;' .
+            'font-size: 1rem;' .
+            '}' .
+            '.booking-earmark-nav .nav-item {margin-bottom: .35rem !important;}' .
+            '.booking-earmark-nav .nav-link.active {' .
+            'font-weight: 600;' .
+            'box-shadow: inset 2px 0 0 rgba(0,0,0,.2);' .
+            '}' .
+            '@media (max-width: 768px) {' .
+            '.booking-earmark-tabs {flex-direction: column;}' .
+            '.booking-earmark-nav {flex-direction: row !important; overflow-x: auto; width: 100%;}' .
+            '.booking-earmark-nav .nav-item {margin-right: .4rem; margin-bottom: 0 !important;}' .
+            '.booking-earmark-nav .nav-link {border-radius: .5rem;}' .
+            '}'
+        );
 
         return $output;
     }

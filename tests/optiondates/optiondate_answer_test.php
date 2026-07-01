@@ -26,7 +26,7 @@
 
 namespace mod_booking;
 
-use advanced_testcase;
+use mod_booking\booking_advanced_testcase;
 use mod_booking\local\optiondates\optiondate_answer;
 use tool_mocktesttime\time_mock;
 
@@ -37,26 +37,15 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
 /**
  * PHPUnit test case for the class.
  */
-final class optiondate_answer_test extends advanced_testcase {
+final class optiondate_answer_test extends booking_advanced_testcase {
     /**
      * Tests set up.
      */
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest();
-        time_mock::init();
         time_mock::set_mock_time(strtotime('now'));
         singleton_service::destroy_instance();
-    }
-
-    /**
-     * Mandatory clean-up after each test.
-     */
-    public function tearDown(): void {
-        parent::tearDown();
-        /** @var mod_booking_generator $plugingenerator */
-        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
-        $plugingenerator->teardown();
     }
 
     /**

@@ -97,16 +97,6 @@ final class reportbuilder_test extends core_reportbuilder_testcase {
 
     /**
      * Mandatory clean-up after each test.
-     */
-    public function tearDown(): void {
-        parent::tearDown();
-        /** @var mod_booking_generator $plugingenerator */
-        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
-        $plugingenerator->teardown();
-    }
-
-    /**
-     * Mandatory clean-up after each test.
      * @covers \mod_booking\settings\optionformconfig\optionformconfig_info
      */
     public function test_datasource_default(): void {

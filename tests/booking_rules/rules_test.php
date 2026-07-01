@@ -25,7 +25,7 @@
 
 namespace mod_booking;
 
-use advanced_testcase;
+use mod_booking\booking_advanced_testcase;
 use local_shopping_cart\local\cartstore;
 use local_shopping_cart\shopping_cart;
 use mod_booking\option\optiondate;
@@ -49,27 +49,15 @@ use function PHPUnit\Framework\assertSame;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  *
  */
-final class rules_test extends advanced_testcase {
+final class rules_test extends booking_advanced_testcase {
     /**
      * Tests set up.
      */
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest();
-        time_mock::init();
         time_mock::set_mock_time(strtotime('now'));
         singleton_service::destroy_instance();
-    }
-
-    /**
-     * Mandatory clean-up after each test.
-     * @return void
-     */
-    public function tearDown(): void {
-        parent::tearDown();
-        /** @var mod_booking_generator $plugingenerator */
-        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
-        $plugingenerator->teardown();
     }
 
     /**
@@ -290,6 +278,132 @@ final class rules_test extends advanced_testcase {
         $this->assertStringContainsString($ruledata1['actiondata'], $customdata->rulejson);
         $rulejson = json_decode($customdata->rulejson);
         $this->assertEquals($user1->id, $rulejson->datafromevent->relateduserid);
+    }
+
+    /**
+     * Test that the message_sent event logs the sender in userid and the recipient in relateduserid.
+     *
+     * This locks in the Moodle convention (userid = actor/sender, relateduserid = affected/recipient)
+     * for the rule-triggered mail path: send_mail -> send_mail_by_rule_adhoc -> message_controller.
+     * The discriminating assertion is relateduserid === recipient: under the previous (reverted) order
+     * relateduserid held the sender, so this assertion fails for the buggy convention.
+     *
+     * @covers \mod_booking\event\message_sent
+     * @covers \mod_booking\message_controller
+     * @covers \mod_booking\task\send_mail_by_rule_adhoc::execute
+     *
+     * @param array $bdata
+     * @throws \coding_exception
+     *
+     * @dataProvider booking_common_settings_provider
+     */
+    public function test_message_sent_event_uses_sender_and_recipient(array $bdata): void {
+
+        singleton_service::destroy_instance();
+
+        // Setup test data.
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $sender = $this->getDataGenerator()->create_user();    // The bookingmanager => message sender (userfrom).
+        $recipient = $this->getDataGenerator()->create_user(); // The configured rule target => recipient (userto).
+
+        $bdata['course'] = $course->id;
+        $bdata['bookingmanager'] = $sender->username;
+
+        $booking = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        $this->setAdminUser();
+
+        $this->getDataGenerator()->enrol_user($sender->id, $course->id, 'editingteacher');
+        $this->getDataGenerator()->enrol_user($recipient->id, $course->id, 'editingteacher');
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+
+        // Rule: when a teacher is added, send a custom mail to the recipient user (no ical).
+        $boevent1 = '"boevent":"\\\\mod_booking\\\\event\\\\teacher_added"';
+        $actstr = '{"sendical":0,"sendicalcreateorcancel":"",';
+        $actstr .= '"subject":"convention subject","template":"convention msg","templateformat":"1"}';
+        $ruledata1 = [
+            'name' => 'teacher_added_convention',
+            'conditionname' => 'select_users',
+            'contextid' => 1,
+            'conditiondata' => '{"userids":["' . $recipient->id . '"]}',
+            'actionname' => 'send_mail',
+            'actiondata' => $actstr,
+            'rulename' => 'rule_react_on_event',
+            'ruledata' => '{' . $boevent1 . ',"aftercompletion":"","condition":"0"}',
+        ];
+        $plugingenerator->create_rule($ruledata1);
+
+        // Create a booking option.
+        $record = new stdClass();
+        $record->bookingid = $booking->id;
+        $record->text = 'Option-convention';
+        $record->chooseorcreatecourse = 1;
+        $record->courseid = $course->id;
+        $record->description = 'Convention test';
+        $record->optiondateid_0 = "0";
+        $record->daystonotify_0 = "0";
+        $record->coursestarttime_0 = strtotime('20 June 2050 15:00');
+        $record->courseendtime_0 = strtotime('20 July 2050 14:00');
+        $record->importing = 1;
+        $option1 = $plugingenerator->create_option($record);
+        singleton_service::destroy_booking_option_singleton($option1->id);
+
+        // Add a teacher -> fires teacher_added -> queues the rule mail task to the recipient.
+        $settings1 = singleton_service::get_instance_of_booking_option_settings($option1->id);
+        $th = new teachers_handler($option1->id);
+        $th->subscribe_teacher_to_booking_option($sender->id, $option1->id, $settings1->cmid);
+
+        // Run the queued mail task while capturing both the sent message and the triggered events.
+        unset_config('noemailever');
+        ob_start();
+        $eventsink = $this->redirectEvents();
+        $messagesink = $this->redirectMessages();
+        $this->runAdhocTasks();
+        $events = $eventsink->get_events();
+        $messages = $messagesink->get_messages();
+        ob_get_clean();
+        $eventsink->close();
+        $messagesink->close();
+
+        // Locate the message_sent event.
+        $messagesentevent = null;
+        foreach ($events as $event) {
+            if ($event instanceof \mod_booking\event\message_sent) {
+                $messagesentevent = $event;
+                break;
+            }
+        }
+        $this->assertNotNull($messagesentevent, 'A message_sent event must be triggered by the rule mail.');
+
+        // Locate the actual message sent to the recipient.
+        $sentmessage = null;
+        foreach ($messages as $message) {
+            if ((int) $message->useridto === (int) $recipient->id) {
+                $sentmessage = $message;
+                break;
+            }
+        }
+        $this->assertNotNull($sentmessage, 'The rule mail must actually be sent to the recipient.');
+
+        // Discriminating assertion: the recipient must be stored in relateduserid (not in userid).
+        $this->assertEquals(
+            $recipient->id,
+            (int) $messagesentevent->relateduserid,
+            'message_sent->relateduserid must be the recipient.'
+        );
+        // The sender (whoever userfrom resolved to) must be stored in userid, never the recipient.
+        $this->assertEquals(
+            (int) $sentmessage->useridfrom,
+            (int) $messagesentevent->userid,
+            'message_sent->userid must be the sender (userfrom).'
+        );
+        $this->assertNotEquals(
+            (int) $messagesentevent->relateduserid,
+            (int) $messagesentevent->userid,
+            'Sender and recipient must not be the same field value.'
+        );
     }
 
     /**

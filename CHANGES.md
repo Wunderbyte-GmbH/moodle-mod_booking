@@ -1,3 +1,62 @@
+## Version 9.4.0 (2026062201)
+* New feature: Slot booking - book and manage time slots inside a booking option: slot calendar picker and report, self-service move/cancel of booked slots, a unified "update booking" editor (move + cancel + change in one dynamic form), optional move-with-payment via shopping_cart, and per-slot booking rules (Wunderbyte-GmbH/Wunderbyte-GmbH#1596).
+* New feature: Booking AI agent integration for mod_booking (skills, providers, diagnostics).
+
+## Version 9.3.8 (2026062200)
+* Improvement: Display specific countlabel for messages event table
+* Improvement: Implement strings for upload
+* Bugfix: Waitinglist confirmation task handle late joiners
+* Bugfix: Display customfields in correct language
+
+## Version 9.3.7 (2026061601)
+* Improvement: implement showpagination argument in booking shortcodes
+* Improvement: New capability 'booking:canseenumberofbookings'
+* Improvement: Display reload button in eventslist table (report)
+* Accessibility: fix - remove "settings" text (expected to be invisible but shown)
+* Bugfix: Teacher Overview Moodle 5
+* Bugfix: Signinsheet no logo if config empty
+## Version 9.3.6 (2026060900)
+* Improvement: Several accessibility improvements.
+* Bugfix: Certificate Condition form not loading correctly.
+* Bugfix: Pass module context to courselist shortcode to make invisible booking options work.
+* Bugfix: For placeholders inside URLs we need to re-decode curly brackets.
+
+## Version 9.3.5 (2026060100)
+* New feature: Add possibility to synchronize users from global groups into booking options.
+* Improvement: Link settings sections.
+* Improvement: Extendable availabilityconditionsettings.
+* Bugfix: Timebooked shows wrong timestamp.
+* Bugfix: Fix wrong campaign limits time field - use timebooked instead of timecreated.
+
+## Version 9.3.4 (2026051900)
+* Improvement: Booking option templates can now be edited via bulk operations.
+* Bugfix: Remove exception when legacymailremovalacknowledged is not checked.
+
+## Version 9.3.3 (2026051300)
+* New Feature: Booking time relative to coursestart.
+* Improvement: Add possibility to check auto-apply fields separately.
+* Improvement: Show warning on view.php instead of exception when uselegacymailtemplates is active but legacymailremovalacknowledged has not been set yet.
+* Improvement: New confirmation setting to confirm that legacy emails will soon be not supported anymore.
+* Improvement: Enable detailed changes for special classes like price.
+* Improvement: Setting if teachers see own invisible options in teachers.php
+* Bugfix: Create warning only once per condition.
+* Bugfix: Disable all possible elements of conditions with skippableconditions setting applied.
+* Bugfix: Setting skippableconditions also applies to select of nooverlappingcondition.
+* Bugfix: fix for: confirmcancel::is_available() hides the confirmation condition for priced options in most “booked” cases.
+* Bugfix: Allow cancelling with new price category.
+* Bugfix: Do not block view.php in behat tests.
+* Bugfix: Fix error on upgrade when plugin tool_certificate is missing.
+* Bugfix: Disable legacy mail templates directly to avoid JS timeout from TinyMCE editors (Bootstrap 5 / Moodle 5.1+).
+* Bugfix: Fix failing behats for Bootstrap 5 (Moodle 5+).
+* Bugfix: When a booking option can be booked again, notification list should not block (also add new unit test).
+* Bugfix: correctly retrieve and format values on bookingoption description via field controlle.
+* Bugfix: SQL error when user try to create a rule ("days before", "specific time") for installment data field.
+* Bugfix: Fix behat - previously booked warning now contains title of booking option.
+* Bugfix: Show booking option name in description of previouslybooked condition.
+* Bugfix: Correctly record price for changes.
+* Bugfix: Handling of price changes.
+* Bugfix: Catch error for 0 user when executing customfield placeholders.
+
 ## Version 9.3.2 (2026043000)
 * New feature: Add direct messaging with attachments to bookings tracker.
 * Improvement: Show info texts on shortcode myfavorites if PRO license or setting not enabled.

@@ -24,10 +24,13 @@
  */
 
 use core\lock\lock;
+use local_shopping_cart\local\vatnrchecker;
+use mod_booking\bo_availability\conditions\booking_time;
 use mod_booking\booking;
 use mod_booking\booking_rules\booking_rules;
 use mod_booking\booking_rules\rules_info;
 use mod_booking\output\view;
+use mod_booking\price;
 use mod_booking\table\bookingoptions_wbtable;
 use mod_booking\booking_option;
 use mod_booking\booking_campaigns\campaigns_info;
@@ -50,6 +53,11 @@ use mod_booking\bo_availability\conditions\previouslybooked;
 use mod_booking\bo_availability\conditions\selectusers;
 use mod_booking\bo_availability\conditions\userprofilefield_1_default;
 use mod_booking\bo_availability\conditions\userprofilefield_2_custom;
+use mod_booking\customfield\booking_handler;
+use mod_booking\local\certificate_conditions\certificate_conditions;
+use mod_booking\local\competencies\competencies_handler;
+use mod_booking\local\slotbooking\slot_availability;
+use mod_booking\local\slotbooking\slot_rules;
 use mod_booking\settings\optionformconfig\optionformconfig_info;
 use mod_booking\enrollink;
 use tool_mocktesttime\time_mock;
@@ -82,6 +90,9 @@ class mod_booking_generator extends testing_module_generator {
     public function reset() {
         $this->bookingoptions = 0;
 
+        // Keep test runs symmetric: clear backing caches and static acceleration
+        // when the generator is reset, not only during teardown.
+        cache_helper::purge_all();
         parent::reset();
     }
 
@@ -114,6 +125,15 @@ class mod_booking_generator extends testing_module_generator {
         userprofilefield_1_default::reset_instance();
         userprofilefield_2_custom::reset_instance();
         booking_rules::$rules = [];
+        price::destroy_singletons();
+        // Slotbooking static caches.
+        slot_availability::reset_caches();
+        slot_rules::reset_caches();
+        // Other static caches.
+        booking_handler::reset_caches();
+        competencies_handler::reset_caches();
+        certificate_conditions::reset_caches();
+        booking_time::destroy_instances();
         // Shopping cart.
         cartstore::reset();
         // Time mock.

@@ -1,9 +1,20 @@
+[Back to parent section](README.md)
+
 # Teachers and Responsible Contact
 
 The booking option form has two separate sections for people associated with an option:
 
 - **Teachers** — trainers, presenters, or instructors who deliver the option.
 - **Responsible contact** — a contact person (e.g. coordinator or manager) who is reachable for organisational questions.
+
+---
+
+## Quick setup path
+
+1. Open your booking activity: [/mod/booking/view.php?id=<cmid>](/mod/booking/view.php?id=<cmid>).
+2. Open option administration: [/mod/booking/editoptions.php?id=<cmid>](/mod/booking/editoptions.php?id=<cmid>).
+3. Open the feature-specific page from this document and apply the settings.
+4. Save and verify with one test booking.
 
 ---
 

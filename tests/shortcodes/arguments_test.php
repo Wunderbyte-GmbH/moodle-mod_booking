@@ -26,7 +26,7 @@
 
 namespace mod_booking;
 
-use advanced_testcase;
+use mod_booking\booking_advanced_testcase;
 use coding_exception;
 use context_course;
 use context_system;
@@ -34,6 +34,11 @@ use local_wunderbyte_table\external\load_data;
 use mod_booking_generator;
 use stdClass;
 use tool_mocktesttime\time_mock;
+
+defined('MOODLE_INTERNAL') || die();
+global $CFG;
+require_once($CFG->dirroot . '/mod/booking/lib.php');
+require_once(__DIR__ . '/../booking_advanced_testcase.php');
 
 /**
  * This test tests the functionality of some arguments.
@@ -46,26 +51,15 @@ use tool_mocktesttime\time_mock;
  * @runInSeparateProcess
  * @runTestsInSeparateProcesses
  */
-final class arguments_test extends advanced_testcase {
+final class arguments_test extends booking_advanced_testcase {
     /**
      * Tests set up.
      */
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest(true);
-        time_mock::init();
         time_mock::set_mock_time(strtotime('now'));
         singleton_service::destroy_instance();
-    }
-
-    /**
-     * Mandatory clean-up after each test.
-     */
-    public function tearDown(): void {
-        parent::tearDown();
-        /** @var mod_booking_generator $plugingenerator */
-        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
-        $plugingenerator->teardown();
     }
 
     /**

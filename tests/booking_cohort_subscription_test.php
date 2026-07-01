@@ -25,7 +25,7 @@
 
 namespace mod_booking;
 
-use advanced_testcase;
+use mod_booking\booking_advanced_testcase;
 use context_module;
 use context_system;
 use stdClass;
@@ -40,26 +40,15 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
 /**
  * PHPUnit tests for cohort bookings in booking options.
  */
-final class booking_cohort_subscription_test extends advanced_testcase {
+final class booking_cohort_subscription_test extends booking_advanced_testcase {
     /**
      * Tests set up.
      */
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest();
-        time_mock::init();
         time_mock::set_mock_time(strtotime('now'));
         singleton_service::destroy_instance();
-    }
-
-    /**
-     * Mandatory clean-up after each test.
-     */
-    public function tearDown(): void {
-        parent::tearDown();
-        /** @var mod_booking_generator $plugingenerator */
-        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
-        $plugingenerator->teardown();
     }
     /**
      * Validate cohort subscription booking logic used in the Behat scenario.

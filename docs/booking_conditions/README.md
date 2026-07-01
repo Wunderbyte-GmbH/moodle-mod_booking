@@ -1,4 +1,8 @@
+[Back to parent section](../README.md)
+
 # Booking Conditions
+
+> **Primary page** for: booking restrictions, booking limitations, who can book, when users can book, booking window, time-based restrictions. For messaging and reminders, see [Booking Rules](../booking_rules/README.md).
 
 Booking conditions control **who can book** a booking option and **when**. Each booking option can have one or more conditions configured. If a condition is not met, the user sees an alert and the "Book it" button is blocked (or replaced by a warning).
 
@@ -61,3 +65,11 @@ This distinction is only relevant if you work with the database directly or the 
 ## See also
 
 - [CSV Import User Guide](../CSV_IMPORT_USER_GUIDE.md) — availability restrictions can also be set via CSV import (columns `boavenrolledincourse`, `boavenrolledincohorts`, …).
+
+
+## Quick setup path
+
+1. Open your booking activity: [/mod/booking/view.php?id=<cmid>](/mod/booking/view.php?id=<cmid>).
+2. Open option administration: [/mod/booking/editoptions.php?id=<cmid>](/mod/booking/editoptions.php?id=<cmid>).
+3. Open the feature-specific page from this document and apply the settings.
+4. Save and verify with one test booking.

@@ -39,6 +39,7 @@ use html_writer;
 use invalid_parameter_exception;
 use local_entities\entitiesrelation_handler;
 use mod_booking\bo_availability\conditions\customform;
+use mod_booking\bo_availability\conditions\slotbooking;
 use mod_booking\bo_availability\conditions\optionhasstarted;
 use mod_booking\event\booking_debug;
 use mod_booking\event\booking_rulesexecutionfailed;
@@ -65,9 +66,13 @@ use mod_booking\teachers_handler;
 use mod_booking\customfield\booking_handler;
 use mod_booking\event\booking_afteractionsfailed;
 use mod_booking\event\bookinganswer_cancelled;
+use mod_booking\event\bookinganswer_slotbooked;
+use mod_booking\event\bookinganswer_slotcancelled;
 use mod_booking\event\bookingoption_freetobookagain;
+use mod_booking\local\slotbooking\slot_answer;
 use mod_booking\message_controller;
 use mod_booking\option\fields\credits;
+use mod_booking\option\fields\multiplebookings;
 use mod_booking\option\fields_info;
 use mod_booking\placeholders\placeholders_info;
 use mod_booking\subbookings\subbookings_info;
@@ -254,6 +259,7 @@ class booking_option {
      * @param int $userid
      * @param int $relateduserid
      * @param string $fieldname
+     * @param array $detailedchanges
      *
      * @return void
      *
@@ -263,7 +269,8 @@ class booking_option {
         int $optionid,
         int $userid,
         int $relateduserid,
-        string $fieldname = ""
+        string $fieldname = "",
+        array $detailedchanges = []
     ) {
 
         $data = [
@@ -272,7 +279,9 @@ class booking_option {
             'userid' => $userid,
             'relateduserid' => $relateduserid,
         ];
-        if (!empty($fieldname)) {
+        if (!empty($detailedchanges)) {
+            $data['other'] = ['changes' => $detailedchanges];
+        } else if (!empty($fieldname)) {
             $data['other'] = [
                 'changes' => [
                     (object)[
@@ -748,6 +757,8 @@ class booking_option {
             return false;
         }
 
+        $deletedbookinganswer = false;
+
         if ($cancelreservation) {
             $ba = singleton_service::get_instance_of_booking_answers($optionsettings);
             // All answers, fetch for user.
@@ -763,6 +774,9 @@ class booking_option {
                     'waitinglist' => MOD_BOOKING_STATUSPARAM_RESERVED,
                 ]
             );
+            // With this, we make sure that if the user had a reserved booking...
+            // ... this gets deleted and the user gets reactivated on the waiting list if there was one before.
+            $ba->reactivate_latest_previouslybooked($userid);
         } else {
             // Normally, we will have only one record which is not deleted or previously booked.
             // But we still fetch an array to make sure of it.
@@ -772,11 +786,27 @@ class booking_option {
                 if (
                     !in_array($result->waitinglist, [MOD_BOOKING_STATUSPARAM_DELETED, MOD_BOOKING_STATUSPARAM_PREVIOUSLYBOOKED])
                 ) {
-                    $result->waitinglist = MOD_BOOKING_STATUSPARAM_DELETED;
-                    $result->timemodified = time();
-                    $result->openruleexecution = $openruleexecution ? time() : 0;
-                    // We mark all the booking answers as deleted.
-                    $DB->update_record('booking_answers', $result);
+                    $slotcancelother = self::build_slot_event_other_from_answer((object)$result, (int)$this->optionid);
+
+                    $reactivatepreviouslybooked =
+                        !$deletedbookinganswer
+                        && !empty($optionsettings->jsonobject->multiplebookings ?? 0);
+
+                    if ($ba->delete_answer_record($result, $openruleexecution, $reactivatepreviouslybooked)) {
+                        $deletedbookinganswer = true;
+                    }
+
+                    if (!empty($slotcancelother['bookedslots'])) {
+                        $slotcancelevent = bookinganswer_slotcancelled::create([
+                            'objectid' => (int)$result->id,
+                            'context' => context_module::instance($this->cmid),
+                            'userid' => $USER->id,
+                            'relateduserid' => (int)$result->userid,
+                            'other' => $slotcancelother,
+                        ]);
+                        $slotcancelevent->trigger();
+                    }
+
                     // Also delete corresponding entries in booking_optiondates_answers table.
                     $DB->delete_records(
                         'booking_optiondates_answers',
@@ -1205,6 +1235,7 @@ class booking_option {
      * @param string $erlid the identifier of the enrollink, if given
      * @param int $timebooked the timestamp when the booking was made
      * @param bool $updateansweronimport if set to true, the function will update existing bookinganswer on imports.
+     * @param int $syncruleid if given, this implicated that the user was enroled via a syncronisation rule with the given id.
      * @return bool true if booking was possible, false if meanwhile the booking got full
      */
     public function user_submit_response(
@@ -1216,6 +1247,7 @@ class booking_option {
         $erlid = "",
         $timebooked = 0,
         $updateansweronimport = false,
+        int $syncruleid = 0,
     ) {
 
         global $USER;
@@ -1333,11 +1365,10 @@ class booking_option {
                     // Else, we might move from booked to waitinglist, we just continue.
 
                     if ($ismultipbookingsoptionenable) {
-                        // When the multiple booking option is enabled, we need to check if the user
-                        // is trying to book the option after the configured period of time.
-                        // If the configured time has not passed, we don’t allow the user to book an option again.
-                        $allowtobookagainafter = self::get_value_of_json_by_key($this->id, 'allowtobookagainafter');
-                        if ($currentanswer->timebooked + $allowtobookagainafter > time()) {
+                        // When the multiple booking option is enabled, we need to check if the
+                        // book-again gate (fixed wait time, or the last booked slot having ended)
+                        // is satisfied. If it is not yet due, we don't allow the user to book again.
+                        if (!multiplebookings::book_again_due($this->id, $currentanswer)) {
                             return true;
                         }
 
@@ -1450,7 +1481,9 @@ class booking_option {
             $timecreated,
             $status,
             $erlid,
-            $historystatus ?? 0
+            $historystatus ?? 0,
+            $syncruleid,
+            !empty($timebooked) ? $timebooked : null
         );
 
         if (
@@ -1481,6 +1514,13 @@ class booking_option {
                     $event->trigger(); // This will trigger the observer function.
                 }
             }
+        }
+
+        /* Manual unconfirm on waiting list should trigger the next WL task immediately.
+        We keep this here (not in write_user_answer_to_db) to avoid retrigger loops
+        from automatic UN_CONFIRM updates during task processing. */
+        if ($status === MOD_BOOKING_BO_SUBMIT_STATUS_UN_CONFIRM) {
+            self::check_if_free_to_book_again($this->settings, $user->id, true);
         }
 
         // Important: Purge caches after submitting a new user.
@@ -1524,6 +1564,12 @@ class booking_option {
      * @param int $confirmwaitinglist
      * @param string $erlid
      * @param int $historystatus
+     * @param int $syncruleid
+     * @param ?int $timebooked explicit booking timestamp; when null, current time() is used.
+     *                         Pass a value only for data imports or when shopping_cart provides
+     *                         an exact payment timestamp. Without shopping_cart (agnostic mode)
+     *                         the default null causes time() to be used, which equals the actual
+     *                         moment of booking confirmation.
      * @return int
      */
     public static function write_user_answer_to_db(
@@ -1536,7 +1582,9 @@ class booking_option {
         ?int $timecreated = null,
         int $confirmwaitinglist = 0,
         string $erlid = "",
-        int $historystatus = 0
+        int $historystatus = 0,
+        int $syncruleid = 0,
+        ?int $timebooked = null
     ) {
 
         global $DB, $USER;
@@ -1559,6 +1607,10 @@ class booking_option {
         // The real booking time is the moment when the user's booking process is finished.
         // To determine this moment, we can check the value of the waitinglist column
         // when it is set to MOD_BOOKING_STATUSPARAM_BOOKED.
+        // We deliberately do NOT copy $timecreated here: for records that transitioned from
+        // a notify/waiting-list status, $timecreated reflects the original record creation
+        // time, NOT the actual booking time. $timebooked must always be the current moment
+        // (or an explicit value provided by the caller, e.g. for imports or shopping_cart).
         if (
             in_array(
                 $waitinglist,
@@ -1568,11 +1620,15 @@ class booking_option {
                 ]
             )
         ) {
-            $newanswer->timebooked = $timecreated ?? $now;
+            $newanswer->timebooked = $timebooked ?? $now;
         }
 
         // When a user submits a userform, we need to save this as well.
         customform::add_json_to_booking_answer($newanswer, $userid);
+
+        // For slot-enabled options we persist selected slot metadata into booking_answers.
+        // On updates, exclude the current answer from capacity checks to avoid self-collisions.
+        slotbooking::add_json_to_booking_answer($newanswer, $userid, (int)($currentanswerid ?? 0));
 
         // When a user submits a userform, we need to save this as well.
         credits::add_json_to_booking_answer($newanswer, $userid);
@@ -1660,6 +1716,13 @@ class booking_option {
 
         if (isset($currentanswerid)) {
             $newanswer->id = $currentanswerid;
+            // Preserve existing syncruleid when the caller did not explicitly set one.
+            if ($syncruleid === 0) {
+                $existingsyncruleid = $DB->get_field('booking_answers', 'syncruleid', ['id' => $currentanswerid]);
+                $newanswer->syncruleid = (int)($existingsyncruleid ?? 0);
+            } else {
+                $newanswer->syncruleid = $syncruleid;
+            }
             if (!$DB->update_record('booking_answers', $newanswer)) {
                 new moodle_exception("dmlwriteexception");
             }
@@ -1668,6 +1731,7 @@ class booking_option {
             // This is necessary if we import old bookings.
             // It should not ever else play any role.
             $newanswer->timemodified = $newanswer->timecreated;
+            $newanswer->syncruleid = $syncruleid;
 
             if (!$newanswer->id = $DB->insert_record('booking_answers', $newanswer)) {
                 new moodle_exception("dmlwriteexception");
@@ -1863,6 +1927,21 @@ class booking_option {
             );
             $event->trigger();
 
+            $slotanswer = !empty($answer) ? (object)$answer : null;
+            if (!empty($slotanswer)) {
+                $sloteventother = self::build_slot_event_other_from_answer($slotanswer, (int)$this->optionid);
+                if (!empty($sloteventother['bookedslots'])) {
+                    $slotevent = bookinganswer_slotbooked::create([
+                        'objectid' => (int)($sloteventother['baid'] ?? 0),
+                        'context' => context_module::instance($this->cmid),
+                        'userid' => $USER->id,
+                        'relateduserid' => $user->id,
+                        'other' => $sloteventother,
+                    ]);
+                    $slotevent->trigger();
+                }
+            }
+
             enrollink::trigger_enrolbot_actions(
                 $this->optionid,
                 $user->id,
@@ -1900,6 +1979,75 @@ class booking_option {
             $this->send_confirm_message($user);
         }
         return true;
+    }
+
+    /**
+     * Build event payload for slot-based booking events.
+     *
+     * @param object $answer booking answer row
+     * @param int $optionid booking option id
+     * @return array<string, mixed>
+     */
+    private static function build_slot_event_other_from_answer(object $answer, int $optionid): array {
+        $slots = self::extract_event_slots_from_answer($answer);
+
+        return [
+            'optionid' => $optionid,
+            'baid' => (int)($answer->id ?? $answer->baid ?? 0),
+            'bookedslots' => $slots,
+            'slotcount' => count($slots),
+        ];
+    }
+
+    /**
+     * Extract slot fragments for event payloads.
+     *
+     * @param object $answer booking answer row
+     * @return array<int, array{start:int,end:int}>
+     */
+    private static function extract_event_slots_from_answer(object $answer): array {
+        $slots = [];
+        $slotdata = slot_answer::get_slot_data($answer);
+
+        if (!empty($slotdata['teachers_per_slot']) && is_array($slotdata['teachers_per_slot'])) {
+            foreach ($slotdata['teachers_per_slot'] as $entry) {
+                if (!is_array($entry)) {
+                    continue;
+                }
+
+                $start = (int)($entry['start'] ?? 0);
+                $end = (int)($entry['end'] ?? 0);
+                if ($start <= 0 || $end <= $start) {
+                    continue;
+                }
+
+                $slots[$start . ':' . $end] = [
+                    'start' => $start,
+                    'end' => $end,
+                ];
+            }
+        }
+
+        if (empty($slots) && !empty($slotdata['slots']) && is_array($slotdata['slots'])) {
+            foreach ($slotdata['slots'] as $entry) {
+                if (!is_array($entry)) {
+                    continue;
+                }
+
+                $start = (int)($entry['start'] ?? 0);
+                $end = (int)($entry['end'] ?? 0);
+                if ($start <= 0 || $end <= $start) {
+                    continue;
+                }
+
+                $slots[$start . ':' . $end] = [
+                    'start' => $start,
+                    'end' => $end,
+                ];
+            }
+        }
+
+        return array_values($slots);
     }
 
     /**
@@ -3927,14 +4075,21 @@ class booking_option {
 
         if (!$undo) {
             $context = context_module::instance($settings->cmid);
-            $event = \mod_booking\event\bookingoption_cancelled::create([
-                                                                        'context' => $context,
-                                                                        'objectid' => $optionid,
-                                                                        'userid' => $USER->id,
-                                                                        'other' => [
-                                                                            'userstotreat' => $userstocancel ?? [],
-                                                                            ],
-                                                                        ]);
+            $eventdata = [
+                'context' => $context,
+                'objectid' => $optionid,
+                // Userid is the user who triggered the cancellation (actor).
+                'userid' => $USER->id,
+                'other' => [
+                    'userstotreat' => $userstocancel ?? [],
+                ],
+            ];
+            // When exactly one user is cancelled, set relateduserid to that affected user (receiver).
+            // For multi-user cancellations there is no single receiver, so relateduserid stays unset.
+            if (!empty($userstocancel) && count($userstocancel) === 1) {
+                $eventdata['relateduserid'] = (int) reset($userstocancel);
+            }
+            $event = \mod_booking\event\bookingoption_cancelled::create($eventdata);
             $event->trigger();
             // Deletion of booking answers and user events needs to happen in event observer.
         }

@@ -26,7 +26,7 @@
 
 namespace mod_booking;
 
-use advanced_testcase;
+use mod_booking\booking_advanced_testcase;
 use coding_exception;
 use context_system;
 use stdClass;
@@ -53,7 +53,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  *
  */
-final class shopping_cart_installment_test extends advanced_testcase {
+final class shopping_cart_installment_test extends booking_advanced_testcase {
     /** @var \core_payment\account account */
     protected $account;
 
@@ -63,9 +63,7 @@ final class shopping_cart_installment_test extends advanced_testcase {
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest(true);
-        time_mock::init();
         time_mock::set_mock_time(strtotime('now'));
-        singleton_service::destroy_instance();
         set_config('country', 'AT');
         /** @var \core_payment_generator $generator */
         $generator = $this->getDataGenerator()->get_plugin_generator('core_payment');
@@ -87,16 +85,6 @@ final class shopping_cart_installment_test extends advanced_testcase {
         $record->config = json_encode($config);
 
         $accountgateway1 = \core_payment\helper::save_payment_gateway($record);
-    }
-
-    /**
-     * Mandatory clean-up after each test.
-     */
-    public function tearDown(): void {
-        parent::tearDown();
-        /** @var mod_booking_generator $plugingenerator */
-        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
-        $plugingenerator->teardown();
     }
 
     /**
@@ -204,7 +192,7 @@ final class shopping_cart_installment_test extends advanced_testcase {
         $rule1 = $plugingenerator->create_rule($ruledata);
         $rules = $DB->get_records('booking_rules');
         $this->assertCount(1, $rules);
-        // Ensyre no rules hasve been executed yet.
+        // Ensure no rules have been executed yet.
         rules_info::execute_booking_rules();
         $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
         $this->assertCount(0, $tasks);

@@ -198,7 +198,7 @@ class certificateconditionsform extends dynamic_form {
             $ajaxformdata['certificatefiltertype'] = $jsonobject->filtername ?? '0';
         }
 
-        $jsonobject = json_decode((string)$record->conditionjson);
+        $jsonobject = json_decode((string)$record->logicjson);
         if (empty($ajaxformdata['certificateconditiontype'])) {
             $ajaxformdata['certificateconditiontype'] = $jsonobject->conditionname ?? ($jsonobject->logicname ?? '0');
         }

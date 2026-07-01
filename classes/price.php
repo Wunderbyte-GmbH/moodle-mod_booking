@@ -606,11 +606,12 @@ class price {
      * Save from form
      *
      * @param stdClass $fromform
+     * @param bool $triggerevent
      *
      * @return void
      *
      */
-    public function save_from_form(stdClass $fromform) {
+    public function save_from_form(stdClass $fromform, bool $triggerevent = true): array {
 
         global $DB;
 
@@ -621,11 +622,45 @@ class price {
         $optionid = $fromform->optionid ?? $fromform->id;
 
         // If we don't want to use prices, we can delete all the prices at once.
+        $changes = [];
+
         if (empty($fromform->useprice)) {
             $price = '';
+
+            // Collect detailed changes before deleting all prices.
+            $existingprices = $DB->get_records('booking_prices', ['itemid' => $optionid, 'area' => $this->area]);
+            foreach ($existingprices as $existingprice) {
+                $categoryname = self::get_active_pricecategory_from_cache_or_db($existingprice->pricecategoryidentifier)->name
+                    ?? $existingprice->pricecategoryidentifier;
+                $changes[$existingprice->pricecategoryidentifier] = [
+                    'changes' => [
+                        'fieldname' => 'price',
+                        'oldvalue' => $categoryname . ' : ' . $existingprice->price,
+                        'newvalue' => $categoryname . ' : ',
+                        'formkey' => 'price_' . $existingprice->pricecategoryidentifier,
+                    ],
+                ];
+            }
+
             // There might be old, prices lingering, so we make sure we delete everything at once.
             $DB->delete_records('booking_prices', ['itemid' => $optionid, 'area' => $this->area]);
-            return;
+            if (!empty($changes) && $triggerevent) {
+                global $USER;
+                if ($this->area == 'subbooking') {
+                    $eventoptionid = $DB->get_field('booking_subbooking_options', 'optionid', ['id' => $optionid], MUST_EXIST);
+                } else {
+                    $eventoptionid = $optionid;
+                }
+                $bosettings = singleton_service::get_instance_of_booking_option_settings($eventoptionid);
+                if (empty($bosettings->cmid)) {
+                    $context = context_system::instance();
+                } else {
+                    $context = context_module::instance($bosettings->cmid);
+                }
+                $flatchanges = array_values(array_map(fn($c) => (object)$c['changes'], $changes));
+                booking_option::trigger_updated_event($context, $eventoptionid, $USER->id, $USER->id, 'price', $flatchanges);
+            }
+            return !empty($changes) ? ['changes' => $changes] : [];
         }
 
         foreach ($this->pricecategories as $pricecategory) {
@@ -654,8 +689,38 @@ class price {
                 $price = '';
             }
 
-            self::add_price($this->area, $this->itemid, $pricecategory->identifier, $price ?? "", $currency);
+            $change = self::add_price(
+                $this->area,
+                $this->itemid,
+                $pricecategory->identifier,
+                $price ?? "",
+                $currency,
+                false
+            );
+            if (!empty($change)) {
+                $changes[$pricecategory->identifier] = $change;
+            }
         }
+
+        if (!empty($changes) && $triggerevent) {
+            global $USER;
+            if ($this->area == 'subbooking') {
+                $eventoptionid = $DB->get_field('booking_subbooking_options', 'optionid', ['id' => $this->itemid], MUST_EXIST);
+            } else {
+                $eventoptionid = $this->itemid;
+            }
+            $bosettings = singleton_service::get_instance_of_booking_option_settings($eventoptionid);
+            if (empty($bosettings->cmid)) {
+                $context = context_system::instance();
+            } else {
+                $context = context_module::instance($bosettings->cmid);
+            }
+            // Trigger one consolidated event with detailed info for all changed price identifiers.
+            $flatchanges = array_values(array_map(fn($c) => (object)$c['changes'], $changes));
+            booking_option::trigger_updated_event($context, $eventoptionid, $USER->id, $USER->id, 'price', $flatchanges);
+        }
+
+        return !empty($changes) ? ['changes' => $changes] : [];
     }
 
     /**
@@ -707,6 +772,7 @@ class price {
      * @param string $categoryidentifier
      * @param string $price
      * @param ?string $currency
+     * @param bool $triggerevent
      * @return void
      */
     public static function add_price(
@@ -714,8 +780,9 @@ class price {
         int $itemid,
         string $categoryidentifier,
         string $price,
-        ?string $currency = null
-    ) {
+        ?string $currency = null,
+        bool $triggerevent = true
+    ): array {
 
         global $DB;
 
@@ -735,7 +802,8 @@ class price {
                 || $data->pricecategoryidentifier != $categoryidentifier
                 || $data->currency != $currency
             ) {
-                $oldprice = $data;
+                // Clone before mutation to keep the original value for event oldvalue.
+                $oldprice = clone $data;
                 // If there is a change and the new price is "", we delete the entry.
                 if ($price === "") {
                     $DB->delete_records('booking_prices', ['id' => $data->id, 'area' => $area]);
@@ -759,7 +827,22 @@ class price {
             $priceupdated = true;
         }
 
+        $change = [];
         if ($priceupdated) {
+            $categoryname = self::get_active_pricecategory_from_cache_or_db($categoryidentifier)->name ?? $categoryidentifier;
+            $oldpricevalue = isset($oldprice->price) ? (string)$oldprice->price : '';
+            $newpricevalue = $price === '' ? '' : (string)$price;
+            $change = [
+                'changes' => [
+                    'fieldname' => 'price',
+                    'oldvalue' => $categoryname . ' : ' . $oldpricevalue,
+                    'newvalue' => $categoryname . ' : ' . $newpricevalue,
+                    'formkey' => 'price_' . $categoryidentifier,
+                ],
+            ];
+        }
+
+        if ($priceupdated && $triggerevent) {
             global $USER;
 
             // Get option id for subbooking.
@@ -777,12 +860,21 @@ class price {
                 /** @var context $context */
                 $context = context_module::instance($bosettings->cmid);
             }
-            booking_option::trigger_updated_event($context, $optionid, $USER->id, $USER->id, 'price');
+            booking_option::trigger_updated_event(
+                $context,
+                $optionid,
+                $USER->id,
+                $USER->id,
+                'price',
+                !empty($change) ? [(object)$change['changes']] : []
+            );
         }
         // In any case, invalidate the cache after updating the booking option.
         // If performance is an issue, one could update only the cache of a this single option by key.
         // But right now, it seems reasonable to invalidate the cache from time to time.
         cache_helper::purge_by_event('setbackprices');
+
+        return $change;
     }
 
     /**

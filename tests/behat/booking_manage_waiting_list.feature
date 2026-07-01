@@ -47,8 +47,8 @@ Feature: In a course add a booking option and manage its waiting list
       | student2 | 150    | EUR      |
       | student3 | 200    | EUR      |
     And the following "activities" exist:
-      | activity | course | name       | intro                  | bookingmanager | eventtype | cancancelbook |
-      | booking  | C1     | My booking | My booking description | teacher1       | Webinar   | 1             |
+      | activity | course | name       | intro                  | bookingmanager | eventtype | cancancelbook | cancelrelativedate |
+      | booking  | C1     | My booking | My booking description | teacher1       | Webinar   | 1             | 2                  |
     And I change viewport size to "1366x10000"
 
   @javascript
@@ -98,7 +98,7 @@ Feature: In a course add a booking option and manage its waiting list
     And I wait "1" seconds
     And I should see "student4@example.com" in the "tr[id^='waitinglist'][id$='r1'] td.columnclass.email" "css_element"
 
-  @javascript
+  @javascript @accessibility
   Scenario: Booking option: waiting list with prices when waitinglistshowplaceonwaitinglist is not set
     Given the following config values are set as admin:
       | config                            | value        | plugin  |
@@ -113,9 +113,15 @@ Feature: In a course add a booking option and manage its waiting list
       | My booking | Waiting_list_with_price | student2 |
     And I am on the "My booking" Activity page logged in as student3
     And I should see "44.00 EUR" in the ".allbookingoptionstable_r1" "css_element"
+    ## Validate accessibility of booking options table before booking
+    And the page should meet accessibility standards
     And I click on "Book it - on waitinglist" "text" in the ".allbookingoptionstable_r1" "css_element"
+    ## Validate accessibility of booking options table before booking
+    And the page should meet accessibility standards
     And I click on "Click again to confirm booking on waitinglist" "text" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Wait for confirmation" in the ".allbookingoptionstable_r1" "css_element"
+    ## Validate accessibility of booking options table before booking
+    And the page should meet accessibility standards
     And I log out
     And I am on the "My booking" Activity page logged in as student4
     And I should see "55.00 EUR" in the ".allbookingoptionstable_r1" "css_element"
@@ -157,6 +163,8 @@ Feature: In a course add a booking option and manage its waiting list
     ## Add booking options to cart for students 1 and 2
     And I am on the "My booking" Activity page logged in as student1
     And I click on "Add to cart" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
+    ## Validate accessibility of booking options table before booking (disabled due to violations in Moodle 4.5 core)
+    ## And the page should meet accessibility standards
     And I log out
     And I am on the "My booking" Activity page logged in as student2
     And I click on "Add to cart" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
@@ -180,6 +188,8 @@ Feature: In a course add a booking option and manage its waiting list
     And I am on the "My booking" Activity page logged in as student3
     And I should see "You are on the waiting list" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "(Waiting list: 2/3)" in the ".allbookingoptionstable_r1" "css_element"
+    ## Validate accessibility of booking options table before booking
+    And the page should meet accessibility standards
     And I log out
     ## Cancel booking for student 2
     Then I am on the "My booking" Activity page logged in as teacher1
@@ -198,9 +208,13 @@ Feature: In a course add a booking option and manage its waiting list
     ## Validate availability and buy option as student 3
     And I am on the "My booking" Activity page logged in as student3
     And I click on "Add to cart" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
+    ## Validate accessibility of booking options table before booking (disabled due to violations in Moodle 4.5 core)
+    ##And the page should meet accessibility standards
     And I visit "/local/shopping_cart/checkout.php"
     And I should see "Waiting_list_with_price" in the ".shopping-cart-checkout-items-container" "css_element"
-    ##And I should see "44.00 EUR" in the ".shopping-cart-checkout-items-container" "css_element"
+    ## Validate accessibility of booking options table before booking
+    ##And the page should meet accessibility standards
+    And I should see "44.00 EUR" in the ".shopping-cart-checkout-items-container" "css_element"
     And I should see "44.00 EUR" in the ".sc_price_label .sc_initialtotal" "css_element"
     And I should see "Use credit: 200.00 EUR" in the ".sc_price_label .sc_credit" "css_element"
     And I should see "44.00 EUR" in the ".sc_price_label .sc_deductible" "css_element"
@@ -208,16 +222,22 @@ Feature: In a course add a booking option and manage its waiting list
     And I should see "0 EUR" in the ".sc_totalprice" "css_element"
     And I press "Checkout"
     And I wait "1" seconds
+    ## Validate accessibility of booking options table before booking
+    And the page should meet accessibility standards
     And I press "Confirm"
     And I should see "Payment successful!"
+    ## Validate accessibility of booking options table before booking
+    And the page should meet accessibility standards
     And I log out
     ## Validate that student 4 still on waiting list with only cancellation possible
     And I am on the "My booking" Activity page logged in as student4
     And I should see "Wait for confirmation" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Undo my booking" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "(Waiting list: 1/3)" in the ".allbookingoptionstable_r1" "css_element"
+    ## Validate accessibility of booking options table before booking
+    And the page should meet accessibility standards
 
-  @javascript
+  @javascript @accessibility
   Scenario: Booking option: reconfiguration of waiting list
     Given the following "mod_booking > options" exist:
       | booking    | text                 | course | description  | importing | teachersforoption | maxanswers | maxoverbooking | datesmarker | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 |
@@ -245,6 +265,8 @@ Feature: In a course add a booking option and manage its waiting list
     ## Validate that student5 could book on waiting list
     And I am on the "My booking" Activity page logged in as student5
     And I should see "Book it - on waitinglist" in the ".allbookingoptionstable_r1" "css_element"
+    ## Validate accessibility of booking options table before booking
+    And the page should meet accessibility standards
     And I log out
     ## Unlimited waitinglist with free place available now
     ## Check for https://github.com/Wunderbyte-GmbH/moodle-mod_booking/commit/ce9b9fc96bb094a4ff248437bd3914da31499e1e
@@ -259,6 +281,8 @@ Feature: In a course add a booking option and manage its waiting list
     And I am on the "My booking" Activity page logged in as student5
     And I should see "Book now" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "(Waiting list: 0/Unlimited)" in the ".allbookingoptionstable_r1" "css_element"
+    ## Validate accessibility of booking options table before booking
+    And the page should meet accessibility standards
     And I log out
 
   @javascript

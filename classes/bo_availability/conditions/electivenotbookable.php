@@ -312,7 +312,7 @@ class electivenotbookable implements bo_condition {
      * @param booking_option_settings $settings
      * @return string
      */
-    private function get_description_string($isavailable, $full, $settings): string {
+    public function get_description_string($isavailable, $full, $settings): string {
 
         if (
             !$isavailable

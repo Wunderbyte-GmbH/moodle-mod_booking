@@ -28,11 +28,13 @@ use context_module;
 use context_system;
 use core_plugin_manager;
 use html_writer;
+use local_wunderbyte_table\local\customfield\wbt_field_controller_info;
 use mod_booking\booking;
 use mod_booking\booking_answers\booking_answers;
 use mod_booking\booking_bookit;
 use mod_booking\booking_context_helper;
 use mod_booking\booking_option;
+use mod_booking\customfield\booking_handler;
 use mod_booking\local\modechecker;
 use mod_booking\option\dates_handler;
 use mod_booking\option\fields\competencies;
@@ -747,23 +749,22 @@ class bookingoption_description implements renderable, templatable {
         if ($this->customfields) {
             $settings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
             foreach ($this->customfields as $key => $value) {
+                if (
+                    $value === null
+                    || is_string($value) && trim($value) === ''
+                ) {
+                    continue;
+                }
                 if (!isset($returnarray[$key])) {
-                    if (
-                        isset($settings->customfieldsfortemplates[$key]["value"])
-                    ) {
-                        if (
-                            is_string($settings->customfieldsfortemplates[$key]['value'])
-                            || is_numeric($settings->customfieldsfortemplates[$key]['value'])
-                        ) {
-                            $returnarray[$key] = $settings->customfieldsfortemplates[$key]['value'];
-                        } else if (is_array($settings->customfieldsfortemplates[$key]['value'])) {
-                            $returnarray[$key] = implode(', ', $settings->customfieldsfortemplates[$key]['value']);
-                        }
-                        // For some reason, format_string does not work, so we do it with format_text and remove the outer div.
-                        $returnarray[$key] = format_text($returnarray[$key]);
-                        // Remove the first <div...> and the last </div>.
-                        $returnarray[$key] = preg_replace('/^<div[^>]*>|(<\/div>)$/i', '', $returnarray[$key]);
-                    }
+                    // Use the corresponding field controller to get the real value of the custom field.
+                    $fieldcontroller = wbt_field_controller_info::get_instance_by_shortname(
+                        $key,
+                        'mod_booking',
+                        'booking'
+                    );
+                    $value = $fieldcontroller->get_option_value_by_key($value);
+
+                    $returnarray[$key] = $value;
                 }
             }
         }
@@ -778,19 +779,30 @@ class bookingoption_description implements renderable, templatable {
         }
 
         // In plugin settings, we can choose customfields we want to have rendered together.
-        $returnarray['optionviewcustomfields'] = '';
-        if (!empty($cfstoshowstring = get_config('booking', 'optionviewcustomfields'))) {
-            $cfstoshow = explode(',', $cfstoshowstring);
-            foreach ($cfstoshow as $cftoshow) {
+        $returnarray['optionviewcustomfields'] =
+            $this->build_configcustomfields_html($returnarray, 'optionviewcustomfields', 'optionview-customfield');
+        $returnarray['cardviewcustomfields'] =
+            $this->build_configcustomfields_html($returnarray, 'cardviewcustomfields', 'cardview-customfield');
+        return $returnarray;
+    }
+
+    /**
+     * Build HTML for custom fields selected via an admin config setting.
+     * @param array $returnarray the current return array containing processed customfield values
+     * @param string $configkey the plugin config key (e.g. 'optionviewcustomfields')
+     * @param string $cssprefix CSS class prefix for each field wrapper div
+     * @return string concatenated HTML for all matching selected custom fields
+     */
+    private function build_configcustomfields_html(array $returnarray, string $configkey, string $cssprefix): string {
+        $html = '';
+        if (!empty($cfstoshowstring = get_config('booking', $configkey))) {
+            foreach (explode(',', $cfstoshowstring) as $cftoshow) {
                 if (!empty($returnarray[$cftoshow])) {
-                    $returnarray['optionviewcustomfields'] .=
-                        "<div class='optionview-customfield-$cftoshow'>" .
-                            $returnarray[$cftoshow] .
-                        "</div>";
+                    $html .= "<div class='{$cssprefix}-{$cftoshow}'>" . $returnarray[$cftoshow] . "</div>";
                 }
             }
         }
-        return $returnarray;
+        return $html;
     }
 
     /**

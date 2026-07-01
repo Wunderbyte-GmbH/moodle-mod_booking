@@ -94,7 +94,7 @@ class enrollink extends \mod_booking\placeholders\placeholder_base {
             return $value;
         }
 
-        // TODO: Check caching!
+        // TODO MDL-00000: Check caching!
         $bid = $event->other->bundleid;
         $cachekey = "$classname-$bid";
         if (isset(placeholders_info::$placeholders[$cachekey])) {

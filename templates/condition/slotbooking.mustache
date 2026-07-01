@@ -1,0 +1,55 @@
+{{!
+    @template mod_booking/condition/slotbooking
+
+    Classes required for JS:
+    * none
+
+    Data attributes required for JS:
+    * data-optionid
+    * data-userid
+    * data-region
+
+    Example context (json):
+    {
+        "optionid": 42,
+        "userid": 5,
+        "showmovetab": true,
+        "baid": 99
+    }
+}}
+<div class="booking-slotbooking-prepage" data-optionid="{{optionid}}" data-userid="{{userid}}">
+    {{#showmovetab}}
+    {{! Fall 2: book-again and self-service move offered side by side as tabs in one prepage. }}
+    <ul class="nav nav-tabs booking-slotbooking-tabs mb-3" role="tablist">
+        <li class="nav-item" role="presentation">
+            <a class="nav-link active" href="#" data-slottab="book">{{#str}}slot_tab_book, mod_booking{{/str}}</a>
+        </li>
+        <li class="nav-item" role="presentation">
+            <a class="nav-link" href="#" data-slottab="move">{{#str}}slot_update_tab, mod_booking{{/str}}</a>
+        </li>
+    </ul>
+    {{/showmovetab}}
+
+    <div data-slotpane="book">
+        <p class="mb-3">{{#str}}slotbooking_prepage_description, mod_booking{{/str}}</p>
+        <div data-region="slotbooking-form"></div>
+    </div>
+
+    {{#showmovetab}}
+    <div data-slotpane="move" class="d-none">
+        <div class="booking-slotupdate-prepage" id="booking-slotupdate-{{optionid}}"
+             data-optionid="{{optionid}}" data-userid="{{userid}}" data-baid="{{baid}}" data-selfservice="1">
+            <p class="mb-2">{{#str}}slot_update_tab, mod_booking{{/str}}</p>
+            <div data-region="slotupdate-form"></div>
+            <button type="button" class="btn btn-primary mt-2" data-action="slotupdate-submit">
+                {{#str}}slot_update_button, mod_booking{{/str}}
+            </button>
+        </div>
+    </div>
+    {{/showmovetab}}
+</div>
+{{#js}}
+require(['mod_booking/condition/slotBooking'], function(init) {
+    init.init();
+});
+{{/js}}

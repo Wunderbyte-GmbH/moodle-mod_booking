@@ -1,6 +1,8 @@
+[Back to parent section](README.md)
+
 # Campaign Type: Block-Booking Campaign
 
-**Class:** `mod_booking\booking_campaigns\campaigns\campaign_blockbooking`  
+**Class:** `mod_booking\booking_campaigns\campaigns\campaign_blockbooking`
 **PRO required:** Yes 🔒
 
 ---
@@ -13,6 +15,17 @@ Typical uses:
 
 - **Early-bird access:** Reserve 50 % of places for a specific group (e.g., internal staff identified by a price category) during the first week after registration opens.
 - **Partial block:** Allow only certain users to book during a campaign window, blocking everyone else.
+
+## Click-by-click setup
+
+1. Open campaign management: [/mod/booking/edit_campaigns.php](/mod/booking/edit_campaigns.php).
+2. Click Add campaign.
+3. Choose campaign type Block-booking campaign.
+4. Fill Start time and End time.
+5. Set matching field, operator, and field value for the target options.
+6. Set Percentage of available places (use 0 for full block).
+7. Optionally set a price category exception and blocking label.
+8. Save and verify with one user who should be blocked and one user who should be allowed.
 
 ---
 

@@ -379,7 +379,7 @@ Feature: Test booking options avaialbility conditions
     Then I should not see "Option - advanced availability" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Option - availability by dates" in the ".allbookingoptionstable_r1" "css_element"
 
-  @javascript
+  @javascript @accessibility
   Scenario: Configure availability to fill modal agreement form
     Given I am on the "My booking" Activity page logged in as teacher1
     And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
@@ -398,14 +398,22 @@ Feature: Test booking options avaialbility conditions
     And I press "Save"
     ## Check availability as students
     Given I am on the "My booking" Activity page logged in as student1
+    ## Validate accessibility of booking options table before booking
+    And the page should meet accessibility standards
     Then I should see "Book now" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Book now" "text" in the ".allbookingoptionstable_r1" "css_element"
     Then I should see "Choose what you agree" in the ".condition-customform" "css_element"
+    ## Validate accessibility of booking options table before booking
+    And the page should meet accessibility standards
     And I set the field "customform_select_1" to "option one"
     And I follow "Continue"
+    ## Validate accessibility of booking options table before booking
+    And the page should meet accessibility standards
     And I should see "You have successfully booked Option - advanced availability" in the ".condition-confirmation" "css_element"
     And I follow "Close"
     And I should see "Start" in the ".allbookingoptionstable_r1" "css_element"
+    ## Validate accessibility of booking options table before booking
+    And the page should meet accessibility standards
 
   @javascript
   Scenario: Configure availability with modal form and data deletion

@@ -203,16 +203,12 @@ Feature: Edit booking's organizer, info and semester settings as a teacher or ad
     ## Edit Teacher role to check missing strings on capabilities.
     And I visit "/admin/roles/define.php?action=view&roleid=3"
     And I wait "1" seconds
-    And I visit "/admin/webservice/testclient.php"
-    And I wait "1" seconds
     And I visit "/admin/webservice/documentation.php"
-    And I wait "1" seconds
-    And I visit "/cache/admin.php"
     And I wait "1" seconds
     And I visit "/admin/tool/behat/index.php"
     And I set the field "component" to "behat_mod_booking"
     And I press "Filter"
-    And I should see "Create booking option in booking instance" in the ".steps-definitions .step" "css_element"
+    And I should see "I create booking option" in the ".steps-definitions" "css_element"
     ## Already tested in other feature/
     ##And I visit "/mod/booking/instancetemplatessettings.php"
     ##And I visit "/mod/booking/semesters.php"
@@ -237,10 +233,9 @@ Feature: Edit booking's organizer, info and semester settings as a teacher or ad
     And I should see "Booking confirmation" in the "#id_emailsettings" "css_element"
     And I should see "Teacher notification before start" in the "#id_emailsettings" "css_element"
     And I should see "Status change message" in the "#id_emailsettings" "css_element"
-    ## The only way to remove setting for some reason
-    And I visit "/admin/category.php?category=modbookingfolder"
-    And I set the field "Still use legacy mail templates" to ""
-    And I press "Save"
+    And the following config values are set as admin:
+      | config                 | value | plugin  |
+      | uselegacymailtemplates | 0     | booking |
     And I am on the "My booking" Activity page
     And I follow "Settings"
     And I wait until the page is ready

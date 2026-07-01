@@ -1,7 +1,38 @@
+[Back to parent section](README.md)
+
 # Booking Rules — Actions
 
 An **action** defines *what happens* when a rule fires and its condition is satisfied.
 Every rule must have exactly one action.
+
+---
+## Quick setup path
+
+### Use the AI agent to configure this for you
+
+If you are using the booking AI assistant, you can ask directly in plain language, for example:
+
+- "Kannst du eine automatische Buchungsbestaetigung einrichten?"
+- "Please create a booking confirmation rule when someone books."
+
+The agent can guide you in read-only mode (what is already configured) and can also configure a booking rule for you after confirmation.
+
+### Send a confirmation email when a user books
+
+1. Open **Booking Rules**: `/mod/booking/edit_rules.php?contextid=1`
+2. Click **Add rule** → **Rule type**: *React on event* → **Event**: `bookingoption_booked`.
+3. **Condition**: *Select user from event*.
+4. **Action**: *Send email* (`send_mail`).
+5. Fill in **Subject** (e.g. `Booking confirmed: {coursename}`) and **Message** (use `{bookingdetails}` for all details).
+6. **Save**. The email is sent immediately after the booking.
+
+### Send a reminder email N days before a course
+
+1. Open **Booking Rules**: `/mod/booking/edit_rules.php?contextid=1`
+2. Click **Add rule** → **Rule type**: *Trigger n days…* → **Days**: `3`, **Date field**: `coursestarttime`.
+3. **Condition**: *Select users of a booking option* → status **Booked**.
+4. **Action**: *Send email* (`send_mail`) — write Subject and Message.
+5. **Save**.
 
 ---
 

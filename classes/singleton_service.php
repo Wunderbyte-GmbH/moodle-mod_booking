@@ -480,7 +480,12 @@ class singleton_service {
      * @return stdClass
      */
     public static function get_instance_of_user(int $userid, bool $includeprofilefields = false) {
-        global $CFG;
+        global $CFG, $USER;
+
+        if (empty($userid)) {
+            return $USER ?? (object)[];
+        }
+
         $instance = self::get_instance();
 
         if (isset($instance->users[$userid])) {

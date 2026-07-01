@@ -1,0 +1,48 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_booking/slotbooking/slot_day_list
+
+    Clickable slot list for the multi-select list booking interface. Selection state
+    is driven by the condition/slotBooking picker; this template only renders the markup.
+
+    Context variables required for this template:
+    * items - Array of selectable slots.
+        * key - Slot key in the form "start:end".
+        * label - Human readable "<day> - <time range>" label.
+        * priceformatted - Formatted price string, empty when no price applies.
+        * selected - Whether the slot is currently selected.
+        * booked - Whether the slot is already booked (not selectable).
+
+    Example context (json):
+    {
+        "items": [
+            {"key": "1620:1640", "label": "Monday, 7 May 2046 - 4:00 PM - 4:40 PM", "priceformatted": "", "selected": false, "booked": false},
+            {"key": "1660:1680", "label": "Monday, 7 May 2046 - 4:20 PM - 5:00 PM", "priceformatted": "€10.00", "selected": true, "booked": false}
+        ]
+    }
+}}
+<div class="booking-slot-list" role="group">
+    {{#items}}
+        <div class="booking-slot-list-item{{#selected}} booking-slot-list-item--selected{{/selected}}{{#booked}} booking-slot-list-item--booked{{/booked}}" data-slot-key="{{key}}">
+            <span class="booking-slot-list-label">{{label}}</span>
+            {{#priceformatted}}
+                <span class="booking-slot-list-price">{{priceformatted}}</span>
+            {{/priceformatted}}
+        </div>
+    {{/items}}
+</div>

@@ -26,7 +26,7 @@
 
 namespace mod_booking;
 
-use advanced_testcase;
+use mod_booking\booking_advanced_testcase;
 use coding_exception;
 use mod_booking\price;
 use mod_booking_generator;
@@ -51,26 +51,15 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  *
  */
-final class condition_all_test extends advanced_testcase {
+final class condition_all_test extends booking_advanced_testcase {
     /**
      * Tests set up.
      */
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest(true);
-        time_mock::init();
         time_mock::set_mock_time(strtotime('now'));
         singleton_service::destroy_instance();
-    }
-
-    /**
-     * Mandatory clean-up after each test.
-     */
-    public function tearDown(): void {
-        parent::tearDown();
-        /** @var mod_booking_generator $plugingenerator */
-        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
-        $plugingenerator->teardown();
     }
 
     /**
@@ -479,6 +468,156 @@ final class condition_all_test extends advanced_testcase {
         $pricecat = singleton_service::get_pricecategory_for_user($student2);
         $this->assertEquals($pricecat, $student2answer->pricecategory);
         $this->assertEquals('zeroprice', $student2answer->pricecategory);
+
+        // Mandatory clean-up.
+        singleton_service::get_instance()->userpricecategory = [];
+    }
+
+    /**
+     * Regression test for cancellation path after a zero-price booking.
+     *
+     * A user books while assigned to a 0-price category (with displayemptyprice disabled),
+     * then their category changes to a positive price. Cancellation must still use the
+     * normal mod_booking self-cancel flow and not shopping cart cancellation.
+     *
+     * @covers \mod_booking\bo_availability\conditions\cancelmyself::render_button
+     *
+     * @param array $bdata
+     * @throws \coding_exception
+     * @throws \dml_exception
+     *
+     * @dataProvider booking_common_settings_provider
+     */
+    public function test_zero_price_booking_then_positive_price_category_uses_normal_cancel(array $bdata): void {
+        global $DB;
+
+        // Setup with self-cancel enabled.
+        $bdata['cancancelbook'] = 1;
+        set_config('coolingoffperiod', 0, 'booking');
+        if (class_exists('local_shopping_cart\\shopping_cart')) {
+            set_config('cancelationfee', 0, 'local_shopping_cart');
+        }
+
+        $this->setAdminUser();
+
+        // Price categories are resolved from a custom profile field.
+        $this->getDataGenerator()->create_custom_profile_field([
+            'datatype' => 'text',
+            'shortname' => 'pricecat',
+            'name' => 'pricecat',
+        ]);
+        set_config('pricecategoryfield', 'pricecat', 'booking');
+        set_config('displayemptyprice', 0, 'booking');
+
+        $course1 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $course2 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+
+        $student = $this->getDataGenerator()->create_user(['profile_field_pricecat' => 'zeroprice']);
+        $teacher = $this->getDataGenerator()->create_user();
+        $bookingmanager = $this->getDataGenerator()->create_user();
+
+        $bdata['course'] = $course1->id;
+        $bdata['bookingmanager'] = $bookingmanager->username;
+        $booking = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        $this->getDataGenerator()->enrol_user($student->id, $course1->id, 'student');
+        $this->getDataGenerator()->enrol_user($teacher->id, $course1->id, 'editingteacher');
+        $this->getDataGenerator()->enrol_user($bookingmanager->id, $course1->id, 'editingteacher');
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+
+        $plugingenerator->create_pricecategory((object) [
+            'ordernum' => 1,
+            'name' => 'default',
+            'identifier' => 'default',
+            'defaultvalue' => 50,
+            'pricecatsortorder' => 1,
+        ]);
+        $plugingenerator->create_pricecategory((object) [
+            'ordernum' => 2,
+            'name' => 'ZeroPrice',
+            'identifier' => 'zeroprice',
+            'defaultvalue' => 0,
+            'pricecatsortorder' => 2,
+        ]);
+        $plugingenerator->create_pricecategory((object) [
+            'ordernum' => 3,
+            'name' => 'RealPrice',
+            'identifier' => 'realprice',
+            'defaultvalue' => 100,
+            'pricecatsortorder' => 3,
+        ]);
+
+        $record = new stdClass();
+        $record->bookingid = $booking->id;
+        $record->text = 'Regression option';
+        $record->chooseorcreatecourse = 1;
+        $record->courseid = $course2->id;
+        $record->maxanswers = 2;
+        $record->useprice = 1;
+        $record->importing = 1;
+
+        $option = $plugingenerator->create_option($record);
+        $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
+        singleton_service::destroy_booking_singleton_by_cmid($settings->cmid);
+        $boinfo = new bo_info($settings);
+
+        // User with zero-price category can book directly when displayemptyprice is disabled.
+        $this->setUser($student);
+        singleton_service::destroy_user($student->id);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student->id);
+        $this->assertEquals(MOD_BOOKING_BO_COND_BOOKITBUTTON, $id);
+
+        // Confirm booking (two-step flow).
+        booking_bookit::bookit('option', $settings->id, $student->id);
+        booking_bookit::bookit('option', $settings->id, $student->id);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+
+        if (class_exists('local_shopping_cart\\shopping_cart')) {
+            $historyitem = shopping_cart_history::get_most_recent_historyitem('mod_booking', 'option', $settings->id, $student->id);
+            $this->assertTrue(empty($historyitem->id));
+        }
+
+        // Change user category after booking; current price becomes > 0.
+        $fieldid = $DB->get_field('user_info_field', 'id', ['shortname' => 'pricecat']);
+        $this->assertNotEmpty($fieldid);
+        $profiledataid = $DB->get_field('user_info_data', 'id', ['userid' => $student->id, 'fieldid' => $fieldid]);
+        $this->assertNotEmpty($profiledataid);
+        $DB->update_record('user_info_data', (object)[
+            'id' => $profiledataid,
+            'userid' => $student->id,
+            'fieldid' => $fieldid,
+            'data' => 'realprice',
+        ]);
+
+        singleton_service::destroy_user($student->id);
+        $this->assertEquals('realprice', $DB->get_field('user_info_data', 'data', ['id' => $profiledataid]));
+
+        $this->setAdminUser();
+        /* Force the render_button branch where shopping-cart cancellation was previously selected
+        based on current price/display settings. */
+        singleton_service::destroy_instance();
+
+        $this->setUser($student);
+        singleton_service::destroy_user($student->id);
+        // Must still render normal cancel path, not shopping-cart cancellation.
+        $buttons = booking_bookit::render_bookit_button($settings, $student->id);
+        $this->assertStringContainsString('Undo my booking', $buttons);
+        $this->assertStringNotContainsString('shopping-cart-cancel-button', $buttons);
+        $this->assertStringNotContainsString('Cancel purchase', $buttons);
+
+        // Cancel via normal booking flow.
+        booking_bookit::bookit('option', $settings->id, $student->id);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student->id, true);
+        $this->assertContains($id, [MOD_BOOKING_BO_COND_CONFIRMCANCEL, MOD_BOOKING_BO_COND_BOOKITBUTTON]);
+
+        if ($id === MOD_BOOKING_BO_COND_CONFIRMCANCEL) {
+            booking_bookit::bookit('option', $settings->id, $student->id);
+        }
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_PRICEISSET, $id);
 
         // Mandatory clean-up.
         singleton_service::get_instance()->userpricecategory = [];
@@ -1203,8 +1342,8 @@ final class condition_all_test extends advanced_testcase {
         $record->courseid = $course2->id;
         $record->maxanswers = 2;
         $record->restrictanswerperiodopening = 1;
-        $record->bookingopeningtime = strtotime('now + 2 day');
-        $record->bookingclosingtime = strtotime('now + 3 day');
+        $record->bookingopeningtime = strtotime('now + 2 day', time());
+        $record->bookingclosingtime = strtotime('now + 3 day', time());
 
         /** @var mod_booking_generator $plugingenerator */
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
@@ -1834,30 +1973,30 @@ final class condition_all_test extends advanced_testcase {
         $record->courseid = 0;
         $record->maxanswers = 2;
         $record->disablebookingusers = 0;
-        $record->coursestarttime = strtotime('now + 3 day');
-        $record->courseendtime = strtotime('now + 6 day');
+        $record->coursestarttime = strtotime('now + 3 day', time());
+        $record->courseendtime = strtotime('now + 6 day', time());
 
         /** @var mod_booking_generator $plugingenerator */
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
         $option1 = $plugingenerator->create_option($record);
 
         // Times are overlapping, so expected to be blocked by this condtion.
-        $record->coursestarttime = strtotime('now + 2 day');
-        $record->courseendtime = strtotime('now + 4 day');
+        $record->coursestarttime = strtotime('now + 2 day', time());
+        $record->courseendtime = strtotime('now + 4 day', time());
         $record->bo_cond_nooverlapping_restrict = 1;
         $record->bo_cond_nooverlapping_handling = MOD_BOOKING_COND_OVERLAPPING_HANDLING_BLOCK;
         $option2 = $plugingenerator->create_option($record);
 
         // Not overlapping.
-        $record->coursestarttime = strtotime('now + 7 day');
-        $record->courseendtime = strtotime('now + 8 day');
+        $record->coursestarttime = strtotime('now + 7 day', time());
+        $record->courseendtime = strtotime('now + 8 day', time());
         $record->bo_cond_nooverlapping_restrict = 1;
         $record->bo_cond_nooverlapping_handling = MOD_BOOKING_COND_OVERLAPPING_HANDLING_BLOCK;
         $option3 = $plugingenerator->create_option($record);
 
         // Overlapping without flag. Should trigger NOOVERLAPPINGPROXY.
-        $record->coursestarttime = strtotime('now + 6 day');
-        $record->courseendtime = strtotime('now + 9 day');
+        $record->coursestarttime = strtotime('now + 6 day', time());
+        $record->courseendtime = strtotime('now + 9 day', time());
         $record->bo_cond_nooverlapping_restrict = 0;
         unset($record->bo_cond_nooverlapping_handling);
         $option4 = $plugingenerator->create_option($record);
@@ -1945,41 +2084,41 @@ final class condition_all_test extends advanced_testcase {
         $record->disablebookingusers = 0;
         $record->optiondateid_0 = "0";
         $record->daystonotify_0 = "0";
-        $record->coursestarttime_0 = strtotime('now + 3 day');
-        $record->courseendtime_0 = strtotime('now + 4 day');
+        $record->coursestarttime_0 = strtotime('now + 3 day', time());
+        $record->courseendtime_0 = strtotime('now + 4 day', time());
         $record->optiondateid_1 = "0";
         $record->daystonotify_1 = "0";
-        $record->coursestarttime_1 = strtotime('now + 6 day');
-        $record->courseendtime_1 = strtotime('now + 7 day');
+        $record->coursestarttime_1 = strtotime('now + 6 day', time());
+        $record->courseendtime_1 = strtotime('now + 7 day', time());
 
         /** @var mod_booking_generator $plugingenerator */
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
         $option1 = $plugingenerator->create_option($record);
 
         // Times are overlapping, so expected to be blocked by this condtion.
-        $record->coursestarttime_0 = strtotime('now + 2 day');
-        $record->courseendtime_0 = strtotime('now + 3 day');
-        $record->coursestarttime_1 = strtotime('now + 5 day');
-        $record->courseendtime_1 = strtotime('now + 8 day');
+        $record->coursestarttime_0 = strtotime('now + 2 day', time());
+        $record->courseendtime_0 = strtotime('now + 3 day', time());
+        $record->coursestarttime_1 = strtotime('now + 5 day', time());
+        $record->courseendtime_1 = strtotime('now + 8 day', time());
         $record->bo_cond_nooverlapping_restrict = 1;
         $record->bo_cond_nooverlapping_handling = MOD_BOOKING_COND_OVERLAPPING_HANDLING_BLOCK;
         $option2 = $plugingenerator->create_option($record);
 
         // Not overlapping.
         $record->text = '2 sessions should overlap';
-        $record->coursestarttime_0 = strtotime('now + 10 day');
-        $record->courseendtime_0 = strtotime('now + 11 day');
-        $record->coursestarttime_1 = strtotime('now + 14 day');
-        $record->courseendtime_1 = strtotime('now + 15 day');
+        $record->coursestarttime_0 = strtotime('now + 10 day', time());
+        $record->courseendtime_0 = strtotime('now + 11 day', time());
+        $record->coursestarttime_1 = strtotime('now + 14 day', time());
+        $record->courseendtime_1 = strtotime('now + 15 day', time());
         $record->bo_cond_nooverlapping_restrict = 1;
         $record->bo_cond_nooverlapping_handling = MOD_BOOKING_COND_OVERLAPPING_HANDLING_BLOCK;
         $option3 = $plugingenerator->create_option($record);
 
         // Overlapping without flag. Should trigger NOOVERLAPPINGPROXY.
-        $record->coursestarttime_0 = strtotime('now + 1 day');
-        $record->courseendtime_0 = strtotime('now + 11 day');
-        $record->coursestarttime_1 = strtotime('now + 8 day');
-        $record->courseendtime_1 = strtotime('now + 15 day');
+        $record->coursestarttime_0 = strtotime('now + 1 day', time());
+        $record->courseendtime_0 = strtotime('now + 11 day', time());
+        $record->coursestarttime_1 = strtotime('now + 8 day', time());
+        $record->courseendtime_1 = strtotime('now + 15 day', time());
         $record->bo_cond_nooverlapping_restrict = 0;
         unset($record->bo_cond_nooverlapping_handling);
         $option4 = $plugingenerator->create_option($record);
@@ -1987,8 +2126,8 @@ final class condition_all_test extends advanced_testcase {
         // Testing combinations of multiple and single sessions.
         // Only one session that isn't really overlapping.
         $record->text = 'No session, not overlapping';
-        $record->coursestarttime = strtotime('now + 12 day');
-        $record->courseendtime = strtotime('now + 13 day');
+        $record->coursestarttime = strtotime('now + 12 day', time());
+        $record->courseendtime = strtotime('now + 13 day', time());
         $record->bo_cond_nooverlapping_restrict = 1;
         unset($record->coursestarttime_0);
         unset($record->courseendtime_0);
@@ -2342,6 +2481,123 @@ final class condition_all_test extends advanced_testcase {
             'bookingmanager' => $bookingmanager,
             'plugingenerator' => $plugingenerator,
         ];
+    }
+
+    /**
+     * Test notifymelist::is_available() for all relevant booking states.
+     *
+     * Covers:
+     * - not-booked user when fully booked → blocked
+     * - iambooked user, multiplebookings OFF → still blocked
+     * - iambooked user, multiplebookings ON  → not blocked (book-again path)
+     * - iamreserved user                     → not blocked
+     * - user on waitinglist                  → not blocked (pre-existing behaviour)
+     *
+     * @covers \mod_booking\bo_availability\conditions\notifymelist::is_available
+     *
+     * @param array $bdata
+     * @throws \coding_exception
+     * @throws \dml_exception
+     *
+     * @dataProvider booking_common_settings_provider
+     */
+    public function test_notifymelist_blocks_correctly(array $bdata): void {
+        global $DB;
+
+        $bdata['cancancelbook'] = 1;
+
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+
+        $student1 = $this->getDataGenerator()->create_user(); // Will be booked (iambooked).
+        $student2 = $this->getDataGenerator()->create_user(); // Never booked (notbooked).
+        $student3 = $this->getDataGenerator()->create_user(); // Will be on waitinglist.
+        $reserveduser = $this->getDataGenerator()->create_user(); // Will be reserved via direct DB insert.
+
+        $bdata['course'] = $course->id;
+        $booking = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        $this->setAdminUser();
+        $this->getDataGenerator()->enrol_user($student1->id, $course->id);
+        $this->getDataGenerator()->enrol_user($student2->id, $course->id);
+        $this->getDataGenerator()->enrol_user($student3->id, $course->id);
+        $this->getDataGenerator()->enrol_user($reserveduser->id, $course->id);
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+
+        $record = new stdClass();
+        $record->bookingid = $booking->id;
+        $record->text = 'Test option notifymelist';
+        $record->courseid = 0;
+        $record->maxanswers = 1;  // Only 1 spot → will be fully booked after student1 books.
+        $record->maxoverbooking = 1; // 1 waitinglist spot.
+        $option1 = $plugingenerator->create_option($record);
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
+        singleton_service::destroy_booking_singleton_by_cmid($settings->cmid);
+        $boinfo = new bo_info($settings);
+
+        // Book student1 → option is now fully booked.
+        $this->setAdminUser();
+        $result = booking_bookit::bookit('option', $settings->id, $student1->id);
+        $result = booking_bookit::bookit('option', $settings->id, $student1->id);
+        [$id] = $boinfo->is_available($settings->id, $student1->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+
+        // Put student3 on the waitinglist.
+        $this->setUser($student3);
+        booking_bookit::bookit('option', $settings->id, $student3->id);
+        booking_bookit::bookit('option', $settings->id, $student3->id);
+        [$id] = $boinfo->is_available($settings->id, $student3->id, false);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
+
+        // Enable the notification list.
+        $this->setAdminUser();
+        set_config('usenotificationlist', 1, 'booking');
+        singleton_service::destroy_booking_singleton_by_cmid($settings->cmid);
+        $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
+
+        $condition = new \mod_booking\bo_availability\conditions\notifymelist();
+
+        // Case 1: student2 is not booked, option is fully booked → notifymelist BLOCKS.
+        $this->setUser($student2);
+        $this->assertFalse($condition->is_available($settings, $student2->id));
+
+        // Case 3: student1 is booked, multiplebookings ON → notifymelist does NOT block.
+        $this->setAdminUser();
+        $record->id = $option1->id;
+        $record->multiplebookings = 1;
+        $record->cmid = $settings->cmid;
+        booking_option::update($record);
+        singleton_service::destroy_booking_singleton_by_cmid($settings->cmid);
+        $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
+
+        $this->setUser($student1);
+        $this->assertTrue($condition->is_available($settings, $student1->id));
+
+        // Case 4: reserveduser has a reservation (direct DB insert) → notifymelist does NOT block.
+        $DB->insert_record('booking_answers', (object)[
+            'bookingid' => $booking->id,
+            'optionid' => $option1->id,
+            'userid' => $reserveduser->id,
+            'waitinglist' => MOD_BOOKING_STATUSPARAM_RESERVED,
+            'timebooked' => time(),
+            'timemodified' => time(),
+            'timecreated' => time(),
+        ]);
+        // Purge the booking_answers singleton and its Moodle cache so the direct DB insert is visible.
+        booking_option::purge_cache_for_answers($option1->id);
+        singleton_service::destroy_booking_singleton_by_cmid($settings->cmid);
+        $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
+
+        $this->setUser($reserveduser);
+        $this->assertTrue($condition->is_available($settings, $reserveduser->id));
+
+        // Case 5: student3 is on the waitinglist → notifymelist does NOT block (pre-existing behaviour).
+        $this->setUser($student3);
+        singleton_service::destroy_booking_singleton_by_cmid($settings->cmid);
+        $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
+        $this->assertTrue($condition->is_available($settings, $student3->id));
     }
 
     /**

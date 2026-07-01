@@ -1,6 +1,8 @@
+[Back to parent section](README.md)
+
 # Custom Form
 
-**Class:** `mod_booking\bo_availability\conditions\customform`  
+**Class:** `mod_booking\bo_availability\conditions\customform`
 **PRO required:** Yes 🔒
 
 ---
@@ -26,7 +28,13 @@ Up to **50 form elements** can be added to a single custom form.
 
 ## How to configure it
 
-Open the booking option edit form and scroll to the **Availability / Booking conditions** section.
+For non-technical users, use this click path:
+
+1. Open your booking activity: [/mod/booking/view.php?id=<cmid>](/mod/booking/view.php?id=<cmid>).
+2. Open the options list: [/mod/booking/editoptions.php?id=<cmid>](/mod/booking/editoptions.php?id=<cmid>).
+3. Click **Edit** on the target option (or create one first).
+4. In the option form, scroll to **Availability / Booking conditions**.
+5. Enable this condition and save the option.
 
 > This condition is only available with an active Wunderbyte PRO licence.
 
@@ -65,11 +73,42 @@ When **Enrol users action** is selected, a checkbox **Enrol to waiting list** ap
 
 The custom form appears as an intermediate page in the booking wizard, **before** the "Book it" button or price step.
 
+### Optional prefill via optionview link
+
+If a logged-in user opens the booking option detail page via `optionview.php`, custom form fields can be prefilled from the URL.
+
+Use query parameters with the prefix `prefill_...`.
+
+- The suffix may match the internal field name, for example `prefill_customform_url_1=...`
+- Or it may match the field label in normalized form, for example `prefill_website_url=...`
+
+Example:
+
+```text
+/mod/booking/optionview.php?optionid=945&cmid=4&prefill_website_url=https%3A%2F%2Fmywebsite.example&prefill_company=Acme
+```
+
+Supported field types for prefilling:
+
+- Short text
+- URL
+- Email
+- Select
+- Checkbox
+- Delete personal info checkbox
+- Enrol users action
+
+Static text elements are ignored.
+
+Invalid values are ignored silently. For example, an unknown select option or an invalid URL is not written to the cache.
+
 ---
 
 ## Where the form data is stored
 
-Submitted form data is stored in the `booking_customformresponse` table, linked to the user and the booking option. Admins can view submitted data in the booking option's participant list or via the booking reports.
+Before booking is completed, submitted or prefilled custom form data is stored in the existing booking customform cache, keyed by user and booking option.
+
+Once the booking is completed, the cached values are copied into the booking answer JSON and become visible in the booking option's participant list and related reports.
 
 ---
 

@@ -1,4 +1,4 @@
-@mod @mod_booking @booking_actions @mod_booking_actions
+@mod @mod_booking @booking_booking_actions @mod_booking_booking_actions
 Feature: Create booking action as admin and ensure they are working as student and view history.
 
   Background:
@@ -85,7 +85,7 @@ Feature: Create booking action as admin and ensure they are working as student a
     And I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r1" "css_element"
     Then I should see "Start" in the ".allbookingoptionstable_r1" "css_element"
-    And I wait "1" seconds
+    And I wait until the page is ready
     And I should see "Start" in the ".allbookingoptionstable_r2" "css_element"
     And I am on the "Booking2" Activity page
     And I should see "Start" in the ".allbookingoptionstable_r1" "css_element"

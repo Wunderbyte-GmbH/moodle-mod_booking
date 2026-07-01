@@ -147,8 +147,8 @@ Feature: Configure and validate different course connection settings for booking
     And the following config values are set as admin:
       | config                           | value     | plugin  |
       | linktomoodlecourseonbookedbutton | 0         | booking |
-    ## OLD behavior - "Booked" label and "Go to course" link to the connected course
       | newcoursecategorycfield          | coursecat | booking |
+    ## OLD behavior - "Booked" label and "Go to course" link to the connected course
     ## The "templatetags" value must be set only visually OR customstep required (name to id conversion).
     And I log in as "admin"
     And I set the following administration settings values:
@@ -171,7 +171,11 @@ Feature: Configure and validate different course connection settings for booking
     When I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r1" "css_element"
     Then I should see "Booked" in the ".allbookingoptionstable_r1" "css_element"
-    And I wait "1" seconds
+    ## The course is created immediately as an empty shell; its content is copied from the template
+    ## in the background (\core\task\asynchronous_copy_task), then finalize_template_course strips the
+    ## inherited tags and re-enrols the booked users whose shell enrolment the restore dropped.
+    And I trigger cron
+    And I am on the "My booking" Activity page logged in as student1
     And I click on "Go to Moodle course" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Enroll_newcat" in the "#page-header" "css_element"
     And I should see "TempPage1" in the ".course-content" "css_element"

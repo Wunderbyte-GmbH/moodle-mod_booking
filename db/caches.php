@@ -86,6 +86,20 @@ $definitions = [
         'staticaccelerationsize' => 1000,
         'invalidationevents' => ['setbackoptionsettings'],
     ],
+    'slotrulesbyoption' => [ // Option-scoped slot rule sets.
+        'mode' => cache_store::MODE_APPLICATION,
+        'simplekeys' => true,
+        'staticacceleration' => true,
+        'staticaccelerationsize' => 1000,
+        'invalidationevents' => ['setbackslotrules'],
+    ],
+    'slotrulepricesbyoption' => [ // Option-scoped slot rule pricing sets.
+        'mode' => cache_store::MODE_APPLICATION,
+        'simplekeys' => true,
+        'staticacceleration' => true,
+        'staticaccelerationsize' => 1000,
+        'invalidationevents' => ['setbackslotruleprices', 'setbackprices'],
+    ],
     // The bookingoptionsanswers is crucial.
     // The optionids are the keys, the lists of booked, reserved. etc users are provided in this cache.
     // Don't use static accelartion, as this will add latency to the renewal of the cache...
@@ -195,5 +209,12 @@ $definitions = [
         'staticacceleration' => true,
         'staticaccelerationsize' => 1000,
         'invalidationevents' => ['setbackcustomfields'],
+    ],
+    'syncrules' => [ // Caches sync rules for an option with preloaded source names.
+        'mode' => cache_store::MODE_APPLICATION,
+        'simplekeys' => true,
+        'staticacceleration' => true,
+        'staticaccelerationsize' => 100,
+        'invalidationevents' => ['setbacksyncrules'],
     ],
 ];

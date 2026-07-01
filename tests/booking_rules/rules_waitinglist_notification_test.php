@@ -24,7 +24,7 @@
 
 namespace mod_booking;
 
-use advanced_testcase;
+use mod_booking\booking_advanced_testcase;
 use stdClass;
 use mod_booking\booking_rules\booking_rules;
 use mod_booking\booking_rules\rules_info;
@@ -49,26 +49,15 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @runInSeparateProcess
  */
-final class rules_waitinglist_notification_test extends advanced_testcase {
+final class rules_waitinglist_notification_test extends booking_advanced_testcase {
     /**
      * Tests set up.
      */
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest();
-        time_mock::init();
         time_mock::set_mock_time(strtotime('now'));
         singleton_service::destroy_instance();
-    }
-
-    /**
-     * Mandatory clean-up after each test.
-     */
-    public function tearDown(): void {
-        parent::tearDown();
-        /** @var mod_booking_generator $plugingenerator */
-        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
-        $plugingenerator->teardown();
     }
 
     /**
@@ -261,12 +250,30 @@ final class rules_waitinglist_notification_test extends advanced_testcase {
         // In the future we run tasks.
         // No free seats available, so no messages should be send.
         time_mock::set_mock_time(strtotime('+3 day', time()));
-        $sink = $this->redirectMessages();
-        ob_start();
-        $this->runAdhocTasks();
-        $messages = $sink->get_messages();
-        $res = ob_get_clean();
-        $sink->close();
+        $timearr = [];
+        $tasks1 = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
+        $tasks2 = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_confirmation_mails');
+        foreach ($tasks1 as $task) {
+            $timearr[] = $task->get_next_run_time();
+        }
+        foreach ($tasks2 as $task) {
+            $timearr[] = $task->get_next_run_time();
+        }
+        sort($timearr);
+        $res = '';
+        $messages = [];
+        foreach ($timearr as $runtime) {
+            time_mock::set_mock_time($runtime);
+            $sink = $this->redirectMessages();
+            ob_start();
+            // Execute due tasks through the scheduler so nextruntime ordering is respected.
+            // The run_all_adhoc_tasks() is not feassible.
+            $mocktime = time_mock::get_mock_time();
+            $plugingenerator->runtaskswithintime($mocktime);
+            $messages[] = $sink->get_messages();
+            $res .= ob_get_clean();
+            $sink->close();
+        }
 
         // Validate console output.
         $expected = "send_mail_by_rule_adhoc task: Rule does not apply anymore. Mail was NOT SENT for option "
@@ -341,12 +348,12 @@ final class rules_waitinglist_notification_test extends advanced_testcase {
         // Create course.
         $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
 
-        // Create users, some of them with second price category.
-        $student[1] = $this->getDataGenerator()->create_user();
-        $student[2] = $this->getDataGenerator()->create_user();
-        $student[3] = $this->getDataGenerator()->create_user(['profile_field_pricecat' => 'student'] ?? []);
-        $student[4] = $this->getDataGenerator()->create_user();
-        $student[5] = $this->getDataGenerator()->create_user();
+        // Create users with explicit price categories to keep price resolution deterministic.
+        $student[1] = $this->getDataGenerator()->create_user(['profile_field_pricecat' => 'default']);
+        $student[2] = $this->getDataGenerator()->create_user(['profile_field_pricecat' => 'default']);
+        $student[3] = $this->getDataGenerator()->create_user(['profile_field_pricecat' => 'student']);
+        $student[4] = $this->getDataGenerator()->create_user(['profile_field_pricecat' => 'default']);
+        $student[5] = $this->getDataGenerator()->create_user(['profile_field_pricecat' => 'default']);
         $teacher = $this->getDataGenerator()->create_user();
 
         $bdata['course'] = $course->id;
@@ -430,10 +437,12 @@ final class rules_waitinglist_notification_test extends advanced_testcase {
         $boinfo = new bo_info($settings);
 
         // Verify price.
-        $price = price::get_price('option', $settings->id);
+        $price = price::get_price('option', $settings->id, $student[1]);
+        $this->assertArrayHasKey('price', $price);
         $this->assertEquals($pricecategories['default']->defaultvalue, $price["price"]);
 
         $studnetprice = price::get_price('option', $settings->id, $student[3]);
+        $this->assertArrayHasKey('price', $studnetprice);
         $this->assertEquals($pricecategories['student']->defaultvalue, $studnetprice["price"]);
 
         // Check the button for each student.
@@ -533,7 +542,12 @@ final class rules_waitinglist_notification_test extends advanced_testcase {
 
         // Get adhoc tasks to see if expected ones are created.
         $tasks = \core\task\manager::get_adhoc_tasks(\mod_booking\task\confirm_bookinganswer_by_rule_adhoc::class);
-        $this->assertNotEmpty($tasks, 'Expected confirm_bookinganswer_by_rule_adhoc adhoc tasks to be created.');
+        $this->assertCount(
+            $data['numberoftasksexecuted'],
+            $tasks,
+            'Unexpected number of initial confirm_bookinganswer_by_rule_adhoc tasks '
+            . '(one direct confirm + one repeat-trigger expected for mode-2 chaining).'
+        );
 
         $tasks = \core\task\manager::get_adhoc_tasks(\mod_booking\task\send_mail_by_rule_adhoc::class);
         $this->assertNotEmpty($tasks, 'Expected send_mail_by_rule_adhoc adhoc tasks to be created.');
@@ -553,6 +567,15 @@ final class rules_waitinglist_notification_test extends advanced_testcase {
         $messages = $sink->get_messages();
         $res = ob_get_clean();
         $sink->close();
+
+        if ($data['executealltasks']) {
+            $remainingconfirmtasks =
+                \core\task\manager::get_adhoc_tasks(\mod_booking\task\confirm_bookinganswer_by_rule_adhoc::class);
+            $this->assertEmpty(
+                $remainingconfirmtasks,
+                'Expected confirm_bookinganswer_by_rule_adhoc queue to be drained after running all tasks.'
+            );
+        }
 
         // Both tasks logged their results, so we check for the string twice.
         $this->assertTrue(substr_count($res, '_by_rule_adhoc') >= 2);
@@ -611,6 +634,405 @@ final class rules_waitinglist_notification_test extends advanced_testcase {
     }
 
     /**
+     * Manual unconfirm of a currently task-confirmed WL user should trigger the next task immediately,
+     * while the task after that should still respect the rule's configured interval delay.
+     *
+     * @covers \mod_booking\task\confirm_bookinganswer_by_rule_adhoc::execute
+     * @covers \mod_booking\event\bookingoption_freetobookagain
+     * @covers \mod_booking\booking_rules\rules\rule_react_on_event
+     * @covers \mod_booking\booking_rules\actions\send_mail_interval
+     * @covers \mod_booking\booking_rules\actions\confirm_bookinganswer
+     */
+    public function test_manual_unconfirm_triggers_immediate_next_task_but_keeps_interval_for_following_task(): void {
+        global $DB;
+
+        $bdata = self::booking_common_settings_provider();
+        set_config('timezone', 'Europe/Kyiv');
+        set_config('forcetimezone', 'Europe/Kyiv');
+        $bdata['cancancelbook'] = 1;
+        set_config('cancelationfee', 0, 'local_shopping_cart');
+
+        $this->getDataGenerator()->create_custom_profile_field([
+            'datatype' => 'text',
+            'shortname' => 'pricecat',
+            'name' => 'pricecat',
+        ]);
+        set_config('pricecategoryfield', 'pricecat', 'booking');
+        set_config('displayemptyprice', 1, 'booking');
+
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $teacher = $this->getDataGenerator()->create_user();
+
+        $student = [];
+        for ($i = 1; $i <= 6; $i++) {
+            $student[$i] = $this->getDataGenerator()->create_user();
+        }
+
+        $bdata['course'] = $course->id;
+        $bdata['bookingmanager'] = $teacher->username;
+        $booking = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        $this->setAdminUser();
+        for ($i = 1; $i <= 6; $i++) {
+            $this->getDataGenerator()->enrol_user($student[$i]->id, $course->id, 'student');
+        }
+        $this->getDataGenerator()->enrol_user($teacher->id, $course->id, 'editingteacher');
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+
+        $boevent = '"boevent":"\\\\mod_booking\\\\event\\\\bookingoption_freetobookagain"';
+        $actstr = '{"sendical":0,"sendicalcreateorcancel":"","interval":60,'
+            . '"subject":"freeplacedelaysubj","template":"freeplacedelaymsg","templateformat":"1"}';
+        $ruledata = [
+            'name' => 'manualunconfirmretrigger',
+            'conditionname' => 'select_student_in_bo',
+            'contextid' => 1,
+            'conditiondata' => '{"borole":"1"}',
+            'actionname' => 'send_mail_interval',
+            'actiondata' => $actstr,
+            'rulename' => 'rule_react_on_event',
+            'ruledata' => '{' . $boevent . ',"aftercompletion":0,"cancelrules":[],"condition":"2"}',
+        ];
+        $plugingenerator->create_rule($ruledata);
+
+        $plugingenerator->create_pricecategory((object)[
+            'ordernum' => 1,
+            'name' => 'default',
+            'identifier' => 'default',
+            'defaultvalue' => 100,
+            'pricecatsortorder' => 1,
+        ]);
+
+        $record = new stdClass();
+        $record->bookingid = $booking->id;
+        $record->text = 'manual-unconfirm-interval-chain';
+        $record->maxanswers = 2;
+        $record->chooseorcreatecourse = 1;
+        $record->courseid = $course->id;
+        $record->maxoverbooking = 10;
+        $record->waitforconfirmation = 2;
+        $record->confirmationonnotification = 2;
+        $record->description = 'Waiting list retrigger test';
+        $record->optiondateid_0 = '0';
+        $record->daystonotify_0 = '0';
+        $record->coursestarttime_0 = strtotime('20 June 2050 15:00', time());
+        $record->courseendtime_0 = strtotime('20 July 2050 14:00', time());
+        $record->teachersforoption = $teacher->username;
+        $record->useprice = 1;
+        $record->importing = 1;
+        $optionrecord = $plugingenerator->create_option($record);
+
+        singleton_service::destroy_booking_option_singleton($optionrecord->id);
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionrecord->id);
+        singleton_service::destroy_booking_singleton_by_cmid($settings->cmid);
+        $option = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
+        $boinfo = new bo_info($settings);
+
+        // Fill the option without shopping_cart to avoid payment-path dependency in this timing test.
+        $this->setAdminUser();
+        $option->user_submit_response(
+            $student[1],
+            0,
+            0,
+            MOD_BOOKING_BO_SUBMIT_STATUS_BOOKOTHEROPTION_FORCE,
+            MOD_BOOKING_VERIFIED
+        );
+        $option->user_submit_response(
+            $student[2],
+            0,
+            0,
+            MOD_BOOKING_BO_SUBMIT_STATUS_BOOKOTHEROPTION_FORCE,
+            MOD_BOOKING_VERIFIED
+        );
+        [$id] = $boinfo->is_available($settings->id, $student[1]->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+        [$id] = $boinfo->is_available($settings->id, $student[2]->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+
+        for ($i = 3; $i <= 5; $i++) {
+            time_mock::set_mock_time(strtotime('+1 hour', time_mock::get_mock_time()));
+            $this->setUser($student[$i]);
+            booking_bookit::bookit('option', $settings->id, $student[$i]->id);
+            [$id] = $boinfo->is_available($settings->id, $student[$i]->id, false);
+            $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION, $id);
+            booking_bookit::bookit('option', $settings->id, $student[$i]->id);
+            [$id] = $boinfo->is_available($settings->id, $student[$i]->id, true);
+            $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
+        }
+
+        // Cancel the first booked user to free a seat and trigger freetobookagain.
+        $this->setAdminUser();
+        $option->user_delete_response($student[1]->id);
+
+        $now = time_mock::get_mock_time();
+        $intervalseconds = 60 * 60;
+        $tolerance = 5;
+
+        $this->setAdminUser();
+        ob_start();
+        $plugingenerator->runtaskswithintime($now);
+        ob_end_clean();
+
+        $answer3 = $DB->get_record('booking_answers', [
+            'optionid' => $settings->id,
+            'userid' => $student[3]->id,
+            'waitinglist' => MOD_BOOKING_STATUSPARAM_WAITINGLIST,
+        ]);
+        $this->assertNotEmpty($answer3);
+        $answer3json = empty($answer3->json) ? (object)[] : json_decode($answer3->json);
+        $this->assertEquals(1, $answer3json->confirmwaitinglist ?? 0);
+
+        $taskclass = \mod_booking\task\confirm_bookinganswer_by_rule_adhoc::class;
+        $tasksbeforeunconfirm = \core\task\manager::get_adhoc_tasks($taskclass);
+        $immediatebefore = array_filter($tasksbeforeunconfirm, fn($t) => (int)$t->get_next_run_time() <= $now);
+        $delayedbefore = array_filter($tasksbeforeunconfirm, fn($t) => (int)$t->get_next_run_time() > $now);
+        $this->assertCount(0, $immediatebefore);
+        $this->assertNotEmpty($delayedbefore);
+
+        $this->setAdminUser();
+        $option->user_submit_response(
+            $student[3],
+            0,
+            0,
+            MOD_BOOKING_BO_SUBMIT_STATUS_UN_CONFIRM,
+            MOD_BOOKING_VERIFIED
+        );
+
+        $tasksafterunconfirm = \core\task\manager::get_adhoc_tasks($taskclass);
+        $immediateafter = array_filter($tasksafterunconfirm, fn($t) => (int)$t->get_next_run_time() <= $now + 2);
+        $this->assertNotEmpty($immediateafter);
+
+        ob_start();
+        $plugingenerator->runtaskswithintime($now);
+        ob_end_clean();
+
+        $remainingtasks = \core\task\manager::get_adhoc_tasks($taskclass);
+        $remainingdelayed = array_filter($remainingtasks, fn($t) => (int)$t->get_next_run_time() > $now);
+        $this->assertNotEmpty($remainingdelayed);
+
+        $minremainingruntime = min(array_map(fn($t) => (int)$t->get_next_run_time(), $remainingdelayed));
+        $this->assertGreaterThanOrEqual(
+            $now + $intervalseconds - $tolerance,
+            $minremainingruntime
+        );
+    }
+
+    /**
+     * Late WL joiners should restart an interval chain if the previous chain already drained
+     * while the option still has a free seat.
+     * @covers \mod_booking\booking_rules\rules_info::collect_rules_for_execution
+     * @covers \mod_booking\booking_rules\rules_info::filter_rules_and_execute
+     * @covers \mod_booking\booking_rules\rules\rule_react_on_event
+     * @covers \mod_booking\booking_rules\actions\send_mail_interval
+     * @covers \mod_booking\booking_rules\conditions\select_student_in_bo
+     * @covers \mod_booking\event\bookingoption_freetobookagain
+     * @covers \mod_booking\event\bookingoptionwaitinglist_booked
+     */
+    public function test_late_waitinglist_joiner_after_interval_chain_drains_gets_new_task(): void {
+        global $DB;
+
+        $bdata = self::booking_common_settings_provider();
+        set_config('timezone', 'Europe/Kyiv');
+        set_config('forcetimezone', 'Europe/Kyiv');
+        $bdata['cancancelbook'] = 1;
+        set_config('cancelationfee', 0, 'local_shopping_cart');
+
+        $this->getDataGenerator()->create_custom_profile_field([
+            'datatype' => 'text',
+            'shortname' => 'pricecat',
+            'name' => 'pricecat',
+        ]);
+        set_config('pricecategoryfield', 'pricecat', 'booking');
+        set_config('displayemptyprice', 1, 'booking');
+
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $teacher = $this->getDataGenerator()->create_user();
+
+        $student = [];
+        for ($i = 1; $i <= 4; $i++) {
+            $student[$i] = $this->getDataGenerator()->create_user();
+        }
+
+        $bdata['course'] = $course->id;
+        $bdata['bookingmanager'] = $teacher->username;
+        $booking = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        $this->setAdminUser();
+        for ($i = 1; $i <= 4; $i++) {
+            $this->getDataGenerator()->enrol_user($student[$i]->id, $course->id, 'student');
+        }
+        $this->getDataGenerator()->enrol_user($teacher->id, $course->id, 'editingteacher');
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+
+        $boevent = '"boevent":"\\\\mod_booking\\\\event\\\\bookingoption_freetobookagain"';
+        $actstr = '{"sendical":0,"sendicalcreateorcancel":"","interval":60,'
+            . '"subject":"freeplacedelaysubj","template":"freeplacedelaymsg","templateformat":"1"}';
+        $ruledata = [
+            'name' => 'latejoinerafterdrain',
+            'conditionname' => 'select_student_in_bo',
+            'contextid' => 1,
+            'conditiondata' => '{"borole":"1"}',
+            'actionname' => 'send_mail_interval',
+            'actiondata' => $actstr,
+            'rulename' => 'rule_react_on_event',
+            'ruledata' => '{' . $boevent . ',"aftercompletion":0,"cancelrules":[],"condition":"2"}',
+        ];
+        $rule = $plugingenerator->create_rule($ruledata);
+
+        $plugingenerator->create_pricecategory((object)[
+            'ordernum' => 1,
+            'name' => 'default',
+            'identifier' => 'default',
+            'defaultvalue' => 100,
+            'pricecatsortorder' => 1,
+        ]);
+
+        $record = new stdClass();
+        $record->bookingid = $booking->id;
+        $record->text = 'late-joiner-after-drain';
+        $record->maxanswers = 2;
+        $record->chooseorcreatecourse = 1;
+        $record->courseid = $course->id;
+        $record->maxoverbooking = 10;
+        $record->waitforconfirmation = 2;
+        $record->confirmationonnotification = 1;
+        $record->description = 'Late WL joiner after drained chain';
+        $record->optiondateid_0 = '0';
+        $record->daystonotify_0 = '0';
+        $record->coursestarttime_0 = strtotime('20 June 2050 15:00', time());
+        $record->courseendtime_0 = strtotime('20 July 2050 14:00', time());
+        $record->teachersforoption = $teacher->username;
+        $record->useprice = 1;
+        $record->importing = 1;
+        $optionrecord = $plugingenerator->create_option($record);
+
+        singleton_service::destroy_booking_option_singleton($optionrecord->id);
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionrecord->id);
+        singleton_service::destroy_booking_singleton_by_cmid($settings->cmid);
+        $option = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
+        $boinfo = new bo_info($settings);
+
+        $this->setAdminUser();
+        $option->user_submit_response(
+            $student[1],
+            0,
+            0,
+            MOD_BOOKING_BO_SUBMIT_STATUS_BOOKOTHEROPTION_FORCE,
+            MOD_BOOKING_VERIFIED
+        );
+        $option->user_submit_response(
+            $student[2],
+            0,
+            0,
+            MOD_BOOKING_BO_SUBMIT_STATUS_BOOKOTHEROPTION_FORCE,
+            MOD_BOOKING_VERIFIED
+        );
+        [$id] = $boinfo->is_available($settings->id, $student[1]->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+        [$id] = $boinfo->is_available($settings->id, $student[2]->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+
+        $this->setUser($student[3]);
+        booking_bookit::bookit('option', $settings->id, $student[3]->id);
+        [$id] = $boinfo->is_available($settings->id, $student[3]->id, false);
+        $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION, $id);
+        booking_bookit::bookit('option', $settings->id, $student[3]->id);
+        [$id] = $boinfo->is_available($settings->id, $student[3]->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
+
+        $this->setAdminUser();
+        $option->user_delete_response($student[1]->id);
+
+        $now = time_mock::get_mock_time();
+        ob_start();
+        $plugingenerator->runtaskswithintime($now);
+        ob_end_clean();
+
+        $answer3 = $DB->get_record('booking_answers', [
+            'optionid' => $settings->id,
+            'userid' => $student[3]->id,
+            'waitinglist' => MOD_BOOKING_STATUSPARAM_WAITINGLIST,
+        ]);
+        $this->assertNotEmpty($answer3);
+        $answer3json = empty($answer3->json) ? (object)[] : json_decode($answer3->json);
+        $this->assertEquals(1, $answer3json->confirmwaitinglist ?? 0);
+
+        $confirmtaskclass = \mod_booking\task\confirm_bookinganswer_by_rule_adhoc::class;
+        $mailtaskclass = \mod_booking\task\send_mail_by_rule_adhoc::class;
+        $this->assertCount(0, \core\task\manager::get_adhoc_tasks($confirmtaskclass));
+        $this->assertCount(0, \core\task\manager::get_adhoc_tasks($mailtaskclass));
+
+        time_mock::set_mock_time(strtotime('+1 minute', time_mock::get_mock_time()));
+        $this->setUser($student[4]);
+        booking_bookit::bookit('option', $settings->id, $student[4]->id);
+        [$id] = $boinfo->is_available($settings->id, $student[4]->id, false);
+        $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION, $id);
+        booking_bookit::bookit('option', $settings->id, $student[4]->id);
+        [$id] = $boinfo->is_available($settings->id, $student[4]->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
+
+        $allconfirmtasksforrule = array_filter(
+            \core\task\manager::get_adhoc_tasks($confirmtaskclass),
+            fn($task) => (int)($task->get_custom_data()->ruleid ?? 0) === (int)$rule->id
+        );
+        $allmailtasksforrule = array_filter(
+            \core\task\manager::get_adhoc_tasks($mailtaskclass),
+            fn($task) => (int)($task->get_custom_data()->ruleid ?? 0) === (int)$rule->id
+        );
+        $confirmuserids = array_map(fn($task) => (int)($task->get_custom_data()->userid ?? 0), $allconfirmtasksforrule);
+        $mailuserids = array_map(fn($task) => (int)($task->get_custom_data()->userid ?? 0), $allmailtasksforrule);
+        $this->assertTrue(
+            in_array((int)$student[4]->id, $confirmuserids, true),
+            'Expected confirm task for late joiner s4=' . $student[4]->id
+                . ' (s3=' . $student[3]->id . '); actual queued confirm userids: ['
+                . implode(',', $confirmuserids) . ']'
+        );
+        $this->assertTrue(
+            in_array((int)$student[4]->id, $mailuserids, true),
+            'Expected mail task for late joiner s4=' . $student[4]->id
+                . ' (s3=' . $student[3]->id . '); actual queued mail userids: ['
+                . implode(',', $mailuserids) . ']'
+        );
+
+        $newnow = time_mock::get_mock_time();
+        foreach ($allconfirmtasksforrule as $task) {
+            $this->assertLessThanOrEqual($newnow, (int)$task->get_next_run_time());
+        }
+        foreach ($allmailtasksforrule as $task) {
+            $this->assertLessThanOrEqual($newnow, (int)$task->get_next_run_time());
+        }
+
+        // Run the queued late-joiner tasks and verify exactly one mail for the late joiner.
+        $sink = $this->redirectMessages();
+        ob_start();
+        $this->runAdhocTasks();
+        $messages = $sink->get_messages();
+        ob_get_clean();
+        $sink->close();
+
+        $this->assertCount(1, $messages);
+        $this->assertEquals($student[4]->id, (int)$messages[0]->useridto);
+        $this->assertEquals('freeplacedelaysubj', $messages[0]->subject);
+        $this->assertEquals('freeplacedelaymsg', $messages[0]->fullmessage);
+
+        $messagekeys = [];
+        foreach ($messages as $message) {
+            $messagekey = (int)$message->useridto . ':' . $message->subject;
+            $this->assertArrayNotHasKey($messagekey, $messagekeys);
+            $messagekeys[$messagekey] = true;
+        }
+
+        $remainingmailtasksforrule = array_filter(
+            \core\task\manager::get_adhoc_tasks($mailtaskclass),
+            fn($task) => (int)($task->get_custom_data()->ruleid ?? 0) === (int)$rule->id
+        );
+        $this->assertCount(0, $remainingmailtasksforrule);
+    }
+
+    /**
      * Data provider for condition_bookingpolicy_test
      *
      * @return array
@@ -634,7 +1056,7 @@ final class rules_waitinglist_notification_test extends advanced_testcase {
                     'szenario' => 'firstuserbookedconfirmedwithprice',
                     'studentprice' => 10,
                     'executealltasks' => false,
-                    'numberoftasksexecuted' => 1,
+                    'numberoftasksexecuted' => 2,
                     'studentexpectedtobebooked' => false,
                     'nstudentbooked' => 1,
                     'mailssend' => 1,
@@ -645,7 +1067,7 @@ final class rules_waitinglist_notification_test extends advanced_testcase {
                     'szenario' => 'nouserbookedmanualconfirmation',
                     'studentprice' => 10,
                     'executealltasks' => true,
-                    'numberoftasksexecuted' => 1,
+                    'numberoftasksexecuted' => 2,
                     'studentexpectedtobebooked' => false,
                     'nstudentbooked' => 1,
                     'mailssend' => 2,

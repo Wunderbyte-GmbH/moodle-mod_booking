@@ -277,9 +277,24 @@ class bookitbutton implements bo_condition {
         if ($userid === null) {
             $userid = $USER->id;
         }
-        $label = $this->get_description_string(false, $full, $settings);
 
-        return bo_info::render_button(
+        $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
+        $bookinginformation = $bookinganswer->return_all_booking_information($userid);
+        $isbookagainbutton = false;
+
+        if (($settings->jsonobject->multiplebookings ?? 0) && isset($bookinginformation['iambooked'])) {
+            $isbookagainbutton = true;
+            $count = $bookinganswer->count_previous_bookings($userid);
+            if ($count == 1) {
+                $label = get_string('bookagainwithcountsingular', 'mod_booking');
+            } else {
+                $label = get_string('bookagainwithcountplural', 'mod_booking', $count);
+            }
+        } else {
+            $label = $this->get_description_string(false, $full, $settings);
+        }
+
+        [$template, $data] = bo_info::render_button(
             $settings,
             $userid,
             $label,
@@ -291,6 +306,36 @@ class bookitbutton implements bo_condition {
             false,
             'noforward'
         );
+
+        if ($isbookagainbutton) {
+            // Keep override scope intentionally tiny for now.
+            $data['overrideids'] = json_encode(self::get_book_intent_override_condition_ids());
+        }
+
+        return [$template, $data];
+    }
+
+    /**
+     * Single source of truth for book-intent condition overrides.
+     *
+     * @return int[]
+     */
+    public static function get_book_intent_override_condition_ids(): array {
+        return [
+            MOD_BOOKING_BO_COND_CANCELMYSELF,
+            MOD_BOOKING_BO_COND_CONFIRMCANCEL,
+        ];
+    }
+
+    /**
+     * Returns override payload json used in button/prepage book-intent calls.
+     *
+     * @return string
+     */
+    public static function get_book_intent_override_data_json(): string {
+        return json_encode([
+            'overrideids' => self::get_book_intent_override_condition_ids(),
+        ]);
     }
 
     /**
@@ -301,7 +346,7 @@ class bookitbutton implements bo_condition {
      * @param booking_option_settings $settings
      * @return string
      */
-    private function get_description_string($isavailable, $full, $settings): string {
+    public function get_description_string($isavailable, $full, $settings): string {
 
         if (
             !$isavailable
