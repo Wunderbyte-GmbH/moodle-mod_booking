@@ -265,6 +265,7 @@ class entities_tree_provider implements tree_provider {
                 'name' => $names[$depth],
                 'indent' => $depth,
                 'imageurl' => $imageurl ? $imageurl->out(false) : null,
+                'url' => (new \moodle_url('/local/entities/view.php', ['id' => (int)$ancestorid]))->out(false),
             ];
         }
 
