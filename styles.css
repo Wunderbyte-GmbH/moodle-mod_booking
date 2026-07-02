@@ -938,3 +938,43 @@ table[id*="bulkoperationstable"] th {
     hyphens: none;
 }
 
+/* Location cell for deep (3+ level) entity hierarchies: the ancestor path appears in a pure-CSS
+   card on hover AND on keyboard focus (:focus-within) — no Bootstrap tooltip JS, so the behaviour
+   is identical on Bootstrap 4 (Moodle 4.x) and 5 (Moodle 5.x). Screenreaders read the path from
+   visually hidden text inside the link instead (the card is aria-hidden). */
+.mod-booking-location-cell {
+    position: relative;
+    display: inline-block;
+}
+
+.mod-booking-location-cell .mod-booking-location-path {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 1000;
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 0.25rem;
+    padding: 0.5rem 0.75rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    white-space: nowrap;
+}
+
+.mod-booking-location-cell:hover .mod-booking-location-path,
+.mod-booking-location-cell:focus-within .mod-booking-location-path {
+    display: block;
+}
+
+.mod-booking-location-pathitem {
+    display: block;
+}
+
+.mod-booking-location-pathimg {
+    height: 24px;
+    width: 24px;
+    object-fit: cover;
+    border-radius: 0.25rem;
+    margin-right: 0.25rem;
+    vertical-align: middle;
+}

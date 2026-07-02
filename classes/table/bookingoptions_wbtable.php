@@ -792,18 +792,12 @@ class bookingoptions_wbtable extends wunderbyte_table {
         $settings = singleton_service::get_instance_of_booking_option_settings($values->id, $values);
 
         if (isset($settings->entity) && (count($settings->entity) > 0)) {
-            $url = new moodle_url('/local/entities/view.php', ['id' => $settings->entity['id']]);
-            // Full name of the entity (NOT the shortname). Byte-identical to the historical output for
-            // 1–2 levels; a full breadcrumb only for 3+ level hierarchies (BC-6). Rendered in one place.
-            $nametobeshown = \mod_booking\local\entities_tree_provider::render_location_name($settings->entity);
-
-            if ($this->is_downloading()) {
-                // No hyperlink when downloading.
-                return $nametobeshown;
-            }
-
-            // Add link to entity.
-            return html_writer::tag('a', $nametobeshown, ['href' => $url->out(false)]);
+            // Shared renderer: byte-identical to the historical output for 1–2 levels; for 3+ levels
+            // only the entity name, with the superordinate levels in an accessible hover card (BC-6).
+            return \mod_booking\local\entities_tree_provider::render_location_cell(
+                $settings->entity,
+                $this->is_downloading()
+            );
         }
 
         // If no entity is set, we show the value stored in location.

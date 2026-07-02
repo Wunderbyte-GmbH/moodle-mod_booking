@@ -148,10 +148,12 @@ final class entities_tree_provider_test extends advanced_testcase {
     public function test_get_location_filter_respects_optin(): void {
         $this->resetAfterTest();
 
-        set_config('entitytreefilter', 0, 'mod_booking');
+        // The admin setting is defined as booking/entitytreefilter, so it lives under the
+        // plugin name 'booking' (get_config does not normalize component names).
+        set_config('entitytreefilter', 0, 'booking');
         $this->assertInstanceOf(standardfilter::class, entities_tree_provider::get_location_filter('Location'));
 
-        set_config('entitytreefilter', 1, 'mod_booking');
+        set_config('entitytreefilter', 1, 'booking');
         // Only a treefilter when local_entities is present (which it is in this test env).
         $this->assertInstanceOf(treefilter::class, entities_tree_provider::get_location_filter('Location'));
     }
@@ -244,6 +246,64 @@ final class entities_tree_provider_test extends advanced_testcase {
             'Location / Building / Floor',
             entities_tree_provider::render_location_name(['id' => $flr, 'name' => 'Floor', 'parentname' => 'Building'])
         );
+    }
+
+    /**
+     * render_location_cell keeps 1–2 levels byte-identical (linked historical name, plain text on
+     * download) and renders deep hierarchies as the entity name plus an accessible hover card with
+     * the superordinate levels — full path only for screenreaders and exports (BC-6).
+     *
+     * @return void
+     */
+    public function test_render_location_cell(): void {
+        $this->resetAfterTest();
+        entities::reset_caches();
+
+        $egen = $this->getDataGenerator()->get_plugin_generator('local_entities');
+        $loc = $egen->create_entities(['name' => 'Location', 'shortname' => 'loc']);
+        $bld = $egen->create_entities(['name' => 'Building', 'shortname' => 'bld', 'parentid' => $loc]);
+        $flr = $egen->create_entities(['name' => 'Floor', 'shortname' => 'flr', 'parentid' => $bld]);
+        entities::reset_caches();
+
+        // 1–2 levels: byte-identical to the historical cell markup.
+        $twolevel = ['id' => $bld, 'name' => 'Building', 'parentname' => 'Location'];
+        $expectedurl = (new \moodle_url('/local/entities/view.php', ['id' => $bld]))->out(false);
+        $this->assertSame(
+            \html_writer::tag('a', 'Location (Building)', ['href' => $expectedurl]),
+            entities_tree_provider::render_location_cell($twolevel, false)
+        );
+        $this->assertSame('Location (Building)', entities_tree_provider::render_location_cell($twolevel, true));
+
+        // 3 levels, export: the full path as plain text.
+        $deep = ['id' => $flr, 'name' => 'Floor', 'parentname' => 'Building'];
+        $this->assertSame('Location / Building / Floor', entities_tree_provider::render_location_cell($deep, true));
+
+        // 3 levels, display: only the entity name is visible; ancestors live in the hover card and
+        // in visually hidden text — there is no inline breadcrumb anymore.
+        set_config('showlocationimages', 0, 'booking');
+        $html = entities_tree_provider::render_location_cell($deep, false);
+        $this->assertStringContainsString('mod-booking-location-cell', $html);
+        $this->assertStringContainsString('mod-booking-location-path', $html);
+        $this->assertStringContainsString('>Floor<', $html);
+        $this->assertStringContainsString('Location / Building', $html);
+        $this->assertStringNotContainsString('Location / Building / Floor', $html);
+        $this->assertStringNotContainsString('<img', $html);
+
+        // With showlocationimages on, an ancestor's image is rendered small into the card.
+        get_file_storage()->create_file_from_string([
+            'contextid' => \context_system::instance()->id,
+            'component' => 'local_entities',
+            'filearea' => 'image',
+            'itemid' => $loc,
+            'filepath' => '/',
+            'filename' => 'loc.png',
+        ], 'fake-image-bytes');
+        set_config('showlocationimages', 1, 'booking');
+        entities::reset_caches();
+        $html = entities_tree_provider::render_location_cell($deep, false);
+        $this->assertStringContainsString('<img', $html);
+        $this->assertStringContainsString('loc.png', $html);
+        $this->assertStringContainsString('loading="lazy"', $html);
     }
 
     /**

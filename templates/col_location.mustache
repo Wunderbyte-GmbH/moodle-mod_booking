@@ -1,0 +1,55 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_booking/col_location
+
+    Location cell for a deep (3+ levels) entity hierarchy: shows only the selected entity, linked,
+    with the superordinate levels in a pure-CSS hover card (also shown on keyboard focus, see
+    styles.css .mod-booking-location-cell). Screenreaders get the full path as visually hidden text
+    inside the link, so the card itself is aria-hidden. Ancestor images are optional (setting
+    booking/showlocationimages) and decorative (empty alt, name is rendered next to them).
+
+    Classes required for JS:
+    * none — hover/focus behaviour is pure CSS
+
+    Context variables required for this template:
+    * url - link to the entity view page
+    * name - the selected entity's name
+    * pathtext - full ancestor path as plain text ("Root / … / Parent")
+    * ancestors - array of {name, indent, imageurl} root-first; imageurl may be null
+
+    Example context (json):
+    {
+        "url": "https://example.com/local/entities/view.php?id=6",
+        "name": "Raumbereich 1",
+        "pathtext": "Hauptgebäude / Seminarraum 1",
+        "ancestors": [
+            { "name": "Hauptgebäude", "indent": 0, "imageurl": "https://example.com/pluginfile.php/1/local_entities/image/2/main.jpg" },
+            { "name": "Seminarraum 1", "indent": 1, "imageurl": null }
+        ]
+    }
+}}
+<span class="mod-booking-location-cell">
+    <a href="{{url}}">{{name}}<span class="sr-only visually-hidden">, {{pathtext}}</span></a>
+    <span class="mod-booking-location-path" aria-hidden="true">
+        {{#ancestors}}
+        <span class="mod-booking-location-pathitem" style="padding-left: {{indent}}rem;">
+            {{#imageurl}}<img src="{{imageurl}}" alt="" loading="lazy" class="mod-booking-location-pathimg">{{/imageurl}}{{name}}
+        </span>
+        {{/ancestors}}
+    </span>
+</span>
