@@ -50,6 +50,11 @@ final class textarea_customfield_mlang_test extends advanced_testcase {
      */
     public function setUp(): void {
         parent::setUp();
+        // The {mlang} syntax is resolved by the third-party multilang2 filter, which is not part
+        // of Moodle core - skip (rather than fail) on installations that do not ship it.
+        if (!array_key_exists('multilang2', \core_component::get_plugin_list('filter'))) {
+            $this->markTestSkipped('The filter_multilang2 plugin is not installed.');
+        }
         $this->resetAfterTest(true);
         $this->setAdminUser();
         // The multilang2 filter must be active for {mlang} spans to be resolved by format_text().
