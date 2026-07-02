@@ -37,6 +37,7 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 require_once($CFG->dirroot . '/mod/booking/classes/price.php');
+require_once(__DIR__ . '/../booking_advanced_testcase.php');
 
 /**
  * Tests for bulkoperations shortcode.

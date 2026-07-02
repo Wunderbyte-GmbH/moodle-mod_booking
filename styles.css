@@ -928,3 +928,13 @@ div.checkbox:has(label[for^="id_bo_cond_allowedtobookininstance_capabilitynotnee
     white-space: normal;
     text-align: left;
 }
+
+/* Bulk operations table (matches both the [bulkoperations] shortcode and the bulk operations tab).
+Keep the column headers on one line even in narrow containers instead of breaking them mid-word. */
+table[id*="bulkoperationstable"] th {
+    white-space: nowrap;
+    word-break: normal;
+    overflow-wrap: normal;
+    hyphens: none;
+}
+

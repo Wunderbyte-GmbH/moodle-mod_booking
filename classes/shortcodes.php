@@ -1638,7 +1638,8 @@ class shortcodes {
             }
         }
         $datepickerfiltercolumns = ['coursestarttime', 'courseendtime', 'bookingopeningtime'];
-        // Exclude column action from columns for filter, sorting, search.
+        /* Exclude the column action from filter, sorting and search.
+        It is rendered only and does not exist as SQL field. */
         $filtercolumns = array_diff_key($columns, array_flip(['action']));
 
         if (isset($args['filter'])) {
@@ -1684,6 +1685,9 @@ class shortcodes {
                 $customfieldfilter = new customfieldfilter($colname, $localized);
                 $customfieldfilter->set_sql_for_fieldid($dcfshortnamesarray[$colname]);
                 $table->add_filter($customfieldfilter);
+            } else if ($colname === 'text') {
+                // No dropdown filter on the title. It stays searchable and sortable.
+                continue;
             } else {
                 $standardfilter = new standardfilter($colname, $localized);
                 if ($colname === 'invisible') {
@@ -1692,6 +1696,9 @@ class shortcodes {
                     "1" => get_string('optioninvisible', 'mod_booking'),
                     "2" => get_string('optionvisibledirectlink', 'mod_booking'),
                     ]);
+                } else if ($colname === 'teacherobjects') {
+                    // The field contains JSON, so show the "name" attribute instead (like the other booking views).
+                    $standardfilter->add_options(['jsonattribute' => 'name']);
                 }
                 $table->add_filter($standardfilter);
             }

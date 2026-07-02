@@ -69,8 +69,10 @@ class bulkoperations_table extends wunderbyte_table {
         $table = new self($uniqueid);
         $columns = [
             'id' => get_string('id', 'local_wunderbyte_table'),
+            'titleprefix' => get_string('titleprefix', 'mod_booking'),
             'text' => get_string('title', 'mod_booking'),
-            'action' => get_string('edit'),
+            // The teachers are stored in the SQL field "teacherobjects", so fulltext search finds teacher names.
+            'teacherobjects' => get_string('teachers', 'mod_booking'),
             'invisible' => get_string('invisible', 'mod_booking'),
         ];
         // Add defined customfields from args to columns.
@@ -93,6 +95,10 @@ class bulkoperations_table extends wunderbyte_table {
                 $columns[$additionalcolumn] = $additionalcolumn;
             }
         }
+        // The edit column always comes last (even after customfields and additional columns),
+        // so the edit icons stay at the very right of the table.
+        $columns['action'] = get_string('edit');
+
         if (!empty($args['download'])) {
             $table->showdownloadbutton = true;
         }
@@ -176,6 +182,16 @@ class bulkoperations_table extends wunderbyte_table {
     }
 
     /**
+     * Display the titleprefix of the booking option.
+     *
+     * @param object $values
+     * @return string
+     */
+    public function col_titleprefix($values) {
+        return format_string($values->titleprefix ?? '');
+    }
+
+    /**
      * Display the template name. Uses templatename from JSON if available, otherwise falls back to text.
      *
      * @param object $values
@@ -192,6 +208,26 @@ class bulkoperations_table extends wunderbyte_table {
             return format_string($values->text);
         }
         return '-';
+    }
+
+    /**
+     * Display the teachers of the booking option.
+     * The column is based on the SQL field "teacherobjects" so that fulltext search
+     * finds teacher names, but rendering uses the option settings.
+     *
+     * @param object $values
+     * @return string
+     */
+    public function col_teacherobjects($values) {
+        $settings = singleton_service::get_instance_of_booking_option_settings($values->id);
+        if (empty($settings->teachers)) {
+            return '';
+        }
+        $teacherstrings = [];
+        foreach ($settings->teachers as $teacher) {
+            $teacherstrings[] = "$teacher->firstname $teacher->lastname";
+        }
+        return implode(', ', $teacherstrings);
     }
 
     /**
