@@ -60,7 +60,7 @@ class entities_tree_provider implements tree_provider {
      */
     public static function is_active(): bool {
         return class_exists('local_entities\\entities')
-            && (bool) get_config('mod_booking', 'entitytreefilter');
+            && (bool) get_config('booking', 'entitytreefilter');
     }
 
     /**
