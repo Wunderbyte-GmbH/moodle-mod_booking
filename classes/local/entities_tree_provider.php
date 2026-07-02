@@ -214,6 +214,69 @@ class entities_tree_provider implements tree_provider {
     }
 
     /**
+     * Renders the complete location cell for an option's entity.
+     *
+     * 1–2 levels: byte-identical to the historical output — linked "parent (name)" / "name", plain
+     * text when downloading (BC-6). 3+ levels: only the selected entity's name is shown, linked, with
+     * the superordinate levels in a CSS hover card (also opened by keyboard focus) and as
+     * screenreader text; exports get the full path as plain text. Entity images are rendered small
+     * into the card when the showlocationimages setting is on.
+     *
+     * Shared by mod_booking, local_musi and local_urise col_location so the logic exists in exactly
+     * one place. Callers keep their own "no entity → plain location text" fallback.
+     *
+     * @param array $entity the option-settings entity array ({id, name, parentname, ...})
+     * @param bool $isdownloading whether the table is exporting (plain text, no markup)
+     * @return string
+     */
+    public static function render_location_cell(array $entity, bool $isdownloading): string {
+        global $OUTPUT;
+
+        $entityid = (int)($entity['id'] ?? 0);
+        $ids = [];
+        $names = [];
+        if ($entityid > 0 && class_exists('local_entities\\entities')) {
+            [, $ids, $names] = entities::get_ancestor_path($entityid);
+        }
+
+        if (count($names) < 3) {
+            // 1–2 levels (or entities unavailable): exactly the historical rendering.
+            $name = self::render_location_name($entity);
+            if ($isdownloading) {
+                return $name;
+            }
+            $url = new \moodle_url('/local/entities/view.php', ['id' => $entityid]);
+            return \html_writer::tag('a', $name, ['href' => $url->out(false)]);
+        }
+
+        if ($isdownloading) {
+            // Exports carry the full path as plain text.
+            return implode(' / ', $names);
+        }
+
+        $selfname = array_pop($names);
+        array_pop($ids);
+
+        $showimages = (bool)get_config('booking', 'showlocationimages');
+        $ancestors = [];
+        foreach (array_values($ids) as $depth => $ancestorid) {
+            $imageurl = $showimages ? entities::get_image_url((int)$ancestorid) : null;
+            $ancestors[] = [
+                'name' => $names[$depth],
+                'indent' => $depth,
+                'imageurl' => $imageurl ? $imageurl->out(false) : null,
+            ];
+        }
+
+        return $OUTPUT->render_from_template('mod_booking/col_location', [
+            'url' => (new \moodle_url('/local/entities/view.php', ['id' => $entityid]))->out(false),
+            'name' => $selfname,
+            'pathtext' => implode(' / ', $names),
+            'ancestors' => $ancestors,
+        ]);
+    }
+
+    /**
      * Adds a value under a fresh param name into a params array (in place) and returns the name.
      *
      * @param array $params params array, modified in place

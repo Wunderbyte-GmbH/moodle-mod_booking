@@ -2801,6 +2801,8 @@ $string['showinapi'] = 'In API anzeigen?';
 $string['showlistoncoursepage'] = 'Extra-Info auf Kursseite anzeigen';
 $string['showlistoncoursepage_help'] = 'Wenn Sie diese Einstellung aktivieren, werden der Kursname, eine Kurzinfo
  und ein Button, der auf die verfügbaren Buchungsoptionen verlinkt, angezeigt.';
+$string['showlocationimages'] = 'Bilder in der Standort-Hover-Karte anzeigen';
+$string['showlocationimages_desc'] = 'Bei Standorten mit drei oder mehr Hierarchie-Ebenen werden die übergeordneten Ebenen beim Überfahren bzw. Fokussieren in einer kleinen Karte angezeigt. Wenn aktiviert, werden die Bilder der Entities als kleine Vorschaubilder in dieser Karte dargestellt.';
 $string['showmessages'] = 'Zeige Nachrichten';
 $string['showmybookingsonly'] = 'Meine Buchungen';
 $string['showmyfavoritesonly'] = 'Meine Favoriten';

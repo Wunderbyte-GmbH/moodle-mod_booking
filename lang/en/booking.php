@@ -2952,6 +2952,8 @@ $string['showinapi'] = 'Show in API?';
 $string['showlistoncoursepage'] = 'Show extra information on course page';
 $string['showlistoncoursepage_help'] = 'If you activate this setting, the course name, a short info and a button
                                             redirecting to the available booking options will be shown.';
+$string['showlocationimages'] = 'Show images in the location hover card';
+$string['showlocationimages_desc'] = 'For locations in a hierarchy of three or more levels, the superordinate levels are shown in a small card on hover/focus. When enabled, the entities\' images are rendered as small thumbnails inside that card.';
 $string['showmessages'] = 'Show messages';
 $string['showmybookingsonly'] = 'My booked options';
 $string['showmyfavoritesonly'] = 'My favorites';
