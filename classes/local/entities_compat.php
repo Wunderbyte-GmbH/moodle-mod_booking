@@ -48,7 +48,13 @@ class entities_compat {
      * @return bool
      */
     public static function has_capacity_support(): bool {
-        return class_exists('local_entities\entities')
-            && (int)get_config('local_entities', 'version') >= self::MIN_VERSION;
+        // Check the cheap installed-version config FIRST and short-circuit on it. Only when a
+        // capacity-grade local_entities is installed do we touch the class. This avoids autoloading
+        // local_entities\entities when the plugin is absent or older than MIN_VERSION — important
+        // because some local_entities versions pull lib/externallib.php at file scope, which throws
+        // require_phpunit_isolation() in a non-isolated PHPUnit run (and would otherwise break every
+        // booking option created in such a test).
+        return (int)get_config('local_entities', 'version') >= self::MIN_VERSION
+            && class_exists('local_entities\entities');
     }
 }
