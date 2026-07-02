@@ -30,7 +30,11 @@
     * url - link to the entity view page
     * name - the selected entity's name
     * pathtext - full ancestor path as plain text ("Root / … / Parent")
-    * ancestors - array of {name, indent, imageurl} root-first; imageurl may be null
+    * ancestors - array of {name, indent, imageurl, url} root-first; imageurl may be null
+
+    The card must NOT be aria-hidden: its entries are focusable links (reached by tabbing while
+    the card is held open via :focus-within). The sr-only path on the main link still gives
+    screenreaders the context without opening the card.
 
     Example context (json):
     {
@@ -38,17 +42,17 @@
         "name": "Raumbereich 1",
         "pathtext": "Hauptgebäude / Seminarraum 1",
         "ancestors": [
-            { "name": "Hauptgebäude", "indent": 0, "imageurl": "https://example.com/pluginfile.php/1/local_entities/image/2/main.jpg" },
-            { "name": "Seminarraum 1", "indent": 1, "imageurl": null }
+            { "name": "Hauptgebäude", "indent": 0, "imageurl": "https://example.com/pluginfile.php/1/local_entities/image/2/main.jpg", "url": "https://example.com/local/entities/view.php?id=2" },
+            { "name": "Seminarraum 1", "indent": 1, "imageurl": null, "url": "https://example.com/local/entities/view.php?id=4" }
         ]
     }
 }}
 <span class="mod-booking-location-cell">
     <a href="{{url}}">{{name}}<span class="sr-only visually-hidden">, {{pathtext}}</span></a>
-    <span class="mod-booking-location-path" aria-hidden="true">
+    <span class="mod-booking-location-path">
         {{#ancestors}}
         <span class="mod-booking-location-pathitem" style="padding-left: {{indent}}rem;">
-            {{#imageurl}}<img src="{{imageurl}}" alt="" loading="lazy" class="mod-booking-location-pathimg">{{/imageurl}}{{name}}
+            {{#imageurl}}<img src="{{imageurl}}" alt="" loading="lazy" class="mod-booking-location-pathimg">{{/imageurl}}<a href="{{url}}">{{name}}</a>
         </span>
         {{/ancestors}}
     </span>

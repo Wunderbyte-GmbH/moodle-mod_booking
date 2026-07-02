@@ -288,6 +288,11 @@ final class entities_tree_provider_test extends advanced_testcase {
         $this->assertStringContainsString('Location / Building', $html);
         $this->assertStringNotContainsString('Location / Building / Floor', $html);
         $this->assertStringNotContainsString('<img', $html);
+        // Every ancestor in the card links to its own entity view page; the card holds focusable
+        // links, so it must not be aria-hidden.
+        $this->assertStringContainsString((new \moodle_url('/local/entities/view.php', ['id' => $loc]))->out(false), $html);
+        $this->assertStringContainsString((new \moodle_url('/local/entities/view.php', ['id' => $bld]))->out(false), $html);
+        $this->assertStringNotContainsString('aria-hidden', $html);
 
         // With showlocationimages on, an ancestor's image is rendered small into the card.
         get_file_storage()->create_file_from_string([
