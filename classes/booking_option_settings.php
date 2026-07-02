@@ -1196,13 +1196,14 @@ class booking_option_settings {
         // (multilang, emoticons, ...) and therefore initialises the page theme - and that needs a
         // page context. Back-end callers (AJAX form submissions, scheduled tasks, events, CLI) may
         // construct booking_option_settings before any context has been established, which makes
-        // format_text() throw "$PAGE->context was not set". If no page controller has set things up
-        // yet, fall back to the system context so multilang/filters still run for every caller.
-        // Genuine page controllers set their URL first and are left untouched; they must call
-        // require_login() before formatting (see report2.php) so the correct course theme is used.
-        if (!$PAGE->has_set_url()) {
-            $PAGE->set_context(context_system::instance());
-        }
+        // format_text() throw "$PAGE->context was not set". Fall back to the system context so
+        // multilang/filters still run for those callers, but only when no context has been set yet:
+        // passing null to moodle_page::set_context() installs the system context only if the page
+        // has none, and is a silent no-op when a context already exists. Guarding on the URL instead
+        // would wrongly override an already-established context (e.g. a module context set via
+        // require_login() without a page URL, as happens in behat and web-service requests),
+        // triggering "unsupported modification of PAGE->context".
+        $PAGE->set_context(null);
 
         foreach ($this->customfieldsfortemplates as $shortname => $unused) {
             if (!array_key_exists($shortname, $this->customfields)) {
