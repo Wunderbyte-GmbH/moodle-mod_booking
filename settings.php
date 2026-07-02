@@ -367,6 +367,24 @@ if ($ADMIN->fulltree) {
             )
         );
 
+        // Limit the change log ("Show recent updates") in the edit forms to a time window,
+        // so the log table query stays fast on large sites.
+        $settings->add(
+            new admin_setting_configselect(
+                'booking/eventslogtimefilter',
+                get_string('eventslogtimefilter', 'mod_booking'),
+                get_string('eventslogtimefilter_desc', 'mod_booking'),
+                3,
+                [
+                    0 => get_string('eventslogtimefilternolimit', 'mod_booking'),
+                    1 => get_string('eventslogtimefiltermonths', 'mod_booking', 1),
+                    3 => get_string('eventslogtimefiltermonths', 'mod_booking', 3),
+                    6 => get_string('eventslogtimefiltermonths', 'mod_booking', 6),
+                    12 => get_string('eventslogtimefiltermonths', 'mod_booking', 12),
+                ]
+            )
+        );
+
         // Show extra information (custom fields, comments...) for optiondates in the booking options overview list.
         $showoptiondatesextrainfo = new admin_setting_configcheckbox(
             'booking/showoptiondatesextrainfo',

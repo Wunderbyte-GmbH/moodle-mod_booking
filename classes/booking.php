@@ -1693,6 +1693,7 @@ class booking {
      * @param string $component
      * @param array $eventnames
      * @param int $objectid
+     * @param int $timecreatedfrom only include log entries created at or after this timestamp, 0 for no limit
      *
      * @return array
      *
@@ -1700,7 +1701,8 @@ class booking {
     public static function return_sql_for_event_logs(
         string $component = 'mod_booking',
         array $eventnames = [],
-        int $objectid = 0
+        int $objectid = 0,
+        int $timecreatedfrom = 0
     ) {
         global $DB;
 
@@ -1708,10 +1710,18 @@ class booking {
 
         $params = [];
 
+        // The time condition goes inside the derived table, so the DB can use
+        // the timecreated index even if it materializes the subquery.
+        $timewhere = '';
+        if (!empty($timecreatedfrom)) {
+            $timewhere = "WHERE lsl.timecreated >= :timecreatedfrom";
+        }
+
         $from = "(
                     SELECT
                     lsl.*
                     FROM {logstore_standard_log} lsl
+                    $timewhere
                 ) as s1";
 
         $where = 'component = :component ';
@@ -1720,6 +1730,10 @@ class booking {
             [$inorequal, $params] = $DB->get_in_or_equal($eventnames, SQL_PARAMS_NAMED);
 
             $where .= " AND eventname " . $inorequal;
+        }
+
+        if (!empty($timecreatedfrom)) {
+            $params['timecreatedfrom'] = $timecreatedfrom;
         }
 
         if (!empty($objectid)) {

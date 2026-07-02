@@ -1495,7 +1495,10 @@ class mod_booking_mod_form extends moodleform_mod {
         if (!empty($this->_cm->id)) {
             $data = new eventslist(
                 $this->_cm->id,
-                ['\mod_booking\event\bookinginstance_updated']
+                ['\mod_booking\event\bookinginstance_updated'],
+                '',
+                [],
+                eventslist::get_timecreatedfrom()
             );
 
             $html = $OUTPUT->render_from_template('mod_booking/eventslist', $data);
