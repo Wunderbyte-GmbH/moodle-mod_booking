@@ -301,13 +301,13 @@ if ($ADMIN->fulltree) {
             )
         );
 
-        // Small entity images in the location hover card (3+ level hierarchies only).
+        // Small entity images in the location hover card (3+ level hierarchies only). Opt-in.
         $settings->add(
             new admin_setting_configcheckbox(
                 'booking/showlocationimages',
                 get_string('showlocationimages', 'mod_booking'),
                 get_string('showlocationimages_desc', 'mod_booking'),
-                1
+                0
             )
         );
 
