@@ -1,8 +1,40 @@
+## Version 9.5.0 (2026070300)
 * New feature: New "Bulk operations" tab on the booking instance view page. It is enabled via the "Views to show" instance setting, requires the 'mod/booking:executebulkoperations' capability in module context and only shows booking options of the current instance. Users without 'mod/booking:canseeinvisibleoptions' in the module context only see visible options there. Also, the "Send mail to teachers" functionality of bulk operations now needs the 'mod/booking:communicate' capability.
+* New feature: Add setting 'eventslogtimefilter' to limit recent changes in booking option and booking instance form for better performance.
+* New feature: Include Booking Rules on instance duplication.
+* New feature: New interface for improved feature to transfer any user(s) from one booking option to another.
+* Improvement: All tabs on the booking instance view now show a fitting icon.
 * Improvement: The capability 'mod/booking:executebulkoperations' is now assignable in module context (system-level assignments keep working).
 * Improvement: Bulk operation forms now check capabilities on submission ('mod/booking:executebulkoperations' for bulk editing, 'mod/booking:communicate' for sending mail to teachers).
-* Improvement: All tabs on the booking instance view now show a fitting icon.
+* Improvement: Bulk operations now run in adhoc task to avoid site crash.
+* Improvement: Supervisors can book and confirm their own subordinates to a booking option.
+* Improvement: Unify german gender notation
+* Improvement: Use regex to unify german gender slash
+* Improvement: Add genderslash lang package
+* Improvement: Add PRO badge for setting 'duplicationrestorerules'.
+* Improvement: Add new capability to allow duplication of courses without acces
+* Improvement: visibility is shown
+* Improvement: added instance to certificate condition and overwrite for multiple certificate issiuing
+* Improvement: checkbox for multiselect
+* Improvement: added customfield hierarchy_manager
+* Improvement: hierachical filters in booking
+* Improvement: first steps customfields in card
+* Improvement: openbookingdetailinsametab with additional option
+* Improvement: Possibility to place freeze warning underneath availability element
+* Improvement: Persist all option-form header collapse states across no-submit
 * Bugfix: The English and German 'bulkoperations' language strings were swapped.
+* Bugfix: Allow messaging for booking (e-mails and notifications) by default so Booking Rules will work on new Booking installations.
+* Bugfix: Add filter_multilang2 to CI workflow so test will work.
+* Bugfix: Another fix for wrong page context fix.
+* Bugfix: Fix page context for localized customfields and add unit test for mlang in customfields.
+* Bugfix: Fix coding exception on bookings tracker (report2.php).
+* Bugfix: Show countlabel of tables also when filters find records.
+* Bugfix: Fix behats for github action so they do not fail at first run.
+* Bugfix: Disable subscribeusers for slotbooking options
+* Bugfix: Fix unit test (removed unnecessary fallback to alloptionstable which also needs to be removed in unit test).
+* Bugfix: Moodle 4.5 accessibility fixes and revert to use phpunit's teardown() to ensure clean up of booking cache
+* Bugfix: Correctly use user & relateduser in message provider
+* Bugfix: only display header when option is of type slotbooking
 
 ## Version 9.4.0 (2026062201)
 * New feature: Slot booking - book and manage time slots inside a booking option: slot calendar picker and report, self-service move/cancel of booked slots, a unified "update booking" editor (move + cancel + change in one dynamic form), optional move-with-payment via shopping_cart, and per-slot booking rules (Wunderbyte-GmbH/Wunderbyte-GmbH#1596).
