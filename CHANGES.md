@@ -1,3 +1,19 @@
+## Version 9.6.0 (2026070901)
+* New feature: Booking agent — an AI assistant (bookingextension_agent) that creates, updates and manages booking options and answers questions from natural language, reachable from a global navbar entry point.
+* New feature: Entities treefilter — the location filter now shows the entity parent/child hierarchy as a searchable tree (requires local_wunderbyte_table 2026070800 or newer).
+* New feature: The location cell shows deep entity hierarchies as an accessible hover card; its entries link to the entity view pages and hover-card images are opt-in.
+* New feature: Entity cross-option availability and capacity/equipment booking — an option can require and consume the capacity of an entity or equipment across options.
+* New feature: After-booking actions can trigger a REST call (executerestscript, with optional JSON body, custom HTTP headers, TLS verification and optional JWT signing of the outgoing request) and can now also run on cancellation, not only on booking.
+* New feature: Read-only CLI cli/audit_booking_invariants.php to audit booking-answer DB invariants (overbooking, waiting list, duplicate answers, orphans, enrolment).
+* Improvement: bookingextension settings are now available regardless of the Booking PRO license.
+* Improvement: Better colour contrast for improved accessibility.
+* Improvement: Performance — a per-option capacity lock closes the overbooking race; system-wide cache broadcasts are deferred and reduced during waiting-list sync, bulk operations and single bookings; category lookups are batched; the MariaDB/MySQL version check is cached; and slot booking hoists option-wide queries out of the per-slot loop.
+* Bugfix: Availability SQL filter — tolerate NULL availability and make the userprofilefield &lt; and &gt; operators numeric and DB-agnostic (MariaDB and PostgreSQL).
+* Bugfix: REST after-booking action JSON-body placeholders are resolved per token, with new {baid} and {userid} placeholders.
+* Bugfix: The "user affected by event" option is gated by the selected event.
+* Bugfix: The scheduled mails page resolves its context like edit_rules.php and lists scheduled mails context-specifically.
+* Bugfix: Read the entitytreefilter setting from the correct component.
+
 ## Version 9.6.0 (2026070900)
 * New feature: New booking instance setting "customfieldsforview" to display booking option customfields for each booking option in the options overview (view.php) — in list view (footer area, right next to institution) and cards view (card list, one customfield per line, right above the dates), styled like the other info entries (e.g. institution). The icons configured in the plugin settings (customfieldicon_<shortname>) are shown in front of the values, just like on the option detail page; if no icon is configured, the default icon fa-puzzle-piece is used.
 * New feature: Add individual columns and customfields to fulltext search.
