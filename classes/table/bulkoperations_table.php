@@ -71,8 +71,6 @@ class bulkoperations_table extends wunderbyte_table {
             'id' => get_string('id', 'local_wunderbyte_table'),
             'titleprefix' => get_string('titleprefix', 'mod_booking'),
             'text' => get_string('title', 'mod_booking'),
-            // The teachers are stored in the SQL field "teacherobjects", so fulltext search finds teacher names.
-            'teacherobjects' => get_string('teachers', 'mod_booking'),
             'invisible' => get_string('invisible', 'mod_booking'),
         ];
         // Add defined customfields from args to columns.
@@ -208,26 +206,6 @@ class bulkoperations_table extends wunderbyte_table {
             return format_string($values->text);
         }
         return '-';
-    }
-
-    /**
-     * Display the teachers of the booking option.
-     * The column is based on the SQL field "teacherobjects" so that fulltext search
-     * finds teacher names, but rendering uses the option settings.
-     *
-     * @param object $values
-     * @return string
-     */
-    public function col_teacherobjects($values) {
-        $settings = singleton_service::get_instance_of_booking_option_settings($values->id);
-        if (empty($settings->teachers)) {
-            return '';
-        }
-        $teacherstrings = [];
-        foreach ($settings->teachers as $teacher) {
-            $teacherstrings[] = "$teacher->firstname $teacher->lastname";
-        }
-        return implode(', ', $teacherstrings);
     }
 
     /**

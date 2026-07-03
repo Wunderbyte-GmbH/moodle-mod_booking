@@ -1696,9 +1696,6 @@ class shortcodes {
                     "1" => get_string('optioninvisible', 'mod_booking'),
                     "2" => get_string('optionvisibledirectlink', 'mod_booking'),
                     ]);
-                } else if ($colname === 'teacherobjects') {
-                    // The field contains JSON, so show the "name" attribute instead (like the other booking views).
-                    $standardfilter->add_options(['jsonattribute' => 'name']);
                 }
                 $table->add_filter($standardfilter);
             }
