@@ -26,7 +26,7 @@
 
 namespace mod_booking;
 
-use mod_booking\booking_advanced_testcase;
+use mod_booking\tests\booking_advanced_testcase;
 use mod_booking_generator;
 use stdClass;
 use tool_mocktesttime\time_mock;
@@ -34,7 +34,6 @@ use tool_mocktesttime\time_mock;
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot . '/mod/booking/lib.php');
-require_once(__DIR__ . '/booking_advanced_testcase.php');
 
 /**
  * Tests for transferring booked users between booking options, including the transfer warnings.

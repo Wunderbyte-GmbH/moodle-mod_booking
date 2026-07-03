@@ -823,7 +823,7 @@ abstract class booking_skill_base extends base_skill {
      * "will retry automatically" phrasing would be a false promise once the synchronizer renders
      * it for the user.
      *
-     * @param  array<int,string> $allowedkeys Canonical keys this task accepts.
+     * @param  string[] $allowedkeys Canonical keys this task accepts.
      * @return string
      */
     protected function build_unsupported_params_guidance(array $allowedkeys): string {
