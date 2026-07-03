@@ -69,9 +69,8 @@ Feature: In a booking - create options and filter it
     And "//div[contains(@class, 'allbookingoptionstable_r3')]" "xpath_element" should not exist
     And I set the field "1, Teacher" in the ".allbookingoptionstable .wunderbyteTableFilter" "css_element" to ""
     And I should see "Teacher 3" in the ".allbookingoptionstable_r3" "css_element"
-    ## Hide filter - required for a new filter tool
-    ## Workaround for case when hidden "search" "input" intercepts focus - so we cannot press "Teachers" "button"
-    And I click on "//aside[contains(@class, 'wunderbyte_table_components')]" "xpath_element"
+    ## Hide filter - required for a new filter tool (workaround for case when hidden "search" "input" intercepts focus)
+    And I press the escape key
     ## Filtering by timespan
     And I click on "Course time" "button"
     ## Validate accessibility of booking options table before booking
@@ -94,11 +93,8 @@ Feature: In a booking - create options and filter it
     And I set the field "Display records" to "overlapping"
     And I should see "Option - Teacher1" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Option - Teacher2" in the ".allbookingoptionstable_r2" "css_element"
-    ## Hide active filter form
-    ## Workaround for case when hidden "search" "input" intercepts focus - so we cannot press "Teachers" "button"
-    And I click on "//aside[contains(@class, 'wunderbyte_table_components')]" "xpath_element"
-    ## Validate accessibility of booking options table before booking (disabled due to violations in Moodle 4.5 core)
-    And the page should meet accessibility standards
+    ## Hide filter - required for a new filter tool (workaround for case when hidden "search" "input" intercepts focus)
+    And I press the escape key
     ## Hide filter - required for a new filter tool
     ## Workaround for case when hidden "search" "input" intercepts focus - so we cannot press "Teachers" "button"
     And I click on "//aside[contains(@class, 'wunderbyte_table_components')]" "xpath_element"
