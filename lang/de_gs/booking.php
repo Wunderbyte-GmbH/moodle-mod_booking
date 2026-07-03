@@ -497,10 +497,15 @@ wenn es die Datenschutzbestimmungen Ihrer Organisation erlauben.</span>';
 $string['teachingreportforinstance'] = 'Trainer/innen-Gesamtbericht für ';
 $string['teachingreportfortrainer'] = 'Leistungs-Report für Trainer/in';
 $string['toomuchusersbooked'] = 'Maximale Anzahl an Nutzer/innen, die Sie buchen können: {$a}';
+$string['transferconfirmlabel'] = 'Ich habe die obenstehenden Warnungen verstanden und möchte die ausgewählten Nutzer/innen trotzdem umbuchen.';
 $string['transferheading'] = 'Ausgewählte Nutzer/innen in die ausgewählte Buchungsoption umbuchen';
 $string['transferoptionsuccess'] = 'Die Buchungsoption und die registrierten Nutzer/innen wurden erfolgreich umgebucht';
 $string['transferproblem'] = 'Die folgenden Nutzer/innen konnten aufgrund einer limitierten Anzahl an Plätzen der Buchungsoption oder aufgrund individueller Limitierungen seitens des/der Nutzer/in nicht umgebucht werden: {$a}';
+$string['transfersameoption'] = 'Bitte wählen Sie eine andere Buchungsoption als jene, in der die Nutzer/innen aktuell gebucht sind.';
 $string['transfersuccess'] = 'Die Nutzer/innen wurden erfolgreich umgebucht';
+$string['transfertargetoption_help'] = 'Suchen Sie die Buchungsoption, in die Sie die ausgewählten Nutzer/innen umbuchen möchten. Die Vorschläge zeigen den Titel der Buchungsoption (mit Präfix), die Options-ID und die Buchungsinstanz, zu der die Option gehört. Sie können auch in Optionen anderer Buchungsinstanzen umbuchen.';
+$string['transferusers'] = 'Nutzer/innen umbuchen';
+$string['transferwarningcustomform'] = 'Mindestens eine/r der ausgewählten Nutzer/innen hat für die aktuelle Buchungsoption ein individuelles Formular ausgefüllt. Diese Formulardaten gehen beim Umbuchen verloren.';
 $string['unenroluserswithoutaccess'] = 'Abmelden von Nutzer/innen ohne Zugang';
 $string['unenroluserswithoutaccess_desc'] = 'Melde Nutzer/innen automatisch ab, die keinen Zugang mehr zu einem Moodle-Kurs oder einer Buchungsaktivität haben.
 <div class="text-danger">Achtung: Damit wird die Nachverfolgung womöglich erschwert. Nach Aktivierung dieses Häkchens wird einmalig systemweit überprüft,
