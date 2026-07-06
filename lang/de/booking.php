@@ -1134,6 +1134,8 @@ $string['customfieldchanged'] = 'Benutzerdefiniertes Feld geändert';
 $string['customfieldconfigure'] = 'Booking: Benutzerdefinierte Buchungsoptionsfelder';
 $string['customfielddef'] = 'Benutzerdefiniertes Buchungsoptionsfeld';
 $string['customfielddesc'] = 'Definieren Sie den Wert dieses Feldes in den Buchungsoptionseinstellungen.';
+$string['customfieldicon'] = 'Icon für {$a->name} ({$a->shortname})';
+$string['customfieldicondesc'] = 'Font-Awesome-Klasse des Symbols, das vor diesem Feld angezeigt werden soll, z. B. <code>fa-map-marker</code>. Leer lassen für kein Symbol.';
 $string['customfieldname'] = 'Feldname';
 $string['customfieldname_help'] = 'Sie können einen beliebigen Feldnamen angeben. <br>
                                     Die Spezial-Feldnamen

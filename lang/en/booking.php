@@ -1164,6 +1164,8 @@ $string['customfieldchanged'] = 'Custom field changed';
 $string['customfieldconfigure'] = 'Booking: Custom booking option fields';
 $string['customfielddef'] = 'Custom booking option field';
 $string['customfielddesc'] = 'After adding a custom field, you can define the value for the field in the booking option settings. The value will be shown in the booking option description.';
+$string['customfieldicon'] = 'Icon for {$a->name} ({$a->shortname})';
+$string['customfieldicondesc'] = 'Font Awesome class of the icon to show in front of this field, e.g. <code>fa-map-marker</code>. Leave empty for no icon.';
 $string['customfieldname'] = 'Field name';
 $string['customfieldname_help'] = 'You can enter any field name you want. The special fieldnames
                                     <ul>
