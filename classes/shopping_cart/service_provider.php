@@ -387,11 +387,9 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
                 } else {
                     $value = $settings->$match ?? get_string('invalidplaceholder', 'mod_booking');
                 }
-
                 if (is_numeric($value)) {
                     $value = userdate(time(), get_string('strftimedaydate', 'core_langconfig'));
                 }
-
                 $replacements['{' . $match . '}'] = (string)$value;
             }
 
@@ -1018,5 +1016,81 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
             }
         }
         return true;
+    }
+
+    /**
+     * Resolve human-readable item names for a list of item ids.
+     *
+     * This optional adapter callback is used by local_shopping_cart coupon UI.
+     *
+     * @param int[] $itemids
+     * @param string $area
+     * @return array<int, string>
+     */
+    public static function resolve_item_names(array $itemids, string $area = 'option'): array {
+        global $DB;
+
+        // Coupon bindings in booking are currently option-based.
+        if ($area !== 'option' || empty($itemids)) {
+            return [];
+        }
+
+        $itemids = array_values(array_unique(array_map('intval', $itemids)));
+        if (empty($itemids)) {
+            return [];
+        }
+
+        [$insql, $inparams] = $DB->get_in_or_equal($itemids, SQL_PARAMS_NAMED);
+        $records = $DB->get_records_select('booking_options', "id $insql", $inparams, '', 'id, text');
+
+        $names = [];
+        foreach ($records as $record) {
+            $names[(int)$record->id] = (string)$record->text;
+        }
+
+        return $names;
+    }
+
+    /**
+     * Resolve view links for a list of item ids.
+     *
+     * This optional adapter callback is used by local_shopping_cart coupon UI.
+     *
+     * @param int[] $itemids
+     * @param string $area
+     * @return array<int, string>
+     */
+    public static function resolve_item_links(array $itemids, string $area = 'option'): array {
+        global $DB;
+
+        // Coupon bindings in booking are currently option-based.
+        if ($area !== 'option' || empty($itemids)) {
+            return [];
+        }
+
+        $itemids = array_values(array_unique(array_map('intval', $itemids)));
+        if (empty($itemids)) {
+            return [];
+        }
+
+        [$insql, $inparams] = $DB->get_in_or_equal($itemids, SQL_PARAMS_NAMED);
+        $sql = "SELECT bo.id, cm.id AS cmid
+                  FROM {booking_options} bo
+                  JOIN {course_modules} cm ON bo.bookingid = cm.instance
+                  JOIN {modules} m ON m.id = cm.module
+                 WHERE m.name = 'booking'
+                   AND bo.id $insql";
+        $records = $DB->get_records_sql($sql, $inparams);
+
+        $links = [];
+        foreach ($records as $record) {
+            $links[(int)$record->id] = (new \moodle_url('/mod/booking/view.php', [
+                'id' => (int)$record->cmid,
+                'optionid' => (int)$record->id,
+                'whichview' => 'showonlyone',
+            ]))->out(false);
+        }
+
+        return $links;
     }
 }
