@@ -496,6 +496,18 @@ if ($ADMIN->fulltree) {
             )
         );
     }
+    // Font Awesome icon shown in front of each custom field (shared by detail page and card).
+    foreach ($customfields as $customfield) {
+        $settings->add(
+            new admin_setting_configtext(
+                'booking/customfieldicon_' . $customfield->shortname,
+                get_string('customfieldicon', 'mod_booking', $customfield),
+                get_string('customfieldicondesc', 'mod_booking'),
+                '',
+                PARAM_TEXT
+            )
+        );
+    }
     $settings->add(
         new admin_setting_configcheckbox(
             'booking/alloptionsinreport',

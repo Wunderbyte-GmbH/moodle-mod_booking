@@ -798,11 +798,34 @@ class bookingoption_description implements renderable, templatable {
         if (!empty($cfstoshowstring = get_config('booking', $configkey))) {
             foreach (explode(',', $cfstoshowstring) as $cftoshow) {
                 if (!empty($returnarray[$cftoshow])) {
-                    $html .= "<div class='{$cssprefix}-{$cftoshow}'>" . $returnarray[$cftoshow] . "</div>";
+                    $icon = $this->build_customfield_icon_html($cftoshow);
+                    $html .= "<div class='{$cssprefix}-{$cftoshow}'>" . $icon . $returnarray[$cftoshow] . "</div>";
                 }
             }
         }
         return $html;
+    }
+
+    /**
+     * Build the Font Awesome icon tag configured for a custom field, or '' if none is set.
+     * The icon is shared across all views (detail page and card).
+     * @param string $shortname the custom field shortname
+     * @return string the <i> tag with a trailing space, or an empty string
+     */
+    private function build_customfield_icon_html(string $shortname): string {
+        $icon = trim((string) get_config('booking', 'customfieldicon_' . $shortname));
+        if (empty($icon)) {
+            return '';
+        }
+        // The admin enters the Font Awesome icon class.
+        // Only accept a valid CSS-class string (letters, digits, dashes, underscores, spaces).
+        if (!preg_match('/^[a-z0-9 _-]+$/i', $icon)) {
+            return '';
+        }
+        return html_writer::tag('i', '', [
+            'class' => 'fa fa-fw ' . $icon,
+            'aria-hidden' => 'true',
+        ]) . ' ';
     }
 
     /**
