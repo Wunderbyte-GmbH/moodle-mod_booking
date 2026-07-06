@@ -31,6 +31,7 @@ The current course context comes from `$PAGE->course`.
 |-----------|---------|
 | `perpage="5"` | Rows per page. |
 | `search="1"` | Show full-text search. |
+| `fulltextsearchcolumns="description,shortname1"` | Add booking option fields and/or booking custom field shortnames to the full-text search. Implicitly enables the search box. |
 | `sort="1"` | Show sort controls. |
 | `filter="1"` | Show standard filters. |
 | `sortby="coursestarttime"` | Default sort column. |

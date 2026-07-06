@@ -890,6 +890,10 @@ function booking_add_instance($booking) {
         booking::add_data_to_json($booking, "customfieldsforfilter", $fieldsfordb);
     }
 
+    if (!empty($booking->fulltextsearchcolumns)) {
+        booking::add_data_to_json($booking, "fulltextsearchcolumns", array_values($booking->fulltextsearchcolumns));
+    }
+
     if (isset($booking->addtogroupofcurrentcourse)) {
         // This will store the correct JSON to $optionvalues->json.
         booking::add_data_to_json($booking, "addtogroupofcurrentcourse", $booking->addtogroupofcurrentcourse);
@@ -1244,6 +1248,12 @@ function booking_update_instance($booking) {
             $fieldsfordb[$field->shortname] = $field->name;
         }
         booking::add_data_to_json($booking, "customfieldsforfilter", $fieldsfordb);
+    }
+
+    if (empty($booking->fulltextsearchcolumns)) {
+        booking::remove_key_from_json($booking, "fulltextsearchcolumns");
+    } else {
+        booking::add_data_to_json($booking, "fulltextsearchcolumns", array_values($booking->fulltextsearchcolumns));
     }
 
     if (empty($booking->addtogroupofcurrentcourse)) {

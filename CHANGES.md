@@ -1,4 +1,7 @@
 ## Version 9.5.0 (2026070300)
+* Improvement: The full text search on booking customfields (via shortcode argument or instance setting fulltextsearchcolumns) now also searches the display value resolved by the wbt_field_controller (e.g. select labels or the data returned by the SQL of a dynamicformat field), not only the stored key.
+* New feature: New booking instance setting "Columns to add to the full text search" to add columns of booking options or booking customfields to the full text search of the booking options table.
+* New feature: New shortcode argument fulltextsearchcolumns (e.g. [courselist cmid="123" fulltextsearchcolumns="description,customfieldshortname"]) to add columns of booking options or booking customfields (by shortname) to the full text search of the table. Setting the argument implicitly enables the search.
 * New feature: New "Bulk operations" tab on the booking instance view page. It is enabled via the "Views to show" instance setting, requires the 'mod/booking:executebulkoperations' capability in module context and only shows booking options of the current instance. Users without 'mod/booking:canseeinvisibleoptions' in the module context only see visible options there. Also, the "Send mail to teachers" functionality of bulk operations now needs the 'mod/booking:communicate' capability.
 * New feature: Add setting 'eventslogtimefilter' to limit recent changes in booking option and booking instance form for better performance.
 * New feature: Include Booking Rules on instance duplication.

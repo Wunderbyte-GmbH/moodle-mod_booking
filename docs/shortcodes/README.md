@@ -93,6 +93,7 @@ These parameters are used by the table-based shortcodes that render booking opti
 | `infinitescrollpage="30"` | Number of rows loaded per infinite-scroll step | Only relevant when `perpage` is not set or is `0`/`false`. |
 | `sort="1"` | Show sort controls | Only in shortcodes that expose optional sort UI. |
 | `search="1"` | Show full-text search | Only in shortcodes that expose optional search UI. |
+| `fulltextsearchcolumns="description,shortname1"` | Add columns to the full-text search | Comma-separated list of booking option fields and/or booking custom field shortnames. Setting this implicitly enables the search box. Invalid column names are ignored. |
 | `filter="1"` | Show standard filters | In some shortcodes this is a boolean toggle; in `[bulkoperations]` it is a comma-separated filter definition. |
 | `sortby="coursestarttime"` | Default sort column | Sanitised to alphanumeric / underscore / dash characters. |
 | `sortorder="asc"` / `sortorder="desc"` | Default sort direction | Default is ascending. |

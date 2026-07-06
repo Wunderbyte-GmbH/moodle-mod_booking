@@ -34,6 +34,7 @@ use local_wunderbyte_table\filters\types\datepicker;
 use local_wunderbyte_table\filters\types\standardfilter;
 use mod_booking\booking;
 use mod_booking\booking_option;
+use mod_booking\customfield\booking_handler;
 use mod_booking\elective;
 use mod_booking\filters\available_places;
 use mod_booking\option\fields\competencies;
@@ -1292,6 +1293,20 @@ class view implements renderable, templatable {
 
         $bowbtable->define_cache('mod_booking', 'bookingoptionstable');
 
+        // Additional fulltext search columns can come from the shortcode argument or from the instance setting.
+        $additionalsearchcolumns = [];
+        if (!empty($args['fulltextsearchcolumns'])) {
+            // The fulltextsearchcolumns argument implicitly enables search.
+            $search = true;
+            $additionalsearchcolumns = explode(',', $args['fulltextsearchcolumns']);
+        }
+        if (!empty($cmid)) {
+            $additionalsearchcolumns = array_merge(
+                $additionalsearchcolumns,
+                (array)($bookingsettings->fulltextsearchcolumns ?? [])
+            );
+        }
+
         if ($search) {
             $fulltextsearchcolumns = [];
             $fulltextsearchcolumns[] = 'titleprefix';
@@ -1307,6 +1322,29 @@ class view implements renderable, templatable {
             }
             if (in_array('teacher', $optionsfields)) {
                 $fulltextsearchcolumns[] = 'teacherobjects';
+            }
+            if (!empty($additionalsearchcolumns)) {
+                // Additional search columns can be either columns of booking_options or customfield shortnames.
+                $validcolumns = array_keys($DB->get_columns('booking_options', true));
+                $customfieldshortnames = array_map(
+                    fn($field) => $field->shortname,
+                    booking_handler::get_customfields()
+                );
+                foreach ($additionalsearchcolumns as $column) {
+                    $column = clean_param(trim($column), PARAM_ALPHANUMEXT);
+                    if (
+                        in_array($column, $validcolumns, true)
+                        || in_array($column, $customfieldshortnames, true)
+                    ) {
+                        $fulltextsearchcolumns[] = $column;
+                    } else if (!empty($column)) {
+                        debugging(
+                            "Invalid column '$column' in fulltextsearchcolumns shortcode argument was ignored.",
+                            DEBUG_DEVELOPER
+                        );
+                    }
+                }
+                $fulltextsearchcolumns = array_values(array_unique($fulltextsearchcolumns));
             }
             $bowbtable->define_fulltextsearchcolumns($fulltextsearchcolumns);
         }

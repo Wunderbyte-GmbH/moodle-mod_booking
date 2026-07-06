@@ -34,6 +34,7 @@ This is the main shortcode for embedding the option list of a single booking ins
 | `perpage="10"` | Rows per page. |
 | `type="cards"` | Use `list`, `cards`, `imageleft`, `imageright`, or `imagelefthalf`. |
 | `search="1"` | Show full-text search. |
+| `fulltextsearchcolumns="description,shortname1"` | Add booking option fields and/or booking custom field shortnames to the full-text search. Implicitly enables the search box. |
 | `sort="1"` | Show sort controls. |
 | `filter="1"` | Show standard filters. |
 | `sortby="coursestarttime"` | Default sort column. |
@@ -98,6 +99,14 @@ This is the main shortcode for embedding the option list of a single booking ins
 ```text
 [courselist cmid="42" sporttype="tennis"]
 ```
+
+### Search over additional columns
+
+```text
+[courselist cmid="42" fulltextsearchcolumns="description,sporttype,organizer"]
+```
+
+Adds the `description` field and the values of the booking custom fields with the shortnames `sporttype` and `organizer` to the full-text search. The search box is shown even without `search="1"`.
 
 ---
 
