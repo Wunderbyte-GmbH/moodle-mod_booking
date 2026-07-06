@@ -1794,6 +1794,7 @@ $string['institution_help'] = 'You can either enter the institution name manuall
 $string['institutions'] = 'Institutions';
 $string['interval'] = "Delay";
 $string['interval_help'] = "In minutes. 1440 for 24 hours.";
+$string['invalidplaceholder'] = 'Invalid placeholder';
 $string['invisible'] = 'Invisible';
 $string['invisibleoption'] = '<i class="fa fa-eye-slash" aria-hidden="true"></i> Invisible';
 $string['invisibleoption:notallowed'] = 'You are not allowed to see this booking option.';

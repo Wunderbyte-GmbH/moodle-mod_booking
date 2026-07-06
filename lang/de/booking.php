@@ -1749,6 +1749,7 @@ $string['institution_help'] = 'Sie können den Namen der Institution manuell ein
 $string['institutions'] = 'Institutionen';
 $string['interval'] = "Interval";
 $string['interval_help'] = "In Minuten. 1440 für 24h.";
+$string['invalidplaceholder'] = 'Ungültiger Platzhalter.';
 $string['invisible'] = 'Unsichtbar';
 $string['invisibleoption'] = '<i class="fa fa-eye-slash" aria-hidden="true"></i> Unsichtbar';
 $string['invisibleoption:notallowed'] = 'Sie sind nicht berechtigt, diese Buchungsoption zu sehen.';
