@@ -38,7 +38,7 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 require_once($CFG->dirroot . '/mod/booking/classes/price.php');
-require_once(__DIR__ . '/../booking_advanced_testcase.php');
+require_once(__DIR__ . '/../classes/booking_advanced_testcase.php');
 
 /**
  * Class handling tests for courselist.

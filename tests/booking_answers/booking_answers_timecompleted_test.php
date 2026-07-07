@@ -25,7 +25,7 @@ use stdClass;
 use mod_booking_generator;
 
 defined('MOODLE_INTERNAL') || die();
-require_once(__DIR__ . '/../booking_advanced_testcase.php');
+require_once(__DIR__ . '/../classes/booking_advanced_testcase.php');
 
 /**
  * Test for booking_answers timecompleted field.
