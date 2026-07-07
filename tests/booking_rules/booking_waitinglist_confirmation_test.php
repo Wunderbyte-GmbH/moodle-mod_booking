@@ -1040,7 +1040,7 @@ final class booking_waitinglist_confirmation_test extends advanced_testcase {
      * s4 joins WL AFTER the drain → companion mechanism must create a direct confirm
      *   task for exactly s4 (seat still free: s3 stays on WL in paid path).
      * Batch runs → s4 confirmed (confirmationcount=1, PRICEISSET).
-     * Admin force-books s1 again → option fully booked.
+     * Admin shrinks maxanswers to 1 → option fully booked with s2 alone.
      * s5 joins WL → must NOT receive a task (option_is_fully_booked gate).
      *
      * @covers \mod_booking\booking_rules\rules_info::collect_rules_for_execution
@@ -1293,23 +1293,46 @@ final class booking_waitinglist_confirmation_test extends advanced_testcase {
             'student4: after paid-path confirm task, user should be at PRICEISSET'
         );
 
-        // Phase 6 (negative): admin force-books s1 again → option fully booked (2/2).
+        // Phase 6 (negative): shrink maxanswers to 1 → option fully booked with s2 alone.
+        // (A force-book of s1 would land him on the WL with waitforconfirmation=2 and itself
+        // trigger the companion mechanism, so we make the option full via the setting instead.)
         // A late joiner must NOT receive a confirm task when no seat is free.
         time_mock::set_mock_time(strtotime('+1 hour', time_mock::get_mock_time()));
         $this->setAdminUser();
-        singleton_service::destroy_booking_option_singleton($option->id);
-        $boption = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
-        $boption->user_submit_response(
-            $student[1],
-            0,
-            0,
-            MOD_BOOKING_BO_SUBMIT_STATUS_BOOKOTHEROPTION_FORCE,
-            MOD_BOOKING_VERIFIED
-        );
+        $updaterecord = new stdClass();
+        $updaterecord->id = $option->id;
+        $updaterecord->bookingid = $booking1->id;
+        $updaterecord->text = $record->text;
+        $updaterecord->maxanswers = 1;
+        $updaterecord->chooseorcreatecourse = 1;
+        $updaterecord->courseid = $course->id;
+        $updaterecord->maxoverbooking = 10;
+        $updaterecord->waitforconfirmation = 2;
+        $updaterecord->confirmationonnotification = 1;
+        $updaterecord->useprice = 1;
+        $updaterecord->importing = 1;
+        $updaterecord->optiondateid_0 = "0";
+        $updaterecord->daystonotify_0 = "0";
+        $updaterecord->coursestarttime_0 = $record->coursestarttime_0;
+        $updaterecord->courseendtime_0 = $record->courseendtime_0;
+        $updaterecord->teachersforoption = $teacher->username;
+        booking_option::update($updaterecord);
 
         singleton_service::destroy_booking_option_singleton($option->id);
         $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
         $boinfo = new bo_info($settings);
+
+        // Premise check: the option must really be fully booked now (s2 on 1/1 seats).
+        $bookinganswers = singleton_service::get_instance_of_booking_answers($settings);
+        $this->assertTrue(
+            $bookinganswers->is_fully_booked(),
+            'Phase 6 premise: option must be fully booked after maxanswers was reduced to 1.'
+        );
+        $this->assertCount(
+            0,
+            \core\task\manager::get_adhoc_tasks($taskclass),
+            'Phase 6 premise: no confirm tasks may be queued before s5 joins.'
+        );
 
         $this->setUser($student[5]);
         singleton_service::destroy_user($student[5]->id);
@@ -1322,13 +1345,10 @@ final class booking_waitinglist_confirmation_test extends advanced_testcase {
             'student5: second bookit should result in ONWAITINGLIST'
         );
 
-        $tasksfors5 = array_filter(
+        $this->assertCount(
+            0,
             \core\task\manager::get_adhoc_tasks($taskclass),
-            fn($task) => (int)($task->get_custom_data()->userid ?? 0) === (int)$student[5]->id
-        );
-        $this->assertEmpty(
-            $tasksfors5,
-            'Late joiner s5 must NOT get a confirm task when the option is fully booked.'
+            'Late joiner s5 must NOT trigger any confirm task when the option is fully booked.'
         );
 
         // Even running tasks again must not create a task for s5.
@@ -1346,5 +1366,388 @@ final class booking_waitinglist_confirmation_test extends advanced_testcase {
             $tasksfors5after,
             's5 should remain without confirm task after subsequent task runs.'
         );
+    }
+
+    /**
+     * Shared scaffold for the chain-behavior regression tests below:
+     * rule (react on freetobookagain, select_student_in_bo borole=1, action confirm_bookinganswer),
+     * priced option (waitforconfirmation=2, maxanswers=2), s1+s2 force-booked by admin,
+     * s3..s(2+$wlusercount) join the waitinglist with one-hour gaps (distinct timemodified).
+     *
+     * @param int $confirmationmode value for confirmationonnotification (1 or 2)
+     * @param int $wlusercount how many users join the waitinglist initially (1-3)
+     * @return array with keys settings, student, plugingenerator, option, booking, course, teacher, record
+     */
+    private function setup_waitinglist_chain_scenario(int $confirmationmode, int $wlusercount): array {
+        $bdata = self::booking_common_settings_provider()['bdata'][0] ?? null;
+        if ($bdata === null) {
+            $bdata = self::booking_common_settings_provider();
+        }
+        set_config('timezone', 'Europe/Kyiv');
+        set_config('forcetimezone', 'Europe/Kyiv');
+        $bdata['cancancelbook'] = 1;
+
+        $this->getDataGenerator()->create_custom_profile_field([
+            'datatype' => 'text',
+            'shortname' => 'pricecat',
+            'name' => 'pricecat',
+        ]);
+        set_config('pricecategoryfield', 'pricecat', 'booking');
+        set_config('displayemptyprice', 1, 'booking');
+
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+
+        // Explicit pricecat guards against stale user_info_data of recycled user ids.
+        $student = [];
+        for ($i = 1; $i <= 5; $i++) {
+            $student[$i] = $this->getDataGenerator()->create_user(['profile_field_pricecat' => 'default']);
+        }
+        $teacher = $this->getDataGenerator()->create_user();
+
+        $bdata['course'] = $course->id;
+        $bdata['bookingmanager'] = $teacher->username;
+        $booking = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        $this->setAdminUser();
+        for ($i = 1; $i <= 5; $i++) {
+            $this->getDataGenerator()->enrol_user($student[$i]->id, $course->id, 'student');
+        }
+        $this->getDataGenerator()->enrol_user($teacher->id, $course->id, 'editingteacher');
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+
+        $plugingenerator->create_pricecategory((object)[
+            'ordernum' => 1,
+            'name' => 'default',
+            'identifier' => 'default',
+            'defaultvalue' => 100,
+            'pricecatsortorder' => 1,
+        ]);
+
+        $boevent = '"boevent":"\\\\mod_booking\\\\event\\\\bookingoption_freetobookagain"';
+        $plugingenerator->create_rule([
+            'name' => 'confirmwaitinglistusers',
+            'conditionname' => 'select_student_in_bo',
+            'contextid' => 1,
+            'conditiondata' => '{"borole":"1"}',
+            'actionname' => 'confirm_bookinganswer',
+            'actiondata' => '{}',
+            'rulename' => 'rule_react_on_event',
+            'ruledata' => '{' . $boevent . ',"aftercompletion":0,"cancelrules":[]}',
+        ]);
+
+        $record = new stdClass();
+        $record->bookingid = $booking->id;
+        $record->text = 'chain-regression';
+        $record->maxanswers = 2;
+        $record->chooseorcreatecourse = 1;
+        $record->courseid = $course->id;
+        $record->maxoverbooking = 10;
+        $record->waitforconfirmation = 2;
+        $record->confirmationonnotification = $confirmationmode;
+        $record->useprice = 1;
+        $record->importing = 1;
+        $record->optiondateid_0 = "0";
+        $record->daystonotify_0 = "0";
+        $record->coursestarttime_0 = strtotime('20 June 2050 15:00', time());
+        $record->courseendtime_0 = strtotime('20 July 2050 14:00', time());
+        $record->teachersforoption = $teacher->username;
+        $option = $plugingenerator->create_option($record);
+        singleton_service::destroy_booking_option_singleton($option->id);
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
+        singleton_service::destroy_booking_singleton_by_cmid($settings->cmid);
+        $boption = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
+        $boinfo = new bo_info($settings);
+
+        foreach ([1, 2] as $i) {
+            $boption->user_submit_response(
+                $student[$i],
+                0,
+                0,
+                MOD_BOOKING_BO_SUBMIT_STATUS_BOOKOTHEROPTION_FORCE,
+                MOD_BOOKING_VERIFIED
+            );
+            [$id] = $boinfo->is_available($settings->id, $student[$i]->id, true);
+            $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id, "student{$i} should be force-booked");
+        }
+
+        for ($i = 3; $i < 3 + $wlusercount; $i++) {
+            time_mock::set_mock_time(strtotime('+1 hour', time_mock::get_mock_time()));
+            $this->setUser($student[$i]);
+            singleton_service::destroy_user($student[$i]->id);
+            booking_bookit::bookit('option', $settings->id, $student[$i]->id);
+            booking_bookit::bookit('option', $settings->id, $student[$i]->id);
+            [$id] = $boinfo->is_available($settings->id, $student[$i]->id, true);
+            $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id, "student{$i} should be on the waitinglist");
+        }
+
+        return [
+            'settings' => $settings,
+            'student' => $student,
+            'plugingenerator' => $plugingenerator,
+            'option' => $option,
+            'booking' => $booking,
+            'course' => $course,
+            'teacher' => $teacher,
+            'record' => $record,
+        ];
+    }
+
+    /**
+     * Helper: map userid => timemodified for all current waitinglist answers of the option.
+     *
+     * @param int $optionid
+     * @return array
+     */
+    private function get_waitinglist_timemodified_map(int $optionid): array {
+        global $DB;
+        $rows = $DB->get_records('booking_answers', [
+            'optionid' => $optionid,
+            'waitinglist' => MOD_BOOKING_STATUSPARAM_WAITINGLIST,
+        ], '', 'id, userid, timemodified');
+        $map = [];
+        foreach ($rows as $row) {
+            $map[(int)$row->userid] = (int)$row->timemodified;
+        }
+        return $map;
+    }
+
+    /**
+     * Helper: run confirm-task batches until the queue is drained.
+     *
+     * @param mod_booking_generator $plugingenerator
+     * @return void
+     */
+    private function drain_confirm_tasks(mod_booking_generator $plugingenerator): void {
+        $this->setAdminUser();
+        $taskclass = \mod_booking\task\confirm_bookinganswer_by_rule_adhoc::class;
+        $batchcount = 0;
+        do {
+            ob_start();
+            $plugingenerator->runtaskswithintime(time_mock::get_mock_time());
+            ob_end_clean();
+            $batchcount++;
+        } while (!empty(\core\task\manager::get_adhoc_tasks($taskclass)) && $batchcount < 10);
+        $this->assertLessThan(10, $batchcount, 'Confirm-task chain must drain within 10 batches.');
+    }
+
+    /**
+     * Confirming and un-confirming waitinglist users must not change their timemodified:
+     * timemodified is the waitinglist ORDER. In exclusive mode (confirmationonnotification=2)
+     * each confirmation also un-confirms all other WL users, which used to rewrite every WL
+     * row and flatten/destroy the original join order.
+     *
+     * @covers \mod_booking\booking_option::write_user_answer_to_db
+     * @covers \mod_booking\task\confirm_bookinganswer_by_rule_adhoc::execute
+     */
+    public function test_confirmation_writes_do_not_change_waitinglist_order(): void {
+        global $DB;
+
+        $this->resetAfterTest();
+        $scenario = $this->setup_waitinglist_chain_scenario(2, 2);
+        $settings = $scenario['settings'];
+        $student = $scenario['student'];
+        $plugingenerator = $scenario['plugingenerator'];
+        $option = $scenario['option'];
+
+        $tmbefore = $this->get_waitinglist_timemodified_map($option->id);
+        $this->assertCount(2, $tmbefore, 'Premise: s3 and s4 must be on the waitinglist.');
+
+        // S1 cancels -> freetobookagain -> confirm chain runs through (mode 2 march).
+        time_mock::set_mock_time(strtotime('+1 hour', time_mock::get_mock_time()));
+        $this->setAdminUser();
+        singleton_service::destroy_booking_option_singleton($option->id);
+        $boption = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
+        $boption->user_delete_response($student[1]->id);
+
+        $this->drain_confirm_tasks($plugingenerator);
+
+        $tmafter = $this->get_waitinglist_timemodified_map($option->id);
+        $this->assertEquals(
+            $tmbefore,
+            $tmafter,
+            'Confirm/un-confirm writes must not change timemodified of waitinglist answers (= the WL order).'
+        );
+
+        // The queue order (timemodified ASC, id ASC) must still be s3 before s4.
+        $ordereduserids = array_keys($DB->get_records_sql(
+            "SELECT ba.userid
+               FROM {booking_answers} ba
+              WHERE ba.optionid = :optionid AND ba.waitinglist = :wl
+           ORDER BY ba.timemodified ASC, ba.id ASC",
+            ['optionid' => $option->id, 'wl' => MOD_BOOKING_STATUSPARAM_WAITINGLIST]
+        ));
+        $this->assertEquals(
+            [(int)$student[3]->id, (int)$student[4]->id],
+            array_map('intval', $ordereduserids),
+            'Waitinglist order must remain the join order after the confirm chain ran.'
+        );
+    }
+
+    /**
+     * A new freetobookagain event must not re-treat users who already hold a confirmation:
+     * previously the chain restarted from the first WL user, inflating confirmationcount
+     * (1 -> 2) and re-notifying everyone instead of advancing to unconfirmed users.
+     *
+     * @covers \mod_booking\booking_rules\actions\confirm_bookinganswer::execute
+     * @covers \mod_booking\task\confirm_bookinganswer_by_rule_adhoc::execute
+     */
+    public function test_chain_restart_does_not_retreat_confirmed_users(): void {
+        global $DB;
+
+        $this->resetAfterTest();
+        $scenario = $this->setup_waitinglist_chain_scenario(1, 2);
+        $settings = $scenario['settings'];
+        $student = $scenario['student'];
+        $plugingenerator = $scenario['plugingenerator'];
+        $option = $scenario['option'];
+        $record = $scenario['record'];
+        $taskclass = \mod_booking\task\confirm_bookinganswer_by_rule_adhoc::class;
+
+        // Event 1: s1 cancels -> chain confirms s3 and s4 (mode 1, both keep confirmation).
+        time_mock::set_mock_time(strtotime('+1 hour', time_mock::get_mock_time()));
+        $this->setAdminUser();
+        singleton_service::destroy_booking_option_singleton($option->id);
+        $boption = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
+        $boption->user_delete_response($student[1]->id);
+
+        $this->drain_confirm_tasks($plugingenerator);
+
+        foreach ([3, 4] as $i) {
+            $answer = $DB->get_record('booking_answers', [
+                'optionid' => $option->id,
+                'userid' => $student[$i]->id,
+                'waitinglist' => MOD_BOOKING_STATUSPARAM_WAITINGLIST,
+            ]);
+            $json = empty($answer->json) ? (object)[] : json_decode($answer->json);
+            $this->assertEquals(1, $json->confirmationcount ?? 0, "student{$i} must be confirmed once after event 1");
+        }
+        $countsbefore = [];
+        $tmbefore = $this->get_waitinglist_timemodified_map($option->id);
+
+        // Event 2: shrink maxanswers to 1 (fully booked with s2 alone), then raise it back to 2
+        // -> freetobookagain fires again. All WL users are already confirmed -> nothing to do.
+        foreach ([1, 2] as $newmax) {
+            time_mock::set_mock_time(strtotime('+1 hour', time_mock::get_mock_time()));
+            $updaterecord = new stdClass();
+            $updaterecord->id = $option->id;
+            $updaterecord->bookingid = $scenario['booking']->id;
+            $updaterecord->text = $record->text;
+            $updaterecord->maxanswers = $newmax;
+            $updaterecord->chooseorcreatecourse = 1;
+            $updaterecord->courseid = $scenario['course']->id;
+            $updaterecord->maxoverbooking = 10;
+            $updaterecord->waitforconfirmation = 2;
+            $updaterecord->confirmationonnotification = 1;
+            $updaterecord->useprice = 1;
+            $updaterecord->importing = 1;
+            $updaterecord->optiondateid_0 = "0";
+            $updaterecord->daystonotify_0 = "0";
+            $updaterecord->coursestarttime_0 = $record->coursestarttime_0;
+            $updaterecord->courseendtime_0 = $record->courseendtime_0;
+            $updaterecord->teachersforoption = $scenario['teacher']->username;
+            booking_option::update($updaterecord);
+            singleton_service::destroy_booking_option_singleton($option->id);
+        }
+
+        $this->assertCount(
+            0,
+            \core\task\manager::get_adhoc_tasks($taskclass),
+            'A repeated freetobookagain must not queue confirm tasks for already-confirmed WL users.'
+        );
+
+        // Belt and braces: run batches anyway; counts and timestamps must stay untouched.
+        $this->drain_confirm_tasks($plugingenerator);
+        foreach ([3, 4] as $i) {
+            $answer = $DB->get_record('booking_answers', [
+                'optionid' => $option->id,
+                'userid' => $student[$i]->id,
+                'waitinglist' => MOD_BOOKING_STATUSPARAM_WAITINGLIST,
+            ]);
+            $json = empty($answer->json) ? (object)[] : json_decode($answer->json);
+            $this->assertEquals(
+                1,
+                $json->confirmationcount ?? 0,
+                "student{$i}: confirmationcount must not be inflated by a repeated event"
+            );
+        }
+        $this->assertEquals(
+            $tmbefore,
+            $this->get_waitinglist_timemodified_map($option->id),
+            'Waitinglist order must survive a repeated freetobookagain event unchanged.'
+        );
+    }
+
+    /**
+     * A user who joins the waitinglist while the LAST direct confirm task of a chain is still
+     * pending (no repeat-trigger in the queue anymore) must still receive a confirm task:
+     * previously the companion mechanism was blocked by ANY pending task of the rule/option,
+     * although only a repeat-trigger re-queries the waitinglist.
+     *
+     * @covers \mod_booking\booking_rules\rules_info::collect_rules_for_execution
+     * @covers \mod_booking\event\bookingoptionwaitinglist_booked
+     */
+    public function test_late_joiner_during_last_pending_direct_task_gets_task(): void {
+        global $DB;
+
+        $this->resetAfterTest();
+        $scenario = $this->setup_waitinglist_chain_scenario(1, 1);
+        $settings = $scenario['settings'];
+        $student = $scenario['student'];
+        $plugingenerator = $scenario['plugingenerator'];
+        $option = $scenario['option'];
+        $taskclass = \mod_booking\task\confirm_bookinganswer_by_rule_adhoc::class;
+
+        // S1 cancels -> single WL user s3 -> exactly ONE direct task, no repeat-trigger.
+        time_mock::set_mock_time(strtotime('+1 hour', time_mock::get_mock_time()));
+        $this->setAdminUser();
+        singleton_service::destroy_booking_option_singleton($option->id);
+        $boption = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
+        $boption->user_delete_response($student[1]->id);
+
+        $tasks = \core\task\manager::get_adhoc_tasks($taskclass);
+        $this->assertCount(1, $tasks, 'Premise: single WL user -> exactly one direct confirm task.');
+        $task = reset($tasks);
+        $this->assertEmpty(
+            $task->get_custom_data()->repeat ?? 0,
+            'Premise: the single pending task must be a direct task, not a repeat-trigger.'
+        );
+
+        // S4 joins the WL while s3's direct task is still pending.
+        time_mock::set_mock_time(strtotime('+1 hour', time_mock::get_mock_time()));
+        singleton_service::destroy_booking_option_singleton($option->id);
+        $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
+        $boinfo = new bo_info($settings);
+        $this->setUser($student[4]);
+        singleton_service::destroy_user($student[4]->id);
+        booking_bookit::bookit('option', $settings->id, $student[4]->id);
+        booking_bookit::bookit('option', $settings->id, $student[4]->id);
+        [$id] = $boinfo->is_available($settings->id, $student[4]->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id, 'student4 should be on the waitinglist');
+
+        $tasksfors4 = array_filter(
+            \core\task\manager::get_adhoc_tasks($taskclass),
+            fn($t) => (int)($t->get_custom_data()->userid ?? 0) === (int)$student[4]->id
+        );
+        $this->assertCount(
+            1,
+            $tasksfors4,
+            'Late joiner s4 must get exactly one confirm task although s3\'s direct task is still pending '
+                . '(only a repeat-trigger may block the companion mechanism).'
+        );
+
+        // Drain: both users end up confirmed once.
+        $this->drain_confirm_tasks($plugingenerator);
+        foreach ([3, 4] as $i) {
+            $answer = $DB->get_record('booking_answers', [
+                'optionid' => $option->id,
+                'userid' => $student[$i]->id,
+                'waitinglist' => MOD_BOOKING_STATUSPARAM_WAITINGLIST,
+            ]);
+            $json = empty($answer->json) ? (object)[] : json_decode($answer->json);
+            $this->assertEquals(1, $json->confirmationcount ?? 0, "student{$i} must be confirmed exactly once");
+        }
     }
 }

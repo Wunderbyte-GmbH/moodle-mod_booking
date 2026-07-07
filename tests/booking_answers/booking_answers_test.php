@@ -24,6 +24,9 @@ use tool_mocktesttime\time_mock;
 use stdClass;
 use mod_booking_generator;
 
+defined('MOODLE_INTERNAL') || die();
+require_once(__DIR__ . '/../booking_advanced_testcase.php');
+
 /**
  * Tests for booking_answers class.
  * This test checks if getters are returning the expected values.

@@ -17,6 +17,7 @@
 namespace mod_booking\booking_rules\actions;
 
 use mod_booking\booking_rules\booking_rule_action;
+use mod_booking\local\confirmationworkflow\confirmation;
 use mod_booking\task\confirm_bookinganswer_by_rule_adhoc;
 use MoodleQuickForm;
 use stdClass;
@@ -174,6 +175,13 @@ class confirm_bookinganswer implements booking_rule_action {
             return;
         }
 
+        // Skip users who already hold the required confirmation(s): a restarted chain
+        // (e.g. a new freetobookagain event) must advance to the next unconfirmed user
+        // instead of re-treating confirmed ones (which would inflate confirmationcount).
+        if ($this->user_already_confirmed($record)) {
+            return;
+        }
+
         if ($this->counter === 0) {
             // First unprocessed user: record as treated and create a direct confirm task.
             $jsonobject->confirmdata->usersalreadytreated[] = $record->userid;
@@ -188,6 +196,32 @@ class confirm_bookinganswer implements booking_rule_action {
         }
 
         $this->counter++;
+    }
+
+    /**
+     * Check whether the user's waitinglist answer already holds the required confirmation(s).
+     * get_required_confirmation_count() returns 0 when no confirmation subplugin is enabled,
+     * so we treat 1 as the minimum required count.
+     *
+     * @param stdClass $record the rule record (userid, optionid, …)
+     * @return bool
+     */
+    private function user_already_confirmed(stdClass $record): bool {
+        global $DB;
+        $bookinganswer = $DB->get_record('booking_answers', [
+            'optionid' => $record->optionid,
+            'userid' => $record->userid,
+            'waitinglist' => MOD_BOOKING_STATUSPARAM_WAITINGLIST,
+        ], 'id, json', IGNORE_MISSING);
+        if (empty($bookinganswer) || empty($bookinganswer->json)) {
+            return false;
+        }
+        $json = json_decode($bookinganswer->json);
+        if (empty($json->confirmwaitinglist)) {
+            return false;
+        }
+        $requiredcount = max(1, confirmation::get_required_confirmation_count((int)$record->optionid));
+        return ((int)($json->confirmationcount ?? 0)) >= $requiredcount;
     }
 
     /**

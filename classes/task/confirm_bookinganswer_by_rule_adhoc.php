@@ -166,6 +166,26 @@ class confirm_bookinganswer_by_rule_adhoc extends \core\task\adhoc_task {
                     $option = singleton_service::get_instance_of_booking_option($optionsettings->cmid, $optionsettings->id);
                     $option->user_submit_response($user, 0, 0, 0, MOD_BOOKING_VERIFIED);
                 } else {
+                    // Idempotency: if the user already holds the required confirmation(s), a re-run
+                    // (e.g. a restarted chain or a duplicate task) must not inflate confirmationcount
+                    // or re-trigger the exclusive-mode un-confirm loop.
+                    $answerjson = empty($bookinganswer->json) ? null : json_decode($bookinganswer->json);
+                    $requiredcount = max(
+                        1,
+                        \mod_booking\local\confirmationworkflow\confirmation::get_required_confirmation_count(
+                            (int)$taskdata->optionid
+                        )
+                    );
+                    if (
+                        !empty($answerjson->confirmwaitinglist)
+                        && (int)($answerjson->confirmationcount ?? 0) >= $requiredcount
+                    ) {
+                        mtrace(
+                            'confirm_bookinganswer_by_rule_adhoc task: user already confirmed, skipping for option '
+                            . $taskdata->optionid . ' and user ' . $taskdata->userid
+                        );
+                        return;
+                    }
                     // Option with price -> update json.
                     // Update booking answer.
                     booking_option::write_user_answer_to_db(
