@@ -689,7 +689,9 @@ if (!$tableallbookings->is_downloading()) {
             case 'waitinglist':
                 if (
                     !empty($bookingoption->option->waitforconfirmation)
-                    || ($bookingoption->option->limitanswers == 1 && $bookingoption->option->maxoverbooking > 0)
+                    || $bookingoption->option->limitanswers == 1
+                    // Also check for "-1" as maxoverbooking "-1" means unlimited waiting list.
+                    && ($bookingoption->option->maxoverbooking > 0 || $bookingoption->option->maxoverbooking == -1)
                 ) {
                     $columns[] = 'waitinglist';
                     $headers[] = get_string('searchwaitinglist', 'mod_booking');
