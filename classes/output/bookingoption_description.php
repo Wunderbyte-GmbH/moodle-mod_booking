@@ -781,8 +781,8 @@ class bookingoption_description implements renderable, templatable {
         // In plugin settings, we can choose customfields we want to have rendered together.
         $returnarray['optionviewcustomfields'] =
             $this->build_configcustomfields_html($returnarray, 'optionviewcustomfields', 'optionview-customfield');
-        $returnarray['cardviewcustomfields'] =
-            $this->build_configcustomfields_html($returnarray, 'cardviewcustomfields', 'cardview-customfield');
+        $returnarray['cardoptionviewcustomfields'] =
+            $this->build_configcustomfields_html($returnarray, 'cardoptionviewcustomfields', 'cardview-customfield');
         return $returnarray;
     }
 

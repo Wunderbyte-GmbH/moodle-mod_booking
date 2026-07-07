@@ -488,9 +488,9 @@ if ($ADMIN->fulltree) {
     if (!empty($customfields)) {
         $settings->add(
             new admin_setting_configmultiselect(
-                'booking/cardviewcustomfields',
-                get_string('cardviewcustomfields', 'mod_booking'),
-                get_string('cardviewcustomfieldsdesc', 'mod_booking'),
+                'booking/cardoptionviewcustomfields',
+                get_string('cardoptionviewcustomfields', 'mod_booking'),
+                get_string('cardoptionviewcustomfields', 'mod_booking'),
                 [],
                 $customfieldshortnames
             )
