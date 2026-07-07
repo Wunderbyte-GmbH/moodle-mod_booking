@@ -41,7 +41,7 @@ The current course context comes from `$PAGE->course`.
 | `progress="1"` | Add the progress subcolumn. |
 | `requirelogin="false"` | Disable table-level login requirement. |
 | `exclude="description,teacher,rightside"` | Hide selected display fragments. |
-| `includecustomfields="shortname1,shortname2"` | Add custom fields to the rendered output. |
+| `includecustomfields="shortname1,shortname2"` | Add custom fields to the rendered output. Full syntax: see the [shortcodes README](README.md#custom-field-columns-includecustomfields). |
 | `all="true"` | Include past options. |
 | `all="past"` | Show only past options. |
 

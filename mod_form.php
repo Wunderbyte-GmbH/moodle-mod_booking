@@ -665,6 +665,23 @@ class mod_booking_mod_form extends moodleform_mod {
             $mform->getElement('customfieldsforfilter')->setMultiple(true);
             $preset = (array)booking::get_value_of_json_by_key($bookingid, 'customfieldsforfilter') ?? [];
             $mform->setDefault('customfieldsforfilter', array_keys($preset));
+
+            // Custom fields to be shown for each booking option in the options overview (view.php).
+            $options = [
+                'multiple' => true,
+                'tags' => false,
+                'noselectionstring' => get_string('choose...', 'mod_booking'),
+            ];
+            $mform->addElement(
+                'autocomplete',
+                'customfieldsforview',
+                get_string('customfieldsforview', 'mod_booking'),
+                $customfieldshortnames,
+                $options
+            );
+            $mform->addHelpButton('customfieldsforview', 'customfieldsforview', 'mod_booking');
+            $preset = (array)booking::get_value_of_json_by_key($bookingid, 'customfieldsforview') ?? [];
+            $mform->setDefault('customfieldsforview', array_keys($preset));
         }
 
         // Columns to add to the full text search of the booking options table.

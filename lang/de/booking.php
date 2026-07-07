@@ -1147,6 +1147,10 @@ $string['customfieldname_help'] = 'Sie können einen beliebigen Feldnamen angebe
                                     der nur während des Meetings (und kurz davor) sichtbar ist.';
 $string['customfields'] = 'Benutzerdefinierte Felder';
 $string['customfieldsforfilter'] = 'Benutzerdefinierte Felder, die als Filtermöglichkeit angezeigt werden sollen';
+$string['customfieldsforview'] = 'Benutzerdefinierte Felder, die bei jeder Buchungsoption in der Übersicht angezeigt werden sollen';
+$string['customfieldsforview_help'] = 'Ausgewählte benutzerdefinierte Buchungsoptionsfelder werden bei jeder Buchungsoption in der Übersicht der Buchungsoptionen angezeigt.
+In den Plugin-Einstellungen (Website-Administration > Plugins > Aktivitäten > Buchung) kann für jedes benutzerdefinierte Feld ein Icon festgelegt werden.
+Ist kein Icon hinterlegt, wird ein Standard-Icon (Puzzleteil) verwendet.';
 $string['customfieldsplaceholdertext'] = 'Custom user profile fields & custom booking option fields can be referenced using their shortname';
 $string['customfieldtype'] = 'Feldtyp';
 $string['customfieldvalue'] = 'Wert';

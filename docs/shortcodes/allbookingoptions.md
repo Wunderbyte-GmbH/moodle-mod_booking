@@ -66,7 +66,7 @@ None.
 | Parameter | Meaning |
 |-----------|---------|
 | `exclude="description,teacher,rightside"` | Hide selected display fragments. |
-| `includecustomfields="shortname1,shortname2"` | Add custom fields to the rendered card/list output. |
+| `includecustomfields="shortname1,shortname2"` | Add custom fields to the rendered card/list output. Full syntax: see the [shortcodes README](README.md#custom-field-columns-includecustomfields). |
 | `customfieldfilter="shortname1,shortname2"` | Add filter widgets for these custom fields. |
 
 ### Data filters

@@ -51,7 +51,7 @@ This is the main shortcode for embedding the option list of a single booking ins
 | Parameter | Meaning |
 |-----------|---------|
 | `exclude="description,teacher,rightside"` | Hide selected display fragments. |
-| `includecustomfields="shortname1,shortname2"` | Add booking custom fields to the output. |
+| `includecustomfields="shortname1,shortname2"` | Add booking custom fields to the output. Full syntax: see the [shortcodes README](README.md#custom-field-columns-includecustomfields). |
 | `customfieldfilter="shortname1,shortname2"` | Add filter widgets for those custom fields. |
 
 ### Data filters

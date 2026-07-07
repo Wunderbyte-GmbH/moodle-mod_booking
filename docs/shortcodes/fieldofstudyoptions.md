@@ -37,7 +37,7 @@ If `group` is omitted, the user must belong to at least one group in the current
 | `countlabel="false"` | Hide the result counter. |
 | `progress="1"` | Add the progress subcolumn. |
 | `requirelogin="false"` | Disable table-level login requirement. |
-| `includecustomfields="shortname1,shortname2"` | Add custom fields to the rendered output. |
+| `includecustomfields="shortname1,shortname2"` | Add custom fields to the rendered output. Full syntax: see the [shortcodes README](README.md#custom-field-columns-includecustomfields). |
 | `filterbookablenextdays="28"` | Add a toggle filter switch that shows only bookable options starting within the next N days. |
 
 ---

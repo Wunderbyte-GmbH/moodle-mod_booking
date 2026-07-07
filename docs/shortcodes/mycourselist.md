@@ -59,7 +59,7 @@ None.
 | Parameter | Meaning |
 |-----------|---------|
 | `exclude="description,teacher,rightside"` | Hide selected display fragments. |
-| `includecustomfields="shortname1,shortname2"` | Add custom fields to the rendered output. |
+| `includecustomfields="shortname1,shortname2"` | Add custom fields to the rendered output. Full syntax: see the [shortcodes README](README.md#custom-field-columns-includecustomfields). |
 | `customfieldfilter="shortname1,shortname2"` | Add filter widgets for selected booking custom fields. |
 | `<customfieldshortname>="value"` | Filter by booking custom field value. |
 | `<customfieldshortname>-not="value"` | Exclude a booking custom field value. |

@@ -890,6 +890,15 @@ function booking_add_instance($booking) {
         booking::add_data_to_json($booking, "customfieldsforfilter", $fieldsfordb);
     }
 
+    if (!empty($booking->customfieldsforview)) {
+        $customfields = booking_handler::get_customfields($booking->customfieldsforview);
+        $fieldsfordb = [];
+        foreach ($customfields as $field) {
+            $fieldsfordb[$field->shortname] = $field->name;
+        }
+        booking::add_data_to_json($booking, "customfieldsforview", $fieldsfordb);
+    }
+
     if (!empty($booking->fulltextsearchcolumns)) {
         booking::add_data_to_json($booking, "fulltextsearchcolumns", array_values($booking->fulltextsearchcolumns));
     }
@@ -1248,6 +1257,17 @@ function booking_update_instance($booking) {
             $fieldsfordb[$field->shortname] = $field->name;
         }
         booking::add_data_to_json($booking, "customfieldsforfilter", $fieldsfordb);
+    }
+
+    if (empty($booking->customfieldsforview)) {
+        booking::remove_key_from_json($booking, "customfieldsforview");
+    } else {
+        $customfields = booking_handler::get_customfields($booking->customfieldsforview);
+        $fieldsfordb = [];
+        foreach ($customfields as $field) {
+            $fieldsfordb[$field->shortname] = $field->name;
+        }
+        booking::add_data_to_json($booking, "customfieldsforview", $fieldsfordb);
     }
 
     if (empty($booking->fulltextsearchcolumns)) {

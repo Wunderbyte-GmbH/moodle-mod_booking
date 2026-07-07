@@ -371,6 +371,9 @@ class booking_settings {
     /** @var string $customfieldsforfilter */
     public $customfieldsforfilter = null;
 
+    /** @var mixed $customfieldsforview customfields shown for each option in the options overview (view.php) */
+    public $customfieldsforview = null;
+
     /** @var array $fulltextsearchcolumns columns added to the full text search of the booking options table */
     public $fulltextsearchcolumns = null;
 

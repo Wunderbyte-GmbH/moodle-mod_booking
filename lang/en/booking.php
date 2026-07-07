@@ -1177,6 +1177,10 @@ $string['customfieldname_help'] = 'You can enter any field name you want. The sp
 $string['customfieldoptions'] = 'List of possible values';
 $string['customfields'] = 'Custom fields';
 $string['customfieldsforfilter'] = 'Custom fields that are to be displayed as filter options';
+$string['customfieldsforview'] = 'Custom fields that are to be displayed for each booking option in the overview';
+$string['customfieldsforview_help'] = 'Selected custom booking option fields will be shown for each booking option in the booking options overview.
+You can define an icon for each custom field in the plugin settings (Site administration > Plugins > Activity modules > Booking).
+If no icon is configured, a default icon (puzzle piece) is used.';
 $string['customfieldsplaceholdertext'] = 'Custom user profile fields & custom booking option fields can be referenced using their shortname.';
 $string['customfieldtype'] = 'Field type';
 $string['customfieldvalue'] = 'Value';

@@ -118,12 +118,37 @@ Some booking option list shortcodes support a `type` argument:
 | Parameter | Meaning |
 |-----------|---------|
 | `exclude="description,teacher,rightside"` | Removes selected standard sub-sections from the rendered booking option list. `rightside` hides the right-side action area. |
-| `includecustomfields="shortname1,shortname2"` | Adds booking option custom fields into the rendered output when the table renderer is used. |
-| `includecustomfields="shortname\|region\|iconprefix\|iconname\|classes"` | Extended custom-field syntax, for example `cfspt1\|leftside\|fas\|fa-running\|text-primary`. |
+| `includecustomfields="..."` | Adds booking option custom fields as columns to the rendered output. See [Custom field columns](#custom-field-columns-includecustomfields) below for the full syntax. |
 | `customfieldfilter="shortname1,shortname2"` | Adds filter widgets for selected booking custom fields where the shortcode supports it. |
 | `filterbookablenextdays="28"` | Adds a toggle filter switch that shows only booking options which are currently bookable and start within the next N days. Requires the filter UI (`filter="1"`). |
 | `filterontop="true"` | Moves filters to the top in the shortcodes that implement this flag. |
 | `filteronloadactive="true"` | Shows filters immediately instead of starting collapsed/inactive. |
+
+### Custom field columns (`includecustomfields`)
+
+Adds booking option custom fields (with their values per booking option) to the rendered booking option table.
+
+Simple syntax — comma-separated custom field shortnames:
+
+```text
+[courselist cmid="42" includecustomfields="cfspt1,cffrm1"]
+```
+
+Extended syntax — pipe-separated parts per field:
+
+```text
+includecustomfields="<shortname>|<region>|<iconprefix>|<iconname>|<classes>,..."
+[courselist cmid="42" includecustomfields="cfspt1|leftside|fas|fa-running,cffrm1|footer|far|fa-futbol|text-primary"]
+```
+
+| Part | Meaning |
+|------|---------|
+| `shortname` | Shortname of the booking option custom field. Unknown shortnames are silently ignored. |
+| `region` | Region of the rendered row template the column is placed in. List view: `leftside`, `footer`, `rightside`. Cards view: `cardbody`, `cardlist`, `cardfooter`. Templates of other plugins may define their own regions — the region is passed through as given, so it has to match a region of the rendered template. If the part is missing (simple syntax) or left empty (e.g. `cfspt1\|`), the field is placed in the standard region of the rendered template (`footer` in list view, `cardlist` in cards view) with the standard styling (gray, like institution) and standard position (right next to institution in the list view, right above the dates in the cards view). |
+| `iconprefix`, `iconname` | Font Awesome classes of an icon shown in front of the value, e.g. `fas\|fa-running`. Both parts have to be given for the icon to be shown. |
+| `classes` | Additional CSS classes applied to the value. |
+
+Related: the booking instance setting **"Custom fields that are to be displayed for each booking option in the overview"** (`customfieldsforview`) shows custom fields for each booking option on the standard view (view.php) without a shortcode. There, the icons come from the plugin settings (`customfieldicon_<shortname>`); if no icon is configured, the default icon (`fa-puzzle-piece`) is used.
 
 ### Data restriction parameters
 
