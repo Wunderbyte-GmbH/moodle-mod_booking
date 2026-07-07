@@ -29,7 +29,7 @@ use mod_booking_generator;
 use context_module;
 
 defined('MOODLE_INTERNAL') || die();
-require_once(__DIR__ . '/../booking_advanced_testcase.php');
+require_once(__DIR__ . '/../classes/booking_advanced_testcase.php');
 
 /**
  * Tests for confirmation capability.
