@@ -46,6 +46,7 @@ None.
 | `fulltextsearchcolumns="description,shortname1"` | Add booking option fields and/or booking custom field shortnames to the full-text search. Implicitly enables the search box. |
 | `sort="1"` | Show sort controls. |
 | `filter="1"` | Show standard filters. |
+| `filterbookablenextdays="28"` | Add a toggle filter switch that shows only bookable options starting within the next N days (requires `filter="1"`). |
 | `sortby="coursestarttime"` | Default sort column. |
 | `sortorder="desc"` | Default sort direction. |
 | `filterontop="true"` | Move filters to the top. |

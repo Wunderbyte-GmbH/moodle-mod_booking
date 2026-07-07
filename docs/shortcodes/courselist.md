@@ -37,6 +37,7 @@ This is the main shortcode for embedding the option list of a single booking ins
 | `fulltextsearchcolumns="description,shortname1"` | Add booking option fields and/or booking custom field shortnames to the full-text search. Implicitly enables the search box. |
 | `sort="1"` | Show sort controls. |
 | `filter="1"` | Show standard filters. |
+| `filterbookablenextdays="28"` | Add a toggle filter switch that shows only bookable options starting within the next N days (requires `filter="1"`). |
 | `sortby="coursestarttime"` | Default sort column. |
 | `sortorder="asc"` / `sortorder="desc"` | Default sort direction. |
 | `filterontop="true"` | Move filters to the top. |
@@ -98,6 +99,12 @@ This is the main shortcode for embedding the option list of a single booking ins
 
 ```text
 [courselist cmid="42" sporttype="tennis"]
+```
+
+### Toggle filter for bookable options starting within the next days
+
+```text
+[courselist cmid="42" filter="1" filterbookablenextdays="28"]
 ```
 
 ### Search over additional columns

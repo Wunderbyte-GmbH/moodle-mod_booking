@@ -38,6 +38,7 @@ If `cohort` is omitted, the shortcode uses the current user's cohort memberships
 | `progress="1"` | Add the progress subcolumn. |
 | `requirelogin="false"` | Disable table-level login requirement. |
 | `includecustomfields="shortname1,shortname2"` | Add custom fields to the rendered output. |
+| `filterbookablenextdays="28"` | Add a toggle filter switch that shows only bookable options starting within the next N days. |
 
 ---
 

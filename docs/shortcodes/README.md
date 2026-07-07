@@ -121,6 +121,7 @@ Some booking option list shortcodes support a `type` argument:
 | `includecustomfields="shortname1,shortname2"` | Adds booking option custom fields into the rendered output when the table renderer is used. |
 | `includecustomfields="shortname\|region\|iconprefix\|iconname\|classes"` | Extended custom-field syntax, for example `cfspt1\|leftside\|fas\|fa-running\|text-primary`. |
 | `customfieldfilter="shortname1,shortname2"` | Adds filter widgets for selected booking custom fields where the shortcode supports it. |
+| `filterbookablenextdays="28"` | Adds a toggle filter switch that shows only booking options which are currently bookable and start within the next N days. Requires the filter UI (`filter="1"`). |
 | `filterontop="true"` | Moves filters to the top in the shortcodes that implement this flag. |
 | `filteronloadactive="true"` | Shows filters immediately instead of starting collapsed/inactive. |
 

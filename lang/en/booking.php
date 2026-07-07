@@ -1641,6 +1641,7 @@ $string['filter_userprofilefield'] = 'User profile field';
 $string['filter_userprofilefield_field'] = 'Profile field name';
 $string['filter_userprofilefield_value'] = 'Required value';
 $string['filteravailalbetobook'] = 'Available to book';
+$string['filterbookablestartingsoon'] = 'Remaining seats';
 $string['filterbookingavailability'] = 'Booking availability';
 $string['filterbtn'] = 'Filter';
 $string['filterenddate'] = 'Until';

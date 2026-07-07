@@ -1594,6 +1594,7 @@ $string['filter_userprofilefield'] = 'Nutzerprofilfeld';
 $string['filter_userprofilefield_field'] = 'Name des Profilfeldes';
 $string['filter_userprofilefield_value'] = 'Erforderlicher Wert';
 $string['filteravailalbetobook'] = 'Verfügbar zur Buchung';
+$string['filterbookablestartingsoon'] = 'Restplatzbörse';
 $string['filterbookingavailability'] = 'Buchungsverfügbarkeit';
 $string['filterbtn'] = 'Filtern';
 $string['filterenddate'] = 'Bis';

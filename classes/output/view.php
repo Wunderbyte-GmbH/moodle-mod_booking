@@ -37,6 +37,7 @@ use mod_booking\booking_option;
 use mod_booking\customfield\booking_handler;
 use mod_booking\elective;
 use mod_booking\filters\available_places;
+use mod_booking\filters\bookable_startingsoon;
 use mod_booking\option\fields\competencies;
 use mod_booking\shortcodes;
 use mod_booking\shortcodes_handler;
@@ -1352,6 +1353,13 @@ class view implements renderable, templatable {
         if ($filter) {
             // Booking availability filter.
             $bowbtable->add_filter(available_places::get());
+
+            // Toggle filter showing only bookable options starting within the next days.
+            // It is added via the shortcode argument 'filterbookablenextdays', e.g. filterbookablenextdays="28".
+            $bookablenextdays = (int)($args['filterbookablenextdays'] ?? 0);
+            if ($bookablenextdays > 0) {
+                $bowbtable->add_filter(bookable_startingsoon::get($bookablenextdays));
+            }
 
             if (in_array('teacher', $optionsfields)) {
                 $standardfilter = new standardfilter('teacherobjects', get_string('teachers', 'mod_booking'));
