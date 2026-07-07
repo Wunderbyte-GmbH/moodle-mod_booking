@@ -568,7 +568,11 @@ class rules_info {
                 empty($rulejson)
                 || !in_array($rulejson->actionname ?? '', ['send_mail_interval', 'confirm_bookinganswer'], true)
                 || ($rulejson->conditionname ?? '') !== 'select_student_in_bo'
-                || self::interval_rule_has_active_tasks((int)$record->id, $optionid)
+                || self::interval_rule_has_active_tasks(
+                    (int)$record->id,
+                    $optionid,
+                    (int)($data['relateduserid'] ?? 0)
+                )
             ) {
                 continue;
             }
@@ -599,13 +603,20 @@ class rules_info {
     }
 
     /**
-     * Check whether interval-chain adhoc tasks already exist for the same rule and option.
+     * Check whether chain adhoc tasks already exist that make a companion re-trigger redundant.
+     *
+     * Only a pending repeat-trigger task re-queries the waitinglist and therefore picks a new
+     * joiner up. A pending DIRECT task for another user does not - the chain may end with it,
+     * stranding the new joiner. So we only block when a repeat-trigger for the same rule and
+     * option is pending, or when the joining user already has their own pending task
+     * (duplicate protection).
      *
      * @param int $ruleid
      * @param int $optionid
+     * @param int $joininguserid userid of the user who just joined the waitinglist (0 = unknown)
      * @return bool
      */
-    private static function interval_rule_has_active_tasks(int $ruleid, int $optionid): bool {
+    private static function interval_rule_has_active_tasks(int $ruleid, int $optionid, int $joininguserid = 0): bool {
         $taskclasses = [
             \mod_booking\task\confirm_bookinganswer_by_rule_adhoc::class,
             \mod_booking\task\send_mail_by_rule_adhoc::class,
@@ -616,9 +627,18 @@ class rules_info {
             foreach ($tasks as $task) {
                 $taskdata = $task->get_custom_data();
                 if (
-                    (int)($taskdata->ruleid ?? 0) === $ruleid
-                    && (int)($taskdata->optionid ?? 0) === $optionid
+                    (int)($taskdata->ruleid ?? 0) !== $ruleid
+                    || (int)($taskdata->optionid ?? 0) !== $optionid
                 ) {
+                    continue;
+                }
+                // A pending repeat-trigger will re-query the waitinglist and pick the joiner up.
+                if (!empty($taskdata->repeat)) {
+                    return true;
+                }
+                // Without a known joining user we keep the conservative behavior: any task blocks.
+                // A pending direct task for the joining user themselves means: no duplicate.
+                if (empty($joininguserid) || (int)($taskdata->userid ?? 0) === $joininguserid) {
                     return true;
                 }
             }

@@ -1792,6 +1792,22 @@ class booking_option {
             $timemodified[] = time();
         }
 
+        // Confirm/un-confirm writes only change the answer json. They must never bump
+        // timemodified: it is the sort key of the waitinglist queue, so bumping it would
+        // reorder the waitinglist on every confirmation (and, in exclusive mode, flatten
+        // the whole queue via the un-confirm loop over all other waitinglist users).
+        if (
+            !empty($answer)
+            && $waitinglist === MOD_BOOKING_STATUSPARAM_WAITINGLIST
+            && in_array(
+                $confirmwaitinglist,
+                [MOD_BOOKING_BO_SUBMIT_STATUS_CONFIRMATION, MOD_BOOKING_BO_SUBMIT_STATUS_UN_CONFIRM],
+                true
+            )
+        ) {
+            $newanswer->timemodified = $answer->timemodified;
+        }
+
         // The confirmation on the waitinglist is saved here.
         if (
             $confirmwaitinglist === MOD_BOOKING_BO_SUBMIT_STATUS_CONFIRMATION
