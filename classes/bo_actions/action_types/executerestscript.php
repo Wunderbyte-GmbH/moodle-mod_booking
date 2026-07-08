@@ -114,6 +114,8 @@ class executerestscript extends booking_action {
      * @return string
      */
     public static function get_script_response($bookinganswer, $actiondata) {
+        global $CFG;
+
         $params = json_decode($bookinganswer->json);
         $params = (array)$params->condition_customform;
 
@@ -201,6 +203,58 @@ class executerestscript extends booking_action {
             if (!$hascontenttype) {
                 $headers[] = 'Content-Type: application/json';
             }
+        }
+
+        // Optional: sign the request with a JSON Web Token (RFC 7519). Standards-based and
+        // receiver-agnostic — any JWT-aware endpoint (or API gateway) can verify it, unlike an
+        // ad-hoc HMAC scheme. HS256 uses a shared secret; RS256 uses a PEM private key so the
+        // receiver only needs the public key (no shared secret). The token binds the exact body
+        // via a body_sha256 claim (JSON path only) and is replay-limited by a short exp + jti.
+        if (
+            !empty($actiondata->jwtenable)
+            && trim((string)($actiondata->jwtkey ?? '')) !== ''
+            && class_exists('\\Firebase\\JWT\\JWT')
+        ) {
+            $alg = (($actiondata->jwtalg ?? 'HS256') === 'RS256') ? 'RS256' : 'HS256';
+            $ttl = (int)($actiondata->jwtttl ?? 300);
+            if ($ttl <= 0) {
+                $ttl = 300;
+            }
+            $now = time();
+            $payload = [
+                'iss' => $CFG->wwwroot,
+                'iat' => $now,
+                'nbf' => $now,
+                'exp' => $now + $ttl,
+                'jti' => random_string(32),
+            ];
+            $aud = trim((string)($actiondata->jwtaudience ?? ''));
+            if ($aud !== '') {
+                $payload['aud'] = $aud;
+            }
+            // Bind the body for integrity, but only on the JSON path where we hold the exact
+            // bytes being sent (curl serialises the form-field array itself).
+            if ($usejson) {
+                $payload['body_sha256'] = hash('sha256', (string)$jsonbody);
+            }
+            $kid = trim((string)($actiondata->jwtkid ?? ''));
+            $token = \Firebase\JWT\JWT::encode(
+                $payload,
+                (string)$actiondata->jwtkey,
+                $alg,
+                $kid !== '' ? $kid : null
+            );
+
+            // Place the token, replacing any pre-existing header of the same name (e.g. a static
+            // Authorization line configured under "Additional HTTP headers").
+            $headername = trim((string)($actiondata->jwtheader ?? '')) ?: 'Authorization';
+            $headers = array_values(array_filter(
+                $headers,
+                static fn($hline): bool => stripos((string)$hline, $headername . ':') !== 0
+            ));
+            $headers[] = (strcasecmp($headername, 'Authorization') === 0)
+                ? 'Authorization: Bearer ' . $token
+                : $headername . ': ' . $token;
         }
 
         $verify = !empty($actiondata->sslverify);
@@ -297,6 +351,59 @@ class executerestscript extends booking_action {
             get_string('bosslverify_desc', 'mod_booking')
         );
         $mform->setType('sslverify', PARAM_INT);
+
+        // Optional: sign the outgoing request with a JWT (RFC 7519), so any JWT-aware
+        // receiver can verify origin and integrity without a bespoke scheme.
+        $mform->addElement(
+            'advcheckbox',
+            'jwtenable',
+            get_string('bojwtenable', 'mod_booking'),
+            get_string('bojwtenable_desc', 'mod_booking')
+        );
+        $mform->setType('jwtenable', PARAM_INT);
+
+        $mform->addElement(
+            'select',
+            'jwtalg',
+            get_string('bojwtalg', 'mod_booking'),
+            ['HS256' => 'HS256 (shared secret)', 'RS256' => 'RS256 (RSA private key)']
+        );
+        $mform->setDefault('jwtalg', 'HS256');
+        $mform->hideIf('jwtalg', 'jwtenable', 'notchecked');
+        $mform->addElement('static', 'jwtalg_desc', '', get_string('bojwtalg_desc', 'mod_booking'));
+        $mform->hideIf('jwtalg_desc', 'jwtenable', 'notchecked');
+
+        $mform->addElement('textarea', 'jwtkey', get_string('bojwtkey', 'mod_booking'), ['rows' => 3]);
+        $mform->setType('jwtkey', PARAM_RAW);
+        $mform->hideIf('jwtkey', 'jwtenable', 'notchecked');
+        $mform->addElement('static', 'jwtkey_desc', '', get_string('bojwtkey_desc', 'mod_booking'));
+        $mform->hideIf('jwtkey_desc', 'jwtenable', 'notchecked');
+
+        $mform->addElement('text', 'jwtkid', get_string('bojwtkid', 'mod_booking'));
+        $mform->setType('jwtkid', PARAM_TEXT);
+        $mform->hideIf('jwtkid', 'jwtenable', 'notchecked');
+        $mform->addElement('static', 'jwtkid_desc', '', get_string('bojwtkid_desc', 'mod_booking'));
+        $mform->hideIf('jwtkid_desc', 'jwtenable', 'notchecked');
+
+        $mform->addElement('text', 'jwtaudience', get_string('bojwtaudience', 'mod_booking'));
+        $mform->setType('jwtaudience', PARAM_TEXT);
+        $mform->hideIf('jwtaudience', 'jwtenable', 'notchecked');
+        $mform->addElement('static', 'jwtaudience_desc', '', get_string('bojwtaudience_desc', 'mod_booking'));
+        $mform->hideIf('jwtaudience_desc', 'jwtenable', 'notchecked');
+
+        $mform->addElement('text', 'jwtheader', get_string('bojwtheader', 'mod_booking'));
+        $mform->setType('jwtheader', PARAM_TEXT);
+        $mform->setDefault('jwtheader', 'Authorization');
+        $mform->hideIf('jwtheader', 'jwtenable', 'notchecked');
+        $mform->addElement('static', 'jwtheader_desc', '', get_string('bojwtheader_desc', 'mod_booking'));
+        $mform->hideIf('jwtheader_desc', 'jwtenable', 'notchecked');
+
+        $mform->addElement('text', 'jwtttl', get_string('bojwtttl', 'mod_booking'));
+        $mform->setType('jwtttl', PARAM_INT);
+        $mform->setDefault('jwtttl', 300);
+        $mform->hideIf('jwtttl', 'jwtenable', 'notchecked');
+        $mform->addElement('static', 'jwtttl_desc', '', get_string('bojwtttl_desc', 'mod_booking'));
+        $mform->hideIf('jwtttl_desc', 'jwtenable', 'notchecked');
     }
 
     /**
@@ -317,6 +424,10 @@ class executerestscript extends booking_action {
             ) {
                 $errors[$key] = get_string('bocondcustomformnumberserror', 'mod_booking');
             }
+        }
+        // A signed request needs a key to sign with.
+        if (!empty($data['jwtenable']) && trim((string)($data['jwtkey'] ?? '')) === '') {
+            $errors['jwtkey'] = get_string('bojwtkey', 'mod_booking');
         }
         return $errors;
     }
