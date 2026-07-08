@@ -3,7 +3,8 @@ Feature: Book equipment that is available at a location on a booking option
   As a teacher I want to choose equipment offered at the option's location and book a quantity of it
 
   Background:
-    Given the following "users" exist:
+    Given the local_entities equipment feature is available
+    And the following "users" exist:
       | username | firstname | lastname | email                |
       | teacher1 | Teacher   | 1        | teacher1@example.com |
     And the following "courses" exist:
