@@ -43,7 +43,6 @@ use local_wunderbyte_table\wunderbyte_table;
  * historical plain-text location standardfilter (BC-2/BC-3).
  */
 class entities_tree_provider implements tree_provider {
-
     /** @var string The relations component used by mod_booking. */
     private const COMPONENT = 'mod_booking';
 
@@ -88,7 +87,7 @@ class entities_tree_provider implements tree_provider {
      *
      * @param wunderbyte_table $table
      * @param string $columnidentifier
-     * @return array<int,int>
+     * @return array entityid => count
      */
     public static function get_present_counts(wunderbyte_table $table, string $columnidentifier): array {
         global $DB;
@@ -121,8 +120,8 @@ class entities_tree_provider implements tree_provider {
     /**
      * Builds the nested tree of occupied entities from the present counts (live from local_entities).
      *
-     * @param array<int,int> $presentcounts entityid => count
-     * @return array<int,object>
+     * @param array $presentcounts entityid => count
+     * @return array tree of entity objects
      */
     public static function build_tree(array $presentcounts): array {
         if (!class_exists('local_entities\\entities')) {
