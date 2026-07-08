@@ -26,12 +26,12 @@
 namespace mod_booking;
 
 use mod_booking\task\execute_bulkoperations_adhoc;
+use mod_booking\tests\booking_advanced_testcase;
 use mod_booking_generator;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot . '/mod/booking/lib.php');
-require_once(__DIR__ . '/../booking_advanced_testcase.php');
 
 /**
  * Tests for the execute_bulkoperations_adhoc task.

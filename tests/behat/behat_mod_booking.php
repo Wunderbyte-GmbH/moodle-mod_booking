@@ -44,6 +44,26 @@ class behat_mod_booking extends behat_base {
     private array $lastdiagnosecancellationresult = [];
 
     /**
+     * Skip equipment scenarios when the installed local_entities lacks the equipment feature.
+     *
+     * The equipment UI (location-scoped quantity fields and the "Show equipment for the
+     * selected location" reload button) lives in local_entities. On checkouts without that
+     * feature — e.g. CI pulling local_entities `main` while the equipment work is still on
+     * its feature branch — the button never renders and the scenario would fail instead of
+     * skip. The lang string is the feature marker: it ships with the equipment code.
+     *
+     * @Given /^the local_entities equipment feature is available$/
+     * @return void
+     */
+    public function the_local_entities_equipment_feature_is_available(): void {
+        if (!get_string_manager()->string_exists('refreshequipment', 'local_entities')) {
+            throw new SkippedException(
+                'Skipping equipment scenario: the installed local_entities does not provide the equipment feature.'
+            );
+        }
+    }
+
+    /**
      * Skip opt-in real LLM scenarios unless explicitly enabled.
      *
      * @Given /^real LLM mode is enabled$/
