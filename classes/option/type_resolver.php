@@ -24,7 +24,7 @@
 
 namespace mod_booking\option;
 
-use mod_booking\utils\wb_payment;
+use mod_booking\local\slotbooking\slot_feature;
 use stdClass;
 
 /**
@@ -38,7 +38,7 @@ class type_resolver {
      * @return int
      */
     private static function apply_license_rules(int $type): int {
-        if ($type === MOD_BOOKING_OPTIONTYPE_SLOTBOOKING && !wb_payment::pro_version_is_activated()) {
+        if ($type === MOD_BOOKING_OPTIONTYPE_SLOTBOOKING && !slot_feature::is_enabled()) {
             return MOD_BOOKING_OPTIONTYPE_DEFAULT;
         }
 

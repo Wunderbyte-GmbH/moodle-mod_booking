@@ -66,12 +66,17 @@ if (!empty($optiondateid)) {
     if (empty($optionid)) {
         $optionid = $DB->get_field('booking_optiondates', 'optionid', ['id' => $optiondateid]);
     }
-    $optionsettings = singleton_service::get_instance_of_booking_option_settings($optionid);
-    $cmid = $optionsettings->cmid;
-    $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
-    [$course, $cm] = get_course_and_cm_from_cmid($cmid);
+    // Resolve course and cm cheaply and log in BEFORE building the option settings.
+    // Constructing booking_option_settings runs format_text() on customfields, which
+    // initialises the page theme; if that happens before require_course_login() the
+    // subsequent set_course()/set_cm() throws a coding_exception (theme already set).
+    $bookingid = $DB->get_field('booking_options', 'bookingid', ['id' => $optionid], MUST_EXIST);
+    [$course, $cm] = get_course_and_cm_from_instance($bookingid, 'booking');
+    $cmid = $cm->id;
     $courseid = $course->id;
     require_course_login($course, false, $cm);
+    $optionsettings = singleton_service::get_instance_of_booking_option_settings($optionid);
+    $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
     $urlparams = ["optionid" => $optionid, "optiondateid" => $optiondateid]; // For PAGE url.
 
     // Define scope contexts.
@@ -171,12 +176,17 @@ if (!empty($optiondateid)) {
     // We are in option scope.
     $PAGE->set_url(new moodle_url('/mod/booking/report2.php', ['optionid' => $optionid]));
     $scopes = ['system', 'course', 'instance', 'option'];
-    $optionsettings = singleton_service::get_instance_of_booking_option_settings($optionid);
-    $cmid = $optionsettings->cmid;
-    $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
-    [$course, $cm] = get_course_and_cm_from_cmid($cmid);
+    // Resolve course and cm cheaply and log in BEFORE building the option settings.
+    // Constructing booking_option_settings runs format_text() on customfields, which
+    // initialises the page theme; if that happens before require_course_login() the
+    // subsequent set_course()/set_cm() throws a coding_exception (theme already set).
+    $bookingid = $DB->get_field('booking_options', 'bookingid', ['id' => $optionid], MUST_EXIST);
+    [$course, $cm] = get_course_and_cm_from_instance($bookingid, 'booking');
+    $cmid = $cm->id;
     $courseid = $course->id;
     require_course_login($course, false, $cm);
+    $optionsettings = singleton_service::get_instance_of_booking_option_settings($optionid);
+    $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
     $scope = 'option'; // If we have an optionid, we want the report for this booking option.
     $scopeid = $optionid;
     $urlparams = ["optionid" => $optionid]; // For PAGE url.
@@ -440,8 +450,15 @@ if (!empty($optionid) && empty($optiondateid)) {
     $optionsettings = singleton_service::get_instance_of_booking_option_settings($optionid);
     $cmid = $optionsettings->cmid;
     $context = context_module::instance($cmid);
+
+    // Slot booking options manage their participants per slot, so users cannot be
+    // booked here directly. The "book other users" button is therefore hidden.
+    $isslotoption = (int)($optionsettings->type ?? MOD_BOOKING_OPTIONTYPE_DEFAULT)
+        === MOD_BOOKING_OPTIONTYPE_SLOTBOOKING;
+
     if (
-        has_capability('mod/booking:bookforothers', $context)
+        !$isslotoption
+        && has_capability('mod/booking:bookforothers', $context)
         && (
             has_capability('mod/booking:subscribeusers', $context)
             || booking_check_if_teacher($optionsettings)

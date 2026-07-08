@@ -138,8 +138,8 @@
      <div class="norecordsfound">{{#str}} norecords, local_wunderbyte_table {{/str}}</div>
 {{/norecords}}
 {{^norecords}}
+   {{> local_wunderbyte_table/component_countlabel }}
    {{#table}}
-      {{> local_wunderbyte_table/component_countlabel }}
       <div class="wunderbyte-table-grid no-overflow rows-container">
          {{#rows}}
             {{> mod_booking/table_cards_row }}

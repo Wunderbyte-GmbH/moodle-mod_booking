@@ -1190,6 +1190,21 @@ class booking_option_settings {
      * return_settings_as_stdclass() consumers are unaffected.
      */
     private function localize_customfields_for_templates(): void {
+        global $PAGE;
+
+        // Textarea customfields are re-derived below via format_text(), which runs the filter chain
+        // (multilang, emoticons, ...) and therefore initialises the page theme - and that needs a
+        // page context. Back-end callers (AJAX form submissions, scheduled tasks, events, CLI) may
+        // construct booking_option_settings before any context has been established, which makes
+        // format_text() throw "$PAGE->context was not set". Fall back to the system context so
+        // multilang/filters still run for those callers, but only when no context has been set yet:
+        // passing null to moodle_page::set_context() installs the system context only if the page
+        // has none, and is a silent no-op when a context already exists. Guarding on the URL instead
+        // would wrongly override an already-established context (e.g. a module context set via
+        // require_login() without a page URL, as happens in behat and web-service requests),
+        // triggering "unsupported modification of PAGE->context".
+        $PAGE->set_context(null);
+
         foreach ($this->customfieldsfortemplates as $shortname => $unused) {
             if (!array_key_exists($shortname, $this->customfields)) {
                 continue;

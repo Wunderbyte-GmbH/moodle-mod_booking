@@ -194,6 +194,14 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
             ['bookingid', 'optionid', 'answerid', 'userid', 'status', 'json']
         );
 
+        // Booking rules that are scoped to this instance (linked via the module contextid).
+        $bookingrules = new backup_nested_element('bookingrules');
+        $bookingrule = new backup_nested_element(
+            'bookingrule',
+            ['id'],
+            ['contextid', 'rulename', 'rulejson', 'eventname', 'useastemplate', 'isactive']
+        );
+
         // Build the tree.
         $booking->add_child($options);
         $options->add_child($option);
@@ -236,6 +244,9 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
 
         $booking->add_child($history);
         $history->add_child($historyitem);
+
+        $booking->add_child($bookingrules);
+        $bookingrules->add_child($bookingrule);
 
         // Define sources.
         $booking->set_source_table('booking', ['id' => backup::VAR_ACTIVITYID]);
@@ -294,6 +305,16 @@ class backup_booking_activity_structure_step extends backup_activity_structure_s
         // Only backup (or duplicate) subbookingoptions, if config setting is set.
         if (get_config('booking', 'duplicationrestoresubbookings')) {
             $subbookingoption->set_source_table('booking_subbooking_options', ['optionid' => backup::VAR_PARENTID]);
+        }
+
+        // Only backup (or duplicate) booking rules, if config setting is set.
+        // We only back up rules scoped to this instance (contextid = this module's context).
+        // Global rules (contextid = 1) apply everywhere already and are intentionally excluded.
+        if (get_config('booking', 'duplicationrestorerules')) {
+            $bookingrule->set_source_sql(
+                "SELECT * FROM {booking_rules} WHERE contextid = :contextid",
+                ['contextid' => backup::VAR_CONTEXTID]
+            );
         }
 
         // All the rest of elements only happen if we are including user info.

@@ -1007,7 +1007,13 @@ if (!$tableallbookings->is_downloading()) {
     // Action buttons on top.
     $actionbuttonstop = '';
 
+    // Slot booking options manage their participants per slot, so users cannot be
+    // booked here directly. The "book other users" button is therefore hidden.
+    $isslotoption = (int)($bookingoption->option->type ?? MOD_BOOKING_OPTIONTYPE_DEFAULT)
+        === MOD_BOOKING_OPTIONTYPE_SLOTBOOKING;
+
     if (
+        !$isslotoption &&
         has_capability('mod/booking:bookforothers', $context) &&
                 (has_capability('mod/booking:subscribeusers', $context) ||
                 $isteacherofthisoption)
@@ -1037,9 +1043,6 @@ if (!$tableallbookings->is_downloading()) {
             "</span>";
         }
     }
-
-    $isslotoption = (int)($bookingoption->option->type ?? MOD_BOOKING_OPTIONTYPE_DEFAULT)
-        === MOD_BOOKING_OPTIONTYPE_SLOTBOOKING;
 
     if (
         $isslotoption && (

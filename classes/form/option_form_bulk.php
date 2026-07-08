@@ -34,6 +34,7 @@ use context_system;
 use mod_booking\customfield\booking_handler;
 use mod_booking\option\fields\customfields;
 use mod_booking\option\fields\price;
+use mod_booking\task\execute_bulkoperations_adhoc;
 use mod_booking\price as Mod_bookingPrice;
 
 defined('MOODLE_INTERNAL') || die();
@@ -252,6 +253,7 @@ class option_form_bulk extends dynamic_form {
      * @return void
      */
     protected function check_access_for_dynamic_submission(): void {
+        require_capability('mod/booking:executebulkoperations', $this->get_context_for_dynamic_submission());
     }
 
 
@@ -268,20 +270,38 @@ class option_form_bulk extends dynamic_form {
 
     /**
      * Process dynamic submission.
+     *
+     * Applying the changes to many booking options takes too long for a web request,
+     * so we only queue an adhoc task here (same pattern as recalculate_prices).
+     *
      * @return stdClass|null
      */
     public function process_dynamic_submission() {
+        global $USER;
+
         $data = $this->get_data();
-        $checkedids = explode(",", $data->checkedids);
-        self::save_options($data, array_map('intval', $checkedids));
+        $checkedids = array_map('intval', explode(",", $data->checkedids));
+
+        $task = new execute_bulkoperations_adhoc();
+        $task->set_custom_data([
+            'formdata' => (array) $data,
+            'optionids' => $checkedids,
+        ]);
+        $task->set_userid($USER->id);
+        \core\task\manager::queue_adhoc_task($task);
+
+        // Picked up by the wunderbyte_table actionbutton JS and shown as a toast.
+        $data->message = get_string('bulkoperationsqueued', 'mod_booking', count($checkedids));
+        $data->success = 1;
         return $data;
     }
 
     /**
      * Save the given field data to each of the supplied booking option IDs.
      *
-     * Extracted from process_dynamic_submission() so it can be called directly
-     * in unit tests without having to bootstrap the dynamic-form AJAX stack.
+     * Called by the execute_bulkoperations_adhoc task (queued in
+     * process_dynamic_submission()) and directly in unit tests without
+     * having to bootstrap the dynamic-form AJAX stack.
      *
      * For regular options the cmid is read from the option settings.
      * For option templates (bookingid = 0, cmid = 0) a cmid is borrowed from

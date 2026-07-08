@@ -260,33 +260,39 @@ class booking {
     public static function load_courses(string $query) {
         global $DB;
 
-        $totalcount = 1;
-
-        $allcourses = get_courses_search(
-            [],
-            'c.fullname ASC',
-            0,
-            9999999,
-            $totalcount,
-            ['enrol/manual:enrol']
-        );
-        $allcourseids = [];
-        foreach ($allcourses as $id => $courseobject) {
-            $allcourseids[] = $id;
-        }
-        [$incourseids, $inparams] = $DB->get_in_or_equal($allcourseids, SQL_PARAMS_NAMED, 'inparam');
+        // Users with this capability may pick ANY course as a duplication source, including
+        // courses they cannot otherwise see or access. For everyone else we restrict the list
+        // to visible courses in which they may manually enrol.
+        $canduplicateany = has_capability('mod/booking:duplicateanycourse', \context_system::instance());
 
         $values = explode(' ', $query);
 
         $fullsql = $DB->sql_concat('\' \'', 'c.id', '\' \'', 'c.shortname', '\' \'', 'c.fullname', '\' \'');
 
+        $params = [];
+        $innerwhere = '';
+        if (!$canduplicateany) {
+            $totalcount = 1;
+            $allcourses = get_courses_search(
+                [],
+                'c.fullname ASC',
+                0,
+                9999999,
+                $totalcount,
+                ['enrol/manual:enrol']
+            );
+            $allcourseids = array_keys($allcourses);
+            [$incourseids, $inparams] = $DB->get_in_or_equal($allcourseids, SQL_PARAMS_NAMED, 'inparam');
+            // Check for c.visible = 1 is important, so we do not load any invisible courses!
+            $innerwhere = "WHERE c.visible = 1 AND c.id $incourseids";
+            $params = $inparams;
+        }
+
         $sql = "SELECT * FROM (
                     SELECT c.id, c.shortname, c.fullname, $fullsql AS fulltextstring
                     FROM {course} c
-                    WHERE c.visible = 1 AND c.id $incourseids
+                    $innerwhere
                 ) AS fulltexttable";
-        // Check for c.visible = 1 is important, so we do not load any inivisble courses!
-        $params = $inparams;
         if (!empty($query)) {
             // We search for every word extra to get better results.
             $firstrun = true;
@@ -1687,6 +1693,7 @@ class booking {
      * @param string $component
      * @param array $eventnames
      * @param int $objectid
+     * @param int $timecreatedfrom only include log entries created at or after this timestamp, 0 for no limit
      *
      * @return array
      *
@@ -1694,7 +1701,8 @@ class booking {
     public static function return_sql_for_event_logs(
         string $component = 'mod_booking',
         array $eventnames = [],
-        int $objectid = 0
+        int $objectid = 0,
+        int $timecreatedfrom = 0
     ) {
         global $DB;
 
@@ -1702,10 +1710,18 @@ class booking {
 
         $params = [];
 
+        // The time condition goes inside the derived table, so the DB can use
+        // the timecreated index even if it materializes the subquery.
+        $timewhere = '';
+        if (!empty($timecreatedfrom)) {
+            $timewhere = "WHERE lsl.timecreated >= :timecreatedfrom";
+        }
+
         $from = "(
                     SELECT
                     lsl.*
                     FROM {logstore_standard_log} lsl
+                    $timewhere
                 ) as s1";
 
         $where = 'component = :component ';
@@ -1714,6 +1730,10 @@ class booking {
             [$inorequal, $params] = $DB->get_in_or_equal($eventnames, SQL_PARAMS_NAMED);
 
             $where .= " AND eventname " . $inorequal;
+        }
+
+        if (!empty($timecreatedfrom)) {
+            $params['timecreatedfrom'] = $timecreatedfrom;
         }
 
         if (!empty($objectid)) {

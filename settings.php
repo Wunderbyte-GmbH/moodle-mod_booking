@@ -367,6 +367,24 @@ if ($ADMIN->fulltree) {
             )
         );
 
+        // Limit the change log ("Show recent updates") in the edit forms to a time window,
+        // so the log table query stays fast on large sites.
+        $settings->add(
+            new admin_setting_configselect(
+                'booking/eventslogtimefilter',
+                get_string('eventslogtimefilter', 'mod_booking'),
+                get_string('eventslogtimefilter_desc', 'mod_booking'),
+                3,
+                [
+                    0 => get_string('eventslogtimefilternolimit', 'mod_booking'),
+                    1 => get_string('eventslogtimefiltermonths', 'mod_booking', 1),
+                    3 => get_string('eventslogtimefiltermonths', 'mod_booking', 3),
+                    6 => get_string('eventslogtimefiltermonths', 'mod_booking', 6),
+                    12 => get_string('eventslogtimefiltermonths', 'mod_booking', 12),
+                ]
+            )
+        );
+
         // Show extra information (custom fields, comments...) for optiondates in the booking options overview list.
         $showoptiondatesextrainfo = new admin_setting_configcheckbox(
             'booking/showoptiondatesextrainfo',
@@ -475,6 +493,18 @@ if ($ADMIN->fulltree) {
                 get_string('cardviewcustomfieldsdesc', 'mod_booking'),
                 [],
                 $customfieldshortnames
+            )
+        );
+    }
+    // Font Awesome icon shown in front of each custom field (shared by detail page and card).
+    foreach ($customfields as $customfield) {
+        $settings->add(
+            new admin_setting_configtext(
+                'booking/customfieldicon_' . $customfield->shortname,
+                get_string('customfieldicon', 'mod_booking', $customfield),
+                get_string('customfieldicondesc', 'mod_booking'),
+                '',
+                PARAM_TEXT
             )
         );
     }
@@ -611,6 +641,17 @@ if ($ADMIN->fulltree) {
         'bookedvscapacity' => get_string('slot_bookings_display_mode_bookedvscapacity', 'mod_booking'),
     ];
     if ($proversion) {
+        // Global on/off switch for the whole slot booking feature (default on, so existing PRO
+        // sites keep it). When off, slot booking is hidden everywhere: option type, prepage
+        // condition, agent skill and the slot entry scripts/webservices (see slot_feature).
+        $settings->add(
+            new admin_setting_configcheckbox(
+                'booking/slotbookingactive',
+                get_string('slotbookingactive', 'mod_booking'),
+                get_string('slotbookingactive_desc', 'mod_booking'),
+                1
+            )
+        );
         $settings->add(
             new admin_setting_configselect(
                 'booking/slot_bookings_display_mode',
@@ -2091,6 +2132,14 @@ if ($ADMIN->fulltree) {
         new admin_setting_configcheckbox(
             'booking/duplicationrestoresubbookings',
             get_string('duplicationrestoresubbookings', 'mod_booking'),
+            '',
+            1
+        )
+    );
+    $settings->add(
+        new admin_setting_configcheckbox(
+            'booking/duplicationrestorerules',
+            get_string('duplicationrestorerules', 'mod_booking'),
             '',
             1
         )

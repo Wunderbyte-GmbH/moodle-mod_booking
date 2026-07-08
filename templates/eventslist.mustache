@@ -39,6 +39,11 @@
 </p>
 <div class="collapse" id="showEventList">
 <div class="card card-body">
+    {{#hint}}
+    <div class="alert alert-light small mb-2" role="alert">
+        {{{hint}}}
+    </div>
+    {{/hint}}
     {{{eventstable}}}
 </div>
 </div>

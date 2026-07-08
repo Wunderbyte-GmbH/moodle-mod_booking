@@ -250,15 +250,23 @@ $capabilities = [
             'manager' => CAP_ALLOW,
         ],
     ],
-        'mod/booking:bookallstudents' => [
-            'captype' => 'write',
-            'contextlevel' => CONTEXT_MODULE,
-            'archetypes' => [
-                'teacher' => CAP_ALLOW,
-                'editingteacher' => CAP_ALLOW,
-                'manager' => CAP_ALLOW,
-            ],
+    'mod/booking:bookallstudents' => [
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => [
+            'teacher' => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW,
         ],
+    ],
+    'mod/booking:bookmyteam' => [
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => [
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW,
+        ],
+    ],
     'mod/booking:overrideboconditions' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_SYSTEM,
@@ -423,7 +431,7 @@ $capabilities = [
     ],
     'mod/booking:executebulkoperations' => [
         'captype' => 'write',
-        'contextlevel' => CONTEXT_SYSTEM,
+        'contextlevel' => CONTEXT_MODULE,
         'archetypes' => [
             'manager' => CAP_ALLOW,
         ],
@@ -521,6 +529,18 @@ $capabilities = [
     ],
     'mod/booking:canseenumberofbookings' => [
         'captype' => 'read',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => [
+            'manager' => CAP_ALLOW,
+        ],
+    ],
+    // Allows selecting ANY course as a duplication source, even courses the user
+    // cannot otherwise see or access. Course duplication copies the whole source course
+    // into a category the user can reach, so this effectively grants read access to that
+    // content - hence the data/personal risk flags and the manager-only default.
+    'mod/booking:duplicateanycourse' => [
+        'riskbitmask' => RISK_DATALOSS | RISK_PERSONAL,
+        'captype' => 'write',
         'contextlevel' => CONTEXT_SYSTEM,
         'archetypes' => [
             'manager' => CAP_ALLOW,

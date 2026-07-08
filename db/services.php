@@ -137,6 +137,13 @@ $functions = [
         'capabilities' => '',
         'ajax' => true,
     ],
+    'mod_booking_search_booking_instances' => [
+        'classname' => 'mod_booking\external\search_booking_instances',
+        'description' => 'Search a list of all booking instances',
+        'type' => 'read',
+        'capabilities' => '',
+        'ajax' => 1,
+    ],
     'mod_booking_search_booking_options' => [
         'classname' => 'mod_booking\external\search_booking_options',
         'description' => 'Search a list of all booking options',

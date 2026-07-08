@@ -28,15 +28,15 @@ $messageproviders = [
     // Ordinary single booking messages.
     'bookingconfirmation' => [
         'defaults' => [
-            'pop-up' => MESSAGE_PERMITTED,
-            'email' => MESSAGE_PERMITTED,
+            'popup' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_ENABLED,
+            'email' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_ENABLED,
         ],
     ],
 
     'sendmessages' => [
         'defaults' => [
-            'pop-up' => MESSAGE_PERMITTED,
-            'email' => MESSAGE_PERMITTED,
+            'popup' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_ENABLED,
+            'email' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_ENABLED,
         ],
         'capability' => 'mod/booking:cansendmessages',
     ],

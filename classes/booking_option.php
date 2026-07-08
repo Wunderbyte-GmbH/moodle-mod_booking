@@ -926,7 +926,11 @@ class booking_option {
         $transferred->yes = []; // Successfully transferred users.
         $transferred->no = []; // Errored users.
         $transferred->success = false;
-        $otheroption = singleton_service::get_instance_of_booking_option($this->cmid, $newoption);
+        // Resolve the target option's own course module id, so transfers into a different
+        // booking instance (different cmid) work as well.
+        $targetsettings = singleton_service::get_instance_of_booking_option_settings($newoption);
+        $targetcmid = (int) ($targetsettings->cmid ?? $this->cmid);
+        $otheroption = singleton_service::get_instance_of_booking_option($targetcmid, $newoption);
         if (
             !empty($userids) && (has_capability('mod/booking:subscribeusers', $this->booking->get_context()) ||
                 booking_check_if_teacher($otheroption->option))
@@ -970,6 +974,107 @@ class booking_option {
         }
 
         return $transferred;
+    }
+
+    /**
+     * Human readable label for a booking option type.
+     *
+     * @param int $type One of the MOD_BOOKING_OPTIONTYPE_* constants.
+     * @return string
+     */
+    public static function get_optiontype_label(int $type): string {
+        switch ($type) {
+            case MOD_BOOKING_OPTIONTYPE_SELFLEARNINGCOURSE:
+                return get_string('selflearningcourse', 'mod_booking');
+            case MOD_BOOKING_OPTIONTYPE_SLOTBOOKING:
+                return get_string('optiontype_slotbooking', 'mod_booking');
+            default:
+                return get_string('transferoptiontypedefault', 'mod_booking');
+        }
+    }
+
+    /**
+     * Build the list of warnings for transferring the given users from a source to a target option.
+     *
+     * A warning is added when: the target option is of a different type; at least one of the
+     * selected users filled out a custom form on the source option (data would be lost); or the
+     * target option has a different price for at least one of the selected users.
+     *
+     * @param int $sourceoptionid
+     * @param int $targetoptionid
+     * @param array $userids
+     * @return array<string> List of human readable warning strings (empty if none).
+     */
+    public static function get_transfer_warnings(int $sourceoptionid, int $targetoptionid, array $userids): array {
+        global $DB;
+
+        $warnings = [];
+
+        if (empty($targetoptionid) || $targetoptionid === $sourceoptionid) {
+            return $warnings;
+        }
+
+        $sourcesettings = singleton_service::get_instance_of_booking_option_settings($sourceoptionid);
+        $targetsettings = singleton_service::get_instance_of_booking_option_settings($targetoptionid);
+
+        // 1. Type mismatch.
+        $sourcetype = (int) ($sourcesettings->type ?? MOD_BOOKING_OPTIONTYPE_DEFAULT);
+        $targettype = (int) ($targetsettings->type ?? MOD_BOOKING_OPTIONTYPE_DEFAULT);
+        if ($sourcetype !== $targettype) {
+            $warnings[] = get_string('transferwarningtype', 'mod_booking', (object) [
+                'sourcetype' => self::get_optiontype_label($sourcetype),
+                'targettype' => self::get_optiontype_label($targettype),
+            ]);
+        }
+
+        // 2. Custom form data loss: any selected user with condition_customform data on the source answer.
+        if (!empty($userids)) {
+            [$insql, $inparams] = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
+            $inparams['optionid'] = $sourceoptionid;
+            $answers = $DB->get_fieldset_select(
+                'booking_answers',
+                'json',
+                "optionid = :optionid AND userid $insql",
+                $inparams
+            );
+            foreach ($answers as $json) {
+                if (empty($json)) {
+                    continue;
+                }
+                $decoded = json_decode($json);
+                if (!empty($decoded->condition_customform)) {
+                    $warnings[] = get_string('transferwarningcustomform', 'mod_booking');
+                    break;
+                }
+            }
+        }
+
+        // 3. Price difference (aggregated: warn if any selected user's price would change).
+        $pricediffers = false;
+        $targetpricelabel = '';
+        foreach ($userids as $userid) {
+            $user = singleton_service::get_instance_of_user((int) $userid);
+            $sourceprice = price::get_price('option', $sourceoptionid, $user);
+            $targetprice = price::get_price('option', $targetoptionid, $user);
+
+            $sourceval = isset($sourceprice['price']) ? (float) $sourceprice['price'] : null;
+            $targetval = isset($targetprice['price']) ? (float) $targetprice['price'] : null;
+            $sourcecur = $sourceprice['currency'] ?? '';
+            $targetcur = $targetprice['currency'] ?? '';
+
+            if ($sourceval !== $targetval || $sourcecur !== $targetcur) {
+                $pricediffers = true;
+                if ($targetval !== null) {
+                    $targetpricelabel = trim($targetprice['price'] . ' ' . $targetcur);
+                }
+                break;
+            }
+        }
+        if ($pricediffers) {
+            $warnings[] = get_string('transferwarningprice', 'mod_booking', $targetpricelabel);
+        }
+
+        return $warnings;
     }
 
     /**

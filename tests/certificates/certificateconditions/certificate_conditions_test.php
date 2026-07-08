@@ -38,6 +38,7 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 require_once($CFG->dirroot . '/mod/booking/classes/price.php');
+require_once($CFG->dirroot . '/mod/booking/tests/booking_advanced_testcase.php');
 
 /**
  * Class handling tests certificate conditions.
@@ -497,6 +498,53 @@ final class certificate_conditions_test extends booking_advanced_testcase {
     }
 
     /**
+     * Test the instance condition where a student must complete 2 options from the booking instance.
+     *
+     * @covers \mod_booking\local\certificate_conditions\conditions\instance
+     * @covers \mod_booking\local\certificateclass::issue_certificate
+     * @covers \mod_booking\local\certificateclass::all_required_options_fulfilled
+     * @covers \mod_booking\local\certificate_conditions\actions\createcertificate
+     */
+    public function test_condition_instance(): void {
+        global $DB;
+        $this->base_scenario();
+        // Create a Certificate Template.
+        $certificate = $this->get_certificate_generator()->create_template((object)['name' => 'Certificate 1']);
+
+        // Create Condition: instance with requiredcount=2 and insert it into DB.
+        $data = $this->set_instance_condition($certificate);
+        $conditionid = $DB->insert_record('booking_cert_cond', $data);
+        $this->set_instance_condition_items($conditionid);
+
+        $this->setUser($this->users['student1']);
+        $settings1 = singleton_service::get_instance_of_booking_option_settings($this->bookingoptions[0]->id);
+        $result = booking_bookit::bookit('option', $settings1->id, $this->users['student1']->id);
+        $result = booking_bookit::bookit('option', $settings1->id, $this->users['student1']->id);
+
+        $this->setAdminUser();
+        $optionaobj = singleton_service::get_instance_of_booking_option($settings1->cmid, $settings1->id);
+        $optionaobj->toggle_user_completion($this->users['student1']->id);
+        singleton_service::destroy_booking_answers($optionaobj->id);
+
+        // We completed one option but have to complete both in order to get a certificate.
+        $this->assertEquals(0, $DB->count_records('tool_certificate_issues', ['userid' => $this->users['student1']->id]));
+
+        $settings2 = singleton_service::get_instance_of_booking_option_settings($this->bookingoptions[1]->id);
+        $result = booking_bookit::bookit('option', $settings2->id, $this->users['student1']->id);
+        $result = booking_bookit::bookit('option', $settings2->id, $this->users['student1']->id);
+        $this->setAdminUser();
+
+        $optionbobj = singleton_service::get_instance_of_booking_option($settings2->cmid, $settings2->id);
+        $optionbobj->toggle_user_completion($this->users['student1']->id);
+        singleton_service::destroy_booking_answers($optionbobj->id);
+
+        // Now student1 should have one certificate.
+        $this->assertEquals(1, $DB->count_records('tool_certificate_issues', ['userid' => $this->users['student1']->id]));
+
+        self::teardown();
+    }
+
+    /**
      * Set up base certificate configuration and create all standard entities from provide_standard_data().
      * Results are stored on $this->users, $this->bookingoptions, $this->course, and $this->booking.
      *
@@ -539,7 +587,7 @@ final class certificate_conditions_test extends booking_advanced_testcase {
 
         // Create booking module.
         $bdata = $standarddata['booking'];
-        $bdata['course']         = $this->course->id;
+        $bdata['course'] = $this->course->id;
         $bdata['bookingmanager'] = $this->users['bookingmanager']->username;
         $this->booking = $this->getDataGenerator()->create_module('booking', $bdata);
 
@@ -678,6 +726,57 @@ final class certificate_conditions_test extends booking_advanced_testcase {
         $data->usetemplate = 0;
         $data->timecreated = time();
         return $data;
+    }
+
+    /**
+     * Set the instance condition.
+     *
+     * @param object $certificate
+     * @param array $filterjson
+     *
+     * @return stdClass
+     *
+     */
+    private function set_instance_condition(object $certificate, array $filterjson = []) {
+        $data = new stdClass();
+        $data->name = "Instance_condition_test";
+        $data->filterjson = json_encode($filterjson);
+        $data->logicjson = json_encode([
+            'conditionname' => 'instance',
+            'bookingid' => $this->booking->id,
+            'requiredcount' => 2,
+        ]);
+        $data->actionjson = json_encode([
+            'actionname' => 'createcertificate',
+            'certid' => $certificate->get_id(),
+            'expirydatetype' => 0,
+            'expirydateabsolute' => 1773129540,
+            'expirydaterelative' => 0,
+        ]);
+        $data->isactive = 1;
+        $data->usetemplate = 0;
+        $data->timecreated = time();
+        return $data;
+    }
+
+    /**
+     * Set the instance condition items (single sentinel record for the booking instance).
+     *
+     * @param int $conditionid
+     *
+     * @return void
+     *
+     */
+    private function set_instance_condition_items(int $conditionid): void {
+        global $DB;
+        $itemdata = new stdClass();
+        $itemdata->component = 'mod_booking';
+        $itemdata->area = 'bookinginstance';
+        $itemdata->conditionid = $conditionid;
+        $itemdata->sortorder = 0;
+        $itemdata->configjson = json_encode([]);
+        $itemdata->itemid = $this->booking->id;
+        $DB->insert_record('booking_cert_cond_item', $itemdata);
     }
 
     /**

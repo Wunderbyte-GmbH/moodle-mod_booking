@@ -214,6 +214,22 @@ class option extends scope_base {
                     'btn btn-primary btn-sm ms-2'
                 );
             }
+
+            if (has_capability('mod/booking:subscribeusers', context_module::instance($cmid))) {
+                $table->actionbuttons[] = booked_users::create_action_button(
+                    'transferusers',
+                    'fa fa-exchange',
+                    'mod_booking\\form\\modal_transfer_users',
+                    [
+                        'titlestring' => 'transferusers',
+                        'submitbuttonstring' => 'transfer',
+                        'component' => 'mod_booking',
+                        'cmid' => $cmid,
+                        'optionid' => $optionid ?? 0,
+                    ],
+                    'btn btn-primary btn-sm ms-2'
+                );
+            }
         }
 
         if (
