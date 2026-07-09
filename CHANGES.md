@@ -19,6 +19,7 @@
 * Improvement: bookingextension settings are now available regardless of the Booking PRO license.
 * Improvement: Better colour contrast for improved accessibility.
 * Improvement: Performance — a per-option capacity lock closes the overbooking race; system-wide cache broadcasts are deferred and reduced during waiting-list sync, bulk operations and single bookings; category lookups are batched; the MariaDB/MySQL version check is cached; and slot booking hoists option-wide queries out of the per-slot loop.
+* Bugfix: Refresh the shopping cart display whenever the prepage booking modal is closed - also via ESC or a backdrop click, not only via the close button.
 * Bugfix: Cashiers without 'mod/booking:bookforothers' could not load the customform prepage when booking for another user, so multi-user bookings (enrolusersaction) were silently booked with quantity 1. The 'local/shopping_cart:cashier' capability is now accepted for acting on behalf of another user, and the prepage continue button stays blocked if the customform fails to load (fail closed).
 * Bugfix: Availability SQL filter — tolerate NULL availability and make the userprofilefield &lt; and &gt; operators numeric and DB-agnostic (MariaDB and PostgreSQL).
 * Bugfix: REST after-booking action JSON-body placeholders are resolved per token, with new {baid} and {userid} placeholders.
