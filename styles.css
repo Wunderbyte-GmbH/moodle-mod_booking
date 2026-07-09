@@ -476,7 +476,17 @@ if there only was one booking option. */
 }
 
 .wunderbyte-table-list .imageright-card .action {
+    position: absolute;
+    top: 0;
     right: 25%;
+}
+
+/* Bootstrap 4 (Moodle 4.5) sets position:relative on every grid column; Bootstrap 5
+   (Moodle 5+) does not. Reset the columns inside imageright cards to static so the
+   absolutely positioned .action menubar anchors to the .card -- its right:25% then
+   lands just left of the right-hand header image consistently on both versions. */
+.wunderbyte-table-list .imageright-card [class*="col-"] {
+    position: static;
 }
 
 .wunderbyte-table-list .booknow {
@@ -491,7 +501,7 @@ if there only was one booking option. */
 
 /* DO NOT USE #page-mod-booking-view because this needs to work in shortcodes too! */
 .mod-booking-view-list-image {
-    width: inherit;
+    width: 100%;
     height: 100%;
     object-fit: cover;
     max-height: 300px;
@@ -499,7 +509,7 @@ if there only was one booking option. */
 }
 
 .mod-booking-view-list-image-half {
-    width: inherit;
+    width: 100%;
     height: 100%;
     object-fit: cover;
     border-radius: 0;
