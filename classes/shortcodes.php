@@ -1485,7 +1485,7 @@ class shortcodes {
         }
         /** @var \context $syscontext */
         $syscontext = context_system::instance();
-        if (!is_siteadmin() && !has_capability('mod/booking:executebulkoperations', $syscontext)) {
+        if (!has_capability('mod/booking:executebulkoperations', $syscontext)) {
             return get_string('nopermissiontoaccesscontent', 'mod_booking');
         }
 

@@ -139,6 +139,16 @@ $ADMIN->add(
     )
 );
 
+$ADMIN->add(
+    'modbookingfolder',
+    new admin_externalpage(
+        'modbookingbulkoperations',
+        get_string('bulkoperationspro', 'mod_booking'),
+        new moodle_url('/mod/booking/bulkoperations.php'),
+        'mod/booking:executebulkoperations'
+    )
+);
+
 if (!empty(get_config('booking', 'certificateoptions'))) {
     $ADMIN->add(
         'modbookingfolder',

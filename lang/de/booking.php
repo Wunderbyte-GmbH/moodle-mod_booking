@@ -1074,6 +1074,7 @@ $string['btnviewavailable'] = "Verfügbare Optionen anzeigen";
 $string['bulkoperations'] = 'Zeige Liste von Buchungsoptionen um Massenoperationen zu ermöglichen';
 $string['bulkoperationsbutton'] = 'Feld laden, um es für alle ausgewählten Buchungsoptionen zu bearbeiten';
 $string['bulkoperationsheader'] = 'Daten der ausgewählten Buchungsoptionen überschreiben';
+$string['bulkoperationspro'] = 'Bulk-Operationen (PRO)';
 $string['bulkoperationsqueued'] = 'Die Änderungen an {$a} Buchungsoption(en) werden im Hintergrund durchgeführt. Dies kann eine Weile dauern.';
 $string['bulkoperationstab'] = 'Bulk-Operationen';
 $string['cachedef_bookedusertable'] = 'Gebuchte Nutzer:innen-Tabelle (Cache)';
@@ -2296,6 +2297,7 @@ $string['nodirectbookingbecauseofprice'] = 'Das Buchen von anderen ist bei diese
 <li>die Warteliste ist global nicht deaktiivert</li>
 </ul>
 Der Zweck dieses Verhaltens ist es, "gemischte" Buchungen mit und ohne Warenkorb zu verhindern. Bitte verwenden Sie die Kassierfunktion des Warenkorbs, um Benutzer:innen zu buchen.';
+$string['nocapabilitytoaccesspage'] = 'Ihre Rolle verfügt nicht über die notwendige Berechtigung, um auf diese Seite zuzugreifen.';
 $string['noelement'] = "Kein Element";
 $string['noeventtypeselected'] = 'Keine Ereignisart ausgewählt';
 $string['nofieldchosen'] = 'Kein Feld ausgewählt';

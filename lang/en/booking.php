@@ -1094,6 +1094,7 @@ $string['btnviewavailable'] = "View available options";
 $string['bulkoperations'] = 'Show list of bookingoptions to enable bulk operations';
 $string['bulkoperationsbutton'] = 'Load field to edit all selected booking options';
 $string['bulkoperationsheader'] = 'Update data for selected bookingoption(s)';
+$string['bulkoperationspro'] = 'Bulk Operations (PRO)';
 $string['bulkoperationsqueued'] = 'The changes to {$a} booking option(s) will be applied in the background. This may take a while.';
 $string['bulkoperationstab'] = 'Bulk operations';
 $string['cachedef_bookedusertable'] = 'Booked users table (cache)';
@@ -2351,6 +2352,7 @@ $string['nodirectbookingbecauseofprice'] = 'Booking for others is only partially
     <li>the waiting list is not globally deactivated</li>
     </ul>
     The intention of this behaviour is to prevent "mixed" bookings with and without shopping cart. Please use shopping cart cashier function to book users.';
+$string['nocapabilitytoaccesspage'] = 'Your role does not have the necessary capability to access this page.';
 $string['noelement'] = "No element";
 $string['noeventtypeselected'] = 'No event type selected';
 $string['nofieldchosen'] = 'No field chosen';
