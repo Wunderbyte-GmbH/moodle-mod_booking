@@ -1,3 +1,6 @@
+## Version 9.6.1 (2026070901)
+* Bugfix: Fix error on settings.php when no customfields exist yet.
+
 ## Version 9.6.0 (2026070900)
 * New feature: New booking instance setting "customfieldsforview" to display booking option customfields for each booking option in the options overview (view.php) — in list view (footer area, right next to institution) and cards view (card list, one customfield per line, right above the dates), styled like the other info entries (e.g. institution). The icons configured in the plugin settings (customfieldicon_<shortname>) are shown in front of the values, just like on the option detail page; if no icon is configured, the default icon fa-puzzle-piece is used.
 * New feature: Add individual columns and customfields to fulltext search.
