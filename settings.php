@@ -472,8 +472,8 @@ if ($ADMIN->fulltree) {
         )
     );
 
-    // Custom fields to be shown on detail page (optionview.php).
     if (!empty($customfields)) {
+        // Custom fields to be shown on detail page (optionview.php).
         $settings->add(
             new admin_setting_configmultiselect(
                 'booking/optionviewcustomfields',
@@ -483,31 +483,30 @@ if ($ADMIN->fulltree) {
                 $customfieldshortnames
             )
         );
-    }
-    // Custom fields to be shown in the card on the detail page (optionview.php).
-    if (!empty($customfields)) {
+        // Custom fields to be shown in the card on the detail page (optionview.php).
         $settings->add(
             new admin_setting_configmultiselect(
                 'booking/cardoptionviewcustomfields',
                 get_string('cardoptionviewcustomfields', 'mod_booking'),
-                get_string('cardoptionviewcustomfields', 'mod_booking'),
+                get_string('cardoptionviewcustomfieldsdesc', 'mod_booking'),
                 [],
                 $customfieldshortnames
             )
         );
+        // Font Awesome icon shown in front of each custom field (shared by detail page and card).
+        foreach ($customfields as $customfield) {
+            $settings->add(
+                new admin_setting_configtext(
+                    'booking/customfieldicon_' . $customfield->shortname,
+                    get_string('customfieldicon', 'mod_booking', $customfield),
+                    get_string('customfieldicondesc', 'mod_booking'),
+                    '',
+                    PARAM_TEXT
+                )
+            );
+        }
     }
-    // Font Awesome icon shown in front of each custom field (shared by detail page and card).
-    foreach ($customfields as $customfield) {
-        $settings->add(
-            new admin_setting_configtext(
-                'booking/customfieldicon_' . $customfield->shortname,
-                get_string('customfieldicon', 'mod_booking', $customfield),
-                get_string('customfieldicondesc', 'mod_booking'),
-                '',
-                PARAM_TEXT
-            )
-        );
-    }
+
     $settings->add(
         new admin_setting_configcheckbox(
             'booking/alloptionsinreport',
