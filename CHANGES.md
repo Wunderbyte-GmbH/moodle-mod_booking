@@ -1,3 +1,7 @@
+## Version 9.6.2 (2026070905)
+* Improvement: AI wizard — diagnose_user_booking resolves a named option from any context (like the other diagnose skills) and flags an unresolvable optionquery instead of silently degrading to the instance-wide overview; every reported option carries its host course and booking instance.
+* Improvement: AI wizard — the no-instance scope observation no longer reads as a site-wide "no booking activities" state in later turns and points to the target-parameter retry path.
+
 ## Version 9.6.2 (2026070904)
 * Improvement: AI wizard — search_options, list_option_properties and the two diagnose skills resolve their booking activity from any context (optionid or activityquery), instead of dead-ending outside a booking module context.
 * New feature: AI wizard — new read-only skill list_instance_settings returns the configurable instance fields with current values; configure_booking_instance is write-only now.
