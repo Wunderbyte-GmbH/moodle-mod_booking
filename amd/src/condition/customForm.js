@@ -20,6 +20,7 @@
  */
 
 import DynamicForm from 'core_form/dynamicform';
+import Notification from 'core/notification';
 
 const SELECTOR = {
     FORMCONTAINER: '.condition-customform',
@@ -58,11 +59,71 @@ export async function init() {
 
     const dynamicForm = new DynamicForm(container, 'mod_booking\\form\\condition\\customform_form');
 
-    // We need to render the dynamic form right away, so we can acutally have all the necessary elements present.
-    await dynamicForm.load({
-        id,
-        userid,
-    });
+    const prepagebody = container.closest(SELECTOR.PREPAGEBODY);
+
+    // Fail closed: continuing is only possible after the form was submitted successfully.
+    // The gate state lives on the prepage body, so a re-init of this page (e.g. after
+    // back navigation re-rendered the form) replaces the state instead of stacking
+    // another listener with a stale form reference.
+    prepagebody.customformgate = {
+        dynamicForm,
+        formsubmitted: false,
+        loadfailed: false,
+    };
+
+    // The continue button lives in the prepage footer, which may render before OR after
+    // this init runs. A delegated listener on the prepage body catches the click in both
+    // cases: in the bubbling phase it runs before the footer's own body-level listener
+    // (button -> prepage body -> body), so it can stop an unsubmitted continue reliably.
+    if (!prepagebody.dataset.customformgateattached) {
+        prepagebody.dataset.customformgateattached = 'true';
+        prepagebody.addEventListener('click', e => {
+            const gate = prepagebody.customformgate;
+            if (!gate || gate.formsubmitted) {
+                return;
+            }
+            const button = e.target.closest(SELECTOR.CONTINUEBUTTON);
+            if (!button) {
+                return;
+            }
+            // The form was not submitted yet, so the click must not reach the footer handler.
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            // eslint-disable-next-line no-console
+            console.log('Continue button click blocked because form is not validated yet.');
+            if (!gate.loadfailed && gate.dynamicForm.getFormNode()) {
+                gate.dynamicForm.submitFormAjax();
+            }
+        });
+    }
+
+    // Additionally stamp the button as blocked for the footer's own dataset check.
+    const blockContinueButton = () => {
+        const continuebutton = prepagebody.querySelector(SELECTOR.CONTINUEBUTTON);
+        if (continuebutton && !continuebutton.dataset.blocked) {
+            continuebutton.dataset.blocked = true;
+        }
+    };
+
+    blockContinueButton();
+
+    try {
+        // We need to render the dynamic form right away, so we can acutally have all the necessary elements present.
+        await dynamicForm.load({
+            id,
+            userid,
+        });
+    } catch (err) {
+        // Without the form, continuing must stay impossible (fail closed) - but the
+        // user has to see why nothing happens.
+        prepagebody.customformgate.loadfailed = true;
+        blockContinueButton();
+        Notification.exception(err);
+        return;
+    }
+    // The footer (and with it the continue button) might only have been rendered
+    // while the form was loading.
+    blockContinueButton();
 
     // Delegated listener: clear field on click if it still holds its initial value.
     container.addEventListener('click', e => {
@@ -87,23 +148,18 @@ export async function init() {
         }
     });
 
-    let continuebutton = container.closest(SELECTOR.PREPAGEBODY).querySelector(SELECTOR.CONTINUEBUTTON);
-
-    // eslint-disable-next-line no-console
-    console.log("continuebutton", continuebutton);
-
     dynamicForm.addEventListener(dynamicForm.events.FORM_SUBMITTED, e => {
 
         const response = e.detail;
 
         // eslint-disable-next-line no-console
-        console.log("response", response, continuebutton);
+        console.log("response", response);
 
         if (response) {
 
-            if (!continuebutton) {
-                continuebutton = container.closest(SELECTOR.PREPAGEBODY).querySelector(SELECTOR.CONTINUEBUTTON);
-            }
+            prepagebody.customformgate.formsubmitted = true;
+
+            const continuebutton = prepagebody.querySelector(SELECTOR.CONTINUEBUTTON);
             if (continuebutton) {
 
                 continuebutton.dataset.blocked = 'false';
@@ -111,24 +167,6 @@ export async function init() {
             }
         }
     });
-
-    // This goes on continue button.
-    // It will prevent the action to be triggered.
-    // Unless the form is validated (see above).
-    if (continuebutton) {
-
-        continuebutton.dataset.blocked = true;
-
-        continuebutton.addEventListener('click', e => {
-
-            if (continuebutton.dataset.blocked == 'true') {
-                e.preventDefault();
-                // eslint-disable-next-line no-console
-                console.log('Continue button click blocked because form is not validated yet.');
-                dynamicForm.submitFormAjax();
-            }
-        });
-    }
 }
 
 /**

@@ -73,8 +73,9 @@ class customform_form extends dynamic_form {
      *
      * The userid is supplied by the client and used to read/write the per-user customform cache
      * (an application cache keyed only by userid + optionid). Acting on your own data is always
-     * allowed; acting on behalf of another user requires the mod/booking:bookforothers capability
-     * on the booking option's module context.
+     * allowed; acting on behalf of another user requires either the local/shopping_cart:cashier
+     * capability on system context (cashiers book for other users, e.g. on the cashier page) or
+     * the mod/booking:bookforothers capability on the booking option's module context.
      *
      * @param int $userid the user whose custom form data is being accessed
      * @param int $optionid the booking option id, used to resolve the module context
@@ -84,6 +85,15 @@ class customform_form extends dynamic_form {
         global $USER;
 
         if (empty($userid) || $userid === (int) $USER->id) {
+            return;
+        }
+
+        // Cashiers act on behalf of other users without needing mod/booking:bookforothers.
+        // This mirrors the check in shortcodes::init_table_for_courses().
+        if (
+            class_exists('local_shopping_cart\shopping_cart')
+            && has_capability('local/shopping_cart:cashier', context_system::instance())
+        ) {
             return;
         }
 
@@ -165,7 +175,9 @@ class customform_form extends dynamic_form {
         $settings = singleton_service::get_instance_of_booking_option_settings((int)$id);
 
         $mform->addElement('hidden', 'id', $id);
+        $mform->setType('id', PARAM_INT);
         $mform->addElement('hidden', 'userid', $userid);
+        $mform->setType('userid', PARAM_INT);
 
         $availability = json_decode($settings->availability ?? '[]');
 
