@@ -34,7 +34,7 @@ class rule_preview_builder {
      */
     public static function create_descriptor(array $input): ?array {
         $lang = self::lang($input);
-        $rows = [];
+        $rows = option_preview_builder::target_rows($input, $lang);
         self::push($rows, self::str('previewlabel_template', $lang), self::template_value($input));
         self::push($rows, self::str('previewlabel_rulename', $lang), self::text($input['rulename'] ?? null));
         self::push($rows, self::str('previewlabel_active', $lang), self::active_value($input, $lang));
@@ -57,12 +57,22 @@ class rule_preview_builder {
         $lang = self::lang($input);
 
         $title = self::str('previewtitle_updaterule', $lang);
-        $target = self::text($input['rulequery'] ?? null) ?? self::positive_int_string($input['ruleid'] ?? null);
-        if ($target !== null) {
-            $title .= ' "' . $target . '"';
+        $ruleid = self::positive_int_string($input['ruleid'] ?? null);
+        $rulename = self::text($input['rule_name_resolved'] ?? null);
+        if ($rulename !== null) {
+            // Preflight resolved the target rule: show its NAME, with the id as a suffix.
+            $title .= ' "' . $rulename . '"';
+            if ($ruleid !== null) {
+                $title .= ' (#' . $ruleid . ')';
+            }
+        } else {
+            $target = self::text($input['rulequery'] ?? null) ?? $ruleid;
+            if ($target !== null) {
+                $title .= ' "' . $target . '"';
+            }
         }
 
-        $rows = [];
+        $rows = option_preview_builder::target_rows($input, $lang);
         self::push($rows, self::str('previewlabel_template', $lang), self::template_value($input));
         self::push($rows, self::str('previewlabel_rulename', $lang), self::text($input['rulename'] ?? null));
         if (isset($input['isactive']) && $input['isactive'] !== '') {
@@ -77,12 +87,16 @@ class rule_preview_builder {
     }
 
     /**
-     * The named template (query) or its id, or null.
+     * The RESOLVED template name when preflight determined it, else the raw query text or id.
      *
      * @param array $input
      * @return string|null
      */
     private static function template_value(array $input): ?string {
+        $resolved = self::text($input['template_name_resolved'] ?? null);
+        if ($resolved !== null) {
+            return $resolved;
+        }
         $query = self::text($input['templatequery'] ?? null);
         if ($query !== null) {
             return $query;

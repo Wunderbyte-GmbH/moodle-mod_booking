@@ -31,6 +31,8 @@ use mod_booking\local\wizard\engine\skill_trigger_provider_interface;
 class update_option_skill extends booking_skill_base implements
     queue_identity_provider_interface,
     skill_trigger_provider_interface {
+    use option_targeted_skill;
+
     /** Task name constant. */
     public const TASK_NAME = 'mod_booking.update_option';
 
@@ -296,14 +298,18 @@ class update_option_skill extends booking_skill_base implements
      * @return array{status:string,prepared_input:array,issues:array}
      */
     protected function run_preflight(array $input, int $cmid, int $userid): array {
-        $cmid = $this->resolve_cmid_from_context_or_cmid($cmid);
-        $capdenied = $this->require_native_capability('mod/booking:addeditownoption', $cmid, $userid);
-        if ($capdenied !== null) {
-            return $capdenied;
+        $lang = $this->get_output_language($input);
+
+        // The option_targeted_skill trait resolves the operating context from the named option, so
+        // this works from an activity page, the dashboard, or MCP (system context) alike.
+        $resolved = $this->resolve_option_operating_context($input, $cmid, 'mod/booking:addeditownoption', $userid, $lang);
+        if (isset($resolved['clarification'])) {
+            return $resolved['clarification'];
         }
+        $cmid = $resolved['cmid'];
+
         global $DB;
 
-        $lang = $this->get_output_language($input);
         $issues = [];
 
         // Note: command input is already deanonymized by the engine before preflight runs

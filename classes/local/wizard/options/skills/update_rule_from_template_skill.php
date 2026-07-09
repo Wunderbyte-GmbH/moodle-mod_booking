@@ -16,6 +16,7 @@
 
 namespace mod_booking\local\wizard\options\skills;
 
+use mod_booking\local\wizard\engine\module_targeted_skill;
 use mod_booking\local\wizard\engine\skill_risk_class;
 use mod_booking\local\wizard\engine\skill_trigger_provider_interface;
 
@@ -27,8 +28,19 @@ use mod_booking\local\wizard\engine\skill_trigger_provider_interface;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class update_rule_from_template_skill extends booking_skill_base implements skill_trigger_provider_interface {
+    use module_targeted_skill;
+
     /** Task name constant. */
     public const TASK_NAME = 'mod_booking.update_rule_from_template';
+
+    /**
+     * This skill targets a booking activity instance.
+     *
+     * @return string
+     */
+    public function get_target_modname(): string {
+        return 'booking';
+    }
 
     /** @var object|null */
     private ?object $ruleservice = null;
@@ -107,6 +119,13 @@ class update_rule_from_template_skill extends booking_skill_base implements skil
                 'Disable that notification rule for now',
             ],
             'properties' => [
+                'activityquery' => [
+                    'type' => 'string',
+                    'description' => 'Optional: the name of the target booking activity, when it is not the '
+                        . 'current one (e.g. over MCP, which runs at the system context). If omitted and the '
+                        . 'site has a single booking activity in scope it is used automatically.',
+                    'required' => false,
+                ],
                 'ruleid' => [
                     'type' => 'integer',
                     'description' => 'Target booking rule id.',
@@ -240,6 +259,15 @@ class update_rule_from_template_skill extends booking_skill_base implements skil
         $prepared = $input;
         $rule = (array)($ruleresolution['rule'] ?? []);
         $prepared['ruleid'] = (int)($rule['id'] ?? 0);
+        // Stash resolution results for the confirm preview (rule_preview_builder): the resolved
+        // rule NAME for the title, and the target activity row. Execute ignores these keys.
+        $rulename = trim((string)($rule['name'] ?? ''));
+        if ($rulename !== '') {
+            $prepared['rule_name_resolved'] = $rulename;
+        }
+        if ($cmid > 0) {
+            $prepared['targetcmid'] = $cmid;
+        }
 
         $hastemplateid = !empty($input['templateid']);
         $hastemplatequery = trim((string)($input['templatequery'] ?? '')) !== '';
@@ -277,6 +305,11 @@ class update_rule_from_template_skill extends booking_skill_base implements skil
 
             $template = (array)($templateresolution['template'] ?? []);
             $prepared['templateid'] = (int)($template['templateid'] ?? 0);
+            $templatename = trim((string)($template['name'] ?? ''));
+            if ($templatename !== '') {
+                // Show the RESOLVED template name (not the raw query) in the confirm preview.
+                $prepared['template_name_resolved'] = $templatename;
+            }
         }
 
         return $this->pass($prepared);

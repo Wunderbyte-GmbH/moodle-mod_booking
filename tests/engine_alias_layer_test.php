@@ -105,6 +105,13 @@ final class engine_alias_layer_test extends \advanced_testcase {
      * The scaffold template emits exactly this layer for third-party plugins.
      */
     public function test_alias_layer_is_uniform_with_scaffold_template(): void {
+        // Probe the engine BEFORE calling fqcn(): fqcn() eagerly preloads the whole alias
+        // layer, whose class_alias() calls bind to the active engine plugin. With no engine
+        // installed (mod_booking standalone) those targets do not exist, so we must skip
+        // here first — exactly as the binding/identity guards above do.
+        if (!$this->active_engine_available()) {
+            $this->markTestSkipped('No active engine plugin installed - the alias layer is dormant.');
+        }
         $generator = engine_resolver::fqcn('services\\scaffold\\skill_template_generator');
         if (!class_exists($generator)) {
             $this->markTestSkipped('Active engine ships no scaffold generator.');

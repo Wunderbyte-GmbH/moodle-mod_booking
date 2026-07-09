@@ -31,6 +31,8 @@ use mod_booking\local\wizard\engine\skill_trigger_provider_interface;
 class bulk_update_options_skill extends booking_skill_base implements
     queue_identity_provider_interface,
     skill_trigger_provider_interface {
+    use option_targeted_skill;
+
     /** Task name constant. */
     public const TASK_NAME = 'mod_booking.bulk_update_options';
 
@@ -258,14 +260,18 @@ class bulk_update_options_skill extends booking_skill_base implements
      * @return array{status:string,prepared_input:array,issues:array}
      */
     protected function run_preflight(array $input, int $cmid, int $userid): array {
-        $cmid = $this->resolve_cmid_from_context_or_cmid($cmid);
-        $capdenied = $this->require_native_capability('mod/booking:addeditownoption', $cmid, $userid);
-        if ($capdenied !== null) {
-            return $capdenied;
+        $lang = $this->get_output_language($input);
+
+        // The option_targeted_skill trait resolves the operating context from the named option ids /
+        // query, so a bulk update works from an activity page, the dashboard, or MCP alike.
+        $resolved = $this->resolve_option_operating_context($input, $cmid, 'mod/booking:addeditownoption', $userid, $lang);
+        if (isset($resolved['clarification'])) {
+            return $resolved['clarification'];
         }
+        $cmid = $resolved['cmid'];
+
         global $DB;
 
-        $lang = $this->get_output_language($input);
         $issues = [];
         $preparedinput = $input;
 
@@ -400,6 +406,14 @@ class bulk_update_options_skill extends booking_skill_base implements
                 ($result['status'] ?? 'unknown'),
                 $outputlang
             );
+            // Never clobber the service's failure information with the bare generic string: on
+            // anything but a clean all-green run, append the service detail (which option failed
+            // on which field, verifier messages incl. real option links) so it survives to the
+            // user. The all-green case keeps the plain generic message as before.
+            $detail = trim((string)($result['detail'] ?? ''));
+            if (($result['status'] ?? '') !== 'executed' && $detail !== '') {
+                $usermessage .= "\n" . $detail;
+            }
             $result['usermessage'] = $usermessage;
             $result['outputlang'] = $outputlang;
             $result['debugmessage'] = $this->build_task_debug_message(

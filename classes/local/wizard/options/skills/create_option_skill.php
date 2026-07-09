@@ -179,7 +179,8 @@ class create_option_skill extends booking_skill_base implements
             'version' => 1,
             'description' => 'Create a new booking option in the current booking activity. '
                 . 'Canonical keys for normal dated options are text, coursestarttime, courseendtime, '
-                . 'maxanswers and optiondates. '
+                . 'maxanswers and optiondates; to target a named booking activity use activityquery '
+                . '(there is no course key — never invent keys like coursequery). '
                 . 'Do not use non-canonical keys like day/date/start/end for this task. '
                 . 'Use this general create task when the user asks for a standard dated option '
                 . '(for example "create a workshop next Tuesday from 10:00 to 12:00"). '
@@ -466,6 +467,11 @@ class create_option_skill extends booking_skill_base implements
             $parts[] = 'Do not use non-canonical keys such as day, date, start, end.';
         }
 
+        if (in_array('activityquery', $this->get_supported_property_names(), true)) {
+            $parts[] = 'To create the option in a named booking activity pass that name in activityquery; '
+                . 'there is no course key for this task — never use keys like coursequery or bookinginstancequery.';
+        }
+
         $parts[] = 'Do not switch task and do not call documentation tasks for this repair.';
         // Shared escape-hatch: only use allowed keys, and if some part of the request maps to no
         // key, tell the user honestly instead of inventing one or promising an automatic retry.
@@ -713,6 +719,10 @@ class create_option_skill extends booking_skill_base implements
         $appliedaliases = [];
         $input = self::normalize_create_option_input($input, $appliedaliases);
         $input = self::strip_create_targeting_fields($input);
+        // Stash the resolved target activity for the confirm preview
+        // (option_preview_builder::target_rows). strip_create_targeting_fields() drops it
+        // again on the execute path, so it never reaches the mutation service.
+        $input['targetcmid'] = $cmid;
 
         if (static::TASK_NAME === self::TASK_NAME) {
             unset($input['slot_enabled'], $input['selflearningcourse'], $input['duration'], $input['disablecancel']);
@@ -1331,8 +1341,8 @@ class create_option_skill extends booking_skill_base implements
                     '- If the user explicitly wants the option visible, first create it, then run booking.update_option '
                         . 'to set visibility/invisible.',
                     '- For mod_booking.create_option, do NOT send optiontype; choose the correct create task instead.',
-                    '- For dated sessions, provide optiondates as a list and let execution map this to '
-                        . 'booking_option::update indexed fields (_0, _1, ...).',
+                    '- For dated sessions in mod_booking.create_option, provide optiondates as a list and let '
+                        . 'execution map this to booking_option::update indexed fields (_0, _1, ...).',
                     '- Use this task for normal options. For slotbooking use mod_booking.create_slotbooking_option.',
                     '- For self-learning use mod_booking.create_selflearning_option.',
                     '- Do not ask end users for internal type names; infer the best type from intent and phrasing.',
@@ -1341,8 +1351,8 @@ class create_option_skill extends booking_skill_base implements
                     '- Do not ask whether to create or update when the user asks to create a booking possibility.',
                     '- If validation asks for confirmation, do not invent new wording; follow the issue question.',
                     '- To proceed after explicit user confirmation of exceptions, retry with matching override tokens.',
-                    '- Known override tokens in create flow include: duplicate_title, coursestarttime, duration,',
-                    '  location, address, teacherquery, teacheremail, maxanswers.',
+                    '- Known override tokens in create flow include: duplicate_title, coursestarttime, duration,'
+                        . ' location, address, teacherquery, teacheremail, maxanswers.',
                     '- Prefer concise clarification questions; avoid technical text in user-facing message.',
                 ],
             ],
@@ -1350,9 +1360,11 @@ class create_option_skill extends booking_skill_base implements
                 'id' => 'mod_booking.course_teacher',
                 'triggers' => ['course', 'teacher', 'trainer'],
                 'guidance' => [
-                    '- Use coursequery to connect an option to a Moodle course.',
-                    '- If you know only the course name (not its id), call booking.search_courses FIRST,',
-                    '  wait for the observation with the resolved courseid, then proceed with create_option.',
+                    '- create_option cannot connect the option to a Moodle course: this task has no course key'
+                        . ' (never invent keys like coursequery).',
+                    '- To target a named booking activity, pass its name as activityquery.',
+                    '- To connect a Moodle course to the option, create the option first, then set coursequery'
+                        . ' via mod_booking.update_option.',
                     '- Use teacherquery or teacheremail to assign responsible teacher.',
                     '- If the user says to assign themselves as teacher (e.g. "me as teacher"),'
                         . ' set teacherquery to the current user/self-reference instead of asking for an e-mail address.',
@@ -1366,38 +1378,47 @@ class create_option_skill extends booking_skill_base implements
                     'previously booked', 'overlapping', 'profile field', 'condition', 'restriction',
                 ],
                 'guidance' => [
-                    '- Use enrolledincoursequery (+ optional enrolledincourseoperator) for enrolled-in-course condition.',
-                    '- Use enrolledincohortquery (+ optional enrolledincohortoperator) for cohort condition.',
-                    '- Use hascompetencyquery (+ optional hascompetencyoperator) for competency condition.',
-                    '- Use previouslybookedquery (+ optional previouslybookedrequirecompletion) for prerequisites.',
-                    '- Use selectusersquery for explicit allowlist condition.',
-                    '- Use nooverlappingmode with "block" or "warn".',
-                    '- Use allowedtobookininstance (+ optional allowedtobookininstancecapabilitynotneeded).',
-                    '- Use userprofilestandard* and userprofilecustom* fields for profile-based conditions.',
+                    '- Availability conditions cannot be set while creating: create_option has none of these keys.'
+                        . ' Create the option first, then set the conditions via mod_booking.update_option.',
+                    '- In mod_booking.update_option use enrolledincoursequery (+ optional enrolledincourseoperator)'
+                        . ' for the enrolled-in-course condition.',
+                    '- In mod_booking.update_option use enrolledincohortquery (+ optional enrolledincohortoperator)'
+                        . ' for the cohort condition.',
+                    '- In mod_booking.update_option use hascompetencyquery (+ optional hascompetencyoperator)'
+                        . ' for the competency condition.',
+                    '- In mod_booking.update_option use previouslybookedquery'
+                        . ' (+ optional previouslybookedrequirecompletion) for prerequisites.',
+                    '- In mod_booking.update_option use selectusersquery for an explicit allowlist'
+                        . ' and nooverlappingmode with "block" or "warn".',
+                    '- In mod_booking.update_option use allowedtobookininstance'
+                        . ' (+ optional allowedtobookininstancecapabilitynotneeded)'
+                        . ' and userprofilestandard*/userprofilecustom* fields for profile-based conditions.',
                 ],
             ],
             [
                 'id' => 'mod_booking.selflearning_cancel',
                 'triggers' => ['self-learning', 'selflearning', 'duration', 'hours', 'cancel', 'storno', 'stornieren'],
                 'guidance' => [
-                    '- For self-learning options use selflearningcourse=true with duration in seconds (e.g. 4h = 14400).',
-                    '- To allow self-cancellation, keep disablecancel absent or false.',
-                    '- Set disablecancel=true to prevent participants from cancelling themselves.',
+                    '- Self-learning is its own task: use mod_booking.create_selflearning_option with'
+                        . ' selflearningcourse=true and duration in seconds (e.g. 4h = 14400)'
+                        . ' — create_option has no such keys.',
+                    '- Cancellation behaviour is set via mod_booking.update_option: keep disablecancel'
+                        . ' absent or false to allow self-cancellation, set disablecancel=true to prevent it.',
                 ],
             ],
             [
                 'id' => 'mod_booking.bookusers',
                 'triggers' => ['book user', 'book users', 'assign user', 'enrol user'],
                 'guidance' => [
-                    '- To book users directly to an option, use bookusersquery in booking.create_option'
-                        . ' or booking.update_option.',
-                    '- If the user already provided a person name, pass it directly as bookusersquery.',
-                    '- For utterances like "book <person> into option <option>", map <person> -> bookusersquery and'
-                        . ' <option> -> optionquery.',
+                    '- create_option cannot book users (it has no bookusersquery key): create the option first,'
+                        . ' then book the users via mod_booking.update_option.',
+                    '- In mod_booking.update_option, map the person to bookusersquery and the option to optionquery'
+                        . ' (e.g. "book <person> into option <option>").',
                     '- Do not ask for user id or e-mail when a name query is already present.',
                     '- Ask for a more specific user identifier only after a real ambiguity (multiple matched users).',
-                    '- Optional fields: bookuserstimebooked, bookuserscompleted, bookusersupdateexisting.',
-                    '- For pure booking in booking.update_option, do not include'
+                    '- Optional fields in mod_booking.update_option: bookuserstimebooked, bookuserscompleted,'
+                        . ' bookusersupdateexisting.',
+                    '- For pure booking in mod_booking.update_option, do not include'
                         . ' additional option-update fields in the same command.',
                 ],
             ],
@@ -1420,10 +1441,11 @@ class create_option_skill extends booking_skill_base implements
                     'checkbox', 'dropdown', 'select element',
                 ],
                 'guidance' => [
-                    '- For custom form conditions, use "customformelements" with one item per row.',
+                    '- Custom form conditions cannot be set while creating: create the option first, then use'
+                        . ' "customformelements" via mod_booking.update_option (one item per row).',
                     '- Supported formtype values: advcheckbox, static, shorttext, select, url, mail,'
                         . ' deleteinfoscheckboxuser, enrolusersaction.',
-                    '- Each customformelements item can include: label, value, required, enroluserstowaitinglist.',
+                    '- Each item can include: label, value, required, enroluserstowaitinglist.',
                     '- For formtype "select", value must be a multiline string with one option per line.',
                     '- Select line formats: key => Display name; key => Display name => Max bookings => Price => Allowed user IDs.',
                     '- Key must not contain spaces or special characters.',
@@ -1501,6 +1523,9 @@ class create_option_skill extends booking_skill_base implements
      */
     private static function strip_create_targeting_fields(array $input): array {
         unset($input['optionquery'], $input['optionid'], $input['optionwhen']);
+        // Preview-only key stashed by preflight for the confirmation preview
+        // (option_preview_builder::target_rows); never an option field.
+        unset($input['targetcmid']);
         // Framework addressing keys the planner sometimes adds to the option payload. They are
         // never part of a create-option input (the option is created in the resolved booking
         // instance), so normalize them away instead of rejecting them as "unknown keys" — the

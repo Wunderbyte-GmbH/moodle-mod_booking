@@ -52,6 +52,13 @@ use mod_booking\singleton_service;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class diagnose_user_booking_skill extends booking_skill_base implements skill_trigger_provider_interface {
+    // Cross-context targeting: a named option (optionid/optionquery) pins the operating booking
+    // activity site-wide, so the option-focused mode also works from non-module entry points
+    // (dashboard, MCP system context). Without an option reference the skill stays ambient —
+    // instance-wide at a booking activity, all instances at the system context. Gate 2
+    // (mod/booking:readresponses) is enforced by the engine at the resolved operating context.
+    use option_targeted_skill;
+
     /** Task name constant. */
     public const TASK_NAME = 'mod_booking.diagnose_user_booking';
 
@@ -74,6 +81,14 @@ class diagnose_user_booking_skill extends booking_skill_base implements skill_tr
         'timebooked', 'timecreated', 'timemodified', 'completion_timemodified',
         'window_start', 'expires', 'last_changed',
     ];
+
+    /**
+     * Per-request memo of host-course fullnames, keyed by course id (keeps the per-option loop
+     * of the instance-wide report free of repeated course reads).
+     *
+     * @var array
+     */
+    private array $coursefullnames = [];
 
     /**
      * mod_booking message events recorded in the standard logstore (objectid = optionid,
@@ -130,7 +145,8 @@ class diagnose_user_booking_skill extends booking_skill_base implements skill_tr
                 . 'on that option (including the full received-message history); if no option is named, it returns an '
                 . 'instance-wide overview of all the person\'s bookings (e.g. "how many options has Billy completed"). '
                 . 'The report also includes the certificates (tool_certificate) issued to the person, including whether '
-                . 'the focused option\'s certificate was actually issued.',
+                . 'the focused option\'s certificate was actually issued. Every reported option carries the host course '
+                . '(id and name) and booking instance the option lives in.',
             'readonly' => $this->is_read_only(),
             'example_utterances' => [
                 'what is the booking status of this user',
@@ -145,7 +161,7 @@ class diagnose_user_booking_skill extends booking_skill_base implements skill_tr
                     'type' => 'string',
                     'description' => 'Name, e-mail or numeric id of the person to diagnose. Pass the user\'s wording '
                         . 'verbatim; "me" resolves to the current user. If only a name is known and it is '
-                        . 'ambiguous, call mod_booking.search_users first to obtain the userid.',
+                        . 'ambiguous, provide a more specific name or e-mail address instead.',
                     'required' => false,
                 ],
                 'userid' => [
@@ -236,7 +252,7 @@ class diagnose_user_booking_skill extends booking_skill_base implements skill_tr
                     '  and returns a full status report (status, when booked, completion, previous/cancelled bookings,',
                     '  submitted form data, received messages).',
                     '- Identify the person via userquery (name/e-mail/id) or userid. If only an ambiguous name is known,',
-                    '  call mod_booking.search_users first, then pass the resolved userid.',
+                    '  ask for a more specific name or e-mail address, then pass that (or the resolved userid).',
                     '- Name a specific option (optionquery/optionid) only when the question is about that option. For',
                     '  "how many / which options has X booked or completed", omit the option to get the instance-wide',
                     '  overview.',
@@ -339,6 +355,18 @@ class diagnose_user_booking_skill extends booking_skill_base implements skill_tr
                 'booked' => (int)($report['totals']['active'] ?? 0),
                 'completed' => (int)($report['totals']['completed'] ?? 0),
             ], $outputlang);
+
+            // An option was named but did not resolve to exactly one option — the report degrades
+            // to the instance-wide overview; say so instead of silently pretending it was asked for.
+            $optionquery = trim((string)($input['optionquery'] ?? ''));
+            if ($optionquery !== '') {
+                $report['optionquery_unresolved'] = $optionquery;
+                $detail = $this->localized_string(
+                    'agent_booking_diagnose_user_optionquery_unresolved',
+                    $optionquery,
+                    $outputlang
+                ) . ' ' . $detail;
+            }
         }
 
         $report['target_userid'] = $targetuserid;
@@ -363,10 +391,12 @@ class diagnose_user_booking_skill extends booking_skill_base implements skill_tr
             'usermessage' => $detail,
             'observation_full' => $this->build_observation_full($detail, $report),
             'resultid' => $optionid > 0 ? $optionid : null,
-            'previewoptionids' => $optionid > 0 ? [$optionid] : array_values(array_map(
+            // Deduplicated (first occurrence wins): a user can have several answer rows per option
+            // (active + previous/cancelled cycles), which would repeat the same optionid here.
+            'previewoptionids' => $optionid > 0 ? [$optionid] : array_values(array_unique(array_map(
                 static fn(array $o): int => (int)($o['optionid'] ?? 0),
                 (array)($report['options'] ?? [])
-            )),
+            ))),
             'debugmessage' => $this->build_task_debug_message(self::TASK_NAME, $input, [
                 'Target userid: ' . $targetuserid,
                 'Mode: ' . ($optionid > 0 ? ('option#' . $optionid) : 'instance-wide'),
@@ -449,6 +479,7 @@ class diagnose_user_booking_skill extends booking_skill_base implements skill_tr
             'mode' => 'option',
             'optionid' => $optionid,
             'option_title' => (string)($settings->text ?? ''),
+        ] + $this->option_course_context($settings) + [
             'current_status' => $answers->user_status_as_string($targetuserid),
             'current_status_code' => (int)$statusconst,
             'current_status_label' => $this->status_label((int)$statusconst),
@@ -467,7 +498,9 @@ class diagnose_user_booking_skill extends booking_skill_base implements skill_tr
         $report['completion_timemodified'] = (int)($completion->timemodified ?? 0);
 
         if ($includemessages) {
-            $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
+            // Message events are logged in the host course of the option's own instance — use the
+            // option's cmid, which also works when the skill runs without an ambient module (cmid 0).
+            $bookingsettings = $this->booking_settings_or_null((int)($settings->cmid ?? 0));
             $courseid = (int)($bookingsettings->course ?? 0);
             $windowstart = $this->resolve_message_window_start($report);
             $report['received_messages'] = $this->read_received_messages($courseid, $targetuserid, $optionid, $windowstart);
@@ -488,7 +521,7 @@ class diagnose_user_booking_skill extends booking_skill_base implements skill_tr
             && $configuredtemplate > 0
             && !$this->certificate_issued_for_completion($report['certificates'], $configuredtemplate, $completiontime)
         ) {
-            $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
+            $bookingsettings = $this->booking_settings_or_null((int)($settings->cmid ?? 0));
             $lastchanged = $this->certificate_field_last_change($optionid, (int)($bookingsettings->course ?? 0));
             if ($lastchanged !== null) {
                 $report['certificate_field'] = [
@@ -510,7 +543,8 @@ class diagnose_user_booking_skill extends booking_skill_base implements skill_tr
      * @return array<string,mixed>
      */
     private function build_userwide_report(int $cmid, int $targetuserid, bool $includemessages): array {
-        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
+        // A cmid of 0 (no ambient module, e.g. system-context entry points) means: all instances.
+        $bookingsettings = $this->booking_settings_or_null($cmid);
         $bookingid = (int)($bookingsettings->id ?? 0);
         $courseid = (int)($bookingsettings->course ?? 0);
 
@@ -570,6 +604,7 @@ class diagnose_user_booking_skill extends booking_skill_base implements skill_tr
                 $options[] = [
                     'optionid' => $rowoptionid,
                     'option_title' => (string)($optionsettings->text ?? ''),
+                ] + $this->option_course_context($optionsettings) + [
                     'status_code' => $statuscode,
                     'status_label' => $this->status_label($statuscode),
                     'is_completed' => (int)($row->completed ?? 0) === 1,
@@ -708,6 +743,66 @@ class diagnose_user_booking_skill extends booking_skill_base implements skill_tr
 
         $result['count'] = count($result['messages']);
         return $result;
+    }
+
+    /**
+     * Build the host-course context of an option: the course (and booking instance) the option lives in.
+     *
+     * Reads only the already-cached option/instance settings singletons plus the per-request
+     * course-name memo, so calling this per option in the instance-wide loop adds no per-row queries.
+     *
+     * @param object|null $optionsettings the option's booking_option_settings (null-safe)
+     * @return array
+     */
+    private function option_course_context(?object $optionsettings): array {
+        $context = [
+            'courseid' => 0,
+            'coursename' => '',
+            'booking_instance' => '',
+        ];
+
+        $bookingsettings = $this->booking_settings_or_null((int)($optionsettings->cmid ?? 0));
+        if ($bookingsettings === null) {
+            return $context;
+        }
+
+        $context['courseid'] = (int)($bookingsettings->course ?? 0);
+        $context['coursename'] = $this->course_fullname($context['courseid']);
+        $context['booking_instance'] = format_string((string)($bookingsettings->name ?? ''), true, ['escape' => false]);
+
+        return $context;
+    }
+
+    /**
+     * Booking-instance settings for a cmid, null-safe for cmid 0 (instance-less entry points such
+     * as the system-context agent, where the settings lookup would raise a debugging notice).
+     *
+     * @param int $cmid
+     * @return object|null
+     */
+    private function booking_settings_or_null(int $cmid): ?object {
+        return $cmid > 0 ? singleton_service::get_instance_of_booking_settings_by_cmid($cmid) : null;
+    }
+
+    /**
+     * Resolve a course fullname through the per-request memo.
+     *
+     * @param int $courseid
+     * @return string Empty string when the course cannot be read.
+     */
+    private function course_fullname(int $courseid): string {
+        if ($courseid <= 0) {
+            return '';
+        }
+        if (!array_key_exists($courseid, $this->coursefullnames)) {
+            try {
+                $course = get_course($courseid);
+                $this->coursefullnames[$courseid] = format_string((string)$course->fullname, true, ['escape' => false]);
+            } catch (\Throwable $e) {
+                $this->coursefullnames[$courseid] = '';
+            }
+        }
+        return $this->coursefullnames[$courseid];
     }
 
     /**

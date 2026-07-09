@@ -791,20 +791,36 @@ abstract class booking_skill_base extends base_skill {
      * @return array<string,mixed>
      */
     protected function header_image_attachment_prompt_pack(): array {
+        // Skills that inherit this pack without accepting the key themselves (e.g. the
+        // slotbooking/selflearning create variants) must not tell the model to send it —
+        // that is exactly the schema/guidance drift the drift guard test protects against.
+        // They advertise the two-step route instead.
+        $hasdirectkey = array_key_exists(
+            'headerimage_token',
+            (array)($this->get_schema()['properties'] ?? [])
+        );
+
+        $direct = [
+            '- When the user provides an image attachment ("[Attachment: <filename> — Attachment-Token: <token>]")'
+                . ' and asks to set it as header/cover image of a booking option:'
+                . ' put the token value verbatim into the "headerimage_token" parameter.',
+            '- This also applies when creating an option: "create option … with this image" is supported —'
+                . ' pass the attachment token as headerimage_token in the same create command.',
+        ];
+        $twostep = [
+            '- This task cannot set a header/cover image directly: create the option first, then pass the'
+                . ' attachment token verbatim as headerimage_token via mod_booking.update_option.',
+        ];
+
         return [
             'id' => 'mod_booking.header_image_attachment',
             'triggers' => [
                 'image', 'header', 'photo', 'cover', 'headerimage', 'header image', 'attachment',
             ],
-            'guidance' => [
-                '- When the user provides an image attachment ("[Attachment: <filename> — Attachment-Token: <token>]")'
-                    . ' and asks to set it as header/cover image of a booking option:'
-                    . ' put the token value verbatim into the "headerimage_token" parameter.',
-                '- This also applies when creating an option: "create option … with this image" is supported —'
-                    . ' pass the attachment token as headerimage_token in the same create command.',
+            'guidance' => array_merge($hasdirectkey ? $direct : $twostep, [
                 '- NEVER put an attachment token into "text" or "description".',
                 '- The "text" parameter is ONLY for the option title — never for tokens or file references.',
-            ],
+            ]),
         ];
     }
 
@@ -960,8 +976,9 @@ abstract class booking_skill_base extends base_skill {
         $instances = $this->list_accessible_booking_instances();
         if (empty($instances)) {
             $message = get_string('agent_booking_no_instance_in_scope', 'booking');
-            $observation = 'SCOPE: There is no booking activity in the current context and no accessible booking '
-                . 'activity exists elsewhere. Tell the user that — do NOT retry this skill and do NOT invent results.';
+            $observation = 'SCOPE NOTE (about this one call only, not about the site): this call ran without a '
+                . 'target booking activity, and the user cannot access any booking activity anywhere on this '
+                . 'site. Tell the user that — do NOT retry this skill and do NOT invent results.';
         } else {
             $shown = array_slice($instances, 0, 10);
             $lines = [];
@@ -980,14 +997,18 @@ abstract class booking_skill_base extends base_skill {
 
             $message = get_string('agent_booking_no_instance_in_scope_courses', 'booking')
                 . "\n\n" . $list;
-            $observation = 'SCOPE: There is no booking activity in the current context, so this lookup has '
-                . 'nothing to search in. The user CAN access these booking activities (cmid in brackets): '
+            $observation = 'SCOPE NOTE (about this one call only, not about the site): this call ran without a '
+                . 'target booking activity, so nothing was searched yet — it does NOT mean the site has no '
+                . 'booking activities or options. The user CAN access these booking activities (cmid in '
+                . 'brackets): '
                 . implode('; ', array_map(
                     static fn(array $i): string => $i['name'] . ' [cmid ' . $i['cmid'] . '] in course ' . $i['coursename'],
                     $shown
                 ))
-                . '. Present this list with the links and ask which one to use — do NOT retry this skill '
-                . 'without that information and do NOT invent results.';
+                . '. If the request (or an earlier message) already names one of these activities or a concrete '
+                . 'booking option, retry the skill now with that target (optionid/optionquery, or '
+                . 'activityquery/cmid when the skill schema offers it). Otherwise ask the user which booking '
+                . 'activity to use. Never invent results.';
         }
 
         return [
@@ -1087,6 +1108,74 @@ abstract class booking_skill_base extends base_skill {
             ]]);
         }
         return null;
+    }
+
+    /**
+     * Resolve the operating cmid for an option-scoped mutating skill and enforce Gate 2 there.
+     *
+     * This is the option-skill counterpart to calling resolve_cmid_from_context_or_cmid() +
+     * require_native_capability() directly. It exists so that, when the target activity could not
+     * be pinned from the named option (e.g. an optionquery that matches options in several
+     * activities, reached at a non-module operating context such as an MCP system-context session),
+     * the user gets an option-aware clarification listing the candidate activities — never the
+     * misleading "open a booking activity" message, and never a false "you lack permission".
+     *
+     * The option_targeted_skill trait resolves the operating context for the common cases (optionid,
+     * or an optionquery unique to one activity) before preflight runs, so here $operatingcontextid
+     * is already the right module context and this method is a thin pass-through; the clarification
+     * branch only fires for a genuinely ambiguous or context-less option reference.
+     *
+     * @param array  $input             The command input (optionid / optionquery / optionwhen).
+     * @param int    $operatingcontextid The operating context id resolved by the pipeline.
+     * @param string $capability        The native capability to enforce at the resolved activity.
+     * @param int    $userid
+     * @param string $lang              Output language for the clarification message.
+     * @return array A resolved cmid ('cmid'), or a clarification to return ('clarification').
+     */
+    protected function resolve_option_operating_context(
+        array $input,
+        int $operatingcontextid,
+        string $capability,
+        int $userid,
+        string $lang = ''
+    ): array {
+        $cmid = $this->resolve_cmid_from_context_or_cmid($operatingcontextid);
+
+        if ($cmid <= 0) {
+            $optionquery = trim((string)($input['optionquery'] ?? ''));
+            if ($optionquery !== '' && empty($input['optionid'])) {
+                $resolved = booking_skill_support::activity_for_option_query(
+                    $optionquery,
+                    trim((string)($input['optionwhen'] ?? ''))
+                );
+                if (($resolved['status'] ?? '') === 'ambiguous') {
+                    $labels = [];
+                    foreach ($resolved['candidates'] as $candidate) {
+                        $labels[] = booking_skill_support::build_option_link_for_output(
+                            (int)$candidate->cmid,
+                            (int)$candidate->optionid
+                        ) . ' (' . format_string($candidate->coursename) . ')';
+                    }
+                    return ['clarification' => $this->invalid([[
+                        'code' => 'CONTEXT_TARGET_UNRESOLVED',
+                        'severity' => 'needs_clarification',
+                        'message' => $this->localized_string(
+                            'agent_booking_option_target_ambiguous',
+                            s($optionquery),
+                            $lang
+                        ) . ' ' . implode('; ', $labels),
+                    ]])];
+                }
+            }
+            // Genuinely no resolvable activity: fall back to the generic missing-activity clarification.
+            return ['clarification' => $this->require_native_capability($capability, 0, $userid)];
+        }
+
+        $capdenied = $this->require_native_capability($capability, $cmid, $userid);
+        if ($capdenied !== null) {
+            return ['clarification' => $capdenied];
+        }
+        return ['cmid' => $cmid];
     }
 
     /**

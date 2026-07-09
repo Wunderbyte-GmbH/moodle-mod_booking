@@ -58,7 +58,13 @@ class entities_tree_provider implements tree_provider {
      * @return bool
      */
     public static function is_active(): bool {
-        return class_exists('local_entities\\entities')
+        // Probe entitiesrelation_handler, NOT local_entities\entities: the latter's file-scope
+        // require of lib/externallib.php throws require_phpunit_isolation() the moment it is
+        // autoloaded in a non-isolated PHPUnit run (older local_entities), whereas
+        // entitiesrelation_handler is safe to load. The entities:: helpers used below are reached
+        // only once this guard passes AND the tree filter is actually exercised. See
+        // {@see \mod_booking\local\entities_compat::has_capacity_support()}.
+        return class_exists('local_entities\\entitiesrelation_handler')
             && (bool) get_config('booking', 'entitytreefilter');
     }
 
@@ -92,7 +98,7 @@ class entities_tree_provider implements tree_provider {
     public static function get_present_counts(wunderbyte_table $table, string $columnidentifier): array {
         global $DB;
 
-        if (!class_exists('local_entities\\entities') || empty($table->sql->from ?? null)) {
+        if (!class_exists('local_entities\\entitiesrelation_handler') || empty($table->sql->from ?? null)) {
             return [];
         }
 
@@ -124,7 +130,7 @@ class entities_tree_provider implements tree_provider {
      * @return array tree of entity objects
      */
     public static function build_tree(array $presentcounts): array {
-        if (!class_exists('local_entities\\entities')) {
+        if (!class_exists('local_entities\\entitiesrelation_handler')) {
             return [];
         }
         // The entities::get_filter_tree() helper takes a flat list where repetition drives the counts.
@@ -148,7 +154,7 @@ class entities_tree_provider implements tree_provider {
      * @return string
      */
     public static function filter_sql(wunderbyte_table $table, string $columnidentifier, array $selectedids): string {
-        if (!class_exists('local_entities\\entities')) {
+        if (!class_exists('local_entities\\entitiesrelation_handler')) {
             return '1=1';
         }
 
@@ -197,7 +203,7 @@ class entities_tree_provider implements tree_provider {
     public static function render_location_name(array $entity): string {
         $entityid = (int)($entity['id'] ?? 0);
 
-        if ($entityid > 0 && class_exists('local_entities\\entities')) {
+        if ($entityid > 0 && class_exists('local_entities\\entitiesrelation_handler')) {
             [, , $names] = entities::get_ancestor_path($entityid);
             if (count($names) >= 3) {
                 // Deep hierarchy: show the full path as a breadcrumb.
@@ -234,7 +240,7 @@ class entities_tree_provider implements tree_provider {
         $entityid = (int)($entity['id'] ?? 0);
         $ids = [];
         $names = [];
-        if ($entityid > 0 && class_exists('local_entities\\entities')) {
+        if ($entityid > 0 && class_exists('local_entities\\entitiesrelation_handler')) {
             [, $ids, $names] = entities::get_ancestor_path($entityid);
         }
 

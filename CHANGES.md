@@ -1,3 +1,10 @@
+## Version 9.6.2 (2026070904)
+* Improvement: AI wizard — search_options, list_option_properties and the two diagnose skills resolve their booking activity from any context (optionid or activityquery), instead of dead-ending outside a booking module context.
+* New feature: AI wizard — new read-only skill list_instance_settings returns the configurable instance fields with current values; configure_booking_instance is write-only now.
+* Improvement: AI wizard — mutation previews always name the target activity and course, bulk previews list the affected options, and every changed field is shown.
+* Improvement: AI wizard — failed mutations report per-option postcondition failures and which fields were actually persisted.
+* Bugfix: booking_add_instance/booking_update_instance no longer crash on records loaded from the DB (count() on comma-separated string fields).
+
 ## Version 9.6.1 (2026070901)
 * New feature: Booking agent — an AI assistant (bookingextension_agent) that creates, updates and manages booking options and answers questions from natural language, reachable from a global navbar entry point.
 * New feature: Entities treefilter — the location filter now shows the entity parent/child hierarchy as a searchable tree (requires local_wunderbyte_table 2026070800 or newer).

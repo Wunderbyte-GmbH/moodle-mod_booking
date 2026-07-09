@@ -17,29 +17,41 @@
 namespace mod_booking\local\wizard\options\skills;
 
 use context_module;
+use mod_booking\local\wizard\engine\module_targeted_skill;
 use stdClass;
 
 /**
- * Task: configure the current booking activity instance.
+ * Task: update (configure) the current booking activity instance — WRITE-ONLY.
  *
- * Supports two modes via the "action" input field:
- *  - list_fields  (safe, read-only path): returns the catalog of configurable fields with
- *                  descriptions and current values.  Use this to discover what can be changed
- *                  before committing a concrete update command.
- *  - update       (mutating, confirmation-gated): applies a set of field/value changes to the
- *                  booking activity and persists them via booking_update_instance().
+ * Applies a set of field/value changes to the booking activity and persists them via
+ * booking_update_instance() (mutating, confirmation-gated). The former read path
+ * (action=list_fields) moved to the read-only skill mod_booking.list_instance_settings
+ * ({@see list_instance_settings_skill}); a pure read must never travel through the
+ * confirmation queue. The "action" input field is kept for compatibility: action=list_fields
+ * answers with a graceful redirect to the read skill instead of an empty confirm preview.
  *
  * The schema intentionally omits the full field catalog to keep the initial prompt concise.
- * The LLM should call with action=list_fields first when the user wants to know what is
- * configurable, and only then issue a targeted action=update command.
+ * The LLM should call mod_booking.list_instance_settings first when the user wants to know
+ * what is configurable, and only then issue a targeted action=update command here.
  *
  * @package    mod_booking
  * @copyright  2026 Wunderbyte GmbH <info@wunderbyte.at>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class configure_booking_instance_skill extends booking_skill_base {
+    use module_targeted_skill;
+
     /** Task name constant. */
     public const TASK_NAME = 'mod_booking.configure_booking_instance';
+
+    /**
+     * This skill targets a booking activity instance.
+     *
+     * @return string
+     */
+    public function get_target_modname(): string {
+        return 'booking';
+    }
 
     /**
      * Fields the agent is allowed to read and change, with human-readable metadata.
@@ -163,6 +175,18 @@ class configure_booking_instance_skill extends booking_skill_base {
     ];
 
     /**
+     * The configurable-field catalog, shared with the read-only list skill.
+     *
+     * mod_booking.list_instance_settings reads the same catalog (plus current values), so
+     * both skills always describe the identical set of fields.
+     *
+     * @return array
+     */
+    public static function get_configurable_fields(): array {
+        return self::CONFIGURABLE_FIELDS;
+    }
+
+    /**
      * Constructor — this task is mutating (requires confirmation).
      */
     public function __construct() {
@@ -200,28 +224,34 @@ class configure_booking_instance_skill extends booking_skill_base {
     public function get_schema(): array {
         return [
             'version' => 1,
-            'description' => 'Configure the current booking activity instance settings.'
-                . ' Use action=list_fields to discover which fields exist and their current values.'
-                . ' Use action=update to apply specific changes.'
-                . ' Natural-language mapping: questions like "what can I configure" or "show current settings" '
-                . 'should map to action=list_fields; requests like "change X to Y" should map to action=update '
-                . 'with a changes array.',
+            'description' => 'UPDATE the current booking activity instance settings (write-only).'
+                . ' Use action=update with a changes array to apply concrete changes ("change X to Y").'
+                . ' This skill does NOT list settings: for read requests like "what can I configure"'
+                . ' or "show the current settings", call the read-only skill'
+                . ' mod_booking.list_instance_settings instead — it returns the field catalog with'
+                . ' current values and needs no confirmation.',
             'readonly' => $this->is_read_only(),
             'fallback_confirm_string_key' => 'ai_status_confirm_configure_booking_instance',
             'fallback_taskcall_string_key' => 'ai_status_taskcall_configure_booking_instance',
             'example_utterances' => [
                 'Change the settings of this booking activity',
-                'Add a new price category for students',
-                'What can I configure for this booking instance?',
-                'Show the current activity-level settings',
+                'Set the maximum bookings per user to 3',
+                'Turn off the confirmation emails of this booking instance',
                 'Rename the booking activity and adjust its defaults',
             ],
             'properties' => [
+                'activityquery' => [
+                    'type' => 'string',
+                    'description' => 'Optional: the name of the target booking activity, when it is not the '
+                        . 'current one (e.g. over MCP, which runs at the system context). If omitted and the '
+                        . 'site has a single booking activity in scope it is used automatically.',
+                    'required' => false,
+                ],
                 'action' => [
                     'type' => 'string',
-                    'description' => 'Required. "list_fields" to get a catalog of all configurable fields with current values.'
-                        . ' "update" to apply changes (requires "changes" array).'
-                        . ' Use "list_fields" for exploratory requests and "update" only for concrete change requests.',
+                    'description' => 'Required. Always "update" (requires the "changes" array).'
+                        . ' The legacy value "list_fields" is only accepted for compatibility and answers'
+                        . ' with a redirect to the read-only skill mod_booking.list_instance_settings.',
                     'required' => true,
                 ],
                 'changes' => [
@@ -327,10 +357,20 @@ class configure_booking_instance_skill extends booking_skill_base {
 
         $action = trim((string)($input['action'] ?? ''));
 
-        // List_fields is safe — no further checks needed.
+        // Reads moved to the read-only skill mod_booking.list_instance_settings — a pure read
+        // must never enter the confirmation queue (it produced an empty confirm preview).
+        // Answer with a graceful redirect instead of queueing.
         if ($action === 'list_fields') {
-            return $this->pass($input);
+            return $this->invalid([[
+                'severity' => 'needs_clarification',
+                'message' => get_string('agent_booking_configure_use_list_instance_settings', 'booking'),
+                'code' => 'RECOVERABLE_INPUT_ERROR',
+            ]]);
         }
+
+        // Stash the resolved target activity so the confirm preview can name it
+        // (option_preview_builder::target_rows). Execute ignores this key.
+        $input['targetcmid'] = $cmid;
 
         // For update: validate field types.
         $changes = (array)($input['changes'] ?? []);
@@ -372,20 +412,22 @@ class configure_booking_instance_skill extends booking_skill_base {
      */
     public function execute(array $input, int $cmid, int $userid): array {
         $cmid = $this->resolve_cmid_from_context_or_cmid($cmid);
-        global $DB;
 
         $action = trim((string)($input['action'] ?? ''));
+
+        // Action: list_fields — moved to the read-only skill mod_booking.list_instance_settings.
+        // Answer with a graceful redirect (established wrong-tool pattern), never a crash;
+        // checked before target resolution because a redirect needs no target.
+        if ($action === 'list_fields') {
+            return $this->build_list_fields_redirect_result();
+        }
+
         $cm = get_coursemodule_from_id('booking', $cmid);
         if (!$cm) {
             return $this->error_result("Could not resolve booking instance for cmid=$cmid.");
         }
 
         $bookingid = (int)$cm->instance;
-
-        // Action: list_fields.
-        if ($action === 'list_fields') {
-            return $this->execute_list_fields($bookingid, $cmid);
-        }
 
         // Action: update.
         if ($action === 'update') {
@@ -399,51 +441,31 @@ class configure_booking_instance_skill extends booking_skill_base {
     // Private: action handlers.
 
     /**
-     * Return the catalog of configurable fields with current values.
+     * Graceful redirect for legacy action=list_fields calls (read path moved).
      *
-     * @param int $bookingid
-     * @param int $cmid
+     * Mirrors build_no_instance_scope_result(): a complete, non-crashing result whose
+     * observation instructs the planner to call mod_booking.list_instance_settings.
+     *
      * @return array
      */
-    private function execute_list_fields(int $bookingid, int $cmid): array {
-        global $DB, $CFG;
-
-        $record = $DB->get_record('booking', ['id' => $bookingid]);
-        $fields = [];
-        foreach (self::CONFIGURABLE_FIELDS as $key => $meta) {
-            $current = $record ? ($record->$key ?? null) : null;
-            $fields[] = [
-                'field' => $key,
-                'label' => $meta['label'],
-                'type' => $meta['type'],
-                'description' => $meta['description'],
-                'current_value' => $current,
-            ];
-        }
-
-        $editlink = (new \moodle_url('/course/modedit.php', ['update' => $cmid]))->out(false);
-
-        $summary = count($fields) . ' configurable field(s) for booking instance id=' . $bookingid . ".\n";
-        foreach ($fields as $f) {
-            $current = ($f['current_value'] !== null && $f['current_value'] !== '')
-                ? (string)$f['current_value']
-                : '(empty)';
-            $summary .= "- {$f['field']} ({$f['label']}, {$f['type']}): {$current}\n";
-        }
-        $summary .= "Edit link: $editlink";
+    private function build_list_fields_redirect_result(): array {
+        $message = get_string('agent_booking_configure_use_list_instance_settings', 'booking');
 
         return [
             'status' => 'executed',
-            'detail' => $summary,
-            'usermessage' => $summary,
-            'observation_full' => $summary,
-            'fields' => $fields,
-            'link' => $editlink,
+            'detail' => $message,
+            'usermessage' => $message,
             'resultid' => null,
+            'issue_codes' => ['RECOVERABLE_INPUT_ERROR'],
+            'observation_full' => 'WRONG SKILL: mod_booking.configure_booking_instance is write-only'
+                . ' (action=update). To list the configurable booking instance settings with their'
+                . ' current values, call the read-only skill mod_booking.list_instance_settings'
+                . ' instead. Do NOT retry action=list_fields on this skill.',
+            // Engine-facing routing text without user data: exempt from anonymization.
+            'observation_engine_static' => true,
             'debugmessage' => $this->build_task_debug_message(self::TASK_NAME, [], [
                 'action: list_fields',
-                'bookingid: ' . $bookingid,
-                'fields returned: ' . count($fields),
+                'redirect: mod_booking.list_instance_settings',
             ]),
         ];
     }

@@ -21,8 +21,9 @@ use stdClass;
 use mod_booking\local\wizard\options\skills\diagnose_user_booking_skill;
 
 /**
- * Tests that diagnose_user_booking surfaces tool_certificate certificates and the certificate-field
- * change time used to explain why a completed user got no certificate.
+ * Tests that diagnose_user_booking surfaces tool_certificate certificates, the certificate-field
+ * change time used to explain why a completed user got no certificate, and the host-course context
+ * (course id/name + booking instance) of the reported options.
  *
  * @package    mod_booking
  * @category   test
@@ -76,6 +77,10 @@ final class wizard_diagnose_user_certificate_test extends advanced_testcase {
 
         $this->assertSame('executed', $result['status']);
         $report = $this->decode_report($result);
+        // The report names the host course and booking instance the option lives in.
+        $this->assertSame((int)$booking->course, $report['courseid']);
+        $this->assertSame(format_string(get_course((int)$booking->course)->fullname), $report['coursename']);
+        $this->assertSame('Cert Booking', $report['booking_instance']);
         $this->assertArrayHasKey('certificates', $report);
         $certs = $report['certificates'];
         $this->assertTrue($certs['tool_certificate_available']);
@@ -146,6 +151,33 @@ final class wizard_diagnose_user_certificate_test extends advanced_testcase {
         $this->assertIsString($report['certificate_field']['last_changed']);
         $this->assertFalse(ctype_digit((string)$report['certificate_field']['last_changed']));
         $this->assertTrue($report['certificate_field']['changed_after_user_completion']);
+    }
+
+    /**
+     * The instance-wide overview names the host course (id + name) and booking instance per option.
+     */
+    public function test_userwide_report_includes_host_course(): void {
+        $this->resetAfterTest();
+
+        [$booking, $option, $student] = $this->setup_booking();
+        $this->book_user((int)$option->id, (int)$student->id);
+
+        $this->setAdminUser();
+        $result = (new diagnose_user_booking_skill())->execute(
+            ['userid' => (int)$student->id, 'includemessages' => false],
+            (int)\context_module::instance($booking->cmid)->id,
+            (int)get_admin()->id
+        );
+
+        $this->assertSame('executed', $result['status']);
+        $report = $this->decode_report($result);
+        $this->assertSame('instance_wide', $report['mode']);
+        $this->assertNotEmpty($report['options']);
+        $entry = $report['options'][0];
+        $this->assertSame((int)$option->id, $entry['optionid']);
+        $this->assertSame((int)$booking->course, $entry['courseid']);
+        $this->assertSame(format_string(get_course((int)$booking->course)->fullname), $entry['coursename']);
+        $this->assertSame('Cert Booking', $entry['booking_instance']);
     }
 
     /**

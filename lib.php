@@ -747,15 +747,17 @@ function booking_add_instance($booking) {
         $booking->responsesfields = implode(',', $booking->responsesfields);
     }
 
-    if (isset($booking->additionalfields) && count($booking->additionalfields) > 0) {
+    if (isset($booking->additionalfields) && is_array($booking->additionalfields) && count($booking->additionalfields) > 0) {
         $booking->additionalfields = implode(',', $booking->additionalfields);
-    } else {
+    } else if (!isset($booking->additionalfields) || is_array($booking->additionalfields)) {
+        // Keep an already imploded string as it is (e.g. when a DB record is passed).
         $booking->additionalfields = null;
     }
 
-    if (isset($booking->categoryid) && count($booking->categoryid) > 0) {
+    if (isset($booking->categoryid) && is_array($booking->categoryid) && count($booking->categoryid) > 0) {
         $booking->categoryid = implode(',', $booking->categoryid);
-    } else {
+    } else if (!isset($booking->categoryid) || is_array($booking->categoryid)) {
+        // Keep an already imploded string as it is (e.g. when a DB record is passed).
         $booking->categoryid = null;
     }
 
@@ -1020,9 +1022,10 @@ function booking_update_instance($booking) {
     $cm = get_coursemodule_from_instance('booking', $booking->id);
     $context = context_module::instance($cm->id);
 
-    if (isset($booking->showviews) && count($booking->showviews) > 0) {
+    if (isset($booking->showviews) && is_array($booking->showviews) && count($booking->showviews) > 0) {
         $booking->showviews = implode(',', $booking->showviews);
-    } else {
+    } else if (!isset($booking->showviews) || is_array($booking->showviews)) {
+        // Keep an already imploded string as it is (e.g. when a DB record is passed).
         $booking->showviews = '';
     }
 
@@ -1060,9 +1063,10 @@ function booking_update_instance($booking) {
         $booking->optionsdownloadfields = MOD_BOOKING_BOOKINGOPTION_DEFAULTFIELDS;
     }
 
-    if (isset($booking->categoryid) && count($booking->categoryid) > 0) {
+    if (isset($booking->categoryid) && is_array($booking->categoryid) && count($booking->categoryid) > 0) {
         $booking->categoryid = implode(',', $booking->categoryid);
-    } else {
+    } else if (!isset($booking->categoryid) || is_array($booking->categoryid)) {
+        // Keep an already imploded string as it is (e.g. when a DB record is passed).
         $booking->categoryid = null;
     }
 

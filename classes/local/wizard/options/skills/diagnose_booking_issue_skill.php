@@ -38,6 +38,12 @@ use mod_booking\singleton_service;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class diagnose_booking_issue_skill extends booking_skill_base implements skill_trigger_provider_interface {
+    // Cross-context targeting: the named option (optionid/optionquery) pins the operating booking
+    // activity BEFORE the no-instance guard fires, so the skill also works from non-module entry
+    // points (dashboard, MCP system context). The cross-user gate (mod/booking:bookforothers) is
+    // checked inline at the resolved operating cmid, per the trait's opt-in safety rule.
+    use option_targeted_skill;
+
     /** Task name constant. */
     public const TASK_NAME = 'mod_booking.diagnose_booking_issue';
 

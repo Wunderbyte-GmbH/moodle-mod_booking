@@ -119,14 +119,16 @@ final class sync_waiting_list_perf_test extends \advanced_testcase {
         // marginal cost of the 6 extra promotions.
         $peruser = ($large - $small) / 6.0;
 
-        // Coarse regression guard against a relapse towards the old per-user cost (~15.7,
-        // before the two redundant loop purges were removed). The absolute perf_get_reads()
-        // count is core-version sensitive: ~12 reads/user on Moodle 5.1, ~14 on 4.5 — so the
-        // bound sits above the 4.5 baseline while still catching the ~15.7 relapse on either
-        // version. Tighten again once the per-call broadcast purge inside user_submit_response
-        // is also deferred during the sync.
+        // Coarse regression guard against a relapse towards the old per-user cost (a redundant
+        // loop purge adds ~+3.7 reads/user). The absolute perf_get_reads() count is core-version
+        // sensitive: the clean baseline is ~12 reads/user on Moodle 5.1, ~14 on 4.5 and ~15 on
+        // 5.2 — so the bound sits just above the 5.2 baseline while still catching a full-magnitude
+        // relapse on 5.2 (~18.7) and 4.5 (~17.7). It deliberately does NOT catch a 5.1-only relapse
+        // (~15.7): a coarse cross-version guard that survives core bumps beats a razor-tight one
+        // that flaps. Tighten (or make version-aware) once the per-call broadcast purge inside
+        // user_submit_response is also deferred during the sync.
         $this->assertLessThan(
-            15,
+            16,
             $peruser,
             sprintf(
                 'sync_waiting_list costs ~%.1f DB reads per promoted user '

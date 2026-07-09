@@ -19,6 +19,7 @@ namespace mod_booking;
 use advanced_testcase;
 use mod_booking\local\wizard\options\skills\option_preview_builder;
 use mod_booking\local\wizard\options\skills\create_option_skill;
+use mod_booking\local\wizard\options\skills\create_selflearning_option_skill;
 use mod_booking\local\wizard\options\skills\create_slotbooking_option_skill;
 use mod_booking\local\wizard\options\skills\update_option_skill;
 use mod_booking\local\wizard\options\skills\update_option_trainer_skill;
@@ -273,6 +274,178 @@ final class option_preview_builder_test extends advanced_testcase {
         $this->assertSame(get_string('yes'), $rows['Allow cancellation']);
         // Unknown fields are skipped.
         $this->assertArrayNotHasKey('Unknownfield', $rows);
+    }
+
+    /**
+     * Every preview names the resolved target booking activity and its course.
+     */
+    public function test_create_descriptor_includes_target_row(): void {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        $gen = $this->getDataGenerator();
+        $course = $gen->create_course(['fullname' => 'Target course 101']);
+        $booking = $gen->create_module('booking', ['course' => $course->id, 'name' => 'Semester bookings']);
+
+        $descriptor = option_preview_builder::create_descriptor([
+            'text' => 'Yoga class',
+            'maxanswers' => 12,
+            'targetcmid' => (int)$booking->cmid,
+            'outputlang' => 'en',
+        ]);
+
+        $rows = $this->rows_map($descriptor);
+        $this->assertArrayHasKey('Booking activity', $rows);
+        $this->assertStringContainsString('Semester bookings', $rows['Booking activity']);
+        $this->assertStringContainsString('Target course 101', $rows['Booking activity']);
+    }
+
+    /**
+     * When only the user's activity query is known, it is shown verbatim as the requested target.
+     */
+    public function test_create_descriptor_requested_target_fallback(): void {
+        $descriptor = option_preview_builder::create_descriptor([
+            'text' => 'Yoga class',
+            'activityquery' => 'selflearning bookings',
+        ]);
+
+        $rows = $this->rows_map($descriptor);
+        $this->assertSame('selflearning bookings', $rows['Requested target']);
+        $this->assertArrayNotHasKey('Booking activity', $rows);
+    }
+
+    /**
+     * A self-learning create preview shows the option type and the humanized duration.
+     */
+    public function test_create_descriptor_selflearning_duration_and_type(): void {
+        $descriptor = option_preview_builder::create_descriptor([
+            'text' => 'Self-paced course',
+            'maxanswers' => 10,
+            'duration' => 14400,
+            'optiontype' => 'selflearning',
+            'selflearningcourse' => true,
+            'outputlang' => 'en',
+        ]);
+
+        $rows = $this->rows_map($descriptor);
+        $this->assertSame('4 ' . get_string('hours'), $rows[get_string('duration', 'booking')]);
+        $this->assertSame(get_string('selflearningcourse', 'booking'), $rows[get_string('optiontype', 'booking')]);
+        $this->assertSame('10', $rows['Seats']);
+
+        // The selflearning skill delegates to the same builder.
+        $delegated = (new create_selflearning_option_skill())->describe_proposed_action([
+            'text' => 'Self-paced course',
+            'duration' => 5400,
+        ]);
+        $this->assertSame(
+            '1 ' . get_string('hour') . ' 30 ' . get_string('mins'),
+            $this->rows_map($delegated)[get_string('duration', 'booking')]
+        );
+    }
+
+    /**
+     * bulk_descriptor names the selected options, resolves the target activity and never
+     * drops a changed field (description was silently hidden before).
+     */
+    public function test_bulk_descriptor_names_options_and_shows_description(): void {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        $gen = $this->getDataGenerator();
+        /** @var \mod_booking_generator $bgen */
+        $bgen = $gen->get_plugin_generator('mod_booking');
+        $course = $gen->create_course(['fullname' => 'Bulk course']);
+        $booking = $gen->create_module('booking', ['course' => $course->id, 'name' => 'Bulk bookings']);
+
+        $optionids = [];
+        foreach (['First option', 'Second option'] as $title) {
+            $option = $bgen->create_option([
+                'bookingid' => (int)$booking->id,
+                'text' => $title,
+                'description' => $title,
+                'chooseorcreatecourse' => 1,
+                'courseid' => (int)$course->id,
+                'optiondateid_0' => 0,
+                'daystonotify_0' => 0,
+                'coursestarttime_0' => strtotime('+2 days 10:00'),
+                'courseendtime_0' => strtotime('+2 days 12:00'),
+            ]);
+            $optionids[] = (int)$option->id;
+        }
+
+        $longdescription = str_repeat('New description text. ', 10);
+        $descriptor = option_preview_builder::bulk_descriptor([
+            'optionids' => $optionids,
+            'description' => $longdescription,
+            'outputlang' => 'en',
+        ]);
+
+        $rows = $this->rows_map($descriptor);
+        // Count row stays, the named list is new.
+        $this->assertStringContainsString('2', $rows['Applies to']);
+        $this->assertStringContainsString('#' . $optionids[0] . ' First option', $rows['Options']);
+        $this->assertStringContainsString('#' . $optionids[1] . ' Second option', $rows['Options']);
+        // Target activity resolved from the option ids.
+        $this->assertStringContainsString('Bulk bookings', $rows['Booking activity']);
+        // The description change produces a row, truncated to the preview cap.
+        $this->assertArrayHasKey('Description', $rows);
+        $this->assertStringContainsString('New description text.', $rows['Description']);
+        $this->assertLessThanOrEqual(80, \core_text::strlen($rows['Description']));
+        $this->assertStringEndsWith('…', $rows['Description']);
+    }
+
+    /**
+     * More than five selected options collapse into "+N more" after the named ones.
+     */
+    public function test_bulk_descriptor_option_list_caps_at_five(): void {
+        $descriptor = option_preview_builder::bulk_descriptor([
+            'optionids' => [11, 12, 13, 14, 15, 16, 17],
+            'maxanswers' => 9,
+        ]);
+
+        $rows = $this->rows_map($descriptor);
+        $this->assertStringContainsString('#15', $rows['Options']);
+        $this->assertStringNotContainsString('#16', $rows['Options']);
+        $this->assertStringContainsString(
+            get_string('previewvalue_andnmore', 'booking', 2),
+            $rows['Options']
+        );
+    }
+
+    /**
+     * An update preview shows a description-only change (no silent empty diff).
+     */
+    public function test_update_descriptor_shows_description_change(): void {
+        $descriptor = option_preview_builder::update_descriptor([
+            'optionid' => 0,
+            'description' => 'Now with catering.',
+        ]);
+
+        $rows = $this->rows_map($descriptor);
+        $this->assertSame('Now with catering.', $rows['Description']);
+    }
+
+    /**
+     * The configure-instance preview names the target activity next to the change rows.
+     */
+    public function test_configure_instance_descriptor_includes_target_row(): void {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        $gen = $this->getDataGenerator();
+        $course = $gen->create_course(['fullname' => 'Config course']);
+        $booking = $gen->create_module('booking', ['course' => $course->id, 'name' => 'Config bookings']);
+
+        $spec = ['maxperuser' => ['type' => 'integer']];
+        $rows = $this->rows_map(option_preview_builder::configure_instance_descriptor([
+            'action' => 'update',
+            'targetcmid' => (int)$booking->cmid,
+            'changes' => [['field' => 'maxperuser', 'value' => 3]],
+        ], $spec));
+
+        $this->assertStringContainsString('Config bookings', $rows['Booking activity']);
+        $this->assertStringContainsString('Config course', $rows['Booking activity']);
+        $this->assertSame('3', $rows['Max bookings per user']);
     }
 
     /**

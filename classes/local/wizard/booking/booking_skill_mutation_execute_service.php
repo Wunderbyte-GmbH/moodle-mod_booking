@@ -748,6 +748,13 @@ class booking_skill_mutation_execute_service {
             // and field-level verification themselves are the SAME as the single-option path
             // (persist_and_verify_single_option) — only this presentation is compact.
             $verifylines = [];
+            // Structured per-option aggregation: every failed postcondition and every list of
+            // confirmed-as-saved fields travels WITH its optionid, so the planner/user can see
+            // which option failed on which field instead of a bare aggregate error (WP3C/WP3E).
+            $bulkfailedpostconditions = [];
+            $bulkissuecodes = [];
+            $bulkpersistedfields = [];
+            $faileddetaillines = [];
             foreach ($optionids as $optionid) {
                 try {
                     $outcome = $this->persist_and_verify_single_option($taskname, $data, (int)$optionid, $input, $context);
@@ -757,6 +764,26 @@ class booking_skill_mutation_execute_service {
                         $verifylines[] = 'Option ' . $outcome['optionid'] . ' ('
                             . booking_skill_support::build_option_link_for_output($cmid, (int)$outcome['optionid'])
                             . '): NOT confirmed — ' . implode(' ', $outcome['warnings']);
+                        // Same deterministic mapping as the single-option path, plus the optionid.
+                        $optionfailures = $this->map_postcondition_failures(
+                            $outcome['warnings'],
+                            $input,
+                            (int)$outcome['optionid']
+                        );
+                        foreach ($optionfailures as $failure) {
+                            $failure['optionid'] = (int)$outcome['optionid'];
+                            $bulkfailedpostconditions[] = $failure;
+                            $code = trim((string)($failure['code'] ?? ''));
+                            if ($code !== '') {
+                                $bulkissuecodes[] = $code;
+                            }
+                        }
+                        $bulkpersistedfields[] = [
+                            'optionid' => (int)$outcome['optionid'],
+                            'fields' => $this->compute_persisted_fields($input, $optionfailures),
+                        ];
+                        $faileddetaillines[] = $this->build_bulk_option_label($cmid, (int)$outcome['optionid'])
+                            . ': ' . implode(' ', $outcome['warnings']);
                         continue;
                     }
 
@@ -764,6 +791,10 @@ class booking_skill_mutation_execute_service {
                     $verifylines[] = 'Option ' . $outcome['optionid'] . ' ('
                         . booking_skill_support::build_option_link_for_output($cmid, (int)$outcome['optionid'])
                         . '): confirmed.';
+                    $bulkpersistedfields[] = [
+                        'optionid' => (int)$outcome['optionid'],
+                        'fields' => $this->compute_persisted_fields($input, []),
+                    ];
                     booking_skill_support::remember_last_option_for_user_for_execute(
                         $userid,
                         $cmid,
@@ -775,6 +806,15 @@ class booking_skill_mutation_execute_service {
                     $verifylines[] = 'Option ' . (int)$optionid . ' ('
                         . booking_skill_support::build_option_link_for_output($cmid, (int)$optionid)
                         . '): FAILED — ' . $e->getMessage();
+                    $bulkfailedpostconditions[] = [
+                        'code' => 'OPTION_UPDATE_EXCEPTION',
+                        'message' => $e->getMessage(),
+                        'evidence' => ['exception' => get_class($e)],
+                        'optionid' => (int)$optionid,
+                    ];
+                    $bulkissuecodes[] = 'OPTION_UPDATE_EXCEPTION';
+                    $faileddetaillines[] = $this->build_bulk_option_label($cmid, (int)$optionid)
+                        . ': ' . $e->getMessage();
                 }
             }
 
@@ -795,12 +835,27 @@ class booking_skill_mutation_execute_service {
             };
 
             if (!empty($failed)) {
+                // Per-option failure lines for the user-facing detail, capped so a huge bulk run
+                // stays digestible; observation_full above keeps the full uncapped account.
+                $maxlistedfailures = 10;
+                $listedfailures = array_slice($faileddetaillines, 0, $maxlistedfailures);
+                $morecount = count($faileddetaillines) - count($listedfailures);
+                if ($morecount > 0) {
+                    $listedfailures[] = '… and ' . $morecount . ' more option(s)';
+                }
+                $issuecodes = array_values(array_unique(array_merge(
+                    ['POSTCONDITION_FAILED', $this->postcondition_family_issue_code($taskname)],
+                    $bulkissuecodes
+                )));
                 return [
                     'status' => 'error',
-                    'detail' => 'Updated: ' . $linklist($updated) . '. Not confirmed/failed: '
-                        . $linklist($failed) . '.',
+                    'detail' => 'Updated: ' . $linklist($updated) . '. Not confirmed/failed:'
+                        . "\n- " . implode("\n- ", $listedfailures),
                     'resultid' => !empty($updated) ? $updated[0] : null,
                     'previewoptionids' => $updated,
+                    'issue_codes' => $issuecodes,
+                    'failed_postconditions' => $bulkfailedpostconditions,
+                    'persisted_fields' => $bulkpersistedfields,
                     'observation_full' => $verificationobservation,
                 ];
             }
@@ -810,6 +865,7 @@ class booking_skill_mutation_execute_service {
                 'detail' => 'Updated ' . count($updated) . ' booking option(s): ' . $linklist($updated) . '.',
                 'resultid' => !empty($updated) ? $updated[0] : null,
                 'previewoptionids' => $updated,
+                'persisted_fields' => $bulkpersistedfields,
                 'observation_full' => $verificationobservation,
             ];
         }
@@ -858,13 +914,23 @@ class booking_skill_mutation_execute_service {
                     ['POSTCONDITION_FAILED', $this->postcondition_family_issue_code($taskname)],
                     $failedcodes
                 )));
+                // Partial-success transparency (WP3E): name the requested fields that DID verify as
+                // saved next to the ones that did not, so a failed postcondition on one field does
+                // not read as "nothing was saved". Status stays a faithful error.
+                $persistedfields = $this->compute_persisted_fields($input, $failedpostconditions);
+                $notconfirmedfields = $this->extract_failed_field_names($failedpostconditions);
                 return [
                     'status' => 'error',
-                    'detail' => $detail . ' Postcondition failed: ' . implode(' ', $verificationwarnings),
+                    'detail' => 'Saved: '
+                        . (empty($persistedfields) ? 'none' : implode(', ', $persistedfields))
+                        . '; not confirmed: '
+                        . (empty($notconfirmedfields) ? 'unknown' : implode(', ', $notconfirmedfields))
+                        . ' — ' . $detail . ' Postcondition failed: ' . implode(' ', $verificationwarnings),
                     'resultid' => (int)$newoptionid,
                     'warnings' => $verificationwarnings,
                     'issue_codes' => $issuecodes,
                     'postcondition_status' => 'failed',
+                    'persisted_fields' => $persistedfields,
                     'failed_postconditions' => $failedpostconditions,
                     'postcondition_evidence' => [
                         'skill' => $taskname,
@@ -908,6 +974,7 @@ class booking_skill_mutation_execute_service {
                 'resultid' => (int)$newoptionid,
                 'warnings' => $verificationwarnings,
                 'postcondition_status' => 'passed',
+                'persisted_fields' => $this->compute_persisted_fields($input, []),
                 'failed_postconditions' => [],
                 'postcondition_evidence' => [
                     'skill' => $taskname,
@@ -1356,6 +1423,90 @@ class booking_skill_mutation_execute_service {
         }
 
         return array_values($failures);
+    }
+
+    /**
+     * Requested fields that the postcondition verifier checked AND confirmed as saved.
+     *
+     * Mirrors exactly which fields option_input_verification::verify_common_fields_structured()
+     * examines (text/location/address/description/headerimage_token/maxanswers/maxoverbooking/
+     * teacherids/teacheremail); a field counts as persisted when it was requested, checkable and
+     * not named in any structured failure. Fields the verifier does not cover are never claimed.
+     *
+     * @param array $input Requested input.
+     * @param array $failedpostconditions Structured failures from map_postcondition_failures().
+     * @return string[] Field names confirmed as persisted.
+     */
+    private function compute_persisted_fields(array $input, array $failedpostconditions): array {
+        $checked = [];
+        foreach (['text', 'location', 'address', 'description'] as $field) {
+            if (array_key_exists($field, $input) && trim((string)$input[$field]) !== '') {
+                $checked[] = $field;
+            }
+        }
+        foreach (['maxanswers', 'maxoverbooking'] as $field) {
+            if (array_key_exists($field, $input)) {
+                $checked[] = $field;
+            }
+        }
+        if (!empty($input['headerimage_token'])) {
+            $checked[] = 'headerimage_token';
+        }
+        if (!empty($input['teacherids']) && is_array($input['teacherids'])) {
+            $checked[] = 'teacherids';
+        }
+        if (!empty($input['teacheremail'])) {
+            $checked[] = 'teacheremail';
+        }
+
+        $failedfields = array_fill_keys($this->extract_failed_field_names($failedpostconditions), true);
+
+        return array_values(array_filter(
+            $checked,
+            static fn(string $field): bool => empty($failedfields[$field])
+        ));
+    }
+
+    /**
+     * Field names carried in structured postcondition failures (evidence.field).
+     *
+     * @param array $failedpostconditions Structured failures from map_postcondition_failures().
+     * @return string[] Unique field names; failures without field evidence are skipped.
+     */
+    private function extract_failed_field_names(array $failedpostconditions): array {
+        $fields = [];
+        foreach ($failedpostconditions as $failure) {
+            $field = trim((string)($failure['evidence']['field'] ?? ''));
+            if ($field !== '') {
+                $fields[$field] = true;
+            }
+        }
+        return array_values(array_keys($fields));
+    }
+
+    /**
+     * Label a bulk-processed option for user-facing detail lines: "#id ("title" link)".
+     *
+     * The link comes from booking_skill_support::build_option_link_for_output (real moodle_url),
+     * never from the LLM. Title lookup is best-effort — the settings singleton was just re-read
+     * by the verification step, so this normally costs no extra query.
+     *
+     * @param int $cmid
+     * @param int $optionid
+     * @return string
+     */
+    private function build_bulk_option_label(int $cmid, int $optionid): string {
+        $title = '';
+        try {
+            $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+            $title = trim((string)($settings->text ?? ''));
+        } catch (\Throwable $e) {
+            $title = '';
+        }
+
+        return '#' . $optionid . ' ('
+            . ($title !== '' ? '"' . $title . '" ' : '')
+            . booking_skill_support::build_option_link_for_output($cmid, $optionid) . ')';
     }
 
     /**

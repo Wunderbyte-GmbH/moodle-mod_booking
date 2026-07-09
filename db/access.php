@@ -203,6 +203,15 @@ $capabilities = [
             'manager' => CAP_ALLOW,
         ],
     ],
+    'mod/booking:skill_mod_booking_list_instance_settings' => [
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => [
+            'teacher' => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW,
+        ],
+    ],
     'mod/booking:skill_mod_booking_list_option_properties' => [
         'captype' => 'read',
         'contextlevel' => CONTEXT_MODULE,

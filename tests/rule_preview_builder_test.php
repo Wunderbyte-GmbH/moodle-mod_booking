@@ -88,6 +88,71 @@ final class rule_preview_builder_test extends advanced_testcase {
     }
 
     /**
+     * update_descriptor prefers the preflight-resolved rule and template NAMES over raw ids/queries.
+     */
+    public function test_update_descriptor_resolved_names(): void {
+        $descriptor = rule_preview_builder::update_descriptor([
+            'ruleid' => 37,
+            'rule_name_resolved' => 'My reminder rule',
+            'templatequery' => 'raw user query text',
+            'template_name_resolved' => 'Template - Confirm booking',
+            'isactive' => 1,
+        ]);
+
+        $this->assertSame('Update rule "My reminder rule" (#37)', $descriptor['title']);
+        $rows = $this->rows_map($descriptor);
+        $this->assertSame('Template - Confirm booking', $rows['Template']);
+        $this->assertSame('Active', $rows['Active']);
+    }
+
+    /**
+     * create_descriptor shows the resolved template name and the requested target activity.
+     */
+    public function test_create_descriptor_resolved_template_and_target(): void {
+        $descriptor = rule_preview_builder::create_descriptor([
+            'templatequery' => 'please add a booking confirmation',
+            'template_name_resolved' => 'Template - Confirm booking',
+            'rulename' => 'Confirmation 8',
+            'activityquery' => 'Semester bookings',
+        ]);
+
+        $rows = $this->rows_map($descriptor);
+        $this->assertSame('Template - Confirm booking', $rows['Template']);
+        $this->assertSame('Confirmation 8', $rows['Rule name']);
+        $this->assertSame('Semester bookings', $rows['Requested target']);
+    }
+
+    /**
+     * Rule previews resolve the target booking activity row from a stashed cmid.
+     */
+    public function test_rule_previews_show_target_activity(): void {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        $gen = $this->getDataGenerator();
+        $course = $gen->create_course(['fullname' => 'Rules course']);
+        $booking = $gen->create_module('booking', ['course' => $course->id, 'name' => 'Rules bookings']);
+
+        $create = rule_preview_builder::create_descriptor([
+            'template_name_resolved' => 'Template - Confirm booking',
+            'targetcmid' => (int)$booking->cmid,
+        ]);
+        $createrows = $this->rows_map($create);
+        $this->assertStringContainsString('Rules bookings', $createrows['Booking activity']);
+        $this->assertStringContainsString('Rules course', $createrows['Booking activity']);
+
+        $update = rule_preview_builder::update_descriptor([
+            'ruleid' => 5,
+            'rule_name_resolved' => 'Reminder',
+            'targetcmid' => (int)$booking->cmid,
+            'isactive' => 0,
+        ]);
+        $updaterows = $this->rows_map($update);
+        $this->assertStringContainsString('Rules bookings', $updaterows['Booking activity']);
+        $this->assertSame('Inactive', $updaterows['Active']);
+    }
+
+    /**
      * The rule skill overrides delegate to the shared builder.
      */
     public function test_skill_overrides_delegate(): void {

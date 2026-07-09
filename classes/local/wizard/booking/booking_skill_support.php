@@ -1041,6 +1041,114 @@ class booking_skill_support {
     }
 
     /**
+     * Resolve the course-module id of the booking activity that owns an option.
+     *
+     * This is the deterministic option → activity mapping the target-context contract needs:
+     * an option unambiguously identifies its booking instance, so a mutating skill can name the
+     * option (optionid) and the engine can operate at that instance without any ambient context.
+     * See the option_targeted_skill trait.
+     *
+     * @param int $optionid
+     * @return int The cmid, or 0 when the option (or its module) does not exist.
+     */
+    public static function cmid_for_option(int $optionid): int {
+        global $DB;
+
+        if ($optionid <= 0) {
+            return 0;
+        }
+        $sql = "SELECT cm.id
+                  FROM {booking_options} bo
+                  JOIN {booking} b ON b.id = bo.bookingid
+                  JOIN {modules} m ON m.name = 'booking'
+                  JOIN {course_modules} cm ON cm.instance = b.id AND cm.module = m.id
+                 WHERE bo.id = :optionid";
+        $cmid = $DB->get_field_sql($sql, ['optionid' => $optionid]);
+        return $cmid ? (int)$cmid : 0;
+    }
+
+    /**
+     * Resolve the booking activity for an option named by a site-wide text query.
+     *
+     * Used by the option_targeted_skill trait when a skill names an option (optionquery) but the
+     * ambient context is not a booking activity (e.g. an MCP session at the system context). It
+     * determines only the *activity* (cmid); the exact option is resolved later, in-instance, by
+     * the skill's own preflight (resolve_single_option). Matching is by exact title first, then a
+     * LIKE fallback; the distinct owning activities decide the outcome:
+     *
+     * - exactly one activity  → ['status' => 'ok', 'cmid' => int]
+     * - several activities     → ['status' => 'ambiguous', 'candidates' => object[]] (option label,
+     *                            cmid, course) so the caller can ask which one
+     * - none                   → ['status' => 'not_found']
+     *
+     * A numeric query is treated as an optionid (delegates to cmid_for_option).
+     *
+     * @param string $query
+     * @param string $when Optional temporal hint (currently unused site-wide; reserved).
+     * @return array
+     */
+    public static function activity_for_option_query(string $query, string $when = ''): array {
+        global $DB;
+
+        $query = self::sanitize_person_lookup_query($query);
+        if ($query === '') {
+            return ['status' => 'not_found'];
+        }
+
+        if (preg_match('/^\d+$/', $query)) {
+            $cmid = self::cmid_for_option((int)$query);
+            return $cmid > 0 ? ['status' => 'ok', 'cmid' => $cmid] : ['status' => 'not_found'];
+        }
+
+        $select = "SELECT bo.id AS optionid, bo.text, cm.id AS cmid, c.id AS courseid, c.fullname AS coursename
+                     FROM {booking_options} bo
+                     JOIN {booking} b ON b.id = bo.bookingid
+                     JOIN {course} c ON c.id = b.course
+                     JOIN {modules} m ON m.name = 'booking'
+                     JOIN {course_modules} cm ON cm.instance = b.id AND cm.module = m.id
+                    WHERE ";
+
+        // Exact (case-insensitive) title first; fall back to a LIKE match only when nothing matched.
+        $rows = $DB->get_records_sql(
+            $select . $DB->sql_equal('bo.text', ':title', false, false),
+            ['title' => $query],
+            0,
+            50
+        );
+        if (empty($rows)) {
+            $rows = $DB->get_records_sql(
+                $select . $DB->sql_like('bo.text', ':title', false),
+                ['title' => '%' . $DB->sql_like_escape($query) . '%'],
+                0,
+                50
+            );
+        }
+
+        if (empty($rows)) {
+            return ['status' => 'not_found'];
+        }
+
+        $bycmid = [];
+        foreach ($rows as $row) {
+            $bycmid[(int)$row->cmid][] = $row;
+        }
+        if (count($bycmid) === 1) {
+            return ['status' => 'ok', 'cmid' => (int)array_key_first($bycmid)];
+        }
+
+        $candidates = [];
+        foreach ($rows as $row) {
+            $candidates[] = (object)[
+                'optionid' => (int)$row->optionid,
+                'text' => (string)$row->text,
+                'cmid' => (int)$row->cmid,
+                'coursename' => (string)$row->coursename,
+            ];
+        }
+        return ['status' => 'ambiguous', 'candidates' => $candidates];
+    }
+
+    /**
      * Search users through the existing external search_users implementation.
      *
      * @param string $query

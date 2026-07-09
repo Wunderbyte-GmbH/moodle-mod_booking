@@ -34,6 +34,8 @@ use mod_booking\bo_availability\bo_info;
 class book_users_skill extends booking_skill_base implements
     queue_identity_provider_interface,
     skill_trigger_provider_interface {
+    use option_targeted_skill;
+
     /** Task name constant. */
     public const TASK_NAME = 'mod_booking.book_users';
 
@@ -290,18 +292,22 @@ class book_users_skill extends booking_skill_base implements
      * @return array{status:string,prepared_input:array,issues:array}
      */
     protected function run_preflight(array $input, int $cmid, int $userid): array {
-        $cmid = $this->resolve_cmid_from_context_or_cmid($cmid);
-        $capdenied = $this->require_native_capability('mod/booking:bookforothers', $cmid, $userid);
-        if ($capdenied !== null) {
-            return $capdenied;
+        $lang = $this->get_output_language($input);
+
+        // The option_targeted_skill trait resolves the operating context from the named option, so
+        // booking users into it works from an activity page, the dashboard, or MCP alike.
+        $resolved = $this->resolve_option_operating_context($input, $cmid, 'mod/booking:bookforothers', $userid, $lang);
+        if (isset($resolved['clarification'])) {
+            return $resolved['clarification'];
         }
+        $cmid = $resolved['cmid'];
+
         $structure = $this->check_structure($input);
         if (!($structure['valid'] ?? false)) {
             return $this->invalid($this->build_preflight_issues((array)($structure['errors'] ?? [])));
         }
 
         $issues = [];
-        $lang = $this->get_output_language($input);
         $preparedinput = $input;
 
         $resolvedoption = $this->resolve_option_id($input, $cmid, $userid, $lang);

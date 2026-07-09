@@ -34,14 +34,23 @@ use mod_booking\singleton_service;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class option_preview_builder {
-    /** @var string[] Keys that identify the target option (never shown as a "change"). */
-    private const TARGETING_KEYS = ['optionid', 'optionids', 'optionquery', 'resolvedoptionid'];
+    /** @var string[] Keys that identify the target option(s) (never shown as a "change"). */
+    private const TARGETING_KEYS = [
+        'optionid', 'optionids', 'optionquery', 'resolvedoptionid', 'resolvedoptionids',
+        'optionwhen', 'apply_to_all',
+    ];
 
     /** @var string[] Internal / derived keys that carry no user meaning in a preview. */
     private const HIDDEN_KEYS = [
         'outputlang', 'optiontype', 'slot_enabled', 'headerimage_token',
-        'activityquery', 'cmid', 'id', 'override', 'description',
+        'activityquery', 'cmid', 'targetcmid', 'id', 'override',
     ];
+
+    /** @var int Hard cap for a single preview value (long texts are truncated). */
+    private const MAX_VALUE_CHARS = 80;
+
+    /** @var int Number of option titles listed by name in a bulk preview. */
+    private const MAX_BULK_OPTION_TITLES = 5;
 
     /**
      * Build the preview descriptor for creating a normal (dated) booking option.
@@ -51,10 +60,25 @@ class option_preview_builder {
      */
     public static function create_descriptor(array $input): ?array {
         $lang = self::lang($input);
+
+        $rows = self::target_rows($input, $lang);
+
+        // Self-learning creates carry their type + duration as the defining facts.
+        $isselflearning = self::is_truthy($input['selflearningcourse'] ?? null)
+            || strtolower(trim((string)($input['optiontype'] ?? ''))) === 'selflearning';
+        if ($isselflearning) {
+            self::push($rows, self::str('optiontype', $lang), self::str('selflearningcourse', $lang));
+        }
+        self::push($rows, self::str('duration', $lang), self::humanize_duration($input['duration'] ?? null, $lang));
+
+        foreach (self::curated_option_rows($input, $lang) as $row) {
+            $rows[] = $row;
+        }
+
         return [
             'title' => self::title('previewtitle_createoption', (string)($input['text'] ?? ''), $lang),
             'summary' => '',
-            'rows' => self::curated_option_rows($input, $lang),
+            'rows' => $rows,
         ];
     }
 
@@ -72,7 +96,7 @@ class option_preview_builder {
         $seats = self::positive_int($input['slot_max_participants_per_slot'] ?? null);
         $validity = self::date_range((string)($input['slot_valid_from'] ?? ''), (string)($input['slot_valid_until'] ?? ''), $lang);
 
-        $rows = [];
+        $rows = self::target_rows($input, $lang);
         self::push($rows, self::str('previewlabel_availabilitywindow', $lang), $window);
         self::push($rows, self::str('previewlabel_weekdays', $lang), $weekdays);
         self::push(
@@ -102,10 +126,14 @@ class option_preview_builder {
     public static function update_descriptor(array $input): ?array {
         $lang = self::lang($input);
         $optionid = (int)($input['optionid'] ?? $input['resolvedoptionid'] ?? 0);
+        $rows = self::target_rows($input, $lang);
+        foreach (self::changed_field_rows($input, $lang) as $row) {
+            $rows[] = $row;
+        }
         return [
             'title' => self::option_target_title('previewtitle_updateoption', $optionid, $lang),
             'summary' => '',
-            'rows' => self::changed_field_rows($input, $lang),
+            'rows' => $rows,
         ];
     }
 
@@ -119,7 +147,7 @@ class option_preview_builder {
         $lang = self::lang($input);
         $optionid = (int)($input['optionid'] ?? $input['resolvedoptionid'] ?? 0);
 
-        $rows = [];
+        $rows = self::target_rows($input, $lang);
         $trainer = self::text_value($input['teacherquery'] ?? ($input['teacheremail'] ?? null));
         if ($trainer === null && !empty($input['teacherids']) && is_array($input['teacherids'])) {
             $trainer = self::resolve_user_names($input['teacherids']);
@@ -142,16 +170,22 @@ class option_preview_builder {
     public static function bulk_descriptor(array $input): ?array {
         $lang = self::lang($input);
 
+        $optionids = self::sanitize_ids($input['optionids'] ?? null);
+        if (empty($optionids)) {
+            $optionids = self::sanitize_ids($input['resolvedoptionids'] ?? null);
+        }
+
         if (!empty($input['apply_to_all'])) {
             $target = self::str('previewvalue_alloptions', $lang);
-        } else if (!empty($input['optionids']) && is_array($input['optionids'])) {
-            $target = self::str('previewvalue_noptions', $lang, count($input['optionids']));
+        } else if (!empty($optionids)) {
+            $target = self::str('previewvalue_noptions', $lang, count($optionids));
         } else {
             $target = self::text_value($input['optionquery'] ?? null);
         }
 
-        $rows = [];
+        $rows = self::target_rows($input, $lang);
         self::push_str($rows, 'previewlabel_appliesto', $lang, $target);
+        self::push_str($rows, 'previewlabel_options', $lang, self::format_option_list($optionids, $lang));
         foreach (self::changed_field_rows($input, $lang) as $row) {
             $rows[] = $row;
         }
@@ -180,7 +214,7 @@ class option_preview_builder {
             $participants = self::text_value($input['bookusersquery'] ?? null);
         }
 
-        $rows = [];
+        $rows = self::target_rows($input, $lang);
         self::push_str($rows, 'previewlabel_participants', $lang, $participants);
         if (self::is_truthy($input['bookuserscompleted'] ?? null)) {
             self::push_str($rows, 'previewlabel_markcompleted', $lang, self::str('yes', $lang, null, 'core'));
@@ -205,7 +239,7 @@ class option_preview_builder {
     public static function add_price_category_descriptor(array $input): ?array {
         $lang = self::lang($input);
 
-        $rows = [];
+        $rows = self::target_rows($input, $lang);
         self::push_str($rows, 'previewlabel_identifier', $lang, self::text_value($input['identifier'] ?? null));
         self::push_str($rows, 'previewlabel_name', $lang, self::text_value($input['name'] ?? null));
         if (isset($input['defaultvalue']) && $input['defaultvalue'] !== '') {
@@ -231,7 +265,7 @@ class option_preview_builder {
         $lang = self::lang($input);
         $changes = is_array($input['changes'] ?? null) ? (array)$input['changes'] : [];
 
-        $rows = [];
+        $rows = self::target_rows($input, $lang);
         foreach ($changes as $change) {
             if (!is_array($change)) {
                 continue;
@@ -255,6 +289,179 @@ class option_preview_builder {
             'summary' => '',
             'rows' => $rows,
         ];
+    }
+
+    /**
+     * Shared "which booking activity (and course)?" row for the confirm preview.
+     *
+     * Resolution is deliberately cheap (cached module info / option settings only):
+     *  1. a resolved cmid stashed by the skill's preflight ('targetcmid'),
+     *  2. the activity owning the targeted option ('optionid'/'resolvedoptionid'/'optionids'),
+     *  3. otherwise the verbatim 'activityquery' text as the *requested* target.
+     *
+     * Returns zero or one row, ready to prepend to a descriptor's rows. Public so the
+     * rule preview builder can reuse the exact same row.
+     *
+     * @param array $input Prepared (or raw) skill input.
+     * @param string $lang Output language ('' = current).
+     * @return array[]
+     */
+    public static function target_rows(array $input, string $lang): array {
+        $cmid = (int)($input['targetcmid'] ?? 0);
+
+        if ($cmid <= 0) {
+            $optionid = (int)($input['optionid'] ?? $input['resolvedoptionid'] ?? 0);
+            if ($optionid <= 0) {
+                $ids = self::sanitize_ids($input['optionids'] ?? null);
+                if (empty($ids)) {
+                    $ids = self::sanitize_ids($input['resolvedoptionids'] ?? null);
+                }
+                $optionid = (int)($ids[0] ?? 0);
+            }
+            if ($optionid > 0) {
+                $cmid = self::resolve_option_cmid($optionid);
+            }
+        }
+
+        if ($cmid > 0) {
+            $value = self::format_activity_target($cmid, $lang);
+            if ($value !== null) {
+                return [['label' => self::str('previewlabel_targetactivity', $lang), 'value' => $value]];
+            }
+        }
+
+        $query = self::text_value($input['activityquery'] ?? null);
+        if ($query !== null) {
+            return [['label' => self::str('previewlabel_requestedtarget', $lang), 'value' => $query]];
+        }
+
+        return [];
+    }
+
+    /**
+     * Best-effort "Activity name (Course: Course name)" for a booking cmid, or null.
+     *
+     * @param int $cmid
+     * @param string $lang
+     * @return string|null
+     */
+    private static function format_activity_target(int $cmid, string $lang): ?string {
+        try {
+            $cm = get_coursemodule_from_id('booking', $cmid, 0, false, IGNORE_MISSING);
+            if (!$cm) {
+                return null;
+            }
+            $value = format_string($cm->name);
+            $course = get_course((int)$cm->course);
+            $coursename = format_string((string)($course->fullname ?? ''));
+            if ($coursename !== '') {
+                $value .= ' (' . self::str('course', $lang, null, 'core') . ': ' . $coursename . ')';
+            }
+            return trim($value) === '' ? null : $value;
+        } catch (\Throwable $e) {
+            return null;
+        }
+    }
+
+    /**
+     * Resolve the cmid of the booking activity owning an option (best-effort), or 0.
+     *
+     * @param int $optionid
+     * @return int
+     */
+    private static function resolve_option_cmid(int $optionid): int {
+        try {
+            return \mod_booking\local\wizard\booking\booking_skill_support::cmid_for_option($optionid);
+        } catch (\Throwable $e) {
+            return 0;
+        }
+    }
+
+    /**
+     * Normalize a value to a unique list of positive integer ids.
+     *
+     * @param mixed $value
+     * @return int[]
+     */
+    private static function sanitize_ids($value): array {
+        if (!is_array($value)) {
+            return [];
+        }
+        $ids = array_filter(array_map('intval', $value), static fn(int $id): bool => $id > 0);
+        return array_values(array_unique($ids));
+    }
+
+    /**
+     * "#id Title, #id Title, … +N more" list for a bulk selection (one DB query), or null.
+     *
+     * @param int[] $optionids
+     * @param string $lang
+     * @return string|null
+     */
+    private static function format_option_list(array $optionids, string $lang): ?string {
+        if (empty($optionids)) {
+            return null;
+        }
+
+        $shown = array_slice($optionids, 0, self::MAX_BULK_OPTION_TITLES);
+        $titles = [];
+        try {
+            global $DB;
+            $records = $DB->get_records_list('booking_options', 'id', $shown, '', 'id, text');
+            foreach ($records as $record) {
+                $titles[(int)$record->id] = trim((string)($record->text ?? ''));
+            }
+        } catch (\Throwable $e) {
+            $titles = [];
+        }
+
+        $parts = [];
+        foreach ($shown as $id) {
+            $title = trim((string)($titles[$id] ?? ''));
+            $parts[] = $title === '' ? '#' . $id : '#' . $id . ' ' . $title;
+        }
+
+        $remaining = count($optionids) - count($shown);
+        $list = implode(', ', $parts);
+        if ($remaining > 0) {
+            $list .= ', ' . self::str('previewvalue_andnmore', $lang, $remaining);
+        }
+        return $list;
+    }
+
+    /**
+     * Humanize a duration in seconds ("4 hours", "1 day 2 hours"), or null when not positive.
+     *
+     * Mirrors format_time()'s unit strings but honours the forced conversation language.
+     *
+     * @param mixed $value Duration in seconds.
+     * @param string $lang
+     * @return string|null
+     */
+    private static function humanize_duration($value, string $lang): ?string {
+        if (!is_numeric($value)) {
+            return null;
+        }
+        $secs = (int)$value;
+        if ($secs <= 0) {
+            return null;
+        }
+
+        $units = [
+            ['day', 'days', DAYSECS],
+            ['hour', 'hours', HOURSECS],
+            ['min', 'mins', MINSECS],
+            ['sec', 'secs', 1],
+        ];
+        $parts = [];
+        foreach ($units as [$singular, $plural, $unitsecs]) {
+            $count = intdiv($secs, $unitsecs);
+            $secs -= $count * $unitsecs;
+            if ($count > 0) {
+                $parts[] = $count . ' ' . self::str($count === 1 ? $singular : $plural, $lang, null, 'core');
+            }
+        }
+        return empty($parts) ? null : implode(' ', $parts);
     }
 
     /**
@@ -653,20 +860,38 @@ class option_preview_builder {
      */
     private static function generic_value($value, string $lang): ?string {
         if (is_bool($value)) {
-            return $value ? self::str('yes', $lang, null, 'core') : null;
+            // A boolean is always a meaningful change — false must render too ("No"),
+            // otherwise disabling a flag would silently drop out of the preview.
+            return $value
+                ? self::str('yes', $lang, null, 'core')
+                : self::str('no', $lang, null, 'core');
         }
         if (is_array($value)) {
             if (empty($value)) {
                 return null;
             }
             $scalars = array_map(static fn($v) => trim((string)$v), array_filter($value, 'is_scalar'));
-            return empty($scalars) ? null : implode(', ', $scalars);
+            return empty($scalars) ? null : self::truncate_value(implode(', ', $scalars));
         }
         if ($value === null) {
             return null;
         }
         $text = trim((string)$value);
-        return $text === '' ? null : $text;
+        return $text === '' ? null : self::truncate_value($text);
+    }
+
+    /**
+     * Cap a preview value at MAX_VALUE_CHARS (whitespace-normalized, ellipsis-terminated).
+     *
+     * @param string $text
+     * @return string
+     */
+    private static function truncate_value(string $text): string {
+        $text = trim((string)preg_replace('/\s+/u', ' ', $text));
+        if (\core_text::strlen($text) <= self::MAX_VALUE_CHARS) {
+            return $text;
+        }
+        return rtrim(\core_text::substr($text, 0, self::MAX_VALUE_CHARS - 1)) . '…';
     }
 
     /**

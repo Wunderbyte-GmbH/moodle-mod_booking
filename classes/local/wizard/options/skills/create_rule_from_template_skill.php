@@ -16,6 +16,7 @@
 
 namespace mod_booking\local\wizard\options\skills;
 
+use mod_booking\local\wizard\engine\module_targeted_skill;
 use mod_booking\local\wizard\engine\skill_risk_class;
 use mod_booking\local\wizard\engine\skill_trigger_provider_interface;
 
@@ -27,8 +28,19 @@ use mod_booking\local\wizard\engine\skill_trigger_provider_interface;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class create_rule_from_template_skill extends booking_skill_base implements skill_trigger_provider_interface {
+    use module_targeted_skill;
+
     /** Task name constant. */
     public const TASK_NAME = 'mod_booking.create_rule_from_template';
+
+    /**
+     * This skill targets a booking activity instance.
+     *
+     * @return string
+     */
+    public function get_target_modname(): string {
+        return 'booking';
+    }
 
     /** Maximum number of template candidates shown in clarification output. */
     private const MAX_TEMPLATE_CANDIDATES_IN_CLARIFICATION = 8;
@@ -111,6 +123,13 @@ class create_rule_from_template_skill extends booking_skill_base implements skil
                 'Add an automatic booking confirmation message',
             ],
             'properties' => [
+                'activityquery' => [
+                    'type' => 'string',
+                    'description' => 'Optional: the name of the target booking activity, when it is not the '
+                        . 'current one (e.g. over MCP, which runs at the system context). If omitted and the '
+                        . 'site has a single booking activity in scope it is used automatically.',
+                    'required' => false,
+                ],
                 'templateid' => [
                     'type' => 'integer',
                     'description' => 'Rule template id (negative id for built-in templates).',
@@ -209,6 +228,12 @@ class create_rule_from_template_skill extends booking_skill_base implements skil
                     'message' => 'Booking rules service is currently unavailable in this installation.',
                 ],
             ]);
+        }
+
+        // Stash the resolved target activity so the confirm preview can name it
+        // (option_preview_builder::target_rows). Execute ignores this key.
+        if ($cmid > 0) {
+            $input['targetcmid'] = $cmid;
         }
 
         $issues = [];

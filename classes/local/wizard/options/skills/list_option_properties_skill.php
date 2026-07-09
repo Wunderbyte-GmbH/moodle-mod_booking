@@ -17,6 +17,7 @@
 namespace mod_booking\local\wizard\options\skills;
 
 use mod_booking\local\wizard\booking\booking_skill_support;
+use mod_booking\local\wizard\engine\module_targeted_skill;
 use mod_booking\local\wizard\engine\skill_trigger_provider_interface;
 
 /**
@@ -27,8 +28,22 @@ use mod_booking\local\wizard\engine\skill_trigger_provider_interface;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class list_option_properties_skill extends booking_skill_base implements skill_trigger_provider_interface {
+    // Generic activity-instance targeting: the engine resolves the operating booking instance
+    // (ambient course first, then site-wide) from cmid/activityquery and asks when ambiguous,
+    // so the lookup also works from non-module entry points (dashboard, MCP system context).
+    use module_targeted_skill;
+
     /** Task name constant. */
     public const TASK_NAME = 'mod_booking.list_option_properties';
+
+    /**
+     * The module type whose instances this skill targets.
+     *
+     * @return string
+     */
+    public function get_target_modname(): string {
+        return 'booking';
+    }
 
     /**
      * Constructor.
@@ -71,6 +86,17 @@ class list_option_properties_skill extends booking_skill_base implements skill_t
                 'outputlang' => [
                     'type' => 'string',
                     'description' => 'Optional language code override for the user-facing summary, e.g. de or en.',
+                    'required' => false,
+                ],
+                'activityquery' => [
+                    'type' => 'string',
+                    'description' => 'The booking activity the user named as the target, if any. If the user names a '
+                        . 'booking activity in THIS message OR an earlier one — e.g. answering a "which booking '
+                        . 'activity?" question with a name like "selflearning" — you MUST put that exact name here '
+                        . 'verbatim, so the request is executed in that activity. Leave empty ONLY when the user named '
+                        . 'no specific activity (then the activity in scope is used, and the system asks which one if '
+                        . 'several exist). Never guess or invent a name. This is the booking activity, NEVER a course — '
+                        . 'do NOT use courseid or coursequery for this task.',
                     'required' => false,
                 ],
             ],

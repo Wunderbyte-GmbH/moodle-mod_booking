@@ -32,6 +32,18 @@ class add_price_category_skill extends booking_skill_base implements skill_trigg
     public const TASK_NAME = 'mod_booking.add_price_category';
 
     /**
+     * Price categories are a site-wide configuration (moodle/site:config), not activity-scoped, so
+     * this skill operates at the system context and needs no booking-activity target. Declaring this
+     * keeps it correct over MCP (which runs at the system context) and exempt from the module/option
+     * target contract required of activity-scoped mutating skills.
+     *
+     * @return int
+     */
+    public function get_required_context_level(): int {
+        return CONTEXT_SYSTEM;
+    }
+
+    /**
      * Constructor.
      */
     public function __construct() {

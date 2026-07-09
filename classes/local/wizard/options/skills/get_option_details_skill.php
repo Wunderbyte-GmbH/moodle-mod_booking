@@ -55,6 +55,9 @@ class get_option_details_skill extends booking_skill_base implements skill_trigg
         'coursestarttime',
         'courseendtime',
         'costcenter',
+        'maxanswers',
+        'location',
+        'visibility',
     ];
 
     /**
@@ -293,7 +296,7 @@ class get_option_details_skill extends booking_skill_base implements skill_trigg
                 }
             }
 
-            $selectedstandard = $this->select_standard_fields($info, $requestedfields, $includesessions);
+            $selectedstandard = $this->select_standard_fields($info, $requestedfields, $includesessions, $settings);
             $selectedcustomfields = $this->select_custom_fields($settings, $includecustomfields, $customfieldkeys);
 
             $details[] = [
@@ -435,12 +438,21 @@ class get_option_details_skill extends booking_skill_base implements skill_trigg
     /**
      * Select requested standard fields from booking option information.
      *
+     * Fields not carried by return_booking_option_information() (maxanswers, location,
+     * visibility) are read from the cached option settings object instead.
+     *
      * @param array $info
      * @param array $requestedfields
      * @param bool $includesessions
-     * @return array<string,mixed>
+     * @param object|null $settings booking_option_settings of the option (null-safe)
+     * @return array
      */
-    private function select_standard_fields(array $info, array $requestedfields, bool $includesessions): array {
+    private function select_standard_fields(
+        array $info,
+        array $requestedfields,
+        bool $includesessions,
+        ?object $settings = null
+    ): array {
         $selected = [];
         foreach ($requestedfields as $field) {
             switch ($field) {
@@ -478,10 +490,40 @@ class get_option_details_skill extends booking_skill_base implements skill_trigg
                 case 'costcenter':
                     $selected['costcenter'] = (string)($info['costcenter'] ?? '');
                     break;
+                case 'maxanswers':
+                    $selected['maxanswers'] = (int)($settings->maxanswers ?? 0);
+                    break;
+                case 'location':
+                    $selected['location'] = (string)($settings->location ?? '');
+                    break;
+                case 'visibility':
+                    $invisible = (int)($settings->invisible ?? 0);
+                    $selected['visibility'] = [
+                        'invisible' => $invisible,
+                        'label' => $this->visibility_label($invisible),
+                    ];
+                    break;
             }
         }
 
         return $selected;
+    }
+
+    /**
+     * Human-readable label for the option's invisible value (reuses the option form strings).
+     *
+     * @param int $invisible raw booking_options.invisible value (0, 1 or 2)
+     * @return string
+     */
+    private function visibility_label(int $invisible): string {
+        switch ($invisible) {
+            case 1:
+                return get_string('optioninvisible', 'booking');
+            case 2:
+                return get_string('optionvisibledirectlink', 'booking');
+            default:
+                return get_string('optionvisible', 'booking');
+        }
     }
 
     /**
