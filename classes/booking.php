@@ -1015,6 +1015,10 @@ class booking {
                     $columns[] = 'timecreated';
                     $headers[] = get_string('timecreated', 'mod_booking');
                     break;
+                case 'timebooked':
+                    $columns[] = 'timebooked';
+                    $headers[] = get_string('timebooked', 'mod_booking');
+                    break;
                 case 'certificate':
                         $headers[] = get_string('certificate', 'mod_booking');
                         $columns[] = 'certificate';
