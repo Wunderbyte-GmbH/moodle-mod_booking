@@ -1558,6 +1558,7 @@ if (!$tableallbookings->is_downloading()) {
                     ba.json,
                     ba.places,
                     ba.timecreated,
+                    ba.timebooked,
                     u.idnumber as idnumber
                     {$customfields} " . $shoppingcartfields;
     $from = '{booking_answers} ba

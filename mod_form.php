@@ -552,6 +552,7 @@ class mod_booking_mod_form extends moodleform_mod {
             'notes' => get_string('notes', 'mod_booking'),
             'idnumber' => get_string("idnumber"),
             'timecreated' => get_string('timecreated', 'mod_booking'),
+            'timebooked' => get_string('timebooked', 'mod_booking'),
             'completeddate' => get_string('completeddate', 'mod_booking'),
         ];
 
