@@ -4895,6 +4895,9 @@ class booking_option {
         $newoption = new stdClass();
         $feedbackformchanges = fields_info::prepare_save_fields($data, $newoption, $updateparam);
 
+        // Remember whether this is a brand new option, so we can trigger the created event further down.
+        $isnewoption = empty($newoption->id);
+
         if (!empty($newoption->id)) {
             // Save the changes to DB.
             if (!$DB->update_record("booking_options", $newoption)) {
@@ -4998,6 +5001,18 @@ class booking_option {
         // Set correct cmid.
         if (empty($cmid = $originaloptioncmid)) {
             $cmid = $data->cmid ?? 0;
+        }
+
+        // Trigger the bookingoption_created event for newly created options (templates have no bookingid and are excluded).
+        // On updates of an existing option, this event is never fired.
+        if ($isnewoption && !empty($cmid) && $newoption->bookingid != 0) {
+            $createdevent = \mod_booking\event\bookingoption_created::create([
+                'context' => $context ?? context_module::instance($cmid),
+                'objectid' => $newoption->id,
+                'userid' => $USER->id,
+                'relateduserid' => $USER->id,
+            ]);
+            $createdevent->trigger();
         }
 
         // Only react on changes if update is triggered via formsave (see comment at beginning of function - cases A) & B))...

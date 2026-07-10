@@ -115,6 +115,7 @@ class rule_react_on_event implements booking_rule {
 
         // Only these events are currently supported and tested.
         $allowedeventkeys = [
+            'bookingoption_created',
             'bookingoption_freetobookagain',
             'bookinganswer_cancelled',
             'bookinganswer_slotbooked',
