@@ -104,6 +104,24 @@ class save_slot_selection extends external_api {
             $errors['slot_selection'] = get_string('slot_error_selection_toomany', 'mod_booking');
         }
 
+        $parsedranges = [];
+        foreach ($keys as $key) {
+            [$start, $end] = array_map('intval', array_pad(explode(':', $key, 2), 2, 0));
+            if ($end > $start) {
+                $parsedranges[] = [$start, $end];
+            }
+        }
+        if (slot_availability::ranges_overlap_internally($parsedranges)) {
+            $errors['slot_selection'] = get_string('slot_error_selection_overlap', 'mod_booking');
+        }
+
+        // A selection can already be (part of) the user's own persisted answer(s) - e.g. this
+        // webservice also re-validates the cached selection once on load, and "book again"
+        // (multiplebookings) can leave more than one active answer for this option. Without
+        // excluding all of them, a slot the user already holds is counted as an occupant against
+        // itself and wrongly reported as unavailable.
+        $ownanswerids = slot_availability::get_active_answer_ids_for_user($optionid, $userid);
+
         foreach ($keys as $key) {
             [$start, $end] = array_map('intval', array_pad(explode(':', $key, 2), 2, 0));
             if ($end <= $start) {
@@ -124,7 +142,14 @@ class save_slot_selection extends external_api {
                 $normalizedteachers[$key] = $selectedteachers;
             }
 
-            $evaluation = slot_availability::evaluate_slot_for_user($optionid, $start, $end, $userid, $selectedteachers);
+            $evaluation = slot_availability::evaluate_slot_for_user(
+                $optionid,
+                $start,
+                $end,
+                $userid,
+                $selectedteachers,
+                excludeanswerids: $ownanswerids
+            );
             if (empty($evaluation['bookable'])) {
                 $errors['slot_selection'] = get_string('slot_error_selected_unavailable', 'mod_booking');
                 continue;

@@ -17,24 +17,21 @@
 {{!
     @template mod_booking/slotbooking/slot_grid_day
 
-    Proportional day timeline for the fixed-grid (calendar) booking interface. The
-    condition/slotBooking picker computes the positions and wires the click handlers;
-    this template only renders the markup. Positions are percentages along the day span,
-    hence the inline top/height styles.
+    Stacked day list for the fixed-grid (calendar) booking interface: bookable slots and
+    warmup/cooldown buffer separators are rendered as ordinary block rows, one after another
+    (not positioned proportionally to real elapsed time). Bookable rows keep a minimum
+    readable height and never shrink further; buffer separators are a small constant height
+    regardless of the configured minutes. The container scrolls if the day's rows don't fit.
+    The condition/slotBooking picker builds the block list and wires the click handlers; this
+    template only renders the markup.
 
     Context variables required for this template:
-    * timelineheight - Timeline height in pixels.
-    * labels - Tick labels in the left gutter.
-        * top - Vertical position in percent.
-        * text - Time label, e.g. "16:00".
-    * ticks - Horizontal tick lines on the timeline.
-        * top - Vertical position in percent.
-    * blocks - Selectable slot blocks.
-        * key - Slot key "start:end".
-        * top - Vertical position in percent.
-        * height - Block height in percent.
-        * statusclass - Modifier class (booking-slot--available|--selected|--booked).
-        * time - Time range label, e.g. "16:00 - 16:20".
+    * blocks - Slot rows and buffer separators, in chronological order.
+        * key - Slot key "start:end" (buffer separators use a synthetic "buffer:..." key).
+        * statusclass - Modifier class (booking-slot--available|--selected|--booked|--buffer).
+        * buffer - True for a buffer separator: renders as a plain fixed-height block with no
+          header/content and is skipped by the click handler (see slot_day_renderers.js).
+        * time - Time range label, e.g. "16:00 - 16:20". Only used when not buffer.
         * booked - Whether the slot is already booked.
         * bookedlabel - Label shown on booked slots.
         * priceformatted - Formatted price, empty when no price applies.
@@ -42,33 +39,23 @@
 
     Example context (json):
     {
-        "timelineheight": 140,
-        "labels": [{"top": 0, "text": "16:00"}],
-        "ticks": [{"top": 0}],
         "blocks": [
-            {"key": "1620:1640", "top": 0, "height": 16.6, "statusclass": "booking-slot--available", "time": "16:00 - 16:20", "booked": false, "bookedlabel": "Booked", "priceformatted": "", "teachers": ""}
+            {"key": "1620:1640", "statusclass": "booking-slot--available", "time": "16:00 - 16:20", "booked": false, "bookedlabel": "Booked", "priceformatted": "", "teachers": ""},
+            {"key": "buffer:1620:1640:trailing", "statusclass": "booking-slot--buffer", "buffer": true}
         ]
     }
 }}
-<div class="booking-slot-timeline-wrapper d-flex align-items-stretch gap-1">
-    <div class="booking-slot-timeline-labels position-relative flex-shrink-0" style="height: {{timelineheight}}px;">
-        {{#labels}}
-            <div class="booking-slot-timeline-label position-absolute text-muted" style="top: {{top}}%;">{{text}}</div>
-        {{/labels}}
-    </div>
-    <div class="booking-slot-timeline booking-slot-timeline--fixed border rounded position-relative flex-grow-1" style="height: {{timelineheight}}px;">
-        {{#ticks}}
-            <div class="booking-slot-timeline-tick position-absolute" style="top: {{top}}%;"></div>
-        {{/ticks}}
-        {{#blocks}}
-            <div class="booking-slot position-absolute {{statusclass}}" data-slot-key="{{key}}" {{#booked}}data-booked="1"{{/booked}} style="top: {{top}}%; height: {{height}}%;">
+<div class="booking-slot-timeline booking-slot-timeline--fixed border rounded d-flex flex-column">
+    {{#blocks}}
+        <div class="booking-slot {{statusclass}}" data-slot-key="{{key}}" {{#booked}}data-booked="1"{{/booked}}>
+            {{^buffer}}
                 <div class="booking-slot-header">
                     <div class="booking-slot-time">{{time}}</div>
                     {{#booked}}<div class="booking-slot-badge">{{bookedlabel}}</div>{{/booked}}
                     {{#priceformatted}}<div class="booking-slot-price">{{priceformatted}}</div>{{/priceformatted}}
                 </div>
                 {{#teachers}}<div class="booking-slot-teachers">{{teachers}}</div>{{/teachers}}
-            </div>
-        {{/blocks}}
-    </div>
+            {{/buffer}}
+        </div>
+    {{/blocks}}
 </div>

@@ -134,6 +134,90 @@ final class slotbooking_external_test extends booking_advanced_testcase {
     }
 
     /**
+     * save_slot_selection is called live (on load and on every selection change) to show inline
+     * feedback - re-checking a slot the user already booked must not report it as unavailable,
+     * or the checkout page permanently shows a false "no longer available" error.
+     */
+    public function test_save_slot_selection_allows_reselecting_own_already_booked_slot(): void {
+        [$option, $userid] = $this->create_fixed_slot_option();
+        $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
+
+        $slots = slot_dto::build_picker_slots($option->id, $userid);
+        $this->assertNotEmpty($slots);
+        $slot = $slots[0];
+
+        $this->create_booked_slot_answer_multi($option->id, (int)$settings->bookingid, $userid, [
+            ['start' => (int)$slot['start'], 'end' => (int)$slot['end']],
+        ]);
+        \cache::make('mod_booking', 'bookingoptionsanswers')->delete($option->id);
+        singleton_service::destroy_instance();
+
+        $key = (int)$slot['start'] . ':' . (int)$slot['end'];
+        $result = save_slot_selection::execute($option->id, $userid, json_encode([$key]), '{}');
+        $result = \core_external\external_api::clean_returnvalue(save_slot_selection::execute_returns(), $result);
+
+        $this->assertTrue($result['valid']);
+        $this->assertSame([], json_decode($result['errors'], true));
+    }
+
+    /**
+     * A user can hold more than one active answer for the same option ("book again" /
+     * multiplebookings, e.g. several separately purchased "phases"). Re-checking a selection
+     * spanning slots from several of the user's own answers must not flag any of them.
+     */
+    public function test_save_slot_selection_allows_own_slots_across_multiple_answers(): void {
+        [$option, $userid] = $this->create_fixed_slot_option(10);
+        $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
+
+        $slots = slot_dto::build_picker_slots($option->id, $userid);
+        $this->assertGreaterThanOrEqual(2, count($slots));
+        $first = $slots[0];
+        $second = $slots[1];
+
+        $this->create_booked_slot_answer_multi($option->id, (int)$settings->bookingid, $userid, [
+            ['start' => (int)$first['start'], 'end' => (int)$first['end']],
+        ]);
+        $this->create_booked_slot_answer_multi($option->id, (int)$settings->bookingid, $userid, [
+            ['start' => (int)$second['start'], 'end' => (int)$second['end']],
+        ]);
+        \cache::make('mod_booking', 'bookingoptionsanswers')->delete($option->id);
+        singleton_service::destroy_instance();
+
+        $keys = [
+            (int)$first['start'] . ':' . (int)$first['end'],
+            (int)$second['start'] . ':' . (int)$second['end'],
+        ];
+        $result = save_slot_selection::execute($option->id, $userid, json_encode($keys), '{}');
+        $result = \core_external\external_api::clean_returnvalue(save_slot_selection::execute_returns(), $result);
+
+        $this->assertTrue($result['valid']);
+        $this->assertSame([], json_decode($result['errors'], true));
+    }
+
+    /**
+     * Two slots that overlap each other in time must be rejected even though neither is
+     * persisted yet (defense-in-depth mirror of the same check in slotbooking_form::validation()).
+     */
+    public function test_save_slot_selection_rejects_overlapping_selection(): void {
+        [$option, $userid] = $this->create_fixed_slot_option(10);
+
+        $slots = slot_dto::build_picker_slots($option->id, $userid);
+        $this->assertNotEmpty($slots);
+        $start = (int)$slots[0]['start'];
+        $overlapping = $start + (15 * MINSECS);
+        $keys = [
+            $start . ':' . ($start + (30 * MINSECS)),
+            $overlapping . ':' . ($overlapping + (30 * MINSECS)),
+        ];
+
+        $result = save_slot_selection::execute($option->id, $userid, json_encode($keys), '{}');
+        $result = \core_external\external_api::clean_returnvalue(save_slot_selection::execute_returns(), $result);
+
+        $this->assertFalse($result['valid']);
+        $this->assertArrayHasKey('slot_selection', json_decode($result['errors'], true));
+    }
+
+    /**
      * The release_slots webservice cancels a selected booked slot and keeps the remaining one.
      *
      * @covers \mod_booking\external\release_slots::execute

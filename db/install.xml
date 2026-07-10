@@ -245,6 +245,10 @@
         <FIELD NAME="teachers_required" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="allow_self_rebooking" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="change_deadline_minutes" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Signed offset in minutes to each slot start until which a slot may be moved/cancelled. NULL = inherit instance/plugin default."/>
+        <FIELD NAME="buffer_warmup_minutes" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Minutes to block before a slot's start for preparation. 0 = disabled."/>
+        <FIELD NAME="buffer_cooldown_minutes" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Minutes to block after a slot's end for follow-up. 0 = disabled."/>
+        <FIELD NAME="buffer_combination_mode" TYPE="char" LENGTH="20" NOTNULL="true" DEFAULT="summed" SEQUENCE="false" COMMENT="How two adjacent slots' buffers combine: overlap or summed. See buffer_math::MODE_*."/>
+        <FIELD NAME="slot_duration_step_minutes" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="15" SEQUENCE="false" COMMENT="Userdefined slot type only: granularity (minutes) of the selectable duration between min and max slot length."/>
         <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
       </FIELDS>

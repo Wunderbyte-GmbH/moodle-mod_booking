@@ -237,10 +237,64 @@ class booking_bookit {
 
                 $datas[] = $data;
                 $templates[] = 'mod_booking/bookingpage/prepageinlinestart';
+
+                // Surface the "Cancel purchase" button (if applicable) alongside the inline
+                // calendar. Without this, this early return skips it entirely: the standard
+                // prepagemodal cancel-button merge (see the $showprepagemodal branch below) is
+                // never reached from here, since this branch returns before it.
+                if (!$justmyalert && !empty($extrabuttoncondition)) {
+                    if (method_exists($extrabuttoncondition, 'instance')) {
+                        $cancelcondition = $extrabuttoncondition::instance();
+                    } else {
+                        $cancelcondition = new $extrabuttoncondition();
+                    }
+                    [$canceltemplate, $canceldata] = $cancelcondition->render_button(
+                        $settings,
+                        $userid,
+                        $full,
+                        false,
+                        true
+                    );
+                    $datas[] = new bookit_button($canceldata);
+                    $templates[] = $canceltemplate;
+                }
+
                 return [$templates, $datas];
             }
         }
         // End inline-start rendering.
+
+        // Persistent slot calendar: slot booking is designed to stay visible/stable throughout
+        // the whole flow (see bo_availability\conditions\slotbooking::is_available()), including
+        // after the option is booked - unlike a normal prepage, which stops being offered once it
+        // is no longer blocking. The inline-start block above already covers the still-bookable
+        // case (and returns early); this covers everything after that, so users keep an overview
+        // of the calendar (with their own booked slots) instead of just a bare Book/Cancel button.
+        //
+        // Kept out of $templates/$datas until the very end (see the two `return` statements
+        // below): the else-branch below reads $datas to detect and merge an "extra button"
+        // condition, and seeding it here would make that logic pick up this calendar entry
+        // instead of the intended button entry.
+        $persistentcalendartemplate = null;
+        $persistentcalendardata = null;
+        if (
+            !empty($inlinestartpage)
+            && strcasecmp($inlinestartpage, 'slotbooking') === 0
+            && !empty($settings->slotconfig)
+        ) {
+            $slotbookingcondition = new \mod_booking\bo_availability\conditions\slotbooking();
+            $conditionrenderdata = $slotbookingcondition->render_page($settings->id, $userid);
+
+            /** @var renderer $output */
+            $output = $PAGE->get_renderer('mod_booking');
+            $conditiontmpldata = $conditionrenderdata['data'][0]['data'] ?? [];
+            $conditionhtml = $output->render_from_template($conditionrenderdata['template'], $conditiontmpldata);
+
+            // No remaining pages to collapse into a "Continue" button - just the calendar.
+            $persistentcalendardata = new prepageinlinestart($settings->id, $userid, $conditionhtml, $inlinestartpage, 0);
+            $persistentcalendartemplate = 'mod_booking/bookingpage/prepageinlinestart';
+        }
+        // End persistent slot calendar.
 
         // Big decision: can we render the button right away, or do we need to introduce a modal.
         if ($showprepagemodal) {
@@ -278,6 +332,11 @@ class booking_bookit {
                 $templates[] = 'mod_booking/bookingpage/prepagemodal';
             } else {
                 $templates[] = 'mod_booking/bookingpage/prepageinline';
+            }
+
+            if ($persistentcalendartemplate !== null) {
+                array_unshift($templates, $persistentcalendartemplate);
+                array_unshift($datas, $persistentcalendardata);
             }
 
             return [$templates, $datas];
@@ -323,6 +382,11 @@ class booking_bookit {
                 $data['fullwidth'] = true;
                 $datas[] = new bookit_button($data);
                 $templates[] = $template;
+            }
+
+            if ($persistentcalendartemplate !== null) {
+                array_unshift($templates, $persistentcalendartemplate);
+                array_unshift($datas, $persistentcalendardata);
             }
 
             return [$templates, $datas];

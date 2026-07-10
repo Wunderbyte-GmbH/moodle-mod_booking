@@ -27,6 +27,7 @@ namespace mod_booking;
 
 use mod_booking\tests\booking_advanced_testcase;
 use mod_booking\form\condition\slotbooking_form;
+use mod_booking\local\slotbooking\slot_answer;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
@@ -278,6 +279,201 @@ final class slotbooking_form_test extends booking_advanced_testcase {
         } else {
             $this->assertSame([], $errors);
         }
+    }
+
+    /**
+     * Two slots picked together in one submission that overlap each other in time must be
+     * rejected, even though each one individually is still open (neither is in the database
+     * yet, so checking each against the option's existing bookings alone would not catch this).
+     *
+     * @return void
+     */
+    public function test_overlapping_multi_selection_is_rejected(): void {
+        [$option, $userid] = $this->create_slot_option_with_config([
+            'slot_type' => 'rolling',
+            'booking_interface' => 'list',
+            'slot_duration_minutes' => 60,
+            'slot_interval_minutes' => 30,
+            'slot_start_interval_minutes' => 30,
+            'slot_max_days_per_slot' => 1,
+            'opening_time' => '09:00',
+            'closing_time' => '12:00',
+            'valid_from' => strtotime('2050-01-07 00:00:00 UTC'),
+            'valid_until' => strtotime('2050-01-10 23:59:59 UTC'),
+            'days_of_week' => '1,5',
+            'max_participants_per_slot' => 3,
+            'max_slots_per_user' => 3,
+        ]);
+
+        $form = new slotbooking_form(null, [], 'post', '', [], true, [
+            'id' => $option->id,
+            'userid' => $userid,
+        ], true);
+
+        $openslots = $this->invoke_private_static(slotbooking_form::class, 'get_open_slots', [$option->id, $userid]);
+        $this->assertGreaterThanOrEqual(2, count($openslots));
+        // Rolling slots slide by slot_start_interval_minutes (30) with a longer duration (60),
+        // so consecutive candidates from get_open_slots() overlap by design.
+        $this->assertGreaterThan((int)$openslots[1]['start'], (int)$openslots[0]['end']);
+
+        $errors = $form->validation([
+            'id' => $option->id,
+            'userid' => $userid,
+            'slot_validation_error_target' => 'slot_selection',
+            'slot_max_selection' => 3,
+            'slot_teachers_required_count' => 0,
+            'slot_teacher_selection' => json_encode([]),
+            'slot_selection' => $openslots[0]['key'] . ',' . $openslots[1]['key'],
+            'slot_calendar_data' => json_encode($openslots),
+        ], []);
+
+        $this->assertArrayHasKey('slot_selection', $errors);
+        $this->assertSame(get_string('slot_error_selection_overlap', 'mod_booking'), $errors['slot_selection']);
+    }
+
+    /**
+     * Re-validating a slot the user has already booked (or holds via the shopping cart) must not
+     * flag it as "no longer available" because of the user's own answer occupying it - this is
+     * the regression guard for the reported bug where the calendar, kept visible on the checkout
+     * page, re-ran validation against the user's own already-booked slot.
+     *
+     * @return void
+     */
+    public function test_own_already_booked_slot_revalidates_without_conflict(): void {
+        [$option, $userid] = $this->create_slot_option_with_config([
+            'slot_type' => 'fixed',
+            'booking_interface' => 'list',
+            'slot_duration_minutes' => 30,
+            'slot_interval_minutes' => 30,
+            'slot_start_interval_minutes' => 30,
+            'slot_max_days_per_slot' => 1,
+            'opening_time' => '09:00',
+            'closing_time' => '12:00',
+            'valid_from' => strtotime('2050-01-07 00:00:00 UTC'),
+            'valid_until' => strtotime('2050-01-10 23:59:59 UTC'),
+            'days_of_week' => '1,5',
+            'max_participants_per_slot' => 1,
+            'max_slots_per_user' => 1,
+        ]);
+
+        $openslots = $this->invoke_private_static(slotbooking_form::class, 'get_open_slots', [$option->id, $userid]);
+        $this->assertNotEmpty($openslots);
+        $slot = $openslots[0];
+
+        $this->create_booked_slot_answer($option->id, $userid, (int)$slot['start'], (int)$slot['end']);
+        singleton_service::destroy_instance();
+
+        $form = new slotbooking_form(null, [], 'post', '', [], true, [
+            'id' => $option->id,
+            'userid' => $userid,
+        ], true);
+
+        $errors = $form->validation([
+            'id' => $option->id,
+            'userid' => $userid,
+            'slot_validation_error_target' => 'slot_selection',
+            'slot_max_selection' => 1,
+            'slot_teachers_required_count' => 0,
+            'slot_teacher_selection' => json_encode([]),
+            'slot_selection' => $slot['key'],
+            'slot_calendar_data' => json_encode($openslots),
+        ], []);
+
+        $this->assertSame([], $errors);
+    }
+
+    /**
+     * A user can hold more than one active answer for the same option at once ("book again" /
+     * multiplebookings, e.g. several separately purchased "phases" added to the cart one at a
+     * time). Re-validating a selection spanning slots from *several* of the user's own answers
+     * must not flag any of them as conflicting - excluding only the first own answer id (instead
+     * of all of them) was the actual root cause behind the reported bug persisting.
+     *
+     * @return void
+     */
+    public function test_own_slots_across_multiple_answers_revalidate_without_conflict(): void {
+        [$option, $userid] = $this->create_slot_option_with_config([
+            'slot_type' => 'fixed',
+            'booking_interface' => 'list',
+            'slot_duration_minutes' => 30,
+            'slot_interval_minutes' => 30,
+            'slot_start_interval_minutes' => 30,
+            'slot_max_days_per_slot' => 1,
+            'opening_time' => '09:00',
+            'closing_time' => '12:00',
+            'valid_from' => strtotime('2050-01-07 00:00:00 UTC'),
+            'valid_until' => strtotime('2050-01-10 23:59:59 UTC'),
+            'days_of_week' => '1,5',
+            'max_participants_per_slot' => 1,
+            'max_slots_per_user' => 10,
+        ]);
+
+        $openslots = $this->invoke_private_static(slotbooking_form::class, 'get_open_slots', [$option->id, $userid]);
+        $this->assertGreaterThanOrEqual(2, count($openslots));
+        $firstslot = $openslots[0];
+        $secondslot = $openslots[1];
+
+        // Two separate answers (two "phases"), not one answer holding both slots.
+        $this->create_booked_slot_answer($option->id, $userid, (int)$firstslot['start'], (int)$firstslot['end']);
+        $this->create_booked_slot_answer($option->id, $userid, (int)$secondslot['start'], (int)$secondslot['end']);
+        singleton_service::destroy_instance();
+
+        $refreshedslots = $this->invoke_private_static(slotbooking_form::class, 'get_open_slots', [$option->id, $userid]);
+
+        $form = new slotbooking_form(null, [], 'post', '', [], true, [
+            'id' => $option->id,
+            'userid' => $userid,
+        ], true);
+
+        $errors = $form->validation([
+            'id' => $option->id,
+            'userid' => $userid,
+            'slot_validation_error_target' => 'slot_selection',
+            'slot_max_selection' => 10,
+            'slot_teachers_required_count' => 0,
+            'slot_teacher_selection' => json_encode([]),
+            'slot_selection' => $firstslot['key'] . ',' . $secondslot['key'],
+            'slot_calendar_data' => json_encode($refreshedslots),
+        ], []);
+
+        $this->assertSame([], $errors);
+    }
+
+    /**
+     * Insert a booked slot answer directly (bypassing the full checkout flow), matching the
+     * pattern used by the other slotbooking tests.
+     *
+     * @param int $optionid booking option id
+     * @param int $userid user id
+     * @param int $start slot start timestamp
+     * @param int $end slot end timestamp
+     * @return int booking answer id
+     */
+    private function create_booked_slot_answer(int $optionid, int $userid, int $start, int $end): int {
+        global $DB;
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+
+        $answer = (object) [
+            'bookingid' => (int)$settings->bookingid,
+            'optionid' => $optionid,
+            'userid' => $userid,
+            'waitinglist' => MOD_BOOKING_STATUSPARAM_BOOKED,
+            'places' => 1,
+            'timecreated' => time(),
+            'timemodified' => time(),
+            'startdate' => $start,
+            'enddate' => $end,
+            'json' => '',
+        ];
+        slot_answer::set_slot_data($answer, ['slots' => [['start' => $start, 'end' => $end]], 'teachers' => []]);
+
+        $baid = (int) $DB->insert_record('booking_answers', $answer);
+        // Make the direct insert visible to the next read (mirrors the invalidation the real
+        // booking flow performs, see e.g. classes/external/bookit.php).
+        \cache::make('mod_booking', 'bookingoptionsanswers')->delete($optionid);
+
+        return $baid;
     }
 
     /**

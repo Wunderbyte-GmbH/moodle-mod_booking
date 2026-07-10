@@ -29,6 +29,7 @@ use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
 use mod_booking\semester;
 use mod_booking\singleton_service;
+use mod_booking\local\slotbooking\buffer_math;
 use mod_booking\option\field_base;
 use mod_booking\option\type_resolver;
 use html_writer;
@@ -209,6 +210,25 @@ class slotbooking extends field_base {
         $mform->hideIf('slot_custom_start_interval_minutes', 'optiontype', 'neq', MOD_BOOKING_OPTIONTYPE_SLOTBOOKING);
         $mform->hideIf('slot_custom_start_interval_minutes', 'slot_type', 'neq', 'userdefined');
 
+        $mform->addElement(
+            'select',
+            'slot_custom_duration_step_minutes',
+            get_string('slot_custom_duration_step_minutes', 'mod_booking'),
+            [
+                1 => '1',
+                5 => '5',
+                10 => '10',
+                15 => '15',
+                30 => '30',
+                60 => '60',
+            ]
+        );
+        $mform->setType('slot_custom_duration_step_minutes', PARAM_INT);
+        $mform->setDefault('slot_custom_duration_step_minutes', 15);
+        $mform->hideIf('slot_custom_duration_step_minutes', 'optiontype', 'neq', MOD_BOOKING_OPTIONTYPE_SLOTBOOKING);
+        $mform->hideIf('slot_custom_duration_step_minutes', 'slot_type', 'neq', 'userdefined');
+        $mform->addHelpButton('slot_custom_duration_step_minutes', 'slot_custom_duration_step_minutes', 'mod_booking');
+
         $mform->addElement('text', 'slot_opening_time', get_string('slot_opening_time', 'mod_booking'));
         $mform->setType('slot_opening_time', PARAM_TEXT);
         $mform->hideIf('slot_opening_time', 'optiontype', 'neq', MOD_BOOKING_OPTIONTYPE_SLOTBOOKING);
@@ -250,6 +270,7 @@ class slotbooking extends field_base {
         $mform->addElement('text', 'slot_max_slots_per_user', get_string('slot_max_slots_per_user', 'mod_booking'));
         $mform->setType('slot_max_slots_per_user', PARAM_INT);
         $mform->hideIf('slot_max_slots_per_user', 'optiontype', 'neq', MOD_BOOKING_OPTIONTYPE_SLOTBOOKING);
+        $mform->addHelpButton('slot_max_slots_per_user', 'slot_max_slots_per_user', 'mod_booking');
 
         $mform->addElement('select', 'slot_add_examiners', get_string('slot_add_examiners_to_slots', 'mod_booking'), [
             0 => get_string('no'),
@@ -335,6 +356,34 @@ class slotbooking extends field_base {
         $mform->addHelpButton('slot_change_deadline_minutes', 'slot_change_deadline_minutes', 'mod_booking');
         $mform->hideIf('slot_change_deadline_minutes', 'optiontype', 'neq', MOD_BOOKING_OPTIONTYPE_SLOTBOOKING);
 
+        // Warmup/cooldown buffer: blocks time before/after a slot's core time for
+        // preparation/follow-up. 0 (the default) disables the respective buffer.
+        $mform->addElement('text', 'slot_buffer_warmup_minutes', get_string('slot_buffer_warmup_minutes', 'mod_booking'));
+        $mform->setType('slot_buffer_warmup_minutes', PARAM_INT);
+        $mform->setDefault('slot_buffer_warmup_minutes', 0);
+        $mform->addHelpButton('slot_buffer_warmup_minutes', 'slot_buffer_warmup_minutes', 'mod_booking');
+        $mform->hideIf('slot_buffer_warmup_minutes', 'optiontype', 'neq', MOD_BOOKING_OPTIONTYPE_SLOTBOOKING);
+
+        $mform->addElement('text', 'slot_buffer_cooldown_minutes', get_string('slot_buffer_cooldown_minutes', 'mod_booking'));
+        $mform->setType('slot_buffer_cooldown_minutes', PARAM_INT);
+        $mform->setDefault('slot_buffer_cooldown_minutes', 0);
+        $mform->addHelpButton('slot_buffer_cooldown_minutes', 'slot_buffer_cooldown_minutes', 'mod_booking');
+        $mform->hideIf('slot_buffer_cooldown_minutes', 'optiontype', 'neq', MOD_BOOKING_OPTIONTYPE_SLOTBOOKING);
+
+        $mform->addElement(
+            'select',
+            'slot_buffer_combination_mode',
+            get_string('slot_buffer_combination_mode', 'mod_booking'),
+            [
+                buffer_math::MODE_SUMMED => get_string('slot_buffer_combination_mode_summed', 'mod_booking'),
+                buffer_math::MODE_OVERLAP => get_string('slot_buffer_combination_mode_overlap', 'mod_booking'),
+            ]
+        );
+        $mform->setType('slot_buffer_combination_mode', PARAM_ALPHA);
+        $mform->setDefault('slot_buffer_combination_mode', buffer_math::MODE_SUMMED);
+        $mform->addHelpButton('slot_buffer_combination_mode', 'slot_buffer_combination_mode', 'mod_booking');
+        $mform->hideIf('slot_buffer_combination_mode', 'optiontype', 'neq', MOD_BOOKING_OPTIONTYPE_SLOTBOOKING);
+
         $currentoptionid = (int)($formdata['optionid'] ?? $formdata['id'] ?? 0);
         $cmid = (int)($formdata['cmid'] ?? 0);
 
@@ -395,6 +444,9 @@ class slotbooking extends field_base {
             if ((int)($data['slot_custom_start_interval_minutes'] ?? 0) <= 0) {
                 $errors['slot_custom_start_interval_minutes'] = get_string('slot_error_positive', 'mod_booking');
             }
+            if ((int)($data['slot_custom_duration_step_minutes'] ?? 0) <= 0) {
+                $errors['slot_custom_duration_step_minutes'] = get_string('slot_error_positive', 'mod_booking');
+            }
         }
 
         if ($slottype !== 'session') {
@@ -434,6 +486,19 @@ class slotbooking extends field_base {
 
         if ((int)($data['slot_teachers_required'] ?? 0) < 0) {
             $errors['slot_teachers_required'] = get_string('slot_error_nonnegative', 'mod_booking');
+        }
+
+        if ((int)($data['slot_buffer_warmup_minutes'] ?? 0) < 0) {
+            $errors['slot_buffer_warmup_minutes'] = get_string('slot_error_nonnegative', 'mod_booking');
+        }
+
+        if ((int)($data['slot_buffer_cooldown_minutes'] ?? 0) < 0) {
+            $errors['slot_buffer_cooldown_minutes'] = get_string('slot_error_nonnegative', 'mod_booking');
+        }
+
+        $combinationmode = (string)($data['slot_buffer_combination_mode'] ?? buffer_math::MODE_SUMMED);
+        if (!in_array($combinationmode, [buffer_math::MODE_SUMMED, buffer_math::MODE_OVERLAP], true)) {
+            $errors['slot_buffer_combination_mode'] = get_string('required');
         }
 
         return $errors;
@@ -478,6 +543,9 @@ class slotbooking extends field_base {
         $record->slot_start_interval_minutes = $record->slot_type === 'userdefined'
             ? max(1, (int)($formdata->slot_custom_start_interval_minutes ?? 30))
             : 0;
+        $record->slot_duration_step_minutes = $record->slot_type === 'userdefined'
+            ? max(1, (int)($formdata->slot_custom_duration_step_minutes ?? 15))
+            : 15;
         $record->opening_time = $record->slot_type === 'session'
             ? '00:00'
             : (string)($formdata->slot_opening_time ?? '08:00');
@@ -501,6 +569,12 @@ class slotbooking extends field_base {
         $record->change_deadline_minutes = ($deadlineraw === '' || $deadlineraw === null)
             ? null
             : (int)$deadlineraw;
+        $record->buffer_warmup_minutes = max(0, (int)($formdata->slot_buffer_warmup_minutes ?? 0));
+        $record->buffer_cooldown_minutes = max(0, (int)($formdata->slot_buffer_cooldown_minutes ?? 0));
+        $combinationmode = (string)($formdata->slot_buffer_combination_mode ?? buffer_math::MODE_SUMMED);
+        $record->buffer_combination_mode = in_array($combinationmode, [buffer_math::MODE_SUMMED, buffer_math::MODE_OVERLAP], true)
+            ? $combinationmode
+            : buffer_math::MODE_SUMMED;
         $record->timemodified = $now;
 
         if ($existing = $DB->get_record('booking_slot_config', ['optionid' => $optionid], '*', IGNORE_MISSING)) {
@@ -542,6 +616,7 @@ class slotbooking extends field_base {
             $setifmissing('slot_custom_min_duration', 60 * MINSECS);
             $setifmissing('slot_custom_max_days', DAYSECS);
             $setifmissing('slot_custom_start_interval_minutes', 30);
+            $setifmissing('slot_custom_duration_step_minutes', 15);
             $setifmissing('slot_opening_time', '08:00');
             $setifmissing('slot_closing_time', '18:00');
             $setifmissing('slot_valid_from', 0);
@@ -554,6 +629,9 @@ class slotbooking extends field_base {
             $setifmissing('slot_teachers_required', 0);
             $setifmissing('slot_allow_self_rebooking', 0);
             $setifmissing('slot_change_deadline_minutes', '');
+            $setifmissing('slot_buffer_warmup_minutes', 0);
+            $setifmissing('slot_buffer_cooldown_minutes', 0);
+            $setifmissing('slot_buffer_combination_mode', buffer_math::MODE_SUMMED);
 
             for ($i = 1; $i <= 7; $i++) {
                 $field = 'slot_day_' . $i;
@@ -571,6 +649,7 @@ class slotbooking extends field_base {
                     $setifmissing('slot_custom_min_duration', max(1, (int)$config->slot_interval_minutes) * MINSECS);
                     $setifmissing('slot_custom_max_days', max(1, (int)($config->slot_max_days_per_slot ?? 1)) * DAYSECS);
                     $setifmissing('slot_custom_start_interval_minutes', max(1, (int)($config->slot_start_interval_minutes ?? 30)));
+                    $setifmissing('slot_custom_duration_step_minutes', max(1, (int)($config->slot_duration_step_minutes ?? 15)));
                     $setifmissing('slot_opening_time', $config->opening_time);
                     $setifmissing('slot_closing_time', $config->closing_time);
                     $setifmissing('slot_valid_from', (int)$config->valid_from);
@@ -589,6 +668,12 @@ class slotbooking extends field_base {
                     $setifmissing(
                         'slot_change_deadline_minutes',
                         $config->change_deadline_minutes === null ? '' : (int)$config->change_deadline_minutes
+                    );
+                    $setifmissing('slot_buffer_warmup_minutes', (int)($config->buffer_warmup_minutes ?? 0));
+                    $setifmissing('slot_buffer_cooldown_minutes', (int)($config->buffer_cooldown_minutes ?? 0));
+                    $setifmissing(
+                        'slot_buffer_combination_mode',
+                        (string)($config->buffer_combination_mode ?? buffer_math::MODE_SUMMED)
                     );
                     $setifmissing(
                         'slot_add_examiners',
@@ -629,6 +714,7 @@ class slotbooking extends field_base {
         $data->slot_custom_min_duration = 60 * MINSECS;
         $data->slot_custom_max_days = DAYSECS;
         $data->slot_custom_start_interval_minutes = 30;
+        $data->slot_custom_duration_step_minutes = 15;
         $data->slot_opening_time = '08:00';
         $data->slot_closing_time = '18:00';
         $data->slot_valid_from = 0;
@@ -641,6 +727,9 @@ class slotbooking extends field_base {
         $data->slot_teachers_required = 0;
         $data->slot_allow_self_rebooking = 0;
         $data->slot_change_deadline_minutes = '';
+        $data->slot_buffer_warmup_minutes = 0;
+        $data->slot_buffer_cooldown_minutes = 0;
+        $data->slot_buffer_combination_mode = buffer_math::MODE_SUMMED;
         for ($i = 1; $i <= 7; $i++) {
             $field = 'slot_day_' . $i;
             $data->{$field} = ($i <= 5) ? 1 : 0;
@@ -657,6 +746,7 @@ class slotbooking extends field_base {
                 $data->slot_custom_min_duration = max(1, (int)$config->slot_interval_minutes) * MINSECS;
                 $data->slot_custom_max_days = max(1, (int)($config->slot_max_days_per_slot ?? 1)) * DAYSECS;
                 $data->slot_custom_start_interval_minutes = max(1, (int)($config->slot_start_interval_minutes ?? 30));
+                $data->slot_custom_duration_step_minutes = max(1, (int)($config->slot_duration_step_minutes ?? 15));
                 $data->slot_opening_time = $config->opening_time;
                 $data->slot_closing_time = $config->closing_time;
                 $data->slot_valid_from = (int)$config->valid_from;
@@ -676,6 +766,9 @@ class slotbooking extends field_base {
                 $data->slot_change_deadline_minutes = $config->change_deadline_minutes === null
                     ? ''
                     : (int)$config->change_deadline_minutes;
+                $data->slot_buffer_warmup_minutes = (int)($config->buffer_warmup_minutes ?? 0);
+                $data->slot_buffer_cooldown_minutes = (int)($config->buffer_cooldown_minutes ?? 0);
+                $data->slot_buffer_combination_mode = (string)($config->buffer_combination_mode ?? buffer_math::MODE_SUMMED);
                 $data->slot_add_examiners = !empty($config->teacher_pool) || !empty($config->teachers_required) ? 1 : 0;
 
                 $pool = json_decode((string)$config->teacher_pool, true);

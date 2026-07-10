@@ -5562,5 +5562,75 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2026062302, 'booking');
     }
 
+    if ($oldversion < 2026070302) {
+        // Warmup/cooldown buffer settings for slot booking (fixed slots).
+        $table = new xmldb_table('booking_slot_config');
+
+        $warmupfield = new xmldb_field(
+            'buffer_warmup_minutes',
+            XMLDB_TYPE_INTEGER,
+            '10',
+            null,
+            XMLDB_NOTNULL,
+            null,
+            '0',
+            'change_deadline_minutes'
+        );
+        if (!$dbman->field_exists($table, $warmupfield)) {
+            $dbman->add_field($table, $warmupfield);
+        }
+
+        $cooldownfield = new xmldb_field(
+            'buffer_cooldown_minutes',
+            XMLDB_TYPE_INTEGER,
+            '10',
+            null,
+            XMLDB_NOTNULL,
+            null,
+            '0',
+            'buffer_warmup_minutes'
+        );
+        if (!$dbman->field_exists($table, $cooldownfield)) {
+            $dbman->add_field($table, $cooldownfield);
+        }
+
+        $combinationmodefield = new xmldb_field(
+            'buffer_combination_mode',
+            XMLDB_TYPE_CHAR,
+            '20',
+            null,
+            XMLDB_NOTNULL,
+            null,
+            'summed',
+            'buffer_cooldown_minutes'
+        );
+        if (!$dbman->field_exists($table, $combinationmodefield)) {
+            $dbman->add_field($table, $combinationmodefield);
+        }
+
+        upgrade_mod_savepoint(true, 2026070302, 'booking');
+    }
+
+    if ($oldversion < 2026071000) {
+        // Configurable duration step (granularity) for userdefined slot type.
+        $table = new xmldb_table('booking_slot_config');
+
+        $stepfield = new xmldb_field(
+            'slot_duration_step_minutes',
+            XMLDB_TYPE_INTEGER,
+            '10',
+            null,
+            XMLDB_NOTNULL,
+            null,
+            '15',
+            'buffer_combination_mode'
+        );
+        if (!$dbman->field_exists($table, $stepfield)) {
+            $dbman->add_field($table, $stepfield);
+        }
+
+        upgrade_mod_savepoint(true, 2026071000, 'booking');
+    }
+
     return true;
 }

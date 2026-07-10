@@ -195,7 +195,15 @@ const snapStartTimestamp = (timestamp, openFrom, openUntil, duration, intervalSe
 };
 
 
-const renderCustomDayEditor = (container, daySlot, hiddenStartInput, durationSelect, timeFormatter) => {
+// Minimum vertical space given to each hour of the opening window, so the timeline stays
+// readable even when opening/closing time span most of the day. Taller-than-viewport
+// timelines scroll inside their wrapper (see .booking-slot-timeline-wrapper--scroll) instead
+// of stretching the page.
+const TIMELINE_MIN_PX_PER_HOUR = 30;
+const TIMELINE_MIN_HEIGHT_PX = 160;
+const TIMELINE_TARGET_PX_PER_TICK = 50;
+
+const renderCustomDayEditor = (container, daySlot, hiddenStartInput, durationSelect, timeFormatter, legendLabels = {}) => {
     if (!daySlot || !hiddenStartInput || !durationSelect) {
         return;
     }
@@ -238,24 +246,55 @@ const renderCustomDayEditor = (container, daySlot, hiddenStartInput, durationSel
 
     container.appendChild(controls);
 
+    const legend = document.createElement('div');
+    legend.className = 'd-flex align-items-center gap-3 mb-1';
+    [
+        {className: 'booking-slot-legend-swatch--mine', text: legendLabels.mine || 'Your booking'},
+        {className: 'booking-slot-legend-swatch--blocked', text: legendLabels.blocked || 'Not bookable'},
+    ].forEach(item => {
+        const entry = document.createElement('div');
+        entry.className = 'd-flex align-items-center gap-1 small text-muted';
+
+        const swatch = document.createElement('span');
+        swatch.className = `booking-slot-legend-swatch ${item.className}`;
+        entry.appendChild(swatch);
+
+        const text = document.createElement('span');
+        text.textContent = item.text;
+        entry.appendChild(text);
+
+        legend.appendChild(entry);
+    });
+    container.appendChild(legend);
+
+    const timelineScroll = document.createElement('div');
+    timelineScroll.className = 'booking-slot-timeline-wrapper--scroll';
+    container.appendChild(timelineScroll);
+
     const timelineWrapper = document.createElement('div');
     timelineWrapper.className = 'booking-slot-timeline-wrapper d-flex align-items-stretch gap-1';
-    container.appendChild(timelineWrapper);
+    timelineScroll.appendChild(timelineWrapper);
+
+    const timelineSpan = openUntil - openFrom;
+    const timelineHeight = Math.max(
+        TIMELINE_MIN_HEIGHT_PX,
+        Math.round((timelineSpan / 3600) * TIMELINE_MIN_PX_PER_HOUR)
+    );
 
     const labelsCol = document.createElement('div');
     labelsCol.className = 'booking-slot-timeline-labels position-relative flex-shrink-0';
-    labelsCol.style.height = '140px';
+    labelsCol.style.height = `${timelineHeight}px`;
     timelineWrapper.appendChild(labelsCol);
 
     const timeline = document.createElement('div');
     timeline.className = 'booking-slot-timeline booking-slot-timeline--clickable border rounded position-relative flex-grow-1';
-    timeline.style.height = '140px';
+    timeline.style.height = `${timelineHeight}px`;
     timelineWrapper.appendChild(timeline);
 
-    const timelineSpan = openUntil - openFrom;
     if (timelineSpan > 0) {
         const tickCandidates = [5 * 60, 10 * 60, 15 * 60, 20 * 60, 30 * 60, 3600, 2 * 3600, 3 * 3600];
-        const tickInterval = tickCandidates.find(c => timelineSpan / c <= 8) || 3600;
+        const maxTicks = Math.max(4, Math.floor(timelineHeight / TIMELINE_TARGET_PX_PER_TICK));
+        const tickInterval = tickCandidates.find(c => timelineSpan / c <= maxTicks) || 3600;
         const firstTick = Math.ceil(openFrom / tickInterval) * tickInterval;
         for (let tick = firstTick; tick <= openUntil; tick += tickInterval) {
             const ratio = (tick - openFrom) / timelineSpan;
@@ -273,7 +312,7 @@ const renderCustomDayEditor = (container, daySlot, hiddenStartInput, durationSel
         }
     }
 
-    const addBookedBlock = (start, end) => {
+    const addBookedBlock = (start, end, mine) => {
         const span = openUntil - openFrom;
         if (span <= 0) {
             return;
@@ -289,14 +328,16 @@ const renderCustomDayEditor = (container, daySlot, hiddenStartInput, durationSel
         const height = ((clippedEnd - clippedStart) / span) * 100;
 
         const block = document.createElement('div');
-        block.className = 'booking-slot-booked-range position-absolute';
+        block.className = 'booking-slot-booked-range position-absolute '
+            + (mine ? 'booking-slot-booked-range--mine' : 'booking-slot-booked-range--blocked');
+        block.title = mine ? (legendLabels.mine || 'Your booking') : (legendLabels.blocked || 'Not bookable');
         block.style.top = `${top}%`;
         block.style.height = `${Math.max(2, height)}%`;
         timeline.appendChild(block);
     };
 
     (Array.isArray(daySlot.bookedranges) ? daySlot.bookedranges : []).forEach(range => {
-        addBookedBlock(range.start, range.end);
+        addBookedBlock(range.start, range.end, Boolean(range.mine));
     });
 
     const selectionBlock = document.createElement('div');
@@ -322,6 +363,11 @@ const renderCustomDayEditor = (container, daySlot, hiddenStartInput, durationSel
         const height = span > 0 ? (duration / span) * 100 : 0;
         selectionBlock.style.top = `${Math.max(0, Math.min(100, top))}%`;
         selectionBlock.style.height = `${Math.max(2, Math.min(100, height))}%`;
+
+        // Programmatic value assignment above does not fire a native 'change' event; dispatch one
+        // so live-validation wiring (see setupInteractiveUi) reacts to every start/duration pick,
+        // whether it came from the time input, the duration select, or a timeline click.
+        hiddenStartInput.dispatchEvent(new Event('change', {bubbles: true}));
     };
 
     timeInput.addEventListener('change', () => {
@@ -536,10 +582,16 @@ export async function init() {
         const examinersLabelInput = container.querySelector('input[name="slot_examiners_per_slot_label"]');
         const usePricesInput = container.querySelector('input[name="slot_use_prices"]');
         const teachersRequiredInput = container.querySelector('input[name="slot_teachers_required_count"]');
+        const legendMineInput = container.querySelector('input[name="slot_legend_mine_label"]');
+        const legendBlockedInput = container.querySelector('input[name="slot_legend_blocked_label"]');
         const timezone = getFormTimeZone(container);
         const timeFormatter = createTimeFormatter(timezone);
         const examinersLabel = (examinersLabelInput?.value || 'Examiners per slot').trim();
         const usePrices = Number(usePricesInput?.value || 0) === 1;
+        const legendLabels = {
+            mine: (legendMineInput?.value || 'Your booking').trim(),
+            blocked: (legendBlockedInput?.value || 'Not bookable').trim(),
+        };
 
         if (!selectionInput) {
             return;
@@ -580,7 +632,14 @@ export async function init() {
                 }
 
                 lastCustomDaySlot = daySlot;
-                renderCustomDayEditor(customEditorRoot, daySlot, customStartInput, customDurationSelect, timeFormatter);
+                renderCustomDayEditor(
+                    customEditorRoot,
+                    daySlot,
+                    customStartInput,
+                    customDurationSelect,
+                    timeFormatter,
+                    legendLabels
+                );
                 customEditorRoot.style.display = '';
                 return true;
             };
@@ -605,7 +664,8 @@ export async function init() {
                         lastCustomDaySlot,
                         customStartInput,
                         customDurationSelect,
-                        timeFormatter
+                        timeFormatter,
+                        legendLabels
                     );
                     customEditorRoot.style.display = '';
                     return true;

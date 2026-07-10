@@ -162,6 +162,12 @@ class slotbooking implements bo_condition {
             return true;
         }
 
+        // A cached selection can already be the user's own persisted answer (e.g. once it was
+        // added to the shopping cart) - "book again" (multiplebookings) can even leave more than
+        // one active answer for this option, so exclude all of them, or a slot the user already
+        // holds is counted as an occupant against itself and wrongly re-blocks the flow.
+        $ownanswerids = slot_availability::get_active_answer_ids_for_user((int)$settings->id, (int)$userid);
+
         $teachersrequired = slot_availability::get_teachers_required((int)$settings->id);
         $teacherselection = $store->get_selected_teachers_by_slot($data);
 
@@ -180,7 +186,8 @@ class slotbooking implements bo_condition {
                 (int)$start,
                 (int)$end,
                 (int)$userid,
-                $selectedteachers
+                $selectedteachers,
+                excludeanswerids: $ownanswerids
             );
             if (empty($evaluation['bookable'])) {
                 return true;
@@ -316,6 +323,13 @@ class slotbooking implements bo_condition {
         $maxslots = $condition->get_max_slots_per_user($optionid);
         if (count($ranges) > $maxslots) {
             throw new moodle_exception('slot_error_selection_toomany', 'mod_booking');
+        }
+
+        // Each range is checked individually against the option's existing bookings below; that
+        // does not catch two ranges from this same selection overlapping each other, since
+        // neither is persisted yet. Reject that invalid combination before it is ever saved.
+        if (slot_availability::ranges_overlap_internally($ranges)) {
+            throw new moodle_exception('slot_error_selection_overlap', 'mod_booking');
         }
 
         $teachersrequired = slot_availability::get_teachers_required($optionid);

@@ -257,6 +257,22 @@ class cancelmyself implements bo_condition {
      * @return bool
      */
     public function hard_block(booking_option_settings $settings, $userid): bool {
+        // Same slot-capacity step-back as alreadybooked::hard_block(): this condition exists to
+        // offer cancelling an existing booking, and (in the classic one-answer-per-option model)
+        // hard-blocking any further booking action while that "Cancel purchase" option is live is
+        // correct. But slot booking lets a user buy several separate slots for the same option
+        // (up to its own max_slots_per_user) - without this, buying an additional slot is blocked
+        // here even after alreadybooked/slotbooking's own hard_block() both allow it.
+        if (
+            !empty($settings->slotconfig)
+            && \mod_booking\local\slotbooking\slot_availability::has_remaining_slot_capacity(
+                (int)$settings->id,
+                (int)$userid
+            )
+        ) {
+            return false;
+        }
+
         return true;
     }
 
