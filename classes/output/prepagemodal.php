@@ -26,7 +26,7 @@
 namespace mod_booking\output;
 
 use context_module;
-use local_shopping_cart\context_helper;
+use mod_booking\context_helper;
 use renderer_base;
 use renderable;
 use templatable;
