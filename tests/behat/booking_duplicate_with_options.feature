@@ -107,6 +107,7 @@ Feature: In a booking create booking option with multiple custom options
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r2" "css_element"
     And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r2" "css_element"
     And I expand all fieldsets
+    And I wait until ".collapsing" "css_element" does not exist
     And I wait until the page is ready
     And I should see "Course 1" in the "//div[contains(@id, 'fitem_id_courseid_')]//span[contains(@class, 'course-suggestion')]" "xpath_element"
     And I should see "Teacher 1" in the "//fieldset[contains(@id, 'id_bookingoptionteachers_')]" "xpath_element"

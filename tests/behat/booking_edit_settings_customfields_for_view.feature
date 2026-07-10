@@ -38,6 +38,7 @@ Feature: As admin - configure customfields to be displayed for each booking opti
   Scenario: Booking: configure customfields for view in booking instance and validate them in list view as student
     Given I am on the "Booking0" "booking activity editing" page logged in as admin
     And I expand all fieldsets
+    And I wait until ".collapsing" "css_element" does not exist
     And I set the following fields to these values:
       | Custom fields that are to be displayed for each booking option in the overview | Sport1 (spt1),Second (scnd1) |
     And I press "Save and display"
@@ -57,6 +58,7 @@ Feature: As admin - configure customfields to be displayed for each booking opti
   Scenario: Booking: configure customfields for view in booking instance and validate them in cards view as student
     Given I am on the "Booking0" "booking activity editing" page logged in as admin
     And I expand all fieldsets
+    And I wait until ".collapsing" "css_element" does not exist
     And I set the following fields to these values:
       | View type                                                                       | Cards view                   |
       | Custom fields that are to be displayed for each booking option in the overview | Sport1 (spt1),Second (scnd1) |

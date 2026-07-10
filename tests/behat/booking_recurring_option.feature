@@ -105,6 +105,7 @@ Feature: Create recurring options as teacher and configuring it.
     ## Create recurring options
     And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I expand all fieldsets
+    And I wait until ".collapsing" "css_element" does not exist
     And I set the following fields to these values:
       | Repeat this option               | 1   |
       | Number of repetitions            | 2   |
@@ -120,6 +121,7 @@ Feature: Create recurring options as teacher and configuring it.
     ## Update existing recuring options
     And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I expand all fieldsets
+    And I wait until ".collapsing" "css_element" does not exist
     And I set the field "Booking option name" to "RecurrOptUpd1"
     And I click on "15 March 2045" "text" in the "#booking_optiondate_1" "css_element"
     And I set the following fields to these values:
@@ -138,6 +140,7 @@ Feature: Create recurring options as teacher and configuring it.
     ## Update date of 2nd child
     And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r3" "css_element"
     And I expand all fieldsets
+    And I wait until ".collapsing" "css_element" does not exist
     And I click on "19 March 2045" "text" in the "#booking_optiondate_1" "css_element"
     And I set the following fields to these values:
       | coursestarttime_1[day]    | 20   |

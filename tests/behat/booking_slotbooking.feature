@@ -78,8 +78,12 @@ Feature: Slot booking option renders fixed calendar slots in student timezone
     ## replaces the form markup. Wait for it to finish, then make sure the section is
     ## expanded (idempotent - never collapses) so the conditionally shown
     ## "Slot booking interface" field is interactable.
+    ## Moodle 4.5 does not disable Bootstrap transitions in behat (5.0 does, MDL-75669),
+    ## so wait until the fieldset expand animation (.collapsing) has finished, otherwise
+    ## the layout is still shifting and the "Save" click gets intercepted by a section header.
     And I wait until the page is ready
     And I expand all fieldsets
+    And I wait until ".collapsing" "css_element" does not exist
     And I set the field "Slot booking interface" to "List view"
     And I set the field "Slot duration (minutes)" to "40"
     And I set the field "Slot interval (minutes)" to "20"

@@ -64,6 +64,7 @@ Feature: Create enrollink availability form for booking options with connected c
     And I am on the "BookingCMP" Activity page logged in as teacher1
     And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I expand all fieldsets
+    And I wait until ".collapsing" "css_element" does not exist
     ## And I follow "Availability conditions".
     And I set the field "Form needs to be filled out before booking" to "checked"
     And I wait "1" seconds

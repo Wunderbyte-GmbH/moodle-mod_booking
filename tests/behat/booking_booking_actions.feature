@@ -49,6 +49,7 @@ Feature: Create booking action as admin and ensure they are working as student a
     And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
     ##And I follow "Actions after booking [EXPERIMENTAL]"
     And I expand all fieldsets
+    And I wait until ".collapsing" "css_element" does not exist
     And I click on "Add action" "text"
     And I wait "1" seconds
     And I set the following fields to these values:
@@ -60,6 +61,7 @@ Feature: Create booking action as admin and ensure they are working as student a
     And I wait "2" seconds
     ##And I follow "Actions after booking [EXPERIMENTAL]"
     And I expand all fieldsets
+    And I wait until ".collapsing" "css_element" does not exist
     And I should see "Book more options" in the ".booking-actions-list" "css_element"
     And I click on "Edit" "text" in the ".booking-actions-list" "css_element"
     And I wait "1" seconds
@@ -68,6 +70,7 @@ Feature: Create booking action as admin and ensure they are working as student a
     And I wait "2" seconds
     ##And I follow "Actions after booking [EXPERIMENTAL]"
     And I expand all fieldsets
+    And I wait until ".collapsing" "css_element" does not exist
     And I should see "Book other options" in the ".booking-actions-list" "css_element"
     And I log out
 
