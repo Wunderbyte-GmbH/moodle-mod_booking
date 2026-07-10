@@ -102,6 +102,15 @@ class slot_dto {
         $slots = slot_availability::get_slots_with_status($optionid, $userid);
         $result = [];
 
+        // Buffer settings are per-option, so every slot DTO carries the same values; the day
+        // timeline renderer uses them to draw each slot's own warmup/cooldown wings, always,
+        // independent of booking state (a static preview of the configured buffer, not a
+        // per-booking conflict marker; that is handled separately by has_buffer_conflict()).
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $config = $settings->slotconfig ?? null;
+        $bufferwarmupminutes = max(0, (int)($config->buffer_warmup_minutes ?? 0));
+        $buffercooldownminutes = max(0, (int)($config->buffer_cooldown_minutes ?? 0));
+
         foreach ($slots as $slot) {
             $status = (string)($slot['status'] ?? 'unavailable');
             if (!in_array($status, self::SELECTABLE_STATUSES, true)) {
@@ -137,6 +146,8 @@ class slot_dto {
                 'price' => $pricedata['price'],
                 'currency' => $pricedata['currency'],
                 'priceformatted' => $pricedata['priceformatted'],
+                'bufferwarmupminutes' => $bufferwarmupminutes,
+                'buffercooldownminutes' => $buffercooldownminutes,
             ];
         }
 

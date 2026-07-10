@@ -119,6 +119,10 @@ class slot_availability {
      * @param int $excludeanswerid booking answer id to ignore in overlap checks
      * @param int $excludemoveid pending move id to ignore (holder re-validating their own target)
      * @param array|null $holds pending holds to include in overlap checks
+     * @param int[] $excludeanswerids additional booking answer ids to ignore (e.g. all of a
+     *                                user's own active answers when re-validating their own
+     *                                selection, since a user can hold more than one answer for
+     *                                the same option via "book again")
      * @return int
      */
     public static function count_bookings(
@@ -127,12 +131,16 @@ class slot_availability {
         int $slotend,
         int $excludeanswerid = 0,
         int $excludemoveid = 0,
-        ?array $holds = null
+        ?array $holds = null,
+        array $excludeanswerids = []
     ): int {
         $count = 0;
 
         foreach (self::get_booked_slot_ranges_by_answer($optionid) as $answerid => $ranges) {
             if ($excludeanswerid > 0 && $answerid === $excludeanswerid) {
+                continue;
+            }
+            if (in_array($answerid, $excludeanswerids, true)) {
                 continue;
             }
 
@@ -170,6 +178,117 @@ class slot_availability {
         }
 
         return $count;
+    }
+
+    /**
+     * Whether a candidate slot's warmup/cooldown buffer collides with the buffer of any other
+     * currently booked slot (or pending hold) of the same option.
+     *
+     * Buffer settings are per-option (booking_slot_config), so both sides of every comparison
+     * share the same warmup/cooldown/combination-mode. If both minutes are 0 this is a no-op
+     * (per the "0 = disabled, no performance impact" requirement) and short-circuits before
+     * touching the booked-slot cache.
+     *
+     * @param int $optionid booking option id
+     * @param int $slotstart candidate slot start timestamp
+     * @param int $slotend candidate slot end timestamp
+     * @param int $excludeanswerid booking answer id to ignore (re-validating one's own slot)
+     * @param int $excludemoveid pending move id to ignore (holder re-validating their own target)
+     * @param array|null $holds pending holds to include; resolved from the store when null
+     * @param int[] $excludeanswerids additional booking answer ids to ignore (see count_bookings())
+     * @return bool
+     */
+    public static function has_buffer_conflict(
+        int $optionid,
+        int $slotstart,
+        int $slotend,
+        int $excludeanswerid = 0,
+        int $excludemoveid = 0,
+        ?array $holds = null,
+        array $excludeanswerids = []
+    ): bool {
+        $config = self::get_slot_config($optionid);
+        if (empty($config)) {
+            return false;
+        }
+
+        $warmup = max(0, (int)($config->buffer_warmup_minutes ?? 0));
+        $cooldown = max(0, (int)($config->buffer_cooldown_minutes ?? 0));
+        if ($warmup <= 0 && $cooldown <= 0) {
+            return false;
+        }
+
+        $mode = (string)($config->buffer_combination_mode ?? buffer_math::MODE_SUMMED);
+        if (!in_array($mode, [buffer_math::MODE_SUMMED, buffer_math::MODE_OVERLAP], true)) {
+            $mode = buffer_math::MODE_SUMMED;
+        }
+        $strategy = buffer_math::create_strategy($mode);
+
+        foreach (self::get_booked_slot_ranges_by_answer($optionid) as $answerid => $ranges) {
+            if ($excludeanswerid > 0 && $answerid === $excludeanswerid) {
+                continue;
+            }
+            if (in_array($answerid, $excludeanswerids, true)) {
+                continue;
+            }
+
+            foreach ($ranges as $range) {
+                if (self::slot_buffers_collide($slotstart, $slotend, $warmup, $cooldown, $range, $strategy)) {
+                    return true;
+                }
+            }
+        }
+
+        // Pending holds occupy their target slot for the duration of checkout (see count_bookings),
+        // so their buffer must be respected too, or two concurrent checkouts could land back-to-back.
+        $holds = $holds ?? slot_move_store::get_active_holds_for_option($optionid);
+        foreach ($holds as $hold) {
+            if ($excludemoveid > 0 && $hold['moveid'] === $excludemoveid) {
+                continue;
+            }
+
+            foreach ($hold['slots'] as $range) {
+                if (self::slot_buffers_collide($slotstart, $slotend, $warmup, $cooldown, $range, $strategy)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Small adapter around buffer_math::collides() for the ['start' => int, 'end' => int] range
+     * shape used throughout this class. Both sides share the same warmup/cooldown, since buffer
+     * settings are per-option, not per-slot.
+     *
+     * @param int $slotstart candidate slot start timestamp
+     * @param int $slotend candidate slot end timestamp
+     * @param int $warmupminutes option's warmup minutes
+     * @param int $cooldownminutes option's cooldown minutes
+     * @param array $range other booking's range (['start' => int, 'end' => int])
+     * @param buffer_combination_strategy $strategy combination-mode strategy
+     * @return bool
+     */
+    private static function slot_buffers_collide(
+        int $slotstart,
+        int $slotend,
+        int $warmupminutes,
+        int $cooldownminutes,
+        array $range,
+        buffer_combination_strategy $strategy
+    ): bool {
+        return buffer_math::collides(
+            $slotstart,
+            $slotend,
+            $warmupminutes,
+            $cooldownminutes,
+            (int)($range['start'] ?? 0),
+            (int)($range['end'] ?? 0),
+            $warmupminutes,
+            $cooldownminutes,
+            $strategy
+        );
     }
 
     /**
@@ -342,6 +461,31 @@ class slot_availability {
     }
 
     /**
+     * Whether the user can still buy additional slots for this option, i.e. the number of slots
+     * they currently hold (across all of their own active answers, which can be more than one -
+     * see get_active_answer_ids_for_user()) is below the option's max_slots_per_user.
+     *
+     * Used to let a user keep purchasing separate slots up to that limit (e.g. buying several
+     * "phases" over time) even once they already hold at least one - unlike the generic
+     * multiplebookings setting, which is a time-based re-booking gate, not a capacity one.
+     *
+     * @param int $optionid booking option id
+     * @param int $userid user id
+     * @return bool
+     */
+    public static function has_remaining_slot_capacity(int $optionid, int $userid): bool {
+        $config = self::get_slot_config($optionid);
+        if (empty($config)) {
+            return false;
+        }
+
+        $maxslots = max(1, (int)($config->max_slots_per_user ?? 1));
+        $bookedcount = count(self::get_booked_slot_key_set_for_user($optionid, $userid));
+
+        return $bookedcount < $maxslots;
+    }
+
+    /**
      * Returns true if slot has capacity remaining and teacher constraints are met.
      *
      * @param int $optionid booking option id
@@ -388,6 +532,7 @@ class slot_availability {
      * @param bool $uselivedata whether to query live (uncached) booking data
      * @param array|null $holds pending holds to include in overlap checks
      * @param array|null $assignedteachers pre-resolved assigned teachers for this slot
+     * @param int[] $excludeanswerids additional booking answer ids to ignore (see count_bookings())
      * @return array
      */
     public static function evaluate_slot_for_user(
@@ -400,7 +545,8 @@ class slot_availability {
         int $excludemoveid = 0,
         bool $uselivedata = false,
         ?array $holds = null,
-        ?array $assignedteachers = null
+        ?array $assignedteachers = null,
+        array $excludeanswerids = []
     ): array {
         global $CFG;
 
@@ -434,8 +580,35 @@ class slot_availability {
             return $result;
         }
 
+        // Warmup/cooldown buffer: this slot must not fall within the preparation/follow-up
+        // window of another booked slot (or pending hold) of the same option. No-op when both
+        // buffer minutes are 0 (see has_buffer_conflict()).
+        if (
+            self::has_buffer_conflict(
+                $optionid,
+                $slotstart,
+                $slotend,
+                $excludeanswerid,
+                $excludemoveid,
+                $holds,
+                $excludeanswerids
+            )
+        ) {
+            $result['status'] = 'unavailable';
+            $result['errormessage'] = get_string('slot_error_buffer_conflict', 'mod_booking');
+            return $result;
+        }
+
         $maxparticipants = max(1, (int)$config->max_participants_per_slot);
-        $bookings = self::count_bookings($optionid, $slotstart, $slotend, $excludeanswerid, $excludemoveid, $holds);
+        $bookings = self::count_bookings(
+            $optionid,
+            $slotstart,
+            $slotend,
+            $excludeanswerid,
+            $excludemoveid,
+            $holds,
+            $excludeanswerids
+        );
         if ($bookings >= $maxparticipants) {
             $result['status'] = 'full';
             $result['errormessage'] = get_string('slot_error_selected_unavailable', 'mod_booking');
@@ -732,9 +905,32 @@ class slot_availability {
             return [];
         }
 
-        $interval = ((string)$config->slot_type === 'rolling')
-            ? ((int)$config->slot_interval_minutes * MINSECS)
-            : $duration;
+        // Fixed slots bake the option's warmup/cooldown buffer directly into the grid's
+        // cadence (cycle = warmup + duration + gap-to-next-slot), so the schedule's rhythm
+        // never depends on which slots end up booked; it only depends on configuration. With
+        // warmup = cooldown = 0 this degenerates to the original duration-only cadence, so
+        // existing options (and the 0-cost acceptance criterion) are unaffected.
+        // Rolling slots keep their own explicit interval (denser, overlapping candidate start
+        // times by design) and are guarded dynamically by has_buffer_conflict() instead.
+        $warmupseconds = 0;
+        $cooldownseconds = 0;
+        $interval = $duration;
+        if ((string)$config->slot_type === 'fixed') {
+            $warmupminutes = max(0, (int)($config->buffer_warmup_minutes ?? 0));
+            $cooldownminutes = max(0, (int)($config->buffer_cooldown_minutes ?? 0));
+            $combinationmode = (string)($config->buffer_combination_mode ?? buffer_math::MODE_SUMMED);
+            if (!in_array($combinationmode, [buffer_math::MODE_SUMMED, buffer_math::MODE_OVERLAP], true)) {
+                $combinationmode = buffer_math::MODE_SUMMED;
+            }
+            $strategy = buffer_math::create_strategy($combinationmode);
+
+            $warmupseconds = $warmupminutes * MINSECS;
+            $cooldownseconds = $cooldownminutes * MINSECS;
+            $gapseconds = $strategy->required_gap($cooldownminutes, $warmupminutes) * MINSECS;
+            $interval = $duration + $gapseconds;
+        } else if ((string)$config->slot_type === 'rolling') {
+            $interval = (int)$config->slot_interval_minutes * MINSECS;
+        }
 
         if ($interval <= 0) {
             $interval = $duration;
@@ -760,15 +956,13 @@ class slot_availability {
                 $dayopen = $daycursor + $openingseconds;
                 $dayclose = $daycursor + $closingseconds;
 
-                for ($slotstart = $dayopen; $slotstart + $duration <= $dayclose; $slotstart += $interval) {
+                for (
+                    $cyclestart = $dayopen;
+                    $cyclestart + $warmupseconds + $duration + $cooldownseconds <= $dayclose;
+                    $cyclestart += $interval
+                ) {
+                    $slotstart = $cyclestart + $warmupseconds;
                     $slotend = $slotstart + $duration;
-
-                    // Keep a slot that is still running: only drop it once it has fully ended
-                    // before the range start (mirrors the session overlap rule above). A slot
-                    // that has already started but not yet ended (start < rangestart < end) stays
-                    // a candidate; whether it is actually bookable is decided separately by the
-                    // occupancy/status layer (get_slots_with_status_for_range), so an already
-                    // booked or full slot is never offered as open.
                     if ($slotend <= $rangestart || $slotend > $rangeend) {
                         continue;
                     }
@@ -847,37 +1041,35 @@ class slot_availability {
     /**
      * Return booked slot ranges that overlap with the given day window.
      *
+     * Every range is tagged with 'mine' (true for the given user's own bookings, false for
+     * ranges booked by other users) so callers can render "your booking" separately from a
+     * generic "not bookable" area. Own ranges take precedence when a range key is booked by
+     * both the current user and (in a shared-capacity slot) someone else.
+     *
      * @param int $optionid booking option id
      * @param int $daystart start of day timestamp
      * @param int $dayend end of day timestamp
-     * @param int $userid
-     * @return array
+     * @param int $userid current user id, 0 if none
+     * @return array<int, array{start: int, end: int, mine: bool}>
      */
     public static function get_booked_ranges_for_day(int $optionid, int $daystart, int $dayend, int $userid = 0): array {
         $result = [];
 
-        if ($userid > 0) {
-            $slotkeyset = self::get_booked_slot_key_set_for_user($optionid, $userid);
-            foreach (array_keys($slotkeyset) as $key) {
-                [$start, $end] = array_map('intval', explode(':', $key, 2));
-                if ($end <= $start || !self::slots_overlap($start, $end, $daystart, $dayend)) {
-                    continue;
-                }
-
-                $result[$key] = [
-                    'start' => $start,
-                    'end' => $end,
-                ];
+        $ownkeyset = $userid > 0 ? self::get_booked_slot_key_set_for_user($optionid, $userid) : [];
+        foreach (array_keys($ownkeyset) as $key) {
+            [$start, $end] = array_map('intval', explode(':', $key, 2));
+            if ($end <= $start || !self::slots_overlap($start, $end, $daystart, $dayend)) {
+                continue;
             }
 
-            return array_values($result);
+            $result[$key] = [
+                'start' => $start,
+                'end' => $end,
+                'mine' => true,
+            ];
         }
 
         $rangesbyanswer = self::get_booked_slot_ranges_by_answer($optionid);
-        if (empty($rangesbyanswer)) {
-            return [];
-        }
-
         foreach ($rangesbyanswer as $ranges) {
             foreach ($ranges as $range) {
                 $start = (int)($range['start'] ?? 0);
@@ -887,9 +1079,15 @@ class slot_availability {
                 }
 
                 $key = $start . ':' . $end;
+                if (isset($result[$key])) {
+                    // Already recorded as the current user's own booking.
+                    continue;
+                }
+
                 $result[$key] = [
                     'start' => $start,
                     'end' => $end,
+                    'mine' => false,
                 ];
             }
         }
@@ -1455,6 +1653,75 @@ class slot_availability {
         }
 
         return $starta < $endb && $enda > $startb;
+    }
+
+    /**
+     * Whether any two ranges in the given list overlap in time.
+     *
+     * A single submission can select several ranges at once (see slot_config
+     * max_slots_per_user); each range is normally checked individually against the option's
+     * existing bookings, which does not catch two ranges from the *same* submission
+     * overlapping each other, since neither is in the database yet. Call this before
+     * persisting a multi-slot selection to reject that invalid combination.
+     *
+     * @param array $ranges list of [start, end] pairs
+     * @return bool
+     */
+    public static function ranges_overlap_internally(array $ranges): bool {
+        $count = count($ranges);
+        for ($i = 0; $i < $count; $i++) {
+            [$starta, $enda] = $ranges[$i];
+            for ($j = $i + 1; $j < $count; $j++) {
+                [$startb, $endb] = $ranges[$j];
+                if (self::slots_overlap((int)$starta, (int)$enda, (int)$startb, (int)$endb)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Returns the ids of all of the user's own currently active booking answers for this option.
+     *
+     * Used to exclude the user's own already-reserved/booked slot(s) from conflict checks when
+     * re-validating a selection that was already persisted (e.g. re-checking a cached selection
+     * after it was added to the shopping cart) - without this, a user's own booking is counted
+     * as an occupant against itself, making an already-booked slot look unavailable. Returns
+     * every active answer, not just one: "book again" (multiplebookings) lets a user hold more
+     * than one active answer for the same option at once.
+     *
+     * @param int $optionid booking option id
+     * @param int $userid user id
+     * @return int[] booking answer ids, empty if the user has no active answer for this option
+     */
+    public static function get_active_answer_ids_for_user(int $optionid, int $userid): array {
+        if ($optionid <= 0 || $userid <= 0) {
+            return [];
+        }
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        if (empty($settings)) {
+            return [];
+        }
+
+        $answerids = [];
+        $answersobject = singleton_service::get_instance_of_booking_answers($settings);
+        foreach ($answersobject->get_answers() as $answer) {
+            if ((int)($answer->userid ?? 0) !== $userid) {
+                continue;
+            }
+
+            $bookingstate = (int)($answer->waitinglist ?? MOD_BOOKING_STATUSPARAM_NOTBOOKED);
+            if (self::is_inactive_booking_state($bookingstate)) {
+                continue;
+            }
+
+            $answerids[] = (int)($answer->baid ?? 0);
+        }
+
+        return $answerids;
     }
 
     /**

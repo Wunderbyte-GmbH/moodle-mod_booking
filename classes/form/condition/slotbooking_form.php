@@ -253,7 +253,11 @@ class slotbooking_form extends dynamic_form {
             $mform->addElement('hidden', 'slot_custom_start', 0);
             $mform->setType('slot_custom_start', PARAM_INT);
 
-            $mform->setDefault('slot_validation_error_target', 'slot_custom_start');
+            // Unlike the other slot types, slot_custom_start is a hidden field and mform does not
+            // render inline error decoration for hidden elements. Target the visible slot_calendar_ui
+            // static element below instead (same as the calendar-view branch), so a server-side
+            // validation error is actually visible instead of silently swallowed.
+            $mform->setDefault('slot_validation_error_target', 'slot_calendar_ui');
 
             $durationoptions = self::get_custom_duration_options($config);
             $mform->addElement(
@@ -268,6 +272,12 @@ class slotbooking_form extends dynamic_form {
             $customdays = self::get_custom_open_days($optionid, $userid);
             $mform->addElement('hidden', 'slot_calendar_data', json_encode($customdays));
             $mform->setType('slot_calendar_data', PARAM_RAW_TRIMMED);
+
+            $mform->addElement('hidden', 'slot_legend_mine_label', get_string('slot_legend_mine', 'mod_booking'));
+            $mform->setType('slot_legend_mine_label', PARAM_TEXT);
+
+            $mform->addElement('hidden', 'slot_legend_blocked_label', get_string('slot_legend_blocked', 'mod_booking'));
+            $mform->setType('slot_legend_blocked_label', PARAM_TEXT);
 
             $calendarcontainer = html_writer::div('', 'booking-slot-calendar-picker', [
                 'data-region' => 'slot-calendar-picker',
@@ -372,9 +382,17 @@ class slotbooking_form extends dynamic_form {
         $maxslots = max(1, (int)($data['slot_max_selection'] ?? 1));
 
         $optionid = (int)($data['id'] ?? 0);
+        $userid = (int)($data['userid'] ?? 0);
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
         $config = $settings->slotconfig ?? null;
         $slottype = (string)($config->slot_type ?? 'fixed');
+
+        // Re-validating a selection already persisted as the user's own answer (e.g. after it
+        // was added to the shopping cart) must not count that answer as an occupant against
+        // itself, or an already-booked slot looks "no longer available" to its own owner.
+        // "Book again" (multiplebookings) lets a user hold more than one active answer for the
+        // same option at once, so every one of them must be excluded, not just the first.
+        $ownanswerids = slot_availability::get_active_answer_ids_for_user($optionid, $userid);
 
         if ($slottype === 'userdefined') {
             $start = (int)($data['slot_custom_start'] ?? 0);
@@ -401,7 +419,13 @@ class slotbooking_form extends dynamic_form {
                 return $errors;
             }
 
-            $evaluation = slot_availability::evaluate_slot_for_user($optionid, $start, $end, (int)($data['userid'] ?? 0));
+            $evaluation = slot_availability::evaluate_slot_for_user(
+                $optionid,
+                $start,
+                $end,
+                $userid,
+                excludeanswerids: $ownanswerids
+            );
             if (empty($evaluation['bookable'])) {
                 $errors[$errortarget] = (string)($evaluation['errormessage']
                     ?? get_string('slot_error_selected_unavailable', 'mod_booking'));
@@ -431,6 +455,7 @@ class slotbooking_form extends dynamic_form {
             return $errors;
         }
 
+        $parsedranges = [];
         foreach ($entries as $entry) {
             if (strpos($entry, ':') === false) {
                 $errors[$errortarget] = get_string('slot_error_selection_required', 'mod_booking');
@@ -442,6 +467,16 @@ class slotbooking_form extends dynamic_form {
                 $errors[$errortarget] = get_string('slot_error_selection_required', 'mod_booking');
                 return $errors;
             }
+
+            $parsedranges[] = [$start, $end];
+        }
+
+        // Each entry is normally checked only against the option's *existing* bookings; two
+        // ranges picked together in this same submission are not in the database yet, so that
+        // check alone would not catch them overlapping each other.
+        if (slot_availability::ranges_overlap_internally($parsedranges)) {
+            $errors[$errortarget] = get_string('slot_error_selection_overlap', 'mod_booking');
+            return $errors;
         }
 
         $teachersrequired = max(0, (int)($data['slot_teachers_required_count'] ?? 0));
@@ -462,7 +497,13 @@ class slotbooking_form extends dynamic_form {
 
             foreach ($entries as $entry) {
                 [$start, $end] = array_map('intval', explode(':', $entry, 2));
-                $evaluation = slot_availability::evaluate_slot_for_user($optionid, $start, $end, (int)($data['userid'] ?? 0));
+                $evaluation = slot_availability::evaluate_slot_for_user(
+                    $optionid,
+                    $start,
+                    $end,
+                    $userid,
+                    excludeanswerids: $ownanswerids
+                );
                 if (empty($evaluation['bookable'])) {
                     $errors[$errortarget] = (string)($evaluation['errormessage']
                         ?? get_string('slot_error_selected_unavailable', 'mod_booking'));
@@ -494,8 +535,9 @@ class slotbooking_form extends dynamic_form {
                 $optionid,
                 $start,
                 $end,
-                (int)($data['userid'] ?? 0),
-                $selectedteachers
+                $userid,
+                $selectedteachers,
+                excludeanswerids: $ownanswerids
             );
             if (empty($evaluation['bookable'])) {
                 $errors[$errortarget] = (string)($evaluation['errormessage']
@@ -573,12 +615,19 @@ class slotbooking_form extends dynamic_form {
 
         $lowerminutes = min($minminutes, $maxminutes);
         $upperminutes = min(max($minminutes, $maxminutes), $maxdays * DAYMINS);
-        $step = self::CUSTOM_SLOT_DURATION_STEP_MINUTES;
+        $step = max(1, (int)($config->slot_duration_step_minutes ?? self::CUSTOM_SLOT_DURATION_STEP_MINUTES));
 
         $options = [];
         for ($minutes = $lowerminutes; $minutes <= $upperminutes; $minutes += $step) {
             $seconds = $minutes * MINSECS;
             $options[$seconds] = format_time($seconds);
+        }
+
+        // If the step doesn't evenly divide the min/max range, still offer the configured
+        // maximum as the last option so it always remains selectable.
+        $uppersecondskey = $upperminutes * MINSECS;
+        if (!empty($options) && !array_key_exists($uppersecondskey, $options)) {
+            $options[$uppersecondskey] = format_time($uppersecondskey);
         }
 
         if (empty($options)) {

@@ -130,7 +130,7 @@ export const createHiddenInputSelection = (selectionInput, max) => {
  * @param {object} selection selection interface
  */
 const refreshTimelineBlock = (block, selection) => {
-    if (block.classList.contains('booking-slot--booked')) {
+    if (block.classList.contains('booking-slot--booked') || block.classList.contains('booking-slot--buffer')) {
         return;
     }
     const key = block.dataset.slotKey;
@@ -141,7 +141,11 @@ const refreshTimelineBlock = (block, selection) => {
 };
 
 /**
- * Render a day's slots as a proportional timeline (blocks positioned/sized by start/duration).
+ * Render a day's slots as a stacked list (each row a fixed/minimum height, not proportional
+ * to real elapsed time). Bookable rows never shrink below their readable minimum height; the
+ * container scrolls instead of compressing further. Buffer separators between/around slots
+ * are a constant, content-free height regardless of the configured warmup/cooldown minutes,
+ * so they cannot crowd out the bookable rows on a dense day.
  *
  * @param {HTMLElement} container
  * @param {Array<object>} daySlots slot DTOs for the active day
@@ -155,52 +159,29 @@ export const renderFixedSlotsEditor = async(container, daySlots, selection, time
         return;
     }
 
-    const openFrom = Math.min(...daySlots.map(s => Number(s.start || 0)));
-    const openUntil = Math.max(...daySlots.map(s => Number(s.end || 0)));
-    const span = openUntil - openFrom;
-    if (span <= 0) {
-        return;
-    }
-    const slotDurations = daySlots
-        .map(s => Number(s.end || 0) - Number(s.start || 0))
-        .filter(duration => duration > 0);
-    const shortestSlotDuration = Math.min(...slotDurations);
-    const minReadableSlotPx = 32;
-    const heightForShortestSlot = Math.round((span / shortestSlotDuration) * minReadableSlotPx);
-    const heightForSlotCount = 110 + (daySlots.length * 6);
-    const timelineHeight = Math.max(140, Math.min(420, Math.max(heightForShortestSlot, heightForSlotCount)));
-    // Smallest gap between consecutive slot starts: the readability floor must never exceed it,
-    // otherwise back-to-back slots would render taller than their grid spacing and overlap.
-    const sortedStarts = daySlots.map(s => Number(s.start || 0)).sort((a, b) => a - b);
-    let minStartGap = span;
-    for (let i = 1; i < sortedStarts.length; i++) {
-        const gap = sortedStarts[i] - sortedStarts[i - 1];
-        if (gap > 0 && gap < minStartGap) {
-            minStartGap = gap;
-        }
-    }
-    const maxNonOverlapPercent = (minStartGap / span) * 100;
-    const minSlotHeightPercent = Math.min((minReadableSlotPx / timelineHeight) * 100, maxNonOverlapPercent);
+    // Buffer settings are per-option: every slot DTO carries the same warmup/cooldown minutes
+    // (see slot_dto::build_picker_slots()). A single constant-height separator stands in for
+    // "there is a buffer here" wherever one is configured — it is a static preview, not a
+    // per-booking conflict marker (that is handled separately by has_buffer_conflict()), and
+    // is deliberately not drawn to scale so a long buffer cannot dominate the list.
+    const hasWarmup = Number(daySlots[0]?.bufferwarmupminutes || 0) > 0;
+    const hasCooldown = Number(daySlots[0]?.buffercooldownminutes || 0) > 0;
+    const hasBuffer = hasWarmup || hasCooldown;
 
-    const labels = [];
-    const ticks = [];
-    const tickCandidates = [5 * 60, 10 * 60, 15 * 60, 20 * 60, 30 * 60, 3600, 2 * 3600, 3 * 3600];
-    const tickInterval = tickCandidates.find(c => span / c <= 8) || 3600;
-    const firstTick = Math.ceil(openFrom / tickInterval) * tickInterval;
-    for (let tick = firstTick; tick <= openUntil; tick += tickInterval) {
-        const top = ((tick - openFrom) / span) * 100;
-        labels.push({top, text: toTimeValue(tick, timeFormatter)});
-        ticks.push({top});
+    const sortedSlots = daySlots
+        .filter(slot => Number(slot.end || 0) > Number(slot.start || 0))
+        .sort((a, b) => Number(a.start || 0) - Number(b.start || 0));
+    if (sortedSlots.length === 0) {
+        return;
     }
 
     const blocks = [];
-    daySlots.forEach(slot => {
+    if (hasWarmup) {
+        blocks.push({key: 'buffer:leading', statusclass: 'booking-slot--buffer', buffer: true});
+    }
+    sortedSlots.forEach((slot, index) => {
         const slotStart = Number(slot.start || 0);
         const slotEnd = Number(slot.end || 0);
-        if (slotEnd <= slotStart) {
-            return;
-        }
-
         const isBooked = String(slot.status || '') === 'booked' || slot.selectable === false;
         const key = String(slot.key || `${slotStart}:${slotEnd}`);
         if (isBooked) {
@@ -218,8 +199,6 @@ export const renderFixedSlotsEditor = async(container, daySlots, selection, time
 
         blocks.push({
             key,
-            top: ((slotStart - openFrom) / span) * 100,
-            height: Math.max(minSlotHeightPercent, ((slotEnd - slotStart) / span) * 100),
             statusclass: isBooked
                 ? 'booking-slot--booked'
                 : (selection.isSelected(key) ? 'booking-slot--selected' : 'booking-slot--available'),
@@ -229,20 +208,20 @@ export const renderFixedSlotsEditor = async(container, daySlots, selection, time
             priceformatted: (slotPrice > 0 && slot.priceformatted) ? String(slot.priceformatted) : '',
             teachers,
         });
+
+        const isLast = index === sortedSlots.length - 1;
+        if ((!isLast && hasBuffer) || (isLast && hasCooldown)) {
+            blocks.push({key: `buffer:${key}:trailing`, statusclass: 'booking-slot--buffer', buffer: true});
+        }
     });
 
-    const {html, js} = await Templates.renderForPromise('mod_booking/slotbooking/slot_grid_day', {
-        timelineheight: timelineHeight,
-        labels,
-        ticks,
-        blocks,
-    });
+    const {html, js} = await Templates.renderForPromise('mod_booking/slotbooking/slot_grid_day', {blocks});
     Templates.replaceNodeContents(container, html, js);
 
     container.querySelectorAll('.booking-slot').forEach(block => {
         // Reflect current/locked state for the move flow (no-op for the hidden-input adapter).
         refreshTimelineBlock(block, selection);
-        if (block.classList.contains('booking-slot--booked')) {
+        if (block.classList.contains('booking-slot--booked') || block.classList.contains('booking-slot--buffer')) {
             return;
         }
         const key = block.dataset.slotKey;

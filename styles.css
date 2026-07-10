@@ -708,6 +708,10 @@ div.checkbox:has(label[for^="id_bo_cond_allowedtobookininstance_capabilitynotnee
 .booking-slot-timeline--fixed {
     flex: 1 1 auto;
     min-width: 12rem;
+    display: flex;
+    flex-direction: column;
+    max-height: 420px;
+    overflow-y: auto;
 }
 
 .booking-slot-timeline--clickable {
@@ -736,10 +740,12 @@ div.checkbox:has(label[for^="id_bo_cond_allowedtobookininstance_capabilitynotnee
     pointer-events: none;
 }
 
-/* Fixed-grid slot blocks. */
+/* Fixed-grid slot blocks: stacked rows, not absolutely/proportionally positioned. Each
+   bookable row keeps this minimum height and never shrinks further; the timeline scrolls
+   instead (see .booking-slot-timeline--fixed). */
 .booking-slot {
-    left: 1px;
-    right: 1px;
+    flex: 0 0 auto;
+    min-height: 64px;
     overflow: hidden;
     padding: 2px 4px;
     border-top: 1px solid transparent;
@@ -764,6 +770,27 @@ div.checkbox:has(label[for^="id_bo_cond_allowedtobookininstance_capabilitynotnee
     background: rgba(108, 117, 125, 0.22);
     border-top-color: rgba(108, 117, 125, 0.8);
     cursor: default;
+}
+
+/* Warmup/cooldown buffer separator: a static, non-bookable, content-free marker that a
+   buffer applies here (see slot_day_renderers.js). Always the same small height regardless
+   of the configured minutes, deliberately not to scale, so it can never crowd out the
+   bookable rows on a dense day. Subdued grey so it recedes behind the actual slots. */
+.booking-slot--buffer {
+    flex: 0 0 auto;
+    min-height: 10px;
+    height: 10px;
+    padding: 0;
+    border-top: 1px solid rgba(73, 80, 87, 0.45);
+    background: repeating-linear-gradient(
+        45deg,
+        rgba(73, 80, 87, 0.22),
+        rgba(73, 80, 87, 0.22) 4px,
+        rgba(73, 80, 87, 0.42) 4px,
+        rgba(73, 80, 87, 0.42) 8px
+    );
+    cursor: default;
+    pointer-events: none;
 }
 
 /* The user's currently booked slot in the move timeline: a distinct ring on top of the
@@ -824,12 +851,62 @@ div.checkbox:has(label[for^="id_bo_cond_allowedtobookininstance_capabilitynotnee
     max-width: 10rem;
 }
 
-.booking-slot-booked-range {
+/* Timeline grows to a minimum of TIMELINE_MIN_PX_PER_HOUR per opening hour (see slotBooking.js)
+   so it stays readable on long opening windows; this wrapper caps how tall it can get on
+   screen and scrolls the rest, instead of stretching the page. */
+.booking-slot-timeline-wrapper--scroll {
+    max-height: 480px;
+    overflow-y: auto;
+}
+
+.booking-slot-legend-swatch {
+    display: inline-block;
+    width: 0.75rem;
+    height: 0.75rem;
+    border-radius: 2px;
+}
+
+.booking-slot-legend-swatch--mine {
+    background: rgba(73, 80, 87, 0.3);
+    border: 1px solid rgba(73, 80, 87, 0.7);
+}
+
+.booking-slot-legend-swatch--blocked {
+    background: repeating-linear-gradient(
+        45deg,
+        rgba(108, 117, 125, 0.3),
+        rgba(108, 117, 125, 0.3) 3px,
+        rgba(108, 117, 125, 0.5) 3px,
+        rgba(108, 117, 125, 0.5) 6px
+    );
+    border: 1px solid rgba(108, 117, 125, 0.6);
+}
+
+/* A range the current user already booked: a solid grey block, distinct from the blue
+   in-progress selection (.booking-slot-selection) and from the hatched --blocked pattern used
+   for other users' bookings, so all three read as different things at a glance. */
+.booking-slot-booked-range--mine {
     left: 0;
     right: 0;
-    background: rgba(220, 53, 69, 0.18);
-    border-top: 1px solid rgba(220, 53, 69, 0.35);
-    border-bottom: 1px solid rgba(220, 53, 69, 0.35);
+    background: rgba(73, 80, 87, 0.3);
+    border-top: 1px solid rgba(73, 80, 87, 0.7);
+    border-bottom: 1px solid rgba(73, 80, 87, 0.7);
+}
+
+/* A range booked by someone else: not selectable, styled as a neutral occupied area (matches
+   .booking-slot--booked used by the fixed/rolling grid) rather than an alarming red. */
+.booking-slot-booked-range--blocked {
+    left: 0;
+    right: 0;
+    background: repeating-linear-gradient(
+        45deg,
+        rgba(108, 117, 125, 0.16),
+        rgba(108, 117, 125, 0.16) 4px,
+        rgba(108, 117, 125, 0.28) 4px,
+        rgba(108, 117, 125, 0.28) 8px
+    );
+    border-top: 1px solid rgba(108, 117, 125, 0.6);
+    border-bottom: 1px solid rgba(108, 117, 125, 0.6);
 }
 
 .booking-slot-selection {
