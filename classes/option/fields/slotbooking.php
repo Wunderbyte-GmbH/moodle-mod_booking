@@ -676,9 +676,10 @@ class slotbooking extends field_base {
                 $data->slot_change_deadline_minutes = $config->change_deadline_minutes === null
                     ? ''
                     : (int)$config->change_deadline_minutes;
-                $data->slot_add_examiners = !empty($config->teacher_pool) || !empty($config->teachers_required) ? 1 : 0;
 
                 $pool = json_decode((string)$config->teacher_pool, true);
+                $data->slot_add_examiners = !empty($pool) || !empty($config->teachers_required) ? 1 : 0;
+
                 if (is_array($pool)) {
                     $data->slot_teacher_pool = array_values(array_map('intval', $pool));
                     foreach ($data->slot_teacher_pool as $teacherid) {
