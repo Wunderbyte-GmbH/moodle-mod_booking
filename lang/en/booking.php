@@ -2335,6 +2335,7 @@ $string['nobookinginstancesexist'] = 'No booking instances exist yet';
 $string['nobookingpossible'] = 'No booking possible.';
 $string['nobookingselected'] = 'No booking option selected';
 $string['nocancelreason'] = "You need to give a reason for canceling this booking option";
+$string['nocapabilitytoaccesspage'] = 'Your role does not have the necessary capability to access this page.';
 $string['nocfnameselected'] = "Nothing selected. Either type new name or select one from the list.";
 $string['nocmidselected'] = 'No cmid was selected';
 $string['nocomments'] = 'Commenting disabled';
@@ -2352,7 +2353,6 @@ $string['nodirectbookingbecauseofprice'] = 'Booking for others is only partially
     <li>the waiting list is not globally deactivated</li>
     </ul>
     The intention of this behaviour is to prevent "mixed" bookings with and without shopping cart. Please use shopping cart cashier function to book users.';
-$string['nocapabilitytoaccesspage'] = 'Your role does not have the necessary capability to access this page.';
 $string['noelement'] = "No element";
 $string['noeventtypeselected'] = 'No event type selected';
 $string['nofieldchosen'] = 'No field chosen';

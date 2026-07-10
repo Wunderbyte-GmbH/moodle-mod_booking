@@ -2280,6 +2280,7 @@ $string['nobookinginstancesexist'] = 'Keine Buchungsinstanz vorhanden';
 $string['nobookingpossible'] = 'Keine Buchung möglich.';
 $string['nobookingselected'] = 'Keine Buchungsoption ausgewählt';
 $string['nocancelreason'] = "Sie müssen eine Grund für die Stornierung angeben";
+$string['nocapabilitytoaccesspage'] = 'Ihre Rolle verfügt nicht über die notwendige Berechtigung, um auf diese Seite zuzugreifen.';
 $string['nocfnameselected'] = "Nichts ausgewählt. Tippen Sie einen neuen Namen oder wählen Sie einen aus der Liste.";
 $string['nocmidselected'] = 'Keine cmid wurde ausgewählt';
 $string['nocomments'] = 'Kommentare deaktiviert';
@@ -2297,7 +2298,6 @@ $string['nodirectbookingbecauseofprice'] = 'Das Buchen von anderen ist bei diese
 <li>die Warteliste ist global nicht deaktiivert</li>
 </ul>
 Der Zweck dieses Verhaltens ist es, "gemischte" Buchungen mit und ohne Warenkorb zu verhindern. Bitte verwenden Sie die Kassierfunktion des Warenkorbs, um Benutzer:innen zu buchen.';
-$string['nocapabilitytoaccesspage'] = 'Ihre Rolle verfügt nicht über die notwendige Berechtigung, um auf diese Seite zuzugreifen.';
 $string['noelement'] = "Kein Element";
 $string['noeventtypeselected'] = 'Keine Ereignisart ausgewählt';
 $string['nofieldchosen'] = 'Kein Feld ausgewählt';
