@@ -664,6 +664,10 @@ if (!$tableallbookings->is_downloading()) {
                 break;
             case 'timecreated':
                 $columns[] = 'timecreated';
+                $headers[] = get_string('timecreated', 'mod_booking');
+                break;
+            case 'timebooked':
+                $columns[] = 'timebooked';
                 $headers[] = get_string('bookingdate', 'mod_booking');
                 break;
             case 'institution':
@@ -894,6 +898,7 @@ if (!$tableallbookings->is_downloading()) {
             ba.completed,
             ba.status,
             ba.timecreated,
+            ba.timebooked,
             ba.userid,
             ba.waitinglist,
             ba.notes,
