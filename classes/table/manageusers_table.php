@@ -393,12 +393,13 @@ class manageusers_table extends wunderbyte_table {
         // If booking option is booked with a price, we don't book directly but just allow to book.
         // Exeption: The booking is autoenrol and needs to be booked directly...
         // In this case price can be given for bookingoption, but was already payed before.
+        $erwaitinglist = enrollink::enrolmentstatus_waitinglist($settings);
         if (
             !empty($settings->jsonobject->useprice)
             && (isset($userprice['price']) && $userprice['price'] != 0)
             && empty(get_config('booking', 'turnoffwaitinglist'))
             && (
-                $erwaitinglist = enrollink::enrolmentstatus_waitinglist($settings) === false
+                $erwaitinglist === false
                 || enrollink::is_initial_answer($record) === true
             ) // Only the initial answer of enrollink needs to be bought.
         ) {

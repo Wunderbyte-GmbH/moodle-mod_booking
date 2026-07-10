@@ -48,25 +48,37 @@ $PAGE->navbar->add(get_string('availabilityconditionsdashboard', 'mod_booking'),
 
 $statehelper = new condition_state_helper();
 
+$conditions = bo_info::get_skippable_conditions();
+ksort($conditions, SORT_NUMERIC);
+
 if (optional_param('save', 0, PARAM_BOOL) && confirm_sesskey()) {
     $submittedstates = optional_param_array('state', [], PARAM_INT);
+    $submittedenrollinkskips = optional_param_array('enrollinkskip', [], PARAM_INT);
     $savedstates = [];
 
-    foreach ($submittedstates as $conditionid => $state) {
-        $state = (int)$state;
-        if (in_array($state, [condition_state_helper::STATE_FREEZE, condition_state_helper::STATE_SKIP_AND_FREEZE], true)) {
-            $savedstates[(int)$conditionid] = [
-                'skipstate' => $state,
-            ];
+    // Persist every known condition explicitly (also inactive/unchecked ones), so the legacy
+    // fallbacks in condition_state_helper no longer apply once the dashboard has been saved.
+    foreach (array_keys($conditions) as $conditionid) {
+        $conditionid = (int)$conditionid;
+        $state = (int)($submittedstates[$conditionid] ?? condition_state_helper::STATE_INACTIVE);
+        if (
+            !in_array(
+                $state,
+                [condition_state_helper::STATE_FREEZE, condition_state_helper::STATE_SKIP_AND_FREEZE],
+                true
+            )
+        ) {
+            $state = condition_state_helper::STATE_INACTIVE;
         }
+        $savedstates[$conditionid] = [
+            'skipstate' => $state,
+            'enrollinkskip' => !empty($submittedenrollinkskips[$conditionid]),
+        ];
     }
 
     set_config('availabilityconditionsettings', json_encode($savedstates), 'booking');
     redirect($pageurl, get_string('changessaved'), null, \core\output\notification::NOTIFY_SUCCESS);
 }
-
-$conditions = bo_info::get_skippable_conditions();
-ksort($conditions, SORT_NUMERIC);
 
 // Map condition IDs to their first anchor on the plugin settings page.
 // The Moodle admin settings page renders each setting with id="admin-<key>".
@@ -109,6 +121,11 @@ echo \html_writer::tag(
     ) .
     \html_writer::tag(
         'th',
+        get_string('availabilityconditionsenrollinkcolumn', 'mod_booking') .
+        $OUTPUT->help_icon('availabilityconditionsenrollinkcolumn', 'mod_booking')
+    ) .
+    \html_writer::tag(
+        'th',
         get_string('availabilityconditionssettingscolumn', 'mod_booking') .
         $OUTPUT->help_icon('availabilityconditionssettingscolumn', 'mod_booking')
     )
@@ -133,6 +150,18 @@ foreach ($conditions as $conditionid => $conditionname) {
         ['class' => 'custom-select']
     );
 
+    $enrollinkattributes = [
+        'type' => 'checkbox',
+        'name' => 'enrollinkskip[' . $conditionid . ']',
+        'value' => 1,
+        'class' => 'form-check-input position-static',
+        'aria-label' => get_string('availabilityconditionsenrollinkcolumn', 'mod_booking'),
+    ];
+    if ($statehelper->is_enrollink_skipped($conditionid)) {
+        $enrollinkattributes['checked'] = 'checked';
+    }
+    $enrollinkcheckbox = \html_writer::empty_tag('input', $enrollinkattributes);
+
     if (isset($conditionsettingsanchors[$conditionid])) {
         $settingsurl = clone $adminsettingsbaseurl;
         $settingsurl->set_anchor('admin-' . $conditionsettingsanchors[$conditionid]);
@@ -149,6 +178,7 @@ foreach ($conditions as $conditionid => $conditionname) {
         'tr',
         \html_writer::tag('td', s($conditionname)) .
         \html_writer::tag('td', $select) .
+        \html_writer::tag('td', $enrollinkcheckbox) .
         \html_writer::tag('td', $settingscell)
     );
 }

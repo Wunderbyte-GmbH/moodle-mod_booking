@@ -1477,8 +1477,8 @@ class booking_option {
             // For enrollink bookings, check_if_limit() only respects $isavailable when the option is full.
             // When slots are free it always returns BOOKED, bypassing hard-blocking conditions like selectusers.
             // If a real condition blocks (i.e. not just the book-it-button or price), we must enforce that here.
-            // Conditions listed in enrollinkskipconditions are already excluded via exclude_conditions(), so they
-            // will not affect $isavailable and the booking proceeds as intended.
+            // Conditions flagged for enrollink skip (dashboard flag or legacy enrollinkskipconditions) are already
+            // excluded via exclude_conditions(), so they will not affect $isavailable and the booking proceeds.
             if (!empty($erlid) && !$isavailable) {
                 return false;
             }
@@ -1684,8 +1684,8 @@ class booking_option {
             if (empty($erlid)) {
                 // Param $erlid might be empty if this is a booking confirmation. In this case, we fetch it from the answer.
                 $bajson = $DB->get_field('booking_answers', 'json', ['id' => $baid]);
-                $data = json_decode($bajson);
-                if (isset($erlid)) {
+                $data = json_decode($bajson ?: '');
+                if (!empty($data->erlid)) {
                     $erlid = $data->erlid;
                 }
             }

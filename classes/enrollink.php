@@ -596,6 +596,9 @@ class enrollink {
             return false;
         }
         $data = json_decode($answer->json);
+        if (empty($data->condition_customform)) {
+            return false;
+        }
         foreach ($data->condition_customform as $key => $value) {
             if (
                 strpos($key, 'customform_enroluserwhobookedcheckbox_enrolusersaction') === 0

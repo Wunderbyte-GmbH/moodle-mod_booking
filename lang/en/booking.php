@@ -434,6 +434,8 @@ $string['availability'] = 'Availability';
 $string['availabilityconditions'] = 'Availability conditions';
 $string['availabilityconditionsdashboard'] = 'Availability conditions';
 $string['availabilityconditionsdashboard_desc'] = 'Manage whether each availability condition is inactive, frozen, or skipped and frozen. Existing skip settings remain readable for backwards compatibility until the new dashboard is saved.';
+$string['availabilityconditionsenrollinkcolumn'] = 'Skip for enrolment link';
+$string['availabilityconditionsenrollinkcolumn_help'] = 'If checked, this availability condition is bypassed when a user books via an enrolment link. Regular bookings are not affected: the condition is still checked there according to its state in the "Skip/Freeze Condition" column, and its form fields are not locked.';
 $string['availabilityconditionsheader'] = '<i class="fa fa-fw fa-key" aria-hidden="true"></i>&nbsp;Availability conditions';
 $string['availabilityconditionslegacynotice'] = 'Legacy skip settings are still active on this site. Saving the dashboard will migrate the current selection into the new state model.';
 $string['availabilityconditionssettingscolumn'] = 'Specific Settings';

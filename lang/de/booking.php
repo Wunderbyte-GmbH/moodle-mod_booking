@@ -429,6 +429,8 @@ $string['availability'] = 'Verfügbarkeit';
 $string['availabilityconditions'] = 'Verfügbarkeit einschränken';
 $string['availabilityconditionsdashboard'] = 'Verfügbarkeitsbedingungen';
 $string['availabilityconditionsdashboard_desc'] = 'Verwalten Sie pro Verfügbarkeitsbedingung, ob sie Standard, nur eingefroren oder übersprungen und eingefroren ist. Bestehende Skip-Einstellungen bleiben aus Gründen der Rückwärtskompatibilität lesbar, bis das neue Dashboard gespeichert wurde.';
+$string['availabilityconditionsenrollinkcolumn'] = 'Bei Einschreibelink überspringen';
+$string['availabilityconditionsenrollinkcolumn_help'] = 'Wenn angehakt, wird diese Verfügbarkeitsbedingung umgangen, wenn eine Buchung über einen Einschreibelink erfolgt. Normale Buchungen sind nicht betroffen: Dort wird die Bedingung weiterhin gemäß ihrem Zustand in der Spalte "Skip/Freeze-Bedingung" geprüft, und ihre Formularfelder werden nicht gesperrt.';
 $string['availabilityconditionsheader'] = '<i class="fa fa-fw fa-key" aria-hidden="true"></i>&nbsp;Verfügbarkeit einschränken';
 $string['availabilityconditionslegacynotice'] = 'Legacy-Skip-Einstellungen sind auf dieser Seite noch aktiv. Beim Speichern des Dashboards wird die aktuelle Auswahl in das neue Zustandsmodell migriert.';
 $string['availabilityconditionssettingscolumn'] = 'Spezifische Einstellungen';
