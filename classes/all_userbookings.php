@@ -99,6 +99,20 @@ class all_userbookings extends \table_sql {
     }
 
     /**
+     * This function is called for each data row to allow processing of the timebooked value.
+     * @param object $values
+     * @return string
+     * @throws coding_exception
+     */
+    protected function col_timebooked($values) {
+        if ($values->timebooked > 0) {
+            return userdate($values->timebooked);
+        }
+
+        return '';
+    }
+
+    /**
      * For status column.
      * @param object $values
      * @return string

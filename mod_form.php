@@ -519,6 +519,7 @@ class mod_booking_mod_form extends moodleform_mod {
             'places' => get_string('places', 'mod_booking'),
             'fullname' => get_string('fullname', 'mod_booking'),
             'timecreated' => get_string('timecreated', 'mod_booking'),
+            'timebooked' => get_string('timebooked', 'mod_booking'),
             'institution' => get_string('institution', 'mod_booking'),
             'waitinglist' => get_string('searchwaitinglist', 'mod_booking'),
             'city' => new lang_string('city'),
