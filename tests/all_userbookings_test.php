@@ -259,4 +259,69 @@ final class all_userbookings_test extends booking_advanced_testcase {
             // Type 'enrolusersaction' skipped because dedicated tests already available - rules_enrollink_test.
         ];
     }
+
+    /**
+     * Covers col_timecreated and col_timebooked: a zero/empty timestamp must render
+     * as an empty string, while a real timestamp must be formatted with userdate().
+     *
+     * @dataProvider col_time_columns_provider
+     * @covers \mod_booking\all_userbookings::col_timecreated
+     * @covers \mod_booking\all_userbookings::col_timebooked
+     *
+     * @param string $column
+     * @param int $timestamp
+     */
+    public function test_col_timecreated_and_col_timebooked(string $column, int $timestamp): void {
+        $this->setAdminUser();
+
+        $course = $this->getDataGenerator()->create_course();
+        $bookinginstance = $this->getDataGenerator()->create_module('booking', [
+            'name' => 'Booking for all_userbookings::col_' . $column,
+            'course' => $course->id,
+        ]);
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+
+        $record = new stdClass();
+        $record->bookingid = $bookinginstance->id;
+        $record->text = 'Option for col_' . $column;
+        $record->courseid = $course->id;
+        $record->coursestarttime_0 = strtotime('now + 1 day');
+        $record->courseendtime_0 = strtotime('now + 2 day');
+        $record->maxanswers = 5;
+        $record->maxoverbooking = 0;
+
+        $option = $plugingenerator->create_option($record);
+        $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
+
+        $bookingoptioninstance = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
+        $cm = get_coursemodule_from_id('booking', $settings->cmid, 0, false, MUST_EXIST);
+
+        $table = new all_userbookings('test-col-' . $column, $bookingoptioninstance, $cm, $settings->id);
+        // Only define the column under test, so format_row() dispatches to a single col_* method.
+        $table->define_columns([$column]);
+
+        $values = (object)[$column => $timestamp];
+        $formattedrow = $table->format_row($values);
+
+        $expected = $timestamp > 0 ? userdate($timestamp) : '';
+        $this->assertSame($expected, $formattedrow[$column]);
+    }
+
+    /**
+     * Data provider for test_col_timecreated_and_col_timebooked.
+     *
+     * @return array
+     */
+    public static function col_time_columns_provider(): array {
+        $timestamp = strtotime('2026-01-15 10:00:00');
+
+        return [
+            'timecreated with value' => ['timecreated', $timestamp],
+            'timecreated empty' => ['timecreated', 0],
+            'timebooked with value' => ['timebooked', $timestamp],
+            'timebooked empty' => ['timebooked', 0],
+        ];
+    }
 }
