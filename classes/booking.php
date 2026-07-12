@@ -2195,6 +2195,7 @@ class booking {
             MOD_BOOKING_PRESENCE_STATUS_NOSHOW => get_string('statusnoshow', 'mod_booking'),
             MOD_BOOKING_PRESENCE_STATUS_FAILED => get_string('statusfailed', 'mod_booking'),
             MOD_BOOKING_PRESENCE_STATUS_EXCUSED => get_string('statusexcused', 'mod_booking'),
+            MOD_BOOKING_PRESENCE_STATUS_CHECKEDIN => get_string('statuscheckedin', 'mod_booking'),
         ];
     }
 

@@ -488,6 +488,24 @@ $capabilities = [
             'manager' => CAP_ALLOW,
         ],
     ],
+    // SofaTicket: scan/verify entry tickets and check participants in (assignable to door/entry staff).
+    'mod/booking:scanticket' => [
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => [
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW,
+        ],
+    ],
+    // SofaTicket: view the entry overview/dashboard (full participant list with check-in times).
+    'mod/booking:viewticketreport' => [
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => [
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW,
+        ],
+    ],
     // Limited capability to edit own booking options.
     'mod/booking:limitededitownoption' => [
         'captype' => 'write',

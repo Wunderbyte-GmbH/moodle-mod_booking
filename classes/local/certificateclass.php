@@ -101,6 +101,59 @@ class certificateclass {
             return $id;
         }
         // Create Certificate.
+        $data = self::build_certificate_data($settings, $userid, $completeddate, $condition);
+        singleton_service::set_temp_values_for_certificates($settings->id, $userid, $condition->id ?? 0);
+        // Issue the certificate.
+        $id = $template->issue_certificate(
+            $userid,
+            $certificateexpirydate,
+            $data,
+            'tool_certificate',
+            empty($settings->courseid) ? null : $settings->courseid
+        );
+        // Get the issue and create the PDF.
+        $issue = $DB->get_record('tool_certificate_issues', ['id' => $id]);
+        $pdf = $template->create_issue_file($issue, false);
+        singleton_service::unset_temp_values_for_certificates();
+
+        // Get required options data for the event.
+        $requiredoptionsdata = self::get_required_options_data($settings, $userid);
+
+        // Trigger certificate issued event.
+        $event = \mod_booking\event\certificate_issued::create([
+            'context' => \context_module::instance($settings->cmid),
+            'objectid' => $id,
+            'relateduserid' => $userid,
+            'other' => [
+                'bookingoption_id' => $settings->id,
+                'bookingoption_name' => $settings->get_title_with_prefix(),
+                'required_options' => $requiredoptionsdata,
+            ],
+        ]);
+        $event->trigger();
+
+        return $id;
+    }
+
+    /**
+     * Build the data array (placeholders) passed to a tool_certificate issue for a booking option.
+     *
+     * Extracted so both the completion-coupled certificate flow and the entry-ticket flow
+     * (see \mod_booking\local\ticket\ticket_manager) share exactly the same placeholder set.
+     *
+     * @param booking_option_settings $settings
+     * @param int $userid
+     * @param int $completeddate
+     * @param stdClass|null $condition
+     *
+     * @return array
+     */
+    public static function build_certificate_data(
+        booking_option_settings $settings,
+        int $userid,
+        int $completeddate = 0,
+        ?stdClass $condition = null
+    ): array {
         $customfielddata = [];
         $customfields = booking_handler::get_customfields();
         foreach ($customfields as $customfield) {
@@ -145,43 +198,13 @@ class certificateclass {
             ];
         }
 
-        $data = array_merge(
+        return array_merge(
             $bookingoptionfields,
             $customfielddata,
             $conditionfields ?? []
         );
-        singleton_service::set_temp_values_for_certificates($settings->id, $userid, $condition->id ?? 0);
-        // Issue the certificate.
-        $id = $template->issue_certificate(
-            $userid,
-            $certificateexpirydate,
-            $data,
-            'tool_certificate',
-            empty($settings->courseid) ? null : $settings->courseid
-        );
-        // Get the issue and create the PDF.
-        $issue = $DB->get_record('tool_certificate_issues', ['id' => $id]);
-        $pdf = $template->create_issue_file($issue, false);
-        singleton_service::unset_temp_values_for_certificates();
-
-        // Get required options data for the event.
-        $requiredoptionsdata = self::get_required_options_data($settings, $userid);
-
-        // Trigger certificate issued event.
-        $event = \mod_booking\event\certificate_issued::create([
-            'context' => \context_module::instance($settings->cmid),
-            'objectid' => $id,
-            'relateduserid' => $userid,
-            'other' => [
-                'bookingoption_id' => $settings->id,
-                'bookingoption_name' => $settings->get_title_with_prefix(),
-                'required_options' => $requiredoptionsdata,
-            ],
-        ]);
-        $event->trigger();
-
-        return $id;
     }
+
     /**
      * Get required options data for the event.
      * Fetches all required booking options that need to be completed for certificate issuance.

@@ -228,6 +228,14 @@ $functions = [
         'capabilities'  => 'mod/booking:readresponses',
         'ajax'          => 1,
     ],
+    'mod_booking_verify_ticket' => [
+        'classname'     => 'mod_booking\external\verify_ticket',
+        'description'   => 'Verify an entry ticket by its QR code and check the participant in (SofaTicket)',
+        'type'          => 'write',
+        'capabilities'  => 'mod/booking:scanticket',
+        'ajax'          => 1,
+        'services'      => [MOODLE_OFFICIAL_MOBILE_SERVICE, 'moodle_mobile_app'],
+    ],
     'mod_booking_submit_performance' => [
         'classname'     => 'mod_booking\external\performance',
         'description' => 'Handle performance submit',

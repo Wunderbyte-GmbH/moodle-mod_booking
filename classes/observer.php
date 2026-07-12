@@ -39,6 +39,7 @@ use mod_booking\event\bookinganswer_notesedited;
 use mod_booking\local\calendar\calendar_helper;
 use mod_booking\local\certificateclass;
 use mod_booking\local\certificate_conditions\certificate_conditions;
+use mod_booking\local\ticket\ticket_manager;
 use mod_booking\local\checkanswers\checkanswers;
 use mod_booking\local\mobile\customformstore;
 use mod_booking\option\fields\certificate;
@@ -183,6 +184,21 @@ class mod_booking_observer {
 
         $optionid = $event->objectid;
         cache_helper::invalidate_by_event('setbackoptionsanswers', [$optionid]);
+
+        // SofaTicket: soft-cancel any entry ticket the cancelled user holds for this option.
+        // Not gated on is_enabled() so tickets issued earlier are still invalidated after the feature is turned off.
+        // cancel_ticket() is a safe no-op when tool_certificate is absent or the user holds no active ticket.
+        ticket_manager::cancel_ticket((int) $event->objectid, (int) $event->relateduserid);
+    }
+
+    /**
+     * Booking option booked: issue the entry ticket (SofaTicket) for the booked user.
+     *
+     * @param \mod_booking\event\bookingoption_booked $event
+     */
+    public static function bookingoption_booked(\mod_booking\event\bookingoption_booked $event) {
+        // Idempotent: issue_ticket() no-ops when the feature is disabled or unconfigured.
+        ticket_manager::issue_ticket((int) $event->objectid, (int) $event->relateduserid);
     }
 
     /**
