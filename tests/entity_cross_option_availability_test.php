@@ -1113,6 +1113,61 @@ final class entity_cross_option_availability_test extends booking_advanced_testc
     }
 
     /**
+     * Capacity mode: a slot booked on one slotbooking option must NOT block the overlapping slot of a
+     * second slotbooking option on the same entity while the shared capacity pool still has room. This
+     * is the difference from exclusive mode, where any overlap blocks.
+     *
+     * @covers \mod_booking\local\slotbooking\slot_availability::has_entity_conflict_for_slot
+     *
+     * @return void
+     */
+    public function test_capacity_booked_slot_does_not_block_overlapping_slot_within_pool(): void {
+        if (!\mod_booking\local\entities_compat::has_capacity_support()) {
+            $this->markTestSkipped('local_entities capacity API not available.');
+        }
+
+        // Capacity pool of 10 units on the shared entity.
+        [$booking, $course, $entityid, $optionb, $cmid, $student] = $this->create_entity_and_slot_option(
+            'Capacity court',
+            'capcourt',
+            'Slot option B',
+            ['allocationmode' => 'capacity', 'capacitysource' => 'maxanswers', 'maxallocation' => 10]
+        );
+
+        // Book one slot on option B (consumes a single unit of the pool).
+        [$bookedstart, $bookedend] = $this->book_first_slot($optionb->id, $cmid, $student);
+
+        // Second slot option D on the SAME entity, identical slot grid.
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $optiond = $plugingenerator->create_option(
+            (object)$this->slot_option_record($booking->id, $course->id, $entityid, 'Slot option D')
+        );
+
+        singleton_service::destroy_instance();
+        slot_availability::clear_request_cache();
+
+        $rangestart = strtotime('2050-01-07 00:00:00');
+        $rangeend = strtotime('2050-01-08 00:00:00');
+        $slots = slot_availability::get_slots_with_status_for_range($optiond->id, $rangestart, $rangeend);
+        $this->assertNotEmpty($slots, 'Slot option D should generate slots.');
+
+        $foundoverlap = false;
+        foreach ($slots as $slot) {
+            if (((int)$slot['start'] < $bookedend) && ((int)$slot['end'] > $bookedstart)) {
+                $foundoverlap = true;
+                $this->assertNotSame(
+                    'unavailable',
+                    $slot['status'],
+                    'Under capacity mode with pool remaining, an overlapping slot of option D must stay bookable.'
+                );
+            }
+        }
+
+        $this->assertTrue($foundoverlap, 'Expected one D slot overlapping the booked B slot.');
+    }
+
+    /**
      * Creates a booking + course + enrolled teacher + a capacity-mode entity.
      *
      * @param array $entityextra entity fields merged over the capacity defaults
@@ -1206,9 +1261,16 @@ final class entity_cross_option_availability_test extends booking_advanced_testc
      * @param string $entityname
      * @param string $shortname
      * @param string $optiontext
+     * @param array $entityoverride entity fields merged over the default exclusive/maxconcurrent=1
+     *                              set (e.g. allocationmode => 'capacity', maxallocation => 10)
      * @return array [booking, course, entityid, optionb, cmid, student]
      */
-    private function create_entity_and_slot_option(string $entityname, string $shortname, string $optiontext): array {
+    private function create_entity_and_slot_option(
+        string $entityname,
+        string $shortname,
+        string $optiontext,
+        array $entityoverride = []
+    ): array {
         global $CFG;
 
         require_once($CFG->dirroot . '/mod/booking/lib.php');
@@ -1244,13 +1306,13 @@ final class entity_cross_option_availability_test extends booking_advanced_testc
 
         /** @var \local_entities_generator $entitygenerator */
         $entitygenerator = self::getDataGenerator()->get_plugin_generator('local_entities');
-        $entityid = $entitygenerator->create_entities([
+        $entityid = $entitygenerator->create_entities(array_merge([
             'name' => $entityname,
             'shortname' => $shortname,
             'description' => 'Shared resource',
             'allocationmode' => 'exclusive',
             'maxconcurrent' => 1,
-        ]);
+        ], $entityoverride));
 
         /** @var mod_booking_generator $plugingenerator */
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
