@@ -1518,6 +1518,15 @@ class booking {
             return [];
         }
 
+        // We ignore the records for slotbooking options, because their occupancy is defined by the
+        // individually booked slots (stored in booking_answers), not by the option's own start/end.
+        if (empty($inoptionsql) && empty($inoptiondatesql)) {
+            $sql .= " WHERE s1.type <> :slotbookingtype";
+        } else {
+            $sql .= " AND s1.type <> :slotbookingtype";
+        }
+        $params['slotbookingtype'] = MOD_BOOKING_OPTIONTYPE_SLOTBOOKING;
+
         // Now we make an SQL call to return all the relevant dates.
         $records = $DB->get_records_sql($sql, $params);
 
@@ -1756,10 +1765,11 @@ class booking {
                         bo.text,
                         bo.status,
                         bod.coursestarttime,
-                        bod.courseendtime
+                        bod.courseendtime,
+                        bo.type
                     FROM {booking_optiondates} bod
                     JOIN (
-                        SELECT id, text, status
+                        SELECT id, text, status, type
                         FROM {booking_options}
                     ) bo
                     ON bod.optionid = bo.id
@@ -1772,7 +1782,8 @@ class booking {
                     text,
                     status,
                     coursestarttime,
-                    courseendtime
+                    courseendtime,
+                    type
                     FROM {booking_options}
             ) s1
             LEFT JOIN (
