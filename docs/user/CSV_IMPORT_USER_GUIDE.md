@@ -351,6 +351,19 @@ If your dates are in a different format (e.g. European `DD.MM.YYYY HH:MM`), add 
 
 The same format applies to all date cells in that row.
 
+### Multiple sessions (`coursestarttime_1`, `courseendtime_1`, …)
+
+To import an option with several sessions, use the indexed date columns
+`coursestarttime_1` / `courseendtime_1`, `coursestarttime_2` / `courseendtime_2`, and so on
+(paired with `optiondateid_1`, `optiondateid_2`, … — use `0` to create a new date).
+
+Each indexed date cell accepts the **same formats** as the single-date columns above:
+a Unix timestamp, an ISO 8601 string, or a readable date matching your `dateparseformat`.
+You may even **mix** formats within one row — for example a readable
+`coursestarttime_1 = 30.04.2026 09:00` alongside timestamp-based later sessions — as long as
+every readable cell matches the `dateparseformat` you set. Numeric timestamps are always
+passed through unchanged.
+
 ---
 
 ## 16. Tips and common mistakes
