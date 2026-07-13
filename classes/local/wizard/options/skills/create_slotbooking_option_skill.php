@@ -102,10 +102,10 @@ class create_slotbooking_option_skill extends create_option_skill {
         // skill in preflight/execute and stripped by the shared check_structure slotbooking branch,
         // so they are intentionally NOT prompt-facing.
         $allowed = array_flip([
-            'text',
+            'text', 'description',
             'maxanswers', 'teacherquery', 'teacheremail', 'prices',
             'bookingopeningtime', 'bookingclosingtime', 'maxoverbooking',
-            'override', 'outputlang', 'activityquery',
+            'override', 'outputlang', 'activityquery', 'linkedcoursequery',
         ]);
         // Keep the core fields plus ALL slot_* properties (opening/closing/duration/interval/
         // validity/capacity AND the slot_day_1..7 weekday toggles) — they are all slot-relevant.

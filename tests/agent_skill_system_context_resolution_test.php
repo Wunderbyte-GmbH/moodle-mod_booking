@@ -378,6 +378,188 @@ final class agent_skill_system_context_resolution_test extends booking_advanced_
     }
 
     /**
+     * rule_targeted_skill: a rule living in a booking activity resolves that activity's module
+     * context from any entry point (thread 584 fix).
+     *
+     * @return void
+     */
+    public function test_update_rule_resolves_instance_rule_context(): void {
+        $env = $this->setup_booking('Rho booking', 'Rho option');
+        $modulectxid = (int)$env['modulecontext']->id;
+        $this->seed_rule('rho_instance_rule', 'Rho Instance Rule', $modulectxid);
+
+        $skill = new \mod_booking\local\wizard\options\skills\update_rule_from_template_skill();
+        $this->assertTrue($skill->supports_target_context());
+
+        $selector = $skill->get_target_selector(['rulequery' => 'Rho Instance Rule']);
+        $this->assertNotNull($selector, 'A rule living in an activity must yield that module selector.');
+        $this->assertTrue($selector->is_module_target());
+        $this->assertSame((int)$env['booking']->cmid, (int)$selector->id());
+    }
+
+    /**
+     * rule_targeted_skill: a SYSTEM rule stays ambient (no module selector — the activity
+     * question is unanswerable for it), and the preflight disambiguates by RULE id, never by
+     * activity (thread 584: three identical activity lists).
+     *
+     * @return void
+     */
+    public function test_update_rule_system_rules_disambiguate_by_rule_id(): void {
+        $this->setup_booking('Sigma booking', 'Sigma option');
+        $this->setAdminUser();
+        $systemctxid = (int)context_system::instance()->id;
+
+        $ruleid1 = $this->seed_rule('sigma_rule', 'Sigma Twin Rule', $systemctxid);
+        $ruleid2 = $this->seed_rule('sigma_rule', 'Sigma Twin Rule', $systemctxid);
+
+        $skill = new \mod_booking\local\wizard\options\skills\update_rule_from_template_skill();
+        $this->assertNull(
+            $skill->get_target_selector(['rulequery' => 'Sigma Twin Rule']),
+            'Ambiguous rules must stay ambient — the preflight disambiguates by rule id.'
+        );
+
+        $result = $skill->preflight(
+            ['rulequery' => 'Sigma Twin Rule', 'rulename' => 'Renamed Twin'],
+            $systemctxid,
+            (int)get_admin()->id
+        );
+        $issuecodes = array_map(static fn(array $i): string => (string)($i['code'] ?? ''), $result->issues);
+        $this->assertContains('RULE_RESOLUTION_AMBIGUOUS', $issuecodes);
+        $this->assertNotContains('MISSING_TARGET_ACTIVITY', $issuecodes);
+        $this->assertNotContains('CONTEXT_TARGET_UNRESOLVED', $issuecodes);
+        $candidates = implode(' ', array_map(static fn(array $i): string => (string)($i['message'] ?? ''), $result->issues));
+        $this->assertStringContainsString('id=' . $ruleid1, $candidates);
+        $this->assertStringContainsString('id=' . $ruleid2, $candidates);
+    }
+
+    /**
+     * rule_targeted_skill: a unique SYSTEM rule passes preflight at the system context —
+     * no activity question, the rule id is resolved and prepared.
+     *
+     * @return void
+     */
+    public function test_update_rule_unique_system_rule_passes_at_system_context(): void {
+        $this->setup_booking('Tau booking', 'Tau option');
+        $this->setAdminUser();
+        $systemctxid = (int)context_system::instance()->id;
+        $ruleid = $this->seed_rule('tau_rule', 'Tau Unique Rule', $systemctxid);
+
+        $skill = new \mod_booking\local\wizard\options\skills\update_rule_from_template_skill();
+        $result = $skill->preflight(
+            ['rulequery' => 'Tau Unique Rule', 'rulename' => 'Tau Renamed Rule'],
+            $systemctxid,
+            (int)get_admin()->id
+        );
+
+        $this->assertSame('pass', (string)$result->status);
+        $this->assertSame($ruleid, (int)($result->preparedinput['ruleid'] ?? 0));
+    }
+
+    /**
+     * Executor fail-closed is selector-aware: a mutating rule command whose rule lives at the
+     * SYSTEM context passes the module-target check at a non-module operating context (it then
+     * fails at the guard-token stage — proving the target gate no longer blocks it).
+     *
+     * @return void
+     */
+    public function test_executor_allows_system_rule_mutation_at_system_context(): void {
+        $this->setup_booking('Ypsilon booking', 'Ypsilon option');
+        $this->setAdminUser();
+        $this->seed_rule('ypsilon_rule', 'Ypsilon System Rule', (int)context_system::instance()->id);
+        // Open the governance skill gate for the mutating skill (same baseline as the agent suite).
+        set_config('aiskillenableall', 1, 'bookingextension_agent');
+
+        $results = $this->execute_via_executor([
+            ['skill' => 'mod_booking.update_rule_from_template', 'input' => [
+                'rulequery' => 'Ypsilon System Rule',
+                'rulename' => 'Ypsilon Renamed',
+            ]],
+        ]);
+
+        $this->assertCount(1, $results);
+        $this->assertNotContains(
+            'CONTEXT_TARGET_UNRESOLVED',
+            (array)($results[0]['issue_codes'] ?? []),
+            'A system-scoped rule must not be blocked by the module-target gate.'
+        );
+        // Without a preflight-issued guard token the mutation stops at the guard stage —
+        // which is exactly the proof that the target gate let it through.
+        $this->assertContains('EXECUTION_GUARD_MISSING', (array)($results[0]['issue_codes'] ?? []));
+    }
+
+    /**
+     * Full execute path for the thread-584 shape: a SYSTEM rule renamed from inside a booking
+     * activity. Preflight resolves the rule via the context path; execute must pass the rule's
+     * OWN contextid to the service (which refuses foreign contextids) — the rule stays a
+     * system rule after the rename.
+     *
+     * @return void
+     */
+    public function test_update_rule_executes_system_rule_rename_from_module_ambient(): void {
+        global $DB;
+        $env = $this->setup_booking('Phi booking', 'Phi option');
+        $this->setAdminUser();
+
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $rule = $plugingenerator->create_rule([
+            'name' => 'Phi System Reminder',
+            'conditionname' => 'select_user_from_event',
+            'contextid' => 1,
+            'conditiondata' => '{"userfromeventtype":"userid"}',
+            'actionname' => 'send_mail',
+            'actiondata' => '{"sendical":0,"sendicalcreateorcancel":"","subject":"Phi subject",'
+                . '"template":"Phi body","templateformat":1}',
+            'rulename' => 'rule_react_on_event',
+            'ruledata' => '{"boevent":"\\\\mod_booking\\\\event\\\\bookingoption_booked",'
+                . '"aftercompletion":0,"cancelrules":[],"condition":"0"}',
+        ]);
+
+        $modulectxid = (int)$env['modulecontext']->id;
+        $adminid = (int)get_admin()->id;
+
+        $skill = new \mod_booking\local\wizard\options\skills\update_rule_from_template_skill();
+        $result = $skill->preflight(
+            ['rulequery' => 'Phi System Reminder', 'rulename' => 'Phi Renamed Reminder'],
+            $modulectxid,
+            $adminid
+        );
+        $this->assertSame('pass', (string)$result->status, json_encode($result->issues));
+
+        $execresult = $skill->execute($result->preparedinput, $modulectxid, $adminid);
+        $this->assertSame('executed', (string)($execresult['status'] ?? ''), (string)($execresult['detail'] ?? ''));
+
+        $saved = $DB->get_record('booking_rules', ['id' => (int)$rule->id], '*', MUST_EXIST);
+        $this->assertSame(1, (int)$saved->contextid, 'The renamed rule must STAY a system rule.');
+        $json = json_decode((string)$saved->rulejson);
+        $this->assertSame('Phi Renamed Reminder', (string)($json->name ?? ''));
+    }
+
+    /**
+     * Insert a booking rule row for targeting tests.
+     *
+     * @param string $rulename Technical rule name.
+     * @param string $displayname Display name (rulejson name).
+     * @param int $contextid Context the rule is bound to.
+     * @return int The rule id.
+     */
+    private function seed_rule(string $rulename, string $displayname, int $contextid): int {
+        global $DB;
+        return (int)$DB->insert_record('booking_rules', (object)[
+            'rulename' => $rulename,
+            'rulejson' => json_encode([
+                'name' => $displayname,
+                'conditionname' => 'select_teacher_in_bo',
+                'actionname' => 'send_mail',
+                'rulename' => $rulename,
+            ]),
+            'contextid' => $contextid,
+            'eventname' => '',
+            'useastemplate' => 0,
+            'isactive' => 1,
+        ]);
+    }
+
+    /**
      * Decode the JSON diagnosis report embedded in diagnose_user_booking's observation_full.
      *
      * @param array $result The skill execute() result.

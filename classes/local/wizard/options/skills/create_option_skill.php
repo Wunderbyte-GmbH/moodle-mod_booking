@@ -147,7 +147,16 @@ class create_option_skill extends booking_skill_base implements
                     . 'verbatim, so the option is created in that activity. Leave empty ONLY when the user named no '
                     . 'specific activity (then the activity in scope is used, and the system asks which one if '
                     . 'several exist). Never guess or invent a name. This is the booking activity, NEVER a course — '
-                    . 'do NOT use courseid or coursequery for this task.',
+                    . 'do NOT use courseid or coursequery for this task; to LINK a Moodle course use '
+                    . 'linkedcoursequery.',
+                'required' => false,
+            ],
+            'linkedcoursequery' => [
+                'type' => 'string',
+                'description' => 'The Moodle COURSE participants enter after booking this option (booking → '
+                    . 'enrolment). Pass the course full name/shortname to resolve and link it at create time. '
+                    . 'This is NOT the target booking activity (that is activityquery) — it is the course the '
+                    . 'booking gives access to. Leave empty when the user linked no course.',
                 'required' => false,
             ],
         ], option_schema_definition::common_properties());
@@ -167,10 +176,10 @@ class create_option_skill extends booking_skill_base implements
             // maps an attachment token to the option header image at create time, so "create it
             // with this image" is a supported request — not an invented key.
             $allowed = array_flip([
-                'text', 'coursestarttime', 'courseendtime', 'optiondates', 'optiondatesmode',
+                'text', 'description', 'coursestarttime', 'courseendtime', 'optiondates', 'optiondatesmode',
                 'maxanswers', 'teacherquery', 'teacheremail', 'prices',
                 'bookingopeningtime', 'bookingclosingtime', 'maxoverbooking',
-                'override', 'outputlang', 'activityquery', 'headerimage_token',
+                'override', 'outputlang', 'activityquery', 'linkedcoursequery', 'headerimage_token',
             ]);
             $properties = array_intersect_key($properties, $allowed);
         }
@@ -180,7 +189,8 @@ class create_option_skill extends booking_skill_base implements
             'description' => 'Create a new booking option in the current booking activity. '
                 . 'Canonical keys for normal dated options are text, coursestarttime, courseendtime, '
                 . 'maxanswers and optiondates; to target a named booking activity use activityquery '
-                . '(there is no course key — never invent keys like coursequery). '
+                . '(never invent keys like coursequery; to LINK a Moodle course that participants enter '
+                . 'after booking use linkedcoursequery). '
                 . 'Do not use non-canonical keys like day/date/start/end for this task. '
                 . 'Use this general create task when the user asks for a standard dated option '
                 . '(for example "create a workshop next Tuesday from 10:00 to 12:00"). '
@@ -280,6 +290,9 @@ class create_option_skill extends booking_skill_base implements
             'optiondates' => ['bookingdates', 'dates', 'sessions', 'occurrences'],
             'teacherquery' => ['teacher', 'trainer', 'instructor', 'instructorty', 'lecturer'],
             'teacheremail' => ['instructoremail', 'teacher_mail', 'teacher_email'],
+            // W2 baseline 2026-07-12: 'price' (singular) is the measured top guess (5 of 7
+            // wrong-key events). The scalar shape ("price": 30) is canonicalized right below.
+            'prices' => ['price'],
         ];
 
         foreach ($aliasgroups as $canonical => $aliases) {
@@ -296,6 +309,14 @@ class create_option_skill extends booking_skill_base implements
                 $appliedaliases[$canonical] = $alias;
                 break;
             }
+        }
+
+        // Canonicalize the prices SHAPE as early as the key: a bare numeric ("price": 30) means
+        // the default price category, and the prepared input feeds the confirm preview — the
+        // user must see the canonical object there, not a scalar. Mirrors
+        // booking_skill_support::normalize_prices_input(), which stays the execute-side backstop.
+        if (isset($input['prices']) && is_numeric($input['prices'])) {
+            $input['prices'] = ['default' => (float)$input['prices']];
         }
 
         // Fuzzy fallback for unpredictable planner key variants (e.g. traineruserwm).
@@ -469,7 +490,8 @@ class create_option_skill extends booking_skill_base implements
 
         if (in_array('activityquery', $this->get_supported_property_names(), true)) {
             $parts[] = 'To create the option in a named booking activity pass that name in activityquery; '
-                . 'there is no course key for this task — never use keys like coursequery or bookinginstancequery.';
+                . 'to link the Moodle course participants enter after booking pass linkedcoursequery — '
+                . 'never use keys like coursequery or bookinginstancequery.';
         }
 
         $parts[] = 'Do not switch task and do not call documentation tasks for this repair.';
@@ -534,7 +556,7 @@ class create_option_skill extends booking_skill_base implements
      * Checks that the required 'text' (title) field is present.
      *
      * @param  array $input
-     * @return array{valid:bool,errors:array<int,string>,observation_full?:string}
+     * @return array{valid:bool,errors:array<int,string>,repair?:array<int,string>,observation_full?:string}
      */
     public function check_structure(array $input): array {
         $rawinput = $input;
@@ -562,18 +584,28 @@ class create_option_skill extends booking_skill_base implements
 
         $text = trim((string)($input['text'] ?? ''));
         $missingtitle = ($text === '');
-        $unknownprops = $this->get_unknown_input_property_names($input);
+        $unknownprops = array_values(array_unique(array_merge(
+            $this->get_unknown_input_property_names($input),
+            $this->get_unknown_optiondate_item_keys($rawinput)
+        )));
         $retrymessage = $this->build_create_option_retry_message(
             $appliedaliases,
             $unknownprops,
             $missingtitle ? ['text'] : []
         );
 
+        // F3-W2 two-channel cause contract: 'errors' carries ONLY the user cause — plain-English
+        // LLM material, never rendered directly (the synchronizer formulates the reply in the
+        // user's language, hard rule 90c9399); 'repair' carries the planner-only instructions
+        // (key lists, format specs, retry directives). Supplying 'repair' flips this skill's
+        // audience guarantee (parameter_contract_validator).
         if ($missingtitle) {
             $observation = $this->build_unknown_property_observation($unknownprops, $rawinput, ['text']);
             return [
                 'valid'  => false,
-                'errors' => [get_string('agent_booking_create_option_missing_title', 'booking'), $retrymessage],
+                'errors' => ['What title should the new booking option have?'],
+                'repair' => [$retrymessage],
+                'issue_codes' => ['RECOVERABLE_INPUT_ERROR'],
                 'observation_full' => $observation,
             ];
         }
@@ -582,7 +614,9 @@ class create_option_skill extends booking_skill_base implements
         if (!empty($commonerrors)) {
             return [
                 'valid' => false,
-                'errors' => $commonerrors,
+                'errors' => ['Some of the provided details for the new booking option (for example '
+                    . 'dates or times) could not be understood as given.'],
+                'repair' => $commonerrors,
             ];
         }
 
@@ -590,12 +624,65 @@ class create_option_skill extends booking_skill_base implements
             $observation = $this->build_unknown_property_observation($unknownprops, $rawinput);
             return [
                 'valid' => false,
-                'errors' => [$observation],
+                'errors' => ['Some requested details do not match anything a new booking option '
+                    . 'supports, so nothing was created.'],
+                'repair' => [$observation],
                 'observation_full' => $observation,
             ];
         }
 
-        return ['valid' => true, 'errors' => []];
+        return ['valid' => true, 'errors' => [], 'repair' => []];
+    }
+
+    /**
+     * Allowed keys inside an optiondates item: the canonical fields plus every alias the
+     * normalizer maps. Anything else would be dropped SILENTLY by normalization — thread 545:
+     * [{"timestart":…,"timeend":…}] normalized to [] and the clock-string fallback coerced all
+     * five sessions to TODAY, invisible in the confirmation preview.
+     *
+     * @var array<int,string>
+     */
+    private const OPTIONDATE_ITEM_KEYS = [
+        'coursestarttime', 'courseendtime', 'optiondateid', 'daystonotify',
+        'starttime', 'start', 'from', 'start_date', 'startdate',
+        'endtime', 'end', 'to', 'end_date', 'enddate',
+        'date', 'day', 'start_time', 'end_time',
+    ];
+
+    /**
+     * Unknown keys inside RAW optiondates items, reported as "optiondates[].<key>".
+     *
+     * Must run on the pre-normalization input: the normalizer strips unknown item keys before
+     * the top-level unknown-property check ever sees them, which is exactly how the thread-545
+     * inputs passed validation while losing their dates.
+     *
+     * @param array $input The RAW (pre-normalization) input.
+     * @return array<int,string>
+     */
+    private function get_unknown_optiondate_item_keys(array $input): array {
+        if (
+            empty($input['optiondates'])
+            || !is_array($input['optiondates'])
+            || !in_array('optiondates', $this->get_supported_property_names(), true)
+        ) {
+            return [];
+        }
+
+        $allowed = array_flip(self::OPTIONDATE_ITEM_KEYS);
+        $unknown = [];
+        foreach ($input['optiondates'] as $item) {
+            if (!is_array($item)) {
+                continue;
+            }
+            foreach (array_keys($item) as $key) {
+                $key = trim((string)$key);
+                if ($key !== '' && !isset($allowed[$key])) {
+                    $unknown[] = 'optiondates[].' . $key;
+                }
+            }
+        }
+
+        return array_values(array_unique($unknown));
     }
 
     /**
@@ -733,16 +820,39 @@ class create_option_skill extends booking_skill_base implements
             }
         }
 
+        // Linked-course resolution (prompt-facing key linkedcoursequery, U5c): resolve early so an
+        // unresolvable course surfaces as a clarification instead of a late execute error, then map
+        // to the mutation service's canonical coursequery key. coursequery itself stays a REJECTED
+        // input key on create (thread-548 anti-hallucination guidance) — only the prepared input
+        // carries it, after this skill resolved the link deliberately.
+        $linkedcoursequery = trim((string)($input['linkedcoursequery'] ?? ''));
+        unset($input['linkedcoursequery']);
+        if ($linkedcoursequery !== '') {
+            $linkresult = booking_skill_support::resolve_single_course($linkedcoursequery);
+            if (($linkresult['status'] ?? '') !== 'ok') {
+                $issues[] = [
+                    'code'           => 'LINKED_COURSE_UNRESOLVED',
+                    'severity'       => 'needs_clarification',
+                    'message'        => (string)($linkresult['message'] ?? ''),
+                    'user_question'  => (string)($linkresult['message'] ?? ''),
+                    'remedy_options' => ['ASK_LINKED_COURSE'],
+                ];
+                return $this->invalid($issues);
+            }
+            $input['coursequery'] = $linkedcoursequery;
+        }
+
         // Title is required (structural, but re-check for safety).
         if (empty($input['text'])) {
+            // F3-W2: message/user_question are USER-channel fields — the retry directive with
+            // its canonical-key vocabulary is planner material and moves to 'repair'.
             $retrymessage = $this->build_create_option_retry_message($appliedaliases, [], ['text']);
             $issues[] = [
                 'code'           => 'MISSING_TITLE',
                 'severity'       => 'needs_clarification',
-                'message'        => $retrymessage !== ''
-                    ? $retrymessage
-                    : $this->localized_string('agent_booking_create_option_missing_title', null, $lang),
+                'message'        => $this->localized_string('agent_booking_create_option_missing_title', null, $lang),
                 'user_question'  => $this->localized_string('agent_booking_create_option_which_title_question', null, $lang),
+                'repair'         => $retrymessage,
                 'remedy_options' => ['ASK_TITLE'],
             ];
             return $this->invalid($issues);
@@ -874,12 +984,22 @@ class create_option_skill extends booking_skill_base implements
         $servicepreflight = booking_mutation_validation::validate_common($input, $cmid, self::TASK_NAME);
         if (!empty($servicepreflight['errors']) || !empty($servicepreflight['ambiguities'])) {
             $serviceissuecodes = array_values(array_filter(array_map('strval', (array)($servicepreflight['issue_codes'] ?? []))));
+            // F3-W2: consume the two-channel error_details — issue 'message' is a USER-channel
+            // field, so it carries the user_cause; format specs/JSON examples ride in 'repair'.
+            $servicedetails = array_values((array)($servicepreflight['error_details'] ?? []));
             foreach ((array)($servicepreflight['errors'] ?? []) as $idx => $err) {
-                $issues[] = [
+                $detail = is_array($servicedetails[$idx] ?? null) ? $servicedetails[$idx] : [];
+                $usercause = trim((string)($detail['user_cause'] ?? ''));
+                $repair = trim((string)($detail['repair'] ?? ''));
+                $issue = [
                     'code' => (string)($serviceissuecodes[$idx] ?? 'PREFLIGHT_ERROR'),
                     'severity' => 'needs_clarification',
-                    'message' => (string)$err,
+                    'message' => $usercause !== '' ? $usercause : (string)$err,
                 ];
+                if ($repair !== '') {
+                    $issue['repair'] = $repair;
+                }
+                $issues[] = $issue;
             }
             foreach ((array)($servicepreflight['ambiguities'] ?? []) as $amb) {
                 $issues[] = ['code' => 'PREFLIGHT_AMBIGUITY', 'severity' => 'needs_clarification', 'message' => (string)$amb];
@@ -888,6 +1008,18 @@ class create_option_skill extends booking_skill_base implements
         }
 
         $preparedinput = $input;
+
+        // Canonicalize prices into the prepared input so the confirmation preview shows the
+        // canonical {identifier: price} object (not a bare scalar or the labelled array a model
+        // may have sent, thread 593) and execute runs the same shape. validate_common already
+        // accepted the prices above, so normalization here cannot fail; leave it untouched if it
+        // somehow returns null.
+        if (isset($preparedinput['prices'])) {
+            $canonicalprices = booking_skill_support::normalize_prices_input_for_execute($preparedinput['prices']);
+            if (is_array($canonicalprices)) {
+                $preparedinput['prices'] = $canonicalprices;
+            }
+        }
 
         // If there are only confirmable issues (no blocking ones), use confirmable().
         $blockingissues = array_filter(
@@ -1321,6 +1453,41 @@ class create_option_skill extends booking_skill_base implements
     }
 
     /**
+     * Ground the constructor in the site's REAL price categories (thread 593).
+     *
+     * The static prices example ({"default":10,"student":20}) is generic doc text, so the
+     * constructor cannot know the real identifiers nor map "for students" onto one — it then
+     * invents a labelled array ([{price:30,label:"Studierendenpreis"}]). Injecting the actual
+     * categories (identifier + name) plus the object-shape rule lets it build the canonical
+     * {identifier: price}. Inherited by the whole create family. DB-derived data + an
+     * instruction, no lexical detection (hard rule).
+     *
+     * @param int $contextid
+     * @param int $userid
+     * @return array
+     */
+    public function get_dynamic_construction_hints(int $contextid, int $userid): array {
+        $categories = booking_skill_support::describe_active_price_categories();
+        if (empty(booking_skill_support::active_price_category_identifiers())) {
+            return [
+                'guidance' => [
+                    '- This site has NO price categories configured: do not send a prices field; '
+                        . 'if the user asks for a price, say pricing must be set up first.',
+                ],
+            ];
+        }
+        return [
+            'guidance' => [
+                '- The prices field MUST be a JSON object mapping these EXACT price category '
+                    . 'identifiers to numeric amounts. Categories available on this site (identifier '
+                    . 'and label): ' . $categories . '. Map the user\'s wording to the closest '
+                    . 'identifier (e.g. a student/reduced price → the "student" identifier if present). '
+                    . 'NEVER use labels as keys, NEVER use an array, NEVER invent identifiers.',
+            ],
+        ];
+    }
+
+    /**
      * Return contextual guidance packs.
      *
      * @return array
@@ -1360,11 +1527,11 @@ class create_option_skill extends booking_skill_base implements
                 'id' => 'mod_booking.course_teacher',
                 'triggers' => ['course', 'teacher', 'trainer'],
                 'guidance' => [
-                    '- create_option cannot connect the option to a Moodle course: this task has no course key'
-                        . ' (never invent keys like coursequery).',
-                    '- To target a named booking activity, pass its name as activityquery.',
-                    '- To connect a Moodle course to the option, create the option first, then set coursequery'
-                        . ' via mod_booking.update_option.',
+                    '- To connect the Moodle course participants enter after booking, pass its name as'
+                        . ' linkedcoursequery at create time (never invent keys like coursequery or courseid;'
+                        . ' on mod_booking.update_option the same link is set via coursequery).',
+                    '- To target a named booking activity, pass its name as activityquery — that is WHERE the'
+                        . ' option is created, while linkedcoursequery is the course the booking gives access to.',
                     '- Use teacherquery or teacheremail to assign responsible teacher.',
                     '- If the user says to assign themselves as teacher (e.g. "me as teacher"),'
                         . ' set teacherquery to the current user/self-reference instead of asking for an e-mail address.',

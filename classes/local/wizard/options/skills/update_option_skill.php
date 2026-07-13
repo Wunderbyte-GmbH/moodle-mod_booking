@@ -126,8 +126,8 @@ class update_option_skill extends booking_skill_base implements
         return [
             'version' => 1,
             'description' => 'Update an existing booking option in the current booking instance. '
-                . 'Also use this to add, set or replace the option\'s header/cover image from an uploaded '
-                . 'image attachment (pass the attachment token as headerimage_token).',
+                . 'Also links a Moodle course to the option (coursequery) or sets its header image '
+                . '(headerimage_token).',
             'readonly' => $this->is_read_only(),
             'fallback_confirm_string_key' => 'ai_status_confirm_booking_update_option',
             'fallback_taskcall_string_key' => 'ai_status_taskcall_booking_update_option',
@@ -138,6 +138,8 @@ class update_option_skill extends booking_skill_base implements
                 'Set this uploaded picture as the header image of the option',
                 'Update the description of the First Aid Course',
                 'Hide the Tuesday option from the list',
+                'Connect the booking option to a Moodle course',
+                'Is the course linked to this booking option? Link it if not',
             ],
             'properties' => array_merge([
                 'text' => [

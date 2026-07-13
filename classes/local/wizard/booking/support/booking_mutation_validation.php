@@ -33,7 +33,7 @@ class booking_mutation_validation {
      * @param array $input
      * @param int $cmid
      * @param string $taskname
-     * @return array{errors:array<int,string>,ambiguities:array<int,string>,issue_codes:array<int,string>}
+     * @return array{errors:array<int,string>,ambiguities:array<int,string>,issue_codes:array<int,string>,error_details:array}
      */
     public static function validate_common(array $input, int $cmid, string $taskname): array {
         global $DB;
@@ -84,6 +84,10 @@ class booking_mutation_validation {
             $errors[] = get_string('agent_booking_update_permission_check_failed', 'booking');
         }
 
+        // F3-W2: remember where the prices errors land so their two-channel details
+        // (error_details) can be re-aligned by offset at the end. $errors is append-only
+        // and is returned without dedup/reindex, so positions stay stable.
+        $priceerroroffset = count($errors);
         $pricevalidation = booking_skill_support::validate_prices_input($input);
         $errors = array_merge($errors, $pricevalidation['errors']);
         $ambiguities = array_merge($ambiguities, $pricevalidation['ambiguities']);
@@ -162,7 +166,9 @@ class booking_mutation_validation {
         // Check date/time fields. Skip validation if value is 0/empty and field is in override list.
         $overrides = is_array($input['override'] ?? null) ? $input['override'] : [];
 
-        if (isset($input['coursestarttime']) && !isset($input['optiondates'])) {
+        // Note: empty() (not isset()) — an optiondates key holding an EMPTY array, e.g. every item was
+        // dropped by alias normalization (thread 545), must not disable the datetime checks.
+        if (isset($input['coursestarttime']) && empty($input['optiondates'])) {
             $val = $input['coursestarttime'];
             // Skip validation only if it's a placeholder AND in override.
             $isplaceholder = $val === 0 || $val === '0' || $val === '' || $val === null;
@@ -172,7 +178,7 @@ class booking_mutation_validation {
                 }
             }
         }
-        if (isset($input['courseendtime']) && !isset($input['optiondates'])) {
+        if (isset($input['courseendtime']) && empty($input['optiondates'])) {
             $val = $input['courseendtime'];
             $isplaceholder = $val === 0 || $val === '0' || $val === '' || $val === null;
             if (!$isplaceholder || !in_array('courseendtime', $overrides, true)) {
@@ -398,10 +404,30 @@ class booking_mutation_validation {
             }
         }
 
+        // F3-W2 two-channel contract: 'errors' stays the legacy channel (unchanged).
+        // 'error_details' mirrors it index-by-index with {user_cause, repair}; today only the
+        // prices errors carry a real split (resolver/permission texts are already user-
+        // appropriate and default to themselves). Migrated skills read error_details to keep
+        // planner repair vocabulary out of the user channel; legacy callers ignore it.
+        $errordetails = [];
+        foreach ($errors as $idx => $error) {
+            $errordetails[$idx] = ['user_cause' => (string)$error, 'repair' => ''];
+        }
+        foreach (array_values((array)($pricevalidation['error_details'] ?? [])) as $i => $detail) {
+            if (!is_array($detail) || !isset($errordetails[$priceerroroffset + $i])) {
+                continue;
+            }
+            $errordetails[$priceerroroffset + $i] = [
+                'user_cause' => (string)($detail['user_cause'] ?? $errors[$priceerroroffset + $i]),
+                'repair' => (string)($detail['repair'] ?? ''),
+            ];
+        }
+
         return [
             'errors' => $errors,
             'ambiguities' => $ambiguities,
             'issue_codes' => array_values(array_unique(array_filter($issuecodes))),
+            'error_details' => $errordetails,
         ];
     }
 }

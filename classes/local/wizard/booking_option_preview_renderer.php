@@ -78,9 +78,11 @@ class booking_option_preview_renderer {
 
             try {
                 // Always render the agent's option previews as cards (card view is the most useful
-                // compact representation), regardless of the booking instance's default view.
+                // compact representation), regardless of the booking instance's default view —
+                // and without table chrome (count label, reload, download), which reads as noise
+                // when every option gets its own one-row preview card.
                 $view = new view($optioncmid, 'showonlyone', $id);
-                $html = (string)$view->get_rendered_showonlyone_table($id, MOD_BOOKING_VIEW_PARAM_CARDS);
+                $html = (string)$view->get_rendered_showonlyone_table($id, MOD_BOOKING_VIEW_PARAM_CARDS, false);
                 if (trim($html) !== '') {
                     $htmlparts[] = '<div class="booking-ai-preview-item mb-3">' . $html . '</div>';
                 }

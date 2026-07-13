@@ -217,9 +217,21 @@ class bulk_update_options_skill extends booking_skill_base implements
     }
 
     /**
+     * Input keys that steer the bulk run without changing any option field. Everything else
+     * must be a schema-known mutation field for the command to have an effect.
+     *
+     * @var array<int,string>
+     */
+    private const BULK_CONTROL_KEYS = [
+        'optionids', 'resolvedoptionids', 'optionquery', 'optionwhen', 'apply_to_all',
+        'outputlang', 'override',
+    ];
+
+    /**
      * Structural validation — pure, no DB access.
      *
-     * Checks that at least one target-selection mechanism is present.
+     * Checks that at least one target-selection mechanism is present AND that at least one
+     * schema-known change field is requested.
      *
      * @param  array $input
      * @return array{valid:bool,errors:array<int,string>}
@@ -234,6 +246,46 @@ class bulk_update_options_skill extends booking_skill_base implements
             return [
                 'valid'  => false,
                 'errors' => [get_string('agent_booking_bulk_update_missing_target', 'booking')],
+            ];
+        }
+
+        // At least one KNOWN change field must be present, or the run would mutate nothing and
+        // still report success (observed live: the model invented "available: 1" for a
+        // visibility request; the option stayed hidden while the reply claimed the update
+        // happened). Known = the schema's mutation properties plus the documented legacy
+        // "visible" alias (normalize_visibility_input); the selection/control keys never count.
+        $knownchangekeys = array_flip(array_merge(
+            array_diff(array_keys((array)($this->get_schema()['properties'] ?? [])), self::BULK_CONTROL_KEYS),
+            ['visible']
+        ));
+        $unknownkeys = [];
+        $haschange = false;
+        foreach (array_keys($input) as $key) {
+            if (!is_string($key) || $key === '' || in_array($key, self::BULK_CONTROL_KEYS, true)) {
+                continue;
+            }
+            if (isset($knownchangekeys[$key])) {
+                $haschange = true;
+            } else {
+                $unknownkeys[] = $key;
+            }
+        }
+        if (!$haschange) {
+            // F3 two-channel cause contract: 'errors' carries ONLY the plain-English user cause
+            // (LLM material, formulated by the synchronizer in the user's language); 'repair'
+            // carries the planner-only retry instructions incl. the canonical field names.
+            return [
+                'valid' => false,
+                'errors' => ['Which property of the selected booking options should be changed, '
+                    . 'and to what value?'],
+                'repair' => [
+                    'No supported change field was provided'
+                        . (empty($unknownkeys) ? '' : ' (unsupported keys: ' . implode(', ', $unknownkeys) . ')')
+                        . '. Retry ' . self::TASK_NAME . ' once with canonical fields, e.g. invisible '
+                        . '(0 = visible, 1 = invisible, 2 = direct link only), maxanswers, location, '
+                        . 'coursestarttime/courseendtime, prices.',
+                ],
+                'issue_codes' => ['RECOVERABLE_INPUT_ERROR'],
             ];
         }
 
@@ -376,6 +428,8 @@ class bulk_update_options_skill extends booking_skill_base implements
                     '- Use optionids array for an explicit list of known option IDs.',
                     '- All common update fields (maxanswers, maxoverbooking, location, etc.) work the same '
                         . 'as in booking.update_option and are applied to every matched option.',
+                    '- For hide/show requests, map to visibility/invisible:',
+                    '  invisible|hidden -> invisible=1, visible -> invisible=0, direct-link-only -> invisible=2.',
                     '- Do not use bookusersquery with bulk_update_options.',
                     '- Use confirmation_request for bulk mutations and follow structured validation issues when returned.',
                 ],

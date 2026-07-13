@@ -803,9 +803,10 @@ class view implements renderable, templatable {
      * Render table for one specific booked option.
      * @param int $optionid
      * @param int|null $forceviewparam optional MOD_BOOKING_VIEW_PARAM_* to force (e.g. cards) instead of the instance default
+     * @param bool $tablechrome whether to render the surrounding table chrome (search, pagination, etc.)
      * @return string the rendered table
      */
-    public function get_rendered_showonlyone_table(int $optionid, ?int $forceviewparam = null) {
+    public function get_rendered_showonlyone_table(int $optionid, ?int $forceviewparam = null, bool $tablechrome = true) {
         $cmid = $this->cmid;
 
         $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
@@ -818,6 +819,15 @@ class view implements renderable, templatable {
         // Initialize the default columnes, headers, settings and layout for the table.
         // In the future, we can parametrize this function so we can use it on many different places.
         $this->wbtable_initialize_layout($showonlyonetable, false, false, false, $forceviewparam);
+
+        if (!$tablechrome) {
+            // Compact single-option embed (e.g. the AI agent renders one preview card per option):
+            // a count label, reload and download button on every one-row card are pure noise.
+            $showonlyonetable->showcountlabel = false;
+            $showonlyonetable->showreloadbutton = false;
+            $showonlyonetable->showdownloadbutton = false;
+            $showonlyonetable->showdownloadbuttonatbottom = false;
+        }
 
         $wherearray = [
             'bookingid' => (int) $booking->id,

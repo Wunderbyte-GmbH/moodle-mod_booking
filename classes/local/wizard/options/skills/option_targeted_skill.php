@@ -106,7 +106,7 @@ trait option_targeted_skill {
         }
 
         // An option named by text resolves to its activity site-wide when it is unique.
-        $optionquery = trim((string)($input['optionquery'] ?? ''));
+        $optionquery = trim(self::scalar_string($input['optionquery'] ?? ''));
         if ($optionquery !== '') {
             $resolved = booking_skill_support::activity_for_option_query(
                 $optionquery,

@@ -45,6 +45,9 @@ final class agent_option_skill_cross_instance_test extends advanced_testcase {
     public function setUp(): void {
         parent::setUp();
         $this->skip_without_agent_extension();
+        // Fresh singletons: cached booking/option settings from another test file resolve
+        // reused (post-rollback) ids to stale cmids and poison generator create_option calls.
+        \mod_booking\singleton_service::destroy_instance();
     }
 
     /**

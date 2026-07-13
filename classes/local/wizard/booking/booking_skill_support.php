@@ -36,7 +36,6 @@ use mod_booking\local\wizard\engine\skill_interface;
 use mod_booking\local\wizard\engine\attachment_resolver;
 use mod_booking\local\wizard\engine\thread_memory;
 use mod_booking\local\wizard\engine\skill_catalog;
-use mod_booking\external\search_courses;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking;
 use mod_booking\booking_bookit;
@@ -579,6 +578,14 @@ class booking_skill_support {
             return false;
         }
 
+        // A bare clock time carries no date. new \DateTime("10:00") would silently anchor it to
+        // TODAY (thread 545: five "Tag 1–5" sessions all landed on the execution day) — refuse it
+        // so validation asks for the date instead. Relative phrases ("next monday 10:00") and
+        // full datetimes are unaffected.
+        if (preg_match('/^\d{1,2}:\d{2}(:\d{2})?$/', trim($value))) {
+            return false;
+        }
+
         $timezonename = (string)(get_config('core', 'timezone') ?? '');
         if ($timezonename === '' || $timezonename === '99') {
             $timezonename = date_default_timezone_get();
@@ -1041,6 +1048,52 @@ class booking_skill_support {
     }
 
     /**
+     * Resolve the context a booking rule lives in — the deterministic rule → context mapping
+     * of the rule_targeted_skill trait.
+     *
+     * A rule is a context-bound row (booking_rules.contextid, frequently the SYSTEM context):
+     * it pins its own operating context the way an option pins its activity, so asking "which
+     * booking activity?" for a rule request is the wrong question (thread 584: three identical
+     * activity lists for a rename of a system rule). Matches by id, or by name against BOTH the
+     * technical rulename and the display name in rulejson (exact, case-insensitive).
+     *
+     * @param int $ruleid Explicit rule id (takes precedence).
+     * @param string $rulequery Rule name (or numeric id as string).
+     * @return int The rule's contextid, or 0 when no rule matches or the matches span
+     *             several contexts (the skill's preflight then disambiguates by rule id).
+     */
+    public static function context_for_rule(int $ruleid, string $rulequery): int {
+        global $DB;
+
+        if ($ruleid > 0) {
+            return (int)($DB->get_field('booking_rules', 'contextid', ['id' => $ruleid]) ?: 0);
+        }
+
+        $query = \core_text::strtolower(trim($rulequery));
+        if ($query === '') {
+            return 0;
+        }
+        if (preg_match('/^\d+$/', $query)) {
+            return self::context_for_rule((int)$query, '');
+        }
+
+        $contextids = [];
+        $records = $DB->get_records('booking_rules', [], '', 'id, rulename, rulejson, contextid');
+        foreach ($records as $record) {
+            $rulename = \core_text::strtolower(trim((string)($record->rulename ?? '')));
+            $json = json_decode((string)($record->rulejson ?? '{}'));
+            $displayname = is_object($json)
+                ? \core_text::strtolower(trim((string)($json->name ?? '')))
+                : '';
+            if ($query === $rulename || ($displayname !== '' && $query === $displayname)) {
+                $contextids[(int)$record->contextid] = true;
+            }
+        }
+
+        return count($contextids) === 1 ? (int)array_key_first($contextids) : 0;
+    }
+
+    /**
      * Resolve the course-module id of the booking activity that owns an option.
      *
      * This is the deterministic option → activity mapping the target-context contract needs:
@@ -1167,8 +1220,8 @@ class booking_skill_support {
             require_once($CFG->libdir . '/datalib.php');
 
             if (preg_match('/^\d+$/', $query)) {
-                $user = \core_user::get_user((int)$query, 'id, firstname, lastname, email', IGNORE_MISSING);
-                if ($user && !empty($user->id)) {
+                $user = \core_user::get_user((int)$query, 'id, firstname, lastname, email, deleted', IGNORE_MISSING);
+                if ($user && !empty($user->id) && self::is_assignable_person($user)) {
                     return [[
                         'userid' => (int)$user->id,
                         'firstname' => (string)($user->firstname ?? ''),
@@ -1186,8 +1239,14 @@ class booking_skill_support {
         $list = is_array($result) ? $result : [];
         $normalized = [];
         foreach ($list as $user) {
+            $userid = (int)($user->id ?? $user['id'] ?? 0);
+            // Core search_users filters deleted accounts but NOT the guest ("Guest user"
+            // LIKE-matches queries containing "user") — never offer it as a person candidate.
+            if ($userid <= 0 || isguestuser($userid)) {
+                continue;
+            }
             $normalized[] = [
-                'userid' => (int)($user->id ?? $user['id'] ?? 0),
+                'userid' => $userid,
                 'firstname' => (string)($user->firstname ?? $user['firstname'] ?? ''),
                 'lastname' => (string)($user->lastname ?? $user['lastname'] ?? ''),
                 'email' => (string)($user->email ?? $user['email'] ?? ''),
@@ -1198,7 +1257,7 @@ class booking_skill_support {
     }
 
     /**
-     * Search courses through the existing external search_courses implementation.
+     * Search courses through booking::load_courses (the search_courses external's backend).
      *
      * @param string $query
      * @param int $limit
@@ -1213,7 +1272,11 @@ class booking_skill_support {
         }
 
         try {
-            $result = search_courses::execute($query);
+            // Call the search directly instead of the external wrapper: the legacy external
+            // class file-scope-includes externallib.php, which is illegal to autoload in a
+            // non-isolated PHPUnit process (and its swallowed exception silently emptied every
+            // course resolution in tests). The wrapper adds nothing but parameter validation.
+            $result = booking::load_courses($query);
         } catch (\Throwable $e) {
             return [];
         }
@@ -1252,6 +1315,7 @@ class booking_skill_support {
         }
 
         $now = time();
+        // Moodle DML requires every named parameter to be unique, so :now is bound twice.
         $sql = "SELECT COUNT(DISTINCT ue.userid)\n"
             . "  FROM {user_enrolments} ue\n"
             . "  JOIN {enrol} e ON e.id = ue.enrolid\n"
@@ -1259,8 +1323,8 @@ class booking_skill_support {
             . " WHERE e.courseid = :courseid\n"
             . "   AND e.status = :enrolstatus\n"
             . "   AND ue.status = :uestatus\n"
-            . "   AND ue.timestart <= :now\n"
-            . "   AND (ue.timeend = 0 OR ue.timeend > :now)\n"
+            . "   AND ue.timestart <= :nowstart\n"
+            . "   AND (ue.timeend = 0 OR ue.timeend > :nowend)\n"
             . "   AND u.deleted = 0\n"
             . "   AND u.suspended = 0";
 
@@ -1268,7 +1332,8 @@ class booking_skill_support {
             'courseid' => $courseid,
             'enrolstatus' => ENROL_INSTANCE_ENABLED,
             'uestatus' => ENROL_USER_ACTIVE,
-            'now' => $now,
+            'nowstart' => $now,
+            'nowend' => $now,
         ]);
     }
 
@@ -1287,6 +1352,19 @@ class booking_skill_support {
                 'status' => 'ambiguity',
                 'issue_code' => 'USER_QUERY_REQUIRED',
                 'message' => get_string('agent_booking_resolve_user_query_required', 'booking'),
+            ];
+        }
+
+        // An anonymization placeholder must never reach user matching: it is not a person
+        // reference, and its word parts (e.g. "user" in "ANON_USER_1_both") can LIKE-match
+        // unrelated accounts — observed live 2026-07-14: an unresolved placeholder ended in a
+        // "provide the numeric user ID" clarification whose guessed answer assigned the GUEST
+        // as trainer. Fail with a clean re-ask instead of resolving somebody wrong.
+        if (self::is_unresolved_privacy_placeholder($query)) {
+            return [
+                'status' => 'error',
+                'issue_code' => 'USER_REFERENCE_UNRESOLVED',
+                'message' => get_string('agent_booking_resolve_user_reference_unresolved', 'booking'),
             ];
         }
 
@@ -1319,8 +1397,8 @@ class booking_skill_support {
         }
 
         if (preg_match('/^\d+$/', $query)) {
-            $user = \core_user::get_user((int)$query, 'id, email', IGNORE_MISSING);
-            if ($user && !empty($user->id)) {
+            $user = \core_user::get_user((int)$query, 'id, email, deleted', IGNORE_MISSING);
+            if ($user && !empty($user->id) && self::is_assignable_person($user)) {
                 return [
                     'status' => 'ok',
                     'userid' => (int)$user->id,
@@ -1330,8 +1408,8 @@ class booking_skill_support {
         }
 
         if (strpos($query, '@') !== false) {
-            $user = \core_user::get_user_by_email($query, 'id, email', null, IGNORE_MISSING);
-            if ($user && !empty($user->id)) {
+            $user = \core_user::get_user_by_email($query, 'id, email, deleted', null, IGNORE_MISSING);
+            if ($user && !empty($user->id) && self::is_assignable_person($user)) {
                 return [
                     'status' => 'ok',
                     'userid' => (int)$user->id,
@@ -2313,26 +2391,42 @@ class booking_skill_support {
     /**
      * Validate prices payload and category existence.
      *
+     * F3-W2 two-channel contract: 'errors' stays the legacy channel (byte-identical for
+     * existing callers); 'error_details' carries one entry per error with a user-facing
+     * 'user_cause' (plain-English LLM material — the synchronizer formulates the reply)
+     * and a planner-only 'repair' instruction (format specs / JSON examples). Entries
+     * whose legacy text is already user-appropriate keep it as user_cause with no repair.
+     *
      * @param array $input
      * @return array
      */
     public static function validate_prices_input(array $input): array {
         $errors = [];
         $ambiguities = [];
+        $errordetails = [];
 
         if (!array_key_exists('prices', $input) || $input['prices'] === null) {
-            return ['errors' => $errors, 'ambiguities' => $ambiguities];
+            return ['errors' => $errors, 'ambiguities' => $ambiguities, 'error_details' => $errordetails];
         }
 
         $prices = self::normalize_prices_input($input['prices']);
         if ($prices === null) {
             $errors[] = get_string('agent_booking_prices_not_object', 'booking');
-            return ['errors' => $errors, 'ambiguities' => $ambiguities];
+            $errordetails[] = [
+                'user_cause' => 'The price could not be understood in the form it was given. '
+                    . 'Please state the price again, optionally per price category.',
+                'repair' => get_string('agent_booking_prices_not_object', 'booking'),
+            ];
+            return ['errors' => $errors, 'ambiguities' => $ambiguities, 'error_details' => $errordetails];
         }
 
         if (empty($prices)) {
             $errors[] = get_string('agent_booking_prices_empty', 'booking');
-            return ['errors' => $errors, 'ambiguities' => $ambiguities];
+            $errordetails[] = [
+                'user_cause' => 'No usable price was provided. Please state the price.',
+                'repair' => get_string('agent_booking_prices_empty', 'booking'),
+            ];
+            return ['errors' => $errors, 'ambiguities' => $ambiguities, 'error_details' => $errordetails];
         }
 
         $categories = self::get_price_categories_by_identifier();
@@ -2343,10 +2437,18 @@ class booking_skill_support {
             }
             if (!is_numeric($value)) {
                 $errors[] = get_string('agent_booking_price_not_numeric', 'booking', $identifier);
+                $errordetails[] = [
+                    'user_cause' => get_string('agent_booking_price_not_numeric', 'booking', $identifier),
+                    'repair' => '',
+                ];
                 continue;
             }
             if ((float)$value < 0) {
                 $errors[] = get_string('agent_booking_price_negative', 'booking', $identifier);
+                $errordetails[] = [
+                    'user_cause' => get_string('agent_booking_price_negative', 'booking', $identifier),
+                    'repair' => '',
+                ];
             }
         }
 
@@ -2358,7 +2460,7 @@ class booking_skill_support {
             ]);
         }
 
-        return ['errors' => $errors, 'ambiguities' => $ambiguities];
+        return ['errors' => $errors, 'ambiguities' => $ambiguities, 'error_details' => $errordetails];
     }
 
     /**
@@ -2372,8 +2474,30 @@ class booking_skill_support {
             return [];
         }
 
+        // A bare numeric price ("price": 30 / "prices": "30") is the measured top model guess
+        // (W2 baseline 2026-07-12). It has exactly one honest reading — the default price
+        // category — so normalize the shape instead of rejecting it. Non-numeric scalars
+        // ("30 Euro") stay invalid and keep the existing error path.
+        if (is_numeric($prices)) {
+            return ['default' => (float)$prices];
+        }
+
         if (!is_array($prices)) {
             return null;
+        }
+
+        // Fallback canonicalizer (thread 593): a list of price objects
+        // [{"price":30,"label":"Normalpreis"},{"price":20,"category":"student"}] is the intuitive
+        // shape a model reaches for when it does not know the identifiers. Flatten it to the
+        // canonical {identifier: price}, resolving a label/name to its identifier via the real
+        // categories. A member that cannot be mapped keeps its raw label as the key so the
+        // existing unknown-category path clarifies with the category list — a price is never
+        // silently dropped. (Constructor grounding is the primary fix; this catches the residue.)
+        if (array_is_list($prices) && $prices !== [] && is_array($prices[0] ?? null)) {
+            $prices = self::flatten_price_object_list($prices);
+            if ($prices === null) {
+                return null;
+            }
         }
 
         $normalized = [];
@@ -2389,6 +2513,52 @@ class booking_skill_support {
         }
 
         return $normalized;
+    }
+
+    /**
+     * Flatten a list of price objects to a {identifier: price} map (thread-593 fallback).
+     *
+     * Each member may carry the amount under price/value/amount and the category under
+     * identifier/category/pricecategoryidentifier (used verbatim) or under label/name (matched
+     * to a real category's identifier or name, case-insensitively). Unmatched labels are kept as
+     * the key so the caller's unknown-category clarification lists the real categories.
+     *
+     * @param array $list
+     * @return array<string,float>|null Null when a member has no usable numeric amount.
+     */
+    private static function flatten_price_object_list(array $list): ?array {
+        $categories = self::get_price_categories_by_identifier();
+        $bylabel = [];
+        foreach ($categories as $identifier => $record) {
+            $bylabel[\core_text::strtolower(trim((string)$record->name))] = (string)$identifier;
+            $bylabel[\core_text::strtolower(trim((string)$record->identifier))] = (string)$identifier;
+        }
+
+        $flattened = [];
+        foreach ($list as $member) {
+            if (!is_array($member)) {
+                return null;
+            }
+            $amount = $member['price'] ?? $member['value'] ?? $member['amount'] ?? null;
+            if (!is_numeric($amount)) {
+                return null;
+            }
+            $rawkey = trim((string)(
+                $member['identifier']
+                ?? $member['category']
+                ?? $member['pricecategoryidentifier']
+                ?? $member['label']
+                ?? $member['name']
+                ?? ''
+            ));
+            if ($rawkey === '') {
+                $rawkey = 'default';
+            }
+            $key = $bylabel[\core_text::strtolower($rawkey)] ?? $rawkey;
+            $flattened[$key] = (float)$amount;
+        }
+
+        return $flattened;
     }
 
     /**
@@ -2621,6 +2791,34 @@ class booking_skill_support {
         }
 
         return $result;
+    }
+
+    /**
+     * The site's active price categories as "identifier (name)" pairs, for constructor grounding.
+     *
+     * Lets the parameter constructor map the user's wording ("for students") onto the real
+     * category identifier ("student") and build the canonical prices object, instead of guessing
+     * a labelled array (thread 593). Returns '' when no enabled category exists.
+     *
+     * @return string
+     */
+    public static function describe_active_price_categories(): string {
+        return self::format_price_categories_for_message(self::get_price_categories_by_identifier());
+    }
+
+    /**
+     * The active price category identifiers, lowercased, in sort order.
+     *
+     * @return string[]
+     */
+    public static function active_price_category_identifiers(): array {
+        $ids = [];
+        foreach (self::get_price_categories_by_identifier() as $identifier => $record) {
+            if ((int)$record->disabled !== 1) {
+                $ids[] = (string)$identifier;
+            }
+        }
+        return $ids;
     }
 
     /**
@@ -2868,6 +3066,40 @@ class booking_skill_support {
         $clean = preg_replace('/\s*👤\s*/u', ' ', $query);
         $clean = preg_replace('/\s+/', ' ', (string)$clean);
         return trim((string)$clean, " \t\n\r\0\x0B.,;:!?\"'");
+    }
+
+    /**
+     * True when the query still carries an unresolved anonymization placeholder (ANON_USER_*).
+     *
+     * The token grammar is owned by the agent subplugin's privacy_anonymizer; probe it softly
+     * (mod_booking must not hard-depend on a subplugin class) and treat it as no placeholder
+     * when the subplugin is absent.
+     *
+     * @param string $query
+     * @return bool
+     */
+    private static function is_unresolved_privacy_placeholder(string $query): bool {
+        $anonymizer = '\\bookingextension_agent\\local\\wizard\\privacy_anonymizer';
+        return class_exists($anonymizer)
+            && method_exists($anonymizer, 'looks_like_anon_token')
+            && $anonymizer::looks_like_anon_token($query);
+    }
+
+    /**
+     * True when a resolved user record may be assigned/booked as a real person.
+     *
+     * The guest account (firstname "Guest user") is confirmed and not deleted, so core
+     * search_users and id/email lookups CAN return it — but resolving a person reference to
+     * the guest (or a deleted account) is never right.
+     *
+     * @param object $user Record carrying at least id (deleted optional).
+     * @return bool
+     */
+    private static function is_assignable_person(object $user): bool {
+        if (empty($user->id) || !empty($user->deleted)) {
+            return false;
+        }
+        return !isguestuser((int)$user->id);
     }
 
     /**

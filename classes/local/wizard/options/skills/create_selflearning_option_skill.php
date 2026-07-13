@@ -76,13 +76,13 @@ class create_selflearning_option_skill extends create_option_skill {
         // optiontype/selflearningcourse are set by this skill itself in preflight/execute and are
         // deliberately NOT prompt-facing.
         $allowed = array_flip([
-            'text', 'duration', 'maxanswers', 'teacherquery', 'teacheremail', 'prices',
+            'text', 'description', 'duration', 'maxanswers', 'teacherquery', 'teacheremail', 'prices',
             'bookingopeningtime', 'bookingclosingtime', 'maxoverbooking', 'disablecancel',
             // Skill-internal type flags: this skill sets them in preflight/execute, so they
             // must stay valid schema keys (the shared validator rejects unknown keys, and the
             // planner naturally emits them for a self-learning request).
             'optiontype', 'selflearningcourse',
-            'override', 'outputlang', 'activityquery',
+            'override', 'outputlang', 'activityquery', 'linkedcoursequery',
         ]);
         $properties = array_intersect_key($properties, $allowed);
 

@@ -259,6 +259,7 @@ $string['agent_booking_prices_not_object'] = 'Feld "prices" muss eine Objektzuor
 $string['agent_booking_resolve_user_ambiguous'] = 'Mehrere Nutzer:innen wurden gefunden: {$a}. Bitte geben Sie eine spezifischere Nutzerabfrage an (z. B. mit E-Mail oder Nutzer-ID).';
 $string['agent_booking_resolve_user_no_match'] = 'Keine Nutzerin/kein Nutzer passt zur Nutzerabfrage "{$a}".';
 $string['agent_booking_resolve_user_query_required'] = 'Bitte geben Sie eine Nutzerabfrage zur Identifikation der Person an.';
+$string['agent_booking_resolve_user_reference_unresolved'] = 'Die Personenangabe konnte nicht aus dem Gespräch übernommen werden. Bitte nennen Sie die Person noch einmal mit Name oder E-Mail-Adresse.';
 $string['agent_booking_search_options_query_must_be_string'] = 'Die Suchanfrage muss ein Textwert sein.';
 $string['agent_booking_teacher_no_email'] = 'Aufgelöster Lehrender hat keine E-Mail-Adresse. Bitte teacheremail direkt angeben.';
 $string['agent_booking_unknown_price_categories'] = 'Unbekannte Preiskategorie(n): {$a->unknown}. Vorhandene Kategorien: {$a->existing}.';

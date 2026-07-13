@@ -74,10 +74,10 @@ class update_option_trainer_skill extends booking_skill_base implements
         $resolvedoptionid = (int)($normalized['resolvedoptionid'] ?? 0);
         $optionid = (int)($normalized['optionid'] ?? 0);
         $targetid = $resolvedoptionid > 0 ? $resolvedoptionid : $optionid;
-        $targetquery = $this->normalize_identity_query((string)($normalized['optionquery'] ?? ''));
-        $targetwhen = $this->normalize_identity_query((string)($normalized['optionwhen'] ?? ''));
+        $targetquery = $this->normalize_identity_query(self::scalar_string($normalized['optionquery'] ?? ''));
+        $targetwhen = $this->normalize_identity_query(self::scalar_string($normalized['optionwhen'] ?? ''));
 
-        $teacherquery = $this->normalize_identity_query((string)($normalized['teacherquery'] ?? ''));
+        $teacherquery = $this->normalize_identity_query(self::scalar_string($normalized['teacherquery'] ?? ''));
         $teacheremail = strtolower(trim((string)($normalized['teacheremail'] ?? '')));
         $teacherids = array_values(array_unique(array_filter(
             array_map('intval', (array)($normalized['teacherids'] ?? [])),
@@ -272,8 +272,8 @@ class update_option_trainer_skill extends booking_skill_base implements
 
             $result = booking_skill_support::resolve_single_option(
                 $cmid,
-                (string)$preparedinput['optionquery'],
-                (string)($preparedinput['optionwhen'] ?? '')
+                self::scalar_string($preparedinput['optionquery'] ?? ''),
+                self::scalar_string($preparedinput['optionwhen'] ?? '')
             );
 
             if (($result['status'] ?? '') !== 'ok') {

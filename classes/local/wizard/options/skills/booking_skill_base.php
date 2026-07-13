@@ -49,7 +49,13 @@ abstract class booking_skill_base extends base_skill {
      */
     protected static array $promptmeta = [
         'mod_booking.create_option' => [
-            'input_fields_for_prompt' => ['text', 'activityquery'],
+            // activityquery is NOT a minimal input: it is an optional targeting hint the
+            // module_target_resolver scope-cascade handles when absent (single instance → auto,
+            // several → ask). Listing it as minimal made the model fabricate a target when the
+            // user named none — in the authoring compound it grabbed the just-created course name
+            // (thread 593). The property description still drives correct use when an activity IS
+            // named; here we only stop signalling it as required.
+            'input_fields_for_prompt' => ['text'],
             'anchor_fields' => ['option'],
         ],
         'mod_booking.create_slotbooking_option' => [
@@ -60,12 +66,11 @@ abstract class booking_skill_base extends base_skill {
                 'slot_duration_minutes',
                 'slot_valid_from',
                 'slot_valid_until',
-                'activityquery',
             ],
             'anchor_fields' => ['option'],
         ],
         'mod_booking.create_selflearning_option' => [
-            'input_fields_for_prompt' => ['text', 'activityquery'],
+            'input_fields_for_prompt' => ['text'],
             'anchor_fields' => ['option'],
         ],
         'mod_booking.create_user' => [
@@ -1227,6 +1232,21 @@ abstract class booking_skill_base extends base_skill {
      */
     protected function get_output_language(array $input): string {
         return trim((string)($input['outputlang'] ?? ''));
+    }
+
+    /**
+     * Coerce a possibly non-string input value to a string, safely.
+     *
+     * The planner/LLM occasionally emits a query field (e.g. optionquery) as an array. Casting
+     * that with (string) raises an "Array to string conversion" warning and yields the literal
+     * "Array", which then never resolves ("No option matched optionquery 'Array'", thread 593
+     * matrix run). Non-scalar values become an empty string so the skill clarifies cleanly instead.
+     *
+     * @param mixed $value
+     * @return string
+     */
+    protected static function scalar_string($value): string {
+        return is_scalar($value) ? (string)$value : '';
     }
 
     /**

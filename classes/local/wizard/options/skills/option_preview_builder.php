@@ -788,8 +788,14 @@ class option_preview_builder {
      * @return string|null
      */
     private static function format_sessions($value, string $lang): ?string {
-        if (!is_array($value) || empty($value)) {
+        if (!is_array($value)) {
             return null;
+        }
+        if (empty($value)) {
+            // An optiondates key that ends up EMPTY (e.g. every item was dropped during
+            // normalization) must be visible in the confirmation preview instead of silently
+            // omitting the row — the thread-545 preview looked correct while all dates were gone.
+            return self::str('previewvalue_sessions_none', $lang);
         }
         return self::str('previewvalue_sessions', $lang, count($value));
     }

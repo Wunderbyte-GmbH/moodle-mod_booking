@@ -44,6 +44,10 @@ final class option_preview_builder_test extends advanced_testcase {
     public function setUp(): void {
         parent::setUp();
         $this->skip_without_agent_extension();
+        // Auto-increment ids repeat after each test's DB rollback, so a booking/option settings
+        // singleton cached by an EARLIER test file resolves a reused optionid to a stale cmid
+        // (generator create_option died on context_module::instance of the previous file's cm).
+        \mod_booking\singleton_service::destroy_instance();
     }
 
     /**

@@ -16,7 +16,6 @@
 
 namespace mod_booking\local\wizard\options\skills;
 
-use mod_booking\local\wizard\engine\module_targeted_skill;
 use mod_booking\local\wizard\engine\skill_risk_class;
 use mod_booking\local\wizard\engine\skill_trigger_provider_interface;
 
@@ -28,19 +27,14 @@ use mod_booking\local\wizard\engine\skill_trigger_provider_interface;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class update_rule_from_template_skill extends booking_skill_base implements skill_trigger_provider_interface {
-    use module_targeted_skill;
+    // Rule-derived targeting (thread 584): the named rule pins its own context — a rule in a
+    // booking activity resolves that activity, a system rule stays at the ambient context.
+    // The previous module_targeted contract asked "which booking activity?" for rule requests,
+    // which a system-scoped rule cannot answer by construction.
+    use rule_targeted_skill;
 
     /** Task name constant. */
     public const TASK_NAME = 'mod_booking.update_rule_from_template';
-
-    /**
-     * This skill targets a booking activity instance.
-     *
-     * @return string
-     */
-    public function get_target_modname(): string {
-        return 'booking';
-    }
 
     /** @var object|null */
     private ?object $ruleservice = null;
@@ -51,6 +45,21 @@ class update_rule_from_template_skill extends booking_skill_base implements skil
     public function __construct() {
         parent::__construct(false, skill_risk_class::R2, ['mod/booking:editbookingrules']);
         $this->ruleservice = $this->resolve_rule_service();
+    }
+
+    /**
+     * The context whose rule set this call operates on: the ambient/resolved booking activity
+     * when there is one, otherwise the SYSTEM context (system rules are reachable from every
+     * context via the path-scoped rule listing; a rule request never asks for an activity).
+     *
+     * @param int $cmid Resolved cmid, 0 outside a booking activity.
+     * @return int Context id.
+     */
+    private function resolve_rule_scope_contextid(int $cmid): int {
+        if ($cmid > 0 && $this->ruleservice !== null) {
+            return (int)$this->ruleservice->get_module_contextid($cmid);
+        }
+        return (int)\context_system::instance()->id;
     }
 
     /**
@@ -119,13 +128,6 @@ class update_rule_from_template_skill extends booking_skill_base implements skil
                 'Disable that notification rule for now',
             ],
             'properties' => [
-                'activityquery' => [
-                    'type' => 'string',
-                    'description' => 'Optional: the name of the target booking activity, when it is not the '
-                        . 'current one (e.g. over MCP, which runs at the system context). If omitted and the '
-                        . 'site has a single booking activity in scope it is used automatically.',
-                    'required' => false,
-                ],
                 'ruleid' => [
                     'type' => 'integer',
                     'description' => 'Target booking rule id.',
@@ -208,10 +210,6 @@ class update_rule_from_template_skill extends booking_skill_base implements skil
      */
     protected function run_preflight(array $input, int $cmid, int $userid): array {
         $cmid = $this->resolve_cmid_from_context_or_cmid($cmid);
-        $capdenied = $this->require_native_capability('mod/booking:editbookingrules', $cmid, $userid);
-        if ($capdenied !== null) {
-            return $capdenied;
-        }
         if ($this->ruleservice === null) {
             return $this->invalid([
                 [
@@ -222,8 +220,20 @@ class update_rule_from_template_skill extends booking_skill_base implements skil
             ]);
         }
 
+        // The rule's own context is the operating scope: a module context when the rule (or the
+        // ambient activity) lives there, the SYSTEM context otherwise — system rules are managed
+        // from anywhere, so no "which booking activity?" question is asked for a rule (thread 584).
+        $contextid = $this->resolve_rule_scope_contextid($cmid);
+        $rulecontext = \context::instance_by_id($contextid, IGNORE_MISSING);
+        if (!$rulecontext || !has_capability('mod/booking:editbookingrules', $rulecontext, $userid)) {
+            return $this->invalid([[
+                'severity' => 'needs_clarification',
+                'message' => get_string('nopermissions', 'error', 'mod/booking:editbookingrules'),
+                'code' => 'NO_NATIVE_CAPABILITY',
+            ]]);
+        }
+
         $issues = [];
-        $contextid = $this->ruleservice->get_module_contextid($cmid);
 
         $ruleresolution = $this->ruleservice->resolve_rule(
             $contextid,
@@ -259,6 +269,21 @@ class update_rule_from_template_skill extends booking_skill_base implements skil
         $prepared = $input;
         $rule = (array)($ruleresolution['rule'] ?? []);
         $prepared['ruleid'] = (int)($rule['id'] ?? 0);
+
+        // The rule may live ABOVE the ambient scope (system/course rule reached via the context
+        // path). Editing it requires the capability where the rule lives, not just where the
+        // user happens to stand.
+        $rulectxid = (int)($rule['contextid'] ?? 0);
+        if ($rulectxid > 0 && $rulectxid !== $contextid) {
+            $ownctx = \context::instance_by_id($rulectxid, IGNORE_MISSING);
+            if (!$ownctx || !has_capability('mod/booking:editbookingrules', $ownctx, $userid)) {
+                return $this->invalid([[
+                    'severity' => 'needs_clarification',
+                    'message' => get_string('nopermissions', 'error', 'mod/booking:editbookingrules'),
+                    'code' => 'NO_NATIVE_CAPABILITY',
+                ]]);
+            }
+        }
         // Stash resolution results for the confirm preview (rule_preview_builder): the resolved
         // rule NAME for the title, and the target activity row. Execute ignores these keys.
         $rulename = trim((string)($rule['name'] ?? ''));
@@ -336,7 +361,31 @@ class update_rule_from_template_skill extends booking_skill_base implements skil
             ];
         }
 
-        $contextid = $this->ruleservice->get_module_contextid($cmid);
+        // The service only accepts the rule's OWN contextid (a system rule stays a system rule
+        // even when edited from inside a booking activity). The ambient scope is still enforced:
+        // the rule's context must lie on the scope's context path — exactly the visibility rule
+        // the listing/resolution uses.
+        global $DB;
+        $scopecontextid = $this->resolve_rule_scope_contextid($cmid);
+        $ruleid = (int)($input['ruleid'] ?? 0);
+        $contextid = (int)($DB->get_field('booking_rules', 'contextid', ['id' => $ruleid]) ?: 0);
+        $scopecontext = \context::instance_by_id($scopecontextid, IGNORE_MISSING);
+        $pathids = $scopecontext
+            ? array_map('intval', explode('/', trim((string)$scopecontext->path, '/')))
+            : [];
+        if ($contextid <= 0 || !in_array($contextid, $pathids, true)) {
+            $message = 'The rule is not reachable from the current booking context.';
+            return [
+                'status' => 'failed',
+                'detail' => $message,
+                'usermessage' => $message,
+                'resultid' => $ruleid,
+                'debugmessage' => $this->build_task_debug_message(self::TASK_NAME, $input, [
+                    'Rule context ' . $contextid . ' outside scope path of context ' . $scopecontextid,
+                ]),
+            ];
+        }
+
         $overrides = [];
         if (isset($input['rulename'])) {
             $overrides['rulename'] = trim((string)$input['rulename']);
@@ -347,7 +396,7 @@ class update_rule_from_template_skill extends booking_skill_base implements skil
 
         $result = $this->ruleservice->update_rule_from_template(
             $contextid,
-            (int)($input['ruleid'] ?? 0),
+            $ruleid,
             (int)($input['templateid'] ?? 0),
             $overrides
         );
