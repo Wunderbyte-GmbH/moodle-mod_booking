@@ -41,6 +41,57 @@ use stdClass;
  */
 class certificateclass {
     /**
+     * Returns the certificate issues of a user for a booking option,
+     * ordered by timecreated (oldest first).
+     *
+     * @param int $userid
+     * @param int $optionid
+     * @return array
+     */
+    public static function get_certificates_for_user_option(int $userid, int $optionid): array {
+        global $DB;
+
+        if (
+            empty($userid)
+            || empty($optionid)
+            || !class_exists('tool_certificate\certificate')
+        ) {
+            return [];
+        }
+
+        $params = [
+            'userid' => $userid,
+            'optionid' => $optionid,
+        ];
+
+        switch ($DB->get_dbfamily()) {
+            case 'postgres':
+                $sql = "
+                    SELECT id, code, expires, timecreated
+                      FROM {tool_certificate_issues}
+                     WHERE userid = :userid
+                       AND (data::jsonb ->> 'bookingoptionid') ~ '^[0-9]+$'
+                       AND (data::jsonb ->> 'bookingoptionid')::int = :optionid
+                     ORDER BY timecreated, id
+                ";
+                break;
+            case 'mysql':
+                $sql = "
+                    SELECT id, code, expires, timecreated
+                      FROM {tool_certificate_issues}
+                     WHERE userid = :userid
+                       AND CAST(JSON_UNQUOTE(JSON_EXTRACT(data, '$.bookingoptionid')) AS UNSIGNED) = :optionid
+                     ORDER BY timecreated, id
+                ";
+                break;
+            default:
+                return [];
+        }
+
+        return array_values($DB->get_records_sql($sql, $params));
+    }
+
+    /**
      * Issue certificate.
      *
      * @param int $optionid

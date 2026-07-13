@@ -90,10 +90,11 @@ final class columns_helper_test extends advanced_testcase {
         $ba = new booking_answers();
 
         // 1. Option scope display columns follow responsesfields + status-specific columns.
+        // Like on report.php, custom user profile fields come after all standard columns.
         $class = $ba->return_class_for_scope('option');
         $cols = $class->return_cols_for_tables(MOD_BOOKING_STATUSPARAM_BOOKED, $option->id);
         $this->assertSame(
-            ['firstname', 'lastname', 'email', 'city', 'timecreated', 'custsupervisor', 'completed', 'status', 'notes'],
+            ['firstname', 'lastname', 'email', 'city', 'timecreated', 'completed', 'custsupervisor', 'status', 'notes'],
             array_keys($cols)
         );
 
@@ -151,11 +152,95 @@ final class columns_helper_test extends advanced_testcase {
         $dcols = $class->return_cols_for_download(MOD_BOOKING_STATUSPARAM_BOOKED, $option->id);
         $this->assertSame(array_keys($cols), array_keys($dcols));
 
-        // 6. Unsupported values are silently skipped.
-        $DB->set_field('booking', 'responsesfields', 'rating,places,userpic,fullname', ['id' => $booking->id]);
+        // 6. Option-specific values are mapped too; rating stays skipped as the instance is not assessed.
+        // Like on report.php, indexnumber and userpic are moved to the front.
+        $DB->set_field('booking', 'responsesfields', 'rating,places,userpic,fullname,indexnumber', ['id' => $booking->id]);
         singleton_service::destroy_instance();
         \cache::make('mod_booking', 'cachedbookinginstances')->purge();
         $cols = $class->return_cols_for_tables(MOD_BOOKING_STATUSPARAM_BOOKED, $option->id);
-        $this->assertSame(['firstname', 'lastname', 'status', 'notes'], array_keys($cols));
+        $this->assertSame(
+            ['indexnumber', 'userpic', 'places', 'firstname', 'lastname', 'status', 'notes'],
+            array_keys($cols)
+        );
+
+        // 7. The fields of the customform availability condition become columns like on report.php.
+        $availability = json_encode([
+            [
+                'id' => MOD_BOOKING_BO_COND_JSON_CUSTOMFORM,
+                'name' => 'customform',
+                'class' => 'mod_booking\bo_availability\conditions\customform',
+                'formsarray' => [
+                    1 => [
+                        1 => ['formtype' => 'shorttext', 'label' => 'T-shirt size', 'value' => ''],
+                        2 => ['formtype' => 'enrolusersaction', 'label' => 'Enrol users', 'value' => ''],
+                    ],
+                ],
+            ],
+        ]);
+        $DB->set_field('booking_options', 'availability', $availability, ['id' => $option->id]);
+        $DB->set_field('booking', 'reportfields', 'optionid,booking,email', ['id' => $booking->id]);
+        singleton_service::destroy_instance();
+        \cache::make('mod_booking', 'bookingoptionsettings')->purge();
+        \cache::make('mod_booking', 'cachedbookinginstances')->purge();
+
+        $cols = $class->return_cols_for_tables(MOD_BOOKING_STATUSPARAM_BOOKED, $option->id);
+        $this->assertSame('T-shirt size', $cols['formfield_1'] ?? null);
+        $this->assertArrayHasKey('formfield_2', $cols);
+        // The enrolusersaction field also adds the enrollink column on the page (not in the download).
+        $this->assertArrayHasKey('enrollink', $cols);
+        $dcols = $class->return_cols_for_download(MOD_BOOKING_STATUSPARAM_BOOKED, $option->id);
+        $this->assertArrayHasKey('formfield_1', $dcols);
+        $this->assertArrayNotHasKey('enrollink', $dcols);
+
+        // 8. The stored customform answer of the user is rendered into the column.
+        $DB->set_field(
+            'booking_answers',
+            'json',
+            json_encode(['condition_customform' => ['customform_shorttext_1' => 'XL']]),
+            ['userid' => $student->id, 'optionid' => $option->id]
+        );
+        $table = $bookedusers->return_raw_table('option', $option->id, MOD_BOOKING_STATUSPARAM_BOOKED);
+        $this->assertCount(1, $table->rawdata);
+        $row = reset($table->rawdata);
+        $this->assertSame('XL', $table->other_cols('formfield_1', $row));
+        $this->assertSame('', $table->other_cols('formfield_2', $row));
+
+        // 9. Slot columns are added for slotbooking options, like on report.php (option scope only).
+        $cols = $class->return_cols_for_tables(MOD_BOOKING_STATUSPARAM_BOOKED, $option->id);
+        $this->assertArrayNotHasKey('slotstarttime', $cols);
+        $DB->set_field('booking_options', 'json', json_encode(['slot_enabled' => 1]), ['id' => $option->id]);
+        singleton_service::destroy_instance();
+        \cache::make('mod_booking', 'bookingoptionsettings')->purge();
+
+        $cols = $class->return_cols_for_tables(MOD_BOOKING_STATUSPARAM_BOOKED, $option->id);
+        $dcols = $class->return_cols_for_download(MOD_BOOKING_STATUSPARAM_BOOKED, $option->id);
+        foreach (['slotstarttime', 'slotendtime', 'slotnumslots', 'slotteachers', 'slotprice', 'moveslot'] as $slotcol) {
+            $this->assertArrayHasKey($slotcol, $cols);
+            $this->assertArrayHasKey($slotcol, $dcols);
+        }
+
+        // 10. The slot data of the booking answer is rendered into the slot columns.
+        $slotstart = strtotime('now + 1 day');
+        $DB->set_field(
+            'booking_answers',
+            'json',
+            json_encode(['slot' => [
+                'slots' => [['start' => $slotstart, 'end' => $slotstart + HOURSECS]],
+                'price' => 12,
+            ]]),
+            ['userid' => $student->id, 'optionid' => $option->id]
+        );
+        \cache::make('local_wunderbyte_table', 'cachedrawdata')->purge();
+        \cache::make('mod_booking', 'bookedusertable')->purge();
+        $table = $bookedusers->return_raw_table('option', $option->id, MOD_BOOKING_STATUSPARAM_BOOKED);
+        $this->assertCount(1, $table->rawdata);
+        $row = reset($table->rawdata);
+        $this->assertSame('1', $table->col_slotnumslots($row));
+        $this->assertSame('12', $table->col_slotprice($row));
+        $this->assertSame(
+            userdate($slotstart, get_string('strftimedatetime', 'langconfig')),
+            $table->col_slotstarttime($row)
+        );
+        $this->assertStringContainsString('moveslot.php', $table->col_moveslot($row));
     }
 }

@@ -24,8 +24,12 @@
  */
 
 namespace mod_booking\table;
+use html_writer;
+use mod_booking\bo_availability\conditions\customform;
 use mod_booking\local\certificateclass;
 use mod_booking\local\certificate_conditions\certificate_conditions;
+use mod_booking\local\slotbooking\slot_answer;
+use user_picture;
 use moodle_exception;
 use core_plugin_manager;
 use mod_booking\enrollink;
@@ -1171,6 +1175,273 @@ class manageusers_table extends wunderbyte_table {
     }
 
     /**
+     * Renders the enrollink generated for a booking answer (customform enrolusersaction field).
+     *
+     * @param stdClass $values
+     * @return string
+     */
+    public function col_enrollink(stdClass $values): string {
+        // In option scope, the row id is the booking answer id. Other scopes provide "baid".
+        $baid = (int)($values->baid ?? $values->id ?? 0);
+        if (empty($baid)) {
+            return '';
+        }
+        $erlid = enrollink::get_erlid_from_baid($baid) ?? '';
+        return empty($erlid) ? '' : enrollink::create_enrollink($erlid);
+    }
+
+    /**
+     * Renders the image of the user.
+     *
+     * @param stdClass $values
+     * @return string
+     */
+    public function col_userpic(stdClass $values): string {
+        global $PAGE;
+
+        if (empty($values->userid)) {
+            return '';
+        }
+        $user = singleton_service::get_instance_of_user((int)$values->userid);
+        $userpic = new user_picture($user);
+        $userpic->size = 200;
+        $userpictureurl = $userpic->get_url($PAGE);
+        return html_writer::img(
+            $userpictureurl,
+            "link",
+            ['height' => 100]
+        );
+    }
+
+    /**
+     * Renders the index number of the row.
+     *
+     * @param stdClass $values
+     * @return string
+     */
+    public function col_indexnumber(stdClass $values): string {
+        $optionid = $values->optionid ?? 0;
+        return (string)singleton_service::get_index_number($this->uniqueid . $optionid, (string)$values->id);
+    }
+
+    /**
+     * Renders the aggregated rating of the booking answer (read-only).
+     *
+     * @param stdClass $values
+     * @return string
+     */
+    public function col_rating(stdClass $values): string {
+        global $DB;
+
+        if (!isset($values->rating) || $values->rating === null || $values->rating === '') {
+            return '';
+        }
+
+        $optionsettings = singleton_service::get_instance_of_booking_option_settings((int)($values->optionid ?? 0));
+        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($optionsettings->cmid ?? 0);
+        $value = (float)$values->rating;
+
+        // See RATING_AGGREGATE_COUNT in rating/lib.php.
+        if ((int)($bookingsettings->assessed ?? 0) === 2) {
+            return (string)(int)$value;
+        }
+
+        // For custom scales, map the value back to the scale item.
+        $scaleid = (int)($bookingsettings->scale ?? 0);
+        if ($scaleid < 0 && ($scale = $DB->get_record('scale', ['id' => -$scaleid]))) {
+            $scaleitems = explode(',', $scale->scale);
+            $index = max(1, min(count($scaleitems), (int)round($value)));
+            return format_string(trim($scaleitems[$index - 1]));
+        }
+
+        return format_float($value, 2);
+    }
+
+    /**
+     * Renders the group(s) of the user in the course of the booking instance.
+     *
+     * @param stdClass $values
+     * @return string
+     */
+    public function col_groups(stdClass $values): string {
+        global $DB;
+
+        $optionsettings = singleton_service::get_instance_of_booking_option_settings((int)($values->optionid ?? 0));
+        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($optionsettings->cmid ?? 0);
+        $courseid = (int)($bookingsettings->course ?? 0);
+        if (empty($courseid) || empty($values->userid)) {
+            return '';
+        }
+
+        $groups = groups_get_user_groups($courseid, (int)$values->userid);
+        if (empty($groups[0])) {
+            return '';
+        }
+        [$insql, $inparams] = $DB->get_in_or_equal($groups[0]);
+        $groupnames = $DB->get_fieldset_select('groups', 'name', 'id ' . $insql, $inparams);
+        return implode(', ', array_map('format_string', $groupnames));
+    }
+
+    /**
+     * Renders the latest certificate of the user for the booking option.
+     *
+     * @param stdClass $values
+     * @return string
+     */
+    public function col_certificate(stdClass $values): string {
+        $certificates = certificateclass::get_certificates_for_user_option(
+            (int)($values->userid ?? 0),
+            (int)($values->optionid ?? 0)
+        );
+        if (empty($certificates)) {
+            return '';
+        }
+
+        $lastcertificate = end($certificates);
+        if (empty($lastcertificate->timecreated) || empty($lastcertificate->code)) {
+            return '';
+        }
+
+        if (empty($lastcertificate->expires)) {
+            $text = get_string('certificatewithoutexpiration', 'mod_booking');
+        } else {
+            $dateformatted = userdate($lastcertificate->expires);
+            $text = get_string('certificatewithexpiration', 'mod_booking', $dateformatted);
+        }
+        $statusicon = (time() < $lastcertificate->expires) ? '&#x2705; ' : '&#x274C; ';
+        $url = new moodle_url(
+            "/pluginfile.php/1/tool_certificate/issues/{$lastcertificate->timecreated}/{$lastcertificate->code}.pdf"
+        );
+        return $statusicon . html_writer::link($url, $text, ['target' => '_blank']);
+    }
+
+    /**
+     * Renders all certificates of the user for the booking option.
+     *
+     * @param stdClass $values
+     * @return string
+     */
+    public function col_allusercertificates(stdClass $values): string {
+        global $OUTPUT;
+        static $id = 1;
+
+        $certificates = certificateclass::get_certificates_for_user_option(
+            (int)($values->userid ?? 0),
+            (int)($values->optionid ?? 0)
+        );
+        if (empty($certificates)) {
+            return '';
+        }
+
+        $certdata = [];
+        foreach ($certificates as $certificate) {
+            $url = new moodle_url(
+                "/pluginfile.php/1/tool_certificate/issues/{$certificate->timecreated}/{$certificate->code}.pdf"
+            );
+            $certdata[] = [
+                'code' => $certificate->code,
+                'timecreated' => userdate($certificate->timecreated),
+                'expires' => !empty($certificate->expires) ? userdate($certificate->expires)
+                    : get_string('certificatewithoutexpiration', 'mod_booking'),
+                'url' => $url,
+            ];
+        }
+        $fullname = "{$values->firstname} {$values->lastname}";
+        $data = [
+            'title' => get_string('certificatemodalheader', 'mod_booking', $fullname),
+            'certificates' => $certdata,
+            'id' => $id,
+        ];
+        $id++;
+        return $OUTPUT->render_from_template('mod_booking/report/allusercertificate_modal', $data);
+    }
+
+    /**
+     * Renders the number of booked slots (slotbooking options).
+     *
+     * @param stdClass $values
+     * @return string
+     */
+    public function col_slotnumslots(stdClass $values): string {
+        return slot_answer::render_numslots($values);
+    }
+
+    /**
+     * Renders the start time of the first booked slot (slotbooking options).
+     *
+     * @param stdClass $values
+     * @return string
+     */
+    public function col_slotstarttime(stdClass $values): string {
+        return slot_answer::render_starttime($values);
+    }
+
+    /**
+     * Renders the end time of the last booked slot (slotbooking options).
+     *
+     * @param stdClass $values
+     * @return string
+     */
+    public function col_slotendtime(stdClass $values): string {
+        return slot_answer::render_endtime($values);
+    }
+
+    /**
+     * Renders the assigned teachers from the slot JSON (slotbooking options).
+     *
+     * @param stdClass $values
+     * @return string
+     */
+    public function col_slotteachers(stdClass $values): string {
+        return slot_answer::render_teachers($values);
+    }
+
+    /**
+     * Renders the slot price paid from the slot JSON (slotbooking options).
+     *
+     * @param stdClass $values
+     * @return string
+     */
+    public function col_slotprice(stdClass $values): string {
+        return slot_answer::render_price($values);
+    }
+
+    /**
+     * Renders the move slot action link (slotbooking options).
+     *
+     * @param stdClass $values
+     * @return string
+     */
+    public function col_moveslot(stdClass $values): string {
+        $settings = singleton_service::get_instance_of_booking_option_settings((int)($values->optionid ?? 0));
+        $cmid = $settings->cmid ?? 0;
+        if (empty($cmid)) {
+            return '';
+        }
+
+        $context = context_module::instance($cmid);
+        $canmoveslots = has_capability('mod/booking:moveslots', $context)
+            || has_capability('mod/booking:updatebooking', $context);
+        if (!$canmoveslots) {
+            return '';
+        }
+
+        $slotdata = slot_answer::get_slot_data($values);
+        if (empty($slotdata)) {
+            return '';
+        }
+
+        // In option scope, the row id is the booking answer id. Other scopes provide "baid".
+        $url = new moodle_url('/mod/booking/moveslot.php', [
+            'id' => $cmid,
+            'optionid' => $values->optionid,
+            'baid' => (int)($values->baid ?? $values->id ?? 0),
+        ]);
+
+        return html_writer::link($url, get_string('slot_move_action', 'mod_booking'));
+    }
+
+    /**
      * This function is called for each data row to allow processing of columns which do not have a *_cols function.
      *
      * @param mixed $colname
@@ -1191,6 +1462,24 @@ class manageusers_table extends wunderbyte_table {
                     ? userdate($tmp[1], get_string('strftimedate', 'langconfig'))
                     : format_string($tmp[1]);
             }
+        }
+        // Answers to the fields of the customform availability condition, like on report.php.
+        // They are stored in the json of the booking answer (in optiondate scope selected as
+        // "bajson", because there "json" holds the json of the optiondate answer).
+        if (substr($colname, 0, 10) === 'formfield_') {
+            $optionid = (int)($values->optionid ?? 0);
+            $json = $values->bajson ?? $values->json ?? '';
+            if (empty($optionid) || empty($json)) {
+                return '';
+            }
+            $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+            [, $counter] = explode('_', $colname);
+            $customformvalue = customform::get_customform_field_value(
+                $settings,
+                (object)['json' => $json],
+                (int)$counter
+            );
+            return $customformvalue === null ? '' : format_string($customformvalue);
         }
         $settings = singleton_service::get_instance_of_booking_option_settings($values->optionid ?? 0);
         if ($settings->customfields[$colname] ?? false) {

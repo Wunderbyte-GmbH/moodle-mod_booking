@@ -197,12 +197,19 @@ class optiondate extends scope_base {
             $this->get_cmid_for_scopeid($scopeid)
         );
 
+        // Additional selects/joins for configured columns (price/currency, rating).
+        [$extraselect, $extrajoin, $extraparams] = columns_helper::extra_fields_sql(
+            $this->get_cmid_for_scopeid($scopeid),
+            $this->get_optionid_for_scopeid($scopeid)
+        );
+
         // We need to set a limit for the query in mysqlfamily.
         $fields = 's1.*';
         $from = " (
             SELECT " .
                 $DB->sql_concat("bo.id", "'-'", "bod.id", "'-'", "u.id") .
                 " id,
+                ba.id baid,
                 bod.id optiondateid,
                 bod.coursestarttime,
                 bod.courseendtime,
@@ -212,6 +219,8 @@ class optiondate extends scope_base {
                 ba.completed,
                 ba.completeddate,
                 ba.numrec,
+                ba.places,
+                ba.json bajson,
                 boda.status,
                 boda.json,
                 boda.notes,
@@ -229,6 +238,7 @@ class optiondate extends scope_base {
                 u.idnumber,
                 '" . $scope . "' AS scope
                 $profilefieldselect
+                $extraselect
             FROM {booking_optiondates} bod
             JOIN {booking_options} bo
             ON bo.id = bod.optionid
@@ -238,6 +248,7 @@ class optiondate extends scope_base {
             ON u.id = ba.userid
             LEFT JOIN {booking_optiondates_answers} boda
             ON bod.id = boda.optiondateid AND bo.id = boda.optionid AND ba.userid = boda.userid
+            $extrajoin
             WHERE bod.id = :optiondateid AND ba.waitinglist = :statusparam
             ORDER BY u.lastname, u.firstname, bod.coursestarttime ASC
             LIMIT 10000000000
@@ -245,7 +256,7 @@ class optiondate extends scope_base {
         $params = array_merge([
             'optiondateid' => $optiondateid,
             'statusparam' => MOD_BOOKING_STATUSPARAM_BOOKED,
-        ], $profilefieldparams);
+        ], $profilefieldparams, $extraparams);
 
         return [$fields, $from, $where, $params];
     }
@@ -262,7 +273,8 @@ class optiondate extends scope_base {
     public function return_cols_for_tables(int $statusparam, int $scopeid = 0): array {
 
         // Columns configured in the instance setting "Manage responses - Page" (responsesfields).
-        $columns = columns_helper::display_columns($this->get_cmid_for_scopeid($scopeid));
+        $optionid = $this->get_optionid_for_scopeid($scopeid);
+        $columns = columns_helper::display_columns($this->get_cmid_for_scopeid($scopeid), $optionid);
         if (empty($columns)) {
             $columns = [
                 'firstname' => get_string('firstname', 'core'),
@@ -270,6 +282,9 @@ class optiondate extends scope_base {
                 'email'     => get_string('email', 'core'),
             ];
         }
+
+        // Columns for the fields of the customform availability condition, like on report.php.
+        $columns = array_merge($columns, columns_helper::customform_columns($optionid, true));
 
         switch ($statusparam) {
             case MOD_BOOKING_STATUSPARAM_BOOKED:
@@ -310,12 +325,31 @@ class optiondate extends scope_base {
 
         // Columns configured in the instance setting "Manage responses - Download" (reportfields).
         // In optiondate scope, coursestarttime/courseendtime resolve to the session times.
-        $columns = columns_helper::download_columns($this->get_cmid_for_scopeid($scopeid));
+        $optionid = $this->get_optionid_for_scopeid($scopeid);
+        $columns = columns_helper::download_columns($this->get_cmid_for_scopeid($scopeid), $optionid);
         if (empty($columns)) {
             return $this->return_cols_for_tables($statusparam, $scopeid);
         }
 
+        // Columns for the fields of the customform availability condition, like on report.php.
+        $columns = array_merge($columns, columns_helper::customform_columns($optionid));
+
         return $columns;
+    }
+
+    /**
+     * Resolves the optionid for the given scopeid (optiondateid).
+     *
+     * @param int $scopeid
+     * @return int
+     */
+    public function get_optionid_for_scopeid(int $scopeid): int {
+        global $DB;
+
+        if (empty($scopeid)) {
+            return 0;
+        }
+        return (int)$DB->get_field('booking_optiondates', 'optionid', ['id' => $scopeid]);
     }
 
     /**

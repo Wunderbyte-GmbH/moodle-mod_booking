@@ -276,7 +276,7 @@ class option extends scope_base {
     public function return_cols_for_tables(int $statusparam, int $scopeid = 0): array {
 
         // Columns configured in the instance setting "Manage responses - Page" (responsesfields).
-        $columns = columns_helper::display_columns($this->get_cmid_for_scopeid($scopeid));
+        $columns = columns_helper::display_columns($this->get_cmid_for_scopeid($scopeid), $scopeid);
         if (empty($columns)) {
             $columns = [
                 'firstname' => get_string('firstname', 'core'),
@@ -284,6 +284,12 @@ class option extends scope_base {
                 'email'     => get_string('email', 'core'),
             ];
         }
+
+        // Columns for the fields of the customform availability condition, like on report.php.
+        $columns = array_merge($columns, columns_helper::customform_columns($scopeid, true));
+
+        // Slot columns for slotbooking options, like on report.php.
+        $columns = array_merge($columns, columns_helper::slot_columns($scopeid));
 
         // Status-specific columns stay automatic so the tracker workflow (presence, notes,
         // confirm/delete actions) keeps working regardless of the configured columns.
@@ -345,10 +351,16 @@ class option extends scope_base {
     public function return_cols_for_download(int $statusparam, int $scopeid = 0): array {
 
         // Columns configured in the instance setting "Manage responses - Download" (reportfields).
-        $columns = columns_helper::download_columns($this->get_cmid_for_scopeid($scopeid));
+        $columns = columns_helper::download_columns($this->get_cmid_for_scopeid($scopeid), $scopeid);
         if (empty($columns)) {
             return $this->return_cols_for_tables($statusparam, $scopeid);
         }
+
+        // Columns for the fields of the customform availability condition, like on report.php.
+        $columns = array_merge($columns, columns_helper::customform_columns($scopeid));
+
+        // Slot columns for slotbooking options, like on report.php.
+        $columns = array_merge($columns, columns_helper::slot_columns($scopeid));
 
         if (
             $statusparam == MOD_BOOKING_STATUSPARAM_WAITINGLIST
@@ -451,6 +463,13 @@ class option extends scope_base {
         );
         $params = array_merge($params, $profilefieldparams);
 
+        // Additional selects/joins for configured columns (price/currency, rating).
+        [$extraselect, $extrajoin, $extraparams] = columns_helper::extra_fields_sql(
+            $this->get_cmid_for_scopeid($optionid),
+            $optionid
+        );
+        $params = array_merge($params, $extraparams);
+
         // We need to set a limit for the query in mysqlfamily.
         $fields = 's1.*';
         $from = "
@@ -478,6 +497,9 @@ class option extends scope_base {
                     ba.completed,
                     ba.completeddate,
                     ba.numrec,
+                    ba.places,
+                    ba.startdate,
+                    ba.enddate,
                     ba.optionid,
                     ba.json,
                     bo.text,
@@ -487,11 +509,13 @@ class option extends scope_base {
                     bo.courseendtime,
                     '" . $scope . "' AS scope
                     $profilefieldselect
+                    $extraselect
                 FROM {booking_answers} ba
                 JOIN {user} u ON ba.userid = u.id
                 JOIN {booking_options} bo ON bo.id = ba.optionid
                 $whereneedtoconfirmjoin
                 $presencecountsqlpart
+                $extrajoin
                 WHERE ba.waitinglist=:statusparam $whereoptionid1 $whereneedtoconfirm
                 LIMIT 1000000
             ) s2
