@@ -38,6 +38,9 @@
 * Bugfix: Display waitinglist column for unlimited waitinglist.
 * Bugfix: Display enrolledincourse condition independly to usesqlfilteravailability condition.
 
+## Version 9.5.1 (2026070301)
+* Bugfix: Make sure no classes from shopping cart are required in booking.
+
 ## Version 9.5.0 (2026070300)
 * Improvement: The full text search on booking customfields (via shortcode argument or instance setting fulltextsearchcolumns) now also searches the display value resolved by the wbt_field_controller (e.g. select labels or the data returned by the SQL of a dynamicformat field), not only the stored key.
 * New feature: New booking instance setting "Columns to add to the full text search" to add columns of booking options or booking customfields to the full text search of the booking options table.
