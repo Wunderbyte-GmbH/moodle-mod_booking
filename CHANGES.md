@@ -1,3 +1,6 @@
+## Version 9.5.1 (2026070301)
+* Bugfix: Make sure no classes from shopping cart are required in booking.
+
 ## Version 9.5.0 (2026070300)
 * New feature: New "Bulk operations" tab on the booking instance view page. It is enabled via the "Views to show" instance setting, requires the 'mod/booking:executebulkoperations' capability in module context and only shows booking options of the current instance. Users without 'mod/booking:canseeinvisibleoptions' in the module context only see visible options there. Also, the "Send mail to teachers" functionality of bulk operations now needs the 'mod/booking:communicate' capability.
 * New feature: Add setting 'eventslogtimefilter' to limit recent changes in booking option and booking instance form for better performance.
