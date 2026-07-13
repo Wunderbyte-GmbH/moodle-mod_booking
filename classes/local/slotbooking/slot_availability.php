@@ -424,10 +424,10 @@ class slot_availability {
             return $result;
         }
 
-        // If the option is tied to an entity that is already occupied during this slot
-        // (e.g. by a normal option's optiondate, or another slot on the same entity),
-        // the slot is not available regardless of its own capacity. At booking commit time this
-        // reads live (authoritative) so two users cannot both book the same exclusive slot.
+        // If the option is tied to an entity that is already occupied during this slot — exclusive
+        // mode: any overlapping booking on the entity; capacity mode: the entity's shared pool is
+        // exhausted — the slot is not available. At booking commit time this reads live
+        // (authoritative) so two users cannot both take the last unit of the same entity.
         if (self::has_entity_conflict_for_slot($optionid, $slotstart, $slotend, $uselivedata)) {
             $result['status'] = 'unavailable';
             $result['errormessage'] = get_string('slot_error_entity_occupied', 'mod_booking');
@@ -562,19 +562,47 @@ class slot_availability {
         }
 
         // Default 'none' means no overlap checking for this entity — skip cheaply (no dates query).
-        if (\local_entities\entities::get_allocation_mode($entityid) === 'none') {
+        $allocationmode = \local_entities\entities::get_allocation_mode($entityid);
+        if ($allocationmode === 'none') {
             return false;
         }
 
         $bookeddates = \local_entities\entities::get_all_dates_for_entity($entityid, $uselive);
+
+        // Capacity mode: the entity is a shared pool of 'maxallocation' units, not an exclusive
+        // resource. Overlapping bookings from OTHER options each consume units (a booked slot is one
+        // seat = one unit; a normal option's date reserves its stored per-relation quantity), and the
+        // seat being booked now consumes one more. The slot is only occupied once that running sum
+        // would exceed the pool — a mere time overlap is NOT a conflict while capacity remains.
+        if ($allocationmode === 'capacity') {
+            $maxallocation = (int) (\local_entities\entity::load($entityid)->__get('maxallocation') ?? 0);
+            if ($maxallocation <= 0) {
+                // No capacity limit configured means unlimited — never a conflict.
+                return false;
+            }
+
+            $consumed = 0;
+            foreach ($bookeddates as $bookeddate) {
+                // An option never blocks its own slots.
+                if (self::owner_option_id($bookeddate) === $optionid) {
+                    continue;
+                }
+                if (!self::slots_overlap($slotstart, $slotend, (int)$bookeddate->starttime, (int)$bookeddate->endtime)) {
+                    continue;
+                }
+                // A booked slot occupies exactly one unit (one seat); other occupancy (e.g. a normal
+                // option's optiondate) reserves its stored per-relation quantity.
+                $consumed += ($bookeddate->area === 'slot') ? 1 : max(1, (int)($bookeddate->quantity ?? 1));
+            }
+
+            return ($consumed + 1) > $maxallocation;
+        }
+
+        // Exclusive (and any other non-'none') mode: the entity is occupied per reservation, so ANY
+        // overlapping booking from another option makes the slot unavailable.
         foreach ($bookeddates as $bookeddate) {
             // Ignore dates that belong to this very option; its own dates never block its slots.
-            $owneroptionid = 0;
-            if (!empty($bookeddate->link)) {
-                $params = $bookeddate->link->params();
-                $owneroptionid = (int)($params['optionid'] ?? 0);
-            }
-            if ($owneroptionid === $optionid) {
+            if (self::owner_option_id($bookeddate) === $optionid) {
                 continue;
             }
 
@@ -584,6 +612,20 @@ class slot_availability {
         }
 
         return false;
+    }
+
+    /**
+     * Extract the owning booking option id of an entity occupancy date from its link params.
+     *
+     * @param object $bookeddate an entitydate returned by entities::get_all_dates_for_entity()
+     * @return int the owning option id, or 0 if it cannot be determined
+     */
+    private static function owner_option_id(object $bookeddate): int {
+        if (empty($bookeddate->link)) {
+            return 0;
+        }
+        $params = $bookeddate->link->params();
+        return (int)($params['optionid'] ?? 0);
     }
 
     /**
