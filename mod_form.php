@@ -681,7 +681,8 @@ class mod_booking_mod_form extends moodleform_mod {
             );
             $mform->addHelpButton('customfieldsforview', 'customfieldsforview', 'mod_booking');
             $preset = (array)booking::get_value_of_json_by_key($bookingid, 'customfieldsforview') ?? [];
-            $mform->setDefault('customfieldsforview', array_keys($preset));
+            // Older instances stored shortname => fullname pairs instead of a plain list of shortnames.
+            $mform->setDefault('customfieldsforview', array_is_list($preset) ? $preset : array_keys($preset));
         }
 
         // Columns to add to the full text search of the booking options table.

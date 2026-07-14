@@ -894,10 +894,7 @@ function booking_add_instance($booking) {
 
     if (!empty($booking->customfieldsforview)) {
         $customfields = booking_handler::get_customfields($booking->customfieldsforview);
-        $fieldsfordb = [];
-        foreach ($customfields as $field) {
-            $fieldsfordb[$field->shortname] = $field->name;
-        }
+        $fieldsfordb = array_values(array_map(fn($field) => $field->shortname, $customfields));
         booking::add_data_to_json($booking, "customfieldsforview", $fieldsfordb);
     }
 
@@ -1267,10 +1264,7 @@ function booking_update_instance($booking) {
         booking::remove_key_from_json($booking, "customfieldsforview");
     } else {
         $customfields = booking_handler::get_customfields($booking->customfieldsforview);
-        $fieldsfordb = [];
-        foreach ($customfields as $field) {
-            $fieldsfordb[$field->shortname] = $field->name;
-        }
+        $fieldsfordb = array_values(array_map(fn($field) => $field->shortname, $customfields));
         booking::add_data_to_json($booking, "customfieldsforview", $fieldsfordb);
     }
 

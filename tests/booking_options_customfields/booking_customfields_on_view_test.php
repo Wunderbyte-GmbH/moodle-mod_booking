@@ -93,9 +93,11 @@ final class booking_customfields_on_view_test extends booking_advanced_testcase 
         singleton_service::destroy_instance();
         $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($booking->cmid);
 
-        // The setting was stored in the JSON column and loaded into booking_settings.
+        // The setting was stored in the JSON column as a plain list of shortnames
+        // and loaded into booking_settings.
         $storedfields = (array)$bookingsettings->customfieldsforview;
-        $this->assertEqualsCanonicalizing(['spt1', 'lng1'], array_keys($storedfields));
+        $this->assertEqualsCanonicalizing(['spt1', 'lng1'], $storedfields);
+        $this->assertTrue(array_is_list($storedfields));
 
         // The info array contains both fields, with the configured icon or the default icon.
         $cfinfoarray = view::get_customfieldsforview_info_array($bookingsettings);
@@ -320,6 +322,11 @@ final class booking_customfields_on_view_test extends booking_advanced_testcase 
         $this->assertSame([], view::get_customfieldsforview_info_array($bookingsettings));
 
         // A stored shortname of a meanwhile deleted customfield is ignored.
+        $bookingsettings->customfieldsforview = ['deletedfield', 'spt1'];
+        $cfinfoarray = view::get_customfieldsforview_info_array($bookingsettings);
+        $this->assertSame(['spt1'], array_keys($cfinfoarray));
+
+        // The legacy format (shortname => fullname pairs) is still supported.
         $bookingsettings->customfieldsforview = ['deletedfield' => 'Deleted field', 'spt1' => 'Sport1'];
         $cfinfoarray = view::get_customfieldsforview_info_array($bookingsettings);
         $this->assertSame(['spt1'], array_keys($cfinfoarray));

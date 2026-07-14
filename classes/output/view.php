@@ -1239,8 +1239,11 @@ class view implements renderable, templatable {
             return [];
         }
 
+        // Older instances stored shortname => fullname pairs instead of a plain list of shortnames.
+        $selectedfields = array_is_list($selectedfields) ? $selectedfields : array_keys($selectedfields);
+
         $cfinfoarray = [];
-        foreach (array_keys($selectedfields) as $shortname) {
+        foreach ($selectedfields as $shortname) {
             if (!in_array($shortname, $validcustomfields)) {
                 continue;
             }
