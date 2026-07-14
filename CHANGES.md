@@ -1,18 +1,14 @@
 ## Version 9.6.2 (2026071001)
 * New feature: New bulk operations page in the Booking plugin settings.
-* Bugfix: Fix enrolmultipleusers via cashier (wrong number of items). Wunderbyte-GmbH/Wunderbyte-GmbH#1974
-* Bugfix: Fix several enrollink bugs. Wunderbyte-GmbH/Wunderbyte-GmbH#1535, Wunderbyte-GmbH/Wunderbyte-GmbH#2057, Wunderbyte-GmbH/Wunderbyte-GmbH#2058, Wunderbyte-GmbH/Wunderbyte-GmbH#1558
-
-## Version 9.6.2 (2026070905)
+* New feature: AI wizard — new read-only skill list_instance_settings returns the configurable instance fields with current values; configure_booking_instance is write-only now.
 * Improvement: AI wizard — diagnose_user_booking resolves a named option from any context (like the other diagnose skills) and flags an unresolvable optionquery instead of silently degrading to the instance-wide overview; every reported option carries its host course and booking instance.
 * Improvement: AI wizard — the no-instance scope observation no longer reads as a site-wide "no booking activities" state in later turns and points to the target-parameter retry path.
-
-## Version 9.6.2 (2026070904)
 * Improvement: AI wizard — search_options, list_option_properties and the two diagnose skills resolve their booking activity from any context (optionid or activityquery), instead of dead-ending outside a booking module context.
-* New feature: AI wizard — new read-only skill list_instance_settings returns the configurable instance fields with current values; configure_booking_instance is write-only now.
 * Improvement: AI wizard — mutation previews always name the target activity and course, bulk previews list the affected options, and every changed field is shown.
 * Improvement: AI wizard — failed mutations report per-option postcondition failures and which fields were actually persisted.
 * Bugfix: booking_add_instance/booking_update_instance no longer crash on records loaded from the DB (count() on comma-separated string fields).
+* Bugfix: Fix enrolmultipleusers via cashier (wrong number of items). Wunderbyte-GmbH/Wunderbyte-GmbH#1974
+* Bugfix: Fix several enrollink bugs. Wunderbyte-GmbH/Wunderbyte-GmbH#1535, Wunderbyte-GmbH/Wunderbyte-GmbH#2057, Wunderbyte-GmbH/Wunderbyte-GmbH#2058, Wunderbyte-GmbH/Wunderbyte-GmbH#1558
 
 ## Version 9.6.1 (2026070901)
 * New feature: Booking agent — an AI assistant (bookingextension_agent) that creates, updates and manages booking options and answers questions from natural language, reachable from a global navbar entry point.
