@@ -17,6 +17,7 @@
 namespace mod_booking;
 
 use mod_booking\booking_user_selector_base;
+use mod_booking\singleton_service;
 use stdClass;
 
 /**
@@ -119,5 +120,21 @@ class booking_existing_user_selector extends booking_user_selector_base {
         }
 
         return [get_string("booked", 'booking') => $availableusers];
+    }
+
+    /**
+     * Output one user row, appending how many times the user has booked this option.
+     *
+     * @param stdClass $user
+     * @return string
+     */
+    public function output_user($user) {
+        $out = parent::output_user($user);
+        $settings = singleton_service::get_instance_of_booking_option_settings($this->options['optionid']);
+        $count = singleton_service::get_instance_of_booking_answers($settings)->count_previous_bookings($user->id);
+        if ($count >= 1) {
+            $out .= get_string('subscribebookedxtimes', 'mod_booking', $count);
+        }
+        return $out;
     }
 }
