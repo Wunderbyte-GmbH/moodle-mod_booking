@@ -40,7 +40,7 @@ Feature: As admin - configure customfields to be displayed for each booking opti
     And I expand all fieldsets
     And I wait until ".collapsing" "css_element" does not exist
     And I set the following fields to these values:
-      | Custom fields that are to be displayed for each booking option in the overview | Sport1 (spt1),Second (scnd1) |
+      | Custom fields that are to be displayed for the booking options of this booking instance in the overview | Sport1 (spt1),Second (scnd1) |
     And I press "Save and display"
     And I log out
     ## Verify that the selected customfields are shown with their icons for each booking option.
@@ -61,7 +61,7 @@ Feature: As admin - configure customfields to be displayed for each booking opti
     And I wait until ".collapsing" "css_element" does not exist
     And I set the following fields to these values:
       | View type                                                                       | Cards view                   |
-      | Custom fields that are to be displayed for each booking option in the overview | Sport1 (spt1),Second (scnd1) |
+      | Custom fields that are to be displayed for the booking options of this booking instance in the overview | Sport1 (spt1),Second (scnd1) |
     And I press "Save and display"
     And I log out
     ## In the cards view, each customfield is rendered on its own line in the card list.

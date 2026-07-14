@@ -463,7 +463,7 @@ $capabilities = [
             'manager' => CAP_ALLOW,
         ],
     ],
-    // Capability to manage optiondates.
+    // Capability to manage custom field options.
     'mod/booking:managecustomfieldoptions' => [
         'riskbitmask' => RISK_CONFIG,
         'captype' => 'write',

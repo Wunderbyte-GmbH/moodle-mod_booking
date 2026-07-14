@@ -1485,7 +1485,12 @@ $string['customfieldoptions'] = 'List of possible values';
 $string['customfields'] = 'Custom fields';
 $string['customfieldsforfilter'] = 'Custom fields that are to be displayed as filter options';
 $string['customfieldsforview'] = 'Custom fields that are to be displayed for each booking option in the overview';
-$string['customfieldsforview_help'] = 'Selected custom booking option fields will be shown for each booking option in the booking options overview.
+$string['customfieldsforview:globalhint'] = 'If no custom fields are selected here, the custom fields selected in the global setting <a href="{$a}" target="_blank">booking | customfieldsforview</a> will be shown.';
+$string['customfieldsforview_desc'] = 'Selected custom booking option fields will be shown for each booking option in the booking options overview of all booking instances.
+If a booking instance defines its own fields in its instance settings, only those are shown for that instance.';
+$string['customfieldsforviewinstance'] = 'Custom fields that are to be displayed for the booking options of this booking instance in the overview';
+$string['customfieldsforviewinstance_help'] = 'Selected custom booking option fields will be shown for each booking option in the booking options overview of this booking instance.
+If no fields are selected here, the fields selected in the global plugin setting (Site administration > Plugins > Activity modules > Booking) are shown.
 You can define an icon for each custom field in the plugin settings (Site administration > Plugins > Activity modules > Booking).
 If no icon is configured, a default icon (puzzle piece) is used.';
 $string['customfieldsplaceholdertext'] = 'Custom user profile fields & custom booking option fields can be referenced using their shortname.';

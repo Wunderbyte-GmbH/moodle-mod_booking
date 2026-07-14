@@ -1452,8 +1452,13 @@ $string['customfieldname_help'] = 'Sie können einen beliebigen Feldnamen angebe
 $string['customfields'] = 'Benutzerdefinierte Felder';
 $string['customfieldsforfilter'] = 'Benutzerdefinierte Felder, die als Filtermöglichkeit angezeigt werden sollen';
 $string['customfieldsforview'] = 'Benutzerdefinierte Felder, die bei jeder Buchungsoption in der Übersicht angezeigt werden sollen';
-$string['customfieldsforview_help'] = 'Ausgewählte benutzerdefinierte Buchungsoptionsfelder werden bei jeder Buchungsoption in der Übersicht der Buchungsoptionen angezeigt.
-In den Plugin-Einstellungen (Website-Administration > Plugins > Aktivitäten > Buchung) kann für jedes benutzerdefinierte Feld ein Icon festgelegt werden.
+$string['customfieldsforview:globalhint'] = 'Wenn hier keine benutzerdefinierten Felder ausgewählt sind, werden jene angezeigt, die in der globalen Einstellung <a href="{$a}" target="_blank">booking | customfieldsforview</a> ausgewählt sind.';
+$string['customfieldsforview_desc'] = 'Ausgewählte benutzerdefinierte Buchungsoptionsfelder werden bei jeder Buchungsoption in der Übersicht der Buchungsoptionen aller Buchungsinstanzen angezeigt.
+Definiert eine Buchungsinstanz eigene Felder in ihren Instanz-Einstellungen, werden für diese Instanz nur diese angezeigt.';
+$string['customfieldsforviewinstance'] = 'Benutzerdefinierte Felder, die bei den Buchungsoptionen dieser Buchungsinstanz in der Übersicht angezeigt werden sollen';
+$string['customfieldsforviewinstance_help'] = 'Ausgewählte benutzerdefinierte Buchungsoptionsfelder werden in der Übersicht der Buchungsoptionen dieser Buchungsinstanz angezeigt.
+Werden hier keine Felder ausgewählt, werden die in den Plugin-Einstellungen (Website-Administration > Plugins > Aktivitäten > Buchung) global ausgewählten Felder angezeigt.
+In den Plugin-Einstellungen kann für jedes benutzerdefinierte Feld ein Icon festgelegt werden.
 Ist kein Icon hinterlegt, wird ein Standard-Icon (Puzzleteil) verwendet.';
 $string['customfieldsplaceholdertext'] = 'Custom user profile fields & custom booking option fields can be referenced using their shortname';
 $string['customfieldtype'] = 'Feldtyp';

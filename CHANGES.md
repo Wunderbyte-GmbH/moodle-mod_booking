@@ -1,3 +1,5 @@
+* New feature: New global plugin setting "customfieldsforview" as fallback for the booking instance setting of the same name: if an instance does not define customfields to be shown for each booking option in the options overview (view.php), the globally selected customfields are shown; if the instance defines its own customfields, only those are shown.
+
 ## Version 9.6.2 (2026071001)
 * New feature: New bulk operations page in the Booking plugin settings.
 * New feature: AI wizard — new read-only skill list_instance_settings returns the configurable instance fields with current values; configure_booking_instance is write-only now.

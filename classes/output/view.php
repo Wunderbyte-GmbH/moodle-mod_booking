@@ -1195,7 +1195,8 @@ class view implements renderable, templatable {
             }
         }
 
-        // Add customfields configured in the instance settings to the table.
+        // Add customfields configured in the instance settings (or the global
+        // plugin setting as fallback) to the table.
         // Shortcode args have precedence, as apply_standard_params_for_bookingtable overrides
         // the info array whenever the includecustomfields arg is present.
         if (!empty($customfieldsinfoarray = self::get_customfieldsforview_info_array($bookingsettings))) {
@@ -1218,6 +1219,10 @@ class view implements renderable, templatable {
     /**
      * Build the customfields info array from the instance setting customfieldsforview.
      *
+     * If the instance does not define any fields, the global plugin setting
+     * customfieldsforview is used as fallback. If the instance defines fields,
+     * only those are shown and the global setting is ignored.
+     *
      * Uses the same structure as shortcodes_handler::get_includecustomfields_info_array.
      * The region is left empty, so prepare_customfields can resolve it depending on the
      * rendered template (list or cards). The icon is taken from the global plugin setting
@@ -1229,6 +1234,13 @@ class view implements renderable, templatable {
      */
     public static function get_customfieldsforview_info_array(booking_settings $bookingsettings): array {
         $selectedfields = (array)($bookingsettings->customfieldsforview ?? []);
+        if (empty($selectedfields)) {
+            // Fall back to the fields defined in the global plugin setting.
+            $selectedfields = array_filter(array_map(
+                'trim',
+                explode(',', (string)get_config('booking', 'customfieldsforview'))
+            ));
+        }
         if (empty($selectedfields)) {
             return [];
         }

@@ -509,6 +509,22 @@ if ($ADMIN->fulltree) {
     );
 
     if (!empty($customfields)) {
+        // Custom fields to be shown for each booking option in the options overview (view.php)
+        // of all booking instances that do not define customfieldsforview themselves.
+        $customfieldsforviewoptions = [];
+        foreach ($customfields as $customfield) {
+            $customfieldsforviewoptions[$customfield->shortname] = format_string("$customfield->name ($customfield->shortname)");
+        }
+        $settings->add(
+            new admin_setting_configmultiselect(
+                'booking/customfieldsforview',
+                get_string('customfieldsforview', 'mod_booking'),
+                get_string('customfieldsforview_desc', 'mod_booking'),
+                [],
+                $customfieldsforviewoptions
+            )
+        );
+
         // Custom fields to be shown on detail page (optionview.php).
         $settings->add(
             new admin_setting_configmultiselect(

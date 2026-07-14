@@ -675,14 +675,26 @@ class mod_booking_mod_form extends moodleform_mod {
             $mform->addElement(
                 'autocomplete',
                 'customfieldsforview',
-                get_string('customfieldsforview', 'mod_booking'),
+                get_string('customfieldsforviewinstance', 'mod_booking'),
                 $customfieldshortnames,
                 $options
             );
-            $mform->addHelpButton('customfieldsforview', 'customfieldsforview', 'mod_booking');
+            $mform->addHelpButton('customfieldsforview', 'customfieldsforviewinstance', 'mod_booking');
             $preset = (array)booking::get_value_of_json_by_key($bookingid, 'customfieldsforview') ?? [];
             // Older instances stored shortname => fullname pairs instead of a plain list of shortnames.
             $mform->setDefault('customfieldsforview', array_is_list($preset) ? $preset : array_keys($preset));
+            // As long as no customfields are selected on instance level, the global plugin setting applies.
+            $globalsettingurl = new moodle_url(
+                '/admin/settings.php',
+                ['section' => 'modsettingbooking'],
+                'admin-customfieldsforview'
+            );
+            $mform->addElement(
+                'static',
+                'customfieldsforviewglobalhint',
+                '',
+                get_string('customfieldsforview:globalhint', 'mod_booking', $globalsettingurl->out())
+            );
         }
 
         // Columns to add to the full text search of the booking options table.

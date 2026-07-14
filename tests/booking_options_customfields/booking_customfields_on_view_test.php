@@ -333,6 +333,51 @@ final class booking_customfields_on_view_test extends booking_advanced_testcase 
     }
 
     /**
+     * Ensure instances without own customfieldsforview fall back to the global plugin
+     * setting, while instances with own fields ignore the global setting.
+     *
+     * @covers \mod_booking\output\view::get_customfieldsforview_info_array
+     */
+    public function test_customfieldsforview_falls_back_to_global_setting(): void {
+
+        $this->setAdminUser();
+
+        $teacher = $this->getDataGenerator()->create_user(['username' => 'teacher1']);
+
+        $this->create_booking_customfields();
+
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $booking = $this->getDataGenerator()->create_module('booking', [
+            'course' => $course->id,
+            'name' => 'Booking0',
+            'bookingmanager' => $teacher->username,
+            'eventtype' => 'Webinar',
+        ]);
+
+        singleton_service::destroy_instance();
+        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($booking->cmid);
+
+        // Neither instance nor global setting defined: empty info array.
+        $this->assertSame([], view::get_customfieldsforview_info_array($bookingsettings));
+
+        // No instance setting: the fields of the global setting are used
+        // (stored comma-separated by admin_setting_configmultiselect).
+        set_config('customfieldsforview', 'spt1,lng1', 'booking');
+        $cfinfoarray = view::get_customfieldsforview_info_array($bookingsettings);
+        $this->assertEqualsCanonicalizing(['spt1', 'lng1'], array_keys($cfinfoarray));
+
+        // Deleted customfields in the global setting are ignored as well.
+        set_config('customfieldsforview', 'deletedfield,spt1', 'booking');
+        $cfinfoarray = view::get_customfieldsforview_info_array($bookingsettings);
+        $this->assertSame(['spt1'], array_keys($cfinfoarray));
+
+        // Fields defined on instance level always win over the global setting.
+        $bookingsettings->customfieldsforview = ['lng1'];
+        $cfinfoarray = view::get_customfieldsforview_info_array($bookingsettings);
+        $this->assertSame(['lng1'], array_keys($cfinfoarray));
+    }
+
+    /**
      * Create the custom fields needed by this test.
      *
      * @return void
