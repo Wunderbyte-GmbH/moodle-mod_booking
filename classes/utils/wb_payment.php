@@ -42,6 +42,13 @@ class wb_payment {
     const PRODUCT_BOOKING_AGENT = 'bookingagent';
 
     /**
+     * Test-only override for pro_version_is_activated (null = no override).
+     *
+     * @var bool|null
+     */
+    private static $proversionoverride = null;
+
+    /**
      * MOD_BOOKING_PUBLIC_KEY
      *
      * @var mixed
@@ -116,6 +123,11 @@ pwIDAQAB
      * @throws \dml_exception
      */
     public static function pro_version_is_activated() {
+        // Unit tests may force a specific PRO state, e.g. to simulate a plain
+        // installation without Booking PRO (see override_pro_version_for_tests).
+        if (self::$proversionoverride !== null && defined('PHPUNIT_TEST') && PHPUNIT_TEST) {
+            return self::$proversionoverride;
+        }
         // Get license key which has been set in settings.php.
         $pluginconfig = get_config('booking');
         if (!empty($pluginconfig->licensekey)) {
@@ -140,5 +152,22 @@ pwIDAQAB
             return true;
         }
         return false;
+    }
+
+    /**
+     * Force pro_version_is_activated() to a fixed value in unit tests.
+     *
+     * Without this, PHPUnit runs always report the PRO version as activated,
+     * so the code paths of a plain installation (no PRO) could never be tested.
+     *
+     * @param bool|null $value true/false to force the PRO state, null to remove the override
+     * @return void
+     * @throws \coding_exception if called outside of unit tests
+     */
+    public static function override_pro_version_for_tests(?bool $value): void {
+        if (!defined('PHPUNIT_TEST') || !PHPUNIT_TEST) {
+            throw new \coding_exception('override_pro_version_for_tests() must only be used in unit tests.');
+        }
+        self::$proversionoverride = $value;
     }
 }
