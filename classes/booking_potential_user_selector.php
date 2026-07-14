@@ -18,6 +18,8 @@ namespace mod_booking;
 
 use context_module;
 use mod_booking\booking_user_selector_base;
+use mod_booking\option\fields\multiplebookings;
+use mod_booking\singleton_service;
 use stdClass;
 
 /**
@@ -79,22 +81,24 @@ class booking_potential_user_selector extends booking_user_selector_base {
             $groupsql = " AND u.id IN (" . $groupsql . ")";
             $params = array_merge($eparams, $groupparams);
         } else {
-            [$enrolledsql, $params] = get_enrolled_sql($this->options['accesscontext'], null, null, true);
+            [$enrolledsql, $params] = get_enrolled_sql($this->accesscontext, null, null, true);
         }
 
-        $option = new stdClass();
-        $option->id = $this->options['optionid'];
-        $option->bookingid = $this->options['bookingid'];
+        // When "book again" (multiplebookings) is enabled on the option, already-booked users may be
+        // re-subscribed, so they must not be excluded outright from the potential list below.
+        $settings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
+        $bookagainenabled = ((int)($settings->jsonobject->multiplebookings ?? multiplebookings::MODE_DISABLED))
+            !== multiplebookings::MODE_DISABLED;
 
         if (
-            booking_check_if_teacher($option) && !has_capability(
+            booking_check_if_teacher($this->optionid) && !has_capability(
                 'mod/booking:readallinstitutionusers',
                 $this->options['accesscontext']
             )
         ) {
             $institution = $DB->get_record(
                 'booking_options',
-                ['id' => $this->options['optionid']]
+                ['id' => $this->optionid]
             );
 
             $searchparams['onlyinstitution'] = $institution->institution;
@@ -116,25 +120,45 @@ class booking_potential_user_selector extends booking_user_selector_base {
             )";
         }
 
+        if ($bookagainenabled) {
+            // Only exclude users in a pending state (waiting list / reserved / notify-me). Currently
+            // booked users stay in the list so a trainer can re-subscribe them; they are then filtered
+            // by the book-again timing gate in PHP after the query (see below).
+            $pendingstatuses = [
+                MOD_BOOKING_STATUSPARAM_WAITINGLIST,
+                MOD_BOOKING_STATUSPARAM_RESERVED,
+                MOD_BOOKING_STATUSPARAM_NOTIFYMELIST,
+            ];
+            [$pendingsql, $pendingparams] = $DB->get_in_or_equal($pendingstatuses, SQL_PARAMS_NAMED, 'pending');
+            $notbookedsql = "AND u.id NOT IN (
+                SELECT ba.userid
+                FROM {booking_answers} ba
+                WHERE ba.optionid = {$this->optionid}
+                AND ba.waitinglist $pendingsql
+            )";
+            $searchparams = array_merge($searchparams, $pendingparams);
+        } else {
+            $notbookedsql = "AND u.id NOT IN (
+                SELECT ba.userid
+                FROM {booking_answers} ba
+                WHERE ba.optionid = {$this->optionid}
+                AND waitinglist <> :statusparamdeleted
+            )";
+            $searchparams['statusparamdeleted'] = MOD_BOOKING_STATUSPARAM_DELETED;
+        }
+
         $sql = " FROM {user} u
         WHERE $searchcondition
         AND u.suspended = 0
         AND u.deleted = 0
         $enrolledsqlpart
         $groupsql
-        AND u.id NOT IN (
-            SELECT ba.userid
-            FROM {booking_answers} ba
-            WHERE ba.optionid = {$this->options['optionid']}
-            AND waitinglist <> :statusparamdeleted
-        )";
-
-        $searchparams['statusparamdeleted'] = MOD_BOOKING_STATUSPARAM_DELETED;
+        $notbookedsql";
 
         // Agents who are not unrestricted (eg. supervisors with only "bookmyteam") only see their own team.
         global $USER;
         $teamuserids = \mod_booking\local\bookingworkflow\bookforothers::get_bookable_target_ids(
-            $this->options['optionid'],
+            $this->optionid,
             $USER->id
         );
         if ($teamuserids !== null) {
@@ -168,6 +192,28 @@ class booking_potential_user_selector extends booking_user_selector_base {
             return [];
         }
 
+        if ($bookagainenabled) {
+            // Respect the book-again timing gate: an already-booked user is only offered for
+            // re-subscription when they are currently eligible to book again (same rule the user's
+            // own re-booking follows). Eligible ones are flagged for the "(is already booked)" label.
+            $usersonlist = singleton_service::get_instance_of_booking_answers($settings)->get_usersonlist();
+            foreach ($availableusers as $uid => $user) {
+                if (
+                    isset($usersonlist[$uid])
+                    && (int)$usersonlist[$uid]->waitinglist === MOD_BOOKING_STATUSPARAM_BOOKED
+                ) {
+                    if (!multiplebookings::book_again_due($this->optionid, $usersonlist[$uid])) {
+                        unset($availableusers[$uid]);
+                        continue;
+                    }
+                    $user->bookingalreadybooked = true;
+                }
+            }
+            if (empty($availableusers)) {
+                return [];
+            }
+        }
+
         if ($bookanyone) {
             if ($search) {
                 $groupname = get_string('usersmatching', 'mod_booking');
@@ -183,5 +229,19 @@ class booking_potential_user_selector extends booking_user_selector_base {
         }
 
         return [$groupname => $availableusers];
+    }
+
+    /**
+     * Output one user row, appending an "(is already booked)" hint for re-subscribable users.
+     *
+     * @param stdClass $user
+     * @return string
+     */
+    public function output_user($user) {
+        $out = parent::output_user($user);
+        if (!empty($user->bookingalreadybooked)) {
+            $out .= get_string('subscribealreadybooked', 'mod_booking');
+        }
+        return $out;
     }
 }
