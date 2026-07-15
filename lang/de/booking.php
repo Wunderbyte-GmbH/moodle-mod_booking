@@ -1731,6 +1731,7 @@ $string['enrollink:4'] = 'Es sind keine freien Plätze mehr in Ihrem Kontingent 
 $string['enrollink:5'] = 'Keine Gastnutzer erlaubt';
 $string['enrollink:6'] = 'Ihre Anmeldung ist erfolgt und muss noch von einer berechtigten Person bestätigt werden.';
 $string['enrollink:7'] = 'Einschreibung nicht möglich: {$a}';
+$string['enrollinkreceivedfrom'] = 'Einschreibelink erhalten von';
 $string['enrollinkskipconditions'] = 'Bei Einschreibe-Links bestimmte Verfügbarkeitsbedingungen umgehen';
 $string['enrollinkskipconditions_desc'] = 'Wählen Sie aus, welche Verfügbarkeitsbedingungen umgangen werden sollen, wenn ein Benutzer über einen Einschreibe-Link bucht.';
 $string['enrollinktriggered'] = 'Einschreibe-Link Generierung ausgelöst';

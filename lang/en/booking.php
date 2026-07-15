@@ -1775,6 +1775,7 @@ $string['enrollink:4'] = 'There are no more places available in the bundle.';
 $string['enrollink:5'] = 'No guestusers allowed';
 $string['enrollink:6'] = 'Your registration has been completed and must still be confirmed by an authorised person.';
 $string['enrollink:7'] = 'Enrolment not possible: {$a}';
+$string['enrollinkreceivedfrom'] = 'Enrolment link received from';
 $string['enrollinkskipconditions'] = 'Turn off specific availability conditions for enrolment links';
 $string['enrollinkskipconditions_desc'] = 'Select which availability conditions should be bypassed when a user books via an enrolment link.';
 $string['enrollinktriggered'] = 'Enrol link generation triggered';

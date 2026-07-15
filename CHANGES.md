@@ -1,3 +1,4 @@
+* New feature: Booking agent can link a Moodle course when creating an option (linkedcoursequery); update_option advertises its course-linking capability for discovery.
 * Bugfix: Slot booking — booking an additional slot (while still below max_slots_per_user) through the booking modal silently created no answer although the confirmation page reported success; the booked-state gate in the prepage flow now honours remaining slot capacity. (GH-2053)
 * Bugfix: Slot booking — the "Booked slots" shown in the booking options table now aggregate the slots of all of a user's active answers instead of only the newest one. (GH-2053)
 * Test: Slotbooking behats updated for the capacity behaviour (row offers booking again until max_slots_per_user is exhausted, then locks to the booked state) and now book a second slot in calendar and list view; new PHPUnit regression test for the prepage repeat-purchase flow.
@@ -6,7 +7,7 @@
 * Improvement: Slot booking — user-defined slot type with configurable duration granularity (slot_duration_step_minutes) and per-slot warmup/cooldown buffers with overlap or summed combination mode. (GH-2053)
 * Improvement: Added show-only link into component view. (GH-176)
 * Improvement: Booking agent create/update skills hardened — silently-coerced dates are refused with repair guidance, intuitive input keys (price alias, description) are accepted, and the constructor is grounded in the site's real price categories.
-* New feature: Booking agent can link a Moodle course when creating an option (linkedcoursequery); update_option advertises its course-linking capability for discovery.
+* Improvement: If a booking option supports enrolling multiple users (customform "enrol multiple users" field), report.php and the Bookings Tracker (report2.php, option scope) always show two enrollink columns (in the tables and in the downloads, independent of responsesfields/reportfields): the enrolment link a user has created or used, and "Enrolment link received from" linking to the profile of the user who made the original booking.
 * Improvement: Booking agent rule skills resolve via the rule's own context instead of asking for an activity; preflight error causes split into user and repair channels.
 * Bugfix: Booking option maxanswers defaults to unlimited (0); the agent never asks about capacity.
 * Bugfix: Non-string query fields are coerced safely (no "Array to string conversion").

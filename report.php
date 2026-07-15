@@ -763,6 +763,10 @@ if (!$tableallbookings->is_downloading()) {
         if ($customformfield->formtype === 'enrolusersaction') {
             $columns[] = 'enrollink';
             $headers[] = get_string('enrollink', 'booking');
+            $tableallbookings->no_sorting('enrollink');
+            $columns[] = 'enrollinkreceivedfrom';
+            $headers[] = get_string('enrollinkreceivedfrom', 'mod_booking');
+            $tableallbookings->no_sorting('enrollinkreceivedfrom');
         }
 
         $label = !empty($customformfield->label) ? $customformfield->label : 'label_' . $counter;
@@ -1473,6 +1477,12 @@ if (!$tableallbookings->is_downloading()) {
     $customform = customform::return_formelements($settings);
 
     foreach ($customform as $counter => $customformfield) {
+        if ($customformfield->formtype === 'enrolusersaction') {
+            $columns[] = 'enrollink';
+            $headers[] = get_string('enrollink', 'booking');
+            $columns[] = 'enrollinkreceivedfrom';
+            $headers[] = get_string('enrollinkreceivedfrom', 'mod_booking');
+        }
         $columns[] = 'formfield_' . $counter;
         $headers[] = !empty($customformfield->label) ? $customformfield->label : 'label_' . $counter;
     }

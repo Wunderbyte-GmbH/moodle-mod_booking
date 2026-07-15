@@ -333,6 +333,29 @@ class columns_helper {
     }
 
     /**
+     * Checks if the option has a customform with an enrolusersaction ("enrol multiple users") element,
+     * i.e. if enrollinks can exist for this option.
+     *
+     * @param int $optionid
+     * @return bool
+     */
+    public static function has_enrolusersaction(int $optionid): bool {
+        if (empty($optionid)) {
+            return false;
+        }
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $formelements = customform::return_formelements($settings);
+        if (!empty($formelements) && is_array($formelements)) {
+            foreach ($formelements as $formelement) {
+                if (($formelement->formtype ?? '') === 'enrolusersaction') {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
      * Returns the columns ([columnkey => header]) for the fields of the customform
      * availability condition of the given booking option, like on report.php:
      * one column "formfield_<counter>" per form element, labelled with the field label.

@@ -628,6 +628,82 @@ class enrollink {
     }
 
     /**
+     * Get the bundle from which a user has consumed an enrollink item for a given option.
+     *
+     * @param int $userid
+     * @param int $optionid
+     *
+     * @return stdClass|null
+     */
+    public static function get_bundle_used_by_user(int $userid, int $optionid): ?stdClass {
+        global $DB;
+
+        $sql = "SELECT beb.*
+                  FROM {booking_enrollink_items} bei
+                  JOIN {booking_enrollink_bundles} beb ON beb.erlid = bei.erlid
+                 WHERE bei.userid = :userid
+                       AND bei.consumed = 1
+                       AND beb.optionid = :optionid
+              ORDER BY bei.id DESC";
+        $records = $DB->get_records_sql($sql, ['userid' => $userid, 'optionid' => $optionid], 0, 1);
+        return $records ? reset($records) : null;
+    }
+
+    /**
+     * Get the erlid connected to a user for a given option -
+     * either from a bundle the user has booked or from an enrollink the user has used.
+     *
+     * @param int $userid
+     * @param int $optionid
+     *
+     * @return string
+     */
+    public static function get_erlid_for_user(int $userid, int $optionid): string {
+        global $DB;
+
+        $bundles = $DB->get_records(
+            'booking_enrollink_bundles',
+            ['userid' => $userid, 'optionid' => $optionid],
+            'id DESC',
+            'id, erlid',
+            0,
+            1
+        );
+        if (!empty($bundles)) {
+            return reset($bundles)->erlid ?? '';
+        }
+        $bundle = self::get_bundle_used_by_user($userid, $optionid);
+        return $bundle->erlid ?? '';
+    }
+
+    /**
+     * Render the user from whom the given user has received the enrollink.
+     * Returns an empty string if the user has booked the bundle themselves.
+     *
+     * @param int $userid
+     * @param int $optionid
+     * @param bool $ashtml if true, the name links to the user profile
+     *
+     * @return string
+     */
+    public static function render_enrollink_received_from(int $userid, int $optionid, bool $ashtml = true): string {
+        $bundle = self::get_bundle_used_by_user($userid, $optionid);
+        if (empty($bundle) || (int)$bundle->userid === $userid) {
+            return '';
+        }
+        $buyer = singleton_service::get_instance_of_user((int)$bundle->userid);
+        if (empty($buyer)) {
+            return '';
+        }
+        $name = fullname($buyer);
+        if (!$ashtml) {
+            return $name;
+        }
+        $url = new moodle_url('/user/profile.php', ['id' => $buyer->id]);
+        return html_writer::link($url, $name);
+    }
+
+    /**
      * Reads the number of booked licenses from the booking answer.
      *
      * @param object $answer

@@ -325,6 +325,50 @@ class manageusers_table extends wunderbyte_table {
     }
 
     /**
+     * Returns the enrollink the user has created (customform enrolusersaction field) or used for this option.
+     *
+     * @param stdClass $values
+     * @return string
+     */
+    public function col_enrollink(stdClass $values): string {
+        $erlid = '';
+        // In option scope, the row id is the booking answer id. Other scopes provide "baid".
+        $baid = $values->baid ?? $values->id ?? 0;
+        if (!empty($baid) && is_numeric($baid)) {
+            $erlid = enrollink::get_erlid_from_baid((int)$baid) ?? '';
+        }
+        if (empty($erlid) && !empty($values->userid) && !empty($values->optionid)) {
+            // The user did not create a bundle - check if the user created or used an enrollink for this option.
+            $erlid = enrollink::get_erlid_for_user((int)$values->userid, (int)$values->optionid);
+        }
+        if (empty($erlid)) {
+            return '';
+        }
+        if ($this->is_downloading()) {
+            $url = new moodle_url('/mod/booking/enrollink.php', ['erlid' => $erlid]);
+            return $url->out(false);
+        }
+        return enrollink::create_enrollink($erlid);
+    }
+
+    /**
+     * Returns the user from whom the enrollink was received (with link to the user profile).
+     *
+     * @param stdClass $values
+     * @return string
+     */
+    public function col_enrollinkreceivedfrom(stdClass $values): string {
+        if (empty($values->userid) || empty($values->optionid)) {
+            return '';
+        }
+        return enrollink::render_enrollink_received_from(
+            (int)$values->userid,
+            (int)$values->optionid,
+            !$this->is_downloading()
+        );
+    }
+
+    /**
      * Return count of booking answers.
      *
      * @param stdClass $values
@@ -1172,22 +1216,6 @@ class manageusers_table extends wunderbyte_table {
             'local_wunderbyte_table/component_actionbutton',
             ['showactionbuttons' => $data]
         );
-    }
-
-    /**
-     * Renders the enrollink generated for a booking answer (customform enrolusersaction field).
-     *
-     * @param stdClass $values
-     * @return string
-     */
-    public function col_enrollink(stdClass $values): string {
-        // In option scope, the row id is the booking answer id. Other scopes provide "baid".
-        $baid = (int)($values->baid ?? $values->id ?? 0);
-        if (empty($baid)) {
-            return '';
-        }
-        $erlid = enrollink::get_erlid_from_baid($baid) ?? '';
-        return empty($erlid) ? '' : enrollink::create_enrollink($erlid);
     }
 
     /**

@@ -436,9 +436,37 @@ class all_userbookings extends \table_sql {
      *
      */
     public function col_enrollink($values): string {
-        $erlid = enrollink::get_erlid_from_baid($values->id) ?? "";
-        $value = empty($erlid) ? "" : \mod_booking\enrollink::create_enrollink($erlid);
-        return $value;
+        // When downloading, the booking answer id is selected as "uniqueid" instead of "id".
+        $baid = $values->id ?? $values->uniqueid ?? 0;
+        $erlid = empty($baid) ? "" : (enrollink::get_erlid_from_baid((int)$baid) ?? "");
+        if (empty($erlid)) {
+            // The user did not create a bundle - check if the user created or used an enrollink for this option.
+            $erlid = enrollink::get_erlid_for_user((int)$values->userid, (int)$values->optionid);
+        }
+        if (empty($erlid)) {
+            return "";
+        }
+        if ($this->is_downloading()) {
+            $url = new moodle_url('/mod/booking/enrollink.php', ['erlid' => $erlid]);
+            return $url->out(false);
+        }
+        return \mod_booking\enrollink::create_enrollink($erlid);
+    }
+
+    /**
+     * Returns the user from whom the enrollink was received (with link to the user profile).
+     *
+     * @param object $values
+     *
+     * @return string
+     *
+     */
+    public function col_enrollinkreceivedfrom($values): string {
+        return enrollink::render_enrollink_received_from(
+            (int)$values->userid,
+            (int)$values->optionid,
+            !$this->is_downloading()
+        );
     }
 
     /**

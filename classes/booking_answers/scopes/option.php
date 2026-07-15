@@ -336,7 +336,40 @@ class option extends scope_base {
                 break;
         }
 
+        // If the option supports enrolling multiple users (customform enrolusersaction field),
+        // we always show the enrollink columns.
+        if (
+            !empty($scopeid)
+            && in_array($statusparam, [MOD_BOOKING_STATUSPARAM_BOOKED, MOD_BOOKING_STATUSPARAM_WAITINGLIST])
+            && columns_helper::has_enrolusersaction($scopeid)
+        ) {
+            $columns = self::add_enrollink_columns($columns);
+        }
+
         return $columns;
+    }
+
+    /**
+     * Adds the enrollink columns. If an enrollink column already exists (customform mapping),
+     * "received from" is inserted right after it, otherwise both are appended.
+     *
+     * @param array $columns
+     * @return array
+     */
+    private static function add_enrollink_columns(array $columns): array {
+        if (!isset($columns['enrollink'])) {
+            $columns['enrollink'] = get_string('enrollink', 'mod_booking');
+            $columns['enrollinkreceivedfrom'] = get_string('enrollinkreceivedfrom', 'mod_booking');
+            return $columns;
+        }
+        $newcolumns = [];
+        foreach ($columns as $key => $value) {
+            $newcolumns[$key] = $value;
+            if ($key === 'enrollink') {
+                $newcolumns['enrollinkreceivedfrom'] = get_string('enrollinkreceivedfrom', 'mod_booking');
+            }
+        }
+        return $newcolumns;
     }
 
     /**
@@ -371,6 +404,16 @@ class option extends scope_base {
                 ['userrank' => get_string('userrank', 'mod_booking')],
                 $columns
             );
+        }
+
+        // If the option supports enrolling multiple users (customform enrolusersaction field),
+        // we always add the enrollink columns (as in the display table).
+        if (
+            !empty($scopeid)
+            && in_array($statusparam, [MOD_BOOKING_STATUSPARAM_BOOKED, MOD_BOOKING_STATUSPARAM_WAITINGLIST])
+            && columns_helper::has_enrolusersaction($scopeid)
+        ) {
+            $columns = self::add_enrollink_columns($columns);
         }
 
         return $columns;
