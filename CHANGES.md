@@ -1,4 +1,8 @@
+## Version 9.6.3 (2026071500)
 * New feature: New global plugin setting "customfieldsforview" as fallback for the booking instance setting of the same name: if an instance does not define customfields to be shown for each booking option in the options overview (view.php), the globally selected customfields are shown; if the instance defines its own customfields, only those are shown.
+* Improvement: Trainer can now book again.
+* Improvement: Optiondates now accept dateparseformat on import.
+* Test: New unit tests making sure the plugin settings page loads without errors on a plain installation.
 
 ## Version 9.6.2 (2026071001)
 * New feature: New bulk operations page in the Booking plugin settings.
