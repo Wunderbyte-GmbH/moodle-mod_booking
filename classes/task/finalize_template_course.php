@@ -35,6 +35,7 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 
 require_once($CFG->dirroot . '/mod/booking/lib.php');
+require_once($CFG->dirroot . '/course/lib.php');
 
 /**
  * Strips the inherited template tags from a course created from a template.
@@ -100,6 +101,19 @@ class finalize_template_course extends \core\task\adhoc_task {
         if (!$DB->record_exists('course', ['id' => $newcourseid])) {
             mtrace("finalize_template_course: course $newcourseid no longer exists, nothing to do.");
             return;
+        }
+
+        // Core's async restore forces the fullname to be unique via
+        // restore_dbops::calculate_course_names(), appending a " copy N" suffix when another course
+        // already shares the name. Reset it to the intended value (duplicate fullnames are allowed in
+        // Moodle - only the restore copy path enforces uniqueness).
+        $desiredfullname = $taskdata->fullname ?? '';
+        if (!empty($desiredfullname)) {
+            $current = get_course($newcourseid);
+            if ($current->fullname !== $desiredfullname) {
+                update_course((object) ['id' => $newcourseid, 'fullname' => $desiredfullname]);
+                mtrace("finalize_template_course: reset course $newcourseid fullname to \"$desiredfullname\".");
+            }
         }
 
         // Strip all tags from the duplicated course so it is not treated as a template itself.
