@@ -49,7 +49,7 @@ abstract class booking_skill_base extends base_skill {
      */
     protected static array $promptmeta = [
         'mod_booking.create_option' => [
-            // activityquery is NOT a minimal input: it is an optional targeting hint the
+            // An activityquery is NOT a minimal input: it is an optional targeting hint the
             // module_target_resolver scope-cascade handles when absent (single instance → auto,
             // several → ask). Listing it as minimal made the model fabricate a target when the
             // user named none — in the authoring compound it grabbed the just-created course name

@@ -96,7 +96,7 @@ final class agent_construction_price_grounding_test extends \advanced_testcase {
         $this->setAdminUser();
         $this->seed_categories();
 
-        // "Studierende" is the student category's NAME → resolves to identifier "student".
+        // The German word "Studierende" is the student category's NAME → resolves to identifier "student".
         $this->assertSame(
             ['student' => 20.0],
             booking_skill_support::normalize_prices_input_for_execute([['price' => 20, 'label' => 'Studierende']])
