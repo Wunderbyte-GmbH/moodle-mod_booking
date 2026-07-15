@@ -121,12 +121,15 @@ class optiondate extends scope_base {
             ];
             $table->define_sortablecolumns($sortablecolumns);
 
-            // Add filter for presence status.
+            // Add filter for presence status, visible right away on load.
             $presencestatusfilter = new standardfilter('status', get_string('presence', 'mod_booking'));
             $presencestatusfilter->add_options(booking::get_array_of_possible_presence_statuses());
+            // Show all presence statuses, even those no user has yet - otherwise the whole
+            // filter would be hidden until the first presence status is stored.
+            $presencestatusfilter->show_all_options();
             $table->add_filter($presencestatusfilter);
 
-            $table->filteronloadinactive = true;
+            $table->filteronloadinactive = false;
             $table->showfilterontop = true;
 
             $table->actionbuttons[] = [
@@ -216,9 +219,9 @@ class optiondate extends scope_base {
                 ba.userid,
                 ba.waitinglist,
                 ba.timecreated,
+                ba.timebooked,
                 ba.completed,
                 ba.completeddate,
-                ba.numrec,
                 ba.places,
                 ba.json bajson,
                 boda.status,
@@ -272,67 +275,24 @@ class optiondate extends scope_base {
      */
     public function return_cols_for_tables(int $statusparam, int $scopeid = 0): array {
 
-        // Columns configured in the instance setting "Manage responses - Page" (responsesfields).
-        $optionid = $this->get_optionid_for_scopeid($scopeid);
-        $columns = columns_helper::display_columns($this->get_cmid_for_scopeid($scopeid), $optionid);
-        if (empty($columns)) {
-            $columns = [
-                'firstname' => get_string('firstname', 'core'),
-                'lastname'  => get_string('lastname', 'core'),
-                'email'     => get_string('email', 'core'),
-            ];
+        $columns = [];
+
+        // The user picture is only shown if it is configured in the instance setting responsesfields.
+        $cmid = $this->get_cmid_for_scopeid($scopeid);
+        if (!empty($cmid)) {
+            $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
+            $responsesfields = array_map('trim', explode(',', (string)($bookingsettings->responsesfields ?? '')));
+            if (in_array('userpic', $responsesfields)) {
+                $columns['userpic'] = get_string('userpic');
+            }
         }
 
-        // Columns for the fields of the customform availability condition, like on report.php.
-        $columns = array_merge($columns, columns_helper::customform_columns($optionid, true));
-
-        switch ($statusparam) {
-            case MOD_BOOKING_STATUSPARAM_BOOKED:
-                // In optiondate scope, status and notes hold the per-session presence and notes.
-                // They stay automatic, as the tracker action buttons edit exactly these columns.
-                if (!isset($columns['status'])) {
-                    $columns['status'] = get_string('presence', 'mod_booking');
-                }
-                if (!isset($columns['notes'])) {
-                    $columns['notes'] = get_string('notes', 'mod_booking');
-                }
-                break;
-            case MOD_BOOKING_STATUSPARAM_WAITINGLIST:
-                break;
-            case MOD_BOOKING_STATUSPARAM_RESERVED:
-                break;
-            case MOD_BOOKING_STATUSPARAM_NOTIFYMELIST:
-                break;
-            case MOD_BOOKING_STATUSPARAM_NOTBOOKED:
-                break;
-            case MOD_BOOKING_STATUSPARAM_BOOKED_DELETED:
-                break;
-        }
-
-        return $columns;
-    }
-
-    /**
-     * This functions defines the columns for the table download.
-     *
-     * @param int $statusparam
-     * @param int $scopeid
-     *
-     * @return array
-     *
-     */
-    public function return_cols_for_download(int $statusparam, int $scopeid = 0): array {
-
-        // Columns configured in the instance setting "Manage responses - Download" (reportfields).
-        // In optiondate scope, coursestarttime/courseendtime resolve to the session times.
-        $optionid = $this->get_optionid_for_scopeid($scopeid);
-        $columns = columns_helper::download_columns($this->get_cmid_for_scopeid($scopeid), $optionid);
-        if (empty($columns)) {
-            return $this->return_cols_for_tables($statusparam, $scopeid);
-        }
-
-        // Columns for the fields of the customform availability condition, like on report.php.
-        $columns = array_merge($columns, columns_helper::customform_columns($optionid));
+        $columns['firstname'] = get_string('firstname', 'core');
+        $columns['lastname'] = get_string('lastname', 'core');
+        $columns['email'] = get_string('email', 'core');
+        // In optiondate scope, status and notes hold the per-session presence and notes.
+        $columns['status'] = get_string('presence', 'mod_booking');
+        $columns['notes'] = get_string('notes', 'mod_booking');
 
         return $columns;
     }

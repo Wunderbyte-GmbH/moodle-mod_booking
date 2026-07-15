@@ -8,6 +8,9 @@
 * Improvement: Added show-only link into component view. (GH-176)
 * Improvement: Booking agent create/update skills hardened — silently-coerced dates are refused with repair guidance, intuitive input keys (price alias, description) are accepted, and the constructor is grounded in the site's real price categories.
 * Improvement: If a booking option supports enrolling multiple users (customform "enrol multiple users" field), report.php and the Bookings Tracker (report2.php, option scope) always show two enrollink columns (in the tables and in the downloads, independent of responsesfields/reportfields): the enrolment link a user has created or used, and "Enrolment link received from" linking to the profile of the user who made the original booking.
+* Improvement: Bookings Tracker (report2.php): the separate answers view in the system, course and instance scopes now shows a fixed set of columns: prefix, booking option, first name, last name, email address, time booked and time modified.
+* Improvement: Bookings Tracker (report2.php): the optiondate scope now shows a fixed set of columns: user picture (only if configured in responsesfields), first name, last name, email address, presence and notes.
+* Improvement: Bookings Tracker (report2.php): the optiondate scope now shows a presence filter which is visible right away (including presence statuses no user has yet).
 * Improvement: Booking agent rule skills resolve via the rule's own context instead of asking for an activity; preflight error causes split into user and repair channels.
 * Bugfix: Booking option maxanswers defaults to unlimited (0); the agent never asks about capacity.
 * Bugfix: Non-string query fields are coerced safely (no "Array to string conversion").

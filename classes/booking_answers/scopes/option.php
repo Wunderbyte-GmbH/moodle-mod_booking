@@ -171,34 +171,49 @@ class option extends scope_base {
             && !empty($cmid)
             && !empty($optionid)
         ) {
-            $table->actionbuttons[] = booked_users::create_action_button(
-                'presence',
-                'fa fa-user-o',
-                'mod_booking\\form\\optiondates\\modal_change_status',
-                [
-                    'scope' => 'option',
-                    'titlestring' => 'changepresencestatus',
-                    'submitbuttonstring' => 'save',
-                    'component' => 'mod_booking',
-                    'cmid' => $cmid,
-                    'optionid' => $optionid ?? 0,
-                ],
-                'btn btn-primary btn-sm ms-2'
-            );
+            $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
+            $responsesfields = array_map('trim', explode(',', (string)($bookingsettings->responsesfields ?? '')));
 
-            $table->actionbuttons[] = booked_users::create_action_button(
-                'notes',
-                'fa fa-pencil',
-                'mod_booking\\form\\optiondates\\modal_change_notes',
-                [
-                    'scope' => 'option',
-                    'titlestring' => 'notes',
-                    'submitbuttonstring' => 'save',
-                    'component' => 'mod_booking',
-                    'cmid' => $cmid,
-                    'optionid' => $optionid ?? 0,
-                ]
-            );
+            // Like on report.php, the "Toggle completion status" button is only shown
+            // if the completed column is configured in the responsesfields setting.
+            if (in_array('completed', $responsesfields)) {
+                $table->actionbuttons[] = booked_users::create_completion_button(
+                    $bookingsettings->btncacname ?? ''
+                );
+            }
+
+            if (in_array('status', $responsesfields)) {
+                $table->actionbuttons[] = booked_users::create_action_button(
+                    'presence',
+                    'fa fa-user-o',
+                    'mod_booking\\form\\optiondates\\modal_change_status',
+                    [
+                        'scope' => 'option',
+                        'titlestring' => 'changepresencestatus',
+                        'submitbuttonstring' => 'save',
+                        'component' => 'mod_booking',
+                        'cmid' => $cmid,
+                        'optionid' => $optionid ?? 0,
+                    ],
+                    'btn btn-primary btn-sm ms-2'
+                );
+            }
+
+            if (in_array('notes', $responsesfields)) {
+                $table->actionbuttons[] = booked_users::create_action_button(
+                    'notes',
+                    'fa fa-pencil',
+                    'mod_booking\\form\\optiondates\\modal_change_notes',
+                    [
+                        'scope' => 'option',
+                        'titlestring' => 'notes',
+                        'submitbuttonstring' => 'save',
+                        'component' => 'mod_booking',
+                        'cmid' => $cmid,
+                        'optionid' => $optionid ?? 0,
+                    ]
+                );
+            }
 
             if (has_capability('mod/booking:communicate', context_module::instance($cmid))) {
                 $table->actionbuttons[] = booked_users::create_action_button(
@@ -213,16 +228,6 @@ class option extends scope_base {
                         'optionid' => $optionid ?? 0,
                     ],
                     'btn btn-primary btn-sm ms-2'
-                );
-            }
-
-            // Like on report.php, the "(Un)confirm completion status" button is only shown
-            // if the completed column is configured in the responsesfields setting.
-            $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
-            $responsesfields = array_map('trim', explode(',', (string)($bookingsettings->responsesfields ?? '')));
-            if (in_array('completed', $responsesfields)) {
-                $table->actionbuttons[] = booked_users::create_completion_button(
-                    $bookingsettings->btncacname ?? ''
                 );
             }
 
@@ -246,6 +251,10 @@ class option extends scope_base {
         if (
             $statusparam == MOD_BOOKING_STATUSPARAM_BOOKED
             && !empty($certificatebutton = booked_users::create_certificate_button())
+            && (
+                in_array('certificate', $responsesfields)
+                || in_array('allusercertificates', $responsesfields)
+            )
         ) {
             $table->actionbuttons[] = $certificatebutton;
         }
@@ -345,6 +354,17 @@ class option extends scope_base {
         ) {
             $columns = self::add_enrollink_columns($columns);
         }
+
+        // Fixed order of the first columns, all others follow in their existing order.
+        // On the waiting list, the user rank stays at the very first place.
+        $orderedcolumns = [];
+        foreach (['userrank', 'userpic', 'firstname', 'lastname', 'email', 'completed', 'status', 'notes', 'places'] as $key) {
+            if (isset($columns[$key])) {
+                $orderedcolumns[$key] = $columns[$key];
+                unset($columns[$key]);
+            }
+        }
+        $columns = array_merge($orderedcolumns, $columns);
 
         return $columns;
     }
@@ -539,7 +559,6 @@ class option extends scope_base {
                     ba.timebooked,
                     ba.completed,
                     ba.completeddate,
-                    ba.numrec,
                     ba.places,
                     ba.startdate,
                     ba.enddate,

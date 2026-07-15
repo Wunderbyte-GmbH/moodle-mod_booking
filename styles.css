@@ -632,6 +632,19 @@ div.checkbox:has(label[for^="id_bo_cond_allowedtobookininstance_capabilitynotnee
     margin: 0 !important;
 }
 
+/* With many columns, the table must scroll horizontally inside its container instead
+   of blowing it up: the container is a css grid and grid items do not shrink below
+   their content width unless min-width is reset. */
+#page-mod-booking-report2 .wunderbyte_table_container {
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+#page-mod-booking-report2 .wunderbyte_table_container .wunderbyteTableClass {
+    min-width: 0;
+    overflow-x: auto;
+}
+
 #page-mod-booking-report2 .pagination {
     font-size: calc(0.9rem + 0.045vw);
     margin-left: 20px;

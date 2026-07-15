@@ -142,11 +142,7 @@ class instanceanswers extends scope_base_answers {
             'lastname' => get_string('lastname', 'core'),
             'email' => get_string('email', 'core'),
         ];
-        if ($statusparam == 0) {
-            $sortablecolumns['presencecount'] = get_string('presencecount', 'mod_booking');
-            $sortablecolumns['status'] = get_string('presence', 'mod_booking');
-            $sortablecolumns['notes'] = get_string('notes', 'mod_booking');
-        }
+        $sortablecolumns['timebooked'] = get_string('timebooked', 'mod_booking');
         $sortablecolumns['timemodified'] = get_string('timemodified', 'mod_booking');
         $table->define_sortablecolumns($sortablecolumns);
         $table->sort_default_column = 'timemodified';
@@ -169,56 +165,6 @@ class instanceanswers extends scope_base_answers {
         }
 
         return $table;
-    }
-
-    /**
-     * This functions defines the columns for each scope.
-     *
-     * @param int $statusparam
-     * @param int $scopeid
-     *
-     * @return array
-     *
-     */
-    public function return_cols_for_tables(int $statusparam, int $scopeid = 0): array {
-
-        // Columns configured in the instance setting "Manage responses - Page" (responsesfields).
-        // In instance scope, scopeid is the cmid.
-        $columns = columns_helper::display_columns($scopeid);
-        if (empty($columns)) {
-            return parent::return_cols_for_tables($statusparam, $scopeid);
-        }
-
-        // In the flat per-answer list, the booking option columns identify the row,
-        // so they always stay at the first place.
-        $columns = array_merge(
-            [
-                'titleprefix' => get_string('titleprefix', 'mod_booking'),
-                'text' => get_string('bookingoption', 'mod_booking'),
-            ],
-            $columns
-        );
-
-        if ($statusparam == 0) {
-            if (
-                get_config('booking', 'bookingstrackerpresencecounter')
-                && !isset($columns['presencecount'])
-            ) {
-                $columns['presencecount'] = get_string('presencecount', 'mod_booking');
-            }
-            if (!isset($columns['status'])) {
-                $columns['status'] = get_string('presence', 'mod_booking');
-            }
-            if (!isset($columns['notes'])) {
-                $columns['notes'] = get_string('notes', 'mod_booking');
-            }
-        }
-        // Keep timemodified, it is the default sort column in this scope.
-        if (!isset($columns['timemodified'])) {
-            $columns['timemodified'] = get_string('timemodified', 'mod_booking');
-        }
-
-        return $columns;
     }
 
     /**

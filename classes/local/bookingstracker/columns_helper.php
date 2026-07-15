@@ -87,7 +87,10 @@ class columns_helper {
                     $columns['notes'] = get_string('notes', 'mod_booking');
                     break;
                 case 'timecreated':
-                    $columns['timecreated'] = get_string('bookingdate', 'mod_booking');
+                    $columns['timecreated'] = get_string('timecreated', 'mod_booking');
+                    break;
+                case 'timebooked':
+                    $columns['timebooked'] = get_string('timebooked', 'mod_booking');
                     break;
                 case 'institution':
                     $columns['institution'] = empty($settings->lblinstitution)
@@ -104,11 +107,6 @@ class columns_helper {
                     break;
                 case 'completeddate':
                     $columns['completeddate'] = get_string('completeddate', 'mod_booking');
-                    break;
-                case 'numrec':
-                    if (!empty($settings->numgenerator)) {
-                        $columns['numrec'] = get_string('numrec', 'mod_booking');
-                    }
                     break;
                 case 'waitinglist':
                     $columns['waitinglist'] = get_string('searchwaitinglist', 'mod_booking');
@@ -129,9 +127,6 @@ class columns_helper {
                     break;
                 case 'userpic':
                     $columns['userpic'] = get_string('userpic');
-                    break;
-                case 'indexnumber':
-                    $columns['indexnumber'] = get_string('indexnumber', 'mod_booking');
                     break;
                 case 'price':
                     // This is only possible, if local_shopping_cart is installed.
@@ -162,9 +157,19 @@ class columns_helper {
             }
         }
 
-        // Like on report.php, indexnumber and userpic are moved to the front.
+        // The certificate columns are shown after the custom user profile fields.
+        $certcolumns = [];
+        foreach (['certificate', 'allusercertificates'] as $key) {
+            if (isset($columns[$key])) {
+                $certcolumns[$key] = $columns[$key];
+                unset($columns[$key]);
+            }
+        }
+        $columns = array_merge($columns, $certcolumns);
+
+        // Like on report.php, userpic is moved to the front.
         $front = [];
-        foreach (['indexnumber', 'userpic'] as $key) {
+        foreach (['userpic'] as $key) {
             if (isset($columns[$key])) {
                 $front[$key] = $columns[$key];
                 unset($columns[$key]);
@@ -216,11 +221,6 @@ class columns_helper {
                     break;
                 case 'courseendtime':
                     $columns['courseendtime'] = get_string('courseendtime', 'booking');
-                    break;
-                case 'numrec':
-                    if (!empty($settings->numgenerator)) {
-                        $columns['numrec'] = get_string('numrec', 'booking');
-                    }
                     break;
                 case 'userid':
                     $columns['userid'] = get_string('userid', 'booking');
@@ -287,6 +287,9 @@ class columns_helper {
                 case 'timecreated':
                     $columns['timecreated'] = get_string('timecreated', 'mod_booking');
                     break;
+                case 'timebooked':
+                    $columns['timebooked'] = get_string('timebooked', 'mod_booking');
+                    break;
                 case 'completeddate':
                     $columns['completeddate'] = get_string('completeddate', 'mod_booking');
                     break;
@@ -344,12 +347,11 @@ class columns_helper {
             return false;
         }
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
-        $formelements = customform::return_formelements($settings);
-        if (!empty($formelements) && is_array($formelements)) {
-            foreach ($formelements as $formelement) {
-                if (($formelement->formtype ?? '') === 'enrolusersaction') {
-                    return true;
-                }
+        // Depending on the stored availability json, return_formelements returns an array or a stdClass.
+        $formelements = (array)customform::return_formelements($settings);
+        foreach ($formelements as $formelement) {
+            if (($formelement->formtype ?? '') === 'enrolusersaction') {
+                return true;
             }
         }
         return false;

@@ -159,7 +159,7 @@ class manageusers_table extends wunderbyte_table {
         if (empty($values->completed)) {
             return '';
         }
-        return '<i class="fa fa-check text-success" title="' .
+        return '<i class="fa fa-xl fa-check-square text-success" title="' .
             get_string('completed', 'mod_booking') . '" aria-label="' .
             get_string('completed', 'mod_booking') . '"></i>';
     }
@@ -184,7 +184,7 @@ class manageusers_table extends wunderbyte_table {
         if (empty($values->timebooked)) {
             return '';
         }
-        return date('d.m.Y', $values->timemodified);
+        return date('d.m.Y', $values->timebooked);
     }
     /**
      * Return column completeddate.
@@ -796,7 +796,7 @@ class manageusers_table extends wunderbyte_table {
     /**
      * Toggle the completion status of the checked booking answers.
      * Uses the transmitaction pattern (actionbutton).
-     * Same behaviour as the "(Un)confirm completion status" button on report.php.
+     * Same behaviour as the "Toggle completion status" button on report.php.
      *
      * @param int $id
      * @param string $data

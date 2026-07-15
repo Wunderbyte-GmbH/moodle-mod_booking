@@ -560,7 +560,7 @@ class booked_users implements renderable, templatable {
     }
 
     /**
-     * Function to create the "(Un)confirm completion status" button.
+     * Function to create the "Toggle completion status" button.
      *
      * @param string $label custom button label, falls back to the default string
      * @return array
@@ -568,9 +568,9 @@ class booked_users implements renderable, templatable {
      */
     public static function create_completion_button(string $label = ''): array {
         return [
-            'iclass' => 'fa fa-check me-1',
+            'iclass' => 'fa fa-check-square-o me-1',
             'label' => !empty($label) ? $label : get_string('confirmoptioncompletion', 'mod_booking'),
-            'class' => 'btn btn-success btn-sm ms-1',
+            'class' => 'btn btn-primary btn-sm ms-1',
             'href' => '#',
             'methodname' => 'toggle_completion_booking_answers',
             'nomodal' => false,
@@ -626,7 +626,7 @@ class booked_users implements renderable, templatable {
         return [
             'iclass' => 'fa fa-fw fa-certificate',
             'label' => get_string('bookingstrackertriggercertificate', 'mod_booking'),
-            'class' => 'btn btn-success btn-sm ms-1',
+            'class' => 'btn btn-primary btn-sm ms-1',
             'href' => '#',
             'methodname' => 'trigger_certificate_booking_answers',
             'nomodal' => false,

@@ -281,7 +281,7 @@ Feature: Create global booking rules as admin and insure they are working.
     And I click on "Add" "button"
     And I follow "<< Back to responses"
     And I click on "selectall" "checkbox"
-    And I click on "(Un)confirm completion status" "button"
+    And I click on "Toggle completion status" "button"
     And I should see "All selected users have been marked for activity completion"
     ## Verify custom completion message
     And I trigger cron
@@ -299,7 +299,7 @@ Feature: Create global booking rules as admin and insure they are working.
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Manage bookings" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "selectall" "checkbox"
-    And I click on "(Un)confirm completion status" "button"
+    And I click on "Toggle completion status" "button"
     And I should see "All selected users have been marked for activity completion"
     ## Verify custom uncompletion message
     And I trigger cron
@@ -366,7 +366,7 @@ Feature: Create global booking rules as admin and insure they are working.
     And I click on "Add" "button"
     And I follow "<< Back to responses"
     And I click on "selectall" "checkbox"
-    And I click on "(Un)confirm completion status" "button"
+    And I click on "Toggle completion status" "button"
     And I should see "All selected users have been marked for activity completion"
     ## Send messages via cron and verify via events log
     And I trigger cron

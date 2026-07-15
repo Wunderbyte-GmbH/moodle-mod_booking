@@ -114,7 +114,7 @@ final class columns_helper_test extends advanced_testcase {
         $this->assertEquals('Test option', $row->text);
         $this->assertObjectHasProperty('custsupervisor', $row);
 
-        // 3a. The "(Un)confirm completion status" button is added when completed is configured.
+        // 3a. The "Toggle completion status" button is added when completed is configured.
         $completionbuttons = array_filter(
             $table->actionbuttons,
             fn($button) => ($button['methodname'] ?? '') === 'toggle_completion_booking_answers'

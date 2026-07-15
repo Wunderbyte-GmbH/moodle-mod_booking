@@ -118,23 +118,14 @@ class scope_base_answers extends scope_base {
      *
      */
     public function return_cols_for_tables(int $statusparam, int $scopeid = 0): array {
-        $columns = [
+        return [
             'titleprefix' => get_string('titleprefix', 'mod_booking'),
             'text' => get_string('bookingoption', 'mod_booking'),
             'firstname' => get_string('firstname', 'core'),
             'lastname'  => get_string('lastname', 'core'),
             'email'     => get_string('email', 'core'),
+            'timebooked' => get_string('timebooked', 'mod_booking'),
+            'timemodified' => get_string('timemodified', 'mod_booking'),
         ];
-
-        if ($statusparam == 0) {
-            if (get_config('booking', 'bookingstrackerpresencecounter')) {
-                $columns['presencecount'] = get_string('presencecount', 'mod_booking');
-            }
-            $columns['status'] = get_string('presence', 'mod_booking');
-            $columns['notes'] = get_string('notes', 'mod_booking');
-        }
-        $columns['timemodified'] = get_string('timemodified', 'mod_booking');
-
-        return $columns;
     }
 }

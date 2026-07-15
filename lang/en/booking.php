@@ -1018,8 +1018,8 @@ $string['bookingstrackerpresencecounter_desc'] = 'Display a counter that shows t
 Define in the next setting which presence status should be counted.';
 $string['bookingstrackerpresencecountervaluetocount'] = 'Presence status to count';
 $string['bookingstrackerpresencecountervaluetocount_desc'] = 'This presence status will be counted and displayed in the booking tracker.';
-$string['bookingstrackerswitchviewtypetoanswers'] = 'Aggregate bookings for each booking option';
-$string['bookingstrackerswitchviewtypetooptions'] = 'View all bookings separately';
+$string['bookingstrackerswitchviewtypetoanswers'] = 'View all bookings separately';
+$string['bookingstrackerswitchviewtypetooptions'] = 'Aggregate bookings for each booking option';
 $string['bookingstrackertriggercertificate'] = 'Trigger certificates';
 $string['bookingsubbooking'] = "Subbooking";
 $string['bookingsubbookingadd'] = 'Add a subbooking';
@@ -1387,7 +1387,7 @@ $string['confirmcanceloptiontitle'] = "Change the status of the booking option";
 $string['confirmchangesemester'] = 'YES, I really want to delete all existing dates of <strong>{$a}</strong> and generate new ones.';
 $string['confirmdeletebookingoption'] = 'Do you really want to delete this booking option <b>{$a}</b>?';
 $string['confirmed'] = 'Confirmed';
-$string['confirmoptioncompletion'] = '(Un)confirm completion status';
+$string['confirmoptioncompletion'] = 'Toggle completion status';
 $string['confirmoptioncompletionbody'] = 'The completion status of the selected bookings will be toggled:
  bookings that are not yet completed will be marked as completed and vice versa.';
 $string['confirmoptioncreation'] = 'Do you want to split this booking option so that a separate booking option is created

@@ -140,11 +140,7 @@ class systemanswers extends scope_base_answers {
             'lastname' => get_string('lastname', 'core'),
             'email' => get_string('email', 'core'),
         ];
-        if ($statusparam == 0) {
-            $sortablecolumns['presencecount'] = get_string('presencecount', 'mod_booking');
-            $sortablecolumns['status'] = get_string('presence', 'mod_booking');
-            $sortablecolumns['notes'] = get_string('notes', 'mod_booking');
-        }
+        $sortablecolumns['timebooked'] = get_string('timebooked', 'mod_booking');
         $sortablecolumns['timemodified'] = get_string('timemodified', 'mod_booking');
         $table->define_sortablecolumns($sortablecolumns);
         $table->sort_default_column = 'timemodified';
