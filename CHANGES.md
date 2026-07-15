@@ -1,3 +1,14 @@
+## Version 9.6.3 (2026071600)
+* Improvement: Slot booking — user-defined slot type with configurable duration granularity (slot_duration_step_minutes) and per-slot warmup/cooldown buffers with overlap or summed combination mode. (GH-2053)
+* Improvement: Added show-only link into component view. (GH-176)
+* Improvement: Booking agent create/update skills hardened — silently-coerced dates are refused with repair guidance, intuitive input keys (price alias, description) are accepted, and the constructor is grounded in the site's real price categories.
+* New feature: Booking agent can link a Moodle course when creating an option (linkedcoursequery); update_option advertises its course-linking capability for discovery.
+* Improvement: Booking agent rule skills resolve via the rule's own context instead of asking for an activity; preflight error causes split into user and repair channels.
+* Bugfix: Booking option maxanswers defaults to unlimited (0); the agent never asks about capacity.
+* Bugfix: Non-string query fields are coerced safely (no "Array to string conversion").
+* Bugfix: A bulk update without a known change field no longer reports success.
+* Bugfix: Person resolution refuses anonymization placeholders and never resolves the guest account.
+
 ## Version 9.6.3 (2026071500)
 * New feature: New global plugin setting "customfieldsforview" as fallback for the booking instance setting of the same name: if an instance does not define customfields to be shown for each booking option in the options overview (view.php), the globally selected customfields are shown; if the instance defines its own customfields, only those are shown.
 * Improvement: Trainer can now book again.
