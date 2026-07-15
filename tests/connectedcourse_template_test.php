@@ -370,6 +370,95 @@ final class connectedcourse_template_test extends advanced_testcase {
     }
 
     /**
+     * Two options created from the same template with an identical title must both end up with a
+     * course named exactly after the option.
+     *
+     * Core's async restore forces the course fullname to be unique via
+     * restore_dbops::calculate_course_names(), appending a " copy N" suffix as soon as another course
+     * already carries that fullname. The finalizer resets it back to the intended name, so both
+     * duplicated courses share the exact same fullname (while keeping distinct, unique shortnames).
+     */
+    public function test_duplicate_option_name_keeps_exact_course_fullname(): void {
+        global $DB;
+
+        $this->setAdminUser();
+
+        // A tagged template course with a page activity, so we can confirm the async copy actually ran.
+        $tag = $this->getDataGenerator()->create_tag(['name' => 'tmpltag', 'isstandard' => 1]);
+        $templatecourse = $this->getDataGenerator()->create_course(['tags' => ['tmpltag']]);
+        $this->getDataGenerator()->get_plugin_generator('mod_page')->create_instance([
+            'course' => $templatecourse->id,
+            'name' => 'Template page',
+        ]);
+        set_config('templatetags', $tag->id, 'booking');
+
+        $course = $this->getDataGenerator()->create_course();
+        $bookingmanager = $this->getDataGenerator()->create_user();
+        $bdata = [
+            'name' => 'Duplicate name booking',
+            'eventtype' => 'Test event',
+            'bookedtext' => ['text' => 'text'],
+            'waitingtext' => ['text' => 'text'],
+            'notifyemail' => ['text' => 'text'],
+            'statuschangetext' => ['text' => 'text'],
+            'deletedtext' => ['text' => 'text'],
+            'pollurltext' => ['text' => 'text'],
+            'pollurlteacherstext' => ['text' => 'text'],
+            'notificationtext' => ['text' => 'text'],
+            'userleave' => ['text' => 'text'],
+            'tags' => '',
+            'course' => $course->id,
+            'bookingmanager' => $bookingmanager->username,
+        ];
+        $booking = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        $taggedcourses = connectedcourse::return_tagged_template_courses();
+        $taggedcourse = reset($taggedcourses);
+
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+
+        // Create the option.
+        $optiontitle = 'Same templated option';
+        $record = new stdClass();
+        $record->bookingid = $booking->id;
+        $record->text = $optiontitle;
+        $record->chooseorcreatecourse = 3; // Create new Moodle course from template.
+        $record->coursetemplateid = $taggedcourse->id;
+        $record->optiondateid_0 = "0";
+        $record->daystonotify_0 = "0";
+        $record->coursestarttime_0 = strtotime('now + 3 days');
+        $record->courseendtime_0 = strtotime('now + 6 days');
+
+        $option1 = $plugingenerator->create_option($record);
+        $option2 = $plugingenerator->create_option($record);
+
+        $courseid1 = (int) singleton_service::get_instance_of_booking_option_settings($option1->id)->courseid;
+        $courseid2 = (int) singleton_service::get_instance_of_booking_option_settings($option2->id)->courseid;
+
+        $this->assertNotEmpty($courseid1);
+        $this->assertNotEmpty($courseid2);
+        $this->assertNotEquals($courseid1, $courseid2);
+
+        // Run the async copy tasks and the finalizers for both options.
+        ob_start();
+        $this->runAdhocTasks();
+        ob_get_clean();
+        $fullname1 = $DB->get_field('course', 'fullname', ['id' => $courseid1]);
+        $fullname2 = $DB->get_field('course', 'fullname', ['id' => $courseid2]);
+
+        // We assert that the options hav ethe same name and the courses too.
+        $this->assertSame($option1->text, $option2->text);
+        $this->assertSame($option1->text, $fullname1);
+        $this->assertSame($option2->text, $fullname2);
+        $this->assertSame($fullname1, $fullname2);
+
+        // We assert that shortnames stay unique.
+        $shortname1 = $DB->get_field('course', 'shortname', ['id' => $courseid1]);
+        $shortname2 = $DB->get_field('course', 'shortname', ['id' => $courseid2]);
+        $this->assertNotEquals($shortname1, $shortname2);
+    }
+
+    /**
      * Data provider: with-users checkbox on/off.
      *
      * @return array

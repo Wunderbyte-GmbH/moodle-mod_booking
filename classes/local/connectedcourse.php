@@ -166,7 +166,13 @@ class connectedcourse {
         // enrolment instances). It is queued after the copy task and guards itself against running
         // before the copy completes, so it settles in the same cron pass.
         $finalizetask = new \mod_booking\task\finalize_template_course();
-        $finalizetask->set_custom_data(['newcourseid' => $newcourseid]);
+        $finalizetask->set_custom_data([
+            'newcourseid' => $newcourseid,
+            // The intended course fullname. Core's async restore forces the fullname unique via
+            // restore_dbops::calculate_course_names(), appending a " copy N" suffix when another
+            // course already shares the name. The finalizer resets it back to this value.
+            'fullname' => $fullnamewithprefix,
+        ]);
         \core\task\manager::queue_adhoc_task($finalizetask);
 
         fix_course_sortorder();
