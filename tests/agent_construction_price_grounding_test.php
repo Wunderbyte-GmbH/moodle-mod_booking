@@ -35,6 +35,16 @@ use mod_booking\local\wizard\options\skills\create_selflearning_option_skill;
  * @covers     \mod_booking\local\wizard\options\skills\create_option_skill
  */
 final class agent_construction_price_grounding_test extends \advanced_testcase {
+    use \mod_booking\tests\agent_extension_test_trait;
+
+    /**
+     * Skip the entire case when the optional bookingextension_agent subplugin is absent.
+     */
+    public function setUp(): void {
+        parent::setUp();
+        $this->skip_without_agent_extension();
+    }
+
     /**
      * Grounding: the hint names the REAL category identifiers and labels + the object-shape rule.
      */

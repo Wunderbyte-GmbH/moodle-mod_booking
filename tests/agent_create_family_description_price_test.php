@@ -36,6 +36,16 @@ use stdClass;
  * @covers     \mod_booking\local\wizard\options\skills\create_selflearning_option_skill
  */
 final class agent_create_family_description_price_test extends \advanced_testcase {
+    use \mod_booking\tests\agent_extension_test_trait;
+
+    /**
+     * Skip the entire case when the optional bookingextension_agent subplugin is absent.
+     */
+    public function setUp(): void {
+        parent::setUp();
+        $this->skip_without_agent_extension();
+    }
+
     /**
      * Selflearning end-to-end: 'price' scalar and 'description' pass preflight and land
      * in the created option (prices canonicalized to the default category).
