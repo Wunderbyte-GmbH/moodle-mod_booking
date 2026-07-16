@@ -166,13 +166,19 @@ class option extends scope_base {
 
         $table->define_sortablecolumns($sortablecolumns);
 
+        $responsesfields = [];
         if (
             $statusparam == MOD_BOOKING_STATUSPARAM_BOOKED
             && !empty($cmid)
             && !empty($optionid)
         ) {
             $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
-            $responsesfields = array_map('trim', explode(',', (string)($bookingsettings->responsesfields ?? '')));
+            $responsesfields = columns_helper::responsesfields($cmid);
+            if (empty($responsesfields)) {
+                // Without configured fields the tables fall back to their default columns
+                // (incl. status & notes), so the matching action buttons stay available.
+                $responsesfields = ['status', 'notes'];
+            }
 
             // Like on report.php, the "Toggle completion status" button is only shown
             // if the completed column is configured in the responsesfields setting.
@@ -229,6 +235,27 @@ class option extends scope_base {
                     ],
                     'btn btn-primary btn-sm ms-2'
                 );
+
+                // Works like "Send custom message", but preselects the teachers of the
+                // option - so it does not require any rows to be checked.
+                // Options without teachers don't get the button.
+                if (!empty($settings->teachers)) {
+                    $teachermsgbutton = booked_users::create_action_button(
+                        'sendmessagetoteachers',
+                        'fa fa-envelope-o',
+                        'mod_booking\\form\\modal_send_message_to_teachers',
+                        [
+                            'titlestring' => 'sendmessagetoteachers',
+                            'submitbuttonstring' => 'sendmessage',
+                            'component' => 'mod_booking',
+                            'cmid' => $cmid,
+                            'optionid' => $optionid ?? 0,
+                        ],
+                        'btn btn-primary btn-sm ms-2'
+                    );
+                    $teachermsgbutton['selectionmandatory'] = false;
+                    $table->actionbuttons[] = $teachermsgbutton;
+                }
             }
 
             if (has_capability('mod/booking:subscribeusers', context_module::instance($cmid))) {
@@ -284,9 +311,10 @@ class option extends scope_base {
      */
     public function return_cols_for_tables(int $statusparam, int $scopeid = 0): array {
 
-        // Columns configured in the instance setting "Manage responses - Page" (responsesfields).
+        // Columns configured in the instance setting "Manage Responses Page & Bookings Tracker" (responsesfields).
         $columns = columns_helper::display_columns($this->get_cmid_for_scopeid($scopeid), $scopeid);
-        if (empty($columns)) {
+        $configured = !empty($columns);
+        if (!$configured) {
             $columns = [
                 'firstname' => get_string('firstname', 'core'),
                 'lastname'  => get_string('lastname', 'core'),
@@ -300,8 +328,9 @@ class option extends scope_base {
         // Slot columns for slotbooking options, like on report.php.
         $columns = array_merge($columns, columns_helper::slot_columns($scopeid));
 
-        // Status-specific columns stay automatic so the tracker workflow (presence, notes,
-        // confirm/delete actions) keeps working regardless of the configured columns.
+        // Status-specific columns: the confirm/delete action columns stay automatic,
+        // but status (presence) and notes strictly follow the responsesfields setting -
+        // only the unconfigured fallback shows them by default.
         switch ($statusparam) {
             case MOD_BOOKING_STATUSPARAM_BOOKED:
                 if (
@@ -310,10 +339,8 @@ class option extends scope_base {
                 ) {
                     $columns['presencecount'] = get_string('presencecount', 'mod_booking');
                 }
-                if (!isset($columns['status'])) {
+                if (!$configured) {
                     $columns['status'] = get_string('presence', 'mod_booking');
-                }
-                if (!isset($columns['notes'])) {
                     $columns['notes'] = get_string('notes', 'mod_booking');
                 }
                 break;

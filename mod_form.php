@@ -742,7 +742,7 @@ class mod_booking_mod_form extends moodleform_mod {
         $defaults = array_keys($optionsdownloadfields);
         $mform->setDefault('optionsdownloadfields', $defaults);
 
-        // Fields on manage responses page.
+        // Fields on manage responses page and bookings tracker.
         $options = [
                         'multiple' => true,
                         'tags' => false,

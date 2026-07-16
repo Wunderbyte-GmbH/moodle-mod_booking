@@ -146,12 +146,6 @@ class systemanswers extends scope_base_answers {
         $table->sort_default_column = 'timemodified';
         $table->sort_default_order = SORT_DESC;
 
-        if (
-            $statusparam == MOD_BOOKING_STATUSPARAM_BOOKED
-            && !empty($certificatebutton = booked_users::create_certificate_button())
-        ) {
-            $table->actionbuttons[] = $certificatebutton;
-        }
         if ($statusparam != MOD_BOOKING_STATUSPARAM_DELETED) {
             $table->addcheckboxes = true;
 

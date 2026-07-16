@@ -83,13 +83,17 @@ class eventslist implements renderable, templatable {
      * @param string $countlabel optional lang string identifier (in mod_booking) for the records count label
      * @param array $columns optional column definition [columnkey => header]; defaults to the generic user column
      * @param int $timecreatedfrom only show log entries created at or after this timestamp, 0 to show all
+     * @param string $extrawhere optional additional where condition (starting with " AND "), e.g. to scope the events
+     * @param array $extraparams params for $extrawhere
      */
     public function __construct(
         int $id = 0,
         array $eventnames = [],
         string $countlabel = '',
         array $columns = [],
-        int $timecreatedfrom = 0
+        int $timecreatedfrom = 0,
+        string $extrawhere = '',
+        array $extraparams = []
     ) {
 
         global $DB;
@@ -97,7 +101,13 @@ class eventslist implements renderable, templatable {
         [$select, $from, $where, $filter, $params] =
             booking::return_sql_for_event_logs('mod_booking', $eventnames, $id, $timecreatedfrom);
 
-        $tablenamestring = "eventlogtable" . $id . implode('-', $eventnames) . $timecreatedfrom;
+        if (!empty($extrawhere)) {
+            $where .= $extrawhere;
+            $params = array_merge($params, $extraparams);
+        }
+
+        $tablenamestring = "eventlogtable" . $id . implode('-', $eventnames) . $timecreatedfrom
+            . (!empty($extrawhere) ? md5($extrawhere . json_encode($extraparams)) : '');
 
         $tablename = md5($tablenamestring);
 

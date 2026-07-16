@@ -94,8 +94,9 @@ final class columns_helper_test extends advanced_testcase {
         // Like on report.php, custom user profile fields come after all standard columns.
         $class = $ba->return_class_for_scope('option');
         $cols = $class->return_cols_for_tables(MOD_BOOKING_STATUSPARAM_BOOKED, $option->id);
+        // Status (presence) and notes are not configured, so they don't show up.
         $this->assertSame(
-            ['firstname', 'lastname', 'email', 'completed', 'status', 'notes', 'city', 'timecreated', 'custsupervisor'],
+            ['firstname', 'lastname', 'email', 'completed', 'city', 'timecreated', 'custsupervisor'],
             array_keys($cols)
         );
 
@@ -160,7 +161,7 @@ final class columns_helper_test extends advanced_testcase {
         \cache::make('mod_booking', 'cachedbookinginstances')->purge();
         $cols = $class->return_cols_for_tables(MOD_BOOKING_STATUSPARAM_BOOKED, $option->id);
         $this->assertSame(
-            ['userpic', 'firstname', 'lastname', 'status', 'notes', 'places'],
+            ['userpic', 'firstname', 'lastname', 'places'],
             array_keys($cols)
         );
 
@@ -245,5 +246,88 @@ final class columns_helper_test extends advanced_testcase {
             $table->col_slotstarttime($row)
         );
         $this->assertStringContainsString('moveslot.php', $table->col_moveslot($row));
+
+        // 11. Optiondate scope: email, status (presence) and notes follow responsesfields too.
+        // Without status/notes configured, neither the columns nor the action buttons show up.
+        $optiondateid = (int)$DB->get_field('booking_optiondates', 'id', ['optionid' => $option->id]);
+        $DB->set_field('booking', 'responsesfields', 'fullname,email,city', ['id' => $booking->id]);
+        singleton_service::destroy_instance();
+        \cache::make('mod_booking', 'cachedbookinginstances')->purge();
+
+        $odclass = $ba->return_class_for_scope('optiondate');
+        $cols = $odclass->return_cols_for_tables(MOD_BOOKING_STATUSPARAM_BOOKED, $optiondateid);
+        $this->assertSame(['firstname', 'lastname', 'email'], array_keys($cols));
+        $table = $bookedusers->return_raw_table('optiondate', $optiondateid, MOD_BOOKING_STATUSPARAM_BOOKED);
+        $formnames = array_column($table->actionbuttons, 'formname');
+        $this->assertNotContains('mod_booking\form\optiondates\modal_change_status', $formnames);
+        $this->assertNotContains('mod_booking\form\optiondates\modal_change_notes', $formnames);
+
+        // With status and notes configured (but no email), columns and buttons appear accordingly.
+        $DB->set_field('booking', 'responsesfields', 'fullname,status,notes', ['id' => $booking->id]);
+        singleton_service::destroy_instance();
+        \cache::make('mod_booking', 'cachedbookinginstances')->purge();
+
+        $cols = $odclass->return_cols_for_tables(MOD_BOOKING_STATUSPARAM_BOOKED, $optiondateid);
+        $this->assertSame(['firstname', 'lastname', 'status', 'notes'], array_keys($cols));
+        $table = $bookedusers->return_raw_table('optiondate', $optiondateid, MOD_BOOKING_STATUSPARAM_BOOKED);
+        $formnames = array_column($table->actionbuttons, 'formname');
+        $this->assertContains('mod_booking\form\optiondates\modal_change_status', $formnames);
+        $this->assertContains('mod_booking\form\optiondates\modal_change_notes', $formnames);
+
+        // 12. Instanceanswers scope: the email column follows responsesfields as well.
+        $icols = $ba->return_class_for_scope('instanceanswers')
+            ->return_cols_for_tables(MOD_BOOKING_STATUSPARAM_BOOKED, $settings->cmid);
+        $this->assertArrayNotHasKey('email', $icols);
+        $this->assertArrayHasKey('firstname', $icols);
+
+        // 13. Previously booked answers get their own table (like deleted bookings) in the
+        // scopes system, course, instance and option (both view types) - but not in optiondate.
+        $DB->set_field(
+            'booking_answers',
+            'waitinglist',
+            MOD_BOOKING_STATUSPARAM_PREVIOUSLYBOOKED,
+            ['userid' => $student->id, 'optionid' => $option->id]
+        );
+        \cache::make('local_wunderbyte_table', 'cachedrawdata')->purge();
+        \cache::make('mod_booking', 'bookedusertable')->purge();
+        $scopestocheck = [
+            ['option', $option->id],
+            ['instance', $settings->cmid],
+            ['instanceanswers', $settings->cmid],
+            ['course', (int)$course->id],
+            ['courseanswers', (int)$course->id],
+            ['system', 0],
+            ['systemanswers', 0],
+        ];
+        foreach ($scopestocheck as [$scopename, $sid]) {
+            $table = $bookedusers->return_raw_table($scopename, $sid, MOD_BOOKING_STATUSPARAM_PREVIOUSLYBOOKED);
+            $this->assertCount(1, $table->rawdata, "previously booked missing in scope $scopename");
+        }
+        $this->assertNull(
+            $bookedusers->return_raw_table('optiondate', $optiondateid, MOD_BOOKING_STATUSPARAM_PREVIOUSLYBOOKED)
+        );
+
+        // 14. The sent messages table (message_sent events, like "Show messages" on report.php)
+        // is built for the tracker scopes.
+        foreach ([['option', $option->id], ['instance', $settings->cmid], ['course', (int)$course->id], ['system', 0]] as $sc) {
+            [$scopename, $sid] = $sc;
+            $bu = new booked_users(
+                $scopename,
+                $sid,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                0,
+                false,
+                [],
+                true
+            );
+            $this->assertNotEmpty($bu->sentmessages, "sent messages table missing in scope $scopename");
+        }
     }
 }

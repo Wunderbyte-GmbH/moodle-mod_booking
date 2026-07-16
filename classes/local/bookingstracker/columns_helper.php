@@ -46,7 +46,7 @@ use mod_booking\singleton_service;
 class columns_helper {
     /**
      * Returns the tracker display columns ([columnkey => header]) configured
-     * in the instance setting responsesfields ("Manage responses - Page").
+     * in the instance setting responsesfields ("Manage Responses Page & Bookings Tracker").
      * Returns an empty array if no instance can be resolved or nothing is configured,
      * so callers can fall back to their default columns.
      *
@@ -304,6 +304,21 @@ class columns_helper {
             }
         }
         return $columns;
+    }
+
+    /**
+     * Returns the values configured in the instance setting responsesfields
+     * ("Manage Responses Page & Bookings Tracker") as a clean array, [] if unset or unresolvable.
+     *
+     * @param int $cmid
+     * @return array
+     */
+    public static function responsesfields(int $cmid): array {
+        if (empty($cmid)) {
+            return [];
+        }
+        $settings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
+        return self::explode_setting($settings->responsesfields ?? '');
     }
 
     /**

@@ -57,11 +57,13 @@ require_once("$CFG->libdir/formslib.php");
 class modal_send_custom_message extends dynamic_form {
     /**
      * Get all booked users for a booking option as autocomplete options.
+     * Protected so child classes can provide a different recipient pool
+     * (e.g. the teachers of the option, see modal_send_message_to_teachers).
      *
      * @param int $optionid Booking option ID.
      * @return array<int, string>
      */
-    private function get_possible_recipients_for_custom_message(int $optionid): array {
+    protected function get_possible_recipients_for_custom_message(int $optionid): array {
         global $DB;
 
         if (empty($optionid)) {
@@ -284,7 +286,7 @@ class modal_send_custom_message extends dynamic_form {
         // Fire bulk event if at least 75% of booked users and at least 3 users.
         $answers = singleton_service::get_instance_of_booking_answers($settings);
         $bookedusers = $answers->get_usersonlist();
-        if (!empty($userids) && !empty($bookedusers)) {
+        if ($this->should_fire_bulk_event() && !empty($userids) && !empty($bookedusers)) {
             $countselected = count($userids);
             $countbooked = count($bookedusers);
             if ($countselected >= 3 && ($countselected / $countbooked) >= 0.75) {
@@ -317,6 +319,18 @@ class modal_send_custom_message extends dynamic_form {
         $data->success = 1;
 
         return $data;
+    }
+
+    /**
+     * Whether the custom_bulk_message_sent event should be fired when enough of the
+     * booked users are addressed. Child classes with a different recipient pool
+     * (e.g. the teachers of the option) turn this off, as the "share of booked users"
+     * semantics don't apply to them.
+     *
+     * @return bool
+     */
+    protected function should_fire_bulk_event(): bool {
+        return true;
     }
 
     /**

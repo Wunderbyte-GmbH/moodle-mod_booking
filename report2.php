@@ -474,6 +474,8 @@ if (!empty($optionid) && empty($optiondateid)) {
 }
 
 // Now we render the booked users for the provided scope.
+// In optiondate scope only the booked users table is shown (the scope class
+// returns null tables for all other status params).
 $data = new booked_users(
     $scope,
     $scopeid,
@@ -483,7 +485,14 @@ $data = new booked_users(
     true, // Users on notify list.
     true, // Deleted users.
     true, // Booking history.
-    $cmid
+    // Options to confirm are not shown in the tracker: they would just duplicate the waiting
+    // list here. The real confirm workflow uses its own scope (optionstoconfirm shortcode).
+    false, // Options to confirm.
+    true, // Previously booked users.
+    $cmid,
+    false, // Reduced buttons.
+    [], // Customfields.
+    true // Sent messages.
 );
 /** @var renderer $renderer */
 $renderer = $PAGE->get_renderer('mod_booking');

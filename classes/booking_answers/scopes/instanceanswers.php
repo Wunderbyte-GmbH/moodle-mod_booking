@@ -148,13 +148,6 @@ class instanceanswers extends scope_base_answers {
         $table->sort_default_column = 'timemodified';
         $table->sort_default_order = SORT_DESC;
 
-        if (
-            $statusparam == MOD_BOOKING_STATUSPARAM_BOOKED
-            && !empty($certificatebutton = booked_users::create_certificate_button())
-        ) {
-            $table->actionbuttons[] = $certificatebutton;
-        }
-
         if ($statusparam != MOD_BOOKING_STATUSPARAM_DELETED) {
             $table->addcheckboxes = true;
 
@@ -165,6 +158,29 @@ class instanceanswers extends scope_base_answers {
         }
 
         return $table;
+    }
+
+    /**
+     * This functions defines the columns for each scope.
+     * The fixed per-answer columns of the parent apply, but the email column
+     * follows the instance setting responsesfields ("Manage Responses Page & Bookings Tracker") -
+     * in instance scope the scopeid is the cmid, so the setting can be resolved.
+     *
+     * @param int $statusparam
+     * @param int $scopeid
+     *
+     * @return array
+     *
+     */
+    public function return_cols_for_tables(int $statusparam, int $scopeid = 0): array {
+        $columns = parent::return_cols_for_tables($statusparam, $scopeid);
+
+        $responsesfields = columns_helper::responsesfields($scopeid);
+        if (!empty($responsesfields) && !in_array('email', $responsesfields)) {
+            unset($columns['email']);
+        }
+
+        return $columns;
     }
 
     /**

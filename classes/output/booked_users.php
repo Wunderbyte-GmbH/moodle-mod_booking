@@ -72,6 +72,9 @@ class booked_users implements renderable, templatable {
     /** @var string $bookinghistory rendered table of bookinghistory */
     public $bookinghistory;
 
+    /** @var string $sentmessages rendered table of sent messages */
+    public $sentmessages;
+
     /** @var string $previouslybooked rendered table of previouslybooked */
     public $previouslybooked;
 
@@ -106,6 +109,7 @@ class booked_users implements renderable, templatable {
      * @param int $cmid optional course module id of booking instance
      * @param bool $showreducedbuttons
      * @param array $customfields
+     * @param bool $showsentmessages
      */
     public function __construct(
         string $scope = 'system',
@@ -120,7 +124,8 @@ class booked_users implements renderable, templatable {
         bool $showpreviouslybooked = false,
         int $cmid = 0,
         bool $showreducedbuttons = false,
-        array $customfields = []
+        array $customfields = [],
+        bool $showsentmessages = false
     ) {
         $ba = new booking_answers();
         /** @var scope_base $class */
@@ -230,6 +235,9 @@ class booked_users implements renderable, templatable {
 
             // Booking history table.
             $this->bookinghistory = $showbookinghistory ? $this->render_bookinghistory_table($scope, $scopeid) : null;
+
+            // Sent messages table (message_sent events, like "Show messages" on report.php).
+            $this->sentmessages = $showsentmessages ? $this->render_sentmessages_table($scope, $scopeid) : null;
         }
     }
 
@@ -319,6 +327,12 @@ class booked_users implements renderable, templatable {
             false,
             false
         );
+
+        // Some scopes don't provide a table for every status param
+        // (e.g. optiondate only has booked users).
+        if ($table === null) {
+            return null;
+        }
 
         $table->outhtml(20000, false);
 
@@ -509,6 +523,73 @@ class booked_users implements renderable, templatable {
     }
 
     /**
+     * Helper function to get the sent messages table (message_sent events) for the provided scope,
+     * like the "Show messages" section on report.php.
+     * The message_sent events are triggered with system context, so all scopes have to be
+     * resolved via the objectid (which holds the optionid).
+     *
+     * @param string $scope can be system, course, instance, option or optiondate (incl. answers variants)
+     * @param int $scopeid id matching the scope
+     * @return ?string the rendered table, null if the scope is not supported
+     */
+    private function render_sentmessages_table(string $scope = 'system', int $scopeid = 0): ?string {
+        global $DB;
+
+        $optionid = 0;
+        $extrawhere = '';
+        $extraparams = [];
+        switch ($scope) {
+            case 'system':
+            case 'systemanswers':
+                break;
+            case 'option':
+                $optionid = $scopeid;
+                break;
+            case 'optiondate':
+                $optionid = (int)$DB->get_field('booking_optiondates', 'optionid', ['id' => $scopeid]);
+                break;
+            case 'instance':
+            case 'instanceanswers':
+                $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($scopeid);
+                $extrawhere = " AND objectid IN (
+                    SELECT id FROM {booking_options} WHERE bookingid = :sentmsgbookingid) ";
+                $extraparams['sentmsgbookingid'] = $bookingsettings->id ?? 0;
+                break;
+            case 'course':
+            case 'courseanswers':
+                $extrawhere = " AND objectid IN (
+                    SELECT bo.id
+                    FROM {booking_options} bo
+                    JOIN {booking} b ON b.id = bo.bookingid
+                    WHERE b.course = :sentmsgcourseid) ";
+                $extraparams['sentmsgcourseid'] = $scopeid;
+                break;
+            default:
+                return null;
+        }
+
+        // Like on report.php, show the recipient (relateduserid) instead of the generic "user"
+        // column, so it is unambiguous who each message was sent to (the sender is in the description).
+        $messagecolumns = [
+            'relateduserid' => get_string('messagerecipient', 'mod_booking'),
+            'eventname' => get_string('eventname', 'core'),
+            'description' => get_string('description', 'core'),
+            'timecreated' => get_string('timecreated', 'core'),
+        ];
+        $eventslist = new eventslist(
+            $optionid,
+            ['\mod_booking\event\message_sent'],
+            'messagescountlabel',
+            $messagecolumns,
+            0,
+            $extrawhere,
+            $extraparams
+        );
+
+        return $eventslist->eventstable;
+    }
+
+    /**
      * Export for template.
      * @param renderer_base $output
      * @return array
@@ -521,6 +602,7 @@ class booked_users implements renderable, templatable {
             'userstonotify' => $this->userstonotify ?? null,
             'deletedusers' => $this->deletedusers ?? null,
             'bookinghistory' => $this->bookinghistory ?? null,
+            'sentmessages' => $this->sentmessages ?? null,
             'optionstoconfirm' => $this->optionstoconfirm ?? null,
             'deputydisplay' => $this->deputydisplay ?? null,
             'previouslybooked' => $this->previouslybooked ?? null,

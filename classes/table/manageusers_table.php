@@ -104,7 +104,7 @@ class manageusers_table extends wunderbyte_table {
         if (empty($values->timemodified)) {
             return '';
         }
-        return date('d.m.Y', $values->timemodified);
+        return date('d.m.Y H:i:s', $values->timemodified);
     }
 
     /**
@@ -184,7 +184,7 @@ class manageusers_table extends wunderbyte_table {
         if (empty($values->timebooked)) {
             return '';
         }
-        return date('d.m.Y', $values->timebooked);
+        return date('d.m.Y H:i:s', $values->timebooked);
     }
     /**
      * Return column completeddate.
