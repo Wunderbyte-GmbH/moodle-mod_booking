@@ -436,6 +436,7 @@ $string['slot_booked_event_description'] = 'Benutzer/in mit ID {$a->adminid} hat
 $string['slot_calendar_teachers'] = 'Gebuchte Pruefer/innen';
 $string['slot_cancelled_event_description'] = 'Benutzer/in mit ID {$a->adminid} hat die Slot-Buchungsantwort {$a->baid} (Option {$a->optionid}) für Benutzer/in {$a->userid} mit {$a->slotcount} Slot(s) storniert.';
 $string['slot_change_deadline_minutes_help'] = 'Bis wann Teilnehmer/innen einen gebuchten Slot umbuchen oder stornieren dürfen, relativ zum Start des jeweiligen Slots. Jeder Slot wird einzeln geprüft. „Standard verwenden" erbt den Wert der Buchungsinstanz bzw. der Website.';
+$string['slot_custom_duration_step_minutes_help'] = 'Granularität der wählbaren Slot-Länge zwischen minimaler und maximaler Slot-Dauer. Beispiel: Bei einem Minimum von 15 Minuten, einem Maximum von 30 Minuten und einer Schrittweite von 5 Minuten können Nutzer/innen eine Dauer von 15, 20, 25 oder 30 Minuten wählen.';
 $string['slot_error_teacher_required'] = 'Bitte waehlen Sie eine Pruefer/in aus.';
 $string['slot_examiners_per_slot'] = 'Pruefer/innen pro Slot';
 $string['slot_max_participants_per_slot'] = 'Max. Teilnehmer/innen pro Slot';
