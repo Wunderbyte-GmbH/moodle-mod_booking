@@ -554,6 +554,16 @@ class dates {
                 } else {
                     $coursestarttime = $formvalues[MOD_BOOKING_FORM_COURSESTARTTIME . $counter];
                     $courseendtime = $formvalues[MOD_BOOKING_FORM_COURSEENDTIME . $counter];
+
+                    if (!empty($formvalues['importing'])) {
+                        // A date slot is either a datestring (importer format) or nothing - skip empties.
+                        if (empty($coursestarttime) && empty($courseendtime)) {
+                            continue;
+                        }
+                        $dateparseformat = $formvalues['dateparseformat'] ?? '';
+                        $coursestarttime = self::parse_date_with_format($coursestarttime, $dateparseformat);
+                        $courseendtime = self::parse_date_with_format($courseendtime, $dateparseformat);
+                    }
                 }
 
                 // We might have entitites added.
@@ -1024,6 +1034,10 @@ class dates {
      * @return int Unix timestamp
      */
     private static function parse_date_with_format($datestring, $dateparseformat) {
+        // Numeric values are already unix timestamps and must be passed through unchanged.
+        if (is_numeric($datestring)) {
+            return (int) $datestring;
+        }
         // If we have a custom date format from CSV import, use it.
         if (!empty($dateparseformat)) {
             $date = DateTime::createFromFormat($dateparseformat, $datestring);

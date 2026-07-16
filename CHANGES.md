@@ -1,4 +1,55 @@
+## Version 9.6.2 (2026071001)
+* New feature: New bulk operations page in the Booking plugin settings.
+* Bugfix: Fix enrolmultipleusers via cashier (wrong number of items). Wunderbyte-GmbH/Wunderbyte-GmbH#1974
+* Bugfix: Fix several enrollink bugs. Wunderbyte-GmbH/Wunderbyte-GmbH#1535, Wunderbyte-GmbH/Wunderbyte-GmbH#2057, Wunderbyte-GmbH/Wunderbyte-GmbH#2058, Wunderbyte-GmbH/Wunderbyte-GmbH#1558
+
+## Version 9.6.2 (2026070905)
+* Improvement: AI wizard — diagnose_user_booking resolves a named option from any context (like the other diagnose skills) and flags an unresolvable optionquery instead of silently degrading to the instance-wide overview; every reported option carries its host course and booking instance.
+* Improvement: AI wizard — the no-instance scope observation no longer reads as a site-wide "no booking activities" state in later turns and points to the target-parameter retry path.
+
+## Version 9.6.2 (2026070904)
+* Improvement: AI wizard — search_options, list_option_properties and the two diagnose skills resolve their booking activity from any context (optionid or activityquery), instead of dead-ending outside a booking module context.
+* New feature: AI wizard — new read-only skill list_instance_settings returns the configurable instance fields with current values; configure_booking_instance is write-only now.
+* Improvement: AI wizard — mutation previews always name the target activity and course, bulk previews list the affected options, and every changed field is shown.
+* Improvement: AI wizard — failed mutations report per-option postcondition failures and which fields were actually persisted.
+* Bugfix: booking_add_instance/booking_update_instance no longer crash on records loaded from the DB (count() on comma-separated string fields).
+
+## Version 9.6.1 (2026070901)
+* New feature: Booking agent — an AI assistant (bookingextension_agent) that creates, updates and manages booking options and answers questions from natural language, reachable from a global navbar entry point.
+* New feature: Entities treefilter — the location filter now shows the entity parent/child hierarchy as a searchable tree (requires local_wunderbyte_table 2026070800 or newer).
+* New feature: The location cell shows deep entity hierarchies as an accessible hover card; its entries link to the entity view pages and hover-card images are opt-in.
+* New feature: Entity cross-option availability and capacity/equipment booking — an option can require and consume the capacity of an entity or equipment across options.
+* New feature: After-booking actions can trigger a REST call (executerestscript, with optional JSON body, custom HTTP headers, TLS verification and optional JWT signing of the outgoing request) and can now also run on cancellation, not only on booking.
+* New feature: Read-only CLI cli/audit_booking_invariants.php to audit booking-answer DB invariants (overbooking, waiting list, duplicate answers, orphans, enrolment).
+* Improvement: bookingextension settings are now available regardless of the Booking PRO license.
+* Improvement: Better colour contrast for improved accessibility.
+* Improvement: Performance — a per-option capacity lock closes the overbooking race; system-wide cache broadcasts are deferred and reduced during waiting-list sync, bulk operations and single bookings; category lookups are batched; the MariaDB/MySQL version check is cached; and slot booking hoists option-wide queries out of the per-slot loop.
+* Bugfix: Refresh the shopping cart display whenever the prepage booking modal is closed - also via ESC or a backdrop click, not only via the close button.
+* Bugfix: Cashiers without 'mod/booking:bookforothers' could not load the customform prepage when booking for another user, so multi-user bookings (enrolusersaction) were silently booked with quantity 1. The 'local/shopping_cart:cashier' capability is now accepted for acting on behalf of another user, and the prepage continue button stays blocked if the customform fails to load (fail closed).
+* Bugfix: Availability SQL filter — tolerate NULL availability and make the userprofilefield &lt; and &gt; operators numeric and DB-agnostic (MariaDB and PostgreSQL).
+* Bugfix: REST after-booking action JSON-body placeholders are resolved per token, with new {baid} and {userid} placeholders.
+* Bugfix: The "user affected by event" option is gated by the selected event.
+* Bugfix: The scheduled mails page resolves its context like edit_rules.php and lists scheduled mails context-specifically.
+* Bugfix: Read the entitytreefilter setting from the correct component.
+* Bugfix: Fix error on settings.php when no customfields exist yet.
+
+## Version 9.6.0 (2026070900)
+* New feature: New booking instance setting "customfieldsforview" to display booking option customfields for each booking option in the options overview (view.php) — in list view (footer area, right next to institution) and cards view (card list, one customfield per line, right above the dates), styled like the other info entries (e.g. institution). The icons configured in the plugin settings (customfieldicon_<shortname>) are shown in front of the values, just like on the option detail page; if no icon is configured, the default icon fa-puzzle-piece is used.
+* New feature: Add individual columns and customfields to fulltext search.
+* New feature: Add a new toggle filter with shortcode arg 'filterbookablenextdays' to filter for all bookable options within the next N days, e.g. [courselist filter=1 filterbookablenextdays=28].
+* Improvement: Shortcode argument includecustomfields: if no region is given (e.g. includecustomfields="shortname1,shortname2"), the customfields are now rendered in the standard region of the rendered template (footer in list view, card list in cards view) with the standard styling, instead of the cardbody region which is only visible in the cards view. Explicitly given regions are unchanged.
+* Improvement: customfields in cards and optiondescription can now be assigned icons.
+* Bugfix: Don't change time modified for waitinglist confirmation.
+* Bugfix: Display waitinglist column for unlimited waitinglist.
+* Bugfix: Display enrolledincourse condition independly to usesqlfilteravailability condition.
+
+## Version 9.5.1 (2026070301)
+* Bugfix: Make sure no classes from shopping cart are required in booking.
+
 ## Version 9.5.0 (2026070300)
+* Improvement: The full text search on booking customfields (via shortcode argument or instance setting fulltextsearchcolumns) now also searches the display value resolved by the wbt_field_controller (e.g. select labels or the data returned by the SQL of a dynamicformat field), not only the stored key.
+* New feature: New booking instance setting "Columns to add to the full text search" to add columns of booking options or booking customfields to the full text search of the booking options table.
+* New feature: New shortcode argument fulltextsearchcolumns (e.g. [courselist cmid="123" fulltextsearchcolumns="description,customfieldshortname"]) to add columns of booking options or booking customfields (by shortname) to the full text search of the table. Setting the argument implicitly enables the search.
 * New feature: New "Bulk operations" tab on the booking instance view page. It is enabled via the "Views to show" instance setting, requires the 'mod/booking:executebulkoperations' capability in module context and only shows booking options of the current instance. Users without 'mod/booking:canseeinvisibleoptions' in the module context only see visible options there. Also, the "Send mail to teachers" functionality of bulk operations now needs the 'mod/booking:communicate' capability.
 * New feature: Add setting 'eventslogtimefilter' to limit recent changes in booking option and booking instance form for better performance.
 * New feature: Include Booking Rules on instance duplication.
@@ -35,6 +86,17 @@
 * Bugfix: Moodle 4.5 accessibility fixes and revert to use phpunit's teardown() to ensure clean up of booking cache
 * Bugfix: Correctly use user & relateduser in message provider
 * Bugfix: only display header when option is of type slotbooking
+* New feature: Booking AI agent integration for mod_booking (agent skills, providers, diagnostics).
+* Improvement: Performance — memoise the DB-server version check; defer system-wide cache broadcasts during bulk booking, single-booking and waiting-list sync; batch category lookups.
+* Improvement: Slotbooking — hoist option-wide queries out of the per-slot loop.
+* Bugfix: Availability SQL filter — tolerate NULL availability; make user-profile-field </> operators numeric and DB-agnostic (MariaDB/PostgreSQL).
+* Bugfix: Add a per-option capacity lock to close an overbooking race.
+* Bugfix: Resolve REST after-booking action JSON-body placeholders per token; gate "user affected by event" by the selected event.
+* Improvement: After booking actions — REST (executerestscript, cancel trigger).
+* Improvement: Load bookingextension settings regardless of the Booking PRO license.
+* Improvement: Scheduled mails page — align context resolution with edit_rules.php.
+* Improvement: Entity cross-option availability and capacity/equipment booking (with behat coverage).
+* Tests: gated concurrency/overbooking benchmark for booking capacity; further test improvements.
 
 ## Version 9.4.0 (2026062201)
 * New feature: Slot booking - book and manage time slots inside a booking option: slot calendar picker and report, self-service move/cancel of booked slots, a unified "update booking" editor (move + cancel + change in one dynamic form), optional move-with-payment via shopping_cart, and per-slot booking rules (Wunderbyte-GmbH/Wunderbyte-GmbH#1596).

@@ -25,7 +25,7 @@
 
 namespace mod_booking;
 
-use mod_booking\booking_advanced_testcase;
+use mod_booking\tests\booking_advanced_testcase;
 use mod_booking\form\condition\slotbooking_form;
 use mod_booking\local\slotbooking\slot_answer;
 use mod_booking\local\slotbooking\slot_dto;

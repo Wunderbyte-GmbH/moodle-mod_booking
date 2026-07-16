@@ -27,6 +27,7 @@ namespace mod_booking;
 
 use advanced_testcase;
 use mod_booking\bo_availability\bo_info;
+use mod_booking\bo_availability\condition_state_helper;
 use mod_booking\booking_option;
 use mod_booking\enrollink;
 use mod_booking_generator;
@@ -573,6 +574,387 @@ final class enrollink_skipconditions_test extends advanced_testcase {
             'optionid'     => $optionid,
         ]);
         return $erlid;
+    }
+
+    /**
+     * Test that the enrollinkskip flag in the dashboard config bypasses a condition via enrollink.
+     *
+     * The condition is inactive for regular bookings (skipstate 0) but flagged for enrollink skip,
+     * so it must block a regular booking and be bypassed in enrollink context.
+     *
+     * @covers \mod_booking\bo_availability\condition_state_helper::is_enrollink_skipped
+     * @covers \mod_booking\bo_availability\bo_info::set_enrollink_context
+     *
+     * @param array $bdata
+     * @dataProvider booking_settings_provider
+     */
+    public function test_enrollink_flag_in_dashboard_config_bypasses_condition(array $bdata): void {
+        set_config('enrollinkskipconditions', '', 'booking');
+        set_config(
+            'availabilityconditionsettings',
+            json_encode([
+                MOD_BOOKING_BO_COND_BOOKING_TIME => [
+                    'skipstate' => condition_state_helper::STATE_INACTIVE,
+                    'enrollinkskip' => true,
+                ],
+            ]),
+            'booking'
+        );
+
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $student = $this->getDataGenerator()->create_user();
+        $bookingmanager = $this->getDataGenerator()->create_user();
+
+        $bdata['course'] = $course->id;
+        $bdata['bookingmanager'] = $bookingmanager->username;
+
+        $booking = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        $this->setAdminUser();
+        $this->getDataGenerator()->enrol_user($student->id, $course->id);
+        $this->getDataGenerator()->enrol_user($bookingmanager->id, $course->id, 'editingteacher');
+
+        // Option with booking time already closed.
+        $record = new stdClass();
+        $record->bookingid = $booking->id;
+        $record->text = 'Test option (closed booking time, dashboard flag)';
+        $record->chooseorcreatecourse = 1;
+        $record->courseid = $course->id;
+        $record->bookingopeningtime = strtotime('now - 10 days');
+        $record->bookingclosingtime = strtotime('now - 1 day');
+        $record->restrictanswerperiodopening = 1;
+        $record->restrictanswerperiodclosing = 1;
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $option = $plugingenerator->create_option($record);
+        singleton_service::destroy_booking_option_singleton($option->id);
+
+        $this->setUser($student);
+        $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
+        $boinfo = new bo_info($settings);
+
+        // Without enrollink context: booking_time blocks (skipstate is inactive).
+        bo_info::set_enrollink_context(false);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student->id, false);
+        $this->assertEquals(MOD_BOOKING_BO_COND_BOOKING_TIME, $id, 'Booking time should block without enrollink context.');
+
+        // With enrollink context: booking_time is bypassed via the dashboard flag.
+        bo_info::set_enrollink_context(true);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student->id, false);
+        bo_info::set_enrollink_context(false);
+        $this->assertNotEquals(
+            MOD_BOOKING_BO_COND_BOOKING_TIME,
+            $id,
+            'Booking time should be bypassed with enrollink context when enrollinkskip is set in the dashboard config.'
+        );
+    }
+
+    /**
+     * Test that an explicit enrollinkskip=false in the dashboard config wins over the legacy setting.
+     *
+     * The legacy enrollinkskipconditions setting lists booking_time, but the dashboard entry
+     * explicitly disables the enrollink skip, so the condition must still block via enrollink.
+     *
+     * @covers \mod_booking\bo_availability\condition_state_helper::is_enrollink_skipped
+     * @covers \mod_booking\bo_availability\bo_info::set_enrollink_context
+     *
+     * @param array $bdata
+     * @dataProvider booking_settings_provider
+     */
+    public function test_dashboard_config_overrides_legacy_enrollink_setting(array $bdata): void {
+        set_config('enrollinkskipconditions', MOD_BOOKING_BO_COND_BOOKING_TIME, 'booking');
+        set_config(
+            'availabilityconditionsettings',
+            json_encode([
+                MOD_BOOKING_BO_COND_BOOKING_TIME => [
+                    'skipstate' => condition_state_helper::STATE_INACTIVE,
+                    'enrollinkskip' => false,
+                ],
+            ]),
+            'booking'
+        );
+
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $student = $this->getDataGenerator()->create_user();
+        $bookingmanager = $this->getDataGenerator()->create_user();
+
+        $bdata['course'] = $course->id;
+        $bdata['bookingmanager'] = $bookingmanager->username;
+
+        $booking = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        $this->setAdminUser();
+        $this->getDataGenerator()->enrol_user($student->id, $course->id);
+        $this->getDataGenerator()->enrol_user($bookingmanager->id, $course->id, 'editingteacher');
+
+        // Option with booking time already closed.
+        $record = new stdClass();
+        $record->bookingid = $booking->id;
+        $record->text = 'Test option (closed booking time, dashboard override)';
+        $record->chooseorcreatecourse = 1;
+        $record->courseid = $course->id;
+        $record->bookingopeningtime = strtotime('now - 10 days');
+        $record->bookingclosingtime = strtotime('now - 1 day');
+        $record->restrictanswerperiodopening = 1;
+        $record->restrictanswerperiodclosing = 1;
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $option = $plugingenerator->create_option($record);
+        singleton_service::destroy_booking_option_singleton($option->id);
+
+        $this->setUser($student);
+        $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
+        $boinfo = new bo_info($settings);
+
+        // Even with enrollink context: booking_time is NOT bypassed because the dashboard entry wins.
+        bo_info::set_enrollink_context(true);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student->id, false);
+        bo_info::set_enrollink_context(false);
+        $this->assertEquals(
+            MOD_BOOKING_BO_COND_BOOKING_TIME,
+            $id,
+            'Booking time should still block via enrollink when the dashboard config explicitly disables the skip.'
+        );
+    }
+
+    /**
+     * Test that enrol_user() returns SUCCESS when the booking policy blocks but the bookingpolicy
+     * condition is flagged for enrollink skip in the dashboard config.
+     *
+     * The booking instance has an active booking policy, so the bookingpolicy condition blocks a
+     * regular booking attempt. With the enrollink skip flag set for the condition, enrollment via
+     * enrolment link must succeed anyway.
+     *
+     * @covers \mod_booking\enrollink::enrol_user
+     * @covers \mod_booking\bo_availability\conditions\bookingpolicy::is_skippable
+     * @covers \mod_booking\bo_availability\condition_state_helper::is_enrollink_skipped
+     *
+     * @param array $bdata
+     * @dataProvider booking_settings_provider
+     */
+    public function test_enrol_user_returns_success_when_bookingpolicy_skipped_for_enrollink(array $bdata): void {
+        set_config('enrollinkskipconditions', '', 'booking');
+        set_config(
+            'availabilityconditionsettings',
+            json_encode([
+                MOD_BOOKING_BO_COND_BOOKINGPOLICY => [
+                    'skipstate' => condition_state_helper::STATE_INACTIVE,
+                    'enrollinkskip' => true,
+                ],
+            ]),
+            'booking'
+        );
+
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $student = $this->getDataGenerator()->create_user();
+        $bookingmanager = $this->getDataGenerator()->create_user();
+
+        $bdata['course'] = $course->id;
+        $bdata['bookingmanager'] = $bookingmanager->username;
+        // Activate the booking policy on the instance, so the bookingpolicy condition applies.
+        $bdata['bookingpolicy'] = 'Please accept the booking policy.';
+
+        $booking = $this->getDataGenerator()->create_module('booking', $bdata);
+        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_bookingid($booking->id);
+        singleton_service::destroy_booking_singleton_by_cmid($bookingsettings->cmid);
+
+        $this->setAdminUser();
+        $this->getDataGenerator()->enrol_user($student->id, $course->id);
+        $this->getDataGenerator()->enrol_user($bookingmanager->id, $course->id, 'editingteacher');
+
+        $record = new stdClass();
+        $record->bookingid = $booking->id;
+        $record->text = 'Test option (booking policy skipped for enrollink)';
+        $record->chooseorcreatecourse = 1;
+        $record->courseid = $course->id;
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $option = $plugingenerator->create_option($record);
+        singleton_service::destroy_booking_option_singleton($option->id);
+
+        $this->setUser($student);
+        $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
+        $boinfo = new bo_info($settings);
+
+        // Precondition: without enrollink context, the booking policy blocks the student.
+        bo_info::set_enrollink_context(false);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student->id, true);
+        $this->assertEquals(
+            MOD_BOOKING_BO_COND_BOOKINGPOLICY,
+            $id,
+            'Booking policy should block a regular booking attempt when a policy is set on the instance.'
+        );
+
+        // Enrollment via enrolment link: the bookingpolicy condition is skipped, so it must succeed.
+        $erlid = $this->create_test_enrollink_bundle($option->id, $bookingmanager->id);
+        $enrollinkobj = enrollink::get_instance($erlid);
+
+        $result = $enrollinkobj->enrol_user($student->id);
+        $this->assertEquals(
+            MOD_BOOKING_AUTOENROL_STATUS_SUCCESS,
+            $result,
+            'enrol_user() must return SUCCESS when bookingpolicy blocks but is flagged for enrollink skip.'
+        );
+
+        $infostring = $enrollinkobj->get_readable_info($result);
+        $this->assertNotEmpty($infostring, 'get_readable_info() must return a non-empty success string.');
+    }
+
+    /**
+     * Test that enrol_user() returns SUCCESS on a fully booked option, because the fullybooked
+     * condition is skipped for enrollink enrollments by default.
+     *
+     * Enrollink holders have already paid for their place (the bundle answer reserves it), so a
+     * fully booked option must not block them. This is the default behaviour without any
+     * dashboard configuration.
+     *
+     * @covers \mod_booking\enrollink::enrol_user
+     * @covers \mod_booking\bo_availability\conditions\fullybooked::is_skippable
+     * @covers \mod_booking\bo_availability\condition_state_helper::is_enrollink_skipped
+     *
+     * @param array $bdata
+     * @dataProvider booking_settings_provider
+     */
+    public function test_enrol_user_returns_success_on_fully_booked_option(array $bdata): void {
+        // No configuration at all: the hardcoded enrollink defaults must apply.
+        set_config('enrollinkskipconditions', '', 'booking');
+        set_config('availabilityconditionsettings', '', 'booking');
+
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $student1 = $this->getDataGenerator()->create_user();
+        $student2 = $this->getDataGenerator()->create_user();
+        $bookingmanager = $this->getDataGenerator()->create_user();
+
+        $bdata['course'] = $course->id;
+        $bdata['bookingmanager'] = $bookingmanager->username;
+        $booking = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        $this->setAdminUser();
+        $this->getDataGenerator()->enrol_user($student1->id, $course->id);
+        $this->getDataGenerator()->enrol_user($student2->id, $course->id);
+        $this->getDataGenerator()->enrol_user($bookingmanager->id, $course->id, 'editingteacher');
+
+        // Option with a single place only.
+        $record = new stdClass();
+        $record->bookingid = $booking->id;
+        $record->text = 'Test option (fully booked, enrollink bypass)';
+        $record->chooseorcreatecourse = 1;
+        $record->courseid = $course->id;
+        $record->maxanswers = 1;
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $option = $plugingenerator->create_option($record);
+        singleton_service::destroy_booking_option_singleton($option->id);
+
+        // Fill the only place with student2, so the option is fully booked.
+        $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
+        $optionobj = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
+        $optionobj->user_submit_response($student2, 0, 0, 0, MOD_BOOKING_VERIFIED);
+
+        $this->setUser($student1);
+        $boinfo = new bo_info($settings);
+
+        // Precondition: without enrollink context, the fullybooked condition blocks student1.
+        bo_info::set_enrollink_context(false);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, false);
+        $this->assertEquals(
+            MOD_BOOKING_BO_COND_FULLYBOOKED,
+            $id,
+            'Fullybooked should block a regular booking attempt when the option is full.'
+        );
+
+        // Enrollment via enrolment link: fullybooked is skipped by default, so it must succeed.
+        $erlid = $this->create_test_enrollink_bundle($option->id, $bookingmanager->id);
+        $enrollinkobj = enrollink::get_instance($erlid);
+
+        $result = $enrollinkobj->enrol_user($student1->id);
+        $this->assertEquals(
+            MOD_BOOKING_AUTOENROL_STATUS_SUCCESS,
+            $result,
+            'enrol_user() must return SUCCESS on a fully booked option, as fullybooked is skipped by default.'
+        );
+
+        // Verify the user is actually booked now.
+        singleton_service::destroy_booking_answers($settings->id);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id, false);
+        $this->assertEquals(
+            MOD_BOOKING_BO_COND_ALREADYBOOKED,
+            $id,
+            'The enrollink user must be booked after enrol_user() succeeded.'
+        );
+    }
+
+    /**
+     * Test that enrol_user() is blocked on a fully booked option when the enrollink skip for
+     * fullybooked is explicitly disabled on the dashboard.
+     *
+     * @covers \mod_booking\enrollink::enrol_user
+     * @covers \mod_booking\bo_availability\condition_state_helper::is_enrollink_skipped
+     *
+     * @param array $bdata
+     * @dataProvider booking_settings_provider
+     */
+    public function test_enrol_user_blocked_on_fully_booked_option_when_skip_disabled(array $bdata): void {
+        set_config('enrollinkskipconditions', '', 'booking');
+        set_config(
+            'availabilityconditionsettings',
+            json_encode([
+                MOD_BOOKING_BO_COND_FULLYBOOKED => [
+                    'skipstate' => condition_state_helper::STATE_INACTIVE,
+                    'enrollinkskip' => false,
+                ],
+            ]),
+            'booking'
+        );
+
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $student1 = $this->getDataGenerator()->create_user();
+        $student2 = $this->getDataGenerator()->create_user();
+        $bookingmanager = $this->getDataGenerator()->create_user();
+
+        $bdata['course'] = $course->id;
+        $bdata['bookingmanager'] = $bookingmanager->username;
+        $booking = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        $this->setAdminUser();
+        $this->getDataGenerator()->enrol_user($student1->id, $course->id);
+        $this->getDataGenerator()->enrol_user($student2->id, $course->id);
+        $this->getDataGenerator()->enrol_user($bookingmanager->id, $course->id, 'editingteacher');
+
+        // Option with a single place only.
+        $record = new stdClass();
+        $record->bookingid = $booking->id;
+        $record->text = 'Test option (fully booked, enrollink skip disabled)';
+        $record->chooseorcreatecourse = 1;
+        $record->courseid = $course->id;
+        $record->maxanswers = 1;
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $option = $plugingenerator->create_option($record);
+        singleton_service::destroy_booking_option_singleton($option->id);
+
+        // Fill the only place with student2, so the option is fully booked.
+        $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
+        $optionobj = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
+        $optionobj->user_submit_response($student2, 0, 0, 0, MOD_BOOKING_VERIFIED);
+
+        $this->setUser($student1);
+
+        // Enrollment via enrolment link: the skip is explicitly disabled, so fullybooked blocks.
+        $erlid = $this->create_test_enrollink_bundle($option->id, $bookingmanager->id);
+        $enrollinkobj = enrollink::get_instance($erlid);
+
+        $result = $enrollinkobj->enrol_user($student1->id);
+        $this->assertEquals(
+            MOD_BOOKING_AUTOENROL_STATUS_BLOCKED_BY_CONDITION,
+            $result,
+            'enrol_user() must be blocked on a fully booked option when the enrollink skip is disabled.'
+        );
     }
 
     /**

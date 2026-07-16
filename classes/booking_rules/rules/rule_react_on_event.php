@@ -346,7 +346,7 @@ class rule_react_on_event implements booking_rule {
         $ruledata = $jsonobject->ruledata;
 
         $data->rule_name = $jsonobject->name;
-        $data->ruleisactive = $record->isactive;
+        $data->ruleisactive = (int)($record->isactive ?? 0);
         $data->rule_react_on_event_event = $ruledata->boevent;
         $data->rule_react_on_event_condition = $ruledata->condition;
         $data->rule_react_on_event_after_completion = $ruledata->aftercompletion;

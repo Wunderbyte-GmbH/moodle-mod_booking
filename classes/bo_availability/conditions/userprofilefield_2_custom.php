@@ -389,7 +389,7 @@ class userprofilefield_2_custom implements bo_condition, freezable_condition {
         if (empty($user)) {
             if ($databasetype == 'postgres') {
                 $where = "
-                availability IS NOT NULL
+                COALESCE(availability, '[]') IS NOT NULL
                 AND
                 (
                     (
@@ -406,7 +406,7 @@ class userprofilefield_2_custom implements bo_condition, freezable_condition {
                 && db_is_at_least_mariadb_106_or_mysql_8()
             ) {
                 $where = "
-                    availability IS NOT NULL
+                    COALESCE(availability, '[]') IS NOT NULL
                     AND (
                         (
                             NOT EXISTS (
@@ -429,7 +429,7 @@ class userprofilefield_2_custom implements bo_condition, freezable_condition {
         // phpcs:disable
         if ($databasetype == 'postgres') {
             $where = "
-            availability IS NOT NULL
+            COALESCE(availability, '[]') IS NOT NULL
             AND
             (
                 (
@@ -511,7 +511,7 @@ class userprofilefield_2_custom implements bo_condition, freezable_condition {
             && db_is_at_least_mariadb_106_or_mysql_8()
         ) {
             $where = "
-                availability IS NOT NULL
+                COALESCE(availability, '[]') IS NOT NULL
                 AND (
                     (
                         NOT EXISTS (

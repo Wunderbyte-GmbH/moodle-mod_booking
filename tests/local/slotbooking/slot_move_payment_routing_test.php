@@ -16,6 +16,7 @@
 
 namespace mod_booking;
 
+use mod_booking\tests\booking_advanced_testcase;
 use cache;
 use mod_booking\local\slotbooking\slot_update_service;
 use mod_booking\local\slotbooking\slot_answer;

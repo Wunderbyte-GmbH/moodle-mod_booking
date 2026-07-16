@@ -25,7 +25,7 @@
 
 namespace mod_booking;
 
-use mod_booking\booking_advanced_testcase;
+use mod_booking\tests\booking_advanced_testcase;
 use mod_booking\table\manageusers_table;
 use stdClass;
 use mod_booking\bo_availability\bo_info;
@@ -37,6 +37,7 @@ use mod_booking_generator;
 use tool_mocktesttime\time_mock;
 
 defined('MOODLE_INTERNAL') || die();
+require_once(__DIR__ . '/../classes/booking_advanced_testcase.php');
 global $CFG;
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 

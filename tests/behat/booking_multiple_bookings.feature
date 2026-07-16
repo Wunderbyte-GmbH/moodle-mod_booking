@@ -36,16 +36,19 @@ Feature: In a booking instance with multiple bookings enabled
     When I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I should see "Click again to confirm booking" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r1" "css_element"
+    And I wait until "Click again to confirm booking" "text" does not exist
     Then I should see "Book again (already booked 1 time)" in the ".allbookingoptionstable_r1" "css_element"
     # Second booking
     When I click on "Book again (already booked 1 time)" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I should see "Click again to confirm booking" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r1" "css_element"
+    And I wait until "Click again to confirm booking" "text" does not exist
     Then I should see "Book again (already booked 2 times)" in the ".allbookingoptionstable_r1" "css_element"
     # Third booking
     When I click on "Book again (already booked 2 times)" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I should see "Click again to confirm booking" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r1" "css_element"
+    And I wait until "Click again to confirm booking" "text" does not exist
     Then I should see "Book again (already booked 3 times)" in the ".allbookingoptionstable_r1" "css_element"
 
   @javascript
@@ -57,9 +60,11 @@ Feature: In a booking instance with multiple bookings enabled
     # Book twice
     And I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r1" "css_element"
+    And I wait until "Click again to confirm booking" "text" does not exist
     And I should see "Book again (already booked 1 time)" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Book again (already booked 1 time)" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r1" "css_element"
+    And I wait until "Click again to confirm booking" "text" does not exist
     And I should see "Book again (already booked 2 times)" in the ".allbookingoptionstable_r1" "css_element"
     # Cancel one booking
     When I click on "Undo my booking" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
@@ -81,6 +86,7 @@ Feature: In a booking instance with multiple bookings enabled
     And I am on the "My booking" Activity page logged in as student1
     When I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r1" "css_element"
+    And I wait until "Click again to confirm booking" "text" does not exist
     Then I should see "Book again (already booked 1 time)" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Undo my booking" in the ".allbookingoptionstable_r1 .booknow" "css_element"
 
@@ -93,6 +99,7 @@ Feature: In a booking instance with multiple bookings enabled
     # First booking
     And I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r1" "css_element"
+    And I wait until "Click again to confirm booking" "text" does not exist
     Then I should see "Start" in the ".allbookingoptionstable_r1" "css_element"
     # Try to book immediately (should be blocked due to wait time)
     And I should not see "Book again" in the ".allbookingoptionstable_r1 .booknow" "css_element"
@@ -109,6 +116,7 @@ Feature: In a booking instance with multiple bookings enabled
     And I am on the "My booking" Activity page logged in as student1
     And I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r1" "css_element"
+    And I wait until "Click again to confirm booking" "text" does not exist
     # Booking re-renders the table asynchronously (reloadAllTables), so wait for the
     # AJAX to settle and reload to get a fresh, non-stale DOM before asserting the label.
     And I wait until the page is ready
@@ -116,6 +124,7 @@ Feature: In a booking instance with multiple bookings enabled
     And I should see "Book again (already booked 1 time)" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Book again (already booked 1 time)" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r1" "css_element"
+    And I wait until "Click again to confirm booking" "text" does not exist
     And I wait until the page is ready
     And I reload the page
     And I should see "Book again (already booked 2 times)" in the ".allbookingoptionstable_r1" "css_element"
@@ -125,6 +134,7 @@ Feature: In a booking instance with multiple bookings enabled
     And I should see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     When I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r1" "css_element"
+    And I wait until "Click again to confirm booking" "text" does not exist
     And I wait until the page is ready
     And I reload the page
     Then I should see "Book again (already booked 1 time)" in the ".allbookingoptionstable_r1" "css_element"
@@ -149,6 +159,7 @@ Feature: In a booking instance with multiple bookings enabled
     # Book once
     And I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r1" "css_element"
+    And I wait until "Click again to confirm booking" "text" does not exist
     And I should see "Book again (already booked 1 time)" in the ".allbookingoptionstable_r1" "css_element"
     # Cancel the booking
     And I should see "Undo my booking" in the ".allbookingoptionstable_r1 .booknow" "css_element"

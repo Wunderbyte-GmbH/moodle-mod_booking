@@ -230,6 +230,7 @@ Feature: Edit booking's organizer, info and semester settings as a teacher or ad
     And I should see "E-mail settings" in the "#id_emailsettings" "css_element"
     And I should see "Deprecated" in the "#id_emailsettings" "css_element"
     And I expand all fieldsets
+    And I wait until ".collapsing" "css_element" does not exist
     And I should see "Booking confirmation" in the "#id_emailsettings" "css_element"
     And I should see "Teacher notification before start" in the "#id_emailsettings" "css_element"
     And I should see "Status change message" in the "#id_emailsettings" "css_element"

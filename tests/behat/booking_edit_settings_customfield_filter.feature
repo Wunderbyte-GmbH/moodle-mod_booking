@@ -56,6 +56,7 @@ Feature: As admin - configure customfield filter for booking instance and valida
   Scenario: Booking: configure customfield filter for booking instance and validate it as student
     Given I am on the "Booking0" "booking activity editing" page logged in as admin
     And I expand all fieldsets
+    And I wait until ".collapsing" "css_element" does not exist
     And I set the following fields to these values:
       | id_customfieldsforfilter  | spt1,dynamicuser |
     And I press "Save and display"

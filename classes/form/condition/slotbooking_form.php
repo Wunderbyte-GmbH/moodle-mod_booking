@@ -611,7 +611,9 @@ class slotbooking_form extends dynamic_form {
      *
      * @param int $optionid
      * @param int $userid
-     * @return array<int, array<string, mixed>>
+     *
+     * @return array
+     *
      */
     private static function get_custom_open_days(int $optionid, int $userid): array {
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);

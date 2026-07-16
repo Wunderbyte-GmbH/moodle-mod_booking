@@ -133,5 +133,4 @@ Campaign types are auto-discovered by `campaigns_info`, which scans the `classes
 
 ## See also
 
-- [Architecture overview](ARCHITECTURE.md)
-- [Campaigns user documentation](../campaigns/README.md)
+- [Campaigns user documentation](../user/campaigns/README.md)

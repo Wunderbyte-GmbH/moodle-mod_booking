@@ -16,13 +16,16 @@
 
 namespace mod_booking;
 
-use mod_booking\booking_advanced_testcase;
+use mod_booking\tests\booking_advanced_testcase;
 use mod_booking\singleton_service;
 use mod_booking\booking_bookit;
 use mod_booking\bo_availability\bo_info;
 use tool_mocktesttime\time_mock;
 use stdClass;
 use mod_booking_generator;
+
+defined('MOODLE_INTERNAL') || die();
+require_once(__DIR__ . '/../classes/booking_advanced_testcase.php');
 
 /**
  * Tests for booking_answers class.

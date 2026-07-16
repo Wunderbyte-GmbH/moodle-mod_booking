@@ -476,7 +476,17 @@ if there only was one booking option. */
 }
 
 .wunderbyte-table-list .imageright-card .action {
+    position: absolute;
+    top: 0;
     right: 25%;
+}
+
+/* Bootstrap 4 (Moodle 4.5) sets position:relative on every grid column; Bootstrap 5
+   (Moodle 5+) does not. Reset the columns inside imageright cards to static so the
+   absolutely positioned .action menubar anchors to the .card -- its right:25% then
+   lands just left of the right-hand header image consistently on both versions. */
+.wunderbyte-table-list .imageright-card [class*="col-"] {
+    position: static;
 }
 
 .wunderbyte-table-list .booknow {
@@ -491,7 +501,7 @@ if there only was one booking option. */
 
 /* DO NOT USE #page-mod-booking-view because this needs to work in shortcodes too! */
 .mod-booking-view-list-image {
-    width: inherit;
+    width: 100%;
     height: 100%;
     object-fit: cover;
     max-height: 300px;
@@ -499,7 +509,7 @@ if there only was one booking option. */
 }
 
 .mod-booking-view-list-image-half {
-    width: inherit;
+    width: 100%;
     height: 100%;
     object-fit: cover;
     border-radius: 0;
@@ -938,3 +948,65 @@ table[id*="bulkoperationstable"] th {
     hyphens: none;
 }
 
+/* Location cell for deep (3+ level) entity hierarchies: the ancestor path appears in a pure-CSS
+   card on hover AND on keyboard focus (:focus-within) — no Bootstrap tooltip JS, so the behaviour
+   is identical on Bootstrap 4 (Moodle 4.x) and 5 (Moodle 5.x). Screenreaders read the path from
+   visually hidden text inside the link instead (the card is aria-hidden). */
+.mod-booking-location-cell {
+    position: relative;
+    display: inline-block;
+}
+
+.mod-booking-location-cell .mod-booking-location-path {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 1000;
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 0.25rem;
+    padding: 0.5rem 0.75rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    white-space: nowrap;
+}
+
+.mod-booking-location-cell:hover .mod-booking-location-path,
+.mod-booking-location-cell:focus-within .mod-booking-location-path {
+    display: block;
+}
+
+.mod-booking-location-pathitem {
+    display: block;
+}
+
+.mod-booking-location-pathimg {
+    height: 24px;
+    width: 24px;
+    object-fit: cover;
+    border-radius: 0.25rem;
+    margin-right: 0.25rem;
+    vertical-align: middle;
+}
+
+/*
+ * Accessibility (WCAG 2 AA color-contrast): the muted grey used for small
+ * booking meta texts (#77838f, ~3.86:1 on white) fails the minimum 4.5:1
+ * ratio. Darken to an accessible grey (#767676, ~4.57:1).
+ * Covered by booking_installments.feature "the page should meet accessibility standards".
+ */
+.booking-showdates-area,
+.booking-showdates-title b {
+    color: #767676;
+}
+
+/*
+ * The theme defines .text-gray as #77838f and aggregates it after this plugin's
+ * CSS, so a plain .text-gray rule would lose the cascade. The doubled-class
+ * selector raises specificity (0,2,0) to win without !important. Fixes the
+ * bookings count column and other muted booking meta texts (and any element
+ * inheriting the colour from a .text-gray cell, e.g. the waiting-list span).
+ */
+.text-gray.text-gray {
+    color: #767676;
+}

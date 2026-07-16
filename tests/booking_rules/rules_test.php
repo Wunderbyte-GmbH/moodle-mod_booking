@@ -25,7 +25,7 @@
 
 namespace mod_booking;
 
-use mod_booking\booking_advanced_testcase;
+use mod_booking\tests\booking_advanced_testcase;
 use local_shopping_cart\local\cartstore;
 use local_shopping_cart\shopping_cart;
 use mod_booking\option\optiondate;
@@ -39,6 +39,9 @@ use mod_booking\local\mobile\customformstore;
 use tool_mocktesttime\time_mock;
 use mod_booking_generator;
 use function PHPUnit\Framework\assertSame;
+
+defined('MOODLE_INTERNAL') || die();
+require_once(__DIR__ . '/../classes/booking_advanced_testcase.php');
 
 /**
  * Tests for booking rules.

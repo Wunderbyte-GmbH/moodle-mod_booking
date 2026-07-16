@@ -121,6 +121,7 @@ Feature: In a booking create a template
     And I wait "1" seconds
     ## Validate self-learning options
     And I expand all fieldsets
+    And I wait until ".collapsing" "css_element" does not exist
     And the field "optiontype" matches value "Self-learning course"
     And the field "duration[number]" matches value "10"
     And the field "duration[timeunit]" matches value "seconds"

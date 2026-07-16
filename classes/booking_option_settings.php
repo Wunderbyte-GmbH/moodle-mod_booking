@@ -1385,7 +1385,6 @@ class booking_option_settings {
         This allows us to systematically build the sql to get all the relevant information.
     */
 
-
     /**
      * Function to include all the values of one given customfield to a table bo.
      * The table is joined via bo.id=cfd.instanceid.
@@ -1408,6 +1407,7 @@ class booking_option_settings {
          $customfields = booking_handler::get_customfields($selectedshortnames);
 
          $select = '';
+         $selectparts = [];
          $from = '';
          $where = '';
          $params = [];
@@ -1430,12 +1430,7 @@ class booking_option_settings {
                 );
             }
 
-            $select .= "cfd$counter.value as $name ";
-
-            // Append comma if not the last element.
-            if ($counter < count($customfields)) {
-                $select .= ", ";
-            }
+            $selectparts[] = "cfd$counter.value as $name";
 
             // Add LEFT JOIN using the known field ID.
             $from .= " LEFT JOIN {customfield_data} cfd$counter
@@ -1456,6 +1451,11 @@ class booking_option_settings {
             }
 
             $counter++;
+        }
+
+        $select = implode(', ', $selectparts);
+        if (!empty($select)) {
+            $select .= ' ';
         }
 
         return [$select, $from, $where, $params];

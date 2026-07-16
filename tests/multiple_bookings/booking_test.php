@@ -16,7 +16,7 @@
 
 namespace mod_booking;
 
-use mod_booking\booking_advanced_testcase;
+use mod_booking\tests\booking_advanced_testcase;
 use mod_booking\output\booked_users;
 use mod_booking\singleton_service;
 use mod_booking\booking_bookit;

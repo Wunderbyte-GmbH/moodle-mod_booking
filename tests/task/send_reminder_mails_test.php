@@ -26,7 +26,7 @@
 
 namespace mod_booking;
 
-use mod_booking\booking_advanced_testcase;
+use mod_booking\tests\booking_advanced_testcase;
 use coding_exception;
 use mod_booking\task\send_reminder_mails;
 use mod_booking\teachers_handler;

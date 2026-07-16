@@ -25,6 +25,7 @@
 namespace mod_booking\local\slotbooking;
 
 use core_text;
+use mod_booking\local\entities_compat;
 use mod_booking\singleton_service;
 
 /**
@@ -117,6 +118,7 @@ class slot_availability {
      * @param int $slotend slot end timestamp
      * @param int $excludeanswerid booking answer id to ignore in overlap checks
      * @param int $excludemoveid pending move id to ignore (holder re-validating their own target)
+     * @param array|null $holds pending holds to include in overlap checks
      * @return int
      */
     public static function count_bookings(
@@ -124,7 +126,8 @@ class slot_availability {
         int $slotstart,
         int $slotend,
         int $excludeanswerid = 0,
-        int $excludemoveid = 0
+        int $excludemoveid = 0,
+        ?array $holds = null
     ): int {
         $count = 0;
 
@@ -148,7 +151,10 @@ class slot_availability {
         // for the duration of the payment, so they occupy a seat too. Expired holds are ignored
         // by the store. A holder re-validating their own target passes $excludemoveid to not
         // block themselves.
-        foreach (slot_move_store::get_active_holds_for_option($optionid) as $hold) {
+        // $holds is option-wide (not slot-specific); callers iterating many slots pass it in once
+        // to avoid re-querying it per slot (it is the same data for every slot of the option).
+        $holds = $holds ?? slot_move_store::get_active_holds_for_option($optionid);
+        foreach ($holds as $hold) {
             if ($excludemoveid > 0 && $hold['moveid'] === $excludemoveid) {
                 continue;
             }
@@ -212,6 +218,25 @@ class slot_availability {
 
         self::$bookedslotrangecache[$optionid] = $rangesbyanswer;
         return $rangesbyanswer;
+    }
+
+    /**
+     * Returns all actively booked slot ranges for an option, flattened across all booking answers.
+     *
+     * Used by the shared entity occupancy provider (booking::return_array_of_entity_dates) so that
+     * booked slots block overlapping dates/slots of other options that share the same entity.
+     *
+     * @param int $optionid booking option id
+     * @return array list of ['start' => int, 'end' => int]
+     */
+    public static function get_booked_slot_ranges_for_option(int $optionid): array {
+        $ranges = [];
+        foreach (self::get_booked_slot_ranges_by_answer($optionid) as $answerranges) {
+            foreach ($answerranges as $range) {
+                $ranges[] = $range;
+            }
+        }
+        return $ranges;
     }
 
     /**
@@ -360,6 +385,9 @@ class slot_availability {
      * @param int[] $selectedteachers selected teacher ids for this slot
      * @param int $excludeanswerid booking answer id to ignore in overlap checks
      * @param int $excludemoveid pending move id to ignore (holder re-validating their own target)
+     * @param bool $uselivedata whether to query live (uncached) booking data
+     * @param array|null $holds pending holds to include in overlap checks
+     * @param array|null $assignedteachers pre-resolved assigned teachers for this slot
      * @return array
      */
     public static function evaluate_slot_for_user(
@@ -369,7 +397,10 @@ class slot_availability {
         int $userid = 0,
         array $selectedteachers = [],
         int $excludeanswerid = 0,
-        int $excludemoveid = 0
+        int $excludemoveid = 0,
+        bool $uselivedata = false,
+        ?array $holds = null,
+        ?array $assignedteachers = null
     ): array {
         global $CFG;
 
@@ -393,8 +424,18 @@ class slot_availability {
             return $result;
         }
 
+        // If the option is tied to an entity that is already occupied during this slot
+        // (e.g. by a normal option's optiondate, or another slot on the same entity),
+        // the slot is not available regardless of its own capacity. At booking commit time this
+        // reads live (authoritative) so two users cannot both book the same exclusive slot.
+        if (self::has_entity_conflict_for_slot($optionid, $slotstart, $slotend, $uselivedata)) {
+            $result['status'] = 'unavailable';
+            $result['errormessage'] = get_string('slot_error_entity_occupied', 'mod_booking');
+            return $result;
+        }
+
         $maxparticipants = max(1, (int)$config->max_participants_per_slot);
-        $bookings = self::count_bookings($optionid, $slotstart, $slotend, $excludeanswerid, $excludemoveid);
+        $bookings = self::count_bookings($optionid, $slotstart, $slotend, $excludeanswerid, $excludemoveid, $holds);
         if ($bookings >= $maxparticipants) {
             $result['status'] = 'full';
             $result['errormessage'] = get_string('slot_error_selected_unavailable', 'mod_booking');
@@ -409,9 +450,12 @@ class slot_availability {
             }
         )));
 
-        $assignedteachers = [];
-        if ($userid > 0) {
-            $assignedteachers = self::get_assigned_teacher_ids_for_user($optionid, $userid);
+        // Assigned teachers are per (option, user), not slot-specific; callers iterating many
+        // slots pass them in once to avoid re-querying per slot.
+        if ($assignedteachers === null) {
+            $assignedteachers = $userid > 0
+                ? self::get_assigned_teacher_ids_for_user($optionid, $userid)
+                : [];
         }
 
         if (!empty($assignedteachers)) {
@@ -479,6 +523,67 @@ class slot_availability {
         }
 
         return $result;
+    }
+
+    /**
+     * Checks whether the entity linked to this option is already occupied during the given slot
+     * window by any other booking option or component (e.g. a normal option's optiondate, or a
+     * slot booked on another option that shares the same entity).
+     *
+     * Reuses the shared local_entities occupancy provider, so the same overlap data drives both
+     * normal-option conflict detection and slot availability. Dates belonging to this very option
+     * are ignored (an option never blocks its own slots).
+     *
+     * @param int $optionid booking option id
+     * @param int $slotstart slot start timestamp
+     * @param int $slotend slot end timestamp
+     * @param bool $uselive if true, read occupancy live (bypass cache) for an authoritative result;
+     *                      used at booking commit time so two users cannot both book the same slot
+     * @return bool true if the entity is occupied during the slot
+     */
+    public static function has_entity_conflict_for_slot(
+        int $optionid,
+        int $slotstart,
+        int $slotend,
+        bool $uselive = false
+    ): bool {
+
+        // Entity occupancy uses the capacity API (get_allocation_mode / get_all_dates_for_entity),
+        // which only exists in local_entities >= 0.5.0. Without it (or an older/absent local_entities)
+        // slots simply have no cross-entity occupancy constraint — the pre-capacity behaviour.
+        if (!entities_compat::has_capacity_support()) {
+            return false;
+        }
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $entityid = (int)($settings->entity['id'] ?? 0);
+        if ($entityid <= 0) {
+            return false;
+        }
+
+        // Default 'none' means no overlap checking for this entity — skip cheaply (no dates query).
+        if (\local_entities\entities::get_allocation_mode($entityid) === 'none') {
+            return false;
+        }
+
+        $bookeddates = \local_entities\entities::get_all_dates_for_entity($entityid, $uselive);
+        foreach ($bookeddates as $bookeddate) {
+            // Ignore dates that belong to this very option; its own dates never block its slots.
+            $owneroptionid = 0;
+            if (!empty($bookeddate->link)) {
+                $params = $bookeddate->link->params();
+                $owneroptionid = (int)($params['optionid'] ?? 0);
+            }
+            if ($owneroptionid === $optionid) {
+                continue;
+            }
+
+            if (self::slots_overlap($slotstart, $slotend, (int)$bookeddate->starttime, (int)$bookeddate->endtime)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -784,13 +889,19 @@ class slot_availability {
             ? self::get_booked_slot_key_set_for_user($optionid, $userid)
             : [];
 
+        // Fetch the option-wide pending holds once and reuse them across all slots below,
+        // instead of re-querying them per slot inside count_bookings()/evaluate_slot_for_user().
+        $holds = slot_move_store::get_active_holds_for_option($optionid);
+        // Assigned teachers are per (option, user), not per slot - fetch once and reuse below.
+        $assignedteachers = $userid > 0 ? self::get_assigned_teacher_ids_for_user($optionid, $userid) : [];
+
         $result = [];
         foreach ($slots as $slot) {
             [$slotstart, $slotend] = $slot;
             $slotkey = $slotstart . ':' . $slotend;
 
             if (!empty($userbookedslotset[$slotkey])) {
-                $bookings = self::count_bookings($optionid, $slotstart, $slotend);
+                $bookings = self::count_bookings($optionid, $slotstart, $slotend, 0, 0, $holds);
                 $result[] = [
                     'start' => $slotstart,
                     'end' => $slotend,
@@ -802,8 +913,19 @@ class slot_availability {
                 continue;
             }
 
-            $bookings = self::count_bookings($optionid, $slotstart, $slotend);
-            $evaluation = self::evaluate_slot_for_user($optionid, $slotstart, $slotend, $userid);
+            $bookings = self::count_bookings($optionid, $slotstart, $slotend, 0, 0, $holds);
+            $evaluation = self::evaluate_slot_for_user(
+                $optionid,
+                $slotstart,
+                $slotend,
+                $userid,
+                [],
+                0,
+                0,
+                false,
+                $holds,
+                $assignedteachers
+            );
             $status = (string)($evaluation['status'] ?? 'unavailable');
 
             $result[] = [

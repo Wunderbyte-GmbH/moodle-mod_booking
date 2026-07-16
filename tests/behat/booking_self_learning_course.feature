@@ -51,6 +51,7 @@ Feature: Configure and validate self-learning course feature for booking option
     And I set the field "optiontype" to "Self-learning course"
     And I wait "1" seconds
     And I expand all fieldsets
+    And I wait until ".collapsing" "css_element" does not exist
     And I set the field "duration[number]" to "3"
     And I set the field "duration[timeunit]" to "seconds"
     And I should not see "Enrol users at course start time"

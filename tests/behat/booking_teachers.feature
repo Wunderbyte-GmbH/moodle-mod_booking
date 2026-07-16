@@ -103,6 +103,7 @@ Feature: In a booking - create options and assign or substituing teachers
     And I am on the "My booking" Activity page
     And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I expand all fieldsets
+    And I wait until ".collapsing" "css_element" does not exist
     And I expand the "Assign teachers:" autocomplete
     And I should see "Teacher 1" in the "//div[contains(@id, 'fitem_id_teachersforoption_')]//ul[contains(@class, 'form-autocomplete-suggestions')]" "xpath_element"
     And I should see "Teacher 2" in the "//div[contains(@id, 'fitem_id_teachersforoption_')]//ul[contains(@class, 'form-autocomplete-suggestions')]" "xpath_element"

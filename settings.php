@@ -139,6 +139,16 @@ $ADMIN->add(
     )
 );
 
+$ADMIN->add(
+    'modbookingfolder',
+    new admin_externalpage(
+        'modbookingbulkoperations',
+        get_string('bulkoperationspro', 'mod_booking'),
+        new moodle_url('/mod/booking/bulkoperations.php'),
+        'mod/booking:executebulkoperations'
+    )
+);
+
 if (!empty(get_config('booking', 'certificateoptions'))) {
     $ADMIN->add(
         'modbookingfolder',
@@ -232,7 +242,12 @@ if ($ADMIN->fulltree) {
     if (!empty($pluginconfig->licensekey)) {
         $licensekey = $pluginconfig->licensekey;
 
-        $expirationdate = wb_payment::decryptlicensekey($licensekey);
+        $license = wb_payment::parse_license_content(wb_payment::decryptlicensekey($licensekey));
+        $expirationdate = $license['expirationdate'];
+        // An agent-only key ('wbagent') does not unlock Booking PRO — treat as invalid here.
+        if ($license['product'] !== '' && $license['product'] !== wb_payment::PRODUCT_BOOKING_AGENT) {
+            $expirationdate = '';
+        }
         if (!empty($expirationdate)) {
             $expirationdatetimestamp = strtotime($expirationdate, time());
             $now = time();
@@ -286,6 +301,27 @@ if ($ADMIN->fulltree) {
                 'booking/turnoffwunderbytelogo',
                 get_string('turnoffwunderbytelogo', 'mod_booking'),
                 get_string('turnoffwunderbytelogo_desc', 'mod_booking'),
+                0
+            )
+        );
+
+        // Multilevel entity (location) tree filter. Opt-in, default off: existing installations keep
+        // the plain-text location filter until this is switched on. Requires local_entities.
+        $settings->add(
+            new admin_setting_configcheckbox(
+                'booking/entitytreefilter',
+                get_string('entitytreefilter', 'mod_booking'),
+                get_string('entitytreefilter_desc', 'mod_booking'),
+                0
+            )
+        );
+
+        // Small entity images in the location hover card (3+ level hierarchies only). Opt-in.
+        $settings->add(
+            new admin_setting_configcheckbox(
+                'booking/showlocationimages',
+                get_string('showlocationimages', 'mod_booking'),
+                get_string('showlocationimages_desc', 'mod_booking'),
                 0
             )
         );
@@ -472,8 +508,8 @@ if ($ADMIN->fulltree) {
         )
     );
 
-    // Custom fields to be shown on detail page (optionview.php).
     if (!empty($customfields)) {
+        // Custom fields to be shown on detail page (optionview.php).
         $settings->add(
             new admin_setting_configmultiselect(
                 'booking/optionviewcustomfields',
@@ -483,31 +519,30 @@ if ($ADMIN->fulltree) {
                 $customfieldshortnames
             )
         );
-    }
-    // Custom fields to be shown in the card on the detail page (optionview.php).
-    if (!empty($customfields)) {
+        // Custom fields to be shown in the card on the detail page (optionview.php).
         $settings->add(
             new admin_setting_configmultiselect(
-                'booking/cardviewcustomfields',
-                get_string('cardviewcustomfields', 'mod_booking'),
-                get_string('cardviewcustomfieldsdesc', 'mod_booking'),
+                'booking/cardoptionviewcustomfields',
+                get_string('cardoptionviewcustomfields', 'mod_booking'),
+                get_string('cardoptionviewcustomfieldsdesc', 'mod_booking'),
                 [],
                 $customfieldshortnames
             )
         );
+        // Font Awesome icon shown in front of each custom field (shared by detail page and card).
+        foreach ($customfields as $customfield) {
+            $settings->add(
+                new admin_setting_configtext(
+                    'booking/customfieldicon_' . $customfield->shortname,
+                    get_string('customfieldicon', 'mod_booking', $customfield),
+                    get_string('customfieldicondesc', 'mod_booking'),
+                    '',
+                    PARAM_TEXT
+                )
+            );
+        }
     }
-    // Font Awesome icon shown in front of each custom field (shared by detail page and card).
-    foreach ($customfields as $customfield) {
-        $settings->add(
-            new admin_setting_configtext(
-                'booking/customfieldicon_' . $customfield->shortname,
-                get_string('customfieldicon', 'mod_booking', $customfield),
-                get_string('customfieldicondesc', 'mod_booking'),
-                '',
-                PARAM_TEXT
-            )
-        );
-    }
+
     $settings->add(
         new admin_setting_configcheckbox(
             'booking/alloptionsinreport',
@@ -1363,20 +1398,6 @@ if ($ADMIN->fulltree) {
             get_string('useconfirmationworkflowheader_desc', 'mod_booking'),
             0 // Default: off.
         ));
-
-        // Load all settings from booking extensions.
-        foreach (core_plugin_manager::instance()->get_plugins_of_type('bookingextension') as $plugin) {
-            $fullclassname = "\\bookingextension_{$plugin->name}\\{$plugin->name}";
-            if (!class_exists($fullclassname)) {
-                continue; // Skip if the class does not exist.
-            }
-            $plugin = new $fullclassname();
-            if (!$plugin instanceof bookingextension_interface) {
-                continue; // Skip if the plugin does not implement the interface.
-            }
-            // Todo: This is not very stable. Maybe alter $settings object.
-            $plugin->load_settings($ADMIN, 'modbookingfolder', $hassiteconfig);
-        }
     } else {
         $settings->add(
             new admin_setting_heading(
@@ -1397,6 +1418,23 @@ if ($ADMIN->fulltree) {
                  get_string('infotext:prolicensenecessary', 'mod_booking')
              )
          );
+    }
+
+    // Load all settings from booking extensions. This runs regardless of the Booking PRO license:
+    // booking extensions (e.g. the Wunderbyte Agent) ship their own settings and license handling,
+    // so their settings page must always appear and their defaults must be seeded on install even
+    // when no Booking PRO key is present.
+    foreach (core_plugin_manager::instance()->get_plugins_of_type('bookingextension') as $plugin) {
+        $fullclassname = "\\bookingextension_{$plugin->name}\\{$plugin->name}";
+        if (!class_exists($fullclassname)) {
+            continue; // Skip if the class does not exist.
+        }
+        $plugin = new $fullclassname();
+        if (!$plugin instanceof bookingextension_interface) {
+            continue; // Skip if the plugin does not implement the interface.
+        }
+        // Todo: This is not very stable. Maybe alter $settings object.
+        $plugin->load_settings($ADMIN, 'modbookingfolder', $hassiteconfig);
     }
 
     // PRO feature: Cancellation settings.

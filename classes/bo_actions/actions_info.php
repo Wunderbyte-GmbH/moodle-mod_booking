@@ -277,15 +277,32 @@ class actions_info {
 
         // Finally, after having chosen the right type of action, we add the corresponding elements.
         $action->add_action_to_mform($mform, $formdata);
+
+        // Type-agnostic trigger flag: when set, the action runs on cancellation of a
+        // booking instead of on booking. Default off keeps the existing on-booking behaviour.
+        $mform->addElement(
+            'advcheckbox',
+            'boactiononcancel',
+            get_string('boactiononcancel', 'mod_booking'),
+            get_string('boactiononcancel_desc', 'mod_booking')
+        );
+        $mform->setType('boactiononcancel', PARAM_INT);
     }
 
     /**
      * Function to actually execute the actions of the booking option.
      * @param booking_option_settings $settings
      * @param int $userid
+     * @param string $trigger
+     * @param int $baid
      * @return int // Status. 0 is do nothing, 1 aborts after application right away.
      */
-    public static function apply_actions(booking_option_settings $settings, int $userid = 0) {
+    public static function apply_actions(
+        booking_option_settings $settings,
+        int $userid = 0,
+        string $trigger = 'book',
+        int $baid = 0
+    ) {
 
         global $USER;
 
@@ -296,10 +313,19 @@ class actions_info {
         }
 
         $returnstatus = 0;
+        $status = 0;
         foreach ($settings->boactions as $actiondata) {
+            // Trigger gate: 'cancel' runs only on-cancel actions, 'book' runs only the rest.
+            // Actions saved before this flag existed have it unset (falsy) -> on-booking, as before.
+            $oncancel = !empty($actiondata->boactiononcancel);
+            if (($trigger === 'cancel') !== $oncancel) {
+                continue;
+            }
+
             // Use ID & cmid from current bookingoption.
             $actiondata->cmid = $settings->cmid;
             $actiondata->optionid = $settings->id;
+            $actiondata->baid = $baid;
 
             $action = self::return_action($actiondata);
 

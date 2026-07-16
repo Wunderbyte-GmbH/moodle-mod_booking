@@ -26,7 +26,7 @@
 
 namespace mod_booking;
 
-use mod_booking\booking_advanced_testcase;
+use mod_booking\tests\booking_advanced_testcase;
 use coding_exception;
 use mod_booking\table\manageusers_table;
 use mod_booking_generator;
@@ -38,7 +38,6 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 require_once($CFG->dirroot . '/mod/booking/classes/price.php');
-require_once($CFG->dirroot . '/mod/booking/tests/booking_advanced_testcase.php');
 
 /**
  * Class handling tests certificate conditions.

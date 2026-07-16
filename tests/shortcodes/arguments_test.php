@@ -26,7 +26,7 @@
 
 namespace mod_booking;
 
-use mod_booking\booking_advanced_testcase;
+use mod_booking\tests\booking_advanced_testcase;
 use coding_exception;
 use context_course;
 use context_system;
@@ -38,7 +38,6 @@ use tool_mocktesttime\time_mock;
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot . '/mod/booking/lib.php');
-require_once(__DIR__ . '/../booking_advanced_testcase.php');
 
 /**
  * This test tests the functionality of some arguments.

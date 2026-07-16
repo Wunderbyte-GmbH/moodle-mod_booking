@@ -166,4 +166,278 @@ final class view_test extends advanced_testcase {
         $data = $view->export_for_template($output);
         $this->assertEmpty($data['bulkoperationstable']);
     }
+
+    /**
+     * Test the fulltextsearchcolumns instance setting: chosen columns are added to the full text search.
+     *
+     * @covers \mod_booking\output\view::apply_standard_params_for_bookingtable
+     */
+    public function test_fulltextsearchcolumns_instance_setting(): void {
+        global $PAGE;
+
+        $this->setAdminUser();
+
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+
+        // Create a booking custom field.
+        $bookingcat = $this->getDataGenerator()->create_custom_field_category([
+            'name' => 'BookCustomCat1',
+            'component' => 'mod_booking',
+            'area' => 'booking',
+            'itemid' => 0,
+            'contextid' => \context_system::instance()->id,
+        ]);
+        $bookingcat->save();
+        $bookingfield = $this->getDataGenerator()->create_custom_field([
+            'categoryid' => $bookingcat->get('id'),
+            'name' => 'Textfield',
+            'shortname' => 'customcat',
+            'type' => 'text',
+            'configdata' => '',
+        ]);
+        $bookingfield->save();
+        // A select field stores the option index, the wbt_field_controller resolves it to the label.
+        $bookingfield = $this->getDataGenerator()->create_custom_field([
+            'categoryid' => $bookingcat->get('id'),
+            'name' => 'Language',
+            'shortname' => 'customsel',
+            'type' => 'select',
+            'configdata' => '{"required":"0","uniquevalues":"0","options":"Latein\r\nGriechisch",'
+                . '"defaultvalue":"","locked":"0","visibility":"0"}',
+        ]);
+        $bookingfield->save();
+
+        $bdata = [
+            'name' => 'Test Booking Fulltextsearch',
+            'eventtype' => 'Test event',
+            'enablecompletion' => 1,
+            'bookedtext' => ['text' => 'text'],
+            'waitingtext' => ['text' => 'text'],
+            'notifyemail' => ['text' => 'text'],
+            'statuschangetext' => ['text' => 'text'],
+            'deletedtext' => ['text' => 'text'],
+            'pollurltext' => ['text' => 'text'],
+            'pollurlteacherstext' => ['text' => 'text'],
+            'notificationtext' => ['text' => 'text'],
+            'userleave' => ['text' => 'text'],
+            'tags' => '',
+            'completion' => 2,
+            'showviews' => ['showall'],
+            'course' => $course->id,
+            // The instance setting under test: add the custom fields to the full text search.
+            'fulltextsearchcolumns' => ['customcat', 'customsel'],
+        ];
+        $booking = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+
+        // Value pairs: text customfield value, select customfield index (1 => Latein, 2 => Griechisch).
+        $customfieldvalues = [
+            ['Green Apple', '1'],
+            ['Green Apple', '2'],
+            ['Blue Banana', '2'],
+        ];
+        $cmid = 0;
+        foreach ($customfieldvalues as $i => [$customfieldvalue, $selectindex]) {
+            $record = (object) [
+                'text' => "Option {$i} of booking {$booking->id}",
+                'description' => 'Test Booking Option',
+                'identifier' => "fts{$booking->id}-{$i}",
+                'maxanswers' => 1,
+                'bookingid' => $booking->id,
+                'customfield_customcat' => $customfieldvalue,
+                'customfield_customsel' => $selectindex,
+                'coursestarttime_0' => strtotime('now + 3 day', time()),
+                'courseendtime_0' => strtotime('now + 4 day', time()),
+                'daystonotify_0' => '0',
+                'optiondateid_0' => '0',
+            ];
+            $option = $plugingenerator->create_option($record);
+            $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
+            $cmid = $settings->cmid;
+        }
+
+        // The setting must be stored in the json column of the booking instance.
+        singleton_service::destroy_instance();
+        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
+        $this->assertEquals(['customcat', 'customsel'], (array)$bookingsettings->fulltextsearchcolumns);
+
+        $PAGE->set_url(new \moodle_url('/mod/booking/view.php', ['id' => $cmid]));
+        // The all options table reads the cmid from the request via optional_param.
+        $_GET['id'] = (string) $cmid;
+
+        $view = new view($cmid, 'showall');
+        $rendered = $view->get_rendered_all_options_table();
+        $this->assertNotEmpty($rendered);
+        $pregmatch = preg_match(
+            '/<div[^>]*\sdata-encodedtable=["\']?([^"\'>\s]+)["\']?/i',
+            $rendered,
+            $matches
+        );
+        $this->assertEquals(1, $pregmatch);
+
+        // The custom fields are part of the full text search columns. For the select field, the
+        // resolved display value is searched as well - resolved internally by wunderbyte table.
+        $table = wunderbyte_table::instantiate_from_tablecache_hash($matches[1]);
+        $this->assertContains('customcat', $table->fulltextsearchcolumns);
+        $this->assertContains('customsel', $table->fulltextsearchcolumns);
+        $table->printtable($table->pagesize, $table->useinitialsbar, $table->downloadhelpbutton);
+        $this->assertEquals(3, $table->totalrows);
+
+        // Searching for a custom field value only returns the matching options. The select field
+        // stores the index ('1'/'2'), so a hit for 'Latein' proves the resolved value is searched.
+        $searchresults = [
+            'Green Apple' => 2,
+            'Latein' => 1,
+            'Griechisch' => 2,
+        ];
+        foreach ($searchresults as $searchtext => $numberofrecords) {
+            $searchtable = wunderbyte_table::instantiate_from_tablecache_hash($matches[1]);
+            $searchtable->apply_searchtext($searchtext);
+            $searchtable->printtable($searchtable->pagesize, $searchtable->useinitialsbar, $searchtable->downloadhelpbutton);
+            $this->assertEquals(
+                $numberofrecords,
+                $searchtable->totalrows,
+                "Unexpected number of records when searching for '$searchtext'"
+            );
+        }
+    }
+
+    /**
+     * Test fulltextsearchcolumns with a dynamicformat customfield: the search must find the
+     * display values resolved by the configured SQL, not only the stored keys.
+     *
+     * @covers \mod_booking\output\view::apply_standard_params_for_bookingtable
+     * @covers \local_wunderbyte_table\local\customfield\wbt_field_controller_info::get_resolved_value_mapping
+     */
+    public function test_fulltextsearchcolumns_dynamicformat(): void {
+        global $DB, $PAGE;
+
+        if (!class_exists('customfield_dynamicformat\field_controller')) {
+            $this->markTestSkipped('customfield_dynamicformat is not installed.');
+        }
+
+        $this->setAdminUser();
+
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+
+        $bookingcat = $this->getDataGenerator()->create_custom_field_category([
+            'name' => 'BookCustomCat1',
+            'component' => 'mod_booking',
+            'area' => 'booking',
+            'itemid' => 0,
+            'contextid' => \context_system::instance()->id,
+        ]);
+        $bookingcat->save();
+        $dynamicsql = "SELECT s1.id, s1.data FROM ("
+            . " SELECT 'BER' AS id, 'Beratung (BER)' AS data UNION"
+            . " SELECT 'SDM' AS id, 'Digitale Medien / Barcamp (SDM)' AS data"
+            . " ) as s1";
+        $bookingfield = $this->getDataGenerator()->create_custom_field([
+            'categoryid' => $bookingcat->get('id'),
+            'name' => 'ZLB',
+            'shortname' => 'zlb',
+            'type' => 'dynamicformat',
+            'configdata' => json_encode([
+                'required' => '0',
+                'uniquevalues' => '0',
+                'dynamicsql' => $dynamicsql,
+                'defaultvalue' => '',
+                'multiselect' => '1',
+                'locked' => '0',
+                'visibility' => '2',
+            ]),
+        ]);
+        $bookingfield->save();
+        $fieldid = $bookingfield->get('id');
+
+        $bdata = [
+            'name' => 'Test Booking Dynamicformat',
+            'eventtype' => 'Test event',
+            'enablecompletion' => 1,
+            'bookedtext' => ['text' => 'text'],
+            'waitingtext' => ['text' => 'text'],
+            'notifyemail' => ['text' => 'text'],
+            'statuschangetext' => ['text' => 'text'],
+            'deletedtext' => ['text' => 'text'],
+            'pollurltext' => ['text' => 'text'],
+            'pollurlteacherstext' => ['text' => 'text'],
+            'notificationtext' => ['text' => 'text'],
+            'userleave' => ['text' => 'text'],
+            'tags' => '',
+            'completion' => 2,
+            'showviews' => ['showall'],
+            'course' => $course->id,
+            'fulltextsearchcolumns' => ['zlb'],
+        ];
+        $booking = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+
+        // One option with a single key, one with a multiselect (comma separated) value, one without.
+        $storedvalues = ['SDM', 'BER,SDM', ''];
+        $cmid = 0;
+        $optionids = [];
+        foreach ($storedvalues as $i => $storedvalue) {
+            $record = (object) [
+                'text' => "Option {$i} of booking {$booking->id}",
+                'description' => 'Test Booking Option',
+                'identifier' => "dyn{$booking->id}-{$i}",
+                'maxanswers' => 1,
+                'bookingid' => $booking->id,
+                'coursestarttime_0' => strtotime('now + 3 day', time()),
+                'courseendtime_0' => strtotime('now + 4 day', time()),
+                'daystonotify_0' => '0',
+                'optiondateid_0' => '0',
+            ];
+            $option = $plugingenerator->create_option($record);
+            $optionids[] = $option->id;
+            $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
+            $cmid = $settings->cmid;
+            if ($storedvalue !== '') {
+                // Write the value the same way the dynamicformat data controller stores it.
+                $DB->insert_record('customfield_data', (object) [
+                    'fieldid' => $fieldid,
+                    'instanceid' => $option->id,
+                    'value' => $storedvalue,
+                    'valueformat' => 0,
+                    'contextid' => \context_system::instance()->id,
+                    'timecreated' => time(),
+                    'timemodified' => time(),
+                ]);
+            }
+        }
+
+        singleton_service::destroy_instance();
+
+        $PAGE->set_url(new \moodle_url('/mod/booking/view.php', ['id' => $cmid]));
+        $_GET['id'] = (string) $cmid;
+
+        $view = new view($cmid, 'showall');
+        $rendered = $view->get_rendered_all_options_table();
+        preg_match('/<div[^>]*\sdata-encodedtable=["\']?([^"\'>\s]+)["\']?/i', $rendered, $matches);
+        $this->assertNotEmpty($matches, 'Could not extract the encoded table from the rendered view.');
+
+        $table = wunderbyte_table::instantiate_from_tablecache_hash($matches[1]);
+        $this->assertContains('zlb', $table->fulltextsearchcolumns);
+
+        // Note: 'Digitale Medien' is only part of the resolved value of the key 'SDM'.
+        $searchresults = [
+            'Digitale Medien' => 2,
+            'Beratung' => 1,
+            'SDM' => 2,
+        ];
+        foreach ($searchresults as $searchtext => $numberofrecords) {
+            $searchtable = wunderbyte_table::instantiate_from_tablecache_hash($matches[1]);
+            $searchtable->apply_searchtext($searchtext);
+            $searchtable->printtable($searchtable->pagesize, $searchtable->useinitialsbar, $searchtable->downloadhelpbutton);
+            $this->assertEquals(
+                $numberofrecords,
+                $searchtable->totalrows,
+                "Unexpected number of records when searching for '$searchtext'"
+            );
+        }
+    }
 }

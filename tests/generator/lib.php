@@ -126,6 +126,7 @@ class mod_booking_generator extends testing_module_generator {
         userprofilefield_2_custom::reset_instance();
         booking_rules::$rules = [];
         price::destroy_singletons();
+        booking_time::destroy_instances();
         // Slotbooking static caches.
         slot_availability::reset_caches();
         slot_rules::reset_caches();

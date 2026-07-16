@@ -665,7 +665,50 @@ class mod_booking_mod_form extends moodleform_mod {
             $mform->getElement('customfieldsforfilter')->setMultiple(true);
             $preset = (array)booking::get_value_of_json_by_key($bookingid, 'customfieldsforfilter') ?? [];
             $mform->setDefault('customfieldsforfilter', array_keys($preset));
+
+            // Custom fields to be shown for each booking option in the options overview (view.php).
+            $options = [
+                'multiple' => true,
+                'tags' => false,
+                'noselectionstring' => get_string('choose...', 'mod_booking'),
+            ];
+            $mform->addElement(
+                'autocomplete',
+                'customfieldsforview',
+                get_string('customfieldsforview', 'mod_booking'),
+                $customfieldshortnames,
+                $options
+            );
+            $mform->addHelpButton('customfieldsforview', 'customfieldsforview', 'mod_booking');
+            $preset = (array)booking::get_value_of_json_by_key($bookingid, 'customfieldsforview') ?? [];
+            $mform->setDefault('customfieldsforview', array_keys($preset));
         }
+
+        // Columns to add to the full text search of the booking options table.
+        $fulltextsearchcolumnoptions = [
+            'description' => get_string('description', 'mod_booking'),
+            'location' => get_string('location', 'mod_booking'),
+            'institution' => get_string('institution', 'mod_booking'),
+            'identifier' => get_string('optionidentifier', 'mod_booking'),
+        ];
+        $fulltextsearchcolumnoptions = array_merge($fulltextsearchcolumnoptions, $customfieldshortnames);
+        $options = [
+            'multiple' => true,
+            'tags' => false,
+            'noselectionstring' => get_string('choose...', 'mod_booking'),
+        ];
+        $mform->addElement(
+            'autocomplete',
+            'fulltextsearchcolumns',
+            get_string('fulltextsearchcolumns', 'mod_booking'),
+            $fulltextsearchcolumnoptions,
+            $options
+        );
+        $mform->addHelpButton('fulltextsearchcolumns', 'fulltextsearchcolumns', 'mod_booking');
+        $mform->setDefault(
+            'fulltextsearchcolumns',
+            (array)booking::get_value_of_json_by_key($bookingid, 'fulltextsearchcolumns')
+        );
 
         // Fields for download of booking option overview.
         $options = [

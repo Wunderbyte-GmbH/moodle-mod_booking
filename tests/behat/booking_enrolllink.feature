@@ -64,6 +64,7 @@ Feature: Create enrollink availability form for booking options with connected c
     And I am on the "BookingCMP" Activity page logged in as teacher1
     And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I expand all fieldsets
+    And I wait until ".collapsing" "css_element" does not exist
     ## And I follow "Availability conditions".
     And I set the field "Form needs to be filled out before booking" to "checked"
     And I wait "1" seconds
@@ -139,6 +140,7 @@ Feature: Create enrollink availability form for booking options with connected c
     And I set the field "customform_enroluserwhobookedcheckbox_enrolusersaction_1" to "checked"
     And I follow "Continue"
     And I wait until the page is ready
+    And I wait until "You were added to the waiting list for Option-waitinglist." "text" exists
     And I should see "You were added to the waiting list for Option-waitinglist." in the ".modal-dialog.modal-xl .modalMainContent" "css_element"
     And I follow "Close"
     And I should not see "75.00 EUR" in the ".allbookingoptionstable_r2 .booknow" "css_element"
@@ -203,6 +205,7 @@ Feature: Create enrollink availability form for booking options with connected c
     And I set the field "customform_enrolusersaction_1" to "3"
     And I follow "Continue"
     And I wait until the page is ready
+    And I wait until "Thank you! You have successfully put Option-alsobookmyself into the shopping cart." "text" exists
     And I should see "Thank you! You have successfully put Option-alsobookmyself into the shopping cart." in the ".modal-dialog.modal-xl .modalMainContent" "css_element"
 
   @javascript
@@ -221,4 +224,5 @@ Feature: Create enrollink availability form for booking options with connected c
     And I set the field "customform_enrolusersaction_1" to "3"
     And I follow "Continue"
     And I wait until the page is ready
+    And I wait until "Thank you! You have successfully put Option-donotbookmyself into the shopping cart." "text" exists
     And I should see "Thank you! You have successfully put Option-donotbookmyself into the shopping cart." in the ".modal-dialog.modal-xl .modalMainContent" "css_element"

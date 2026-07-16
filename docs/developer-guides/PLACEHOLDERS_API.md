@@ -160,6 +160,5 @@ The namespace should be `bookingextension_<pluginname>\placeholders\`. These are
 
 ## See also
 
-- [Architecture overview](ARCHITECTURE.md)
-- [Placeholders user documentation](../placeholders/README.md)
+- [Placeholders user documentation](../user/placeholders/README.md)
 - [Booking extensions API](BOOKING_EXTENSIONS_API.md) — For adding placeholders via an extension

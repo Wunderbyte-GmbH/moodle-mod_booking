@@ -747,15 +747,17 @@ function booking_add_instance($booking) {
         $booking->responsesfields = implode(',', $booking->responsesfields);
     }
 
-    if (isset($booking->additionalfields) && count($booking->additionalfields) > 0) {
+    if (isset($booking->additionalfields) && is_array($booking->additionalfields) && count($booking->additionalfields) > 0) {
         $booking->additionalfields = implode(',', $booking->additionalfields);
-    } else {
+    } else if (!isset($booking->additionalfields) || is_array($booking->additionalfields)) {
+        // Keep an already imploded string as it is (e.g. when a DB record is passed).
         $booking->additionalfields = null;
     }
 
-    if (isset($booking->categoryid) && count($booking->categoryid) > 0) {
+    if (isset($booking->categoryid) && is_array($booking->categoryid) && count($booking->categoryid) > 0) {
         $booking->categoryid = implode(',', $booking->categoryid);
-    } else {
+    } else if (!isset($booking->categoryid) || is_array($booking->categoryid)) {
+        // Keep an already imploded string as it is (e.g. when a DB record is passed).
         $booking->categoryid = null;
     }
 
@@ -890,6 +892,19 @@ function booking_add_instance($booking) {
         booking::add_data_to_json($booking, "customfieldsforfilter", $fieldsfordb);
     }
 
+    if (!empty($booking->customfieldsforview)) {
+        $customfields = booking_handler::get_customfields($booking->customfieldsforview);
+        $fieldsfordb = [];
+        foreach ($customfields as $field) {
+            $fieldsfordb[$field->shortname] = $field->name;
+        }
+        booking::add_data_to_json($booking, "customfieldsforview", $fieldsfordb);
+    }
+
+    if (!empty($booking->fulltextsearchcolumns)) {
+        booking::add_data_to_json($booking, "fulltextsearchcolumns", array_values($booking->fulltextsearchcolumns));
+    }
+
     if (isset($booking->addtogroupofcurrentcourse)) {
         // This will store the correct JSON to $optionvalues->json.
         booking::add_data_to_json($booking, "addtogroupofcurrentcourse", $booking->addtogroupofcurrentcourse);
@@ -1007,9 +1022,10 @@ function booking_update_instance($booking) {
     $cm = get_coursemodule_from_instance('booking', $booking->id);
     $context = context_module::instance($cm->id);
 
-    if (isset($booking->showviews) && count($booking->showviews) > 0) {
+    if (isset($booking->showviews) && is_array($booking->showviews) && count($booking->showviews) > 0) {
         $booking->showviews = implode(',', $booking->showviews);
-    } else {
+    } else if (!isset($booking->showviews) || is_array($booking->showviews)) {
+        // Keep an already imploded string as it is (e.g. when a DB record is passed).
         $booking->showviews = '';
     }
 
@@ -1047,9 +1063,10 @@ function booking_update_instance($booking) {
         $booking->optionsdownloadfields = MOD_BOOKING_BOOKINGOPTION_DEFAULTFIELDS;
     }
 
-    if (isset($booking->categoryid) && count($booking->categoryid) > 0) {
+    if (isset($booking->categoryid) && is_array($booking->categoryid) && count($booking->categoryid) > 0) {
         $booking->categoryid = implode(',', $booking->categoryid);
-    } else {
+    } else if (!isset($booking->categoryid) || is_array($booking->categoryid)) {
+        // Keep an already imploded string as it is (e.g. when a DB record is passed).
         $booking->categoryid = null;
     }
 
@@ -1244,6 +1261,23 @@ function booking_update_instance($booking) {
             $fieldsfordb[$field->shortname] = $field->name;
         }
         booking::add_data_to_json($booking, "customfieldsforfilter", $fieldsfordb);
+    }
+
+    if (empty($booking->customfieldsforview)) {
+        booking::remove_key_from_json($booking, "customfieldsforview");
+    } else {
+        $customfields = booking_handler::get_customfields($booking->customfieldsforview);
+        $fieldsfordb = [];
+        foreach ($customfields as $field) {
+            $fieldsfordb[$field->shortname] = $field->name;
+        }
+        booking::add_data_to_json($booking, "customfieldsforview", $fieldsfordb);
+    }
+
+    if (empty($booking->fulltextsearchcolumns)) {
+        booking::remove_key_from_json($booking, "fulltextsearchcolumns");
+    } else {
+        booking::add_data_to_json($booking, "fulltextsearchcolumns", array_values($booking->fulltextsearchcolumns));
     }
 
     if (empty($booking->addtogroupofcurrentcourse)) {
@@ -2888,6 +2922,13 @@ function mod_booking_tool_certificate_fields() {
 function db_is_at_least_mariadb_106_or_mysql_8() {
     global $DB;
 
+    // The DB server version cannot change within a request, so cache the result.
+    // This avoids firing "SELECT VERSION()" once per availability condition per options query.
+    static $cache = null;
+    if ($cache !== null) {
+        return $cache;
+    }
+
     $versionstring = $DB->get_field_sql(
         "SELECT VERSION() AS version"
     );
@@ -2895,20 +2936,20 @@ function db_is_at_least_mariadb_106_or_mysql_8() {
         // Extract the version number from the string.
         preg_match('/\d+\.\d+\.\d+/', $versionstring, $matches);
         if (empty($matches)) {
-            return false; // If we cannot extract the version, return false.
+            return $cache = false; // If we cannot extract the version, return false.
         }
         if (version_compare($matches[0], '10.6', '>=')) {
             // If it's a MariaDB and the version is 10.6 or higher, return true.
-            return true;
+            return $cache = true;
         }
     } else if ($DB->get_dbfamily() == 'mysql') {
         if (version_compare($versionstring, '8.0', '>=')) {
             // If it's MySQL and the version is 8.0 or higher, return true.
-            return true;
+            return $cache = true;
         }
     }
     // No MariaDB >= 10.6 or MySQL > 8.0.
-    return false;
+    return $cache = false;
 }
 
 // With this function, we can execute code at the last moment.

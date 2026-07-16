@@ -224,6 +224,13 @@ function registerDelegatedFooterListeners() {
         const optionid = getOptionidFromContainer(modal);
         if (optionid !== null) {
             setBackModalVariables(optionid);
+
+            // The cart may have changed while the modal was open (the item is added when
+            // the checkout prepage loads). Refresh the cart display no matter HOW the
+            // modal is closed (footer button, ESC, backdrop click) - the closemodal
+            // button is not the only way out of the modal.
+            const config = footerbuttonconfig[optionid] ?? {};
+            runShoppingCartPreActions(!!config.shoppingcartisinstalled);
         }
     });
 

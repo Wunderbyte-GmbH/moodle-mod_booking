@@ -26,7 +26,7 @@
 
 namespace mod_booking;
 
-use mod_booking\booking_advanced_testcase;
+use mod_booking\tests\booking_advanced_testcase;
 use mod_booking\local\certificateclass;
 use mod_booking\event\certificate_issued;
 use stdClass;

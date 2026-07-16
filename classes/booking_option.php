@@ -38,6 +38,7 @@ use Exception;
 use html_writer;
 use invalid_parameter_exception;
 use local_entities\entitiesrelation_handler;
+use mod_booking\local\entities_compat;
 use mod_booking\bo_availability\conditions\customform;
 use mod_booking\bo_availability\conditions\slotbooking;
 use mod_booking\bo_availability\conditions\optionhasstarted;
@@ -758,6 +759,7 @@ class booking_option {
         }
 
         $deletedbookinganswer = false;
+        $deletedbaid = 0;
 
         if ($cancelreservation) {
             $ba = singleton_service::get_instance_of_booking_answers($optionsettings);
@@ -794,6 +796,9 @@ class booking_option {
 
                     if ($ba->delete_answer_record($result, $openruleexecution, $reactivatepreviouslybooked)) {
                         $deletedbookinganswer = true;
+                        // Remember the baid of the answer we just (soft-)deleted, so the
+                        // on-cancel after-actions can address exactly this purchase.
+                        $deletedbaid = (int)$result->id;
                     }
 
                     if (!empty($slotcancelother['bookedslots'])) {
@@ -863,6 +868,13 @@ class booking_option {
         ]);
         $event->trigger(); // This will trigger the observer function and delete calendar events.
         $this->unenrol_user($user->id);
+
+        // Fire after-actions flagged to run on cancellation, but ONLY on a genuine
+        // delete (a booked answer transitioned to the deleted state). Reservation
+        // cancels return earlier and never reach this point.
+        if ($deletedbookinganswer) {
+            actions_info::apply_actions($optionsettings, $userid, 'cancel', $deletedbaid);
+        }
 
         // We only send messages for booking answers for individual cancellations!
         // If a whole booking option was cancelled, we can use the new global booking rules...
@@ -1131,53 +1143,81 @@ class booking_option {
                 // We delete the booking answers cache - because settings (limits, etc.) could be changed!
                 self::purge_cache_for_answers($this->optionid);
 
-                while ($noofuserstobook > 0) {
-                    $noofuserstobook--; // Decrement.
-                    $currentanswer = array_shift($usersonwaitinglist);
-                    if (empty($currentanswer->userid)) {
-                        continue;
-                    }
-
-                    if (!empty($settings->waitforconfirmation)) {
-                        // If we wait for confirmation, we do not book users from waiting list automatically.
-                        $confirmationcount = confirmation::get_required_confirmation_count($settings->id);
-                        $jsonobject = empty($currentanswer->json) ? (object)[] : json_decode($currentanswer->json);
-                        $userconfirmationcount = $jsonobject->confirmationcount ?? 0;
-                        if ($userconfirmationcount < $confirmationcount) {
+                // Hold the option's capacity lock ONCE for the whole promotion. This makes the batch
+                // atomic against concurrent direct bookings and avoids re-acquiring the lock + re-reading
+                // the DB per promoted user (the inner user_submit_response() calls run with $lockheld).
+                // Refresh once here so the first promotion sees committed state; the deferbroadcastpurge
+                // branch inside user_submit_response keeps it fresh for every following iteration. If the
+                // lock can't be acquired we fall back to per-call locking ($lockheld stays false).
+                $synclock = \core\lock\lock_config::get_lock_factory('mod_booking')
+                    ->get_lock('bookingoption_capacity_' . (int) $this->optionid, 10);
+                if ($synclock) {
+                    self::refresh_answers_for_option((int) $this->optionid);
+                }
+                try {
+                    while ($noofuserstobook > 0) {
+                        $noofuserstobook--; // Decrement.
+                        $currentanswer = array_shift($usersonwaitinglist);
+                        if (empty($currentanswer->userid)) {
                             continue;
                         }
+
+                        if (!empty($settings->waitforconfirmation)) {
+                            // If we wait for confirmation, we do not book users from waiting list automatically.
+                            $confirmationcount = confirmation::get_required_confirmation_count($settings->id);
+                            $jsonobject = empty($currentanswer->json) ? (object)[] : json_decode($currentanswer->json);
+                            $userconfirmationcount = $jsonobject->confirmationcount ?? 0;
+                            if ($userconfirmationcount < $confirmationcount) {
+                                continue;
+                            }
+                        }
+
+                        $user = singleton_service::get_instance_of_user($currentanswer->userid);
+
+                        // If the booking option has a price, we don't sync waitinglist.
+                        $price = price::get_price('option', $settings->id, $user);
+                        if (
+                            !empty($settings->jsonobject->useprice) // This is important to check first!
+                            && isset($price["price"])
+                            && !empty((float)$price["price"])
+                        ) {
+                            continue;
+                        }
+
+                        // The user_submit_response() call refreshes this option's answers cache itself, and
+                        // enrol_user_coursestart() does not touch booking answers, so no explicit
+                        // purge is needed around this call. We defer the system-wide broadcasts: the
+                        // submit only refreshes this option per iteration and we broadcast once after
+                        // the loop, instead of invalidating every user's caches per promoted user.
+                        $result = $this->user_submit_response(
+                            $user,
+                            0,
+                            0,
+                            0,
+                            MOD_BOOKING_VERIFIED,
+                            deferbroadcastpurge: true,
+                            lockheld: ($synclock !== false),
+                        );
+                        $this->enrol_user_coursestart($currentanswer->userid);
+
+                        $messagecontroller = new message_controller(
+                            MOD_BOOKING_MSGCONTRPARAM_QUEUE_ADHOC,
+                            MOD_BOOKING_MSGPARAM_STATUS_CHANGED,
+                            $this->cmid,
+                            $this->optionid,
+                            $currentanswer->userid,
+                            $this->bookingid
+                        );
+                        $messagecontroller->send_or_queue();
                     }
-
-                    $user = singleton_service::get_instance_of_user($currentanswer->userid);
-
-                    // If the booking option has a price, we don't sync waitinglist.
-                    $price = price::get_price('option', $settings->id, $user);
-                    if (
-                        !empty($settings->jsonobject->useprice) // This is important to check first!
-                        && isset($price["price"])
-                        && !empty((float)$price["price"])
-                    ) {
-                        continue;
+                } finally {
+                    // Release the batch-wide capacity lock once the whole waiting list is processed.
+                    if ($synclock) {
+                        $synclock->release();
                     }
-
-                    // We delete the booking answers cache - because settings (limits, etc.) could be changed!
-                    self::purge_cache_for_answers($this->optionid);
-
-                    $result = $this->user_submit_response($user, 0, 0, 0, MOD_BOOKING_VERIFIED);
-                    $this->enrol_user_coursestart($currentanswer->userid);
-
-                    // Before sending, we delete the booking answers cache again.
-                    self::purge_cache_for_answers($this->optionid);
-                    $messagecontroller = new message_controller(
-                        MOD_BOOKING_MSGCONTRPARAM_QUEUE_ADHOC,
-                        MOD_BOOKING_MSGPARAM_STATUS_CHANGED,
-                        $this->cmid,
-                        $this->optionid,
-                        $currentanswer->userid,
-                        $this->bookingid
-                    );
-                    $messagecontroller->send_or_queue();
                 }
+                // The promotions above deferred their broadcasts; issue a single one for the batch.
+                self::broadcast_answer_caches();
             }
             if (!$syncshared) {
                 sharedplaces::sync_sharedplaces_options($settings->id, false);
@@ -1341,6 +1381,14 @@ class booking_option {
      * @param int $timebooked the timestamp when the booking was made
      * @param bool $updateansweronimport if set to true, the function will update existing bookinganswer on imports.
      * @param int $syncruleid if given, this implicated that the user was enroled via a syncronisation rule with the given id.
+     * @param bool $deferbroadcastpurge if true, only refresh this option's answers cache and skip the
+     *                                  system-wide broadcast purges (caller must broadcast once afterwards).
+     * @param bool $lockheld if true, the caller already holds this option's capacity lock (e.g.
+     *                       sync_waiting_list promotes the whole waiting list under one lock), so we
+     *                       skip the per-call lock acquire + DB refresh to avoid redundant lock churn
+     *                       and one DB read per promoted user. Capacity stays correct because the
+     *                       caller refreshes once before the loop and the $deferbroadcastpurge branch
+     *                       below refreshes this option per iteration.
      * @return bool true if booking was possible, false if meanwhile the booking got full
      */
     public function user_submit_response(
@@ -1353,6 +1401,8 @@ class booking_option {
         $timebooked = 0,
         $updateansweronimport = false,
         int $syncruleid = 0,
+        bool $deferbroadcastpurge = false,
+        bool $lockheld = false,
     ) {
 
         global $USER;
@@ -1369,227 +1419,259 @@ class booking_option {
             return false;
         }
 
-        bo_info::set_enrollink_context(!empty($erlid));
-        $isavailable = self::option_allows_booking_for_user($this->optionid, $user->id);
-        bo_info::set_enrollink_context(false);
-        switch ($status) {
-            case MOD_BOOKING_BO_SUBMIT_STATUS_BOOKOTHEROPTION_FORCE:
-                $waitinglist = MOD_BOOKING_STATUSPARAM_BOOKED;
-                break;
-            case MOD_BOOKING_BO_SUBMIT_STATUS_BOOKOTHEROPTION_CONDITIONS_BLOCKING:
-                // Return if any condition is blocking.
-                if (!$isavailable) {
-                    return false;
-                };
-                $waitinglist = MOD_BOOKING_STATUSPARAM_BOOKED;
-                break;
-            default:
-                // We check if we can still book the user.
-                // False means, that it can't be booked.
-                // 0 means, that we can book right away
-                // 1 means, that there is only a place on the waiting list.
-                // With the second param, we check if overbooking is allowed.
-                $waitinglist = $this->check_if_limit(
-                    $user->id,
-                    $isavailable,
-                    $status
-                );
+        // Serialize the capacity check + write per option with a real cross-process lock
+        // (\core\lock -> MariaDB GET_LOCK here) to close the overbooking race when many users hit
+        // the same option at once. The write is a plain insert/update (no enclosing transaction on
+        // the concurrent web paths - direct bookit and the real-time payment gateways), so it is
+        // committed before the lock releases and the next waiter's refresh sees it. The one path
+        // that wraps delivery in a transaction (core bank-transfer gateway) is admin/cron-confirmed
+        // and serial, so it carries no concurrent overbooking risk.
+        // Refresh the answers from the DB inside the lock so the limit check sees committed state.
+        // When the caller already holds the lock ($lockheld, e.g. sync_waiting_list promoting the
+        // whole waiting list under one lock) we skip this per-call acquire + refresh to avoid the
+        // redundant lock churn and one extra DB read per promoted user.
+        $rwlock = null;
+        if (!$lockheld) {
+            $rwlock = \core\lock\lock_config::get_lock_factory('mod_booking')
+                ->get_lock('bookingoption_capacity_' . (int) $this->optionid, 10);
+            if (!$rwlock) {
+                return false;
+            }
+            self::refresh_answers_for_option((int) $this->optionid);
         }
-
-        // Under some circumstances, waitinglist can be false here.
-        if ($waitinglist === false && $status != MOD_BOOKING_BO_SUBMIT_STATUS_CONFIRMATION) {
-            // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-            /* echo "Couldn't subscribe user $user->id because of full waitinglist <br>";*/
-            return false;
-        }
-
-        // For enrollink bookings, check_if_limit() only respects $isavailable when the option is full.
-        // When slots are free it always returns BOOKED, bypassing hard-blocking conditions like selectusers.
-        // If a real condition blocks (i.e. not just the book-it-button or price), we must enforce that here.
-        // Conditions listed in enrollinkskipconditions are already excluded via exclude_conditions(), so they
-        // will not affect $isavailable and the booking proceeds as intended.
-        if (!empty($erlid) && !$isavailable) {
-            return false;
-        }
-
-        switch ($status) {
-            case MOD_BOOKING_BO_SUBMIT_STATUS_ADDED_TO_CART: // Means reserve.
-                $waitinglist = MOD_BOOKING_STATUSPARAM_RESERVED;
-                break;
-            case MOD_BOOKING_BO_SUBMIT_STATUS_CONFIRMATION: // Means confirm on waitinglist.
-            case MOD_BOOKING_BO_SUBMIT_STATUS_UN_CONFIRM: // Means unconfirm on waitinglist.
-                $waitinglist = MOD_BOOKING_STATUSPARAM_WAITINGLIST;
-                break;
-            case MOD_BOOKING_BO_SUBMIT_STATUS_AUTOENROL:
-            case MOD_BOOKING_BO_SUBMIT_STATUS_BOOKOTHEROPTION_CONDITIONS_BLOCKING:
-            case MOD_BOOKING_BO_SUBMIT_STATUS_BOOKOTHEROPTION_NOOVERBOOKING:
-            case MOD_BOOKING_BO_SUBMIT_STATUS_BOOKOTHEROPTION_FORCE:
-                $waitinglist = MOD_BOOKING_STATUSPARAM_BOOKED;
-                break;
-        }
-
-        // Only if maxperuser is set, the part after the OR is executed.
-        $underlimit = ($bookingsettings->maxperuser == 0);
-        $underlimit = $underlimit ||
-                (($this->booking->get_user_booking_count($user) - $subtractfromlimit) < $bookingsettings->maxperuser);
-        if (!$underlimit) {
-            // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-            /* mtrace("Couldn't subscribe user $user->id because of maxperuser setting <br>"); */
-            return false;
-        }
-
-        $bookinganswers = singleton_service::get_instance_of_booking_answers($this->settings);
-        $answersusers = $bookinganswers->get_users();
-
-        $currentanswerid = null;
-        $timecreated = null;
-
-        // Handling of waitinglist.
-        if (isset($answersusers[$user->id]) && ($currentanswer = $answersusers[$user->id])) {
-            $currentanswerid = $currentanswer->baid;
-            $timecreated = $currentanswer->timecreated;
-
-            switch ($currentanswer->waitinglist) {
-                case MOD_BOOKING_STATUSPARAM_DELETED:
+        try {
+            bo_info::set_enrollink_context(!empty($erlid));
+            $isavailable = self::option_allows_booking_for_user($this->optionid, $user->id);
+            bo_info::set_enrollink_context(false);
+            switch ($status) {
+                case MOD_BOOKING_BO_SUBMIT_STATUS_BOOKOTHEROPTION_FORCE:
+                    $waitinglist = MOD_BOOKING_STATUSPARAM_BOOKED;
                     break;
-                case MOD_BOOKING_STATUSPARAM_BOOKED:
-                    // Check if multiple bookings are enabled.
-                    $ismultipbookingsoptionenable = self::get_value_of_json_by_key($this->id, 'multiplebookings');
-                    // If we come from sync_waiting_list it might be possible that someone is moved from booked to waiting list.
-                    // If we are already booked and multiple bookings is not enabled, we don't do anything.
-                    if (
-                        !$updateansweronimport
-                        && $waitinglist == MOD_BOOKING_STATUSPARAM_BOOKED
-                        && (
-                            !$ismultipbookingsoptionenable
-                            || $currentanswer->timemodified == $timebooked
-                        )
-                    ) {
-                        return true;
-                    }
-                    // Else, we might move from booked to waitinglist, we just continue.
-
-                    if ($ismultipbookingsoptionenable) {
-                        // When the multiple booking option is enabled, we need to check if the
-                        // book-again gate (fixed wait time, or the last booked slot having ended)
-                        // is satisfied. If it is not yet due, we don't allow the user to book again.
-                        if (!multiplebookings::book_again_due($this->id, $currentanswer)) {
-                            return true;
-                        }
-
-                        // When the multiple booking option is enabled, we need to update the waitinglist column value
-                        // of previously booked records from MOD_BOOKING_STATUSPARAM_BOOKED
-                        // to MOD_BOOKING_STATUSPARAM_PREVIOUSLYBOOKED, and then insert a new record.
-                        $comparingtime = empty($timebooked) ? time() : $timebooked;
-                        if ($currentanswer->timebooked < $comparingtime) {
-                            $timecreated = $comparingtime;
-                            self::change_booking_answer_waitinglist_status(
-                                MOD_BOOKING_STATUSPARAM_BOOKED,
-                                MOD_BOOKING_STATUSPARAM_PREVIOUSLYBOOKED,
-                                $user->id,
-                                $this->optionid
-                            );
-                        } else {
-                            $waitinglist = MOD_BOOKING_STATUSPARAM_PREVIOUSLYBOOKED;
-                        }
-
-                        // If user is rebooking the option, we need to insert a new record.
-                        // So to prevent any record update in booking_answerts table, we need to set record id to null.
-                        $currentanswerid = null;
-                    }
+                case MOD_BOOKING_BO_SUBMIT_STATUS_BOOKOTHEROPTION_CONDITIONS_BLOCKING:
+                    // Return if any condition is blocking.
+                    if (!$isavailable) {
+                        return false;
+                    };
+                    $waitinglist = MOD_BOOKING_STATUSPARAM_BOOKED;
                     break;
-                case MOD_BOOKING_STATUSPARAM_RESERVED:
-                    // If the old and the new value is reserved, we just return true, we don't need to do anything.
-                    if ($waitinglist == MOD_BOOKING_STATUSPARAM_RESERVED) {
-                        return true;
-                    }
-                    // Else, we might move from reserved to booked, we just continue.
+                default:
+                    // We check if we can still book the user.
+                    // False means, that it can't be booked.
+                    // 0 means, that we can book right away
+                    // 1 means, that there is only a place on the waiting list.
+                    // With the second param, we check if overbooking is allowed.
+                    $waitinglist = $this->check_if_limit(
+                        $user->id,
+                        $isavailable,
+                        $status
+                    );
+            }
+
+            // Under some circumstances, waitinglist can be false here.
+            if ($waitinglist === false && $status != MOD_BOOKING_BO_SUBMIT_STATUS_CONFIRMATION) {
+                // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+                /* echo "Couldn't subscribe user $user->id because of full waitinglist <br>";*/
+                return false;
+            }
+
+            // For enrollink bookings, check_if_limit() only respects $isavailable when the option is full.
+            // When slots are free it always returns BOOKED, bypassing hard-blocking conditions like selectusers.
+            // If a real condition blocks (i.e. not just the book-it-button or price), we must enforce that here.
+            // Conditions flagged for enrollink skip (dashboard flag or legacy enrollinkskipconditions) are already
+            // excluded via exclude_conditions(), so they will not affect $isavailable and the booking proceeds.
+            if (!empty($erlid) && !$isavailable) {
+                return false;
+            }
+
+            switch ($status) {
+                case MOD_BOOKING_BO_SUBMIT_STATUS_ADDED_TO_CART: // Means reserve.
+                    $waitinglist = MOD_BOOKING_STATUSPARAM_RESERVED;
                     break;
-                case MOD_BOOKING_STATUSPARAM_NOTIFYMELIST:
-                    // If we are not yet booked and we need manual confirmation...
-                    // ... We switch booking param to waitinglist.
-                    if (!empty($this->settings->waitforconfirmation)) {
-                        $waitinglist = MOD_BOOKING_STATUSPARAM_WAITINGLIST;
-                    }
+                case MOD_BOOKING_BO_SUBMIT_STATUS_CONFIRMATION: // Means confirm on waitinglist.
+                case MOD_BOOKING_BO_SUBMIT_STATUS_UN_CONFIRM: // Means unconfirm on waitinglist.
+                    $waitinglist = MOD_BOOKING_STATUSPARAM_WAITINGLIST;
+                    break;
+                case MOD_BOOKING_BO_SUBMIT_STATUS_AUTOENROL:
+                case MOD_BOOKING_BO_SUBMIT_STATUS_BOOKOTHEROPTION_CONDITIONS_BLOCKING:
+                case MOD_BOOKING_BO_SUBMIT_STATUS_BOOKOTHEROPTION_NOOVERBOOKING:
+                case MOD_BOOKING_BO_SUBMIT_STATUS_BOOKOTHEROPTION_FORCE:
+                    $waitinglist = MOD_BOOKING_STATUSPARAM_BOOKED;
                     break;
             }
-        }
 
-        if (!empty($timebooked)) {
-            $timecreated = $timebooked;
-        }
+            // Only if maxperuser is set, the part after the OR is executed.
+            $underlimit = ($bookingsettings->maxperuser == 0);
+            $underlimit = $underlimit ||
+                (($this->booking->get_user_booking_count($user) - $subtractfromlimit) < $bookingsettings->maxperuser);
+            if (!$underlimit) {
+                // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+                /* mtrace("Couldn't subscribe user $user->id because of maxperuser setting <br>"); */
+                return false;
+            }
 
-        // Should users who want to book be parked in the waitinglist waiting for confirmation.
-        if (
-            $waitinglist === MOD_BOOKING_STATUSPARAM_BOOKED
-            && (
+            $bookinganswers = singleton_service::get_instance_of_booking_answers($this->settings);
+            $answersusers = $bookinganswers->get_users();
+
+            $currentanswerid = null;
+            $timecreated = null;
+
+            // Handling of waitinglist.
+            if (isset($answersusers[$user->id]) && ($currentanswer = $answersusers[$user->id])) {
+                $currentanswerid = $currentanswer->baid;
+                $timecreated = $currentanswer->timecreated;
+
+                switch ($currentanswer->waitinglist) {
+                    case MOD_BOOKING_STATUSPARAM_DELETED:
+                        break;
+                    case MOD_BOOKING_STATUSPARAM_BOOKED:
+                        // Check if multiple bookings are enabled.
+                        $ismultipbookingsoptionenable = self::get_value_of_json_by_key($this->id, 'multiplebookings');
+                        // If we come from sync_waiting_list it might be possible that someone is moved from booked to waiting list.
+                        // If we are already booked and multiple bookings is not enabled, we don't do anything.
+                        if (
+                            !$updateansweronimport
+                            && $waitinglist == MOD_BOOKING_STATUSPARAM_BOOKED
+                            && (
+                            !$ismultipbookingsoptionenable
+                            || $currentanswer->timemodified == $timebooked
+                            )
+                        ) {
+                            return true;
+                        }
+                        // Else, we might move from booked to waitinglist, we just continue.
+
+                        if ($ismultipbookingsoptionenable) {
+                            // When the multiple booking option is enabled, we need to check if the
+                            // book-again gate (fixed wait time, or the last booked slot having ended)
+                            // is satisfied. If it is not yet due, we don't allow the user to book again.
+                            if (!multiplebookings::book_again_due($this->id, $currentanswer)) {
+                                return true;
+                            }
+
+                            // When the multiple booking option is enabled, we need to update the waitinglist column value
+                            // of previously booked records from MOD_BOOKING_STATUSPARAM_BOOKED
+                            // to MOD_BOOKING_STATUSPARAM_PREVIOUSLYBOOKED, and then insert a new record.
+                            $comparingtime = empty($timebooked) ? time() : $timebooked;
+                            if ($currentanswer->timebooked < $comparingtime) {
+                                $timecreated = $comparingtime;
+                                self::change_booking_answer_waitinglist_status(
+                                    MOD_BOOKING_STATUSPARAM_BOOKED,
+                                    MOD_BOOKING_STATUSPARAM_PREVIOUSLYBOOKED,
+                                    $user->id,
+                                    $this->optionid
+                                );
+                            } else {
+                                $waitinglist = MOD_BOOKING_STATUSPARAM_PREVIOUSLYBOOKED;
+                            }
+
+                            // If user is rebooking the option, we need to insert a new record.
+                            // So to prevent any record update in booking_answerts table, we need to set record id to null.
+                            $currentanswerid = null;
+                        }
+                        break;
+                    case MOD_BOOKING_STATUSPARAM_RESERVED:
+                        // If the old and the new value is reserved, we just return true, we don't need to do anything.
+                        if ($waitinglist == MOD_BOOKING_STATUSPARAM_RESERVED) {
+                            return true;
+                        }
+                        // Else, we might move from reserved to booked, we just continue.
+                        break;
+                    case MOD_BOOKING_STATUSPARAM_NOTIFYMELIST:
+                        // If we are not yet booked and we need manual confirmation...
+                        // ... We switch booking param to waitinglist.
+                        if (!empty($this->settings->waitforconfirmation)) {
+                            $waitinglist = MOD_BOOKING_STATUSPARAM_WAITINGLIST;
+                        }
+                        break;
+                }
+            }
+
+            if (!empty($timebooked)) {
+                $timecreated = $timebooked;
+            }
+
+            // Should users who want to book be parked in the waitinglist waiting for confirmation.
+            if (
+                $waitinglist === MOD_BOOKING_STATUSPARAM_BOOKED
+                && (
                 $status != MOD_BOOKING_BO_SUBMIT_STATUS_AUTOENROL
                 && ($this->settings->waitforconfirmation == 1
                 || ($this->settings->waitforconfirmation == 2 && !empty($bookinganswers->get_usersonwaitinglist())))
-            )
-            || (
+                )
+                || (
                 ($status === MOD_BOOKING_BO_SUBMIT_STATUS_AUTOENROL)
                 && enrollink::enrolmentstatus_waitinglist($this->settings)
-            )
-        ) {
-            $waitinglist = MOD_BOOKING_STATUSPARAM_WAITINGLIST;
+                )
+            ) {
+                $waitinglist = MOD_BOOKING_STATUSPARAM_WAITINGLIST;
 
-            // When admin confirms a user user in waiting list, this condition will be met.
-            if (!is_null($currentanswerid)) {
-                $waitinglist = MOD_BOOKING_STATUSPARAM_BOOKED;
-            } else {
-                $event = bookinganswer_waitingforconfirmation::create([
+                // When admin confirms a user user in waiting list, this condition will be met.
+                if (!is_null($currentanswerid)) {
+                    $waitinglist = MOD_BOOKING_STATUSPARAM_BOOKED;
+                } else {
+                    $event = bookinganswer_waitingforconfirmation::create([
                     'objectid' => $this->optionid,
                     'context' => context_module::instance($this->cmid),
                     'userid' => $USER->id, // The user triggered the action.
                     'relateduserid' => $user->id, // Affected user - the user who is waiting for confirmation.
-                ]);
-                $event->trigger(); // This will trigger the observer function.
+                    ]);
+                    $event->trigger(); // This will trigger the observer function.
+                }
             }
-        }
 
-        // Use the waitinglist as status for booking history.
-        if (
-            $status === MOD_BOOKING_BO_SUBMIT_STATUS_BOOKOTHEROPTION_CONDITIONS_BLOCKING
-            || $status === MOD_BOOKING_BO_SUBMIT_STATUS_BOOKOTHEROPTION_FORCE
-            || $status === MOD_BOOKING_BO_SUBMIT_STATUS_BOOKOTHEROPTION_NOOVERBOOKING
-        ) {
-            $historystatus = MOD_BOOKING_STATUSPARAM_BOOKOTHEROPTIONS;
-        }
+            // Use the waitinglist as status for booking history.
+            if (
+                $status === MOD_BOOKING_BO_SUBMIT_STATUS_BOOKOTHEROPTION_CONDITIONS_BLOCKING
+                || $status === MOD_BOOKING_BO_SUBMIT_STATUS_BOOKOTHEROPTION_FORCE
+                || $status === MOD_BOOKING_BO_SUBMIT_STATUS_BOOKOTHEROPTION_NOOVERBOOKING
+            ) {
+                $historystatus = MOD_BOOKING_STATUSPARAM_BOOKOTHEROPTIONS;
+            }
 
-        // Check the current waiting list status of the answer.
-        // If it is currently on the waiting list and the new status is booked,
-        // trigger the moveupfromwaitinglist event.
-        $answersonwaitinglist = $bookinganswers->get_usersonwaitinglist();
-        if (!empty($answersonwaitinglist[$user->id]) && $waitinglist == MOD_BOOKING_STATUSPARAM_BOOKED) {
-            $other = [];
-            $other['baid'] = $answersonwaitinglist[$user->id]->baid ?? 0;
-            $other['json'] = $answersonwaitinglist[$user->id]->json ?? '';
-            $event = bookinganswer_movedupfromwaitinglist::create(
-                ['objectid' => $this->optionid,
+            // Check the current waiting list status of the answer.
+            // If it is currently on the waiting list and the new status is booked,
+            // trigger the moveupfromwaitinglist event.
+            $answersonwaitinglist = $bookinganswers->get_usersonwaitinglist();
+            if (!empty($answersonwaitinglist[$user->id]) && $waitinglist == MOD_BOOKING_STATUSPARAM_BOOKED) {
+                $other = [];
+                $other['baid'] = $answersonwaitinglist[$user->id]->baid ?? 0;
+                $other['json'] = $answersonwaitinglist[$user->id]->json ?? '';
+                $event = bookinganswer_movedupfromwaitinglist::create(
+                    ['objectid' => $this->optionid,
                     'context' => context_module::instance($this->cmid),
                     'userid' => $USER->id,
                     'relateduserid' => $user->id,
                     'other' => $other,
-                ]
-            );
-            $event->trigger();
-        }
+                    ]
+                );
+                $event->trigger();
+            }
 
-        $baid = self::write_user_answer_to_db(
-            $this->booking->id,
-            $frombookingid,
-            $user->id,
-            $this->optionid,
-            $waitinglist,
-            $currentanswerid,
-            $timecreated,
-            $status,
-            $erlid,
-            $historystatus ?? 0,
-            $syncruleid,
-            !empty($timebooked) ? $timebooked : null
-        );
+            $baid = self::write_user_answer_to_db(
+                $this->booking->id,
+                $frombookingid,
+                $user->id,
+                $this->optionid,
+                $waitinglist,
+                $currentanswerid,
+                $timecreated,
+                $status,
+                $erlid,
+                $historystatus ?? 0,
+                $syncruleid,
+                !empty($timebooked) ? $timebooked : null,
+                $deferbroadcastpurge
+            );
+        } finally {
+            // Release the per-option capacity lock as soon as the answer is written and
+            // committed. Everything below (enrolment, notifications, after-booking actions,
+            // cache purge) does not affect capacity and runs unlocked. The next waiter
+            // refreshes from the DB, so it sees this committed write regardless of the purge.
+            // When $lockheld, the caller owns the lock and releases it after the whole batch.
+            if ($rwlock) {
+                $rwlock->release();
+            }
+        }
 
         if (
             $status === MOD_BOOKING_BO_SUBMIT_STATUS_AUTOENROL
@@ -1602,8 +1684,8 @@ class booking_option {
             if (empty($erlid)) {
                 // Param $erlid might be empty if this is a booking confirmation. In this case, we fetch it from the answer.
                 $bajson = $DB->get_field('booking_answers', 'json', ['id' => $baid]);
-                $data = json_decode($bajson);
-                if (isset($erlid)) {
+                $data = json_decode($bajson ?: '');
+                if (!empty($data->erlid)) {
                     $erlid = $data->erlid;
                 }
             }
@@ -1628,12 +1710,16 @@ class booking_option {
             self::check_if_free_to_book_again($this->settings, $user->id, true);
         }
 
-        // Important: Purge caches after submitting a new user.
-        self::purge_cache_for_answers($this->optionid);
+        // The answers cache was already invalidated by write_user_answer_to_db() above (which
+        // honours $deferbroadcastpurge: option-scoped refresh during a bulk sync, full broadcast
+        // otherwise). Nothing between that write and here mutates this option's booking answers -
+        // the AUTOENROL branch only touches booking_enrollink_items and the UN_CONFIRM branch's
+        // check_if_free_to_book_again() purges on its own - so we must not purge a second time
+        // (that produced a redundant global broadcast on every single booking).
 
         // To avoid a problem with the payment process, we catch any error that might occur.
         try {
-            $this->after_successful_booking_routine($user, $waitinglist, $timebooked);
+            $this->after_successful_booking_routine($user, $waitinglist, $timebooked, $baid);
             return true;
         } catch (Exception $e) {
             // We do not want this to fail if there was an exception.
@@ -1675,6 +1761,12 @@ class booking_option {
      *                         an exact payment timestamp. Without shopping_cart (agnostic mode)
      *                         the default null causes time() to be used, which equals the actual
      *                         moment of booking confirmation.
+     * @param bool $deferbroadcastpurge if true, only refresh this option's answers cache and skip the
+     *                                  system-wide broadcast purges of the derived caches (booked-user
+     *                                  table, my-options table, session answers). The caller is then
+     *                                  responsible for one broadcast_answer_caches() afterwards. Used by
+     *                                  bulk operations (e.g. waiting-list promotion) so the global purge
+     *                                  happens once for the batch instead of once per written answer.
      * @return int
      */
     public static function write_user_answer_to_db(
@@ -1689,7 +1781,8 @@ class booking_option {
         string $erlid = "",
         int $historystatus = 0,
         int $syncruleid = 0,
-        ?int $timebooked = null
+        ?int $timebooked = null,
+        bool $deferbroadcastpurge = false
     ) {
 
         global $DB, $USER;
@@ -1792,6 +1885,22 @@ class booking_option {
             $timemodified[] = time();
         }
 
+        // Confirm/un-confirm writes only change the answer json. They must never bump
+        // timemodified: it is the sort key of the waitinglist queue, so bumping it would
+        // reorder the waitinglist on every confirmation (and, in exclusive mode, flatten
+        // the whole queue via the un-confirm loop over all other waitinglist users).
+        if (
+            !empty($answer)
+            && $waitinglist === MOD_BOOKING_STATUSPARAM_WAITINGLIST
+            && in_array(
+                $confirmwaitinglist,
+                [MOD_BOOKING_BO_SUBMIT_STATUS_CONFIRMATION, MOD_BOOKING_BO_SUBMIT_STATUS_UN_CONFIRM],
+                true
+            )
+        ) {
+            $newanswer->timemodified = $answer->timemodified;
+        }
+
         // The confirmation on the waitinglist is saved here.
         if (
             $confirmwaitinglist === MOD_BOOKING_BO_SUBMIT_STATUS_CONFIRMATION
@@ -1858,8 +1967,15 @@ class booking_option {
             $addtionalinfos
         );
 
-        // After writing an answer, cache has to be invalidated.
-        self::purge_cache_for_answers($optionid);
+        // After writing an answer, cache has to be invalidated. During a bulk operation
+        // ($deferbroadcastpurge) only refresh this option's answers cache; the caller issues a
+        // single broadcast_answer_caches() for the whole batch instead of one global purge per
+        // written answer.
+        if ($deferbroadcastpurge) {
+            self::refresh_answers_for_option($optionid);
+        } else {
+            self::purge_cache_for_answers($optionid);
+        }
         return $newanswer->id;
     }
 
@@ -1893,6 +2009,7 @@ class booking_option {
         }
 
         $counter = 0;
+        $baid = 0;
         foreach ($currentanswers as $currentanswer) {
             // This should never happen, but if we have more than one reservation, we just confirm the first and delete the rest.
             if ($counter > 0) {
@@ -1905,7 +2022,7 @@ class booking_option {
                 $currentanswer->timemodified = time();
                 $currentanswer->waitinglist = MOD_BOOKING_STATUSPARAM_BOOKED;
 
-                self::write_user_answer_to_db(
+                $baid = self::write_user_answer_to_db(
                     $this->settings->bookingid,
                     $currentanswer->frombookingid ?? 0,
                     $currentanswer->userid,
@@ -1921,7 +2038,7 @@ class booking_option {
 
         if ($counter > 0) {
             try {
-                $this->after_successful_booking_routine($user, MOD_BOOKING_STATUSPARAM_BOOKED);
+                $this->after_successful_booking_routine($user, MOD_BOOKING_STATUSPARAM_BOOKED, 0, $baid);
                 return true;
             } catch (Exception $e) {
                 // We do not want this to fail if there was an exception.
@@ -1953,9 +2070,10 @@ class booking_option {
      * @param stdClass $user
      * @param int $waitinglist
      * @param int $timebooked
+     * @param int $baid
      * @return bool
      */
-    public function after_successful_booking_routine(stdClass $user, int $waitinglist, int $timebooked = 0) {
+    public function after_successful_booking_routine(stdClass $user, int $waitinglist, int $timebooked = 0, int $baid = 0) {
 
         global $DB, $USER;
 
@@ -1970,7 +2088,7 @@ class booking_option {
 
         // At this point, we trigger the after booking actions.
         // Depending on the status, we have different ways of continueing.
-        if (actions_info::apply_actions($this->settings, $user->id) == 1) {
+        if (actions_info::apply_actions($this->settings, $user->id, 'book', $baid) == 1) {
             return true;
         }
 
@@ -4330,11 +4448,23 @@ class booking_option {
         // At the end, we re-write into singleton.
         singleton_service::get_instance_of_booking_option_settings($optionid);
 
-        // We also purge the answers cache.
+        // We also purge the answers cache (which also targeted-purges the option-level entity
+        // occupancy cache).
         self::purge_cache_for_answers($optionid);
 
         if (class_exists('local_entities\entitiesrelation_handler')) {
+            global $DB;
             cache_helper::purge_by_event('purgecachedentities');
+
+            // Normal options can link entities at optiondate level, so targeted-purge the
+            // occupancy cache of each optiondate's entity as well.
+            $optiondateids = $DB->get_fieldset_select('booking_optiondates', 'id', 'optionid = ?', [$optionid]);
+            if (entities_compat::has_capacity_support()) {
+                foreach ($optiondateids as $optiondateid) {
+                    (new \local_entities\entitiesrelation_handler('mod_booking', 'optiondate', (int)$optiondateid))
+                        ->purge_dates_cache();
+                }
+            }
         }
     }
 
@@ -4344,21 +4474,52 @@ class booking_option {
      */
     public static function purge_cache_for_answers(int $optionid) {
 
+        // Behaviour unchanged: the system-wide broadcasts plus the option-scoped refresh.
+        // The two parts are also callable on their own (see refresh_answers_for_option()
+        // and broadcast_answer_caches()) so bulk operations can refresh each option but
+        // broadcast only once. The order of these independent cache clears does not affect
+        // the final state; the answers rebuild inside the refresh still runs last.
+        self::broadcast_answer_caches();
+        self::refresh_answers_for_option($optionid);
+    }
+
+    /**
+     * Invalidate and rebuild the answer caches that belong to ONE booking option.
+     *
+     * This is the option-scoped part of {@see self::purge_cache_for_answers()} and does
+     * NOT touch the system-wide caches (session answers / booked-user table / my-options
+     * table). Use it together with {@see self::broadcast_answer_caches()} when a bulk
+     * operation refreshes many options but should broadcast only once.
+     *
+     * @param int $optionid
+     */
+    public static function refresh_answers_for_option(int $optionid) {
+
         cache_helper::invalidate_by_event('setbackoptionsanswers', [$optionid]);
-        cache_helper::purge_by_event('setbacksessionanswers');
         // When we set back the booking_answers...
         // ... we have to make sure it's also deleted in the singleton service.
         singleton_service::destroy_booking_answers($optionid);
 
-        // We also need to destroy the booked_user_information.
-        cache_helper::purge_by_event('setbackbookedusertable');
-
-        // We also need to destroy the booked_user_information.
-        cache_helper::purge_by_event('setbackmyoptionstable');
-
         // At the end, we re-write into singleton.
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
         singleton_service::get_instance_of_booking_answers($settings);
+
+        // Booked slots feed the entity occupancy of this option's entity, so a changed answer must
+        // targeted-purge that entity's occupancy cache (resolved option -> entity by the handler).
+        if (entities_compat::has_capacity_support()) {
+            (new \local_entities\entitiesrelation_handler('mod_booking', 'option', $optionid))->purge_dates_cache();
+        }
+    }
+
+    /**
+     * Purge the system-wide caches that derive from booking answers: the session answers
+     * cache, the booked-user table and the my-options table. These are not option-scoped,
+     * so they only need to be purged once regardless of how many options changed.
+     */
+    public static function broadcast_answer_caches() {
+        cache_helper::purge_by_event('setbacksessionanswers');
+        cache_helper::purge_by_event('setbackbookedusertable');
+        cache_helper::purge_by_event('setbackmyoptionstable');
     }
 
     /**

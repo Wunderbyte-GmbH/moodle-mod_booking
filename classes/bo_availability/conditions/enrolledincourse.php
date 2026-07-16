@@ -232,7 +232,7 @@ class enrolledincourse implements bo_condition, freezable_condition {
             if ($databasetype == 'postgres') {
                 $where = "
                     (
-                        availability IS NOT NULL
+                        COALESCE(availability, '[]') IS NOT NULL
                         AND NOT EXISTS (
                             SELECT 1 FROM jsonb_array_elements(availability::jsonb) AS obj
                             WHERE (obj->>'id')::int = $conditionid
@@ -245,7 +245,7 @@ class enrolledincourse implements bo_condition, freezable_condition {
             ) {
                 $where = "
                     (
-                        availability IS NOT NULL
+                        COALESCE(availability, '[]') IS NOT NULL
                         AND NOT EXISTS (
                             SELECT 1 FROM JSON_TABLE(availability, '$[*]' COLUMNS (
                                 id INT PATH '$.id',
@@ -272,7 +272,7 @@ class enrolledincourse implements bo_condition, freezable_condition {
             // Depending on the courseidsoperator check either if user is enrolled in all or at least one courses selected.
             // Default is AND - all courses must be met by user.
             $where = "
-            availability IS NOT NULL
+            COALESCE(availability, '[]') IS NOT NULL
             AND
             (
                 (
@@ -315,7 +315,7 @@ class enrolledincourse implements bo_condition, freezable_condition {
             $appendwhere = implode(', ', $courseidstext);
 
             $where = "
-                availability IS NOT NULL
+                COALESCE(availability, '[]') IS NOT NULL
                 AND (
                         (
                             NOT EXISTS (
@@ -445,9 +445,6 @@ class enrolledincourse implements bo_condition, freezable_condition {
      */
     public function add_condition_to_mform(MoodleQuickForm &$mform, int $optionid = 0) {
         global $DB;
-        if (empty(get_config('booking', 'usesqlfilteravailability'))) {
-            return;
-        }
         // Check if PRO version is activated.
         if (wb_payment::pro_version_is_activated()) {
             $coursesarray = [];

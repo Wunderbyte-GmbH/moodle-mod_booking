@@ -16,7 +16,9 @@
 
 namespace mod_booking;
 
-use mod_booking\booking_advanced_testcase;
+defined('MOODLE_INTERNAL') || die();
+
+use mod_booking\tests\booking_advanced_testcase;
 use stdClass;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\local\mobile\customformstore;
@@ -24,7 +26,6 @@ use tool_mocktesttime\time_mock;
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once(__DIR__ . '/booking_advanced_testcase.php');
 
 /**
  * Tests for all_userbookings::other_cols.

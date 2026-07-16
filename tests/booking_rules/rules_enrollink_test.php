@@ -25,7 +25,7 @@
 
 namespace mod_booking;
 
-use mod_booking\booking_advanced_testcase;
+use mod_booking\tests\booking_advanced_testcase;
 use stdClass;
 use mod_booking\teachers_handler;
 use mod_booking\booking_rules\booking_rules;
@@ -37,9 +37,6 @@ use local_shopping_cart\shopping_cart;
 use local_shopping_cart\local\cartstore;
 use mod_booking\enrollink;
 use tool_mocktesttime\time_mock;
-
-defined('MOODLE_INTERNAL') || die();
-require_once(__DIR__ . '/../booking_advanced_testcase.php');
 
 /**
  * Tests for booking enrollink rules.

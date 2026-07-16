@@ -216,6 +216,10 @@ class shortcodes_handler {
         It is also possible to include regions, class, icons and iconclass like this:
         includecustomfields="<customfieldshortname>|<region>|<iconclass1>|<iconclass2>|<classes>,..."
         example: includecustomfields="cfshortname1|cardbody|far|fa-wrench,cfshortname2|cardheader|fas|fa-user|text-center"
+        The region has to match a region of the rendered template (regions may also come from
+        templates of other plugins). If no region is given, the customfield is rendered in the
+        standard region of the rendered template (footer in list view, cardlist in cards view)
+        with the standard styling.
         */
         if (empty($args['includecustomfields'])) {
             return [];
@@ -242,7 +246,9 @@ class shortcodes_handler {
                 continue;
             }
 
-            $region = $cfparts[1] ?? 'cardbody'; // Fallback on cardbody.
+            // If no region is given, the customfield is rendered in the standard region
+            // of the rendered template (footer in list view, cardlist in cards view).
+            $region = $cfparts[1] ?? null;
             if (!empty($cfparts[3])) {
                 $iconclass = trim($cfparts[2] ?? 'far') . ' ' . trim($cfparts[3]);
             } else {

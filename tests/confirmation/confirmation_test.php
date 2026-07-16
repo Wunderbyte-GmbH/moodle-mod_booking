@@ -16,7 +16,7 @@
 
 namespace mod_booking;
 
-use mod_booking\booking_advanced_testcase;
+use mod_booking\tests\booking_advanced_testcase;
 use mod_booking\output\booked_users;
 use mod_booking\singleton_service;
 use mod_booking\booking_bookit;
@@ -27,6 +27,9 @@ use local_wunderbyte_table\wunderbyte_table;
 use tool_mocktesttime\time_mock;
 use mod_booking_generator;
 use context_module;
+
+defined('MOODLE_INTERNAL') || die();
+require_once(__DIR__ . '/../classes/booking_advanced_testcase.php');
 
 /**
  * Tests for confirmation capability.

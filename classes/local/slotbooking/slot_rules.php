@@ -203,7 +203,7 @@ class slot_rules {
     }
 
     /**
-     * Determine if a slot remains bookable after rule filtering.
+     * Determine if a slot is allowed by the given rules.
      *
      * @param array $rules option rules
      * @param int $slotstart slot start timestamp

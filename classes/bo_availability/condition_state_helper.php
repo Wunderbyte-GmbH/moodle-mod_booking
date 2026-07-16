@@ -43,6 +43,23 @@ class condition_state_helper {
     public const STATE_SKIP_AND_FREEZE = 2;
 
     /**
+     * Conditions that are always skipped in enrollink context unless explicitly configured otherwise.
+     *
+     * These were hardcoded before the enrollink skip flag became configurable on the
+     * availability conditions dashboard and remain the fallback defaults.
+     *
+     * @var array<int>
+     */
+    public const ENROLLINK_DEFAULT_SKIP = [
+        MOD_BOOKING_BO_COND_CAPBOOKINGCHOOSE,
+        MOD_BOOKING_BO_COND_JSON_ALLOWEDTOBOOKININSTANCE,
+        MOD_BOOKING_BO_COND_JSON_CUSTOMFORM,
+        // Enrollink holders have already paid for their place (the bundle answer reserves it),
+        // so a fully booked option must not block them by default.
+        MOD_BOOKING_BO_COND_FULLYBOOKED,
+    ];
+
+    /**
      * Returns the effective state for a condition.
      *
      * The new configuration format is read first when present. If it is not
@@ -53,12 +70,16 @@ class condition_state_helper {
      * @return int
      */
     public function get_condition_state(int $conditionid, bool $isenrollinkcontext = false): int {
+        if ($isenrollinkcontext && $this->is_enrollink_skipped($conditionid)) {
+            return self::STATE_SKIP_AND_FREEZE;
+        }
+
         $configuredstates = $this->get_configured_states();
         if (array_key_exists($conditionid, $configuredstates)) {
             return (int)$configuredstates[$conditionid];
         }
 
-        $legacyskipconditions = $this->get_legacy_skipped_conditions($isenrollinkcontext);
+        $legacyskipconditions = $this->get_legacy_skipped_conditions();
         if (in_array($conditionid, $legacyskipconditions, true)) {
             return self::STATE_SKIP_AND_FREEZE;
         }
@@ -75,6 +96,30 @@ class condition_state_helper {
      */
     public function should_skip_condition(int $conditionid, bool $isenrollinkcontext = false): bool {
         return $this->get_condition_state($conditionid, $isenrollinkcontext) === self::STATE_SKIP_AND_FREEZE;
+    }
+
+    /**
+     * Returns whether the condition is skipped when a user books via an enrolment link.
+     *
+     * A configured entry with an explicit 'enrollinkskip' key always wins. Entries saved
+     * before the flag existed (or no entry at all) fall back to the legacy
+     * 'enrollinkskipconditions' setting plus the hardcoded defaults, so upgraded sites keep
+     * their previous behaviour until the dashboard is saved again.
+     *
+     * @param int $conditionid
+     * @return bool
+     */
+    public function is_enrollink_skipped(int $conditionid): bool {
+        $entries = $this->get_configured_entries();
+        if (isset($entries[$conditionid]) && array_key_exists('enrollinkskip', $entries[$conditionid])) {
+            return !empty($entries[$conditionid]['enrollinkskip']);
+        }
+
+        $legacyexcluded = get_config('booking', 'enrollinkskipconditions');
+        $legacyids = !empty($legacyexcluded) ? array_map('intval', explode(',', $legacyexcluded)) : [];
+        $legacyids = array_merge($legacyids, self::ENROLLINK_DEFAULT_SKIP);
+
+        return in_array($conditionid, $legacyids, true);
     }
 
     /**
@@ -95,6 +140,25 @@ class condition_state_helper {
      * @return array<int,int>
      */
     private function get_configured_states(): array {
+        $states = [];
+        foreach ($this->get_configured_entries() as $conditionid => $entry) {
+            if (array_key_exists('skipstate', $entry)) {
+                $states[$conditionid] = (int)$entry['skipstate'];
+            }
+        }
+
+        return $states;
+    }
+
+    /**
+     * Returns the normalized per-condition entries from the new config format.
+     *
+     * Each entry is an array that may contain 'skipstate' and 'enrollinkskip' keys.
+     * Scalar values from the previous flat map format are normalized to skipstate-only entries.
+     *
+     * @return array<int,array>
+     */
+    private function get_configured_entries(): array {
         $configuredstates = get_config('booking', 'availabilityconditionsettings');
         if (empty($configuredstates)) {
             // Backward compatibility for the previous experimental key.
@@ -109,44 +173,30 @@ class condition_state_helper {
             return [];
         }
 
-        $states = [];
-        foreach ($decoded as $conditionid => $state) {
-            if (is_array($state) && array_key_exists('skipstate', $state)) {
-                $states[(int)$conditionid] = (int)$state['skipstate'];
+        $entries = [];
+        foreach ($decoded as $conditionid => $entry) {
+            if (is_array($entry)) {
+                $entries[(int)$conditionid] = $entry;
                 continue;
             }
 
             // Backward compatibility for previous flat map format.
-            if (is_scalar($state)) {
-                $states[(int)$conditionid] = (int)$state;
+            if (is_scalar($entry)) {
+                $entries[(int)$conditionid] = ['skipstate' => (int)$entry];
             }
         }
 
-        return $states;
+        return $entries;
     }
 
     /**
-     * Returns the legacy skip list, keeping enrollink-specific defaults intact.
+     * Returns the legacy skip list from the 'skipableconditions' setting.
      *
-     * @param bool $isenrollinkcontext
      * @return array<int>
      */
-    private function get_legacy_skipped_conditions(bool $isenrollinkcontext = false): array {
+    private function get_legacy_skipped_conditions(): array {
         $skippedconditions = get_config('booking', 'skipableconditions');
         $skippedconditionsarray = !empty($skippedconditions) ? explode(',', $skippedconditions) : [];
-
-        if ($isenrollinkcontext) {
-            $enrollinkexcluded = get_config('booking', 'enrollinkskipconditions');
-            if (!empty($enrollinkexcluded)) {
-                $skippedconditionsarray = array_merge($skippedconditionsarray, explode(',', $enrollinkexcluded));
-            }
-
-            $skippedconditionsarray = array_merge($skippedconditionsarray, [
-                MOD_BOOKING_BO_COND_CAPBOOKINGCHOOSE,
-                MOD_BOOKING_BO_COND_JSON_ALLOWEDTOBOOKININSTANCE,
-                MOD_BOOKING_BO_COND_JSON_CUSTOMFORM,
-            ]);
-        }
 
         $filteredconditions = array_filter(
             $skippedconditionsarray,

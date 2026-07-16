@@ -25,7 +25,7 @@
 
 namespace mod_booking;
 
-use mod_booking\booking_advanced_testcase;
+use mod_booking\tests\booking_advanced_testcase;
 use tool_mocktesttime\time_mock;
 use mod_booking_generator;
 

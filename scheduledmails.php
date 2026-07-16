@@ -45,7 +45,7 @@ require_login(0, false);
 
 $urlparams = [];
 
-if (empty($cmid) && empty($contextid)) {
+if (empty($cmid) && !empty($contextid)) {
     $contextid = context_system::instance()->id;
 } else if (!empty($cmid)) {
     [$course, $cm] = get_course_and_cm_from_cmid($cmid, 'booking');
@@ -56,7 +56,10 @@ if (empty($cmid) && empty($contextid)) {
 }
 
 if (empty($urlparams)) {
-    $urlparams = ['contextid' => 1];
+    // No cmid and no contextid given: default to the system context so the scheduled mails
+    // overview is reachable without parameters (otherwise context::instance_by_id(0) fails).
+    $contextid = (int) context_system::instance()->id;
+    $urlparams = ['contextid' => $contextid];
 }
 
 $context = context::instance_by_id($contextid);
@@ -72,6 +75,9 @@ $PAGE->set_url($url);
 $PAGE->activityheader->disable();
 
 if ($contextid == 1) {
+    if (is_siteadmin()) {
+        admin_externalpage_setup('modbookingeditrules');
+    }
     $PAGE->set_pagelayout('standard');
 } else {
     $PAGE->set_pagelayout('standard');
