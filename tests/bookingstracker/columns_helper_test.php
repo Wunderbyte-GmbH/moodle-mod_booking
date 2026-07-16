@@ -90,11 +90,12 @@ final class columns_helper_test extends advanced_testcase {
         $ba = new booking_answers();
 
         // 1. Option scope display columns follow responsesfields + status-specific columns.
+        // The first columns have a fixed order, all others follow in their configured order.
         // Like on report.php, custom user profile fields come after all standard columns.
         $class = $ba->return_class_for_scope('option');
         $cols = $class->return_cols_for_tables(MOD_BOOKING_STATUSPARAM_BOOKED, $option->id);
         $this->assertSame(
-            ['firstname', 'lastname', 'email', 'city', 'timecreated', 'completed', 'custsupervisor', 'status', 'notes'],
+            ['firstname', 'lastname', 'email', 'completed', 'status', 'notes', 'city', 'timecreated', 'custsupervisor'],
             array_keys($cols)
         );
 
@@ -132,11 +133,11 @@ final class columns_helper_test extends advanced_testcase {
         $this->assertStringContainsString('fa-check', $table->col_completed((object)['completed' => 1]));
         $this->assertSame('', $table->col_completed((object)['completed' => 0]));
 
-        // 4. Instanceanswers scope resolves the cmid directly.
+        // 4. Instanceanswers scope uses the fixed per-answer columns (no responsesfields mapping).
         $class = $ba->return_class_for_scope('instanceanswers');
         $cols = $class->return_cols_for_tables(MOD_BOOKING_STATUSPARAM_BOOKED, $settings->cmid);
         $this->assertSame('titleprefix', array_key_first($cols));
-        $this->assertArrayHasKey('city', $cols);
+        $this->assertArrayHasKey('timebooked', $cols);
         $this->assertArrayHasKey('timemodified', $cols);
         $table = $bookedusers->return_raw_table('instanceanswers', $settings->cmid, MOD_BOOKING_STATUSPARAM_BOOKED);
         $this->assertCount(1, $table->rawdata);
@@ -152,14 +153,14 @@ final class columns_helper_test extends advanced_testcase {
         $dcols = $class->return_cols_for_download(MOD_BOOKING_STATUSPARAM_BOOKED, $option->id);
         $this->assertSame(array_keys($cols), array_keys($dcols));
 
-        // 6. Option-specific values are mapped too; rating stays skipped as the instance is not assessed.
-        // Like on report.php, indexnumber and userpic are moved to the front.
+        // 6. Option-specific values are mapped too; rating stays skipped as the instance is not assessed,
+        // indexnumber is not supported (anymore) and userpic is moved to the front.
         $DB->set_field('booking', 'responsesfields', 'rating,places,userpic,fullname,indexnumber', ['id' => $booking->id]);
         singleton_service::destroy_instance();
         \cache::make('mod_booking', 'cachedbookinginstances')->purge();
         $cols = $class->return_cols_for_tables(MOD_BOOKING_STATUSPARAM_BOOKED, $option->id);
         $this->assertSame(
-            ['indexnumber', 'userpic', 'places', 'firstname', 'lastname', 'status', 'notes'],
+            ['userpic', 'firstname', 'lastname', 'status', 'notes', 'places'],
             array_keys($cols)
         );
 
@@ -186,11 +187,13 @@ final class columns_helper_test extends advanced_testcase {
         $cols = $class->return_cols_for_tables(MOD_BOOKING_STATUSPARAM_BOOKED, $option->id);
         $this->assertSame('T-shirt size', $cols['formfield_1'] ?? null);
         $this->assertArrayHasKey('formfield_2', $cols);
-        // The enrolusersaction field also adds the enrollink column on the page (not in the download).
+        // The enrolusersaction field also adds the enrollink columns, on the page and in the download.
         $this->assertArrayHasKey('enrollink', $cols);
+        $this->assertArrayHasKey('enrollinkreceivedfrom', $cols);
         $dcols = $class->return_cols_for_download(MOD_BOOKING_STATUSPARAM_BOOKED, $option->id);
         $this->assertArrayHasKey('formfield_1', $dcols);
-        $this->assertArrayNotHasKey('enrollink', $dcols);
+        $this->assertArrayHasKey('enrollink', $dcols);
+        $this->assertArrayHasKey('enrollinkreceivedfrom', $dcols);
 
         // 8. The stored customform answer of the user is rendered into the column.
         $DB->set_field(
