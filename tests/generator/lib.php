@@ -170,7 +170,7 @@ class mod_booking_generator extends testing_module_generator {
                                 city,department,courseendtime,numrec,userid,username,
                                 firstname,lastname,email,completed,waitinglist,status,
                                 groups,notes,idnumber',
-            'responsesfields' => 'completed,status,rating,numrec,fullname,email,timecreated,
+            'responsesfields' => 'completed,status,rating,numrec,fullname,timecreated,
                                 institution,waitinglist,city,department,notes',
             'sendmail' => 1,
 

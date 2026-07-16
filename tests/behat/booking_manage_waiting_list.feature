@@ -46,9 +46,11 @@ Feature: In a course add a booking option and manage its waiting list
       | user     | credit | currency |
       | student2 | 150    | EUR      |
       | student3 | 200    | EUR      |
+    ## The waiting list assertions below rely on the email column, so it has to be part
+    ## of responsesfields (the tracker tables take their columns from that setting).
     And the following "activities" exist:
-      | activity | course | name       | intro                  | bookingmanager | eventtype | cancancelbook | cancelrelativedate |
-      | booking  | C1     | My booking | My booking description | teacher1       | Webinar   | 1             | 2                  |
+      | activity | course | name       | intro                  | bookingmanager | eventtype | cancancelbook | cancelrelativedate | responsesfields                                                                                          |
+      | booking  | C1     | My booking | My booking description | teacher1       | Webinar   | 1             | 2                  | completed,status,rating,numrec,fullname,email,timecreated,institution,waitinglist,city,department,notes |
     And I change viewport size to "1366x10000"
 
   @javascript
