@@ -2342,7 +2342,7 @@ function booking_rating_validate($params) {
  * @throws require_login_exception
  */
 function booking_rate($ratings, $params) {
-    global $CFG, $USER, $DB, $OUTPUT;
+    global $CFG, $USER, $DB;
     require_once($CFG->dirroot . '/rating/lib.php');
 
     $contextid = $params->contextid;
@@ -2382,10 +2382,9 @@ function booking_rate($ratings, $params) {
                 'rateduserid' => $rating->rateduserid,
             ];
             if (!$rm->check_rating_is_valid($checks)) {
-                echo $OUTPUT->header();
-                echo get_string('ratinginvalid', 'rating');
-                echo $OUTPUT->footer();
-                die();
+                // Throw like the other error paths here: echo + die() would kill
+                // a PHPUnit run silently (exit code 0) and CI would stay green.
+                throw new moodle_exception('ratinginvalid', 'rating');
             }
 
             if ($rating->rating != RATING_UNSET_RATING) {
