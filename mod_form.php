@@ -29,6 +29,7 @@ use mod_booking\elective;
 use mod_booking\output\eventslist;
 use mod_booking\placeholders\placeholders_info;
 use mod_booking\semester;
+use mod_booking\signinsheet\signinsheet_config;
 use mod_booking\singleton_service;
 use mod_booking\utils\wb_payment;
 
@@ -1521,6 +1522,103 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addHelpButton('toporientation', 'signinsheettoporientationdesc', 'mod_booking');
         $mform->setDefault('toporientation', 'L');
         $mform->setType('toporientation', PARAM_ALPHA);
+
+        // Default settings for the sign-in sheet download of this instance.
+        // They are used unless a booking option has its own settings persisted
+        // (via the sign-in sheet modal in the Bookings Tracker).
+        $signinsheetdefaults = signinsheet_config::defaults();
+        $instancesigninconfig = (array)(booking::get_value_of_json_by_key($bookingid, signinsheet_config::JSONKEY) ?? []);
+        $signinsheetdefaults = array_intersect_key($instancesigninconfig, $signinsheetdefaults) + $signinsheetdefaults;
+        // Instances without stored settings use the plugin config (checkbox checked).
+        $usepluginconfigdefault = empty($instancesigninconfig) ? 1 : (int)!empty($instancesigninconfig['usepluginconfig']);
+        $signinhtmlmode = signinsheet_config::is_htmlmode();
+
+        $signinsettingsurl = new moodle_url('/admin/settings.php', ['section' => 'modsettingbooking']);
+        $mform->addElement(
+            'advcheckbox',
+            'signinsheetusepluginconfig',
+            get_string('signinsheetusepluginconfig', 'mod_booking', $signinsettingsurl->out())
+        );
+        $mform->setDefault('signinsheetusepluginconfig', $usepluginconfigdefault);
+
+        $mform->addElement('select', 'signinsheetorientation', get_string('pdforientation', 'mod_booking'), [
+            'P' => get_string('pdfportrait', 'mod_booking'),
+            'L' => get_string('pdflandscape', 'mod_booking'),
+        ]);
+        $mform->setDefault('signinsheetorientation', $signinsheetdefaults['orientation']);
+        $mform->hideIf('signinsheetorientation', 'signinsheetusepluginconfig', 'checked');
+
+        $mform->addElement('select', 'signinsheetorderby', get_string('sortby', 'mod_booking'), [
+            'lastname' => get_string('sortbylastname', 'grades'),
+            'firstname' => get_string('sortbyfirstname', 'grades'),
+        ]);
+        $mform->setDefault('signinsheetorderby', $signinsheetdefaults['orderby']);
+        $mform->hideIf('signinsheetorderby', 'signinsheetusepluginconfig', 'checked');
+
+        // The empty rows setting is only applied in the classic (PDF) mode.
+        if (!$signinhtmlmode) {
+            $emptyrowsoptions = array_combine(range(0, 10), range(0, 10)) + [20 => 20, 40 => 40, 80 => 80];
+            $mform->addElement(
+                'select',
+                'signinsheetaddemptyrows',
+                get_string('signinaddemptyrows', 'mod_booking'),
+                $emptyrowsoptions
+            );
+            $mform->setDefault('signinsheetaddemptyrows', $signinsheetdefaults['addemptyrows']);
+            $mform->hideIf('signinsheetaddemptyrows', 'signinsheetusepluginconfig', 'checked');
+        }
+
+        $mform->addElement('select', 'signinsheetpdftitle', get_string('choosepdftitle', 'mod_booking'), [
+            1 => get_string('pdftitleinstanceoption', 'mod_booking'),
+            2 => get_string('pdftitleoption', 'mod_booking'),
+            3 => get_string('pdftitleinstance', 'mod_booking'),
+        ]);
+        $mform->setDefault('signinsheetpdftitle', $signinsheetdefaults['pdftitle']);
+        $mform->hideIf('signinsheetpdftitle', 'signinsheetusepluginconfig', 'checked');
+
+        $signinpdfsessionsdefault = (int)$signinsheetdefaults['pdfsessions'];
+        if ($signinhtmlmode && $signinpdfsessionsdefault === -1) {
+            // The choice "Add date manually" has no effect in HTML template mode and is not offered there.
+            $signinpdfsessionsdefault = -2;
+        }
+        $mform->addElement(
+            'select',
+            'signinsheetpdfsessions',
+            get_string('signinonesession', 'mod_booking'),
+            signinsheet_config::pdfsessions_choices()
+        );
+        $mform->setDefault('signinsheetpdfsessions', $signinpdfsessionsdefault);
+        $mform->hideIf('signinsheetpdfsessions', 'signinsheetusepluginconfig', 'checked');
+
+        $mform->addElement(
+            'advcheckbox',
+            'signinsheetincludeteachers',
+            get_string('includeteachers', 'mod_booking')
+        );
+        $mform->setDefault('signinsheetincludeteachers', $signinsheetdefaults['includeteachers']);
+        $mform->hideIf('signinsheetincludeteachers', 'signinsheetusepluginconfig', 'checked');
+
+        $mform->addElement(
+            'select',
+            'signinsheetextrasessioncols',
+            get_string('signinextrasessioncols', 'mod_booking'),
+            [
+                -1 => get_string('none'),
+                0 => get_string('all'),
+            ]
+        );
+        $mform->setDefault('signinsheetextrasessioncols', $signinsheetdefaults['signinextrasessioncols']);
+        $mform->hideIf('signinsheetextrasessioncols', 'signinsheetusepluginconfig', 'checked');
+
+        // The save-as format is only applied in HTML template mode.
+        if ($signinhtmlmode) {
+            $mform->addElement('select', 'signinsheetsaveasformat', get_string('signinformat', 'mod_booking'), [
+                'pdf' => 'PDF',
+                'word' => 'Word',
+            ]);
+            $mform->setDefault('signinsheetsaveasformat', $signinsheetdefaults['saveasformat']);
+            $mform->hideIf('signinsheetsaveasformat', 'signinsheetusepluginconfig', 'checked');
+        }
 
         // Teachers.
         $mform->addElement(

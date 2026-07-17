@@ -29,6 +29,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
 use mod_booking\booking;
 use mod_booking\option\dates_handler;
 use mod_booking\output\booked_users;
+use mod_booking\signinsheet\signinsheet_config;
 use mod_booking\singleton_service;
 use mod_booking\utils\wb_payment;
 use mod_booking\output\renderer;
@@ -456,6 +457,7 @@ if (!empty($optionid) && empty($optiondateid)) {
     $isslotoption = (int)($optionsettings->type ?? MOD_BOOKING_OPTIONTYPE_DEFAULT)
         === MOD_BOOKING_OPTIONTYPE_SLOTBOOKING;
 
+    $bookotherusersshown = false;
     if (
         !$isslotoption
         && has_capability('mod/booking:bookforothers', $context)
@@ -470,7 +472,47 @@ if (!empty($optionid) && empty($optiondateid)) {
         );
         echo html_writer::link($url, '<i class="fa fa-users fa-fw" aria-hidden="true"></i>&nbsp;' .
                 get_string('bookotherusers', 'booking'), ['class' => 'btn btn-primary btn-sm']);
+        $bookotherusersshown = true;
     }
+
+    // Button to configure and download the sign-in sheet via dynamic form modal.
+    // Same functionality as on report.php, the actual download runs through the
+    // existing endpoint there (see mod_booking\form\modal_signinsheet_download).
+    $signinsavebuttonstr = signinsheet_config::is_htmlmode()
+        ? 'signinformatbutton'
+        : 'signinsheetdownload';
+    echo html_writer::tag(
+        'button',
+        '<i class="fa fa-list fa-fw" aria-hidden="true"></i>&nbsp;' .
+            get_string('signinsheetconfigure', 'mod_booking'),
+        [
+            'type' => 'button',
+            'class' => 'btn btn-primary btn-sm' . ($bookotherusersshown ? ' ms-2' : ''),
+            'data-action' => 'booking-report2-signinsheet-modal',
+            'data-cmid' => $cmid,
+            'data-optionid' => $optionid,
+            'data-savebuttonstr' => $signinsavebuttonstr,
+        ]
+    );
+    $PAGE->requires->js_call_amd('mod_booking/signinsheetmodal', 'init');
+
+    // Quick download of the sign-in sheet with the persisted settings of this
+    // option (falling back to instance / plugin settings). The modal above
+    // updates this link after each (re)configuration.
+    $quickdownloadurl = signinsheet_config::download_url(
+        $cmid,
+        $optionid,
+        signinsheet_config::for_option($optionid)
+    );
+    echo html_writer::link(
+        $quickdownloadurl,
+        '<i class="fa fa-download fa-fw" aria-hidden="true"></i>&nbsp;' .
+            get_string('signinsheetdownload', 'mod_booking'),
+        [
+            'class' => 'btn btn-primary btn-sm ms-2',
+            'data-id' => 'booking-report2-signinsheet-quickdownload',
+        ]
+    );
 }
 
 // Now we render the booked users for the provided scope.

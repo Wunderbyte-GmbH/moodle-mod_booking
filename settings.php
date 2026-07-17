@@ -37,6 +37,7 @@ use mod_booking\booking;
 use mod_booking\plugininfo\bookingextension_interface;
 use mod_booking\local\checkanswers\checkanswers;
 use mod_booking\price;
+use mod_booking\signinsheet\signinsheet_config;
 use mod_booking\utils\wb_payment;
 
 /** @var \admin_settingpage $settings */
@@ -2660,6 +2661,110 @@ if ($ADMIN->fulltree) {
         $description = get_string('signinextracols_desc', 'mod_booking') . " $i";
         $setting = new admin_setting_configtext($name, $visiblename, $description, '');
         $settings->add($setting);
+    }
+
+    // Default settings for the sign-in sheet download (used unless overridden
+    // in the booking instance or persisted in the booking option).
+    $settings->add(
+        new admin_setting_heading(
+            'mod_booking_signinsheetdefaults',
+            get_string('signinsheetdefaults', 'mod_booking'),
+            get_string('signinsheetdefaults_desc', 'mod_booking')
+        )
+    );
+    $settings->add(
+        new admin_setting_configselect(
+            'booking/signinsheetorientation',
+            get_string('pdforientation', 'mod_booking'),
+            '',
+            'P',
+            [
+                'P' => get_string('pdfportrait', 'mod_booking'),
+                'L' => get_string('pdflandscape', 'mod_booking'),
+            ]
+        )
+    );
+    $settings->add(
+        new admin_setting_configselect(
+            'booking/signinsheetorderby',
+            get_string('sortby', 'mod_booking'),
+            '',
+            'lastname',
+            [
+                'lastname' => get_string('sortbylastname', 'grades'),
+                'firstname' => get_string('sortbyfirstname', 'grades'),
+            ]
+        )
+    );
+    // The empty rows setting is only applied in the classic (PDF) mode.
+    if (!signinsheet_config::is_htmlmode()) {
+        $emptyrowsoptions = array_combine(range(0, 10), range(0, 10)) + [20 => 20, 40 => 40, 80 => 80];
+        $settings->add(
+            new admin_setting_configselect(
+                'booking/signinsheetaddemptyrows',
+                get_string('signinaddemptyrows', 'mod_booking'),
+                '',
+                0,
+                $emptyrowsoptions
+            )
+        );
+    }
+    $settings->add(
+        new admin_setting_configselect(
+            'booking/signinsheetpdftitle',
+            get_string('choosepdftitle', 'mod_booking'),
+            '',
+            1,
+            [
+                1 => get_string('pdftitleinstanceoption', 'mod_booking'),
+                2 => get_string('pdftitleoption', 'mod_booking'),
+                3 => get_string('pdftitleinstance', 'mod_booking'),
+            ]
+        )
+    );
+    $settings->add(
+        new admin_setting_configselect(
+            'booking/signinsheetpdfsessions',
+            get_string('signinonesession', 'mod_booking'),
+            '',
+            -2,
+            signinsheet_config::pdfsessions_choices()
+        )
+    );
+    $settings->add(
+        new admin_setting_configcheckbox(
+            'booking/signinsheetincludeteachers',
+            get_string('includeteachers', 'mod_booking'),
+            '',
+            0
+        )
+    );
+    $settings->add(
+        new admin_setting_configselect(
+            'booking/signinsheetextrasessioncols',
+            get_string('signinextrasessioncols', 'mod_booking'),
+            '',
+            0,
+            [
+                -1 => get_string('none'),
+                0 => get_string('all'),
+            ]
+        )
+    );
+    // The save-as format is only applied in HTML template mode.
+    if (signinsheet_config::is_htmlmode()) {
+        $settings->add(
+            new admin_setting_configselect(
+                'booking/signinsheetsaveasformat',
+                get_string('signinformat', 'mod_booking'),
+                '',
+                'pdf',
+                [
+                    'pdf' => 'PDF',
+                    'word' => 'Word',
+                ]
+            )
+        );
     }
 
     if ($proversion) {

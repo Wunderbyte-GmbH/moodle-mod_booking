@@ -35,6 +35,7 @@ require_once($CFG->dirroot . '/course/externallib.php');
 use local_entities\entitiesrelation_handler;
 use mod_booking\booking;
 use mod_booking\output\coursepage_shortinfo_and_button;
+use mod_booking\signinsheet\signinsheet_config;
 use mod_booking\singleton_service;
 use mod_booking\teachers_handler;
 use mod_booking\utils\wb_payment;
@@ -733,6 +734,44 @@ function booking_store_slot_change_deadline_default($booking) {
 }
 
 /**
+ * Store the instance defaults for the sign-in sheet download in the booking JSON.
+ *
+ * Only runs when the sign-in sheet section of mod_form was part of the submitted
+ * data, so programmatic updates (e.g. from instance templates) never touch the key.
+ *
+ * @param object $booking the booking instance data (modified by reference via the json field)
+ * @return void
+ */
+function booking_store_signinsheet_instance_settings($booking) {
+    if (!isset($booking->signinsheetusepluginconfig)) {
+        return;
+    }
+
+    $config = ['usepluginconfig' => empty($booking->signinsheetusepluginconfig) ? 0 : 1];
+    $formfields = [
+        'orientation' => 'signinsheetorientation',
+        'orderby' => 'signinsheetorderby',
+        'addemptyrows' => 'signinsheetaddemptyrows',
+        'pdftitle' => 'signinsheetpdftitle',
+        'pdfsessions' => 'signinsheetpdfsessions',
+        'signinextrasessioncols' => 'signinsheetextrasessioncols',
+        'includeteachers' => 'signinsheetincludeteachers',
+        'saveasformat' => 'signinsheetsaveasformat',
+    ];
+    // Keep previously stored values for fields the current mode does not show
+    // (e.g. addemptyrows in HTML template mode), so switching modes loses nothing.
+    $stored = (array)(booking::get_value_of_json_by_key((int)($booking->id ?? 0), signinsheet_config::JSONKEY) ?? []);
+    foreach ($formfields as $key => $field) {
+        if (isset($booking->$field)) {
+            $config[$key] = $booking->$field;
+        } else if (isset($stored[$key])) {
+            $config[$key] = $stored[$key];
+        }
+    }
+    booking::add_data_to_json($booking, signinsheet_config::JSONKEY, (object)$config);
+}
+
+/**
  * Given an object containing all the necessary data this will create a new instance and return the id number of the new instance.
  *
  * @param object $booking
@@ -837,6 +876,8 @@ function booking_add_instance($booking) {
     }
     // Slot booking: instance default for the relative per-slot move/cancel deadline ('' = inherit).
     booking_store_slot_change_deadline_default($booking);
+    // Instance defaults for the sign-in sheet download are stored in the JSON.
+    booking_store_signinsheet_instance_settings($booking);
 
     if (isset($booking->viewparam)) {
         // Save list view as default value.
@@ -1163,6 +1204,8 @@ function booking_update_instance($booking) {
     }
     // Slot booking: instance default for the relative per-slot move/cancel deadline ('' = inherit).
     booking_store_slot_change_deadline_default($booking);
+    // Instance defaults for the sign-in sheet download are stored in the JSON.
+    booking_store_signinsheet_instance_settings($booking);
     // View param (list view or card view) is stored in JSON.
     if (empty($booking->viewparam)) {
         // Save list view as default value.
