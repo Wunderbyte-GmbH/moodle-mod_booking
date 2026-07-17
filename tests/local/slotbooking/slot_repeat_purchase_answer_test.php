@@ -33,9 +33,11 @@
 
 namespace mod_booking;
 
+use mod_booking\bo_availability\bo_info;
 use mod_booking\tests\booking_advanced_testcase;
 use mod_booking\local\mobile\slotbookingstore;
 use mod_booking\local\slotbooking\slot_answer;
+use mod_booking\local\slotbooking\slot_availability;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
@@ -157,6 +159,84 @@ final class slot_repeat_purchase_answer_test extends booking_advanced_testcase {
         $this->assertSame((int) MOD_BOOKING_STATUSPARAM_RESERVED, (int) $answer2->waitinglist);
         $slots2 = slot_answer::get_slot_data($answer2)['slots'];
         $this->assertSame([['start' => $secondstart, 'end' => $secondend]], $slots2);
+    }
+
+    /**
+     * WS/prepage flow (mod_booking_load_pre_booking_page): the browser's "Continue" ends on the
+     * confirmation page, whose load commits the cached slot selection via bookit(). With one slot
+     * already BOOKED, the booked-state gate in bo_info::load_pre_booking_page() must not swallow
+     * the commit while the user still has remaining slot capacity (it did: the second purchase
+     * silently no-oped while the confirmation page reported success) - and must stop booking
+     * again once max_slots_per_user is exhausted.
+     *
+     * @covers \mod_booking\bo_availability\bo_info::load_pre_booking_page
+     *
+     * @return void
+     */
+    public function test_prepage_flow_books_second_slot_until_capacity_is_exhausted(): void {
+        global $DB;
+
+        [$optionid, $userid, $cmid] = $this->create_slot_option(['slot_max_slots_per_user' => 2]);
+
+        $firststart = strtotime('2050-01-07 09:00:00 UTC');
+        $secondstart = strtotime('2050-01-07 10:00:00 UTC');
+        $thirdstart = strtotime('2050-01-07 11:00:00 UTC');
+
+        // First purchase through the prepage flow.
+        $this->select_slot($optionid, $userid, $firststart, $firststart + (60 * MINSECS));
+        $this->load_confirmation_page($optionid, $userid);
+        $this->assertCount(1, $DB->get_records('booking_answers', ['optionid' => $optionid, 'userid' => $userid]));
+
+        // Second purchase: the alreadybooked top blocker must not swallow the commit while
+        // capacity (max_slots_per_user = 2) remains.
+        $this->select_slot($optionid, $userid, $secondstart, $secondstart + (60 * MINSECS));
+        $this->load_confirmation_page($optionid, $userid);
+        $answers = $DB->get_records('booking_answers', ['optionid' => $optionid, 'userid' => $userid], 'id ASC');
+        $this->assertCount(2, $answers, 'The prepage flow must book the additional slot while capacity remains.');
+        foreach ($answers as $answer) {
+            $this->assertSame((int) MOD_BOOKING_STATUSPARAM_BOOKED, (int) $answer->waitinglist);
+        }
+
+        // The user's booked ranges aggregate across both answers (as shown in the options table).
+        $ranges = slot_availability::get_booked_slot_ranges_for_user($optionid, $userid);
+        $this->assertSame([
+            ['start' => $firststart, 'end' => $firststart + (60 * MINSECS)],
+            ['start' => $secondstart, 'end' => $secondstart + (60 * MINSECS)],
+        ], $ranges);
+
+        // Third attempt: capacity exhausted - the booked-state gate must swallow the commit again.
+        $this->select_slot($optionid, $userid, $thirdstart, $thirdstart + (60 * MINSECS));
+        $this->load_confirmation_page($optionid, $userid);
+        $this->assertCount(
+            2,
+            $DB->get_records('booking_answers', ['optionid' => $optionid, 'userid' => $userid]),
+            'Once max_slots_per_user is exhausted, loading the confirmation page must not book again.'
+        );
+    }
+
+    /**
+     * Run bo_info::load_pre_booking_page() for the confirmation page - the call the browser's
+     * "Continue" ends on (mod_booking_load_pre_booking_page WS), where the actual booking happens.
+     *
+     * @param int $optionid booking option id
+     * @param int $userid user id
+     * @return void
+     */
+    private function load_confirmation_page(int $optionid, int $userid): void {
+        $results = bo_info::get_condition_results($optionid, $userid);
+        usort($results, fn ($a, $b) => $a['id'] < $b['id'] ? 1 : -1);
+        $conditions = bo_info::return_sorted_conditions($results);
+
+        $confirmationpage = null;
+        foreach ($conditions as $index => $condition) {
+            if ((int) $condition['id'] === MOD_BOOKING_BO_COND_CONFIRMATION) {
+                $confirmationpage = $index;
+            }
+        }
+        $this->assertNotNull($confirmationpage, 'No confirmation prepage found for the slot option.');
+
+        bo_info::load_pre_booking_page($optionid, $confirmationpage, $userid);
+        singleton_service::destroy_instance();
     }
 
     /**

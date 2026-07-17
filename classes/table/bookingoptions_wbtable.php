@@ -56,7 +56,6 @@ use mod_booking\output\col_availableplaces;
 use mod_booking\output\col_teacher;
 use mod_booking\price;
 use mod_booking\singleton_service;
-use mod_booking\local\slotbooking\slot_answer;
 use mod_booking\local\slotbooking\slot_availability;
 
 defined('MOODLE_INTERNAL') || die();
@@ -1026,33 +1025,14 @@ class bookingoptions_wbtable extends wunderbyte_table {
 
         $isslotoption = (int)($settings->type ?? MOD_BOOKING_OPTIONTYPE_DEFAULT) === MOD_BOOKING_OPTIONTYPE_SLOTBOOKING;
         if ($isslotoption) {
-            $answersobject = singleton_service::get_instance_of_booking_answers($settings);
-            $usersonlist = $answersobject->get_usersonlist();
-
-            if (empty($usersonlist[$USER->id])) {
-                return '';
-            }
-
-            $answer = $usersonlist[$USER->id];
-            $slotdata = slot_answer::get_slot_data($answer);
-            if (empty($slotdata['slots']) || !is_array($slotdata['slots'])) {
-                return '';
-            }
-
-            $slots = array_values(array_filter($slotdata['slots'], static function ($slot): bool {
-                return is_array($slot)
-                    && !empty($slot['start'])
-                    && !empty($slot['end'])
-                    && (int)$slot['end'] > (int)$slot['start'];
-            }));
+            // A user can hold more than one active answer for a slot option (buying several slots
+            // up to max_slots_per_user), so aggregate the booked slots across ALL of their active
+            // answers - usersonlist would only expose the newest answer per user.
+            $slots = slot_availability::get_booked_slot_ranges_for_user($optionid, (int)$USER->id);
 
             if (empty($slots)) {
                 return '';
             }
-
-            usort($slots, static function (array $left, array $right): int {
-                return (int)$left['start'] <=> (int)$right['start'];
-            });
 
             $slotlines = [];
             foreach ($slots as $slot) {

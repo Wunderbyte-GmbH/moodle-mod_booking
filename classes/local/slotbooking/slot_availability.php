@@ -412,13 +412,19 @@ class slot_availability {
     }
 
     /**
-     * Return booked slot keys for a specific user on an option.
+     * Return booked slot ranges for a specific user on an option, aggregated across ALL of
+     * their active answers (a user can hold more than one - see
+     * get_active_answer_ids_for_user()), deduplicated and sorted by start time.
+     *
+     * Canonical source for "which slots does this user currently hold" - capacity logic
+     * (has_remaining_slot_capacity()) and display (e.g. the booked slots shown in the
+     * booking options table) both build on it, so they always agree.
      *
      * @param int $optionid booking option id
      * @param int $userid user id
-     * @return array
+     * @return array list of ['start' => int, 'end' => int] ranges
      */
-    private static function get_booked_slot_key_set_for_user(int $optionid, int $userid): array {
+    public static function get_booked_slot_ranges_for_user(int $optionid, int $userid): array {
         if ($optionid <= 0 || $userid <= 0) {
             return [];
         }
@@ -434,7 +440,7 @@ class slot_availability {
             return [];
         }
 
-        $slotkeyset = [];
+        $rangesbykey = [];
         foreach ($answers as $answer) {
             if ((int)($answer->userid ?? 0) !== $userid) {
                 continue;
@@ -453,8 +459,32 @@ class slot_availability {
                     continue;
                 }
 
-                $slotkeyset[$start . ':' . $end] = true;
+                $rangesbykey[$start . ':' . $end] = [
+                    'start' => $start,
+                    'end' => $end,
+                ];
             }
+        }
+
+        $ranges = array_values($rangesbykey);
+        usort($ranges, static function (array $left, array $right): int {
+            return $left['start'] <=> $right['start'];
+        });
+
+        return $ranges;
+    }
+
+    /**
+     * Return booked slot keys for a specific user on an option.
+     *
+     * @param int $optionid booking option id
+     * @param int $userid user id
+     * @return array
+     */
+    private static function get_booked_slot_key_set_for_user(int $optionid, int $userid): array {
+        $slotkeyset = [];
+        foreach (self::get_booked_slot_ranges_for_user($optionid, $userid) as $range) {
+            $slotkeyset[$range['start'] . ':' . $range['end']] = true;
         }
 
         return $slotkeyset;

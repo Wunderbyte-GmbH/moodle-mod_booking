@@ -1,3 +1,7 @@
+* Bugfix: Slot booking — booking an additional slot (while still below max_slots_per_user) through the booking modal silently created no answer although the confirmation page reported success; the booked-state gate in the prepage flow now honours remaining slot capacity. (GH-2053)
+* Bugfix: Slot booking — the "Booked slots" shown in the booking options table now aggregate the slots of all of a user's active answers instead of only the newest one. (GH-2053)
+* Test: Slotbooking behats updated for the capacity behaviour (row offers booking again until max_slots_per_user is exhausted, then locks to the booked state) and now book a second slot in calendar and list view; new PHPUnit regression test for the prepage repeat-purchase flow.
+
 ## Version 9.6.3 (2026071600)
 * Improvement: Slot booking — user-defined slot type with configurable duration granularity (slot_duration_step_minutes) and per-slot warmup/cooldown buffers with overlap or summed combination mode. (GH-2053)
 * Improvement: Added show-only link into component view. (GH-176)
