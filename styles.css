@@ -782,13 +782,14 @@ div.checkbox:has(label[for^="id_bo_cond_allowedtobookininstance_capabilitynotnee
     height: 10px;
     padding: 0;
     border-top: 1px solid rgba(73, 80, 87, 0.45);
-    background: repeating-linear-gradient(
-        45deg,
-        rgba(73, 80, 87, 0.22),
-        rgba(73, 80, 87, 0.22) 4px,
-        rgba(73, 80, 87, 0.42) 4px,
-        rgba(73, 80, 87, 0.42) 8px
-    );
+    background:
+        repeating-linear-gradient(
+            45deg,
+            rgba(73, 80, 87, 0.22),
+            rgba(73, 80, 87, 0.22) 4px,
+            rgba(73, 80, 87, 0.42) 4px,
+            rgba(73, 80, 87, 0.42) 8px
+        );
     cursor: default;
     pointer-events: none;
 }
@@ -872,13 +873,14 @@ div.checkbox:has(label[for^="id_bo_cond_allowedtobookininstance_capabilitynotnee
 }
 
 .booking-slot-legend-swatch--blocked {
-    background: repeating-linear-gradient(
-        45deg,
-        rgba(108, 117, 125, 0.3),
-        rgba(108, 117, 125, 0.3) 3px,
-        rgba(108, 117, 125, 0.5) 3px,
-        rgba(108, 117, 125, 0.5) 6px
-    );
+    background:
+        repeating-linear-gradient(
+            45deg,
+            rgba(108, 117, 125, 0.3),
+            rgba(108, 117, 125, 0.3) 3px,
+            rgba(108, 117, 125, 0.5) 3px,
+            rgba(108, 117, 125, 0.5) 6px
+        );
     border: 1px solid rgba(108, 117, 125, 0.6);
 }
 
@@ -898,13 +900,14 @@ div.checkbox:has(label[for^="id_bo_cond_allowedtobookininstance_capabilitynotnee
 .booking-slot-booked-range--blocked {
     left: 0;
     right: 0;
-    background: repeating-linear-gradient(
-        45deg,
-        rgba(108, 117, 125, 0.16),
-        rgba(108, 117, 125, 0.16) 4px,
-        rgba(108, 117, 125, 0.28) 4px,
-        rgba(108, 117, 125, 0.28) 8px
-    );
+    background:
+        repeating-linear-gradient(
+            45deg,
+            rgba(108, 117, 125, 0.16),
+            rgba(108, 117, 125, 0.16) 4px,
+            rgba(108, 117, 125, 0.28) 4px,
+            rgba(108, 117, 125, 0.28) 8px
+        );
     border-top: 1px solid rgba(108, 117, 125, 0.6);
     border-bottom: 1px solid rgba(108, 117, 125, 0.6);
 }
