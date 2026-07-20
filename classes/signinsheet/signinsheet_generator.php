@@ -552,18 +552,16 @@ class signinsheet_generator {
         $htmloutput = str_replace('[[dayofweektime]]', $dayofweektime, $htmloutput);
         $htmloutput = str_replace('[[teachers]]', $teachers, $htmloutput);
         $htmloutput = str_replace('[[dates]]', $dates, $htmloutput);
-        // Add the logo URL to HTML.
+        // Add the logo to the HTML as a data URI, so TCPDF and PhpWord can render
+        // it without fetching a pluginfile URL (which would require a login session).
         if ($this->get_signinsheet_logo()) {
-            $url = \moodle_url::make_pluginfile_url(
-                $this->signinsheetlogo->get_contextid(),
-                $this->signinsheetlogo->get_component(),
-                $this->signinsheetlogo->get_filearea(),
-                $this->signinsheetlogo->get_itemid(),
-                $this->signinsheetlogo->get_filepath(),
-                $this->signinsheetlogo->get_filename()
-            );
-            $src = $url->out();
+            $src = 'data:' . $this->signinsheetlogo->get_mimetype() . ';base64,' .
+                base64_encode($this->signinsheetlogo->get_content());
             $htmloutput = str_replace('[[logourl]]', $src, $htmloutput);
+        } else {
+            // No logo configured: drop the img tag, an unresolved placeholder would make PhpWord throw.
+            $htmloutput = preg_replace('/<img[^>]*\[\[logourl\]\][^>]*>/i', '', $htmloutput);
+            $htmloutput = str_replace('[[logourl]]', '', $htmloutput);
         }
 
         // Replace table name placeholder.
