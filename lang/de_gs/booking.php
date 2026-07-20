@@ -426,6 +426,7 @@ $string['sendmailtoallbookedusers'] = 'E-Mail an alle gebuchten Nutzer/innen sen
 $string['sendmailtobooker_help'] = 'Diese Option aktivieren, um Buchungsbestätigungsmails anstatt an die gebuchten Nutzer/innen zu senden an den/die Nutzer/in senden, die die Buchung durchgeführt hat. Dies betrifft nur Buchungen, die auf der Seite "Buchung für andere Nutzer/innen durchführen" getätigt wurden';
 $string['sendmailtoteachers'] = 'E-Mail an Trainer/innen senden';
 $string['sendmessagesforinvisibleoptions_desc'] = 'Aktivieren Sie diese Einstellung, um Nachrichten auch bei unsichtbaren Buchungsoptionen zu versenden (Vorsicht: Dies könnte dazu führen, dass Benutzer/innen unerwünschte E-Mails erhalten.)';
+$string['sendmessagetoteachers'] = 'E-Mail an Trainer/innen';
 $string['showallteachers'] = '&gt;&gt; Alle Trainer/innen anzeigen';
 $string['showbookingdetailstoall_desc'] = 'Auch Gäste und ausgeloggte Nutzer/innen können Buchungsdetails sehen.';
 $string['showpriceifnotloggedin'] = 'Preis(e) anzeigen, wenn Nutzer/innen nicht eingeloggt sind';
