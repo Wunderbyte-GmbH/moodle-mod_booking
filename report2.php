@@ -49,6 +49,13 @@ $optionid = optional_param('optionid', 0, PARAM_INT);
 $cmid = optional_param('cmid', 0, PARAM_INT);
 $courseid = optional_param('courseid', 0, PARAM_INT);
 $viewtype = optional_param('viewtype', 'options', PARAM_RAW); // Can be 'options' or 'answers'.
+$id = optional_param('id', 0, PARAM_INT); // Only kept for compatibility to old report.php.
+if (empty($cmid) && !empty($id)) {
+    // In case we have no cmid, we use value of 'id' as cmid.
+    // The only reason for this is to keep capability with old links to report.php.
+    // So we can simply replace report.php?id=X&optionid=Y with report2.php?id=X&optionid=Y.
+    $cmid = $id;
+}
 
 $ticketicon = '<i class="fa fa-fw fa-sm fa-ticket" aria-hidden="true"></i>&nbsp;';
 
