@@ -435,23 +435,9 @@ class signinsheet_generator {
         preg_match('/\[\[users\]\](.*?)\[\[\/users\]\]/s', $confightml, $matches);
         $usertemplate = isset($matches[1]) ? $matches[1] : '';
 
-        if ($this->pdfsessions == -1) {
-                $dates = get_string('signinsheetdatetofillin', 'booking') . ": ________________________";
-        }
-
         $extrasessioncols = $this->get_extra_session_columns();
         if (!empty($extrasessioncols)) {
             $this->allfields = array_unique(array_merge($this->allfields, $extrasessioncols));
-        }
-
-        // Session handling logic.
-        if ($this->pdfsessions == 0) {
-            // Logic to integrate based on existing session data.
-            $val = [];
-            foreach ($this->sessions as $session) {
-                $val[] = userdate($session->coursestarttime) . " - " . userdate($session->courseendtime);
-            }
-            $dates = implode(", ", $val);
         }
 
         // Generate session header columns with vertical text.
@@ -546,7 +532,9 @@ class signinsheet_generator {
 
         $dayofweektime = !empty($settings->dayofweektime) ? $settings->dayofweektime : '';
         $teachers = !empty($this->teachers) ? implode(', ', $this->teachers) : '';
-        $dates = $this->pdfsessions != -1 && $this->pdfsessions != -2 ? $this->sessionsstring : '';
+        // The sessionsstring separates multiple sessions with "\n" (for the
+        // classic PDF MultiCell); in HTML they need to become <br> tags.
+        $dates = $this->pdfsessions != -1 && $this->pdfsessions != -2 ? nl2br($this->sessionsstring) : '';
 
         $htmloutput = str_replace('[[location]]', $location, $htmloutput);
         $htmloutput = str_replace('[[dayofweektime]]', $dayofweektime, $htmloutput);

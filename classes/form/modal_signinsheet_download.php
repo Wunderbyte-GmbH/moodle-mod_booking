@@ -26,6 +26,7 @@ namespace mod_booking\form;
 
 use context;
 use context_module;
+use context_system;
 use core_form\dynamic_form;
 use mod_booking\signinsheet\signinsheet_config;
 use mod_booking\singleton_service;
@@ -82,6 +83,30 @@ class modal_signinsheet_download extends dynamic_form {
             // The choice "Add date manually" has no effect in HTML template mode and is not offered there.
             $config['pdfsessions'] = -2;
         }
+
+        // Info on the quick download button, the settings cascade and the active mode.
+        // The labels are resolved from the same strings as the actual UI elements.
+        $infotext = get_string(
+            'signinsheetconfigureinfo',
+            'mod_booking',
+            (object)[
+                'downloadbutton' => get_string('signinsheetdownload', 'mod_booking'),
+                'instancesection' => get_string('cfgsignin', 'mod_booking'),
+                'presetssection' => get_string('signinsheetdefaults', 'mod_booking'),
+                'mode' => $htmlmode
+                    ? get_string('signinsheet_htmltemplate', 'mod_booking')
+                    : get_string('signinsheet_legacy', 'mod_booking'),
+            ]
+        );
+        if (has_capability('moodle/site:config', context_system::instance())) {
+            $modesettingurl = new moodle_url(
+                '/admin/settings.php',
+                ['section' => 'modsettingbooking'],
+                'admin-signinsheetmode'
+            );
+            $infotext .= ' ' . get_string('signinsheetconfigureinfoadmin', 'mod_booking', $modesettingurl->out(false));
+        }
+        $mform->addElement('html', '<div class="alert alert-info">' . $infotext . '</div>');
 
         // The same session lists as in the old form on report.php.
         $sessionsdatetime = [];

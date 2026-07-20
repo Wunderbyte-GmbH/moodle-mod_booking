@@ -3159,6 +3159,8 @@ $string['signinsheet_htmltemplate'] = 'HTML-Vorlage';
 $string['signinsheet_legacy'] = 'Klassische Unterschriftenliste';
 $string['signinsheetaddress'] = 'Adresse: ';
 $string['signinsheetconfigure'] = 'Unterschriftenliste konfigurieren';
+$string['signinsheetconfigureinfo'] = 'Sobald Sie die Unterschriftenliste einmal konfiguriert und heruntergeladen haben, können Sie einfach den Button "{$a->downloadbutton}" verwenden (dieser behält die Einstellungen des letzten Downloads bei).<br><br>Solange für eine Buchungsoption noch keine Einstellungen gespeichert sind, gelten die Einstellungen der Buchungsinstanz (Abschnitt "{$a->instancesection}") bzw. – wenn die Instanz die Plugin-Konfiguration verwendet – die globalen Voreinstellungen (Abschnitt "{$a->presetssection}").<br><br>Aktuell verwendeter Modus: <b>{$a->mode}</b>';
+$string['signinsheetconfigureinfoadmin'] = '(Als Admin können Sie den Modus in den <a href="{$a}" target="_blank">Plugin-Einstellungen</a> ändern.)';
 $string['signinsheetdate'] = 'Termin(e): ';
 $string['signinsheetdatetofillin'] = 'Datum: ';
 $string['signinsheetdefaults'] = 'Voreinstellungen für den Download der Unterschriftenliste';
