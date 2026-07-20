@@ -650,7 +650,7 @@ class booked_users implements renderable, templatable {
      */
     public static function create_completion_button(string $label = ''): array {
         return [
-            'iclass' => 'fa fa-check-square-o me-1',
+            'iclass' => 'fa fa-check-square fa-fw me-1',
             'label' => !empty($label) ? $label : get_string('confirmoptioncompletion', 'mod_booking'),
             'class' => 'btn btn-primary btn-sm ms-1',
             'href' => '#',
@@ -676,7 +676,7 @@ class booked_users implements renderable, templatable {
      */
     public static function create_delete_button(): array {
         return [
-            'iclass' => 'fa fa-trash me-1',
+            'iclass' => 'fa fa-trash fa-fw me-1',
             'label' => get_string('bookingstrackerdelete', 'mod_booking'),
             'class' => 'btn btn-danger btn-sm ms-1',
             'href' => '#',

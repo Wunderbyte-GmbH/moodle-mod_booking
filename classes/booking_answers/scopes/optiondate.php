@@ -155,7 +155,7 @@ class optiondate extends scope_base {
                     'label' => get_string('presence', 'mod_booking'), // Name of your action button.
                     'class' => 'btn btn-primary btn-sm ms-2',
                     'href' => '#', // You can either use the link, or JS, or both.
-                    'iclass' => 'fa fa-user-o', // Add an icon before the label.
+                    'iclass' => 'fa fa-user-o fa-fw', // Add an icon before the label.
                     'formname' => 'mod_booking\\form\\optiondates\\modal_change_status',
                     'nomodal' => false,
                     'id' => -1,
@@ -177,7 +177,7 @@ class optiondate extends scope_base {
                     'label' => get_string('notes', 'mod_booking'), // Name of your action button.
                     'class' => 'btn btn-primary btn-sm ms-1',
                     'href' => '#', // You can either use the link, or JS, or both.
-                    'iclass' => 'fa fa-pencil', // Add an icon before the label.
+                    'iclass' => 'fa fa-pencil fa-fw', // Add an icon before the label.
                     'formname' => 'mod_booking\\form\\optiondates\\modal_change_notes',
                     'nomodal' => false,
                     'id' => -1,

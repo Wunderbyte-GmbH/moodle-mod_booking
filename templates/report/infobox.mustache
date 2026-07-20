@@ -1,0 +1,104 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_booking/report/infobox
+
+    Compact info line shown below the title in the option scope of the
+    Bookings Tracker (report2.php): teachers and responsible contacts linked to
+    their user profiles, the optiondates and the description. A single date is
+    shown directly, multiple dates are collapsed behind a "Show dates" link and
+    the description behind a "Show description" link.
+
+    Classes required for JS:
+    * none
+
+    Data attributes required for JS:
+    * data-toggle/data-bs-toggle (Bootstrap collapse)
+
+    Example context (json):
+    {
+        "teachersexist": true,
+        "teachers": [
+            { "name": "Teacher One", "profileurl": "https://example.com/user/profile.php?id=2", "notlast": true },
+            { "name": "Teacher Two", "profileurl": "https://example.com/user/profile.php?id=3", "notlast": false }
+        ],
+        "contactsexist": true,
+        "contacts": [
+            { "name": "Contact One", "profileurl": "https://example.com/user/profile.php?id=4", "notlast": false }
+        ],
+        "optionid": 1,
+        "optiondates": "<ul><li><b>3 March 2023, 10:30 AM - 11:45 AM</b></li></ul>",
+        "description": "<p>An interesting course.</p>"
+    }
+}}
+<div class="mod-booking-report2-infobox mb-3">
+    <div class="d-flex flex-wrap align-items-center">
+        {{#singledate}}
+            <span class="mr-3 me-3">
+                <i class="fa fa-fw fa-calendar" aria-hidden="true"></i>&nbsp;{{{singledate}}}
+            </span>
+        {{/singledate}}
+        {{#optiondates}}
+            <span class="mr-3 me-3">
+                <i class="fa fa-fw fa-calendar" aria-hidden="true"></i>&nbsp;<a
+                    data-toggle="collapse"
+                    data-bs-toggle="collapse"
+                    href="#mod-booking-report2-infobox-dates-{{optionid}}"
+                    role="button"
+                    aria-expanded="false"
+                    aria-controls="mod-booking-report2-infobox-dates-{{optionid}}">{{#str}} showdates, mod_booking {{/str}}</a>
+            </span>
+        {{/optiondates}}
+        {{#description}}
+            <span class="mr-3 me-3">
+                <i class="fa fa-fw fa-info-circle" aria-hidden="true"></i>&nbsp;<a
+                    data-toggle="collapse"
+                    data-bs-toggle="collapse"
+                    href="#mod-booking-report2-infobox-description-{{optionid}}"
+                    role="button"
+                    aria-expanded="false"
+                    aria-controls="mod-booking-report2-infobox-description-{{optionid}}">{{#str}} showdescription, mod_booking {{/str}}</a>
+            </span>
+        {{/description}}
+        {{#teachersexist}}
+            <span class="mr-3 me-3">
+                <i class="fa fa-fw fa-graduation-cap" aria-hidden="true"></i>&nbsp;{{#str}} teachers, mod_booking {{/str}}:
+                {{#teachers}}
+                    <a href="{{profileurl}}">{{name}}</a>{{#notlast}}, {{/notlast}}
+                {{/teachers}}
+            </span>
+        {{/teachersexist}}
+        {{#contactsexist}}
+            <span class="mr-3 me-3">
+                <i class="fa fa-fw fa-user" aria-hidden="true"></i>&nbsp;{{#str}} responsiblecontact, mod_booking {{/str}}:
+                {{#contacts}}
+                    <a href="{{profileurl}}">{{name}}</a>{{#notlast}}, {{/notlast}}
+                {{/contacts}}
+            </span>
+        {{/contactsexist}}
+    </div>
+    {{#optiondates}}
+        <div class="collapse mt-2" id="mod-booking-report2-infobox-dates-{{optionid}}">
+            {{{optiondates}}}
+        </div>
+    {{/optiondates}}
+    {{#description}}
+        <div class="collapse" id="mod-booking-report2-infobox-description-{{optionid}}">
+            {{{description}}}
+        </div>
+    {{/description}}
+</div>

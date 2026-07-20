@@ -191,7 +191,7 @@ class option extends scope_base {
             if (in_array('status', $responsesfields)) {
                 $table->actionbuttons[] = booked_users::create_action_button(
                     'presence',
-                    'fa fa-user-o',
+                    'fa fa-user-o fa-fw',
                     'mod_booking\\form\\optiondates\\modal_change_status',
                     [
                         'scope' => 'option',
@@ -208,7 +208,7 @@ class option extends scope_base {
             if (in_array('notes', $responsesfields)) {
                 $table->actionbuttons[] = booked_users::create_action_button(
                     'notes',
-                    'fa fa-pencil',
+                    'fa fa-pencil fa-fw',
                     'mod_booking\\form\\optiondates\\modal_change_notes',
                     [
                         'scope' => 'option',
@@ -224,7 +224,7 @@ class option extends scope_base {
             if (has_capability('mod/booking:communicate', context_module::instance($cmid))) {
                 $table->actionbuttons[] = booked_users::create_action_button(
                     'sendcustommsg',
-                    'fa fa-envelope',
+                    'fa fa-envelope fa-fw',
                     'mod_booking\\form\\modal_send_custom_message',
                     [
                         'titlestring' => 'sendcustommsg',
@@ -235,33 +235,12 @@ class option extends scope_base {
                     ],
                     'btn btn-primary btn-sm ms-2'
                 );
-
-                // Works like "Send custom message", but preselects the teachers of the
-                // option - so it does not require any rows to be checked.
-                // Options without teachers don't get the button.
-                if (!empty($settings->teachers)) {
-                    $teachermsgbutton = booked_users::create_action_button(
-                        'sendmessagetoteachers',
-                        'fa fa-envelope-o',
-                        'mod_booking\\form\\modal_send_message_to_teachers',
-                        [
-                            'titlestring' => 'sendmessagetoteachers',
-                            'submitbuttonstring' => 'sendmessage',
-                            'component' => 'mod_booking',
-                            'cmid' => $cmid,
-                            'optionid' => $optionid ?? 0,
-                        ],
-                        'btn btn-primary btn-sm ms-2'
-                    );
-                    $teachermsgbutton['selectionmandatory'] = false;
-                    $table->actionbuttons[] = $teachermsgbutton;
-                }
             }
 
             if (has_capability('mod/booking:subscribeusers', context_module::instance($cmid))) {
                 $table->actionbuttons[] = booked_users::create_action_button(
                     'transferusers',
-                    'fa fa-exchange',
+                    'fa fa-exchange fa-fw',
                     'mod_booking\\form\\modal_transfer_users',
                     [
                         'titlestring' => 'transferusers',

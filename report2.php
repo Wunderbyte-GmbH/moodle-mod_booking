@@ -29,6 +29,8 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
 use mod_booking\booking;
 use mod_booking\option\dates_handler;
 use mod_booking\output\booked_users;
+use mod_booking\output\optiondates_with_entities;
+use mod_booking\placeholders\placeholders_info;
 use mod_booking\signinsheet\signinsheet_config;
 use mod_booking\singleton_service;
 use mod_booking\utils\wb_payment;
@@ -403,7 +405,7 @@ echo $OUTPUT->header();
 echo "<div class='mt-3 mb-5'>$navhtml</div>";
 
 // Title of the page for the current scope.
-echo $OUTPUT->heading("<div class='mb-5'>$ticketicon $heading</div>");
+echo $OUTPUT->heading("<div class='report2-title'>$ticketicon $heading</div>");
 
 // Navigation stylings cannot be done in styles.css because of string localization.
 echo booking::generate_localized_css_for_navigation_labels('report2', $scopes);
@@ -425,7 +427,7 @@ if (empty($optionid) && empty($optiondateid)) {
             ]
         );
         echo '<a class="btn btn-sm btn-primary" href="' . $url . '">' .
-            '<i class="fa fa-object-group" aria-hidden="true"></i>&nbsp;' .
+            '<i class="fa fa-object-group fa-fw" aria-hidden="true"></i>&nbsp;' .
             get_string('bookingstrackerswitchviewtypetooptions', 'mod_booking') . '</a>';
     } else {
         set_user_preference('bookingstrackerviewtype', 'options');
@@ -441,7 +443,7 @@ if (empty($optionid) && empty($optiondateid)) {
             ]
         );
         echo '<a class="btn btn-sm btn-primary" href="' . $url . '">' .
-            '<i class="fa fa-object-ungroup" aria-hidden="true"></i>&nbsp;' .
+            '<i class="fa fa-object-ungroup fa-fw" aria-hidden="true"></i>&nbsp;' .
             get_string('bookingstrackerswitchviewtypetoanswers', 'mod_booking') . '</a>';
     }
 }
@@ -451,6 +453,76 @@ if (!empty($optionid) && empty($optiondateid)) {
     $optionsettings = singleton_service::get_instance_of_booking_option_settings($optionid);
     $cmid = $optionsettings->cmid;
     $context = context_module::instance($cmid);
+
+    // Compact info line below the title: dates, description, teachers and responsible contacts.
+    // Dates (if more than one) and description expand as collapsibles below the line.
+    $infoboxdata = [
+        'optionid' => $optionid,
+        'teachers' => [],
+        'contacts' => [],
+    ];
+    if (!empty(trim($optionsettings->description ?? ''))) {
+        $description = placeholders_info::render_text(
+            $optionsettings->description,
+            $optionsettings->cmid,
+            $optionsettings->id,
+            $USER->id
+        );
+        $infoboxdata['description'] = format_text(
+            $description,
+            $optionsettings->descriptionformat ?? FORMAT_HTML,
+            ['context' => $context]
+        );
+    }
+    $teachers = [];
+    foreach ($optionsettings->teachers as $teacher) {
+        $teacheruser = singleton_service::get_instance_of_user((int) $teacher->userid);
+        if (!empty($teacheruser)) {
+            $teachers[] = $teacheruser;
+        }
+    }
+    $lastindex = count($teachers) - 1;
+    foreach ($teachers as $index => $teacheruser) {
+        $infoboxdata['teachers'][] = [
+            'name' => fullname($teacheruser),
+            'profileurl' => (new moodle_url('/user/profile.php', ['id' => $teacheruser->id]))->out(false),
+            'notlast' => $index != $lastindex,
+        ];
+    }
+    $infoboxdata['teachersexist'] = !empty($infoboxdata['teachers']);
+    $contacts = array_values(array_filter($optionsettings->responsiblecontactuser));
+    $lastindex = count($contacts) - 1;
+    foreach ($contacts as $index => $contactuser) {
+        $infoboxdata['contacts'][] = [
+            'name' => fullname($contactuser),
+            'profileurl' => (new moodle_url('/user/profile.php', ['id' => $contactuser->id]))->out(false),
+            'notlast' => $index != $lastindex,
+        ];
+    }
+    $infoboxdata['contactsexist'] = !empty($infoboxdata['contacts']);
+    // No optiondates are shown for self-learning courses.
+    if (empty($optionsettings->selflearningcourse)) {
+        $optiondateswithentities = new optiondates_with_entities($optionsettings);
+        $sessions = array_values($optiondateswithentities->sessions);
+        if (count($sessions) == 1) {
+            // A single date is shown directly in the info line.
+            $infoboxdata['singledate'] = $sessions[0]['datestring'] ?? '';
+        } else if (count($sessions) > 1) {
+            // Multiple dates are collapsed behind a "Show dates" link.
+            /** @var renderer $renderer */
+            $renderer = $PAGE->get_renderer('mod_booking');
+            $infoboxdata['optiondates'] = $renderer->render_optiondates_with_entities($optiondateswithentities);
+        }
+    }
+    if (
+        $infoboxdata['teachersexist']
+        || $infoboxdata['contactsexist']
+        || !empty($infoboxdata['singledate'])
+        || !empty($infoboxdata['optiondates'])
+        || !empty($infoboxdata['description'])
+    ) {
+        echo $OUTPUT->render_from_template('mod_booking/report/infobox', $infoboxdata);
+    }
 
     // Slot booking options manage their participants per slot, so users cannot be
     // booked here directly. The "book other users" button is therefore hidden.
@@ -513,6 +585,51 @@ if (!empty($optionid) && empty($optiondateid)) {
             'data-id' => 'booking-report2-signinsheet-quickdownload',
         ]
     );
+
+    // Button to send a message to the teachers of this option. Opens the same
+    // dynamic form as the "Send message to teacher(s)" action button of the
+    // booked users table (teacher autocomplete with preselection, subject,
+    // message, attachment). Only shown if the option has teachers.
+    if (
+        !empty($optionsettings->teachers)
+        && has_capability('mod/booking:communicate', $context)
+    ) {
+        echo html_writer::tag(
+            'button',
+            '<i class="fa fa-envelope fa-fw" aria-hidden="true"></i>&nbsp;' .
+                get_string('sendmessagetoteachers', 'mod_booking'),
+            [
+                'type' => 'button',
+                'class' => 'btn btn-primary btn-sm ms-2',
+                'data-action' => 'booking-report2-sendmessagetoteachers-modal',
+                'data-cmid' => $cmid,
+                'data-optionid' => $optionid,
+            ]
+        );
+        $PAGE->requires->js_call_amd('mod_booking/sendmessagetoteachersmodal', 'init');
+    }
+
+    // Analogous button to send a message to the responsible contact(s) of this
+    // option: same modal, but with the responsible contacts preselected instead
+    // of the teachers. Only shown if the option has responsible contacts.
+    if (
+        !empty(array_filter($optionsettings->responsiblecontactuser))
+        && has_capability('mod/booking:communicate', $context)
+    ) {
+        echo html_writer::tag(
+            'button',
+            '<i class="fa fa-envelope fa-fw" aria-hidden="true"></i>&nbsp;' .
+                get_string('sendmessagetoresponsiblecontacts', 'mod_booking'),
+            [
+                'type' => 'button',
+                'class' => 'btn btn-primary btn-sm ms-2',
+                'data-action' => 'booking-report2-sendmessagetocontacts-modal',
+                'data-cmid' => $cmid,
+                'data-optionid' => $optionid,
+            ]
+        );
+        $PAGE->requires->js_call_amd('mod_booking/sendmessagetocontactsmodal', 'init');
+    }
 }
 
 // Now we render the booked users for the provided scope.

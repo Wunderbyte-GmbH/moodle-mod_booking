@@ -170,7 +170,7 @@ class optionstoconfirm extends option {
         ) {
             $table->actionbuttons[] = booked_users::create_action_button(
                 'presence',
-                'fa fa-user-o',
+                'fa fa-user-o fa-fw',
                 'mod_booking\\form\\optiondates\\modal_change_status',
                 [
                     'scope' => 'option',
@@ -185,7 +185,7 @@ class optionstoconfirm extends option {
 
             $table->actionbuttons[] = booked_users::create_action_button(
                 'notes',
-                'fa fa-pencil',
+                'fa fa-pencil fa-fw',
                 'mod_booking\\form\\optiondates\\modal_change_notes',
                 [
                     'scope' => 'option',
