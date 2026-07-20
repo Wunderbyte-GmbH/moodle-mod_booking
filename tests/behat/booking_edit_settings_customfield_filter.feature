@@ -58,7 +58,7 @@ Feature: As admin - configure customfield filter for booking instance and valida
     And I expand all fieldsets
     And I wait until ".collapsing" "css_element" does not exist
     And I set the following fields to these values:
-      | id_customfieldsforfilter  | spt1,dynamicuser |
+      | Custom fields that are to be displayed as filter options | Sport1 (spt1),DynamicU (dynamicuser) |
     And I press "Save and display"
     And I log out
     ## Verify max booking options for 1st instance as a student

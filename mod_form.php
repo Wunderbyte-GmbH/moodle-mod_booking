@@ -659,13 +659,18 @@ class mod_booking_mod_form extends moodleform_mod {
                 $name = format_string($cf->name);
                 $customfieldshortnames[$cf->shortname] = "$name ($cf->shortname)";
             }
+            $options = [
+                'multiple' => true,
+                'tags' => false,
+                'noselectionstring' => get_string('choose...', 'mod_booking'),
+            ];
             $mform->addElement(
-                'select',
+                'autocomplete',
                 'customfieldsforfilter',
                 get_string('customfieldsforfilter', 'mod_booking'),
-                $customfieldshortnames
+                $customfieldshortnames,
+                $options
             );
-            $mform->getElement('customfieldsforfilter')->setMultiple(true);
             $preset = (array)booking::get_value_of_json_by_key($bookingid, 'customfieldsforfilter') ?? [];
             $mform->setDefault('customfieldsforfilter', array_keys($preset));
 
