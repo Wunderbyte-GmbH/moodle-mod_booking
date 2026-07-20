@@ -259,6 +259,22 @@ class manageusers_table extends wunderbyte_table {
     }
 
     /**
+     * Return booking instance column: the instance name, linked to the view.php
+     * of the instance (plain name in downloads).
+     *
+     * @param stdClass $values
+     * @return string
+     */
+    public function col_instancename(stdClass $values) {
+        $name = format_string($values->instancename ?? '');
+        if ($this->is_downloading() || empty($values->cmid)) {
+            return $name;
+        }
+        $url = new moodle_url('/mod/booking/view.php', ['id' => $values->cmid]);
+        return html_writer::link($url, $name);
+    }
+
+    /**
      * Return name column.
      *
      * @param stdClass $values

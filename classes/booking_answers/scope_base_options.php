@@ -96,8 +96,13 @@ class scope_base_options extends scope_base {
         $columns = [
             'titleprefix' => get_string('titleprefix', 'mod_booking'),
             'text'  => get_string('bookingoption', 'mod_booking'),
-            'answerscount'     => get_string('answerscount', 'mod_booking'),
         ];
+        // In system and course scope, show which booking instance each option belongs to.
+        // In instance scope the column would repeat the same value in every row.
+        if (in_array($this->scope, ['system', 'course'])) {
+            $columns['instancename'] = get_string('bookinginstance', 'mod_booking');
+        }
+        $columns['answerscount'] = get_string('answerscount', 'mod_booking');
 
         // Only for actual bookings, we need the presence counter.
         if (get_config('booking', 'bookingstrackerpresencecounter') && $statusparam == 0) {

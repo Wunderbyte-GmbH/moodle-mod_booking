@@ -28,6 +28,7 @@ namespace mod_booking\booking_answers\scopes;
 use context_system;
 use mod_booking\booking_answers\scope_base_options;
 use mod_booking\table\manageusers_table;
+use local_wunderbyte_table\filters\types\standardfilter;
 use local_wunderbyte_table\wunderbyte_table;
 use moodle_url;
 
@@ -124,6 +125,7 @@ class system extends scope_base_options {
         $sortablecolumns = [
             'titleprefix' => get_string('titleprefix', 'mod_booking'),
             'text' => get_string('bookingoption', 'mod_booking'),
+            'instancename' => get_string('bookinginstance', 'mod_booking'),
             'answerscount' => get_string('answerscount', 'mod_booking'),
         ];
         if ($statusparam == 0) {
@@ -131,6 +133,11 @@ class system extends scope_base_options {
         }
 
         $table->define_sortablecolumns($sortablecolumns);
+
+        // Filter for the booking instance.
+        $instancefilter = new standardfilter('instancename', get_string('bookinginstance', 'mod_booking'));
+        $table->add_filter($instancefilter);
+        $table->showfilterontop = true;
 
         return $table;
     }
