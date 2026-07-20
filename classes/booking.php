@@ -2062,50 +2062,6 @@ class booking {
     }
 
     /**
-     * Helper function to generate label descriptions, e.g. for navigation elements.
-     * @param string $prefix prefix for classes, e.g. the name of the moodle page like "report2"
-     * @param array $scopes an array of scopes, e.g. ["option", "instance", "course", "system"]
-     * @return string styling css embedded in html (with surrounding <style> element)
-     */
-    public static function generate_localized_css_for_navigation_labels(string $prefix, array $scopes) {
-        $css = "";
-
-        $last = end($scopes);
-
-        foreach ($scopes as $scope) {
-            $islast = ($last == $scope);
-            $css .= '
-            .' . $prefix . "-" . $scope . '-border::before {
-                content: "' . get_string($prefix . 'label' . $scope, 'mod_booking') . '";
-                position: absolute;
-                top: -10px;
-                left: 5px;
-                padding: 0 3px;
-                font-weight: 200;
-                font-size: small;
-                background-color: white;
-                color: ' . ($islast ? '#000' : '#333') . ';
-                white-space: nowrap;
-            }
-            .' . $prefix . '-' . $scope . '-border {
-                display: inline-block;
-                position: relative;
-                padding: 10px 20px;
-                margin-bottom: 10px;
-                border: ' . ($islast ? '1px solid black' : '1px dashed gray') . ';
-                border-radius: 5px;
-                color: ' . ($islast ? '#0f6cbf' : 'gray') . ';
-                font-size: large;
-                font-weight: lighter;
-                white-space: nowrap;
-            }
-            ';
-        }
-
-        return "<style>$css</style>";
-    }
-
-    /**
      * Helper function to shorten long texts and add 3 dots "..." at the end.
      * @param string $text input text to be shortened
      * @param int $length maximum length after which the "..." should be added

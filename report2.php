@@ -44,8 +44,6 @@ if (!get_config('booking', 'bookingstracker') || !wb_payment::pro_version_is_act
     echo "<div class='alert alert-warning'>" . get_string('error:bookingstrackernotactivated', 'mod_booking') . "</div>";
 }
 
-$PAGE->requires->js_call_amd('mod_booking/bookingjslib', 'init');
-
 $optiondateid = optional_param('optiondateid', 0, PARAM_INT);
 $optionid = optional_param('optionid', 0, PARAM_INT);
 $cmid = optional_param('cmid', 0, PARAM_INT);
@@ -53,8 +51,6 @@ $courseid = optional_param('courseid', 0, PARAM_INT);
 $viewtype = optional_param('viewtype', 'options', PARAM_RAW); // Can be 'options' or 'answers'.
 
 $ticketicon = '<i class="fa fa-fw fa-sm fa-ticket" aria-hidden="true"></i>&nbsp;';
-$linkicon = '<i class="fa fa-fw fa-xs fa-external-link" aria-hidden="true"></i>&nbsp;';
-$divider = "<span class='report2-nav-divider'>▸</span>";
 
 $r2syscontext = context_system::instance();
 $r2syscap = has_capability('mod/booking:managebookedusers', $r2syscontext);
@@ -125,56 +121,6 @@ if (!empty($optiondateid)) {
     $a->scopestring = get_string('report2labeloptiondate', 'mod_booking');
     $a->title = $optionsettings->get_title_with_prefix() . " - " . $prettydatestring;
     $heading = get_string('managebookedusers_heading', 'mod_booking', $a);
-
-    $navhtml = "<div class='report2-nav mb-3 flex-wrap-container'>" .
-        ($r2syscap ? "<a href='{$r2systemurl}' class='report2-system-border'>" :
-            "<span class='report2-system-border'>") .
-        $ticketicon . booking::shorten_text($SITE->fullname) .
-        ($r2syscap ? "</a>" : "</span>") .
-        $divider .
-        ($r2coursecap ? "<a href='{$r2courseurl}' class='report2-course-border'>" :
-            "<span class='report2-course-border'>") .
-        $ticketicon . booking::shorten_text($course->fullname) .
-        ($r2coursecap ? "</a>" : "</span>") .
-        $divider .
-        ($r2instancecap ? "<a href='{$r2instanceurl}' class='report2-instance-border'>" :
-            "<span class='report2-instance-border'>") .
-        $ticketicon . booking::shorten_text($bookingsettings->name) .
-        ($r2instancecap ? "</a>" : "</span>") .
-        $divider .
-        "<a href='{$r2optionurl}' class='report2-option-border'>" .
-        $ticketicon . booking::shorten_text($optionsettings->get_title_with_prefix()) .
-        "</a>";
-
-    // Create a navigation dropdown for all optiondates (sessions) of the booking option.
-    $optiondates = $optionsettings->sessions;
-    if (!empty($optiondates) && count($optiondates) > 0) {
-        $data['optiondatesexist'] = true;
-
-        foreach ($optiondates as &$optiondate) {
-            $optiondate = (array) $optiondate;
-            $optiondate['prettydate'] = dates_handler::prettify_optiondates_start_end(
-                $optiondate['coursestarttime'],
-                $optiondate['courseendtime'],
-                current_language(),
-                true
-            );
-            $dateurl = new moodle_url('/mod/booking/report2.php', [
-                'optionid' => $optionid,
-                'optiondateid' => $optiondate['id'],
-            ]);
-            $optiondate['dateurl'] = $dateurl->out(false);
-        }
-        unset($optiondate); // Important: Break the reference after the loop!
-
-        $firstentry['prettydate'] = get_string('choosesession', 'mod_booking');
-        $firstentry['dateurl'] = $PAGE->url; // The current page.
-        array_unshift($optiondates, $firstentry);
-        $data['optiondates'] = array_values((array) $optiondates);
-        // Now we just append the dropdown to the navigation HTML.
-        $navhtml .= $divider . $OUTPUT->render_from_template('mod_booking/report/navigation_dropdown', $data);
-    }
-    $navhtml .= "</div>";
 } else if (!empty($optionid)) {
     // We are in option scope.
     $PAGE->set_url(new moodle_url('/mod/booking/report2.php', ['optionid' => $optionid]));
@@ -232,56 +178,6 @@ if (!empty($optiondateid)) {
     $a->scopestring = get_string('report2labeloption', 'mod_booking');
     $a->title = $optionsettings->get_title_with_prefix();
     $heading = get_string('managebookedusers_heading', 'mod_booking', $a);
-
-    $navhtml = "<div class='report2-nav mb-3 flex-wrap-container'>" .
-        ($r2syscap ? "<a href='{$r2systemurl}' class='report2-system-border'>" :
-            "<span class='report2-system-border'>") .
-        $ticketicon . booking::shorten_text($SITE->fullname) .
-        ($r2syscap ? "</a>" : "</span>") .
-        $divider .
-        ($r2coursecap ? "<a href='{$r2courseurl}' class='report2-course-border'>" :
-            "<span class='report2-course-border'>") .
-        $ticketicon . booking::shorten_text($course->fullname) .
-        ($r2coursecap ? "</a>" : "</span>") .
-        $divider .
-        ($r2instancecap ? "<a href='{$r2instanceurl}' class='report2-instance-border'>" :
-            "<span class='report2-instance-border'>") .
-        $ticketicon . booking::shorten_text($bookingsettings->name) .
-        ($r2instancecap ? "</a>" : "</span>") .
-        $divider .
-        "<a href='{$r2optionurl}' target='_blank' class='report2-option-border'>" .
-        $linkicon . booking::shorten_text($optionsettings->get_title_with_prefix()) .
-        "</a>";
-
-    // Create a navigation dropdown for all optiondates (sessions) of the booking option.
-    $optiondates = $optionsettings->sessions;
-    if (!empty($optiondates) && count($optiondates) > 0) {
-        $data['optiondatesexist'] = true;
-
-        foreach ($optiondates as &$optiondate) {
-            $optiondate = (array) $optiondate;
-            $optiondate['prettydate'] = dates_handler::prettify_optiondates_start_end(
-                $optiondate['coursestarttime'],
-                $optiondate['courseendtime'],
-                current_language(),
-                true
-            );
-            $dateurl = new moodle_url('/mod/booking/report2.php', [
-                'optionid' => $optionid,
-                'optiondateid' => $optiondate['id'],
-            ]);
-            $optiondate['dateurl'] = $dateurl->out(false);
-        }
-        unset($optiondate); // Important: Break the reference after the loop!
-
-        $firstentry['prettydate'] = get_string('choosesession', 'mod_booking');
-        $firstentry['dateurl'] = $PAGE->url; // The current page.
-        array_unshift($optiondates, $firstentry);
-        $data['optiondates'] = array_values((array) $optiondates);
-        // Now we just append the dropdown to the navigation HTML.
-        $navhtml .= $divider . $OUTPUT->render_from_template('mod_booking/report/navigation_dropdown', $data);
-    }
-    $navhtml .= "</div>";
 } else if (!empty($cmid)) {
     // We are in instance scope.
     $PAGE->set_url(new moodle_url('/mod/booking/report2.php', ['cmid' => $cmid]));
@@ -315,21 +211,6 @@ if (!empty($optiondateid)) {
     $a->scopestring = get_string('report2labelinstance', 'mod_booking');
     $a->title = $bookingsettings->name;
     $heading = get_string('managebookedusers_heading', 'mod_booking', $a);
-
-    $navhtml =
-        ($r2syscap ? "<a href='{$r2systemurl}' class='report2-system-border'>" :
-            "<span class='report2-system-border'>") .
-        $ticketicon . booking::shorten_text($SITE->fullname) .
-        ($r2syscap ? "</a>" : "</span>") .
-        $divider .
-        ($r2coursecap ? "<a href='{$r2courseurl}' class='report2-course-border'>" :
-            "<span class='report2-course-border'>") .
-        $ticketicon . booking::shorten_text($course->fullname) .
-        ($r2coursecap ? "</a>" : "</span>") .
-        $divider .
-        "<a href='{$r2instanceurl}' target='_blank' class='report2-instance-border'>" .
-        $linkicon . booking::shorten_text($bookingsettings->name) .
-        "</a>";
 } else if (!empty($courseid)) {
     // We are in course scope.
     $PAGE->set_url(new moodle_url('/mod/booking/report2.php', ['courseid' => $courseid]));
@@ -358,16 +239,6 @@ if (!empty($optiondateid)) {
     $a->scopestring = get_string('report2labelcourse', 'mod_booking');
     $a->title = $course->fullname;
     $heading = get_string('managebookedusers_heading', 'mod_booking', $a);
-
-    $navhtml =
-        ($r2syscap ? "<a href='{$r2systemurl}' class='report2-system-border'>" :
-            "<span class='report2-system-border'>") .
-        $ticketicon . booking::shorten_text($SITE->fullname) .
-        ($r2syscap ? "</a>" : "</span>") .
-        $divider .
-        "<a href='$r2courseurl' target='_blank' class='report2-course-border'>" .
-        $linkicon . booking::shorten_text($course->fullname) .
-        "</a>";
 } else {
     // We are in system scope.
     $PAGE->set_url(new moodle_url('/mod/booking/report2.php'));
@@ -389,26 +260,103 @@ if (!empty($optiondateid)) {
     $a->scopestring = get_string('report2labelsystem', 'mod_booking');
     $a->title = $SITE->fullname;
     $heading = get_string('managebookedusers_heading', 'mod_booking', $a);
-
-    $navhtml =
-        "<a href='$r2systemurl' target='_blank' class='report2-system-border'>" .
-        $linkicon . booking::shorten_text($SITE->fullname) .
-        "</a>";
 }
 
 $url = new moodle_url('/mod/booking/report2.php', $urlparams);
 $PAGE->set_url($url);
 
+// Build the Bootstrap breadcrumb navigation between the scopes.
+// Each scope block above has set the name, the URL and the capability of its
+// crumb: ancestors point to their report2.php view, the current (= last)
+// scope points out to its own page (course page, instance view, detail view
+// of the booking option ...), which is opened in a new tab.
+$basescope = str_replace('answers', '', $scope);
+$scopelabels = [
+    'system' => get_string('report2labelsystem', 'mod_booking'),
+    'course' => get_string('report2labelcourse', 'mod_booking'),
+    'instance' => get_string('report2labelinstance', 'mod_booking'),
+    'option' => get_string('report2labeloption', 'mod_booking'),
+    'optiondate' => get_string('report2labeloptiondate', 'mod_booking'),
+];
+$scopenames = [
+    'system' => booking::shorten_text(format_string($SITE->fullname)),
+    'course' => isset($course) ? booking::shorten_text(format_string($course->fullname)) : '',
+    'instance' => isset($bookingsettings) ? booking::shorten_text(format_string($bookingsettings->name)) : '',
+    'option' => isset($optionsettings) ? booking::shorten_text($optionsettings->get_title_with_prefix()) : '',
+];
+$scopeurls = [
+    'system' => $r2systemurl,
+    'course' => $r2courseurl ?? null,
+    'instance' => $r2instanceurl ?? null,
+    'option' => $r2optionurl ?? null,
+];
+$scopecaps = [
+    'system' => $r2syscap,
+    'course' => $r2coursecap ?? false,
+    'instance' => $r2instancecap ?? false,
+    'option' => true,
+];
+$navdata = ['items' => []];
+foreach ($scopes as $navscope) {
+    if ($navscope === 'optiondate') {
+        continue; // The optiondate crumb is the sessions dropdown, see below.
+    }
+    $isactive = ($navscope === $basescope);
+    $item = [
+        'label' => $scopelabels[$navscope],
+        'name' => $scopenames[$navscope],
+        'active' => $isactive,
+    ];
+    if ($isactive) {
+        $item['pageurl'] = $scopeurls[$navscope]->out(false);
+        $item['pagelinktitle'] = get_string('report2gotoscopepage', 'mod_booking', $scopenames[$navscope]);
+    } else if ($scopecaps[$navscope]) {
+        $item['url'] = $scopeurls[$navscope]->out(false);
+    }
+    $navdata['items'][] = $item;
+}
+
+// In option and optiondate scope, a dropdown crumb lists all optiondates
+// (sessions) of the booking option. In optiondate scope it is the active
+// crumb, labelled with the current session and marking it in the menu.
+if (in_array($basescope, ['option', 'optiondate']) && !empty($optionsettings->sessions)) {
+    $sessionsdata = [];
+    foreach ($optionsettings->sessions as $session) {
+        $sessionurl = new moodle_url('/mod/booking/report2.php', [
+            'optionid' => $optionid,
+            'optiondateid' => $session->id,
+        ]);
+        $sessionsdata[] = [
+            'prettydate' => dates_handler::prettify_optiondates_start_end(
+                $session->coursestarttime,
+                $session->courseendtime,
+                current_language(),
+                true
+            ),
+            'url' => $sessionurl->out(false),
+            'current' => ((int) $session->id === $optiondateid),
+        ];
+    }
+    $navdata['sessionsdropdown'] = [
+        'label' => $scopelabels['optiondate'],
+        'active' => ($basescope === 'optiondate'),
+        'toggletext' => $basescope === 'optiondate'
+            ? $prettydatestring
+            : get_string('choosesession', 'mod_booking'),
+        'sessions' => $sessionsdata,
+    ];
+}
+
 echo $OUTPUT->header();
 
 // Add the navigation here.
-echo "<div class='mt-3 mb-5'>$navhtml</div>";
+echo html_writer::div(
+    $OUTPUT->render_from_template('mod_booking/report/navigation_breadcrumbs', $navdata),
+    'mt-3 mb-4'
+);
 
 // Title of the page for the current scope.
 echo $OUTPUT->heading("<div class='report2-title'>$ticketicon $heading</div>");
-
-// Navigation stylings cannot be done in styles.css because of string localization.
-echo booking::generate_localized_css_for_navigation_labels('report2', $scopes);
 
 // For option scope and optiondate scope, there is no switch.
 if (empty($optionid) && empty($optiondateid)) {

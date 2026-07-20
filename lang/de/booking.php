@@ -2814,6 +2814,8 @@ $string['reoccurringdatestring_help'] = 'Geben Sie einen Text in folgendem Forma
     "Tag, HH:MM - HH:MM", z.B. "Montag, 10:00 - 11:00" oder "So 09:00-10:00" oder "Block" bzw. "Blockveranstaltung.';
 $string['reoccurringdatestringerror'] = 'Geben Sie einen Text in folgendem Format ein:
     Tag, HH:MM - HH:MM oder "Block" bzw. "Blockveranstaltung."';
+$string['report2breadcrumbs'] = 'Bookings-Tracker-Navigation';
+$string['report2gotoscopepage'] = '"{$a}" in neuem Tab öffnen';
 $string['report2labelcourse'] = 'Moodle-Kurs';
 $string['report2labelinstance'] = 'Buchungsinstanz';
 $string['report2labeloption'] = 'Buchungsoption';
