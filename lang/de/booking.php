@@ -2815,6 +2815,7 @@ $string['reoccurringdatestring_help'] = 'Geben Sie einen Text in folgendem Forma
 $string['reoccurringdatestringerror'] = 'Geben Sie einen Text in folgendem Format ein:
     Tag, HH:MM - HH:MM oder "Block" bzw. "Blockveranstaltung."';
 $string['report2breadcrumbs'] = 'Bookings-Tracker-Navigation';
+$string['report2columnsconfighint'] = 'Die hier angezeigten Spalten können in den <a href="{$a->url}">Einstellungen der Buchungsinstanz</a> unter "{$a->section}" &gt; "{$a->field}" angepasst werden.';
 $string['report2gotoscopepage'] = '"{$a}" in neuem Tab öffnen';
 $string['report2labelcourse'] = 'Moodle-Kurs';
 $string['report2labelinstance'] = 'Buchungsinstanz';

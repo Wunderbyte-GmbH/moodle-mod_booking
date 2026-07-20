@@ -3036,6 +3036,7 @@ $string['reoccurringdatestringerror'] = 'Enter a text in the following format:
     Day, HH:MM - HH:MM or "block" for blocked events.';
 $string['repeatthisbooking'] = 'Repeat this option';
 $string['report2breadcrumbs'] = 'Bookings Tracker navigation';
+$string['report2columnsconfighint'] = 'The columns shown here can be configured in the <a href="{$a->url}">settings of the booking instance</a>, section "{$a->section}" &gt; "{$a->field}".';
 $string['report2gotoscopepage'] = 'Open "{$a}" in a new tab';
 $string['report2labelcourse'] = 'Moodle course';
 $string['report2labelinstance'] = 'Booking instance';

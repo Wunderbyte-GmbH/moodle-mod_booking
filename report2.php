@@ -585,6 +585,24 @@ if (!empty($optionid) && empty($optiondateid)) {
         );
         $PAGE->requires->js_call_amd('mod_booking/sendmessagetocontactsmodal', 'init');
     }
+
+    // Hint for users who may edit the booking instance: which columns the
+    // tables below show is configured in the instance settings. Labels and
+    // link target are resolved at runtime, so they always match the real
+    // settings form.
+    if (has_capability('mod/booking:updatebooking', $context)) {
+        $modediturl = new moodle_url(
+            '/course/modedit.php',
+            ['update' => $cmid, 'return' => 1],
+            'id_configurefields'
+        );
+        $a = new stdClass();
+        $a->url = $modediturl->out(false);
+        $a->section = get_string('configurefields', 'mod_booking');
+        $a->field = get_string('manageresponsespagefields', 'mod_booking');
+        echo '<div class="alert alert-secondary mt-3 mb-2">' .
+            get_string('report2columnsconfighint', 'mod_booking', $a) . '</div>';
+    }
 }
 
 // Now we render the booked users for the provided scope.
