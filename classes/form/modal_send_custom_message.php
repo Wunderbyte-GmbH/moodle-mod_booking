@@ -35,6 +35,7 @@ use Exception;
 use mod_booking\event\custom_bulk_message_sent;
 use mod_booking\event\custom_message_sent;
 use mod_booking\message_controller;
+use mod_booking\placeholders\placeholders_info;
 use mod_booking\singleton_service;
 use moodle_url;
 use stdClass;
@@ -123,6 +124,10 @@ class modal_send_custom_message extends dynamic_form {
         $mform->setType('selecteduserids', PARAM_INT);
         $mform->addRule('selecteduserids', null, 'required', null, 'client');
         $mform->addHelpButton('selecteduserids', 'custommessagerecipients', 'mod_booking');
+
+        // Placeholders info text (same collapsible as in the booking rules mail actions).
+        $placeholders = placeholders_info::return_list_of_placeholders();
+        $mform->addElement('html', get_string('helptext:placeholders', 'mod_booking', $placeholders));
 
         $mform->addElement(
             'text',

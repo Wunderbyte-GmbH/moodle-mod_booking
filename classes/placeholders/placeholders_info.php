@@ -49,7 +49,7 @@ class placeholders_info {
     public static array $placeholders = [];
 
     /**
-     * @var array $localizedplaceholders
+     * @var array $localizedplaceholders classname (= placeholder tag) => localized description
      */
     public static array $localizedplaceholders = [];
 
@@ -248,8 +248,8 @@ class placeholders_info {
         }
 
         $placeholders = [];
-        foreach (self::$localizedplaceholders as $key => $value) {
-            $placeholders[] = "<li data-id='$value'>{" . $value . "} " . $key . "</li>";
+        foreach (self::$localizedplaceholders as $classname => $localized) {
+            $placeholders[] = "<li data-id='$classname'>{" . $classname . "} " . $localized . "</li>";
         }
 
         $returnstring = implode('<br>', $placeholders);
@@ -303,11 +303,13 @@ class placeholders_info {
             $component = core_component::get_component_from_classname($key);
             $class = substr(strrchr($key, '\\'), 1);
             if (isset($specialtreatmentclasses[$class])) {
-                self::$localizedplaceholders[$specialtreatmentclasses[$class]] = $class;
+                self::$localizedplaceholders[$class] = $specialtreatmentclasses[$class];
                 continue;
             }
-            // We use the localized strings as keys and the classnames as values.
-            self::$localizedplaceholders[get_string($class, $component)] = $class;
+            // We use the classnames as keys and the localized strings as values.
+            // The classname is the actual placeholder tag, so it is guaranteed to be
+            // unique - identical translations of two placeholders must not collide.
+            self::$localizedplaceholders[$class] = get_string($class, $component);
         }
         return self::$localizedplaceholders;
     }
