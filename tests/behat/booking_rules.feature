@@ -400,7 +400,7 @@ Feature: Create global booking rules as admin and insure they are working.
     And I click on "Add" "button"
     And I follow "<< Back to responses"
     And I click on "selectall" "checkbox"
-    And I click on "Send custom message" "button"
+    And I click on "Send custom email" "button"
     And I set the following fields to these values:
       | Subject | Rule send_copy_of_mail test             |
       | Message | Test bookig Rule send_copy_of_mail test |
@@ -409,7 +409,7 @@ Feature: Create global booking rules as admin and insure they are working.
     ## Send messages via cron and verify via events log
     And I trigger cron
     And I visit "/report/loglive/index.php"
-    Then I should see "Custom message sent"
+    Then I should see "Custom email sent"
     And I should see "Custom message A message e-mail with subject \"Rule send_copy_of_mail test\" has been sent to user: \"Student 1\" by the user \"Teacher 1\""
     And I should see "Unknown message type A message e-mail with subject \"Rule send_copy_of_mail test\" has been sent to user with id:"
     And I should see "Custom message A message e-mail with subject \"Custom msg copy: Rule send_copy_of_mail test\" has been sent to user: \"Admin User\" by the user \"Teacher 1\""
@@ -442,7 +442,7 @@ Feature: Create global booking rules as admin and insure they are working.
     And I click on "Add" "button"
     And I follow "<< Back to responses"
     And I click on "selectall" "checkbox"
-    And I click on "Send custom message" "button"
+    And I click on "Send custom email" "button"
     And I set the following fields to these values:
       | Subject | Rule send_copy_of_bulk_mail test             |
       | Message | Test bookig Rule send_copy_of_bulk_mail test |
@@ -451,7 +451,7 @@ Feature: Create global booking rules as admin and insure they are working.
     ## Send messages via cron and verify via events log
     And I trigger cron
     And I visit "/report/loglive/index.php"
-    Then I should see "Custom message sent"
+    Then I should see "Custom email sent"
     And I should see "Custom message A message e-mail with subject \"Rule send_copy_of_bulk_mail test\" has been sent to user: \"Student 3\" by the user \"Teacher 1\""
     And I should see "A custom bulk message e-mail with subject 'Rule send_copy_of_bulk_mail test' has been sent to all users of booking option with id:"
     And I should see "Custom message A message e-mail with subject \"Custom bulk msg copy: Rule send_copy_of_bulk_mail test\" has been sent to user: \"Admin User\" by the user \"Teacher 1\""

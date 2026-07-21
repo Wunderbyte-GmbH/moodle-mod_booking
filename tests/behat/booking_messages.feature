@@ -41,7 +41,7 @@ Feature: Test messaging features in a booking
     And I click on "selectall" "checkbox"
     And I click on "Send reminder e-mail" "button"
     And I click on "selectall" "checkbox"
-    And I click on "Send custom message" "button"
+    And I click on "Send custom email" "button"
     And I set the following fields to these values:
       | Subject | Behat test                                                     |
       | Message | Dear, Firstly, I would like to thank you for booking my Course |

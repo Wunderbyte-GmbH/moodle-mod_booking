@@ -1854,6 +1854,7 @@ $string['error:newcoursecategorycfieldmissing'] = 'You need to create a <a href=
  it is selected in the <a href="{$a->settingsurl}" target="_blank">Booking plugin settings</a>.';
 $string['error:noendtagfound'] = 'End the placeholder section "{$a}" with backslash ("/").';
 $string['error:nofieldchosen'] = 'You have to choose a field.';
+$string['error:optionnotinthisinstance'] = 'The booking option (ID: {$a->optionid}) does not belong to the given booking instance (cmid: {$a->cmid}).';
 $string['error:percentageavailableplaces'] = 'You need to enter a valid percentage beween 0 and 100 (without %-sign!).';
 $string['error:pricefactornotbetween0and1'] = 'You need to enter a value between 0 and 1, e.g. 0.9 to reduce prices by 10%.';
 $string['error:pricemissing'] = 'Please enter a price.';

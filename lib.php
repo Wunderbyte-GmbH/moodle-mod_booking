@@ -34,6 +34,7 @@ require_once($CFG->dirroot . '/course/externallib.php');
 
 use local_entities\entitiesrelation_handler;
 use mod_booking\booking;
+use mod_booking\booking_answers\booking_answers;
 use mod_booking\output\coursepage_shortinfo_and_button;
 use mod_booking\signinsheet\signinsheet_config;
 use mod_booking\singleton_service;
@@ -1810,20 +1811,37 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
         }
 
         if (has_capability('mod/booking:updatebooking', $context)) {
+            // The delete action runs through the delete confirmation modal (webservice
+            // call), which replaced the old action=deletebookingoption URL flow on
+            // report.php. The URL of the node is only the fallback without JS: the
+            // detail view of the option, whose action menu has the delete entry.
+            $deletefallbackurl = new moodle_url(
+                '/mod/booking/view.php',
+                ['id' => $cmid, 'optionid' => $optionid, 'whichview' => 'showonlyone']
+            );
             $navref->add(
                 get_string('deletethisbookingoption', 'mod_booking'),
-                new moodle_url(
-                    '/mod/booking/report.php',
-                    [
-                        'id' => $cmid,
-                        'optionid' => $optionid,
-                        'action' => 'deletebookingoption',
-                        'sesskey' => sesskey(),
-                    ]
-                ),
+                $deletefallbackurl,
                 navigation_node::TYPE_CUSTOM,
                 null,
                 'nav_deletebookingoption'
+            );
+            $deletesettings = singleton_service::get_instance_of_booking_option_settings($optionid);
+            $deleteanswers = singleton_service::get_instance_of_booking_answers($deletesettings);
+            $deletetitle = $deletesettings->get_title_with_prefix();
+            $deletebookedcount = booking_answers::count_places($deleteanswers->get_usersonlist());
+            if ($deletebookedcount > 0) {
+                $deletetitle .= ' (' . get_string('xusersarebooked', 'mod_booking', $deletebookedcount) . ')';
+            }
+            $PAGE->requires->js_call_amd(
+                'mod_booking/deletebookingoptionmodal',
+                'initNavItem',
+                [
+                    $cmid,
+                    $optionid,
+                    $deletetitle,
+                    (new moodle_url('/mod/booking/view.php', ['id' => $cmid]))->out(false),
+                ]
             );
         }
     }

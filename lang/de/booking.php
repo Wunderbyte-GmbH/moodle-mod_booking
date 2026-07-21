@@ -1812,6 +1812,7 @@ $string['error:newcoursecategorycfieldmissing'] = 'Sie müssen zuerst ein <a hre
  auch in den <a href="{$a->settingsurl}" target="_blank">Plugin-Einstellungen des Buchungsmoduls</a> ausgewählt haben.';
 $string['error:noendtagfound'] = 'Beenden Sie den begonnenen Placeholder-Abschnitt "{$a}" durch einen Backslash ("/").';
 $string['error:nofieldchosen'] = 'Sie müssen ein Feld auswählen.';
+$string['error:optionnotinthisinstance'] = 'Die Buchungsoption (ID: {$a->optionid}) gehört nicht zur angegebenen Buchungsinstanz (cmid: {$a->cmid}).';
 $string['error:percentageavailableplaces'] = 'Geben Sie einen gültigen Prozentsatz zwischen 0 und 100 an (ohne %-Zeichen!).';
 $string['error:pricefactornotbetween0and1'] = 'Sie müssen einen Wert zwischen 0 und 1 eingeben. Um die Preise z.B. um 10% zu reduzieren,
  geben Sie den Wert 0,9 ein.';

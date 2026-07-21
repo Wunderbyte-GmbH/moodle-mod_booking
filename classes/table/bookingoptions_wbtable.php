@@ -1544,17 +1544,31 @@ class bookingoptions_wbtable extends wunderbyte_table {
                     get_string('duplicatebookingoption', 'mod_booking')
                 ) . get_string('duplicatebookingoption', 'mod_booking')) . '</div>';
 
+                // Delete booking option: confirmation modal plus webservice call.
+                // This replaced the old action=deletebookingoption URL flow on report.php.
+                // The empty returnurl makes the modal reload the current page after the
+                // deletion, so e.g. a shortcode page listing options of several booking
+                // instances stays open and shows the option is gone.
+                $deletetitle = $settings->get_title_with_prefix();
+                $deletebookedcount = booking_answers::count_places($answersobject->get_usersonlist());
+                if ($deletebookedcount > 0) {
+                    $deletetitle .= ' (' . get_string('xusersarebooked', 'mod_booking', $deletebookedcount) . ')';
+                }
                 $ddoptions[] = '<div class="dropdown-item">' . html_writer::link(
-                    new moodle_url('/mod/booking/report.php', [
-                        'id' => $cmid,
-                        'optionid' => $optionid,
-                        'action' => 'deletebookingoption',
-                        'sesskey' => sesskey(),
-                        'returnto' => 'url',
-                        'returnurl' => $returnurl,
-                    ]),
+                    '#',
                     $OUTPUT->pix_icon('t/delete', get_string('deletethisbookingoption', 'mod_booking')) .
-                    get_string('deletethisbookingoption', 'mod_booking')
+                    get_string('deletethisbookingoption', 'mod_booking'),
+                    [
+                        'onclick' =>
+                            "var deletetrigger = this;
+                            require(['mod_booking/deletebookingoptionmodal'], function(modal) {
+                                modal.deleteBookingOption(" .
+                                    $cmid . ", " .
+                                    $optionid . ", " .
+                                    json_encode($deletetitle) . ", '', deletetrigger);
+                            });
+                            return false;",
+                    ]
                 ) . '</div>';
             }
         }

@@ -73,9 +73,11 @@
         {{/items}}
         {{#sessionsdropdown}}
         <li class="breadcrumb-item{{#active}} active{{/active}}"{{#active}} aria-current="page"{{/active}}>
-            <span class="report2-breadcrumb-box d-inline-flex flex-column">
+            {{! The wrappers are divs (not spans like in the other crumbs), because the
+                dropdown-menu div is flow content and must not sit inside a span. }}
+            <div class="report2-breadcrumb-box d-inline-flex flex-column">
                 <span class="report2-breadcrumb-label small text-muted">{{label}}</span>
-                <span class="report2-breadcrumb-name dropdown d-inline-block">
+                <div class="report2-breadcrumb-name dropdown d-inline-block">
                     <button type="button" class="btn btn-link p-0 report2-sessions-toggle dropdown-toggle"
                         data-toggle="dropdown" data-bs-toggle="dropdown" aria-expanded="false">{{toggletext}}</button>
                     <div class="dropdown-menu report2-sessions-menu">
@@ -84,8 +86,8 @@
                             href="{{url}}"{{#current}} aria-current="page"{{/current}}>{{prettydate}}</a>
                         {{/sessions}}
                     </div>
-                </span>
-            </span>
+                </div>
+            </div>
         </li>
         {{/sessionsdropdown}}
     </ol>

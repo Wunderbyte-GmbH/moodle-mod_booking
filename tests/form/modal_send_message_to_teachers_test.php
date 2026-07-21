@@ -40,8 +40,8 @@ use ReflectionProperty;
 final class modal_send_message_to_teachers_test extends advanced_testcase {
     /**
      * The recipient pool and the preselection are the teachers of the booking option
-     * (not the booked users), and the option scope of the bookings tracker provides
-     * the matching action button.
+     * (not the booked users). The trigger button lives in the header of the option
+     * scope on report2.php, NOT in the action buttons of the booked users table.
      */
     public function test_teachers_are_recipients_and_preselected(): void {
         $this->resetAfterTest();
@@ -99,17 +99,17 @@ final class modal_send_message_to_teachers_test extends advanced_testcase {
         $selected = array_map('intval', (array)$mform->getElement('selecteduserids')->getValue());
         $this->assertEqualsCanonicalizing([(int)$teacher1->id, (int)$teacher2->id], $selected);
 
-        // 3. The option scope of the bookings tracker provides the action button - without
-        // requiring any rows to be checked - next to the "Send custom message" button.
+        // 3. The teachers button is rendered in the header of the option scope on
+        // report2.php (only if the option has teachers), NOT in the action buttons of
+        // the booked users table anymore - guard against it coming back twice there.
+        // The "Send custom email" action button of the table stays.
         $bookedusers = new booked_users('option', $option->id);
         $table = $bookedusers->return_raw_table('option', $option->id, MOD_BOOKING_STATUSPARAM_BOOKED);
-        $teacherbuttons = array_values(array_filter(
+        $teacherbuttons = array_filter(
             $table->actionbuttons,
             fn($button) => ($button['formname'] ?? '') === 'mod_booking\form\modal_send_message_to_teachers'
-        ));
-        $this->assertCount(1, $teacherbuttons);
-        $this->assertFalse($teacherbuttons[0]['selectionmandatory']);
-        $this->assertSame(get_string('sendmessagetoteachers', 'mod_booking'), $teacherbuttons[0]['label']);
+        );
+        $this->assertCount(0, $teacherbuttons);
         $custommsgbuttons = array_filter(
             $table->actionbuttons,
             fn($button) => ($button['formname'] ?? '') === 'mod_booking\form\modal_send_custom_message'
@@ -123,28 +123,5 @@ final class modal_send_message_to_teachers_test extends advanced_testcase {
         $parentform = new modal_send_custom_message(null, null, 'post', '', [], true, $ajaxdata);
         $rm = new ReflectionMethod($parentform, 'should_fire_bulk_event');
         $this->assertTrue($rm->invoke($parentform));
-
-        // 5. Options without teachers don't get the button (the custom message button stays).
-        $optionwithoutteachers = $plugingenerator->create_option((object)[
-            'bookingid' => $booking->id,
-            'courseid' => $course->id,
-            'text' => 'Option without teachers',
-            'importing' => 1,
-        ]);
-        $table = $bookedusers->return_raw_table(
-            'option',
-            $optionwithoutteachers->id,
-            MOD_BOOKING_STATUSPARAM_BOOKED
-        );
-        $teacherbuttons = array_filter(
-            $table->actionbuttons,
-            fn($button) => ($button['formname'] ?? '') === 'mod_booking\form\modal_send_message_to_teachers'
-        );
-        $this->assertCount(0, $teacherbuttons);
-        $custommsgbuttons = array_filter(
-            $table->actionbuttons,
-            fn($button) => ($button['formname'] ?? '') === 'mod_booking\form\modal_send_custom_message'
-        );
-        $this->assertCount(1, $custommsgbuttons);
     }
 }
