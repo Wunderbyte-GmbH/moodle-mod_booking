@@ -1084,7 +1084,13 @@ function booking_update_instance($booking) {
         $booking->templateid = 0;
     }
 
-    $booking->iselective = !empty($booking->iselective) ? $booking->iselective : 0;
+    // The elective settings are only part of the form with an active PRO license.
+    // As iselective is an advcheckbox, it always submits 0 or 1 when rendered: a missing
+    // key means the element was not part of the form (e.g. no PRO license), so the
+    // property is left unset and update_record() keeps the stored value.
+    if (isset($booking->iselective)) {
+        $booking->iselective = !empty($booking->iselective) ? $booking->iselective : 0;
+    }
 
     if (isset($booking->optionsfields) && is_array($booking->optionsfields) && count($booking->optionsfields) > 0) {
         $booking->optionsfields = implode(',', $booking->optionsfields);
@@ -1215,19 +1221,24 @@ function booking_update_instance($booking) {
         booking::add_data_to_json($booking, "viewparam", $booking->viewparam);
     }
     // Template switcher value is stored in JSON: 0 is off, 1 is on.
-    if (empty($booking->switchtemplates)) {
-        // By default, template switcher is turned off.
-        booking::add_data_to_json($booking, 'switchtemplates', 0);
-        // When template switcher is off, we don't need to store selected templates.
-        booking::remove_key_from_json($booking, 'switchtemplatesselection');
-    } else {
-        booking::add_data_to_json($booking, 'switchtemplates', $booking->switchtemplates);
-        // Only if template switcher is active, we store values for selected templates.
-        if (empty($booking->switchtemplatesselection)) {
-            // By default, use all possible templates.
-            booking::add_data_to_json($booking, 'switchtemplatesselection', array_keys(booking::get_array_of_possible_views()));
+    // The checkbox is only part of the form with an active PRO license (an advcheckbox
+    // always submits 0 or 1 when rendered). If the key is missing entirely, keep the
+    // stored values instead of switching the feature off.
+    if (isset($booking->switchtemplates)) {
+        if (empty($booking->switchtemplates)) {
+            // By default, template switcher is turned off.
+            booking::add_data_to_json($booking, 'switchtemplates', 0);
+            // When template switcher is off, we don't need to store selected templates.
+            booking::remove_key_from_json($booking, 'switchtemplatesselection');
         } else {
-            booking::add_data_to_json($booking, 'switchtemplatesselection', $booking->switchtemplatesselection);
+            booking::add_data_to_json($booking, 'switchtemplates', $booking->switchtemplates);
+            // Only if template switcher is active, we store values for selected templates.
+            if (empty($booking->switchtemplatesselection)) {
+                // By default, use all possible templates.
+                booking::add_data_to_json($booking, 'switchtemplatesselection', array_keys(booking::get_array_of_possible_views()));
+            } else {
+                booking::add_data_to_json($booking, 'switchtemplatesselection', $booking->switchtemplatesselection);
+            }
         }
     }
     if (empty($booking->disablebooking)) {

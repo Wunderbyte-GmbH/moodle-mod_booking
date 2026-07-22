@@ -61,15 +61,20 @@ class elective {
         );
         $mform->setExpanded('electivesettings', false);
 
-        $mform->addElement('checkbox', 'iselective', get_string('iselective', 'booking'));
+        // Advcheckboxes on purpose: they always submit 0 or 1 when rendered, so a missing
+        // key unambiguously means "element was not part of the form" (e.g. no PRO license)
+        // and the stored value can be kept. A plain checkbox submits nothing when
+        // unchecked, which also made unchecking enforceorder/consumeatonce impossible
+        // (the missing key never wrote a 0 to the DB).
+        $mform->addElement('advcheckbox', 'iselective', get_string('iselective', 'booking'));
 
-        $mform->addElement('checkbox', 'enforceorder', get_string('enforceorder', 'booking'));
+        $mform->addElement('advcheckbox', 'enforceorder', get_string('enforceorder', 'booking'));
         $mform->addHelpButton('enforceorder', 'enforceorder', 'mod_booking');
 
         $mform->addElement('advcheckbox', 'enforceteacherorder', get_string('enforceteacherorder', 'booking'));
         $mform->addHelpButton('enforceteacherorder', 'enforceteacherorder', 'mod_booking');
 
-        $mform->addElement('checkbox', 'consumeatonce', get_string('consumeatonce', 'booking'));
+        $mform->addElement('advcheckbox', 'consumeatonce', get_string('consumeatonce', 'booking'));
         $mform->addHelpButton('consumeatonce', 'consumeatonce', 'mod_booking');
 
         $opts = [0 => get_string('unlimitedcredits', 'mod_booking')];

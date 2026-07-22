@@ -115,9 +115,16 @@ class certificate extends field_base {
             return [];
         }
 
+        $key = fields_info::get_class_name(static::class);
+        // If the certificate field was not part of the submitted form at all (e.g. no
+        // PRO license, import), keep the stored certificate configuration untouched.
+        // Only a submitted empty value counts as "cleared by the user".
+        if (!isset($formdata->{$key})) {
+            return [];
+        }
+
         $instance = new certificate();
         $changes = [];
-        $key = fields_info::get_class_name(static::class);
         $value = $formdata->{$key} ?? null;
         $mockdata = new stdClass();
         $mockdata->id = $formdata->id;
