@@ -118,14 +118,22 @@ class scope_base_answers extends scope_base {
      *
      */
     public function return_cols_for_tables(int $statusparam, int $scopeid = 0): array {
-        return [
+        $columns = [
             'titleprefix' => get_string('titleprefix', 'mod_booking'),
             'text' => get_string('bookingoption', 'mod_booking'),
+        ];
+        // In system and course scope, show which booking instance each answer belongs to.
+        // In instance scope the column would repeat the same value in every row.
+        if (in_array($this->scope, ['systemanswers', 'courseanswers'])) {
+            $columns['instancename'] = get_string('bookinginstance', 'mod_booking');
+        }
+        $columns += [
             'firstname' => get_string('firstname', 'core'),
             'lastname'  => get_string('lastname', 'core'),
             'email'     => get_string('email', 'core'),
             'timebooked' => get_string('timebooked', 'mod_booking'),
             'timemodified' => get_string('timemodified', 'mod_booking'),
         ];
+        return $columns;
     }
 }

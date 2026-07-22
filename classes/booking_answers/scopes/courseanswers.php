@@ -25,6 +25,7 @@ namespace mod_booking\booking_answers\scopes;
 
 use context_course;
 use context_system;
+use local_wunderbyte_table\filters\types\standardfilter;
 use local_wunderbyte_table\wunderbyte_table;
 use mod_booking\booking_answers\scope_base_answers;
 use mod_booking\output\booked_users;
@@ -129,10 +130,11 @@ class courseanswers extends scope_base_answers {
 
         $this->show_download_button($table, $scope, $scopeid, $statusparam);
 
-        $table->define_fulltextsearchcolumns(['titleprefix', 'text', 'firstname', 'lastname', 'email']);
+        $table->define_fulltextsearchcolumns(['titleprefix', 'text', 'instancename', 'firstname', 'lastname', 'email']);
         $sortablecolumns = [
             'titleprefix' => get_string('titleprefix', 'mod_booking'),
             'text' => get_string('bookingoption', 'mod_booking'),
+            'instancename' => get_string('bookinginstance', 'mod_booking'),
             'firstname' => get_string('firstname', 'core'),
             'lastname' => get_string('lastname', 'core'),
             'email' => get_string('email', 'core'),
@@ -142,6 +144,11 @@ class courseanswers extends scope_base_answers {
         $table->define_sortablecolumns($sortablecolumns);
         $table->sort_default_column = 'timemodified';
         $table->sort_default_order = SORT_DESC;
+
+        // Filter for the booking instance.
+        $instancefilter = new standardfilter('instancename', get_string('bookinginstance', 'mod_booking'));
+        $table->add_filter($instancefilter);
+        $table->showfilterontop = true;
 
         if ($statusparam != MOD_BOOKING_STATUSPARAM_DELETED) {
             $table->addcheckboxes = true;
