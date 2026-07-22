@@ -1008,10 +1008,6 @@ $string['bookingstatusonwaitinglist'] = 'On the waiting list';
 $string['bookingstatuspreviouslybooked'] = 'Previously booked';
 $string['bookingstatusreserved'] = 'Reserved';
 $string['bookingstracker'] = "Bookings tracker";
-$string['bookingstracker_desc'] = "Here you can activate the bookings tracker.
-It allows authorized users to manage bookings for the entire site at various hierarchical booking levels
-(optiondates, booking options, booking instance, Moodle course, site-wide) and change the presence status
-booked users.";
 $string['bookingstrackerdelete'] = 'Unsubscribe';
 $string['bookingstrackerpresencecounter'] = 'Count presences';
 $string['bookingstrackerpresencecounter_desc'] = 'Display a counter that shows the total number of presences.
@@ -1818,8 +1814,6 @@ $string['equals'] = 'has exactly this value (text or number)';
 $string['equalsnot'] = 'has not exactly this value (text or number)';
 $string['equalsnotplain'] = 'has not exactly this value';
 $string['equalsplain'] = 'has exactly this value';
-$string['error:bookingstrackernotactivated'] = 'You are not allowed to open this page.
-The setting for the bookings tracker (bookingstracker) is not activated.';
 $string['error:campaignend'] = 'Campaign end has to be after campaign start.';
 $string['error:campaignstart'] = 'Campaign start has to be before campaign end.';
 $string['error:chooseint'] = 'You have to enter a number here.';

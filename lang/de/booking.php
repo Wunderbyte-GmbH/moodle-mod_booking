@@ -989,10 +989,6 @@ $string['bookingstatusonwaitinglist'] = 'Auf der Warteliste';
 $string['bookingstatuspreviouslybooked'] = 'Bereits gebucht';
 $string['bookingstatusreserved'] = 'Reserviert';
 $string['bookingstracker'] = "Buchungstracker";
-$string['bookingstracker_desc'] = "Hier können Sie den Buchungstracker aktivieren.
-Er erlaubt es berechtigten Benutzer/innen, die Buchungen der gesamten Seite auf verschiedenen hierarchischen Buchungsebenen
-(Termin, Buchungsoption, Buchungsinstanz, Moodle-Kurs, gesamte Plattform) zu verwalten und für gebuchte Benutzer/innen
-die Anwesenheiten zu hinterlegen.";
 $string['bookingstrackerdelete'] = 'Abmelden';
 $string['bookingstrackerpresencecounter'] = 'Anwesenheiten zählen';
 $string['bookingstrackerpresencecounter_desc'] = 'Zähler anzeigen, der die Gesamtzahl der Anwesenheiten anzeigt.
@@ -1774,8 +1770,6 @@ $string['equals'] = 'hat genau diesen Wert (Text oder Zahl)';
 $string['equalsnot'] = 'hat nicht genau diesen Wert (Text oder Zahl)';
 $string['equalsnotplain'] = 'hat nicht genau diesen Wert';
 $string['equalsplain'] = 'hat genau diesen Wert';
-$string['error:bookingstrackernotactivated'] = 'Sie dürfen diese Seite nicht öffnen.
-Die Einstellung für den Buchungstracker (bookingstracker) ist nicht aktiviert.';
 $string['error:campaignend'] = 'Kampagnenende muss nach dem Kampagnenbeginn sein.';
 $string['error:campaignstart'] = 'Kampagnenbeginn muss vor dem Kampagnenende liegen.';
 $string['error:chooseint'] = 'Sie müssen hier eine ganze Zahl eingeben';

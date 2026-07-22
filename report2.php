@@ -39,14 +39,6 @@ use mod_booking\output\renderer;
 
 global $PAGE, $SITE;
 
-// The bookings tracker is a regular (non-PRO) feature, only gated by its admin setting.
-if (!get_config('booking', 'bookingstracker')) {
-    require_login(1, false);
-    $PAGE->set_url(new moodle_url('/mod/booking/report2.php'));
-    echo "<div class='alert alert-warning'>" . get_string('error:bookingstrackernotactivated', 'mod_booking') . "</div>";
-    die();
-}
-
 $optiondateid = optional_param('optiondateid', 0, PARAM_INT);
 $optionid = optional_param('optionid', 0, PARAM_INT);
 $cmid = optional_param('cmid', 0, PARAM_INT);

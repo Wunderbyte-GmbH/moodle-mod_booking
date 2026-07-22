@@ -5632,5 +5632,13 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2026071502, 'booking');
     }
 
+    if ($oldversion < 2026072200) {
+        // The bookings tracker (report2.php) is always active now - its on/off
+        // setting was removed, so drop the stale config value.
+        unset_config('bookingstracker', 'booking');
+
+        upgrade_mod_savepoint(true, 2026072200, 'booking');
+    }
+
     return true;
 }

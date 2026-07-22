@@ -1355,20 +1355,13 @@ if ($ADMIN->fulltree) {
         );
     }
 
-    // Bookings tracker (report2.php) - a regular feature, available without PRO license.
+    // Bookings tracker (report2.php) - a regular feature, always active
+    // (access is controlled purely by capabilities).
     $settings->add(
         new admin_setting_heading(
             'bookingstrackerheading',
             get_string('bookingstracker', 'mod_booking'),
             ""
-        )
-    );
-    $settings->add(
-        new admin_setting_configcheckbox(
-            'booking/bookingstracker',
-            get_string('bookingstracker', 'mod_booking'),
-            get_string('bookingstracker_desc', 'mod_booking'),
-            0
         )
     );
     $settings->add(
