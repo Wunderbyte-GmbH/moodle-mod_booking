@@ -440,7 +440,7 @@ class optionstoconfirm extends option {
      *
      */
     public function show_download_button(wunderbyte_table &$table, string $scope, int $scopeid, int $statusparam) {
-        if ($this->has_capability_in_scope($scopeid, 'mod/booking:updatebooking')) {
+        if ($this->has_capability_in_scope($scopeid, 'mod/booking:downloadresponses')) {
             $baseurl = new moodle_url(
                 '/mod/booking/download_report2.php',
                 [

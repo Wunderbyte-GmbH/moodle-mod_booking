@@ -29,10 +29,9 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
 use mod_booking\booking;
 use mod_booking\option\dates_handler;
 use mod_booking\output\booked_users;
-use mod_booking\output\optiondates_with_entities;
-use mod_booking\placeholders\placeholders_info;
 use mod_booking\local\bookingstracker\report2_access;
 use mod_booking\local\bookingstracker\report2_header_links;
+use mod_booking\local\bookingstracker\report2_infobox;
 use mod_booking\signinsheet\signinsheet_config;
 use mod_booking\singleton_service;
 use mod_booking\output\renderer;
@@ -401,84 +400,11 @@ if (!empty($optionid) && empty($optiondateid)) {
     $cmid = $optionsettings->cmid;
     $context = context_module::instance($cmid);
 
-    // Compact info line below the title: dates, description, teachers and responsible contacts.
-    // Dates (if more than one) and description expand as collapsibles below the line.
-    $infoboxdata = [
-        'optionid' => $optionid,
-        'teachers' => [],
-        'contacts' => [],
-    ];
-    if (!empty(trim($optionsettings->description ?? ''))) {
-        $description = placeholders_info::render_text(
-            $optionsettings->description,
-            $optionsettings->cmid,
-            $optionsettings->id,
-            $USER->id
-        );
-        $infoboxdata['description'] = format_text(
-            $description,
-            $optionsettings->descriptionformat ?? FORMAT_HTML,
-            ['context' => $context]
-        );
-    }
-    $teachers = [];
-    foreach ($optionsettings->teachers as $teacher) {
-        $teacheruser = singleton_service::get_instance_of_user((int) $teacher->userid);
-        if (!empty($teacheruser)) {
-            $teachers[] = $teacheruser;
-        }
-    }
-    $lastindex = count($teachers) - 1;
-    foreach ($teachers as $index => $teacheruser) {
-        $infoboxdata['teachers'][] = [
-            'name' => fullname($teacheruser),
-            'profileurl' => (new moodle_url('/user/profile.php', ['id' => $teacheruser->id]))->out(false),
-            'notlast' => $index != $lastindex,
-        ];
-    }
-    $infoboxdata['teachersexist'] = !empty($infoboxdata['teachers']);
-    $contacts = array_values(array_filter($optionsettings->responsiblecontactuser));
-    $lastindex = count($contacts) - 1;
-    foreach ($contacts as $index => $contactuser) {
-        $infoboxdata['contacts'][] = [
-            'name' => fullname($contactuser),
-            'profileurl' => (new moodle_url('/user/profile.php', ['id' => $contactuser->id]))->out(false),
-            'notlast' => $index != $lastindex,
-        ];
-    }
-    $infoboxdata['contactsexist'] = !empty($infoboxdata['contacts']);
-    // Associated course (like on the old report.php), linked with its full name.
-    if (!empty($optionsettings->courseid)) {
-        $associatedcoursename = $DB->get_field('course', 'fullname', ['id' => $optionsettings->courseid]);
-        if ($associatedcoursename !== false) {
-            $infoboxdata['associatedcourse'] = [
-                'url' => (new moodle_url('/course/view.php', ['id' => $optionsettings->courseid]))->out(false),
-                'name' => format_string($associatedcoursename),
-            ];
-        }
-    }
-    // No optiondates are shown for self-learning courses.
-    if (empty($optionsettings->selflearningcourse)) {
-        $optiondateswithentities = new optiondates_with_entities($optionsettings);
-        $sessions = array_values($optiondateswithentities->sessions);
-        if (count($sessions) == 1) {
-            // A single date is shown directly in the info line.
-            $infoboxdata['singledate'] = $sessions[0]['datestring'] ?? '';
-        } else if (count($sessions) > 1) {
-            // Multiple dates are collapsed behind a "Show dates" link.
-            /** @var renderer $renderer */
-            $renderer = $PAGE->get_renderer('mod_booking');
-            $infoboxdata['optiondates'] = $renderer->render_optiondates_with_entities($optiondateswithentities);
-        }
-    }
-    if (
-        $infoboxdata['teachersexist']
-        || $infoboxdata['contactsexist']
-        || !empty($infoboxdata['singledate'])
-        || !empty($infoboxdata['optiondates'])
-        || !empty($infoboxdata['description'])
-        || !empty($infoboxdata['associatedcourse'])
-    ) {
+    // Compact info line below the title: dates, description, teachers,
+    // responsible contacts and the associated course. Dates (if more than
+    // one) and description expand as collapsibles below the line.
+    $infoboxdata = report2_infobox::export_for_option($optionid);
+    if (report2_infobox::has_content($infoboxdata)) {
         echo $OUTPUT->render_from_template('mod_booking/report/infobox', $infoboxdata);
     }
 

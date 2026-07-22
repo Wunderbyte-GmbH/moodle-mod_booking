@@ -280,7 +280,9 @@ class signinsheet_generator {
             $this->cfgcustfields = explode(',', $cfgcustfields);
         }
 
-        $this->allfields = explode(',', $this->bookingoption->booking->settings->signinsheetfields);
+        // The instance setting is null as long as it was never configured (e.g. a
+        // freshly created instance): explode(null) would raise a deprecation.
+        $this->allfields = explode(',', $this->bookingoption->booking->settings->signinsheetfields ?? '');
         if (get_config('booking', 'numberrows') == 1) {
             $this->showrownumbers = true;
             $this->rownumber = 0;
