@@ -150,7 +150,14 @@ class optiondate extends scope_base {
                 $table->showfilterontop = true;
             }
 
-            if (in_array('status', $responsesfields)) {
+            // Presence and notes modals require managebookedusers on submit, so
+            // the buttons are hidden from users who may only read the report.
+            $canmanagebookedusers = has_capability(
+                'mod/booking:managebookedusers',
+                context_module::instance($cmid)
+            );
+
+            if (in_array('status', $responsesfields) && $canmanagebookedusers) {
                 $table->actionbuttons[] = [
                     'label' => get_string('presence', 'mod_booking'), // Name of your action button.
                     'class' => 'btn btn-primary btn-sm ms-2',
@@ -172,7 +179,7 @@ class optiondate extends scope_base {
                 ];
             }
 
-            if (in_array('notes', $responsesfields)) {
+            if (in_array('notes', $responsesfields) && $canmanagebookedusers) {
                 $table->actionbuttons[] = [
                     'label' => get_string('notes', 'mod_booking'), // Name of your action button.
                     'class' => 'btn btn-primary btn-sm ms-1',

@@ -108,7 +108,8 @@ class scope_base {
         $ba = new booking_answers();
         /** @var \mod_booking\booking_answers\scope_base $class */
         $class = $ba->return_class_for_scope($scope);
-        if ($class->has_capability_in_scope($scopeid, 'mod/booking:updatebooking')) {
+        // Same capability that gated the table export on the old report.php.
+        if ($class->has_capability_in_scope($scopeid, 'mod/booking:downloadresponses')) {
             $baseurl = new moodle_url(
                 '/mod/booking/download_report2.php',
                 [

@@ -1018,6 +1018,7 @@ $string['bookingstrackerpresencecounter_desc'] = 'Display a counter that shows t
 Define in the next setting which presence status should be counted.';
 $string['bookingstrackerpresencecountervaluetocount'] = 'Presence status to count';
 $string['bookingstrackerpresencecountervaluetocount_desc'] = 'This presence status will be counted and displayed in the booking tracker.';
+$string['bookingstrackersetrating'] = 'Rate users';
 $string['bookingstrackerswitchviewtypetoanswers'] = 'View all bookings separately';
 $string['bookingstrackerswitchviewtypetooptions'] = 'Aggregate bookings for each booking option';
 $string['bookingstrackertriggercertificate'] = 'Trigger certificates';
@@ -1818,8 +1819,7 @@ $string['equalsnot'] = 'has not exactly this value (text or number)';
 $string['equalsnotplain'] = 'has not exactly this value';
 $string['equalsplain'] = 'has exactly this value';
 $string['error:bookingstrackernotactivated'] = 'You are not allowed to open this page.
-Either the setting for the bookings tracker (bookingstracker) is not activated or you do not have Booking PRO
-(or Booking PRO is expired).';
+The setting for the bookings tracker (bookingstracker) is not activated.';
 $string['error:campaignend'] = 'Campaign end has to be after campaign start.';
 $string['error:campaignstart'] = 'Campaign start has to be before campaign end.';
 $string['error:chooseint'] = 'You have to enter a number here.';
@@ -2904,13 +2904,6 @@ $string['profeatures:availabilityinfotexts'] = '<ul>
 $string['profeatures:boactions'] = '<ul>
 <li><b>activate actions after booking</b></li>
 </ul>';
-$string['profeatures:bookingstracker'] = '<ul>
-<li><b>Allow users to manage bookings across the entire site on various hierarchical booking levels
-(date, booking option, booking instance, Moodle course, entire platform)
-and record attendance for booked users.</b></li>
-<li><b>Track attendance - You can specify for each date (session) which users were present.</b></li>
-<li><b>Select the attendance status you wish to track.</b></li>
-</ul>';
 $string['profeatures:cachesettings'] = '<ul>
 <li><b>No caching of bookingoption settings</b></li>
 <li><b>No caching of booking answers</b></li>
@@ -3716,6 +3709,7 @@ $string['subscribealreadybooked'] = '(is already booked)';
 $string['subscribebookedxtimes'] = '(booked {$a} times)';
 $string['subscribersto'] = 'Teachers for \'{$a}\'';
 $string['subscribetocourse'] = 'Enrol users in the course';
+$string['subscribetocoursebody'] = 'Do you really want to enrol the checked users in the course connected to this booking option?';
 $string['subscribeuser'] = 'Do you really want to enrol the users in the following course';
 $string['substitutions'] = 'Substitution(s)';
 $string['successfulcalculation'] = 'Price calculation successful!';

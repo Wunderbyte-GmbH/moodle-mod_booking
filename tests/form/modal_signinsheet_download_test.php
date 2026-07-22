@@ -43,8 +43,9 @@ final class modal_signinsheet_download_test extends advanced_testcase {
     }
 
     /**
-     * In default (PDF) mode the form returns the download URL of the
-     * existing sign-in sheet endpoint on report.php with all settings.
+     * The form persists the settings in the option JSON and returns the URL
+     * of the dedicated download endpoint, which carries only cmid and
+     * optionid (the settings are resolved server-side).
      *
      * @covers \mod_booking\form\modal_signinsheet_download::process_dynamic_submission
      */
@@ -73,21 +74,16 @@ final class modal_signinsheet_download_test extends advanced_testcase {
         $result = $mform->process_dynamic_submission();
 
         $this->assertEquals(1, (int)($result['success'] ?? 0));
-        $this->assertStringContainsString('/mod/booking/report.php', $result['downloadurl']);
+        $this->assertStringContainsString('/mod/booking/download_signinsheet.php', $result['downloadurl']);
 
         $url = new moodle_url($result['downloadurl']);
-        $this->assertEquals('downloadsigninsheet', $url->get_param('action'));
-        $this->assertEquals((int)$settings->cmid, (int)$url->get_param('id'));
+        $this->assertEquals((int)$settings->cmid, (int)$url->get_param('cmid'));
         $this->assertEquals((int)$settings->id, (int)$url->get_param('optionid'));
-        $this->assertEquals('L', $url->get_param('orientation'));
-        $this->assertEquals('firstname', $url->get_param('orderby'));
-        $this->assertEquals(5, (int)$url->get_param('addemptyrows'));
-        $this->assertEquals(2, (int)$url->get_param('pdftitle'));
-        $this->assertEquals(-2, (int)$url->get_param('pdfsessions'));
-        $this->assertEquals(0, (int)$url->get_param('signinextrasessioncols'));
-        $this->assertEquals(0, (int)$url->get_param('includeteachers'));
-        // The save-as format only exists in HTML template mode.
-        $this->assertNull($url->get_param('saveasformat'));
+        // The settings are no longer part of the URL - the endpoint resolves
+        // them from the persisted option JSON.
+        $this->assertNull($url->get_param('action'));
+        $this->assertNull($url->get_param('orientation'));
+        $this->assertNull($url->get_param('addemptyrows'));
 
         // The submitted settings were persisted in the option JSON, so the
         // quick download button and the next modal opening reuse them.
@@ -105,8 +101,9 @@ final class modal_signinsheet_download_test extends advanced_testcase {
     }
 
     /**
-     * In HTML template mode the form uses the HTML endpoint and passes the
-     * save-as format instead of the empty rows setting.
+     * In HTML template mode the URL stays the same (the endpoint resolves the
+     * mode server-side); the mode-specific settings like the save-as format
+     * are persisted in the option JSON.
      *
      * @covers \mod_booking\form\modal_signinsheet_download::process_dynamic_submission
      */
@@ -139,11 +136,17 @@ final class modal_signinsheet_download_test extends advanced_testcase {
         $this->assertEquals(1, (int)($result['success'] ?? 0));
 
         $url = new moodle_url($result['downloadurl']);
-        $this->assertEquals('downloadsigninsheethtml', $url->get_param('action'));
-        $this->assertEquals('word', $url->get_param('saveasformat'));
-        $this->assertEquals(-1, (int)$url->get_param('signinextrasessioncols'));
-        // The empty rows setting only exists in PDF mode.
-        $this->assertNull($url->get_param('addemptyrows'));
+        $this->assertStringContainsString('/mod/booking/download_signinsheet.php', $result['downloadurl']);
+        $this->assertEquals((int)$settings->cmid, (int)$url->get_param('cmid'));
+        $this->assertEquals((int)$settings->id, (int)$url->get_param('optionid'));
+        $this->assertNull($url->get_param('action'));
+        $this->assertNull($url->get_param('saveasformat'));
+
+        // The mode-specific settings are persisted and resolved server-side.
+        $config = signinsheet_config::for_option((int)$settings->id);
+        $this->assertEquals('word', $config['saveasformat']);
+        $this->assertEquals(-1, (int)$config['signinextrasessioncols']);
+        $this->assertTrue(signinsheet_config::is_htmlmode());
     }
 
     /**

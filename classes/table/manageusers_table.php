@@ -780,8 +780,12 @@ class manageusers_table extends wunderbyte_table {
                 $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
                 $context = context_module::instance($settings->cmid);
 
-                if (!has_capability('mod/booking:bookforothers', $context)) {
-                    throw new moodle_exception('Missing capability: mod/booking:bookforothers', 'mod_booking');
+                // Deleting responses requires the same capability as on the old
+                // report.php (and as the delete button itself is gated with).
+                // Note: since this is a write capability, it is not part of the
+                // default role of non-editing teachers on new installations.
+                if (!has_capability('mod/booking:deleteresponses', $context)) {
+                    throw new moodle_exception('Missing capability: mod/booking:deleteresponses', 'mod_booking');
                 }
 
                 $option = singleton_service::get_instance_of_booking_option($settings->cmid, $optionid);
@@ -810,6 +814,65 @@ class manageusers_table extends wunderbyte_table {
     }
 
     /**
+     * Enrol the users of the checked booking answers into the course connected
+     * to their booking option. Uses the transmitaction pattern (actionbutton).
+     * Migrated from the old report.php bulk action subscribetocourse: enrols
+     * manually (enrol_user with $manual = true), so it also works when the
+     * instance has auto-enrolment disabled.
+     *
+     * @param int $id
+     * @param string $data
+     * @return array
+     */
+    public function action_enrol_checked_booking_answers(int $id, string $data): array {
+
+        global $DB;
+
+        $jsonobject = json_decode($data);
+
+        $bookinganswerids = $jsonobject->checkedids;
+
+        foreach ($bookinganswerids as $bookinganswerid) {
+            if (!$answerrecord = $DB->get_record('booking_answers', ['id' => $bookinganswerid])) {
+                throw new moodle_exception(
+                    'invalidanswerid',
+                    'mod_booking',
+                    '',
+                    null,
+                    'Answer ID: ' . $bookinganswerid . ' not found in table booking_answers.'
+                );
+            }
+
+            $optionid = $answerrecord->optionid;
+            $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+            $context = context_module::instance($settings->cmid);
+
+            // Subscribeusers authorizes putting other users into bookings and
+            // courses. Since this is a write capability, it is not part of the
+            // default role of non-editing teachers on new installations.
+            if (!has_capability('mod/booking:subscribeusers', $context)) {
+                throw new moodle_exception('Missing capability: mod/booking:subscribeusers', 'mod_booking');
+            }
+
+            if (empty($settings->courseid)) {
+                return [
+                    'success' => 0,
+                    'message' => get_string('nocourse', 'mod_booking'),
+                ];
+            }
+
+            $option = singleton_service::get_instance_of_booking_option($settings->cmid, $optionid);
+            $option->enrol_user((int)$answerrecord->userid, true);
+        }
+
+        return [
+            'success' => 1,
+            'message' => get_string('userssuccessfullenrolled', 'mod_booking'),
+            'reload' => 1,
+        ];
+    }
+
+    /**
      * Toggle the completion status of the checked booking answers.
      * Uses the transmitaction pattern (actionbutton).
      * Same behaviour as the "Toggle completion status" button on report.php.
@@ -833,12 +896,11 @@ class manageusers_table extends wunderbyte_table {
                 $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
                 $context = context_module::instance($settings->cmid);
 
-                // Same condition as for the activitycompletion action on report.php.
-                if (
-                    !booking_check_if_teacher($optionid)
-                    && !has_capability('mod/booking:readresponses', $context)
-                ) {
-                    throw new moodle_exception('Missing capability: mod/booking:readresponses', 'mod_booking');
+                // Managebookedusers is the general edit gate of the tracker:
+                // read-only roles (e.g. non-editing teachers) must not change
+                // the completion status.
+                if (!has_capability('mod/booking:managebookedusers', $context)) {
+                    throw new moodle_exception('Missing capability: mod/booking:managebookedusers', 'mod_booking');
                 }
 
                 $option = singleton_service::get_instance_of_booking_option($settings->cmid, $optionid);
@@ -883,6 +945,12 @@ class manageusers_table extends wunderbyte_table {
             || !get_config('booking', 'certificateon')
         ) {
             return $failure;
+        }
+
+        // Server-side recheck of the button gate: report2 is also readable by
+        // users without any certificate rights.
+        if (!has_capability('tool/certificate:manage', context_system::instance())) {
+            throw new moodle_exception('Missing capability: tool/certificate:manage', 'mod_booking');
         }
 
         $jsonobject = json_decode($data);

@@ -1642,7 +1642,7 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
 
         // Bookings Tracker.
         if (has_capability('mod/booking:managebookedusers', $context)) {
-            $bookingstrackernode = $navref->add(
+            $navref->add(
                 get_string('bookingstracker', 'mod_booking') . " (" . format_string($bookingsettings->name) . ")",
                 new moodle_url(
                     '/mod/booking/report2.php',
@@ -1652,13 +1652,9 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
                 null,
                 'nav_bookingstracker'
             );
-
-            if (!$proversion) {
-                $bookingstrackernode->add_class('disabled-profeature');  // Add a custom class for non-pro users.
-            }
         }
         if (has_capability('mod/booking:managebookedusers', context_system::instance())) {
-            $bookingstrackernodesystem = $navref->add(
+            $navref->add(
                 get_string('bookingstracker', 'mod_booking') . " (" . get_string('report2labelsystem', 'mod_booking') . ")",
                 new moodle_url(
                     '/mod/booking/report2.php'
@@ -1667,10 +1663,6 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
                 null,
                 'nav_bookingstrackersystem'
             );
-
-            if (!$proversion) {
-                $bookingstrackernodesystem->add_class('disabled-profeature');  // Add a custom class for non-pro users.
-            }
         }
     }
 

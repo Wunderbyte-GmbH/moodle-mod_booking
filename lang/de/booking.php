@@ -999,6 +999,7 @@ $string['bookingstrackerpresencecounter_desc'] = 'Zähler anzeigen, der die Gesa
 Definieren Sie in der nächsten Einstellung, welcher Anwesenheitsstatus gezählt werden soll.';
 $string['bookingstrackerpresencecountervaluetocount'] = 'Anwesenheitsstatus, der gezählt werden soll';
 $string['bookingstrackerpresencecountervaluetocount_desc'] = 'Die Anzahl der Anwesenheiten wird für den ausgewählten Status gezählt und im Buchungstracker angezeigt.';
+$string['bookingstrackersetrating'] = 'Nutzer:innen bewerten';
 $string['bookingstrackerswitchviewtypetoanswers'] = 'Jede Buchung einzeln anzeigen';
 $string['bookingstrackerswitchviewtypetooptions'] = 'Buchungen pro Buchungsoption zusammenfassen';
 $string['bookingstrackertriggercertificate'] = 'Zertifikat(e) generieren';
@@ -1774,8 +1775,7 @@ $string['equalsnot'] = 'hat nicht genau diesen Wert (Text oder Zahl)';
 $string['equalsnotplain'] = 'hat nicht genau diesen Wert';
 $string['equalsplain'] = 'hat genau diesen Wert';
 $string['error:bookingstrackernotactivated'] = 'Sie dürfen diese Seite nicht öffnen.
-Entweder ist die Einstellung für den Buchungstracker (bookingstracker) nicht aktiviert
-oder Sie haben keine Booking PRO-Lizenz (oder Ihre Booking PRO-Lizenz ist abgelaufen).';
+Die Einstellung für den Buchungstracker (bookingstracker) ist nicht aktiviert.';
 $string['error:campaignend'] = 'Kampagnenende muss nach dem Kampagnenbeginn sein.';
 $string['error:campaignstart'] = 'Kampagnenbeginn muss vor dem Kampagnenende liegen.';
 $string['error:chooseint'] = 'Sie müssen hier eine ganze Zahl eingeben';
@@ -2685,13 +2685,6 @@ $string['profeatures:availabilityinfotexts'] = '<ul>
 $string['profeatures:boactions'] = '<ul>
 <li><b>Aktionen nach der Buchung aktivieren</b></li>
 </ul>';
-$string['profeatures:bookingstracker'] = '<ul>
-<li><b>Benutzer:innen erlauben, die Buchungen der gesamten Seite auf verschiedenen hierarchischen Buchungsebenen
-(Termin, Buchungsoption, Buchungsinstanz, Moodle-Kurs, gesamte Plattform) zu verwalten
-und für gebuchte Benutzer:innen die Anwesenheiten zu hinterlegen.</b></li>
-<li><b>Anwesenheiten zählen - Sie können bei jedem Termin einzeln angeben, wer anwesend war.</b></li>
-<li><b>Wählen Sie selbst den Anwesenheitsstatus, der gezählt werden soll.</b></li>
-</ul>';
 $string['profeatures:cachesettings'] = '<ul>
 <li><b>Kein Caching der Buchungsoptions-Einstellungen</b></li>
 <li><b>Kein Caching der Buchungsantworten (Buchungen)</b></li>
@@ -3484,6 +3477,7 @@ $string['subscribealreadybooked'] = '(ist bereits gebucht)';
 $string['subscribebookedxtimes'] = '({$a} mal gebucht)';
 $string['subscribersto'] = 'Trainer:innen für \'{$a}\'';
 $string['subscribetocourse'] = 'Nutzer:innen in den Kurs einschreiben';
+$string['subscribetocoursebody'] = 'Wollen Sie die ausgewählten Nutzer:innen wirklich in den mit dieser Buchungsoption verbundenen Kurs einschreiben?';
 $string['subscribeuser'] = 'Wollen Sie diese User wirklich in diesen Kurs einschreiben';
 $string['substitutions'] = 'Vertretung(en)';
 $string['successfulcalculation'] = 'Preise erfolgreich neu berechnet!';

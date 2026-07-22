@@ -28,6 +28,7 @@ use mod_booking\booking;
 use mod_booking\booking_option;
 use mod_booking\singleton_service;
 use moodle_url;
+use stdClass;
 
 /**
  * Resolution and persistence of sign-in sheet download settings.
@@ -175,35 +176,49 @@ class signinsheet_config {
     }
 
     /**
-     * Build the download URL for the existing sign-in sheet endpoint on
-     * report.php from a settings array.
+     * Build the download URL for the sign-in sheet endpoint.
+     *
+     * The settings are NOT part of the URL: they are persisted in the option
+     * JSON (see save_for_option) and resolved server-side by the endpoint via
+     * for_option(). The mode (legacy PDF vs. HTML template) is a global
+     * setting, so the endpoint resolves it too.
      *
      * @param int $cmid
      * @param int $optionid
-     * @param array $config
      * @return moodle_url
      */
-    public static function download_url(int $cmid, int $optionid, array $config): moodle_url {
-        $config = array_intersect_key($config, self::defaults()) + self::defaults();
-        $htmlmode = get_config('booking', 'signinsheetmode') === 'htmltemplate';
-
-        $params = [
-            'id' => $cmid,
+    public static function download_url(int $cmid, int $optionid): moodle_url {
+        return new moodle_url('/mod/booking/download_signinsheet.php', [
+            'cmid' => $cmid,
             'optionid' => $optionid,
-            'action' => $htmlmode ? 'downloadsigninsheethtml' : 'downloadsigninsheet',
-            'orientation' => $config['orientation'],
-            'orderby' => $config['orderby'],
-            'pdftitle' => (int)$config['pdftitle'],
-            'pdfsessions' => (int)$config['pdfsessions'],
-            'signinextrasessioncols' => (int)$config['signinextrasessioncols'],
-            'includeteachers' => empty($config['includeteachers']) ? 0 : 1,
-        ];
-        if ($htmlmode) {
-            $params['saveasformat'] = $config['saveasformat'];
-        } else {
-            $params['addemptyrows'] = (int)$config['addemptyrows'];
-        }
+        ]);
+    }
 
-        return new moodle_url('/mod/booking/report.php', $params);
+    /**
+     * Map a settings array to the pdfoptions object the signinsheet_generator
+     * constructor expects.
+     *
+     * The generator uses partly different property names than the config keys
+     * (pdfsessions -> sessions, pdftitle -> title,
+     * signinextrasessioncols -> extrasessioncols), so this mapping is kept in
+     * one place.
+     *
+     * @param array $config settings array as returned by for_option()
+     * @return stdClass
+     */
+    public static function pdfoptions_from_config(array $config): stdClass {
+        $config = array_intersect_key($config, self::defaults()) + self::defaults();
+
+        $pdfoptions = new stdClass();
+        $pdfoptions->orientation = $config['orientation'];
+        $pdfoptions->orderby = $config['orderby'];
+        $pdfoptions->title = (int)$config['pdftitle'];
+        $pdfoptions->sessions = (int)$config['pdfsessions'];
+        $pdfoptions->extrasessioncols = (int)$config['signinextrasessioncols'];
+        $pdfoptions->addemptyrows = (int)$config['addemptyrows'];
+        $pdfoptions->includeteachers = empty($config['includeteachers']) ? 0 : 1;
+        $pdfoptions->saveasformat = $config['saveasformat'];
+
+        return $pdfoptions;
     }
 }

@@ -180,15 +180,21 @@ class option extends scope_base {
                 $responsesfields = ['status', 'notes'];
             }
 
+            // Managebookedusers is the general edit gate of the tracker: users
+            // without it (e.g. non-editing teachers) can read the report but
+            // must not change any booking data, even if their role carries the
+            // action-specific capability by default.
+            $canmanagebookedusers = has_capability('mod/booking:managebookedusers', context_module::instance($cmid));
+
             // Like on report.php, the "Toggle completion status" button is only shown
             // if the completed column is configured in the responsesfields setting.
-            if (in_array('completed', $responsesfields)) {
+            if (in_array('completed', $responsesfields) && $canmanagebookedusers) {
                 $table->actionbuttons[] = booked_users::create_completion_button(
                     $bookingsettings->btncacname ?? ''
                 );
             }
 
-            if (in_array('status', $responsesfields)) {
+            if (in_array('status', $responsesfields) && $canmanagebookedusers) {
                 $table->actionbuttons[] = booked_users::create_action_button(
                     'presence',
                     'fa fa-user-o fa-fw',
@@ -205,7 +211,7 @@ class option extends scope_base {
                 );
             }
 
-            if (in_array('notes', $responsesfields)) {
+            if (in_array('notes', $responsesfields) && $canmanagebookedusers) {
                 $table->actionbuttons[] = booked_users::create_action_button(
                     'notes',
                     'fa fa-pencil fa-fw',
@@ -251,6 +257,49 @@ class option extends scope_base {
                     ],
                     'btn btn-primary btn-sm ms-2'
                 );
+            }
+
+            // Rate users (migrated from report.php): only if the rating column is
+            // configured, ratings are enabled on the instance (assessed) and the
+            // user may actually rate. Visibility checks the plugin permission
+            // mod/booking:rate (which booking_rate enforces on submit) instead of
+            // moodle/rating:rate, which almost every role has by default.
+            if (
+                in_array('rating', $responsesfields)
+                && !empty($bookingsettings->assessed)
+                && (
+                    booking_check_if_teacher($optionid)
+                    || has_capability('mod/booking:rate', context_module::instance($cmid))
+                )
+            ) {
+                $table->actionbuttons[] = booked_users::create_action_button(
+                    'bookingstrackersetrating',
+                    'fa fa-star-o fa-fw',
+                    'mod_booking\\form\\modal_set_rating',
+                    [
+                        'titlestring' => 'bookingstrackersetrating',
+                        'submitbuttonstring' => 'save',
+                        'component' => 'mod_booking',
+                        'cmid' => $cmid,
+                        'optionid' => $optionid ?? 0,
+                    ],
+                    'btn btn-primary btn-sm ms-2'
+                );
+            }
+
+            // Enrol users in the course (migrated from report.php): only useful
+            // when the instance does not auto-enrol anyway and the option has a
+            // connected course. Gated by subscribeusers - the plugin capability
+            // for putting other users into bookings/courses (the old report.php
+            // button was gated by communicate, which is a messaging capability
+            // and had nothing to do with enrolment).
+            $optionsettings = singleton_service::get_instance_of_booking_option_settings($optionid);
+            if (
+                empty($bookingsettings->autoenrol)
+                && (int)($optionsettings->courseid ?? 0) > 0
+                && has_capability('mod/booking:subscribeusers', context_module::instance($cmid))
+            ) {
+                $table->actionbuttons[] = booked_users::create_enrol_button();
             }
         }
 

@@ -219,9 +219,10 @@ class modal_signinsheet_download extends dynamic_form {
      *
      * Persists the submitted settings in the JSON of the booking option (so
      * the quick download button and the next opening of this modal reuse
-     * them) and returns the download URL of the existing sign-in sheet
-     * endpoint on report.php, which the caller (amd/src/signinsheetmodal.js)
-     * then navigates to, triggering the file download.
+     * them) and returns the URL of the sign-in sheet download endpoint
+     * (download_signinsheet.php, which resolves the persisted settings
+     * server-side). The caller (amd/src/signinsheetmodal.js) then navigates
+     * to it, triggering the file download.
      *
      * @return array
      */
@@ -242,7 +243,7 @@ class modal_signinsheet_download extends dynamic_form {
 
         signinsheet_config::save_for_option($optionid, $config);
 
-        $url = signinsheet_config::download_url($cmid, $optionid, $config);
+        $url = signinsheet_config::download_url($cmid, $optionid);
 
         return [
             'success' => 1,

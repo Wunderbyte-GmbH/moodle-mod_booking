@@ -31,17 +31,20 @@ use mod_booking\option\dates_handler;
 use mod_booking\output\booked_users;
 use mod_booking\output\optiondates_with_entities;
 use mod_booking\placeholders\placeholders_info;
+use mod_booking\local\bookingstracker\report2_access;
+use mod_booking\local\bookingstracker\report2_header_links;
 use mod_booking\signinsheet\signinsheet_config;
 use mod_booking\singleton_service;
-use mod_booking\utils\wb_payment;
 use mod_booking\output\renderer;
 
 global $PAGE, $SITE;
 
-if (!get_config('booking', 'bookingstracker') || !wb_payment::pro_version_is_activated()) {
+// The bookings tracker is a regular (non-PRO) feature, only gated by its admin setting.
+if (!get_config('booking', 'bookingstracker')) {
     require_login(1, false);
     $PAGE->set_url(new moodle_url('/mod/booking/report2.php'));
     echo "<div class='alert alert-warning'>" . get_string('error:bookingstrackernotactivated', 'mod_booking') . "</div>";
+    die();
 }
 
 $optiondateid = optional_param('optiondateid', 0, PARAM_INT);
@@ -89,16 +92,9 @@ if (!empty($optiondateid)) {
     $r2coursecontext = context_course::instance($courseid);
     $r2instancecontext = context_module::instance($cmid);
 
-    // Check capabilities.
-    if (
-        (
-            has_capability('mod/booking:updatebooking', $r2instancecontext)
-            || (
-                has_capability('mod/booking:addeditownoption', $r2instancecontext)
-                && booking_check_if_teacher($optionid)
-            )
-        ) == false
-    ) {
+    // Check capabilities: same read access as the old report.php. All write
+    // actions keep their own capability checks.
+    if (!report2_access::has_option_scope_access($cmid, $optionid)) {
         echo $OUTPUT->header();
         echo $OUTPUT->heading(get_string('accessdenied', 'mod_booking'), 4);
         echo get_string('nopermissiontoaccesspage', 'mod_booking');
@@ -159,16 +155,9 @@ if (!empty($optiondateid)) {
     $r2coursecontext = context_course::instance($courseid);
     $r2instancecontext = context_module::instance($cmid);
 
-    // Check capabilities.
-    if (
-        (
-            has_capability('mod/booking:updatebooking', $r2instancecontext)
-            || (
-                has_capability('mod/booking:addeditownoption', $r2instancecontext)
-                && booking_check_if_teacher($optionid)
-            )
-        ) == false
-    ) {
+    // Check capabilities: same read access as the old report.php. All write
+    // actions keep their own capability checks.
+    if (!report2_access::has_option_scope_access($cmid, $optionid)) {
         echo $OUTPUT->header();
         echo $OUTPUT->heading(get_string('accessdenied', 'mod_booking'), 4);
         echo get_string('nopermissiontoaccesspage', 'mod_booking');
@@ -211,7 +200,10 @@ if (!empty($optiondateid)) {
     $r2coursecap = has_capability('mod/booking:managebookedusers', $r2coursecontext);
     $r2instancecap = has_capability('mod/booking:managebookedusers', $r2instancecontext);
 
-    require_capability('mod/booking:managebookedusers', $r2instancecontext);
+    // Managebookedusers checked in the MODULE context of this instance.
+    if (!report2_access::has_instance_scope_access($cmid)) {
+        throw new required_capability_exception($r2instancecontext, 'mod/booking:managebookedusers', 'nopermissions', '');
+    }
 
     // We only show links, if we have the matching capabilities.
     $a = new stdClass();
@@ -239,7 +231,11 @@ if (!empty($optiondateid)) {
     // To create the correct links.
     $r2coursecap = has_capability('mod/booking:managebookedusers', $r2coursecontext);
 
-    require_capability('mod/booking:managebookedusers', $r2coursecontext);
+    // Managebookedusers checked in the COURSE context: a module-level
+    // assignment inside the course does not open the course scope.
+    if (!report2_access::has_course_scope_access($courseid)) {
+        throw new required_capability_exception($r2coursecontext, 'mod/booking:managebookedusers', 'nopermissions', '');
+    }
 
     // We only show links, if we have the matching capabilities.
     $a = new stdClass();
@@ -260,7 +256,11 @@ if (!empty($optiondateid)) {
 
     $r2systemurl = new moodle_url('/');
 
-    require_capability('mod/booking:managebookedusers', $r2syscontext);
+    // Managebookedusers checked in the SYSTEM context: only a global role
+    // assignment opens the system scope (course/module assignments do not).
+    if (!report2_access::has_system_scope_access()) {
+        throw new required_capability_exception($r2syscontext, 'mod/booking:managebookedusers', 'nopermissions', '');
+    }
 
     // We only show links, if we have the matching capabilities.
     $a = new stdClass();
@@ -523,14 +523,10 @@ if (!empty($optionid) && empty($optiondateid)) {
     );
     $PAGE->requires->js_call_amd('mod_booking/signinsheetmodal', 'init');
 
-    // Quick download of the sign-in sheet with the persisted settings of this
-    // option (falling back to instance / plugin settings). The modal above
-    // updates this link after each (re)configuration.
-    $quickdownloadurl = signinsheet_config::download_url(
-        $cmid,
-        $optionid,
-        signinsheet_config::for_option($optionid)
-    );
+    // Quick download of the sign-in sheet. The endpoint resolves the persisted
+    // settings of this option (falling back to instance / plugin settings)
+    // server-side, so the URL only carries cmid and optionid.
+    $quickdownloadurl = signinsheet_config::download_url($cmid, $optionid);
     echo html_writer::link(
         $quickdownloadurl,
         '<i class="fa fa-download fa-fw" aria-hidden="true"></i>&nbsp;' .
@@ -584,6 +580,17 @@ if (!empty($optionid) && empty($optiondateid)) {
             ]
         );
         $PAGE->requires->js_call_amd('mod_booking/sendmessagetocontactsmodal', 'init');
+    }
+
+    // Slot management pages (teacher unavailability, teacher assignments,
+    // slot calendar) for slot booking options - migrated from the old
+    // report.php header. Gating happens in the helper.
+    foreach (report2_header_links::slot_management_links($cmid, $optionid) as $slotlink) {
+        echo html_writer::link(
+            $slotlink['url'],
+            '<i class="' . $slotlink['iconclass'] . '" aria-hidden="true"></i>&nbsp;' . $slotlink['label'],
+            ['class' => 'btn btn-primary btn-sm ms-2']
+        );
     }
 
     // Hint for users who may edit the booking instance: which columns the

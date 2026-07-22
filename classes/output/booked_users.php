@@ -669,6 +669,35 @@ class booked_users implements renderable, templatable {
     }
 
     /**
+     * Function to create the "Enrol users in the course" button.
+     *
+     * Migrated from the old report.php bulk action subscribetocourse: enrols
+     * the checked users manually into the course connected to the option.
+     *
+     * @return array
+     *
+     */
+    public static function create_enrol_button(): array {
+        return [
+            'iclass' => 'fa fa-graduation-cap fa-fw me-1',
+            'label' => get_string('subscribetocourse', 'mod_booking'),
+            'class' => 'btn btn-primary btn-sm ms-1',
+            'href' => '#',
+            'methodname' => 'enrol_checked_booking_answers',
+            'nomodal' => false,
+            'selectionmandatory' => true,
+            'id' => -1,
+            'data' => [
+                'id' => 'id',
+                'titlestring' => 'subscribetocourse',
+                'bodystring' => 'subscribetocoursebody',
+                'submitbuttonstring' => 'apply',
+                'component' => 'mod_booking',
+            ],
+        ];
+    }
+
+    /**
      * Function to create delete button.
      *
      * @return array

@@ -364,13 +364,6 @@ $string['problemsofcohortorgroupbooking'] = '<br><p>Es konnten nicht alle Buchun
 <li>{$a->notsubscribedusers} Nutzer/innen konnten aus anderen Gründen nicht gebucht werden</li>
 </ul>
 <p>Der Grund ist wahrscheinlich, dass die zu Buchenden nicht in diesen Kurs eingeschrieben sind und Sie nicht das Recht mod_booking:bookanyone haben</p>';
-$string['profeatures:bookingstracker'] = '<ul>
-<li><b>Benutzer/innen erlauben, die Buchungen der gesamten Seite auf verschiedenen hierarchischen Buchungsebenen
-(Termin, Buchungsoption, Buchungsinstanz, Moodle-Kurs, gesamte Plattform) zu verwalten
-und für gebuchte Benutzer/innen die Anwesenheiten zu hinterlegen.</b></li>
-<li><b>Anwesenheiten zählen - Sie können bei jedem Termin einzeln angeben, wer anwesend war.</b></li>
-<li><b>Wählen Sie selbst den Anwesenheitsstatus, der gezählt werden soll.</b></li>
-</ul>';
 $string['profeatures:enablefavoritestoggle'] = '<ul>
 <li>Nutzer/innen können Buchungsoptionen mit einem Stern-Symbol als Favoriten markieren.</li>
 <li>Pro Buchungsinstanz kann ein persönlicher Tab "Meine Favoriten" aktiviert werden.</li>

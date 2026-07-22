@@ -1192,40 +1192,6 @@ if ($ADMIN->fulltree) {
                 $tabwhatsnewdaysarr
             )
         );
-        // PRO feature: Bookings tracker.
-        $settings->add(
-            new admin_setting_heading(
-                'bookingstrackerheading',
-                get_string('bookingstracker', 'mod_booking')
-                    . " " . get_string('badge:pro', 'mod_booking'),
-                ""
-            )
-        );
-        $settings->add(
-            new admin_setting_configcheckbox(
-                'booking/bookingstracker',
-                get_string('bookingstracker', 'mod_booking'),
-                get_string('bookingstracker_desc', 'mod_booking'),
-                0
-            )
-        );
-        $settings->add(
-            new admin_setting_configcheckbox(
-                'booking/bookingstrackerpresencecounter',
-                get_string('bookingstrackerpresencecounter', 'mod_booking'),
-                get_string('bookingstrackerpresencecounter_desc', 'mod_booking'),
-                0
-            )
-        );
-        $settings->add(
-            new admin_setting_configselect(
-                'booking/bookingstrackerpresencecountervaluetocount',
-                get_string('bookingstrackerpresencecountervaluetocount', 'mod_booking'),
-                get_string('bookingstrackerpresencecountervaluetocount_desc', 'mod_booking'),
-                0,
-                booking::get_possible_presences(true)
-            )
-        );
         // PRO feature: Teacher settings.
         $settings->add(
             new admin_setting_heading(
@@ -1380,15 +1346,6 @@ if ($ADMIN->fulltree) {
         );
         $settings->add(
             new admin_setting_heading(
-                'bookingstrackerheading',
-                get_string('bookingstracker', 'mod_booking'),
-                get_string('prolicensefeatures', 'mod_booking') .
-                get_string('profeatures:bookingstracker', 'mod_booking') .
-                get_string('infotext:prolicensenecessary', 'mod_booking')
-            )
-        );
-        $settings->add(
-            new admin_setting_heading(
                 'teachersettings',
                 get_string('teachersettings', 'mod_booking'),
                 get_string('prolicensefeatures', 'mod_booking') .
@@ -1397,6 +1354,40 @@ if ($ADMIN->fulltree) {
             )
         );
     }
+
+    // Bookings tracker (report2.php) - a regular feature, available without PRO license.
+    $settings->add(
+        new admin_setting_heading(
+            'bookingstrackerheading',
+            get_string('bookingstracker', 'mod_booking'),
+            ""
+        )
+    );
+    $settings->add(
+        new admin_setting_configcheckbox(
+            'booking/bookingstracker',
+            get_string('bookingstracker', 'mod_booking'),
+            get_string('bookingstracker_desc', 'mod_booking'),
+            0
+        )
+    );
+    $settings->add(
+        new admin_setting_configcheckbox(
+            'booking/bookingstrackerpresencecounter',
+            get_string('bookingstrackerpresencecounter', 'mod_booking'),
+            get_string('bookingstrackerpresencecounter_desc', 'mod_booking'),
+            0
+        )
+    );
+    $settings->add(
+        new admin_setting_configselect(
+            'booking/bookingstrackerpresencecountervaluetocount',
+            get_string('bookingstrackerpresencecountervaluetocount', 'mod_booking'),
+            get_string('bookingstrackerpresencecountervaluetocount_desc', 'mod_booking'),
+            0,
+            booking::get_possible_presences(true)
+        )
+    );
 
     // PRO feature: Workflow confirmation settings.
     if ($proversion) {
