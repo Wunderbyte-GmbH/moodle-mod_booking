@@ -447,6 +447,16 @@ if (!empty($optionid) && empty($optiondateid)) {
         ];
     }
     $infoboxdata['contactsexist'] = !empty($infoboxdata['contacts']);
+    // Associated course (like on the old report.php), linked with its full name.
+    if (!empty($optionsettings->courseid)) {
+        $associatedcoursename = $DB->get_field('course', 'fullname', ['id' => $optionsettings->courseid]);
+        if ($associatedcoursename !== false) {
+            $infoboxdata['associatedcourse'] = [
+                'url' => (new moodle_url('/course/view.php', ['id' => $optionsettings->courseid]))->out(false),
+                'name' => format_string($associatedcoursename),
+            ];
+        }
+    }
     // No optiondates are shown for self-learning courses.
     if (empty($optionsettings->selflearningcourse)) {
         $optiondateswithentities = new optiondates_with_entities($optionsettings);
@@ -467,6 +477,7 @@ if (!empty($optionid) && empty($optiondateid)) {
         || !empty($infoboxdata['singledate'])
         || !empty($infoboxdata['optiondates'])
         || !empty($infoboxdata['description'])
+        || !empty($infoboxdata['associatedcourse'])
     ) {
         echo $OUTPUT->render_from_template('mod_booking/report/infobox', $infoboxdata);
     }
@@ -476,7 +487,6 @@ if (!empty($optionid) && empty($optiondateid)) {
     $isslotoption = (int)($optionsettings->type ?? MOD_BOOKING_OPTIONTYPE_DEFAULT)
         === MOD_BOOKING_OPTIONTYPE_SLOTBOOKING;
 
-    $bookotherusersshown = false;
     if (
         !$isslotoption
         && has_capability('mod/booking:bookforothers', $context)
@@ -490,8 +500,7 @@ if (!empty($optionid) && empty($optiondateid)) {
             ['id' => $cmid, 'optionid' => $optionid]
         );
         echo html_writer::link($url, '<i class="fa fa-users fa-fw" aria-hidden="true"></i>&nbsp;' .
-                get_string('bookotherusers', 'booking'), ['class' => 'btn btn-primary btn-sm']);
-        $bookotherusersshown = true;
+                get_string('bookotherusers', 'booking'), ['class' => 'btn btn-primary btn-sm me-2']);
     }
 
     // Button to configure and download the sign-in sheet via dynamic form modal.
@@ -506,7 +515,7 @@ if (!empty($optionid) && empty($optiondateid)) {
             get_string('signinsheetconfigure', 'mod_booking'),
         [
             'type' => 'button',
-            'class' => 'btn btn-primary btn-sm' . ($bookotherusersshown ? ' ms-2' : ''),
+            'class' => 'btn btn-primary btn-sm me-2',
             'data-action' => 'booking-report2-signinsheet-modal',
             'data-cmid' => $cmid,
             'data-optionid' => $optionid,
@@ -524,7 +533,7 @@ if (!empty($optionid) && empty($optiondateid)) {
         '<i class="fa fa-download fa-fw" aria-hidden="true"></i>&nbsp;' .
             get_string('signinsheetdownload', 'mod_booking'),
         [
-            'class' => 'btn btn-primary btn-sm ms-2',
+            'class' => 'btn btn-primary btn-sm me-2',
             'data-id' => 'booking-report2-signinsheet-quickdownload',
         ]
     );
@@ -543,7 +552,7 @@ if (!empty($optionid) && empty($optiondateid)) {
                 get_string('sendmessagetoteachers', 'mod_booking'),
             [
                 'type' => 'button',
-                'class' => 'btn btn-primary btn-sm ms-2',
+                'class' => 'btn btn-primary btn-sm me-2',
                 'data-action' => 'booking-report2-sendmessagetoteachers-modal',
                 'data-cmid' => $cmid,
                 'data-optionid' => $optionid,
@@ -565,7 +574,7 @@ if (!empty($optionid) && empty($optiondateid)) {
                 get_string('sendmessagetoresponsiblecontacts', 'mod_booking'),
             [
                 'type' => 'button',
-                'class' => 'btn btn-primary btn-sm ms-2',
+                'class' => 'btn btn-primary btn-sm me-2',
                 'data-action' => 'booking-report2-sendmessagetocontacts-modal',
                 'data-cmid' => $cmid,
                 'data-optionid' => $optionid,
@@ -581,7 +590,7 @@ if (!empty($optionid) && empty($optiondateid)) {
         echo html_writer::link(
             $slotlink['url'],
             '<i class="' . $slotlink['iconclass'] . '" aria-hidden="true"></i>&nbsp;' . $slotlink['label'],
-            ['class' => 'btn btn-primary btn-sm ms-2']
+            ['class' => 'btn btn-primary btn-sm me-2']
         );
     }
 

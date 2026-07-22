@@ -160,7 +160,7 @@ class optiondate extends scope_base {
             if (in_array('status', $responsesfields) && $canmanagebookedusers) {
                 $table->actionbuttons[] = [
                     'label' => get_string('presence', 'mod_booking'), // Name of your action button.
-                    'class' => 'btn btn-primary btn-sm ms-2',
+                    'class' => 'btn btn-primary btn-sm me-2',
                     'href' => '#', // You can either use the link, or JS, or both.
                     'iclass' => 'fa fa-user-o fa-fw', // Add an icon before the label.
                     'formname' => 'mod_booking\\form\\optiondates\\modal_change_status',
@@ -182,7 +182,7 @@ class optiondate extends scope_base {
             if (in_array('notes', $responsesfields) && $canmanagebookedusers) {
                 $table->actionbuttons[] = [
                     'label' => get_string('notes', 'mod_booking'), // Name of your action button.
-                    'class' => 'btn btn-primary btn-sm ms-1',
+                    'class' => 'btn btn-primary btn-sm me-2',
                     'href' => '#', // You can either use the link, or JS, or both.
                     'iclass' => 'fa fa-pencil fa-fw', // Add an icon before the label.
                     'formname' => 'mod_booking\\form\\optiondates\\modal_change_notes',

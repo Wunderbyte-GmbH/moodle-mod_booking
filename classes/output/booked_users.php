@@ -626,7 +626,7 @@ class booked_users implements renderable, templatable {
         string $icon,
         string $formname,
         array $data,
-        string $css = 'btn btn-primary btn-sm ms-1'
+        string $css = 'btn btn-primary btn-sm me-2'
     ): array {
         return [
             'label' => get_string($labelkey, 'mod_booking'),
@@ -650,9 +650,9 @@ class booked_users implements renderable, templatable {
      */
     public static function create_completion_button(string $label = ''): array {
         return [
-            'iclass' => 'fa fa-check-square fa-fw me-1',
+            'iclass' => 'fa fa-check-square fa-fw',
             'label' => !empty($label) ? $label : get_string('confirmoptioncompletion', 'mod_booking'),
-            'class' => 'btn btn-primary btn-sm ms-1',
+            'class' => 'btn btn-primary btn-sm me-2',
             'href' => '#',
             'methodname' => 'toggle_completion_booking_answers',
             'nomodal' => false,
@@ -679,9 +679,9 @@ class booked_users implements renderable, templatable {
      */
     public static function create_enrol_button(): array {
         return [
-            'iclass' => 'fa fa-graduation-cap fa-fw me-1',
+            'iclass' => 'fa fa-graduation-cap fa-fw',
             'label' => get_string('subscribetocourse', 'mod_booking'),
-            'class' => 'btn btn-primary btn-sm ms-1',
+            'class' => 'btn btn-primary btn-sm me-2',
             'href' => '#',
             'methodname' => 'enrol_checked_booking_answers',
             'nomodal' => false,
@@ -705,9 +705,9 @@ class booked_users implements renderable, templatable {
      */
     public static function create_delete_button(): array {
         return [
-            'iclass' => 'fa fa-trash fa-fw me-1',
+            'iclass' => 'fa fa-trash fa-fw',
             'label' => get_string('bookingstrackerdelete', 'mod_booking'),
-            'class' => 'btn btn-danger btn-sm ms-1',
+            'class' => 'btn btn-danger btn-sm me-2',
             'href' => '#',
             'methodname' => 'delete_checked_booking_answers',
             'nomodal' => false,
@@ -737,7 +737,7 @@ class booked_users implements renderable, templatable {
         return [
             'iclass' => 'fa fa-fw fa-certificate',
             'label' => get_string('bookingstrackertriggercertificate', 'mod_booking'),
-            'class' => 'btn btn-primary btn-sm ms-1',
+            'class' => 'btn btn-primary btn-sm me-2',
             'href' => '#',
             'methodname' => 'trigger_certificate_booking_answers',
             'nomodal' => false,

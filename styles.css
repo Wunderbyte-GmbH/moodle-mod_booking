@@ -767,6 +767,11 @@ div.checkbox:has(label[for^="id_bo_cond_allowedtobookininstance_capabilitynotnee
     border-radius: 0;
 }
 
+/* Report2 (Bookings Tracker) button margins. */
+#page-mod-booking-report2 .btn.btn-sm {
+    margin-bottom: 0.6em;
+}
+
 /* Booking config settings. */
 #page-admin-setting-modsettingbooking #admin-selectteacherswithprofilefieldonlyfield,
 #page-admin-setting-modsettingbooking #admin-selectteacherswithprofilefieldonlyvalue,

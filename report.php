@@ -974,6 +974,13 @@ if (!$tableallbookings->is_downloading()) {
         4
     );
 
+    // Deprecation notice: this page will be replaced by the bookings tracker
+    // (report2.php). Link to the option scope of the new report.
+    $report2url = new moodle_url('/mod/booking/report2.php', ['optionid' => $optionid]);
+    echo '<div class="alert alert-warning">'
+        . get_string('report1deprecationwarning', 'mod_booking', $report2url->out(false))
+        . '</div>';
+
     // We need this on top, so we have the action to download the sign-in-sheet.
     echo '<input name="action" type="hidden" value="downloadsigninsheet">';
 

@@ -19,9 +19,11 @@
 
     Compact info line shown below the title in the option scope of the
     Bookings Tracker (report2.php): teachers and responsible contacts linked to
-    their user profiles, the optiondates and the description. A single date is
-    shown directly, multiple dates are collapsed behind a "Show dates" link and
-    the description behind a "Show description" link.
+    their user profiles, the associated course (if the option is connected to
+    a Moodle course) linked with its full name, the optiondates and the
+    description. A single date is shown directly, multiple dates are collapsed
+    behind a "Show dates" link and the description behind a "Show description"
+    link.
 
     Classes required for JS:
     * none
@@ -40,6 +42,7 @@
         "contacts": [
             { "name": "Contact One", "profileurl": "https://example.com/user/profile.php?id=4", "notlast": false }
         ],
+        "associatedcourse": { "url": "https://example.com/course/view.php?id=5", "name": "Course 101" },
         "optionid": 1,
         "optiondates": "<ul><li><b>3 March 2023, 10:30 AM - 11:45 AM</b></li></ul>",
         "description": "<p>An interesting course.</p>"
@@ -90,6 +93,12 @@
                 {{/contacts}}
             </span>
         {{/contactsexist}}
+        {{#associatedcourse}}
+            <span class="mr-3 me-3">
+                <i class="fa fa-fw fa-university" aria-hidden="true"></i>&nbsp;{{#str}} associatedcourse, mod_booking {{/str}}:
+                <a href="{{url}}">{{name}}</a>
+            </span>
+        {{/associatedcourse}}
     </div>
     {{#optiondates}}
         <div class="collapse mt-2" id="mod-booking-report2-infobox-dates-{{optionid}}">

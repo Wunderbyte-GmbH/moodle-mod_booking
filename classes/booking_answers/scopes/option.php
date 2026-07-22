@@ -207,7 +207,7 @@ class option extends scope_base {
                         'cmid' => $cmid,
                         'optionid' => $optionid ?? 0,
                     ],
-                    'btn btn-primary btn-sm ms-2'
+                    'btn btn-primary btn-sm me-2'
                 );
             }
 
@@ -223,7 +223,8 @@ class option extends scope_base {
                         'component' => 'mod_booking',
                         'cmid' => $cmid,
                         'optionid' => $optionid ?? 0,
-                    ]
+                    ],
+                    'btn btn-primary btn-sm me-2'
                 );
             }
 
@@ -239,7 +240,7 @@ class option extends scope_base {
                         'cmid' => $cmid,
                         'optionid' => $optionid ?? 0,
                     ],
-                    'btn btn-primary btn-sm ms-2'
+                    'btn btn-primary btn-sm me-2'
                 );
             }
 
@@ -255,7 +256,7 @@ class option extends scope_base {
                         'cmid' => $cmid,
                         'optionid' => $optionid ?? 0,
                     ],
-                    'btn btn-primary btn-sm ms-2'
+                    'btn btn-primary btn-sm me-2'
                 );
             }
 
@@ -274,7 +275,7 @@ class option extends scope_base {
             ) {
                 $table->actionbuttons[] = booked_users::create_action_button(
                     'bookingstrackersetrating',
-                    'fa fa-star-o fa-fw',
+                    'fa fa-star-half-o fa-fw',
                     'mod_booking\\form\\modal_set_rating',
                     [
                         'titlestring' => 'bookingstrackersetrating',
@@ -283,7 +284,7 @@ class option extends scope_base {
                         'cmid' => $cmid,
                         'optionid' => $optionid ?? 0,
                     ],
-                    'btn btn-primary btn-sm ms-2'
+                    'btn btn-primary btn-sm me-2'
                 );
             }
 

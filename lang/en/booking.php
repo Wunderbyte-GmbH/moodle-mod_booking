@@ -3023,6 +3023,7 @@ $string['reoccurringdatestring_help'] = 'Enter a text in the following format:
 $string['reoccurringdatestringerror'] = 'Enter a text in the following format:
     Day, HH:MM - HH:MM or "block" for blocked events.';
 $string['repeatthisbooking'] = 'Repeat this option';
+$string['report1deprecationwarning'] = 'This page will soon be replaced by a modernised version: <a href="{$a}">Bookings Tracker - Give it a try!</a>';
 $string['report2breadcrumbs'] = 'Bookings Tracker navigation';
 $string['report2columnsconfighint'] = 'The columns shown here can be configured in the <a href="{$a->url}">settings of the booking instance</a>, section "{$a->section}" &gt; "{$a->field}".';
 $string['report2gotoscopepage'] = 'Open "{$a}" in a new tab';
