@@ -452,16 +452,14 @@ class elective {
     public static function return_credits_selected($booking) {
         global $DB;
 
-        if (
-            !isset($_GET['list'])
-                || (!$electivesarray = json_decode($_GET['list']))
-        ) {
-            $listorder = '[]';
-        } else {
-            $listorder = $_GET['list'];
-        }
+        // The list of the currently selected electives is passed as a JSON encoded array
+        // of option ids, so we fetch it as PARAM_RAW and clean each id individually below.
+        $listorder = optional_param('list', '[]', PARAM_RAW);
 
         $electivesarray = json_decode($listorder);
+        if (!is_array($electivesarray)) {
+            $electivesarray = [];
+        }
 
         $credits = 0;
         foreach ($electivesarray as $selected) {

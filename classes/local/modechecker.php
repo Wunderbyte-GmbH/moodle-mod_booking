@@ -54,7 +54,7 @@ class modechecker {
         }
 
         // Check for Moodle AJAX-related parameters or constants.
-        if (!empty($_REQUEST['ajax']) || (defined('AJAX_SCRIPT') && AJAX_SCRIPT)) {
+        if (optional_param('ajax', false, PARAM_BOOL) || (defined('AJAX_SCRIPT') && AJAX_SCRIPT)) {
             return true;
         }
 

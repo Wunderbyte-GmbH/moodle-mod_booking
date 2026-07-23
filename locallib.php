@@ -200,3 +200,32 @@ function booking_getoptionstatus($starttime = 0, $endtime = 0) {
 
     return "";
 }
+
+/**
+ * Extract the ids of the selected users from submitted report form data.
+ *
+ * The user checkboxes of the report form are submitted as user[][<userid>],
+ * a nested array structure which optional_param_array() cannot process.
+ * So this function takes the raw submitted data (as returned by the
+ * data_submitted() API) and cleans every single user id with clean_param().
+ *
+ * @param stdClass|false|null $submitteddata the return value of data_submitted()
+ * @return int[] the cleaned ids of the selected users
+ */
+function booking_get_selected_userids($submitteddata): array {
+    $userids = [];
+    if (empty($submitteddata->user) || !is_array($submitteddata->user)) {
+        return $userids;
+    }
+    foreach ($submitteddata->user as $checkbox) {
+        $checkbox = (array) $checkbox;
+        if (empty($checkbox)) {
+            continue;
+        }
+        $userid = clean_param(array_key_first($checkbox), PARAM_INT);
+        if ($userid > 0) {
+            $userids[] = $userid;
+        }
+    }
+    return $userids;
+}

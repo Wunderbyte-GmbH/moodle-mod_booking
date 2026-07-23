@@ -708,26 +708,35 @@ class dates_handler {
      * @return void
      */
     public static function add_values_from_post_to_form(object &$fromform) {
-        // Get all new dynamically loaded dates from $_POST and save them.
+        // Get all new dynamically loaded dates from the submitted form data and save them.
         $newoptiondates = [];
         // Also get the remaining existing dates.
         $stillexistingdates = [];
 
-        foreach ($_POST as $key => $value) {
+        // The date keys are created dynamically (coursetime-newdate..., coursetime-customdate...,
+        // coursetime-dateid...), so they are not known beforehand and cannot be fetched with
+        // optional_param. Therefore we use the data_submitted API and clean every value.
+        $submitteddata = (array) (data_submitted() ?: []);
+        foreach ($submitteddata as $key => $value) {
+            // The date values are always scalar, so we skip crafted array values.
+            if (!is_scalar($value)) {
+                continue;
+            }
+
             // New option dates (created with date series function).
             if (substr($key, 0, 18) === 'coursetime-newdate') {
-                $newoptiondates[] = $value;
+                $newoptiondates[] = clean_param($value, PARAM_TEXT);
             }
 
             // Also add custom dates to the new option dates.
             if (substr($key, 0, 21) === 'coursetime-customdate') {
-                $newoptiondates[] = $value;
+                $newoptiondates[] = clean_param($value, PARAM_TEXT);
             }
 
             // Dates loaded from DB which have not been removed.
             if (substr($key, 0, 17) === 'coursetime-dateid') {
                 $currentdateid = (int) explode('-', $key)[2];
-                $stillexistingdates[$currentdateid] = $value;
+                $stillexistingdates[$currentdateid] = clean_param($value, PARAM_TEXT);
             }
         }
         // Store the arrays in $fromform so we can use them later in booking_option::update.
@@ -735,11 +744,13 @@ class dates_handler {
         $fromform->stillexistingdates = $stillexistingdates;
 
         // Also, get semesterid and dayofweektime string from the dynamic form and load it into $fromform.
-        if (isset($_POST['semesterid'])) {
-            $fromform->semesterid = $_POST['semesterid'];
+        $semesterid = optional_param('semesterid', null, PARAM_INT);
+        if ($semesterid !== null) {
+            $fromform->semesterid = $semesterid;
         }
-        if (isset($_POST['dayofweektime'])) {
-            $fromform->dayofweektime = $_POST['dayofweektime'];
+        $dayofweektime = optional_param('dayofweektime', null, PARAM_TEXT);
+        if ($dayofweektime !== null) {
+            $fromform->dayofweektime = $dayofweektime;
         }
     }
 
