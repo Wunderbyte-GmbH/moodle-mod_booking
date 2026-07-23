@@ -132,7 +132,7 @@ Contact me on Github (see above)
 + To provide feedback, please use the [GitHub Issues](https://github.com/Wunderbyte-GmbH/moodle-mod_booking/issues).
 
 ## License
-<a href="https://docs.moodle.org/dev/License" target="_blank"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/GPLv3_Logo.svg/220px-GPLv3_Logo.svg.png" alt="GPL Logo" align="right"></a>  The Moodle booking module is licensed under the [GNU General Public License, Version 3](http://www.gnu.org/licenses/gpl-3.0.html).
+<a href="https://docs.moodle.org/dev/License" target="_blank"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/GPLv3_Logo.svg/220px-GPLv3_Logo.svg.png" alt="GPL Logo" align="right"></a>  The Moodle booking module is licensed under the [GNU General Public License, Version 3](http://www.gnu.org/licenses/gpl-3.0.html). The full license text is included in the [LICENSE](LICENSE) file in the plugin root.
 
 ## Contributors
 Main contributers are David Bogner, Georg Maißer, Bernhard Fischer, Andraž Prinčič and many others.
