@@ -37,9 +37,6 @@ use core_external\external_warnings;
 use mod_booking\output\mobile;
 use stdClass;
 
-defined('MOODLE_INTERNAL') || die();
-
-
 /**
  * External Service for getting instance template.
  *

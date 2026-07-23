@@ -35,9 +35,6 @@ use mod_booking\booking_option;
 use mod_booking\output\bookingoption_description;
 use mod_booking\singleton_service;
 
-defined('MOODLE_INTERNAL') || die();
-
-
 /**
  * External Service for get booking option description.
  *

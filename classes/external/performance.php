@@ -32,9 +32,6 @@ use core_external\external_single_structure;
 use core_external\external_value;
 use mod_booking\local\performance\performance_facade;
 
-defined('MOODLE_INTERNAL') || die();
-
-
 /**
  * External Service for getting instance template.
  *

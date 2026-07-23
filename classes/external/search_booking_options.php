@@ -20,9 +20,6 @@ use core_external\external_function_parameters;
 use core_external\external_value;
 use mod_booking\booking_option;
 
-defined('MOODLE_INTERNAL') || die();
-
-
 /**
  * Provides the mod_booking_search_booking_options external function.
  *

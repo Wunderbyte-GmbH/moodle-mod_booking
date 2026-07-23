@@ -36,9 +36,6 @@ use mod_booking\price;
 use mod_booking\singleton_service;
 use mod_booking\subbookings\subbookings_info;
 
-defined('MOODLE_INTERNAL') || die();
-
-
 /**
  * External Service for for booking class to book a booking or subbooking option.
  *

@@ -36,9 +36,6 @@ use core_external\external_value;
 use mod_booking\permissions;
 use mod_booking\settings\optionformconfig\optionformconfig_info;
 
-defined('MOODLE_INTERNAL') || die();
-
-
 /**
  * External Service to create a booking option.
  *

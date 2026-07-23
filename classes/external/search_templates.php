@@ -20,9 +20,6 @@ use core_external\external_function_parameters;
 use core_external\external_value;
 use mod_booking\local\connectedcourse;
 
-defined('MOODLE_INTERNAL') || die();
-
-
 /**
  * Provides the mod_booking_search_templates external function.
  *

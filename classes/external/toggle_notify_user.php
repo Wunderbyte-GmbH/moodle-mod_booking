@@ -35,9 +35,6 @@ use mod_booking\booking_option;
 use mod_booking\singleton_service;
 use stdClass;
 
-defined('MOODLE_INTERNAL') || die();
-
-
 /**
  * External Service for toggle notify user.
  *

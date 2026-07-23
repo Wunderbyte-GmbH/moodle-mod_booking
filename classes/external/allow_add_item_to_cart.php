@@ -34,9 +34,6 @@ use core_external\external_single_structure;
 use local_shopping_cart\shopping_cart;
 use mod_booking\singleton_service;
 
-defined('MOODLE_INTERNAL') || die();
-
-
 /**
  * External service to check if adding an item to cart is allowed.
  *

@@ -34,9 +34,6 @@ use core_external\external_value;
 use mod_booking\coursecategories;
 use mod_booking\singleton_service;
 
-defined('MOODLE_INTERNAL') || die();
-
-
 /**
  * External Service to create a booking option.
  *

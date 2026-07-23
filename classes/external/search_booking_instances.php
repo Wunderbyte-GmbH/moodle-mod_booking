@@ -23,9 +23,6 @@ use core_external\external_single_structure;
 use core_external\external_value;
 use mod_booking\singleton_service;
 
-defined('MOODLE_INTERNAL') || die();
-
-
 /**
  * Provides the mod_booking_search_booking_instances external function.
  *

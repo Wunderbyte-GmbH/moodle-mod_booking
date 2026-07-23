@@ -35,9 +35,6 @@ use core_external\external_single_structure;
 use context_coursecat;
 use mod_booking\coursecategories;
 
-defined('MOODLE_INTERNAL') || die();
-
-
 /**
  * External Service for shopping cart.
  *

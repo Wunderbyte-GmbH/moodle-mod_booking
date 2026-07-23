@@ -32,9 +32,6 @@ use core_external\external_value;
 use core_external\external_single_structure;
 use mod_booking\bo_availability\bo_info;
 
-defined('MOODLE_INTERNAL') || die();
-
-
 /**
  * External Service for load pre_booking page.
  *

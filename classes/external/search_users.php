@@ -21,9 +21,6 @@ use core_external\external_value;
 use mod_booking\booking;
 use mod_booking\permissions;
 
-defined('MOODLE_INTERNAL') || die();
-
-
 /**
  * Provides the mod_booking_search_users external function.
  *
