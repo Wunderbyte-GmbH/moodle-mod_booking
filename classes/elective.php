@@ -396,10 +396,15 @@ class elective {
         FROM {booking_answers} ba
         INNER JOIN {booking_options} bo
         ON ba.optionid = bo.id
-        WHERE ba.userid = $USER->id
-        AND bo.bookingid = $booking->id";
+        WHERE ba.userid = :userid
+        AND bo.bookingid = :bookingid";
 
-        $data = $DB->get_records_sql($sql);
+        $params = [
+            'userid' => $USER->id,
+            'bookingid' => $booking->id,
+        ];
+
+        $data = $DB->get_records_sql($sql, $params);
         $credits = 0;
 
         foreach ($data as $item) {
@@ -422,11 +427,13 @@ class elective {
         FROM {booking_answers} ba
         INNER JOIN {booking_options} bo
         ON ba.optionid = bo.id
-        WHERE ba.userid = $USER->id
-        AND bo.bookingid = $booking->id
+        WHERE ba.userid = :userid
+        AND bo.bookingid = :bookingid
         AND ba.waitinglist =:bookingstatus";
 
         $params = [
+            'userid' => $USER->id,
+            'bookingid' => $booking->id,
             'bookingstatus' => MOD_BOOKING_STATUSPARAM_RESERVED,
         ];
 

@@ -634,7 +634,11 @@ class booking {
         return $DB->get_fieldset_select(
             'booking_teachers',
             'optionid',
-            "userid = {$USER->id} AND bookingid = $bookingid"
+            "userid = :userid AND bookingid = :bookingid",
+            [
+                'userid' => $USER->id,
+                'bookingid' => $bookingid,
+            ]
         );
     }
 

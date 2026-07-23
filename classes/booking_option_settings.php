@@ -404,6 +404,8 @@ class booking_option_settings {
                 $context = context_system::instance();
             }
 
+            // The select/from/where fragments are internal SQL built by get_options_filter_sql().
+            // They never contain raw values: everything variable is bound via $params placeholders.
             [$select, $from, $where, $params] = booking::get_options_filter_sql(
                 0,
                 1,

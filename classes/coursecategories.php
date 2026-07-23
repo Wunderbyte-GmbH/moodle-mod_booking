@@ -40,14 +40,17 @@ class coursecategories {
         global $DB;
 
         $wherearray = [];
+        $params = ['contextcoursecat' => CONTEXT_COURSECAT];
 
         if (!empty($categoryid)) {
-            $wherearray[] = 'coca.id = ' . $categoryid;
+            $wherearray[] = 'coca.id = :categoryid';
+            $params['categoryid'] = $categoryid;
         }
 
         if ($onlyparents) {
             $wherearray[] = 'coca.parent = 0';
         }
+        $where = '';
         if (!empty($wherearray)) {
             $where = 'WHERE ' . implode(' AND ', $wherearray);
         }
@@ -59,10 +62,10 @@ class coursecategories {
                        coca.coursecount,
                        c.id as contextid
                 FROM {course_categories} coca
-                JOIN {context} c ON c.instanceid=coca.id AND c.contextlevel = 40
+                JOIN {context} c ON c.instanceid=coca.id AND c.contextlevel = :contextcoursecat
                 $where";
 
-        return $DB->get_records_sql($sql);
+        return $DB->get_records_sql($sql, $params);
     }
 
     /**
