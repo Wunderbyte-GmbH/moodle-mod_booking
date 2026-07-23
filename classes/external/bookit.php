@@ -27,10 +27,10 @@ declare(strict_types=1);
 namespace mod_booking\external;
 
 use cache;
-use external_api;
-use external_function_parameters;
-use external_value;
-use external_single_structure;
+use core_external\external_api;
+use core_external\external_function_parameters;
+use core_external\external_value;
+use core_external\external_single_structure;
 use mod_booking\booking_bookit;
 use mod_booking\price;
 use mod_booking\singleton_service;
@@ -38,7 +38,6 @@ use mod_booking\subbookings\subbookings_info;
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->libdir . '/externallib.php');
 
 /**
  * External Service for for booking class to book a booking or subbooking option.
@@ -81,7 +80,10 @@ class bookit extends external_api {
             'data' => $data,
         ]);
 
-        require_login();
+        // The user needs access to the booking instance the option belongs to.
+        // No further capability is needed here: bookit() itself enforces the
+        // book for others capability and the booking (availability) conditions.
+        self::validate_context(self::resolve_context($params['area'], $params['itemid']));
 
         $response = booking_bookit::bookit($params['area'], $params['itemid'], $params['userid'], $params['data']);
 
@@ -124,6 +126,30 @@ class bookit extends external_api {
             'template' => implode(',', $templates),
             'json' => json_encode($data),
         ];
+    }
+
+    /**
+     * Resolves the context to validate against for the given area and item.
+     *
+     * @param string $area
+     * @param int $itemid
+     * @return \context
+     */
+    private static function resolve_context(string $area, int $itemid): \context {
+        if ($area === 'option') {
+            $settings = singleton_service::get_instance_of_booking_option_settings($itemid);
+        } else if (strpos($area, 'subbooking') === 0) {
+            $subbooking = subbookings_info::get_subbooking_by_area_and_id($area, $itemid);
+            $settings = empty($subbooking->optionid)
+                ? null
+                : singleton_service::get_instance_of_booking_option_settings($subbooking->optionid);
+        } else {
+            $settings = null;
+        }
+        if (!empty($settings->cmid)) {
+            return \context_module::instance($settings->cmid);
+        }
+        return \context_system::instance();
     }
 
     /**

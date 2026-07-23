@@ -26,15 +26,14 @@ declare(strict_types=1);
 
 namespace mod_booking\external;
 
-use external_api;
-use external_function_parameters;
-use external_single_structure;
-use external_value;
+use core_external\external_api;
+use core_external\external_function_parameters;
+use core_external\external_single_structure;
+use core_external\external_value;
 use mod_booking\local\performance\performance_renderer;
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->libdir . '/externallib.php');
 
 /**
  * External web service to get performance chart data.
@@ -62,8 +61,15 @@ class get_performance_chart extends external_api {
      * @return array
      */
     public static function execute(string $value): array {
+        $params = self::validate_parameters(self::execute_parameters(), ['value' => $value]);
+
+        // The chart data is part of the performance tool, so viewing rights are needed.
+        $context = \context_system::instance();
+        self::validate_context($context);
+        require_capability('mod/booking:viewperformance', $context);
+
         $performancerenderer = new performance_renderer();
-        return $performancerenderer->get_chart($value);
+        return $performancerenderer->get_chart($params['value']);
     }
 
     /**

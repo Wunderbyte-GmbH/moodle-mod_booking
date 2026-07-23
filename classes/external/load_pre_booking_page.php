@@ -26,15 +26,14 @@ declare(strict_types=1);
 
 namespace mod_booking\external;
 
-use external_api;
-use external_function_parameters;
-use external_value;
-use external_single_structure;
+use core_external\external_api;
+use core_external\external_function_parameters;
+use core_external\external_value;
+use core_external\external_single_structure;
 use mod_booking\bo_availability\bo_info;
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->libdir . '/externallib.php');
 
 /**
  * External Service for load pre_booking page.
@@ -86,6 +85,16 @@ class load_pre_booking_page extends external_api {
                 'skipcondition' => $skipcondition,
             ]
         );
+
+        // The user needs access to the booking instance the option belongs to.
+        $settings = \mod_booking\singleton_service::get_instance_of_booking_option_settings($params['optionid']);
+        self::validate_context(
+            empty($settings->cmid)
+                ? \context_system::instance()
+                : \context_module::instance($settings->cmid)
+        );
+        // Loading the pre booking pages of another user needs the book for others (or cashier) rights.
+        \mod_booking\form\condition\customform_form::require_userid_access($params['userid'], $params['optionid']);
 
         $result = bo_info::load_pre_booking_page(
             $params['optionid'],

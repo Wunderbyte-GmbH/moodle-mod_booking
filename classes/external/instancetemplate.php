@@ -26,15 +26,14 @@ declare(strict_types=1);
 
 namespace mod_booking\external;
 
-use external_api;
-use external_function_parameters;
-use external_value;
-use external_single_structure;
+use core_external\external_api;
+use core_external\external_function_parameters;
+use core_external\external_value;
+use core_external\external_single_structure;
 use mod_booking\permissions;
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->libdir . '/externallib.php');
 
 /**
  * External Service for getting instance template.
@@ -68,11 +67,12 @@ class instancetemplate extends external_api {
 
         $params = self::validate_parameters(self::execute_parameters(), ['id' => $id]);
 
+        self::validate_context(\context_system::instance());
         if (permissions::has_capability_anywhere() === false) {
             throw new \moodle_exception('nopermissions', 'error');
         }
 
-        $template = $DB->get_record("booking_instancetemplate", ['id' => $id], '*', IGNORE_MISSING);
+        $template = $DB->get_record("booking_instancetemplate", ['id' => $params['id']], '*', IGNORE_MISSING);
 
         return [
             'id' => $id,

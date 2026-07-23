@@ -29,14 +29,13 @@ namespace mod_booking\external;
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->libdir . '/externallib.php');
 require_once($CFG->dirroot . '/comment/lib.php');
 
 use comment;
-use external_api;
-use external_function_parameters;
-use external_single_structure;
-use external_value;
+use core_external\external_api;
+use core_external\external_function_parameters;
+use core_external\external_single_structure;
+use core_external\external_value;
 use stdClass;
 
 /**
@@ -67,6 +66,11 @@ class init_comments extends external_api {
 
         // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
         /* $params = self::validate_parameters(self::execute_parameters(), ['page' => $page]); */
+
+        // The user has to be logged in. No further capability is needed:
+        // this service only initializes the JS of the commenting feature,
+        // the comment subsystem enforces its own permissions.
+        self::validate_context(\context_system::instance());
 
         comment::init();
 

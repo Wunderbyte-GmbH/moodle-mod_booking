@@ -29,16 +29,15 @@ namespace mod_booking\external;
 use context_module;
 use context_system;
 use core\exception\moodle_exception;
-use external_api;
-use external_function_parameters;
-use external_single_structure;
-use external_value;
+use core_external\external_api;
+use core_external\external_function_parameters;
+use core_external\external_single_structure;
+use core_external\external_value;
 use mod_booking\singleton_service;
 use mod_booking\utils\webservice_import;
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->libdir . '/externallib.php');
 
 /**
  * External Service to create a booking option.
@@ -446,12 +445,18 @@ class addbookingoption extends external_api {
             $settings = singleton_service::get_instance_of_booking_option_settings($bookingoptionid);
             $cmid = $settings->cmid ?? 0;
             if ($cmid) {
-                $hascapability = has_capability('mod/booking:updatebooking', context_module::instance($cmid));
+                $checkcontext = context_module::instance($cmid);
+                self::validate_context($checkcontext);
+                $hascapability = has_capability('mod/booking:updatebooking', $checkcontext);
             }
         } else if (!empty($bookingcmid)) {
-            $hascapability = has_capability('mod/booking:updatebooking', context_module::instance($bookingcmid));
+            $checkcontext = context_module::instance($bookingcmid);
+            self::validate_context($checkcontext);
+            $hascapability = has_capability('mod/booking:updatebooking', $checkcontext);
         } else {
-            $hascapability = has_capability('mod/booking:updatebooking', context_system::instance());
+            $checkcontext = context_system::instance();
+            self::validate_context($checkcontext);
+            $hascapability = has_capability('mod/booking:updatebooking', $checkcontext);
         }
         if (!$hascapability) {
             throw new moodle_exception('nopermissions', 'error');

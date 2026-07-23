@@ -26,14 +26,13 @@ declare(strict_types=1);
 
 namespace mod_booking\external;
 
-use external_api;
-use external_function_parameters;
-use external_value;
-use external_single_structure;
+use core_external\external_api;
+use core_external\external_function_parameters;
+use core_external\external_value;
+use core_external\external_single_structure;
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->libdir . '/externallib.php');
 
 /**
  * External Service for getting instance template.
@@ -67,10 +66,16 @@ class optiontemplate extends external_api {
 
         $params = self::validate_parameters(self::execute_parameters(), ['id' => $id]);
 
-        $template = $DB->get_record("booking_options", ['id' => $id], '*', IGNORE_MISSING);
+        // This service returns the raw booking option record, so it is restricted
+        // to users who are allowed to manage the option templates.
+        $context = \context_system::instance();
+        self::validate_context($context);
+        require_capability('mod/booking:manageoptiontemplates', $context);
+
+        $template = $DB->get_record("booking_options", ['id' => $params['id']], '*', MUST_EXIST);
 
         return [
-            'id' => $id,
+            'id' => $params['id'],
             'name' => $template->text,
             'template' => json_encode($template),
         ];

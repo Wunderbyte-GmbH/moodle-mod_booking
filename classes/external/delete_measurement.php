@@ -27,15 +27,14 @@ declare(strict_types=1);
 namespace mod_booking\external;
 
 use cache_helper;
-use external_api;
-use external_function_parameters;
-use external_single_structure;
-use external_value;
+use core_external\external_api;
+use core_external\external_function_parameters;
+use core_external\external_single_structure;
+use core_external\external_value;
 use mod_booking\local\performance\performance_renderer;
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->libdir . '/externallib.php');
 
 /**
  * External Service for editing measurement points.
@@ -69,10 +68,11 @@ class delete_measurement extends external_api {
 
         $params = self::validate_parameters(
             self::execute_parameters(),
-            compact('measurementid', 'note')
+            compact('measurementid')
         );
 
         $context = \context_system::instance();
+        self::validate_context($context);
         // Make sure only users with the capability to edit performance can update the note.
         require_capability('mod/booking:editperformance', $context);
 

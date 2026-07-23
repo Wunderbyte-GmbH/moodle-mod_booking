@@ -27,19 +27,18 @@ declare(strict_types=1);
 namespace mod_booking\external;
 
 use context_module;
-use external_api;
-use external_files;
-use external_function_parameters;
-use external_multiple_structure;
-use external_single_structure;
-use external_util;
-use external_value;
+use core_external\external_api;
+use core_external\external_files;
+use core_external\external_function_parameters;
+use core_external\external_multiple_structure;
+use core_external\external_single_structure;
+use core_external\util as external_util;
+use core_external\external_value;
 use mod_booking\booking;
 use mod_booking\singleton_service;
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->libdir . '/externallib.php');
 
 /**
  * External Service for return bookings for course id.
@@ -84,6 +83,12 @@ class bookings extends external_api {
             self::execute_parameters(),
             ['courseid' => $courseid, 'printusers' => $printusers, 'days' => $days]
         );
+        $courseid = (int)$params['courseid'];
+        $printusers = $params['printusers'];
+        $days = (int)$params['days'];
+
+        // The user needs access to the course the bookings are requested for.
+        self::validate_context(\context_course::instance($courseid));
 
         $bookings = $DB->get_records("booking", ["course" => $courseid]);
 
@@ -181,7 +186,9 @@ class bookings extends external_api {
                         $settings = singleton_service::get_instance_of_booking_option_settings($record->id);
                         $option['imgurl'] = $settings->imageurl ?? '';
 
-                        if ($printusers) {
+                        // The list of booked users (incl. e-mail addresses) is personal data,
+                        // so it needs the capability to read the responses of this instance.
+                        if ($printusers && has_capability('mod/booking:readresponses', $context)) {
                             $ba = singleton_service::get_instance_of_booking_answers($settings);
 
                             foreach ($ba->get_usersonlist() as $user) {

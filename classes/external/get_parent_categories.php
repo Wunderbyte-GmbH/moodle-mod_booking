@@ -27,17 +27,16 @@ declare(strict_types=1);
 namespace mod_booking\external;
 
 use core_plugin_manager;
-use external_api;
-use external_function_parameters;
-use external_multiple_structure;
-use external_value;
-use external_single_structure;
+use core_external\external_api;
+use core_external\external_function_parameters;
+use core_external\external_multiple_structure;
+use core_external\external_value;
+use core_external\external_single_structure;
 use context_coursecat;
 use mod_booking\coursecategories;
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->libdir . '/externallib.php');
 
 /**
  * External Service for shopping cart.
@@ -70,7 +69,11 @@ class get_parent_categories extends external_api {
 
         global $DB;
 
-        require_login();
+        // The user has to be logged in. No further capability is needed here:
+        // the service only returns the names and descriptions of course categories,
+        // the booking instance data of the dashboard is gated separately
+        // (see set_checked_booking_instance).
+        self::validate_context(\context_system::instance());
 
         $params = self::validate_parameters(self::execute_parameters(), [
             'coursecategoryid' => $coursecategoryid,

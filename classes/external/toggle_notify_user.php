@@ -26,17 +26,17 @@ declare(strict_types=1);
 
 namespace mod_booking\external;
 
-use external_api;
-use external_function_parameters;
-use external_single_structure;
-use external_value;
-use external_warnings;
+use core_external\external_api;
+use core_external\external_function_parameters;
+use core_external\external_single_structure;
+use core_external\external_value;
+use core_external\external_warnings;
 use mod_booking\booking_option;
+use mod_booking\singleton_service;
 use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->libdir . '/externallib.php');
 
 /**
  * External Service for toggle notify user.
@@ -73,6 +73,15 @@ class toggle_notify_user extends external_api {
             self::execute_parameters(),
             ['userid' => $userid, 'optionid' => $optionid]
         );
+
+        // The user needs access to the booking instance the option belongs to.
+        // No further capability is needed here: toggle_notify_user() itself requires
+        // mod/booking:subscribeusers when toggling the list for somebody else.
+        $settings = singleton_service::get_instance_of_booking_option_settings($params['optionid']);
+        if (empty($settings->cmid)) {
+            throw new \moodle_exception('invalidparameter', 'error');
+        }
+        self::validate_context(\context_module::instance($settings->cmid));
 
         $result = booking_option::toggle_notify_user($params['userid'], $params['optionid']);
 

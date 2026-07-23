@@ -15,15 +15,14 @@
 // along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 namespace mod_booking\external;
-use external_api;
-use external_function_parameters;
-use external_value;
+use core_external\external_api;
+use core_external\external_function_parameters;
+use core_external\external_value;
 use mod_booking\booking;
 use mod_booking\permissions;
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->libdir . '/externallib.php');
 
 /**
  * Provides the mod_booking_search_users external function.
@@ -61,15 +60,8 @@ class search_users extends external_api {
 
         // We can't know for which context the user is searching for users,
         // So we check if they have one of the capabilities to update bookings anywhere in the system.
-        if (
-            permissions::has_capability_anywhere('mod/booking:limitededitownoption')
-            || permissions::has_capability_anywhere('mod/booking:addeditownoption')
-            || permissions::has_capability_anywhere('mod/booking:updatebooking')
-        ) {
-            return booking::load_users($params['query']);
-        } else {
-            throw new \moodle_exception('nopermissions', 'error');
-        }
+        self::validate_context(\context_system::instance());
+        permissions::require_any_booking_editing_capability();
 
         return booking::load_users($params['query']);
     }
@@ -77,20 +69,20 @@ class search_users extends external_api {
     /**
      * Describes the external function result value.
      *
-     * @return \external_single_structure
+     * @return \core_external\external_single_structure
      */
-    public static function execute_returns(): \external_single_structure {
+    public static function execute_returns(): \core_external\external_single_structure {
 
-        return new \external_single_structure([
-            'list' => new \external_multiple_structure(
-                new \external_single_structure([
-                    'id' => new \external_value(\core_user::get_property_type('id'), 'ID of the user'),
-                    'firstname' => new \external_value(PARAM_TEXT, 'Firstname of the user'),
-                    'lastname' => new \external_value(PARAM_TEXT, 'Lastname of the user', VALUE_OPTIONAL),
-                    'email' => new \external_value(PARAM_TEXT, 'Email of the user', VALUE_OPTIONAL),
+        return new \core_external\external_single_structure([
+            'list' => new \core_external\external_multiple_structure(
+                new \core_external\external_single_structure([
+                    'id' => new \core_external\external_value(\core_user::get_property_type('id'), 'ID of the user'),
+                    'firstname' => new \core_external\external_value(PARAM_TEXT, 'Firstname of the user'),
+                    'lastname' => new \core_external\external_value(PARAM_TEXT, 'Lastname of the user', VALUE_OPTIONAL),
+                    'email' => new \core_external\external_value(PARAM_TEXT, 'Email of the user', VALUE_OPTIONAL),
                 ])
             ),
-            'warnings' => new \external_value(PARAM_TEXT, 'Warnings'),
+            'warnings' => new \core_external\external_value(PARAM_TEXT, 'Warnings'),
         ]);
     }
 }

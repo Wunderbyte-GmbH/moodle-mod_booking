@@ -15,14 +15,13 @@
 // along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 namespace mod_booking\external;
-use external_api;
-use external_function_parameters;
-use external_value;
+use core_external\external_api;
+use core_external\external_function_parameters;
+use core_external\external_value;
 use mod_booking\local\connectedcourse;
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->libdir . '/externallib.php');
 
 /**
  * Provides the mod_booking_search_templates external function.
@@ -59,8 +58,13 @@ class search_templates extends external_api {
             'query' => $query,
         ]);
 
+        // This autocomplete backend searches the template courses,
+        // so it is restricted to users who may edit booking options anywhere.
+        self::validate_context(\context_system::instance());
+        \mod_booking\permissions::require_any_booking_editing_capability();
+
         return [
-            'list' => connectedcourse::return_tagged_template_courses($query),
+            'list' => connectedcourse::return_tagged_template_courses($params['query']),
             'warnings' => '',
         ];
     }
@@ -68,19 +72,19 @@ class search_templates extends external_api {
     /**
      * Describes the external function result value.
      *
-     * @return \external_single_structure
+     * @return \core_external\external_single_structure
      */
-    public static function execute_returns(): \external_single_structure {
+    public static function execute_returns(): \core_external\external_single_structure {
 
-        return new \external_single_structure([
-            'list' => new \external_multiple_structure(
-                new \external_single_structure([
-                    'id' => new \external_value(PARAM_INT, 'ID of the course'),
-                    'fullname' => new \external_value(PARAM_TEXT, 'Name of the course'),
-                    'shortname' => new \external_value(PARAM_TEXT, 'Shortname of the course'),
+        return new \core_external\external_single_structure([
+            'list' => new \core_external\external_multiple_structure(
+                new \core_external\external_single_structure([
+                    'id' => new \core_external\external_value(PARAM_INT, 'ID of the course'),
+                    'fullname' => new \core_external\external_value(PARAM_TEXT, 'Name of the course'),
+                    'shortname' => new \core_external\external_value(PARAM_TEXT, 'Shortname of the course'),
                 ])
             ),
-            'warnings' => new \external_value(PARAM_TEXT, 'Warnings'),
+            'warnings' => new \core_external\external_value(PARAM_TEXT, 'Warnings'),
         ]);
     }
 }

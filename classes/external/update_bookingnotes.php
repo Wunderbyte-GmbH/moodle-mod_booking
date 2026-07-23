@@ -26,17 +26,16 @@ declare(strict_types=1);
 
 namespace mod_booking\external;
 
-use external_api;
-use external_function_parameters;
-use external_single_structure;
-use external_value;
-use external_warnings;
+use core_external\external_api;
+use core_external\external_function_parameters;
+use core_external\external_single_structure;
+use core_external\external_value;
+use core_external\external_warnings;
 use mod_booking\singleton_service;
 use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->libdir . '/externallib.php');
 
 /**
  * External Service for getting instance template.
@@ -86,6 +85,7 @@ class update_bookingnotes extends external_api {
             $optionid = $record->optionid;
             $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
             $context = \context_module::instance($settings->cmid);
+            self::validate_context($context);
             if (has_capability('mod/booking:updatenotes', $context)) {
                 $dataobject->usermodified = $USER->id;
                 $success = $DB->update_record('booking_answers', $dataobject);

@@ -15,16 +15,15 @@
 // along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 namespace mod_booking\external;
-use external_api;
-use external_function_parameters;
-use external_single_structure;
-use external_multiple_structure;
-use external_value;
+use core_external\external_api;
+use core_external\external_function_parameters;
+use core_external\external_single_structure;
+use core_external\external_multiple_structure;
+use core_external\external_value;
 use mod_booking\booking;
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->libdir . '/externallib.php');
 
 /**
  * Provides the mod_booking_search_teachers external function.
@@ -60,6 +59,11 @@ class search_teachers extends external_api {
         $params = self::validate_parameters(self::execute_parameters(), [
             'query' => $query,
         ]);
+
+        // This autocomplete backend searches users (incl. e-mail addresses),
+        // so it is restricted to users who may edit booking options anywhere.
+        self::validate_context(\context_system::instance());
+        \mod_booking\permissions::require_any_booking_editing_capability();
 
         return booking::load_teachers_for_webservice($params['query']);
     }

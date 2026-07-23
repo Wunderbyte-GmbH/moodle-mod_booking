@@ -27,16 +27,15 @@ declare(strict_types=1);
 
 namespace mod_booking\external;
 
-use external_api;
-use external_function_parameters;
-use external_value;
-use external_single_structure;
+use core_external\external_api;
+use core_external\external_function_parameters;
+use core_external\external_value;
+use core_external\external_single_structure;
 use local_shopping_cart\shopping_cart;
 use mod_booking\singleton_service;
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->libdir . '/externallib.php');
 
 /**
  * External service to check if adding an item to cart is allowed.
@@ -74,6 +73,16 @@ class allow_add_item_to_cart extends external_api {
 
         // First check is if this makes sense at all. If we have no price, we return success right away.
         $settings = singleton_service::get_instance_of_booking_option_settings($params['itemid']);
+
+        // The user needs access to the booking instance the option belongs to.
+        self::validate_context(
+            empty($settings->cmid)
+                ? \context_system::instance()
+                : \context_module::instance($settings->cmid)
+        );
+        // Acting for another user needs the book for others (or cashier) rights.
+        \mod_booking\form\condition\customform_form::require_userid_access($params['userid'], $params['itemid']);
+
         if (empty($settings->useprice)) {
             return [
                 'success' => 1, /* LOCAL_SHOPPING_CART_CARTPARAM_SUCCESS needs to be hardcoded here

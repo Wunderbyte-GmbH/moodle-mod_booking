@@ -27,16 +27,15 @@ declare(strict_types=1);
 namespace mod_booking\external;
 
 use dml_exception;
-use external_api;
-use external_function_parameters;
-use external_single_structure;
-use external_multiple_structure;
-use external_value;
+use core_external\external_api;
+use core_external\external_function_parameters;
+use core_external\external_single_structure;
+use core_external\external_multiple_structure;
+use core_external\external_value;
 use mod_booking\settings\optionformconfig\optionformconfig_info;
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->libdir . '/externallib.php');
 
 /**
  * External Service to create a booking option.
@@ -77,7 +76,14 @@ class get_option_field_config extends external_api {
                 'contextid' => $contextid,
             ]
         );
-        return optionformconfig_info::return_configured_fields($contextid);
+
+        // Reading the option form configuration is part of the config dashboard,
+        // so it needs the same capability as saving it.
+        $context = \context_system::instance();
+        self::validate_context($context);
+        require_capability('mod/booking:editoptionformconfig', $context);
+
+        return optionformconfig_info::return_configured_fields($params['contextid']);
     }
 
     /**

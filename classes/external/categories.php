@@ -26,15 +26,14 @@ declare(strict_types=1);
 
 namespace mod_booking\external;
 
-use external_api;
-use external_function_parameters;
-use external_multiple_structure;
-use external_single_structure;
-use external_value;
+use core_external\external_api;
+use core_external\external_function_parameters;
+use core_external\external_multiple_structure;
+use core_external\external_single_structure;
+use core_external\external_value;
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->libdir . '/externallib.php');
 
 /**
  * Mod booking show sub categories.
@@ -99,6 +98,12 @@ class categories extends external_api {
         $params = self::validate_parameters(self::execute_parameters(), [
             'courseid' => $courseid,
         ]);
+        $courseid = (int)$params['courseid'];
+
+        // The user needs access to the course the categories are requested for.
+        // No further capability is needed: the service only returns the names of
+        // the booking categories of that course.
+        self::validate_context(\context_course::instance($courseid));
 
         $returns = [];
 

@@ -27,19 +27,18 @@ declare(strict_types=1);
 namespace mod_booking\external;
 
 use cache;
-use external_multiple_structure;
+use core_external\external_multiple_structure;
 use core_form\external\dynamic_form;
-use external_api;
-use external_function_parameters;
-use external_single_structure;
-use external_value;
-use external_warnings;
+use core_external\external_api;
+use core_external\external_function_parameters;
+use core_external\external_single_structure;
+use core_external\external_value;
+use core_external\external_warnings;
 use mod_booking\output\mobile;
 use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->libdir . '/externallib.php');
 
 /**
  * External Service for getting instance template.
@@ -105,6 +104,16 @@ class get_submission_mobile extends external_api {
                 'json' => '',
             ];
         }
+
+        // The user needs access to the booking instance the option belongs to.
+        $settings = \mod_booking\singleton_service::get_instance_of_booking_option_settings($params['itemid']);
+        self::validate_context(
+            empty($settings->cmid)
+                ? \context_system::instance()
+                : \context_module::instance($settings->cmid)
+        );
+        // Submitting form data for another user needs the book for others (or cashier) rights.
+        \mod_booking\form\condition\customform_form::require_userid_access((int)$params['userid'], (int)$params['itemid']);
 
         try {
             $cache = cache::make('mod_booking', 'customformuserdata');

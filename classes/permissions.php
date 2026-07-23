@@ -50,4 +50,32 @@ class permissions {
         }
         return false;
     }
+
+    /**
+     * Checks if the current user is allowed to edit booking options anywhere in the system.
+     *
+     * This is the gate for webservices which back form elements of the booking option form
+     * (autocomplete selectors, templates etc.): as we cannot know for which context the user
+     * is currently editing, we accept any of the option editing capabilities in any context.
+     * It's expensive, so only use it in webservices which are called by option editors.
+     *
+     * @return bool
+     */
+    public static function has_any_booking_editing_capability(): bool {
+        return self::has_capability_anywhere('mod/booking:limitededitownoption')
+            || self::has_capability_anywhere('mod/booking:addeditownoption')
+            || self::has_capability_anywhere('mod/booking:updatebooking');
+    }
+
+    /**
+     * Require that the current user is allowed to edit booking options anywhere in the system.
+     *
+     * @return void
+     * @throws \moodle_exception if the user has none of the option editing capabilities
+     */
+    public static function require_any_booking_editing_capability(): void {
+        if (!self::has_any_booking_editing_capability()) {
+            throw new \moodle_exception('nopermissions', 'error', '', 'edit booking options');
+        }
+    }
 }
