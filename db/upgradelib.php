@@ -287,3 +287,32 @@ function delete_customfields_in_tool_certificate_2026030500(): void {
         }
     }
 }
+
+/**
+ * Delete all duplicated custom fields of a booking option (same optionid and cfgname),
+ * keeping only the oldest row (lowest id) of every group.
+ *
+ * This runs as one set-based pass with bulk deletes, so it stays fast on big tables.
+ * The previous implementation re-scanned the whole table once per deleted duplicate,
+ * which could time out during upgrades on production sites.
+ *
+ * @return void
+ */
+function delete_duplicate_customfields_2017112101(): void {
+    global $DB;
+
+    $sql = "SELECT bcf.id
+              FROM {booking_customfields} bcf
+              JOIN (SELECT optionid, cfgname, MIN(id) AS keepid
+                      FROM {booking_customfields}
+                  GROUP BY optionid, cfgname
+                    HAVING COUNT(*) > 1) dup
+                ON dup.optionid = bcf.optionid AND dup.cfgname = bcf.cfgname
+             WHERE bcf.id <> dup.keepid";
+    $duplicateids = $DB->get_fieldset_sql($sql);
+
+    foreach (array_chunk($duplicateids, 1000) as $chunk) {
+        [$insql, $inparams] = $DB->get_in_or_equal($chunk);
+        $DB->delete_records_select('booking_customfields', "id $insql", $inparams);
+    }
+}

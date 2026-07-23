@@ -2513,17 +2513,9 @@ function xmldb_booking_upgrade($oldversion) {
     }
 
     if ($oldversion < 2017112101) {
-        $sql = 'SELECT MAX(id), cfgname, optionid, COUNT(*)
-                  FROM {booking_customfields}
-              GROUP BY optionid, cfgname
-                HAVING COUNT(*) > 1';
-        while ($records = $DB->get_records_sql($sql)) {
-            if (!empty($records)) {
-                foreach ($records as $id => $record) {
-                    $DB->delete_records('booking_customfields', ['id' => $id]);
-                }
-            }
-        }
+        // The deduplication can take a while on big tables, make sure the upgrade does not time out.
+        upgrade_set_timeout();
+        delete_duplicate_customfields_2017112101();
 
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2017112101, 'booking');
@@ -4780,13 +4772,9 @@ function xmldb_booking_upgrade($oldversion) {
     }
 
     if ($oldversion < 2024121600) {
-        // Fetch all booking options where availability is empty or null.
-        $records = $DB->get_records_select('booking_options', "availability = '' OR availability IS NULL");
-
-        foreach ($records as $record) {
-            $record->availability = '[]'; // Update the availability field.
-            $DB->update_record('booking_options', $record);
-        }
+        // Set empty or null availability to '[]' in one single statement instead of
+        // loading and rewriting every affected booking option row one by one.
+        $DB->set_field_select('booking_options', 'availability', '[]', "availability = '' OR availability IS NULL");
 
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2024121600, 'booking');
