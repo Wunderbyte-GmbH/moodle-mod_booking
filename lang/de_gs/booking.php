@@ -136,6 +136,7 @@ $string['bookingoptiondenied:description'] = 'Nutzer/in mit ID {$a->userid} hat 
 $string['bookingoptionupdateddesc'] = 'Nutzer/in mit ID "{$a->userid}" hat Buchungsoption "{$a->objectid}" aktualisiert.';
 $string['bookingplacesinfotextsinfo'] = 'Wählen Sie aus, wie die Platzverfügbarkeit für Nutzer/innen angezeigt werden soll.';
 $string['bookingpollurlteachers'] = 'Link zur Trainer/innen-Umfrage';
+$string['bookingstrackersetrating'] = 'Nutzer/innen bewerten';
 $string['bookotherusers'] = 'Buchung für andere Nutzer/innen durchführen';
 $string['bookotheruserslimit'] = 'Max. Anzahl an Buchungen, die ein/e der Buchungsoption zugewiesene/r Trainer/in vornehmen kann';
 $string['booktootherbooking'] = 'Nutzer/innen umbuchen / zu anderer Buchungsoption hinzufügen';
@@ -459,6 +460,7 @@ $string['studentwaitinglist'] = 'Nutzer/innen auf der Warteliste';
 $string['subbookingadditemformlink_help'] = 'Wählen Sie das Formularelement, das Sie mit dieser Zusatzbuchung verbinden wollen. Die Zusatzbuchung wird nur angezeigt, wenn die Nutzer/in davor den entsprechenden Wert im Formular gewählt hat.';
 $string['subscribersto'] = 'Trainer/innen für \'{$a}\'';
 $string['subscribetocourse'] = 'Nutzer/innen in den Kurs einschreiben';
+$string['subscribetocoursebody'] = 'Wollen Sie die ausgewählten Nutzer/innen wirklich in den mit dieser Buchungsoption verbundenen Kurs einschreiben?';
 $string['switchtemplates'] = 'Nutzer/innen können die Ansicht wechseln';
 $string['switchtemplates_help'] = 'Aktivieren Sie diese Einstellung, um es Nutzer/innen zu ermöglichen zwischen verschiedenen Ansichten zu wechseln.
 Definieren Sie im nächsten Schritt die Ansichten zwischen denen gewechselt werden kann.';
