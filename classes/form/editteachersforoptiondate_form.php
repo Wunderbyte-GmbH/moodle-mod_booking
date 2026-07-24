@@ -426,7 +426,7 @@ class editteachersforoptiondate_form extends \core_form\dynamic_form {
         $optionid = $this->_ajaxformdata['optionid'];
 
         if (!$cmid) {
-            $cmid = $this->optional_param('cmid', '', PARAM_RAW);
+            $cmid = $this->optional_param('cmid', 0, PARAM_INT);
         }
 
         $url = new moodle_url(

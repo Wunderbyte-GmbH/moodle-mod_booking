@@ -97,7 +97,7 @@ class toggle_notify_user extends external_api {
                 'Status 1 for user is now on list, 0 for not on list.'
             ),
             'optionid' => new external_value(PARAM_INT, 'option id'),
-            'error' => new external_value(PARAM_RAW, 'error'),
+            'error' => new external_value(PARAM_TEXT, 'Error message, if any.'),
             ]);
     }
 }

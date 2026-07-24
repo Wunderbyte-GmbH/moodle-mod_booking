@@ -246,7 +246,7 @@ class bookings extends external_api {
                     'name' => new external_value(PARAM_TEXT, 'Course name'),
                     'intro' => new external_value(PARAM_RAW, 'Description'),
                     'duration' => new external_value(PARAM_TEXT, 'Duration'),
-                    'points' => new external_value(PARAM_RAW, 'Points'),
+                    'points' => new external_value(PARAM_FLOAT, 'Points'),
                     'organizatorname' => new external_value(PARAM_TEXT, 'Organizator name'),
                     'eventtype' => new external_value(PARAM_TEXT, 'Event type'),
                     'bookingmanagerid' => new external_value(PARAM_INT, 'Booking manager ID'),

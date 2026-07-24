@@ -36,8 +36,6 @@ $optionid = required_param('optionid', PARAM_INT);
 $copyoptionid = optional_param('copyoptionid', 0, PARAM_INT);
 $createfromoptiondates = optional_param('createfromoptiondates', 0, PARAM_INT);
 $confirm = optional_param('confirm', 0, PARAM_INT);
-$sesskey = optional_param('sesskey', '', PARAM_INT);
-$mode = optional_param('mode', '', PARAM_RAW);
 
 // Fallback url when there is no returnurl.
 $returnurl = new moodle_url('/mod/booking/view.php', ['id' => $cmid]);

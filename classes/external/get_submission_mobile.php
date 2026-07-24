@@ -55,13 +55,13 @@ class get_submission_mobile extends external_api {
         return new external_function_parameters([
           'itemid'  => new external_value(PARAM_INT, 'The booking option id to submit form data for', VALUE_DEFAULT, 0),
           'userid'  => new external_value(PARAM_INT, 'The user id submitting the form data', VALUE_DEFAULT, 0),
-          'sessionkey'  => new external_value(PARAM_RAW, 'Session key for security verification', VALUE_DEFAULT, ''),
+          'sessionkey'  => new external_value(PARAM_ALPHANUM, 'Session key for security verification', VALUE_DEFAULT, ''),
           'reset'  => new external_value(PARAM_BOOL, 'Whether to reset cached form data', VALUE_DEFAULT, false),
           'data' => new external_multiple_structure(
               new external_single_structure(
                   [
-                      'name' => new external_value(PARAM_RAW, 'Field name'),
-                      'value' => new external_value(PARAM_RAW, 'Field value'),
+                      'name' => new external_value(PARAM_ALPHANUMEXT, 'Field name of the custom form, e.g. customform_shorttext_1'),
+                      'value' => new external_value(PARAM_TEXT, 'Field value (plain text)'),
                   ]
               ),
               'The form field data to be saved',
@@ -153,7 +153,7 @@ class get_submission_mobile extends external_api {
     public static function execute_returns(): external_single_structure {
         return new external_single_structure([
             'submitted' => new external_value(PARAM_INT, '1 for success', VALUE_DEFAULT, 0),
-            'message' => new external_value(PARAM_RAW, 'Message if any', VALUE_DEFAULT, ''),
+            'message' => new external_value(PARAM_TEXT, 'Message if any', VALUE_DEFAULT, ''),
             'template' => new external_value(PARAM_TEXT, 'Button template', VALUE_DEFAULT, ''),
             'json' => new external_value(PARAM_RAW, 'Data as json', VALUE_DEFAULT, ''),
             ]);

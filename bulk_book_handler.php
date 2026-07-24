@@ -29,7 +29,7 @@ use mod_booking\singleton_service;
 use mod_booking\task\book_all_students_task;
 
 $optionid = required_param('optionid', PARAM_INT);
-$sesskey = required_param('sesskey', PARAM_RAW);
+$sesskey = required_param('sesskey', PARAM_ALPHANUM);
 
 if (!confirm_sesskey($sesskey)) {
     throw new moodle_exception('invalidsesskey');

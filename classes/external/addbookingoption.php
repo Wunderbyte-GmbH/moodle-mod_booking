@@ -54,13 +54,13 @@ class addbookingoption extends external_api {
         return new external_function_parameters([
             'name' => new external_value(PARAM_TEXT, 'Booking option name', VALUE_REQUIRED),
             'identifier' => new external_value(
-                PARAM_RAW,
+                PARAM_TEXT,
                 'Unique identifier for booking option',
                 VALUE_DEFAULT,
                 ''
             ),
             'titleprefix' => new external_value(
-                PARAM_RAW,
+                PARAM_TEXT,
                 'Optional prefix to be shown before title',
                 VALUE_DEFAULT,
                 ''
@@ -84,7 +84,7 @@ class addbookingoption extends external_api {
                 0
             ),
             'bookingidnumber' => new external_value(
-                PARAM_RAW,
+                PARAM_TEXT,
                 'Idnumber identifier of target booking activity.',
                 VALUE_DEFAULT,
                 ''
@@ -96,19 +96,19 @@ class addbookingoption extends external_api {
                 0
             ),
             'courseidnumber' => new external_value(
-                PARAM_RAW,
+                PARAM_TEXT,
                 'Idnumber identifier of target course. Overriden by bookingidnumber.',
                 VALUE_DEFAULT,
                 ''
             ),
             'courseshortname' => new external_value(
-                PARAM_RAW,
+                PARAM_TEXT,
                 'Shortname of target course. Overriden by bookingidnumber.',
                 VALUE_DEFAULT,
                 ''
             ),
             'enroltocourseshortname' => new external_value(
-                PARAM_RAW,
+                PARAM_TEXT,
                 'Shortname of course users will be enrolled to.',
                 VALUE_DEFAULT,
                 ''
@@ -132,13 +132,13 @@ class addbookingoption extends external_api {
                 0
             ),
             'bookingopeningtime' => new external_value(
-                PARAM_RAW,
+                PARAM_TEXT,
                 'Time until when booking is not yet possible.',
                 VALUE_DEFAULT,
                 ''
             ),
             'bookingclosingtime' => new external_value(
-                PARAM_RAW,
+                PARAM_TEXT,
                 'Time when booking is not possible anymore.',
                 VALUE_DEFAULT,
                 ''
@@ -151,7 +151,7 @@ class addbookingoption extends external_api {
             ),
             'description' => new external_value(
                 PARAM_RAW,
-                'Description',
+                'Description; may contain HTML, cleaned on display via format_text.',
                 VALUE_DEFAULT,
                 ''
             ),
@@ -180,19 +180,19 @@ class addbookingoption extends external_api {
                 ''
             ),
             'location' => new external_value(
-                PARAM_RAW,
+                PARAM_TEXT,
                 'Location',
                 VALUE_DEFAULT,
                 ''
             ),
             'institution' => new external_value(
-                PARAM_RAW,
+                PARAM_TEXT,
                 'Institution',
                 VALUE_DEFAULT,
                 ''
             ),
             'address' => new external_value(
-                PARAM_RAW,
+                PARAM_TEXT,
                 'Address',
                 VALUE_DEFAULT,
                 ''
@@ -235,19 +235,19 @@ class addbookingoption extends external_api {
             ),
             'beforebookedtext' => new external_value(
                 PARAM_RAW,
-                'Before booked text',
+                'Text shown before booking; may contain HTML, cleaned on display.',
                 VALUE_DEFAULT,
                 ''
             ),
             'beforecompletedtext' => new external_value(
                 PARAM_RAW,
-                'Text to show before completion.',
+                'Text to show before completion; may contain HTML, cleaned on display.',
                 VALUE_DEFAULT,
                 ''
             ),
             'aftercompletedtext' => new external_value(
                 PARAM_RAW,
-                'Text to show after completion.',
+                'Text to show after completion; may contain HTML, cleaned on display.',
                 VALUE_DEFAULT,
                 ''
             ),
@@ -276,7 +276,7 @@ class addbookingoption extends external_api {
                 ''
             ),
             'user_username' => new external_value(
-                PARAM_RAW,
+                PARAM_TEXT,
                 'Username of user to inscribe. User must exist in system.',
                 VALUE_DEFAULT,
                 ''
@@ -300,25 +300,25 @@ class addbookingoption extends external_api {
                 0
             ),
             'responsiblecontact' => new external_value(
-                PARAM_RAW,
+                PARAM_TEXT,
                 'Responsible contact as e-mail. Only one possible.',
                 VALUE_DEFAULT,
                 ''
             ),
             'boavenrolledincourse' => new external_value(
-                PARAM_RAW,
+                PARAM_TEXT,
                 'Booking Condition enrolled courses with shortnames, comma separated',
                 VALUE_DEFAULT,
                 ''
             ),
             'boavenrolledincohorts' => new external_value(
-                PARAM_RAW,
+                PARAM_TEXT,
                 'Booking Condition enrolled cohorts with shortnames, comma separated',
                 VALUE_DEFAULT,
                 ''
             ),
             'recommendedin' => new external_value(
-                PARAM_RAW,
+                PARAM_TEXT,
                 'This is for the recommendedin-feature and takes the shortnames of the courses, separated by commas.',
                 VALUE_DEFAULT,
                 ''

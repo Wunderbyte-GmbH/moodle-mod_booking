@@ -50,10 +50,13 @@ class save_slot_selection extends external_api {
         return new external_function_parameters([
             'optionid' => new external_value(PARAM_INT, 'booking option id'),
             'userid' => new external_value(PARAM_INT, 'user id', VALUE_DEFAULT, 0),
-            'selection' => new external_value(PARAM_RAW, 'JSON encoded list of slot keys ("start:end")'),
+            'selection' => new external_value(
+                PARAM_RAW,
+                'JSON list of slot keys ("start:end"); keys are cast to int timestamps server-side'
+            ),
             'teacherselection' => new external_value(
                 PARAM_RAW,
-                'JSON encoded map of slot key to teacher id list',
+                'JSON encoded map of slot key to teacher id list; all ids are cast to int server-side',
                 VALUE_DEFAULT,
                 '{}'
             ),

@@ -47,7 +47,10 @@ class release_slots extends external_api {
         return new external_function_parameters([
             'optionid' => new external_value(PARAM_INT, 'booking option id'),
             'baid' => new external_value(PARAM_INT, 'booking answer id'),
-            'releaseslots' => new external_value(PARAM_RAW, 'JSON encoded list of slot keys to release'),
+            'releaseslots' => new external_value(
+                PARAM_RAW,
+                'JSON list of slot keys to release; keys are cast to int timestamps server-side'
+            ),
             'reason' => new external_value(PARAM_TEXT, 'cancellation reason', VALUE_DEFAULT, ''),
         ]);
     }

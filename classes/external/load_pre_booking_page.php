@@ -117,7 +117,7 @@ class load_pre_booking_page extends external_api {
                     VALUE_REQUIRED
                 ),
                 'template' => new external_value(
-                    PARAM_RAW,
+                    PARAM_TEXT,
                     'The name of the template which is needed to render the content.',
                     VALUE_REQUIRED
                 ),

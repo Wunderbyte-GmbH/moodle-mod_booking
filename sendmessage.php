@@ -33,7 +33,7 @@ use mod_booking\singleton_service;
 
 $id = required_param('id', PARAM_INT);
 $optionid = required_param('optionid', PARAM_INT);
-$uids = required_param('uids', PARAM_RAW);
+$uids = required_param('uids', PARAM_SEQUENCE); // Comma-separated list of user ids, each id is additionally cleaned to int below.
 
 $url = new moodle_url(
     '/mod/booking/sendmessage.php',
@@ -71,7 +71,7 @@ if ($mform->is_cancelled()) {
     redirect($redirecturl, '', 0);
 } else if ($data = $mform->get_data()) {
     // Clean form data.
-    $cleanuids = clean_param_array(json_decode($uids), PARAM_INT);
+    $cleanuids = array_filter(clean_param_array(explode(',', $uids), PARAM_INT));
 
     // Now, let's send the custom message.
     booking_send_custom_message($optionid, $data->subject, $data->message['text'], $cleanuids);

@@ -35,7 +35,7 @@ require_login();
 require_once($CFG->dirroot . '/local/wunderbyte_table/classes/wunderbyte_table.php');
 
 $download = optional_param('download', '', PARAM_ALPHA);
-$encodedtable = optional_param('encodedtable', '', PARAM_RAW);
+$encodedtable = optional_param('encodedtable', '', PARAM_ALPHANUM); // Md5 hash referencing the cached table definition.
 $scope = optional_param('scope', '', PARAM_TEXT);
 $statusparam = optional_param('statusparam', '', PARAM_INT); // Value as stored in field 'waitinglist'.
 $scopeid = optional_param('scopeid', 0, PARAM_INT); // Needed to resolve the booking instance settings.

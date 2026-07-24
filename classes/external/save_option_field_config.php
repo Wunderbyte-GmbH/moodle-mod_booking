@@ -55,7 +55,7 @@ class save_option_field_config extends external_api {
             [
                 'capability' => new external_value(PARAM_TEXT, 'Capability'),
                 'id' => new external_value(PARAM_INT, 'Context Id'),
-                'json' => new external_value(PARAM_RAW, 'Payload as json'),
+                'json' => new external_value(PARAM_RAW, 'Form config payload as json; requires mod/booking:editoptionformconfig'),
             ]
         );
     }

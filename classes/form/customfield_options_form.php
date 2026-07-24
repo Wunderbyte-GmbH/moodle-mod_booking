@@ -141,10 +141,10 @@ class customfield_options_form extends moodleform {
             $repeats += 1;
         }
 
-        $submittedlabels = optional_param_array('optionlabel', [], PARAM_RAW);
+        $submittedlabels = optional_param_array('optionlabel', [], PARAM_TEXT);
         $submittedids = optional_param_array('optionid', [], PARAM_INT);
         $submittedparents = optional_param_array('parent', [], PARAM_INT);
-        $posted = !empty($submittedlabels) || optional_param('option_repeats', '', PARAM_RAW) !== '';
+        $posted = !empty($submittedlabels) || optional_param('option_repeats', 0, PARAM_INT) > 0;
 
         $alloc = $nextid;
         $resolved = [];

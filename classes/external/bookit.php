@@ -52,10 +52,13 @@ class bookit extends external_api {
      */
     public static function execute_parameters(): external_function_parameters {
         return new external_function_parameters([
-            'area' => new external_value(PARAM_RAW, 'area'),
+            'area' => new external_value(PARAM_ALPHANUMEXT, 'Area to book: "option" or a subbooking area.'),
             'itemid' => new external_value(PARAM_INT, 'itemid'),
             'userid' => new external_value(PARAM_INT, 'userid'),
-            'data' => new external_value(PARAM_RAW, 'data'),
+            'data' => new external_value(
+                PARAM_RAW,
+                'Optional JSON payload; decoded server-side, override ids are reduced to positive ints.'
+            ),
             ]);
     }
 

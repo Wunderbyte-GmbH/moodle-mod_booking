@@ -435,7 +435,7 @@ if (!$tableallbookings->is_downloading()) {
         ) {
             $sendmessageurl = new moodle_url(
                 '/mod/booking/sendmessage.php',
-                ['id' => $id, 'optionid' => $optionid, 'uids' => json_encode($allselectedusers)]
+                ['id' => $id, 'optionid' => $optionid, 'uids' => implode(',', $allselectedusers)]
             );
             redirect($sendmessageurl);
         } else if (

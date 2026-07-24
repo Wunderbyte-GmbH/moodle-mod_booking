@@ -83,7 +83,7 @@ $mform = new customfield_options_form(new moodle_url($baseurl, ['fieldid' => $fi
 
 if ($mform->is_cancelled()) {
     redirect($baseurl);
-} else if (optional_param('switchfield', '', PARAM_RAW) !== '') {
+} else if (optional_param('switchfield', '', PARAM_TEXT) !== '') {
     // The "switch field" button reloads the page cleanly for the newly chosen field.
     // Other no-submit buttons (e.g. "Add option") fall through and just re-render the form.
     redirect(new moodle_url($baseurl, ['fieldid' => $fieldid]));
