@@ -2790,6 +2790,38 @@ function booking_get_extra_capabilities() {
 }
 
 /**
+ * Build the nested booking category tree for the mod_booking/category_list template.
+ *
+ * @param int $catid id of the parent category, 0 for the root level
+ * @param int $courseid
+ *
+ * @return array
+ *
+ */
+function booking_get_category_tree(int $catid, int $courseid): array {
+    global $DB;
+    $tree = [];
+    $categories = $DB->get_records('booking_category', ['course' => $courseid, 'cid' => $catid]);
+    foreach ($categories as $category) {
+        $subcategories = booking_get_category_tree($category->id, $courseid);
+        $tree[] = [
+            'name' => format_string($category->name),
+            'editurl' => (new moodle_url(
+                '/mod/booking/categoryadd.php',
+                ['courseid' => $courseid, 'cid' => $category->id]
+            ))->out(false),
+            'deleteurl' => (new moodle_url(
+                '/mod/booking/categoryadd.php',
+                ['courseid' => $courseid, 'cid' => $category->id, 'delete' => 1]
+            ))->out(false),
+            'hascategories' => !empty($subcategories),
+            'categories' => $subcategories,
+        ];
+    }
+    return $tree;
+}
+
+/**
  * Booking show subcategories.
  *
  * @param int $catid
@@ -2797,22 +2829,20 @@ function booking_get_extra_capabilities() {
  *
  * @return void
  *
+ * @deprecated use booking_get_category_tree() with the mod_booking/category_list template instead.
  */
 function booking_show_subcategories($catid, $courseid) {
-    global $DB;
-    $categories = $DB->get_records('booking_category', ['cid' => $catid]);
-    if (count((array) $categories) > 0) {
-        echo '<ul>';
-        foreach ($categories as $category) {
-            $editlink = "<a href=\"categoryadd.php?courseid=$courseid&cid=$category->id\">" .
-                     get_string('editcategory', 'booking') . '</a>';
-            $deletelink = "<a href=\"categoryadd.php?courseid=$courseid&cid=$category->id&delete=1\">" .
-                     get_string('deletecategory', 'booking') . '</a>';
-            echo "<li>$category->name - $editlink - $deletelink</li>";
-            booking_show_subcategories($category->id, $courseid);
-        }
-        echo '</ul>';
-    }
+    global $OUTPUT;
+    debugging(
+        'booking_show_subcategories() is deprecated. Use booking_get_category_tree() ' .
+        'with the mod_booking/category_list template instead.',
+        DEBUG_DEVELOPER
+    );
+    $categories = booking_get_category_tree($catid, $courseid);
+    echo $OUTPUT->render_from_template('mod_booking/category_list', [
+        'hascategories' => !empty($categories),
+        'categories' => $categories,
+    ]);
 }
 
 /**
