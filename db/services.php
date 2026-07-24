@@ -263,6 +263,13 @@ $functions = [
         'capabilities' => 'mod/booking:updatebooking',
         'ajax'         => 1,
     ],
+    'mod_booking_rate_option' => [
+        'classname'   => 'mod_booking\\external\\rate_option',
+        'methodname'  => 'execute',
+        'description' => 'Rate a booking option and return the new average rating',
+        'type'        => 'write',
+        'ajax'        => 1,
+    ],
 ];
 
 $services = [
