@@ -51,6 +51,7 @@ if (!$context = context_module::instance($cm->id)) {
 require_capability('mod/booking:updatebooking', $context);
 
 if (($action === 'delete') && ($tagid > 0)) {
+    require_sesskey();
     $DB->delete_records('booking_tags', ['id' => $tagid]);
     redirect($url, get_string('tagdeleted', 'booking'), 5);
 }
@@ -72,7 +73,10 @@ $tagstable = [];
 
 foreach ($tags->get_all_tags() as $tag) {
     $edit = new moodle_url('/mod/booking/tagtemplatesadd.php', ['id' => $cm->id, 'tagid' => $tag->id]);
-    $delete = new moodle_url('/mod/booking/tagtemplates.php', ['id' => $id, 'tagid' => $tag->id, 'action' => 'delete']);
+    $delete = new moodle_url(
+        '/mod/booking/tagtemplates.php',
+        ['id' => $id, 'tagid' => $tag->id, 'action' => 'delete', 'sesskey' => sesskey()]
+    );
     $button = $OUTPUT->single_button($edit, get_string('edittag', 'booking'), 'get') .
         $OUTPUT->single_button($delete, get_string('delete'), 'get');
 

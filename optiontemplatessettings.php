@@ -63,6 +63,8 @@ if (
 }
 
 if (($action === 'delete') && ($optionid > 0)) {
+    require_capability('mod/booking:manageoptiontemplates', $context);
+    require_sesskey();
     $DB->delete_records('booking_options', ['id' => $optionid]);
     $pageurl->remove_params('optionid');
     redirect($pageurl, get_string('templatedeleted', 'booking'), 5);

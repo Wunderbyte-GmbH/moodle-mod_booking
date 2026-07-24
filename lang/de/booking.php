@@ -3715,6 +3715,7 @@ $string['unlimitedplaces'] = 'Unbegrenzt';
 $string['unlinkallchildren'] = 'Verknüpfung von folgenden Buchungsoptionen löschen';
 $string['unlinkchild'] = 'Verknüpfung mit Vorlage löschen';
 $string['unsubscribe:alreadyunsubscribed'] = 'Sie sind bereits abgemeldet.';
+$string['unsubscribe:confirmnotification'] = 'Möchten Sie sich wirklich von den E-Mail-Benachrichtigungen für "{$a}" abmelden?';
 $string['unsubscribe:errorotheruser'] = 'Es ist nicht erlaubt, E-Mail-Abmeldungen für fremde Benutzer:innen durchzuführen!';
 $string['unsubscribe:successnotificationlist'] = 'Sie wurden erfolgreich von den E-Mail-Benachrichtigungen für "{$a}" abgemeldet.';
 $string['until'] = 'Bis';

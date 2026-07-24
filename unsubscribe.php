@@ -36,6 +36,7 @@ require_login();
 $action = required_param('action', PARAM_ALPHA);
 $optionid = required_param('optionid', PARAM_INT);
 $userid = required_param('userid', PARAM_INT);
+$confirm = optional_param('confirm', 0, PARAM_BOOL);
 
 $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 $cmid = $settings->cmid;
@@ -50,6 +51,22 @@ $url = new moodle_url('/mod/booking/unsubscribe.php', [
 ]);
 $PAGE->set_url($url);
 $PAGE->set_context($context);
+
+// The link usually comes from an e-mail and therefore cannot carry a sesskey,
+// so we ask for confirmation first and only perform the action on the
+// sesskey-protected continue request (CSRF protection).
+if (empty($confirm) || !confirm_sesskey()) {
+    $continueurl = new moodle_url($url, ['confirm' => 1, 'sesskey' => sesskey()]);
+    $cancelurl = new moodle_url('/mod/booking/view.php', ['id' => $cmid]);
+    echo $OUTPUT->header();
+    echo $OUTPUT->confirm(
+        get_string('unsubscribe:confirmnotification', 'mod_booking', $settings->get_title_with_prefix()),
+        $continueurl,
+        $cancelurl
+    );
+    echo $OUTPUT->footer();
+    die();
+}
 
 $messagetoshow = "<div class='alert alert-danger'>unknown error</div>";
 

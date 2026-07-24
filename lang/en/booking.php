@@ -3951,6 +3951,7 @@ $string['unlimitedplaces'] = 'Unlimited';
 $string['unlinkallchildren'] = 'Delete linking of all children';
 $string['unlinkchild'] = 'Delete linking to parent';
 $string['unsubscribe:alreadyunsubscribed'] = 'You are already unsubscribed.';
+$string['unsubscribe:confirmnotification'] = 'Do you really want to unsubscribe from e-mail notifications for "{$a}"?';
 $string['unsubscribe:errorotheruser'] = 'You are not allowed to unsubscribe a different user than yourself!';
 $string['unsubscribe:successnotificationlist'] = 'You were unsubscribed successfully from e-mail notifications for "{$a}".';
 $string['until'] = 'Until';

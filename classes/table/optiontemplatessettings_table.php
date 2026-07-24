@@ -130,7 +130,7 @@ class optiontemplatessettings_table extends table_sql {
         $delete = get_string('delete');
         $url = new moodle_url(
             '/mod/booking/optiontemplatessettings.php',
-            ['optionid' => $values->optionid, 'action' => 'delete', 'id' => $this->cmid]
+            ['optionid' => $values->optionid, 'action' => 'delete', 'id' => $this->cmid, 'sesskey' => sesskey()]
         );
         $output .= $OUTPUT->single_button($url, $delete, 'get');
         $edit = get_string('edit');
