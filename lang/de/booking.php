@@ -2648,6 +2648,13 @@ $string['privacy:metadata:bookingaithreads:status'] = 'Status des Threads (aktiv
 $string['privacy:metadata:bookingaithreads:timecreated'] = 'Der Zeitpunkt, zu dem der Thread erstellt wurde.';
 $string['privacy:metadata:bookingaithreads:timemodified'] = 'Der Zeitpunkt der letzten Änderung des Threads.';
 $string['privacy:metadata:bookingaithreads:userid'] = 'Die Nutzer-ID, der dieser Thread gehört.';
+$string['privacy:metadata:restscript'] = 'Die Buchungsaktion "REST-Script ausführen" sendet Buchungsdaten an einen externen REST-Endpunkt. Daten werden nur übertragen, wenn ein:e Trainer:in oder Admin eine solche Aktion explizit für eine Buchungsoption konfiguriert hat; der Ziel-Endpunkt ist Teil dieser Konfiguration.';
+$string['privacy:metadata:restscript:customform'] = 'Die Antworten, die die buchende Person im benutzerdefinierten Buchungsformular der Buchungsoption eingegeben hat.';
+$string['privacy:metadata:restscript:email'] = 'Die E-Mail-Adresse der buchenden Person (nur, wenn die Aktion Nutzer-Parameter mitsenden soll).';
+$string['privacy:metadata:restscript:firstname'] = 'Der Vorname der buchenden Person (nur, wenn die Aktion Nutzer-Parameter mitsenden soll).';
+$string['privacy:metadata:restscript:lastname'] = 'Der Nachname der buchenden Person (nur, wenn die Aktion Nutzer-Parameter mitsenden soll).';
+$string['privacy:metadata:restscript:placeholders'] = 'Werte, die für Platzhalter im konfigurierten JSON-Request-Body eingesetzt werden; das können Profildaten (z.B. Vorname, Nachname, E-Mail, Anmeldename, Nutzer-ID) und Details der Buchung sein.';
+$string['privacy:metadata:restscript:username'] = 'Der Anmeldename der buchenden Person (nur, wenn die Aktion Nutzer-Parameter mitsenden soll).';
 $string['problemsofcohortorgroupbooking'] = '<br><p>Es konnten nicht alle Buchungen durchgeführt werden:</p>
 <ul>
 <li>{$a->notenrolledusers} Nutzer:innen sind nicht in den Kurs eingeschrieben</li>

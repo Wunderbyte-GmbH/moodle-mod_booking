@@ -216,6 +216,26 @@ class provider implements
             'privacy:metadata:bookingoptiondatesanswers'
         );
 
+        // The booking action "Execute REST script" (bo_actions\action_types\executerestscript)
+        // is the only place where this plugin transmits data to an external system. Nothing is
+        // sent unless a trainer/admin explicitly configures such an action on a booking option;
+        // the target endpoint is defined in that configuration, so no fixed third party can be
+        // named here. Depending on the configuration, the request contains the booking user's
+        // profile data, their custom booking form answers and any placeholder values used in
+        // the configured JSON body.
+        $collection->add_external_location_link(
+            'restscript',
+            [
+                'firstname' => 'privacy:metadata:restscript:firstname',
+                'lastname' => 'privacy:metadata:restscript:lastname',
+                'email' => 'privacy:metadata:restscript:email',
+                'username' => 'privacy:metadata:restscript:username',
+                'customform' => 'privacy:metadata:restscript:customform',
+                'placeholders' => 'privacy:metadata:restscript:placeholders',
+            ],
+            'privacy:metadata:restscript'
+        );
+
         return $collection;
     }
 

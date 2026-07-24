@@ -2867,6 +2867,13 @@ $string['privacy:metadata:bookinguserevents:eventid'] = 'ID of event in events t
 $string['privacy:metadata:bookinguserevents:optiondateid'] = 'ID of optiondate (session) for user event';
 $string['privacy:metadata:bookinguserevents:optionid'] = 'ID of booking option for user event';
 $string['privacy:metadata:bookinguserevents:userid'] = 'User ID for user event';
+$string['privacy:metadata:restscript'] = 'The booking action "Execute REST script" sends booking data to an external REST endpoint. Data is only transmitted if a trainer or admin has explicitly configured such an action on a booking option; the target endpoint is part of that configuration.';
+$string['privacy:metadata:restscript:customform'] = 'The answers the user entered into the custom booking form of the booking option.';
+$string['privacy:metadata:restscript:email'] = 'The e-mail address of the booking user (only if the action is configured to send user parameters).';
+$string['privacy:metadata:restscript:firstname'] = 'The first name of the booking user (only if the action is configured to send user parameters).';
+$string['privacy:metadata:restscript:lastname'] = 'The last name of the booking user (only if the action is configured to send user parameters).';
+$string['privacy:metadata:restscript:placeholders'] = 'Values substituted for placeholders in the configured JSON request body, which can include user profile data (e.g. first name, last name, e-mail, username, user ID) and details of the booking.';
+$string['privacy:metadata:restscript:username'] = 'The username of the booking user (only if the action is configured to send user parameters).';
 $string['problemsofcohortorgroupbooking'] = '<br><p>Not all users could be booked with cohort booking:</p>
 <ul>
 <li>{$a->notenrolledusers} users are not enrolled in the course</li>
