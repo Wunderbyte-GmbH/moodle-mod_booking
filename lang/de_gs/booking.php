@@ -360,6 +360,12 @@ $string['potentialsubscribers'] = 'Mögliche Nutzer/innen';
 $string['pricecategorychoosehighest_desc'] = 'Hat ein/e Nutzer/in mehrere Preiskategorie-Identifier in seinem Userprofil hinterlegt, wird die am höchsten gereihte Preiskategorie zuerst gewählt. Standard ist die niedrigste.';
 $string['privacy:metadata:bookingaimessages:role'] = 'Rolle der Nachricht: Nutzer/in, Assistent oder System.';
 $string['privacy:metadata:bookingaithreads'] = 'KI-Konversations-Threads, die von Nutzer/innen für Buchungsinstanzen erstellt wurden.';
+$string['privacy:metadata:bookingslotstudentteacher'] = 'Einer Person zugewiesene/r Trainer/in für eine Slot-Buchungsoption';
+$string['privacy:metadata:bookingslotstudentteacher:teacherid'] = 'Nutzer-ID der zugewiesenen Trainer/in';
+$string['privacy:metadata:bookingslotstudentteacher:userid'] = 'Person (Teilnehmer/in), der die Trainer/in zugewiesen ist';
+$string['privacy:metadata:bookingteacherunavailability'] = 'Abwesenheitszeiträume von Trainer/innen für die Slot-Buchung';
+$string['privacy:metadata:bookingteacherunavailability:teacherid'] = 'Nutzer-ID der abwesenden Trainer/in';
+$string['privacy:metadata:restscript'] = 'Die Buchungsaktion "REST-Script ausführen" sendet Buchungsdaten an einen externen REST-Endpunkt. Daten werden nur übertragen, wenn ein/e Trainer/in oder Admin eine solche Aktion explizit für eine Buchungsoption konfiguriert hat; der Ziel-Endpunkt ist Teil dieser Konfiguration.';
 $string['problemsofcohortorgroupbooking'] = '<br><p>Es konnten nicht alle Buchungen durchgeführt werden:</p>
 <ul>
 <li>{$a->notenrolledusers} Nutzer/innen sind nicht in den Kurs eingeschrieben</li>
