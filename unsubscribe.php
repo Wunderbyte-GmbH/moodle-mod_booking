@@ -40,7 +40,8 @@ $userid = required_param('userid', PARAM_INT);
 $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 $cmid = $settings->cmid;
 [$course, $cm] = get_course_and_cm_from_cmid($cmid, 'booking');
-$context = context_system::instance();
+// Use the module context of the booking instance the option belongs to.
+$context = context_module::instance($cmid);
 
 $url = new moodle_url('/mod/booking/unsubscribe.php', [
     'action' => $action,
@@ -54,6 +55,9 @@ $messagetoshow = "<div class='alert alert-danger'>unknown error</div>";
 
 switch ($action) {
     case 'notification':
+        // No capability is required here on purpose: this is a self-service action
+        // (e.g. from an unsubscribe link in a notification e-mail) which only ever
+        // removes the CURRENT user's own entry from the notification list.
         // Unsubscribing is currently only possible for oneself.
         // So we prevent misuse (a user with bad intentions could unsubscribe another user).
         if ($userid != $USER->id) {

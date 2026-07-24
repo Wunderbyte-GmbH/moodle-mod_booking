@@ -156,6 +156,33 @@ final class option_scope_tables_test extends booking_advanced_testcase {
     }
 
     /**
+     * The server-side capability check of the download endpoint
+     * (download_report2.php) rejects users without downloadresponses in the
+     * scope and accepts those with it - independently of the download button.
+     *
+     * @covers \mod_booking\booking_answers\scopes\option::has_capability_in_scope
+     */
+    public function test_download_endpoint_capability_check_per_scope(): void {
+        $this->setAdminUser();
+        [$settings, $course, $students] = $this->create_booked_option();
+
+        $scope = new option();
+
+        // Admin holds downloadresponses everywhere.
+        $this->assertTrue($scope->has_capability_in_scope((int)$settings->id, 'mod/booking:downloadresponses'));
+
+        // A non-editing teacher holds it in the module context of the option.
+        $courseteacher = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->enrol_user($courseteacher->id, $course->id, 'teacher');
+        $this->setUser($courseteacher);
+        $this->assertTrue($scope->has_capability_in_scope((int)$settings->id, 'mod/booking:downloadresponses'));
+
+        // A student does not and is rejected by download_report2.php.
+        $this->setUser($students[0]);
+        $this->assertFalse($scope->has_capability_in_scope((int)$settings->id, 'mod/booking:downloadresponses'));
+    }
+
+    /**
      * The side tables filter by their status param: waiting list, reserved,
      * notify list and deleted answers each return exactly their users.
      *

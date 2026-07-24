@@ -44,6 +44,17 @@ $syscontext = context_system::instance();
 $PAGE->set_context($syscontext);
 $PAGE->set_url('/download_report2.php');
 
+$ba = new booking_answers();
+/** @var \mod_booking\booking_answers\scope_base $class */
+$class = $ba->return_class_for_scope($scope);
+
+// Server-side re-check of the capability which also gates the download button:
+// downloading the responses (personal data of the booked users) requires
+// mod/booking:downloadresponses in the context of the requested scope.
+if (!$class->has_capability_in_scope($scopeid, 'mod/booking:downloadresponses')) {
+    throw new required_capability_exception($syscontext, 'mod/booking:downloadresponses', 'nopermissions', '');
+}
+
 // Table will be of an instance of the child class extending wunderbyte_table.
 /** @var manageusers_table $table */
 $table = wunderbyte_table::instantiate_from_tablecache_hash($encodedtable);
@@ -56,9 +67,6 @@ $table->is_downloading($download, $fileandsheetname, $fileandsheetname);
 $table->headers = [];
 $table->columns = [];
 
-$ba = new booking_answers();
-/** @var \mod_booking\booking_answers\scope_base $class */
-$class = $ba->return_class_for_scope($scope);
 // The download columns can be configured per booking instance
 // via the setting "Manage responses - Download" (reportfields).
 $columns = $class->return_cols_for_download($statusparam, $scopeid);

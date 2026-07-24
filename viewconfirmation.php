@@ -55,6 +55,10 @@ if (!$context = context_module::instance($cmid)) {
     throw new moodle_exception('badcontext');
 }
 
+// Same capability which gates view.php. The page only ever shows the
+// confirmation of the current user ($USER), never data of other users.
+require_capability('mod/booking:view', $context);
+
 $PAGE->navbar->add(get_string("bookedtext", "booking"));
 $PAGE->set_title(get_string("bookedtext", "booking"));
 $PAGE->set_heading(get_string("bookedtext", "booking"));
