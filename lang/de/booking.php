@@ -1793,6 +1793,7 @@ $string['error:formcapabilitymissing'] = 'Ihnen fehlt die Berechtigung, um diese
 $string['error:identifierexists'] = 'Wählen Sie einen anderen Identifikator. Dieser existiert bereits.';
 $string['error:installmentdatefieldcondition'] = 'Das Datumsfeld "Ratenzahlung" kann nur in Kombination mit der Bedingung "Wähle Nutzer:in, die Ratenzahlung zu leisten hat" gewählt werden.';
 $string['error:invalidcmid'] = 'Der Bericht kann nicht geöffnet werden, weil keine gültige Kursmodul-ID (cmid) übergeben wurde. Die cmid muss auf eine Buchungsinstanz verweisen!';
+$string['error:invalidredirecturl'] = 'Die URL scheint ungültig zu sein. Bitte kontaktieren Sie eine:n Entwickler:in.';
 $string['error:limitfactornotbetween1and2'] = 'Sie müssen einen Wert zwischen 0 und 2 eingeben. Um das Buchungslimit z.B. um 20% zu erhöhen,
  geben Sie den Wert 1,2 ein.';
 $string['error:missingblockinglabel'] = 'Geben Sie die Nachricht ein, die angezeigt werden soll, wenn Buchungen blockiert werden.';

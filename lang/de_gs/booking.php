@@ -264,6 +264,7 @@ Diese Funktion bezieht sich auch auf den ausgewählten Kurs im Bereich Moodle Ku
 $string['enroluserstowaitinglist'] = 'Buchende Nutzer/innen auf die Warteliste setzen und erst nach Bestätigung einschreiben?';
 $string['enteruserprofilefield'] = 'Wähle Nutzer/innen nach eingegebenem Wert für Profilfeld. Achtung! Das betrifft ALLE Nutzer/innen auf der Plattform.';
 $string['error:installmentdatefieldcondition'] = 'Das Datumsfeld "Ratenzahlung" kann nur in Kombination mit der Bedingung "Wähle Nutzer/in, die Ratenzahlung zu leisten hat" gewählt werden.';
+$string['error:invalidredirecturl'] = 'Die URL scheint ungültig zu sein. Bitte kontaktieren Sie eine/n Entwickler/in.';
 $string['error:reasonfornoteacher'] = 'Geben Sie einen Grund an, warum an diesem Termin kein/e Trainer/in anwesend war.';
 $string['error:wrongteacherid'] = 'Fehler: Für die angegebene "teacherid" wurde kein/e Nutzer/in gefunden.';
 $string['eventdesc:bookinganswercancelled'] = 'Nutzer/in "{$a->user}" hat Nutzer/in "{$a->relateduser}" aus "{$a->title}" storniert.';

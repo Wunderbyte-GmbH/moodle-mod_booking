@@ -45,4 +45,4 @@ if (filter_var($link, FILTER_VALIDATE_URL)) {
     exit();
 }
 
-echo "The URL does not seem to be valid. Please contact a developer.";
+echo get_string('error:invalidredirecturl', 'mod_booking');
