@@ -58,6 +58,8 @@ final class genderslash_test extends \advanced_testcase {
             'article underscore' => ['der_die', 'der/die'],
             'adjective colon' => ['welche:r', 'welche/r'],
             'pronoun underscore' => ['jede_n', 'jede/n'],
+            'article accusative colon' => ['eine:n Entwickler:in', 'eine/n Entwickler/in'],
+            'article accusative negated' => ['keine:n', 'keine/n'],
             'plain word unchanged' => ['jeden', 'jeden'],
             'no gender form unchanged' => ['Information', 'Information'],
             'already slash unchanged' => ['Nutzer/innen', 'Nutzer/innen'],

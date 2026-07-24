@@ -46,9 +46,9 @@ class genderslash {
             '/([a-zäöüß])In\b/u' => '$1/in',
             '/\b(ein|kein|Ein|Kein)[:*_]e\b/u' => '$1/e',
             '/([A-Za-zäöüß]*e)[:*_]r\b/u' => '$1/r',
+            '/([A-Za-zäöüß]*e)[:*_]n\b/u' => '$1/n',
             '/\bihm[:*_]ihr\b/u' => 'ihm/ihr',
             '/\bder[:*_]die\b/u' => 'der/die',
-            '/\bjede[:*_]n\b/u' => 'jede/n',
         ];
         return [array_keys($patterns), array_values($patterns)];
     }
