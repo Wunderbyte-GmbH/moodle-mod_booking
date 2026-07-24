@@ -55,6 +55,18 @@ jobs:
         # Set additional environment variables
         # echo "SOME_PATHS=OpenTBS, TinyButStrong" >> $GITHUB_ENV
 
+        # WORKAROUND 24/07/2026: moodle-plugin-ci codechecker passes every plugin
+        # PHP file as an argument; Symfony Process flattens the command into a
+        # single 'sh -c' string, which counts as ONE argument against the Linux
+        # per-argument limit MAX_ARG_STRLEN (128 KiB). With Moodle 5.1+ the
+        # plugin lives under moodle/public/, pushing the string over the limit:
+        # proc_open fails with "Unable to launch a new process" (Process.php:356).
+        # Patch the installed moodle-plugin-ci to pass files via phpcs --file-list.
+        # Remove once fixed upstream in moodlehq/moodle-plugin-ci.
+        perl -0pi -e 's/foreach \(\$files as \$file\) \{\n            \$cmd\[\] = \$file;\n        \}/\$fileList = \$this->tempFile . "-file-list";\n        file_put_contents(\$fileList, implode(PHP_EOL, \$files));\n        \$cmd[] = "--file-list=" . \$fileList;/s' "$GITHUB_WORKSPACE/m-ci/src/Command/CodeCheckerCommand.php"
+        grep -q -- '--file-list' "$GITHUB_WORKSPACE/m-ci/src/Command/CodeCheckerCommand.php" && echo "codechecker patched to use --file-list" || { echo "codechecker --file-list patch FAILED - check moodle-plugin-ci upstream"; exit 1; }
+        # END OF WORKAROUND 24/07/2026
+
         # WORKAROUND 17/04/2025: The following code is a workaround for the "File is stale and needs to be rebuilt" error
         # This occurs when AMD modules import Moodle core dependencies
         # See issue: https://github.com/moodlehq/moodle-plugin-ci/issues/350
@@ -133,6 +145,18 @@ jobs:
       workarounds: |
         # Set additional environment variables
         # echo "SOME_PATHS=OpenTBS, TinyButStrong" >> $GITHUB_ENV
+
+        # WORKAROUND 24/07/2026: moodle-plugin-ci codechecker passes every plugin
+        # PHP file as an argument; Symfony Process flattens the command into a
+        # single 'sh -c' string, which counts as ONE argument against the Linux
+        # per-argument limit MAX_ARG_STRLEN (128 KiB). With Moodle 5.1+ the
+        # plugin lives under moodle/public/, pushing the string over the limit:
+        # proc_open fails with "Unable to launch a new process" (Process.php:356).
+        # Patch the installed moodle-plugin-ci to pass files via phpcs --file-list.
+        # Remove once fixed upstream in moodlehq/moodle-plugin-ci.
+        perl -0pi -e 's/foreach \(\$files as \$file\) \{\n            \$cmd\[\] = \$file;\n        \}/\$fileList = \$this->tempFile . "-file-list";\n        file_put_contents(\$fileList, implode(PHP_EOL, \$files));\n        \$cmd[] = "--file-list=" . \$fileList;/s' "$GITHUB_WORKSPACE/m-ci/src/Command/CodeCheckerCommand.php"
+        grep -q -- '--file-list' "$GITHUB_WORKSPACE/m-ci/src/Command/CodeCheckerCommand.php" && echo "codechecker patched to use --file-list" || { echo "codechecker --file-list patch FAILED - check moodle-plugin-ci upstream"; exit 1; }
+        # END OF WORKAROUND 24/07/2026
 
         # WORKAROUND 17/04/2025: The following code is a workaround for the "File is stale and needs to be rebuilt" error
         # This occurs when AMD modules import Moodle core dependencies
