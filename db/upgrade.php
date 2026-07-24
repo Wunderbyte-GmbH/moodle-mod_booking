@@ -2515,7 +2515,7 @@ function xmldb_booking_upgrade($oldversion) {
     if ($oldversion < 2017112101) {
         // The deduplication can take a while on big tables, make sure the upgrade does not time out.
         upgrade_set_timeout();
-        delete_duplicate_customfields_2017112101();
+        booking_delete_duplicate_customfields_2017112101();
 
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2017112101, 'booking');
@@ -3564,7 +3564,7 @@ function xmldb_booking_upgrade($oldversion) {
     if ($oldversion < 2022090802) {
         // Get rid of the old "unique option names" workaround.
         // We use a separate "identifier" field now.
-        migrate_booking_option_identifiers_2022090802();
+        booking_migrate_option_identifiers_2022090802();
 
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2022090802, 'booking');
@@ -3910,7 +3910,7 @@ function xmldb_booking_upgrade($oldversion) {
 
     if ($oldversion < 2022112901) {
         // We need to migrate optionids to itemids and set the area to 'option'.
-        migrate_optionids_for_prices_2022112901();
+        booking_migrate_optionids_for_prices_2022112901();
 
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2022112901, 'booking');
@@ -3988,7 +3988,7 @@ function xmldb_booking_upgrade($oldversion) {
             $dbman->drop_index($table, $index);
         }
 
-        fix_booking_templateid();
+        booking_fix_templateid();
 
         $table = new xmldb_table('booking');
         $field = new xmldb_field('templateid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'allowupdatedays');
@@ -4287,7 +4287,7 @@ function xmldb_booking_upgrade($oldversion) {
 
     if ($oldversion < 2023022800) {
         // We need to migrate optionsfields for the new view.php.
-        migrate_optionsfields_2023022800();
+        booking_migrate_optionsfields_2023022800();
 
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2023022800, 'booking');
@@ -4527,7 +4527,7 @@ function xmldb_booking_upgrade($oldversion) {
 
     if ($oldversion < 2024022700) {
         // Fix bugs with description format.
-        fix_bookingoption_descriptionformat_2024022700();
+        booking_fix_bookingoption_descriptionformat_2024022700();
 
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2024022700, 'booking');
@@ -4560,7 +4560,7 @@ function xmldb_booking_upgrade($oldversion) {
 
     if ($oldversion < 2024030801) {
         // Fix bugs with showlistoncoursepage field.
-        fix_showlistoncoursepage_2024030801();
+        booking_fix_showlistoncoursepage_2024030801();
 
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2024030801, 'booking');
@@ -4593,7 +4593,7 @@ function xmldb_booking_upgrade($oldversion) {
         $dbman->rename_field($table, $field, 'contextid');
 
         // We need to migrate optionsfields for the new view.php.
-        migrate_contextids_2024040901();
+        booking_migrate_contextids_2024040901();
 
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2024040901, 'booking');
@@ -4659,7 +4659,7 @@ function xmldb_booking_upgrade($oldversion) {
             $dbman->add_field($table, $field);
         }
 
-        fix_places_for_booking_answers();
+        booking_fix_places_for_booking_answers();
 
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2024082903, 'booking');
@@ -4796,7 +4796,7 @@ function xmldb_booking_upgrade($oldversion) {
 
     if ($oldversion < 2025010803) {
         // Remove values form completiongradeitemnumber and completionpassgrade to avoid #779 error after #629.
-        remove_completiongradeitemnumber_2025010803();
+        booking_remove_completiongradeitemnumber_2025010803();
 
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2025010803, 'booking');
@@ -4868,7 +4868,7 @@ function xmldb_booking_upgrade($oldversion) {
             $dbman->add_field($table, $field);
         }
 
-        fix_places_for_booking_answers();
+        booking_fix_places_for_booking_answers();
 
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2025022601, 'booking');
@@ -5127,7 +5127,7 @@ function xmldb_booking_upgrade($oldversion) {
 
     if ($oldversion < 2025122201) {
         // Migrate old selflearningcourse json flag to new type field.
-        migrate_selflearningcourse_json_to_type_2025122201();
+        booking_migrate_selflearningcourse_json_to_type_2025122201();
 
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2025122201, 'booking');
@@ -5178,7 +5178,7 @@ function xmldb_booking_upgrade($oldversion) {
 
     if ($oldversion < 2026030500) {
         // Run a script that deletes all custom fields within the tool_certificate component.
-        delete_customfields_in_tool_certificate_2026030500();
+        booking_delete_customfields_in_tool_certificate_2026030500();
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2026030500, 'booking');
     }

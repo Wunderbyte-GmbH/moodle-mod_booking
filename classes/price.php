@@ -157,7 +157,7 @@ class price {
 
         // Only when there is an actual price formula, we do apply it.
         $priceformula = get_config('booking', 'defaultpriceformula');
-        if (!$noformula && !empty($priceformula) && is_json($priceformula)) {
+        if (!$noformula && !empty($priceformula) && booking_is_json($priceformula)) {
             $mform->addElement(
                 'advcheckbox',
                 'priceformulaisactive',
@@ -244,7 +244,7 @@ class price {
 
         // Only when there is an actual price formula, we do apply it.
         $priceformula = get_config('booking', 'defaultpriceformula');
-        if (!empty($priceformula) && is_json($priceformula)) {
+        if (!empty($priceformula) && booking_is_json($priceformula)) {
             // Get Settings.
             if (!empty($data->id) && ($data->id > 0)) {
                 $optionid = $data->id;

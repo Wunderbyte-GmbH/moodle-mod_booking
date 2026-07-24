@@ -217,7 +217,7 @@ class enrolledincohorts implements bo_condition, freezable_condition {
                     )";
             } else if (
                 $databasetype == 'mysql'
-                && db_is_at_least_mariadb_106_or_mysql_8()
+                && booking_db_is_at_least_mariadb_106_or_mysql_8()
             ) {
                 $where = "
                     (
@@ -282,7 +282,7 @@ class enrolledincohorts implements bo_condition, freezable_condition {
             return ['', '', '', $params, $where];
         } else if (
             $databasetype == 'mysql'
-            && db_is_at_least_mariadb_106_or_mysql_8()
+            && booking_db_is_at_least_mariadb_106_or_mysql_8()
         ) {
             $cohortidstext = array_map(fn($id) => "'" . $id . "'", array_keys($usercohorts));
             $appendwhere = implode(', ', $cohortidstext);

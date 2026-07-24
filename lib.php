@@ -2851,7 +2851,7 @@ function mod_booking_cm_info_view(cm_info $cm) {
  *
  * @return bool true if valid json
  */
-function is_json($string) {
+function booking_is_json($string) {
     json_decode($string);
     return json_last_error() === JSON_ERROR_NONE;
 }
@@ -2861,7 +2861,7 @@ function is_json($string) {
  * @return array a list containing the full paths of all booking events as key
  *               and the event names as values
  */
-function get_list_of_booking_events() {
+function booking_get_list_of_booking_events() {
     $eventinformation = [];
     $events = core_component::get_component_classes_in_namespace('mod_booking', 'event');
     foreach (array_keys($events) as $event) {
@@ -2976,7 +2976,7 @@ function mod_booking_tool_certificate_fields() {
  * Helper function to check if the database is MariaDB and at least version 10.6.
  * @return bool True if MariaDB 10.6 or higher, false otherwise.
  */
-function db_is_at_least_mariadb_106_or_mysql_8() {
+function booking_db_is_at_least_mariadb_106_or_mysql_8() {
     global $DB;
 
     // The DB server version cannot change within a request, so cache the result.

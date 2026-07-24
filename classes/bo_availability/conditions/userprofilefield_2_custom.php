@@ -403,7 +403,7 @@ class userprofilefield_2_custom implements bo_condition, freezable_condition {
                 return ['', '', '', $params, $where];
             } else if (
                 $databasetype == 'mysql'
-                && db_is_at_least_mariadb_106_or_mysql_8()
+                && booking_db_is_at_least_mariadb_106_or_mysql_8()
             ) {
                 $where = "
                     COALESCE(availability, '[]') IS NOT NULL
@@ -508,7 +508,7 @@ class userprofilefield_2_custom implements bo_condition, freezable_condition {
             return ['', '', '', $params, $where];
         } else if (
             $databasetype == 'mysql'
-            && db_is_at_least_mariadb_106_or_mysql_8()
+            && booking_db_is_at_least_mariadb_106_or_mysql_8()
         ) {
             $where = "
                 COALESCE(availability, '[]') IS NOT NULL

@@ -83,7 +83,7 @@ class select_user_shopping_cart implements booking_rule_condition {
         // JSON_TABLE is only available in MariaDB 10.6+ and MySQL 8.0+.
         if (
             $dbfamily == 'mysql'
-            && !db_is_at_least_mariadb_106_or_mysql_8()
+            && !booking_db_is_at_least_mariadb_106_or_mysql_8()
         ) {
             return false;
         }

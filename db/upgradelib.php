@@ -28,7 +28,7 @@
  * within booking options and move them into the new DB field 'identifier'.
  * @return void
  */
-function migrate_booking_option_identifiers_2022090802() {
+function booking_migrate_option_identifiers_2022090802() {
     global $DB;
     if ($separator = get_config('booking', 'uniqueoptionnameseparator')) {
         if ($recordstomigrate = $DB->get_records('booking_options')) {
@@ -53,7 +53,7 @@ function migrate_booking_option_identifiers_2022090802() {
  * so we need to set the area to "option" for each migrated row.
  * @return void
  */
-function migrate_optionids_for_prices_2022112901() {
+function booking_migrate_optionids_for_prices_2022112901() {
     global $DB;
     if ($recordstomigrate = $DB->get_records('booking_prices')) {
         foreach ($recordstomigrate as $record) {
@@ -68,7 +68,7 @@ function migrate_optionids_for_prices_2022112901() {
  * for the list of booking options. So after the new view gets introduced,
  * we need to set all fields so nothing disappears.
  */
-function migrate_optionsfields_2023022800() {
+function booking_migrate_optionsfields_2023022800() {
     global $DB;
     if ($recordstomigrate = $DB->get_records('booking')) {
         foreach ($recordstomigrate as $record) {
@@ -82,7 +82,7 @@ function migrate_optionsfields_2023022800() {
 /**
  * Fix descriptionformat for all booking options.
  */
-function fix_bookingoption_descriptionformat_2024022700() {
+function booking_fix_bookingoption_descriptionformat_2024022700() {
     global $DB;
     $DB->execute(
         "UPDATE {booking_options}
@@ -94,7 +94,7 @@ function fix_bookingoption_descriptionformat_2024022700() {
 /**
  * Fix showlistoncoursepage for all booking instances.
  */
-function fix_showlistoncoursepage_2024030801() {
+function booking_fix_showlistoncoursepage_2024030801() {
     global $DB;
     $DB->execute(
         "UPDATE {booking}
@@ -107,7 +107,7 @@ function fix_showlistoncoursepage_2024030801() {
  * Migrate former bookingids to contextids.
  * @return void
  */
-function migrate_contextids_2024040901() {
+function booking_migrate_contextids_2024040901() {
     global $DB;
 
     $DB->execute(
@@ -122,7 +122,7 @@ function migrate_contextids_2024040901() {
  * @return [type]
  *
  */
-function fix_booking_templateid() {
+function booking_fix_templateid() {
 
     global $DB;
 
@@ -143,7 +143,7 @@ function fix_booking_templateid() {
  * @return void
  *
  */
-function fix_places_for_booking_answers() {
+function booking_fix_places_for_booking_answers() {
 
     global $DB;
 
@@ -161,7 +161,7 @@ function fix_places_for_booking_answers() {
  *
  * @return void
  */
-function remove_completiongradeitemnumber_2025010803() {
+function booking_remove_completiongradeitemnumber_2025010803() {
     global $DB;
 
     $bookingmoduleid = $DB->get_field('modules', 'id', ['name' => 'booking']);
@@ -228,7 +228,7 @@ function booking_upgrade_change_id_425_to_391() {
 /**
  * Migrate old selflearningcourse json flag to new booking option type.
  */
-function migrate_selflearningcourse_json_to_type_2025122201(): void {
+function booking_migrate_selflearningcourse_json_to_type_2025122201(): void {
     global $DB;
     // Fetch all booking options.
     $records = $DB->get_records('booking_options', [], '', 'id, json, type');
@@ -265,7 +265,7 @@ function migrate_selflearningcourse_json_to_type_2025122201(): void {
  *
  * @return void
  */
-function delete_customfields_in_tool_certificate_2026030500(): void {
+function booking_delete_customfields_in_tool_certificate_2026030500(): void {
     global $DB;
 
     // Get the categories for this component.
@@ -298,7 +298,7 @@ function delete_customfields_in_tool_certificate_2026030500(): void {
  *
  * @return void
  */
-function delete_duplicate_customfields_2017112101(): void {
+function booking_delete_duplicate_customfields_2017112101(): void {
     global $DB;
 
     $sql = "SELECT bcf.id

@@ -34,7 +34,7 @@ require_once($CFG->dirroot . '/mod/booking/db/upgradelib.php');
 /**
  * PHPUnit tests for the upgrade helpers in db/upgradelib.php.
  *
- * @covers ::delete_duplicate_customfields_2017112101
+ * @covers ::booking_delete_duplicate_customfields_2017112101
  */
 final class upgradelib_test extends booking_advanced_testcase {
     /**
@@ -71,7 +71,7 @@ final class upgradelib_test extends booking_advanced_testcase {
         $keepsports2 = $this->insert_customfield(2, 'sports', 'first');
         $this->insert_customfield(2, 'sports', 'second');
 
-        delete_duplicate_customfields_2017112101();
+        booking_delete_duplicate_customfields_2017112101();
 
         $remaining = $DB->get_records('booking_customfields', [], 'id ASC');
         $this->assertSame(
@@ -84,7 +84,7 @@ final class upgradelib_test extends booking_advanced_testcase {
         $this->assertSame('first', $remaining[$keepsports2]->value);
 
         // Running the deduplication again must not delete anything else.
-        delete_duplicate_customfields_2017112101();
+        booking_delete_duplicate_customfields_2017112101();
         $this->assertCount(3, $DB->get_records('booking_customfields'));
     }
 
@@ -98,7 +98,7 @@ final class upgradelib_test extends booking_advanced_testcase {
         $this->insert_customfield(1, 'music', 'second');
         $this->insert_customfield(2, 'sports', 'third');
 
-        delete_duplicate_customfields_2017112101();
+        booking_delete_duplicate_customfields_2017112101();
 
         $this->assertCount(3, $DB->get_records('booking_customfields'));
     }

@@ -74,7 +74,7 @@ if ($mform->is_cancelled()) {
     $cleanuids = clean_param_array(json_decode($uids), PARAM_INT);
 
     // Now, let's send the custom message.
-    send_custom_message($optionid, $data->subject, $data->message['text'], $cleanuids);
+    booking_send_custom_message($optionid, $data->subject, $data->message['text'], $cleanuids);
 
     redirect($redirecturl, get_string('messagesend', 'booking'), 5);
 }
@@ -98,7 +98,7 @@ echo $OUTPUT->footer();
  * @param string $message
  * @param array $selecteduserids
  */
-function send_custom_message(int $optionid, string $subject, string $message, array $selecteduserids) {
+function booking_send_custom_message(int $optionid, string $subject, string $message, array $selecteduserids) {
     global $DB, $USER;
 
     $settings = singleton_service::get_instance_of_booking_option_settings($optionid);

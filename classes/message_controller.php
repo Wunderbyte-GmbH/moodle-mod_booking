@@ -290,7 +290,7 @@ class message_controller {
         // It's used as string param {$a->sessionreminder} in the default message string 'sessionremindermailmessage'.
         if ($this->messageparam == MOD_BOOKING_MSGPARAM_SESSIONREMINDER) {
             // Rendered session description.
-            $this->stringparams->sessiondescription = get_rendered_eventdescription(
+            $this->stringparams->sessiondescription = booking_get_rendered_eventdescription(
                 $this->optionid,
                 $this->cmid,
                 MOD_BOOKING_DESCRIPTION_CALENDAR

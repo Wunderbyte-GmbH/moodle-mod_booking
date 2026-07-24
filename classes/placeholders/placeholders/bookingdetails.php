@@ -93,7 +93,7 @@ class bookingdetails extends \mod_booking\placeholders\placeholder_base {
             // Loop prevention.
             if (placeholders_info::$placeholders[$cachekey] === 1) {
                 placeholders_info::$placeholders[$cachekey]++;
-                $value = get_rendered_eventdescription($optionid, $cmid, $descriptionparam);
+                $value = booking_get_rendered_eventdescription($optionid, $cmid, $descriptionparam);
 
                 // Save the value to profit from singleton.
                 placeholders_info::$placeholders[$cachekey] = $value;
