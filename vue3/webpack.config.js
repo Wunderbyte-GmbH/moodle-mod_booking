@@ -1,7 +1,6 @@
 var path = require('path');
 var webpack = require('webpack');
 const { VueLoaderPlugin } = require('vue-loader');
-const TerserPlugin = require('terser-webpack-plugin');
 
 process.argv.find(v => v.includes('webpack-dev-server'));
 
@@ -127,20 +126,13 @@ module.exports = (env, options) => {
                 'process.env': {
                     NODE_ENV: '"production"'
                 }
-            }),
-            new webpack.LoaderOptionsPlugin({
-                minimize: true
             })
         ]);
+        // Emit readable (unminified) output into amd/src. Moodle's grunt is
+        // responsible for minifying amd/src into amd/build, and the moodle.org
+        // plugin validation expects that src -> build relationship.
         exports.optimization = {
-            minimizer: [
-                new TerserPlugin({
-                    parallel: true,
-                    terserOptions: {
-                        // https://github.com/webpack-contrib/terser-webpack-plugin#terseroptions
-                    }
-                }),
-            ]
+            minimize: false
         }
     }
 
