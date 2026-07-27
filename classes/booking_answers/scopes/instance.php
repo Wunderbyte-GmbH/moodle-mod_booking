@@ -58,7 +58,20 @@ class instance extends scope_base_options {
         $cmid = $scopeid;
         $fields = 's1.*';
         $where = ' 1 = 1 ';
+
+        $params = [
+            'statusparam' => $statusparam,
+            'statustocount' => get_config('booking', 'bookingstrackerpresencecountervaluetocount'),
+            'cmid' => $cmid,
+        ];
+
         $wherepart = $this->get_wherepart($statusparam);
+
+        // The rows of this scope are aggregated booking options, so the restriction of a booking
+        // extension (e.g. to the team of a supervisor) has to be applied inside the grouped query.
+        // This way the answers count only contains the answers the current user may see.
+        $wherepart .= $this->get_answers_restriction_sql('ba.userid', $scopeid, $params);
+
         $selectpart = $this->get_selectpart($statusparam);
         $endpart = $this->get_endpart();
         $from = " (
@@ -66,12 +79,6 @@ class instance extends scope_base_options {
             $wherepart AND cm.id = :cmid
             $endpart
         ) s1";
-
-        $params = [
-            'statusparam' => $statusparam,
-            'statustocount' => get_config('booking', 'bookingstrackerpresencecountervaluetocount'),
-            'cmid' => $cmid,
-        ];
 
         return [$fields, $from, $where, $params];
     }

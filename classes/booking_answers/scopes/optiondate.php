@@ -288,6 +288,9 @@ class optiondate extends scope_base {
             'statusparam' => MOD_BOOKING_STATUSPARAM_BOOKED,
         ], $profilefieldparams, $extraparams);
 
+        // A booking extension can limit the answers the current user may see (e.g. their team).
+        $where .= $this->get_answers_restriction_sql('userid', $scopeid, $params);
+
         return [$fields, $from, $where, $params];
     }
 
