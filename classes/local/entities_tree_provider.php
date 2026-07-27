@@ -107,11 +107,21 @@ class entities_tree_provider implements tree_provider {
         $areaparam = self::unique_param($params, self::AREA);
         $where = empty($table->sql->where) ? '1=1' : $table->sql->where;
 
-        $sql = "SELECT ler.entityid AS entityid, COUNT(DISTINCT s1.id) AS keycount
-                  FROM {$table->sql->from}
-                  JOIN {local_entities_relations} ler
-                    ON ler.component = :{$compparam} AND ler.area = :{$areaparam} AND ler.instanceid = s1.id
-                 WHERE {$where}
+        // The table's where clause uses unqualified column names (e.g. "id" or "bookingid"), which only resolve
+        // as long as the base query is the single thing in scope. Joining the relation table next to it made
+        // "id" ambiguous, so the where has to stay inside its own derived table. A derived table (as opposed to
+        // an IN subquery) cannot see "ler" at all, so a column the base query does not provide fails loudly
+        // instead of silently resolving against the relation table.
+        $sql = "SELECT ler.entityid AS entityid, COUNT(DISTINCT ler.instanceid) AS keycount
+                  FROM {local_entities_relations} ler
+                  JOIN (
+                        SELECT id
+                          FROM {$table->sql->from}
+                         WHERE {$where}
+                       ) presentoptions
+                    ON presentoptions.id = ler.instanceid
+                 WHERE ler.component = :{$compparam}
+                   AND ler.area = :{$areaparam}
               GROUP BY ler.entityid";
 
         $counts = [];
