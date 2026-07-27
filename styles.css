@@ -326,8 +326,23 @@ if there only was one booking option. */
 }
 
 /* Subbooking Timeslot */
+/* The price chip in this table is a <button> now (it adds a slot to the cart, so it has to be
+   operable by keyboard). Strip the browser's own button chrome so the table keeps its look. Wrapped
+   in :where() on purpose: that keeps the specificity at a single class, so the state rules below
+   still win over it. */
+.mod-booking-timeslotbooking :where(button.wb_shopping_cart) {
+    border: 0;
+    padding: 1px;
+    font: inherit;
+    color: inherit;
+    background-color: transparent;
+}
+
 .mod-booking-timeslotbooking [data-bookable="1"] {
-    background: var(--info);
+    /* Fixed instead of var(--info): with Bootstrap's default info colour (#17a2b8, which is what
+       themes that build their variables after the Bootstrap import end up with) white text is only
+       3:1. #006d80 keeps the cyan and reaches 6:1. */
+    background: #006d80;
     color: #fff;
     vertical-align: middle;
     cursor: pointer;
@@ -357,18 +372,42 @@ if there only was one booking option. */
     height: 100%;
 }
 
-.wb_shopping_cart.disabled {
-    background: var(--success);
-    color: white;
+/* "Already in the cart": greyed out, because the item can only be taken out again in the cart
+   itself - a click on the button does nothing (see cart.js).
+   The state is carried by the disabled class plus aria-disabled, never by the disabled attribute,
+   because the button has to stay focusable so keyboard and screen reader users can find out why it
+   does not react.
+   The greys are fixed and the dimming is switched off on purpose:
+   - Bootstrap dims .btn.disabled to 65% opacity, which blends label and background together and
+     leaves 2.7:1. At full strength #495057 on #e9ecef is 6.9:1, so the button reads as inactive but
+     stays legible (the label is the only place that says the item is in the cart).
+   - A colour from a theme variable is whatever that theme's Bootstrap build produced and can land
+     far below the required 4.5:1.
+   Three classes so the rules win over ".btn.disabled", which is loaded after this stylesheet. */
+.btn.wb_shopping_cart.disabled,
+.btn.wb_shopping_cart.disabled .addtocartstring,
+.btn.wb_shopping_cart.disabled .fa-cart-plus {
+    color: #495057;
 }
 
-.wb_shopping_cart.disabled {
-    background: var(--success);
-    color: white;
+.btn.wb_shopping_cart.disabled {
+    background: #e9ecef;
+    border-color: #adb5bd;
+    opacity: 1;
+    cursor: default;
+}
+
+/* Not bookable: white on an amber background is around 2:1, dark text on it is 8.3:1. Same
+   reasoning as above for pinning the colour; the nested selectors are needed because themes colour
+   the label and the icon separately. */
+.wb_shopping_cart[data-bookable="false"],
+.wb_shopping_cart[data-bookable="false"] .addtocartstring,
+.wb_shopping_cart[data-bookable="false"] .fa-cart-plus {
+    color: #1d2125;
 }
 
 .wb_shopping_cart[data-bookable="false"] {
-    background: var(--warning);
+    background: #f0ad4e;
 }
 
 #page-mod-booking-optiondates .dropdown-menu,

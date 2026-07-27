@@ -50,8 +50,14 @@
 }}
 <div class="d-flex align-items-start w-100">
     <!-- Main booking button area -->
+    {{!
+        No tabindex on this container: it is a wrapper around the notify-me area, the message areas,
+        the main control and the details link. It used to carry tabindex="0", which put a focus stop
+        on an element that cannot be operated at all (a div has no keyboard activation). The
+        interactive part is the main area below, which is a real <button> whenever the condition
+        actually offers an action.
+    }}
     <div class="booking-button-area noprice flex-grow-1"
-        tabindex="0"
         data-itemid="{{itemid}}"
         data-componentname="mod_booking"
         data-area="{{area}}"
@@ -79,9 +85,23 @@
                 </a>
             {{/link}}
             {{^link}}
-                <div class="booking-button-mainarea mb-1 mt-1 p-1 {{class}}" >
-                    {{{label}}} {{#foruser}}<br><span>{{{foruser}}}</span>{{/foruser}}
-                </div>
+                {{! "isbutton" is set by bo_info::render_button for the conditions that offer an
+                    action. Those become a real button (ENTER and SPACE work, announced as a
+                    button); the message states stay a plain container with their role. }}
+                {{#isbutton}}
+                    <button type="button" class="booking-button-mainarea mb-1 mt-1 p-1 {{class}}">
+                        {{{label}}} {{#foruser}}<br><span>{{{foruser}}}</span>{{/foruser}}
+                    </button>
+                {{/isbutton}}
+                {{! The role of the condition is deliberately not written out here: these states are
+                    plain text in the reading order. Turning them into role="alert" live regions
+                    would make a screen reader announce every "fully booked" message on every page
+                    load. }}
+                {{^isbutton}}
+                    <div class="booking-button-mainarea mb-1 mt-1 p-1 {{class}}">
+                        {{{label}}} {{#foruser}}<br><span>{{{foruser}}}</span>{{/foruser}}
+                    </div>
+                {{/isbutton}}
             {{/link}}
         {{/main}}
         {{#sub}}

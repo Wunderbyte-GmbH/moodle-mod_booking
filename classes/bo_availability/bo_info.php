@@ -956,6 +956,12 @@ class bo_info {
                 'label' => $label,
                 'class' => "$classes $extraclasses text-center",
                 'role' => $role,
+                // Conditions that render something to click pass the role "button", the ones that
+                // only show a message (fully booked, not available yet, ...) pass "alert" or
+                // nothing. Only the former may become a real <button> in the template: making the
+                // message states focusable buttons would announce them wrongly and add empty stops
+                // to the tab order.
+                'isbutton' => $role === 'button',
                 'foruser' => self::get_for_user_button_string($userid),
             ],
             'showdetaildots' => empty($showdetaildots) ? false : $showdetaildots,

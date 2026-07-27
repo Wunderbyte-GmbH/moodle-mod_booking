@@ -190,12 +190,15 @@ export var SELECTORS = {
     MODALFOOTER: 'div.modalFooter',
     CONTINUEBUTTON: 'a.continue-button',
     BACKBUTTON: 'a.back-button',
-    BOOKITBUTTON_NOPRICE: 'div.booking-button-area.noprice',
-    BOOKITBUTTON_SHOPPINGCART: 'div.booking-button-area.wb_shopping_cart',
-    BOOKITBUTTON: 'div.booking-button-area.noprice, div.booking-button-area.wb_shopping_cart',
+    // No tag names here: the shopping cart button is a <button> element so that it can be operated
+    // with ENTER and SPACE, and a <span> when it is rendered inside a "book on detail page" link
+    // (see local_shopping_cart/addtocartdb). Matching on the classes covers all of them.
+    BOOKITBUTTON_NOPRICE: '.booking-button-area.noprice',
+    BOOKITBUTTON_SHOPPINGCART: '.booking-button-area.wb_shopping_cart',
+    BOOKITBUTTON: '.booking-button-area.noprice, .booking-button-area.wb_shopping_cart',
     BOOKITBUTTON_WITH_DATA:
-        'div.booking-button-area.noprice[data-itemid][data-area], ' +
-        'div.booking-button-area.wb_shopping_cart[data-itemid][data-area]',
+        '.booking-button-area.noprice[data-itemid][data-area], ' +
+        '.booking-button-area.wb_shopping_cart[data-itemid][data-area]',
     INMODALBUTTON: 'div.in-modal-button',
     STATICBACKDROP: 'div.modal-backdrop',
 };
@@ -357,7 +360,10 @@ export const initbookitbutton = () => {
                 return;
             }
 
-            const bookTarget = e.target.closest('.btn');
+            // "button.booking-button-mainarea" in addition to ".btn": the main area of a bookit
+            // button is a real <button> now (keyboard operable), and a few conditions style it as an
+            // alert instead of a .btn - those would otherwise look interactive but do nothing.
+            const bookTarget = e.target.closest('.btn, button.booking-button-mainarea');
 
             // Ignore disabled buttons
             if (button.classList.contains('disabled')) {
