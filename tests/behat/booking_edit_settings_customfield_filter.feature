@@ -64,7 +64,7 @@ Feature: As admin - configure customfield filter for booking instance and valida
     ## Verify max booking options for 1st instance as a student
     When I am on the "Booking0" Activity page logged in as admin
     And I click on "//button[contains(@class, 'asidecollapse-cmid_')]" "xpath_element"
-    And I click on "[aria-controls=\"id_collapse_spt1\"]" "css_element"
+    And I click on "[aria-controls^=\"wbtfiltermenu_spt1\"]" "css_element"
     And I should see "chess (3)" in the "//label[contains(@for, 'idchessspt1')]" "xpath_element"
     And I should see "polo (1)" in the "//label[contains(@for, 'idpolospt1')]" "xpath_element"
     And I should see "tenis (3)" in the "//label[contains(@for, 'idtenisspt1')]" "xpath_element"
@@ -74,6 +74,6 @@ Feature: As admin - configure customfield filter for booking instance and valida
     And I set the field "yoga (3)" to ""
     ## Check 2nf customfield filter:
     And I click on ".wunderbyte_table_components" "css_element"
-    And I click on "[aria-controls=\"id_collapse_dynamicuser\"]" "css_element"
+    And I click on "[aria-controls^=\"wbtfiltermenu_dynamicuser\"]" "css_element"
     And I should see "student1 (4)" in the "//label[contains(@for, 'idstudent1dynamicuser')]" "xpath_element"
     And I should see "teacher1 (3)" in the "//label[contains(@for, 'idteacher1dynamicuser')]" "xpath_element"

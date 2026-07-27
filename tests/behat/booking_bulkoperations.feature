@@ -74,16 +74,16 @@ Feature: As admin - apply bulk operations under booking options.
     And I click on "Filter table" "button" in the ".wunderbyte_table_filter_on" "css_element"
     ## Filtering by timespan
     And I click on "Start time of the course" "button"
-    And I set the field "date-coursestarttime" in the "#id_collapse_coursestarttime" "css_element" to "2022-05-11"
-    And I set the field "time-coursestarttime" in the "#id_collapse_coursestarttime" "css_element" to "01:00"
-    And I set the field "date-" in the "#id_collapse_coursestarttime" "css_element" to "2022-05-19"
-    And I set the field "time-" in the "#id_collapse_coursestarttime" "css_element" to "05:00"
-    And I set the field "Display records" in the "#id_collapse_coursestarttime" "css_element" to "within"
-    And I set the field "Apply Filter" in the "#id_collapse_coursestarttime" "css_element" to "checked"
+    And I set the field "date-coursestarttime" in the "[id^=\"id_collapse_coursestarttime\"]" "css_element" to "2022-05-11"
+    And I set the field "time-coursestarttime" in the "[id^=\"id_collapse_coursestarttime\"]" "css_element" to "01:00"
+    And I set the field "date-" in the "[id^=\"id_collapse_coursestarttime\"]" "css_element" to "2022-05-19"
+    And I set the field "time-" in the "[id^=\"id_collapse_coursestarttime\"]" "css_element" to "05:00"
+    And I set the field "Display records" in the "[id^=\"id_collapse_coursestarttime\"]" "css_element" to "within"
+    And I set the field "Apply Filter" in the "[id^=\"id_collapse_coursestarttime\"]" "css_element" to "checked"
     And I should see "6 of 12 records found"
     And I should see "Option11-j" in the "//tr[contains(@id, '_optionbulkoperationstable_') and contains(@id, '_r1')]" "xpath_element"
     And "//tr[contains(@id, '_optionbulkoperationstable_') and contains(@id, '_r7')]" "xpath_element" should not exist
-    And I set the field "Apply Filter" in the "#id_collapse_coursestarttime" "css_element" to ""
+    And I set the field "Apply Filter" in the "[id^=\"id_collapse_coursestarttime\"]" "css_element" to ""
     ## Close the open filter dropdown so it does not cover the next filter button
     And I press the escape key
     ## Filtering by spt1 customfield
@@ -102,19 +102,19 @@ Feature: As admin - apply bulk operations under booking options.
     And I press the escape key
     ## Filtering by intrange
     And I click on "Prefix" "button"
-    And I set the field "intrange-start-titleprefix" in the "#id_collapse_titleprefix" "css_element" to "1"
-    And I set the field "intrange-end-titleprefix" in the "#id_collapse_titleprefix" "css_element" to "3"
-    And I set the field "Apply Filter" in the "#id_collapse_titleprefix" "css_element" to "checked"
+    And I set the field "intrange-start-titleprefix" in the "[id^=\"id_collapse_titleprefix\"]" "css_element" to "1"
+    And I set the field "intrange-end-titleprefix" in the "[id^=\"id_collapse_titleprefix\"]" "css_element" to "3"
+    And I set the field "Apply Filter" in the "[id^=\"id_collapse_titleprefix\"]" "css_element" to "checked"
     And I should see "4 of 12 records found"
     And I should see "Option08-m" in the "//tr[contains(@id, '_optionbulkoperationstable_') and contains(@id, '_r1')]" "xpath_element"
     And I should see "Option01-t" in the "//tr[contains(@id, '_optionbulkoperationstable_') and contains(@id, '_r4')]" "xpath_element"
     And "//tr[contains(@id, '_optionbulkoperationstable_') and contains(@id, '_r5')]" "xpath_element" should not exist
     ##And I click on "Show all records" "text" in the ".wb-records-count-label" "css_element"
-    And I set the field "Apply Filter" in the "#id_collapse_titleprefix" "css_element" to ""
+    And I set the field "Apply Filter" in the "[id^=\"id_collapse_titleprefix\"]" "css_element" to ""
     And I press the escape key
     ## Filtering by booking instance
     And I click on "Booking Instance" "button"
-    And I set the field "BookingXYZ" in the "#id_collapse_bookingid" "css_element" to "checked"
+    And I set the field "BookingXYZ" in the "[id^=\"id_collapse_bookingid\"]" "css_element" to "checked"
     And I should see "3 of 12 records found"
     ## Hide filter panel and remove all filters
     And I click on "//aside[contains(@class, 'wunderbyte_table_components')]" "xpath_element"
