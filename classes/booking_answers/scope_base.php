@@ -29,6 +29,7 @@ use core\exception\moodle_exception;
 use local_wunderbyte_table\wunderbyte_table;
 use mod_booking\booking_option_settings;
 use mod_booking\customfield\booking_handler;
+use mod_booking\local\bookingworkflow\answersrestriction;
 use moodle_url;
 
 /**
@@ -175,6 +176,40 @@ class scope_base {
      */
     public function has_capability_in_scope($scopeid, $capability) {
         return has_capability($capability, context_system::instance());
+    }
+
+    /**
+     * Returns the sql restricting the visible booking answers to the users a booking
+     * extension allows the current user to see (e.g. a supervisor and their team).
+     *
+     * Returns an empty string if no extension restricts the current user, so the scopes
+     * can simply append the result to their where clause. New params are merged into the
+     * provided params array, they are prefixed with "teamuid" to avoid collisions.
+     *
+     * @param string $useridcolumn the column holding the userid of the booking answer
+     * @param int $scopeid optionid | optiondateid | cmid | courseid | 0
+     * @param array $params
+     * @return string
+     */
+    public function get_answers_restriction_sql(string $useridcolumn, int $scopeid, array &$params): string {
+        global $DB;
+
+        $userids = answersrestriction::get_visible_user_ids($this, $scopeid);
+
+        if ($userids === null) {
+            // The current user is not restricted at all.
+            return '';
+        }
+
+        if (empty($userids)) {
+            // The current user is restricted, but there is nobody to show.
+            return " AND 1 = 0 ";
+        }
+
+        [$insql, $inparams] = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED, 'teamuid');
+        $params = array_merge($params, $inparams);
+
+        return " AND $useridcolumn $insql ";
     }
 
     /**
