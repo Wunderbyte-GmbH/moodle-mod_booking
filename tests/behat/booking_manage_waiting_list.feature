@@ -313,7 +313,7 @@ Feature: In a course add a booking option and manage its waiting list
     And I should see "0" in the ".allbookingoptionstable_r1 .col-ap-availableplaces" "css_element"
     And I should see "Waiting list: 4/4" in the ".allbookingoptionstable_r1 .col-ap-waitingplacesavailable" "css_element"
 
-  @javascript
+  @javascript @accessibility @booking_report2_tracker
   Scenario: Booking option: validate waiting list labels
     Given the following config values are set as admin:
       | config                            | value | plugin  |
@@ -354,3 +354,33 @@ Feature: In a course add a booking option and manage its waiting list
     And I should see "(Unlimited places left on the waiting list)" in the ".allbookingoptionstable_r4" "css_element"
     And I should see "Book now" in the ".allbookingoptionstable_r4" "css_element"
     And I log out
+    ## ==================================================
+    ## Validate report2_tracker page for waiting list bookings
+    And I log in as "admin"
+    And I visit "/mod/booking/report2.php"
+    And I should see "Bookings" in the "#accordion-heading-bookedusers" "css_element"
+    And I should see "4 of 4 records found" in the ".wunderbyteTableClass.booked_system_0" "css_element"
+    ## Rows are matched by content because rows created within the same second
+    ## have no deterministic order across the supported databases.
+    And I should see "1/2" in the "//tr[starts-with(@id, 'booked_system_0_r') and contains(., 'Limited WL, not full') and not(contains(., 'Unlimited'))]" "xpath_element"
+    And I should see "2/2" in the "//tr[starts-with(@id, 'booked_system_0_r') and contains(., 'Limited WL, full') and not(contains(., 'Unlimited'))]" "xpath_element"
+    And I should see "1/2" in the "//tr[starts-with(@id, 'booked_system_0_r') and contains(., 'Unlimited WL, not full')]" "xpath_element"
+    And I should see "2/2" in the "//tr[starts-with(@id, 'booked_system_0_r') and contains(., 'Unlimited WL, full')]" "xpath_element"
+    ## Validate bookings on waitinglist
+    And I click on "Waiting list" "text" in the "#accordion-heading-waitinglist" "css_element"
+    And I should see "2 of 2 records found" in the ".wunderbyteTableClass.waitinglist_system_0" "css_element"
+    And I should see "1/4" in the "//tr[starts-with(@id, 'waitinglist_system_0_r') and contains(., 'Limited WL, full') and not(contains(., 'Unlimited'))]" "xpath_element"
+    And I should see "1/Unlimited" in the "//tr[starts-with(@id, 'waitinglist_system_0_r') and contains(., 'Unlimited WL, full')]" "xpath_element"
+    ## Validate booking history for all booking options.
+    ## Each history row is identified by its option and user, the expected status is asserted within that row.
+    And I click on "Booking history" "text" in the "#accordion-heading-bookinghistory" "css_element"
+    And I should see "0 - Booked" in the "//tr[starts-with(@id, 'bookinghistorytable_system_0_r') and contains(., 'Unlimited WL, full') and contains(., 'student1@example.com')]" "xpath_element"
+    And I should see "0 - Booked" in the "//tr[starts-with(@id, 'bookinghistorytable_system_0_r') and contains(., 'Unlimited WL, full') and contains(., 'student2@example.com')]" "xpath_element"
+    And I should see "1 - Waiting list" in the "//tr[starts-with(@id, 'bookinghistorytable_system_0_r') and contains(., 'Unlimited WL, full') and contains(., 'student3@example.com')]" "xpath_element"
+    And I should see "0 - Booked" in the "//tr[starts-with(@id, 'bookinghistorytable_system_0_r') and contains(., 'Unlimited WL, not full') and contains(., 'student1@example.com')]" "xpath_element"
+    And I should see "0 - Booked" in the "//tr[starts-with(@id, 'bookinghistorytable_system_0_r') and contains(., 'Limited WL, full') and not(contains(., 'Unlimited')) and contains(., 'student1@example.com')]" "xpath_element"
+    And I should see "0 - Booked" in the "//tr[starts-with(@id, 'bookinghistorytable_system_0_r') and contains(., 'Limited WL, full') and not(contains(., 'Unlimited')) and contains(., 'student2@example.com')]" "xpath_element"
+    And I should see "1 - Waiting list" in the "//tr[starts-with(@id, 'bookinghistorytable_system_0_r') and contains(., 'Limited WL, full') and not(contains(., 'Unlimited')) and contains(., 'student3@example.com')]" "xpath_element"
+    And I should see "0 - Booked" in the "//tr[starts-with(@id, 'bookinghistorytable_system_0_r') and contains(., 'Limited WL, not full') and not(contains(., 'Unlimited')) and contains(., 'student1@example.com')]" "xpath_element"
+    # Validate accessibility of report2_tracker page
+    And the page should meet accessibility standards

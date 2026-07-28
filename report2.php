@@ -262,6 +262,9 @@ if (!empty($optiondateid)) {
 
 $url = new moodle_url('/mod/booking/report2.php', $urlparams);
 $PAGE->set_url($url);
+$pagetitle = trim(strip_tags($heading));
+$PAGE->set_title($pagetitle);
+$PAGE->set_heading($pagetitle);
 
 // Build the Bootstrap breadcrumb navigation between the scopes.
 // Each scope block above has set the name, the URL and the capability of its

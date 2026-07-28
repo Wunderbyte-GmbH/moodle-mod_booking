@@ -59,7 +59,7 @@ class measurements_table extends wunderbyte_table {
             html_writer::tag('i', '', ['class' => 'fa fa-edit']) . ' ' . get_string('edit'),
             [
                 'type' => 'button',
-                'class' => 'btn btn-success mr-1',
+                'class' => 'btn btn-success me-1',
                 'data-toggle' => 'collapse',
                 'data-bs-toggle' => 'collapse',
                 'data-target' => '#edit_' . $collapseid,
@@ -75,7 +75,7 @@ class measurements_table extends wunderbyte_table {
             html_writer::tag('i', '', ['class' => 'fa fa-trash']) . ' ' . get_string('delete'),
             [
                 'type' => 'button',
-                'class' => 'btn btn-danger mr-1',
+                'class' => 'btn btn-danger me-1',
                 'data-toggle' => 'collapse',
                 'data-bs-toggle' => 'collapse',
                 'data-target' => '#delete_' . $collapseid,

@@ -107,7 +107,7 @@ Feature: Enabling installments as admin configuring installments as a teacher an
     And I should see "Due nr. of days before coursestart : 2" in the "#showEventList .columnclass.description" "css_element"
     And I log out
 
-  @javascript @accessibility
+  @javascript @accessibility @booking_report2_tracker
   Scenario: Add an installment for a booking option via DB and brought it as student
     Given the following "mod_booking > options" exist:
       | booking     | text               | course | description | importing | useprice | sch_allowinstallment | sch_downpayment | sch_numberofpayments | sch_duedaysbeforecoursestart | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 |
@@ -137,4 +137,21 @@ Feature: Enabling installments as admin configuring installments as a teacher an
     And I should see "Option-installment" in the ".payment-success ul.list-group" "css_element"
     And I should see "44.00 EUR" in the ".payment-success ul.list-group" "css_element"
     ## Validate accessibility of booking options table before booking
+    And the page should meet accessibility standards
+    And I log out
+    ## ==================================================
+    ## Validate report2_tracker page for booking installment
+    And I log in as "admin"
+    And I visit "/mod/booking/report2.php"
+    And I should see "Bookings" in the "#accordion-heading-bookedusers" "css_element"
+    And I should see "1 of 1 records found" in the ".wunderbyteTableClass.booked_system_0" "css_element"
+    And I should see "Option-installment" in the "#booked_system_0_r1" "css_element"
+    And I should see "1/Unlimited" in the "#booked_system_0_r1" "css_element"
+    ## Validate booking history for selected booking option.
+    ## Rows are matched by their status because rows created within the same
+    ## second have no deterministic order across the supported databases.
+    And I click on "Booking history" "text" in the "#accordion-heading-bookinghistory" "css_element"
+    And I should see "student1@example.com" in the "//tr[starts-with(@id, 'bookinghistorytable_system_0_r') and contains(., '2 - Reserved')]" "xpath_element"
+    And I should see "student1@example.com" in the "//tr[starts-with(@id, 'bookinghistorytable_system_0_r') and contains(., '0 - Booked')]" "xpath_element"
+    ## Validate accessibility of report2_tracker page
     And the page should meet accessibility standards

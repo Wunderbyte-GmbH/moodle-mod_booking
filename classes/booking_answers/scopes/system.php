@@ -134,12 +134,15 @@ class system extends scope_base_options {
             'text' => get_string('bookingoption', 'mod_booking'),
             'instancename' => get_string('bookinginstance', 'mod_booking'),
             'answerscount' => get_string('answerscount', 'mod_booking'),
+            'timecreated' => get_string('timecreated', 'mod_booking'),
         ];
         if ($statusparam == 0) {
             $sortablecolumns['presencecount'] = get_string('presencecount', 'mod_booking');
         }
 
         $table->define_sortablecolumns($sortablecolumns);
+        $table->sort_default_column = 'timecreated';
+        $table->sort_default_order = SORT_DESC;
 
         // Filter for the booking instance.
         $instancefilter = new standardfilter('instancename', get_string('bookinginstance', 'mod_booking'));

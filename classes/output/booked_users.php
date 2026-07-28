@@ -508,6 +508,8 @@ class booked_users implements renderable, templatable {
         ];
         $sortablecolumns = array_merge($sortablecolumns1, $sortablecolumns2);
         $table->define_sortablecolumns($sortablecolumns);
+        $table->sort_default_column = 'timecreated';
+        $table->sort_default_order = SORT_DESC;
         $table->showrowcountselect = true;
 
         // Activate sorting dropdown.

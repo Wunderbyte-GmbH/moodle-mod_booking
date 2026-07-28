@@ -154,7 +154,7 @@ Feature: Enabling subboking as admin configuring subboking as a teacher and book
     And I follow "Close"
     And I should see "Start" in the ".allbookingoptionstable_r1" "css_element"
 
-  @javascript @accessibility
+  @javascript @accessibility @booking_report2_tracker
   Scenario: Add subbooking item when price set via DB to a booking option and verify as students
     Given the following "core_payment > payment accounts" exist:
       | name           |
@@ -231,4 +231,22 @@ Feature: Enabling subboking as admin configuring subboking as a teacher and book
     And I should see "Option-subitem" in the ".payment-success ul.list-group" "css_element"
     And I should see "MyItem" in the ".payment-success ul.list-group" "css_element"
     ## Validate accessibility of booking options table before booking
+    And the page should meet accessibility standards
+    And I log out
+    ## ==================================================
+    ## Validate report2_tracker page for subboking feature
+    And I log in as "admin"
+    And I visit "/mod/booking/report2.php"
+    And I should see "Bookings" in the "#accordion-heading-bookedusers" "css_element"
+    And I should see "2 of 2 records found" in the ".wunderbyteTableClass.booked_system_0" "css_element"
+    ## Rows are matched by content because rows created within the same second
+    ## have no deterministic order across the supported databases.
+    And I should see "1/Unlimited" in the "//tr[starts-with(@id, 'booked_system_0_r') and contains(., 'Option-subitem')]" "xpath_element"
+    And I should see "0/Unlimited" in the "//tr[starts-with(@id, 'booked_system_0_r') and contains(., 'Test option 1') and not(contains(., 'Option-subitem'))]" "xpath_element"
+    ## Validate booking history for selected booking option.
+    ## Rows are matched by their status.
+    And I click on "Booking history" "text" in the "#accordion-heading-bookinghistory" "css_element"
+    And I should see "student1@example.com" in the "//tr[starts-with(@id, 'bookinghistorytable_system_0_r') and contains(., '2 - Reserved')]" "xpath_element"
+    And I should see "student1@example.com" in the "//tr[starts-with(@id, 'bookinghistorytable_system_0_r') and contains(., '0 - Booked')]" "xpath_element"
+    ## Validate accessibility of report2_tracker page
     And the page should meet accessibility standards

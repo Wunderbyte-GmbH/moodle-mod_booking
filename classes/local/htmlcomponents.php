@@ -376,7 +376,7 @@ class htmlcomponents {
 
         $editor .= html_writer::empty_tag('br');
         $editor .= html_writer::tag('button', get_string('delete'), [
-            'class' => 'btn btn-danger mr-1',
+            'class' => 'btn btn-danger me-1',
             'data-action' => 'deletemeasurement',
             'data-id' => $valuesid,
         ]);
