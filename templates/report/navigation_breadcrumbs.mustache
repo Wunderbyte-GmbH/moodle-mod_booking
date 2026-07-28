@@ -57,7 +57,10 @@
         {{#items}}
         <li class="breadcrumb-item{{#active}} active{{/active}}"{{#active}} aria-current="page"{{/active}}>
             <span class="report2-breadcrumb-box d-inline-flex flex-column">
-                <span class="report2-breadcrumb-label small text-muted">{{label}}</span>
+                {{! No "text-muted" here: Bootstrap 4 sets it to #6c757d with !important, which
+                    cannot be overridden and does not reach 4.5:1 on the crumb box background
+                    (WCAG 1.4.3). The colour comes from .report2-breadcrumb-label instead. }}
+                <span class="report2-breadcrumb-label small">{{label}}</span>
                 <span class="report2-breadcrumb-name">
                     {{#url}}<a href="{{url}}">{{name}}</a>{{/url}}
                     {{^url}}{{name}}{{/url}}
@@ -76,7 +79,10 @@
             {{! The wrappers are divs (not spans like in the other crumbs), because the
                 dropdown-menu div is flow content and must not sit inside a span. }}
             <div class="report2-breadcrumb-box d-inline-flex flex-column">
-                <span class="report2-breadcrumb-label small text-muted">{{label}}</span>
+                {{! No "text-muted" here: Bootstrap 4 sets it to #6c757d with !important, which
+                    cannot be overridden and does not reach 4.5:1 on the crumb box background
+                    (WCAG 1.4.3). The colour comes from .report2-breadcrumb-label instead. }}
+                <span class="report2-breadcrumb-label small">{{label}}</span>
                 <div class="report2-breadcrumb-name dropdown d-inline-block">
                     <button type="button" class="btn btn-link p-0 report2-sessions-toggle dropdown-toggle"
                         data-toggle="dropdown" data-bs-toggle="dropdown" aria-expanded="false">{{toggletext}}</button>

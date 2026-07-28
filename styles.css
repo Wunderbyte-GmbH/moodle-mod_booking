@@ -698,7 +698,7 @@ div.checkbox:has(label[for^="id_bo_cond_allowedtobookininstance_capabilitynotnee
    Each crumb is a rounded box (scope label above, name/link below);
    chevron arrows point to the next hierarchy level. */
 .report2-breadcrumb {
-    background: transparent;
+    background-color: transparent;
     padding: 0;
     align-items: center;
     row-gap: 0.5rem;
@@ -713,7 +713,7 @@ div.checkbox:has(label[for^="id_bo_cond_allowedtobookininstance_capabilitynotnee
 .report2-breadcrumb .breadcrumb-item + .breadcrumb-item::before {
     content: "\276f";
     padding-right: 0.6rem;
-    color: var(--bs-secondary-color, #6c757d);
+    color: #495057;
     font-size: 1rem;
 }
 
@@ -740,8 +740,13 @@ div.checkbox:has(label[for^="id_bo_cond_allowedtobookininstance_capabilitynotnee
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
 }
 
+/* Contrast of the scope label (WCAG 1.4.3, AA needs 4.5:1 for this font size).
+   Bootstrap's "text-muted" (#6c757d) only reaches 4.49:1 on the crumb box and 4.08:1 on the
+   tinted box of the active crumb -- both fail. $gray-700 stays above 6.5:1 on every
+   background used here, including a brand colour that is almost black. */
 .report2-breadcrumb .report2-breadcrumb-label {
     line-height: 1.2;
+    color: #495057;
 }
 
 .report2-breadcrumb .report2-breadcrumb-name {
