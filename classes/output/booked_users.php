@@ -417,6 +417,11 @@ class booked_users implements renderable, templatable {
         ) s1";
         $where = "1=1";
 
+        // A booking extension can limit the answers the current user may see (e.g. their team).
+        // The history of an answer must never show more than the answer itself.
+        $ba = new booking_answers();
+        $where .= $ba->return_class_for_scope($scope)->get_answers_restriction_sql('userid', $scopeid, $params);
+
         $table->set_sql($fields, $from, $where, $params);
         $table->define_cache('mod_booking', 'bookinghistorytable');
         $table->use_pages = true;
@@ -567,6 +572,16 @@ class booked_users implements renderable, templatable {
             default:
                 return null;
         }
+
+        // A booking extension can limit the answers the current user may see (e.g. their team).
+        // Messages are restricted by their recipient, so no message to a user outside of the
+        // team of a supervisor is shown.
+        $ba = new booking_answers();
+        $extrawhere .= $ba->return_class_for_scope($scope)->get_answers_restriction_sql(
+            'relateduserid',
+            $scopeid,
+            $extraparams
+        );
 
         // Like on report.php, show the recipient (relateduserid) instead of the generic "user"
         // column, so it is unambiguous who each message was sent to (the sender is in the description).
