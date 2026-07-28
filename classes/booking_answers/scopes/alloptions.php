@@ -232,6 +232,9 @@ class alloptions extends option {
             $orderby
         ) s1";
 
+        // A booking extension can limit the answers the current user may see (e.g. their team).
+        $where .= $this->get_answers_restriction_sql('userid', $scopeid, $params);
+
         return [$fields, $from, $where, $params];
     }
 
