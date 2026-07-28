@@ -66,7 +66,6 @@ class course extends scope_base_options {
             'courseid' => $courseid,
         ];
 
-
         $wherepart = $this->get_wherepart($statusparam);
 
         // The rows of this scope are aggregated booking options, so the restriction of a booking
