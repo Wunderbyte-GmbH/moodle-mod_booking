@@ -26,6 +26,7 @@
     Example context (json):
     {
 		"text" : "Scuba Diving",
+		"detailstitle": "Show report details for Scuba Diving",
 		"id": "191",
 		"optionlink" : "http://127.0.0.1/mod/booking/view.php?id=12&id=187&whichview=showonlyone",
 		"instancename" : "Winter semester 2024",
@@ -45,7 +46,8 @@
 			</a>
 			<span class="ms-1">
 				<a class="btn btn-link btn-sm" data-toggle="collapse" data-bs-toggle="collapse" href="#collapseoptionshortinfo-{{id}}"
-				role="button" aria-expanded="false" aria-controls="collapseoptionshortinfo-{{id}}">
+				role="button" aria-expanded="false" aria-controls="collapseoptionshortinfo-{{id}}"
+				aria-label="{{detailstitle}}">
 				<i class="fa fa-chevron-down" aria-hidden="true"></i>
 				</a>
 			</span>

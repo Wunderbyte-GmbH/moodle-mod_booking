@@ -3136,6 +3136,7 @@ $string['report2labelinstance'] = 'Booking instance';
 $string['report2labeloption'] = 'Booking option';
 $string['report2labeloptiondate'] = 'Date';
 $string['report2labelsystem'] = 'Site';
+$string['report2showoptiondetails'] = 'Show report details for {$a}';
 $string['reportfields'] = 'Report fields';
 $string['reportremindermessage'] = '{bookingdetails}';
 $string['reportremindersubject'] = 'Reminder: Your booked course';
