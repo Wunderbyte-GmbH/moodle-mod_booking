@@ -83,6 +83,22 @@ class bookingoptions_wbtable extends wunderbyte_table {
     public $inlinestartpage = '';
 
     /**
+     * The view this table renders (one of the MOD_BOOKING_VIEW_PARAM_* constants).
+     *
+     * This is the view which is ACTUALLY rendered - it can differ from the view configured in the
+     * booking instance, because shortcodes (e.g. [courselist] or shortcodes from external plugins)
+     * define their own view. It is used to decide whether pre booking pages can be shown inline.
+     *
+     * NOTE: The default is written as a literal on purpose. Property defaults are evaluated when
+     * the class is declared, and this table is also instantiated in contexts where mod/booking/lib.php
+     * (which defines the MOD_BOOKING_VIEW_PARAM_* constants) is not loaded - e.g. the
+     * local_wunderbyte_table load_data webservice used for search, filter and reload.
+     *
+     * @var int 0 = MOD_BOOKING_VIEW_PARAM_LIST
+     */
+    public int $viewparam = 0;
+
+    /**
      * Customfield columns.
      * @var array
      */
@@ -316,7 +332,34 @@ class bookingoptions_wbtable extends wunderbyte_table {
             $buyforuser = $USER->id;
         }
 
-        return booking_bookit::render_bookit_button($settings, $buyforuser, $this->inlinestartpage);
+        return booking_bookit::render_bookit_button(
+            $settings,
+            $buyforuser,
+            $this->inlinestartpage,
+            $this->return_current_viewparam()
+        );
+    }
+
+    /**
+     * Returns the view which is currently rendered by this table.
+     *
+     * When the template switcher is active, the user can change the view at runtime. The choice is
+     * stored in a user preference, so we have to read it here instead of relying on the viewparam
+     * that was set when the table was built (the table object itself is cached and reused for the
+     * ajax reloads).
+     *
+     * @return int one of the MOD_BOOKING_VIEW_PARAM_* constants
+     */
+    public function return_current_viewparam(): int {
+
+        if (!empty($this->switchtemplates['templates'])) {
+            $chosenviewparam = get_user_preferences('wbtable_chosen_template_viewparam_' . $this->uniqueid);
+            if (is_number($chosenviewparam)) {
+                return (int)$chosenviewparam;
+            }
+        }
+
+        return $this->viewparam;
     }
 
     /**

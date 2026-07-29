@@ -1245,3 +1245,28 @@ table[id*="bulkoperationstable"] th {
 .text-gray.text-gray {
     color: #767676;
 }
+
+/*
+ * Inline pre booking pages (site setting booking | turnoffmodals).
+ *
+ * The pre booking pages are built for a modal body, where the negative margins of their .row
+ * elements are compensated by the padding of .modal-body. Rendered inline, the area is appended to
+ * the booking option row, which has no such padding - so the rows stuck out over the card border on
+ * the left (and right). We neutralise the gutters here and center the content instead.
+ */
+.prepage-inline {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+}
+
+.prepage-inline > .row {
+    justify-content: center;
+    margin-left: 0;
+    margin-right: 0;
+}
+
+/* The inline area is appended to the option row, so it must not add a gutter of its own either. */
+.inlineprepagearea {
+    margin-left: 0;
+    margin-right: 0;
+}

@@ -205,7 +205,7 @@ class entities_tree_provider implements tree_provider {
      * Renders the display name for an option's location entity: byte-identical to the historical output
      * for 1–2 levels ("parent (name)" / "name"), and a full breadcrumb only for 3+ levels (BC-6).
      *
-     * Shared by mod_booking and local_musi col_location so the logic exists in exactly one place.
+     * Shared by mod_booking and external plugins' col_location so the logic exists in exactly one place.
      *
      * @param array $entity the option-settings entity array ({id, name, parentname, ...})
      * @return string
@@ -237,7 +237,7 @@ class entities_tree_provider implements tree_provider {
      * screenreader text; exports get the full path as plain text. Entity images are rendered small
      * into the card when the showlocationimages setting is on.
      *
-     * Shared by mod_booking, local_musi and local_urise col_location so the logic exists in exactly
+     * Shared by mod_booking external plugins' col_location so the logic exists in exactly
      * one place. Callers keep their own "no entity → plain location text" fallback.
      *
      * @param array $entity the option-settings entity array ({id, name, parentname, ...})

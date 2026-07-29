@@ -1348,6 +1348,10 @@ class view implements renderable, templatable {
             }
         }
 
+        // Store the view which is actually rendered, so that col_booknow knows if the pre booking
+        // pages can be shown inline (only supported by the list views) - see turnoffmodals setting.
+        $bowbtable->viewparam = $viewparam;
+
         // Switch view type (cards view or list view).
         switch ($viewparam) {
             case MOD_BOOKING_VIEW_PARAM_CARDS:

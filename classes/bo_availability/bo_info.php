@@ -1337,25 +1337,11 @@ class bo_info {
         $continuelink = '#';
 
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
-        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($settings->cmid);
 
-        $viewparam = booking::get_value_of_json_by_key($settings->bookingid, 'viewparam');
-        $turnoffmodals = 0; // By default, we use modals.
-
-        // NOTE: If either cards view is set as viewparam or we have a template switcher containing the cards view...
-        // ...we cannot use inline modals as they are only supported by the list views currently!
-        // Todo: Implement inline modals for cards view.
-        if (
-            ($viewparam != MOD_BOOKING_VIEW_PARAM_CARDS)
-            && !(
-                $bookingsettings->switchtemplates
-                && in_array(MOD_BOOKING_VIEW_PARAM_CARDS, $bookingsettings->switchtemplatesselection)
-            )
-        ) {
-            // Only if we use list view, we can use inline modals.
-            // So only in this case, we need to check the config setting.
-            $turnoffmodals = get_config('booking', 'turnoffmodals');
-        }
+        // We are inside a webservice here, so we do not know which view is rendered on the client.
+        // This only decides which action name we put into the markup - prepageFooter.js always
+        // closes the container the button actually lives in (modal or inline collapse).
+        $turnoffmodals = booking_bookit::use_inline_prepages($settings);
 
         if ($conditions[$pagenumber]['id'] === MOD_BOOKING_BO_COND_CONFIRMATION) {
             // We need to decide if we want to show on the last page a "go to checkout" button.

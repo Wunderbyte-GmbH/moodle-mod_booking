@@ -66,19 +66,21 @@ class booking_bookit {
      * @param booking_option_settings $settings
      * @param int $userid
      * @param string $inlinestartpage optional condition shortname to render inline (e.g. 'slotbooking')
+     * @param int|null $viewparam the view currently being rendered (MOD_BOOKING_VIEW_PARAM_*), null if unknown
      * @return string
      */
     public static function render_bookit_button(
         booking_option_settings $settings,
         int $userid = 0,
-        string $inlinestartpage = ''
+        string $inlinestartpage = '',
+        ?int $viewparam = null
     ) {
 
         global $PAGE;
 
         /** @var renderer $output */
         $output = $PAGE->get_renderer('mod_booking');
-        [$templates, $datas] = self::render_bookit_template_data($settings, $userid, true, $inlinestartpage);
+        [$templates, $datas] = self::render_bookit_template_data($settings, $userid, true, $inlinestartpage, $viewparam);
 
         $html = '';
 
@@ -105,17 +107,17 @@ class booking_bookit {
      * @param int $userid
      * @param bool $renderprepagemodal
      * @param string $inlinestartpage optional condition shortname to render inline (e.g. 'slotbooking')
+     * @param int|null $viewparam the view currently being rendered (MOD_BOOKING_VIEW_PARAM_*), null if unknown
      * @return array
      */
     public static function render_bookit_template_data(
         booking_option_settings $settings,
         int $userid = 0,
         bool $renderprepagemodal = true,
-        string $inlinestartpage = ''
+        string $inlinestartpage = '',
+        ?int $viewparam = null
     ) {
         global $PAGE;
-
-        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($settings->cmid);
 
         // Get blocking conditions, including prepages$prepages etc.
         $results = bo_info::get_condition_results($settings->id, $userid);
@@ -214,17 +216,7 @@ class booking_bookit {
                 $remainingpages = count($prepages) - 1;
 
                 // Determine inline vs modal for the remaining pages container.
-                $viewparam = booking::get_value_of_json_by_key($settings->bookingid, 'viewparam');
-                $turnoffmodals = 0;
-                if (
-                    ($viewparam != MOD_BOOKING_VIEW_PARAM_CARDS)
-                    && !(
-                        $bookingsettings->switchtemplates
-                        && in_array(MOD_BOOKING_VIEW_PARAM_CARDS, $bookingsettings->switchtemplatesselection)
-                    )
-                ) {
-                    $turnoffmodals = get_config('booking', 'turnoffmodals');
-                }
+                $turnoffmodals = self::use_inline_prepages($settings, $viewparam);
 
                 $data = new prepageinlinestart(
                     $settings->id,
@@ -232,7 +224,7 @@ class booking_bookit {
                     $conditionhtml,
                     $inlinestartpage,
                     $remainingpages,
-                    !empty($turnoffmodals)
+                    $turnoffmodals
                 );
 
                 $datas[] = $data;
@@ -311,27 +303,10 @@ class booking_bookit {
 
             $datas[] = $data;
 
-            $viewparam = booking::get_value_of_json_by_key($settings->bookingid, 'viewparam');
-            $turnoffmodals = 0; // By default, we use modals.
-            // NOTE: If either cards view is set as viewparam or we have a template switcher containing the cards view...
-            // ...we cannot use inline modals as they are only supported by the list views currently!
-            // Todo: Implement inline modals for cards view.
-            if (
-                ($viewparam != MOD_BOOKING_VIEW_PARAM_CARDS)
-                && !(
-                    $bookingsettings->switchtemplates
-                    && in_array(MOD_BOOKING_VIEW_PARAM_CARDS, $bookingsettings->switchtemplatesselection)
-                )
-            ) {
-                // Only if we use list view, we can use inline modals.
-                // So only in this case, we need to check the config setting.
-                $turnoffmodals = get_config('booking', 'turnoffmodals');
-            }
-
-            if (empty($turnoffmodals)) {
-                $templates[] = 'mod_booking/bookingpage/prepagemodal';
-            } else {
+            if (self::use_inline_prepages($settings, $viewparam)) {
                 $templates[] = 'mod_booking/bookingpage/prepageinline';
+            } else {
+                $templates[] = 'mod_booking/bookingpage/prepagemodal';
             }
 
             if ($persistentcalendartemplate !== null) {
@@ -391,6 +366,68 @@ class booking_bookit {
 
             return [$templates, $datas];
         }
+    }
+
+    /**
+     * Decides if the pre booking pages are shown inline instead of in a modal.
+     *
+     * This is controlled by the site setting booking/turnoffmodals. Inline pre booking pages are
+     * currently only supported by the list views, so the cards view keeps using modals.
+     *
+     * IMPORTANT: The decision has to be made for the view which is ACTUALLY rendered right now.
+     * The same booking instance can be rendered as a list by a shortcode (e.g. [courselist] or
+     * shortcodes of external plugins) even if the instance itself is configured to use the cards
+     * view - and the other way round. Callers which know the rendered view therefore pass it in
+     * via $viewparam. Only when the rendered view is unknown (e.g. the bookit webservice which
+     * re-renders the button, or the booking option detail page) we fall back to the configuration
+     * of the booking instance.
+     *
+     * @param booking_option_settings $settings
+     * @param int|null $viewparam the view currently being rendered (MOD_BOOKING_VIEW_PARAM_*), null if unknown
+     * @return bool true if the pre booking pages have to be rendered inline
+     */
+    public static function use_inline_prepages(booking_option_settings $settings, ?int $viewparam = null): bool {
+
+        if (empty(get_config('booking', 'turnoffmodals'))) {
+            return false;
+        }
+
+        if ($viewparam === null) {
+            return self::instance_supports_inline_prepages($settings);
+        }
+
+        // Todo: Implement inline pre booking pages for the cards view.
+        return $viewparam !== MOD_BOOKING_VIEW_PARAM_CARDS;
+    }
+
+    /**
+     * Fallback for use_inline_prepages when the currently rendered view is not known.
+     *
+     * We look at the booking instance itself: if it is configured to show the cards view - or if
+     * the template switcher offers the cards view - we cannot be sure that we are not in a cards
+     * view right now, so we stay with modals.
+     *
+     * @param booking_option_settings $settings
+     * @return bool
+     */
+    private static function instance_supports_inline_prepages(booking_option_settings $settings): bool {
+
+        $viewparam = booking::get_value_of_json_by_key($settings->bookingid, 'viewparam');
+
+        if (is_numeric($viewparam) && (int)$viewparam === MOD_BOOKING_VIEW_PARAM_CARDS) {
+            return false;
+        }
+
+        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($settings->cmid);
+
+        if (
+            !empty($bookingsettings->switchtemplates)
+            && in_array(MOD_BOOKING_VIEW_PARAM_CARDS, (array)$bookingsettings->switchtemplatesselection)
+        ) {
+            return false;
+        }
+
+        return true;
     }
 
     /**

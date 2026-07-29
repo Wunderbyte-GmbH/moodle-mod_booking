@@ -120,6 +120,79 @@ const getInlinePrepageConfig = (optionid, userid = 0) => {
     return inlineprepageconfig[optionid];
 };
 
+/** @type {Object.<string, string>} The two templates which render the entry point of the prepages. */
+export const PREPAGE_TEMPLATES = {
+    MODAL: 'mod_booking/bookingpage/prepagemodal',
+    INLINE: 'mod_booking/bookingpage/prepageinline',
+};
+
+/**
+ * Returns the prepage template that matches what is already rendered on the page.
+ *
+ * Whether the pre booking pages are shown in a modal or inline (site setting
+ * booking | turnoffmodals) is decided when the page is rendered. A webservice which re-renders the
+ * book it button afterwards does not necessarily know which view the user is looking at, so we
+ * derive it from the DOM. Both templates receive identical data, only the container differs.
+ *
+ * @param {?HTMLElement} wrapper the element wrapping the book it button (toggles modal or collapse)
+ * @param {string} fallback the template name returned by the server
+ * @returns {string}
+ */
+export const returnMatchingPrepageTemplate = (wrapper, fallback) => {
+
+    const toggle = wrapper?.dataset.bsToggle ?? wrapper?.dataset.toggle;
+
+    if (toggle === 'collapse') {
+        return PREPAGE_TEMPLATES.INLINE;
+    }
+
+    if (toggle === 'modal') {
+        return PREPAGE_TEMPLATES.MODAL;
+    }
+
+    return fallback;
+};
+
+/**
+ * Finds the container the inline prepage area should be moved into.
+ *
+ * The inline area has to span the whole width of the booking option row, otherwise it is squeezed
+ * into the (narrow) column which holds the book it button. Which element represents "the row"
+ * depends on the template that renders the table - mod_booking's own list and cards templates mark
+ * it with .mod-booking-row, but other plugins use their own
+ * row markup. So we fall back to the row element of the wunderbyte table and finally to any card
+ * like wrapper. Returns null when nothing suitable is found - in that case the inline area simply
+ * stays where it was rendered.
+ *
+ * @param {HTMLElement} button the clicked book it button
+ * @returns {?HTMLElement}
+ */
+const returnInlineTargetContainer = button => {
+
+    // Preferred: the row markup of the mod_booking templates.
+    const modbookingrow = button.closest('.mod-booking-row');
+    if (modbookingrow) {
+        return modbookingrow;
+    }
+
+    // Any wunderbyte table renders its rows into a .rows-container, so the direct child of that
+    // container is the row of this booking option, no matter which template is used.
+    const rowscontainer = button.closest('.rows-container');
+    if (rowscontainer) {
+        let row = button;
+        while (row && row.parentElement !== rowscontainer) {
+            row = row.parentElement;
+        }
+        if (row) {
+            // Most row templates wrap their content into a full width .content element.
+            return row.querySelector(':scope > .content') ?? row;
+        }
+    }
+
+    // Last resort for markup which is not rendered into a .rows-container (e.g. grid templates).
+    return button.closest('.wunderbyteTableJavascript, .grid-entry, .list-group-item, .card');
+};
+
 /**
  * Function to check visibility of element.
  * @param {*} el
@@ -501,10 +574,11 @@ export function bookit(itemid, area, userid, data, clickedFromModal = null) {
                         const data = arraytoreduce.shift();
                         const shortHash = Math.random().toString(36).slice(2, 7);
                         const datatorender = data.data ?? data;
+                        let rendertemplate = template;
 
                         if (
-                            template === "mod_booking/bookingpage/prepagemodal"
-                            || template === "mod_booking/bookingpage/prepageinline"
+                            template === PREPAGE_TEMPLATES.MODAL
+                            || template === PREPAGE_TEMPLATES.INLINE
                         ) {
                             if (resolvedClickedFromModal) {
                                 // For clicks inside modal content, update that modal button directly.
@@ -512,6 +586,13 @@ export function bookit(itemid, area, userid, data, clickedFromModal = null) {
                             } else {
                                 button = button.closest('div[data-bs-toggle="modal"]')
                                     ?? button.closest('div[data-bs-toggle="collapse"]');
+
+                                // The server cannot always know which view is rendered on the client
+                                // (a shortcode can render a list for an instance configured as cards
+                                // and vice versa). Both templates get exactly the same data, so we
+                                // just keep whatever the page already uses. Otherwise a booking
+                                // action would turn an inline area into a modal or vice versa.
+                                rendertemplate = returnMatchingPrepageTemplate(button, template);
                             }
                             datatorender.uniquid = shortHash;
 
@@ -543,7 +624,7 @@ export function bookit(itemid, area, userid, data, clickedFromModal = null) {
                             });
                             promises.push(promise);
                         } else {
-                            const promise = Templates.renderForPromise(template, datatorender).then(({ html, js }) => {
+                            const promise = Templates.renderForPromise(rendertemplate, datatorender).then(({ html, js }) => {
 
                                 // Here, we might need to replace the parent node instead of button.
 
@@ -720,26 +801,34 @@ export const initprepageinline = (optionid, userid, totalnumberofpages, uniquid)
                 return;
             }
 
-            // Get the row element.
-            const rowcontainer = button.closest('.mod-booking-row');
-            if (!rowcontainer || !rowcontainer.lastElementChild) {
+            const inlinediv = returnVisibleElement(optionid, config.uniquid, SELECTORS.INMODALDIV);
+            if (!inlinediv) {
                 return;
             }
 
-            const transferarea = !rowcontainer.lastElementChild.classList.contains('inlineprepagearea');
-            // We move the inlineprepagearea only if we need to.
-            if (transferarea) {
-                const inlinediv = returnVisibleElement(optionid, config.uniquid, SELECTORS.INMODALDIV);
-                if (!inlinediv) {
-                    return;
-                }
-
-                rowcontainer.append(inlinediv.closest('.inlineprepagearea'));
-                // Inlinediv.remove();
-
-                // We need to get all prepage modals on this site. Make sure they are initialized.
-                loadPreBookingPage(optionid, config.userid, config.uniquid);
+            const inlinearea = inlinediv.closest('.inlineprepagearea');
+            if (!inlinearea) {
+                return;
             }
+
+            // Move the inline area to the end of the booking option row, so that it can use the
+            // full width. If we cannot identify a row container, we leave it where it is - the
+            // pages are loaded either way, which is what actually matters.
+            const rowcontainer = returnInlineTargetContainer(button);
+            if (rowcontainer && rowcontainer.lastElementChild !== inlinearea) {
+                rowcontainer.append(inlinearea);
+            }
+
+            // Bootstrap toggles the collapse on the very same click, so at this point the class
+            // still reflects the state BEFORE the click. We only (re)load the pages when the area
+            // is about to be opened - not when the user closes it again.
+            const collapse = inlinediv.closest('.prepage-inline');
+            if (collapse && collapse.classList.contains('show')) {
+                return;
+            }
+
+            // We need to get all prepage modals on this site. Make sure they are initialized.
+            loadPreBookingPage(optionid, config.userid, config.uniquid);
         });
     }
 };
