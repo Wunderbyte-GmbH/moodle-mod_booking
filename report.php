@@ -191,6 +191,12 @@ if (!($isteacher || has_capability('mod/booking:viewreports', $context))) {
     require_capability('mod/booking:readresponses', $context);
 }
 
+// A booking extension can limit the answers the current user may see (e.g. a supervisor who
+// only sees their own team). Both the displayed table and its download use $addsqlwhere and
+// $sqlvalues, so the restriction only has to be added once, here.
+$addsqlwhere .= (new booking_answers())->return_class_for_scope('option')
+    ->get_answers_restriction_sql('ba.userid', $optionid, $sqlvalues);
+
 // Trigger report_viewed event.
 $event = \mod_booking\event\report_viewed::create(
     ['objectid' => $optionid, 'context' => $context]
