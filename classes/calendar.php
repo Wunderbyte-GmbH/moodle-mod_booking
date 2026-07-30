@@ -253,7 +253,7 @@ class calendar {
             } else {
                 $visible = 0;
             }
-            $descriptioncalendar = new description_calendarevent($optionid, false);
+            $descriptioncalendar = new description_calendarevent($optionid, false, $userid);
             $fulldescription = $descriptioncalendar->render();
         } else {
             // Event calendar.
@@ -359,7 +359,7 @@ class calendar {
             // If the user is booked, we have a different kind of description.
             $bookedusers = $bookingoption->get_all_users_booked();
             $forbookeduser = isset($bookedusers[$userid]);
-            $descriptioncalendar = new description_calendarevent($optionid, $forbookeduser);
+            $descriptioncalendar = new description_calendarevent($optionid, $forbookeduser, $userid);
             $fulldescription = $descriptioncalendar->render();
             // Reset to system language.
             force_current_language($currentlang);

@@ -212,7 +212,8 @@ class calendar_helper {
         // We use $data here for $option and $optiondate, the necessary keys are the same.
         foreach ($allevents as $eventrecord) {
             if ($eventrecord->eventtype == 'user') {
-                $descriptioncalendar = new description_calendarevent($settings->id, true);
+                // User events belong to exactly one user, so we render the description for them.
+                $descriptioncalendar = new description_calendarevent($settings->id, true, $eventrecord->userid ?? 0);
                 $eventrecord->description = $descriptioncalendar->render();
             } else {
                 $descriptioncalendar = new description_calendarevent($settings->id, false);

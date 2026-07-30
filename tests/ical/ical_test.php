@@ -22,6 +22,7 @@ use stdClass;
 use mod_booking_generator;
 use mod_booking\option\fields_info;
 use mod_booking\bo_availability\bo_info;
+use mod_booking\placeholders\placeholders_info;
 use tool_mocktesttime\time_mock;
 
 /**
@@ -46,9 +47,10 @@ final class ical_test extends booking_advanced_testcase {
     /**
      * Setup environment.
      * @param int $numberofdatesinoption
+     * @param array $extrarecordfields additional fields for the booking option record
      * @return array
      */
-    protected function setup_environment($numberofdatesinoption = 1) {
+    protected function setup_environment($numberofdatesinoption = 1, array $extrarecordfields = []) {
         global $DB, $CFG;
         $course1 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
 
@@ -130,6 +132,13 @@ final class ical_test extends booking_advanced_testcase {
             $record->{"daystonotify_$i"} = "0";
             $record->{"coursestarttime_$i"} = strtotime('20 June 2050') + ($i * 3600 * 24);
             $record->{"courseendtime_$i"} = strtotime('20 July 2050') + ($i * 3600 * 24);
+        }
+        foreach ($extrarecordfields as $key => $value) {
+            if ($value === null) {
+                unset($record->{$key});
+                continue;
+            }
+            $record->{$key} = $value;
         }
 
         $option = $plugingenerator->create_option($record);
@@ -559,6 +568,416 @@ final class ical_test extends booking_advanced_testcase {
         $this->assertStringContainsString('ATTENDEE', $content);
         // It should have REQUEST method as user booked the option.
         $this->assertStringContainsString('METHOD:CANCEL', $content);
+    }
+
+    /**
+     * Create the booking option custom field which holds the user defined ical description and
+     * configure it in the plugin settings.
+     *
+     * @param string $shortname
+     * @return void
+     */
+    protected function create_ical_description_customfield(string $shortname): void {
+        $categorydata = new stdClass();
+        $categorydata->name = 'icaldescriptioncat';
+        $categorydata->component = 'mod_booking';
+        $categorydata->area = 'booking';
+        $categorydata->itemid = 0;
+        $categorydata->contextid = context_system::instance()->id;
+        $bookingcat = $this->getDataGenerator()->create_custom_field_category((array) $categorydata);
+        $bookingcat->save();
+
+        $fielddata = new stdClass();
+        $fielddata->categoryid = $bookingcat->get('id');
+        $fielddata->name = 'Ical description';
+        $fielddata->shortname = $shortname;
+        // The templates are usually longer texts, so admins use a textarea for them.
+        $fielddata->type = 'textarea';
+        $fielddata->configdata = "";
+        $bookingfield = $this->getDataGenerator()->create_custom_field((array) $fielddata);
+        $bookingfield->save();
+
+        set_config('icaldescriptionfield', $shortname, 'booking');
+    }
+
+    /**
+     * Return the (unfolded) value of a property of the generated ics file.
+     *
+     * @param string $file content of the ics file
+     * @param string $property e.g. DESCRIPTION or X-ALT-DESC
+     * @return string
+     */
+    protected function get_ics_property(string $file, string $property): string {
+        // Unfold the file first, folded lines start with a space or a tab.
+        $unfolded = preg_replace("/\r\n[ \t]/", '', $file);
+        $matches = [];
+        $found = preg_match('/^' . preg_quote($property, '/') . '[^:]*:(.*)$/m', $unfolded, $matches);
+        $this->assertEquals(1, $found, 'The ics file does not contain the property ' . $property);
+        return rtrim($matches[1], "\r");
+    }
+
+    /**
+     * The description of the ics file can be defined by the admin via a booking option custom field.
+     * This test makes sure that the placeholders used in such a template are rendered and that the
+     * result is correctly formatted for the ics file - for the plain text DESCRIPTION as well as for
+     * the HTML in X-ALT-DESC.
+     *
+     * @covers \mod_booking\ical
+     * @covers \mod_booking\output\description\description_ical
+     * @return void
+     */
+    public function test_ical_description_with_placeholders_from_custom_field(): void {
+        global $CFG, $DB;
+
+        $this->resetAfterTest();
+        placeholders_info::$placeholders = [];
+        $this->setAdminUser();
+
+        /* The description is run through the filters, which on some sites includes urltolink.
+        We switch it off to test the linkifying of the ical class itself. */
+        filter_set_global_state('urltolink', TEXTFILTER_DISABLED);
+
+        $this->create_ical_description_customfield('icaldescription');
+
+        // The placeholders {dates} and {location} deliver values containing commas and
+        // {gotobookingoption} delivers a ready made link. The last paragraph holds a bare url
+        // which has to be linkified.
+        $template = '<p>Dates: {dates}</p>'
+            . '<p>Location: {location}</p>'
+            . '<p>Booking option: {gotobookingoption}</p>'
+            . '<p>Info: https://www.example.com/moodle/info.php</p>';
+
+        $env = $this->setup_environment(1, [
+            // Importing would prefill the custom fields from the (still empty) stored values.
+            'importing' => null,
+            'customfield_icaldescription_editor' => $template,
+        ]);
+        $option = $env['option'];
+        $student1 = $env['users']['student1'];
+
+        // Set the location directly. Depending on whether local_entities is installed, the location
+        // of an option comes from the entity instead of the option form.
+        $DB->set_field('booking_options', 'location', 'Hauptstrasse 1, 1010 Vienna', ['id' => $option->id]);
+
+        // Make sure the option settings are read freshly, including the custom field we just set.
+        booking_option::purge_cache_for_option($option->id);
+        singleton_service::destroy_instance();
+        $optionsettings = singleton_service::get_instance_of_booking_option_settings($option->id);
+        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($optionsettings->cmid);
+
+        $ical = new ical($bookingsettings, $optionsettings, $student1, $bookingsettings->bookingmanageruser, false);
+        $attachments = $ical->get_attachments(false);
+        $file = file_get_contents($attachments['booking.ics']);
+
+        $description = $this->get_ics_property($file, 'DESCRIPTION');
+        $htmldescription = $this->get_ics_property($file, 'X-ALT-DESC');
+
+        // The user defined template is used instead of the default one.
+        $this->assertStringContainsString('Dates:', $description);
+        $this->assertStringContainsString('Location:', $description);
+        $this->assertStringContainsString('Booking option:', $description);
+
+        // The placeholders have been replaced.
+        $this->assertStringNotContainsString('{dates}', $description);
+        $this->assertStringNotContainsString('{location}', $description);
+        $this->assertStringNotContainsString('{gotobookingoption}', $description);
+        $this->assertStringNotContainsString('{dates}', $htmldescription);
+        $this->assertStringNotContainsString('{location}', $htmldescription);
+        $this->assertStringNotContainsString('{gotobookingoption}', $htmldescription);
+
+        // The dates of the option are rendered, at least the year has to be there.
+        $this->assertStringContainsString('2050', $description);
+
+        // The location is rendered and its comma is escaped as required by RFC 5545.
+        $this->assertStringContainsString('Hauptstrasse 1\, 1010 Vienna', $description);
+
+        // No comma, semicolon or line break may remain unescaped in the plain text description.
+        $this->assertDoesNotMatchRegularExpression('/(?<!\\\\)[,;]/', $description);
+        $this->assertStringNotContainsString("\n", $description);
+
+        // The link of {gotobookingoption} has to work. In the plain text description the html
+        // entities have to be decoded, otherwise the url parameters are broken.
+        $this->assertStringContainsString('/mod/booking/view.php?id=', $description);
+        $this->assertStringContainsString('&optionid=' . $option->id, $description);
+        $this->assertStringNotContainsString('&amp;', $description);
+
+        // In the html description the link of the placeholder must stay untouched. Nesting anchors
+        // into anchors would destroy the description in mail clients like Outlook.
+        $this->assertStringNotContainsString('<a href="<a', $htmldescription);
+        $this->assertStringContainsString('whichview=showonlyone">', $htmldescription);
+
+        // The bare url of the last paragraph is still turned into a link.
+        $this->assertStringContainsString('<a href="https://www.example.com/moodle/info.php">Link</a>', $htmldescription);
+
+        // Which means we have exactly two links: the placeholder one and the linkified bare url.
+        $this->assertEquals(2, substr_count($htmldescription, '<a '));
+        $this->assertEquals(2, substr_count($htmldescription, '</a>'));
+
+        $optionurl = $CFG->wwwroot . '/mod/booking/view.php?id=' . $optionsettings->cmid
+            . '&optionid=' . $option->id . '&whichview=showonlyone';
+
+        // This is what clients showing the plain text description (e.g. the calendar app of Apple)
+        // end up with after unescaping the value: readable text and a working link.
+        $unescaped = str_replace(['\n', '\,', '\;', '\\\\'], ["\n", ',', ';', '\\'], $description);
+        $this->assertStringContainsString('Location: Hauptstrasse 1, 1010 Vienna', $unescaped);
+        $this->assertStringContainsString($optionurl, $unescaped);
+
+        // And this is what clients preferring the html description (e.g. Outlook) end up with: valid
+        // anchors, the first one being the link of the {gotobookingoption} placeholder.
+        $anchors = [];
+        preg_match_all('/<a href="([^"]*)">/', $htmldescription, $anchors);
+        $this->assertCount(2, $anchors[1]);
+        $this->assertEquals($optionurl, html_entity_decode($anchors[1][0]));
+        $this->assertEquals('https://www.example.com/moodle/info.php', $anchors[1][1]);
+
+        // No physical line of the file may be longer than 75 octets, otherwise strict clients
+        // refuse to read it.
+        foreach (explode("\r\n", $file) as $line) {
+            $this->assertLessThanOrEqual(75, strlen($line), 'Line is too long: ' . $line);
+        }
+    }
+
+    /**
+     * An ical is always created for one specific user. So user related placeholders of a user
+     * defined description have to be rendered for the receiving user and not for the user (or the
+     * cron job) triggering the mail - even when several icals are created within the same request.
+     *
+     * @covers \mod_booking\ical
+     * @covers \mod_booking\output\description\description_base
+     * @return void
+     */
+    public function test_ical_description_placeholders_are_rendered_for_the_receiving_user(): void {
+        $this->resetAfterTest();
+        placeholders_info::$placeholders = [];
+        $this->setAdminUser();
+
+        $this->create_ical_description_customfield('icaldescription');
+
+        $template = '<p>Hello {firstname} {lastname}</p><p>Details: {bookingoptiondetaillink}</p>';
+
+        $env = $this->setup_environment(1, [
+            // Importing would prefill the custom fields from the (still empty) stored values.
+            'importing' => null,
+            'customfield_icaldescription_editor' => $template,
+        ]);
+        $option = $env['option'];
+        $student1 = $env['users']['student1'];
+        $student2 = $env['users']['student2'];
+
+        booking_option::purge_cache_for_option($option->id);
+        singleton_service::destroy_instance();
+        $optionsettings = singleton_service::get_instance_of_booking_option_settings($option->id);
+        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($optionsettings->cmid);
+
+        // The admin user is the one triggering the mails, both icals are created in one request.
+        $descriptions = [];
+        foreach ([$student1, $student2] as $student) {
+            $ical = new ical($bookingsettings, $optionsettings, $student, $bookingsettings->bookingmanageruser, false);
+            $attachments = $ical->get_attachments(false);
+            $descriptions[$student->id] = $this->get_ics_property(
+                file_get_contents($attachments['booking.ics']),
+                'DESCRIPTION'
+            );
+        }
+
+        foreach ([$student1, $student2] as $student) {
+            $description = $descriptions[$student->id];
+            $this->assertStringContainsString('Hello ' . $student->firstname . ' ' . $student->lastname, $description);
+            $this->assertStringNotContainsString('Admin', $description);
+            /* The link to the option is not user specific: optionview.php always shows the page for
+            the user opening it, so it must not carry a userid. */
+            $this->assertStringContainsString('/mod/booking/optionview.php?optionid=' . $option->id, $description);
+            $this->assertStringNotContainsString('userid=', $description);
+        }
+    }
+
+    /**
+     * The description of an ical has to be rendered in the language of the receiving user, which
+     * means that the filters (e.g. the multilang filter) have to be applied to the user defined
+     * template as well.
+     *
+     * @covers \mod_booking\ical
+     * @covers \mod_booking\output\description\description_base
+     * @return void
+     */
+    public function test_ical_description_is_rendered_in_the_language_of_the_user(): void {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        filter_set_global_state('multilang', TEXTFILTER_ON);
+
+        $files = $this->render_icals_for_an_english_and_a_german_user(
+            '<p><span lang="en" class="multilang">English description</span>'
+            . '<span lang="de" class="multilang">Deutsche Beschreibung</span></p>'
+        );
+        $descriptions = [
+            'en' => $this->get_ics_property($files['en'], 'DESCRIPTION'),
+            'de' => $this->get_ics_property($files['de'], 'DESCRIPTION'),
+        ];
+
+        $this->assertStringContainsString('English description', $descriptions['en']);
+        $this->assertStringNotContainsString('Deutsche Beschreibung', $descriptions['en']);
+
+        $this->assertStringContainsString('Deutsche Beschreibung', $descriptions['de']);
+        $this->assertStringNotContainsString('English description', $descriptions['de']);
+
+        // The language of the current user has to be restored afterwards.
+        $this->assertEquals('en', current_language());
+    }
+
+    /**
+     * Admins usually write their multilingual templates with the {mlang} syntax of the additional
+     * filter_multilang2 plugin. Those tags must survive the rendering of the placeholders, and if
+     * the filter is installed, they have to be resolved for the language of the receiving user.
+     *
+     * @covers \mod_booking\ical
+     * @covers \mod_booking\output\description\description_base
+     * @covers \mod_booking\placeholders\placeholders_info
+     * @return void
+     */
+    public function test_ical_description_supports_mlang_tags(): void {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        $multilang2isinstalled = array_key_exists('multilang2', \core_component::get_plugin_list('filter'));
+        if ($multilang2isinstalled) {
+            filter_set_global_state('multilang2', TEXTFILTER_ON);
+        }
+
+        // The placeholder inside the tags has to be replaced in both language sections.
+        $files = $this->render_icals_for_an_english_and_a_german_user(
+            '<p>{mlang de}Deutscher Text fuer {firstname}{mlang}{mlang en}English text for {firstname}{mlang}</p>'
+        );
+        $descriptions = [
+            'en' => $this->get_ics_property($files['en'], 'DESCRIPTION'),
+            'de' => $this->get_ics_property($files['de'], 'DESCRIPTION'),
+        ];
+
+        if (!$multilang2isinstalled) {
+            /* Without the filter we can only check what mod_booking is responsible for: the tags
+            have to reach the filter chain unharmed, so that they can be resolved on the sites
+            where filter_multilang2 is installed. */
+            foreach ($descriptions as $description) {
+                $this->assertMatchesRegularExpression('/{mlang de}Deutscher Text fuer \w+{mlang}/u', $description);
+                $this->assertMatchesRegularExpression('/{mlang en}English text for \w+{mlang}/u', $description);
+            }
+            return;
+        }
+
+        $this->assertStringContainsString('English text for', $descriptions['en']);
+        $this->assertStringNotContainsString('Deutscher Text', $descriptions['en']);
+        $this->assertStringNotContainsString('{mlang', $descriptions['en']);
+
+        $this->assertStringContainsString('Deutscher Text fuer', $descriptions['de']);
+        $this->assertStringNotContainsString('English text', $descriptions['de']);
+        $this->assertStringNotContainsString('{mlang', $descriptions['de']);
+    }
+
+    /**
+     * Not only the description, also the title and the location of an option can be written in
+     * several languages. They have to be resolved for the language of the receiving user too, and
+     * they have to be escaped as required by RFC 5545.
+     *
+     * @covers \mod_booking\ical
+     * @return void
+     */
+    public function test_ical_summary_and_location_are_localized_and_escaped(): void {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        $multilang2isinstalled = array_key_exists('multilang2', \core_component::get_plugin_list('filter'));
+        if (!$multilang2isinstalled) {
+            $this->markTestSkipped('The filter_multilang2 plugin is not installed.');
+        }
+        filter_set_global_state('multilang2', TEXTFILTER_ON);
+        /* Title and location are strings, not content. Like everywhere else in moodle they are
+        rendered with format_string, which only applies the filters the admin has set to
+        "content and headings" (Site administration / Plugins / Filters / Manage filters). */
+        filter_set_applies_to_strings('multilang2', true);
+
+        // Take the location of the option itself for the LOCATION property.
+        set_config('icalfieldlocation', 2, 'booking');
+
+        $files = $this->render_icals_for_an_english_and_a_german_user(
+            '<p>Some description</p>',
+            ['text' => '{mlang de}Deutscher Titel{mlang}{mlang en}English title{mlang}'],
+            'Hauptstrasse 1, 1010 Vienna'
+        );
+
+        // The title of the option is resolved for the language of the user.
+        $this->assertEquals('English title', $this->get_ics_property($files['en'], 'SUMMARY'));
+        $this->assertEquals('Deutscher Titel', $this->get_ics_property($files['de'], 'SUMMARY'));
+
+        foreach (['en', 'de'] as $language) {
+            // The comma of the location has to be escaped, otherwise strict clients cut it off.
+            $this->assertEquals(
+                'Hauptstrasse 1\, 1010 Vienna',
+                $this->get_ics_property($files[$language], 'LOCATION')
+            );
+
+            // The attendee line names the language of the receiving user.
+            $unfolded = preg_replace("/\r\n[ \t]/", '', $files[$language]);
+            $this->assertStringContainsString('LANGUAGE=' . $language . ':MAILTO:', $unfolded);
+
+            // Every line break of the file has to be a CRLF, a single LF makes the file invalid.
+            $this->assertDoesNotMatchRegularExpression("/(?<!\r)\n/", $files[$language]);
+        }
+    }
+
+    /**
+     * Render the ical description of one and the same booking option for a user using english and
+     * for a user using german, both within the same request.
+     *
+     * @param string $template the user defined template stored in the custom field
+     * @param array $extrarecordfields additional fields for the booking option record
+     * @param ?string $location written directly to the option, as it may come from an entity
+     * @return array keys 'en' and 'de', values are the content of the ics file
+     */
+    protected function render_icals_for_an_english_and_a_german_user(
+        string $template,
+        array $extrarecordfields = [],
+        ?string $location = null
+    ): array {
+        global $CFG, $DB;
+
+        placeholders_info::$placeholders = [];
+
+        /* Create a minimal german language pack, otherwise the language cannot be forced. It lives
+        in the dataroot of the test run and is removed together with it. */
+        $langdir = $CFG->dataroot . '/lang/de';
+        make_writable_directory($langdir);
+        file_put_contents($langdir . '/langconfig.php', '<?php $string[\'thislanguage\'] = \'Deutsch\';');
+        get_string_manager()->reset_caches();
+
+        $this->create_ical_description_customfield('icaldescription');
+
+        $env = $this->setup_environment(1, $extrarecordfields + [
+            // Importing would prefill the custom fields from the (still empty) stored values.
+            'importing' => null,
+            'customfield_icaldescription_editor' => $template,
+        ]);
+        $option = $env['option'];
+        $users = ['en' => $env['users']['student1'], 'de' => $env['users']['student2']];
+        $DB->set_field('user', 'lang', 'de', ['id' => $users['de']->id]);
+        $users['de'] = $DB->get_record('user', ['id' => $users['de']->id]);
+
+        if ($location !== null) {
+            $DB->set_field('booking_options', 'location', $location, ['id' => $option->id]);
+        }
+
+        booking_option::purge_cache_for_option($option->id);
+        singleton_service::destroy_instance();
+        $optionsettings = singleton_service::get_instance_of_booking_option_settings($option->id);
+        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($optionsettings->cmid);
+
+        $files = [];
+        foreach ($users as $language => $user) {
+            $ical = new ical($bookingsettings, $optionsettings, $user, $bookingsettings->bookingmanageruser, false);
+            $attachments = $ical->get_attachments(false);
+            $files[$language] = file_get_contents($attachments['booking.ics']);
+        }
+
+        return $files;
     }
 
     /**

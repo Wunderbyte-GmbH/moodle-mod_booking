@@ -53,6 +53,12 @@ class description_base {
     protected bool $forbookeduser = false;
 
     /**
+     * The user this description is rendered for.
+     * @var int
+     */
+    protected int $userid = 0;
+
+    /**
      * Template name.
      * Can be varying based on the description param.
      * This shoud be set in the child class.
@@ -78,15 +84,18 @@ class description_base {
      * Constructor.
      * @param int $optionid
      * @param bool $forbookeduser
+     * @param int $userid the user the description is rendered for, defaults to the current user
      * return void
      */
     public function __construct(
         int $optionid,
         bool $forbookeduser = false,
+        int $userid = 0,
     ) {
-        global $PAGE;
+        global $PAGE, $USER;
         $this->optionid = $optionid;
         $this->forbookeduser = $forbookeduser;
+        $this->userid = !empty($userid) ? $userid : $USER->id;
         $this->data = new bookingoption_description($optionid, null, $this->param, true, $forbookeduser);
         $this->output = $PAGE->get_renderer('mod_booking');
     }
@@ -120,12 +129,23 @@ class description_base {
                 $userdefinedtemplate,
                 $settings->cmid,
                 $this->optionid,
-                0,
+                $this->userid,
                 0,
                 0,
                 0,
                 $this->param
             );
+
+            /* The raw value of the custom field never went through the filter chain. Without
+            format_text, multilang tags like {mlang de}...{mlang} would stay in the text instead of
+            being reduced to the part matching the language of the user. */
+            $context = !empty($settings->cmid)
+                ? \context_module::instance($settings->cmid, IGNORE_MISSING)
+                : false;
+            $o = format_text($o, FORMAT_HTML, [
+                'noclean' => true,
+                'context' => $context ?: \context_system::instance(),
+            ]);
         }
 
         return $o;

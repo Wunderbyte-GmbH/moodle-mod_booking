@@ -96,7 +96,6 @@ class bookingoptiondetaillink extends \mod_booking\placeholders\placeholder_base
                 $bookingoptiondetaillink = new moodle_url("/mod/booking/optionview.php", [
                     "optionid" => (int)$settings->id,
                     "cmid" => (int)$cmid,
-                    "userid" => (int)$userid,
                     'returnto' => 'url',
                     'returnurl' => $returnurl,
                 ]);
