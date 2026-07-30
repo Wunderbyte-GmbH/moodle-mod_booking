@@ -68,9 +68,9 @@ Feature: Configure and validate different course connection settings for booking
       | linktomoodlecourseonbookedbutton | 0     | booking |
     ## OLD behavior - "Booked" label and "Go to course" link to the connected course
     And the following "mod_booking > options" exist:
-      | booking    | text         | description  | importing | course | chooseorcreatecourse | enrolmentstatus | limitanswers | maxanswers | teachersforoption | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 |
-      | My booking | Enroll_later | Enroll_later | 1         | C1     | 2                    | 0               | 0            | 0          | teacher1          | 0              | 0              | ## tomorrow ##    | ## +2 days ##   |
-      | My booking | Enroll_now   | Enroll_now   | 1         | C1     | 2                    | 2               | 0            | 0          | teacher1          | 0              | 0              | ## +2 days ##     | ## +4 days ##   |
+      | booking    | text         | description   | importing | course | chooseorcreatecourse | enrolmentstatus | limitanswers | maxanswers | teachersforoption | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 |
+      | My booking | Enroll_later | Enroll_later  | 1         | C1     | 2                    | 0               | 0            | 0          | teacher1          | 0              | 0              | ## tomorrow ##    | ## +2 days ##   |
+      | My booking | Enroll_now   | Enroll_now_ds | 1         | C1     | 2                    | 2               | 0            | 0          | teacher1          | 0              | 0              | ## +2 days ##     | ## +4 days ##   |
     ## enrolmentstatus: 0 enrol at coursestart; 1 enrolment done; 2 immediately enrol
     ## Verify enroll later (at course start)
     And the following "mod_booking > answers" exist:
@@ -95,7 +95,21 @@ Feature: Configure and validate different course connection settings for booking
     And I visit "/mod/booking/report2.php"
     And I should see "Bookings" in the "#accordion-heading-bookedusers" "css_element"
     And I should see "2 of 2 records found" in the ".wunderbyteTableClass.booked_system_0" "css_element"
-    And I wait "1000" seconds
+    ##And I should see "Enroll_later" in the "#booked_system_0_r1" "css_element"
+    ##And I should see "Enroll_now" in the "#booked_system_0_r2" "css_element"
+    And I should see "Enroll_later" in the "//table[contains(@id, 'booked_system_')]" "xpath_element"
+    And I should see "Enroll_now" in the "//table[contains(@id, 'booked_system_')]" "xpath_element"
+    And I should see "1/Unlimited" in the "#booked_system_0_r1" "css_element"
+    And I should see "1/Unlimited" in the "#booked_system_0_r2" "css_element"
+    And I follow "Enroll_now"
+    And I switch to a second window
+    And I should see "Manage bookings for Booking option: \"Enroll_now\""
+    And I should see "Teachers:" in the ".mod-booking-report2-infobox" "css_element"
+    And I should see "Teacher 1" in the ".mod-booking-report2-infobox" "css_element"
+    And I should see "Associated course:" in the ".mod-booking-report2-infobox" "css_element"
+    And I should see "Enroll_now" in the ".mod-booking-report2-infobox" "css_element"
+    And I click on "Show description" "text" in the ".mod-booking-report2-infobox" "css_element"
+    And I should see "Enroll_now_ds"
 
   @javascript
   Scenario: Booking courseconnection: create empty course under category and enroll users immediately
@@ -129,17 +143,16 @@ Feature: Configure and validate different course connection settings for booking
     And I should see "Enroll_newcat" in the "#page-header" "css_element"
     And I log out
     ## Verify is course categories are correct
+    ## Navigation to the course settings via course homepage is required
+    ## To avoid occasional failure under Moodle 5.1 
+    ## with message"Javascript code and/or AJAX requests are not ready after 10 seconds..."
+    ## caused by some Moodle 5.1 session's issues.  
     And I am logged in as admin
-    And I am on the "Enroll_existcat" "course editing" page
+    And I am on the "Enroll_existcat" "course" page
+    And I follow "Settings"
     And I should see "BookCat1"
     And I am on the "Enroll_newcat" "course editing" page
     And I should see "NewBookCat"
-    ## ==================================================
-    ## Validate report2_tracker page for waiting list bookings
-    And I visit "/mod/booking/report2.php"
-    And I should see "Bookings" in the "#accordion-heading-bookedusers" "css_element"
-    And I should see "2 of 2 records found" in the ".wunderbyteTableClass.booked_system_0" "css_element"
-    And I wait "1000" seconds
 
   @javascript
   Scenario: Booking courseconnection: create course from template and enroll users immediately
@@ -177,7 +190,7 @@ Feature: Configure and validate different course connection settings for booking
     And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I set the following fields to these values:
       | Connected Moodle course                | Create new Moodle course from template |
-      | Create new Moodle course from template | Course 4  |
+      | Create new Moodle course from template | Course 4                               |
     And I press "Save"
     And I log out
     # Book as student and verify course content.
