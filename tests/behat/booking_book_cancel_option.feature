@@ -104,6 +104,7 @@ Feature: In a booking instance
     And I click on "Booking history" "text" in the "#accordion-heading-bookinghistory" "css_element"
     ##And I wait "130" seconds
     And I should see "student1@example.com" in the ".wunderbyteTableClass.bookinghistorytable_system_0 .columnclass.email" "css_element"
+    ## TODO: different default order of records in mysql vs pgsql
     ##And I should see "0 - Booked" in the ".wunderbyteTableClass.bookinghistorytable_system_0 .columnclass.status" "css_element"
     ##And I should see "10 - Booking removed" in the ".wunderbyteTableClass.bookinghistorytable_system_0 .columnclass.email" "css_element"
     And I should see "0 - Booked" in the "//table[contains(@id, 'bookinghistorytable_system_')]" "xpath_element"

@@ -313,7 +313,7 @@ Feature: In a course add a booking option and manage its waiting list
     And I should see "0" in the ".allbookingoptionstable_r1 .col-ap-availableplaces" "css_element"
     And I should see "Waiting list: 4/4" in the ".allbookingoptionstable_r1 .col-ap-waitingplacesavailable" "css_element"
 
-  @javascript
+  @javascript @accessibility @booking_report2_tracker
   Scenario: Booking option: validate waiting list labels
     Given the following config values are set as admin:
       | config                            | value | plugin  |

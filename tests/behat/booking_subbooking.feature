@@ -245,8 +245,11 @@ Feature: Enabling subboking as admin configuring subboking as a teacher and book
     And I should see "0/Unlimited" in the "#booked_system_0_r2" "css_element"
     ## Validate booking history for selected booking option
     And I click on "Booking history" "text" in the "#accordion-heading-bookinghistory" "css_element"
-    And I should see "2 - Reserved" in the "#bookinghistorytable_system_0_r1 .columnclass.status" "css_element"
-    And I should see "0 - Booked" in the "#bookinghistorytable_system_0_r2 .columnclass.status" "css_element"
+    ## TODO: different default order of records in mysql vs pgsql
+    ##And I should see "2 - Reserved" in the "#bookinghistorytable_system_0_r1 .columnclass.status" "css_element"
+    ##And I should see "0 - Booked" in the "#bookinghistorytable_system_0_r2 .columnclass.status" "css_element"
+    And I should see "2 - Reserved" in the "//table[contains(@id, 'bookinghistorytable_system_')]" "xpath_element"
+    And I should see "0 - Booked" in the "//table[contains(@id, 'bookinghistorytable_system_')]" "xpath_element"
     And I should see "student1@example.com" in the "#bookinghistorytable_system_0_r1 .columnclass.email" "css_element"
     And I should see "student1@example.com" in the "#bookinghistorytable_system_0_r2 .columnclass.email" "css_element"
     ## Validate accessibility of report2_tracker page

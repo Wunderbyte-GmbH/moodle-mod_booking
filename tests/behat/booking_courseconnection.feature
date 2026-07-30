@@ -61,7 +61,7 @@ Feature: Configure and validate different course connection settings for booking
     And I should see "Course 3" in the "#page-header" "css_element"
     And I should see "General" in the ".course-content" "css_element"
 
-  @javascript
+  @javascript @booking_report2_tracker
   Scenario: Booking courseconnection: create default empty course and enroll users
     Given the following config values are set as admin:
       | config                           | value | plugin  |
@@ -88,6 +88,14 @@ Feature: Configure and validate different course connection settings for booking
     And I click on "Go to Moodle course" "link" in the ".allbookingoptionstable_r2" "css_element"
     And I should see "Enroll_now" in the "#page-header" "css_element"
     And I should see "General" in the ".course-content" "css_element"
+    And I log out
+    ## ==================================================
+    ## Validate report2_tracker page for waiting list bookings
+    And I log in as "admin"
+    And I visit "/mod/booking/report2.php"
+    And I should see "Bookings" in the "#accordion-heading-bookedusers" "css_element"
+    And I should see "2 of 2 records found" in the ".wunderbyteTableClass.booked_system_0" "css_element"
+    And I wait "1000" seconds
 
   @javascript
   Scenario: Booking courseconnection: create empty course under category and enroll users immediately
@@ -126,6 +134,12 @@ Feature: Configure and validate different course connection settings for booking
     And I should see "BookCat1"
     And I am on the "Enroll_newcat" "course editing" page
     And I should see "NewBookCat"
+    ## ==================================================
+    ## Validate report2_tracker page for waiting list bookings
+    And I visit "/mod/booking/report2.php"
+    And I should see "Bookings" in the "#accordion-heading-bookedusers" "css_element"
+    And I should see "2 of 2 records found" in the ".wunderbyteTableClass.booked_system_0" "css_element"
+    And I wait "1000" seconds
 
   @javascript
   Scenario: Booking courseconnection: create course from template and enroll users immediately
