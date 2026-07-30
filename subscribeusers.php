@@ -30,6 +30,7 @@ require_once(__DIR__ . '/../../config.php');
 require_once($CFG->dirroot . '/mod/booking/locallib.php');
 
 use core\output\notification;
+use mod_booking\booking_answers\booking_answers;
 use mod_booking\booking_utils;
 use mod_booking\form\subscribe_cohort_or_group_form;
 use mod_booking\output\booked_users;
@@ -37,6 +38,7 @@ use mod_booking\output\renderer;
 use mod_booking\singleton_service;
 use mod_booking\booking_existing_user_selector;
 use mod_booking\booking_potential_user_selector;
+use mod_booking\local\bookingworkflow\answersrestriction;
 use mod_booking\local\bookingworkflow\bookforothers;
 
 global $CFG, $DB, $COURSE, $PAGE, $OUTPUT;
@@ -149,13 +151,29 @@ if (!$agree && empty($formsubmitted) && (!empty($bookingoption->booking->setting
     echo $OUTPUT->footer();
     die();
 } else {
+    // A booking extension can limit the answers the current user may see (e.g. a supervisor who
+    // only sees their own team). The list of booked users displays exactly those answers, so it
+    // follows the same restriction as the tables of the bookings tracker. Filtering happens here
+    // and not in booking_option::update_booked_users(), because the counters, the ranking of the
+    // waiting list and the list of potential users are all derived from the unfiltered data.
+    $restricttovisibleusers = function (array $users) use ($optionid): array {
+        $visibleuserids = answersrestriction::get_visible_user_ids(
+            (new booking_answers())->return_class_for_scope('option'),
+            $optionid
+        );
+        if ($visibleuserids === null) {
+            return $users;
+        }
+        return array_intersect_key($users, array_flip($visibleuserids));
+    };
+
     $subscribeduseroptions = [
         'bookingid' => $cm->instance,
         'accesscontext' => $context,
         'optionid' => $optionid,
         'cm' => $cm,
         'course' => $course,
-        'potentialusers' => $bookingoption->bookedvisibleusers,
+        'potentialusers' => $restricttovisibleusers($bookingoption->bookedvisibleusers),
     ];
     $potentialuseroptions = $subscribeduseroptions;
 
@@ -301,7 +319,7 @@ if (!$agree && empty($formsubmitted) && (!empty($bookingoption->booking->setting
         $existingselector->invalidate_selected_users();
         $bookingoption->update_booked_users();
         $subscriberselector->set_potential_users($bookingoption->potentialusers);
-        $existingselector->set_potential_users($bookingoption->bookedvisibleusers);
+        $existingselector->set_potential_users($restricttovisibleusers($bookingoption->bookedvisibleusers));
     }
 }
 
