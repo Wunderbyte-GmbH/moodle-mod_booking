@@ -103,3 +103,35 @@ Feature: Use the bookings tracker (report2.php) as replacement of the old report
     And I should see "0.00" in the "//tr[contains(@id, 'booked_option_') and contains(@id, '_r2')]" "xpath_element"
     And I should see "discount1" in the "//tr[contains(@id, 'booked_option_') and contains(@id, '_r1')]" "xpath_element"
     And I should see "zeroprice" in the "//tr[contains(@id, 'booked_option_') and contains(@id, '_r2')]" "xpath_element"
+
+  @javascript
+  Scenario: Booking report2: manage completion status in the option scope
+    Given I log in as "admin"
+    And I visit "/mod/booking/report2.php"
+    And I should see "B2-Option1" in the "#booked_system_0_r1" "css_element"
+    And I follow "B2-Option1"
+    And I switch to a second window
+    And I should see "Manage bookings for Booking option: \"B2-Option1\""
+    ## Validate - no completions
+    And "//tr[contains(@id, 'booked_option_') and contains(@id, '_r1')]/td[@data-label='completed' and normalize-space(.)='']" "xpath_element" should exist
+    And "//tr[contains(@id, 'booked_option_') and contains(@id, '_r2')]/td[@data-label='completed' and normalize-space(.)='']" "xpath_element" should exist
+    ## Select 2nd row, toggle completion status and validate the change.
+    And I click on "//tr[contains(@id, 'booked_option_') and contains(@id, '_r2')][.//td[@data-label='email' and normalize-space(.)='student4@example.com']]//td[@data-label='wbcheckbox']//input[@type='checkbox']" "xpath_element"
+    And I click on "Toggle completion status" "link"
+    And I wait until the page is ready
+    And I should see "Toggle completion status" in the "div[data-region='modal']" "css_element"
+    And I click on "//div[@data-region='modal'][.//*[@data-region='title' and normalize-space(.)='Toggle completion status']]//button[@data-action='save' and normalize-space(.)='Apply']" "xpath_element"
+    And I wait until the page is ready
+    And "//tr[contains(@id, 'booked_option_') and contains(@id, '_r2')][.//td[@data-label='email' and normalize-space(.)='student4@example.com']]//td[@data-label='completed']//i[contains(@class, 'fa-check-square') and @aria-label='Completed']" "xpath_element" should exist
+    ## Select all records, toggle completion status and validate the changes.
+    And I click on "//table[starts-with(@id, 'booked_option_')]//thead//input[contains(@class, 'tableheadercheckbox') and @type='checkbox']" "xpath_element"
+    # Toggle completion for both selected records.
+    And I click on "//a[@data-methodname='toggle_completion_booking_answers' and normalize-space(.)='Toggle completion status']" "xpath_element"
+    # Confirm the operation in the displayed modal.
+    And I should see "Toggle completion status" in the "div[data-region='modal']" "css_element"
+    And I click on "//div[@data-region='modal'][.//*[@data-region='title' and normalize-space(.)='Toggle completion status']]//button[@data-action='save' and normalize-space(.)='Apply']" "xpath_element"
+    And I wait until the page is ready
+    # The first row must now be completed.
+    And "//tr[contains(@id, 'booked_option_') and contains(@id, '_r1')]//td[@data-label='completed']//i[contains(concat(' ', normalize-space(@class), ' '), ' fa-check-square ') and @aria-label='Completed']" "xpath_element" should exist
+    # The second row must now have an empty completion cell.
+    And "//tr[contains(@id, 'booked_option_') and contains(@id, '_r2')]//td[@data-label='completed' and normalize-space(.)='' and not(.//i)]" "xpath_element" should exist
