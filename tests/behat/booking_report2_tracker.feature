@@ -83,3 +83,23 @@ Feature: Use the bookings tracker (report2.php) as replacement of the old report
     And I wait until the page is ready
     And I should see "2/10" in the "#booked_system_0_r1" "css_element"
     Then I should see "2/5" in the "#booked_system_0_r2" "css_element"
+
+  @javascript
+  Scenario: Booking report2: switch from system scope to option scope and view preconfigured additional fields
+    Given I log in as "admin"
+    And I visit "/mod/booking/report2.php"
+    And I should see "B2-Option1" in the "#booked_system_0_r1" "css_element"
+    And I follow "B2-Option1"
+    And I switch to a second window
+    And I should see "Manage bookings for Booking option: \"B2-Option1\""
+    And I should see "2 of 2 records found" in the "#accordion-item-bookedusers .wb-records-count-label" "css_element"
+    And I should see "Email" in the "#accordion-item-bookedusers .wunderbyte-table-table" "css_element"
+    And I should see "Price" in the "#accordion-item-bookedusers .wunderbyte-table-table" "css_element"
+    And I should see "On waiting list" in the "#accordion-item-bookedusers .wunderbyte-table-table" "css_element"
+    And I should see "User Price Category" in the "#accordion-item-bookedusers .wunderbyte-table-table" "css_element"
+    And I should see "student3@example.com" in the "//tr[contains(@id, 'booked_option_') and contains(@id, '_r1')]" "xpath_element"
+    And I should see "student4@example.com" in the "//tr[contains(@id, 'booked_option_') and contains(@id, '_r2')]" "xpath_element"
+    And I should see "89.00" in the "//tr[contains(@id, 'booked_option_') and contains(@id, '_r1')]" "xpath_element"
+    And I should see "0.00" in the "//tr[contains(@id, 'booked_option_') and contains(@id, '_r2')]" "xpath_element"
+    And I should see "discount1" in the "//tr[contains(@id, 'booked_option_') and contains(@id, '_r1')]" "xpath_element"
+    And I should see "zeroprice" in the "//tr[contains(@id, 'booked_option_') and contains(@id, '_r2')]" "xpath_element"
