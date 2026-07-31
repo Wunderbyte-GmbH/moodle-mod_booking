@@ -178,6 +178,48 @@ final class entities_tree_provider_test extends advanced_testcase {
     }
 
     /**
+     * With entitytreefiltertoplevelonly on, build_tree collapses the filter panel to the first level:
+     * each root aggregates its whole branch as its count and offers no children. filter_sql is
+     * untouched, so selecting a root still matches the entire branch.
+     *
+     * @return void
+     */
+    public function test_build_tree_toplevelonly(): void {
+        $this->build_scenario();
+
+        $counts = entities_tree_provider::get_present_counts($this->table, 'entityid');
+
+        // Default: the full tree — the Location root carries its subtree and no direct options.
+        $bynames = [];
+        foreach (entities_tree_provider::build_tree($counts) as $node) {
+            $bynames[$node->name] = $node;
+        }
+        $this->assertSame(['Location', 'Other'], array_keys($bynames));
+        $this->assertNotEmpty($bynames['Location']->children);
+        $this->assertSame(0, $bynames['Location']->count);
+        $this->assertSame(3, $bynames['Location']->total);
+
+        // Top level only: same roots and totals, but flat — each root aggregates its whole branch.
+        set_config('entitytreefiltertoplevelonly', 1, 'booking');
+        $bynames = [];
+        foreach (entities_tree_provider::build_tree($counts) as $node) {
+            $bynames[$node->name] = $node;
+        }
+        $this->assertSame(['Location', 'Other'], array_keys($bynames));
+        $this->assertSame([], $bynames['Location']->children);
+        $this->assertSame(3, $bynames['Location']->count);
+        $this->assertSame(3, $bynames['Location']->total);
+        $this->assertSame([], $bynames['Other']->children);
+        $this->assertSame(1, $bynames['Other']->count);
+
+        // Selecting the root still filters the whole branch: A (Room), B (Room2), C (BuildingB).
+        $this->assertEqualsCanonicalizing(
+            [$this->optionids['A'], $this->optionids['B'], $this->optionids['C']],
+            $this->matched_option_ids($this->table->sql->params, [$this->entityids['location']])
+        );
+    }
+
+    /**
      * Selecting a node filters to the option-level entities in its whole live subtree; optiondate-only
      * locations are never matched (BC-4a).
      *
@@ -214,44 +256,37 @@ final class entities_tree_provider_test extends advanced_testcase {
     }
 
     /**
-     * render_location_name is byte-identical to the historical output for 1–2 levels and only shows a
-     * full breadcrumb for 3+ level hierarchies (BC-6).
+     * render_location_name always renders "direct parent (name)" (plain "name" for a root), so a deep
+     * hierarchy reads as "level N-1 (level N)" — e.g. "Ebene 2 (Ebene 3)" for 3 levels.
      *
      * @return void
      */
-    public function test_render_location_name_bc6(): void {
+    public function test_render_location_name(): void {
         $this->resetAfterTest();
-        entities::reset_caches();
-
-        $egen = $this->getDataGenerator()->get_plugin_generator('local_entities');
-        $loc = $egen->create_entities(['name' => 'Location', 'shortname' => 'loc']);
-        $bld = $egen->create_entities(['name' => 'Building', 'shortname' => 'bld', 'parentid' => $loc]);
-        $flr = $egen->create_entities(['name' => 'Floor', 'shortname' => 'flr', 'parentid' => $bld]);
-        entities::reset_caches();
 
         // 1 level (root, no parent): just the name — unchanged.
         $this->assertSame(
             'Location',
-            entities_tree_provider::render_location_name(['id' => $loc, 'name' => 'Location', 'parentname' => ''])
+            entities_tree_provider::render_location_name(['id' => 1, 'name' => 'Location', 'parentname' => ''])
         );
 
         // 2 levels: "parent (name)" — byte-identical to the historical rendering.
         $this->assertSame(
             'Location (Building)',
-            entities_tree_provider::render_location_name(['id' => $bld, 'name' => 'Building', 'parentname' => 'Location'])
+            entities_tree_provider::render_location_name(['id' => 2, 'name' => 'Building', 'parentname' => 'Location'])
         );
 
-        // 3 levels: full breadcrumb.
+        // 3+ levels: still "direct parent (name)" — the levels above are hover-card material only.
         $this->assertSame(
-            'Location / Building / Floor',
-            entities_tree_provider::render_location_name(['id' => $flr, 'name' => 'Floor', 'parentname' => 'Building'])
+            'Building (Floor)',
+            entities_tree_provider::render_location_name(['id' => 3, 'name' => 'Floor', 'parentname' => 'Building'])
         );
     }
 
     /**
      * render_location_cell keeps 1–2 levels byte-identical (linked historical name, plain text on
-     * download) and renders deep hierarchies as the entity name plus an accessible hover card with
-     * the superordinate levels — full path only for screenreaders and exports (BC-6).
+     * download) and renders deep hierarchies as "direct parent (name)" plus an accessible hover card
+     * with ALL superordinate levels (incl. the direct parent) — full path only for exports.
      *
      * @return void
      */
@@ -263,6 +298,7 @@ final class entities_tree_provider_test extends advanced_testcase {
         $loc = $egen->create_entities(['name' => 'Location', 'shortname' => 'loc']);
         $bld = $egen->create_entities(['name' => 'Building', 'shortname' => 'bld', 'parentid' => $loc]);
         $flr = $egen->create_entities(['name' => 'Floor', 'shortname' => 'flr', 'parentid' => $bld]);
+        $rm = $egen->create_entities(['name' => 'Room', 'shortname' => 'rm', 'parentid' => $flr]);
         entities::reset_caches();
 
         // 1–2 levels: byte-identical to the historical cell markup.
@@ -278,23 +314,34 @@ final class entities_tree_provider_test extends advanced_testcase {
         $deep = ['id' => $flr, 'name' => 'Floor', 'parentname' => 'Building'];
         $this->assertSame('Location / Building / Floor', entities_tree_provider::render_location_cell($deep, true));
 
-        // 3 levels, display: only the entity name is visible; ancestors live in the hover card and
-        // in visually hidden text — there is no inline breadcrumb anymore.
-        set_config('showlocationimages', 0, 'booking');
+        // 3 levels, display: "level 2 (level 3)" is visible; levels 1 and 2 live in the hover card
+        // and in visually hidden text — there is no inline breadcrumb.
+        set_config('entitytreefiltershowlocationimages', 0, 'booking');
         $html = entities_tree_provider::render_location_cell($deep, false);
         $this->assertStringContainsString('mod-booking-location-cell', $html);
         $this->assertStringContainsString('mod-booking-location-path', $html);
-        $this->assertStringContainsString('>Floor<', $html);
-        $this->assertStringContainsString('Location / Building', $html);
+        $this->assertStringContainsString('>Building (Floor)<', $html);
+        $this->assertStringContainsString(', Location / Building<', $html);
         $this->assertStringNotContainsString('Location / Building / Floor', $html);
         $this->assertStringNotContainsString('<img', $html);
-        // Every ancestor in the card links to its own entity view page; the card holds focusable
-        // links, so it must not be aria-hidden.
+        // Every card ancestor (incl. the direct parent) links to its own entity view page; the card
+        // holds focusable links, so it must not be aria-hidden.
         $this->assertStringContainsString((new \moodle_url('/local/entities/view.php', ['id' => $loc]))->out(false), $html);
         $this->assertStringContainsString((new \moodle_url('/local/entities/view.php', ['id' => $bld]))->out(false), $html);
         $this->assertStringNotContainsString('aria-hidden', $html);
 
-        // With showlocationimages on, an ancestor's image is rendered small into the card.
+        // 4 levels: "level 3 (level 4)" is visible; levels 1, 2 and 3 are in the card.
+        $deeper = ['id' => $rm, 'name' => 'Room', 'parentname' => 'Floor'];
+        $this->assertSame('Location / Building / Floor / Room', entities_tree_provider::render_location_cell($deeper, true));
+        $html = entities_tree_provider::render_location_cell($deeper, false);
+        $this->assertStringContainsString('>Floor (Room)<', $html);
+        $this->assertStringContainsString(', Location / Building / Floor<', $html);
+        $this->assertStringContainsString((new \moodle_url('/local/entities/view.php', ['id' => $loc]))->out(false), $html);
+        $this->assertStringContainsString((new \moodle_url('/local/entities/view.php', ['id' => $bld]))->out(false), $html);
+        $this->assertStringContainsString((new \moodle_url('/local/entities/view.php', ['id' => $flr]))->out(false), $html);
+
+        // With entitytreefiltershowlocationimages on, an ancestor's image is rendered small into
+        // the card.
         get_file_storage()->create_file_from_string([
             'contextid' => \context_system::instance()->id,
             'component' => 'local_entities',
@@ -303,12 +350,30 @@ final class entities_tree_provider_test extends advanced_testcase {
             'filepath' => '/',
             'filename' => 'loc.png',
         ], 'fake-image-bytes');
-        set_config('showlocationimages', 1, 'booking');
+        set_config('entitytreefiltershowlocationimages', 1, 'booking');
         entities::reset_caches();
         $html = entities_tree_provider::render_location_cell($deep, false);
         $this->assertStringContainsString('<img', $html);
         $this->assertStringContainsString('loc.png', $html);
         $this->assertStringContainsString('loading="lazy"', $html);
+
+        // Hover card disabled: deep hierarchies render as the plain linked "direct parent (name)"
+        // without any card markup; exports keep the full path. The card assertions above ran with
+        // the config unset, proving the fail-open default (unset = on).
+        set_config('entitytreefiltershowlocationhovercard', 0, 'booking');
+        $flrurl = (new \moodle_url('/local/entities/view.php', ['id' => $flr]))->out(false);
+        $this->assertSame(
+            \html_writer::tag('a', 'Building (Floor)', ['href' => $flrurl]),
+            entities_tree_provider::render_location_cell($deep, false)
+        );
+        $this->assertSame('Location / Building / Floor', entities_tree_provider::render_location_cell($deep, true));
+
+        // Explicitly on: the card is back.
+        set_config('entitytreefiltershowlocationhovercard', 1, 'booking');
+        $this->assertStringContainsString(
+            'mod-booking-location-path',
+            entities_tree_provider::render_location_cell($deep, false)
+        );
     }
 
     /**

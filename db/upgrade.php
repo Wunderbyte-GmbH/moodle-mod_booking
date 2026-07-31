@@ -5628,5 +5628,17 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2026072200, 'booking');
     }
 
+    if ($oldversion < 2026073100) {
+        // The location hover card image setting was renamed to entitytreefiltershowlocationimages
+        // to group it under the multilevel location filter setting. Migrate a stored value.
+        $oldvalue = get_config('booking', 'showlocationimages');
+        if ($oldvalue !== false) {
+            set_config('entitytreefiltershowlocationimages', $oldvalue, 'booking');
+            unset_config('showlocationimages', 'booking');
+        }
+
+        upgrade_mod_savepoint(true, 2026073100, 'booking');
+    }
+
     return true;
 }

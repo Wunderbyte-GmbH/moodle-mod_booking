@@ -835,7 +835,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
 
         if (isset($settings->entity) && (count($settings->entity) > 0)) {
             // Shared renderer: byte-identical to the historical output for 1–2 levels; for 3+ levels
-            // only the entity name, with the superordinate levels in an accessible hover card (BC-6).
+            // "direct parent (name)", with the superordinate levels in an accessible hover card.
             return \mod_booking\local\entities_tree_provider::render_location_cell(
                 $settings->entity,
                 $this->is_downloading()

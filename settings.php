@@ -306,26 +306,86 @@ if ($ADMIN->fulltree) {
             )
         );
 
-        // Multilevel entity (location) tree filter. Opt-in, default off: existing installations keep
-        // the plain-text location filter until this is switched on. Requires local_entities.
-        $settings->add(
-            new admin_setting_configcheckbox(
+        // The multilevel location filter needs local_entities: without the plugin the settings
+        // would be visible but without any effect (the code falls back to the plain-text location
+        // filter, see entities_tree_provider::is_active()), so the whole block is hidden then.
+        if (class_exists('local_entities\entitiesrelation_handler')) {
+            // All four settings change the cached booking options tables (the location filter json
+            // lives in the tables' raw caches, the rendered location cells in the encoded tables),
+            // so the caches are purged on change — same events as for showoptiondatesextrainfo and
+            // local_wunderbyte_table's allowedittable.
+            $purgetablecaches = function () {
+                cache_helper::purge_by_event('setbackfilters');
+                cache_helper::purge_by_event('setbackencodedtables');
+                cache_helper::purge_by_event('changesinwunderbytetable');
+            };
+
+            // Multilevel entity (location) tree filter. Opt-in, default off: existing installations
+            // keep the plain-text location filter until this is switched on.
+            $entitytreefilter = new admin_setting_configcheckbox(
                 'booking/entitytreefilter',
                 get_string('entitytreefilter', 'mod_booking'),
                 get_string('entitytreefilter_desc', 'mod_booking'),
                 0
-            )
-        );
+            );
+            $entitytreefilter->set_updatedcallback($purgetablecaches);
+            $settings->add($entitytreefilter);
 
-        // Small entity images in the location hover card (3+ level hierarchies only). Opt-in.
-        $settings->add(
-            new admin_setting_configcheckbox(
-                'booking/showlocationimages',
-                get_string('showlocationimages', 'mod_booking'),
-                get_string('showlocationimages_desc', 'mod_booking'),
+            // The following three settings belong to the multilevel location filter: they are
+            // indented via styles.css (#admin-entitytreefilter...) plus a "⤷ " label prefix and
+            // hidden while the filter is off — analogous to bookingopeningtimerelativeautoapply.
+            // Restrict the multilevel location filter to the top level: only first-level entities
+            // are offered and a selection filters the whole branch (sub-levels stay filterable via
+            // the tree when this is off).
+            $entitytreefiltertoplevelonly = new admin_setting_configcheckbox(
+                'booking/entitytreefiltertoplevelonly',
+                get_string('entitytreefiltertoplevelonly', 'mod_booking'),
+                get_string('entitytreefiltertoplevelonly_desc', 'mod_booking'),
                 0
-            )
-        );
+            );
+            $entitytreefiltertoplevelonly->set_updatedcallback($purgetablecaches);
+            $settings->add($entitytreefiltertoplevelonly);
+            $settings->hide_if(
+                'booking/entitytreefiltertoplevelonly',
+                'booking/entitytreefilter',
+                'eq',
+                0
+            );
+
+            // Hover card with the superordinate levels for deep (3+ levels) location hierarchies.
+            // Default on; when off, deep locations render as a plain "direct parent (name)" link.
+            $entitytreefiltershowlocationhovercard = new admin_setting_configcheckbox(
+                'booking/entitytreefiltershowlocationhovercard',
+                get_string('entitytreefiltershowlocationhovercard', 'mod_booking'),
+                get_string('entitytreefiltershowlocationhovercard_desc', 'mod_booking'),
+                1
+            );
+            $entitytreefiltershowlocationhovercard->set_updatedcallback($purgetablecaches);
+            $settings->add($entitytreefiltershowlocationhovercard);
+            $settings->hide_if(
+                'booking/entitytreefiltershowlocationhovercard',
+                'booking/entitytreefilter',
+                'eq',
+                0
+            );
+
+            // Small entity images in the location hover card (3+ level hierarchies only). Opt-in.
+            // Renamed from showlocationimages (migrated in db/upgrade.php).
+            $entitytreefiltershowlocationimages = new admin_setting_configcheckbox(
+                'booking/entitytreefiltershowlocationimages',
+                get_string('entitytreefiltershowlocationimages', 'mod_booking'),
+                get_string('entitytreefiltershowlocationimages_desc', 'mod_booking'),
+                0
+            );
+            $entitytreefiltershowlocationimages->set_updatedcallback($purgetablecaches);
+            $settings->add($entitytreefiltershowlocationimages);
+            $settings->hide_if(
+                'booking/entitytreefiltershowlocationimages',
+                'booking/entitytreefilter',
+                'eq',
+                0
+            );
+        }
 
         // Collapse descriptions.
         $collapsedescriptionoptions = [
