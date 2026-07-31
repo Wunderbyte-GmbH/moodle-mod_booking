@@ -1634,6 +1634,32 @@ class booking_option {
                     ]);
                     $event->trigger(); // This will trigger the observer function.
                 }
+            } else if (
+                // The option is full, so the user lands on the real waiting list. When the option
+                // requires confirmation, such a user is waiting for confirmation just like a parked
+                // user (sync_waiting_list never promotes unconfirmed users), so the same event has
+                // to fire. Only for new answers: confirm/unconfirm rewrites of an existing answer
+                // must not retrigger it. Autoenrol keeps its own confirmation flow via enrollink.
+                $waitinglist === MOD_BOOKING_STATUSPARAM_WAITINGLIST
+                && !empty($this->settings->waitforconfirmation)
+                && is_null($currentanswerid)
+                && !in_array(
+                    $status,
+                    [
+                        MOD_BOOKING_BO_SUBMIT_STATUS_CONFIRMATION,
+                        MOD_BOOKING_BO_SUBMIT_STATUS_UN_CONFIRM,
+                        MOD_BOOKING_BO_SUBMIT_STATUS_AUTOENROL,
+                    ],
+                    true
+                )
+            ) {
+                $event = bookinganswer_waitingforconfirmation::create([
+                    'objectid' => $this->optionid,
+                    'context' => context_module::instance($this->cmid),
+                    'userid' => $USER->id, // The user triggered the action.
+                    'relateduserid' => $user->id, // Affected user - the user who is waiting for confirmation.
+                ]);
+                $event->trigger(); // This will trigger the observer function.
             }
 
             // Use the waitinglist as status for booking history.
