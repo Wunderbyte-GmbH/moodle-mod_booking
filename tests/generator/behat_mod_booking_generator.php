@@ -35,7 +35,15 @@ class behat_mod_booking_generator extends behat_generator_base {
                 'singular' => 'option',
                 'datagenerator' => 'option',
                 'required' => ['booking', 'text', 'description'],
-                'switchids' => ['booking' => 'bookingid', 'course' => 'courseid', 'semester' => 'semesterid'],
+                'switchids' => [
+                    'booking' => 'bookingid',
+                    'course' => 'courseid',
+                    'semester' => 'semesterid',
+                    // Optional 'entity' column: a local_entities entity name; the resolved id lands
+                    // in the option-level entity form field, so the created option gets the entity
+                    // relation and location exactly like a form submission.
+                    'entity' => 'local_entities_entityid_0',
+                ],
             ],
             'bookingimages' => [
                 'singular' => 'bookingimage',
@@ -154,6 +162,21 @@ class behat_mod_booking_generator extends behat_generator_base {
 
         if (!$id = $DB->get_field('booking_options', 'id', ['text' => $identifier])) {
             throw new Exception('The specified booking option with name text "' . $identifier . '" does not exist');
+        }
+        return $id;
+    }
+
+    /**
+     * Get the id of a local_entities entity by its name (for the optional 'entity' option column).
+     *
+     * @param string $name the entity name
+     * @return int The entity id
+     */
+    protected function get_entity_id(string $name): int {
+        global $DB;
+
+        if (!$id = $DB->get_field('local_entities', 'id', ['name' => $name])) {
+            throw new Exception('The specified entity with name "' . $name . '" does not exist (is local_entities installed?)');
         }
         return $id;
     }

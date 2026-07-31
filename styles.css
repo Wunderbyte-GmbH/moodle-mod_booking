@@ -826,7 +826,10 @@ div.checkbox:has(label[for^="id_bo_cond_allowedtobookininstance_capabilitynotnee
 #page-admin-setting-modsettingbooking #admin-bookingtimerelativedefaultopeningdatefield,
 #page-admin-setting-modsettingbooking #admin-bookingtimerelativedefaultclosingdatefield,
 #page-admin-setting-modsettingbooking #admin-bookingopeningtimerelativeautoapply,
-#page-admin-setting-modsettingbooking #admin-bookingclosingtimerelativeautoapply {
+#page-admin-setting-modsettingbooking #admin-bookingclosingtimerelativeautoapply,
+#page-admin-setting-modsettingbooking #admin-entitytreefiltertoplevelonly,
+#page-admin-setting-modsettingbooking #admin-entitytreefiltershowlocationhovercard,
+#page-admin-setting-modsettingbooking #admin-entitytreefiltershowlocationimages {
     margin-left: 75px;
 }
 

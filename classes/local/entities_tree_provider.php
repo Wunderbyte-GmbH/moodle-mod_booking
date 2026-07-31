@@ -136,6 +136,11 @@ class entities_tree_provider implements tree_provider {
     /**
      * Builds the nested tree of occupied entities from the present counts (live from local_entities).
      *
+     * With the entitytreefiltertoplevelonly setting on, only the top level is offered: each root node
+     * keeps its subtree total as its count and loses its children, so the filter panel shows a flat
+     * first-level list while a selection still matches the whole branch (via {@see self::filter_sql()},
+     * which always expands to the live subtree).
+     *
      * @param array $presentcounts entityid => count
      * @return array tree of entity objects
      */
@@ -150,7 +155,15 @@ class entities_tree_provider implements tree_provider {
                 $flat[] = (int)$id;
             }
         }
-        return entities::get_filter_tree($flat);
+        $tree = entities::get_filter_tree($flat);
+
+        if ((bool)get_config('booking', 'entitytreefiltertoplevelonly')) {
+            foreach ($tree as $node) {
+                $node->count = $node->total;
+                $node->children = [];
+            }
+        }
+        return $tree;
     }
 
     /**
@@ -202,8 +215,11 @@ class entities_tree_provider implements tree_provider {
     }
 
     /**
-     * Renders the display name for an option's location entity: byte-identical to the historical output
-     * for 1–2 levels ("parent (name)" / "name"), and a full breadcrumb only for 3+ levels (BC-6).
+     * Renders the display name for an option's location entity: "direct parent (name)" when the entity
+     * has a parent, plain "name" for a root. At any depth this yields "level N-1 (level N)" — e.g.
+     * "Ebene 2 (Ebene 3)" for a 3-level hierarchy — so deep trees read exactly like the historical
+     * 2-level output; the levels above the direct parent are hover-card/export material only
+     * ({@see self::render_location_cell()}).
      *
      * Shared by mod_booking and external plugins' col_location so the logic exists in exactly one place.
      *
@@ -211,17 +227,7 @@ class entities_tree_provider implements tree_provider {
      * @return string
      */
     public static function render_location_name(array $entity): string {
-        $entityid = (int)($entity['id'] ?? 0);
-
-        if ($entityid > 0 && class_exists('local_entities\\entitiesrelation_handler')) {
-            [, , $names] = entities::get_ancestor_path($entityid);
-            if (count($names) >= 3) {
-                // Deep hierarchy: show the full path as a breadcrumb.
-                return implode(' / ', $names);
-            }
-        }
-
-        // 1–2 levels (or entities unavailable): exactly the historical rendering.
+        // The handler always delivers the DIRECT parent as parentname, so this is depth-independent.
         if (!empty($entity['parentname'])) {
             return $entity['parentname'] . " (" . ($entity['name'] ?? '') . ")";
         }
@@ -232,10 +238,13 @@ class entities_tree_provider implements tree_provider {
      * Renders the complete location cell for an option's entity.
      *
      * 1–2 levels: byte-identical to the historical output — linked "parent (name)" / "name", plain
-     * text when downloading (BC-6). 3+ levels: only the selected entity's name is shown, linked, with
-     * the superordinate levels in a CSS hover card (also opened by keyboard focus) and as
-     * screenreader text; exports get the full path as plain text. Entity images are rendered small
-     * into the card when the showlocationimages setting is on.
+     * text when downloading (BC-6). 3+ levels: "direct parent (name)" is shown, linked — i.e.
+     * "level N-1 (level N)" — with ALL superordinate levels (level 1 … N-1, incl. the direct parent)
+     * in a CSS hover card (also opened by keyboard focus) and as screenreader text; exports get the
+     * full path as plain text. The hover card can be turned off globally
+     * (entitytreefiltershowlocationhovercard, default on): then deep hierarchies render as the
+     * plain linked "direct parent (name)" too. Entity images are rendered small into the card when
+     * the entitytreefiltershowlocationimages setting is on.
      *
      * Shared by mod_booking external plugins' col_location so the logic exists in exactly
      * one place. Callers keep their own "no entity → plain location text" fallback.
@@ -254,8 +263,14 @@ class entities_tree_provider implements tree_provider {
             [, $ids, $names] = entities::get_ancestor_path($entityid);
         }
 
-        if (count($names) < 3) {
-            // 1–2 levels (or entities unavailable): exactly the historical rendering.
+        // The hover card can be turned off globally. Fail-open: an unset config (the setting was
+        // added without a version bump, so it may not be stored yet) means the default — on.
+        $hovercardconfig = get_config('booking', 'entitytreefiltershowlocationhovercard');
+        $showhovercard = $hovercardconfig === false || (bool)$hovercardconfig;
+
+        if (count($names) < 3 || (!$showhovercard && !$isdownloading)) {
+            // 1–2 levels (or entities unavailable, or the hover card is disabled): the historical
+            // rendering — linked "direct parent (name)".
             $name = self::render_location_name($entity);
             if ($isdownloading) {
                 return $name;
@@ -269,10 +284,13 @@ class entities_tree_provider implements tree_provider {
             return implode(' / ', $names);
         }
 
+        // Visible text: "direct parent (name)"; the hover card carries every superordinate level,
+        // including the direct parent.
         $selfname = array_pop($names);
         array_pop($ids);
+        $parentname = end($names);
 
-        $showimages = (bool)get_config('booking', 'showlocationimages');
+        $showimages = (bool)get_config('booking', 'entitytreefiltershowlocationimages');
         $ancestors = [];
         foreach (array_values($ids) as $depth => $ancestorid) {
             $imageurl = $showimages ? entities::get_image_url((int)$ancestorid) : null;
@@ -286,7 +304,7 @@ class entities_tree_provider implements tree_provider {
 
         return $OUTPUT->render_from_template('mod_booking/col_location', [
             'url' => (new \moodle_url('/local/entities/view.php', ['id' => $entityid]))->out(false),
-            'name' => $selfname,
+            'name' => $parentname . ' (' . $selfname . ')',
             'pathtext' => implode(' / ', $names),
             'ancestors' => $ancestors,
         ]);
