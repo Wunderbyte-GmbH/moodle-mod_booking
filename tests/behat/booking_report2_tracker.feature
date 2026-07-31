@@ -5,7 +5,7 @@ Feature: Use the bookings tracker (report2.php) as replacement of the old report
   I need to reach the tracker scopes, see the option info line and download the sign-in sheet
 
   Background:
-      Given the following "custom profile fields" exist:
+    Given the following "custom profile fields" exist:
       | datatype | shortname     | name                |
       | text     | userpricecat  | User Price Category |
     And the following "mod_booking > pricecategories" exist:
@@ -135,3 +135,40 @@ Feature: Use the bookings tracker (report2.php) as replacement of the old report
     And "//tr[contains(@id, 'booked_option_') and contains(@id, '_r1')]//td[@data-label='completed']//i[contains(concat(' ', normalize-space(@class), ' '), ' fa-check-square ') and @aria-label='Completed']" "xpath_element" should exist
     # The second row must now have an empty completion cell.
     And "//tr[contains(@id, 'booked_option_') and contains(@id, '_r2')]//td[@data-label='completed' and normalize-space(.)='' and not(.//i)]" "xpath_element" should exist
+
+  @javascript
+  Scenario: Booking report2: manage presence status in the option scope
+    Given I log in as "admin"
+    And I visit "/mod/booking/report2.php"
+    And I should see "B2-Option1" in the "#booked_system_0_r1" "css_element"
+    And I follow "B2-Option1"
+    And I switch to a second window
+    And I should see "Manage bookings for Booking option: \"B2-Option1\""
+    # 1. Verify that Presence is "No status." for both records.
+    And "//tr[contains(@id, 'booked_option_') and contains(@id, '_r1')][.//td[@data-label='email' and normalize-space(.)='student3@example.com']]//td[@data-label='status' and contains(normalize-space(.), 'No status')]" "xpath_element" should exist
+    And "//tr[contains(@id, 'booked_option_') and contains(@id, '_r2')][.//td[@data-label='email' and normalize-space(.)='student4@example.com']]//td[@data-label='status' and contains(normalize-space(.), 'No status')]" "xpath_element" should exist
+    # 2. Select the second record.
+    And I click on "//tr[contains(@id, 'booked_option_') and contains(@id, '_r2')][.//td[@data-label='email' and normalize-space(.)='student4@example.com']]//td[@data-label='wbcheckbox']//input[@type='checkbox']" "xpath_element"
+    # 3. Open the Presence action.
+    And I click on "//a[@data-formname='mod_booking\form\optiondates\modal_change_status' and normalize-space(.)='Presence']" "xpath_element"
+    # 4. In the modal, select Attending and save.
+    And I should see "Change presence status" in the "div[data-region='modal']" "css_element"
+    And I set the field "status" to "Attending"
+    And I click on "//div[@data-region='modal'][.//*[@data-region='title' and normalize-space(.)='Change presence status']]//button[@data-action='save' and normalize-space(.)='Save']" "xpath_element"
+    And I wait until the page is ready
+    # 5. Verify that the second record is Attending.
+    And "//tr[contains(@id, 'booked_option_') and contains(@id, '_r2')][.//td[@data-label='email' and normalize-space(.)='student4@example.com']]//td[@data-label='status' and normalize-space(.)='Attending']" "xpath_element" should exist
+    # The first record must still have its original status.
+    And "//tr[contains(@id, 'booked_option_') and contains(@id, '_r1')][.//td[@data-label='email' and normalize-space(.)='student3@example.com']]//td[@data-label='status' and contains(normalize-space(.), 'No status')]" "xpath_element" should exist
+    # 6. Select all records using the table header checkbox.
+    And I click on "//table[starts-with(@id, 'booked_option_')]//thead//input[@type='checkbox' and contains(concat(' ', normalize-space(@class), ' '), ' tableheadercheckbox ')]" "xpath_element"
+    # 7. Open the Presence action again.
+    And I click on "//a[@data-formname='mod_booking\form\optiondates\modal_change_status' and normalize-space(.)='Presence']" "xpath_element"
+    # 8. In the modal, select Complete and save.
+    And I should see "Change presence status" in the "div[data-region='modal']" "css_element"
+    And I set the field "status" to "Complete"
+    And I click on "//div[@data-region='modal'][.//*[@data-region='title' and normalize-space(.)='Change presence status']]//button[@data-action='save' and normalize-space(.)='Save']" "xpath_element"
+    And I wait until the page is ready
+    # 9. Verify that both records have Presence set to Complete.
+    And "//tr[contains(@id, 'booked_option_') and contains(@id, '_r1')][.//td[@data-label='email' and normalize-space(.)='student3@example.com']]//td[@data-label='status' and normalize-space(.)='Complete']" "xpath_element" should exist
+    And "//tr[contains(@id, 'booked_option_') and contains(@id, '_r2')][.//td[@data-label='email' and normalize-space(.)='student4@example.com']]//td[@data-label='status' and normalize-space(.)='Complete']" "xpath_element" should exist
