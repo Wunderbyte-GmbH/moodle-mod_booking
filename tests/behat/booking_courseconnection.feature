@@ -144,9 +144,9 @@ Feature: Configure and validate different course connection settings for booking
     And I log out
     ## Verify is course categories are correct
     ## Navigation to the course settings via course homepage is required
-    ## To avoid occasional failure under Moodle 5.1 
+    ## To avoid occasional failure under Moodle 5.1
     ## with message"Javascript code and/or AJAX requests are not ready after 10 seconds..."
-    ## caused by some Moodle 5.1 session's issues.  
+    ## caused by some Moodle 5.1 session's issues.
     And I am logged in as admin
     And I am on the "Enroll_existcat" "course" page
     And I follow "Settings"
