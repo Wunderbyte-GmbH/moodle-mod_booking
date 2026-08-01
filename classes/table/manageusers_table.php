@@ -401,6 +401,12 @@ class manageusers_table extends wunderbyte_table {
         $maxanswers = empty($settings->maxanswers) ? get_string('unlimitedplaces', 'mod_booking') : $settings->maxanswers;
         $maxoverbooking = $settings->maxoverbooking ?? 0;
 
+        // A negative limit denotes an unlimited waiting list, just as an empty
+        // maxanswers value denotes unlimited regular places.
+        if ($maxoverbooking < 0) {
+            $maxoverbooking = get_string('unlimitedplaces', 'mod_booking');
+        }
+
         if ($values->waitinglist == 0) {
             return "<b>" . ($values->answerscount ?? 0) . "</b>/" . $maxanswers;
         } else if ($values->waitinglist == 1) {
