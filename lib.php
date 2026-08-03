@@ -617,6 +617,8 @@ function booking_supports($feature) {
             return true;
         case FEATURE_COMMENT:
             return true;
+        case FEATURE_MOD_PURPOSE:
+            return MOD_PURPOSE_ADMINISTRATION;
 
         default:
             return null;
