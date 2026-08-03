@@ -67,6 +67,22 @@ jobs:
         grep -q -- '--file-list' "$GITHUB_WORKSPACE/m-ci/src/Command/CodeCheckerCommand.php" && echo "codechecker patched to use --file-list" || { echo "codechecker --file-list patch FAILED - check moodle-plugin-ci upstream"; exit 1; }
         # END OF WORKAROUND 24/07/2026
 
+        # WORKAROUND 03/08/2026: moodle-plugin-ci phpdoc passes all plugin files
+        # as ONE comma-joined '-p=' argument; with Moodle 5.1+ public/ paths this
+        # exceeds MAX_ARG_STRLEN (mod_booking: 131396 > 131072 bytes). On
+        # PHP >= 8.3 proc_open (posix_spawn) fails hard ("Unable to launch a new
+        # process", Process.php:356), which also skips the cleanup that removes
+        # local_moodlecheck from the Moodle tree and thereby breaks phpunit AND
+        # behat ("environment was initialised for different version"). On
+        # PHP <= 8.2 the exec failure was swallowed and phpdoc silently checked
+        # nothing. moodlecheck.php has no --file-list option, but -p accepts a
+        # directory and recurses; the plugin has no PHP files in ignored dirs,
+        # so passing the plugin directory checks the identical file set.
+        # Remove once fixed upstream in moodlehq/moodle-plugin-ci.
+        perl -0pi -e "s/implode\(',', \\\$files\)/\\\$this->plugin->directory/" "$GITHUB_WORKSPACE/m-ci/src/Command/PHPDocCommand.php"
+        grep -q -- "this->plugin->directory" "$GITHUB_WORKSPACE/m-ci/src/Command/PHPDocCommand.php" && echo "phpdoc patched to pass plugin directory" || { echo "phpdoc directory patch FAILED - check moodle-plugin-ci upstream"; exit 1; }
+        # END OF WORKAROUND 03/08/2026
+
         # WORKAROUND 17/04/2025: The following code is a workaround for the "File is stale and needs to be rebuilt" error
         # This occurs when AMD modules import Moodle core dependencies
         # See issue: https://github.com/moodlehq/moodle-plugin-ci/issues/350
@@ -157,6 +173,22 @@ jobs:
         perl -0pi -e 's/foreach \(\$files as \$file\) \{\n            \$cmd\[\] = \$file;\n        \}/\$fileList = \$this->tempFile . "-file-list";\n        file_put_contents(\$fileList, implode(PHP_EOL, \$files));\n        \$cmd[] = "--file-list=" . \$fileList;/s' "$GITHUB_WORKSPACE/m-ci/src/Command/CodeCheckerCommand.php"
         grep -q -- '--file-list' "$GITHUB_WORKSPACE/m-ci/src/Command/CodeCheckerCommand.php" && echo "codechecker patched to use --file-list" || { echo "codechecker --file-list patch FAILED - check moodle-plugin-ci upstream"; exit 1; }
         # END OF WORKAROUND 24/07/2026
+
+        # WORKAROUND 03/08/2026: moodle-plugin-ci phpdoc passes all plugin files
+        # as ONE comma-joined '-p=' argument; with Moodle 5.1+ public/ paths this
+        # exceeds MAX_ARG_STRLEN (mod_booking: 131396 > 131072 bytes). On
+        # PHP >= 8.3 proc_open (posix_spawn) fails hard ("Unable to launch a new
+        # process", Process.php:356), which also skips the cleanup that removes
+        # local_moodlecheck from the Moodle tree and thereby breaks phpunit AND
+        # behat ("environment was initialised for different version"). On
+        # PHP <= 8.2 the exec failure was swallowed and phpdoc silently checked
+        # nothing. moodlecheck.php has no --file-list option, but -p accepts a
+        # directory and recurses; the plugin has no PHP files in ignored dirs,
+        # so passing the plugin directory checks the identical file set.
+        # Remove once fixed upstream in moodlehq/moodle-plugin-ci.
+        perl -0pi -e "s/implode\(',', \\\$files\)/\\\$this->plugin->directory/" "$GITHUB_WORKSPACE/m-ci/src/Command/PHPDocCommand.php"
+        grep -q -- "this->plugin->directory" "$GITHUB_WORKSPACE/m-ci/src/Command/PHPDocCommand.php" && echo "phpdoc patched to pass plugin directory" || { echo "phpdoc directory patch FAILED - check moodle-plugin-ci upstream"; exit 1; }
+        # END OF WORKAROUND 03/08/2026
 
         # WORKAROUND 17/04/2025: The following code is a workaround for the "File is stale and needs to be rebuilt" error
         # This occurs when AMD modules import Moodle core dependencies
