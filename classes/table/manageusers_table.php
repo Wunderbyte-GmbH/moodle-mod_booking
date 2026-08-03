@@ -417,6 +417,23 @@ class manageusers_table extends wunderbyte_table {
     }
 
     /**
+     * Return deterministic SQL sorting for rows created in the same second.
+     *
+     * Booking answers and options can be generated in one request and therefore
+     * share a timecreated value. PostgreSQL is free to return those ties in any
+     * order, so use the record id as a stable newest-first tie breaker.
+     *
+     * @return string
+     */
+    public function get_sql_sort(): string {
+        $sort = parent::get_sql_sort();
+        if (preg_match('/^timecreated\s+DESC$/i', trim($sort))) {
+            $sort .= ', id DESC';
+        }
+        return $sort;
+    }
+
+    /**
      * Change number of rows. Uses the transmitaction pattern (actionbutton).
      * @param int $id
      * @param string $data // Data of the bookinganswer.

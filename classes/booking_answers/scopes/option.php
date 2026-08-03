@@ -121,6 +121,9 @@ class option extends scope_base {
                     'status' => get_string('presence', 'mod_booking'),
                     'presencecount' => get_string('presencecount', 'mod_booking'),
                 ];
+                $sortablecolumns['timecreated'] = get_string('timecreated', 'mod_booking');
+                // Keep participant lists alphabetical; timecreated remains available
+                // as an explicit sort when it is selected in responsesfields.
                 $table->sort_default_column = 'lastname';
                 $table->sort_default_order = SORT_ASC;
                 break;
@@ -138,6 +141,7 @@ class option extends scope_base {
                         'lastname' => get_string('lastname'),
                         'email' => get_string('email'),
                     ];
+                    // Preserve the legacy alphabetical order when manual waiting-list ranking is disabled.
                     $table->sort_default_column = 'lastname';
                     $table->sort_default_order = SORT_ASC;
                 }

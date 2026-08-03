@@ -53,6 +53,7 @@ class scope_base_options extends scope_base {
                 bo.titleprefix,
                 bo.text,
                 b.name AS instancename,
+                COALESCE(MAX(ba.timecreated), 0) AS timecreated,
                 COUNT(ba.id) answerscount,
                 SUM(pcnt.presencecount) presencecount,
                 '" . $scope . "' AS scope

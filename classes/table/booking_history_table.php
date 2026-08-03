@@ -49,6 +49,19 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  */
 class booking_history_table extends wunderbyte_table {
     /**
+     * Return deterministic newest-first SQL sorting.
+     *
+     * @return string
+     */
+    public function get_sql_sort(): string {
+        $sort = parent::get_sql_sort();
+        if (preg_match('/^timecreated\s+DESC$/i', trim($sort))) {
+            $sort .= ', id DESC';
+        }
+        return $sort;
+    }
+
+    /**
      * Return option column.
      *
      * @param stdClass $values
