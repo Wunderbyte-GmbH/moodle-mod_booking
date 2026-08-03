@@ -635,7 +635,10 @@ class booking_answers {
         $maxoverbooking = $this->bookingoptionsettings->maxoverbooking ?? 0;
         if ($maxoverbooking > 0) {
             $returnarray['maxoverbooking'] = $maxoverbooking;
-            $returnarray['freeonwaitinglist'] = $maxoverbooking - $returnarray['waiting'];
+            // Clamp to 0: the waiting list can be over-full (e.g. maxoverbooking was reduced while users
+            // stayed on the list). A negative value must never leak out, because -1 is reserved as the
+            // "unlimited waiting list" sentinel and other negative values would pass empty()-style checks.
+            $returnarray['freeonwaitinglist'] = max(0, $maxoverbooking - $returnarray['waiting']);
         } else if ($maxoverbooking == -1) {
             $returnarray['freeonwaitinglist'] = -1;
         }

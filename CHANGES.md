@@ -1,3 +1,5 @@
+* Bugfix: An over-full waiting list no longer causes overbooking of the option. When the waiting list limit was reduced (e.g. from unlimited "-1" to a fixed number) while more users were already waiting than the new limit allows — and the excess entries were kept, e.g. because of the site setting "keepusersbookedonreducingmaxanswers" — the number of free waiting list places became negative. The fullybooked availability condition misread that value as "places left" (empty() check), so check_if_limit fell through to its overbooking branch and booked every further user directly, although maxanswers was already reached; a computed value of exactly -1 (one user over the limit) was even mistaken for the "unlimited waiting list" sentinel. The free waiting list places are now clamped to 0, the fullybooked condition checks the value explicitly instead of via empty(), and -1 only counts as unlimited if the maxoverbooking setting itself is -1.
+
 ## Version 9.7.1 (2026073000)
 * Improvement: Accessibility improvements for bookit button.
 * Improvement: Update vue to 3.5.40 for security reasons.

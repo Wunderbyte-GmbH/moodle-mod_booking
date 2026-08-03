@@ -148,9 +148,14 @@ class fullybooked implements bo_condition {
             } else if (
                 isset($bookinginformation['notbooked']['fullybooked'])
                 && $bookinginformation['notbooked']['fullybooked'] === true
-                && empty($bookinginformation['notbooked']['freeonwaitinglist'])
             ) {
-                $isavailable = false;
+                // The waiting list only keeps the option available if it is unlimited (-1) or has
+                // spots left. An empty() check is not enough here: an over-full waiting list yields
+                // a negative value, which is not "empty" and must still block.
+                $freeonwaitinglist = (int) ($bookinginformation['notbooked']['freeonwaitinglist'] ?? 0);
+                if ($freeonwaitinglist !== -1 && $freeonwaitinglist <= 0) {
+                    $isavailable = false;
+                }
             }
         }
 

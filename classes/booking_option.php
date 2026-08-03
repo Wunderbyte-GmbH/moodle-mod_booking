@@ -3077,7 +3077,12 @@ class booking_option {
             } else if (
                 isset($bookingstatus['freeonwaitinglist'])
                 && ($bookingstatus['freeonwaitinglist'] > 0
-                || $bookingstatus['freeonwaitinglist'] == -1)
+                    // The value -1 only means "unlimited waiting list" if the setting really is -1.
+                    // A computed -1 (one more waiting than maxoverbooking allows) must not match.
+                    || (
+                        $bookingstatus['freeonwaitinglist'] == -1
+                        && ((int) ($settings->maxoverbooking ?? 0)) === -1
+                    ))
             ) {
                 $status = MOD_BOOKING_STATUSPARAM_WAITINGLIST;
             } else {
