@@ -419,16 +419,18 @@ class manageusers_table extends wunderbyte_table {
     /**
      * Return deterministic SQL sorting for rows created in the same second.
      *
-     * Booking answers and options can be generated in one request and therefore
-     * share a timecreated value. PostgreSQL is free to return those ties in any
-     * order, so use the record id as a stable newest-first tie breaker.
+     * The table API accepts only one default sort column. Append stable
+     * secondary columns to its generated ORDER BY clause instead. Option names
+     * retain the established ascending order and the id resolves duplicate
+     * names without changing that order.
+     * Also, PostreSQL supports NULLS LAST, but MySQL does not, so we need to add a tie-breaker for that case as well.
      *
      * @return string
      */
     public function get_sql_sort(): string {
         $sort = parent::get_sql_sort();
-        if (preg_match('/^timecreated\s+DESC$/i', trim($sort))) {
-            $sort .= ', id DESC';
+        if (preg_match('/^timecreated\s+DESC(?:\s+NULLS\s+LAST)?$/i', trim($sort))) {
+            $sort .= ', titleprefix ASC, text ASC, id ASC';
         }
         return $sort;
     }
