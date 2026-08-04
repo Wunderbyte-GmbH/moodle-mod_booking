@@ -724,6 +724,9 @@ class booking_option {
      * @param bool $deleteall set this to true if you want to delete a complete answers too
      * @param bool $openruleexecution saves a timestamp as a flag in the record that there might still be a...
      * Corresponding rule not executed (because this was triggered by a service provider and rules had no time to be executed yet)
+     * @param bool $suppresscancelledevent set this to true if the caller triggers its own
+     *     bookinganswer_cancelled event for this deletion (e.g. sync_waiting_list trimming the
+     *     waiting list adds an extrainfo payload), so the user does not get the event twice
      * @return bool true if booking was deleted successfully, otherwise false
      */
     public function user_delete_response(
@@ -732,7 +735,8 @@ class booking_option {
         $bookingoptioncancel = false,
         $syncwaitinglist = true,
         $deleteall = false,
-        $openruleexecution = false
+        $openruleexecution = false,
+        $suppresscancelledevent = false
     ) {
         global $USER, $DB;
 
@@ -860,14 +864,18 @@ class booking_option {
         (when a user gets cancelled or cancels by himself) and send mails by rules.
         BUT: We do not want to send mails twice if a booking option gets cancelled. */
 
-        // Log cancellation of user.
-        $event = bookinganswer_cancelled::create([
-            'objectid' => $this->optionid,
-            'context' => context_module::instance($this->cmid),
-            'userid' => $USER->id, // The user who did cancel.
-            'relateduserid' => $userid, // Affected user - the user who was cancelled.
-        ]);
-        $event->trigger(); // This will trigger the observer function and delete calendar events.
+        // Log cancellation of user. Skipped when the caller fires its own richer
+        // bookinganswer_cancelled event for this deletion - a duplicate event would
+        // make every rule listening to it (e.g. cancellation mails) run twice.
+        if (!$suppresscancelledevent) {
+            $event = bookinganswer_cancelled::create([
+                'objectid' => $this->optionid,
+                'context' => context_module::instance($this->cmid),
+                'userid' => $USER->id, // The user who did cancel.
+                'relateduserid' => $userid, // Affected user - the user who was cancelled.
+            ]);
+            $event->trigger(); // This will trigger the observer function and delete calendar events.
+        }
         $this->unenrol_user($user->id);
 
         // Fire after-actions flagged to run on cancellation, but ONLY on a genuine
@@ -1279,7 +1287,9 @@ class booking_option {
                 ) {
                     $currentanswer = array_pop($usersonwaitinglist);
                     // The fourth param needs to be false here, so we do not run into a recursion.
-                    $this->user_delete_response($currentanswer->userid, false, false, false);
+                    // The generic cancelled event is suppressed because we trigger our own richer
+                    // one (with extrainfo) right below - otherwise the user would get it twice.
+                    $this->user_delete_response($currentanswer->userid, false, false, false, suppresscancelledevent: true);
 
                     $event = bookinganswer_cancelled::create([
                         'objectid' => $this->optionid,
