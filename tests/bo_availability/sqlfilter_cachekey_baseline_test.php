@@ -56,6 +56,7 @@
 namespace mod_booking;
 
 use cache;
+use local_wunderbyte_table\wunderbyte_table;
 use mod_booking\tests\booking_advanced_testcase;
 use context_module;
 use mod_booking_generator;
@@ -405,6 +406,129 @@ final class sqlfilter_cachekey_baseline_test extends booking_advanced_testcase {
                 "all identically privileged users of group $g must share a single cache key"
             );
         }
+    }
+
+    /**
+     * The encoded tables cache is keyed on the STEM SQL only: while the raw data
+     * caches legitimately hold one entry per pagination/sort/filter combination,
+     * the (large, serialized) encoded table entries must NOT multiply with those
+     * combinations. recreateidstring() derives the idstring from
+     * create_cachekey(true) - fields, from, where and params without sort, page,
+     * pagesize or download - and filter interactions go back to the stem: the
+     * table is cached with an empty filter fragment and the webservice
+     * reconstructs exactly that pristine state.
+     *
+     * @covers \local_wunderbyte_table\wunderbyte_table::recreateidstring
+     * @covers \local_wunderbyte_table\wunderbyte_table::return_encoded_table
+     * @covers \local_wunderbyte_table\wunderbyte_table::create_cachekey
+     *
+     * @param array $bdata
+     * @dataProvider booking_common_settings_provider
+     */
+    public function test_encodedtables_key_uses_stem_sql(array $bdata): void {
+        global $PAGE;
+
+        set_config('usesqlfilteravailability', 1, 'booking');
+        singleton_service::destroy_instance();
+
+        $course1 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $bookingmanager = $this->getDataGenerator()->create_user();
+        $bdata['course'] = $course1->id;
+        $bdata['bookingmanager'] = $bookingmanager->username;
+        $booking1 = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        $this->setAdminUser();
+        $this->getDataGenerator()->enrol_user($bookingmanager->id, $course1->id);
+
+        [$course, $cm] = get_course_and_cm_from_cmid($booking1->cmid);
+        $PAGE->set_cm($cm, $course);
+        $PAGE->set_context(context_module::instance($booking1->cmid));
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        for ($u = 0; $u < 3; $u++) {
+            $record = new stdClass();
+            $record->bookingid = $booking1->id;
+            $record->text = "Plain option $u";
+            $record->chooseorcreatecourse = 1;
+            $record->courseid = $course1->id;
+            $plugingenerator->create_option($record);
+        }
+        $student = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->enrol_user($student->id, $course1->id);
+        singleton_service::destroy_instance();
+
+        $this->setUser($student);
+
+        // Variant A: the default table state.
+        $tablea = $this->build_view_table($booking1, true);
+        $keya = $tablea->create_cachekey();
+        $hasha = $tablea->return_encoded_table();
+        $ida = $tablea->idstring;
+
+        // Variant B: a different pagination state on the identical stem SQL.
+        $tableb = $this->build_view_table($booking1, true);
+        $tableb->use_pages = true;
+        $tableb->pagesize = 5;
+        $tableb->currpage = 3;
+        $keyb = $tableb->create_cachekey();
+        $hashb = $tableb->return_encoded_table();
+        $idb = $tableb->idstring;
+
+        $this->assertNotSame(
+            $keya,
+            $keyb,
+            'the raw data cache legitimately keys per pagination state'
+        );
+        $this->assertSame(
+            $ida,
+            $idb,
+            'the encoded table idstring derives from the stem SQL and must ignore pagination'
+        );
+        $this->assertSame(
+            $hasha,
+            $hashb,
+            'both pagination states must share ONE encoded tables entry'
+        );
+
+        // Round trip like the ajax webservice: the cached object is stem-pure.
+        // (The webservice also sets the table up again before querying.)
+        $reloaded = wunderbyte_table::instantiate_from_tablecache_hash($hasha);
+        $this->assertInstanceOf(wunderbyte_table::class, $reloaded);
+        $this->assertSame(
+            '',
+            $reloaded->sql->filter ?? '',
+            'the encoded table must be cached without any filter fragment'
+        );
+        $reloaded->define_baseurl(new \moodle_url('/mod/booking/view.php', ['id' => (int) $booking1->cmid]));
+        $reloaded->setup();
+        $reloaded->recreateidstring();
+        $this->assertSame(
+            $ida,
+            $reloaded->idstring,
+            'the reconstructed table must re-derive the identical stem idstring'
+        );
+
+        // A filtered data query mutates the WHERE of the working copy - the raw
+        // layer gets its own key - but a fresh reconstruction from the encoded
+        // cache still yields the stem: filtering cannot fragment encodedtables.
+        $reloaded->sql->filter = " AND s1.text LIKE :stemprobe ";
+        $reloaded->sql->params['stemprobe'] = '%anything%';
+        $reloaded->sql->where .= $reloaded->sql->filter;
+        $this->assertNotSame(
+            $keya,
+            $reloaded->create_cachekey(),
+            'the filtered raw query gets its own raw data cache key'
+        );
+        $fresh = wunderbyte_table::instantiate_from_tablecache_hash($hasha);
+        $fresh->define_baseurl(new \moodle_url('/mod/booking/view.php', ['id' => (int) $booking1->cmid]));
+        $fresh->setup();
+        $fresh->recreateidstring();
+        $this->assertSame(
+            $ida,
+            $fresh->idstring,
+            'the filter interaction must not touch the stored stem entry'
+        );
     }
 
     /**
