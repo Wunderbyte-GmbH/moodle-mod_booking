@@ -112,10 +112,16 @@ class prepagemodal implements renderable, templatable {
                 $extracondition = new $extrabuttoncondition();
             }
             [$extratemplate, $extradata] = $extracondition->render_button($settings, $userid, $full);
-            if (!empty($data['main']) || $full) { // Full means has capability "bookforothers" & therefore 2 areas: top & main.
+            // Full means has capability "bookforothers" & therefore 2 areas: top & main.
+            // Button conditions like priceisset return price-style data without a 'main' key,
+            // so a set price must trigger the merge as well: $data is replaced by $extradata
+            // below while $template stays the one of the button condition, so without the
+            // merge the price would be lost and bookit_price would render "nopriceisset".
+            if (!empty($data['main']) || !empty($data['price']) || $full) {
                 $extradata['top'] = $extradata["main"];
                 $extradata['main'] = $data['main'] ?? [];
                 $extradata['price'] = $data['price'] ?? [];
+                $extradata['currency'] = $data['currency'] ?? $extradata['currency'] ?? '';
                 $extradata['component'] = $data['component'] ?? 'mod_booking';
             }
             $data = $extradata;
