@@ -28,7 +28,7 @@ namespace mod_booking\booking_answers\scopes;
 use context_module;
 use local_wunderbyte_table\wunderbyte_table;
 use mod_booking\booking_answers\scope_base_options;
-use mod_booking\table\manageusers_table;
+use mod_booking\table\aggregated_options_table;
 use moodle_url;
 
 /**
@@ -111,7 +111,7 @@ class instance extends scope_base_options {
         [$fields, $from, $where, $params] = $this->return_sql_for_booked_users($scope, $scopeid, $statusparam);
 
         $tablename = "{$tablenameprefix}_{$scope}_{$scopeid}";
-        $table = new manageusers_table($tablename);
+        $table = new aggregated_options_table($tablename);
 
         $table->define_cache('mod_booking', "bookedusertable");
         $table->define_columns($columns);

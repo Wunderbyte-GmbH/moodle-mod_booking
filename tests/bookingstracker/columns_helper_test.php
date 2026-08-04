@@ -20,6 +20,7 @@ use advanced_testcase;
 use mod_booking\booking_answers\booking_answers;
 use mod_booking\output\booked_users;
 use mod_booking\singleton_service;
+use mod_booking\table\aggregated_options_table;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
@@ -115,6 +116,15 @@ final class columns_helper_test extends advanced_testcase {
         $this->assertEquals('Vienna', $row->city);
         $this->assertEquals('Test option', $row->text);
         $this->assertObjectHasProperty('custsupervisor', $row);
+
+        // The aggregated scopes use their dedicated table so timestamp ties
+        // receive the same secondary ordering on every supported database.
+        $systemtable = $bookedusers->return_raw_table('system', 0, MOD_BOOKING_STATUSPARAM_BOOKED);
+        $this->assertInstanceOf(aggregated_options_table::class, $systemtable);
+        $this->assertMatchesRegularExpression(
+            '/^timecreated\s+DESC(?:\s+NULLS\s+LAST)?, titleprefix ASC, text ASC, id ASC$/i',
+            $systemtable->get_sql_sort()
+        );
 
         // 3a. The "Toggle completion status" button is added when completed is configured.
         $completionbuttons = array_filter(

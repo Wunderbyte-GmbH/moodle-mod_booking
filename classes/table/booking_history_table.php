@@ -54,12 +54,12 @@ class booking_history_table extends wunderbyte_table {
      * History entries created in the same second retain their established
      * ascending creation order. The table API only supports one default sort
      * column, so the tie-breaker is appended to the generated SQL sort.
-     * Also, PostreSQL supports NULLS LAST, but MySQL does not, so we need to add a tie-breaker for that case as well.
      *
      * @return string
      */
     public function get_sql_sort(): string {
         $sort = parent::get_sql_sort();
+        // PostgreSQL adds explicit NULL placement to Moodle's generated sort.
         if (preg_match('/^timecreated\s+DESC(?:\s+NULLS\s+LAST)?$/i', trim($sort))) {
             $sort .= ', id ASC';
         }
