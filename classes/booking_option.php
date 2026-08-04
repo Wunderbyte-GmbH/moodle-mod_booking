@@ -2739,6 +2739,9 @@ class booking_option {
             return false;
         }
 
+        // The option may have carried sqlfilter availability conditions.
+        \mod_booking\bo_availability\sqlfilter_relevance::purge();
+
         $result = true;
         $answers = $this->get_all_users();
         foreach ($answers as $answer) {

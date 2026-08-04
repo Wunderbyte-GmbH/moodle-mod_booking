@@ -29,6 +29,7 @@ use context_system;
 use mod_booking\bo_availability\bo_condition;
 use mod_booking\bo_availability\freezable_condition;
 use mod_booking\bo_availability\bo_info;
+use mod_booking\bo_availability\sqlfilter_relevance;
 use mod_booking\booking_option_settings;
 use mod_booking\singleton_service;
 use mod_booking\utils\wb_payment;
@@ -201,6 +202,12 @@ class enrolledincohorts implements bo_condition, freezable_condition {
         }
 
         $usercohorts = singleton_service::get_cohorts_of_user($userid);
+        // Trim to the cohort ids any sqlfilter condition references site-wide:
+        // other ids can never match a configured condition, but they would make
+        // the SQL string (and with it the table cache key) unique per user.
+        $relevantids = sqlfilter_relevance::trim_to_referenced($this->id, array_keys($usercohorts));
+        $usercohorts = array_intersect_key($usercohorts, array_flip($relevantids));
+        ksort($usercohorts);
         $databasetype = $DB->get_dbfamily();
         $conditionid = $this->id;
 
@@ -331,6 +338,18 @@ class enrolledincohorts implements bo_condition, freezable_condition {
         } else {
             return ['', '', '', $params, ''];
         }
+    }
+
+    /**
+     * Return the user values this condition references in the given availability
+     * entry. Used by the sqlfilter relevance service to trim the user data
+     * embedded into the filter SQL down to the site-wide relevant set.
+     *
+     * @param stdClass $entry availability json entry of this condition
+     * @return array referenced cohort ids
+     */
+    public static function sqlfilter_referenced_values(stdClass $entry): array {
+        return array_map('intval', (array) ($entry->cohortids ?? []));
     }
 
     /**

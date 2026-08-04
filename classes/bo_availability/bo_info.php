@@ -532,6 +532,9 @@ class bo_info {
         // This will be saved in the table booking_options in the 'availability' field.
         $fromform->availability = json_encode($arrayforjson);
         $fromform->sqlfilter = $sqlfilter;
+
+        // The set of values referenced by sqlfilter conditions may have changed.
+        sqlfilter_relevance::purge();
         // Without an optionid we do nothing.
     }
 
@@ -569,6 +572,13 @@ class bo_info {
             // With this capability, ignore filter for sql check.
             // Because of missing $cm this will not work for display outside a course i.e. in shortcodes display.
             // A teacher would not see hidden bookingconditions on startpage but in courselist they would be displayed.
+            return ['', '', '', [], ''];
+        }
+
+        // Without a single option using the SQL filter there is nothing to
+        // restrict: skip building the user specific WHERE altogether, so every
+        // user shares the same (empty) SQL and thus the same table cache entries.
+        if (!sqlfilter_relevance::any_sqlfilter_in_use()) {
             return ['', '', '', [], ''];
         }
         foreach ($conditions as $class) {

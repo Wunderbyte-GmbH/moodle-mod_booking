@@ -30,6 +30,7 @@ use Exception;
 use mod_booking\bo_availability\bo_condition;
 use mod_booking\bo_availability\freezable_condition;
 use mod_booking\bo_availability\bo_info;
+use mod_booking\bo_availability\sqlfilter_relevance;
 use mod_booking\booking_option_settings;
 use mod_booking\singleton_service;
 use mod_booking\utils\wb_payment;
@@ -225,6 +226,10 @@ class enrolledincourse implements bo_condition, freezable_condition {
         // Get all courses where the user is enrolled.
         $usercourses = enrol_get_users_courses($userid);
         $usercourseids = array_keys($usercourses);
+        // Trim to the course ids any sqlfilter condition references site-wide:
+        // other ids can never match a configured condition, but they would make
+        // the SQL string (and with it the table cache key) unique per user.
+        $usercourseids = sqlfilter_relevance::trim_to_referenced($this->id, $usercourseids);
         $databasetype = $DB->get_dbfamily();
         $conditionid = $this->id;
 
@@ -358,6 +363,18 @@ class enrolledincourse implements bo_condition, freezable_condition {
         }
 
         return ["", "", "", $params, ""];
+    }
+
+    /**
+     * Return the user values this condition references in the given availability
+     * entry. Used by the sqlfilter relevance service to trim the user data
+     * embedded into the filter SQL down to the site-wide relevant set.
+     *
+     * @param stdClass $entry availability json entry of this condition
+     * @return array referenced course ids
+     */
+    public static function sqlfilter_referenced_values(stdClass $entry): array {
+        return array_map('intval', (array) ($entry->courseids ?? []));
     }
 
     /**

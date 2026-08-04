@@ -30,6 +30,7 @@ use context_system;
 use mod_booking\bo_availability\bo_condition;
 use mod_booking\bo_availability\freezable_condition;
 use mod_booking\bo_availability\bo_info;
+use mod_booking\bo_availability\sqlfilter_relevance;
 use mod_booking\booking;
 use mod_booking\booking_option_settings;
 use mod_booking\local\override_user_field;
@@ -426,6 +427,22 @@ class userprofilefield_2_custom implements bo_condition, freezable_condition {
         // Load custom profile fields.
         $user = singleton_service::get_instance_of_user($userid, true);
 
+        // Trim the profile fields to the shortnames any sqlfilter condition
+        // references site-wide: the operator builder embeds EVERY field value
+        // into the SQL params, so never-referenced fields would make the table
+        // cache key unique per user. Work on a clone - the singleton user must
+        // stay untouched.
+        $referencedfields = sqlfilter_relevance::referenced_values($conditionid);
+        $user = clone $user;
+        $trimmedprofile = [];
+        foreach ((array) ($user->profile ?? []) as $shortname => $value) {
+            if (in_array((string) $shortname, $referencedfields, true)) {
+                $trimmedprofile[$shortname] = $value;
+            }
+        }
+        ksort($trimmedprofile);
+        $user->profile = $trimmedprofile;
+
         // phpcs:disable
         if ($databasetype == 'postgres') {
             $where = "
@@ -602,6 +619,25 @@ class userprofilefield_2_custom implements bo_condition, freezable_condition {
             return ['', '', '', $params, ''];
         }
         // phpcs:enable
+    }
+
+    /**
+     * Return the user values this condition references in the given availability
+     * entry. Used by the sqlfilter relevance service to trim the user data
+     * embedded into the filter SQL down to the site-wide relevant set.
+     *
+     * @param stdClass $entry availability json entry of this condition
+     * @return array referenced profile field shortnames
+     */
+    public static function sqlfilter_referenced_values(stdClass $entry): array {
+        $values = [];
+        if (!empty($entry->profilefield)) {
+            $values[] = (string) $entry->profilefield;
+        }
+        if (!empty($entry->profilefield2)) {
+            $values[] = (string) $entry->profilefield2;
+        }
+        return $values;
     }
 
     /**
