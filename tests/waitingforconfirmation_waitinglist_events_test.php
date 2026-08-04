@@ -378,4 +378,176 @@ final class waitingforconfirmation_waitinglist_events_test extends \advanced_tes
             'the over-full waiting list must not accept further users'
         );
     }
+
+    /**
+     * Confirmation mode 2 (confirmation only once a waiting list exists) on an
+     * over-full waiting list: the first booking onto the empty option is booked
+     * directly, further users must be rejected once the list is over-full, and a
+     * freed seat is given to the longest-waiting CONFIRMED user only - the
+     * over-full state must not break the confirmed-users-only promotion rule.
+     */
+    public function test_overfull_waitinglist_with_confirmationmode2(): void {
+        global $DB;
+
+        set_config('keepusersbookedonreducingmaxanswers', 1, 'booking');
+        // Enable a confirmation subplugin so promotions require one confirmation.
+        set_config('confirmationtrainerenabled', 1, 'bookingextension_confirmation_trainer');
+
+        $this->setAdminUser();
+        $course = $this->getDataGenerator()->create_course();
+        $booking = $this->getDataGenerator()->create_module('booking', [
+            'course' => $course->id,
+            'name' => 'Confirmation mode 2 booking',
+        ]);
+
+        $bookeduser = $this->getDataGenerator()->create_user();
+        $waiters = [
+            $this->getDataGenerator()->create_user(),
+            $this->getDataGenerator()->create_user(),
+            $this->getDataGenerator()->create_user(),
+            $this->getDataGenerator()->create_user(),
+        ];
+        $latecomer = $this->getDataGenerator()->create_user();
+        foreach (array_merge([$bookeduser, $latecomer], $waiters) as $user) {
+            $this->getDataGenerator()->enrol_user($user->id, $course->id, 'student');
+        }
+
+        /** @var \mod_booking_generator $gen */
+        $gen = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $option = $gen->create_option((object) [
+            'bookingid' => $booking->id,
+            'courseid' => $course->id,
+            'text' => 'Single seat, confirmation mode 2',
+            'description' => 'Single seat, confirmation mode 2',
+            'chooseorcreatecourse' => 0,
+            'coursestarttime_0' => strtotime('now + 1 day'),
+            'courseendtime_0' => strtotime('now + 2 day'),
+            'limitanswers' => 1,
+            'maxanswers' => 1,
+            'maxoverbooking' => -1,
+            'waitforconfirmation' => 2,
+        ]);
+        $cmid = (int) $booking->cmid;
+        $optionid = (int) $option->id;
+
+        // Mode 2 books the first user directly: no waiting list exists yet.
+        $bookingoption = singleton_service::get_instance_of_booking_option($cmid, $optionid);
+        $bookingoption->user_submit_response($bookeduser, 0, 0, 0, MOD_BOOKING_VERIFIED);
+        singleton_service::destroy_instance();
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $answers = singleton_service::get_instance_of_booking_answers($settings);
+        $this->assertCount(
+            1,
+            $answers->get_usersonlist(),
+            'mode 2 books the first user directly while no waiting list exists'
+        );
+
+        // Four users land on the unlimited waiting list, longest-waiting first.
+        $bookingoption = singleton_service::get_instance_of_booking_option($cmid, $optionid);
+        foreach ($waiters as $waiter) {
+            $bookingoption->user_submit_response($waiter, 0, 0, 0, MOD_BOOKING_VERIFIED);
+        }
+        foreach ($waiters as $i => $waiter) {
+            $DB->set_field(
+                'booking_answers',
+                'timemodified',
+                time() - 500 + ($i * 100),
+                [
+                    'optionid' => $optionid,
+                    'userid' => $waiter->id,
+                    'waitinglist' => MOD_BOOKING_STATUSPARAM_WAITINGLIST,
+                ]
+            );
+        }
+        booking_option::purge_cache_for_option($optionid);
+        singleton_service::destroy_instance();
+
+        // The admin reduces the waiting list limit below the current waiting count.
+        booking_option::update([
+            'id' => $optionid,
+            'cmid' => $cmid,
+            'maxoverbooking' => 2,
+        ]);
+        singleton_service::destroy_instance();
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $this->assertEquals(2, (int) $settings->maxoverbooking, 'precondition: waiting list limit reduced to 2');
+        $answers = singleton_service::get_instance_of_booking_answers($settings);
+        $this->assertCount(4, $answers->get_usersonwaitinglist(), 'precondition: four users stay on the over-full list');
+
+        // The over-full list rejects further users, nobody is booked or moved.
+        $bookingoption = singleton_service::get_instance_of_booking_option($cmid, $optionid);
+        $this->assertFalse(
+            $bookingoption->user_submit_response($latecomer, 0, 0, 0, MOD_BOOKING_VERIFIED),
+            'a booking attempt on the full option with an over-full waiting list must be rejected'
+        );
+        singleton_service::destroy_instance();
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $answers = singleton_service::get_instance_of_booking_answers($settings);
+        $this->assertCount(1, $answers->get_usersonlist(), 'the option must not be overbooked');
+        $this->assertCount(4, $answers->get_usersonwaitinglist(), 'the over-full waiting list must not grow');
+
+        // Only the second waiter is confirmed, the head of the queue is not.
+        $DB->set_field(
+            'booking_answers',
+            'json',
+            '{"confirmationcount":1}',
+            [
+                'optionid' => $optionid,
+                'userid' => $waiters[1]->id,
+                'waitinglist' => MOD_BOOKING_STATUSPARAM_WAITINGLIST,
+            ]
+        );
+        booking_option::purge_cache_for_option($optionid);
+        singleton_service::destroy_instance();
+
+        // The booked user cancels. The queue is strictly ordered: the unconfirmed
+        // user at its head is not overtaken by a confirmed user further down, so
+        // the freed seat stays empty until the head user confirms.
+        $bookingoption = singleton_service::get_instance_of_booking_option($cmid, $optionid);
+        $bookingoption->user_delete_response($bookeduser->id);
+
+        singleton_service::destroy_instance();
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $answers = singleton_service::get_instance_of_booking_answers($settings);
+        $this->assertCount(
+            0,
+            $answers->get_usersonlist(),
+            'nobody is promoted while the head of the waiting list is unconfirmed (no overtaking)'
+        );
+        $this->assertCount(4, $answers->get_usersonwaitinglist(), 'all four users keep waiting');
+
+        // Once the head user confirms, the next sync promotes exactly them - the
+        // over-full state must not block the promotion of a confirmed user.
+        $DB->set_field(
+            'booking_answers',
+            'json',
+            '{"confirmationcount":1}',
+            [
+                'optionid' => $optionid,
+                'userid' => $waiters[0]->id,
+                'waitinglist' => MOD_BOOKING_STATUSPARAM_WAITINGLIST,
+            ]
+        );
+        booking_option::purge_cache_for_option($optionid);
+        singleton_service::destroy_instance();
+
+        $bookingoption = singleton_service::get_instance_of_booking_option($cmid, $optionid);
+        $bookingoption->sync_waiting_list();
+
+        singleton_service::destroy_instance();
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $answers = singleton_service::get_instance_of_booking_answers($settings);
+        $bookedids = array_values(array_map(static fn($o): int => (int) $o->userid, $answers->get_usersonlist()));
+        $waitingids = array_values(array_map(static fn($o): int => (int) $o->userid, $answers->get_usersonwaitinglist()));
+        $this->assertSame(
+            [(int) $waiters[0]->id],
+            $bookedids,
+            'the confirmed head of the queue takes the freed seat despite the over-full list'
+        );
+        $this->assertEqualsCanonicalizing(
+            [(int) $waiters[1]->id, (int) $waiters[2]->id, (int) $waiters[3]->id],
+            $waitingids,
+            'the other waiters stay on the waiting list'
+        );
+    }
 }
