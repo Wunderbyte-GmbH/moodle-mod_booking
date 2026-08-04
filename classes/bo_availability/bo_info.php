@@ -581,11 +581,20 @@ class bo_info {
         if (!sqlfilter_relevance::any_sqlfilter_in_use()) {
             return ['', '', '', [], ''];
         }
+        $wherearray = [];
         foreach ($conditions as $class) {
             if (method_exists($class, 'instance')) {
                 $condition = $class::instance();
             } else {
                 $condition = new $class();
+            }
+
+            // Conditions no option on the site uses are skipped entirely: their
+            // SQL could only ever restrict options that carry them, but it would
+            // bloat the WHERE with per-row json checks and enlarge the material
+            // the table cache key is built from.
+            if (sqlfilter_relevance::condition_is_skippable($condition)) {
+                continue;
             }
 
             [$select, $from, $filter, $params, $where] = $condition->return_sql($userid, $paramsarray);
@@ -597,6 +606,10 @@ class bo_info {
                 $wherearray[] = $where;
             }
             $paramsarray = array_merge($paramsarray, $params);
+        }
+
+        if (empty($wherearray)) {
+            return ['', '', '', [], ''];
         }
 
         $where = implode(" AND ", $wherearray);

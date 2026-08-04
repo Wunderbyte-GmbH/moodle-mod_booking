@@ -33,6 +33,7 @@ use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_option_settings;
 use mod_booking\option\time_handler;
 use mod_booking\singleton_service;
+use mod_booking\task\purge_dated_table_caches;
 use MoodleQuickForm;
 use stdClass;
 
@@ -175,6 +176,12 @@ class booking_time implements bo_condition, freezable_condition {
      * @return array
      */
     public function return_sql(int $userid = 0, &$params = []): array {
+        // The params below are bucketed to the current day so the SQL (and with
+        // it the table cache key) only changes at midnight. At that moment every
+        // cache entry built the day before becomes unreachable: detect the
+        // rollover and queue a cleanup of the dated table caches.
+        self::queue_dated_cache_purge_on_rollover(strtotime('today 00:00'));
+
         if (!empty(get_config('booking', 'sqlfilterbookingtimeonlypast'))) {
             $where = "(
                         sqlfilter <> 2
@@ -212,6 +219,44 @@ class booking_time implements bo_condition, freezable_condition {
         }
 
         return ['', '', '', $params, $where];
+    }
+
+    /**
+     * Return the sqlfilter marker column value that signals this condition's
+     * use. Used by the sqlfilter relevance service: when no option carries this
+     * marker, the condition's SQL is skipped entirely - which also keeps the
+     * day-bucketed time params (and their daily cache key rotation) out of the
+     * WHERE on sites that do not use the booking time filter.
+     *
+     * @return int
+     */
+    public static function sqlfilter_usage_markervalue(): int {
+        return MOD_BOOKING_SQL_FILTER_ACTIVE_BO_TIME;
+    }
+
+    /**
+     * Detect the midnight rollover of the day-bucketed filter params and queue
+     * a one-off cleanup of the dated table caches: all entries built before the
+     * rollover carry yesterday's bucket in their keys and can never be read
+     * again. The last seen bucket is kept in the plugin config; parallel
+     * requests queue at most one task (identical custom data is deduplicated).
+     *
+     * @param int $daybucket timestamp of today 00:00
+     * @return void
+     */
+    private static function queue_dated_cache_purge_on_rollover(int $daybucket): void {
+        $lastbucket = (int) get_config('booking', 'sqlfilterdaybucket');
+        if ($lastbucket === $daybucket) {
+            return;
+        }
+        set_config('sqlfilterdaybucket', $daybucket, 'booking');
+        if (empty($lastbucket)) {
+            // First use ever - there is nothing stale to clean up yet.
+            return;
+        }
+        $task = new purge_dated_table_caches();
+        $task->set_custom_data(['daybucket' => $daybucket]);
+        \core\task\manager::reschedule_or_queue_adhoc_task($task);
     }
 
     /**

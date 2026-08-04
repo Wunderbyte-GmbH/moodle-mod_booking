@@ -38,6 +38,7 @@ namespace mod_booking;
 use mod_booking\tests\booking_advanced_testcase;
 use context_module;
 use context_system;
+use mod_booking\bo_availability\bo_info;
 use mod_booking_generator;
 use stdClass;
 use tool_mocktesttime\time_mock;
@@ -702,6 +703,185 @@ final class condition_sqlfilter_semantics_test extends booking_advanced_testcase
         $this->assertFalse(
             $this->is_visible_for($activemarketing, $option->id),
             'two fields (&&): a non-sales user must be hidden although the second field passes'
+        );
+    }
+
+    /**
+     * G11: conditions no option on the site uses are skipped in the filter SQL -
+     * their fragments and params must not appear in the WHERE. This covers both
+     * detection contracts: json-visible usage (course/cohort/profile conditions)
+     * and marker-column-signalled usage (booking time, whose day-bucketed params
+     * would otherwise rotate every cache key daily on sites not even using it).
+     * Creating an option with a previously unused condition brings its fragment
+     * back (proves the relevance cache invalidation).
+     *
+     * @covers \mod_booking\bo_availability\bo_info::return_sql_from_conditions
+     * @covers \mod_booking\bo_availability\sqlfilter_relevance::condition_is_skippable
+     *
+     * @param array $bdata
+     * @dataProvider booking_common_settings_provider
+     */
+    public function test_unused_conditions_are_skipped_in_sql(array $bdata): void {
+        [$course1, $booking1] = $this->seed_instance($bdata);
+        $courseb = $this->getDataGenerator()->create_course();
+        $cohort1 = $this->getDataGenerator()->create_cohort(['name' => 'Cohort one', 'idnumber' => 'CO1']);
+
+        $student = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->enrol_user($student->id, $course1->id);
+        $this->getDataGenerator()->enrol_user($student->id, $courseb->id);
+        cohort_add_member($cohort1->id, $student->id);
+
+        // Only a COURSE filtered option exists.
+        $record = $this->base_option_record($booking1, $course1, 'Requires course B');
+        $record->bo_cond_enrolledincourse_restrict = 1;
+        $record->bo_cond_enrolledincourse_courseids = [$courseb->id];
+        $record->bo_cond_enrolledincourse_courseids_operator = 'AND';
+        $record->bo_cond_enrolledincourse_sqlfiltercheck = 1;
+        $this->plugingenerator->create_option($record);
+
+        $this->setUser($student);
+        [, , , $params, $where] = bo_info::return_sql_from_conditions((int) $student->id);
+
+        $this->assertStringContainsString('courseids', $where, 'the used course condition must contribute its SQL');
+        $this->assertStringNotContainsString(
+            'bookingopeningtime',
+            $where,
+            'without any option carrying the booking time marker its (day-bucketed!) SQL must be skipped'
+        );
+        $this->assertStringNotContainsString(
+            'cohortids',
+            $where,
+            'the unused cohort condition must be skipped entirely'
+        );
+        $profileparams = array_filter(
+            array_keys($params),
+            static fn(string $key): bool => str_starts_with($key, 'profilevalue')
+        );
+        $this->assertSame(
+            [],
+            $profileparams,
+            'the unused profile field condition must not contribute any user value params'
+        );
+
+        // Creating a COHORT filtered option invalidates the relevance cache and
+        // brings the cohort fragment back.
+        $this->setAdminUser();
+        $record = $this->base_option_record($booking1, $course1, 'Requires cohort 1');
+        $record->bo_cond_enrolledincohorts_restrict = 1;
+        $record->bo_cond_enrolledincohorts_cohortids = [$cohort1->id];
+        $record->bo_cond_enrolledincohorts_cohortids_operator = 'AND';
+        $record->bo_cond_enrolledincohorts_sqlfiltercheck = 1;
+        $this->plugingenerator->create_option($record);
+
+        $this->setUser($student);
+        [, , , , $where] = bo_info::return_sql_from_conditions((int) $student->id);
+        $this->assertStringContainsString(
+            'cohortids',
+            $where,
+            'after creating a cohort filtered option its condition must contribute SQL again'
+        );
+
+        // Creating an option with the booking time SQL filter sets the marker
+        // column and brings the (marker-signalled) time fragment back.
+        $this->setAdminUser();
+        $record = $this->base_option_record($booking1, $course1, 'Open booking window');
+        $record->restrictanswerperiodopening = 1;
+        $record->restrictanswerperiodclosing = 1;
+        $record->bookingopeningtime = strtotime('now - 1 day');
+        $record->bookingclosingtime = strtotime('now + 1 day');
+        $record->bo_cond_booking_time_sqlfiltercheck = 1;
+        $this->plugingenerator->create_option($record);
+
+        $this->setUser($student);
+        [, , , , $where] = bo_info::return_sql_from_conditions((int) $student->id);
+        $this->assertStringContainsString(
+            'bookingopeningtime',
+            $where,
+            'once an option carries the booking time marker its condition must contribute SQL again'
+        );
+    }
+
+    /**
+     * G12: at the midnight rollover of the day-bucketed booking time params the
+     * previous day's table cache generation becomes unreachable; the booking
+     * time condition must detect the bucket change once and queue the dated
+     * cache purge task, which empties the affected caches.
+     *
+     * @covers \mod_booking\bo_availability\conditions\booking_time::return_sql
+     * @covers \mod_booking\task\purge_dated_table_caches
+     *
+     * @param array $bdata
+     * @dataProvider booking_common_settings_provider
+     */
+    public function test_day_rollover_queues_dated_cache_purge(array $bdata): void {
+        [$course1, $booking1] = $this->seed_instance($bdata);
+
+        $student = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->enrol_user($student->id, $course1->id);
+
+        // An option with the booking time SQL filter (open window).
+        $record = $this->base_option_record($booking1, $course1, 'Open booking window');
+        $record->restrictanswerperiodopening = 1;
+        $record->restrictanswerperiodclosing = 1;
+        $record->bookingopeningtime = strtotime('now - 1 day');
+        $record->bookingclosingtime = strtotime('now + 1 day');
+        $record->bo_cond_booking_time_sqlfiltercheck = 1;
+        $this->plugingenerator->create_option($record);
+
+        $taskclass = '\mod_booking\task\purge_dated_table_caches';
+        $todaybucket = strtotime('today 00:00');
+
+        // First use ever: the bucket is recorded, but there is nothing stale yet.
+        $this->setUser($student);
+        bo_info::return_sql_from_conditions((int) $student->id);
+        $this->assertEquals(
+            $todaybucket,
+            (int) get_config('booking', 'sqlfilterdaybucket'),
+            'the first filter SQL build must record the current day bucket'
+        );
+        $this->assertCount(
+            0,
+            \core\task\manager::get_adhoc_tasks($taskclass),
+            'the very first bucket recording must not queue a purge (nothing is stale yet)'
+        );
+
+        // Simulate the midnight rollover: yesterday's bucket is on record.
+        set_config('sqlfilterdaybucket', strtotime('yesterday 00:00'), 'booking');
+        bo_info::return_sql_from_conditions((int) $student->id);
+        $this->assertEquals(
+            $todaybucket,
+            (int) get_config('booking', 'sqlfilterdaybucket'),
+            'the rollover must update the recorded day bucket'
+        );
+        $tasks = \core\task\manager::get_adhoc_tasks($taskclass);
+        $this->assertCount(1, $tasks, 'the rollover must queue exactly one dated cache purge task');
+
+        // Further filter SQL builds on the same day must not queue anything else.
+        bo_info::return_sql_from_conditions((int) $student->id);
+        $this->assertCount(
+            1,
+            \core\task\manager::get_adhoc_tasks($taskclass),
+            'repeated builds within the same day must not queue further purge tasks'
+        );
+
+        // The task empties the caches holding day-bucketed table data.
+        $bookingtablecache = \cache::make('mod_booking', 'bookingoptionstable');
+        $encodedtablescache = \cache::make('local_wunderbyte_table', 'encodedtables');
+        $bookingtablecache->set('dummyentry', 'stale');
+        $encodedtablescache->set('dummyentry', 'stale');
+
+        $task = reset($tasks);
+        ob_start();
+        $task->execute();
+        ob_end_clean();
+
+        $this->assertFalse(
+            $bookingtablecache->get('dummyentry'),
+            'the purge task must empty the booking options table cache'
+        );
+        $this->assertFalse(
+            $encodedtablescache->get('dummyentry'),
+            'the purge task must empty the encoded tables cache'
         );
     }
 

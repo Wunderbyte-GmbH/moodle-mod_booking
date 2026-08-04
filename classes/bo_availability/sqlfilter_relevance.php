@@ -96,14 +96,43 @@ class sqlfilter_relevance {
     }
 
     /**
+     * Whether the given condition's SQL can be skipped entirely because no
+     * option on the site uses it.
+     *
+     * Two optional contracts make a condition eligible:
+     * - sqlfilter_referenced_values(): the condition's usage is fully visible
+     *   through availability json entries carrying its id - skipped when its id
+     *   appears in no entry.
+     * - sqlfilter_usage_markervalue(): the condition's usage is signalled
+     *   through a specific value of the booking_options.sqlfilter marker column
+     *   (e.g. the booking time filter) - skipped when that value occurs on no
+     *   option.
+     * Conditions implementing neither are never skipped and behave exactly as
+     * before.
+     *
+     * @param object $condition an mform condition instance
+     * @return bool
+     */
+    public static function condition_is_skippable(object $condition): bool {
+        if (method_exists($condition, 'sqlfilter_referenced_values')) {
+            return !in_array((int) $condition->id, self::get_data()['usedids'], true);
+        }
+        if (method_exists($condition, 'sqlfilter_usage_markervalue')) {
+            return !in_array((int) $condition::sqlfilter_usage_markervalue(), self::get_data()['markervalues'], true);
+        }
+        // The condition's usage is not detectable - never skip it.
+        return false;
+    }
+
+    /**
      * Return the relevance data, lazily rebuilt on cache miss.
      *
-     * @return array{inuse:bool,byconditionid:array}
+     * @return array{inuse:bool,byconditionid:array,usedids:array,markervalues:array}
      */
     private static function get_data(): array {
         $cache = cache::make('mod_booking', 'sqlfilterrelevance');
         $data = $cache->get(self::CACHEKEY);
-        if (!is_array($data)) {
+        if (!is_array($data) || !isset($data['markervalues'])) {
             $data = self::build();
             $cache->set(self::CACHEKEY, $data);
         }
@@ -119,13 +148,15 @@ class sqlfilter_relevance {
      * that method simply contribute nothing - no condition is known by name
      * here.
      *
-     * @return array{inuse:bool,byconditionid:array}
+     * @return array{inuse:bool,byconditionid:array,usedids:array,markervalues:array}
      */
     private static function build(): array {
         global $DB;
 
         $inuse = false;
         $byconditionid = [];
+        $usedids = [];
+        $markervalues = [];
 
         // Condition id -> instance map, generically over all mform conditions.
         $conditionsbyid = [];
@@ -134,9 +165,10 @@ class sqlfilter_relevance {
             $conditionsbyid[(int) $condition->id] = $condition;
         }
 
-        $records = $DB->get_recordset_select('booking_options', 'sqlfilter > 0', [], '', 'id, availability');
+        $records = $DB->get_recordset_select('booking_options', 'sqlfilter > 0', [], '', 'id, availability, sqlfilter');
         foreach ($records as $record) {
             $inuse = true;
+            $markervalues[(int) $record->sqlfilter] = (int) $record->sqlfilter;
             if (empty($record->availability)) {
                 continue;
             }
@@ -149,6 +181,7 @@ class sqlfilter_relevance {
                     continue;
                 }
                 $conditionid = (int) $entry->id;
+                $usedids[$conditionid] = $conditionid;
                 $condition = $conditionsbyid[$conditionid] ?? null;
                 if (!$condition || !method_exists($condition, 'sqlfilter_referenced_values')) {
                     continue;
@@ -166,7 +199,16 @@ class sqlfilter_relevance {
             sort($values);
             $byconditionid[$conditionid] = $values;
         }
+        $usedids = array_values($usedids);
+        sort($usedids);
+        $markervalues = array_values($markervalues);
+        sort($markervalues);
 
-        return ['inuse' => $inuse, 'byconditionid' => $byconditionid];
+        return [
+            'inuse' => $inuse,
+            'byconditionid' => $byconditionid,
+            'usedids' => $usedids,
+            'markervalues' => $markervalues,
+        ];
     }
 }
