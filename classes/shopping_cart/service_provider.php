@@ -1028,24 +1028,19 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
      * @return array<int, string>
      */
     public static function resolve_item_names(array $itemids, string $area = 'option'): array {
-        global $DB;
-
         // Coupon bindings in booking are currently option-based.
         if ($area !== 'option' || empty($itemids)) {
             return [];
         }
 
-        $itemids = array_values(array_unique(array_map('intval', $itemids)));
-        if (empty($itemids)) {
-            return [];
-        }
-
-        [$insql, $inparams] = $DB->get_in_or_equal($itemids, SQL_PARAMS_NAMED);
-        $records = $DB->get_records_select('booking_options', "id $insql", $inparams, '', 'id, text');
-
         $names = [];
-        foreach ($records as $record) {
-            $names[(int)$record->id] = (string)$record->text;
+        foreach (array_unique(array_map('intval', $itemids)) as $itemid) {
+            $settings = singleton_service::get_instance_of_booking_option_settings($itemid);
+            if (empty($settings->id)) {
+                // Deleted option, caller falls back to a generic label.
+                continue;
+            }
+            $names[$itemid] = $settings->get_title_with_prefix();
         }
 
         return $names;
@@ -1061,32 +1056,20 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
      * @return array<int, string>
      */
     public static function resolve_item_links(array $itemids, string $area = 'option'): array {
-        global $DB;
-
         // Coupon bindings in booking are currently option-based.
         if ($area !== 'option' || empty($itemids)) {
             return [];
         }
 
-        $itemids = array_values(array_unique(array_map('intval', $itemids)));
-        if (empty($itemids)) {
-            return [];
-        }
-
-        [$insql, $inparams] = $DB->get_in_or_equal($itemids, SQL_PARAMS_NAMED);
-        $sql = "SELECT bo.id, cm.id AS cmid
-                  FROM {booking_options} bo
-                  JOIN {course_modules} cm ON bo.bookingid = cm.instance
-                  JOIN {modules} m ON m.id = cm.module
-                 WHERE m.name = 'booking'
-                   AND bo.id $insql";
-        $records = $DB->get_records_sql($sql, $inparams);
-
         $links = [];
-        foreach ($records as $record) {
-            $links[(int)$record->id] = (new \moodle_url('/mod/booking/view.php', [
-                'id' => (int)$record->cmid,
-                'optionid' => (int)$record->id,
+        foreach (array_unique(array_map('intval', $itemids)) as $itemid) {
+            $settings = singleton_service::get_instance_of_booking_option_settings($itemid);
+            if (empty($settings->id) || empty($settings->cmid)) {
+                continue;
+            }
+            $links[$itemid] = (new \moodle_url('/mod/booking/view.php', [
+                'id' => $settings->cmid,
+                'optionid' => $itemid,
                 'whichview' => 'showonlyone',
             ]))->out(false);
         }
