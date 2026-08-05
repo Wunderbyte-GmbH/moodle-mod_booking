@@ -1530,6 +1530,11 @@ class view implements renderable, templatable {
                             $shortnamesid[$record->shortname] = (int)$record->id;
                         }
                         foreach ($jsonsettings->customfieldsforfilter as $shortname => $localizedname) {
+                            if (!isset($shortnamesid[$shortname])) {
+                                // The instance config can reference fields missing on this site,
+                                // e.g. after restoring a backup from another site.
+                                continue;
+                            }
                             $localizedname = format_string($localizedname);
                             $customfieldfilter = new customfieldfilter($shortname, $localizedname);
                             $customfieldfilter->set_sql_for_fieldid($shortnamesid[$shortname]);
