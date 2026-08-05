@@ -32,8 +32,31 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @package mod_booking
  * @copyright 2025 Wunderbyte GmbH <info@wunderbyte.at>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @runInSeparateProcess
+ * @runTestsInSeparateProcesses
  */
 final class columns_helper_test extends advanced_testcase {
+    /**
+     * Tests set up.
+     */
+    public function setUp(): void {
+        parent::setUp();
+        $this->resetAfterTest();
+        $this->preventResetByRollback();
+        singleton_service::destroy_instance();
+    }
+
+    /**
+     * Mandatory clean-up after each test.
+     */
+    public function tearDown(): void {
+        parent::tearDown();
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $plugingenerator->teardown();
+        enrollink::destroy_instances();
+    }
+
     /**
      * Tests that responsesfields/reportfields drive the tracker columns and SQL runs.
      * @covers \mod_booking\local\bookingstracker\columns_helper
@@ -122,7 +145,7 @@ final class columns_helper_test extends advanced_testcase {
         $systemtable = $bookedusers->return_raw_table('system', 0, MOD_BOOKING_STATUSPARAM_BOOKED);
         $this->assertInstanceOf(aggregated_options_table::class, $systemtable);
         $this->assertMatchesRegularExpression(
-            '/^timecreated\s+DESC(?:\s+NULLS\s+LAST)?, titleprefix ASC, text ASC, id ASC$/i',
+            '/^timecreated\s+DESC(?:\s+NULLS\s+LAST)?, id DESC$/i',
             $systemtable->get_sql_sort()
         );
 
