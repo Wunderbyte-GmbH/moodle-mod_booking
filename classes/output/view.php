@@ -395,8 +395,10 @@ class view implements renderable, templatable {
         if (in_array('showfieldofstudy', $showviews)) {
             // If we show this table first, we don't load it lazy.
             $lazy = $whichview !== 'showfieldofstudy';
+            // This tab renders via the shortcode, so the favorites star is passed on as shortcode argument.
+            $favoritesarg = self::favoritestoggle_is_enabled() ? ' favorites=1' : '';
             $this->renderedfieldofstudyoptionstable
-                = format_text('[fieldofstudyoptions sortby="coursestarttime" sortorder="asc"]');
+                = format_text('[fieldofstudyoptions sortby="coursestarttime" sortorder="asc"' . $favoritesarg . ']');
         }
 
         // PRO feature: "What's new?" tab.
@@ -466,10 +468,6 @@ class view implements renderable, templatable {
 
         // Create the table.
         $allbookingoptionstable = new bookingoptions_wbtable("cmid_{$cmid} allbookingoptionstable");
-        // Show favorites toggle only when enabled as a PRO feature.
-        if (wb_payment::pro_version_is_activated() && get_config('booking', 'enablefavoritestoggle')) {
-            $allbookingoptionstable->showfavoritestoggle = true;
-        }
 
         // Initialize the default columnes, headers, settings and layout for the table.
         // In the future, we can parametrize this function so we can use it on many different places.
@@ -623,10 +621,8 @@ class view implements renderable, templatable {
         $myfavoritestable = new bookingoptions_wbtable("cmid_{$cmid}_userid_{$USER->id} myfavoritestable");
 
         // Initialize the default columns, headers, settings and layout for the table.
+        // The favorites toggle is set in there (the tab is only reachable when the feature is enabled).
         $this->wbtable_initialize_layout($myfavoritestable, true, true, true);
-
-        // The favorites tab always shows the toggle (it is only reachable when the feature is enabled).
-        $myfavoritestable->showfavoritestoggle = true;
 
         $wherearray = ['bookingid' => (int)$booking->id];
 
@@ -1086,6 +1082,15 @@ class view implements renderable, templatable {
     }
 
     /**
+     * Check whether the favorites star toggle is enabled (PRO feature, requires the enablefavoritestoggle setting).
+     *
+     * @return bool
+     */
+    public static function favoritestoggle_is_enabled(): bool {
+        return wb_payment::pro_version_is_activated() && get_config('booking', 'enablefavoritestoggle');
+    }
+
+    /**
      * Helper function to initialize the layout for the table.
      * @param bookingoptions_wbtable $bowbtable reference to the table class that should be initialized
      * @param bool $filter
@@ -1106,6 +1111,12 @@ class view implements renderable, templatable {
 
         if (!in_array('booknow', $optionsfields)) {
             $optionsfields[] = 'booknow'; // We always need the booknow field for the buttons.
+        }
+
+        // The favorites star must be available on every table (tab) of view.php, not just on "All booking options".
+        // It only renders for logged-in non-guest users (see col_action), so setting it here is safe for guests.
+        if (self::favoritestoggle_is_enabled()) {
+            $bowbtable->showfavoritestoggle = true;
         }
 
         $sortorder = $bookingsettings->defaultsortorder === "desc" ? SORT_DESC : SORT_ASC;

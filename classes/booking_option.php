@@ -2578,6 +2578,14 @@ class booking_option {
                         throw new moodle_exception('groupexists', 'booking');
                     }
                 }
+            } else if (!empty($this->settings->jsonobject->addtogroupsofconnectedcourse)) {
+                // Group(s) of the connected course selected manually in the booking option.
+                $groups = groups_get_all_groups($courseid);
+                foreach ($this->settings->jsonobject->addtogroupsofconnectedcourse as $groupid) {
+                    if (isset($groups[$groupid])) {
+                        groups_add_member($groupid, $userid);
+                    }
+                }
             }
         }
     }
@@ -2627,6 +2635,20 @@ class booking_option {
                     return;
                 }
             }
+        } else if (!empty($this->settings->jsonobject->addtogroupsofconnectedcourse)) {
+            // Group(s) of the connected course selected manually in the booking option:
+            // remove the memberships, but - like in the automatic mode - keep the course
+            // enrolment while the user is still member of other groups.
+            $groupsofuser = groups_get_all_groups($this->option->courseid, $userid);
+            foreach ($this->settings->jsonobject->addtogroupsofconnectedcourse as $groupid) {
+                if (isset($groupsofuser[$groupid])) {
+                    groups_remove_member($groupid, $userid);
+                    unset($groupsofuser[$groupid]);
+                }
+            }
+            if (!empty($groupsofuser)) {
+                return;
+            }
         }
         $instance = reset($instances); // Use the first manual enrolment plugin in the course.
         $enrol->unenrol_user($instance, $userid); // Unenrol the user.
@@ -2659,8 +2681,26 @@ class booking_option {
         $existinggroups = groups_get_all_groups($courseid);
         $groupids = array_keys($existinggroups);
 
+        if (!$groupintarget) {
+            // Group of the option in the current course ("Enrol in specific group for each booked
+            // option"): it is identified by its idnumber only - never by its name, as it shares the
+            // generated name with the group of the connected course. When the connected course is
+            // the course of the booking instance, a name lookup would return that group and the
+            // group of the option in the current course would silently never be created.
+            $searchstring = MOD_BOOKING_ENROL_GROUPTYPE_SOURCECOURSE . $this->option->id;
+            foreach ($existinggroups as $existinggroup) {
+                if ($existinggroup->idnumber == $searchstring) {
+                    return $existinggroup->id;
+                }
+            }
+            $newgroupdata->idnumber = $searchstring;
+            return groups_create_group($newgroupdata);
+        }
+
         // If group name already exists, do not create it a second time, it should be unique.
-        if ($groupid = groups_get_group_by_name($courseid, $newgroupdata->name)) {
+        // The option groups of the current course share the generated name, so they are
+        // excluded here - they must never be linked as the group of the connected course.
+        if ($groupid = self::get_target_group_by_name($courseid, $newgroupdata->name)) {
             return $groupid;
         } else if ($resetgroupid) {
             // If resetgroupid is true and the group does not yet exist, we need to create a new group.
@@ -2699,20 +2739,29 @@ class booking_option {
                 $DB->update_record('booking_options', $data);
             }
             return $data->groupid;
-        } else if (
-            !$groupintarget
-        ) {
-            $searchstring = MOD_BOOKING_ENROL_GROUPTYPE_SOURCECOURSE . $this->option->id;
-            foreach ($existinggroups as $exisitinggroup) {
-                // For groups of current course, the linking is in the idnumber of the group data.
-                if ($exisitinggroup->idnumber == $searchstring) {
-                    return $exisitinggroup->id;
-                }
-            }
-            $newgroupdata->idnumber = $searchstring;
-            return groups_create_group($newgroupdata);
         }
         return false;
+    }
+
+    /**
+     * Find the group of the connected course with the given generated name in the given course.
+     * The option groups of the current course (addtogroupofcurrentcourse, linked via their
+     * idnumber) share the identical generated name and are therefore ignored.
+     *
+     * @param int $courseid id of the course to search in
+     * @param string $groupname the generated group name to look for
+     * @return int the group id, or 0 if there is none
+     */
+    public static function get_target_group_by_name(int $courseid, string $groupname): int {
+        foreach (groups_get_all_groups($courseid) as $group) {
+            if (
+                $group->name === $groupname
+                && strpos((string) $group->idnumber, MOD_BOOKING_ENROL_GROUPTYPE_SOURCECOURSE) !== 0
+            ) {
+                return (int) $group->id;
+            }
+        }
+        return 0;
     }
 
     /**
@@ -2724,6 +2773,8 @@ class booking_option {
      *
      */
     private function sourcecoursegroup_unenrol_actions(int $userid) {
+        global $DB;
+
         // Check if json is valid.
         if (empty($this->booking->settings->json)) {
             return;
@@ -2735,9 +2786,50 @@ class booking_option {
         }
 
         $groups = groups_get_all_groups($this->booking->course->id);
-        $groups = array_filter($groups, fn ($g) => $g->idnumber == MOD_BOOKING_ENROL_GROUPTYPE_SOURCECOURSE . $this->option->id);
-        foreach ($groups as $groupid => $group) {
+
+        // Remove the user from the group that was created for this specific booking option.
+        $optiongroups = array_filter(
+            $groups,
+            fn ($g) => $g->idnumber == MOD_BOOKING_ENROL_GROUPTYPE_SOURCECOURSE . $this->option->id
+        );
+        foreach ($optiongroups as $groupid => $group) {
             groups_remove_member($groupid, $userid);
+        }
+
+        // Groups selected in the instance settings are shared between all options of this instance,
+        // so the user may only be removed when no active booking within this instance is left.
+        $selectedgroupids = array_filter(
+            (array) ($bsettings->addtogroupofcurrentcourse ?? []),
+            fn ($gid) => $gid != MOD_BOOKING_ENROL_INTO_GROUP_OF_BOOKINGOPTION
+        );
+        if (empty($selectedgroupids)) {
+            return;
+        }
+        [$insql, $inparams] = $DB->get_in_or_equal(
+            [
+                MOD_BOOKING_STATUSPARAM_BOOKED,
+                MOD_BOOKING_STATUSPARAM_WAITINGLIST,
+                MOD_BOOKING_STATUSPARAM_WAITINGLIST_CONFIRMED,
+                MOD_BOOKING_STATUSPARAM_RESERVED,
+            ],
+            SQL_PARAMS_NAMED
+        );
+        $hasotherbookings = $DB->record_exists_select(
+            'booking_answers',
+            "bookingid = :bookingid AND userid = :userid AND optionid <> :optionid AND waitinglist $insql",
+            [
+                'bookingid' => $this->bookingid,
+                'userid' => $userid,
+                'optionid' => $this->optionid,
+            ] + $inparams
+        );
+        if ($hasotherbookings) {
+            return;
+        }
+        foreach ($selectedgroupids as $groupid) {
+            if (isset($groups[$groupid])) {
+                groups_remove_member($groupid, $userid);
+            }
         }
     }
 

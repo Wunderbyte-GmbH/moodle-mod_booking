@@ -166,7 +166,7 @@ final class booking_groupenrolment_test extends booking_advanced_testcase {
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
 
         foreach ($groupsincoursecreated as $id => $group) {
-            if (in_array($group->name, $data['bookingsettings']['addtogroupofcurrentcourse'])) {
+            if (in_array($id, $data['bookingsettings']['addtogroupofcurrentcourse'])) {
                 $this->assertTrue(groups_is_member($id, $student1->id));
             }
         }
@@ -192,7 +192,10 @@ final class booking_groupenrolment_test extends booking_advanced_testcase {
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student2->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
 
-        $this->assertEquals(groups_is_member($id, $student1->id), groups_is_member($id, $student2->id));
+        // Both students booked the same option, so they have to be members of exactly the same groups.
+        foreach (groups_get_all_groups($booking->course) as $gid => $group) {
+            $this->assertEquals(groups_is_member($gid, $student1->id), groups_is_member($gid, $student2->id));
+        }
         $newgroups = groups_get_all_groups($booking->course);
         // No additional group should be created.
         if (
@@ -209,12 +212,21 @@ final class booking_groupenrolment_test extends booking_advanced_testcase {
         $groupsofcourse = groups_get_all_groups($booking->course);
         foreach ($groupsofcourse as $group) {
             $members = groups_get_members($group->id);
-            if (
-                !empty($data['bookingsettings']['unenrolfromgroupofcurrentcourse'])
-                && str_contains($group->idnumber, MOD_BOOKING_ENROL_GROUPTYPE_SOURCECOURSE)
-            ) {
-                $this->assertArrayNotHasKey($student2->id, $members);
-            };
+            if (!empty($data['bookingsettings']['unenrolfromgroupofcurrentcourse'])) {
+                if (str_contains($group->idnumber, MOD_BOOKING_ENROL_GROUPTYPE_SOURCECOURSE)) {
+                    // The cancelled user was removed from the group created for the booking option.
+                    $this->assertArrayNotHasKey($student2->id, $members);
+                }
+                if (in_array($group->id, $data['bookingsettings']['addtogroupofcurrentcourse'])) {
+                    // The cancelled user was removed from the selected group(s) as well,
+                    // while the still booked user remains a member.
+                    $this->assertArrayNotHasKey($student2->id, $members);
+                    $this->assertArrayHasKey($student1->id, $members);
+                }
+            } else if (in_array($group->id, $data['bookingsettings']['addtogroupofcurrentcourse'])) {
+                // Without the unenrol setting, the cancelled user stays in the group.
+                $this->assertArrayHasKey($student2->id, $members);
+            }
         }
     }
 
@@ -325,7 +337,294 @@ final class booking_groupenrolment_test extends booking_advanced_testcase {
                     ],
                 ],
             ],
+            'enroltospecificgroupsandunenrol' => [
+                [
+                    'coursesettings' => [
+                        'firstcourse' => [
+                            'enablecompletion' => 1,
+                        ],
+                    ],
+                    'bookingsettings' => [
+                        'cancancelbook' => 1,
+                        'unenrolfromgroupofcurrentcourse' => "1",
+                    ],
+                    'additionalsettings' => [
+                        'existingcoursegroups' => [
+                            'booked',
+                            'alsobooked',
+                            'othergroup',
+                        ],
+                        'groupstobookinto' => [
+                            'booked',
+                            'alsobooked',
+                        ],
+                    ],
+                ],
+            ],
         ];
+    }
+
+    /**
+     * The multiselect value is stored as it is - including a combination of the
+     * specific-group-per-option marker with fixed group ids. If the unenrol checkbox
+     * is submitted unchecked, the setting must not be stored at all.
+     *
+     * @covers ::booking_add_instance
+     *
+     * @throws \coding_exception
+     * @throws \dml_exception
+     */
+    public function test_instance_settings_storage(): void {
+        $this->setAdminUser();
+
+        $standarddata = self::provide_standard_data();
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $group = $this->getDataGenerator()->create_group(['courseid' => $course->id, 'name' => 'booked']);
+        $bookingmanager = $this->getDataGenerator()->create_user();
+
+        $bdata = $standarddata['booking'];
+        $bdata['course'] = $course->id;
+        $bdata['bookingmanager'] = $bookingmanager->username;
+
+        // A combined selection of the option-group marker and a fixed group is kept as it is.
+        $bdata['addtogroupofcurrentcourse'] = [MOD_BOOKING_ENROL_INTO_GROUP_OF_BOOKINGOPTION, $group->id];
+        $bdata['unenrolfromgroupofcurrentcourse'] = 0;
+        $booking1 = $this->getDataGenerator()->create_module('booking', $bdata);
+        $this->assertEquals(
+            [MOD_BOOKING_ENROL_INTO_GROUP_OF_BOOKINGOPTION, $group->id],
+            (array) booking::get_value_of_json_by_key($booking1->id, 'addtogroupofcurrentcourse')
+        );
+        // Unchecked unenrol checkbox must not be stored as active setting.
+        $this->assertEmpty(booking::get_value_of_json_by_key($booking1->id, 'unenrolfromgroupofcurrentcourse'));
+
+        $bdata['name'] = 'Test 2';
+        $bdata['addtogroupofcurrentcourse'] = [$group->id];
+        $bdata['unenrolfromgroupofcurrentcourse'] = 1;
+        $booking2 = $this->getDataGenerator()->create_module('booking', $bdata);
+        $this->assertEquals(
+            [$group->id],
+            (array) booking::get_value_of_json_by_key($booking2->id, 'addtogroupofcurrentcourse')
+        );
+        $this->assertEquals(1, booking::get_value_of_json_by_key($booking2->id, 'unenrolfromgroupofcurrentcourse'));
+    }
+
+    /**
+     * Groups selected in the instance settings are shared between all options of the instance.
+     * The user must only be removed from them when the last active booking in the instance is cancelled.
+     *
+     * @covers \mod_booking\booking_option::unenrol_user
+     *
+     * @throws \coding_exception
+     * @throws \dml_exception
+     */
+    public function test_unenrol_from_selected_groups_after_last_booking(): void {
+        $this->setAdminUser();
+
+        $standarddata = self::provide_standard_data();
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $group = $this->getDataGenerator()->create_group(['courseid' => $course->id, 'name' => 'booked']);
+        $bookingmanager = $this->getDataGenerator()->create_user();
+        $student = $this->getDataGenerator()->create_user();
+
+        $bdata = $standarddata['booking'];
+        $bdata['course'] = $course->id;
+        $bdata['bookingmanager'] = $bookingmanager->username;
+        $bdata['cancancelbook'] = 1;
+        $bdata['addtogroupofcurrentcourse'] = [$group->id];
+        $bdata['unenrolfromgroupofcurrentcourse'] = "1";
+        $booking = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        $this->getDataGenerator()->enrol_user($student->id, $course->id);
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $option = $standarddata['option'];
+        $option['bookingid'] = $booking->id;
+        $option['courseid'] = $course->id;
+        $option1 = $plugingenerator->create_option((object) $option);
+        $option['text'] = 'Test option2';
+        $option2 = $plugingenerator->create_option((object) $option);
+
+        $settings1 = singleton_service::get_instance_of_booking_option_settings($option1->id);
+        $settings2 = singleton_service::get_instance_of_booking_option_settings($option2->id);
+
+        // Book both options with the student.
+        $this->setUser($student);
+        booking_bookit::bookit('option', $settings1->id, $student->id);
+        booking_bookit::bookit('option', $settings1->id, $student->id);
+        booking_bookit::bookit('option', $settings2->id, $student->id);
+        booking_bookit::bookit('option', $settings2->id, $student->id);
+        $this->assertTrue(groups_is_member($group->id, $student->id));
+
+        // Cancel the first booking: another active booking is left, so the membership remains.
+        booking_bookit::bookit('option', $settings1->id, $student->id);
+        booking_bookit::bookit('option', $settings1->id, $student->id);
+        $this->assertTrue(groups_is_member($group->id, $student->id));
+
+        // Cancel the second booking: no active booking left, so the user is removed from the group.
+        booking_bookit::bookit('option', $settings2->id, $student->id);
+        booking_bookit::bookit('option', $settings2->id, $student->id);
+        $this->assertFalse(groups_is_member($group->id, $student->id));
+    }
+
+    /**
+     * Manually selected group(s) of the connected course (stored in the option json):
+     * booked users are enrolled in exactly these groups, and on cancellation they are
+     * removed - keeping the course enrolment only while other group memberships exist
+     * (like in the automatic mode).
+     *
+     * @covers \mod_booking\booking_option::enrol_user
+     * @covers \mod_booking\booking_option::unenrol_user
+     *
+     * @throws \coding_exception
+     * @throws \dml_exception
+     */
+    public function test_manual_groups_of_connected_course(): void {
+        global $DB;
+
+        $this->setAdminUser();
+
+        $standarddata = self::provide_standard_data();
+        $course1 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $course2 = $this->getDataGenerator()->create_course();
+        $group1 = $this->getDataGenerator()->create_group(['courseid' => $course2->id, 'name' => 'manual1']);
+        $group2 = $this->getDataGenerator()->create_group(['courseid' => $course2->id, 'name' => 'manual2']);
+        $group3 = $this->getDataGenerator()->create_group(['courseid' => $course2->id, 'name' => 'other']);
+
+        $bookingmanager = $this->getDataGenerator()->create_user();
+        $student1 = $this->getDataGenerator()->create_user();
+        $student2 = $this->getDataGenerator()->create_user();
+
+        $bdata = $standarddata['booking'];
+        $bdata['course'] = $course1->id;
+        $bdata['bookingmanager'] = $bookingmanager->username;
+        $bdata['cancancelbook'] = 1;
+        $bdata['autoenrol'] = 1;
+        $bdata['addtogroup'] = 0;
+        $booking = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        $this->getDataGenerator()->enrol_user($student1->id, $course1->id);
+        $this->getDataGenerator()->enrol_user($student2->id, $course1->id);
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $option = $standarddata['option'];
+        $option['bookingid'] = $booking->id;
+        $option['courseid'] = $course2->id;
+        $option['enrolmentstatus'] = 2; // Enrol users immediately on booking.
+        $option1 = $plugingenerator->create_option((object) $option);
+
+        // Select two of the three course groups manually (as the option form would store it).
+        $DB->set_field(
+            'booking_options',
+            'json',
+            json_encode(['addtogroupsofconnectedcourse' => [$group1->id, $group2->id]]),
+            ['id' => $option1->id]
+        );
+        \cache::make('mod_booking', 'bookingoptionsettings')->delete($option1->id);
+        singleton_service::destroy_instance();
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
+        $coursecontext = \context_course::instance($course2->id);
+
+        // Book student1: enrolled in the connected course and member of the two selected groups.
+        $this->setUser($student1);
+        booking_bookit::bookit('option', $settings->id, $student1->id);
+        booking_bookit::bookit('option', $settings->id, $student1->id);
+        $this->assertTrue(is_enrolled($coursecontext, $student1));
+        $this->assertTrue(groups_is_member($group1->id, $student1->id));
+        $this->assertTrue(groups_is_member($group2->id, $student1->id));
+        $this->assertFalse(groups_is_member($group3->id, $student1->id));
+
+        // Book student2 and additionally add them to another group manually.
+        $this->setUser($student2);
+        booking_bookit::bookit('option', $settings->id, $student2->id);
+        booking_bookit::bookit('option', $settings->id, $student2->id);
+        groups_add_member($group3->id, $student2->id);
+
+        // Cancel student1: removed from the selected groups, and as no other group membership
+        // is left, unenrolled from the connected course (like in the automatic mode).
+        $this->setUser($student1);
+        booking_bookit::bookit('option', $settings->id, $student1->id);
+        booking_bookit::bookit('option', $settings->id, $student1->id);
+        $this->assertFalse(groups_is_member($group1->id, $student1->id));
+        $this->assertFalse(groups_is_member($group2->id, $student1->id));
+        $this->assertFalse(is_enrolled($coursecontext, $student1));
+
+        // Cancel student2: removed from the selected groups, but the membership in the other
+        // group keeps the course enrolment.
+        $this->setUser($student2);
+        booking_bookit::bookit('option', $settings->id, $student2->id);
+        booking_bookit::bookit('option', $settings->id, $student2->id);
+        $this->assertFalse(groups_is_member($group1->id, $student2->id));
+        $this->assertFalse(groups_is_member($group2->id, $student2->id));
+        $this->assertTrue(groups_is_member($group3->id, $student2->id));
+        $this->assertTrue(is_enrolled($coursecontext, $student2));
+    }
+
+    /**
+     * While the instance setting "Automatically enrol users in group of connected course"
+     * is active, a manual group selection stored in the option json is ignored: users are
+     * enrolled in the automatically created group of the option instead.
+     *
+     * @covers \mod_booking\booking_option::enrol_user
+     *
+     * @throws \coding_exception
+     * @throws \dml_exception
+     */
+    public function test_manual_groups_ignored_with_automatic_group(): void {
+        global $DB;
+
+        $this->setAdminUser();
+
+        $standarddata = self::provide_standard_data();
+        $course1 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $course2 = $this->getDataGenerator()->create_course();
+        $group1 = $this->getDataGenerator()->create_group(['courseid' => $course2->id, 'name' => 'manual1']);
+
+        $bookingmanager = $this->getDataGenerator()->create_user();
+        $student = $this->getDataGenerator()->create_user();
+
+        $bdata = $standarddata['booking'];
+        $bdata['course'] = $course1->id;
+        $bdata['bookingmanager'] = $bookingmanager->username;
+        $bdata['autoenrol'] = 1;
+        $bdata['addtogroup'] = 1;
+        $booking = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        $this->getDataGenerator()->enrol_user($student->id, $course1->id);
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $option = $standarddata['option'];
+        $option['bookingid'] = $booking->id;
+        $option['courseid'] = $course2->id;
+        $option['enrolmentstatus'] = 2; // Enrol users immediately on booking.
+        $option1 = $plugingenerator->create_option((object) $option);
+
+        // A (stale) manual selection must not be applied while addtogroup is active.
+        $DB->set_field(
+            'booking_options',
+            'json',
+            json_encode(['addtogroupsofconnectedcourse' => [$group1->id]]),
+            ['id' => $option1->id]
+        );
+        \cache::make('mod_booking', 'bookingoptionsettings')->delete($option1->id);
+        singleton_service::destroy_instance();
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
+
+        $this->setUser($student);
+        booking_bookit::bookit('option', $settings->id, $student->id);
+        booking_bookit::bookit('option', $settings->id, $student->id);
+
+        $this->assertFalse(groups_is_member($group1->id, $student->id));
+        $autogroupid = groups_get_group_by_name(
+            $course2->id,
+            "{$bdata['name']} - {$settings->text} ($option1->id)"
+        );
+        $this->assertNotEmpty($autogroupid);
+        $this->assertTrue(groups_is_member($autogroupid, $student->id));
     }
 
     /**

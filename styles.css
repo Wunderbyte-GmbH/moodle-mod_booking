@@ -1273,3 +1273,12 @@ table[id*="bulkoperationstable"] th {
     margin-left: 0;
     margin-right: 0;
 }
+
+/*
+ * Booking instance settings (mod_form), section "Automatic course and group enrolment":
+ * indent the group enrolment setting of the connected course, because it is only shown
+ * when "Automatically enrol users in connected course" is activated (dependency).
+ */
+#page-mod-booking-mod .fitem.row:has(input[name="addtogroup"]) {
+    padding-left: 2rem;
+}

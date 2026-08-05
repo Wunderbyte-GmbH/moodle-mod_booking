@@ -39,6 +39,7 @@ The current course context comes from `$PAGE->course`.
 | `sortorder="asc"` / `sortorder="desc"` | Default sort direction. |
 | `countlabel="false"` | Hide the result counter. |
 | `progress="1"` | Add the progress subcolumn. |
+| `favorites="1"` | Show the favorites star toggle on each booking option, so logged-in users can mark it as favorite. |
 | `requirelogin="false"` | Disable table-level login requirement. |
 | `exclude="description,teacher,rightside"` | Hide selected display fragments. |
 | `includecustomfields="shortname1,shortname2"` | Add custom fields to the rendered output. Full syntax: see the [shortcodes README](README.md#custom-field-columns-includecustomfields). |

@@ -950,7 +950,7 @@ function booking_add_instance($booking) {
         // This will store the correct JSON to $optionvalues->json.
         booking::add_data_to_json($booking, "addtogroupofcurrentcourse", $booking->addtogroupofcurrentcourse);
     }
-    if (isset($booking->unenrolfromgroupofcurrentcourse)) {
+    if (!empty($booking->unenrolfromgroupofcurrentcourse)) {
         // This will store the correct JSON to $optionvalues->json.
         booking::add_data_to_json($booking, "unenrolfromgroupofcurrentcourse", 1);
     }

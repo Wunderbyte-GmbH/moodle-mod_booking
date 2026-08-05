@@ -1302,6 +1302,22 @@ class mod_booking_mod_form extends moodleform_mod {
             );
         }
 
+        // Connected Moodle course.
+        $mform->addElement(
+            'header',
+            'connectedmoodlecourseheader',
+            get_string('connectedmoodlecourse', 'mod_booking')
+        );
+
+        $mform->addElement('advcheckbox', 'autoenrol', get_string('autoenrol', 'mod_booking'));
+        $mform->setDefault('autoenrol', 1);
+        $mform->addHelpButton('autoenrol', 'autoenrol', 'mod_booking');
+
+        // Dependent on autoenrol, indented via styles.css.
+        $mform->addElement('advcheckbox', 'addtogroup', get_string('addtogroup', 'mod_booking'));
+        $mform->addHelpButton('addtogroup', 'addtogroup', 'mod_booking');
+        $mform->hideIf('addtogroup', 'autoenrol', 'notchecked');
+
         // Miscellaneous settings.
         $mform->addElement(
             'header',
@@ -1318,21 +1334,13 @@ class mod_booking_mod_form extends moodleform_mod {
         );
         $mform->setType('bookingpolicy', PARAM_CLEANHTML);
 
-        $mform->addElement('advcheckbox', 'autoenrol', get_string('autoenrol', 'mod_booking'));
-        $mform->setDefault('autoenrol', 1);
-        $mform->addHelpButton('autoenrol', 'autoenrol', 'mod_booking');
-
-        $mform->addElement('advcheckbox', 'addtogroup', get_string('addtogroup', 'mod_booking'));
-        $mform->addHelpButton('addtogroup', 'addtogroup', 'mod_booking');
-        $mform->hideIf('addtogroup', 'autoenrol', 'notchecked');
-
         $groupoptions = [
             MOD_BOOKING_ENROL_INTO_GROUP_OF_BOOKINGOPTION => get_string('addtogroupofcurrentcoursebookingoption', 'mod_booking'),
         ];
         $groups = groups_get_all_groups($COURSE->id);
         foreach ($groups as $id => $groupdata) {
             $groupoptions[$id] = $groupdata->name;
-        };
+        }
         $enroltogroupselect = $mform->addElement(
             'select',
             'addtogroupofcurrentcourse',
@@ -1345,6 +1353,7 @@ class mod_booking_mod_form extends moodleform_mod {
             'addtogroupofcurrentcourse',
             booking::get_value_of_json_by_key($bookingid, 'addtogroupofcurrentcourse') ?? []
         );
+
         $mform->addElement(
             'advcheckbox',
             'unenrolfromgroupofcurrentcourse',

@@ -36,7 +36,13 @@ $string['activitycompletionsuccess'] = 'Alle Nutzer/innen wurden für den Aktivi
 $string['addtocalendardesc'] = 'Kurs-Kalenderevents können von ALLEN Kursteilnehmer/innen des Kurses gesehen werden. Falls Sie nicht möchten, dass Kurs-Kalenderevents
 erstellt werden, können Sie diese Einstellung standardmäßig ausschalten und sperren. Keine Sorge: Normale Kalenderevents für gebuchte Optionen (User-Events) werden weiterhin erstellt.';
 $string['addtogroup'] = 'Nutzer/innen automatisch in Gruppe des verknüpften Kurses einschreiben';
-$string['addtogroup_help'] = 'Nutzer/innen automatisch in Gruppe des in der Buchungsoption verknüpften Kurses eintragen. Die Gruppe wird nach folgendem Schema automatisch erstellt: Aktivitätsname - Name der Buchungsoption';
+$string['addtogroup_help'] = 'Nutzer/innen automatisch in eine Gruppe des Kurses eintragen, der in den Einstellungen der Buchungsoption verknüpft ist. Die Gruppe wird nach folgendem Schema automatisch erstellt: Aktivitätsname - Name der Buchungsoption';
+$string['addtogroupofcurrentcourse'] = 'Nutzer/innen automatisch in Gruppe(n) des Kurses einschreiben, in dem sich diese Buchungsinstanz befindet';
+$string['addtogroupofcurrentcourse_help'] = 'Wählen Sie die Gruppe(n) des Kurses aus, in dem sich diese Buchungsinstanz befindet. Nutzer/innen werden in diese Gruppen eingeschrieben, sobald sie mindestens eine Buchungsoption dieser Instanz gebucht haben. Die Gruppen müssen zuvor in diesem Kurs erstellt werden.<br>
+Es ist auch möglich, Nutzer/innen für jede gebuchte Option in eine spezifische Gruppe einzuschreiben: Diese Gruppen werden automatisch erstellt und nach der jeweiligen Buchungsoption benannt.';
+$string['addtogroupsofconnectedcourse'] = 'Nutzer/innen in Gruppe(n) des verknüpften Kurses einschreiben';
+$string['addtogroupsofconnectedcourse_help'] = 'Wählen Sie die Gruppe(n) des verknüpften Kurses aus, in die Nutzer/innen bei der Buchung dieser Option eingeschrieben werden. Es können nur Gruppen des aktuell gespeicherten verknüpften Kurses gewählt werden - nach einem Kurswechsel bitte die Option zuerst speichern. Diese manuelle Auswahl ist nur verfügbar, solange "Nutzer/innen automatisch in Gruppe des verknüpften Kurses einschreiben" in den Einstellungen der Buchungsinstanz nicht aktiv ist.';
+$string['addtogroupsofconnectedcourseinfo'] = 'Die Gruppe im verknüpften Kurs wird für diese Buchungsoption automatisch erstellt, weil "Nutzer/innen automatisch in Gruppe des verknüpften Kurses einschreiben" in den Einstellungen der Buchungsinstanz aktiv ist. Gruppen können daher hier nicht manuell ausgewählt werden.';
 $string['agent_booking_booked_users_label'] = 'Gebuchte Nutzer/innen';
 $string['agent_booking_diagnose_cancel_other_user_permission_denied'] = 'Sie dürfen keine Stornodiagnose für andere Nutzer/innen ausführen.';
 $string['agent_booking_diagnose_other_user_permission_denied'] = 'Sie dürfen keine Buchungsdiagnose für andere Nutzer/innen ausführen.';

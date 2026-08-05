@@ -79,11 +79,15 @@ $string['addtocalendar'] = 'Zum Kurs-Kalender hinzufügen';
 $string['addtocalendardesc'] = 'Kurs-Kalenderevents können von ALLEN Kursteilnehmer:innen des Kurses gesehen werden. Falls Sie nicht möchten, dass Kurs-Kalenderevents
 erstellt werden, können Sie diese Einstellung standardmäßig ausschalten und sperren. Keine Sorge: Normale Kalenderevents für gebuchte Optionen (User-Events) werden weiterhin erstellt.';
 $string['addtogroup'] = 'Nutzer:innen automatisch in Gruppe des verknüpften Kurses einschreiben';
-$string['addtogroup_help'] = 'Nutzer:innen automatisch in Gruppe des in der Buchungsoption verknüpften Kurses eintragen. Die Gruppe wird nach folgendem Schema automatisch erstellt: Aktivitätsname - Name der Buchungsoption';
-$string['addtogroupofcurrentcourse'] = 'Benutzer automatisch in Gruppen des aktuellen Kurses einschreiben';
-$string['addtogroupofcurrentcourse_help'] = "Wählen Sie die Gruppe(n) des aktuellen Kurses aus, in die die Benutzer eingeschrieben werden sollen, sobald sie mindestens eine der Buchungsoptionen in dieser Instanz gebucht haben. Gruppen müssen zuvor innerhalb dieses Kurses erstellt werden.</br>
-Es ist auch möglich, Benutzer für jede gebuchte Option in eine bestimmte Gruppe einzuschreiben. Diese Gruppen werden nach der jeweiligen Buchungsoption benannt.";
+$string['addtogroup_help'] = 'Nutzer:innen automatisch in eine Gruppe des Kurses eintragen, der in den Einstellungen der Buchungsoption verknüpft ist. Die Gruppe wird nach folgendem Schema automatisch erstellt: Aktivitätsname - Name der Buchungsoption';
+$string['addtogroupofcurrentcourse'] = 'Nutzer:innen automatisch in Gruppe(n) des Kurses einschreiben, in dem sich diese Buchungsinstanz befindet';
+$string['addtogroupofcurrentcourse_help'] = 'Wählen Sie die Gruppe(n) des Kurses aus, in dem sich diese Buchungsinstanz befindet. Nutzer:innen werden in diese Gruppen eingeschrieben, sobald sie mindestens eine Buchungsoption dieser Instanz gebucht haben. Die Gruppen müssen zuvor in diesem Kurs erstellt werden.<br>
+Es ist auch möglich, Nutzer:innen für jede gebuchte Option in eine spezifische Gruppe einzuschreiben: Diese Gruppen werden automatisch erstellt und nach der jeweiligen Buchungsoption benannt.';
 $string['addtogroupofcurrentcoursebookingoption'] = "In spezifische Gruppe für jede gebuchte Option einschreiben";
+$string['addtogroupsofconnectedcourse'] = 'Nutzer:innen in Gruppe(n) des verknüpften Kurses einschreiben';
+$string['addtogroupsofconnectedcourse_help'] = 'Wählen Sie die Gruppe(n) des verknüpften Kurses aus, in die Nutzer:innen bei der Buchung dieser Option eingeschrieben werden. Es können nur Gruppen des aktuell gespeicherten verknüpften Kurses gewählt werden - nach einem Kurswechsel bitte die Option zuerst speichern. Diese manuelle Auswahl ist nur verfügbar, solange "Nutzer:innen automatisch in Gruppe des verknüpften Kurses einschreiben" in den Einstellungen der Buchungsinstanz nicht aktiv ist.';
+$string['addtogroupsofconnectedcourseinfo'] = 'Die Gruppe im verknüpften Kurs wird für diese Buchungsoption automatisch erstellt, weil "Nutzer:innen automatisch in Gruppe des verknüpften Kurses einschreiben" in den Einstellungen der Buchungsinstanz aktiv ist. Gruppen können daher hier nicht manuell ausgewählt werden.';
+$string['addtogroupsofconnectedcoursenotfound'] = 'Folgende Gruppe(n) existieren im verknüpften Kurs nicht: {$a}. Bitte entfernen Sie sie aus der Auswahl.';
 $string['adminparameter_desc'] = "Benutze die Parameter aus den Admin Einstellungen.";
 $string['adminparametervalue'] = "Admin Parameter";
 $string['advancedoptions'] = 'Erweiterte Einstellungen';
@@ -3741,7 +3745,7 @@ $string['unconfirmbooking'] = 'Lösche Bestätigung dieser Buchung';
 $string['unconfirmbookinglong'] = 'Wollen Sie die Bestätigung dieser Buchung wirklich aufheben?';
 $string['undocancelreason'] = "Möchten Sie wirklich die Stornierung dieser Buchungsoption rückgängig machen?";
 $string['undocancelthisbookingoption'] = "Stornierung rückgängig machen";
-$string['unenrolfromgroupofcurrentcourse'] = 'Beim Abmelden von der Buchungsoption auch aus der spezifischen Gruppe abmelden?';
+$string['unenrolfromgroupofcurrentcourse'] = 'Beim Abmelden von der zugehörigen Buchungsoption auch aus der Gruppe abmelden?';
 $string['unenroluserswithoutaccess'] = 'Abmelden von Nutzer:innen ohne Zugang';
 $string['unenroluserswithoutaccess_desc'] = 'Melde Nutzer:innen automatisch ab, die keinen Zugang mehr zu einem Moodle-Kurs oder einer Buchungsaktivität haben.
 <div class="text-danger">Achtung: Damit wird die Nachverfolgung womöglich erschwert. Nach Aktivierung dieses Häkchens wird einmalig systemweit überprüft,

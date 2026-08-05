@@ -80,12 +80,16 @@ $string['addsemester'] = 'Add semester';
 $string['addtocalendar'] = 'Add to course calendar';
 $string['addtocalendardesc'] = 'Course calendar events are visible to ALL users within a course. If you do not want them to be created at all,
 you can turn this setting off and lock it by default. Don\'t worry: user calendar events for booked options will still be created anyways.';
-$string['addtogroup'] = 'Automatically enrol users in group of linked course';
-$string['addtogroup_help'] = 'Automatically enrol users in group that is linked in settings of bookingoption. Group will be created automatically with name: Booking name - Option name';
-$string['addtogroupofcurrentcourse'] = 'Automatically enrol users to group(s) of current course';
-$string['addtogroupofcurrentcourse_help'] = "Choose group(s) of current course the users should be enroled to, once they booked at least one of the bookingoptions in this instance. Groups need to be created first within is course.</br>
-It's also possible to enrol users into a specific group for each bookingoption the have booked. These groups will are named after the bookingoption";
+$string['addtogroup'] = 'Automatically enrol users in group of connected course';
+$string['addtogroup_help'] = 'Automatically enrol users in a group of the course that is connected in the settings of the booking option. The group will be created automatically with the name: Booking name - Option name';
+$string['addtogroupofcurrentcourse'] = 'Automatically enrol users in group(s) of the course in which this booking instance is located';
+$string['addtogroupofcurrentcourse_help'] = 'Choose the group(s) of the course in which this booking instance is located. Users will be enrolled in these groups as soon as they book at least one booking option of this instance. The groups need to be created in this course first.<br>
+It is also possible to enrol users in a specific group for each booked option: these groups are created automatically and named after the booking option.';
 $string['addtogroupofcurrentcoursebookingoption'] = "Enrol in specific group for each booked option";
+$string['addtogroupsofconnectedcourse'] = 'Enrol users in group(s) of the connected course';
+$string['addtogroupsofconnectedcourse_help'] = 'Choose the group(s) of the connected course in which users will be enrolled when they book this option. Only groups of the currently saved connected course can be chosen - after changing the course, save the option first. This manual selection is only available while "Automatically enrol users in group of connected course" is not active in the settings of the booking instance.';
+$string['addtogroupsofconnectedcourseinfo'] = 'The group in the connected course is created automatically for this booking option, because "Automatically enrol users in group of connected course" is active in the settings of the booking instance. Therefore, groups cannot be selected manually here.';
+$string['addtogroupsofconnectedcoursenotfound'] = 'The following group(s) do not exist in the connected course: {$a}. Please remove them from the selection.';
 $string['addusertogroup'] = 'Add user to group: ';
 $string['adminparameter_desc'] = "Use parameter that are set in the admin settings.";
 $string['adminparametervalue'] = "Admin parameter";
@@ -4031,7 +4035,7 @@ $string['unconfirmbooking'] = 'Delete confirmation of this booking';
 $string['unconfirmbookinglong'] = 'Do you really want to delete the confirmation of this booking?';
 $string['undocancelreason'] = "Do you really want to undo the cancellation of this booking option?";
 $string['undocancelthisbookingoption'] = "Undo cancelling of this booking option";
-$string['unenrolfromgroupofcurrentcourse'] = 'Unenrol from specific group when user is unenroled from corresponding bookingoption?';
+$string['unenrolfromgroupofcurrentcourse'] = 'Unenrol from group when user is unenrolled from corresponding booking option?';
 $string['unenroluserswithoutaccess'] = 'Delete booking answers of users without access';
 $string['unenroluserswithoutaccess_desc'] = 'Automatically unenroll users who no longer have access to a Moodle course or a Booking activity.
 <div class="text-danger">Warning: This might make tracking more difficult. Once this checkbox is activated, the system will perform a one-time

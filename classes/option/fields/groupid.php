@@ -25,6 +25,7 @@
 
 namespace mod_booking\option\fields;
 
+use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
@@ -96,6 +97,28 @@ class groupid extends field_base {
         $returnvalue = null
     ): array {
         $optionid = $formdata->id ?? $formdata->optionid ?? 0;
+
+        // Manual selection of groups of the connected course. Only offered while the booking
+        // instance does not create a group for each option automatically (addtogroup).
+        // This has to happen BEFORE JSON is saved!
+        $cmid = $formdata->cmid ?? 0;
+        $instancesettings = empty($cmid) ? null : singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
+        if (!empty($instancesettings) && empty($instancesettings->addtogroup)) {
+            // The courseid field has already run (lower field id), so the connected course is final.
+            $courseid = $newoption->courseid ?? $formdata->courseid ?? 0;
+            $coursegroups = empty($courseid) ? [] : groups_get_all_groups($courseid);
+            // Keep only groups that really belong to the connected course.
+            $selectedgroups = array_values(array_filter(
+                (array) ($formdata->addtogroupsofconnectedcourse ?? []),
+                fn($groupid) => isset($coursegroups[$groupid])
+            ));
+            if (empty($selectedgroups)) {
+                booking_option::remove_key_from_json($newoption, 'addtogroupsofconnectedcourse');
+            } else {
+                booking_option::add_data_to_json($newoption, 'addtogroupsofconnectedcourse', $selectedgroups);
+            }
+        }
+
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
         if (empty($settings->cmid)) {
             // We need the cmid to get the booking settings. If it's missing, we do nothing.
@@ -109,7 +132,8 @@ class groupid extends field_base {
             // Let's try to find the correct groupid and set it, if we find it.
             if (!empty($optionid)) {
                 $correctgroupname = "$bookingsettings->name - $settings->text ($optionid)";
-                $groupid = groups_get_group_by_name($settings->courseid, $correctgroupname);
+                // The option groups of the current course share the generated name and are excluded.
+                $groupid = booking_option::get_target_group_by_name($settings->courseid, $correctgroupname);
                 if (!empty($groupid)) {
                     $newoption->groupid = $groupid;
                     return [];
@@ -130,6 +154,58 @@ class groupid extends field_base {
         }
         // Else we do nothing.
         return [];
+    }
+
+    /**
+     * This function adds error keys for form validation.
+     * A manually selected group that does not exist in the connected course must
+     * produce an error instead of being silently discarded on save.
+     * @param array $data
+     * @param array $files
+     * @param array $errors
+     * @return array
+     */
+    public static function validation(array $data, array $files, array &$errors) {
+        global $DB;
+
+        $selectedgroups = (array) ($data['addtogroupsofconnectedcourse'] ?? []);
+        if (empty($selectedgroups)) {
+            return $errors;
+        }
+        $cmid = $data['cmid'] ?? 0;
+        $instancesettings = empty($cmid) ? null : singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
+        if (empty($instancesettings) || !empty($instancesettings->addtogroup)) {
+            // The group is generated automatically, the manual selection is not applied on save.
+            return $errors;
+        }
+        $chooseorcreatecourse = (int) ($data['chooseorcreatecourse'] ?? 0);
+        if (empty($chooseorcreatecourse)) {
+            // No connection to a Moodle course: the selection is hidden and discarded on save,
+            // so an error here could not be seen (and never be fixed) by the user.
+            return $errors;
+        }
+
+        $courseid = $data['courseid'] ?? 0;
+        if (is_array($courseid)) {
+            $courseid = reset($courseid);
+        }
+        // A course that is only created while saving cannot contain the selected groups yet.
+        $coursegroups = ($chooseorcreatecourse === 1 && !empty($courseid))
+            ? groups_get_all_groups((int) $courseid)
+            : [];
+        $missinggroups = array_filter($selectedgroups, fn($groupid) => !isset($coursegroups[$groupid]));
+        if (empty($missinggroups)) {
+            return $errors;
+        }
+        // Name the missing groups where they still exist (e.g. in the previously connected course).
+        $groupnames = $DB->get_records_list('groups', 'id', $missinggroups, '', 'id, name');
+        $labels = array_map(
+            fn($groupid) => isset($groupnames[$groupid]) ? $groupnames[$groupid]->name : "[ID: $groupid]",
+            $missinggroups
+        );
+        $errors['addtogroupsofconnectedcourse'] =
+            get_string('addtogroupsofconnectedcoursenotfound', 'mod_booking', implode(', ', $labels));
+        return $errors;
     }
 
     /**
@@ -157,6 +233,44 @@ class groupid extends field_base {
         }
 
         $optionid = $formdata['id'] ?? $formdata['optionid'] ?? 0;
+        $cmid = $formdata['cmid'] ?? 0;
+        $instancesettings = empty($cmid) ? null : singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
+
+        if (empty($instancesettings->addtogroup)) {
+            // Manual selection of the group(s) of the connected course the users will be
+            // enrolled in when booking this option. Only groups of the currently saved
+            // connected course can be offered - after a course change, save first.
+            $settings = empty($optionid) ? null : singleton_service::get_instance_of_booking_option_settings($optionid);
+            $groupoptions = [];
+            if (!empty($settings->courseid)) {
+                foreach (groups_get_all_groups($settings->courseid) as $groupid => $group) {
+                    $groupoptions[$groupid] = $group->name;
+                }
+            }
+            $mform->addElement(
+                'autocomplete',
+                'addtogroupsofconnectedcourse',
+                get_string('addtogroupsofconnectedcourse', 'mod_booking'),
+                $groupoptions,
+                ['multiple' => true]
+            );
+            $mform->addHelpButton('addtogroupsofconnectedcourse', 'addtogroupsofconnectedcourse', 'mod_booking');
+            // Only possible while a course is connected.
+            $mform->hideIf('addtogroupsofconnectedcourse', 'chooseorcreatecourse', 'eq', 0);
+            return;
+        }
+
+        // The instance creates the group automatically, so no manual selection is possible.
+        $mform->addElement(
+            'static',
+            'addtogroupsofconnectedcourseinfo',
+            '',
+            '<div class="alert alert-light">'
+                . get_string('addtogroupsofconnectedcourseinfo', 'mod_booking')
+                . '</div>'
+        );
+        $mform->hideIf('addtogroupsofconnectedcourseinfo', 'chooseorcreatecourse', 'eq', 0);
+
         if (empty($optionid)) {
             // We need an option id to get the correct group information.
             return;
@@ -211,6 +325,10 @@ class groupid extends field_base {
      */
     public static function set_data(stdClass &$data, booking_option_settings $settings) {
         $data->resetgroupid = 0;
+        if (!empty($data->id)) {
+            $data->addtogroupsofconnectedcourse =
+                (array) (booking_option::get_value_of_json_by_key($data->id, 'addtogroupsofconnectedcourse') ?? []);
+        }
         return;
     }
 }

@@ -116,6 +116,7 @@ These parameters are used by the table-based shortcodes that render booking opti
 | `sortorder="asc"` / `sortorder="desc"` | Default sort direction | Default is ascending. |
 | `countlabel="false"` | Hide the result counter | Default is visible. |
 | `progress="1"` | Add the progress subcolumn | Only where the table renderer supports it. |
+| `favorites="1"` | Show the favorites star toggle on each booking option | Lets logged-in users mark options as favorites (the same star as on view.php with the PRO setting `enablefavoritestoggle`). Guests never see the star. |
 | `requirelogin="false"` | Disable table-level login enforcement | Use carefully; this does not bypass Moodle capability checks elsewhere. |
 
 ### View style parameters

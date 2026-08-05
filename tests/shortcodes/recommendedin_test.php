@@ -166,6 +166,9 @@ final class recommendedin_test extends booking_advanced_testcase {
         $shortcode = shortcodes::recommendedin('recommendedin', $args, null, $env, $next);
         $this->assertNotEmpty($shortcode);
         $this->assertStringContainsString($expected['tablestringcontains'], $shortcode);
+        if (!empty($expected['tablestringnotcontains'])) {
+            $this->assertStringNotContainsString($expected['tablestringnotcontains'], $shortcode);
+        }
         $pregmatch = preg_match('/<div[^>]*\sdata-encodedtable=["\']?([^"\'>\s]+)["\']?/i', $shortcode, $matches);
         $this->assertEquals($expected['displaytable'], $pregmatch);
         if (!$expected['displaytable']) {
@@ -207,6 +210,22 @@ final class recommendedin_test extends booking_advanced_testcase {
                 ],
                 [
                     'tablestringcontains' => "wunderbyte_table_container",
+                    // Without the favorites arg, no favorites star toggle is rendered.
+                    'tablestringnotcontains' => 'data-methodname="toggle_favorite"',
+                    'numberofrecords' => 8,
+                    'displaytable' => true,
+                ],
+            ],
+            'favoritesarg' => [
+                [
+                    'args' => [
+                        'all' => 1, // Set this to avoid filtering on coursestarttime.
+                        'favorites' => '1',
+                    ],
+                ],
+                [
+                    // With favorites=1, every option row renders the favorites star toggle.
+                    'tablestringcontains' => 'data-methodname="toggle_favorite"',
                     'numberofrecords' => 8,
                     'displaytable' => true,
                 ],
