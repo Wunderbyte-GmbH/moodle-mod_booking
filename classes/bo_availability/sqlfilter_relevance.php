@@ -125,6 +125,15 @@ class sqlfilter_relevance {
     }
 
     /**
+     * A copy of the full relevance data for reporting purposes (read-only).
+     *
+     * @return array{inuse:bool,byconditionid:array,usedids:array,markervalues:array}
+     */
+    public static function report_overview(): array {
+        return self::get_data();
+    }
+
+    /**
      * Return the relevance data, lazily rebuilt on cache miss.
      *
      * @return array{inuse:bool,byconditionid:array,usedids:array,markervalues:array}

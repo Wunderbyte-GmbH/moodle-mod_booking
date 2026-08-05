@@ -539,48 +539,21 @@ class bo_info {
     }
 
     /**
-     * Add the sql from the conditions.
+     * The raw SQL parts of all used mform conditions for the given user - without
+     * the capability gate, without the booked-user bypass and without the final
+     * sqlfilter guard wrapper. Shared by return_sql_from_conditions() and the
+     * strictly read-only cache report, which uses it to compute the general-view
+     * stem SQL for arbitrary users without switching the session user.
+     *
      * @param int $userid
-     * @return array
+     * @return array [select, from, filter, params, wherefragments]
      */
-    public static function return_sql_from_conditions(int $userid) {
-        global $PAGE;
-
-        // Check if SQL filter for availability conditions is enabled.
-        if (!get_config('booking', 'usesqlfilteravailability')) {
-            return ['', '', '', [], ''];
-        }
-
-        // First, we get all the relevant conditions.
+    public static function conditions_sql_parts(int $userid): array {
         $conditions = self::get_available_conditions(MOD_BOOKING_CONDPARAM_MFORM_ONLY);
         $selectall = '';
         $fromall = '';
         $filterall = '';
         $paramsarray = [];
-
-        $cm = $PAGE->cm;
-        if (
-            (
-                class_exists('local_shopping_cart\shopping_cart')
-                && has_capability('local/shopping_cart:cashier', context_system::instance())
-            )
-            || (
-                $cm
-                && (has_capability('mod/booking:updatebooking', $cm->context))
-            )
-        ) {
-            // With this capability, ignore filter for sql check.
-            // Because of missing $cm this will not work for display outside a course i.e. in shortcodes display.
-            // A teacher would not see hidden bookingconditions on startpage but in courselist they would be displayed.
-            return ['', '', '', [], ''];
-        }
-
-        // Without a single option using the SQL filter there is nothing to
-        // restrict: skip building the user specific WHERE altogether, so every
-        // user shares the same (empty) SQL and thus the same table cache entries.
-        if (!sqlfilter_relevance::any_sqlfilter_in_use()) {
-            return ['', '', '', [], ''];
-        }
         $wherearray = [];
         foreach ($conditions as $class) {
             if (method_exists($class, 'instance')) {
@@ -607,6 +580,48 @@ class bo_info {
             }
             $paramsarray = array_merge($paramsarray, $params);
         }
+
+        return [$selectall, $fromall, $filterall, $paramsarray, $wherearray];
+    }
+
+    /**
+     * Add the sql from the conditions.
+     * @param int $userid
+     * @return array
+     */
+    public static function return_sql_from_conditions(int $userid) {
+        global $PAGE;
+
+        // Check if SQL filter for availability conditions is enabled.
+        if (!get_config('booking', 'usesqlfilteravailability')) {
+            return ['', '', '', [], ''];
+        }
+
+        $cm = $PAGE->cm;
+        if (
+            (
+                class_exists('local_shopping_cart\shopping_cart')
+                && has_capability('local/shopping_cart:cashier', context_system::instance())
+            )
+            || (
+                $cm
+                && (has_capability('mod/booking:updatebooking', $cm->context))
+            )
+        ) {
+            // With this capability, ignore filter for sql check.
+            // Because of missing $cm this will not work for display outside a course i.e. in shortcodes display.
+            // A teacher would not see hidden bookingconditions on startpage but in courselist they would be displayed.
+            return ['', '', '', [], ''];
+        }
+
+        // Without a single option using the SQL filter there is nothing to
+        // restrict: skip building the user specific WHERE altogether, so every
+        // user shares the same (empty) SQL and thus the same table cache entries.
+        if (!sqlfilter_relevance::any_sqlfilter_in_use()) {
+            return ['', '', '', [], ''];
+        }
+
+        [$selectall, $fromall, $filterall, $paramsarray, $wherearray] = self::conditions_sql_parts($userid);
 
         if (empty($wherearray)) {
             return ['', '', '', [], ''];

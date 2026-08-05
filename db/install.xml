@@ -864,5 +864,24 @@
         <INDEX NAME="hashnameendx" UNIQUE="false" FIELDS="shortcodehash, endtime"/>
       </INDEXES>
     </TABLE>
+
+    <TABLE NAME="booking_cachereport_snapshots" COMMENT="Aggregated daily snapshots of the booking cache report metrics. Contains no user data.">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="samplesize" TYPE="int" LENGTH="5" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Number of sampled users for the stem key measurement."/>
+        <FIELD NAME="distinctstems" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Number of distinct stem cache keys within the sample."/>
+        <FIELD NAME="sqlfilteroptions" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Number of booking options carrying a sqlfilter marker."/>
+        <FIELD NAME="querytimefiltered" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Milliseconds of the filtered options count query."/>
+        <FIELD NAME="querytimeplain" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Milliseconds of the unfiltered options count query."/>
+        <FIELD NAME="extrasjson" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Additional aggregated metrics as json."/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="timecreatedx" UNIQUE="false" FIELDS="timecreated"/>
+      </INDEXES>
+    </TABLE>
   </TABLES>
 </XMLDB>

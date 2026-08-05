@@ -88,6 +88,15 @@ $ADMIN->add(
 $ADMIN->add(
     'modbookingfolder',
     new admin_externalpage(
+        'modbookingcachereport',
+        get_string('cachereport', 'mod_booking'),
+        new moodle_url('/mod/booking/cachereport.php')
+    )
+);
+
+$ADMIN->add(
+    'modbookingfolder',
+    new admin_externalpage(
         'modbookingpricecategories',
         get_string('pricecategories', 'mod_booking'),
         new moodle_url('/mod/booking/pricecategories.php')

@@ -5640,5 +5640,26 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2026073100, 'booking');
     }
 
+    if ($oldversion < 2026080401) {
+        // Aggregated daily snapshots of the booking cache report metrics.
+        $table = new xmldb_table('booking_cachereport_snapshots');
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('samplesize', XMLDB_TYPE_INTEGER, '5', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('distinctstems', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('sqlfilteroptions', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('querytimefiltered', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+        $table->add_field('querytimeplain', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+        $table->add_field('extrasjson', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_index('timecreatedx', XMLDB_INDEX_NOTUNIQUE, ['timecreated']);
+
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        upgrade_mod_savepoint(true, 2026080401, 'booking');
+    }
+
     return true;
 }

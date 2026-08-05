@@ -75,4 +75,13 @@ $tasks = [
         'dayofweek' => '*',
         'month' => '*',
     ],
+    // Aggregated snapshot of the booking cache report metrics every day at 03:30 AM.
+    ['classname' => 'mod_booking\task\create_cachereport_snapshot',
+        'blocking' => 0,
+        'minute' => '30',
+        'hour' => '3',
+        'day' => '*',
+        'dayofweek' => '*',
+        'month' => '*',
+    ],
 ];
