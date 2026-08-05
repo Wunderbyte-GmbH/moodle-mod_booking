@@ -23,6 +23,7 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use mod_booking\booking_option;
 use mod_booking\local\override_user_field;
 use mod_booking\local\customform_prefill;
 use mod_booking\output\bookingoption_description;
@@ -95,23 +96,15 @@ if ($settings && !empty($settings->id)) {
         customform_prefill::prefill_from_request($settings, (int)$user->id);
     }
 
-    // There can be cases where we are booked, but don't have the right to see.
-    // We override this here. If we are booked, we can also see details.
-    if (
-        (
-            isloggedin()
-            && !isguestuser()
-            && $USER->id == $user->id
-            && $ba->user_status($USER->id) > MOD_BOOKING_STATUSPARAM_RESERVED
-        )
-        && !get_config('booking', 'showbookingdetailstoall')
-    ) {
-        require_login();
-
-        // If we have this setting.
-        if (!get_config('booking', 'bookonlyondetailspage')) {
-            require_capability('mod/booking:view', $modcontext);
+    // Central access rule, shared with the option title link in bookingoptions_wbtable.
+    // Booked users (booked, waiting list, reserved) can always see their own booking's details.
+    if (!booking_option::can_view_option_details($optionid, (int)$user->id)) {
+        if (!isloggedin() || isguestuser()) {
+            // Not logged in (or guest): send the user to the login page.
+            require_login();
         }
+
+        require_capability('mod/booking:view', $modcontext);
     }
 
     // If the user is logged-in, we check if (s)he has accepted the site policy.

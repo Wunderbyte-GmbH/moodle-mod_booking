@@ -459,6 +459,54 @@ class booking_option {
     }
 
     /**
+     * Central access rule for the booking option detail page (optionview.php).
+     *
+     * The same rule decides in optionview.php whether the page may be shown and in
+     * bookingoptions_wbtable::col_text whether the title links to the page at all.
+     *
+     * @param int $optionid
+     * @param int $userid user to check for, 0 means the current user
+     * @return bool true if the user may see the detail page of this option
+     */
+    public static function can_view_option_details(int $optionid, int $userid = 0): bool {
+        global $USER;
+
+        // Site is configured to show booking details to everyone, even logged out users.
+        if (get_config('booking', 'showbookingdetailstoall')) {
+            return true;
+        }
+
+        if (!isloggedin() || isguestuser()) {
+            return false;
+        }
+
+        if (empty($userid)) {
+            $userid = (int)$USER->id;
+        }
+
+        // Users with an active booking (booked, waiting list or reserved) can always see
+        // the details of their own booking, even without the view capability.
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        if (empty($settings->id)) {
+            return false;
+        }
+        $bookinganswers = singleton_service::get_instance_of_booking_answers($settings);
+        if ($bookinganswers->user_status($userid) <= MOD_BOOKING_STATUSPARAM_RESERVED) {
+            return true;
+        }
+
+        // If booking is only possible on the details page, the page has to stay reachable.
+        if (get_config('booking', 'bookonlyondetailspage')) {
+            return true;
+        }
+
+        if (empty($settings->cmid)) {
+            return false;
+        }
+        return has_capability('mod/booking:view', context_module::instance($settings->cmid), $userid);
+    }
+
+    /**
      * Return if user can rate.
      *
      * @return bool

@@ -478,6 +478,12 @@ class bookingoptions_wbtable extends wunderbyte_table {
             $title = $titleprefix . ' - ' . $title;
         }
 
+        // Users who are not allowed to see the detail page (same rule as in optionview.php)
+        // don't get a link to it either. Checked for the viewing user, not the buy-for user.
+        if (!booking_option::can_view_option_details((int)$optionid)) {
+            return "<div class='bookingoptions-wbtable-option-title'>$title</div>";
+        }
+
         $title = match ((int) get_config('booking', 'openbookingdetailinsametab')) {
             // 1 is with link in same window.
             1 => "<div class='bookingoptions-wbtable-option-title'><a href='$url'>$title</a></div>",
