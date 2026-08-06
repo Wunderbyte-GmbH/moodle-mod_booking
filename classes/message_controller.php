@@ -850,6 +850,19 @@ class message_controller {
     }
 
     /**
+     * Override the sender of this message, replacing the default sender (booking manager).
+     * Has to be called after construction, as the message data is built in the constructor.
+     *
+     * @param stdClass $user the user to be used as sender
+     * @return void
+     */
+    public function set_sender(stdClass $user): void {
+        if (!empty($this->messagedata)) {
+            $this->messagedata->userfrom = $user;
+        }
+    }
+
+    /**
      * Helper function to get the fieldname for the message type.
      * @return string the field name
      */

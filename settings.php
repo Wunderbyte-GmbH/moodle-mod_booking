@@ -1450,6 +1450,18 @@ if ($ADMIN->fulltree) {
             booking::get_possible_presences(true)
         )
     );
+    $settings->add(
+        new admin_setting_configselect(
+            'booking/bookingstrackermessagesender',
+            get_string('bookingstrackermessagesender', 'mod_booking'),
+            get_string('bookingstrackermessagesender_desc', 'mod_booking'),
+            0,
+            [
+                0 => get_string('bookingstrackermessagesender:bookingmanager', 'mod_booking'),
+                1 => get_string('bookingstrackermessagesender:currentuser', 'mod_booking'),
+            ]
+        )
+    );
 
     // PRO feature: Workflow confirmation settings.
     if ($proversion) {

@@ -94,6 +94,30 @@ class modal_send_custom_message extends dynamic_form {
     }
 
     /**
+     * Resolve the sender of the messages sent from the bookings tracker (report2.php),
+     * depending on the global setting bookingstrackermessagesender: either the booking
+     * manager of the instance (default, with the logged-in user as fallback if no valid
+     * booking manager is set) or the logged-in user actually sending the message.
+     *
+     * @param int $cmid Course module ID of the booking instance.
+     * @return stdClass
+     */
+    protected function get_message_sender(int $cmid): stdClass {
+        global $USER;
+
+        if (empty($cmid) || !empty(get_config('booking', 'bookingstrackermessagesender'))) {
+            return $USER;
+        }
+
+        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
+        if (!empty($bookingsettings->bookingmanageruser->id)) {
+            return $bookingsettings->bookingmanageruser;
+        }
+
+        return $USER;
+    }
+
+    /**
      * Form definition.
      */
     public function definition() {
@@ -124,6 +148,15 @@ class modal_send_custom_message extends dynamic_form {
         $mform->setType('selecteduserids', PARAM_INT);
         $mform->addRule('selecteduserids', null, 'required', null, 'client');
         $mform->addHelpButton('selecteduserids', 'custommessagerecipients', 'mod_booking');
+
+        // Show the sender of the message (not editable, resolved from the global setting).
+        $sender = $this->get_message_sender((int)($submitdata['cmid'] ?? 0));
+        $mform->addElement(
+            'static',
+            'custommessagesender',
+            get_string('custommessagesender', 'mod_booking'),
+            fullname($sender) . ' (' . $sender->email . ')'
+        );
 
         // Placeholders info text (same collapsible as in the booking rules mail actions).
         $placeholders = placeholders_info::return_list_of_placeholders();
@@ -230,6 +263,9 @@ class modal_send_custom_message extends dynamic_form {
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
         $bookingid = $settings->bookingid;
 
+        // Resolve the sender once, exactly like it was displayed in the form.
+        $sender = $this->get_message_sender($cmid);
+
         // Read the uploaded draft file (if any) into a temp path once before sending.
         $tempfilepath = '';
         $attachmentfilename = '';
@@ -262,6 +298,7 @@ class modal_send_custom_message extends dynamic_form {
                     $subject,
                     $messagetext
                 );
+                $messagecontroller->set_sender($sender);
                 if (!empty($tempfilepath)) {
                     $messagecontroller->set_custom_attachment($tempfilepath, $attachmentfilename);
                 }

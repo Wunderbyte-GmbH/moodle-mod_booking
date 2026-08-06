@@ -137,14 +137,15 @@ final class modal_send_custom_message_test extends advanced_testcase {
      * Returns the option settings and a userid-indexed array of user objects.
      *
      * @param int $numusers
+     * @param array $bookingparams additional params for the booking instance (e.g. bookingmanager)
      * @return array{0: \mod_booking\booking_option_settings, 1: array<int, \stdClass>}
      */
-    private function create_booked_option(int $numusers = 2): array {
+    private function create_booked_option(int $numusers = 2, array $bookingparams = []): array {
         $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
-        $booking = $this->getDataGenerator()->create_module('booking', [
+        $booking = $this->getDataGenerator()->create_module('booking', array_merge([
             'name'   => 'Attachment test booking',
             'course' => $course->id,
-        ]);
+        ], $bookingparams));
 
         /** @var mod_booking_generator $gen */
         $gen = self::getDataGenerator()->get_plugin_generator('mod_booking');
@@ -340,6 +341,72 @@ final class modal_send_custom_message_test extends advanced_testcase {
                 "Stored_file content must match original for user {$uid}."
             );
         }
+    }
+
+    /**
+     * Test: the global setting bookingstrackermessagesender controls the sender of the
+     * messages sent from the bookings tracker modals: by default the booking manager of
+     * the instance is used (behaviour as before), with the setting active the logged-in
+     * user actually sending the message is used.
+     *
+     * @covers \mod_booking\form\modal_send_custom_message::process_dynamic_submission
+     * @covers \mod_booking\message_controller::set_sender
+     */
+    public function test_message_sender_respects_global_setting(): void {
+        $this->resetAfterTest(true);
+        singleton_service::destroy_instance();
+
+        $manager = $this->getDataGenerator()->create_user([
+            'firstname' => 'Betty',
+            'lastname'  => 'Bookingmanager',
+            'email'     => 'manager@example.com',
+        ]);
+        $this->setAdminUser();
+        $adminuser = get_admin();
+
+        [$settings, $users] = $this->create_booked_option(1, ['bookingmanager' => $manager->username]);
+        $recipient = reset($users);
+
+        $ajaxargs = [
+            'cmid'            => (int)$settings->cmid,
+            'optionid'        => (int)$settings->id,
+            'checkedids'      => '',
+            'selecteduserids' => [(int)$recipient->id],
+            'subject'         => 'Sender setting subject',
+            'message'         => ['text' => 'Sender setting body', 'format' => FORMAT_HTML],
+        ];
+
+        // Default setting: the booking manager of the instance is the sender.
+        $sink = $this->redirectMessages();
+        $submitdata = modal_send_custom_message::mock_ajax_submit($ajaxargs);
+        $mform = new modal_send_custom_message(null, null, 'post', '', [], true, $submitdata, true);
+        $mform->process_dynamic_submission();
+        $messages = $sink->get_messages();
+        $sink->close();
+
+        $this->assertCount(1, $messages);
+        $this->assertEquals(
+            (int)$manager->id,
+            (int)$messages[0]->useridfrom,
+            'With the default setting the booking manager must be the sender.'
+        );
+
+        // Setting "logged-in user": the user actually sending the message is the sender.
+        set_config('bookingstrackermessagesender', 1, 'booking');
+
+        $sink = $this->redirectMessages();
+        $submitdata = modal_send_custom_message::mock_ajax_submit($ajaxargs);
+        $mform = new modal_send_custom_message(null, null, 'post', '', [], true, $submitdata, true);
+        $mform->process_dynamic_submission();
+        $messages = $sink->get_messages();
+        $sink->close();
+
+        $this->assertCount(1, $messages);
+        $this->assertEquals(
+            (int)$adminuser->id,
+            (int)$messages[0]->useridfrom,
+            'With the setting active the logged-in user must be the sender.'
+        );
     }
 
     /**
