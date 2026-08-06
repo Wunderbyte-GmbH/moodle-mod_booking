@@ -210,3 +210,36 @@ Feature: Use the bookings tracker (report2.php) as replacement of the old report
     # Verify the messages for students 3 and 4.
     And "//*[@id='accordion-item-sentmessages']//tr[.//td[@data-label='relateduserid' and normalize-space(.)='Student 3'] and .//td[@data-label='eventname' and normalize-space(.)='Message sent'] and .//td[@data-label='description']//a[contains(normalize-space(.), 'Behat custom message subject')] and .//td[@data-label='description']//div[contains(concat(' ', normalize-space(@class), ' '), ' collapse ')]//*[contains(normalize-space(.), 'Behat custom message body')]]" "xpath_element" should exist
     And "//*[@id='accordion-item-sentmessages']//tr[.//td[@data-label='relateduserid' and normalize-space(.)='Student 4'] and .//td[@data-label='eventname' and normalize-space(.)='Message sent'] and .//td[@data-label='description']//a[contains(normalize-space(.), 'Behat custom message subject')] and .//td[@data-label='description']//div[contains(concat(' ', normalize-space(@class), ' '), ' collapse ')]//*[contains(normalize-space(.), 'Behat custom message body')]]" "xpath_element" should exist
+
+  @javascript
+  Scenario: Booking report2: manage unsubscription (booking deletion) in the option scope
+    Given I log in as "admin"
+    And I visit "/mod/booking/report2.php"
+    And I should see "B2-Option1" in the "#booked_system_0_r1" "css_element"
+    And I follow "B2-Option1"
+    And I switch to a second window
+    And I should see "Manage bookings for Booking option: \"B2-Option1\""
+    # 1. Verify that the "Deleted bookings" section is not present initially.
+    And I should not see "Deleted bookings"
+    # 2. Verify that student4 is in the second row of the Bookings table.
+    And "//table[starts-with(@id, 'booked_option_')]//tr[contains(@id, '_r2')]//td[@data-label='email' and normalize-space(.)='student4@example.com']" "xpath_element" should exist
+    # 3. Select student4 using the checkbox in the second row.
+    And I click on "//table[starts-with(@id, 'booked_option_')]//tr[contains(@id, '_r2')][.//td[@data-label='email' and normalize-space(.)='student4@example.com']]//td[@data-label='wbcheckbox']//input[@type='checkbox']" "xpath_element"
+    # 4. Click the Unsubscribe action.
+    And I click on "//a[@data-methodname='delete_checked_booking_answers' and normalize-space(.)='Unsubscribe']" "xpath_element"
+    # 5. Confirm deletion in the modal.
+    And I should see "Delete" in the "div[data-region='modal']" "css_element"
+    And I should see "Do you really want to delete the selected bookings?" in the "div[data-region='modal']" "css_element"
+    And I click on "//div[@data-region='modal'][.//*[@data-region='title' and normalize-space(.)='Delete']]//button[@data-action='save' and normalize-space(.)='Delete']" "xpath_element"
+    And I wait until the page is ready
+    # Verify that student4 is no longer present in the active Bookings table.
+    And "//table[starts-with(@id, 'booked_option_')]//td[@data-label='email' and normalize-space(.)='student4@example.com']" "xpath_element" should not exist
+    # 6. Expand the Deleted bookings section if it is collapsed.
+    And I click on "//*[@id='accordion-heading-deletedusers']//*[@role='button']" "xpath_element"
+    # Verify that the section is expanded.
+    And "//*[@id='accordion-item-deletedusers' and contains(concat(' ', normalize-space(@class), ' '), ' show ')]" "xpath_element" should exist
+    # Verify that the Deleted bookings table contains one record.
+    And "//*[@id='accordion-item-deletedusers']//*[contains(@class, 'wb-records-count-label') and contains(normalize-space(.), '1 of 1 records found')]" "xpath_element" should exist
+    # Verify that student4 appears in the Deleted bookings table and the record is marked as Deleted.
+    And "//*[@id='accordion-item-deletedusers']//table[starts-with(@id, 'deleted_option_')]//tr[.//td[@data-label='email' and normalize-space(.)='student4@example.com']]" "xpath_element" should exist
+    And "//*[@id='accordion-item-deletedusers']//table[starts-with(@id, 'deleted_option_')]//tr[.//td[@data-label='email' and normalize-space(.)='student4@example.com']]//td[@data-label='waitinglist' and normalize-space(.)='Deleted']" "xpath_element" should exist
