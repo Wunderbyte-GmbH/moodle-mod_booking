@@ -11,6 +11,7 @@ This `docs/` directory is the central reference for administrators, teachers, an
 | I want to… | Go to… |
 |------------|--------|
 | Understand how booking messages work | [Booking messages](user/00_booking_messages/README.md) |
+| View and manage all bookings (site, course, instance, option) | [Bookings Tracker](user/reports/README.md) |
 | Create a new booking option | [Create a booking option (first steps)](#create-a-booking-option-first-steps) |
 | Send any kind of messages and reminders in relation to booking events or course start etc. | [Booking rules](user/booking_rules/README.md) |
 | Restrict who can book an option | [Booking conditions](user/booking_conditions/README.md) |
@@ -21,6 +22,7 @@ This `docs/` directory is the central reference for administrators, teachers, an
 | Import booking options in bulk | [CSV Import User Guide](user/CSV_IMPORT_USER_GUIDE.md) |
 | Run a time-limited booking campaign (discount / block) | [Campaigns](user/campaigns/README.md) |
 | Let participants choose add-ons or time slots | [Sub-bookings](user/subbookings/README.md) |
+| Offer individually bookable time slots (appointments, exams) | [Slot booking](user/slotbooking/README.md) |
 | Trigger actions automatically when someone books - NOT used for notification or messages | [Actions after booking](user/actions_after_booking/README.md) |
 | Understand scheduled background tasks | [Scheduled tasks](user/scheduled_tasks/README.md) |
 | Automatically remove bookings when a user loses access | [Check answers](developer-guides/CHECKANSWERS_API.md) |
@@ -34,6 +36,8 @@ Important distinction for AI/explain tasks:
 - Questions about restrictions or limitations (who can book, when bookable, booking window, time limit) belong to [Booking Conditions](user/booking_conditions/README.md) and [Availability](user/booking-option/04-availability.md). These pages take priority over Booking Rules for restriction/limitation queries.
 
 ## First Admin Workflow (click-by-click)
+
+> When adding a new Booking activity to a course, the activity chooser lists it in the **"Administration"** category.
 
 1. Open your booking activity: [/mod/booking/view.php?id=<cmid>](/mod/booking/view.php?id=<cmid>).
 2. Open option management: [/mod/booking/editoptions.php?id=<cmid>](/mod/booking/editoptions.php?id=<cmid>).

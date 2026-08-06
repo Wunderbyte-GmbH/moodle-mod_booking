@@ -165,7 +165,13 @@ includecustomfields="<shortname>|<region>|<iconprefix>|<iconname>|<classes>,..."
 | `iconprefix`, `iconname` | Font Awesome classes of an icon shown in front of the value, e.g. `fas\|fa-running`. Both parts have to be given for the icon to be shown. |
 | `classes` | Additional CSS classes applied to the value. |
 
-Related: the booking instance setting **"Custom fields that are to be displayed for each booking option in the overview"** (`customfieldsforview`) shows custom fields for each booking option on the standard view (view.php) without a shortcode. There, the icons come from the plugin settings (`customfieldicon_<shortname>`); if no icon is configured, the default icon (`fa-puzzle-piece`) is used.
+Related: the booking instance setting **"Custom fields that are to be displayed for each booking option in the overview"** (`customfieldsforview`) shows custom fields for each booking option on the standard view (view.php) without a shortcode. There, the icons come from the plugin settings (`customfieldicon_<shortname>`); if no icon is configured, the default icon (`fa-puzzle-piece`) is used. In addition, the **plugin setting** `booking/customfieldsforview` (Site administration → Plugins → Booking) defines a site-wide default: it applies to every booking instance that does not configure `customfieldsforview` itself.
+
+Related: the instance setting **"Custom fields that are to be displayed as filter options"** is an autocomplete field (type to search the available custom fields).
+
+### Multilevel location filter (entity tree)
+
+When the [local_entities](https://github.com/Wunderbyte-GmbH/moodle-local_entities) plugin is installed, the plugin setting **`booking/entitytreefilter`** ("Multilevel location filter") switches the location filter of the booking tables from a flat text list to a **multilevel entity tree** (Location → Building → Floor → Room …). Selecting a node includes all of its sub-locations. The companion setting **`booking/entitytreefiltertoplevelonly`** offers only the first (top) level as filter entries — selecting one still filters the whole branch, but the sub-levels are not listed separately. When the setting is off, the plain-text location filter is used, unchanged.
 
 ### Data restriction parameters
 

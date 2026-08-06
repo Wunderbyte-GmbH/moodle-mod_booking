@@ -6,7 +6,7 @@ Placeholders are tokens in the form `{tokenname}` that mod_booking replaces with
 
 - **Booking rule email templates** (subject and body of `send_mail` and `send_mail_interval` actions)
 - **Booking confirmation and notification texts** configured in booking option settings (Advanced section)
-- **iCal event descriptions** attached to rule emails
+- **iCal event descriptions** attached to rule emails — placeholders are resolved there too, and `{mlang}` multi-language filters are supported, so calendar entries arrive in the recipient's language. HTML and links in iCal descriptions are cleaned up so they also display correctly in Outlook.
 - **Poll URL fields** on booking options (only placeholders that have `for_pollurl() = true`)
 
 Each placeholder maps to a PHP class under `classes/placeholders/placeholders/`. The token name is the class name surrounded by braces, e.g., class `firstname` → `{firstname}`.

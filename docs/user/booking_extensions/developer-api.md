@@ -24,6 +24,7 @@ This page describes how to build a `bookingextension_*` subplugin for mod_bookin
 5. [Registering custom events for booking rules](#5-registering-custom-events-for-booking-rules)
 6. [Adding option fields](#6-adding-option-fields)
 7. [Adding admin settings](#7-adding-admin-settings)
+8. [Restricting visible booking answers (`answersrestriction`)](#8-restricting-visible-booking-answers-answersrestriction)
 
 ---
 
@@ -202,6 +203,39 @@ public function load_settings(\part_of_admin_tree $adminroot, $parentnodename, $
     }
 }
 ```
+
+---
+
+## 8. Restricting visible booking answers (`answersrestriction`)
+
+An extension can restrict **whose booking answers the current user may see** — the classic use case is a supervisor who should only see the bookings of their own team. To do so, ship a class at:
+
+```
+\bookingextension_<name>\local\answersrestriction
+```
+
+with a static method:
+
+```php
+/**
+ * Restrict the answers visible to the CURRENT user in the given scope.
+ *
+ * @param scope_base $scopeclass the answer scope being rendered (system, course, instance, option, ...)
+ * @param int $scopeid the id belonging to the scope (courseid, cmid, optionid, ...)
+ * @return int[]|null user ids whose answers stay visible; null if this extension
+ *                    does not restrict the current user at all
+ */
+public static function restrict_to_user_ids(scope_base $scopeclass, int $scopeid): ?array;
+```
+
+Contract:
+
+- Return `null` when the extension does not restrict the current user (e.g. admins, unrestricted roles) — all answers of the scope stay visible.
+- Return an array of user ids to limit visibility to exactly those users. An **empty array** means the user is restricted but has nobody to see.
+- When several enabled extensions restrict the same user, the results are **intersected** — every restriction can only narrow down what is left.
+- The class is only consulted while the extension's `<name>enabled` setting is on; the result is request-cached per user, scope and scope id.
+
+The restriction is enforced centrally (via `mod_booking\local\bookingworkflow\answersrestriction`) in the [Bookings Tracker](../reports/README.md) scopes, the legacy `report.php`, `subscribeusers.php` ("book other users"), the booking history and the sent-messages list.
 
 ---
 
