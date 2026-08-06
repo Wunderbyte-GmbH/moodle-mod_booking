@@ -277,4 +277,31 @@ class scope_base {
 
         return [$fields, $from, $where ?? '', $params];
     }
+
+    /**
+     * Defines the sortable columns of a users table, using the headers as localized labels.
+     *
+     * Action columns are only created by a col_ function on rendering, they have no counterpart in the sql.
+     * Sorting by them would end up in "ORDER BY action_..." and break the query, so we exclude them.
+     *
+     * @param wunderbyte_table $table
+     * @param array $columns
+     * @param array $headers
+     *
+     * @return void
+     *
+     */
+    public function define_sortablecolumns_from_columns(wunderbyte_table $table, array $columns, array $headers = []) {
+
+        $sortablecolumns = [];
+        foreach ($columns as $index => $columnkey) {
+            if (str_starts_with($columnkey, 'action_')) {
+                // Make sure sorting is not possible, even if the column is requested via the tsort param.
+                $table->no_sorting($columnkey);
+                continue;
+            }
+            $sortablecolumns[$columnkey] = $headers[$index] ?? $columnkey;
+        }
+        $table->define_sortablecolumns($sortablecolumns);
+    }
 }

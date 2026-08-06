@@ -90,11 +90,12 @@ class optionstoconfirmreduced extends optionstoconfirm {
             $table->use_pages = true;
         }
         $table->set_sql($fields, $from, $where, $params);
-        $sortablecolumns = [];
-        foreach ($columns as $index => $columnkey) {
-            $sortablecolumns[$columnkey] = $headers[$index] ?? $columnkey;
-        }
-        $table->define_sortablecolumns($sortablecolumns);
+
+        // Sorting settings.
+        $this->define_sortablecolumns_from_columns($table, $columns, $headers);
+        $table->sort_default_column = 'name';
+        $table->sort_default_order = SORT_ASC;
+
         return $table;
     }
 
