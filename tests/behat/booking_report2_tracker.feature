@@ -172,3 +172,41 @@ Feature: Use the bookings tracker (report2.php) as replacement of the old report
     # 9. Verify that both records have Presence set to Complete.
     And "//tr[contains(@id, 'booked_option_') and contains(@id, '_r1')][.//td[@data-label='email' and normalize-space(.)='student3@example.com']]//td[@data-label='status' and normalize-space(.)='Complete']" "xpath_element" should exist
     And "//tr[contains(@id, 'booked_option_') and contains(@id, '_r2')][.//td[@data-label='email' and normalize-space(.)='student4@example.com']]//td[@data-label='status' and normalize-space(.)='Complete']" "xpath_element" should exist
+
+  @javascript
+  Scenario: Booking report2: manage messages in the option scope
+    Given I log in as "admin"
+    And I visit "/mod/booking/report2.php"
+    And I should see "B2-Option1" in the "#booked_system_0_r1" "css_element"
+    And I follow "B2-Option1"
+    And I switch to a second window
+    And I should see "Manage bookings for Booking option: \"B2-Option1\""
+    # 1. Expand the collapsed "Show messages" section.
+    And I click on "Show messages" "text" in the "#accordion-heading-sentmessages" "css_element"
+    And "//*[@id='accordion-item-sentmessages' and contains(concat(' ', normalize-space(@class), ' '), ' show ')]" "xpath_element" should exist
+    # 2. Verify that the messages section is initially empty.
+    And I should see "No records found." in the "accordion-item-sentmessages" "region"
+    # Select both booking records. Both records must be selected because the modal
+    # is expected to contain Student 3 and Student 4 as recipients.
+    And I click on "//table[starts-with(@id, 'booked_option_')]//thead//input[@type='checkbox' and contains(concat(' ', normalize-space(@class), ' '), ' tableheadercheckbox ')]" "xpath_element"
+    # 3. Open the custom-email modal.
+    And I click on "//a[@data-formname='mod_booking\form\modal_send_custom_message' and normalize-space(.)='Send custom email']" "xpath_element"
+    And I wait until the page is ready
+    # 4. Verify the modal and both selected recipients.
+    And I should see "Send custom email" in the "div[data-region='modal']" "css_element"
+    And "//div[@data-region='modal'][.//*[@data-region='title' and normalize-space(.)='Send custom email']]//*[@role='option' and @aria-selected='true' and contains(normalize-space(.), 'Student 3')]" "xpath_element" should exist
+    And "//div[@data-region='modal'][.//*[@data-region='title' and normalize-space(.)='Send custom email']]//*[@role='option' and @aria-selected='true' and contains(normalize-space(.), 'Student 4')]" "xpath_element" should exist
+    # Fill in the message.
+    And I set the field "Subject" to "Behat custom message subject"
+    And I set the field "Message" to "Behat custom message body"
+    # Send the message.
+    And I click on "//div[@data-region='modal'][.//*[@data-region='title' and normalize-space(.)='Send custom email']]//button[@data-action='save' and normalize-space(.)='Send message']" "xpath_element"
+    And I wait until the page is ready
+    # TODO: page reload is necessary in order to load messages.
+    And I reload the page
+    And I click on "Show messages" "text" in the "#accordion-heading-sentmessages" "css_element"
+    # 5. Verify that exactly two message records are displayed.
+    And I should see "2 of 2 messages found" in the "accordion-item-sentmessages" "region"
+    # Verify the messages for students 3 and 4.
+    And "//*[@id='accordion-item-sentmessages']//tr[.//td[@data-label='relateduserid' and normalize-space(.)='Student 3'] and .//td[@data-label='eventname' and normalize-space(.)='Message sent'] and .//td[@data-label='description']//a[contains(normalize-space(.), 'Behat custom message subject')] and .//td[@data-label='description']//div[contains(concat(' ', normalize-space(@class), ' '), ' collapse ')]//*[contains(normalize-space(.), 'Behat custom message body')]]" "xpath_element" should exist
+    And "//*[@id='accordion-item-sentmessages']//tr[.//td[@data-label='relateduserid' and normalize-space(.)='Student 4'] and .//td[@data-label='eventname' and normalize-space(.)='Message sent'] and .//td[@data-label='description']//a[contains(normalize-space(.), 'Behat custom message subject')] and .//td[@data-label='description']//div[contains(concat(' ', normalize-space(@class), ' '), ' collapse ')]//*[contains(normalize-space(.), 'Behat custom message body')]]" "xpath_element" should exist
