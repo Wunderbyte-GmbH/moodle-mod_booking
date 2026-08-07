@@ -480,6 +480,70 @@ final class modal_send_custom_message_test extends advanced_testcase {
     }
 
     /**
+     * Test: the default send path WITHOUT set_sender() — used by all mails outside the
+     * bookings tracker modals, in particular the booking rules (send_mail_by_rule_adhoc
+     * constructs the message_controller exactly like this) — is not affected by the
+     * reply-to override of set_sender(): no reply-to pointing to the resolved sender
+     * is added, core email_to_user() keeps full control over from and reply-to.
+     *
+     * @covers \mod_booking\message_controller::send_or_queue
+     */
+    public function test_default_send_path_without_set_sender_keeps_replyto_untouched(): void {
+        // Messages to conversations are buffered while a DB transaction is open,
+        // so the email processor would never run inside the test rollback transaction.
+        $this->preventResetByRollback();
+        $this->resetAfterTest(true);
+        singleton_service::destroy_instance();
+
+        $manager = $this->getDataGenerator()->create_user([
+            'firstname' => 'Betty',
+            'lastname'  => 'Bookingmanager',
+            'email'     => 'manager@example.com',
+        ]);
+        $this->setAdminUser();
+
+        [$settings, $users] = $this->create_booked_option(1, ['bookingmanager' => $manager->username]);
+        $recipient = reset($users);
+
+        $mailsink = $this->redirectEmails();
+
+        // Same construction as in send_mail_by_rule_adhoc (booking rules) — no set_sender() call.
+        $messagecontroller = new message_controller(
+            MOD_BOOKING_MSGCONTRPARAM_SEND_NOW,
+            MOD_BOOKING_MSGPARAM_CUSTOM_MESSAGE,
+            (int)$settings->cmid,
+            (int)$settings->id,
+            (int)$recipient->id,
+            (int)$settings->bookingid,
+            null,
+            null,
+            'Rules mail subject',
+            'Rules mail body'
+        );
+        $sent = $messagecontroller->send_or_queue();
+
+        $mails = $mailsink->get_messages();
+        $mailsink->close();
+
+        $this->assertTrue($sent);
+        $this->assertCount(1, $mails);
+        // Core default behaviour as before: without allowedemaildomains both the visible
+        // from address and the reply-to stay the noreply address — no reply-to override
+        // pointing to the booking manager may appear.
+        $this->assertMatchesRegularExpression(
+            '/^Reply-To:[^\r\n]*noreply/im',
+            $mails[0]->header,
+            'Without set_sender the reply-to must stay the core noreply default.'
+        );
+        $this->assertDoesNotMatchRegularExpression(
+            '/^Reply-To:[^\r\n]*manager@example\.com/im',
+            $mails[0]->header,
+            'Without set_sender no reply-to override to the sender may be added.'
+        );
+        $this->assertStringContainsString('noreply', $mails[0]->from);
+    }
+
+    /**
      * Test: submitting without a draft file (no attachment) still sends messages normally.
      * Ensures the attachment code path is bypassed cleanly when no file is uploaded.
      *
