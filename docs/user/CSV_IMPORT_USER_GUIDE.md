@@ -255,8 +255,8 @@ These columns configure who is allowed to book the option.
 | `allowtobookagainafter` | Seconds until re-booking is allowed (requires `multiplebookings=1`) | `86400` |
 | `responsiblecontact` | Email of the responsible contact person (must be existing Moodle user) | `manager@example.com` |
 | `returnurl` | URL the user is sent to after booking | `https://example.com/thanks` |
-| `optiondateid_0` | Internal ID of the first existing date slot (for updating specific option dates) | `12` |
-| `optiondateid_1` | Internal ID of the second existing date slot | `13` |
+| `optiondateid_0` | ID of the first date slot for `coursestarttime_0`/`courseendtime_0`: an existing date's internal ID to update that specific date, `0` (or column omitted) to create a new date | `12` |
+| `optiondateid_1` | Same for the second date slot (`optiondateid_2`, … accordingly) | `13` |
 | `addastemplate` | Save this option as a template (`1` = yes) | `0` |
 | `optiontype` | Option type ID | `1` |
 | `repeatthisbooking` | Repeat booking option N times | `4` |
@@ -354,8 +354,14 @@ The same format applies to all date cells in that row.
 ### Multiple sessions (`coursestarttime_1`, `courseendtime_1`, …)
 
 To import an option with several sessions, use the indexed date columns
-`coursestarttime_1` / `courseendtime_1`, `coursestarttime_2` / `courseendtime_2`, and so on
-(paired with `optiondateid_1`, `optiondateid_2`, … — use `0` to create a new date).
+`coursestarttime_1` / `courseendtime_1`, `coursestarttime_2` / `courseendtime_2`, and so on.
+Each pair may be accompanied by `optiondateid_1`, `optiondateid_2`, …: set it to an existing
+date's internal ID to update that specific date, or to `0` to create a new date. When the
+`optiondateid_<n>` column is omitted, `0` (create a new date) is assumed.
+
+> Older plugin versions REQUIRED the `optiondateid_<n>` column: without it the indexed date
+> pair was dropped silently and the option was imported without that date. If an import
+> creates options without dates, check the plugin version and add `optiondateid_<n> = 0`.
 
 Each indexed date cell accepts the **same formats** as the single-date columns above:
 a Unix timestamp, an ISO 8601 string, or a readable date matching your `dateparseformat`.
@@ -370,7 +376,7 @@ passed through unchanged.
 
 | Problem | Solution |
 |---------|---------|
-| Option is created but has no date | Check that `coursestarttime` and `courseendtime` are both present and in a valid format |
+| Option is created but has no date | Check that `coursestarttime` and `courseendtime` are both present and in a valid format. With indexed columns (`coursestarttime_1`, …) on older plugin versions, also add the matching `optiondateid_1 = 0` column |
 | Import skips a row with no error message | Make sure `text` (or `name`) and `cmid` are filled |
 | Teacher is not assigned | Verify the email in `teacheremail` matches an existing Moodle user account exactly |
 | Price is ignored | Make sure `useprice` is set to `1` and the price category column name exactly matches the identifier in booking settings |

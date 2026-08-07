@@ -486,6 +486,19 @@ class fields_info {
                     if (isset($data->{$alternativeidentifier})) {
                         return false;
                     }
+                    // An identifier ending in '_' matches any indexed column of that family
+                    // (e.g. 'coursestarttime_' matches coursestarttime_0, coursestarttime_7, ...),
+                    // so imports using indexed date rows reach their field class regardless of
+                    // which indices the file carries.
+                    if (
+                        str_ends_with($alternativeidentifier, '_')
+                        && preg_grep(
+                            '/^' . preg_quote($alternativeidentifier, '/') . '\d+$/',
+                            array_keys((array) $data)
+                        )
+                    ) {
+                        return false;
+                    }
                 }
 
                 // The custom field class is the only one which still needs to executed, as we dont.

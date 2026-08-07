@@ -502,6 +502,20 @@ class dates {
         $dates = [];
         $highestindex = 1;
 
+        // CSV/webservice imports may deliver indexed date rows (coursestarttime_<n>) without
+        // the matching optiondateid_<n> marker the parser below is keyed on — the documented
+        // import columns would then be dropped silently. Inject the marker (0 = new date) for
+        // import inputs only: the interactive form always submits its own optiondateid keys,
+        // and injecting there could resurrect a date the user just deleted.
+        if (!empty($formvalues['importing'])) {
+            foreach (preg_grep('/^coursestarttime_\d+$/', array_keys($formvalues)) as $key) {
+                $idkey = MOD_BOOKING_FORM_OPTIONDATEID . substr($key, strlen(MOD_BOOKING_FORM_COURSESTARTTIME));
+                if (!isset($formvalues[$idkey])) {
+                    $formvalues[$idkey] = 0;
+                }
+            }
+        }
+
         if (!$optiondates = preg_grep('/^optiondateid_/', array_keys($formvalues))) {
             // For performance.
 

@@ -81,8 +81,12 @@ class optiondates extends field_base {
         'semesterid',
         'starddate',
         'enddate',
-        'optiondateid_0',
-        'optiondateid_1',
+        // Trailing '_' = prefix match for ANY index of the indexed date columns
+        // (see fields_info::ignore_class), so imports carrying e.g. only
+        // coursestarttime_1/courseendtime_1 still reach this field class.
+        'optiondateid_',
+        'coursestarttime_',
+        'courseendtime_',
     ];
 
     /**
