@@ -319,7 +319,7 @@ class customform implements bo_condition, freezable_condition {
                     get_string('bocondcustomformlabel', 'mod_booking'),
                     []
                 );
-                $mform->setType('bo_cond_customform_label_1_' . $counter, PARAM_TEXT);
+                $mform->setType('bo_cond_customform_label_1_' . $counter, PARAM_CLEANHTML);
 
                 // We need a few rules. We don't show label...
                 // ... when no element is chosen, when upper button is not checked.
@@ -843,7 +843,9 @@ class customform implements bo_condition, freezable_condition {
      * @return string
      */
     private static function normalize_prefill_label_key(string $label): string {
-        $label = \core_text::strtolower(trim($label));
+        // Labels may contain HTML (e.g. links); slugs must be built from the visible text only.
+        // Keep in sync with customform_prefill::normalize_prefill_key.
+        $label = \core_text::strtolower(trim(strip_tags($label)));
         $label = preg_replace('/[^[:alnum:]]+/u', '_', $label);
         return trim((string)$label, '_');
     }

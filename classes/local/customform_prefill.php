@@ -308,7 +308,9 @@ class customform_prefill {
      * @return string
      */
     private static function normalize_prefill_key(string $key): string {
-        $key = \core_text::strtolower(trim($key));
+        // Labels may contain HTML (e.g. links); slugs must be built from the visible text only.
+        // Keep in sync with customform::normalize_prefill_label_key.
+        $key = \core_text::strtolower(trim(strip_tags($key)));
         $key = preg_replace('/[^[:alnum:]]+/u', '_', $key);
         return trim((string)$key, '_');
     }
