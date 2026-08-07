@@ -859,6 +859,14 @@ class message_controller {
     public function set_sender(stdClass $user): void {
         if (!empty($this->messagedata)) {
             $this->messagedata->userfrom = $user;
+            // Unless the sender's domain is listed in $CFG->allowedemaildomains, core
+            // email_to_user() replaces both the visible from address AND the implicit
+            // reply-to with the noreply address. Set an explicit reply-to so recipients
+            // can always answer the resolved sender directly.
+            if (!empty($user->email) && \core_user::is_real_user($user->id ?? 0)) {
+                $this->messagedata->replyto = $user->email;
+                $this->messagedata->replytoname = fullname($user);
+            }
         }
     }
 

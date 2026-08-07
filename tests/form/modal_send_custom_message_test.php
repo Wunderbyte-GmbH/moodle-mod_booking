@@ -410,6 +410,76 @@ final class modal_send_custom_message_test extends advanced_testcase {
     }
 
     /**
+     * Test: mails sent from the bookings tracker modals carry an explicit reply-to
+     * header pointing to the resolved sender. Core email_to_user() replaces the
+     * visible from address with the noreply address unless the sender's domain is
+     * listed in $CFG->allowedemaildomains, so the reply-to header is what allows
+     * recipients to answer the sender directly.
+     *
+     * @covers \mod_booking\message_controller::set_sender
+     */
+    public function test_custom_message_replyto_points_to_resolved_sender(): void {
+        // Messages to conversations are buffered while a DB transaction is open,
+        // so the email processor would never run inside the test rollback transaction.
+        $this->preventResetByRollback();
+        $this->resetAfterTest(true);
+        singleton_service::destroy_instance();
+
+        $manager = $this->getDataGenerator()->create_user([
+            'firstname' => 'Betty',
+            'lastname'  => 'Bookingmanager',
+            'email'     => 'manager@example.com',
+        ]);
+        $this->setAdminUser();
+        $adminuser = get_admin();
+
+        [$settings, $users] = $this->create_booked_option(1, ['bookingmanager' => $manager->username]);
+        $recipient = reset($users);
+
+        $ajaxargs = [
+            'cmid'            => (int)$settings->cmid,
+            'optionid'        => (int)$settings->id,
+            'checkedids'      => '',
+            'selecteduserids' => [(int)$recipient->id],
+            'subject'         => 'Reply-to subject',
+            'message'         => ['text' => 'Reply-to body', 'format' => FORMAT_HTML],
+        ];
+
+        // Default setting: replies must reach the booking manager.
+        $mailsink = $this->redirectEmails();
+        $submitdata = modal_send_custom_message::mock_ajax_submit($ajaxargs);
+        $mform = new modal_send_custom_message(null, null, 'post', '', [], true, $submitdata, true);
+        $mform->process_dynamic_submission();
+        $mails = $mailsink->get_messages();
+        $this->assertCount(1, $mails);
+        $this->assertNotEquals(
+            $manager->email,
+            $mails[0]->from,
+            'Without allowedemaildomains core must replace the from address with noreply.'
+        );
+        $this->assertMatchesRegularExpression(
+            '/Reply-To:[^\r\n]*manager@example\.com/i',
+            $mails[0]->header,
+            'Replies must go to the booking manager.'
+        );
+        $mailsink->clear();
+
+        // Setting "logged-in user": replies must reach the user sending the message.
+        set_config('bookingstrackermessagesender', 1, 'booking');
+        $submitdata = modal_send_custom_message::mock_ajax_submit($ajaxargs);
+        $mform = new modal_send_custom_message(null, null, 'post', '', [], true, $submitdata, true);
+        $mform->process_dynamic_submission();
+        $mails = $mailsink->get_messages();
+        $mailsink->close();
+        $this->assertCount(1, $mails);
+        $this->assertMatchesRegularExpression(
+            '/Reply-To:[^\r\n]*' . preg_quote($adminuser->email, '/') . '/i',
+            $mails[0]->header,
+            'Replies must go to the logged-in sender.'
+        );
+    }
+
+    /**
      * Test: submitting without a draft file (no attachment) still sends messages normally.
      * Ensures the attachment code path is bypassed cleanly when no file is uploaded.
      *
