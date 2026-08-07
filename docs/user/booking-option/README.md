@@ -40,6 +40,7 @@ Each booking option has its own dates, capacity, price, availability rules, and 
 | [06 — Linked Moodle course](06-moodle-course.md) | Auto-enrol participants into a Moodle course |
 | [07 — Advanced options](07-advanced.md) | Cancel settings, notification texts, poll URL, attachments, and more |
 | [08 — Demand confirmation](08-confirmation.md) | Manual confirmation workflow and waiting list confirmation |
+| [09 — Waiting list](09-waitinglist.md) | Moving up, limit reduction, where users go, related settings |
 
 ---
 

@@ -110,9 +110,13 @@ Admins can limit the maximum description length in the booking plugin settings (
 |-------|-------------|
 | **Max. number of participants** (`maxanswers`) | The maximum number of confirmed bookings. Set to `0` for unlimited. When this limit is reached, new bookings automatically go to the waiting list (if configured). |
 | **Min. number of participants** (`minanswers`) | The minimum number of bookings required for the option to take place. Informational — no automatic cancellation is triggered. |
-| **Max. number of waiting list places** (`maxoverbooking`) | How many users can be placed on the waiting list beyond the participant maximum. Set to `0` to disable the waiting list. |
+| **Max. number of waiting list places** (`maxoverbooking`) | How many users can be placed on the waiting list beyond the participant maximum. Set to `0` to disable the waiting list, `-1` for an unlimited waiting list. |
 
 > **Example:** `maxanswers = 20`, `maxoverbooking = 5` means 20 confirmed places + 5 waiting list places = 25 total registrations possible.
+
+How the waiting list behaves — automatic moving up, what happens when limits are
+reduced and which site settings change this — is described in
+[Waiting list](09-waitinglist.md).
 
 ---
 

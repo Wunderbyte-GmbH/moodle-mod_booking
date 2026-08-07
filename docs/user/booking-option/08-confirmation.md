@@ -81,5 +81,6 @@ This mode is useful when you want to auto-confirm early registrations but manual
 ## Related pages
 
 - [General settings](01-general.md) — Capacity (`maxanswers`, `maxoverbooking`)
+- [Waiting list](09-waitinglist.md) — Automatic moving up and limit reduction behaviour
 - [Advanced options](07-advanced.md) — Cancel settings (`disablecancel`, `canceluntil`)
 - [Availability conditions](04-availability.md) — Booking window
