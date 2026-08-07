@@ -317,6 +317,77 @@ final class booking_importer_test extends booking_advanced_testcase {
     }
 
     /**
+     * An indexed date column pair without optiondateid_<n> must still persist the date.
+     *
+     * The CSV import guide documents coursestarttime_<n>/courseendtime_<n> columns for
+     * multi-session imports. dates::get_list_of_submitted_dates() however only parses an
+     * indexed date row when the matching optiondateid_<n> key is present, so an import row
+     * carrying only the date pair currently loses the date SILENTLY: the option is created
+     * without any session and without an error. This test pins the desired behavior — the
+     * import must either persist the date or reject the row loudly — and fails until the
+     * import path injects the missing marker.
+     *
+     * @covers \mod_booking\importer\bookingoptionsimporter::execute_bookingoptions_csv_import
+     */
+    public function test_csv_import_indexed_date_without_optiondateid_persists_date(): void {
+        global $DB;
+        $this->resetAfterTest();
+
+        $course = $this->getDataGenerator()->create_course();
+        $booking = $this->getDataGenerator()->create_module('booking', [
+            'course' => $course->id,
+            'name' => 'Indexed date import',
+            'eventtype' => 'Test event',
+            'bookedtext' => ['text' => 'text'],
+            'waitingtext' => ['text' => 'text'],
+            'notifyemail' => ['text' => 'text'],
+            'statuschangetext' => ['text' => 'text'],
+            'deletedtext' => ['text' => 'text'],
+            'pollurltext' => ['text' => 'text'],
+            'pollurlteacherstext' => ['text' => 'text'],
+            'notificationtext' => ['text' => 'text'],
+            'userleave' => ['text' => 'text'],
+        ]);
+        $cm = get_coursemodule_from_instance('booking', $booking->id);
+        $this->setAdminUser();
+
+        $formdata = new stdClass();
+        $formdata->delimiter_name = 'comma';
+        $formdata->enclosure = '"';
+        $formdata->encoding = 'utf-8';
+        $formdata->updateexisting = true;
+        $formdata->dateparseformat = 'j.n.Y H:i:s';
+        $formdata->cmid = $cm->id;
+
+        // Timestamps are documented as always passed through unchanged for indexed cells.
+        $start = strtotime('now + 10 days 09:00');
+        $end = strtotime('now + 10 days 11:00');
+        $csv = "text,identifier,maxanswers,coursestarttime_1,courseendtime_1\n"
+            . "\"Indexed date option\",idxnodate1,10,{$start},{$end}\n";
+
+        $importer = new bookingoptionsimporter();
+        $result = $importer->execute_bookingoptions_csv_import($formdata, $csv);
+
+        $this->assertIsArray($result);
+        $this->assertEmpty($result['errors']);
+        $this->assertEquals(1, $result['success']);
+
+        $option = $DB->get_record('booking_options', ['identifier' => 'idxnodate1'], '*', MUST_EXIST);
+
+        // The documented indexed date pair must not vanish silently.
+        $this->assertTrue(
+            booking_utils::booking_option_has_optiondates((int) $option->id),
+            'The imported indexed date row (coursestarttime_1 without optiondateid_1) must persist an option date.'
+        );
+        $settings = singleton_service::get_instance_of_booking_option_settings((int) $option->id);
+        $this->assertEquals(
+            $start,
+            (int) $settings->coursestarttime,
+            'The imported coursestarttime_1 must be persisted as the option coursestarttime.'
+        );
+    }
+
+    /**
      * Get full path of CSV file.
      *
      * @param string $setname

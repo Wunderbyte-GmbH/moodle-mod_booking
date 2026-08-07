@@ -280,6 +280,17 @@ class mod_booking_generator extends testing_module_generator {
 
         $record = (object) $record;
 
+        // A seed carrying an indexed date row (coursestarttime_<n>) without the matching
+        // optiondateid_<n> would silently persist NO date at all: dates::
+        // get_list_of_submitted_dates() only parses indexed rows keyed by optiondateid_.
+        // Inject the missing marker (0 = new date) so test seeds always mean what they say.
+        foreach (preg_grep('/^coursestarttime_\d+$/', array_keys((array) $record)) as $key) {
+            $idkey = 'optiondateid_' . substr($key, strlen('coursestarttime_'));
+            if (!property_exists($record, $idkey)) {
+                $record->{$idkey} = 0;
+            }
+        }
+
         // Finalizing object with required properties.
         $record->id = $record->id ?? 0;
         $record->optionid = $record->optionid ?? 0;

@@ -127,6 +127,10 @@ final class sync_waiting_list_perf_test extends \advanced_testcase {
         // (~15.7): a coarse cross-version guard that survives core bumps beats a razor-tight one
         // that flaps. Tighten (or make version-aware) once the per-call broadcast purge inside
         // user_submit_response is also deferred during the sync.
+        // Regime note: those baselines were measured while the seed's coursestarttime silently
+        // persisted as 0 (missing optiondateid_0), so enrol_user_coursestart() enrolled on every
+        // promotion. Since the generator injects the marker, the option has a real FUTURE start,
+        // enrolment is deferred and the per-user cost sits slightly below those figures.
         $this->assertLessThan(
             16,
             $peruser,
