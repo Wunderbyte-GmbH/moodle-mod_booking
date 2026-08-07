@@ -56,9 +56,16 @@ new limit, the option is brought back under its limits in two steps:
 
 | Gate | Behaviour otherwise |
 |------|--------------------|
-| Site setting **Keep users booked on limit reduction** (`keepusersbookedonreducingmaxanswers`) is **off** | With the setting on, everybody keeps their current status; the option simply stays overbooked. |
+| Site setting **Keep users booked on limit reduction** (`keepusersbookedonreducingmaxanswers`) is **off**. **Note: this setting is ON by default** — so on a fresh site, reducing the seats keeps everybody booked and the option simply stays overbooked. | With the setting on, everybody keeps their current status; the option simply stays overbooked. |
+| The option has **not** started, or the booking instance allows booking after the course start (**Allow booking after start**, `allowupdate`). | Once the option has started and the instance disallows booking after start, the whole waiting list sync (promotion *and* reduction) stops — so reducing the seats moves nobody. This is the most common reason a reduction appears to "do nothing". |
 | The option does **not** use demand confirmation (`waitforconfirmation`) | Confirmation-mode options are never reduced automatically. |
 | The user saving the option holds **`mod/booking:deleteresponses`** | Without the capability the reduction silently does not touch any bookings. |
+
+> **Reduced the seats but nobody moved?** Check, in this order: is *Keep users booked
+> on limit reduction* still on (the default)? Has the option already started while the
+> instance disallows booking after start? Does the option have a price? Are you saving
+> with a role that lacks `mod/booking:deleteresponses`? Any one of these stops the
+> reduction.
 
 **Paid options:** users who booked a priced option always **keep their booking**
 when limits are reduced — they are neither demoted nor removed.

@@ -42,7 +42,7 @@ use mod_booking\local\entities_compat;
 use mod_booking\bo_availability\conditions\customform;
 use mod_booking\bo_availability\conditions\slotbooking;
 use mod_booking\local\slotbooking\slot_availability;
-use mod_booking\bo_availability\conditions\optionhasstarted;
+use mod_booking\local\waitinglist\waitinglist_sync_status;
 use mod_booking\event\booking_debug;
 use mod_booking\event\booking_rulesexecutionfailed;
 use mod_booking\event\bookinganswer_movedupfromwaitinglist;
@@ -1159,17 +1159,13 @@ class booking_option {
 
         $context = context_module::instance(($this->cmid));
         $settings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
-        $optionhasstarted = new optionhasstarted();
 
         $result = false;
 
-        if (
-            // If waiting list is turned off globally...
-            // ... or optionhasstarted does not allow users to be booked after the start of the option..
-            get_config('booking', 'turnoffwaitinglist')
-            || (get_config('booking', 'turnoffwaitinglistaftercoursestart') && time() > $settings->coursestarttime)
-            || !$optionhasstarted->is_available($settings, 0)
-        ) {
+        // Global/instance gates (turnoffwaitinglist, after-start switch, optionhasstarted).
+        // The predicates live in waitinglist_sync_status so the diagnosis reports the exact
+        // same gate that blocks here.
+        if (waitinglist_sync_status::first_blocking_global_gate($settings) !== null) {
             // ... we return right away.
             return false;
         }
@@ -1232,12 +1228,7 @@ class booking_option {
                         $user = singleton_service::get_instance_of_user($currentanswer->userid);
 
                         // If the booking option has a price, we don't sync waitinglist.
-                        $price = price::get_price('option', $settings->id, $user);
-                        if (
-                            !empty($settings->jsonobject->useprice) // This is important to check first!
-                            && isset($price["price"])
-                            && !empty((float)$price["price"])
-                        ) {
+                        if (waitinglist_sync_status::paid_option_skips_user($settings, $user)) {
                             continue;
                         }
 
@@ -1280,11 +1271,7 @@ class booking_option {
                 sharedplaces::sync_sharedplaces_options($settings->id, false);
             }
 
-            if (
-                $optionupdated
-                && has_capability('mod/booking:deleteresponses', $context)
-                && !get_config('booking', 'keepusersbookedonreducingmaxanswers')
-            ) {
+            if (waitinglist_sync_status::reduction_gate_open($optionupdated, $context)) {
                 // 2. Update and inform users who have been put on the waiting list because of changed limits.
                 $usersonlist = array_merge($ba->get_usersonlist(), $ba->get_usersreserved());
                 usort($usersonlist, fn($a, $b) => $a->timemodified < $b->timemodified ? -1 : 1);
@@ -1300,12 +1287,7 @@ class booking_option {
                     // keeps the booked seat. The answer must NOT be added to the local waiting
                     // list array either - the trim loop below pops from that array and would
                     // otherwise DELETE the paid user's booking through the back door.
-                    $price = price::get_price('option', $settings->id, $user);
-                    if (
-                        !empty($settings->jsonobject->useprice) // This is important to check first!
-                        && isset($price["price"])
-                        && !empty((float)$price["price"])
-                    ) {
+                    if (waitinglist_sync_status::paid_option_skips_user($settings, $user)) {
                         continue;
                     }
 
@@ -1373,12 +1355,7 @@ class booking_option {
                 $user = singleton_service::get_instance_of_user($currentanswer->userid);
 
                 // If the booking option has a price, we don't sync waitinglist.
-                $price = price::get_price('option', $settings->id, $user);
-                if (
-                    !empty($settings->jsonobject->useprice) // This is important to check first!
-                    && isset($price["price"])
-                    && !empty((float)$price["price"])
-                ) {
+                if (waitinglist_sync_status::paid_option_skips_user($settings, $user)) {
                     continue;
                 }
 
