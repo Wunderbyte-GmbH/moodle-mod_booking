@@ -23,10 +23,11 @@ use mod_booking\local\wizard\engine\engine_resolver;
  *
  * Skill code references engine contract types only through the class_alias files in
  * classes/local/wizard/engine/. These tests pin three invariants: every alias resolves
- * into the active engine plugin, the enum identity holds, and the layer is byte-uniform
- * across all skill-providing components (mod_booking, the oneclick extension and the
- * scaffold template that emits it for third-party plugins) - there must never be a
- * second variant of this pattern anywhere.
+ * into the active engine plugin, the enum identity holds, and the (legacy vendored)
+ * layer is byte-uniform across the components that still carry it (mod_booking and the
+ * oneclick extension) and matches the engine's canonical alias set - there must never
+ * be a second variant of this pattern anywhere. Scaffolded third-party plugins ship NO
+ * alias files any more: the engine registers the aliases itself (engine_alias_registrar).
  *
  * @package    mod_booking
  * @category   test
@@ -102,7 +103,12 @@ final class engine_alias_layer_test extends \advanced_testcase {
     }
 
     /**
-     * The scaffold template emits exactly this layer for third-party plugins.
+     * Scaffolds ship no alias files; the vendored layer matches the engine's canonical set.
+     *
+     * Since the engine registers the per-component aliases itself (engine_alias_registrar),
+     * a scaffold bundle must not contain any engine files. The legacy vendored layer this
+     * component still carries is instead pinned against the registrar's canonical alias
+     * set, so the two can never drift apart.
      */
     public function test_alias_layer_is_uniform_with_scaffold_template(): void {
         // Probe the engine BEFORE calling fqcn(): fqcn() eagerly preloads the whole alias
@@ -122,16 +128,24 @@ final class engine_alias_layer_test extends \advanced_testcase {
             'description' => 'Do a fake thing.',
         ]);
 
-        $own = __DIR__ . '/../classes/local/wizard/engine';
-        $ownleaves = $this->alias_leaves($own);
-        $ownleaves[] = 'engine_resolver';
-        foreach ($ownleaves as $leaf) {
-            $bundlepath = 'classes/local/wizard/engine/' . $leaf . '.php';
-            $this->assertArrayHasKey($bundlepath, $bundle['files'], "Scaffold bundle misses {$leaf}.");
-            $expected = (string)file_get_contents($own . '/' . $leaf . '.php');
-            $actual = str_replace('local_fakeplugin', 'mod_booking', $bundle['files'][$bundlepath]);
-            $this->assertSame($expected, $actual, "Scaffold emits a different variant of {$leaf}.php.");
-        }
+        $enginefiles = array_values(array_filter(
+            array_keys($bundle['files']),
+            static fn(string $path): bool => str_starts_with($path, 'classes/local/wizard/engine/')
+        ));
+        $this->assertSame([], $enginefiles, 'Scaffold bundles must not ship engine alias files.');
+
+        $registrar = engine_resolver::fqcn('services\\engine_alias_registrar');
+        $this->assertTrue(
+            class_exists($registrar),
+            'Active engine must provide engine_alias_registrar - it replaces the emitted alias layer.'
+        );
+        $canonical = array_keys($registrar::ENGINE_ALIASES);
+        sort($canonical);
+        $this->assertSame(
+            $canonical,
+            $this->alias_leaves(__DIR__ . '/../classes/local/wizard/engine'),
+            'Vendored alias layer differs from the canonical engine alias set.'
+        );
     }
 
     /**
