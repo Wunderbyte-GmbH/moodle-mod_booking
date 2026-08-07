@@ -184,6 +184,6 @@ Commonly used placeholders:
 | `{price}` | Price of the booking |
 | `{optiondatefromdate}` | If the event is related to a specific session date, that date is shown here |
 
-The full list of available placeholders is shown dynamically inside the rule editor form, just above the subject field. Custom user profile fields and custom booking option fields can also be used by their shortname (e.g., `{profile_field_department}`).
+The full list of available placeholders is shown dynamically inside the rule editor form, just above the subject field. Custom user profile fields and custom booking option fields can also be used directly by their shortname (e.g., `{department}` for a field with shortname `department`). Appending `-related` to the shortname of a custom user profile field (e.g., `{department-related}`) inserts the field value of the **related user** of the triggering event (e.g., the user a booking was made for) instead of the recipient — see the [placeholders reference](../placeholders/README.md#11-custom-fields-and-custom-form-data) for details.
 
 > **Tip:** Click the *"Show placeholders"* link in the rule editor to expand the complete list for your site.

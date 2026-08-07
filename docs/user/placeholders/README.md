@@ -28,7 +28,7 @@ Each placeholder maps to a PHP class under `classes/placeholders/placeholders/`.
 2. [Booking option fields](#2-booking-option-fields)
 3. [Dates and times](#3-dates-and-times)
 4. [Links and URLs](#4-links-and-urls)
-5. [Teachers and responsible contact](#5-teachers-and-responsible-contact)
+5. [Teachers and related user](#5-teachers-and-related-user)
 6. [Pricing and shopping cart](#6-pricing-and-shopping-cart)
 7. [Booking status and capacity](#7-booking-status-and-capacity)
 8. [Certificates and QR codes](#8-certificates-and-qr-codes)
@@ -110,17 +110,17 @@ These placeholders resolve to properties of the **booking option** itself.
 
 ---
 
-## 5. Teachers and responsible contact
+## 5. Teachers and related user
 
 | Placeholder | Replaced with |
 |-------------|--------------|
 | `{teacher}` | Full name of the first teacher assigned to the option |
 | `{teachers}` | Comma-separated list of all teachers assigned to the option |
-| `{firstnamerelated}` | First name of the responsible contact person |
-| `{lastnamerelated}` | Last name of the responsible contact person |
-| `{emailrelated}` | Email address of the responsible contact person |
+| `{firstnamerelated}` | First name of the related user of the triggering event (e.g., the user a booking was made for) |
+| `{lastnamerelated}` | Last name of the related user of the triggering event |
+| `{emailrelated}` | Email address of the related user of the triggering event |
 
-> **Tip:** "Responsible contact" is a separate person configured in the **Teachers & responsible contact** section of the booking option form. It does not have to be the same as the teacher.
+> **Tip:** The `…related` placeholders resolve the **related user** of the event that triggered a booking rule — typically the user a booking was made for, which can differ from the recipient of the email (e.g., when a cashier, manager or supervisor books for someone else). Because they need the triggering event, they only produce a value in booking rule templates. Custom user profile fields of the related user are available as well — see [Custom fields](#11-custom-fields-and-custom-form-data).
 
 ---
 
@@ -186,11 +186,28 @@ These placeholders are only meaningful when a certificate plugin is integrated.
 
 ## 11. Custom fields and custom form data
 
+Custom fields are referenced directly by their **shortname** — there is no prefix. Two kinds of fields are supported by the same token syntax:
+
 | Placeholder | Replaced with |
 |-------------|--------------|
-| `{customfields}` | Rendered block of all booking custom fields for this option |
+| `{<shortname>}` | Value of the **custom booking option field** with this shortname (configured under *Booking custom fields*). If no booking option field with this shortname exists, the value of the recipient's **custom user profile field** with this shortname is used instead. Example: a field with shortname `sportsclub` → `{sportsclub}`. |
+| `{<shortname>-related}` | Value of the **custom user profile field** of the **related user** of the event that triggered the booking rule (e.g., the user a booking was made for), instead of the recipient. Append `-related` to the profile field shortname, e.g., `{sportsclub-related}`. |
 | `{customform}` | Data submitted via the custom-form booking condition |
-| `{profile_field_<shortname>}` | Value of a custom user profile field. Replace `<shortname>` with the actual field shortname, e.g., `{profile_field_department}`. |
+
+### How `{<shortname>}` is resolved
+
+1. **Built-in placeholders win**: if the shortname collides with one of the placeholder names on this page (e.g., a profile field with shortname `firstname`), the built-in placeholder is used. Choose distinct shortnames for fields you want to reference.
+2. **Custom booking option fields** are checked next — they resolve in any context that knows the booking option (rule emails, confirmation texts, etc.). Multi-value fields (e.g., multi-selects) are rendered as a comma-separated list.
+3. **Custom user profile fields** of the recipient are used last.
+
+### The `-related` suffix
+
+`{<shortname>-related}` reads the custom **user profile** field from the **related user** of the triggering event — the same person the `{firstnamerelated}`, `{lastnamerelated}` and `{emailrelated}` placeholders refer to (see [Teachers and related user](#5-teachers-and-related-user)). This is useful in booking rules when the recipient of the email is not the person the booking is about, e.g.:
+
+- a supervisor or responsible contact receives a mail about a booking and the mail should show data of the **booked user**,
+- a cashier or manager books **for** someone else and the confirmation goes to a third party.
+
+Because the related user comes from the triggering event, `{<shortname>-related}` only works in **booking rule** templates (`send_mail` / `send_mail_interval`) for rules that react to an event carrying a related user. In contexts without such an event, the related user cannot be determined and the recipient's own field value is used as a fallback.
 
 > **Note:** Custom booking option fields and custom user profile fields are listed dynamically inside the rule editor. Click **Show placeholders** above the subject field to see the full list for your specific site.
 

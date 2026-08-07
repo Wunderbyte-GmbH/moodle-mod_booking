@@ -1469,7 +1469,7 @@ $string['customfieldsforviewinstance_help'] = 'Ausgewählte benutzerdefinierte B
 Werden hier keine Felder ausgewählt, werden die in den Plugin-Einstellungen (Website-Administration > Plugins > Aktivitäten > Buchung) global ausgewählten Felder angezeigt.
 In den Plugin-Einstellungen kann für jedes benutzerdefinierte Feld ein Icon festgelegt werden.
 Ist kein Icon hinterlegt, wird ein Standard-Icon (Puzzleteil) verwendet.';
-$string['customfieldsplaceholdertext'] = 'Benutzerdefinierte Profilfelder & benutzerdefinierte Felder von Buchungsoptionen können über ihren Kurznamen (shortname) referenziert werden.';
+$string['customfieldsplaceholdertext'] = 'Benutzerdefinierte Profilfelder & benutzerdefinierte Felder von Buchungsoptionen können über ihren Kurznamen (shortname) referenziert werden, z.B. {meinkurzname}. Mit an den Kurznamen eines Profilfelds angehängtem "-related" (z.B. {meinkurzname-related}) wird der Wert der betroffenen Person des auslösenden Ereignisses (z.B. der Person, für die gebucht wurde) statt der Person, die die Nachricht erhält, eingesetzt.';
 $string['customfieldtype'] = 'Feldtyp';
 $string['customfieldvalue'] = 'Wert';
 $string['customfieldvalue_help'] = 'Sie können einen beliebigen Wert für das Feld angeben (Text, Zahl oder HTML).<br>

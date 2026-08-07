@@ -1556,7 +1556,7 @@ $string['customfieldsforviewinstance_help'] = 'Selected custom booking option fi
 If no fields are selected here, the fields selected in the global plugin setting (Site administration > Plugins > Activity modules > Booking) are shown.
 You can define an icon for each custom field in the plugin settings (Site administration > Plugins > Activity modules > Booking).
 If no icon is configured, a default icon (puzzle piece) is used.';
-$string['customfieldsplaceholdertext'] = 'Custom user profile fields & custom booking option fields can be referenced using their shortname.';
+$string['customfieldsplaceholdertext'] = 'Custom user profile fields & custom booking option fields can be referenced using their shortname, e.g. {myshortname}. Append "-related" to the shortname of a custom user profile field (e.g. {myshortname-related}) to insert the value of the related user of the triggering event (e.g. the user a booking was made for) instead of the user receiving the message.';
 $string['customfieldtype'] = 'Field type';
 $string['customfieldvalue'] = 'Value';
 $string['customfieldvalue_help'] = 'You can enter any value you want (text, number or HTML).<br>
