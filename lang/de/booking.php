@@ -3933,6 +3933,9 @@ $string['waitingtextsubjectbookingmanager'] = 'Wartelistenbuchung für {$a->titl
 $string['waitspaceavailable'] = 'Wartelistenplätze verfügbar';
 $string['warningcustomfieldsforbiddenshortname'] = 'Sie können die folgenden Kurzbezeichnungen für benutzerdefinierte Felder nicht verwenden: <b>{$a}</b>.
 Bitte wählen Sie eine andere Kurzbezeichnung.';
+$string['warningmissingcustomfields'] = 'Diese Buchungsaktivität verwendet benutzerdefinierte Felder, die auf dieser Moodle-Plattform nicht vorhanden sind.
+Bevor diese Aktivität verwendet werden kann, müssen die benötigten Felder zuerst angelegt werden. Folgende benutzerdefinierte Buchungsfelder fehlen:';
+$string['warningmissingcustomfieldscreate'] = 'Legen Sie die fehlenden Felder unter {$a} an.';
 $string['warningonlyteachersofselectedinstances'] = 'Hinweis: Hier werden aktuell nur Trainer:innen angezeigt,
 die Trainer:innen in einer der in der <a href="{$a}" target="_blank">globalen Einstellung "allteacherspagebookinginstances"</a>
 ausgewählten Buchungsinstanzen sind.';

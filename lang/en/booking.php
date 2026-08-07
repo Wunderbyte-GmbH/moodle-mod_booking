@@ -4225,6 +4225,9 @@ $string['waitingtextsubjectbookingmanager'] = 'Booking status for {$a->title} ha
 $string['waitspaceavailable'] = 'Places on waiting list available';
 $string['warningcustomfieldsforbiddenshortname'] = 'You cannot use the following shortname(s) for custom fields: <b>{$a}</b>.
 Please choose another shortname.';
+$string['warningmissingcustomfields'] = 'This Booking activity uses custom fields that are not available on this Moodle platform.
+Before using this activity, the required custom fields must first be created. The following Booking custom fields are missing:';
+$string['warningmissingcustomfieldscreate'] = 'Create the missing fields in {$a}.';
 $string['warningonlyteachersofselectedinstances'] = 'Please note: This page is currently only showing teachers
 who are teachers in one of the Booking instances selected in the
 <a href="{$a}" target="_blank">global setting "allteacherspagebookinginstances"</a>.';

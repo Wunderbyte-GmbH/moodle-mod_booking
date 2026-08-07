@@ -25,6 +25,7 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use mod_booking\customfield\booking_handler;
 use mod_booking\output\business_card;
 use mod_booking\output\view;
 use mod_booking\local\htmlcomponents;
@@ -114,6 +115,10 @@ $PAGE->add_body_class('mod_booking-view');
 $output = $PAGE->get_renderer('mod_booking');
 
 echo $OUTPUT->header();
+
+// Show a clear message if the instance references customfields that are missing on this
+// platform, e.g. after restoring a course backup from another Moodle site.
+echo booking_handler::create()->check_for_missing_customfields_and_return_warning($bookingsettings, $context);
 
 // If we have specified a teacher as organizer, we show a "busines_card" with photo, else legacy organizer description.
  $organizerhtml = '';

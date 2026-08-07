@@ -780,6 +780,7 @@ class mod_booking_observer {
      * @return void
      */
     public static function customfield_created_updated_deleted(base $event): void {
-        cache_helper::invalidate_by_event('setbackcustomfields', []);
+        // Invalidating with an empty key list would be a no-op, the whole cache needs to be purged.
+        cache_helper::purge_by_event('setbackcustomfields');
     }
 }
