@@ -283,6 +283,14 @@ class fields_info {
 
         $cmid = $data->cmid ?? $settings->cmid ?? 0;
         $context = context_module::instance($cmid);
+
+        // Without any option form profile capability there is no defined field set: the
+        // pipeline would silently drop almost every field (including the option id, which
+        // turns an update into the insert of a junk option). Fail with a clear message.
+        if (optionformconfig_info::return_capability_for_user($context->id) === '') {
+            return get_string('error:nooptionformprofile', 'mod_booking');
+        }
+
         $classes = self::get_field_classes($context->id);
 
         try {

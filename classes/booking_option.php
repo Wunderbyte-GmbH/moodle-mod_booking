@@ -5245,6 +5245,15 @@ class booking_option {
         $newoption = new stdClass();
         $feedbackformchanges = fields_info::prepare_save_fields($data, $newoption, $updateparam);
 
+        // The caller addressed an EXISTING option, but the fields pipeline lost the id
+        // (e.g. a misconfigured option form profile without the id field): falling
+        // through to the insert branch would create a junk option instead of updating.
+        // Deliberate copy flows (copytotemplate, duplication) clear the id BEFORE
+        // calling update(), so $originaloptionid is 0 there and they are not affected.
+        if (!empty($originaloptionid) && empty($newoption->id)) {
+            throw new moodle_exception('error:optionidlostinsave', 'mod_booking', '', $originaloptionid);
+        }
+
         if (!empty($newoption->id)) {
             // Save the changes to DB.
             if (!$DB->update_record("booking_options", $newoption)) {

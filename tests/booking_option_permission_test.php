@@ -396,4 +396,84 @@ final class booking_option_permission_test extends booking_advanced_testcase {
                 && booking_check_if_teacher($option->id, $manager->id));
         $this->assertTrue($canedit);
     }
+
+    /**
+     * A user without any option form profile capability (expertoptionform /
+     * reducedoptionform1-5) must get a clear error from update() instead of the
+     * fields pipeline silently dropping the id and INSERTing a junk option.
+     *
+     * @covers \mod_booking\option\fields_info::set_data
+     * @covers \mod_booking\booking_option::update
+     */
+    public function test_update_without_optionform_profile_throws(): void {
+        global $DB;
+
+        $creator = $this->getDataGenerator()->create_user();
+        $editor = $this->getDataGenerator()->create_user();
+        [$course, $booking, $context] = $this->create_booking_setup($creator);
+        $this->getDataGenerator()->enrol_user($editor->id, $course->id);
+
+        // The editor may update bookings but holds none of the form profile capabilities.
+        $roleid = create_role('NoProfileEditor', 'noprofileeditor', 'updatebooking without form profile');
+        assign_capability('mod/booking:updatebooking', CAP_ALLOW, $roleid, $context->id, true);
+        role_assign($roleid, $editor->id, $context->id);
+        accesslib_clear_all_caches_for_unit_testing();
+
+        $option = $this->create_option_as_user($creator, $booking->id, $course->id);
+        $countbefore = $DB->count_records('booking_options');
+        $textbefore = $DB->get_field('booking_options', 'text', ['id' => $option->id]);
+
+        $this->setUser($editor);
+        try {
+            booking_option::update([
+                'id' => $option->id,
+                'cmid' => $booking->cmid,
+                'maxanswers' => 5,
+            ]);
+            $this->fail('update() must throw for a user without an option form profile');
+        } catch (\moodle_exception $e) {
+            $this->assertSame('erroronsetdata', $e->errorcode);
+            $this->assertStringContainsString('form profile', (string) $e->debuginfo);
+        }
+
+        $this->assertSame($countbefore, $DB->count_records('booking_options'), 'no junk option may be inserted');
+        $this->assertSame(
+            $textbefore,
+            $DB->get_field('booking_options', 'text', ['id' => $option->id]),
+            'the addressed option must stay untouched'
+        );
+    }
+
+    /**
+     * The lost-id guard in update() must not affect the deliberate copy flows:
+     * copytotemplate() clears the id before calling update() and still creates
+     * its template row.
+     *
+     * @covers \mod_booking\booking_option::copytotemplate
+     * @covers \mod_booking\booking_option::update
+     */
+    public function test_copytotemplate_unaffected_by_lost_id_guard(): void {
+        global $DB;
+
+        $creator = $this->getDataGenerator()->create_user();
+        [$course, $booking, $context] = $this->create_booking_setup($creator);
+        $option = $this->create_option_as_user($creator, $booking->id, $course->id);
+
+        $this->setAdminUser();
+        $bookingoption = singleton_service::get_instance_of_booking_option($booking->cmid, $option->id);
+        $templateid = $bookingoption->copytotemplate();
+
+        $this->assertNotEmpty($templateid, 'copytotemplate must still create a template');
+        $this->assertNotEquals((int) $option->id, (int) $templateid);
+        $this->assertEquals(
+            0,
+            $DB->get_field('booking_options', 'bookingid', ['id' => $templateid]),
+            'the template row is marked with bookingid 0'
+        );
+        $this->assertEquals(
+            $booking->id,
+            $DB->get_field('booking_options', 'bookingid', ['id' => $option->id]),
+            'the original option keeps its bookingid'
+        );
+    }
 }

@@ -1912,6 +1912,8 @@ $string['error:newcoursecategorycfieldmissing'] = 'You need to create a <a href=
  it is selected in the <a href="{$a->settingsurl}" target="_blank">Booking plugin settings</a>.';
 $string['error:noendtagfound'] = 'End the placeholder section "{$a}" with backslash ("/").';
 $string['error:nofieldchosen'] = 'You have to choose a field.';
+$string['error:nooptionformprofile'] = 'You have no booking option form profile (mod/booking:expertoptionform or one of the reduced form capabilities), so saving a booking option is not possible. Please contact your administrator.';
+$string['error:optionidlostinsave'] = 'Saving booking option {$a} was aborted: the option id did not survive the save pipeline (most likely a misconfigured option form profile without the id field). Nothing was saved.';
 $string['error:optionnotinthisinstance'] = 'The booking option (ID: {$a->optionid}) does not belong to the given booking instance (cmid: {$a->cmid}).';
 $string['error:percentageavailableplaces'] = 'You need to enter a valid percentage beween 0 and 100 (without %-sign!).';
 $string['error:pricefactornotbetween0and1'] = 'You need to enter a value between 0 and 1, e.g. 0.9 to reduce prices by 10%.';
