@@ -406,7 +406,6 @@ final class sync_waiting_list_characterization_test extends \advanced_testcase {
      * option has started must not promote anybody from the waiting list.
      */
     public function test_no_promotion_after_coursestart_when_configured(): void {
-        global $DB;
 
         set_config('turnoffwaitinglistaftercoursestart', 1, 'booking');
 
@@ -434,6 +433,7 @@ final class sync_waiting_list_characterization_test extends \advanced_testcase {
             'text' => 'Started option',
             'description' => 'Started option',
             'chooseorcreatecourse' => 0,
+            'optiondateid_0' => 0,
             'coursestarttime_0' => strtotime('now - 1 day'),
             'courseendtime_0' => strtotime('now + 1 day'),
             'limitanswers' => 1,
@@ -443,6 +443,12 @@ final class sync_waiting_list_characterization_test extends \advanced_testcase {
         ]);
         $cmid = (int) $booking->cmid;
         $optionid = (int) $option->id;
+
+        // Guard against silently losing the seeded date (optiondateid_0 must make the
+        // indexed date row parse): the gate under test reads coursestarttime.
+        $seedcheck = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $this->assertGreaterThan(0, (int) $seedcheck->coursestarttime, 'seed: coursestarttime persisted');
+        $this->assertLessThan(time(), (int) $seedcheck->coursestarttime, 'seed: option start is in the past');
 
         $option = singleton_service::get_instance_of_booking_option($cmid, $optionid);
         $option->user_submit_response($usera, 0, 0, 0, MOD_BOOKING_VERIFIED);
@@ -464,5 +470,209 @@ final class sync_waiting_list_characterization_test extends \advanced_testcase {
             'after course start no promotion may happen with turnoffwaitinglistaftercoursestart'
         );
         $this->assertEmpty($booked, 'the freed seat stays empty');
+    }
+
+    /**
+     * With turnoffwaitinglist enabled globally, the sync does nothing at all:
+     * a cancellation must not promote an already waiting user.
+     */
+    public function test_turnoffwaitinglist_blocks_all_syncing(): void {
+        $usera = $this->getDataGenerator()->create_user();
+        $userb = $this->getDataGenerator()->create_user();
+        // Seed WITH the waiting list still enabled, so userb really waits.
+        [$cmid, $optionid] = $this->seed_single_seat_option([$usera, $userb]);
+        $option = singleton_service::get_instance_of_booking_option($cmid, $optionid);
+        $option->user_submit_response($usera, 0, 0, 0, MOD_BOOKING_VERIFIED);
+        $option->user_submit_response($userb, 0, 0, 0, MOD_BOOKING_VERIFIED);
+
+        [$booked, $waiting] = $this->booked_and_waiting($cmid, $optionid);
+        $this->assertCount(1, $booked, 'precondition: seat taken');
+        $this->assertCount(1, $waiting, 'precondition: one waits');
+        $bookeduser = reset($booked);
+        $waitinguser = reset($waiting);
+
+        // Now the global off-switch is flipped and the booked user cancels.
+        set_config('turnoffwaitinglist', 1, 'booking');
+        $option = singleton_service::get_instance_of_booking_option($cmid, $optionid);
+        $option->user_delete_response($bookeduser);
+
+        [$booked, $waiting] = $this->booked_and_waiting($cmid, $optionid);
+        $this->assertSame(
+            ['booked' => [], 'waiting' => [$waitinguser]],
+            ['booked' => $booked, 'waiting' => $waiting],
+            'nobody may be promoted with turnoffwaitinglist on'
+        );
+    }
+
+    /**
+     * When the option has started and the instance does not allow booking after
+     * start (allowupdate off), the optionhasstarted gate blocks the sync entirely
+     * - independent of the turnoffwaitinglistaftercoursestart setting (off here).
+     */
+    public function test_option_started_without_allowupdate_blocks_promotion(): void {
+
+        $usera = $this->getDataGenerator()->create_user();
+        $userb = $this->getDataGenerator()->create_user();
+
+        $this->setAdminUser();
+        $course = $this->getDataGenerator()->create_course();
+        $booking = $this->getDataGenerator()->create_module('booking', [
+            'course' => $course->id,
+            'name' => 'Started no-allowupdate booking',
+            'allowupdate' => 0,
+        ]);
+        foreach ([$usera, $userb] as $user) {
+            $this->getDataGenerator()->enrol_user($user->id, $course->id, 'student');
+        }
+
+        /** @var \mod_booking_generator $gen */
+        $gen = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $option = $gen->create_option((object) [
+            'bookingid' => $booking->id,
+            'courseid' => $course->id,
+            'text' => 'Started option no allowupdate',
+            'description' => 'Started option no allowupdate',
+            'chooseorcreatecourse' => 0,
+            'optiondateid_0' => 0,
+            'coursestarttime_0' => strtotime('now - 1 day'),
+            'courseendtime_0' => strtotime('now + 1 day'),
+            'limitanswers' => 1,
+            'maxanswers' => 1,
+            'maxoverbooking' => 5,
+            'waitforconfirmation' => 0,
+        ]);
+        $cmid = (int) $booking->cmid;
+        $optionid = (int) $option->id;
+
+        // Guard against silently losing the seeded date (see the sibling test).
+        $seedcheck = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $this->assertGreaterThan(0, (int) $seedcheck->coursestarttime, 'seed: coursestarttime persisted');
+        $this->assertLessThan(time(), (int) $seedcheck->coursestarttime, 'seed: option start is in the past');
+
+        $option = singleton_service::get_instance_of_booking_option($cmid, $optionid);
+        $option->user_submit_response($usera, 0, 0, 0, MOD_BOOKING_VERIFIED);
+        $option->user_submit_response($userb, 0, 0, 0, MOD_BOOKING_VERIFIED);
+
+        [$booked, $waiting] = $this->booked_and_waiting($cmid, $optionid);
+        $this->assertCount(1, $booked, 'precondition: seat taken');
+        $this->assertCount(1, $waiting, 'precondition: one waits');
+        $bookeduser = reset($booked);
+        $waitinguser = reset($waiting);
+
+        $option = singleton_service::get_instance_of_booking_option($cmid, $optionid);
+        $option->user_delete_response($bookeduser);
+
+        [$booked, $waiting] = $this->booked_and_waiting($cmid, $optionid);
+        $this->assertSame(
+            [$waitinguser],
+            $waiting,
+            'optionhasstarted (started + allowupdate off) must block the promotion'
+        );
+        $this->assertEmpty($booked, 'the freed seat stays empty');
+    }
+
+    /**
+     * Options in demand-confirmation mode are never reduced automatically:
+     * lowering maxanswers must not demote or remove anybody.
+     */
+    public function test_waitforconfirmation_blocks_reduction(): void {
+        global $DB;
+
+        set_config('keepusersbookedonreducingmaxanswers', 0, 'booking');
+
+        $usera = $this->getDataGenerator()->create_user();
+        $userb = $this->getDataGenerator()->create_user();
+
+        $this->setAdminUser();
+        $course = $this->getDataGenerator()->create_course();
+        $booking = $this->getDataGenerator()->create_module('booking', [
+            'course' => $course->id,
+            'name' => 'Confirmation booking',
+        ]);
+        foreach ([$usera, $userb] as $user) {
+            $this->getDataGenerator()->enrol_user($user->id, $course->id, 'student');
+        }
+
+        /** @var \mod_booking_generator $gen */
+        $gen = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $option = $gen->create_option((object) [
+            'bookingid' => $booking->id,
+            'courseid' => $course->id,
+            'text' => 'Confirmation option',
+            'description' => 'Confirmation option',
+            'chooseorcreatecourse' => 0,
+            'coursestarttime_0' => strtotime('now + 1 day'),
+            'courseendtime_0' => strtotime('now + 2 day'),
+            'limitanswers' => 1,
+            'maxanswers' => 2,
+            'maxoverbooking' => 5,
+            'waitforconfirmation' => 1,
+        ]);
+        $cmid = (int) $booking->cmid;
+        $optionid = (int) $option->id;
+
+        $option = singleton_service::get_instance_of_booking_option($cmid, $optionid);
+        $option->user_submit_response($usera, 0, 0, 0, MOD_BOOKING_VERIFIED);
+        $option->user_submit_response($userb, 0, 0, 0, MOD_BOOKING_VERIFIED);
+
+        // Force both users to BOOKED, whatever the confirmation flow did on submit.
+        $DB->set_field('booking_answers', 'waitinglist', MOD_BOOKING_STATUSPARAM_BOOKED, ['optionid' => $optionid]);
+        booking_option::purge_cache_for_option($optionid);
+        singleton_service::destroy_instance();
+
+        [$booked, $waiting] = $this->booked_and_waiting($cmid, $optionid);
+        $this->assertCount(2, $booked, 'precondition: both booked');
+
+        booking_option::update([
+            'id' => $optionid,
+            'cmid' => $cmid,
+            'maxanswers' => 1,
+        ]);
+        singleton_service::destroy_instance();
+
+        [$booked, $waiting] = $this->booked_and_waiting($cmid, $optionid);
+        $this->assertEqualsCanonicalizing(
+            [(int) $usera->id, (int) $userb->id],
+            $booked,
+            'waitforconfirmation options must not be reduced automatically'
+        );
+        $this->assertEmpty($waiting, 'nobody may be moved to the waiting list');
+    }
+
+    /**
+     * When the limits are removed from an option (unlimited), ALL waiting users
+     * are promoted and informed.
+     */
+    public function test_removing_limits_promotes_all_waiting_users(): void {
+        set_config('keepusersbookedonreducingmaxanswers', 0, 'booking');
+
+        $usera = $this->getDataGenerator()->create_user();
+        $waiters = [
+            $this->getDataGenerator()->create_user(),
+            $this->getDataGenerator()->create_user(),
+        ];
+        [$cmid, $optionid] = $this->seed_single_seat_option(array_merge([$usera], $waiters));
+        $option = singleton_service::get_instance_of_booking_option($cmid, $optionid);
+        $option->user_submit_response($usera, 0, 0, 0, MOD_BOOKING_VERIFIED);
+        foreach ($waiters as $waiter) {
+            $option->user_submit_response($waiter, 0, 0, 0, MOD_BOOKING_VERIFIED);
+        }
+
+        [$booked, $waiting] = $this->booked_and_waiting($cmid, $optionid);
+        $this->assertCount(1, $booked, 'precondition: seat taken');
+        $this->assertCount(2, $waiting, 'precondition: two wait');
+
+        // Remove the limits entirely.
+        booking_option::update([
+            'id' => $optionid,
+            'cmid' => $cmid,
+            'limitanswers' => 0,
+            'maxanswers' => 0,
+        ]);
+        singleton_service::destroy_instance();
+
+        [$booked, $waiting] = $this->booked_and_waiting($cmid, $optionid);
+        $this->assertCount(3, $booked, 'all users hold a seat once the option is unlimited');
+        $this->assertEmpty($waiting, 'the waiting list is empty after removing the limits');
     }
 }
