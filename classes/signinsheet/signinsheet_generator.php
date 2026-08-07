@@ -18,7 +18,6 @@ namespace mod_booking\signinsheet;
 use mod_booking\booking_option_settings;
 use mod_booking\option\fields\sharedplaces;
 use mod_booking\singleton_service;
-use Exception;
 use user_picture;
 use stdClass;
 
@@ -598,20 +597,17 @@ class signinsheet_generator {
     }
 
     /**
-     * Converts HTML content to a Word document and downloads it
+     * Converts HTML content to a Word document and sends it as forced download.
+     *
+     * The document is built with the PHPWord library; the download filename is
+     * based on the booking option title. Does not return.
      *
      * @param string $htmloutput The HTML content to convert to Word format
      * @param object $settings The booking option settings object containing title information
      *
-     * Takes HTML content, converts it to a Word document using PHPWord library,
-     * saves it to a temporary file and forces download of the resulting .docx file.
-     * The filename is based on the booking option title.
-     *
-     * @throws Exception If file cannot be read or downloaded
      * @return void
      */
     private function download_word_from_html($htmloutput, $settings) {
-        global $DB, $PAGE;
         $worddoc = new \PhpOffice\PhpWord\PhpWord();
         \PhpOffice\PhpWord\Settings::setOutputEscapingEnabled(true);
         $pageorientation = ($this->orientation === 'L') ? 'landscape' : 'portrait';
@@ -621,41 +617,14 @@ class signinsheet_generator {
         $section = $worddoc->addSection($sectionstyle);
 
         \PhpOffice\PhpWord\Shared\Html::addHtml($section, $htmloutput, false, false);
-        $extrasessioncols = $this->get_extra_session_columns();
 
-        // Write the document to a temporary file.
-        $filename = $settings->get_title_with_prefix() . '.docx';
-        $temppath = sys_get_temp_dir() . DIRECTORY_SEPARATOR . $filename;
-        try {
-            // Save the document.
-            $worddoc->save($temppath, 'Word2007');
-            // Make sure any output buffers are clean.
-            if (ob_get_contents()) {
-                ob_end_clean();
-            }
-            // Check file exists and is readable.
-            if (file_exists($temppath) && is_readable($temppath)) {
-                // Set headers for download.
-                header("Content-Description: File Transfer");
-                header("Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document");
-                header('Content-Disposition: attachment; filename="' . basename($filename) . '"');
-                header("Cache-Control: must-revalidate");
-                header("Expires: 0");
-                header("Pragma: public");
-                header("Content-Length: " . filesize($temppath));
-                // Clear output buffer and stream the file.
-                ob_clean();
-                flush();
-                readfile($temppath);
-                // Proper exit.
-                exit;
-            } else {
-                throw new Exception("File could not be read.");
-            }
-        } catch (Exception $e) {
-            // Handle and log exceptions.
-            echo "An error occurred while downloading the document: " . $e->getMessage();
-        }
+        // PhpWord can only write the docx (a zip archive) to a real file, so use a
+        // per-request directory: Moodle removes it automatically after the request,
+        // and send_temp_file() unlinks the file right after streaming it.
+        $downloadfilename = self::get_clean_filename($settings->get_title_with_prefix()) . '.docx';
+        $temppath = make_request_directory() . '/' . $downloadfilename;
+        $worddoc->save($temppath, 'Word2007');
+        send_temp_file($temppath, $downloadfilename);
     }
 
 
@@ -675,15 +644,24 @@ class signinsheet_generator {
         $pdf->setPrintFooter(false);
         $pdf->AddPage();
         $pdf->writeHTML($htmloutput, true, false, true, false, '');
-        $filenamepdf = $settings->get_title_with_prefix() . '.pdf';
-        $pdf->Output(sys_get_temp_dir() . DIRECTORY_SEPARATOR . $filenamepdf, 'F');
-        $downloadfilename = $settings->get_title_with_prefix();
-        // Replace special characters to prevent errors.
-        $downloadfilename = str_replace(' ', '_', $downloadfilename); // Replaces all spaces with underscores.
-        $downloadfilename = preg_replace('/[^A-Za-z0-9\_]/', '', $downloadfilename); // Removes special chars.
-        $downloadfilename = preg_replace('/\_+/', '_', $downloadfilename); // Replace multiple underscores with exactly one.
-        $downloadfilename = format_string($downloadfilename);
+        $downloadfilename = self::get_clean_filename($settings->get_title_with_prefix());
         $pdf->Output($downloadfilename . '.pdf', 'D');
+    }
+
+    /**
+     * Reduce the booking option title to a filename-safe ASCII string.
+     * Raw titles can contain slashes, quotes etc., which break file paths
+     * and the Content-Disposition header.
+     *
+     * @param string $title
+     * @return string filename without extension, never empty
+     */
+    private static function get_clean_filename(string $title): string {
+        $filename = str_replace(' ', '_', $title);
+        $filename = preg_replace('/[^A-Za-z0-9\_]/', '', $filename); // Removes special chars.
+        $filename = preg_replace('/\_+/', '_', $filename); // Replace multiple underscores with exactly one.
+        $filename = trim($filename, '_');
+        return $filename !== '' ? $filename : 'signinsheet';
     }
 
 
@@ -1023,13 +1001,7 @@ class signinsheet_generator {
             $this->pdf->SetY($this->pdf->GetY() + 5);
         }
 
-        $downloadfilename = $settings->get_title_with_prefix();
-        // Replace special characters to prevent errors.
-        $downloadfilename = str_replace(' ', '_', $downloadfilename); // Replaces all spaces with underscores.
-        $downloadfilename = preg_replace('/[^A-Za-z0-9\_]/', '', $downloadfilename); // Removes special chars.
-        $downloadfilename = preg_replace('/\_+/', '_', $downloadfilename); // Replace multiple underscores with exactly one.
-        $downloadfilename = format_string($downloadfilename);
-
+        $downloadfilename = self::get_clean_filename($settings->get_title_with_prefix());
         $this->pdf->Output($downloadfilename . '.pdf', 'D');
     }
 

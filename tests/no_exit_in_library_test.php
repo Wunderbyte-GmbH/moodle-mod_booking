@@ -42,10 +42,7 @@ final class no_exit_in_library_test extends basic_testcase {
      * Known exit() calls in library code that are proven unreachable under PHPUnit
      * (relative path => allowed count). Do not add entries without such a proof.
      */
-    private const ALLOWED = [
-        // Browser-only signin sheet download: streams the file and exits, standard Moodle download pattern.
-        'classes/signinsheet/signinsheet_generator.php' => 1,
-    ];
+    private const ALLOWED = [];
 
     /**
      * No exit()/die() in code that can run during a PHPUnit run.
