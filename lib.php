@@ -1881,6 +1881,16 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
             'nav_manageoptiontemplates'
         );
     }
+
+    if (has_capability('mod/booking:viewdocumentation', context_system::instance())) {
+        $navref->add(
+            get_string('documentation', 'mod_booking'),
+            new moodle_url('/mod/booking/documentation.php'),
+            navigation_node::TYPE_CUSTOM,
+            null,
+            'nav_documentation'
+        );
+    }
 }
 
 /**

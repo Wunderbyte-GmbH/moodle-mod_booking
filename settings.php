@@ -179,6 +179,16 @@ $ADMIN->add(
     )
 );
 
+$ADMIN->add(
+    'modbookingfolder',
+    new admin_externalpage(
+        'modbookingdocumentation',
+        get_string('booking:documentation', 'mod_booking'),
+        new moodle_url('/mod/booking/documentation.php'),
+        'mod/booking:viewdocumentation'
+    )
+);
+
 $ADMIN->add('modbookingfolder', $settings);
 
 if ($ADMIN->fulltree) {
