@@ -1293,11 +1293,13 @@ class booking_option {
 
                 while (booking_answers::count_places($usersonlist) > $settings->maxanswers) {
                     $currentanswer = array_pop($usersonlist);
-                    array_push($usersonwaitinglist, $currentanswer);
 
                     $user = singleton_service::get_instance_of_user($currentanswer->userid);
 
-                    // If the booking option has a price, we don't sync waitinglist.
+                    // If the booking option has a price, we don't sync waitinglist: the user
+                    // keeps the booked seat. The answer must NOT be added to the local waiting
+                    // list array either - the trim loop below pops from that array and would
+                    // otherwise DELETE the paid user's booking through the back door.
                     $price = price::get_price('option', $settings->id, $user);
                     if (
                         !empty($settings->jsonobject->useprice) // This is important to check first!
@@ -1306,6 +1308,8 @@ class booking_option {
                     ) {
                         continue;
                     }
+
+                    array_push($usersonwaitinglist, $currentanswer);
 
                     // We delete the booking answers cache - because settings (limits, etc.) could be changed!
                     self::purge_cache_for_answers($this->optionid);
