@@ -5640,7 +5640,7 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2026073100, 'booking');
     }
 
-    if ($oldversion < 2026080401) {
+    if ($oldversion < 2026080701) {
         // Aggregated daily snapshots of the booking cache report metrics.
         $table = new xmldb_table('booking_cachereport_snapshots');
         $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
@@ -5658,7 +5658,7 @@ function xmldb_booking_upgrade($oldversion) {
             $dbman->create_table($table);
         }
 
-        upgrade_mod_savepoint(true, 2026080401, 'booking');
+        upgrade_mod_savepoint(true, 2026080701, 'booking');
     }
 
     return true;
