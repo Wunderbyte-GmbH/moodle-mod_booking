@@ -104,9 +104,11 @@ class optiontype extends field_base {
 
         $optionid = (int)($formdata['id'] ?? $formdata['optionid'] ?? 0);
         $hasslotanswers = 0;
+        $currenttype = MOD_BOOKING_OPTIONTYPE_DEFAULT;
         if ($optionid > 0) {
             $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
-            $isslotoption = (int)($settings->type ?? MOD_BOOKING_OPTIONTYPE_DEFAULT) === MOD_BOOKING_OPTIONTYPE_SLOTBOOKING;
+            $currenttype = (int)($settings->type ?? MOD_BOOKING_OPTIONTYPE_DEFAULT);
+            $isslotoption = $currenttype === MOD_BOOKING_OPTIONTYPE_SLOTBOOKING;
 
             if ($isslotoption) {
                 $hasslotanswers = $DB->record_exists_select(
@@ -129,14 +131,32 @@ class optiontype extends field_base {
 
         $options = [
             MOD_BOOKING_OPTIONTYPE_DEFAULT => get_string('optiontype_withdates', 'mod_booking'),
-            MOD_BOOKING_OPTIONTYPE_SELFLEARNINGCOURSE => $selflearningcourselabel,
         ];
+
+        // Self-learning courses need PRO and the admin toggle. An option that already is of this
+        // type keeps it in the list even if the feature was switched off later on, so that editing
+        // such an option does not silently reset its type.
+        if (
+            selflearning_feature::is_enabled()
+            || $currenttype === MOD_BOOKING_OPTIONTYPE_SELFLEARNINGCOURSE
+        ) {
+            $options[MOD_BOOKING_OPTIONTYPE_SELFLEARNINGCOURSE] = $selflearningcourselabel;
+        }
 
         if (slot_feature::is_enabled()) {
             $options[MOD_BOOKING_OPTIONTYPE_SLOTBOOKING] = get_string('optiontype_slotbooking', 'mod_booking');
         }
 
-        $mform->addElement('select', 'optiontype', get_string('type', 'mod_booking'), $options);
+        // Only render the select when there actually is something to choose from. With neither
+        // self-learning courses nor slot booking available, the default type is the only one
+        // possible, so it is stored silently via a hidden field.
+        $showselect = count($options) > 1;
+
+        if ($showselect) {
+            $mform->addElement('select', 'optiontype', get_string('type', 'mod_booking'), $options);
+        } else {
+            $mform->addElement('hidden', 'optiontype', MOD_BOOKING_OPTIONTYPE_DEFAULT);
+        }
         $mform->setType('optiontype', PARAM_INT);
         $mform->setDefault('optiontype', MOD_BOOKING_OPTIONTYPE_DEFAULT);
 
@@ -236,6 +256,14 @@ class optiontype extends field_base {
         global $DB;
 
         $type = (int)($data['optiontype'] ?? MOD_BOOKING_OPTIONTYPE_DEFAULT);
+
+        $optionid = (int)($data['id'] ?? $data['optionid'] ?? 0);
+        $currenttype = MOD_BOOKING_OPTIONTYPE_DEFAULT;
+        if ($optionid > 0) {
+            $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+            $currenttype = (int)($settings->type ?? MOD_BOOKING_OPTIONTYPE_DEFAULT);
+        }
+
         if ($type === MOD_BOOKING_OPTIONTYPE_SLOTBOOKING) {
             if (!wb_payment::pro_version_is_activated()) {
                 $errors['optiontype'] = get_string('proversiononly', 'mod_booking');
@@ -248,23 +276,19 @@ class optiontype extends field_base {
             }
         }
 
-        if ($type === MOD_BOOKING_OPTIONTYPE_SELFLEARNINGCOURSE) {
-            $selflearningactive = wb_payment::pro_version_is_activated()
-                ? (int)get_config('booking', 'selflearningcourseactive')
-                : 0;
-
-            if ($selflearningactive !== 1) {
-                $errors['optiontype'] = get_string('turnthisoninsettings', 'mod_booking');
-            }
+        // Switching an option to self-learning needs the feature. Options that already are of this
+        // type may keep it, so they stay editable after the feature has been switched off.
+        if (
+            $type === MOD_BOOKING_OPTIONTYPE_SELFLEARNINGCOURSE
+            && $currenttype !== MOD_BOOKING_OPTIONTYPE_SELFLEARNINGCOURSE
+            && !selflearning_feature::is_enabled()
+        ) {
+            $errors['optiontype'] = get_string('turnthisoninsettings', 'mod_booking');
         }
 
-        $optionid = (int)($data['id'] ?? $data['optionid'] ?? 0);
         if ($optionid <= 0) {
             return $errors;
         }
-
-        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
-        $currenttype = (int)($settings->type ?? MOD_BOOKING_OPTIONTYPE_DEFAULT);
 
         if ($currenttype !== MOD_BOOKING_OPTIONTYPE_SLOTBOOKING || $type === MOD_BOOKING_OPTIONTYPE_SLOTBOOKING) {
             return $errors;
