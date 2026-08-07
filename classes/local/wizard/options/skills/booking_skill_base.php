@@ -133,6 +133,10 @@ abstract class booking_skill_base extends base_skill {
             'input_fields_for_prompt' => [],
             'anchor_fields' => ['option', 'user'],
         ],
+        'mod_booking.diagnose_waitinglist' => [
+            'input_fields_for_prompt' => [],
+            'anchor_fields' => ['option'],
+        ],
         'mod_booking.book_users' => [
             'input_fields_for_prompt' => ['bookusersquery'],
             'anchor_fields' => ['option', 'user'],
@@ -326,6 +330,9 @@ abstract class booking_skill_base extends base_skill {
         ],
         'mod_booking.diagnose_cancellation_issue' => [
             'question' => 'Why can I not cancel my booking?',
+            'optionquery' => 'Birthday ANON_USER_1',
+        ],
+        'mod_booking.diagnose_waitinglist' => [
             'optionquery' => 'Birthday ANON_USER_1',
         ],
         'mod_booking.get_current_user' => [],
