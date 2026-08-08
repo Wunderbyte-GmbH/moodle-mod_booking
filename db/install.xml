@@ -652,6 +652,31 @@
         <INDEX NAME="area" UNIQUE="false" FIELDS="area"/>
       </INDEXES>
     </TABLE>
+    <TABLE NAME="booking_tickets" COMMENT="Entry tickets issued for booking answers. The PDF is built with a tool_certificate template but the ticket itself is owned by mod_booking.">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="optionid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Id of the booking option this ticket belongs to."/>
+        <FIELD NAME="optiondateid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Reserved for per session tickets. 0 means the ticket is valid for the whole booking option."/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Id of the user holding the ticket."/>
+        <FIELD NAME="answerid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Id of the booking answer this ticket was created for. 0 if unknown."/>
+        <FIELD NAME="templateid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Id of the tool_certificate template used to build the PDF."/>
+        <FIELD NAME="code" TYPE="char" LENGTH="40" NOTNULL="true" SEQUENCE="false" COMMENT="Unique verification code, encoded in the QR code of the ticket."/>
+        <FIELD NAME="status" TYPE="char" LENGTH="20" NOTNULL="true" DEFAULT="valid" SEQUENCE="false" COMMENT="Either valid or cancelled."/>
+        <FIELD NAME="personalized" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="1 if the ticket is only valid for the registered holder, 0 if it may be transferred."/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timerevoked" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Time the ticket was cancelled. 0 as long as it is valid."/>
+        <FIELD NAME="json" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Snapshot of the booking option data at the time the ticket was created. Used to render the PDF deterministically."/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="code" UNIQUE="true" FIELDS="code"/>
+        <INDEX NAME="optionid-userid" UNIQUE="false" FIELDS="optionid,userid"/>
+        <INDEX NAME="userid" UNIQUE="false" FIELDS="userid"/>
+      </INDEXES>
+    </TABLE>
     <TABLE NAME="booking_subbooking_options" COMMENT="Stores the configured subbookings for individual booking options.">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>

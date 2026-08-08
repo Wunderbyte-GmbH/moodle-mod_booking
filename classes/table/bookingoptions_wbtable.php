@@ -853,6 +853,44 @@ class bookingoptions_wbtable extends wunderbyte_table {
     }
 
     /**
+     * This function is called for each data row to render the entry ticket of the current user.
+     *
+     * Only shown in "my bookings" style lists, where the table is rendered for one specific user.
+     *
+     * @param object $values Contains object with all the values of record.
+     * @return string ticket download link, or an empty string when there is no ticket
+     */
+    public function col_ticket($values) {
+        global $USER;
+
+        if (empty($values->id) || empty(get_config('booking', 'bookingticketon'))) {
+            return '';
+        }
+
+        // Same convention as col_booknow: foruserid is 0 unless the list is rendered for someone else.
+        $userid = (int) $this->foruserid;
+        if ($userid <= 0) {
+            $userid = (int) $USER->id;
+        }
+        $ticket = \mod_booking\local\ticket\ticket_manager::find_valid_ticket((int) $values->id, $userid);
+        if (empty($ticket)) {
+            return '';
+        }
+
+        $url = \mod_booking\local\ticket\ticket_manager::get_file_url($ticket);
+        if (empty($url)) {
+            return '';
+        }
+
+        return html_writer::link(
+            $url,
+            html_writer::tag('i', '', ['class' => 'fa fa-fw fa-ticket', 'aria-hidden' => 'true'])
+                . ' ' . get_string('ticketdownload', 'mod_booking'),
+            ['target' => '_blank', 'class' => 'mod-booking-ticket-link']
+        );
+    }
+
+    /**
      * This function is called for each data row to allow processing of the
      * institution value.
      *

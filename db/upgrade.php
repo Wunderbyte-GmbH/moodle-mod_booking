@@ -5661,5 +5661,38 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2026080701, 'booking');
     }
 
+    if ($oldversion < 2026081100) {
+        // Entry tickets are now owned by mod_booking instead of being tool_certificate issues.
+        $table = new xmldb_table('booking_tickets');
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('optionid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('optiondateid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('userid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('answerid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('templateid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('code', XMLDB_TYPE_CHAR, '40', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('status', XMLDB_TYPE_CHAR, '20', null, XMLDB_NOTNULL, null, 'valid');
+        $table->add_field('personalized', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '1');
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('timerevoked', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('json', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_index('code', XMLDB_INDEX_UNIQUE, ['code']);
+        $table->add_index('optionid-userid', XMLDB_INDEX_NOTUNIQUE, ['optionid', 'userid']);
+        $table->add_index('userid', XMLDB_INDEX_NOTUNIQUE, ['userid']);
+
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // The ticket template is chosen per booking option now, so the global setting is gone.
+        unset_config('bookingtickettemplateid', 'booking');
+        // This setting was never read by any code. Delivery is configured with a booking rule now.
+        unset_config('bookingticketsendmail', 'booking');
+
+        upgrade_mod_savepoint(true, 2026081100, 'booking');
+    }
+
     return true;
 }

@@ -150,6 +150,8 @@ class select_user_from_event implements booking_rule_condition {
             'bookingoptionwaitinglist_booked',
             'bookingoption_booked',
             'bookinganswer_waitingforconfirmation',
+            'ticket_created',
+            'ticket_scanned',
             '\local_shopping_cart\event\item_bought',
             '\local_shopping_cart\event\item_canceled',
             '\local_shopping_cart\event\payment_confirmed',

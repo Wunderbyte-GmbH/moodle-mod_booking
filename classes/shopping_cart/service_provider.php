@@ -879,6 +879,35 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
     }
 
     /**
+     * The context a bookable item lives in.
+     *
+     * local_shopping_cart uses this to decide which payment accounts are available for an
+     * item, which is what allows a payment account defined in the course of a booking
+     * instance to be used instead of a site wide one.
+     *
+     * @param string $area
+     * @param int $itemid
+     * @return \context|null Null when the context cannot be determined.
+     */
+    public static function get_item_context(string $area, int $itemid): ?\context {
+
+        if ($area !== 'option' && $area !== 'rebookitem') {
+            return null;
+        }
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($itemid);
+        if (empty($settings->cmid)) {
+            return null;
+        }
+
+        try {
+            return \context_module::instance($settings->cmid)->get_course_context();
+        } catch (\moodle_exception $e) {
+            return null;
+        }
+    }
+
+    /**
      * Callback to check if adding item to cart is allowed.
      *
      * @param string $area

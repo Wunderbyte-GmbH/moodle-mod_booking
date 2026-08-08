@@ -163,6 +163,9 @@ class fields_info {
             case MOD_BOOKING_HEADER_CERTIFICATE:
                 $headericon = '<i class="fa fa-fw fa-certificate" aria-hidden="true"></i>';
                 break;
+            case MOD_BOOKING_HEADER_TICKET:
+                $headericon = '<i class="fa fa-fw fa-ticket" aria-hidden="true"></i>';
+                break;
             // Todo: Add icons for the other headers here...
         }
 

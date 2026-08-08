@@ -127,6 +127,9 @@ define('MOD_BOOKING_PRESENCE_STATUS_FAILED', 4);
 define('MOD_BOOKING_PRESENCE_STATUS_UNKNOWN', 5);
 define('MOD_BOOKING_PRESENCE_STATUS_ATTENDING', 6);
 define('MOD_BOOKING_PRESENCE_STATUS_EXCUSED', 7);
+// Ticket entry control: participant was admitted at the door (scanned in). Distinct from COMPLETE/ATTENDING
+// so a check-in scan never triggers activity completion or presence-coupled certificate issuance (see SofaTicket).
+define('MOD_BOOKING_PRESENCE_STATUS_CHECKEDIN', 8);
 
 // Params to define behavior of booking_option::update.
 define('MOD_BOOKING_UPDATE_OPTIONS_PARAM_DEFAULT', 1);
@@ -318,6 +321,7 @@ define('MOD_BOOKING_OPTION_FIELD_AFTERCOMPLETEDTEXT', 500);
 // 501-504 is reserved for booking extensions!
 // 501 - MOD_BOOKING_OPTION_FIELD_RESPONDAPI.
 define('MOD_BOOKING_OPTION_FIELD_CERTIFICATE', 505);
+define('MOD_BOOKING_OPTION_FIELD_TICKET', 506);
 define('MOD_BOOKING_OPTION_FIELD_RECURRINGOPTIONS', 510);
 define('MOD_BOOKING_OPTION_FIELD_BOOKUSERS', 520);
 define('MOD_BOOKING_OPTION_FIELD_TEMPLATESAVE', 600);
@@ -349,6 +353,7 @@ define('MOD_BOOKING_HEADER_TEMPLATESAVE', 'templateheader');
 define('MOD_BOOKING_HEADER_COURSES', 'coursesheader');
 define('MOD_BOOKING_HEADER_RULES', 'rulesheader');
 define('MOD_BOOKING_HEADER_CERTIFICATE', 'certificateheader');
+define('MOD_BOOKING_HEADER_TICKET', 'ticketheader');
 define('MOD_BOOKING_HEADER_COMPETENCIES', 'competenciesheader');
 define('MOD_BOOKING_HEADER_ASKFORCONFIRMATION', 'askforconfirmationheader');
 define('MOD_BOOKING_HEADER_SHAREDPLACES', 'sharedplaces');
@@ -493,6 +498,7 @@ function booking_pluginfile($course, $cm, $context, $filearea, $args, $forcedown
         && $filearea !== 'signinlogoheader'
         && $filearea !== 'signinlogofooter'
         && $filearea !== 'templatefile'
+        && $filearea !== 'tickets'
     ) {
         return false;
     }
@@ -514,6 +520,23 @@ function booking_pluginfile($course, $cm, $context, $filearea, $args, $forcedown
     } else {
         // Var $args contains elements of the filepath.
         $filepath = '/' . implode('/', $args) . '/';
+    }
+
+    // Entry tickets are personal documents, so this area needs its own authorization.
+    if ($filearea === 'tickets') {
+        global $DB, $USER;
+        require_login($course, false, $cm);
+        $ticket = $DB->get_record('booking_tickets', ['id' => $itemid]);
+        if (empty($ticket)) {
+            return false;
+        }
+        if (
+            (int) $ticket->userid !== (int) $USER->id
+            && !has_capability('mod/booking:viewticketreport', $context)
+            && !has_capability('mod/booking:scanticket', $context)
+        ) {
+            return false;
+        }
     }
 
     // Retrieve the file from the Files API.
@@ -1445,6 +1468,21 @@ function booking_myprofile_navigation(core_user\output\myprofile\tree $tree, $us
 
         $tree->add_node($node);
     }
+
+    // Entry tickets are deliberately separate from certificates, so they get their own node.
+    if (get_config('booking', 'bookingticketon')) {
+        $canseeforeign = has_capability('mod/booking:viewticketreport', context_system::instance());
+        if ($iscurrentuser || $canseeforeign) {
+            $params = $iscurrentuser ? [] : ['userid' => $user->id];
+            $tree->add_node(new core_user\output\myprofile\node(
+                'miscellaneous',
+                'bookingmytickets',
+                get_string('mytickets', 'mod_booking'),
+                null,
+                new moodle_url('/mod/booking/mytickets.php', $params)
+            ));
+        }
+    }
 }
 
 /**
@@ -1482,6 +1520,21 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
     // Set the returnurl to navigate back to after form is saved.
     $viewphpurl = new moodle_url('/mod/booking/view.php', ['id' => $cmid]);
     $returnurl = $viewphpurl->out();
+
+    // Entry scanner for staff at the door.
+    if (
+        get_config('booking', 'bookingticketon')
+        && has_capability('mod/booking:scanticket', $context)
+    ) {
+        $navref->add(
+            get_string('ticketscanner', 'mod_booking'),
+            new moodle_url('/mod/booking/scan.php', ['id' => $cmid]),
+            navigation_node::TYPE_CUSTOM,
+            null,
+            'bookingticketscanner',
+            new pix_icon('i/scheduled', '')
+        );
+    }
 
     if (
         // Either the user has the capability to update booking options in general...
@@ -2984,6 +3037,14 @@ function mod_booking_tool_certificate_fields() {
         get_string('institution', 'mod_booking'),
         true,
         get_string('institution', 'mod_booking'),
+    );
+    // Additional free text an admin can print on the entry tickets of a booking option.
+    $handler->ensure_field_exists(
+        'ticketextrainfo',
+        'textarea',
+        get_string('ticketextrainfo', 'mod_booking'),
+        true,
+        get_string('ticketextrainfo', 'mod_booking'),
     );
     $handler->ensure_field_exists(
         'timeawarded',
