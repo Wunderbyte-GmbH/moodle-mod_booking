@@ -18,6 +18,7 @@ Index of the user and admin documentation chapters. For developer topics see the
 | Run a time-limited booking campaign (discount / block) | [Campaigns](campaigns/README.md) |
 | Let participants choose add-ons or time slots | [Sub-bookings](subbookings/README.md) |
 | Offer individually bookable time slots (appointments, exams) | [Slot booking](slotbooking/README.md) |
+| Issue entry tickets with a QR code and check people in at the door | [Entry tickets](ticketing/README.md) |
 | Trigger actions automatically when someone books | [Actions after booking](actions_after_booking/README.md) |
 | Understand scheduled background tasks | [Scheduled tasks](scheduled_tasks/README.md) |
 | Allow external links to bypass profile-field restrictions | [Override user field](override_user_field/README.md) |

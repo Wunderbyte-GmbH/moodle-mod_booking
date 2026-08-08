@@ -479,6 +479,86 @@ class ticket_manager {
     }
 
     /**
+     * Find ticket designs (tool_certificate templates) matching a name or an id.
+     *
+     * Used by the booking AI agent, which knows template names but never numeric ids. A purely
+     * numeric query is treated as an id; everything else is matched against the template name,
+     * preferring an exact (case-insensitive) match over partial ones.
+     *
+     * @param string $query Template name, part of a name, or a numeric template id.
+     * @param int $limit Maximum number of candidates to return.
+     *
+     * @return array List of ['id' => int, 'name' => string], best match first.
+     */
+    public static function search_templates(string $query, int $limit = 5): array {
+        global $DB;
+
+        $query = trim($query);
+        if ($query === '' || !$DB->get_manager()->table_exists('tool_certificate_templates')) {
+            return [];
+        }
+
+        // A numeric query is an id, but only if such a template really exists.
+        if (ctype_digit($query)) {
+            $record = $DB->get_record('tool_certificate_templates', ['id' => (int) $query], 'id, name');
+            if (!empty($record)) {
+                return [['id' => (int) $record->id, 'name' => (string) $record->name]];
+            }
+        }
+
+        // Exact name match wins, so "Ticket" never becomes ambiguous when a template is called exactly that.
+        $exact = $DB->get_records_select(
+            'tool_certificate_templates',
+            $DB->sql_equal('name', ':name', false),
+            ['name' => $query],
+            'name ASC',
+            'id, name',
+            0,
+            $limit
+        );
+        if (!empty($exact)) {
+            return array_values(array_map(
+                fn($record) => ['id' => (int) $record->id, 'name' => (string) $record->name],
+                $exact
+            ));
+        }
+
+        $like = $DB->sql_like('name', ':name', false, false);
+        $records = $DB->get_records_select(
+            'tool_certificate_templates',
+            $like,
+            ['name' => '%' . $DB->sql_like_escape($query) . '%'],
+            'name ASC',
+            'id, name',
+            0,
+            $limit
+        );
+
+        return array_values(array_map(
+            fn($record) => ['id' => (int) $record->id, 'name' => (string) $record->name],
+            $records
+        ));
+    }
+
+    /**
+     * The name of a ticket design, or an empty string if it no longer exists.
+     *
+     * @param int $templateid
+     *
+     * @return string
+     */
+    public static function get_template_name(int $templateid): string {
+        global $DB;
+
+        if (empty($templateid) || !$DB->get_manager()->table_exists('tool_certificate_templates')) {
+            return '';
+        }
+        $name = $DB->get_field('tool_certificate_templates', 'name', ['id' => $templateid]);
+
+        return $name === false ? '' : (string) $name;
+    }
+
+    /**
      * Resolve the active booking answer of a user for an option.
      *
      * @param int $optionid
