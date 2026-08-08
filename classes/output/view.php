@@ -1683,6 +1683,9 @@ class view implements renderable, templatable {
         if (in_array('showdates', $optionsfields)) {
             $cardlist[] = 'showdates';
         }
+        if (in_array('ticket', $optionsfields)) {
+            $cardlist[] = 'ticket';
+        }
         $cardlist[] = 'comments';
 
         $bowbtable->add_subcolumns('cardlist', $cardlist);
@@ -1972,6 +1975,9 @@ class view implements renderable, templatable {
         }
         if (in_array('competencies', $optionsfields)) {
             $columnsfooter[] = 'competencies';
+        }
+        if (in_array('ticket', $optionsfields)) {
+            $columnsfooter[] = 'ticket';
         }
         $columnsfooter[] = 'comments';
 
