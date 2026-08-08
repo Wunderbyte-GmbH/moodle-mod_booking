@@ -184,6 +184,12 @@ class update_option_skill extends booking_skill_base implements
                     . '(e.g. from an uploaded image attachment). This is the skill for attaching images to options.',
             ],
             [
+                'id' => 'mod_booking.configure_entry_tickets',
+                'description' => 'User wants entry tickets for a booking option: switching tickets on or off, '
+                    . 'choosing the ticket design, making tickets personalised or transferable, requiring an '
+                    . 'identity check at the door (exams), or printing extra information on the ticket.',
+            ],
+            [
                 'id' => 'mod_booking.use_preview_context_for_update',
                 'description' => 'User refers to the previously previewed option(s) as the update target.',
             ],
@@ -233,6 +239,27 @@ class update_option_skill extends booking_skill_base implements
                 ],
             ],
             $this->header_image_attachment_prompt_pack(),
+            [
+                'id' => 'mod_booking.entry_tickets',
+                'triggers' => [
+                    'ticket', 'tickets', 'entry ticket', 'eintrittskarte', 'eintrittsticket',
+                    'einlass', 'scan', 'qr', 'admission',
+                ],
+                'guidance' => [
+                    '- Entry tickets are configured per booking option with ticketdesign, ticketpersonalized,',
+                    '  ticketconfirmidentity and ticketextrainfo. They are NOT certificates.',
+                    '- ticketdesign takes the NAME of the ticket design (a certificate template), not an id.',
+                    '  Pass what the user said; if it matches several designs you get the candidates back, then ask.',
+                    '- Setting ticketdesign switches entry tickets ON. Pass an empty ticketdesign to switch them OFF.',
+                    '- ticketconfirmidentity=true is for exams and similar: the door scanner then shows name and',
+                    '  profile picture and waits for staff to confirm before checking the participant in.',
+                    '- ticketpersonalized=false only for tickets that may be passed on or resold.',
+                    '- Tickets are created automatically on booking, but they are only DELIVERED by a booking rule.',
+                    '  After switching tickets on, offer to create a rule reacting on the ticket_created event',
+                    '  with the send_ticket action.',
+                    '- Never claim a ticket was sent. Creating a ticket and sending it are two different things.',
+                ],
+            ],
             [
                 'id' => 'mod_booking.multi_option_disambiguation',
                 'triggers' => [
