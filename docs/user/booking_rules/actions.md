@@ -43,7 +43,8 @@ The agent can guide you in read-only mode (what is already configured) and can a
 3. [send_copy_of_mail — Forward an email copy to additional recipients](#3-send_copy_of_mail--forward-an-email-copy-to-additional-recipients)
 4. [confirm_bookinganswer — Automatically confirm a booking answer](#4-confirm_bookinganswer--automatically-confirm-a-booking-answer)
 5. [delete_conditions_from_bookinganswer — Remove availability conditions](#5-delete_conditions_from_bookinganswer--remove-availability-conditions)
-6. [Placeholders available in email templates](#6-placeholders-available-in-email-templates)
+6. [send_ticket — Send the entry ticket](#6-send_ticket--send-the-entry-ticket)
+7. [Placeholders available in email templates](#7-placeholders-available-in-email-templates)
 
 ---
 
@@ -57,8 +58,8 @@ The most commonly used action. Schedules an ad-hoc task that sends a custom emai
 
 | Field | Description |
 |-------|-------------|
-| **Subject** | The email subject line. Supports [placeholders](#6-placeholders-available-in-email-templates). |
-| **Message** | The email body (HTML editor). Supports [placeholders](#6-placeholders-available-in-email-templates). |
+| **Subject** | The email subject line. Supports [placeholders](#7-placeholders-available-in-email-templates). |
+| **Message** | The email body (HTML editor). Supports [placeholders](#7-placeholders-available-in-email-templates). |
 | **Send iCal attachment** | Toggle on to include an iCal (`.ics`) calendar event in the email. |
 | **Create or cancel iCal** | When *Send iCal* is enabled: choose `Create` to add the event to the recipient's calendar, or `Cancel` to remove it. |
 
@@ -85,8 +86,8 @@ Similar to `send_mail`, but sends the same message to a **batch of users** with 
 
 | Field | Description |
 |-------|-------------|
-| **Subject** | The email subject line. Supports [placeholders](#6-placeholders-available-in-email-templates). |
-| **Message** | The email body. Supports [placeholders](#6-placeholders-available-in-email-templates). |
+| **Subject** | The email subject line. Supports [placeholders](#7-placeholders-available-in-email-templates). |
+| **Message** | The email body. Supports [placeholders](#7-placeholders-available-in-email-templates). |
 | **Interval** | Time delay in minutes between each email in the batch. |
 
 ### Use cases
@@ -158,7 +159,47 @@ No additional configuration fields are required for this action beyond the stand
 
 ---
 
-## 6. Placeholders available in email templates
+## 6. `send_ticket` — Send the entry ticket
+
+**Display name:** *Send ticket*
+
+Sends the participant's [entry ticket](../ticketing/README.md) by email, with the ticket PDF attached.
+
+Entry tickets are created automatically when someone books an option that has a ticket design
+configured. They are **not** delivered until a rule with this action exists — that is what lets you
+choose the moment and the wording.
+
+### Configuration
+
+| Field | Description |
+|-------|-------------|
+| **Subject** | The email subject line. Supports [placeholders](#7-placeholders-available-in-email-templates). |
+| **Message** | The email body (HTML editor). Supports [placeholders](#7-placeholders-available-in-email-templates). |
+
+Useful placeholders here: `{ticketcode}`, `{ticketurl}` and `{ticketverifyurl}`.
+
+### How it works internally
+
+Each user/option combination is queued as an ad-hoc task (`send_ticket_by_rule_adhoc`), exactly like
+`send_mail`. Before sending, the task looks up the recipient's **valid** ticket for the option and
+attaches its PDF, regenerating the file if it is missing. If the user has no valid ticket — the
+option has no ticket design, or the booking was cancelled meanwhile — nothing is sent at all, rather
+than an email without its attachment.
+
+Because the ticket is resolved at run time and not taken from the triggering event, this action works
+with **every** rule type, not only with `ticket_created`.
+
+### Use cases
+
+- Send the ticket immediately: rule type *React on event*, event `ticket_created`, condition *Select
+  user from event* (related user).
+- Send the ticket shortly before the event: rule type *Trigger n days before* on `coursestarttime`,
+  condition *Select users of a booking option* (status *Booked*).
+- Re-send tickets to everyone: any rule that selects the participants you want.
+
+---
+
+## 7. Placeholders available in email templates
 
 The `send_mail` and `send_mail_interval` actions support a rich set of placeholders that are substituted with real values when the email is sent.
 

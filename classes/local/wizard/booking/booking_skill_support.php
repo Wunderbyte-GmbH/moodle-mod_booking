@@ -39,6 +39,8 @@ use mod_booking\local\wizard\engine\skill_catalog;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking;
 use mod_booking\booking_bookit;
+use mod_booking\booking_option;
+use mod_booking\local\ticket\ticket_manager;
 use mod_booking\option\fields_info;
 use mod_booking\output\view;
 use mod_booking\singleton_service;
@@ -426,6 +428,15 @@ class booking_skill_support {
 
         if (self::has_any_input_key($input, ['prices'])) {
             $register(MOD_BOOKING_OPTION_FIELD_PRICE, get_string('price', 'booking'));
+        }
+
+        if (
+            self::has_any_input_key(
+                $input,
+                ['ticketdesign', 'ticketpersonalized', 'ticketconfirmidentity', 'ticketextrainfo']
+            )
+        ) {
+            $register(MOD_BOOKING_OPTION_FIELD_TICKET, get_string('ticketheader', 'mod_booking'));
         }
 
         if (self::has_any_input_key($input, ['optiondates', 'coursestarttime', 'courseendtime', 'daystonotify'])) {
@@ -1525,6 +1536,146 @@ class booking_skill_support {
     }
 
     /**
+     * Map the entry ticket keys of an agent request onto the option form data.
+     *
+     * The ticket option field only saves when the "ticket" element is part of the submitted data, so
+     * a request that changes only a sub-flag (say ticketconfirmidentity) has to carry the currently
+     * configured design along - otherwise the whole ticket field would silently no-op.
+     *
+     * @param array $input the (already normalized) skill input
+     * @param \stdClass $data option form data, modified in place
+     *
+     * @return array|null an error result to return to the caller, or null when everything is fine
+     */
+    public static function apply_ticket_fields(array $input, \stdClass $data): ?array {
+
+        $subkeys = ['ticketpersonalized', 'ticketconfirmidentity', 'ticketextrainfo'];
+        $haskeys = array_key_exists('ticketdesign', $input);
+        foreach ($subkeys as $subkey) {
+            $haskeys = $haskeys || array_key_exists($subkey, $input);
+        }
+        if (!$haskeys) {
+            return null;
+        }
+
+        if (empty(get_config('booking', 'bookingticketon'))) {
+            return [
+                'status' => 'error',
+                'detail' => get_string('agent_ticket_feature_disabled', 'mod_booking'),
+                'resultid' => null,
+            ];
+        }
+
+        $optionid = (int) ($data->id ?? 0);
+        $currenttemplateid = $optionid > 0 ? ticket_manager::get_template_id_for_option($optionid) : 0;
+        $templateid = $currenttemplateid;
+
+        if (array_key_exists('ticketdesign', $input)) {
+            $query = trim((string) $input['ticketdesign']);
+            // An empty value (or an explicit "none") switches entry tickets off for this option.
+            if ($query === '' || in_array(strtolower($query), ['none', 'no', 'off', 'keine', 'kein'], true)) {
+                $templateid = 0;
+            } else {
+                $resolved = self::resolve_ticket_design($query);
+                if ($resolved['status'] !== 'ok') {
+                    return [
+                        'status' => 'error',
+                        'detail' => (string) $resolved['message'],
+                        'resultid' => null,
+                    ];
+                }
+                $templateid = (int) $resolved['templateid'];
+            }
+        }
+
+        if ($templateid <= 0 && $currenttemplateid <= 0) {
+            // Sub-flags without a design would be dropped on save, so say so instead of failing quietly.
+            foreach ($subkeys as $subkey) {
+                if (array_key_exists($subkey, $input)) {
+                    return [
+                        'status' => 'error',
+                        'detail' => get_string('agent_ticket_no_design', 'mod_booking'),
+                        'resultid' => null,
+                    ];
+                }
+            }
+        }
+
+        $data->ticket = $templateid;
+
+        if ($templateid <= 0) {
+            // Without a design the remaining settings are cleared by the option field anyway.
+            return null;
+        }
+
+        // Keep the stored values for anything the request did not mention.
+        $data->ticketpersonalized = array_key_exists('ticketpersonalized', $input)
+            ? (!empty($input['ticketpersonalized']) ? 1 : 0)
+            : (ticket_manager::is_personalized($optionid) ? 1 : 0);
+
+        $data->ticketconfirmidentity = array_key_exists('ticketconfirmidentity', $input)
+            ? (!empty($input['ticketconfirmidentity']) ? 1 : 0)
+            : (ticket_manager::requires_identity_confirmation($optionid) ? 1 : 0);
+
+        if (array_key_exists('ticketextrainfo', $input)) {
+            $data->ticketextrainfo = clean_param((string) $input['ticketextrainfo'], PARAM_TEXT);
+        } else if ($optionid > 0) {
+            $stored = booking_option::get_value_of_json_by_key($optionid, ticket_manager::JSON_EXTRAINFO);
+            $data->ticketextrainfo = (string) ($stored ?? '');
+        }
+
+        return null;
+    }
+
+    /**
+     * Resolve a ticket design (tool_certificate template) from a name or a numeric id.
+     *
+     * The agent works with template names, so an ambiguous name has to come back through the
+     * ambiguity channel with the candidates listed, exactly like resolve_single_course().
+     *
+     * @param string $query template name, part of a name, or a numeric template id
+     * @return array{status: string, templateid?: int, name?: string, message?: string}
+     */
+    public static function resolve_ticket_design(string $query): array {
+        $query = trim($query);
+        if ($query === '') {
+            return [
+                'status' => 'error',
+                'message' => 'Please provide ticketdesign to identify the entry ticket design.',
+            ];
+        }
+
+        $candidates = ticket_manager::search_templates($query, 5);
+
+        if (empty($candidates)) {
+            return [
+                'status' => 'error',
+                'message' => 'No ticket design matched ticketdesign "' . $query . '". '
+                    . 'Ticket designs are certificate templates. If none exists yet, an administrator can '
+                    . 'create one with the "Create example ticket template" button in the Booking site settings.',
+            ];
+        }
+
+        if (count($candidates) > 1) {
+            $names = [];
+            foreach ($candidates as $candidate) {
+                $names[] = (string) $candidate['name'] . ' (id ' . (int) $candidate['id'] . ')';
+            }
+            return [
+                'status' => 'ambiguity',
+                'message' => 'Multiple ticket designs matched "' . $query . '": ' . implode(', ', $names)
+                    . '. Please provide a more specific ticketdesign.',
+            ];
+        }
+
+        return [
+            'status' => 'ok',
+            'templateid' => (int) $candidates[0]['id'],
+            'name' => (string) $candidates[0]['name'],
+        ];
+    }
+
+    /**
      * Resolve one or many course queries for enrolled-in-course restrictions.
      *
      * @param string $rawquery single query or comma-separated list
@@ -2017,6 +2168,10 @@ class booking_skill_support {
             'duration' => ['duration', 'booking'],
             'coursequery' => ['associatedcourse', 'booking'],
             'prices' => ['price', 'booking'],
+            'ticketdesign' => ['ticket', 'mod_booking'],
+            'ticketpersonalized' => ['ticketpersonalized', 'mod_booking'],
+            'ticketconfirmidentity' => ['ticketconfirmidentity', 'mod_booking'],
+            'ticketextrainfo' => ['ticketextrainfo', 'mod_booking'],
             'bookusersquery' => ['bookusers', 'booking'],
             'optionid' => ['ai_property_optionid', 'booking'],
             'optionquery' => ['ai_property_optionquery', 'booking'],

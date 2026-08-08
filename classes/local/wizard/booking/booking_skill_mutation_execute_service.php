@@ -255,6 +255,11 @@ class booking_skill_mutation_execute_service {
             $data->disablecancel = !empty($input['disablecancel']) ? 1 : 0;
         }
 
+        $ticketresult = booking_skill_support::apply_ticket_fields($input, $data);
+        if ($ticketresult !== null) {
+            return $ticketresult;
+        }
+
         $normalizedvisibility = booking_skill_support::normalize_visibility_input($input);
         if ($taskname === create_option_skill::TASK_NAME) {
             // Create flow always starts hidden. Visibility changes must happen via update flow.

@@ -119,6 +119,18 @@ Moodle capabilities define what each role is allowed to do inside **mod_booking*
 
 ---
 
+## 6a. Entry tickets
+
+| Capability | What it allows | Default roles |
+|------------|---------------|---------------|
+| `mod/booking:scanticket` | Open the entry scanner, verify entry tickets and check participants in at the door | editingteacher, manager |
+| `mod/booking:viewticketreport` | See the entry tickets of other users (their ticket list and PDFs) | editingteacher, manager |
+
+> Participants need no capability to see and download **their own** tickets. See
+> [Entry tickets](../ticketing/README.md) for the full feature.
+
+---
+
 ## 7. Rating
 
 | Capability | What it allows | Default roles |
@@ -198,4 +210,5 @@ Moodle capabilities define what each role is allowed to do inside **mod_booking*
 
 - [Booking rules](../booking_rules/README.md) — `editbookingrules` capability
 - [Shortcodes](../shortcodes/README.md) — Capability requirements for each shortcode
+- [Entry tickets](../ticketing/README.md) — `scanticket`, `viewticketreport`
 - [Availability conditions](../booking_conditions/README.md) — `overrideboconditions` capability

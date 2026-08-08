@@ -41,6 +41,7 @@ Each booking option has its own dates, capacity, price, availability rules, and 
 | [07 — Advanced options](07-advanced.md) | Cancel settings, notification texts, poll URL, attachments, and more |
 | [08 — Demand confirmation](08-confirmation.md) | Manual confirmation workflow and waiting list confirmation |
 | [09 — Waiting list](09-waitinglist.md) | Moving up, limit reduction, where users go, related settings |
+| [10 — Ticketing](10-ticketing.md) | Entry tickets: design, personalised or transferable, identity confirmation at the door |
 
 ---
 

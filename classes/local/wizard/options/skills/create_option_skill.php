@@ -1507,6 +1507,8 @@ class create_option_skill extends booking_skill_base implements
                     '- booking.create_option always creates options as invisible.',
                     '- If the user explicitly wants the option visible, first create it, then run booking.update_option '
                         . 'to set visibility/invisible.',
+                    '- Do NOT send ticketdesign or other entry ticket keys to mod_booking.create_option: create the '
+                        . 'option first, then run mod_booking.update_option to switch entry tickets on.',
                     '- For mod_booking.create_option, do NOT send optiontype; choose the correct create task instead.',
                     '- For dated sessions in mod_booking.create_option, provide optiondates as a list and let '
                         . 'execution map this to booking_option::update indexed fields (_0, _1, ...).',

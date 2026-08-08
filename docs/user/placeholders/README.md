@@ -32,10 +32,11 @@ Each placeholder maps to a PHP class under `classes/placeholders/placeholders/`.
 6. [Pricing and shopping cart](#6-pricing-and-shopping-cart)
 7. [Booking status and capacity](#7-booking-status-and-capacity)
 8. [Certificates and QR codes](#8-certificates-and-qr-codes)
-9. [Calendar URLs](#9-calendar-urls)
-10. [Miscellaneous](#10-miscellaneous)
-11. [Custom fields and custom form data](#11-custom-fields-and-custom-form-data)
-12. [Using placeholders in practice](#12-using-placeholders-in-practice)
+9. [Entry tickets](#9-entry-tickets)
+10. [Calendar URLs](#10-calendar-urls)
+11. [Miscellaneous](#11-miscellaneous)
+12. [Custom fields and custom form data](#12-custom-fields-and-custom-form-data)
+13. [Using placeholders in practice](#13-using-placeholders-in-practice)
 
 ---
 
@@ -120,7 +121,7 @@ These placeholders resolve to properties of the **booking option** itself.
 | `{lastnamerelated}` | Last name of the related user of the triggering event |
 | `{emailrelated}` | Email address of the related user of the triggering event |
 
-> **Tip:** The `…related` placeholders resolve the **related user** of the event that triggered a booking rule — typically the user a booking was made for, which can differ from the recipient of the email (e.g., when a cashier, manager or supervisor books for someone else). Because they need the triggering event, they only produce a value in booking rule templates. Custom user profile fields of the related user are available as well — see [Custom fields](#11-custom-fields-and-custom-form-data).
+> **Tip:** The `…related` placeholders resolve the **related user** of the event that triggered a booking rule — typically the user a booking was made for, which can differ from the recipient of the email (e.g., when a cashier, manager or supervisor books for someone else). Because they need the triggering event, they only produce a value in booking rule templates. Custom user profile fields of the related user are available as well — see [Custom fields](#12-custom-fields-and-custom-form-data).
 
 ---
 
@@ -165,7 +166,25 @@ These placeholders are only meaningful when a certificate plugin is integrated.
 
 ---
 
-## 9. Calendar URLs
+## 9. Entry tickets
+
+These placeholders resolve against the recipient's **valid** [entry ticket](../ticketing/README.md)
+for the booking option. They are empty when the user has no ticket — because the option has no ticket
+design, or because the booking was cancelled.
+
+| Placeholder | Replaced with |
+|-------------|--------------|
+| `{ticketcode}` | The verification code printed on the ticket |
+| `{ticketurl}` | Direct download link for the ticket PDF |
+| `{ticketverifyurl}` | Link to the public ticket verification page |
+
+> The *Send ticket* rule action already attaches the PDF to the mail. Use `{ticketurl}` when you also
+> want a download link in the text, and `{ticketverifyurl}` when the recipient should be able to
+> check the ticket online.
+
+---
+
+## 10. Calendar URLs
 
 | Placeholder | Replaced with |
 |-------------|--------------|
@@ -174,7 +193,7 @@ These placeholders are only meaningful when a certificate plugin is integrated.
 
 ---
 
-## 10. Miscellaneous
+## 11. Miscellaneous
 
 | Placeholder | Replaced with |
 |-------------|--------------|
@@ -184,7 +203,7 @@ These placeholders are only meaningful when a certificate plugin is integrated.
 
 ---
 
-## 11. Custom fields and custom form data
+## 12. Custom fields and custom form data
 
 Custom fields are referenced directly by their **shortname** — there is no prefix. Two kinds of fields are supported by the same token syntax:
 
@@ -213,7 +232,7 @@ Because the related user comes from the triggering event, `{<shortname>-related}
 
 ---
 
-## 12. Using placeholders in practice
+## 13. Using placeholders in practice
 
 ### In booking rule email templates
 

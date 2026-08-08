@@ -18,6 +18,8 @@ namespace mod_booking\local\wizard\options\skills;
 
 use context_module;
 use core_text;
+use mod_booking\local\ticket\ticket_manager;
+use mod_booking\local\wizard\booking\booking_skill_support;
 
 /**
  * Helpers for post-apply verification of persisted option values.
@@ -233,7 +235,66 @@ class option_input_verification {
             }
         }
 
+        self::verify_ticket_fields($input, $settings, $failures);
+
         return $failures;
+    }
+
+    /**
+     * Confirm that the entry ticket settings really landed on the booking option.
+     *
+     * @param array $input the skill input
+     * @param object $settings the reloaded booking option settings
+     * @param array $failures collected failures, modified in place
+     *
+     * @return void
+     */
+    private static function verify_ticket_fields(array $input, object $settings, array &$failures): void {
+
+        if (!array_key_exists('ticketdesign', $input)) {
+            return;
+        }
+        $optionid = (int)($settings->id ?? 0);
+        if ($optionid <= 0) {
+            return;
+        }
+
+        $query = trim((string)$input['ticketdesign']);
+        $wantsoff = $query === ''
+            || in_array(\core_text::strtolower($query), ['none', 'no', 'off', 'keine', 'kein'], true);
+        $actualid = ticket_manager::get_template_id_for_option($optionid);
+
+        if ($wantsoff) {
+            if ($actualid > 0) {
+                self::add_failure(
+                    $failures,
+                    'POSTCOND_TICKETDESIGN_MISMATCH',
+                    get_string('agent_booking_verify_field_ticketdesign_failed', 'booking', (object)[
+                        'requested' => get_string('previewvalue_ticketsoff', 'mod_booking'),
+                        'actual' => ticket_manager::get_template_name($actualid),
+                    ]),
+                    ['field' => 'ticketdesign', 'requested' => '', 'actual' => $actualid]
+                );
+            }
+            return;
+        }
+
+        $resolved = booking_skill_support::resolve_ticket_design($query);
+        $expectedid = $resolved['status'] === 'ok' ? (int)$resolved['templateid'] : 0;
+
+        if ($expectedid > 0 && $expectedid !== $actualid) {
+            self::add_failure(
+                $failures,
+                'POSTCOND_TICKETDESIGN_MISMATCH',
+                get_string('agent_booking_verify_field_ticketdesign_failed', 'booking', (object)[
+                    'requested' => (string)$resolved['name'],
+                    'actual' => $actualid > 0
+                        ? ticket_manager::get_template_name($actualid)
+                        : get_string('previewvalue_ticketsoff', 'mod_booking'),
+                ]),
+                ['field' => 'ticketdesign', 'requested' => $expectedid, 'actual' => $actualid]
+            );
+        }
     }
 
     /**
