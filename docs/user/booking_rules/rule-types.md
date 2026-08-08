@@ -126,6 +126,8 @@ This rule listens for a Moodle booking event and executes the action synchronous
 | `enrollink_triggered` | An enrol-link was triggered |
 | `bookingoption_bookedviaautoenrol` | A booking was made via auto-enrolment |
 | `certificate_issued` | A certificate was issued for a booking |
+| `ticket_created` | An [entry ticket](../ticketing/README.md) was created for a booking. Use it with the *Send ticket* action to deliver tickets right after booking |
+| `ticket_scanned` | A participant was admitted by scanning their entry ticket at the door |
 
 > Additional events can be registered by **booking extensions** (`bookingextension_*` plugins) by implementing `get_allowedruleeventkeys()` in their main class.
 
