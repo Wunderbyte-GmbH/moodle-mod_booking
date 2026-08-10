@@ -688,8 +688,21 @@ class shortcodes {
             return $error['message'];
         }
 
-        $optionid = (int)$args['optionid'];
+        // Support a comma-separated list: optionid="6,7,8". The first id is always the "primary"
+        // option that drives availability/booking-button logic; any further ids only feed the
+        // slotbooking sidebar/filter (see booking_bookit::render_bookit_button()).
+        $optionids = array_values(array_unique(array_filter(
+            array_map('intval', explode(',', (string)$args['optionid'])),
+            fn($id) => $id > 0
+        )));
+        if (empty($optionids)) {
+            return get_string('shortcode:error', 'mod_booking');
+        }
+        $optionid = $optionids[0];
+        $additionaloptionids = array_slice($optionids, 1);
+
         $inlinestartpage = !empty($args['inlinestartpage']) ? (string)$args['inlinestartpage'] : '';
+        $hidesidebar = !empty($args['hidesidebar']);
         $userid = $USER->id;
 
         try {
@@ -702,8 +715,36 @@ class shortcodes {
             return get_string('shortcode:error', 'mod_booking');
         }
 
+        // All option ids must share the same slot_type (e.g. 'fixed', 'rolling', 'session',
+        // 'userdefined'). Mixing types in one merged calendar isn't supported - rather than
+        // silently dropping the mismatched ones, refuse to render and explain why.
+        if (!empty($additionaloptionids)) {
+            $referencetype = (string)($settings->slotconfig->slot_type ?? 'fixed');
+            foreach ($additionaloptionids as $additionalid) {
+                try {
+                    $additionalsettings = singleton_service::get_instance_of_booking_option_settings($additionalid);
+                } catch (Throwable $e) {
+                    return get_string('shortcode:error', 'mod_booking');
+                }
+                if (empty($additionalsettings->id)) {
+                    return get_string('shortcode:error', 'mod_booking');
+                }
+                $additionaltype = (string)($additionalsettings->slotconfig->slot_type ?? 'fixed');
+                if ($additionaltype !== $referencetype) {
+                    return get_string('shortcode:slotbookingtypemismatch', 'mod_booking');
+                }
+            }
+        }
+
         try {
-            $out = booking_bookit::render_bookit_button($settings, $userid, $inlinestartpage);
+            $out = booking_bookit::render_bookit_button(
+                $settings,
+                $userid,
+                $inlinestartpage,
+                null,
+                $additionaloptionids,
+                $hidesidebar
+            );
         } catch (Throwable $e) {
             $out = get_string('shortcode:error', 'mod_booking');
             /** @var \context $syscontext */
