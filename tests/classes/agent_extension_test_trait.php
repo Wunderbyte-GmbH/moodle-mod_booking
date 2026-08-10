@@ -43,9 +43,9 @@ trait agent_extension_test_trait {
             );
         }
 
-        // mod_booking no longer vendors the engine alias layer: the active engine registers
-        // it. Tests instantiate skills directly (no engine discovery beforehand), so bootstrap
-        // the aliases here through the one neutral entry point.
+        // The engine alias layer is no longer vendored in mod_booking: the active engine
+        // registers it. Tests instantiate skills directly (no engine discovery beforehand),
+        // so bootstrap the aliases here through the one neutral entry point.
         \mod_booking\local\wizard\engine_component::ensure_engine_aliases();
     }
 }
