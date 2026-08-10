@@ -2635,6 +2635,7 @@ $string['previewlabel_ticketconfirmidentity'] = 'Identitätsprüfung verlangen';
 $string['previewlabel_ticketdesign'] = 'Ticket-Design';
 $string['previewlabel_ticketextrainfo'] = 'Zusätzliche Ticketinformationen';
 $string['previewlabel_ticketpersonalized'] = 'Personalisiertes Ticket';
+$string['previewvalue_ticketdesignunresolved'] = 'Design "{$a}" ist unbekannt oder mehrdeutig - es wird nicht gespeichert';
 $string['previewvalue_ticketsoff'] = 'Keine Eintrittstickets';
 $string['previous'] = 'Vorherige';
 $string['previouslybooked'] = 'Bereits gebucht';

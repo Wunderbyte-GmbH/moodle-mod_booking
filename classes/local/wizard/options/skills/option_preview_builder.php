@@ -16,6 +16,7 @@
 
 namespace mod_booking\local\wizard\options\skills;
 
+use mod_booking\local\ticket\ticket_manager;
 use mod_booking\singleton_service;
 
 /**
@@ -64,12 +65,18 @@ class option_preview_builder {
             return null;
         }
         $query = trim((string)$input['ticketdesign']);
-        if ($query === '' || in_array(\core_text::strtolower($query), ['none', 'no', 'off', 'keine', 'kein'], true)) {
+        // Only the schema-documented sentinel means "off" (no word lists).
+        if (ticket_manager::is_design_off_sentinel($query)) {
             return self::str('previewvalue_ticketsoff', $lang);
         }
         $resolved = \mod_booking\local\wizard\booking\booking_skill_support::resolve_ticket_design($query);
+        if ($resolved['status'] === 'ok') {
+            return (string)$resolved['name'];
+        }
 
-        return $resolved['status'] === 'ok' ? (string)$resolved['name'] : $query;
+        // Ambiguous/unknown design: surface that state instead of echoing the query as
+        // if it were the chosen design - the apply step will not save it either.
+        return self::str('previewvalue_ticketdesignunresolved', $lang, $query);
     }
 
     /**

@@ -2821,6 +2821,7 @@ $string['previewvalue_minutes'] = '{$a} minutes';
 $string['previewvalue_noptions'] = '{$a} option(s)';
 $string['previewvalue_sessions'] = '{$a} session(s)';
 $string['previewvalue_sessions_none'] = 'No sessions resolved — the given dates are missing or invalid';
+$string['previewvalue_ticketdesignunresolved'] = 'Design "{$a}" is unknown or ambiguous - it will not be saved';
 $string['previewvalue_ticketsoff'] = 'No entry tickets';
 $string['previewvalue_visible'] = 'Visible';
 $string['previewvalue_visiblelink'] = 'Visible via direct link only';

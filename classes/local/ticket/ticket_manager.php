@@ -541,6 +541,25 @@ class ticket_manager {
     }
 
     /**
+     * Whether a submitted ticketdesign value is the schema-documented OFF sentinel.
+     *
+     * The contract knows exactly two off values: the empty string and the literal
+     * 'none' (case-insensitive) — as documented in the option schema, which instructs
+     * the model to send exactly these. Deliberately NO natural-language word lists
+     * here: behavior must never derive from phrase matching, and a real design named
+     * e.g. "No" or "Kein Foto" must stay resolvable as a design query.
+     *
+     * @param string $query
+     *
+     * @return bool
+     */
+    public static function is_design_off_sentinel(string $query): bool {
+        $query = trim($query);
+
+        return $query === '' || \core_text::strtolower($query) === 'none';
+    }
+
+    /**
      * The name of a ticket design, or an empty string if it no longer exists.
      *
      * @param int $templateid

@@ -260,8 +260,8 @@ class option_input_verification {
         }
 
         $query = trim((string)$input['ticketdesign']);
-        $wantsoff = $query === ''
-            || in_array(\core_text::strtolower($query), ['none', 'no', 'off', 'keine', 'kein'], true);
+        // Only the schema-documented sentinel switches tickets off (no word lists).
+        $wantsoff = ticket_manager::is_design_off_sentinel($query);
         $actualid = ticket_manager::get_template_id_for_option($optionid);
 
         if ($wantsoff) {
