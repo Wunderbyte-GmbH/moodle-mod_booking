@@ -21,7 +21,11 @@
 
 import DynamicForm from 'core_form/dynamicform';
 import {init as initSlotCalendarPicker} from 'mod_booking/slotCalendarPicker';
-import {saveSelection} from 'mod_booking/slotbooking/repository';
+import {
+    saveSelection,
+    allowAddItemToCart,
+    loadPreBookingPage as loadSwitchedOptionPage,
+} from 'mod_booking/slotbooking/repository';
 import {
     createTimeFormatter,
     createHiddenInputSelection,
@@ -31,8 +35,21 @@ import {
 } from 'mod_booking/slotbooking/slot_day_renderers';
 import Templates from 'core/templates';
 import Notification from 'core/notification';
+import Config from 'core/config';
+import {get_string as getString} from 'core/str';
 
 const SLOTBOOKING_REFRESH_EVENT = 'mod_booking:slotbooking-refresh';
+
+// A small, distinct palette so each merged option gets a stable, recognizable color across the
+// sidebar and the timesheet - cycles if there are more options than colors.
+const OPTION_COLOR_PALETTE = ['#0d6efd', '#d63384', '#fd7e14', '#20c997', '#6f42c1', '#dc3545', '#0dcaf0', '#adb5bd'];
+const buildOptionColorMap = (optionIds) => {
+    const map = new Map();
+    optionIds.forEach((id, index) => {
+        map.set(Number(id), OPTION_COLOR_PALETTE[index % OPTION_COLOR_PALETTE.length]);
+    });
+    return map;
+};
 
 const SELECTOR = {
     FORMCONTAINER: '.booking-slotbooking-prepage',
@@ -562,10 +579,172 @@ export async function init() {
         return;
     }
 
+    // Multi-option sidebar: container.dataset.optionids (JSON array, primary id first) is only
+    // present when the calendar merges more than one option's slots - see
+    // templates/condition/slotbooking.mustache and bo_availability/conditions/slotbooking.php.
+    let allOptionIds = [Number(optionid) || 0];
+    try {
+        const parsedIds = JSON.parse(container.dataset.optionids || '[]');
+        if (Array.isArray(parsedIds) && parsedIds.length > 0) {
+            allOptionIds = parsedIds.map(id => Number(id)).filter(id => id > 0);
+        }
+    } catch {
+        allOptionIds = [Number(optionid) || 0];
+    }
+    const additionalOptionIds = allOptionIds.filter(id => id !== Number(optionid));
+    const optionColors = buildOptionColorMap(allOptionIds);
+
+    // The optionid that currently "owns" the user's selection - starts as the primary option and
+    // switches whenever the user picks a slot belonging to a different merged-in option (see
+    // enforceSingleOptionSelection() below). This is what actually gets booked on Continue.
+    let activeOptionId = Number(optionid) || 0;
+    let calendarPickerInstance = null;
+    const slotbookingSwitchedOptionMessage = await getString('slotbooking_switched_option', 'mod_booking');
+
+    // Merged options can have entirely different prepage condition sequences (different step
+    // counts, different conditions) - there is no reliable way to continue THIS page's wizard for
+    // a different option. Once a slot from a non-primary merged option is actually booked (see the
+    // FORM_SUBMITTED handler below), send the browser to that option's own booking page instead,
+    // where a correctly-sequenced flow starts fresh. Only present for multi-option calendars (see
+    // slotbooking.php render_page()).
+    let optionUrls = new Map();
+    if (container.dataset.optionurls) {
+        try {
+            const parsedurls = JSON.parse(container.dataset.optionurls);
+            optionUrls = new Map(Object.entries(parsedurls).map(([id, url]) => [Number(id), String(url)]));
+        } catch (e) {
+            optionUrls = new Map();
+        }
+    }
+
+    // Try to book a merged-in, non-primary option's slot selection straight into the shopping
+    // cart, skipping this page's wizard entirely - requesting page 0 of THAT option's own prepage
+    // sequence (with slotbooking explicitly skipped - see below) is enough: if nothing else is
+    // blocking, bo_info::load_pre_booking_page() commits the add-to-cart itself and returns the
+    // confirmation page. Only when something else genuinely needs the user's attention (another
+    // prepage condition for that option) do we fall back to a full-page redirect to that option's
+    // own booking page, where it can be shown correctly.
+    const addSwitchedOptionToCart = async(targetOptionId, targetUserId) => {
+        const fallbackToOptionPage = () => {
+            window.location.href = optionUrls.get(targetOptionId);
+        };
+
+        try {
+            // Skipping slotbooking's own page below only makes sense once we KNOW its selection is
+            // actually bookable right now - re-picking a slot the user already holds (e.g. a repeat
+            // purchase past max_slots_per_user) is still rejected by hard_block() same as always,
+            // but forcibly skipping slotbooking would bypass that check and silently proceed to an
+            // empty-handed "success". save_slot_selection runs the exact same bookability check
+            // hard_block() does, so validate with it first and surface the real reason if it fails,
+            // instead of redirecting anywhere.
+            const keys = getSelectedSlotKeys(getSelectionInput(container));
+            const teacherSelectionInputEl = container.querySelector('input[name="slot_teacher_selection"]');
+            const teacherMap = teacherSelectionInputEl ? parseTeacherSelection(teacherSelectionInputEl) : {};
+            const validation = await saveSelection(targetOptionId, targetUserId, keys, teacherMap);
+            if (!validation.valid) {
+                const messages = (validation.errors && typeof validation.errors === 'object')
+                    ? Object.values(validation.errors).filter(Boolean)
+                    : [];
+                Notification.addNotification({
+                    message: messages.length > 0 ? String(messages[0]) : slotbookingSwitchedOptionMessage,
+                    type: 'danger',
+                });
+                return;
+            }
+
+            const allowResult = await allowAddItemToCart(targetOptionId, targetUserId);
+            if (![0, 1, 5].includes(Number(allowResult?.success))) {
+                fallbackToOptionPage();
+                return;
+            }
+
+            // Slotbooking's own is_available() is intentionally hard-coded to "not available"
+            // whenever slot booking is enabled at all (its page stays visible/re-editable
+            // throughout the flow by design - see slotbooking.php condition::is_available()) - the
+            // actual slot-selection gate is hard_block(), checked separately (just confirmed above
+            // via save_slot_selection). Without skipping it here, page 0 would just re-render its
+            // own calendar again instead of progressing past it.
+            const pageResult = await loadSwitchedOptionPage(targetOptionId, targetUserId, 0, 'slotbooking');
+            const templates = String(pageResult?.template || '').split(',');
+            if (templates.includes('mod_booking/condition/confirmation')) {
+                window.location.href = Config.wwwroot + '/local/shopping_cart/checkout.php';
+            } else {
+                fallbackToOptionPage();
+            }
+        } catch (e) {
+            fallbackToOptionPage();
+        }
+    };
+
+    // Wires the sidebar's per-option toggle rows and its "invert selection" button to the
+    // calendar picker's slotFilter, purely client-side (all merged options' slots are already
+    // loaded - see slot_calendar_data in slotbooking_form.php). No-op if there is no sidebar
+    // (single option) or no calendar picker yet (e.g. list/selectgroups view modes aren't merged).
+    const setupSidebar = (picker) => {
+        if (!picker) {
+            return;
+        }
+        const sidebarRegion = container.querySelector('[data-region="slotbooking-sidebar"]');
+        if (!sidebarRegion || sidebarRegion.dataset.slotSidebarBound === '1') {
+            return;
+        }
+        sidebarRegion.dataset.slotSidebarBound = '1';
+
+        const items = Array.from(sidebarRegion.querySelectorAll('.booking-slotbooking-sidebar-item'));
+        const excludedOptionIds = new Set();
+
+        const applyFilter = () => {
+            picker.setSlotFilter(excludedOptionIds.size > 0
+                ? (slot) => !excludedOptionIds.has(Number(slot.optionid))
+                : null);
+        };
+
+        const toggleOne = (item) => {
+            const itemOptionId = Number(item.dataset.optionid || 0);
+            if (!itemOptionId) {
+                return;
+            }
+            if (excludedOptionIds.has(itemOptionId)) {
+                excludedOptionIds.delete(itemOptionId);
+                item.classList.remove('booking-slotbooking-sidebar-item-filtered');
+            } else {
+                excludedOptionIds.add(itemOptionId);
+                item.classList.add('booking-slotbooking-sidebar-item-filtered');
+            }
+        };
+
+        items.forEach(item => {
+            const itemColor = optionColors.get(Number(item.dataset.optionid || 0));
+            if (itemColor) {
+                item.style.borderLeftColor = itemColor;
+            }
+            item.addEventListener('click', () => {
+                toggleOne(item);
+                applyFilter();
+            });
+            item.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    toggleOne(item);
+                    applyFilter();
+                }
+            });
+        });
+
+        const invertButton = sidebarRegion.querySelector('.booking-slotbooking-sidebar-invert');
+        if (invertButton) {
+            invertButton.addEventListener('click', () => {
+                items.forEach(toggleOne);
+                applyFilter();
+            });
+        }
+    };
+
     const dynamicForm = new DynamicForm(formRegion, 'mod_booking\\form\\condition\\slotbooking_form');
     let currentLoadArgs = {
         id: optionid,
         userid,
+        additionalids: additionalOptionIds.length > 0 ? JSON.stringify(additionalOptionIds) : '',
     };
     const setupInteractiveUi = async() => {
         // Scope to the booking form: in Fall 2 the move tab carries its own slot-calendar-picker
@@ -715,7 +894,73 @@ export async function init() {
             slotsMap.set(key, slot);
         });
 
-        const teacherAnchor = listPickerRoot || fixedEditorRoot || calendarRoot || selectionInput;
+        // Each merged option can allow a different number of simultaneous slots
+        // (max_slots_per_user) - derived directly from the already-loaded slots (every slot carries
+        // its own option's limit as `maxslots`; see slot_dto.php), rather than the single
+        // slot_max_selection hidden field, which only ever reflects the PRIMARY option's own limit.
+        const optionMaxMap = new Map();
+        slots.forEach(slot => {
+            const oid = Number(slot.optionid || optionid);
+            if (!optionMaxMap.has(oid)) {
+                optionMaxMap.set(oid, Math.max(1, Number(slot.maxslots || 1)));
+            }
+        });
+
+        let lastKnownSelectionKeys = [];
+        const resolveSlotOptionId = (key) => {
+            const slot = slotsMap.get(key);
+            return slot ? Number(slot.optionid || optionid) : Number(optionid);
+        };
+
+        const setActiveOptionId = (newOptionId) => {
+            if (newOptionId === activeOptionId) {
+                return;
+            }
+            activeOptionId = newOptionId;
+            const idInput = formRegion.querySelector('input[name="id"]');
+            if (idInput) {
+                idInput.value = String(activeOptionId);
+            }
+        };
+
+        // Only one option's slots can be booked in a single pass: if the newly picked slot belongs
+        // to a different option than the current selection, drop the old selection rather than
+        // submitting a mix of slots from two different booking options.
+        const enforceSingleOptionSelection = (selection) => {
+            if (selection.length === 0) {
+                lastKnownSelectionKeys = [];
+                return selection;
+            }
+
+            const addedKey = selection.find(key => !lastKnownSelectionKeys.includes(key));
+            const targetOptionId = addedKey ? resolveSlotOptionId(addedKey) : resolveSlotOptionId(selection[0]);
+
+            const resolved = selection.filter(key => resolveSlotOptionId(key) === targetOptionId);
+            if (resolved.length !== selection.length) {
+                Notification.addNotification({
+                    message: slotbookingSwitchedOptionMessage,
+                    type: 'info',
+                });
+                // The picker's own selected keys still hold the dropped, wrong-option entries at
+                // this point (its onChange fired with them already included) - correct its internal
+                // state too, so the calendar doesn't keep highlighting a slot that no longer counts
+                // as selected once selectionInput.value is overwritten below.
+                if (calendarPickerInstance) {
+                    calendarPickerInstance.selected = new Set(resolved);
+                    calendarPickerInstance.render();
+                }
+            }
+
+            setActiveOptionId(targetOptionId);
+            lastKnownSelectionKeys = resolved;
+            return resolved;
+        };
+
+        // Anchor the teacher-selection/live-feedback regions after the WHOLE calendar+fixed-editor
+        // row (not just fixedEditorRoot, which is only one flex item inside that row) so they land
+        // on their own line below both columns instead of squeezing in as a third flex item.
+        const calendarWrapper = container.querySelector('[data-region="slot-calendar-wrapper"]');
+        const teacherAnchor = listPickerRoot || calendarWrapper || fixedEditorRoot || calendarRoot || selectionInput;
         const teacherContainer = ensureTeacherContainer(container, teacherAnchor);
         const teachersRequired = Math.max(0, Number(teachersRequiredInput?.value || 0));
 
@@ -779,7 +1024,7 @@ export async function init() {
                 }
                 const teacherMap = parseTeacherSelection(teacherSelectionInput);
                 try {
-                    const result = await saveSelection(Number(optionid) || 0, Number(userid) || 0, keys, teacherMap);
+                    const result = await saveSelection(Number(activeOptionId) || 0, Number(userid) || 0, keys, teacherMap);
                     renderLiveFeedback(result);
                 } catch (e) {
                     renderLiveFeedback(null);
@@ -790,6 +1035,9 @@ export async function init() {
         if (calendarRoot && !calendarRoot.dataset.slotCalendarInitialized) {
             const maxInput = container.querySelector('input[name="slot_max_selection"]');
             const maxSlots = Number(maxInput?.value || 1);
+            // Resolves to whichever option currently owns the selection - falls back to the primary
+            // option's maxSlots when nothing is selected yet.
+            const resolveMaxSlots = (optId) => optionMaxMap.get(Number(optId)) || maxSlots;
 
             const calendarOptions = {
                 slots,
@@ -803,7 +1051,8 @@ export async function init() {
                 onChange: fixedEditorRoot
                     ? () => {}
                     : (selection) => {
-                        selectionInput.value = selection.join(',');
+                        const resolved = enforceSingleOptionSelection(selection);
+                        selectionInput.value = resolved.join(',');
                         selectionInput.dispatchEvent(new Event('change', {bubbles: true}));
                     },
             };
@@ -823,8 +1072,15 @@ export async function init() {
                     await renderFixedSlotsEditor(
                         fixedEditorRoot,
                         normalizedDaySlots,
-                        createHiddenInputSelection(selectionInput, maxSlots),
-                        timeFormatter
+                        createHiddenInputSelection(selectionInput, resolveMaxSlots, {
+                            resolveOptionId: resolveSlotOptionId,
+                            onOptionSwitch: () => Notification.addNotification({
+                                message: slotbookingSwitchedOptionMessage,
+                                type: 'info',
+                            }),
+                        }),
+                        timeFormatter,
+                        optionColors
                     );
 
                     if (!fixedEditorRoot.childElementCount) {
@@ -836,19 +1092,42 @@ export async function init() {
                 };
             }
 
-            initSlotCalendarPicker(calendarRoot, calendarOptions);
+            calendarPickerInstance = initSlotCalendarPicker(calendarRoot, calendarOptions);
             calendarRoot.dataset.slotCalendarInitialized = '1';
+            setupSidebar(calendarPickerInstance);
         }
 
         if (listPickerRoot) {
             const listMaxInput = container.querySelector('input[name="slot_max_selection"]');
             const listMaxSlots = Number(listMaxInput?.value || 1);
-            await renderSlotList(listPickerRoot, slots, createHiddenInputSelection(selectionInput, listMaxSlots));
+            const resolveListMaxSlots = (optId) => optionMaxMap.get(Number(optId)) || listMaxSlots;
+            await renderSlotList(listPickerRoot, slots, createHiddenInputSelection(selectionInput, resolveListMaxSlots, {
+                resolveOptionId: resolveSlotOptionId,
+                onOptionSwitch: () => Notification.addNotification({
+                    message: slotbookingSwitchedOptionMessage,
+                    type: 'info',
+                }),
+            }));
         }
 
         if (!selectionInput.dataset.slotSelectionBound) {
             selectionInput.addEventListener('change', refreshTeacherSelection);
             selectionInput.addEventListener('change', liveValidate);
+            // Keep activeOptionId (and the hidden "id" field) in sync no matter which selection
+            // mechanism fired the change - the calendar picker's onChange already calls
+            // setActiveOptionId itself, but the fixedEditorRoot/listPickerRoot pickers only go
+            // through createHiddenInputSelection, which doesn't know about booking options at all.
+            selectionInput.addEventListener('change', () => {
+                const keys = getSelectedSlotKeys(selectionInput);
+                if (keys.length > 0) {
+                    // Prefer the option id createHiddenInputSelection stamped onto the input itself
+                    // (unambiguous - it came from the clicked slot's own lane) over
+                    // resolveSlotOptionId(key), which can't tell two merged options apart when they
+                    // happen to share a "start:end" key.
+                    const activeFromDataset = Number(selectionInput.dataset.activeOptionId || 0);
+                    setActiveOptionId(activeFromDataset || resolveSlotOptionId(keys[0]));
+                }
+            });
             selectionInput.dataset.slotSelectionBound = '1';
         }
 
@@ -946,19 +1225,32 @@ export async function init() {
 
     setupMoveTab();
 
-    dynamicForm.addEventListener(dynamicForm.events.FORM_SUBMITTED, e => {
+    dynamicForm.addEventListener(dynamicForm.events.FORM_SUBMITTED, async(e) => {
         e.preventDefault();
         const response = e.detail;
 
-        if (response) {
-            if (!continuebutton) {
-                continuebutton = getValidationTriggerButton(container);
-                bindValidationToContinueButton(continuebutton);
-            }
-            if (continuebutton) {
-                continuebutton.dataset.blocked = 'false';
-                continuebutton.click();
-            }
+        if (!response) {
+            return;
+        }
+
+        // The slot selection just got saved for activeOptionId (the "id" field submitted was
+        // already switched to it - see setActiveOptionId). If that isn't this page's primary
+        // option, this page's wizard can't continue the booking for it (different merged options
+        // can have entirely different prepage condition sequences) - try booking it straight into
+        // the cart instead (see addSwitchedOptionToCart above), falling back to a full redirect to
+        // that option's own booking page only if something else still needs the user's attention.
+        if (activeOptionId !== Number(optionid) && optionUrls.has(activeOptionId)) {
+            await addSwitchedOptionToCart(activeOptionId, Number(userid) || 0);
+            return;
+        }
+
+        if (!continuebutton) {
+            continuebutton = getValidationTriggerButton(container);
+            bindValidationToContinueButton(continuebutton);
+        }
+        if (continuebutton) {
+            continuebutton.dataset.blocked = 'false';
+            continuebutton.click();
         }
     });
 

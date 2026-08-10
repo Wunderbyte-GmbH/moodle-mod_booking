@@ -27,6 +27,8 @@
         * priceformatted - Formatted price string, empty when no price applies.
         * selected - Whether the slot is currently selected.
         * booked - Whether the slot is already booked (not selectable).
+        * manageurl - URL to the slot's own booking option page, only set when the slot is booked
+          AND that option is currently cancelable by the user; empty otherwise.
 
     Example context (json):
     {
@@ -38,11 +40,14 @@
 }}
 <div class="booking-slot-list" role="group">
     {{#items}}
-        <div class="booking-slot-list-item{{#selected}} booking-slot-list-item--selected{{/selected}}{{#booked}} booking-slot-list-item--booked{{/booked}}" data-slot-key="{{key}}">
+        <div class="booking-slot-list-item{{#selected}} booking-slot-list-item--selected{{/selected}}{{#booked}} booking-slot-list-item--booked{{/booked}}" data-slot-key="{{key}}" data-option-id="{{optionid}}">
             <span class="booking-slot-list-label">{{label}}</span>
             {{#priceformatted}}
                 <span class="booking-slot-list-price">{{priceformatted}}</span>
             {{/priceformatted}}
+            {{#manageurl}}
+                <a href="{{manageurl}}" target="_blank" rel="noopener" class="booking-slot-list-manage">{{#str}}managebooking, mod_booking{{/str}}</a>
+            {{/manageurl}}
         </div>
     {{/items}}
 </div>
