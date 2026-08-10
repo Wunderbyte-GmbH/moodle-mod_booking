@@ -32,22 +32,34 @@ namespace mod_booking\local\wizard;
  */
 final class engine_component {
     /**
-     * Frankenstyle name of the active engine plugin, or null if none is installed.
+     * The engines in precedence order: the standalone local_wizard outranks the bundled
+     * agent. This is the ONE neutral bootstrap a consumer needs - it discovers the active
+     * engine without the engine alias layer being registered yet (which is what breaks the
+     * chicken-and-egg), so the alias layer no longer has to be vendored per component. The
+     * order mirrors authorization_service::active_engine_component() (the engine-side home
+     * of the same rule); the two must agree.
      *
-     * The selection rule (local_wizard outranks the bundled agent) lives in ONE place,
-     * engine_resolver; this helper only adds the "no engine installed at all" -> null
-     * contract that UI callers like view.php need.
+     * @var string[]
+     */
+    private const ENGINES_BY_PRECEDENCE = ['local_wizard', 'bookingextension_agent'];
+
+    /**
+     * Frankenstyle name of the active engine plugin, or null if none is installed.
      *
      * @return string|null
      */
     public static function active(): ?string {
-        $component = engine\engine_resolver::component();
-        try {
-            $plugininfo = \core_plugin_manager::instance()->get_plugin_info($component);
-        } catch (\Throwable $e) {
-            return null;
+        foreach (self::ENGINES_BY_PRECEDENCE as $candidate) {
+            try {
+                $plugininfo = \core_plugin_manager::instance()->get_plugin_info($candidate);
+            } catch (\Throwable $e) {
+                $plugininfo = null;
+            }
+            if ($plugininfo !== null && $plugininfo->is_installed_and_upgraded()) {
+                return $candidate;
+            }
         }
-        return ($plugininfo !== null && $plugininfo->is_installed_and_upgraded()) ? $component : null;
+        return null;
     }
 
     /**
@@ -65,5 +77,26 @@ final class engine_component {
         }
         $class = '\\' . $component . '\\local\\wizard\\aiready';
         return class_exists($class) ? $class : null;
+    }
+
+    /**
+     * Register mod_booking's engine aliases via the active engine's registrar.
+     *
+     * Only needed on paths that touch skill/engine types WITHOUT going through the
+     * engine's own skill discovery (which registers them itself) - i.e. mod_booking's
+     * PHPUnit/Behat tests that instantiate skills directly. Production UI (view.php) uses
+     * only active()/aiready_class() and needs no alias registration.
+     *
+     * @return void
+     */
+    public static function ensure_engine_aliases(): void {
+        $component = self::active();
+        if ($component === null) {
+            return;
+        }
+        $registrar = '\\' . $component . '\\local\\wizard\\services\\engine_alias_registrar';
+        if (class_exists($registrar)) {
+            $registrar::ensure_component_aliases('mod_booking');
+        }
     }
 }
