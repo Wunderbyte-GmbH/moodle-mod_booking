@@ -48,22 +48,36 @@ class get_slots extends external_api {
         return new external_function_parameters([
             'optionid' => new external_value(PARAM_INT, 'booking option id'),
             'userid' => new external_value(PARAM_INT, 'user id', VALUE_DEFAULT, 0),
+            'additionalids' => new external_value(
+                PARAM_TEXT,
+                'comma-separated additional option ids to merge into the slot list (multi-option sidebar)',
+                VALUE_DEFAULT,
+                ''
+            ),
         ]);
     }
 
     /**
      * Return the picker slots and meta as JSON.
      *
+     * $additionalids merges further options' slots into the same list as $optionid, each tagged
+     * with its own optionid (see slot_dto::build_picker_slots()) - the same "primary + additional"
+     * contract as booking_bookit::render_bookit_button() and slotbooking_form.php. Meta (max
+     * selection, required teachers, view mode, ...) is always the primary option's only, since
+     * booking still targets one option at a time regardless of how many ids are merged for display.
+     *
      * @param int $optionid booking option id
      * @param int $userid user id (0 = current user)
+     * @param string $additionalids comma-separated additional option ids
      * @return array{slots: string, meta: string}
      */
-    public static function execute(int $optionid, int $userid = 0): array {
+    public static function execute(int $optionid, int $userid = 0, string $additionalids = ''): array {
         global $USER;
 
         $params = self::validate_parameters(self::execute_parameters(), [
             'optionid' => $optionid,
             'userid' => $userid,
+            'additionalids' => $additionalids,
         ]);
 
         $userid = $params['userid'] ?: (int)$USER->id;
@@ -72,8 +86,31 @@ class get_slots extends external_api {
         self::validate_context(context_module::instance($settings->cmid));
         require_capability('mod/booking:conditionforms', context_system::instance());
 
+        $slots = slot_dto::build_picker_slots($params['optionid'], $userid);
+
+        $additionaloptionids = array_values(array_unique(array_filter(
+            array_map('intval', explode(',', $params['additionalids'])),
+            fn($id) => $id > 0 && $id !== $params['optionid']
+        )));
+        foreach ($additionaloptionids as $additionaloptionid) {
+            // Each merged-in option may belong to a different booking instance/course than the
+            // primary one - confirm its context resolves (context_module::instance() throws on an
+            // invalid cmid) before including its slots. The capability check above already applies
+            // site-wide via context_system, so no further per-option capability check is needed.
+            try {
+                $additionalsettings = singleton_service::get_instance_of_booking_option_settings($additionaloptionid);
+                if (empty($additionalsettings->id)) {
+                    continue;
+                }
+                context_module::instance($additionalsettings->cmid);
+            } catch (\Throwable $e) {
+                continue;
+            }
+            $slots = array_merge($slots, slot_dto::build_picker_slots($additionaloptionid, $userid));
+        }
+
         return [
-            'slots' => json_encode(slot_dto::build_picker_slots($params['optionid'], $userid)),
+            'slots' => json_encode($slots),
             'meta' => json_encode(slot_dto::build_meta($params['optionid'], $userid)),
         ];
     }

@@ -1092,7 +1092,6 @@ export function backToPreviousPage(optionid, userid) {
  *  @param {int} optionid
  */
 export function setBackModalVariables(optionid) {
-
     currentbookitpage[optionid] = 0;
 }
 

@@ -17,45 +17,86 @@
 {{!
     @template mod_booking/slotbooking/slot_grid_day
 
-    Stacked day list for the fixed-grid (calendar) booking interface: bookable slots and
-    warmup/cooldown buffer separators are rendered as ordinary block rows, one after another
-    (not positioned proportionally to real elapsed time). Bookable rows keep a minimum
-    readable height and never shrink further; buffer separators are a small constant height
-    regardless of the configured minutes. The container scrolls if the day's rows don't fit.
-    The condition/slotBooking picker builds the block list and wires the click handlers; this
-    template only renders the markup.
+    Proportional shared timeline for the fixed-grid (calendar) booking interface: every lane (one
+    per merged booking option - see slot_day_renderers.js) shares the same absolute time axis, so
+    slots at the same real time line up across lanes instead of just being stacked in whatever
+    order they happen to sort into. Buffer separators are drawn to scale too. The
+    condition/slotBooking picker builds the lane/tick/block lists and wires the click handlers;
+    this template only renders the markup.
 
     Context variables required for this template:
-    * blocks - Slot rows and buffer separators, in chronological order.
-        * key - Slot key "start:end" (buffer separators use a synthetic "buffer:..." key).
-        * statusclass - Modifier class (booking-slot--available|--selected|--booked|--buffer).
-        * buffer - True for a buffer separator: renders as a plain fixed-height block with no
-          header/content and is skipped by the click handler (see slot_day_renderers.js).
-        * time - Time range label, e.g. "16:00 - 16:20". Only used when not buffer.
-        * booked - Whether the slot is already booked.
-        * bookedlabel - Label shown on booked slots.
-        * priceformatted - Formatted price, empty when no price applies.
-        * teachers - Teacher summary string, empty when none.
+    * heightpx - Pixel height of the shared timeline (the label column and every lane share this).
+    * ticks - Array of { top, label } - shared time-axis marks, top in percent from the top.
+    * lanes - Array of { blocks }, one per lane, left to right (see slot_day_renderers.js for the
+      per-option grouping and lane ordering).
+        * blocks - Slot rows and buffer separators for this lane, positioned absolutely (top/
+          height in percent of the shared timeline) rather than stacked.
+            * key - Slot key "start:end" (buffer separators use a synthetic "buffer:..." key).
+            * statusclass - Modifier class (booking-slot--available|--selected|--booked|--buffer).
+            * buffer - True for a buffer separator: renders as a plain block with no header/
+              content, drawn to scale, and is skipped by the click handler (see slot_day_renderers.js).
+            * top - Top offset in percent of the shared timeline height.
+            * height - Height in percent of the shared timeline height.
+            * time - Time range label, e.g. "16:00 - 16:20". Only used when not buffer.
+            * booked - Whether the slot is already booked.
+            * bookedlabel - Label shown on booked slots.
+            * priceformatted - Formatted price, empty when no price applies.
+            * teachers - Teacher summary string, empty when none.
+            * color - CSS color for the multi-option left-border accent, empty when not applicable
+              (buffer separators and single-option calendars never carry a color).
+            * manageurl - URL to the slot's own booking option page, only set when the slot is
+              booked AND that option is currently cancelable by the user; empty otherwise.
 
     Example context (json):
     {
-        "blocks": [
-            {"key": "1620:1640", "statusclass": "booking-slot--available", "time": "16:00 - 16:20", "booked": false, "bookedlabel": "Booked", "priceformatted": "", "teachers": ""},
-            {"key": "buffer:1620:1640:trailing", "statusclass": "booking-slot--buffer", "buffer": true}
+        "heightpx": 240,
+        "ticks": [{"top": 0, "label": "07:00"}, {"top": 50, "label": "08:00"}],
+        "lanes": [
+            {"blocks": [
+                {"key": "1620:1640", "statusclass": "booking-slot--available", "buffer": false, "top": 10, "height": 20, "time": "16:00 - 16:20", "booked": false, "bookedlabel": "Booked", "priceformatted": "", "teachers": "", "color": "#0d6efd"}
+            ]}
         ]
     }
 }}
-<div class="booking-slot-timeline booking-slot-timeline--fixed border rounded d-flex flex-column">
-    {{#blocks}}
-        <div class="booking-slot {{statusclass}}" data-slot-key="{{key}}" {{#booked}}data-booked="1"{{/booked}}>
-            {{^buffer}}
-                <div class="booking-slot-header">
-                    <div class="booking-slot-time">{{time}}</div>
-                    {{#booked}}<div class="booking-slot-badge">{{bookedlabel}}</div>{{/booked}}
-                    {{#priceformatted}}<div class="booking-slot-price">{{priceformatted}}</div>{{/priceformatted}}
-                </div>
-                {{#teachers}}<div class="booking-slot-teachers">{{teachers}}</div>{{/teachers}}
-            {{/buffer}}
+<div class="booking-slot-timeline-wrapper--scroll">
+    <div class="booking-slot-timeline-axis d-flex align-items-stretch" style="height: {{heightpx}}px;">
+        <div class="booking-slot-timeline-labels position-relative flex-shrink-0" style="height: {{heightpx}}px;">
+            {{#ticks}}
+                <div class="booking-slot-timeline-label position-absolute" style="top: {{top}}%;">{{label}}</div>
+            {{/ticks}}
         </div>
-    {{/blocks}}
+        <div class="booking-slot-timeline-lanes d-flex flex-row align-items-stretch flex-grow-1">
+            {{#lanes}}
+                <div class="booking-slot-timeline booking-slot-timeline--fixed booking-slot-timeline--clickable position-relative"
+                     style="height: {{heightpx}}px;">
+                    {{#ticks}}
+                        <div class="booking-slot-timeline-tick position-absolute" style="top: {{top}}%;"></div>
+                    {{/ticks}}
+                    {{#blocks}}
+                        <div class="booking-slot {{statusclass}} position-absolute"
+                             data-slot-key="{{key}}" data-option-id="{{optionid}}" {{#booked}}data-booked="1"{{/booked}}
+                             style="top: {{top}}%; height: {{height}}%;{{#color}} border-left: 4px solid {{color}};{{/color}}">
+                            {{^buffer}}
+                                <div class="booking-slot-header">
+                                    <div class="booking-slot-time">{{time}}</div>
+                                    {{#priceformatted}}<div class="booking-slot-price">{{priceformatted}}</div>{{/priceformatted}}
+                                </div>
+                                {{#booked}}
+                                    <div class="booking-slot-badge-row">
+                                        {{#manageurl}}
+                                            <a href="{{manageurl}}" target="_blank" rel="noopener" class="booking-slot-badge booking-slot-badge--link">{{bookedlabel}}</a>
+                                        {{/manageurl}}
+                                        {{^manageurl}}
+                                            <div class="booking-slot-badge">{{bookedlabel}}</div>
+                                        {{/manageurl}}
+                                    </div>
+                                {{/booked}}
+                                {{#teachers}}<div class="booking-slot-teachers">{{teachers}}</div>{{/teachers}}
+                            {{/buffer}}
+                        </div>
+                    {{/blocks}}
+                </div>
+            {{/lanes}}
+        </div>
+    </div>
 </div>

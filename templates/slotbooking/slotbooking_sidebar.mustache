@@ -1,0 +1,60 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_booking/slotbooking/slotbooking_sidebar
+
+    List of booking options shown next to a merged slot calendar. Clicking a row toggles
+    whether that option's slots are included in the calendar; the invert button swaps the
+    included/excluded sets. All filtering is client-side (see amd/src/condition/slotBooking.js) -
+    this template only renders the initial, fully-included state.
+
+    Classes required for JS:
+    * booking-slotbooking-sidebar-item
+    * booking-slotbooking-sidebar-invert
+
+    Data attributes required for JS:
+    * data-region="slotbooking-sidebar" (on the wrapper)
+    * data-optionid (per item)
+    * data-action="invert-selection" (on the invert button)
+
+    Context variables required for this template:
+    * sidebaroptions array of { optionid, name }
+
+    Example context (json):
+    {
+        "sidebaroptions": [
+            {"optionid": 42, "name": "Option A"},
+            {"optionid": 43, "name": "Option B"}
+        ]
+    }
+}}
+<div class="booking-slotbooking-sidebar mr-3 mb-3" data-region="slotbooking-sidebar">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <span class="font-weight-bold">{{#str}}slotbooking_sidebar_title, mod_booking{{/str}}</span>
+        <button type="button" class="btn btn-link btn-sm p-0 booking-slotbooking-sidebar-invert"
+                data-action="invert-selection">
+            {{#str}}slotbooking_invert_selection, mod_booking{{/str}}
+        </button>
+    </div>
+    <ul class="list-unstyled booking-slotbooking-sidebar-list mb-0">
+        {{#sidebaroptions}}
+        <li class="booking-slotbooking-sidebar-item" data-optionid="{{optionid}}" role="button" tabindex="0">
+            {{name}}
+        </li>
+        {{/sidebaroptions}}
+    </ul>
+</div>
