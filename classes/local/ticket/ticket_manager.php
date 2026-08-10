@@ -175,10 +175,40 @@ class ticket_manager {
             return null;
         }
 
-        // Never create a second valid ticket for the same user + option.
+        // Never create a second valid ticket for the same user + option. A plain DB
+        // unique index cannot back this up (cancelled tickets may accumulate per
+        // user + option), so serialize concurrent creations - e.g. duplicated booked
+        // events - with a lock and re-check inside it.
         if ($existing = self::find_valid_ticket($optionid, $userid)) {
             return $existing;
         }
+        $lockfactory = \core\lock\lock_config::get_lock_factory('mod_booking_ticket_create');
+        $lock = $lockfactory->get_lock("option{$optionid}user{$userid}", 10);
+        try {
+            if ($existing = self::find_valid_ticket($optionid, $userid)) {
+                return $existing;
+            }
+            return self::create_ticket_record($optionid, $userid, $answerid);
+        } finally {
+            if ($lock) {
+                $lock->release();
+            }
+        }
+    }
+
+    /**
+     * Build and persist a new ticket record incl. PDF and created event.
+     *
+     * Callers must have ensured (under lock) that no valid ticket exists yet.
+     *
+     * @param int $optionid
+     * @param int $userid
+     * @param int $answerid
+     *
+     * @return stdClass|null
+     */
+    private static function create_ticket_record(int $optionid, int $userid, int $answerid): ?stdClass {
+        global $DB;
 
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
         if (empty($settings->id)) {
