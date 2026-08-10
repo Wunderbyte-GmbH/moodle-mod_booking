@@ -124,6 +124,17 @@ class save_slot_selection extends external_api {
         $normalizedteachers = [];
         $slots = [];
 
+        // A user can already hold up to max_slots_per_user answers for this option from an earlier
+        // purchase. The per-slot bookability check further down deliberately excludes the user's
+        // OWN existing answers (so they can still view/re-edit a pending selection), so it alone
+        // can't catch "already at capacity, trying to buy one more" - without this check, the
+        // actual add-to-cart call downstream (shopping_cart::add_item_to_cart(), see
+        // bo_info::load_pre_booking_page()) silently declines to add anything, and the user ends up
+        // redirected to an empty cart with no explanation.
+        if (!slot_availability::has_remaining_slot_capacity($optionid, $userid)) {
+            $errors['slot_selection'] = get_string('slot_error_max_slots_reached', 'mod_booking');
+        }
+
         if (count($keys) > $maxslots) {
             $errors['slot_selection'] = get_string('slot_error_selection_toomany', 'mod_booking');
         }
