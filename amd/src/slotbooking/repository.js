@@ -98,3 +98,30 @@ export const releaseSlots = (optionid, baid, releaseslots, reason = '') =>
         releaseslots: JSON.stringify(releaseslots),
         reason,
     });
+
+/**
+ * Check whether adding a booking option to the shopping cart is currently allowed for a user
+ * (price/eligibility pre-check - does not add anything itself). Mirrors the shared "prepage"
+ * flow's own pre-check in bookit.js.
+ *
+ * @param {number} optionid
+ * @param {number} userid
+ * @return {Promise<{success: number, itemname: string}>}
+ */
+export const allowAddItemToCart = (optionid, userid) =>
+    call('mod_booking_allow_add_item_to_cart', {itemid: optionid, userid});
+
+/**
+ * Load a booking option's next prepage step. When nothing else is blocking, this is also what
+ * actually commits the option (with whatever slot selection is already cached server-side) into
+ * the shopping cart - see bo_info::load_pre_booking_page(). Mirrors bookit.js's own use of the
+ * same webservice for the standard single-option flow.
+ *
+ * @param {number} optionid
+ * @param {number} userid
+ * @param {number} pagenumber
+ * @param {string} skipcondition condition shortname to exclude, e.g. 'slotbooking'
+ * @return {Promise<{template: string, json: string}>}
+ */
+export const loadPreBookingPage = (optionid, userid, pagenumber = 0, skipcondition = '') =>
+    call('mod_booking_load_pre_booking_page', {optionid, userid, pagenumber, skipcondition});
