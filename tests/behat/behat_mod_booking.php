@@ -521,6 +521,9 @@ class behat_mod_booking extends behat_base {
         global $USER;
 
         $cm = $this->get_cm_by_booking_name($bookingname);
+        // The engine alias layer is registered by the active engine, not vendored; a direct
+        // skill instantiation outside engine discovery needs it bootstrapped first.
+        \mod_booking\local\wizard\engine_component::ensure_engine_aliases();
         $task = new diagnose_cancellation_issue_skill();
         $this->lastdiagnosecancellationresult = $task->execute([
             'question' => $question,
