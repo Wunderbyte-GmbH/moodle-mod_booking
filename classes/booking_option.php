@@ -2863,6 +2863,11 @@ class booking_option {
         // The option may have carried sqlfilter availability conditions.
         \mod_booking\bo_availability\sqlfilter_relevance::purge();
 
+        // Entry tickets (rows and PDF files) must go while the option still exists,
+        // so the module context of the file area can be resolved. Instance deletion
+        // is covered too: booking_delete_instance() deletes option by option.
+        \mod_booking\local\ticket\ticket_manager::delete_tickets_for_option($this->optionid);
+
         $result = true;
         $answers = $this->get_all_users();
         foreach ($answers as $answer) {
