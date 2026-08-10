@@ -139,7 +139,11 @@ final class engine_alias_layer_test extends \advanced_testcase {
             class_exists($registrar),
             'Active engine must provide engine_alias_registrar - it replaces the emitted alias layer.'
         );
-        $canonical = array_keys($registrar::ENGINE_ALIASES);
+        // engine_resolver is the resolver, not an engine-bound shim: it exists as
+        // engine_resolver.php in a vendored layer (excluded by alias_leaves) and is a
+        // registrar alias for the cutover. Compare the vendored SHIM leaves against the
+        // canonical set minus engine_resolver so both sides exclude it symmetrically.
+        $canonical = array_values(array_diff(array_keys($registrar::ENGINE_ALIASES), ['engine_resolver']));
         sort($canonical);
         $this->assertSame(
             $canonical,
