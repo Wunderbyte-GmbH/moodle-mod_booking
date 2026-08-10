@@ -460,6 +460,29 @@ export class SlotCalendarPicker {
         this.updateNavigationState();
     }
 
+    /**
+     * Update the slot filter predicate and re-render from the already-loaded slot data.
+     * Used by the multi-option sidebar to show/hide slots per option id without any new
+     * webservice round-trip - every option's slots are already present in this.slotsByDay.
+     *
+     * @param {Function|null} fn predicate(slot) => boolean, or null to clear the filter
+     */
+    setSlotFilter(fn) {
+        this.slotFilter = typeof fn === 'function' ? fn : null;
+        this.render();
+
+        // render() only refreshes the calendar grid and (when showSlotList is true) the picker's
+        // own slot list/timeline. When showSlotList is false, an external region owns the day's
+        // slot display via onDayChange (see condition/slotBooking.js's fixedEditorRoot branch) -
+        // notify it too, or filtering an option out of the sidebar wouldn't remove its slots from
+        // that region.
+        if (!this.showSlotList && this.activeDay) {
+            const daySlots = this.slotsByDay.get(this.activeDay) || [];
+            const visibleSlots = this.slotFilter ? daySlots.filter(this.slotFilter) : daySlots;
+            this.onDayChange(this.activeDay, visibleSlots);
+        }
+    }
+
     renderCalendarGrid() {
         this.calendarGrid.innerHTML = '';
 
@@ -486,7 +509,8 @@ export class SlotCalendarPicker {
 
         days.forEach(date => {
             const dayKey = toDateKeyFromDate(date);
-            const daySlots = this.slotsByDay.get(dayKey) || [];
+            const rawDaySlots = this.slotsByDay.get(dayKey) || [];
+            const daySlots = this.slotFilter ? rawDaySlots.filter(this.slotFilter) : rawDaySlots;
 
             const cell = document.createElement('div');
             cell.className = 'booking-slot-calendar-cell';

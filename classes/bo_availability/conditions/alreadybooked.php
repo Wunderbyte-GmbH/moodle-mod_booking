@@ -216,21 +216,18 @@ class alreadybooked implements bo_condition {
         if (
             !$isavailable
         ) {
-            // Slot booking lets a user buy several separate slots for the same option, up to its own
-            // max_slots_per_user (e.g. purchasing distinct "phases" over time) - that is a capacity
-            // limit, independent of the generic (time-based) multiplebookings re-booking gate above.
-            // While capacity remains, step back to INDIFFERENT so the slotbooking condition owns the
-            // button/prepage again for the next purchase, instead of JUSTMYALERT permanently locking
-            // the option to "Booked" after the first slot.
+            // Slot booking options keep the Continue button (and the merged multi-option calendar,
+            // if any) available for the whole life of the option, even once the user has an active
+            // answer - re-booking limits (max_slots_per_user) are enforced separately by
+            // slotbooking::hard_block() on commit and surfaced to the user as a notification (see
+            // save_slot_selection's capacity check, used by condition/slotBooking.js), not by hiding
+            // the Continue button behind a flat "Cancel purchase / Booked" pair. Without this, the
+            // very first successful slot purchase would permanently replace the slotbooking calendar
+            // with that flat button pair, hiding every other still-open slot - including merged-in
+            // options - even when the user is still allowed to buy more.
             if (
                 \mod_booking\local\slotbooking\slot_mover::get_self_rebookable_answer((int)$settings->id, (int)$userid) !== null ||
-                (
-                    !empty($settings->slotconfig) &&
-                    \mod_booking\local\slotbooking\slot_availability::has_remaining_slot_capacity(
-                        (int)$settings->id,
-                        (int)$userid
-                    )
-                )
+                !empty($settings->slotconfig)
             ) {
                 return [$isavailable, $description, MOD_BOOKING_BO_PREPAGE_NONE, MOD_BOOKING_BO_BUTTON_INDIFFERENT];
             }
