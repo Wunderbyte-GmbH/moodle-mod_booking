@@ -123,6 +123,7 @@ $string['booking:communicate'] = 'Kann kommunizieren (z.B. Nachrichten an gebuch
 $string['booking:duplicateanycourse'] = 'Beliebigen Kurs als Duplizierungsvorlage auswählen (auch Kurse, auf die der/die Nutzer/in keinen Zugriff hat)';
 $string['booking:managebookedusers'] = 'Buchungen von Nutzer/innen verwalten';
 $string['booking:overrideboconditions'] = 'Nutzer/in darf buchen auch wenn Verfügbarkeit false zurückliefert.';
+$string['booking:scanticket'] = 'Eintrittstickets scannen und prüfen (Teilnehmer/innen einlassen)';
 $string['booking:sendpollurltoteachers'] = 'Umfragelink and Trainer/innen senden';
 $string['booking:skill_mod_booking_book_users'] = 'KI-Skill: Nutzer/innen in eine Option einbuchen';
 $string['booking:skill_mod_booking_update_option_trainer'] = 'KI-Skill: Trainer/in einer Buchungsoption aktualisieren';
@@ -523,6 +524,7 @@ angezeigt, selbst wenn diese nicht eingeloggt sind. <span class="text-danger"><b
 wenn es die Datenschutzbestimmungen Ihrer Organisation erlauben.</span>';
 $string['teachingreportforinstance'] = 'Trainer/innen-Gesamtbericht für ';
 $string['teachingreportfortrainer'] = 'Leistungs-Report für Trainer/in';
+$string['ticketholder'] = 'Ticketinhaber/in';
 $string['toomuchusersbooked'] = 'Maximale Anzahl an Nutzer/innen, die Sie buchen können: {$a}';
 $string['transferconfirmlabel'] = 'Ich habe die obenstehenden Warnungen verstanden und möchte die ausgewählten Nutzer/innen trotzdem umbuchen.';
 $string['transferheading'] = 'Ausgewählte Nutzer/innen in die ausgewählte Buchungsoption umbuchen';
