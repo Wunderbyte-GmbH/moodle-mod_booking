@@ -243,9 +243,12 @@ This makes the profile picture part of the entry control: if your institution ke
 under administrative control (updated only by staff or by the student management system), the door
 staff can compare the picture with the person in front of them.
 
-> **This is enforced on the server.** The web service refuses to write a check-in for an option that
-> requires confirmation unless the confirmation was actually given, so the two-step flow cannot be
-> bypassed by a manipulated client.
+> **What the server can and cannot enforce.** The web service refuses to write a check-in for an
+> option that requires confirmation unless the request carries the staff confirmation flag — a
+> stock scanner can therefore never skip the two-step flow. The server records that a
+> scan-permitted staff member *sent* the confirmation; whether that person really compared the
+> picture with the person at the door is a human step no server can verify. Trust in the identity
+> check is trust in your entry staff (only accounts with the scan capability can confirm at all).
 
 ---
 
