@@ -464,4 +464,67 @@ final class ticket_manager_test extends booking_advanced_testcase {
         // The counter string resolved from lang with the 0/0 default params.
         $this->assertStringContainsString('0 / 0', $html);
     }
+
+    /**
+     * Deleting the booking option removes its tickets: DB rows and PDF files.
+     *
+     * @covers \mod_booking\local\ticket\ticket_manager::delete_tickets_for_option
+     */
+    public function test_tickets_and_files_deleted_with_option(): void {
+        global $DB;
+        $this->build_environment();
+        $this->book_student();
+
+        $ticket = ticket_manager::find_valid_ticket($this->settings->id, $this->student->id);
+        $this->assertNotNull(ticket_manager::get_file($ticket), 'Precondition: the ticket PDF exists.');
+        $contextid = \context_module::instance($this->settings->cmid)->id;
+
+        $option = singleton_service::get_instance_of_booking_option($this->settings->cmid, $this->settings->id);
+        $option->delete_booking_option();
+
+        $this->assertEquals(0, $DB->count_records('booking_tickets', ['optionid' => $this->settings->id]));
+        $files = get_file_storage()->get_area_files($contextid, 'mod_booking', ticket_manager::FILEAREA, $ticket->id);
+        $this->assertEmpty($files, 'The ticket PDF must be deleted with the option.');
+    }
+
+    /**
+     * The privacy provider covers tickets: user in context, export metadata,
+     * and per-user deletion removes rows and PDF files.
+     *
+     * @covers \mod_booking\privacy\provider
+     */
+    public function test_privacy_provider_covers_tickets(): void {
+        global $DB;
+        $this->build_environment();
+        $this->book_student();
+
+        $ticket = ticket_manager::find_valid_ticket($this->settings->id, $this->student->id);
+        $this->assertNotNull($ticket);
+        $context = \context_module::instance($this->settings->cmid);
+
+        // Metadata declares the table.
+        $collection = new \core_privacy\local\metadata\collection('mod_booking');
+        $collection = \mod_booking\privacy\provider::get_metadata($collection);
+        $tables = array_map(
+            fn($item) => method_exists($item, 'get_name') ? $item->get_name() : '',
+            $collection->get_collection()
+        );
+        $this->assertContains('booking_tickets', $tables);
+
+        // The ticket holder appears in the context list.
+        $contextlist = \mod_booking\privacy\provider::get_contexts_for_userid((int) $this->student->id);
+        $this->assertContains($context->id, array_map('intval', $contextlist->get_contextids()));
+
+        // Per-user deletion removes rows and files.
+        $approved = new \core_privacy\local\request\approved_contextlist(
+            \core_user::get_user($this->student->id),
+            'mod_booking',
+            [$context->id]
+        );
+        \mod_booking\privacy\provider::delete_data_for_user($approved);
+
+        $this->assertEquals(0, $DB->count_records('booking_tickets', ['userid' => $this->student->id]));
+        $files = get_file_storage()->get_area_files($context->id, 'mod_booking', ticket_manager::FILEAREA, $ticket->id);
+        $this->assertEmpty($files, 'The ticket PDF must be deleted with the user data.');
+    }
 }

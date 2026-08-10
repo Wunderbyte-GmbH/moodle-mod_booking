@@ -541,6 +541,83 @@ class ticket_manager {
     }
 
     /**
+     * Delete the tickets of one booking option: PDF files and DB rows.
+     *
+     * Must run while the option (and its course module) still exists, so the
+     * module context for the file area can be resolved.
+     *
+     * @param int $optionid
+     * @param int $userid Limit to one user, 0 = all users.
+     *
+     * @return void
+     */
+    public static function delete_tickets_for_option(int $optionid, int $userid = 0): void {
+        global $DB;
+
+        if (!$DB->get_manager()->table_exists(self::TABLE)) {
+            return;
+        }
+        $params = ['optionid' => $optionid];
+        if (!empty($userid)) {
+            $params['userid'] = $userid;
+        }
+        self::delete_ticket_records($DB->get_records(self::TABLE, $params));
+    }
+
+    /**
+     * Delete the tickets of a whole booking instance: PDF files and DB rows.
+     *
+     * Must run before the booking_options rows of the instance are deleted, so
+     * the option -> cm resolution for the file area still works.
+     *
+     * @param int $bookingid
+     * @param array $userids Limit to these users, empty = all users.
+     *
+     * @return void
+     */
+    public static function delete_tickets_for_booking(int $bookingid, array $userids = []): void {
+        global $DB;
+
+        if (!$DB->get_manager()->table_exists(self::TABLE)) {
+            return;
+        }
+        $sql = "SELECT t.*
+                  FROM {" . self::TABLE . "} t
+                  JOIN {booking_options} bo ON bo.id = t.optionid
+                 WHERE bo.bookingid = :bookingid";
+        $params = ['bookingid' => $bookingid];
+        if (!empty($userids)) {
+            [$insql, $inparams] = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED, 'tuser');
+            $sql .= " AND t.userid {$insql}";
+            $params += $inparams;
+        }
+        self::delete_ticket_records($DB->get_records_sql($sql, $params));
+    }
+
+    /**
+     * Delete the given ticket records together with their PDF files.
+     *
+     * @param array $tickets Records from booking_tickets.
+     *
+     * @return void
+     */
+    private static function delete_ticket_records(array $tickets): void {
+        global $DB;
+
+        $fs = get_file_storage();
+        foreach ($tickets as $ticket) {
+            $settings = singleton_service::get_instance_of_booking_option_settings((int) $ticket->optionid);
+            if (!empty($settings->cmid)) {
+                $context = context_module::instance($settings->cmid, IGNORE_MISSING);
+                if ($context) {
+                    $fs->delete_area_files($context->id, 'mod_booking', self::FILEAREA, $ticket->id);
+                }
+            }
+            $DB->delete_records(self::TABLE, ['id' => $ticket->id]);
+        }
+    }
+
+    /**
      * Whether a submitted ticketdesign value is the schema-documented OFF sentinel.
      *
      * The contract knows exactly two off values: the empty string and the literal
