@@ -28,9 +28,11 @@ namespace mod_booking\booking_answers\scopes;
 use context_system;
 use local_wunderbyte_table\wunderbyte_table;
 use mod_booking\booking_answers\scope_base;
+use mod_booking\form\option\modal_change_customform;
 use mod_booking\local\bookingstracker\columns_helper;
 use mod_booking\output\booked_users;
 use mod_booking\singleton_service;
+use mod_booking\utils\wb_payment;
 use context_module;
 use mod_booking\table\manageusers_table;
 use moodle_url;
@@ -306,6 +308,34 @@ class option extends scope_base {
             ) {
                 $table->actionbuttons[] = booked_users::create_enrol_button();
             }
+        }
+
+        // Edit the customform values of a single booking answer (PRO feature):
+        // the formfield_* columns exist on the booked and waiting list tables.
+        // Gated by its own capability (default: manager only); the modal
+        // enforces capability and PRO gate on the server side again.
+        if (
+            in_array($statusparam, [MOD_BOOKING_STATUSPARAM_BOOKED, MOD_BOOKING_STATUSPARAM_WAITINGLIST])
+            && !empty($cmid)
+            && !empty($optionid)
+            && wb_payment::pro_version_is_activated()
+            && has_capability('mod/booking:changecustomformofotherusers', context_module::instance($cmid))
+            && !empty(modal_change_customform::editable_formelements($settings))
+        ) {
+            $table->actionbuttons[] = booked_users::create_action_button(
+                'editcustomformvalues',
+                'fa fa-pencil-square-o fa-fw',
+                'mod_booking\\form\\option\\modal_change_customform',
+                [
+                    'scope' => 'option',
+                    'titlestring' => 'editcustomformvalues',
+                    'submitbuttonstring' => 'save',
+                    'component' => 'mod_booking',
+                    'cmid' => $cmid,
+                    'optionid' => $optionid ?? 0,
+                ],
+                'btn btn-primary btn-sm me-2'
+            );
         }
 
         if (

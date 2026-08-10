@@ -119,6 +119,7 @@ $string['booking:addeditownoption'] = 'Eigene Buchungsoptionen bearbeiten (eigen
 die man entweder selbst angelegt hat oder bei denen man als Trainer/in zugewiesen ist)';
 $string['booking:bookallstudents'] = 'Alle eingeschriebenen Teilnehmer/innen in eine Option buchen';
 $string['booking:bookanyone'] = 'Darf alle Nutzer/innen buchen';
+$string['booking:changecustomformofotherusers'] = 'Formularwerte (Customform), die andere Nutzer/innen beim Buchen eingegeben haben, bearbeiten (PRO)';
 $string['booking:communicate'] = 'Kann kommunizieren (z.B. Nachrichten an gebuchte Nutzer/innen schicken)';
 $string['booking:duplicateanycourse'] = 'Beliebigen Kurs als Duplizierungsvorlage auswählen (auch Kurse, auf die der/die Nutzer/in keinen Zugriff hat)';
 $string['booking:managebookedusers'] = 'Buchungen von Nutzer/innen verwalten';
@@ -190,6 +191,7 @@ $string['conditionselectusershoppingcart_desc'] = 'Nutzer/in mit Zahlungsverpfli
 $string['conditionselectusersuserids'] = 'Wähle die gewünschten Nutzer/innen';
 $string['confirmationonnotificationyesforall'] = 'Ja, für alle benachrichtigten Benutzer/innen';
 $string['confirmbookinganswer'] = 'Buchungsantwort bestätigen, wenn die Benachrichtigung für Benutzer/innen aktiviert ist.';
+$string['confirmcustomformoverwrite'] = 'Mir ist bewusst, dass ich durch Speichern die vom/von der Benutzer/in eingegebenen Formularwerte überschreibe.';
 $string['connectedbooking_help'] = 'Buchung von der Teilnehmer/innen übernommen werden. Es kann bestimmt werden wie viele Teilnehmer/innen übernommen werden.';
 $string['consumeatonce_help'] = 'Die Nutzer/innen haben nur einen einzigen Buchungsschritt, bei dem alle Wahlfächer gebucht werden müssen.';
 $string['containsinarray'] = 'Teilnehmer/in hat einen dieser Werte zumindest teilweise (Komma getrennt)';

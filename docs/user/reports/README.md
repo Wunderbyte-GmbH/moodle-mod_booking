@@ -39,6 +39,7 @@ The option scope of the Bookings Tracker has reached feature parity with the leg
 - **E-mail buttons**: contact booked users directly from the tracker.
 - **CSV export**: the export of booked users now includes the `timebooked` column (date/time the booking was made).
 - **Enrol link tracking**: for options that distribute enrol links (`{enrollink}` in rule mails), the tracker and `report.php` show all users who consumed an enrol link, including a column with the **booker who sent the link** to them — so you can tell which enrolled user belongs to which booker.
+- **Edit form values (custom form)**: correct the values a participant entered in the custom booking form, one answer at a time (booked users and waiting list tables). PRO feature, gated by `mod/booking:changecustomformofotherusers` (default: manager only); every change is logged to the booking history. See [Custom Form](../booking_conditions/custom_form.md#editing-submitted-values-bookings-tracker) for details and the list of element types that stay read-only.
 
 Users with `mod/booking:updatebooking` see an info hint in the option scope that the **visible columns are configured in the booking instance settings** (Bookings Tracker section of the instance form).
 

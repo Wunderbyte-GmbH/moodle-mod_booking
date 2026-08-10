@@ -103,10 +103,13 @@ Moodle capabilities define what each role is allowed to do inside **mod_booking*
 | `mod/booking:bookforothers` | Book on behalf of another user (full booking flow) | editingteacher, manager |
 | `mod/booking:bookanyone` | Book any user regardless of availability conditions | manager |
 | `mod/booking:managebookedusers` | Manage the participant list (move between statuses, etc.) | manager, editingteacher |
+| `mod/booking:changecustomformofotherusers` | Edit the custom form values other users entered when booking, via the Bookings Tracker (PRO 🔒) | manager |
 | `mod/booking:executebulkoperations` | Perform bulk operations on booking options via the bulk panel | manager |
 | `mod/booking:readallinstitutionusers` | See users from any institution, not just the current one | teacher, editingteacher, manager |
 | `mod/booking:downloadchecklist` | Download attendance/checklist for an option | teacher, editingteacher, manager |
 | `mod/booking:updatenotes` | Add or edit notes on booking answers | teacher, editingteacher, manager |
+
+> **Note on `changecustomformofotherusers`:** archetype defaults only apply on fresh installations. On existing sites this capability is **not** assigned automatically after an upgrade — assign it manually to the manager role (or any role that should edit submitted form values). Editing form values is a PRO feature; see [Custom Form](../booking_conditions/custom_form.md#editing-submitted-values-bookings-tracker).
 
 ---
 

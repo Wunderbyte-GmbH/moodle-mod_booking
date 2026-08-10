@@ -112,6 +112,33 @@ Once the booking is completed, the cached values are copied into the booking ans
 
 ---
 
+## Editing submitted values (Bookings Tracker)
+
+Managers can correct the values a participant entered when booking (e.g. fix a typo, or change an entry on the participant's behalf) directly in the **Bookings Tracker** (`report2.php`, option scope):
+
+1. Open the option scope of the Bookings Tracker.
+2. On the **booked users** or **waiting list** table, select **exactly one** booking answer (the values differ per person, so mass editing is not possible).
+3. Click **Edit form values** and change the values in the modal.
+4. Tick the red confirmation checkbox ("I am aware that saving will overwrite the form values entered by the user.") — without it, saving fails with a validation error.
+5. Click **Save**: the modal then asks "Do you really want to overwrite the form values of this user?". Only a second click on **Save** actually writes the changes; **Cancel** aborts without saving.
+
+Requirements:
+
+- An active **PRO licence** (without it, the button is hidden and the server rejects the submission).
+- The capability `mod/booking:changecustomformofotherusers` (default: **manager only**; ⚠️ on existing sites it has to be assigned manually after the upgrade, see the [capabilities reference](../capabilities/README.md#5-user-and-response-management)).
+
+Editable element types: **checkbox, short text, select, URL and email** — with the same validation as at booking time (mandatory fields, URL/email format, select values restricted to the configured options).
+
+**Not editable** (shown read-only in the modal):
+
+- **Enrol users action**: the value is coupled to the booked places of the answer, so editing it could cause overbooking.
+- **Delete personal info checkbox**: the privacy consent of the user must not be changed on their behalf.
+- **Display text**: static information without a user value.
+
+Every change is logged to the **booking history** of the answer (who changed which field, with old and new value). The `timemodified` of the booking answer is not touched, so the order of the waiting list stays stable.
+
+---
+
 ## Override behaviour
 
 Users who hold the capability `mod/booking:overrideboconditions` can bypass the custom form step.

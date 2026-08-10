@@ -589,6 +589,17 @@ $capabilities = [
             'editingteacher' => CAP_ALLOW,
         ],
     ],
+    /* Capability to edit the customform values other users entered when booking
+       (report2 tracker, PRO feature). Archetype defaults only apply on fresh installs,
+       so existing sites have to assign this capability manually. */
+    'mod/booking:changecustomformofotherusers' => [
+        'riskbitmask' => RISK_PERSONAL,
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => [
+            'manager' => CAP_ALLOW,
+        ],
+    ],
     'mod/booking:executebulkoperations' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,

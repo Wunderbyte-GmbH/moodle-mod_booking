@@ -96,6 +96,23 @@ class booking_history_table extends wunderbyte_table {
             }
         }
 
+        // Customform edits carry one diff entry per changed field. Checked via
+        // status (not via substring like below), because the values are free text.
+        if ((int)$values->status === MOD_BOOKING_STATUSPARAM_CUSTOMFORM_EDITED && is_array($info)) {
+            $lines = [];
+            foreach ($info as $change) {
+                if (!is_array($change) || !array_key_exists('newvalue', $change)) {
+                    continue;
+                }
+                $a = new stdClass();
+                $a->label = s($change['label'] ?? '');
+                $a->oldvalue = s($change['oldvalue'] ?? '');
+                $a->newvalue = s($change['newvalue'] ?? '');
+                $lines[] = get_string('customformeditedhistory', 'mod_booking', $a);
+            }
+            return implode('<br>', $lines);
+        }
+
         $a = new stdClass();
         if (strrpos($values->json, 'presence') !== false) {
             $possiblepresences = booking::get_array_of_possible_presence_statuses();
