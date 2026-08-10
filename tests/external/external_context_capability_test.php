@@ -25,10 +25,15 @@
 
 namespace mod_booking;
 
+use mod_booking\bo_availability\bo_info;
+use mod_booking\external\allow_add_item_to_cart;
 use mod_booking\external\bookings;
 use mod_booking\external\bookit;
 use mod_booking\external\get_booking_option_description;
 use mod_booking\external\get_performance_chart;
+use mod_booking\external\load_pre_booking_page;
+use mod_booking\form\condition\customform_form;
+use mod_booking\local\mobile\customformstore;
 use mod_booking\external\optiontemplate;
 use mod_booking\external\search_booking_options;
 use mod_booking\external\search_courses;
@@ -50,10 +55,12 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * has to validate its execution context (which includes the login and course access
  * check) and enforce the required capabilities before processing the request.
  *
+ * @covers \mod_booking\external\allow_add_item_to_cart
  * @covers \mod_booking\external\bookings
  * @covers \mod_booking\external\bookit
  * @covers \mod_booking\external\get_booking_option_description
  * @covers \mod_booking\external\get_performance_chart
+ * @covers \mod_booking\external\load_pre_booking_page
  * @covers \mod_booking\external\optiontemplate
  * @covers \mod_booking\external\search_booking_options
  * @covers \mod_booking\external\search_courses
@@ -249,5 +256,136 @@ final class external_context_capability_test extends booking_advanced_testcase {
         $this->setUser($outsider);
         $this->expectException(moodle_exception::class);
         bookit::execute('option', (int)$option->id, (int)$outsider->id, '');
+    }
+
+    /**
+     * Users holding mod/booking:choose may book without being enrolled in the course
+     * of the booking instance (booking options are regularly presented outside of
+     * their course, e.g. via shortcode lists): the webservices of the booking chain
+     * accept them, and the booking itself works. Users without the capability are
+     * still rejected (see test_bookit_requires_course_access).
+     */
+    public function test_booking_chain_allows_unenrolled_user_with_choose(): void {
+        [, , $option, , , , $outsider] = $this->create_environment();
+
+        // Typical shortcode setup: users hold mod/booking:choose via a system level role.
+        $this->setAdminUser();
+        $systemcontext = \context_system::instance();
+        $roleid = create_role('Booking user', 'bookinguser', '');
+        assign_capability('mod/booking:choose', CAP_ALLOW, $roleid, $systemcontext->id);
+        role_assign($roleid, $outsider->id, $systemcontext->id);
+
+        $this->setUser($outsider);
+        singleton_service::destroy_instance();
+
+        // The pre booking check of the booking button passes...
+        $result = allow_add_item_to_cart::execute((int)$option->id, (int)$outsider->id);
+        $this->assertSame(1, $result['success']);
+
+        // ...and booking the option works (bookit is called twice to confirm).
+        bookit::execute('option', (int)$option->id, (int)$outsider->id, '');
+        bookit::execute('option', (int)$option->id, (int)$outsider->id, '');
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
+        $boinfo = new bo_info($settings);
+        [$id] = $boinfo->is_available($settings->id, (int)$outsider->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+    }
+
+    /**
+     * For an option with a customform condition, the customform prepage modal opens
+     * for a user who is NOT enrolled in the course of the booking instance (authenticated
+     * user holding mod/booking:choose via a system level role, e.g. shortcode setups):
+     * the pre booking check passes, the customform page is among the prepages, loading it
+     * through the webservice returns the customform template (the call which failed with
+     * requireloginerror since the 9.7.0 hardening), and after submitting the form the
+     * confirmation page load books the user, carrying the customform data in the answer.
+     */
+    public function test_customform_prepage_opens_and_books_for_unenrolled_user_with_choose(): void {
+        global $DB;
+
+        [$course, $booking, , , , , $outsider] = $this->create_environment();
+
+        // Add an option with a customform (shorttext) condition to the instance.
+        $this->setAdminUser();
+        /** @var mod_booking_generator $generator */
+        $generator = $this->getDataGenerator()->get_plugin_generator('mod_booking');
+        $option = $generator->create_option((object)[
+            'bookingid' => $booking->id,
+            'courseid' => $course->id,
+            'text' => 'Customform option',
+            'chooseorcreatecourse' => 1,
+            'maxanswers' => 10,
+            'importing' => 1,
+            'bo_cond_customform_restrict' => 1,
+            'bo_cond_customform_select_1_1' => 'shorttext',
+            'bo_cond_customform_label_1_1' => 'Your name',
+        ]);
+
+        // Typical shortcode setup: users hold mod/booking:choose via a system level role.
+        $systemcontext = \context_system::instance();
+        $roleid = create_role('Booking user', 'bookinguser', '');
+        assign_capability('mod/booking:choose', CAP_ALLOW, $roleid, $systemcontext->id);
+        role_assign($roleid, $outsider->id, $systemcontext->id);
+
+        $this->setUser($outsider);
+        singleton_service::destroy_instance();
+
+        // The submission of the customform itself (core dynamic form webservice) is gated
+        // by mod/booking:conditionforms on system context, which every authenticated user
+        // holds by default - so the whole flow works without any enrolment.
+        $this->assertTrue(has_capability('mod/booking:conditionforms', $systemcontext));
+
+        // The pre booking check of the booking button passes.
+        $result = allow_add_item_to_cart::execute((int)$option->id, (int)$outsider->id);
+        $this->assertSame(1, $result['success']);
+
+        // The customform page is among the prepages of the modal for the unenrolled user.
+        $conditionresults = bo_info::get_condition_results($option->id, (int)$outsider->id);
+        usort($conditionresults, fn ($a, $b) => $a['id'] < $b['id'] ? 1 : -1);
+        $pages = bo_info::return_sorted_conditions($conditionresults);
+        $customformpage = null;
+        $confirmationpage = null;
+        foreach ($pages as $index => $page) {
+            if ((int)$page['id'] === MOD_BOOKING_BO_COND_JSON_CUSTOMFORM) {
+                $customformpage = $index;
+            }
+            if ((int)$page['id'] === MOD_BOOKING_BO_COND_CONFIRMATION) {
+                $confirmationpage = $index;
+            }
+        }
+        $this->assertNotNull($customformpage, 'The customform prepage must be shown to the unenrolled user.');
+        $this->assertNotNull($confirmationpage, 'The confirmation prepage must be offered to the unenrolled user.');
+
+        // Loading the customform page through the webservice returns the customform template.
+        $result = load_pre_booking_page::execute((int)$option->id, (int)$outsider->id, $customformpage);
+        $this->assertStringContainsString('mod_booking/condition/customform', $result['template']);
+
+        // Submit the customform (as the dynamic form webservice would).
+        $_POST = [
+            'id' => (string)$option->id,
+            'userid' => (string)$outsider->id,
+            'customform_shorttext_1' => 'Ada Lovelace',
+            'sesskey' => sesskey(),
+            '_qf__mod_booking_form_condition_customform_form' => '1',
+        ];
+        $form = new customform_form(null, null, 'post', '', [], true, $_POST, true);
+        $this->assertTrue($form->is_validated(), 'Customform submission should validate for the unenrolled user.');
+        $form->process_dynamic_submission();
+        $_POST = [];
+
+        $customformstore = new customformstore((int)$outsider->id, (int)$option->id);
+        $storeddata = (array)$customformstore->get_customform_data();
+        $this->assertSame('Ada Lovelace', $storeddata['customform_shorttext_1'] ?? null);
+
+        // The browser's "Continue" ends on the confirmation page, whose load books the option.
+        singleton_service::destroy_instance();
+        load_pre_booking_page::execute((int)$option->id, (int)$outsider->id, $confirmationpage);
+
+        $answers = $DB->get_records('booking_answers', ['optionid' => $option->id, 'userid' => $outsider->id]);
+        $this->assertCount(1, $answers, 'The unenrolled user with mod/booking:choose must end up booked.');
+        $answer = reset($answers);
+        $this->assertSame((int)MOD_BOOKING_STATUSPARAM_BOOKED, (int)$answer->waitinglist);
+        $this->assertStringContainsString('Ada Lovelace', (string)$answer->json);
     }
 }

@@ -32,6 +32,7 @@ use core_external\external_function_parameters;
 use core_external\external_value;
 use core_external\external_single_structure;
 use local_shopping_cart\shopping_cart;
+use mod_booking\permissions;
 use mod_booking\singleton_service;
 
 /**
@@ -72,11 +73,8 @@ class allow_add_item_to_cart extends external_api {
         $settings = singleton_service::get_instance_of_booking_option_settings($params['itemid']);
 
         // The user needs access to the booking instance the option belongs to.
-        self::validate_context(
-            empty($settings->cmid)
-                ? \context_system::instance()
-                : \context_module::instance($settings->cmid)
-        );
+        // Users with mod/booking:choose may book without course access (e.g. via shortcode lists).
+        permissions::validate_context_for_booking((int)($settings->cmid ?? 0));
         // Acting for another user needs the book for others (or cashier) rights.
         \mod_booking\form\condition\customform_form::require_userid_access($params['userid'], $params['itemid']);
 

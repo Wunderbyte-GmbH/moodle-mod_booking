@@ -1282,3 +1282,8 @@ table[id*="bulkoperationstable"] th {
 #page-mod-booking-mod .fitem.row:has(input[name="addtogroup"]) {
     padding-left: 2rem;
 }
+
+/* Custom form: Checkbox labels. */
+.condition-customform .form-check span[id$="description"] {
+    margin-left: 0.5rem;
+}

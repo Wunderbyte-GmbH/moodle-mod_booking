@@ -32,6 +32,7 @@ use core_external\external_function_parameters;
 use core_external\external_value;
 use core_external\external_single_structure;
 use mod_booking\booking_bookit;
+use mod_booking\permissions;
 use mod_booking\price;
 use mod_booking\singleton_service;
 use mod_booking\subbookings\subbookings_info;
@@ -80,10 +81,11 @@ class bookit extends external_api {
             'data' => $data,
         ]);
 
-        // The user needs access to the booking instance the option belongs to.
+        // The user needs access to the booking instance the option belongs to; users
+        // with mod/booking:choose may book without course access (e.g. via shortcode lists).
         // No further capability is needed here: bookit() itself enforces the
         // book for others capability and the booking (availability) conditions.
-        self::validate_context(self::resolve_context($params['area'], $params['itemid']));
+        permissions::validate_context_for_booking(self::resolve_cmid($params['area'], $params['itemid']));
 
         $response = booking_bookit::bookit($params['area'], $params['itemid'], $params['userid'], $params['data']);
 
@@ -129,13 +131,13 @@ class bookit extends external_api {
     }
 
     /**
-     * Resolves the context to validate against for the given area and item.
+     * Resolves the course module id of the booking instance the booked item belongs to.
      *
      * @param string $area
      * @param int $itemid
-     * @return \context
+     * @return int the cmid, 0 if it cannot be resolved
      */
-    private static function resolve_context(string $area, int $itemid): \context {
+    private static function resolve_cmid(string $area, int $itemid): int {
         if ($area === 'option') {
             $settings = singleton_service::get_instance_of_booking_option_settings($itemid);
         } else if (strpos($area, 'subbooking') === 0) {
@@ -146,10 +148,7 @@ class bookit extends external_api {
         } else {
             $settings = null;
         }
-        if (!empty($settings->cmid)) {
-            return \context_module::instance($settings->cmid);
-        }
-        return \context_system::instance();
+        return (int)($settings->cmid ?? 0);
     }
 
     /**

@@ -31,6 +31,7 @@ use core_external\external_function_parameters;
 use core_external\external_value;
 use core_external\external_single_structure;
 use mod_booking\bo_availability\bo_info;
+use mod_booking\permissions;
 
 /**
  * External Service for load pre_booking page.
@@ -84,12 +85,9 @@ class load_pre_booking_page extends external_api {
         );
 
         // The user needs access to the booking instance the option belongs to.
+        // Users with mod/booking:choose may book without course access (e.g. via shortcode lists).
         $settings = \mod_booking\singleton_service::get_instance_of_booking_option_settings($params['optionid']);
-        self::validate_context(
-            empty($settings->cmid)
-                ? \context_system::instance()
-                : \context_module::instance($settings->cmid)
-        );
+        permissions::validate_context_for_booking((int)($settings->cmid ?? 0));
         // Loading the pre booking pages of another user needs the book for others (or cashier) rights.
         \mod_booking\form\condition\customform_form::require_userid_access($params['userid'], $params['optionid']);
 

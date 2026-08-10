@@ -17,6 +17,10 @@
 namespace mod_booking;
 
 use context;
+use context_module;
+use context_system;
+use core_external\external_api;
+use require_login_exception;
 /**
  * Helper functions to check permissions.
  *
@@ -76,6 +80,38 @@ class permissions {
     public static function require_any_booking_editing_capability(): void {
         if (!self::has_any_booking_editing_capability()) {
             throw new \moodle_exception('nopermissions', 'error', '', 'edit booking options');
+        }
+    }
+
+    /**
+     * Validates the execution context of the user-facing booking webservices
+     * (allow to add to cart, loading of the pre booking pages, booking itself).
+     *
+     * Booking options are regularly presented outside of their own course, e.g. in
+     * shortcode lists, so the booking users are often not (or not yet) enrolled in
+     * the course of the booking instance. Like when booking directly, users holding
+     * mod/booking:choose on the booking instance (the capability the "allowed to book
+     * in instance" condition checks as well) may book anyway: for them the system
+     * context is validated instead, which still enforces an active login and session.
+     * All other users need full access to the course of the booking instance.
+     *
+     * @param int $cmid course module id of the booking instance, 0 if unknown
+     * @return void
+     * @throws require_login_exception if the user may not access the booking instance
+     */
+    public static function validate_context_for_booking(int $cmid): void {
+        if (empty($cmid)) {
+            external_api::validate_context(context_system::instance());
+            return;
+        }
+        $modulecontext = context_module::instance($cmid);
+        try {
+            external_api::validate_context($modulecontext);
+        } catch (require_login_exception $e) {
+            if (!has_capability('mod/booking:choose', $modulecontext)) {
+                throw $e;
+            }
+            external_api::validate_context(context_system::instance());
         }
     }
 }
