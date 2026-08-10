@@ -120,19 +120,19 @@ final class sync_waiting_list_perf_test extends \advanced_testcase {
         $peruser = ($large - $small) / 6.0;
 
         // Coarse regression guard against a relapse towards the old per-user cost (a redundant
-        // loop purge adds ~+3.7 reads/user). The absolute perf_get_reads() count is core-version
-        // sensitive: the clean baseline is ~12 reads/user on Moodle 5.1, ~14 on 4.5 and ~15 on
-        // 5.2 — so the bound sits just above the 5.2 baseline while still catching a full-magnitude
-        // relapse on 5.2 (~18.7) and 4.5 (~17.7). It deliberately does NOT catch a 5.1-only relapse
-        // (~15.7): a coarse cross-version guard that survives core bumps beats a razor-tight one
-        // that flaps. Tighten (or make version-aware) once the per-call broadcast purge inside
+        // loop purge adds ~+3.7 reads/user). The absolute perf_get_reads() count is environment
+        // sensitive in two ways: core version AND execution context. A full-suite CI run with
+        // the plain plugin set measures a clean ~19.7 reads/user, while an isolated local run
+        // on a dev site (5.1, all subplugins installed) measures ~14.7 — a systematic, exactly
+        // linear +5.0/user offset (verified: 3 users = 70 vs 85 reads, 9 users = 158 vs 203).
+        // The bound therefore sits just above the CI plateau while still catching a
+        // full-magnitude purge-cascade relapse in CI (~23.4). It deliberately does NOT catch
+        // a relapse that only shows in isolated local runs (~18.4): a coarse guard that
+        // survives core bumps and context differences beats a razor-tight one that flaps.
+        // Tighten (or make context-aware) once the per-call broadcast purge inside
         // user_submit_response is also deferred during the sync.
-        // Regime note: those baselines were measured while the seed's coursestarttime silently
-        // persisted as 0 (missing optiondateid_0), so enrol_user_coursestart() enrolled on every
-        // promotion. Since the generator injects the marker, the option has a real FUTURE start,
-        // enrolment is deferred and the per-user cost sits slightly below those figures.
         $this->assertLessThan(
-            16,
+            22,
             $peruser,
             sprintf(
                 'sync_waiting_list costs ~%.1f DB reads per promoted user '
