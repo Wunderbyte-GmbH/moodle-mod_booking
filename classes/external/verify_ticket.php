@@ -153,22 +153,41 @@ class verify_ticket extends external_api {
             $result['presenttime'] = (int) $answer->timemodified;
             $result['pendingconfirmation'] = false;
         } else if ($checkin && $answer) {
-            $option = singleton_service::get_instance_of_booking_option((int) $settings->cmid, $optionid);
-            $option->changepresencestatus([$userid], $target);
+            // Serialize parallel scans of the same answer: without the lock, two staff
+            // devices scanning simultaneously both pass the already-present guard above
+            // and both write + fire the event (double log entries).
+            $lockfactory = \core\lock\lock_config::get_lock_factory('mod_booking_ticket_scan');
+            $lock = $lockfactory->get_lock('answer' . $answer->id, 10);
+            try {
+                $current = self::get_active_answer($optionid, $userid);
+                if ($current && (int) $current->status === $target) {
+                    // The parallel scan won the race - report it as already present.
+                    $result['alreadypresent'] = true;
+                    $result['presenttime'] = (int) $current->timemodified;
+                    $result['pendingconfirmation'] = false;
+                } else {
+                    $option = singleton_service::get_instance_of_booking_option((int) $settings->cmid, $optionid);
+                    $option->changepresencestatus([$userid], $target);
 
-            $result['presenttime'] = time();
+                    $result['presenttime'] = time();
 
-            $event = ticket_scanned::create([
-                'context' => $context,
-                'objectid' => $optionid,
-                'relateduserid' => $userid,
-                'other' => [
-                    'code' => $code,
-                    'ticketid' => (int) $ticket->id,
-                    'presencestatus' => $target,
-                ],
-            ]);
-            $event->trigger();
+                    $event = ticket_scanned::create([
+                        'context' => $context,
+                        'objectid' => (int) $ticket->id,
+                        'relateduserid' => $userid,
+                        'other' => [
+                            'code' => $code,
+                            'optionid' => $optionid,
+                            'presencestatus' => $target,
+                        ],
+                    ]);
+                    $event->trigger();
+                }
+            } finally {
+                if ($lock) {
+                    $lock->release();
+                }
+            }
         }
 
         $result['presentcount'] = self::count_present($optionid);
