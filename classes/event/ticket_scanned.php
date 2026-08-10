@@ -32,7 +32,8 @@ use stdClass;
  *
  * Fired when an entry ticket is successfully scanned and the participant is checked in.
  * `relateduserid` is the scanned (admitted) participant; `userid` is the scanning staff member;
- * `objectid` is the booking option id. Traceability of check-ins runs via this event + presence status.
+ * `objectid` is the id of the scanned ticket (table booking_tickets); the booking option id
+ * travels in `other['optionid']`. Traceability of check-ins runs via this event + presence status.
  *
  * @since Moodle 4.5
  * @copyright 2025 Wunderbyte GmbH <info@wunderbyte.at>
@@ -47,7 +48,7 @@ class ticket_scanned extends \core\event\base {
     protected function init() {
         $this->data['crud'] = 'u';
         $this->data['edulevel'] = self::LEVEL_PARTICIPATING;
-        $this->data['objecttable'] = 'booking_answers';
+        $this->data['objecttable'] = 'booking_tickets';
     }
 
     /**
@@ -71,7 +72,7 @@ class ticket_scanned extends \core\event\base {
         $a = new stdClass();
         $a->relateduser = $ruser->firstname . " " . $ruser->lastname . " (ID: " . $relateduserid . ")";
         $a->scanner = $this->userid;
-        $a->optionid = $this->objectid;
+        $a->optionid = (int) ($this->other['optionid'] ?? 0);
 
         return get_string('ticketscannedinfo', 'mod_booking', $a);
     }
