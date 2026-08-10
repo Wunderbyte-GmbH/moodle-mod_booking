@@ -245,4 +245,177 @@ final class rules_send_ticket_test extends advanced_testcase {
         );
         $this->assertCount(0, $ticketmessages, 'No ticket mail may be sent when there is no ticket.');
     }
+
+    /**
+     * Build course, booking, ticketed option and a send_ticket rule on ticket_created.
+     *
+     * @return array [booking_option_settings $settings, stdClass $student]
+     */
+    private function build_ticket_rule_environment(): array {
+        $this->setAdminUser();
+
+        $course = $this->getDataGenerator()->create_course();
+        $student = $this->getDataGenerator()->create_user();
+        $teacher = $this->getDataGenerator()->create_user();
+
+        set_config('bookingticketon', 1, 'booking');
+        set_config('certificateon', 0, 'booking');
+        $templateid = ticket_template_installer::ensure_installed();
+
+        $bdata = [
+            'name' => 'Ticket rule booking', 'eventtype' => 'Test event',
+            'bookedtext' => ['text' => 'text'], 'waitingtext' => ['text' => 'text'],
+            'notifyemail' => ['text' => 'text'], 'statuschangetext' => ['text' => 'text'],
+            'deletedtext' => ['text' => 'text'], 'pollurltext' => ['text' => 'text'],
+            'pollurlteacherstext' => ['text' => 'text'], 'notificationtext' => ['text' => 'text'],
+            'userleave' => ['text' => 'text'], 'tags' => '',
+            'course' => $course->id, 'bookingmanager' => $teacher->username,
+        ];
+        $booking = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        $this->getDataGenerator()->enrol_user($student->id, $course->id, 'student');
+        $this->getDataGenerator()->enrol_user($teacher->id, $course->id, 'editingteacher');
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+
+        $boevent = '"boevent":"\\\\mod_booking\\\\event\\\\ticket_created"';
+        $plugingenerator->create_rule([
+            'name' => 'Send the ticket',
+            'conditionname' => 'select_user_from_event',
+            'contextid' => 1,
+            'conditiondata' => '{"userfromeventtype":"relateduserid"}',
+            'actionname' => 'send_ticket',
+            'actiondata' => '{"subject":"Your ticket","template":"Here it is: {ticketcode}"}',
+            'rulename' => 'rule_react_on_event',
+            'ruledata' => '{' . $boevent . ',"aftercompletion":0,"cancelrules":[],"condition":"0"}',
+        ]);
+
+        $record = new stdClass();
+        $record->bookingid = $booking->id;
+        $record->text = 'Ticketed option';
+        $record->chooseorcreatecourse = 1;
+        $record->courseid = $course->id;
+        $record->description = 'Test description';
+        $record->ticket = $templateid;
+        $option = $plugingenerator->create_option($record);
+
+        return [singleton_service::get_instance_of_booking_option_settings($option->id), $student];
+    }
+
+    /**
+     * Ticket mails from a message sink, filtered by the rule's subject.
+     *
+     * @param array $messages
+     * @return array
+     */
+    private function ticket_messages(array $messages): array {
+        return array_values(array_filter(
+            $messages,
+            fn($message) => strpos((string) $message->subject, 'Your ticket') !== false
+        ));
+    }
+
+    /**
+     * The ticket is resolved at SEND time, not at queue time: after cancel + rebook,
+     * the queued task delivers the current ticket's code, never the revoked one.
+     */
+    public function test_ticket_is_resolved_at_send_time(): void {
+        [$settings, $student] = $this->build_ticket_rule_environment();
+
+        $sink = $this->redirectMessages();
+
+        booking_bookit::bookit('option', $settings->id, $student->id);
+        booking_bookit::bookit('option', $settings->id, $student->id);
+        $oldticket = ticket_manager::find_valid_ticket($settings->id, $student->id);
+        $this->assertNotNull($oldticket);
+
+        // Cancel (revokes the ticket) and rebook (mints a new one) BEFORE any task ran.
+        $option = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
+        $option->user_delete_response($student->id);
+        booking_bookit::bookit('option', $settings->id, $student->id);
+        booking_bookit::bookit('option', $settings->id, $student->id);
+
+        $newticket = ticket_manager::find_valid_ticket($settings->id, $student->id);
+        $this->assertNotNull($newticket);
+        $this->assertNotEquals($oldticket->code, $newticket->code, 'Rebooking must mint a fresh ticket.');
+
+        ob_start();
+        $this->runAdhocTasks();
+        ob_end_clean();
+        $ticketmessages = $this->ticket_messages($sink->get_messages());
+        $sink->close();
+
+        $this->assertNotEmpty($ticketmessages, 'The rule must deliver the ticket.');
+        foreach ($ticketmessages as $message) {
+            $this->assertStringContainsString(
+                $newticket->code,
+                (string) $message->fullmessage,
+                'The mail must carry the CURRENT ticket code (resolved at send time).'
+            );
+            $this->assertStringNotContainsString(
+                $oldticket->code,
+                (string) $message->fullmessage,
+                'The revoked ticket code must never be delivered.'
+            );
+        }
+    }
+
+    /**
+     * A cancellation between queueing and sending suppresses the mail entirely.
+     */
+    public function test_cancellation_before_send_suppresses_the_mail(): void {
+        [$settings, $student] = $this->build_ticket_rule_environment();
+
+        $sink = $this->redirectMessages();
+
+        booking_bookit::bookit('option', $settings->id, $student->id);
+        booking_bookit::bookit('option', $settings->id, $student->id);
+        $this->assertNotNull(ticket_manager::find_valid_ticket($settings->id, $student->id));
+
+        // Cancel before the queued task runs: the ticket is revoked.
+        $option = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
+        $option->user_delete_response($student->id);
+        $this->assertNull(ticket_manager::find_valid_ticket($settings->id, $student->id));
+
+        ob_start();
+        $this->runAdhocTasks();
+        ob_end_clean();
+        $ticketmessages = $this->ticket_messages($sink->get_messages());
+        $sink->close();
+
+        $this->assertCount(0, $ticketmessages, 'No ticket mail may go out after the booking was cancelled.');
+    }
+
+    /**
+     * A missing PDF at send time is regenerated instead of aborting the delivery.
+     */
+    public function test_missing_pdf_is_regenerated_at_send_time(): void {
+        [$settings, $student] = $this->build_ticket_rule_environment();
+
+        $sink = $this->redirectMessages();
+
+        booking_bookit::bookit('option', $settings->id, $student->id);
+        booking_bookit::bookit('option', $settings->id, $student->id);
+        $ticket = ticket_manager::find_valid_ticket($settings->id, $student->id);
+        $this->assertNotNull(ticket_manager::get_file($ticket));
+
+        // Simulate the race: the PDF vanished between creation and delivery.
+        get_file_storage()->delete_area_files(
+            \context_module::instance($settings->cmid)->id,
+            'mod_booking',
+            ticket_manager::FILEAREA,
+            $ticket->id
+        );
+        $this->assertNull(ticket_manager::get_file($ticket));
+
+        ob_start();
+        $this->runAdhocTasks();
+        ob_end_clean();
+        $ticketmessages = $this->ticket_messages($sink->get_messages());
+        $sink->close();
+
+        $this->assertCount(1, $ticketmessages, 'The delivery must not abort on a missing PDF.');
+        $this->assertNotNull(ticket_manager::get_file($ticket), 'The PDF must have been regenerated for sending.');
+    }
 }
