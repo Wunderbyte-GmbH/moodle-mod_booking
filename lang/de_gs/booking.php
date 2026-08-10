@@ -136,6 +136,7 @@ $string['booking:managebookedusers'] = 'Buchungen von Nutzer/innen verwalten';
 $string['booking:managebookingsownoption'] = 'Buchungen eigener Buchungsoptionen verwalten (eigene Buchungsoptionen sind solche,
 die man entweder selbst angelegt hat oder bei denen man als Trainer/in zugewiesen ist)';
 $string['booking:overrideboconditions'] = 'Nutzer/in darf buchen auch wenn Verfügbarkeit false zurückliefert.';
+$string['booking:scanticket'] = 'Eintrittstickets scannen und prüfen (Teilnehmer/innen einlassen)';
 $string['booking:sendmailownoption'] = 'E-Mails an die gebuchten Nutzer/innen eigener Buchungsoptionen senden (eigene Buchungsoptionen sind solche,
 die man entweder selbst angelegt hat oder bei denen man als Trainer/in zugewiesen ist)';
 $string['booking:sendpollurltoteachers'] = 'Umfragelink and Trainer/innen senden';
@@ -550,6 +551,7 @@ angezeigt, selbst wenn diese nicht eingeloggt sind. <span class="text-danger"><b
 wenn es die Datenschutzbestimmungen Ihrer Organisation erlauben.</span>';
 $string['teachingreportforinstance'] = 'Trainer/innen-Gesamtbericht für ';
 $string['teachingreportfortrainer'] = 'Leistungs-Report für Trainer/in';
+$string['ticketholder'] = 'Ticketinhaber/in';
 $string['toomuchusersbooked'] = 'Maximale Anzahl an Nutzer/innen, die Sie buchen können: {$a}';
 $string['transferconfirmlabel'] = 'Ich habe die obenstehenden Warnungen verstanden und möchte die ausgewählten Nutzer/innen trotzdem umbuchen.';
 $string['transferheading'] = 'Ausgewählte Nutzer/innen in die ausgewählte Buchungsoption umbuchen';
