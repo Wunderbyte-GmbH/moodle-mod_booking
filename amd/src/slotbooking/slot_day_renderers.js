@@ -327,12 +327,18 @@ export const renderFixedSlotsEditor = async(container, daySlots, selection, time
     const buildLaneBlocks = (laneSlots) => {
         const laneBlocks = [];
         laneSlots.forEach(slot => {
+            const isBooked = String(slot.status || '') === 'booked' || slot.selectable === false;
             const warmup = Number(slot.bufferwarmupminutes || 0) * 60;
             const cooldown = Number(slot.buffercooldownminutes || 0) * 60;
             const slotStart = Number(slot.start || 0);
             const slotEnd = Number(slot.end || 0);
 
-            if (warmup > 0) {
+            // Buffer separators only mean something around an actual booking - on rolling-type
+            // calendars the candidate slots overlap heavily, so drawing a buffer behind every open
+            // slot too just paints a dense, unreadable hatch pattern over other still-bookable slots
+            // (and the many overlapping buffer boxes drown out the one that actually matters, around
+            // a booked slot, leaving it looking blank instead).
+            if (isBooked && warmup > 0) {
                 laneBlocks.push({
                     key: `buffer:leading:${slot.key}`,
                     statusclass: 'booking-slot--buffer',
@@ -344,7 +350,7 @@ export const renderFixedSlotsEditor = async(container, daySlots, selection, time
 
             laneBlocks.push(buildSlotBlock(slot));
 
-            if (cooldown > 0) {
+            if (isBooked && cooldown > 0) {
                 laneBlocks.push({
                     key: `buffer:${slot.key}:trailing`,
                     statusclass: 'booking-slot--buffer',

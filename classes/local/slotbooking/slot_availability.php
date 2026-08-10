@@ -258,6 +258,76 @@ class slot_availability {
     }
 
     /**
+     * Whether a candidate slot time-overlaps an existing booking (or pending hold) of this
+     * option that is NOT the exact same occurrence.
+     *
+     * The underlying resource (room, vehicle, teacher slot, ...) is single-instance and time-
+     * exclusive: two different, merely overlapping start-time variants can never run
+     * concurrently, even when max_participants_per_slot has headroom. Capacity only governs
+     * multiple people sharing the exact same start/end occurrence - it must never be read as
+     * "this many independent overlapping time windows may run at once".
+     *
+     * @param int $optionid booking option id
+     * @param int $slotstart candidate slot start timestamp
+     * @param int $slotend candidate slot end timestamp
+     * @param int $excludeanswerid booking answer id to ignore (re-validating one's own slot)
+     * @param int $excludemoveid pending move id to ignore (holder re-validating their own target)
+     * @param array|null $holds pending holds to include; resolved from the store when null
+     * @param int[] $excludeanswerids additional booking answer ids to ignore
+     * @return bool
+     */
+    public static function has_overlapping_distinct_booking(
+        int $optionid,
+        int $slotstart,
+        int $slotend,
+        int $excludeanswerid = 0,
+        int $excludemoveid = 0,
+        ?array $holds = null,
+        array $excludeanswerids = []
+    ): bool {
+        foreach (self::get_booked_slot_ranges_by_answer($optionid) as $answerid => $ranges) {
+            if ($excludeanswerid > 0 && $answerid === $excludeanswerid) {
+                continue;
+            }
+            if (in_array($answerid, $excludeanswerids, true)) {
+                continue;
+            }
+
+            foreach ($ranges as $range) {
+                $rangestart = (int)($range['start'] ?? 0);
+                $rangeend = (int)($range['end'] ?? 0);
+                if ($rangestart === $slotstart && $rangeend === $slotend) {
+                    // Exact same occurrence - capacity (count_bookings) governs this, not exclusivity.
+                    continue;
+                }
+                if (self::slots_overlap($rangestart, $rangeend, $slotstart, $slotend)) {
+                    return true;
+                }
+            }
+        }
+
+        $holds = $holds ?? slot_move_store::get_active_holds_for_option($optionid);
+        foreach ($holds as $hold) {
+            if ($excludemoveid > 0 && $hold['moveid'] === $excludemoveid) {
+                continue;
+            }
+
+            foreach ($hold['slots'] as $range) {
+                $rangestart = (int)($range['start'] ?? 0);
+                $rangeend = (int)($range['end'] ?? 0);
+                if ($rangestart === $slotstart && $rangeend === $slotend) {
+                    continue;
+                }
+                if (self::slots_overlap($rangestart, $rangeend, $slotstart, $slotend)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Small adapter around buffer_math::collides() for the ['start' => int, 'end' => int] range
      * shape used throughout this class. Both sides share the same warmup/cooldown, since buffer
      * settings are per-option, not per-slot.
@@ -626,6 +696,24 @@ class slot_availability {
         ) {
             $result['status'] = 'unavailable';
             $result['errormessage'] = get_string('slot_error_buffer_conflict', 'mod_booking');
+            return $result;
+        }
+
+        // A distinct (not exact-match) time-overlap with an existing booking always blocks the
+        // slot, regardless of remaining capacity - see has_overlapping_distinct_booking().
+        if (
+            self::has_overlapping_distinct_booking(
+                $optionid,
+                $slotstart,
+                $slotend,
+                $excludeanswerid,
+                $excludemoveid,
+                $holds,
+                $excludeanswerids
+            )
+        ) {
+            $result['status'] = 'unavailable';
+            $result['errormessage'] = get_string('slot_error_selected_unavailable', 'mod_booking');
             return $result;
         }
 
