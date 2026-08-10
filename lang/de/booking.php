@@ -2991,6 +2991,7 @@ $string['previewvalue_minutes'] = '{$a} Minuten';
 $string['previewvalue_noptions'] = '{$a} Option(en)';
 $string['previewvalue_sessions'] = '{$a} Termin(e)';
 $string['previewvalue_sessions_none'] = 'Keine Termine ermittelt — die angegebenen Daten fehlen oder sind ungültig';
+$string['previewvalue_ticketdesignunresolved'] = 'Design "{$a}" ist unbekannt oder mehrdeutig - es wird nicht gespeichert';
 $string['previewvalue_ticketsoff'] = 'Keine Eintrittstickets';
 $string['previewvalue_visible'] = 'Sichtbar';
 $string['previewvalue_visiblelink'] = 'Nur über direkten Link sichtbar';

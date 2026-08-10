@@ -187,6 +187,35 @@ final class ticket_design_lookup_test extends \advanced_testcase {
     }
 
     /**
+     * The off switch is the documented sentinel only - never natural-language words.
+     *
+     * Guards the no-lexical-elements rule: a design that is literally named "No" (or
+     * any other word a phrase list would swallow) must stay resolvable as a design
+     * query instead of being reinterpreted as "switch tickets off".
+     */
+    public function test_off_sentinel_is_deterministic_not_lexical(): void {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+        set_config('bookingticketon', 1, 'booking');
+
+        // The documented sentinel, case-insensitive, plus the empty string.
+        $this->assertTrue(ticket_manager::is_design_off_sentinel(''));
+        $this->assertTrue(ticket_manager::is_design_off_sentinel('none'));
+        $this->assertTrue(ticket_manager::is_design_off_sentinel('NONE'));
+
+        // Word variants are NOT off switches - they are design queries.
+        foreach (['no', 'off', 'keine', 'kein', 'No', 'OFF'] as $word) {
+            $this->assertFalse(ticket_manager::is_design_off_sentinel($word), "'{$word}' must not act as off sentinel");
+        }
+
+        // A template literally named "No" resolves as a design.
+        $id = $this->make_template('No');
+        $data = (object) ['id' => 0];
+        $this->assertNull(booking_skill_support::apply_ticket_fields(['ticketdesign' => 'No'], $data));
+        $this->assertEquals($id, $data->ticket);
+    }
+
+    /**
      * Requests without any ticket key leave the form data untouched.
      */
     public function test_apply_ticket_fields_ignores_unrelated_requests(): void {

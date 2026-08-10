@@ -1572,8 +1572,9 @@ class booking_skill_support {
 
         if (array_key_exists('ticketdesign', $input)) {
             $query = trim((string) $input['ticketdesign']);
-            // An empty value (or an explicit "none") switches entry tickets off for this option.
-            if ($query === '' || in_array(strtolower($query), ['none', 'no', 'off', 'keine', 'kein'], true)) {
+            // Only the schema-documented sentinel (empty string / "none") switches entry
+            // tickets off — no word lists, everything else is a design query.
+            if (ticket_manager::is_design_off_sentinel($query)) {
                 $templateid = 0;
             } else {
                 $resolved = self::resolve_ticket_design($query);
