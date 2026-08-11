@@ -144,7 +144,12 @@ class optiontype extends field_base {
             $options[MOD_BOOKING_OPTIONTYPE_SELFLEARNINGCOURSE] = $selflearningcourselabel;
         }
 
-        if (slot_feature::is_enabled()) {
+        // Same for slot booking: an option that already is a slot option keeps the type in the
+        // list, so an expired licence or a disabled toggle does not reset it behind the scenes.
+        if (
+            slot_feature::is_enabled()
+            || $currenttype === MOD_BOOKING_OPTIONTYPE_SLOTBOOKING
+        ) {
             $options[MOD_BOOKING_OPTIONTYPE_SLOTBOOKING] = get_string('optiontype_slotbooking', 'mod_booking');
         }
 
@@ -241,11 +246,9 @@ class optiontype extends field_base {
             $data->selflearningcourse = 1;
         }
 
-        if (!slot_feature::is_enabled() && (int)$data->optiontype === MOD_BOOKING_OPTIONTYPE_SLOTBOOKING) {
-            $data->optiontype = MOD_BOOKING_OPTIONTYPE_DEFAULT;
-        }
-
-        type_resolver::normalize_formdata($data, (int)$data->optiontype);
+        // The resolver drops a slot type that may not be chosen, but keeps it for options that
+        // already are stored as slot options.
+        type_resolver::normalize_formdata($data, (int)($settings->type ?? MOD_BOOKING_OPTIONTYPE_DEFAULT));
     }
 
     /**
@@ -268,7 +271,9 @@ class optiontype extends field_base {
             $currenttype = (int)($settings->type ?? MOD_BOOKING_OPTIONTYPE_DEFAULT);
         }
 
-        if ($type === MOD_BOOKING_OPTIONTYPE_SLOTBOOKING) {
+        // Switching an option to slot booking needs the feature. Options that already are of this
+        // type may keep it, so they stay editable after the licence expired or the toggle went off.
+        if ($type === MOD_BOOKING_OPTIONTYPE_SLOTBOOKING && $currenttype !== MOD_BOOKING_OPTIONTYPE_SLOTBOOKING) {
             if (!wb_payment::pro_version_is_activated()) {
                 $errors['optiontype'] = get_string('proversiononly', 'mod_booking');
                 return $errors;

@@ -25,6 +25,7 @@
 namespace mod_booking\option;
 
 use mod_booking\local\slotbooking\slot_feature;
+use mod_booking\singleton_service;
 use stdClass;
 
 /**
@@ -34,15 +35,41 @@ class type_resolver {
     /**
      * Apply license constraints to resolved option type.
      *
+     * Slot booking needs PRO and the admin toggle to be *chosen*. An option that already is
+     * stored as a slot option keeps its type even after the licence expired or the toggle was
+     * switched off, so that editing it does not silently turn it into an option with dates.
+     *
      * @param int $type
+     * @param stdClass $formdata used to look up the stored type of the edited option
      * @return int
      */
-    private static function apply_license_rules(int $type): int {
-        if ($type === MOD_BOOKING_OPTIONTYPE_SLOTBOOKING && !slot_feature::is_enabled()) {
+    private static function apply_license_rules(int $type, stdClass $formdata): int {
+        if (
+            $type === MOD_BOOKING_OPTIONTYPE_SLOTBOOKING
+            && !slot_feature::is_enabled()
+            && !self::option_is_stored_as_slot($formdata)
+        ) {
             return MOD_BOOKING_OPTIONTYPE_DEFAULT;
         }
 
         return $type;
+    }
+
+    /**
+     * Whether the option addressed by the form data is already stored as a slot option.
+     *
+     * @param stdClass $formdata
+     * @return bool
+     */
+    private static function option_is_stored_as_slot(stdClass $formdata): bool {
+        $optionid = (int)($formdata->id ?? $formdata->optionid ?? 0);
+        if ($optionid <= 0) {
+            return false;
+        }
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+
+        return (int)($settings->type ?? MOD_BOOKING_OPTIONTYPE_DEFAULT) === MOD_BOOKING_OPTIONTYPE_SLOTBOOKING;
     }
 
     /**
@@ -70,12 +97,12 @@ class type_resolver {
         if (isset($formdata->optiontype) && is_numeric($formdata->optiontype)) {
             $type = (int)$formdata->optiontype;
             if (self::is_supported_type($type)) {
-                return self::apply_license_rules($type);
+                return self::apply_license_rules($type, $formdata);
             }
         }
 
         if (!empty($formdata->slot_enabled)) {
-            return self::apply_license_rules(MOD_BOOKING_OPTIONTYPE_SLOTBOOKING);
+            return self::apply_license_rules(MOD_BOOKING_OPTIONTYPE_SLOTBOOKING, $formdata);
         }
 
         if (!empty($formdata->selflearningcourse)) {
@@ -83,7 +110,7 @@ class type_resolver {
         }
 
         if ($fallbacktype !== null && self::is_supported_type((int)$fallbacktype)) {
-            return self::apply_license_rules((int)$fallbacktype);
+            return self::apply_license_rules((int)$fallbacktype, $formdata);
         }
 
         return MOD_BOOKING_OPTIONTYPE_DEFAULT;
