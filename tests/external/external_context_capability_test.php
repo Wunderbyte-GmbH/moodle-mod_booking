@@ -36,6 +36,7 @@ use mod_booking\external\load_pre_booking_page;
 use mod_booking\form\condition\customform_form;
 use mod_booking\local\mobile\customformstore;
 use mod_booking\external\optiontemplate;
+use mod_booking\external\rate_option;
 use mod_booking\external\search_booking_options;
 use mod_booking\external\search_courses;
 use mod_booking\external\search_teachers;
@@ -64,6 +65,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @covers \mod_booking\external\get_submission_mobile
  * @covers \mod_booking\external\load_pre_booking_page
  * @covers \mod_booking\external\optiontemplate
+ * @covers \mod_booking\external\rate_option
  * @covers \mod_booking\external\search_booking_options
  * @covers \mod_booking\external\search_courses
  * @covers \mod_booking\external\search_teachers
@@ -304,6 +306,79 @@ final class external_context_capability_test extends booking_advanced_testcase {
         $boinfo = new bo_info($settings);
         [$id] = $boinfo->is_available($settings->id, (int)$outsider->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+    }
+
+    /**
+     * Rating follows the same rule as the booking chain: booked users are not
+     * necessarily enrolled in the course of the booking instance (e.g. booked via
+     * shortcode lists, option without connected course), so a booked user holding
+     * mod/booking:choose via a system level role may rate without course access.
+     */
+    public function test_rate_option_allows_unenrolled_booked_user_with_choose(): void {
+        global $DB;
+
+        [$course, $booking, , , , , $outsider] = $this->create_environment();
+
+        $this->setAdminUser();
+
+        // Restrict ratings to users who are booked (ratings = 2).
+        $DB->set_field('booking', 'ratings', 2, ['id' => $booking->id]);
+        \cache::make('mod_booking', 'cachedbookinginstances')->delete($booking->cmid);
+
+        // An option without connected course: booking it does not enrol anybody.
+        /** @var mod_booking_generator $generator */
+        $generator = $this->getDataGenerator()->get_plugin_generator('mod_booking');
+        $option = $generator->create_option((object)[
+            'bookingid' => $booking->id,
+            'text' => 'Rated option',
+            'maxanswers' => 10,
+        ]);
+        singleton_service::destroy_instance();
+
+        // Book the outsider directly (as a trainer would), forcing a verified booking.
+        $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
+        $bookingoption = singleton_service::get_instance_of_booking_option($settings->cmid, $option->id);
+        $this->assertTrue($bookingoption->user_submit_response($outsider, 0, 0, 0, MOD_BOOKING_VERIFIED));
+        singleton_service::destroy_booking_answers($option->id);
+
+        // The premise of this test: rating restricted to booked users, booked, but still not enrolled.
+        $this->assertTrue(
+            $DB->record_exists('booking_answers', ['optionid' => $option->id, 'userid' => $outsider->id])
+        );
+        $this->assertSame(2, (int)$DB->get_field('booking', 'ratings', ['id' => $booking->id]));
+        $this->assertFalse(is_enrolled(\context_course::instance($course->id), $outsider));
+
+        // Typical shortcode setup: users hold mod/booking:choose via a system level role.
+        $systemcontext = \context_system::instance();
+        $roleid = create_role('Booking user', 'bookinguser', '');
+        assign_capability('mod/booking:choose', CAP_ALLOW, $roleid, $systemcontext->id);
+        role_assign($roleid, $outsider->id, $systemcontext->id);
+
+        $this->setUser($outsider);
+        singleton_service::destroy_instance();
+
+        $result = rate_option::execute((int)$settings->cmid, (int)$option->id, 5);
+        $this->assertSame(5, $result['rate']);
+        $this->assertFalse($result['duplicate']);
+        $this->assertTrue(
+            $DB->record_exists('booking_ratings', ['userid' => $outsider->id, 'optionid' => $option->id])
+        );
+    }
+
+    /**
+     * Without mod/booking:choose, a user who is not enrolled in the course of the
+     * booking instance keeps being rejected when rating.
+     */
+    public function test_rate_option_requires_course_access(): void {
+        [, , $option, , , , $outsider] = $this->create_environment();
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
+
+        $this->setUser($outsider);
+        singleton_service::destroy_instance();
+
+        $this->expectException(\require_login_exception::class);
+        rate_option::execute((int)$settings->cmid, (int)$option->id, 5);
     }
 
     /**

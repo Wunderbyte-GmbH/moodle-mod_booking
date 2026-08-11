@@ -28,6 +28,7 @@ use core_external\external_api;
 use core_external\external_function_parameters;
 use core_external\external_single_structure;
 use core_external\external_value;
+use mod_booking\permissions;
 use mod_booking\singleton_service;
 use stdClass;
 
@@ -69,8 +70,12 @@ class rate_option extends external_api {
             ['cmid' => $cmid, 'optionid' => $optionid, 'rate' => $rate]
         );
 
-        // Includes the login and course access check (like require_course_login in the old rating_rest.php).
-        self::validate_context(\context_module::instance($params['cmid']));
+        // The user needs access to the booking instance the option belongs to; users with
+        // mod/booking:choose may rate without course access (booked users are not necessarily
+        // enrolled, e.g. when booked via shortcode lists). The context is resolved from the
+        // option itself, and can_rate() below keeps gating the rating.
+        $settings = singleton_service::get_instance_of_booking_option_settings($params['optionid']);
+        permissions::validate_context_for_booking((int)($settings->cmid ?? 0));
 
         $bookingoption = singleton_service::get_instance_of_booking_option($params['cmid'], $params['optionid']);
 
