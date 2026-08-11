@@ -3659,6 +3659,7 @@ $string['slot_error_timeformat'] = 'Please use HH:MM format.';
 $string['slot_error_validrange'] = 'Valid until must be after valid from.';
 $string['slot_examiners_per_slot'] = 'Examiners per slot';
 $string['slot_interval_minutes'] = 'Slot interval (minutes)';
+$string['slot_justbooked_notification'] = 'Your slot has been booked successfully.';
 $string['slot_legend_blocked'] = 'Not bookable';
 $string['slot_legend_mine'] = 'Your booking';
 $string['slot_max_participants_per_slot'] = 'Max participants per slot';
