@@ -29,6 +29,7 @@ use mod_booking\booking_option_settings;
 use mod_booking\option\field_base;
 use mod_booking\option\fields_info;
 use mod_booking\option\type_resolver;
+use mod_booking\local\selflearning\selflearning_feature;
 use mod_booking\local\slotbooking\slot_feature;
 use mod_booking\singleton_service;
 use mod_booking\utils\wb_payment;
@@ -196,16 +197,19 @@ class optiontype extends field_base {
         $mform->hideIf('slot_type_change_confirm', 'slot_type_change_has_answers', 'eq', 0);
         $mform->hideIf('slot_type_change_confirm', 'optiontype', 'eq', MOD_BOOKING_OPTIONTYPE_SLOTBOOKING);
 
-        $mform->registerNoSubmitButton('btn_optiontype');
-        $mform->addElement(
-            'submit',
-            'btn_optiontype',
-            'xxx',
-            [
-                'class' => 'd-none',
-                'data-action' => 'btn_optiontype',
-            ]
-        );
+        if ($showselect) {
+            // The hidden no-submit button is only triggered by a change of the select.
+            $mform->registerNoSubmitButton('btn_optiontype');
+            $mform->addElement(
+                'submit',
+                'btn_optiontype',
+                'xxx',
+                [
+                    'class' => 'd-none',
+                    'data-action' => 'btn_optiontype',
+                ]
+            );
+        }
     }
 
     /**
