@@ -112,6 +112,13 @@ export class SlotCalendarPicker {
             ? 'No open slots on this day.'
             : String(options.emptySlotListText);
         this.showSlotList = options.showSlotList !== false;
+        // Caller-supplied day ("YYYY-MM-DD", the same format toDayKey()/dayKeyFormatter produce) to
+        // reopen on instead of the usual defaults (today/the first bookable day, or a day the user is
+        // already booked on - see prepareData() below). Used to restore the previously viewed day
+        // after this picker gets re-created from scratch (e.g. slotBooking.js re-running
+        // setupInteractiveUi() after a server validation error) instead of silently jumping back to
+        // whichever day the defaults would otherwise pick.
+        this.initialActiveDay = options.initialActiveDay ? String(options.initialActiveDay) : null;
         this.showPriceLegend = Boolean(options.showPriceLegend);
         this.dayStateResolver = typeof options.dayStateResolver === 'function' ? options.dayStateResolver : null;
         this.resetSelectionOnDayChange = Boolean(options.resetSelectionOnDayChange);
@@ -237,6 +244,14 @@ export class SlotCalendarPicker {
                 this.activeDay = bookedDayKey;
                 this.currentDate = cloneDate(new Date(`${bookedDayKey}T00:00:00`));
             }
+        }
+
+        // An explicitly requested day (see initialActiveDay above) wins over both defaults above -
+        // only when it actually still has data, so a stale/no-longer-relevant day never leaves the
+        // calendar looking blank.
+        if (this.initialActiveDay && this.slotsByDay.has(this.initialActiveDay)) {
+            this.activeDay = this.initialActiveDay;
+            this.currentDate = cloneDate(new Date(`${this.initialActiveDay}T00:00:00`));
         }
     }
 

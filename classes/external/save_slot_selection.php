@@ -139,7 +139,11 @@ class save_slot_selection extends external_api {
         // itself and wrongly reported as unavailable.
         $ownanswerids = slot_availability::get_active_answer_ids_for_user($optionid, $userid);
 
-        foreach ($keys as $key) {
+        // Once the capacity/too-many/overlap checks above have already rejected this selection, skip
+        // the per-slot bookability loop below entirely - it does not check capacity at all, so an
+        // otherwise-bookable slot would silently overwrite the more specific error already set above
+        // (both write to the same 'slot_selection' key) with a vaguer, misleading one.
+        foreach (empty($errors) ? $keys : [] as $key) {
             [$start, $end] = array_map('intval', array_pad(explode(':', $key, 2), 2, 0));
             if ($end <= $start) {
                 $errors['slot_selection'] = get_string('slot_error_selection_required', 'mod_booking');
