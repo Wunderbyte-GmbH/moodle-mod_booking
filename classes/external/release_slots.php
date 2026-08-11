@@ -26,12 +26,12 @@ declare(strict_types=1);
 
 namespace mod_booking\external;
 
-use context_module;
 use core_external\external_api;
 use core_external\external_function_parameters;
 use core_external\external_single_structure;
 use core_external\external_value;
 use mod_booking\local\slotbooking\slot_mover;
+use mod_booking\permissions;
 use mod_booking\singleton_service;
 
 /**
@@ -78,7 +78,10 @@ class release_slots extends external_api {
         ]);
 
         $settings = singleton_service::get_instance_of_booking_option_settings($params['optionid']);
-        self::validate_context(context_module::instance($settings->cmid));
+        // Users with mod/booking:choose may release their booked slots without course
+        // access (e.g. booked via shortcode lists); slot_mover::release_self() itself
+        // enforces the ownership and cancellation rules.
+        permissions::validate_context_for_booking((int)($settings->cmid ?? 0));
 
         $keys = json_decode($params['releaseslots'], true);
         if (!is_array($keys)) {

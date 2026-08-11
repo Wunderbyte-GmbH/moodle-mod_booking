@@ -85,7 +85,9 @@ class permissions {
 
     /**
      * Validates the execution context of the user-facing booking webservices
-     * (allow to add to cart, loading of the pre booking pages, booking itself).
+     * (the booking chain: allow to add to cart, loading of the pre booking pages,
+     * booking itself; furthermore the notification list toggle, the option
+     * description modal and the slot picker services).
      *
      * Booking options are regularly presented outside of their own course, e.g. in
      * shortcode lists, so the booking users are often not (or not yet) enrolled in

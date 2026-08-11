@@ -257,6 +257,48 @@ final class slotbooking_external_test extends booking_advanced_testcase {
     }
 
     /**
+     * The slot picker webservices accept a user who is not enrolled in the course of
+     * the booking instance but holds mod/booking:choose there (booking options are
+     * regularly presented outside of their course, e.g. via shortcode lists — same
+     * rule as for the booking chain): loading the slots and validating/caching a
+     * selection works for the unenrolled user.
+     */
+    public function test_slot_picker_allows_unenrolled_user_with_choose(): void {
+        [$option, $userid] = $this->create_fixed_slot_option();
+
+        // Typical shortcode setup: users hold mod/booking:choose via a system level role.
+        $systemcontext = \context_system::instance();
+        $roleid = create_role('Booking user', 'bookinguser', '');
+        assign_capability('mod/booking:choose', CAP_ALLOW, $roleid, $systemcontext->id);
+        role_assign($roleid, $userid, $systemcontext->id);
+
+        $this->setUser($userid);
+        singleton_service::destroy_instance();
+
+        $slots = json_decode(get_slots::execute($option->id, $userid)['slots'], true);
+        $this->assertNotEmpty($slots);
+
+        $result = save_slot_selection::execute($option->id, $userid, json_encode([$slots[0]['key']]), '{}');
+        $result = \core_external\external_api::clean_returnvalue(save_slot_selection::execute_returns(), $result);
+        $this->assertTrue($result['valid']);
+        $this->assertSame([], json_decode($result['errors'], true));
+    }
+
+    /**
+     * Without mod/booking:choose, a user who is not enrolled in the course of the
+     * booking instance keeps being rejected by the slot picker webservices.
+     */
+    public function test_slot_picker_requires_course_access_without_choose(): void {
+        [$option, $userid] = $this->create_fixed_slot_option();
+
+        $this->setUser($userid);
+        singleton_service::destroy_instance();
+
+        $this->expectException(\moodle_exception::class);
+        get_slots::execute($option->id, $userid);
+    }
+
+    /**
      * Enable the self-rebooking opt-in for an option's slot config.
      *
      * @param int $optionid booking option id

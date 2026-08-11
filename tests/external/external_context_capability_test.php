@@ -262,8 +262,10 @@ final class external_context_capability_test extends booking_advanced_testcase {
      * Users holding mod/booking:choose may book without being enrolled in the course
      * of the booking instance (booking options are regularly presented outside of
      * their course, e.g. via shortcode lists): the webservices of the booking chain
-     * accept them, and the booking itself works. Users without the capability are
-     * still rejected (see test_bookit_requires_course_access).
+     * accept them, and the booking itself works — as do the option description modal
+     * of the lists and the "notify me" toggle of the booking button. Users without
+     * the capability are still rejected (see test_bookit_requires_course_access
+     * and test_toggle_notify_user_requires_course_access).
      */
     public function test_booking_chain_allows_unenrolled_user_with_choose(): void {
         [, , $option, , , , $outsider] = $this->create_environment();
@@ -277,6 +279,16 @@ final class external_context_capability_test extends booking_advanced_testcase {
 
         $this->setUser($outsider);
         singleton_service::destroy_instance();
+
+        // The description modal of the lists opens for the unenrolled user.
+        $result = get_booking_option_description::execute((int)$option->id, (int)$outsider->id);
+        $this->assertNotEmpty($result['content']);
+
+        // The "notify me" toggle of the booking button works for the unenrolled user.
+        $result = toggle_notify_user::execute((int)$outsider->id, (int)$option->id);
+        $this->assertSame(1, $result['status']);
+        $result = toggle_notify_user::execute((int)$outsider->id, (int)$option->id);
+        $this->assertSame(0, $result['status']);
 
         // The pre booking check of the booking button passes...
         $result = allow_add_item_to_cart::execute((int)$option->id, (int)$outsider->id);

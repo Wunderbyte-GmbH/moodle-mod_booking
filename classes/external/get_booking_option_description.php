@@ -33,6 +33,7 @@ use core_external\external_value;
 use core_external\external_warnings;
 use mod_booking\booking_option;
 use mod_booking\output\bookingoption_description;
+use mod_booking\permissions;
 use mod_booking\singleton_service;
 
 /**
@@ -72,12 +73,9 @@ class get_booking_option_description extends external_api {
         );
 
         // The user needs access to the booking instance the option belongs to.
+        // Users with mod/booking:choose may see the description without course access (e.g. via shortcode lists).
         $settings = singleton_service::get_instance_of_booking_option_settings($params['optionid']);
-        self::validate_context(
-            empty($settings->cmid)
-                ? \context_system::instance()
-                : \context_module::instance($settings->cmid)
-        );
+        permissions::validate_context_for_booking((int)($settings->cmid ?? 0));
         // Requesting the description rendered for another user (incl. their booking
         // status) needs the book for others (or cashier) rights.
         \mod_booking\form\condition\customform_form::require_userid_access($params['userid'], $params['optionid']);
