@@ -267,13 +267,21 @@ class slot_availability {
      * multiple people sharing the exact same start/end occurrence - it must never be read as
      * "this many independent overlapping time windows may run at once".
      *
+     * Deliberately does NOT accept a "these are the user's own other active answers, ignore
+     * them too" exclusion list the way count_bookings()/has_buffer_conflict() do: those exist so
+     * re-validating a selection the user already holds does not count it as an occupant against
+     * itself, but that already-covered case is the EXACT-match continue below. Skipping the
+     * user's own OTHER (distinct, merely overlapping) answers here as well would defeat the
+     * entire point of this check - two different bookings of theirs are exactly as mutually
+     * exclusive as anyone else's.
+     *
      * @param int $optionid booking option id
      * @param int $slotstart candidate slot start timestamp
      * @param int $slotend candidate slot end timestamp
-     * @param int $excludeanswerid booking answer id to ignore (re-validating one's own slot)
+     * @param int $excludeanswerid booking answer id to ignore (move flow: the answer being moved,
+     *                              re-validating its own new target must not self-block)
      * @param int $excludemoveid pending move id to ignore (holder re-validating their own target)
      * @param array|null $holds pending holds to include; resolved from the store when null
-     * @param int[] $excludeanswerids additional booking answer ids to ignore
      * @return bool
      */
     public static function has_overlapping_distinct_booking(
@@ -282,14 +290,10 @@ class slot_availability {
         int $slotend,
         int $excludeanswerid = 0,
         int $excludemoveid = 0,
-        ?array $holds = null,
-        array $excludeanswerids = []
+        ?array $holds = null
     ): bool {
         foreach (self::get_booked_slot_ranges_by_answer($optionid) as $answerid => $ranges) {
             if ($excludeanswerid > 0 && $answerid === $excludeanswerid) {
-                continue;
-            }
-            if (in_array($answerid, $excludeanswerids, true)) {
                 continue;
             }
 
@@ -708,8 +712,7 @@ class slot_availability {
                 $slotend,
                 $excludeanswerid,
                 $excludemoveid,
-                $holds,
-                $excludeanswerids
+                $holds
             )
         ) {
             $result['status'] = 'unavailable';

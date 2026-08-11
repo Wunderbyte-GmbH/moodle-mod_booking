@@ -3356,6 +3356,7 @@ $string['slot_error_timeformat'] = 'Bitte verwenden Sie das Format HH:MM.';
 $string['slot_error_validrange'] = 'Gültig bis muss nach Gültig von liegen.';
 $string['slot_examiners_per_slot'] = 'Pruefer:innen pro Slot';
 $string['slot_interval_minutes'] = 'Slot-Intervall (Minuten)';
+$string['slot_justbooked_notification'] = 'Dein Slot wurde erfolgreich gebucht.';
 $string['slot_legend_blocked'] = 'Nicht buchbar';
 $string['slot_legend_mine'] = 'Ihre Buchung';
 $string['slot_max_participants_per_slot'] = 'Max. Teilnehmer:innen pro Slot';
