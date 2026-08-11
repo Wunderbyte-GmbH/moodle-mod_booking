@@ -89,6 +89,8 @@ class save_slot_selection extends external_api {
         // Users with mod/booking:choose may use the slot picker without course access (e.g. via shortcode lists).
         permissions::validate_context_for_booking((int)($settings->cmid ?? 0));
         require_capability('mod/booking:conditionforms', context_system::instance());
+        // Validating and caching a selection for another user needs the book for others (or cashier) rights.
+        \mod_booking\form\condition\customform_form::require_userid_access($userid, $optionid);
 
         $keys = self::normalise_keys($params['selection']);
         $teachermap = json_decode($params['teacherselection'], true);

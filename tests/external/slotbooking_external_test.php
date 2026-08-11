@@ -299,6 +299,64 @@ final class slotbooking_external_test extends booking_advanced_testcase {
     }
 
     /**
+     * Acting on another user through the slot picker webservices needs the book for
+     * others (or cashier) rights: a regular user passing a foreign userid must neither
+     * read that user's picker state nor validate/cache a selection for them.
+     */
+    public function test_slot_picker_rejects_foreign_userid_without_bookforothers(): void {
+        [$option, $userid] = $this->create_fixed_slot_option();
+
+        // A second regular user who may use the picker (mod/booking:choose via a
+        // system level role), but holds no book for others rights.
+        $other = self::getDataGenerator()->create_user();
+        $systemcontext = \context_system::instance();
+        $roleid = create_role('Booking user', 'bookinguser', '');
+        assign_capability('mod/booking:choose', CAP_ALLOW, $roleid, $systemcontext->id);
+        role_assign($roleid, $other->id, $systemcontext->id);
+
+        $this->setUser($other);
+        singleton_service::destroy_instance();
+
+        // Reading the foreign picker state is rejected...
+        try {
+            get_slots::execute($option->id, $userid);
+            $this->fail('Reading another user\'s picker state must require book for others rights.');
+        } catch (\required_capability_exception $e) {
+            $this->assertSame('nopermissions', $e->errorcode);
+        }
+
+        // ...as is validating/caching a selection for the foreign user.
+        $this->expectException(\required_capability_exception::class);
+        save_slot_selection::execute($option->id, $userid, json_encode(['1:2']), '{}');
+    }
+
+    /**
+     * With the book for others capability, acting on another user through the slot
+     * picker webservices keeps working (e.g. trainers preparing a booking).
+     */
+    public function test_slot_picker_allows_foreign_userid_with_bookforothers(): void {
+        [$option, $userid] = $this->create_fixed_slot_option();
+
+        $other = self::getDataGenerator()->create_user();
+        $systemcontext = \context_system::instance();
+        $roleid = create_role('Booking staff', 'bookingstaff', '');
+        assign_capability('mod/booking:choose', CAP_ALLOW, $roleid, $systemcontext->id);
+        assign_capability('mod/booking:bookforothers', CAP_ALLOW, $roleid, $systemcontext->id);
+        role_assign($roleid, $other->id, $systemcontext->id);
+
+        $this->setUser($other);
+        singleton_service::destroy_instance();
+
+        $slots = json_decode(get_slots::execute($option->id, $userid)['slots'], true);
+        $this->assertNotEmpty($slots);
+
+        $result = save_slot_selection::execute($option->id, $userid, json_encode([$slots[0]['key']]), '{}');
+        $result = \core_external\external_api::clean_returnvalue(save_slot_selection::execute_returns(), $result);
+        $this->assertTrue($result['valid']);
+        $this->assertSame([], json_decode($result['errors'], true));
+    }
+
+    /**
      * Enable the self-rebooking opt-in for an option's slot config.
      *
      * @param int $optionid booking option id
