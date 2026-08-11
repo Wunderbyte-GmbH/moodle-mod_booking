@@ -169,6 +169,26 @@ class slotbooking implements bo_condition {
         // holds is counted as an occupant against itself and wrongly re-blocks the flow.
         $ownanswerids = slot_availability::get_active_answer_ids_for_user((int)$settings->id, (int)$userid);
 
+        // Slot keys the user already holds for this option. The check above only catches "more
+        // slots selected than max_slots_per_user allows in one submission" - it does not account for
+        // slots already booked in an EARLIER submission. Re-submitting one of those (e.g. simply
+        // stepping through a later prepage condition of an already-made selection) must keep
+        // working even once capacity is fully used up, so this only ever blocks a genuinely NEW,
+        // additional slot - evaluate_slot_for_user() below does not check capacity at all, so
+        // without this, hard_block() would let a selection past that book_user_on_option()
+        // (booking_option.php) then silently no-ops on instead of ever actually creating.
+        $ownslotkeys = array_map(
+            static fn(array $range): string => $range['start'] . ':' . $range['end'],
+            slot_availability::get_booked_slot_ranges_for_user((int)$settings->id, (int)$userid)
+        );
+        $newrangecount = count(array_filter(
+            $ranges,
+            static fn(array $range): bool => !in_array($range[0] . ':' . $range[1], $ownslotkeys, true)
+        ));
+        if ($newrangecount > 0 && (count($ownslotkeys) + $newrangecount) > $maxslots) {
+            return true;
+        }
+
         $teachersrequired = slot_availability::get_teachers_required((int)$settings->id);
         $teacherselection = $store->get_selected_teachers_by_slot($data);
 
@@ -270,7 +290,14 @@ class slotbooking implements bo_condition {
             // of trying to continue this page's wizard for it - see condition/slotBooking.js. Build
             // that URL for every merged option here (independent of hidesidebar - the sidebar can be
             // hidden while the merge/filter/booking plumbing still works).
+            // Also carries whether each merged option actually has a price - addSwitchedOptionToCart
+            // in the JS needs this to decide whether a completed add-to-cart call actually finished
+            // the booking (free, no cart involved) or only added it to a PAID cart still awaiting
+            // checkout. Reading it here (the option's own useprice) is the only reliable source -
+            // reconstructing it from the selected slot's own data does not work for every slot type
+            // (e.g. userdefined has no per-slot price at all, only a per-option one).
             $optionurls = [];
+            $optionuseprices = [];
             foreach ($optionids as $urloptionid) {
                 try {
                     $urlsettings = singleton_service::get_instance_of_booking_option_settings($urloptionid);
@@ -284,8 +311,10 @@ class slotbooking implements bo_condition {
                     '/mod/booking/optionview.php',
                     ['cmid' => $urlsettings->cmid, 'optionid' => $urlsettings->id]
                 ))->out(false);
+                $optionuseprices[$urlsettings->id] = !empty($urlsettings->useprice);
             }
             $data['optionurlsjson'] = json_encode($optionurls);
+            $data['optionpricesjson'] = json_encode($optionuseprices);
         }
 
         // Multi-option sidebar: only relevant once there's more than one option to choose from,
