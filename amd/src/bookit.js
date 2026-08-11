@@ -301,6 +301,16 @@ const getVisibleModalBookitButtonSelector = (itemid, area) => {
 };
 
 /**
+ * Checks whether the booking option detail page (optionview.php) is currently shown.
+ *
+ * Only the path is compared, deliberately not the whole href: optionview.php passes its own URL
+ * on as the returnurl parameter, so a page linking back to it would match a plain href search.
+ *
+ * @returns {boolean}
+ */
+const isOptionDetailsPage = () => window.location.pathname.endsWith('/mod/booking/optionview.php');
+
+/**
  * Resolve a stricter replace target for rendered button markup.
  *
  * Some responses render the full outer booking-button-area wrapper. In that case,
@@ -584,8 +594,20 @@ export function bookit(itemid, area, userid, data, clickedFromModal = null) {
                                 // For clicks inside modal content, update that modal button directly.
                                 button = originalbutton;
                             } else {
+                                // The toggle wrapper only exists when the button area currently
+                                // rendered on the page IS a prepage entry point. It is missing
+                                // whenever the server switches INTO the prepage rendering: while
+                                // the option is booked, alreadybooked suppresses the prepage modal
+                                // and the area is a plain bookit_button, so confirming the cancel
+                                // button next to it makes the option bookable again and the answer
+                                // comes back as a prepagemodal/-inline template. Without the
+                                // fallback there is nothing to replace at all. In the list views
+                                // the table reload after a cancellation re-renders the row and
+                                // hides that, but the details page (optionview.php) has no table,
+                                // so the cancellation stayed invisible until a manual reload.
                                 button = button.closest('div[data-bs-toggle="modal"]')
-                                    ?? button.closest('div[data-bs-toggle="collapse"]');
+                                    ?? button.closest('div[data-bs-toggle="collapse"]')
+                                    ?? originalbutton;
 
                                 // The server cannot always know which view is rendered on the client
                                 // (a shortcode can render a list for an instance configured as cards
@@ -668,6 +690,18 @@ export function bookit(itemid, area, userid, data, clickedFromModal = null) {
                 // last page, total kept) and would wrongly suppress the table reload here.
                 if (Number(res.status || 0) === 1 && res.message === 'cancelled') {
                     skipreload = false;
+
+                    // The detail page renders a lot of state which the answer of the bookit
+                    // webservice does not carry and the button replacement therefore cannot
+                    // update: the status text of the option or instance (beforebookedtext,
+                    // beforecompletedtext, aftercompletedtext) and the remaining places. All of
+                    // them change with a cancellation, so the page is reloaded as a whole - the
+                    // same treatment a booking gets when the pre booking pages are closed
+                    // (reloadOnBookingView in bookingpage/prepageFooter).
+                    if (isOptionDetailsPage()) {
+                        window.location.reload();
+                        return true;
+                    }
                 }
 
                 if (!skipreload && (!backdrop || resolvedClickedFromModal)) {
