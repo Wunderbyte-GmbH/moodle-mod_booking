@@ -31,6 +31,7 @@ use mod_booking\external\bookings;
 use mod_booking\external\bookit;
 use mod_booking\external\get_booking_option_description;
 use mod_booking\external\get_performance_chart;
+use mod_booking\external\get_submission_mobile;
 use mod_booking\external\load_pre_booking_page;
 use mod_booking\form\condition\customform_form;
 use mod_booking\local\mobile\customformstore;
@@ -60,6 +61,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @covers \mod_booking\external\bookit
  * @covers \mod_booking\external\get_booking_option_description
  * @covers \mod_booking\external\get_performance_chart
+ * @covers \mod_booking\external\get_submission_mobile
  * @covers \mod_booking\external\load_pre_booking_page
  * @covers \mod_booking\external\optiontemplate
  * @covers \mod_booking\external\search_booking_options
@@ -302,6 +304,51 @@ final class external_context_capability_test extends booking_advanced_testcase {
         $boinfo = new bo_info($settings);
         [$id] = $boinfo->is_available($settings->id, (int)$outsider->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+    }
+
+    /**
+     * The mobile counterpart of the customform submission (get_submission_mobile, used
+     * by the Moodle app) follows the same rule as the booking chain: a user who is not
+     * enrolled in the course of the booking instance but holds mod/booking:choose
+     * (e.g. via a system level role) may submit and reset the custom form data.
+     */
+    public function test_get_submission_mobile_allows_unenrolled_user_with_choose(): void {
+        [, , $option, , , , $outsider] = $this->create_environment();
+
+        // Typical shortcode setup: users hold mod/booking:choose via a system level role.
+        $this->setAdminUser();
+        $systemcontext = \context_system::instance();
+        $roleid = create_role('Booking user', 'bookinguser', '');
+        assign_capability('mod/booking:choose', CAP_ALLOW, $roleid, $systemcontext->id);
+        role_assign($roleid, $outsider->id, $systemcontext->id);
+
+        $this->setUser($outsider);
+        singleton_service::destroy_instance();
+
+        $result = get_submission_mobile::execute(
+            (int)$option->id,
+            (int)$outsider->id,
+            sesskey(),
+            false,
+            [['name' => 'customform_shorttext_1', 'value' => 'Ada Lovelace']]
+        );
+        $this->assertSame(1, $result['submitted']);
+        $json = json_decode($result['json'], true);
+        $this->assertSame('Ada Lovelace', $json['customform_shorttext_1'] ?? null);
+    }
+
+    /**
+     * Without mod/booking:choose, a user who is not enrolled in the course of the
+     * booking instance keeps being rejected by the mobile customform submission.
+     */
+    public function test_get_submission_mobile_requires_course_access(): void {
+        [, , $option, , , , $outsider] = $this->create_environment();
+
+        $this->setUser($outsider);
+        singleton_service::destroy_instance();
+
+        $this->expectException(\require_login_exception::class);
+        get_submission_mobile::execute((int)$option->id, (int)$outsider->id, sesskey(), false, []);
     }
 
     /**
