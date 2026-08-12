@@ -3368,6 +3368,7 @@ $string['slot_day_tue'] = 'Dienstag';
 $string['slot_day_wed'] = 'Mittwoch';
 $string['slot_duration_minutes'] = 'Slot-Dauer (Minuten)';
 $string['slot_enable'] = 'Slot-Buchung aktivieren';
+$string['slot_error_book_again_not_allowed'] = 'Sie haben für diese Buchungsoption bereits eine Buchung und eine erneute Buchung ist derzeit nicht erlaubt.';
 $string['slot_error_buffer_conflict'] = 'Dieser Slot ist nicht verfügbar, weil er in die Vor- oder Nachbereitungszeit einer anderen Buchung fällt.';
 $string['slot_error_editownonly'] = 'Sie können nur Ihre eigenen Abwesenheitsblöcke bearbeiten.';
 $string['slot_error_entity_occupied'] = 'Dieser Slot ist nicht verfügbar, weil der Ort zu dieser Zeit bereits belegt ist.';

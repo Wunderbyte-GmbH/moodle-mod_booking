@@ -30,8 +30,10 @@ use core_form\dynamic_form;
 use html_writer;
 use mod_booking\local\mobile\slotbookingstore;
 use mod_booking\bo_availability\conditions\cancelmyself;
+use mod_booking\booking_option;
 use mod_booking\local\slotbooking\slot_availability;
 use mod_booking\local\slotbooking\slot_dto;
+use mod_booking\option\fields\multiplebookings;
 use mod_booking\singleton_service;
 use moodle_url;
 use stdClass;
@@ -443,19 +445,27 @@ class slotbooking_form extends dynamic_form {
         // same option at once, so every one of them must be excluded, not just the first.
         $ownanswerids = slot_availability::get_active_answer_ids_for_user($optionid, $userid);
 
-        // Slot keys ("start:end") the user already holds for this option (an earlier purchase - see
-        // book_user_on_option()'s own $hasslotcapacity gate, booking_option.php). Re-submitting one of
-        // these (e.g. simply stepping through later prepage conditions of an already-made selection,
-        // or re-opening the modal on it) must keep working even once max_slots_per_user is fully used
-        // up - capacity is only ever enforced below against a genuinely NEW, additional slot key, not
-        // these. evaluate_slot_for_user() itself does not check capacity at all, so without this,
-        // validation() would happily accept a new slot the user has no capacity left for, and the
-        // booking would silently no-op in book_user_on_option() instead of ever being created - the
-        // user would see a "successful" confirmation for a booking that never actually happened.
-        $ownslotkeys = array_map(
-            static fn(array $range): string => $range['start'] . ':' . $range['end'],
-            slot_availability::get_booked_slot_ranges_for_user($optionid, $userid)
-        );
+        // The slotbooking calendar/Continue button now stays available for the WHOLE life of a
+        // slot option (see alreadybooked::get_description()'s slotconfig bypass) - this is the
+        // place that actually enforces whether a new booking round is allowed at all. If the user
+        // already holds an active answer, this submission is a "book again" round, allowed only if
+        // "Allow to book again" is enabled AND its own gate (fixed wait time, or the last booked
+        // slot having ended) is due. Without this, a genuinely disallowed/not-yet-due extra booking
+        // would sail through validation() (evaluate_slot_for_user() itself does not check this at
+        // all) all the way to book_user_on_option() (booking_option.php), which then silently
+        // no-ops instead of ever creating an answer - the user would see a "successful" confirmation
+        // for a booking that never actually happened.
+        $currentanswer = singleton_service::get_instance_of_booking_answers($settings)->get_users()[$userid] ?? null;
+        if (!empty($currentanswer)) {
+            $ismultipbookingsoptionenable = booking_option::get_value_of_json_by_key($optionid, 'multiplebookings');
+            if (
+                !$ismultipbookingsoptionenable
+                || !multiplebookings::book_again_due($optionid, $currentanswer)
+            ) {
+                $errors[$errortarget] = get_string('slot_error_book_again_not_allowed', 'mod_booking');
+                return $errors;
+            }
+        }
 
         if ($slottype === 'userdefined') {
             $start = (int)($data['slot_custom_start'] ?? 0);
@@ -479,14 +489,6 @@ class slotbooking_form extends dynamic_form {
 
             if (!slot_availability::is_within_slot_openings($optionid, $start, $end)) {
                 $errors[$errortarget] = get_string('slot_error_selected_unavailable', 'mod_booking');
-                return $errors;
-            }
-
-            if (
-                !in_array($start . ':' . $end, $ownslotkeys, true)
-                && !slot_availability::has_remaining_slot_capacity($optionid, $userid)
-            ) {
-                $errors[$errortarget] = get_string('slot_error_max_slots_reached', 'mod_booking');
                 return $errors;
             }
 
@@ -523,15 +525,6 @@ class slotbooking_form extends dynamic_form {
 
         if (count($entries) > $maxslots) {
             $errors[$errortarget] = get_string('slot_error_selection_toomany', 'mod_booking', $maxslots);
-            return $errors;
-        }
-
-        // Entries already among the user's own held slots (see $ownslotkeys above) are a
-        // re-submission of an existing answer and never count against capacity - only genuinely NEW
-        // entries can push the user over max_slots_per_user once combined with what they already hold.
-        $newentrycount = count(array_filter($entries, static fn(string $entry): bool => !in_array($entry, $ownslotkeys, true)));
-        if ($newentrycount > 0 && (count($ownslotkeys) + $newentrycount) > $maxslots) {
-            $errors[$errortarget] = get_string('slot_error_max_slots_reached', 'mod_booking');
             return $errors;
         }
 

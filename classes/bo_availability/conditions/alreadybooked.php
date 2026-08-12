@@ -167,22 +167,8 @@ class alreadybooked implements bo_condition {
      * @return bool
      */
     public function hard_block(booking_option_settings $settings, $userid): bool {
-        // Mirrors the slot-capacity step-back in get_description(): without this, the commit
-        // path (bo_info::get_condition_results() with hard-block on, see booking_bookit::bookit())
-        // stays blocked here even once get_description() already stepped ALREADYBOOKED back to
-        // INDIFFERENT, so clicking "Continue" for an additional slot silently no-ops instead of
-        // creating the new answer - and the post-click confirmation page shows a false "success"
-        // regardless, since it treats ALREADYBOOKED as a terminal/expected block.
-        if (
-            !empty($settings->slotconfig)
-            && \mod_booking\local\slotbooking\slot_availability::has_remaining_slot_capacity(
-                (int)$settings->id,
-                (int)$userid
-            )
-        ) {
-            return false;
-        }
-
+        // Only ever checked once is_available() has already returned false (see docblock above) -
+        // book_again_due() has already had its say there; nothing left to special-case here.
         return true;
     }
 
@@ -213,24 +199,20 @@ class alreadybooked implements bo_condition {
         // When self-service slot rebooking is available for this booked user, the slotmove
         // condition (higher id) owns the button + prepage. alreadybooked steps back to INDIFFERENT
         // so its JUSTMYALERT does not suppress the move prepage modal.
+        //
+        // Slot booking options keep the Continue button (and the merged multi-option calendar, if
+        // any) available for the whole life of the option, even once the user has an active answer
+        // and/or is not currently allowed to book again - the slotbooking condition's OWN
+        // validation() now enforces that (with a clear notification instead of a silent no-op), not
+        // this generic condition hiding the Continue button behind a flat "Booked" alert.
         if (
             !$isavailable
+            && (
+                \mod_booking\local\slotbooking\slot_mover::get_self_rebookable_answer((int)$settings->id, (int)$userid) !== null
+                || !empty($settings->slotconfig)
+            )
         ) {
-            // Slot booking options keep the Continue button (and the merged multi-option calendar,
-            // if any) available for the whole life of the option, even once the user has an active
-            // answer - re-booking limits (max_slots_per_user) are enforced separately by
-            // slotbooking::hard_block() on commit and surfaced to the user as a notification (see
-            // save_slot_selection's capacity check, used by condition/slotBooking.js), not by hiding
-            // the Continue button behind a flat "Cancel purchase / Booked" pair. Without this, the
-            // very first successful slot purchase would permanently replace the slotbooking calendar
-            // with that flat button pair, hiding every other still-open slot - including merged-in
-            // options - even when the user is still allowed to buy more.
-            if (
-                \mod_booking\local\slotbooking\slot_mover::get_self_rebookable_answer((int)$settings->id, (int)$userid) !== null ||
-                !empty($settings->slotconfig)
-            ) {
-                return [$isavailable, $description, MOD_BOOKING_BO_PREPAGE_NONE, MOD_BOOKING_BO_BUTTON_INDIFFERENT];
-            }
+            return [$isavailable, $description, MOD_BOOKING_BO_PREPAGE_NONE, MOD_BOOKING_BO_BUTTON_INDIFFERENT];
         }
         return [$isavailable, $description, MOD_BOOKING_BO_PREPAGE_NONE, MOD_BOOKING_BO_BUTTON_JUSTMYALERT];
     }
