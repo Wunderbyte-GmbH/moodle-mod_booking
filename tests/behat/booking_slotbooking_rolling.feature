@@ -33,7 +33,7 @@ Feature: Slot booking option of type "rolling" covers buffer conflicts, calendar
       | BookingRollBuffer | Rolling buffer option | C1     | Buffer test | 2          | 1            | rolling   | calendar               | 30                     | 15                     | 09:00              | 13:00              | ## tomorrow ##   | ## +7 days ##     | 1          | 1          | 1          | 1          | 1          | 1          | 1          | 5                               | 1                        | 60                          | 60                            |
     Given I am on the "BookingRollBuffer" Activity page logged in as student1
     When I click on "Book now" "text" in the ".allbookingoptionstable_r1" "css_element"
-    And I wait until the page is ready
+    And I wait "1" seconds
     And I click on "09:00 - 09:30" "text" in the ".booking-slot-fixed-editor" "css_element"
     And I follow "Continue"
     Then I should see "Thank you! You have successfully booked" in the ".modal-dialog.modal-xl .condition-confirmation" "css_element"
@@ -43,7 +43,7 @@ Feature: Slot booking option of type "rolling" covers buffer conflicts, calendar
     ## unrelated per-user max_slots_per_user gate.
     Given I am on the "BookingRollBuffer" Activity page logged in as student2
     When I click on "Book now" "text" in the ".allbookingoptionstable_r1" "css_element"
-    And I wait until the page is ready
+    And I wait "1" seconds
     Then I should not see "09:15 - 09:45" in the ".booking-slot-fixed-editor" "css_element"
     And I should see "12:30 - 13:00" in the ".booking-slot-fixed-editor" "css_element"
 
@@ -69,7 +69,7 @@ Feature: Slot booking option of type "rolling" covers buffer conflicts, calendar
       | BookingRollPrice | Rolling priced option | C1     | Price test  | 2          | 1        | 1            | rolling   | calendar               | 30                     | 15                     | 09:00              | 11:00              | ## tomorrow ##   | ## +7 days ##     | 1          | 1          | 1          | 1          | 1          | 1          | 1          | 5                               | 1                        |
     Given I am on the "BookingRollPrice" Activity page logged in as student1
     When I click on "Add to cart" "text" in the ".allbookingoptionstable_r1" "css_element"
-    And I wait until the page is ready
+    And I wait "1" seconds
     And I click on "09:00 - 09:30" "text" in the ".booking-slot-fixed-editor" "css_element"
     And I follow "Continue"
     Then I should see "Thank you! You have successfully put Rolling priced option into the shopping cart." in the ".modal-dialog.modal-xl .modalMainContent" "css_element"
