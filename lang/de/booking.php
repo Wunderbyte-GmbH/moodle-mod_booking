@@ -397,6 +397,7 @@ $string['alreadypassed'] = 'Bereits vergangen';
 $string['always'] = 'Immer';
 $string['alwaysbookanyone'] = 'Immer jeden buchen';
 $string['alwaysbookanyone_desc'] = 'Dies setzt lediglich die automatische Umschaltung auf der Seite so, dass Sie auch Benutzer buchen können, die nicht für den jeweiligen Kurs eingeschrieben sind. Es ändert keine Berechtigungen – nur wenn die Benutzer tatsächlich das Recht haben, können sie jeden buchen.';
+$string['alwaysbookanyonealert'] = 'Sie haben Buchung mit der Einstellung <a href="{$a}" target="_blank">booking | alwaysbookanyone</a> so konfiguriert, dass immer alle Nutzer:innen aller Kurse gebucht werden können.';
 $string['alwaysshowlinkondetailspage'] = 'Immer den Link zur Buchungsoption auf der Kursseite anzeigen';
 $string['alwaysshowlinkondetailspage_desc'] = 'Die Detailseite kann über den Link im Titel oder das Header-Bild erreicht werden. Aber dies wird einen zusätzlichen Button hinzufügen.';
 $string['andotherfield'] = "UND weiteres Feld";

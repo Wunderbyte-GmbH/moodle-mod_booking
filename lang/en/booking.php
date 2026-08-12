@@ -401,6 +401,7 @@ $string['alreadypassed'] = 'Already passed';
 $string['always'] = 'Always';
 $string['alwaysbookanyone'] = 'Always book anyone';
 $string['alwaysbookanyone_desc'] = 'This will just set the automatic toggle on the page to book other users to the setting that you can always book users that are not subscribed to the specific course. It does not change permissions, so only if the users actually have the right, they will be able to book anyone.';
+$string['alwaysbookanyonealert'] = 'You have configured Booking so that it\'s always possible to book any user of any course with the setting <a href="{$a}" target="_blank">booking | alwaysbookanyone</a>.';
 $string['alwaysshowlinkondetailspage'] = 'Always show link on details page';
 $string['alwaysshowlinkondetailspage_desc'] = 'Details page can be reached via the link on the title or the header image. But this will add an additional button.';
 $string['andotherfield'] = "AND additional field";

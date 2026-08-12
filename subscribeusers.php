@@ -388,13 +388,26 @@ echo $OUTPUT->heading(format_string($optionsettings->get_title_with_prefix()), 3
 // Switch to turn booking of anyone ON or OFF.
 if (has_capability('mod/booking:bookanyone', $context) && $bookanyone) {
     set_user_preference('bookanyone', '1');
-    // Show button to turn it off again.
-    $url = new moodle_url('/mod/booking/subscribeusers.php', ['id' => $id,
-                                                                'optionid' => $optionid,
-                                                                'agree' => $agree,
-                                                            ]);
-    echo '<a class="btn btn-sm btn-light" href="' . $url . '">' . get_string('bookanyoneswitchoff', 'mod_booking') . '</a>';
-    echo '<div class="alert alert-warning p-1 mt-1 text-center">' . get_string('bookanyonewarning', 'mod_booking')  . '</div>';
+    if (get_config('booking', 'alwaysbookanyone')) {
+        // The global setting forces "book anyone", so a switch-off button would have no effect.
+        if (is_siteadmin()) {
+            $settingsurl = new moodle_url(
+                '/admin/settings.php',
+                ['section' => 'modsettingbooking'],
+                'admin-alwaysbookanyone'
+            );
+            echo '<div class="alert alert-light">' .
+                get_string('alwaysbookanyonealert', 'mod_booking', $settingsurl->out(false)) . '</div>';
+        }
+    } else {
+        // Show button to turn it off again.
+        $url = new moodle_url('/mod/booking/subscribeusers.php', ['id' => $id,
+                                                                    'optionid' => $optionid,
+                                                                    'agree' => $agree,
+                                                                ]);
+        echo '<a class="btn btn-sm btn-light" href="' . $url . '">' . get_string('bookanyoneswitchoff', 'mod_booking') . '</a>';
+        echo '<div class="alert alert-warning p-1 mt-1 text-center">' . get_string('bookanyonewarning', 'mod_booking')  . '</div>';
+    }
 } else if (has_capability('mod/booking:bookanyone', $context)) {
     set_user_preference('bookanyone', '0');
     // Show button to turn it off again.
