@@ -28,13 +28,11 @@ use context_module;
 use context_system;
 use core_component;
 use local_shopping_cart\shopping_cart;
-use local_wunderbyte_table\local\helper\actforuser;
 use mod_booking\booking;
 use mod_booking\booking_bookit;
 use mod_booking\booking_context_helper;
 use mod_booking\booking_option_settings;
 use mod_booking\bo_availability\conditions\bookitbutton;
-use mod_booking\local\slotbooking\slot_availability;
 use mod_booking\output\button_notifyme;
 use mod_booking\output\col_price;
 use mod_booking\price;
@@ -783,22 +781,9 @@ class bo_info {
                 // Check option availability if user is not logged yet.
                 [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $userid, false);
 
-                // A slot option lets a user hold several answers up to max_slots_per_user: while
-                // capacity remains, an existing booked answer must not swallow the commit of the
-                // next slot purchase. Without this, the booked-state gate below silently skips
-                // bookit() for the additional slot - and the confirmation page still reports
-                // success, because it treats a booked-state top blocker as "successfully booked".
-                // Mirrors the capacity step-back in alreadybooked::hard_block(); if no new slot
-                // selection is cached, slotbooking::hard_block() still blocks the actual commit.
-                $slotcapacityleft = !empty($settings->slotconfig)
-                    && slot_availability::has_remaining_slot_capacity((int)$settings->id, (int)$userid);
-
                 if (
                     !(
-                        (
-                            in_array($id, MOD_BOOKING_BO_COND_BOOKED_STATES, true)
-                            && !$slotcapacityleft
-                        )
+                        in_array($id, MOD_BOOKING_BO_COND_BOOKED_STATES, true)
                         || $id === MOD_BOOKING_BO_COND_ONWAITINGLIST
                     )
                 ) {

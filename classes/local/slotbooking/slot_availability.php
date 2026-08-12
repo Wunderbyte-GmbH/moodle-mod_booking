@@ -490,9 +490,8 @@ class slot_availability {
      * their active answers (a user can hold more than one - see
      * get_active_answer_ids_for_user()), deduplicated and sorted by start time.
      *
-     * Canonical source for "which slots does this user currently hold" - capacity logic
-     * (has_remaining_slot_capacity()) and display (e.g. the booked slots shown in the
-     * booking options table) both build on it, so they always agree.
+     * Canonical source for "which slots does this user currently hold" - display (e.g. the booked
+     * slots shown in the booking options table) builds on it.
      *
      * @param int $optionid booking option id
      * @param int $userid user id
@@ -562,31 +561,6 @@ class slot_availability {
         }
 
         return $slotkeyset;
-    }
-
-    /**
-     * Whether the user can still buy additional slots for this option, i.e. the number of slots
-     * they currently hold (across all of their own active answers, which can be more than one -
-     * see get_active_answer_ids_for_user()) is below the option's max_slots_per_user.
-     *
-     * Used to let a user keep purchasing separate slots up to that limit (e.g. buying several
-     * "phases" over time) even once they already hold at least one - unlike the generic
-     * multiplebookings setting, which is a time-based re-booking gate, not a capacity one.
-     *
-     * @param int $optionid booking option id
-     * @param int $userid user id
-     * @return bool
-     */
-    public static function has_remaining_slot_capacity(int $optionid, int $userid): bool {
-        $config = self::get_slot_config($optionid);
-        if (empty($config)) {
-            return false;
-        }
-
-        $maxslots = max(1, (int)($config->max_slots_per_user ?? 1));
-        $bookedcount = count(self::get_booked_slot_key_set_for_user($optionid, $userid));
-
-        return $bookedcount < $maxslots;
     }
 
     /**

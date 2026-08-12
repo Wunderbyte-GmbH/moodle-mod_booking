@@ -26,6 +26,7 @@ namespace mod_booking\bo_availability\conditions;
 
 use context_system;
 use mod_booking\bo_availability\bo_condition;
+use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
 use mod_booking\singleton_service;
 use mod_booking\local\mobile\slotbookingstore;
@@ -34,6 +35,7 @@ use mod_booking\local\slotbooking\slot_availability;
 use mod_booking\local\slotbooking\slot_feature;
 use mod_booking\local\slotbooking\slot_mover;
 use mod_booking\local\slotbooking\slot_price;
+use mod_booking\option\fields\multiplebookings;
 use MoodleQuickForm;
 use mod_booking\utils\wb_payment;
 use moodle_exception;
@@ -169,24 +171,18 @@ class slotbooking implements bo_condition {
         // holds is counted as an occupant against itself and wrongly re-blocks the flow.
         $ownanswerids = slot_availability::get_active_answer_ids_for_user((int)$settings->id, (int)$userid);
 
-        // Slot keys the user already holds for this option. The check above only catches "more
-        // slots selected than max_slots_per_user allows in one submission" - it does not account for
-        // slots already booked in an EARLIER submission. Re-submitting one of those (e.g. simply
-        // stepping through a later prepage condition of an already-made selection) must keep
-        // working even once capacity is fully used up, so this only ever blocks a genuinely NEW,
-        // additional slot - evaluate_slot_for_user() below does not check capacity at all, so
-        // without this, hard_block() would let a selection past that book_user_on_option()
-        // (booking_option.php) then silently no-ops on instead of ever actually creating.
-        $ownslotkeys = array_map(
-            static fn(array $range): string => $range['start'] . ':' . $range['end'],
-            slot_availability::get_booked_slot_ranges_for_user((int)$settings->id, (int)$userid)
-        );
-        $newrangecount = count(array_filter(
-            $ranges,
-            static fn(array $range): bool => !in_array($range[0] . ':' . $range[1], $ownslotkeys, true)
-        ));
-        if ($newrangecount > 0 && (count($ownslotkeys) + $newrangecount) > $maxslots) {
-            return true;
+        // Same "book again not allowed" gate as slotbooking_form::validation() and
+        // save_slot_selection - checked again here as a commit-time backstop, since hard_block()
+        // is what actually decides whether the booking proceeds.
+        $currentanswer = singleton_service::get_instance_of_booking_answers($settings)->get_users()[$userid] ?? null;
+        if (!empty($currentanswer)) {
+            $ismultipbookingsoptionenable = booking_option::get_value_of_json_by_key((int)$settings->id, 'multiplebookings');
+            if (
+                !$ismultipbookingsoptionenable
+                || !multiplebookings::book_again_due((int)$settings->id, $currentanswer)
+            ) {
+                return true;
+            }
         }
 
         $teachersrequired = slot_availability::get_teachers_required((int)$settings->id);
