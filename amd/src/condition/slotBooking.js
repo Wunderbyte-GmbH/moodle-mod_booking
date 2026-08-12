@@ -276,10 +276,18 @@ const renderCustomDayEditor = (
     container.appendChild(info);
 
     const controls = document.createElement('div');
-    controls.className = 'd-flex align-items-center gap-2 mb-2';
+    controls.className = 'd-flex align-items-center flex-wrap gap-2 mb-2';
+
+    const durationLabel = document.createElement('label');
+    durationLabel.className = 'small mb-0';
+    durationLabel.textContent = 'Duration';
+    controls.appendChild(durationLabel);
+
+    durationSelect.classList.add('booking-slot-duration-select');
+    controls.appendChild(durationSelect);
 
     const label = document.createElement('label');
-    label.className = 'small mb-0';
+    label.className = 'small mb-0 ms-2';
     label.textContent = 'Start';
     controls.appendChild(label);
 
@@ -947,6 +955,11 @@ export async function init(callsiteoptionid) {
         const slots = parseSlots(jsonInput);
 
         if (calendarRoot && customStartInput && customDurationSelect && customEditorRoot && slots.length > 0) {
+            const originalDurationRow = customDurationSelect.closest('.form-group, .fitem');
+            if (originalDurationRow) {
+                originalDurationRow.style.display = 'none';
+            }
+
             let lastCustomDaySlot = slots[0] || null;
             // Which merged option is currently "active" for the custom-day picker. Unlike the
             // fixed-type merged calendar (a shared "start:end" slot grid, where picking any slot
