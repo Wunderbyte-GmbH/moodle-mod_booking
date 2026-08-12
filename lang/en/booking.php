@@ -3649,6 +3649,7 @@ $string['slot_day_tue'] = 'Tuesday';
 $string['slot_day_wed'] = 'Wednesday';
 $string['slot_duration_minutes'] = 'Slot duration (minutes)';
 $string['slot_enable'] = 'Enable slot booking';
+$string['slot_error_book_again_not_allowed'] = 'You already have a booking for this option and booking again is not currently allowed.';
 $string['slot_error_buffer_conflict'] = 'This slot is unavailable because it falls within the preparation or follow-up time of another booking.';
 $string['slot_error_editownonly'] = 'You can only edit your own unavailability blocks.';
 $string['slot_error_entity_occupied'] = 'This slot is unavailable because the location is already booked at this time.';
