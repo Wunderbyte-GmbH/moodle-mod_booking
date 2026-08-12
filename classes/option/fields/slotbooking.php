@@ -154,7 +154,7 @@ class slotbooking extends field_base {
         $mform->addElement(
             'submit',
             'btn_slot_type',
-            'xxx',
+            get_string('slot_type', 'mod_booking'),
             [
                 'class' => 'd-none',
                 'data-action' => 'btn_slot_type',

@@ -1348,6 +1348,7 @@ $string['changesinentity'] = '{$a->name} (ID: {$a->id})';
 $string['changesinexpirydateabsolute'] = 'Certificate: an absolute value of expiration date';
 $string['changesinexpirydaterelative'] = 'Certificate: a relative value of expiration date';
 $string['changesinexpirydatetype'] = 'Certificate: the type of expiration date';
+$string['changetemplate'] = 'Change template';
 $string['checkbox'] = "Checkbox";
 $string['checkdelimiter'] = 'Check if data is separated via the selected symbol.';
 $string['checkdelimiteroremptycontent'] = 'Check if data is given and separated via the selected symbol.';

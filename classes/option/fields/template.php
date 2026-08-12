@@ -158,10 +158,10 @@ class template extends field_base {
         $mform->addElement(
             'submit',
             'btn_changetemplate',
-            'xxx',
+            get_string('changetemplate', 'mod_booking'),
             [
-            'class' => 'd-none',
-            'data-action' => 'btn_changetemplate',
+                'class' => 'd-none',
+                'data-action' => 'btn_changetemplate',
             ]
         );
 

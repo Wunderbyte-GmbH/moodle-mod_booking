@@ -1273,6 +1273,7 @@ $string['changesemester:warning'] = '<strong>Achtung:</strong> Durch Klicken auf
 im ausgewählten Semester ersetzt.';
 $string['changesemesteradhoctaskstarted'] = 'Erfolg. Sobald CRON das nächste Mal läuft, werden die Termine für diese Buchungsinstanz neu erstellt. Dies kann einige Minuten dauern.';
 $string['changesinentity'] = '{$a->name} (ID: {$a->id})';
+$string['changetemplate'] = 'Template wechseln';
 $string['checkbox'] = "Checkbox";
 $string['checkdelimiter'] = 'Überprüfen Sie die Spaltennamen durch das angegebene Zeichen getrennt sind.';
 $string['checkdelimiteroremptycontent'] = 'Überprüfen Sie ob Daten vorhanden und durch das angegebene Zeichen getrennt sind.';

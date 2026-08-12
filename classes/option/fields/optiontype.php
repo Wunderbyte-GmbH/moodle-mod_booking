@@ -208,7 +208,7 @@ class optiontype extends field_base {
             $mform->addElement(
                 'submit',
                 'btn_optiontype',
-                'xxx',
+                get_string('optiontype', 'mod_booking'),
                 [
                     'class' => 'd-none',
                     'data-action' => 'btn_optiontype',
