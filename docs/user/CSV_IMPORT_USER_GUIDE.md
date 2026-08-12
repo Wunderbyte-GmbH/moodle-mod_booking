@@ -29,10 +29,11 @@ This guide explains how to import or update booking options in bulk using a CSV 
 12. [Availability restrictions](#12-availability-restrictions)
 13. [Notifications and texts](#13-notifications-and-texts)
 14. [Advanced columns](#14-advanced-columns)
-15. [Slot booking import](#15-slot-booking-import)
-16. [Date formats](#16-date-formats)
-17. [Tips and common mistakes](#17-tips-and-common-mistakes)
-18. [Example files](#18-example-files)
+15. [Booking custom fields](#15-booking-custom-fields)
+16. [Slot booking import](#16-slot-booking-import)
+17. [Date formats](#17-date-formats)
+18. [Tips and common mistakes](#18-tips-and-common-mistakes)
+19. [Example files](#19-example-files)
 
 ---
 
@@ -51,7 +52,8 @@ This guide explains how to import or update booking options in bulk using a CSV 
 - Delimiter: **comma (`,`)** or **semicolon (`;`)** — the importer auto-detects it
 - First row: **column headers** (see sections below)
 - Subsequent rows: one booking option per row
-- Empty cells are treated as "not set" — leave a cell blank to keep the existing value (for updates)
+- Empty cells are treated as "not set" — leave a cell blank to keep the existing value (for updates).
+  **Exception:** booking custom field columns — there an empty cell clears the stored value (see section 15)
 - Text values containing commas must be enclosed in double quotes: `"Room 3, Building A"`
 
 ---
@@ -267,7 +269,36 @@ These columns configure who is allowed to book the option.
 
 ---
 
-## 15. Slot booking import
+## 15. Booking custom fields
+
+Booking custom fields (defined under **Site administration → Plugins → Activity modules →
+Booking → Custom fields**) are imported by adding a column whose header is the **shortname**
+of the custom field — exactly as defined in the field settings, without any prefix.
+
+Example for two custom fields with the shortnames `sport` and `level`:
+
+```csv
+text,identifier,sport,level
+Tennis Beginner,TENNIS-2026-01,Tennis,Beginner
+```
+
+Rules:
+
+- Use the plain shortname as column header. Do **not** use the internal form key
+  (`customfield_<shortname>`) — such a column is ignored and the stored value is kept.
+- If a custom field column is omitted entirely, existing values remain untouched on updates.
+- **Attention:** if the column is present but a cell is empty, the stored value of that
+  field is **cleared** on update — unlike most other columns, where an empty cell keeps
+  the existing value. Only include a custom field column if you want to set (or clear) it.
+- Fields holding multiple values (multiselect) accept a comma-separated list, quoted if
+  necessary: `"Tennis,Yoga"`.
+- The value format depends on the field type: text fields take the value verbatim; for
+  choice-type fields the value must match one of the configured options exactly.
+  Use the import preview to check the result before saving.
+
+---
+
+## 16. Slot booking import
 
 Use the following columns to import slot-based booking options.
 
@@ -331,7 +362,7 @@ text,identifier,optiontype,slot_enabled,slot_type,slot_opening_time,slot_closing
 Flexible Sprechstunde,OFFICE-FLEX-2026-07,2,1,userdefined,10:00,14:00,1777596000,1782866399,0,1,0,0,0,0,0,3600,900,86400,1,2
 ```
 
-## 16. Date formats
+## 17. Date formats
 
 All date and time columns (`coursestarttime`, `courseendtime`, `bookingopeningtime`, `bookingclosingtime`, `canceluntil`, `timebooked`) accept:
 
@@ -372,7 +403,7 @@ passed through unchanged.
 
 ---
 
-## 16. Tips and common mistakes
+## 18. Tips and common mistakes
 
 | Problem | Solution |
 |---------|---------|
@@ -387,7 +418,7 @@ passed through unchanged.
 
 ---
 
-## 17. Example files
+## 19. Example files
 
 Ready-to-use example CSV files are located in the `examples/` subfolder:
 

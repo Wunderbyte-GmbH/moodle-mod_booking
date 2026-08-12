@@ -56,7 +56,7 @@ Use the listed keys instead where applicable.
 
 Usually not meaningful as CSV data columns (technical/derived):
 
-- `actions`, `addtogroup`, `attachment`, `customfields`, `duplication`
+- `actions`, `addtogroup`, `attachment`, `customfields` (but see dynamic columns below), `duplication`
 - `easy_availability_previouslybooked`, `easy_availability_selectusers`
 - `easy_bookingclosingtime`, `easy_bookingopeningtime`, `easy_text`
 - `elective`, `eventslist`, `formconfig`, `prepare_import`
@@ -95,6 +95,12 @@ Some imports use dynamic keys that are not static aliases:
 
 - `price`: category identifiers from `booking_pricecategories.identifier` are accepted during import.
   `fields_info::ignore_class()` has special logic so `price` is not skipped when such category columns are present.
+- `customfields`: booking custom field **shortnames** are accepted as CSV columns. The `customfields`
+  class is never skipped during import (special case at the end of `fields_info::ignore_class()`);
+  `booking_handler::instance_form_before_set_data_on_import()` then maps a column named exactly like
+  a field shortname to the internal form key `customfield_<shortname>`. A column already named
+  `customfield_<shortname>` does NOT work (the else branch overwrites it with stored values).
+  Present-but-empty cells clear the stored value; omitted columns keep it.
 - `availability`: `boavenrolledincourseoperator` and `boavenrolledincohortsoperator` are optional helper columns,
   used together with `boavenrolledincourse` / `boavenrolledincohorts`.
 - `text`: in import mode, value fallback is `text` -> `title` -> `name`.
