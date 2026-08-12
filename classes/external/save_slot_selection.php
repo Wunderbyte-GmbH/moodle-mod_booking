@@ -31,9 +31,11 @@ use core_external\external_api;
 use core_external\external_function_parameters;
 use core_external\external_single_structure;
 use core_external\external_value;
+use mod_booking\booking_option;
 use mod_booking\local\mobile\slotbookingstore;
 use mod_booking\local\slotbooking\slot_availability;
 use mod_booking\local\slotbooking\slot_price;
+use mod_booking\option\fields\multiplebookings;
 use mod_booking\permissions;
 use mod_booking\singleton_service;
 
@@ -157,16 +159,21 @@ class save_slot_selection extends external_api {
         // itself and wrongly reported as unavailable.
         $ownanswerids = slot_availability::get_active_answer_ids_for_user($optionid, $userid);
 
-        // A user who already holds a (non-cancelled) answer for this option can only pick keys
-        // that either are already their own or still fit within remaining capacity
-        // (max_slots_per_user) - has_capacity_for_selection() excludes already-owned keys from
-        // counting as "new", so re-validating an already-booked/cached selection never trips this.
-        // Checked here too (not just slotbooking_form::validation()) so the live preview this
-        // webservice powers (see slotBooking.js liveValidate()) surfaces the same "max slots
-        // reached" message the instant an otherwise-bookable slot is clicked, instead of only after
-        // a full form submit round-trip.
-        if (!slot_availability::has_capacity_for_selection($optionid, $userid, $keys)) {
-            $errors['slot_selection'] = get_string('slot_error_max_slots_reached', 'mod_booking');
+        // A user who already holds a (non-cancelled) answer for this option can only pick again
+        // once "Allow to book again" is on AND its own timing gate has passed - independent of
+        // slot capacity. Checked here too (not just slotbooking_form::validation()) so the live
+        // preview this webservice powers (see slotBooking.js liveValidate()) surfaces the same
+        // "book again not allowed" message the instant an otherwise-bookable slot is clicked,
+        // instead of only after a full form submit round-trip.
+        $currentanswer = singleton_service::get_instance_of_booking_answers($settings)->get_users()[$userid] ?? null;
+        if (!empty($currentanswer)) {
+            $ismultipbookingsoptionenable = booking_option::get_value_of_json_by_key($optionid, 'multiplebookings');
+            if (
+                !$ismultipbookingsoptionenable
+                || !multiplebookings::book_again_due($optionid, $currentanswer)
+            ) {
+                $errors['slot_selection'] = get_string('slot_error_book_again_not_allowed', 'mod_booking');
+            }
         }
 
         // Once the too-many/overlap checks above have already rejected this selection, skip the
