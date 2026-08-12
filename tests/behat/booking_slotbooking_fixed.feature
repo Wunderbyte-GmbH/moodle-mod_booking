@@ -33,7 +33,7 @@ Feature: Slot booking option of type "fixed" covers per-slot capacity, cancellat
       | BookingFixedCap | Fixed capacity option | C1     | Capacity test | 2          | 1            | fixed     | calendar               | 30                     | 09:00              | 11:00              | ## tomorrow ##   | ## +7 days ##     | 1          | 1          | 1          | 1          | 1          | 1          | 1          | 2                               | 1                        |
     Given I am on the "BookingFixedCap" Activity page logged in as student1
     When I click on "Book now" "text" in the ".allbookingoptionstable_r1" "css_element"
-    And I wait until the page is ready
+    And I wait "1" seconds
     And I click on "09:00 - 09:30" "text" in the ".booking-slot-fixed-editor" "css_element"
     And I follow "Continue"
     Then I should see "Thank you! You have successfully booked" in the ".modal-dialog.modal-xl .condition-confirmation" "css_element"
@@ -42,7 +42,7 @@ Feature: Slot booking option of type "fixed" covers per-slot capacity, cancellat
     ## Second student: the slot still has one free place (capacity 2), so it must still be offered.
     Given I am on the "BookingFixedCap" Activity page logged in as student2
     When I click on "Book now" "text" in the ".allbookingoptionstable_r1" "css_element"
-    And I wait until the page is ready
+    And I wait "1" seconds
     Then I should see "09:00 - 09:30" in the ".booking-slot-fixed-editor" "css_element"
     When I click on "09:00 - 09:30" "text" in the ".booking-slot-fixed-editor" "css_element"
     And I follow "Continue"
@@ -53,7 +53,7 @@ Feature: Slot booking option of type "fixed" covers per-slot capacity, cancellat
     ## longer be offered at all (a full slot the user never booked is not "Booked", it is dropped).
     Given I am on the "BookingFixedCap" Activity page logged in as student3
     When I click on "Book now" "text" in the ".allbookingoptionstable_r1" "css_element"
-    And I wait until the page is ready
+    And I wait "1" seconds
     Then I should not see "09:00 - 09:30" in the ".booking-slot-fixed-editor" "css_element"
     And I should see "09:30 - 10:00" in the ".booking-slot-fixed-editor" "css_element"
 
@@ -67,7 +67,7 @@ Feature: Slot booking option of type "fixed" covers per-slot capacity, cancellat
       | BookingFixedCncl | Fixed cancel option | C1     | Cancel test | 2          | 1            | fixed     | calendar               | 30                     | 09:00              | 11:00              | ## tomorrow ##   | ## +7 days ##     | 1          | 1          | 1          | 1          | 1          | 1          | 1          | 5                               | 1                        |
     Given I am on the "BookingFixedCncl" Activity page logged in as student1
     When I click on "Book now" "text" in the ".allbookingoptionstable_r1" "css_element"
-    And I wait until the page is ready
+    And I wait "1" seconds
     And I click on "09:00 - 09:30" "text" in the ".booking-slot-fixed-editor" "css_element"
     And I follow "Continue"
     Then I should see "Thank you! You have successfully booked" in the ".modal-dialog.modal-xl .condition-confirmation" "css_element"
@@ -79,7 +79,7 @@ Feature: Slot booking option of type "fixed" covers per-slot capacity, cancellat
     Then I should see "Book now" in the ".allbookingoptionstable_r1" "css_element"
     ## The cancelled slot must be bookable again, by the same student.
     When I click on "Book now" "text" in the ".allbookingoptionstable_r1" "css_element"
-    And I wait until the page is ready
+    And I wait "1" seconds
     And I should see "09:00 - 09:30" in the ".booking-slot-fixed-editor" "css_element"
     And I click on "09:00 - 09:30" "text" in the ".booking-slot-fixed-editor" "css_element"
     And I follow "Continue"
@@ -107,7 +107,7 @@ Feature: Slot booking option of type "fixed" covers per-slot capacity, cancellat
       | BookingFixedPrice | Fixed priced option  | C1     | Price test  | 2          | 1        | 1            | fixed     | calendar               | 30                     | 09:00              | 11:00              | ## tomorrow ##   | ## +7 days ##     | 1          | 1          | 1          | 1          | 1          | 1          | 1          | 5                               | 1                        |
     Given I am on the "BookingFixedPrice" Activity page logged in as student1
     When I click on "Add to cart" "text" in the ".allbookingoptionstable_r1" "css_element"
-    And I wait until the page is ready
+    And I wait "1" seconds
     And I click on "09:00 - 09:30" "text" in the ".booking-slot-fixed-editor" "css_element"
     And I follow "Continue"
     Then I should see "Thank you! You have successfully put Fixed priced option into the shopping cart." in the ".modal-dialog.modal-xl .modalMainContent" "css_element"
