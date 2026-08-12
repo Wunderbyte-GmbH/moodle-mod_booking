@@ -819,17 +819,28 @@ div.checkbox:has(label[for^="id_bo_cond_allowedtobookininstance_capabilitynotnee
 /* Booking config settings. */
 #page-admin-setting-modsettingbooking #admin-selectteacherswithprofilefieldonlyfield,
 #page-admin-setting-modsettingbooking #admin-selectteacherswithprofilefieldonlyvalue,
-#page-admin-setting-modsettingbooking #admin-bookingtimerelativedefaultopeningduration,
-#page-admin-setting-modsettingbooking #admin-bookingtimerelativedefaultclosingduration,
-#page-admin-setting-modsettingbooking #admin-bookingtimerelativedefaultopeningbeforeafter,
-#page-admin-setting-modsettingbooking #admin-bookingtimerelativedefaultclosingbeforeafter,
-#page-admin-setting-modsettingbooking #admin-bookingtimerelativedefaultopeningdatefield,
-#page-admin-setting-modsettingbooking #admin-bookingtimerelativedefaultclosingdatefield,
-#page-admin-setting-modsettingbooking #admin-bookingopeningtimerelativeautoapply,
-#page-admin-setting-modsettingbooking #admin-bookingclosingtimerelativeautoapply,
 #page-admin-setting-modsettingbooking #admin-entitytreefiltertoplevelonly,
 #page-admin-setting-modsettingbooking #admin-entitytreefiltershowlocationhovercard,
 #page-admin-setting-modsettingbooking #admin-entitytreefiltershowlocationimages {
+    margin-left: 75px;
+}
+
+#page-admin-setting-modbookingconditions #admin-bookingtimerelativedefaultopeningduration,
+#page-admin-setting-modbookingconditions #admin-bookingtimerelativedefaultclosingduration,
+#page-admin-setting-modbookingconditions #admin-bookingtimerelativedefaultopeningbeforeafter,
+#page-admin-setting-modbookingconditions #admin-bookingtimerelativedefaultclosingbeforeafter,
+#page-admin-setting-modbookingconditions #admin-bookingtimerelativedefaultopeningdatefield,
+#page-admin-setting-modbookingconditions #admin-bookingtimerelativedefaultclosingdatefield,
+#page-admin-setting-modbookingconditions #admin-bookingopeningtimerelativeautoapply,
+#page-admin-setting-modbookingconditions #admin-bookingclosingtimerelativeautoapply,
+#page-admin-setting-modbookingfolder #admin-bookingtimerelativedefaultopeningduration,
+#page-admin-setting-modbookingfolder #admin-bookingtimerelativedefaultclosingduration,
+#page-admin-setting-modbookingfolder #admin-bookingtimerelativedefaultopeningbeforeafter,
+#page-admin-setting-modbookingfolder #admin-bookingtimerelativedefaultclosingbeforeafter,
+#page-admin-setting-modbookingfolder #admin-bookingtimerelativedefaultopeningdatefield,
+#page-admin-setting-modbookingfolder #admin-bookingtimerelativedefaultclosingdatefield,
+#page-admin-setting-modbookingfolder #admin-bookingopeningtimerelativeautoapply,
+#page-admin-setting-modbookingfolder #admin-bookingclosingtimerelativeautoapply {
     margin-left: 75px;
 }
 

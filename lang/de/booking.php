@@ -442,7 +442,7 @@ $string['automaticbookingoptioncompletion_desc'] = 'Wenn aktiviert, wird die Buc
 $string['automaticcoursecreation'] = 'Automatische Erstellung von Moodle-Kursen <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['availability'] = 'Verfügbarkeit';
 $string['availabilityconditions'] = 'Verfügbarkeit einschränken';
-$string['availabilityconditionsdashboard'] = 'Verfügbarkeitsbedingungen';
+$string['availabilityconditionsdashboard'] = 'Booking: Verfügbarkeitsbedingungen - Skip & Freeze Dashboard';
 $string['availabilityconditionsdashboard_desc'] = 'Verwalten Sie pro Verfügbarkeitsbedingung, ob sie Standard, nur eingefroren oder übersprungen und eingefroren ist. Bestehende Skip-Einstellungen bleiben aus Gründen der Rückwärtskompatibilität lesbar, bis das neue Dashboard gespeichert wurde.';
 $string['availabilityconditionsenrollinkcolumn'] = 'Bei Einschreibelink überspringen';
 $string['availabilityconditionsenrollinkcolumn_help'] = 'Wenn angehakt, wird diese Verfügbarkeitsbedingung umgangen, wenn eine Buchung über einen Einschreibelink erfolgt. Normale Buchungen sind nicht betroffen: Dort wird die Bedingung weiterhin gemäß ihrem Zustand in der Spalte "Skip/Freeze-Bedingung" geprüft, und ihre Formularfelder werden nicht gesperrt.';
@@ -1357,7 +1357,7 @@ $string['conditionselectusersuserids'] = "Wähle die gewünschten Nutzer:innen";
 $string['conditionsfrozenwarning'] = '<div class="alert alert-warning" role="alert">Diese Bedingung kann nicht ausgewählt werden, da sie in den <a href="{$a}" target="_blank">Einstellungen eingefroren wurde</a>.</div>';
 $string['conditionsoverwritingbillboard'] = 'Überschreiben von Nachrichten zur Buchbarkeit bzw. deren Blockierung ermöglichen';
 $string['conditionsoverwritingbillboard_desc'] = 'In den Einstellungen der Buchungsinstanz kann ein Text eingegeben werden, der anstelle von anderen Nachrichten zur (Nicht-)Buchbarkeit angezeigt wird.';
-$string['conditionssettings'] = 'Verfügbarkeitsbedingungen';
+$string['conditionssettings'] = 'Booking: Verfügbarkeitsbedingungen - Einstellungen';
 $string['conditionssettings_desc'] = 'Konfigurieren Sie die Verfügbarkeitsbedingungen für Buchungsoptionen.';
 $string['conditionssettingslinkdashboard'] = 'Verwenden Sie die <a href="{$a}" target="_blank">Tabelle der Verfügbarkeitsbedingungen</a>, um Skip/Freeze-Zustände und ggf. weitere Einstellungen für alle Bedingungen zu verwalten.';
 $string['conditionsskippedwarning'] = '<div class="alert alert-warning" role="alert">Diese Bedingung kann nicht ausgewählt werden, da sie in den <a href="{$a}" target="_blank">Einstellungen deaktiviert (übersprungen) wurde</a>.</div>';
@@ -2772,6 +2772,9 @@ $string['profeatures:calendarcustomdescriptions'] = '<ul>
 $string['profeatures:cancellationsettings'] = '<ul>
 <li><b>Veränderbare Stornierungsfrist</b></li>
 <li><b>Stornierungs Cool Off Period (Sekunden)</b></li>
+</ul>';
+$string['profeatures:conditionssettings'] = '<ul>
+<li><b>Seitenweite Konfiguration der Verfügbarkeitsbedingungen des Buchungsprozesses (relative Buchungszeiten, SQL-Verfügbarkeitsfilter, Umgang mit überlappenden Buchungen u.v.m.)</b></li>
 </ul>';
 $string['profeatures:duplicationrestoreoption'] = '<ul>
 <li><b>Moodle-Kurs duplizieren, wenn eine Buchungsoption dupliziert wird</b></li>

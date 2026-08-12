@@ -447,7 +447,7 @@ $string['automaticbookingoptioncompletion_desc'] = 'If enabled the bookingoption
 $string['automaticcoursecreation'] = 'Automatic creation of Moodle courses <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['availability'] = 'Availability';
 $string['availabilityconditions'] = 'Availability conditions';
-$string['availabilityconditionsdashboard'] = 'Availability conditions';
+$string['availabilityconditionsdashboard'] = 'Booking: Availability Conditions - Skip & Freeze Dashboard';
 $string['availabilityconditionsdashboard_desc'] = 'Manage whether each availability condition is inactive, frozen, or skipped and frozen. Existing skip settings remain readable for backwards compatibility until the new dashboard is saved.';
 $string['availabilityconditionsenrollinkcolumn'] = 'Skip for enrolment link';
 $string['availabilityconditionsenrollinkcolumn_help'] = 'If checked, this availability condition is bypassed when a user books via an enrolment link. Regular bookings are not affected: the condition is still checked there according to its state in the "Skip/Freeze Condition" column, and its form fields are not locked.';
@@ -1433,7 +1433,7 @@ $string['conditionselectusersuserids'] = "Select the users you want to target";
 $string['conditionsfrozenwarning'] = '<div class="alert alert-warning" role="alert">This condition can not be selected because it is <a href="{$a}" target="_blank">frozen in the settings</a>.</div>';
 $string['conditionsoverwritingbillboard'] = 'Overwrite messages about blocking reasons of bookings';
 $string['conditionsoverwritingbillboard_desc'] = 'A text can be entered in the settings of the booking instance that is displayed instead of other messages on blocking reasons of bookings.';
-$string['conditionssettings'] = 'Availability conditions settings';
+$string['conditionssettings'] = 'Booking: Availability conditions settings';
 $string['conditionssettings_desc'] = 'You can opt out of certain conditions if they are not needed. This will give you a performance boost, since the system will not check these conditions anymore during the booking process.';
 $string['conditionssettingslinkdashboard'] = 'Use the <a href="{$a}" target="_blank">Availability Conditions table</a> to manage skip/freeze states and other given settings of all conditions.';
 $string['conditionsskippedwarning'] = '<div class="alert alert-warning" role="alert">This condition can not be selected because it was <a href="{$a}" target="_blank">turned off (skipped) in the settings</a>.</div>';
@@ -3043,6 +3043,9 @@ $string['profeatures:calendarcustomdescriptions'] = '<ul>
 $string['profeatures:cancellationsettings'] = '<ul>
 <li><b>adjustable cancellation period</b></li>
 <li><b>cancellation cool off period (seconds)</b></li>
+</ul>';
+$string['profeatures:conditionssettings'] = '<ul>
+<li><b>site-wide configuration of the availability conditions of the booking process (relative booking times, SQL availability filter, handling of overlapping bookings and more)</b></li>
 </ul>';
 $string['profeatures:duplicationrestoreoption'] = '<ul>
 <li><b>duplicate moodle course when duplicating a booking option</b></li>

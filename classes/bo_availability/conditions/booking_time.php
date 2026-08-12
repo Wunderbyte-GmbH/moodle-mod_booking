@@ -598,7 +598,7 @@ class booking_time implements bo_condition, freezable_condition {
             false,
             new \moodle_url(
                 '/admin/settings.php',
-                ['section' => 'modsettingbooking'],
+                ['section' => 'modbookingconditions'],
                 'admin-sqlfilterbookingtimeonlypast'
             )
         );

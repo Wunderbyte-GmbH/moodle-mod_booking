@@ -131,6 +131,12 @@ $ADMIN->add(
     )
 );
 
+$conditionssettings = new admin_settingpage(
+    'modbookingconditions',
+    get_string('conditionssettings', 'mod_booking')
+);
+$ADMIN->add('modbookingfolder', $conditionssettings);
+
 $ADMIN->add(
     'modbookingfolder',
     new admin_externalpage(
@@ -325,87 +331,6 @@ if ($ADMIN->fulltree) {
             )
         );
 
-        // The multilevel location filter needs local_entities: without the plugin the settings
-        // would be visible but without any effect (the code falls back to the plain-text location
-        // filter, see entities_tree_provider::is_active()), so the whole block is hidden then.
-        if (class_exists('local_entities\entitiesrelation_handler')) {
-            // All four settings change the cached booking options tables (the location filter json
-            // lives in the tables' raw caches, the rendered location cells in the encoded tables),
-            // so the caches are purged on change — same events as for showoptiondatesextrainfo and
-            // local_wunderbyte_table's allowedittable.
-            $purgetablecaches = function () {
-                cache_helper::purge_by_event('setbackfilters');
-                cache_helper::purge_by_event('setbackencodedtables');
-                cache_helper::purge_by_event('changesinwunderbytetable');
-            };
-
-            // Multilevel entity (location) tree filter. Opt-in, default off: existing installations
-            // keep the plain-text location filter until this is switched on.
-            $entitytreefilter = new admin_setting_configcheckbox(
-                'booking/entitytreefilter',
-                get_string('entitytreefilter', 'mod_booking'),
-                get_string('entitytreefilter_desc', 'mod_booking'),
-                0
-            );
-            $entitytreefilter->set_updatedcallback($purgetablecaches);
-            $settings->add($entitytreefilter);
-
-            // The following three settings belong to the multilevel location filter: they are
-            // indented via styles.css (#admin-entitytreefilter...) plus a "⤷ " label prefix and
-            // hidden while the filter is off — analogous to bookingopeningtimerelativeautoapply.
-            // Restrict the multilevel location filter to the top level: only first-level entities
-            // are offered and a selection filters the whole branch (sub-levels stay filterable via
-            // the tree when this is off).
-            $entitytreefiltertoplevelonly = new admin_setting_configcheckbox(
-                'booking/entitytreefiltertoplevelonly',
-                get_string('entitytreefiltertoplevelonly', 'mod_booking'),
-                get_string('entitytreefiltertoplevelonly_desc', 'mod_booking'),
-                0
-            );
-            $entitytreefiltertoplevelonly->set_updatedcallback($purgetablecaches);
-            $settings->add($entitytreefiltertoplevelonly);
-            $settings->hide_if(
-                'booking/entitytreefiltertoplevelonly',
-                'booking/entitytreefilter',
-                'eq',
-                0
-            );
-
-            // Hover card with the superordinate levels for deep (3+ levels) location hierarchies.
-            // Default on; when off, deep locations render as a plain "direct parent (name)" link.
-            $entitytreefiltershowlocationhovercard = new admin_setting_configcheckbox(
-                'booking/entitytreefiltershowlocationhovercard',
-                get_string('entitytreefiltershowlocationhovercard', 'mod_booking'),
-                get_string('entitytreefiltershowlocationhovercard_desc', 'mod_booking'),
-                1
-            );
-            $entitytreefiltershowlocationhovercard->set_updatedcallback($purgetablecaches);
-            $settings->add($entitytreefiltershowlocationhovercard);
-            $settings->hide_if(
-                'booking/entitytreefiltershowlocationhovercard',
-                'booking/entitytreefilter',
-                'eq',
-                0
-            );
-
-            // Small entity images in the location hover card (3+ level hierarchies only). Opt-in.
-            // Renamed from showlocationimages (migrated in db/upgrade.php).
-            $entitytreefiltershowlocationimages = new admin_setting_configcheckbox(
-                'booking/entitytreefiltershowlocationimages',
-                get_string('entitytreefiltershowlocationimages', 'mod_booking'),
-                get_string('entitytreefiltershowlocationimages_desc', 'mod_booking'),
-                0
-            );
-            $entitytreefiltershowlocationimages->set_updatedcallback($purgetablecaches);
-            $settings->add($entitytreefiltershowlocationimages);
-            $settings->hide_if(
-                'booking/entitytreefiltershowlocationimages',
-                'booking/entitytreefilter',
-                'eq',
-                0
-            );
-        }
-
         // Collapse descriptions.
         $collapsedescriptionoptions = [
             0 => get_string('collapsedescriptionoff', 'mod_booking'),
@@ -566,6 +491,69 @@ if ($ADMIN->fulltree) {
                     1
                 )
             );
+        }
+
+        // The multilevel location filter needs local_entities: without the plugin the settings
+        // would be visible but without any effect (the code falls back to the plain-text location
+        // filter, see entities_tree_provider::is_active()), so the whole block is hidden then.
+        if (class_exists('local_entities\entitiesrelation_handler')) {
+            // All four settings change the cached booking options tables (the location filter json
+            // lives in the tables' raw caches, the rendered location cells in the encoded tables),
+            // so the caches are purged on change — same events as for showoptiondatesextrainfo and
+            // local_wunderbyte_table's allowedittable.
+            $purgetablecaches = function () {
+                cache_helper::purge_by_event('setbackfilters');
+                cache_helper::purge_by_event('setbackencodedtables');
+                cache_helper::purge_by_event('changesinwunderbytetable');
+            };
+
+            // Multilevel entity (location) tree filter. Opt-in, default off: existing installations
+            // keep the plain-text location filter until this is switched on.
+            $entitytreefilter = new admin_setting_configcheckbox(
+                'booking/entitytreefilter',
+                get_string('entitytreefilter', 'mod_booking'),
+                get_string('entitytreefilter_desc', 'mod_booking'),
+                0
+            );
+            $entitytreefilter->set_updatedcallback($purgetablecaches);
+            $settings->add($entitytreefilter);
+
+            // The following three settings belong to the multilevel location filter: they are
+            // indented via styles.css (#admin-entitytreefilter...) plus a "⤷ " label prefix and
+            // hidden while the filter is off — analogous to bookingopeningtimerelativeautoapply.
+            // Restrict the multilevel location filter to the top level: only first-level entities
+            // are offered and a selection filters the whole branch (sub-levels stay filterable via
+            // the tree when this is off).
+            $entitytreefiltertoplevelonly = new admin_setting_configcheckbox(
+                'booking/entitytreefiltertoplevelonly',
+                get_string('entitytreefiltertoplevelonly', 'mod_booking'),
+                get_string('entitytreefiltertoplevelonly_desc', 'mod_booking'),
+                0
+            );
+            $entitytreefiltertoplevelonly->set_updatedcallback($purgetablecaches);
+            $settings->add($entitytreefiltertoplevelonly);
+
+            // Hover card with the superordinate levels for deep (3+ levels) location hierarchies.
+            // Default on; when off, deep locations render as a plain "direct parent (name)" link.
+            $entitytreefiltershowlocationhovercard = new admin_setting_configcheckbox(
+                'booking/entitytreefiltershowlocationhovercard',
+                get_string('entitytreefiltershowlocationhovercard', 'mod_booking'),
+                get_string('entitytreefiltershowlocationhovercard_desc', 'mod_booking'),
+                1
+            );
+            $entitytreefiltershowlocationhovercard->set_updatedcallback($purgetablecaches);
+            $settings->add($entitytreefiltershowlocationhovercard);
+
+            // Small entity images in the location hover card (3+ level hierarchies only). Opt-in.
+            // Renamed from showlocationimages (migrated in db/upgrade.php).
+            $entitytreefiltershowlocationimages = new admin_setting_configcheckbox(
+                'booking/entitytreefiltershowlocationimages',
+                get_string('entitytreefiltershowlocationimages', 'mod_booking'),
+                get_string('entitytreefiltershowlocationimages_desc', 'mod_booking'),
+                0
+            );
+            $entitytreefiltershowlocationimages->set_updatedcallback($purgetablecaches);
+            $settings->add($entitytreefiltershowlocationimages);
         }
     } else {
         $settings->add(
@@ -1018,7 +1006,7 @@ if ($ADMIN->fulltree) {
         $conditionsdashboardurl = new moodle_url('/mod/booking/availabilityconditions.php');
         $conditionsheadingdesc = get_string('conditionssettings_desc', 'mod_booking') .
             '<br>' . get_string('conditionssettingslinkdashboard', 'mod_booking', $conditionsdashboardurl->out(false));
-        $settings->add(
+        $conditionssettings->add(
             new admin_setting_heading(
                 'conditionsheadnig',
                 get_string('conditionssettings', 'mod_booking') . " " . get_string('badge:pro', 'mod_booking'),
@@ -1026,7 +1014,7 @@ if ($ADMIN->fulltree) {
             )
         );
 
-        $settings->add(
+        $conditionssettings->add(
             new admin_setting_configcheckbox(
                 'booking/conditionwarningatbottom',
                 get_string('conditionwarningatbottom', 'mod_booking'),
@@ -1035,150 +1023,8 @@ if ($ADMIN->fulltree) {
             )
         );
 
-        // Developer note:
-        // If you add new condition-specific admin settings in this section,
-        // also add/update the matching link mapping in
-        // mod/booking/availabilityconditions.php ($conditionsettingsanchors)
-        // so the "Specific Settings" column points to the correct setting anchor.
-        $settings->add(
-            new admin_setting_configcheckbox(
-                'booking/bookingtimerelativeenabled',
-                get_string('bookingtimerelativeenabled', 'mod_booking'),
-                get_string('bookingtimerelativeenabled_desc', 'mod_booking'),
-                0
-            )
-        );
-        // Opening time settings.
-        $settings->add(
-            new admin_setting_configcheckbox(
-                'booking/bookingopeningtimerelativeautoapply',
-                get_string('bookingopeningtimerelativeautoapply', 'mod_booking'),
-                get_string('bookingopeningtimerelativeautoapply_desc', 'mod_booking'),
-                0 // Auto-apply is turned off by default.
-            )
-        );
-        $settings->hide_if(
-            'booking/bookingopeningtimerelativeautoapply',
-            'booking/bookingtimerelativeenabled',
-            'eq',
-            0
-        );
-        $settings->add(
-            new admin_setting_configduration(
-                'booking/bookingtimerelativedefaultopeningduration',
-                get_string('bookingtimerelativedefaultopeningduration', 'mod_booking'),
-                get_string('bookingtimerelativedefaultopeningduration_desc', 'mod_booking'),
-                86400 * 7 // Default: Booking possible starting 7 days before the event.
-            )
-        );
-        $settings->hide_if(
-            'booking/bookingtimerelativedefaultopeningduration',
-            'booking/bookingtimerelativeenabled',
-            'eq',
-            0
-        );
-        $settings->add(
-            new admin_setting_configselect(
-                'booking/bookingtimerelativedefaultopeningbeforeafter',
-                get_string('bookingtimerelativedefaultopeningbeforeafter', 'mod_booking'),
-                get_string('bookingtimerelativedefaultopeningbeforeafter_desc', 'mod_booking'),
-                1,
-                [
-                    1 => get_string('before', 'mod_booking'),
-                    -1 => get_string('after', 'mod_booking'),
-                ]
-            )
-        );
-        $settings->hide_if(
-            'booking/bookingtimerelativedefaultopeningbeforeafter',
-            'booking/bookingtimerelativeenabled',
-            'eq',
-            0
-        );
-        $bookingtimerelativepossibledatefields = [
-            'coursestarttime' => get_string('bookingoptionstart', 'mod_booking'),
-            'courseendtime' => get_string('bookingoptionend', 'mod_booking'),
-        ];
-        $settings->add(
-            new admin_setting_configselect(
-                'booking/bookingtimerelativedefaultopeningdatefield',
-                get_string('bookingtimerelativedefaultopeningdatefield', 'mod_booking'),
-                get_string('bookingtimerelativedefaultopeningdatefield_desc', 'mod_booking'),
-                'coursestarttime',
-                $bookingtimerelativepossibledatefields
-            )
-        );
-        $settings->hide_if(
-            'booking/bookingtimerelativedefaultopeningdatefield',
-            'booking/bookingtimerelativeenabled',
-            'eq',
-            0
-        );
-        // Closing time settings.
-        $settings->add(
-            new admin_setting_configcheckbox(
-                'booking/bookingclosingtimerelativeautoapply',
-                get_string('bookingclosingtimerelativeautoapply', 'mod_booking'),
-                get_string('bookingclosingtimerelativeautoapply_desc', 'mod_booking'),
-                0 // Auto-apply is turned off by default.
-            )
-        );
-        $settings->hide_if(
-            'booking/bookingclosingtimerelativeautoapply',
-            'booking/bookingtimerelativeenabled',
-            'eq',
-            0
-        );
-        $settings->add(
-            new admin_setting_configduration(
-                'booking/bookingtimerelativedefaultclosingduration',
-                get_string('bookingtimerelativedefaultclosingduration', 'mod_booking'),
-                get_string('bookingtimerelativedefaultclosingduration_desc', 'mod_booking'),
-                86400 // Default: Booking possible until 1 day before the event.
-            )
-        );
-        $settings->hide_if(
-            'booking/bookingtimerelativedefaultclosingduration',
-            'booking/bookingtimerelativeenabled',
-            'eq',
-            0
-        );
-        $settings->add(
-            new admin_setting_configselect(
-                'booking/bookingtimerelativedefaultclosingbeforeafter',
-                get_string('bookingtimerelativedefaultclosingbeforeafter', 'mod_booking'),
-                get_string('bookingtimerelativedefaultclosingbeforeafter_desc', 'mod_booking'),
-                1,
-                [
-                    1 => get_string('before', 'mod_booking'),
-                    -1 => get_string('after', 'mod_booking'),
-                ]
-            )
-        );
-        $settings->hide_if(
-            'booking/bookingtimerelativedefaultclosingbeforeafter',
-            'booking/bookingtimerelativeenabled',
-            'eq',
-            0
-        );
-        $settings->add(
-            new admin_setting_configselect(
-                'booking/bookingtimerelativedefaultclosingdatefield',
-                get_string('bookingtimerelativedefaultclosingdatefield', 'mod_booking'),
-                get_string('bookingtimerelativedefaultclosingdatefield_desc', 'mod_booking'),
-                'coursestarttime',
-                $bookingtimerelativepossibledatefields
-            )
-        );
-        $settings->hide_if(
-            'booking/bookingtimerelativedefaultclosingdatefield',
-            'booking/bookingtimerelativeenabled',
-            'eq',
-            0
-        );
-
         // Use SQL for availability conditions.
-        $settings->add(
+        $conditionssettings->add(
             new admin_setting_configcheckbox(
                 'booking/usesqlfilteravailability',
                 get_string('usesqlfilteravailability', 'mod_booking'),
@@ -1186,7 +1032,7 @@ if ($ADMIN->fulltree) {
                 0
             )
         );
-        $settings->add(
+        $conditionssettings->add(
             new admin_setting_configcheckbox(
                 'booking/sqlfilterbookingtimeonlypast',
                 get_string('sqlfilterbookingtimeonlypast', 'mod_booking'),
@@ -1200,7 +1046,7 @@ if ($ADMIN->fulltree) {
             MOD_BOOKING_COND_OVERLAPPING_HANDLING_WARN  => get_string('defaultnooverlappingoncreate:warning', 'mod_booking'),
             MOD_BOOKING_COND_OVERLAPPING_HANDLING_BLOCK => get_string('defaultnooverlappingoncreate:blocking', 'mod_booking'),
         ];
-        $settings->add(
+        $conditionssettings->add(
             new admin_setting_configselect(
                 'booking/defaultnooverlappingoncreate',
                 get_string('defaultnooverlappingoncreate', 'mod_booking'),
@@ -1218,7 +1064,7 @@ if ($ADMIN->fulltree) {
             MOD_BOOKING_ENROLMULTIPLEUSERS_DONOTBOOKMYSELF =>
                 get_string('enrolmultipleusersformmode:donotbookmyself', 'mod_booking'),
         ];
-        $settings->add(
+        $conditionssettings->add(
             new admin_setting_configselect(
                 'booking/enrolmultipleusersformmode',
                 get_string('enrolmultipleusersformmode', 'mod_booking'),
@@ -1226,6 +1072,148 @@ if ($ADMIN->fulltree) {
                 MOD_BOOKING_ENROLMULTIPLEUSERS_CHECKBOX,
                 $enrolmultipleusersformmodeoptions
             )
+        );
+
+        // Developer note:
+        // If you add new condition-specific admin settings in this section,
+        // also add/update the matching link mapping in
+        // mod/booking/availabilityconditions.php ($conditionsettingsanchors)
+        // so the "Specific Settings" column points to the correct setting anchor.
+        $conditionssettings->add(
+            new admin_setting_configcheckbox(
+                'booking/bookingtimerelativeenabled',
+                get_string('bookingtimerelativeenabled', 'mod_booking'),
+                get_string('bookingtimerelativeenabled_desc', 'mod_booking'),
+                0
+            )
+        );
+        // Opening time settings.
+        $conditionssettings->add(
+            new admin_setting_configcheckbox(
+                'booking/bookingopeningtimerelativeautoapply',
+                get_string('bookingopeningtimerelativeautoapply', 'mod_booking'),
+                get_string('bookingopeningtimerelativeautoapply_desc', 'mod_booking'),
+                0 // Auto-apply is turned off by default.
+            )
+        );
+        $conditionssettings->hide_if(
+            'booking/bookingopeningtimerelativeautoapply',
+            'booking/bookingtimerelativeenabled',
+            'eq',
+            0
+        );
+        $conditionssettings->add(
+            new admin_setting_configduration(
+                'booking/bookingtimerelativedefaultopeningduration',
+                get_string('bookingtimerelativedefaultopeningduration', 'mod_booking'),
+                get_string('bookingtimerelativedefaultopeningduration_desc', 'mod_booking'),
+                86400 * 7 // Default: Booking possible starting 7 days before the event.
+            )
+        );
+        $conditionssettings->hide_if(
+            'booking/bookingtimerelativedefaultopeningduration',
+            'booking/bookingtimerelativeenabled',
+            'eq',
+            0
+        );
+        $conditionssettings->add(
+            new admin_setting_configselect(
+                'booking/bookingtimerelativedefaultopeningbeforeafter',
+                get_string('bookingtimerelativedefaultopeningbeforeafter', 'mod_booking'),
+                get_string('bookingtimerelativedefaultopeningbeforeafter_desc', 'mod_booking'),
+                1,
+                [
+                    1 => get_string('before', 'mod_booking'),
+                    -1 => get_string('after', 'mod_booking'),
+                ]
+            )
+        );
+        $conditionssettings->hide_if(
+            'booking/bookingtimerelativedefaultopeningbeforeafter',
+            'booking/bookingtimerelativeenabled',
+            'eq',
+            0
+        );
+        $bookingtimerelativepossibledatefields = [
+            'coursestarttime' => get_string('bookingoptionstart', 'mod_booking'),
+            'courseendtime' => get_string('bookingoptionend', 'mod_booking'),
+        ];
+        $conditionssettings->add(
+            new admin_setting_configselect(
+                'booking/bookingtimerelativedefaultopeningdatefield',
+                get_string('bookingtimerelativedefaultopeningdatefield', 'mod_booking'),
+                get_string('bookingtimerelativedefaultopeningdatefield_desc', 'mod_booking'),
+                'coursestarttime',
+                $bookingtimerelativepossibledatefields
+            )
+        );
+        $conditionssettings->hide_if(
+            'booking/bookingtimerelativedefaultopeningdatefield',
+            'booking/bookingtimerelativeenabled',
+            'eq',
+            0
+        );
+        // Closing time settings.
+        $conditionssettings->add(
+            new admin_setting_configcheckbox(
+                'booking/bookingclosingtimerelativeautoapply',
+                get_string('bookingclosingtimerelativeautoapply', 'mod_booking'),
+                get_string('bookingclosingtimerelativeautoapply_desc', 'mod_booking'),
+                0 // Auto-apply is turned off by default.
+            )
+        );
+        $conditionssettings->hide_if(
+            'booking/bookingclosingtimerelativeautoapply',
+            'booking/bookingtimerelativeenabled',
+            'eq',
+            0
+        );
+        $conditionssettings->add(
+            new admin_setting_configduration(
+                'booking/bookingtimerelativedefaultclosingduration',
+                get_string('bookingtimerelativedefaultclosingduration', 'mod_booking'),
+                get_string('bookingtimerelativedefaultclosingduration_desc', 'mod_booking'),
+                86400 // Default: Booking possible until 1 day before the event.
+            )
+        );
+        $conditionssettings->hide_if(
+            'booking/bookingtimerelativedefaultclosingduration',
+            'booking/bookingtimerelativeenabled',
+            'eq',
+            0
+        );
+        $conditionssettings->add(
+            new admin_setting_configselect(
+                'booking/bookingtimerelativedefaultclosingbeforeafter',
+                get_string('bookingtimerelativedefaultclosingbeforeafter', 'mod_booking'),
+                get_string('bookingtimerelativedefaultclosingbeforeafter_desc', 'mod_booking'),
+                1,
+                [
+                    1 => get_string('before', 'mod_booking'),
+                    -1 => get_string('after', 'mod_booking'),
+                ]
+            )
+        );
+        $conditionssettings->hide_if(
+            'booking/bookingtimerelativedefaultclosingbeforeafter',
+            'booking/bookingtimerelativeenabled',
+            'eq',
+            0
+        );
+        $conditionssettings->add(
+            new admin_setting_configselect(
+                'booking/bookingtimerelativedefaultclosingdatefield',
+                get_string('bookingtimerelativedefaultclosingdatefield', 'mod_booking'),
+                get_string('bookingtimerelativedefaultclosingdatefield_desc', 'mod_booking'),
+                'coursestarttime',
+                $bookingtimerelativepossibledatefields
+            )
+        );
+        $conditionssettings->hide_if(
+            'booking/bookingtimerelativedefaultclosingdatefield',
+            'booking/bookingtimerelativeenabled',
+            'eq',
+            0
         );
 
         // PRO feature: Favorites toggle.
@@ -1405,6 +1393,15 @@ if ($ADMIN->fulltree) {
             )
         );
     } else {
+        $conditionssettings->add(
+            new admin_setting_heading(
+                'conditionsheadnig',
+                get_string('conditionssettings', 'mod_booking') . " " . get_string('badge:pro', 'mod_booking'),
+                get_string('prolicensefeatures', 'mod_booking') .
+                get_string('profeatures:conditionssettings', 'mod_booking') .
+                get_string('infotext:prolicensenecessary', 'mod_booking')
+            )
+        );
         $settings->add(
             new admin_setting_heading(
                 'enablefavoritestoggleheading',

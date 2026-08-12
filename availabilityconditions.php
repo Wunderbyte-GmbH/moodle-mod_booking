@@ -80,7 +80,7 @@ if (optional_param('save', 0, PARAM_BOOL) && confirm_sesskey()) {
     redirect($pageurl, get_string('changessaved'), null, \core\output\notification::NOTIFY_SUCCESS);
 }
 
-// Map condition IDs to their first anchor on the plugin settings page.
+// Map condition IDs to their first anchor on the availability conditions settings page.
 // The Moodle admin settings page renders each setting with id="admin-<key>".
 // Add an entry here whenever a condition has dedicated settings on that page.
 $conditionsettingsanchors = [
@@ -88,7 +88,7 @@ $conditionsettingsanchors = [
     MOD_BOOKING_BO_COND_JSON_NOOVERLAPPING => 'defaultnooverlappingoncreate',
 ];
 
-$adminsettingsbaseurl = new moodle_url('/admin/settings.php', ['section' => 'modsettingbooking']);
+$adminsettingsbaseurl = new moodle_url('/admin/settings.php', ['section' => 'modbookingconditions']);
 
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('availabilityconditionsdashboard', 'mod_booking'));
