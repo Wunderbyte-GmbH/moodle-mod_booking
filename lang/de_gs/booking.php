@@ -63,6 +63,7 @@ $string['allowoverbookingheader_desc'] = 'Berechtigten Nutzer/innen erlauben, Ku
 $string['allteachers'] = 'Alle Trainer/innen';
 $string['allteacherspagebookinginstances'] = 'Auf der "Alle Trainer/innen"-Seite nur Trainer/innen aus den folgenden Buchungsintanzen anzeigen. (Wählen Sie "Keine Auswahl", um ALLE Trainer/innen anzuzeigen.)';
 $string['allusersbooked'] = 'Alle {$a} Nutzer/innen wurden erfolgreich für diese Buchungsoption gebucht.';
+$string['alwaysbookanyonealert'] = 'Sie haben Buchung mit der Einstellung <a href="{$a}" target="_blank">booking | alwaysbookanyone</a> so konfiguriert, dass immer alle Nutzer/innen aller Kurse gebucht werden können.';
 $string['approvalsettings_desc'] = 'Booking unterstützt verschiedene Bestätigungsprozesse, wenn Nutzer/innen sich ihre Buchungen bestätigen lassen müssen. Im Standardprozess können Trainer/innen die Anfragen über die Warteliste bestätigen. Andere Prozesse können über Bookingextension Subplugins nachgeladen werden.';
 $string['assignteachers'] = 'Lehrer/innen zuweisen:';
 $string['autoenrol'] = 'Nutzer/innen automatisch in verknüpften Kurs einschreiben';
