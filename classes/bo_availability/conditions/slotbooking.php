@@ -26,6 +26,7 @@ namespace mod_booking\bo_availability\conditions;
 
 use context_system;
 use mod_booking\bo_availability\bo_condition;
+use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
 use mod_booking\singleton_service;
 use mod_booking\local\mobile\slotbookingstore;
@@ -34,6 +35,7 @@ use mod_booking\local\slotbooking\slot_availability;
 use mod_booking\local\slotbooking\slot_feature;
 use mod_booking\local\slotbooking\slot_mover;
 use mod_booking\local\slotbooking\slot_price;
+use mod_booking\option\fields\multiplebookings;
 use MoodleQuickForm;
 use mod_booking\utils\wb_payment;
 use moodle_exception;
@@ -169,16 +171,18 @@ class slotbooking implements bo_condition {
         // holds is counted as an occupant against itself and wrongly re-blocks the flow.
         $ownanswerids = slot_availability::get_active_answer_ids_for_user((int)$settings->id, (int)$userid);
 
-        // Same capacity gate as slotbooking_form::validation() and save_slot_selection - checked
-        // again here as a commit-time backstop, since hard_block() is what actually decides
-        // whether the booking proceeds. Slots the user already owns don't count as "new" here
-        // (has_capacity_for_selection() excludes them), so re-committing an already-booked/cached
-        // selection never trips this - only a genuinely additional slot beyond max_slots_per_user
-        // does. Independent of the generic multiplebookings setting (see booking_option.php /
-        // alreadybooked.php, which already treat them as two separate mechanisms).
-        $requestedkeys = array_map(static fn(array $r): string => $r[0] . ':' . $r[1], $ranges);
-        if (!slot_availability::has_capacity_for_selection((int)$settings->id, (int)$userid, $requestedkeys)) {
-            return true;
+        // Same "book again not allowed" gate as slotbooking_form::validation() and
+        // save_slot_selection - checked again here as a commit-time backstop, since hard_block()
+        // is what actually decides whether the booking proceeds.
+        $currentanswer = singleton_service::get_instance_of_booking_answers($settings)->get_users()[$userid] ?? null;
+        if (!empty($currentanswer)) {
+            $ismultipbookingsoptionenable = booking_option::get_value_of_json_by_key((int)$settings->id, 'multiplebookings');
+            if (
+                !$ismultipbookingsoptionenable
+                || !multiplebookings::book_again_due((int)$settings->id, $currentanswer)
+            ) {
+                return true;
+            }
         }
 
         $teachersrequired = slot_availability::get_teachers_required((int)$settings->id);
