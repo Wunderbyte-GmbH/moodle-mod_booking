@@ -33,7 +33,7 @@ Feature: Slot booking option of type "session" offers the option's own sessions 
       | BookingSessionCap  | Session capacity option | C1    | Capacity test | 2          | 1           | 0              | 0               | ## tomorrow 09:00 ##  | ## tomorrow 09:45 ##  | 0              | 0               | ## tomorrow 14:00 ##  | ## tomorrow 14:45 ##  | 1            | session   | calendar               | 1                               | 5                        |
     Given I am on the "BookingSessionCap" Activity page logged in as student1
     When I click on "Book now" "text" in the ".allbookingoptionstable_r1" "css_element"
-    And I wait until the page is ready
+    And I wait "1" seconds
     ## Both sessions must be offered as slots - proof the picker sources them from the option's own
     ## dates rather than generating a grid from opening/closing time (which is not even set here).
     Then I should see "09:00 - 09:45" in the ".booking-slot-fixed-editor" "css_element"
@@ -47,7 +47,7 @@ Feature: Slot booking option of type "session" offers the option's own sessions 
     ## session is a SEPARATE session with its own, still-untouched capacity.
     Given I am on the "BookingSessionCap" Activity page logged in as student2
     When I click on "Book now" "text" in the ".allbookingoptionstable_r1" "css_element"
-    And I wait until the page is ready
+    And I wait "1" seconds
     Then I should not see "09:00 - 09:45" in the ".booking-slot-fixed-editor" "css_element"
     And I should see "14:00 - 14:45" in the ".booking-slot-fixed-editor" "css_element"
 
@@ -61,7 +61,7 @@ Feature: Slot booking option of type "session" offers the option's own sessions 
       | BookingSessionMax | Session max option  | C1     | Max test    | 2          | 1           | 0              | 0               | ## tomorrow 09:00 ## | ## tomorrow 09:45 ## | 0              | 0               | ## tomorrow 11:00 ## | ## tomorrow 11:45 ## | 0              | 0               | ## tomorrow 14:00 ## | ## tomorrow 14:45 ## | 1            | session   | calendar               | 5                               | 2                        |
     Given I am on the "BookingSessionMax" Activity page logged in as student1
     When I click on "Book now" "text" in the ".allbookingoptionstable_r1" "css_element"
-    And I wait until the page is ready
+    And I wait "1" seconds
     And I click on "09:00 - 09:45" "text" in the ".booking-slot-fixed-editor" "css_element"
     And I follow "Continue"
     Then I should see "Thank you! You have successfully booked" in the ".modal-dialog.modal-xl .condition-confirmation" "css_element"
@@ -71,7 +71,7 @@ Feature: Slot booking option of type "session" offers the option's own sessions 
     And I should not see "Start" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Book now" in the ".allbookingoptionstable_r1" "css_element"
     When I click on "Book now" "text" in the ".allbookingoptionstable_r1" "css_element"
-    And I wait until the page is ready
+    And I wait "1" seconds
     And I click on "11:00 - 11:45" "text" in the ".booking-slot-fixed-editor" "css_element"
     And I follow "Continue"
     Then I should see "Thank you! You have successfully booked" in the ".modal-dialog.modal-xl .condition-confirmation" "css_element"
