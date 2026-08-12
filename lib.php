@@ -593,7 +593,7 @@ function booking_user_complete($course, $user, $mod, $booking) {
  *
  * @param bool $feature
  *
- * @return bool|null
+ * @return bool|null|string
  *
  */
 function booking_supports($feature) {
@@ -620,7 +620,6 @@ function booking_supports($feature) {
             return true;
         case FEATURE_MOD_PURPOSE:
             return MOD_PURPOSE_ADMINISTRATION;
-
         default:
             return null;
     }
