@@ -67,19 +67,21 @@ class slot_answer {
      * falling back to the startdate of the booking answer.
      *
      * @param object $answer booking_answers record (needs json, startdate)
+     * @param string $format userdate format, defaults to strftimedatetime
      * @return string
      */
-    public static function render_starttime(object $answer): string {
+    public static function render_starttime(object $answer, string $format = ''): string {
+        $format = $format ?: get_string('strftimedatetime', 'langconfig');
         $slotdata = self::get_slot_data($answer);
         if (!empty($slotdata['slots']) && is_array($slotdata['slots'])) {
             $firstslot = reset($slotdata['slots']);
             if (is_array($firstslot) && !empty($firstslot['start'])) {
-                return userdate((int)$firstslot['start'], get_string('strftimedatetime', 'langconfig'));
+                return userdate((int)$firstslot['start'], $format);
             }
         }
 
         if (!empty($answer->startdate)) {
-            return userdate((int)$answer->startdate, get_string('strftimedatetime', 'langconfig'));
+            return userdate((int)$answer->startdate, $format);
         }
 
         return '';
@@ -90,19 +92,21 @@ class slot_answer {
      * falling back to the enddate of the booking answer.
      *
      * @param object $answer booking_answers record (needs json, enddate)
+     * @param string $format userdate format, defaults to strftimedatetime
      * @return string
      */
-    public static function render_endtime(object $answer): string {
+    public static function render_endtime(object $answer, string $format = ''): string {
+        $format = $format ?: get_string('strftimedatetime', 'langconfig');
         $slotdata = self::get_slot_data($answer);
         if (!empty($slotdata['slots']) && is_array($slotdata['slots'])) {
             $lastslot = end($slotdata['slots']);
             if (is_array($lastslot) && !empty($lastslot['end'])) {
-                return userdate((int)$lastslot['end'], get_string('strftimedatetime', 'langconfig'));
+                return userdate((int)$lastslot['end'], $format);
             }
         }
 
         if (!empty($answer->enddate)) {
-            return userdate((int)$answer->enddate, get_string('strftimedatetime', 'langconfig'));
+            return userdate((int)$answer->enddate, $format);
         }
 
         return '';

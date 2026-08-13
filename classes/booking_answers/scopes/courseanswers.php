@@ -142,7 +142,7 @@ class courseanswers extends scope_base_answers {
             'lastname' => get_string('lastname', 'core'),
             'email' => get_string('email', 'core'),
         ];
-        $sortablecolumns['timebooked'] = get_string('timebooked', 'mod_booking');
+        $sortablecolumns['timebooked'] = get_string('bookingdate', 'mod_booking');
         $sortablecolumns['timemodified'] = get_string('timemodified', 'mod_booking');
         $table->define_sortablecolumns($sortablecolumns);
         $table->sort_default_column = 'timemodified';

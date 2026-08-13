@@ -131,7 +131,7 @@ class scope_base_answers extends scope_base {
             'firstname' => get_string('firstname', 'core'),
             'lastname'  => get_string('lastname', 'core'),
             'email'     => get_string('email', 'core'),
-            'timebooked' => get_string('timebooked', 'mod_booking'),
+            'timebooked' => get_string('bookingdate', 'mod_booking'),
             'timemodified' => get_string('timemodified', 'mod_booking'),
         ];
         return $columns;

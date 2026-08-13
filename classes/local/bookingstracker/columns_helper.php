@@ -90,7 +90,8 @@ class columns_helper {
                     $columns['timecreated'] = get_string('timecreated', 'mod_booking');
                     break;
                 case 'timebooked':
-                    $columns['timebooked'] = get_string('timebooked', 'mod_booking');
+                    // Like on report.php, the timebooked column is labelled "Booking date".
+                    $columns['timebooked'] = get_string('bookingdate', 'mod_booking');
                     break;
                 case 'institution':
                     $columns['institution'] = empty($settings->lblinstitution)
@@ -288,7 +289,8 @@ class columns_helper {
                     $columns['timecreated'] = get_string('timecreated', 'mod_booking');
                     break;
                 case 'timebooked':
-                    $columns['timebooked'] = get_string('timebooked', 'mod_booking');
+                    // Like on report.php, the timebooked column is labelled "Booking date".
+                    $columns['timebooked'] = get_string('bookingdate', 'mod_booking');
                     break;
                 case 'completeddate':
                     $columns['completeddate'] = get_string('completeddate', 'mod_booking');

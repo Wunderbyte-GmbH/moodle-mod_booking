@@ -68,6 +68,11 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  */
 class manageusers_table extends wunderbyte_table {
     /**
+     * Fixed format of all time columns in the table downloads, e.g. "2026-08-13 10:29".
+     */
+    private const DOWNLOADTIMEFORMAT = '%Y-%m-%d %H:%M';
+
+    /**
      * Checkbox column.
      * @param stdClass $values
      * @return string
@@ -104,6 +109,9 @@ class manageusers_table extends wunderbyte_table {
         if (empty($values->timemodified)) {
             return '';
         }
+        if ($this->is_downloading()) {
+            return userdate($values->timemodified, self::DOWNLOADTIMEFORMAT);
+        }
         return date('d.m.Y H:i:s', $values->timemodified);
     }
 
@@ -116,6 +124,9 @@ class manageusers_table extends wunderbyte_table {
     public function col_coursestarttime(stdClass $values): string {
         if (empty($values->coursestarttime)) {
             return '';
+        }
+        if ($this->is_downloading()) {
+            return userdate($values->coursestarttime, self::DOWNLOADTIMEFORMAT);
         }
         return date('d.m.Y', $values->coursestarttime);
     }
@@ -130,11 +141,15 @@ class manageusers_table extends wunderbyte_table {
         if (empty($values->courseendtime)) {
             return '';
         }
+        if ($this->is_downloading()) {
+            return userdate($values->courseendtime, self::DOWNLOADTIMEFORMAT);
+        }
         return date('d.m.Y', $values->courseendtime);
     }
 
     /**
-     * Return column timecreated (booking date).
+     * Return column timecreated (creation date of the booking answer),
+     * displayed exactly like on report.php.
      *
      * @param stdClass $values
      * @return string
@@ -143,7 +158,10 @@ class manageusers_table extends wunderbyte_table {
         if (empty($values->timecreated)) {
             return '';
         }
-        return date('d.m.Y', $values->timecreated);
+        if ($this->is_downloading()) {
+            return userdate($values->timecreated, self::DOWNLOADTIMEFORMAT);
+        }
+        return userdate($values->timecreated);
     }
 
     /**
@@ -175,7 +193,7 @@ class manageusers_table extends wunderbyte_table {
     }
 
     /**
-     * Return column timebooked.
+     * Return column timebooked (booking date), displayed exactly like on report.php.
      *
      * @param stdClass $values
      * @return string
@@ -184,7 +202,10 @@ class manageusers_table extends wunderbyte_table {
         if (empty($values->timebooked)) {
             return '';
         }
-        return date('d.m.Y H:i:s', $values->timebooked);
+        if ($this->is_downloading()) {
+            return userdate($values->timebooked, self::DOWNLOADTIMEFORMAT);
+        }
+        return userdate($values->timebooked);
     }
     /**
      * Return column completeddate.
@@ -197,6 +218,9 @@ class manageusers_table extends wunderbyte_table {
     public function col_completeddate(stdClass $values): string {
         if (empty($values->completeddate)) {
             return '';
+        }
+        if ($this->is_downloading()) {
+            return userdate($values->completeddate, self::DOWNLOADTIMEFORMAT);
         }
         return date('d.m.Y', $values->completeddate);
     }
@@ -1491,6 +1515,9 @@ class manageusers_table extends wunderbyte_table {
      * @return string
      */
     public function col_slotstarttime(stdClass $values): string {
+        if ($this->is_downloading()) {
+            return slot_answer::render_starttime($values, self::DOWNLOADTIMEFORMAT);
+        }
         return slot_answer::render_starttime($values);
     }
 
@@ -1501,6 +1528,9 @@ class manageusers_table extends wunderbyte_table {
      * @return string
      */
     public function col_slotendtime(stdClass $values): string {
+        if ($this->is_downloading()) {
+            return slot_answer::render_endtime($values, self::DOWNLOADTIMEFORMAT);
+        }
         return slot_answer::render_endtime($values);
     }
 

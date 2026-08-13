@@ -153,7 +153,7 @@ class option extends scope_base {
                     'firstname' => get_string('firstname'),
                     'lastname' => get_string('lastname'),
                     'email' => get_string('email'),
-                    'timebooked' => get_string('timebooked', 'mod_booking'),
+                    'timebooked' => get_string('bookingdate', 'mod_booking'),
                 ];
                 $table->sort_default_column = 'timebooked';
                 $table->sort_default_order = SORT_DESC;
@@ -430,7 +430,7 @@ class option extends scope_base {
                 break;
             case MOD_BOOKING_STATUSPARAM_PREVIOUSLYBOOKED:
                 if (!isset($columns['timebooked'])) {
-                    $columns['timebooked'] = get_string('timebooked', 'mod_booking');
+                    $columns['timebooked'] = get_string('bookingdate', 'mod_booking');
                 }
                 break;
         }
