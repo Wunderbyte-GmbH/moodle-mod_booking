@@ -35,11 +35,6 @@
         "pricecategoryname" : "student"
     }
 }}
-{{#onlist}}
-    <div class="booking-button-notifyarea mb-3">
-        {{> mod_booking/button_notifyme }}
-    </div>
-{{/onlist}}
 {{#price}}
 <div class="w-100 d-flex justify-content-center booking-button-area"
     data-itemid="{{itemid}}"
@@ -54,6 +49,19 @@
         </div>
     {{/top}}
     <div class="pricecontainer mb-2 {{#fullwidth}}w-100{{/fullwidth}}">
+        {{!
+            The bell sits INSIDE the booking-button-area wrapper on purpose:
+            the wrapper is what bookit.js replaces on re-renders, so a bell
+            outside of it would survive every update as a stale leftover.
+            Only the bare bell partial is embedded - the standalone
+            button_notifyme template would inherit this context and render
+            the price a second time.
+        }}
+        {{#onlist}}
+            <div class="booking-button-notifyarea mb-3 w-100 text-center">
+                {{> mod_booking/button_notifyme_bell }}
+            </div>
+        {{/onlist}}
         <span class="pricecurrency h5 text-nowrap">
             {{#priceformatted}}{{priceformatted}} {{currency}}{{/priceformatted}}
             {{^priceformatted}}{{price}} {{currency}}{{/priceformatted}}
@@ -77,6 +85,11 @@
 </div>
 {{/price}}
 {{^price}}
+    {{#onlist}}
+        <div class="booking-button-notifyarea mb-3">
+            {{> mod_booking/button_notifyme_bell }}
+        </div>
+    {{/onlist}}
     {{#priceitems}}
         <div class="pricecurrency mb-2">
             {{#priceformatted}}{{priceformatted}} {{currency}}{{/priceformatted}}

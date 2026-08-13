@@ -67,8 +67,13 @@
         {{#dataaction}}data-action="{{dataaction}}"{{/dataaction}}
         {{#nojs}}data-nojs="1"{{/nojs}}>
         {{#onlist}}
+            {{!
+                Only the bare bell partial: the standalone button_notifyme
+                template would inherit this context (mustache partials get the
+                full parent context) and render its own wrapper and price.
+            }}
             <div class="booking-button-notifyarea mb-3">
-                {{> mod_booking/button_notifyme }}
+                {{> mod_booking/button_notifyme_bell }}
             </div>
         {{/onlist}}
         {{#top}}
