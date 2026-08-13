@@ -647,7 +647,11 @@ class bookingoption_description implements renderable, templatable {
                 booking_answers::add_availability_info_texts_to_booking_information($this->bookinginformation);
 
                 // We set usertobuyfor here for better performance.
-                $this->usertobuyfor = price::return_user_to_buy_for();
+                // An explicitly passed foreign user (capability-checked by optionview.php)
+                // wins over the session-based resolution. For the own user (or none),
+                // the legacy resolution (shopping cart cashier, bookforuser override) applies.
+                $buyforuserid = ((int)$this->userid === (int)$USER->id) ? 0 : (int)$this->userid;
+                $this->usertobuyfor = price::return_user_to_buy_for($buyforuserid);
 
                 $this->bookitsection = booking_bookit::render_bookit_button($settings, $this->usertobuyfor->id);
 

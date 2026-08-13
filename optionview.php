@@ -52,9 +52,12 @@ $cvfield = optional_param('cvfield', '', PARAM_TEXT);
 $modcontext = context_module::instance($cmid);
 $syscontext = context_system::instance();
 
+// A foreign userid param is only respected for users who may book for others.
+// The bookforothers capability matches the enforcement in booking_bookit.
 if (
     $userid != $USER->id
     && !has_capability('mod/booking:updatebooking', $modcontext)
+    && !has_capability('mod/booking:bookforothers', $modcontext)
 ) {
     $userid = $USER->id;
 }
@@ -88,17 +91,15 @@ if ($settings && !empty($settings->id)) {
 
     $ba = singleton_service::get_instance_of_booking_answers($settings);
 
-    if (isloggedin() && !isguestuser()) {
-        $user = $USER;
-    }
-
     if (isloggedin() && !isguestuser() && customform_prefill::is_enabled()) {
+        // Prefill belongs to the buy-for target user (matches the cashier customform storage).
         customform_prefill::prefill_from_request($settings, (int)$user->id);
     }
 
     // Central access rule, shared with the option title link in bookingoptions_wbtable.
     // Booked users (booked, waiting list, reserved) can always see their own booking's details.
-    if (!booking_option::can_view_option_details($optionid, (int)$user->id)) {
+    // Access is always judged for the VIEWER, even when the buy-for target is someone else.
+    if (!booking_option::can_view_option_details($optionid, (int)$USER->id)) {
         if (!isloggedin() || isguestuser()) {
             // Not logged in (or guest): send the user to the login page.
             require_login();

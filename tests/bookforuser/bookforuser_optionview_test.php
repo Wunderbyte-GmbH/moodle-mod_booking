@@ -187,4 +187,34 @@ final class bookforuser_optionview_test extends booking_advanced_testcase {
         // The for-user label (issue Moodle-local_taskflow#360) makes the foreign target visible.
         $this->assertStringContainsString('(ID:' . $env['employee']->id . ')', $bookitsection);
     }
+
+    /**
+     * An explicitly passed foreign user targets the button - link-bound, not
+     * session-bound.
+     *
+     * This is the path optionview.php feeds after resolving its capability-checked
+     * userid param (the taskflow "Zur Schulung" link). It must win even over a
+     * valid session override for a DIFFERENT user, so the tab always books whom
+     * its own link addresses.
+     *
+     * @covers \mod_booking\output\bookingoption_description::get_returnarray
+     */
+    public function test_detail_view_uses_explicitly_passed_foreign_user(): void {
+        $env = $this->create_env();
+        $other = $this->getDataGenerator()->create_user();
+        $this->setUser($env['viewer']);
+
+        // A valid session override for ANOTHER user exists (e.g. a second
+        // assignment page was opened in a different tab just now).
+        price::set_bookforuser((int)$other->id);
+
+        $bookitsection = $this->render_optionview_bookitsection(
+            (int)$env['option']->id,
+            \core_user::get_user($env['employee']->id)
+        );
+
+        // The explicitly passed user wins over the session override.
+        $this->assertStringContainsString('data-userid="' . $env['employee']->id . '"', $bookitsection);
+        $this->assertStringContainsString('(ID:' . $env['employee']->id . ')', $bookitsection);
+    }
 }
