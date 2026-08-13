@@ -30,6 +30,7 @@ use Exception;
 use mod_booking\bo_availability\bo_condition;
 use mod_booking\bo_availability\freezable_condition;
 use mod_booking\bo_availability\bo_info;
+use mod_booking\bo_availability\sqlfilter_form_support;
 use mod_booking\bo_availability\sqlfilter_relevance;
 use mod_booking\booking_option_settings;
 use mod_booking\singleton_service;
@@ -447,6 +448,7 @@ class enrolledincourse implements bo_condition, freezable_condition {
             'bo_cond_enrolledincourse_courseids',
             'bo_cond_enrolledincourse_courseids_operator',
             'bo_cond_enrolledincourse_sqlfiltercheck',
+            'bo_cond_enrolledincourse_sqlfiltercheck_disablednote',
             'bo_cond_enrolledincourse_overrideconditioncheckbox',
             'bo_cond_enrolledincourse_overrideoperator',
             'bo_cond_enrolledincourse_overridecondition',
@@ -522,6 +524,10 @@ class enrolledincourse implements bo_condition, freezable_condition {
                 get_string('sqlfiltercheckstring', 'mod_booking')
             );
             $mform->hideIf('bo_cond_enrolledincourse_sqlfiltercheck', 'bo_cond_enrolledincourse_restrict', 'notchecked');
+            $notename = sqlfilter_form_support::freeze_when_disabled($mform, 'bo_cond_enrolledincourse_sqlfiltercheck');
+            if ($notename !== null) {
+                $mform->hideIf($notename, 'bo_cond_enrolledincourse_restrict', 'notchecked');
+            }
 
             $mform->addElement(
                 'checkbox',

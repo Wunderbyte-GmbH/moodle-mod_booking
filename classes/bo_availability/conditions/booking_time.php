@@ -30,6 +30,7 @@ use context_system;
 use mod_booking\bo_availability\bo_condition;
 use mod_booking\bo_availability\freezable_condition;
 use mod_booking\bo_availability\bo_info;
+use mod_booking\bo_availability\sqlfilter_form_support;
 use mod_booking\booking_option_settings;
 use mod_booking\option\time_handler;
 use mod_booking\singleton_service;
@@ -340,6 +341,7 @@ class booking_time implements bo_condition, freezable_condition {
             'booking_time_closing_relative_beforeafter',
             'booking_time_closing_relative_datefield',
             'bo_cond_booking_time_sqlfiltercheck',
+            'bo_cond_booking_time_sqlfiltercheck_disablednote',
         ];
     }
 
@@ -602,6 +604,7 @@ class booking_time implements bo_condition, freezable_condition {
                 'admin-sqlfilterbookingtimeonlypast'
             )
         );
+        sqlfilter_form_support::freeze_when_disabled($mform, 'bo_cond_booking_time_sqlfiltercheck');
 
         // Override conditions should not be necessary here - but let's keep it if we change our mind.
         // phpcs:ignore Squiz.PHP.CommentedOutCode.Found

@@ -30,6 +30,7 @@ use context_system;
 use mod_booking\bo_availability\bo_condition;
 use mod_booking\bo_availability\freezable_condition;
 use mod_booking\bo_availability\bo_info;
+use mod_booking\bo_availability\sqlfilter_form_support;
 use mod_booking\bo_availability\sqlfilter_relevance;
 use mod_booking\booking;
 use mod_booking\booking_option_settings;
@@ -714,6 +715,7 @@ class userprofilefield_2_custom implements bo_condition, freezable_condition {
             'bo_cond_customuserprofilefield_operator2',
             'bo_cond_customuserprofilefield_value2',
             'bo_cond_customuserprofilefield_sqlfiltercheck',
+            'bo_cond_customuserprofilefield_sqlfiltercheck_disablednote',
             'bo_cond_customuserprofilefield_overrideconditioncheckbox',
             'bo_cond_customuserprofilefield_overrideoperator',
             'bo_cond_customuserprofilefield_overridecondition',
@@ -881,6 +883,14 @@ class userprofilefield_2_custom implements bo_condition, freezable_condition {
                     'bo_cond_userprofilefield_2_custom_restrict',
                     'notchecked'
                 );
+                $notename = sqlfilter_form_support::freeze_when_disabled(
+                    $mform,
+                    'bo_cond_customuserprofilefield_sqlfiltercheck'
+                );
+                if ($notename !== null) {
+                    $mform->hideIf($notename, 'bo_cond_customuserprofilefield_field', 'eq', 0);
+                    $mform->hideIf($notename, 'bo_cond_userprofilefield_2_custom_restrict', 'notchecked');
+                }
 
                 $mform->addElement(
                     'checkbox',

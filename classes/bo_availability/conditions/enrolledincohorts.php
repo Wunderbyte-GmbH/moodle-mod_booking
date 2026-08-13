@@ -29,6 +29,7 @@ use context_system;
 use mod_booking\bo_availability\bo_condition;
 use mod_booking\bo_availability\freezable_condition;
 use mod_booking\bo_availability\bo_info;
+use mod_booking\bo_availability\sqlfilter_form_support;
 use mod_booking\bo_availability\sqlfilter_relevance;
 use mod_booking\booking_option_settings;
 use mod_booking\singleton_service;
@@ -422,6 +423,7 @@ class enrolledincohorts implements bo_condition, freezable_condition {
             'bo_cond_enrolledincohorts_cohortids',
             'bo_cond_enrolledincohorts_cohortids_operator',
             'bo_cond_enrolledincohorts_sqlfiltercheck',
+            'bo_cond_enrolledincohorts_sqlfiltercheck_disablednote',
             'bo_cond_enrolledincohorts_overrideconditioncheckbox',
             'bo_cond_enrolledincohorts_overrideoperator',
             'bo_cond_enrolledincohorts_overridecondition',
@@ -504,6 +506,10 @@ class enrolledincohorts implements bo_condition, freezable_condition {
                 get_string('sqlfiltercheckstring', 'mod_booking')
             );
             $mform->hideIf('bo_cond_enrolledincohorts_sqlfiltercheck', 'bo_cond_enrolledincohorts_restrict', 'notchecked');
+            $notename = sqlfilter_form_support::freeze_when_disabled($mform, 'bo_cond_enrolledincohorts_sqlfiltercheck');
+            if ($notename !== null) {
+                $mform->hideIf($notename, 'bo_cond_enrolledincohorts_restrict', 'notchecked');
+            }
 
             $mform->addElement(
                 'advcheckbox',

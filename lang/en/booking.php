@@ -3781,6 +3781,8 @@ $string['sqlfilterbookingtimeonlypast_help'] = 'This controls how booking-time S
 $string['sqlfiltercheckstring'] = 'Hide bookingoption when condition not met';
 $string['sqlfiltercheckstringbookingtimeclosingonly'] = 'Hide booking option only when booking closing time is in the past.';
 $string['sqlfiltercheckstringbookingtimeopeningandclosing'] = 'Hide booking option when outside booking opening/closing time (opening to closing).';
+$string['sqlfilterdisablednote'] = 'The site-wide setting "{$a}" is turned off, so this checkbox currently has no effect. Its saved value is kept.';
+$string['sqlfilterdisablednoteadmin'] = 'You can enable it in the <a href="{$a}">Booking settings</a>.';
 $string['startdate'] = "startdate";
 $string['starttime'] = "starttime";
 $string['starttimenotset'] = 'Start date not set';

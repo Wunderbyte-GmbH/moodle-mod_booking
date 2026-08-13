@@ -3499,6 +3499,8 @@ $string['sqlfilterbookingtimeonlypast_help'] = 'Steuert das SQL-Filterverhalten 
 $string['sqlfiltercheckstring'] = 'Bookingoption ausblenden wenn diese Bedingung nicht erfüllt ist';
 $string['sqlfiltercheckstringbookingtimeclosingonly'] = 'Buchungsoption nur ausblenden, wenn der Buchungsschluss in der Vergangenheit liegt.';
 $string['sqlfiltercheckstringbookingtimeopeningandclosing'] = 'Buchungsoption ausblenden, wenn außerhalb der Buchungszeit (von Öffnung bis Schließung).';
+$string['sqlfilterdisablednote'] = 'Die websiteweite Einstellung "{$a}" ist deaktiviert, daher hat diese Checkbox derzeit keine Wirkung. Der gespeicherte Wert bleibt erhalten.';
+$string['sqlfilterdisablednoteadmin'] = 'Sie können sie in den <a href="{$a}">Buchungseinstellungen</a> aktivieren.';
 $string['startdate'] = "Startdatum";
 $string['starttime'] = "Startzeit";
 $string['starttimenotset'] = 'Kursbeginn nicht festgelegt';
