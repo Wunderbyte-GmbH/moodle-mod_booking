@@ -1012,13 +1012,18 @@ class price {
         }
 
         if (empty($userid) || $USER->id == $userid) {
-            // We can implement an override via singleton.
+            // We can implement an override via the session cache.
 
             $cache = cache::make('mod_booking', 'bookforuser');
             $result = $cache->get('bookforuser');
             if ($result) {
-                [$userid, $expirationtime] = $result;
+                [$cacheduserid, $expirationtime] = $result;
                 if ($expirationtime > time()) {
+                    // A still valid override applies.
+                    $userid = $cacheduserid;
+                } else {
+                    // An expired entry must never be used again - discard it for good.
+                    $cache->delete('bookforuser');
                     $userid = $USER->id;
                 }
             }
@@ -1034,7 +1039,7 @@ class price {
 
     /**
      * Sets the userid to singleton and cache.
-     * Validity is only 30 seconds.
+     * Validity is only 10 seconds.
      * This is only meant to render correctly in one request and in following webservices.
      *
      * @param int $userid

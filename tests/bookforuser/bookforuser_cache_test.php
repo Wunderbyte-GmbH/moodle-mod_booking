@@ -15,16 +15,13 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Characterization tests for the bookforuser session cache in mod_booking\price.
+ * Tests for the bookforuser session cache in mod_booking\price.
  *
- * IMPORTANT: These tests document CURRENT behaviour, including known defects,
- * as a safety net before the planned fix. See Wunderbyte-GmbH/Wunderbyte-GmbH#2191
- * (detailed analysis) and Wunderbyte-GmbH/moodle-taskflowadapter_tuines#154
- * (customer report). The expiry check in price::return_user_to_buy_for() is
- * currently inverted: a VALID cache entry is discarded while an EXPIRED entry
- * keeps being applied. When Phase 1 of #2191 fixes this, the assertions marked
- * "documents inverted expiry" below must be updated deliberately in the same
- * commit as the fix.
+ * These tests pin the contract of the short-lived bookforuser override
+ * (see Wunderbyte-GmbH/Wunderbyte-GmbH#2191 and the customer report
+ * Wunderbyte-GmbH/moodle-taskflowadapter_tuines#154): a VALID override applies
+ * within its 10 second window, an EXPIRED entry is discarded AND deleted so it
+ * can never poison later requests of the same session again.
  *
  * @package mod_booking
  * @category test
@@ -43,7 +40,7 @@ global $CFG;
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 
 /**
- * Characterization tests for price::set_bookforuser() and price::return_user_to_buy_for().
+ * Tests for price::set_bookforuser() and price::return_user_to_buy_for().
  *
  * @package mod_booking
  * @category test
@@ -62,15 +59,15 @@ final class bookforuser_cache_test extends booking_advanced_testcase {
     }
 
     /**
-     * A fresh, still-valid override written via set_bookforuser() is currently DISCARDED.
+     * A fresh, still-valid override written via set_bookforuser() is applied.
      *
-     * This documents the inverted expiry check (price.php, return_user_to_buy_for):
-     * intended behaviour would be to return the override user within the validity window.
+     * This is the flow local_taskflow and the bookit webservice rely on:
+     * the override targets the given user within the validity window.
      *
      * @covers \mod_booking\price::set_bookforuser
      * @covers \mod_booking\price::return_user_to_buy_for
      */
-    public function test_valid_override_is_discarded_documents_inverted_expiry(): void {
+    public function test_valid_override_is_applied(): void {
         $viewer = $this->getDataGenerator()->create_user();
         $employee = $this->getDataGenerator()->create_user();
         $this->setUser($viewer);
@@ -78,20 +75,18 @@ final class bookforuser_cache_test extends booking_advanced_testcase {
         price::set_bookforuser((int)$employee->id);
         $user = price::return_user_to_buy_for();
 
-        // CURRENT (buggy) behaviour: the valid override is thrown away, the acting user is returned.
-        $this->assertEquals($viewer->id, $user->id);
+        $this->assertEquals($employee->id, $user->id);
     }
 
     /**
-     * An EXPIRED override currently keeps being applied instead of being discarded.
+     * An EXPIRED override is discarded and DELETED from the cache.
      *
-     * This is the core of the cross-tab leak reported in taskflowadapter_tuines#154:
-     * once the 10-second window has passed, the stale entry poisons every following
-     * argument-less return_user_to_buy_for() call in the same session.
+     * This kills the cross-tab leak reported in taskflowadapter_tuines#154:
+     * once the validity window has passed, the entry may never be applied again.
      *
      * @covers \mod_booking\price::return_user_to_buy_for
      */
-    public function test_expired_override_keeps_applying_documents_inverted_expiry(): void {
+    public function test_expired_override_is_discarded_and_deleted(): void {
         $viewer = $this->getDataGenerator()->create_user();
         $employee = $this->getDataGenerator()->create_user();
         $this->setUser($viewer);
@@ -101,36 +96,38 @@ final class bookforuser_cache_test extends booking_advanced_testcase {
 
         $user = price::return_user_to_buy_for();
 
-        // CURRENT (buggy) behaviour: the stale entry wins over the acting user.
-        $this->assertEquals($employee->id, $user->id);
+        $this->assertEquals($viewer->id, $user->id);
+        // The stale entry has been cleaned up for good.
+        $this->assertFalse($cache->get('bookforuser'));
     }
 
     /**
-     * The stale entry survives request boundaries and is not cleaned up on read.
+     * A valid override survives a request boundary within its window, an expired
+     * one is cleaned up across request boundaries too.
      *
-     * singleton_service::destroy_instance() simulates the start of a new request in
-     * the same Moodle session (MODE_SESSION cache persists). The leak repeats on
-     * every read until something overwrites the slot.
+     * singleton_service::destroy_instance() simulates the start of a new request
+     * in the same Moodle session (MODE_SESSION cache persists).
      *
      * @covers \mod_booking\price::return_user_to_buy_for
      */
-    public function test_expired_override_survives_request_boundary(): void {
+    public function test_override_lifecycle_across_request_boundaries(): void {
         $viewer = $this->getDataGenerator()->create_user();
         $employee = $this->getDataGenerator()->create_user();
         $this->setUser($viewer);
 
-        $cache = cache::make('mod_booking', 'bookforuser');
-        $cache->set('bookforuser', [(int)$employee->id, time() - 1]);
-
-        // Simulate a fresh request in the same session.
+        // Valid override set in "request 1" still applies in "request 2".
+        price::set_bookforuser((int)$employee->id);
         singleton_service::destroy_instance();
         $first = price::return_user_to_buy_for();
         $this->assertEquals($employee->id, $first->id);
 
-        // The entry is NOT deleted after being read - the leak repeats.
+        // An expired entry is discarded in a later request as well.
+        $cache = cache::make('mod_booking', 'bookforuser');
+        $cache->set('bookforuser', [(int)$employee->id, time() - 1]);
         singleton_service::destroy_instance();
         $second = price::return_user_to_buy_for();
-        $this->assertEquals($employee->id, $second->id);
+        $this->assertEquals($viewer->id, $second->id);
+        $this->assertFalse($cache->get('bookforuser'));
     }
 
     /**
@@ -155,26 +152,26 @@ final class bookforuser_cache_test extends booking_advanced_testcase {
     }
 
     /**
-     * Passing one's OWN userid explicitly still consults the cache and gets hijacked.
-     *
-     * return_user_to_buy_for($USER->id) enters the cache branch because of the
-     * "$USER->id == $userid" condition - so even an explicit self-booking call is
-     * redirected to the stale leaked user. This is how the wrong target reaches
-     * answer_booking_option() in the reported scenario.
+     * Passing one's OWN userid explicitly consults the cache: a valid override
+     * still wins (intended, e.g. bookit webservice re-rendering), while a stale
+     * entry no longer hijacks the call.
      *
      * @covers \mod_booking\price::return_user_to_buy_for
      */
-    public function test_explicit_own_userid_is_hijacked_by_stale_cache(): void {
+    public function test_explicit_own_userid_follows_override_lifecycle(): void {
         $viewer = $this->getDataGenerator()->create_user();
         $employee = $this->getDataGenerator()->create_user();
         $this->setUser($viewer);
 
+        // Valid override wins over the explicit self-target.
+        price::set_bookforuser((int)$employee->id);
+        $user = price::return_user_to_buy_for((int)$viewer->id);
+        $this->assertEquals($employee->id, $user->id);
+
+        // A stale entry does NOT hijack the explicit self-target.
         $cache = cache::make('mod_booking', 'bookforuser');
         $cache->set('bookforuser', [(int)$employee->id, time() - 1]);
-
         $user = price::return_user_to_buy_for((int)$viewer->id);
-
-        // CURRENT (buggy) behaviour: the stale entry overrides the explicit self-target.
-        $this->assertEquals($employee->id, $user->id);
+        $this->assertEquals($viewer->id, $user->id);
     }
 }

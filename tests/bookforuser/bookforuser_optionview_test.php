@@ -17,14 +17,12 @@
 /**
  * Characterization tests: which user the option detail view (OPTIONVIEW) targets.
  *
- * IMPORTANT: These tests document CURRENT behaviour, including known defects,
- * as a safety net before the planned fix. See Wunderbyte-GmbH/Wunderbyte-GmbH#2191
- * (detailed analysis) and Wunderbyte-GmbH/moodle-taskflowadapter_tuines#154
- * (customer report). The MOD_BOOKING_DESCRIPTION_OPTIONVIEW branch of
- * bookingoption_description currently ignores the $user object resolved by
- * optionview.php and re-reads the session-global bookforuser cache instead.
- * When Phase 1 of #2191 changes this, the assertions marked "documents ..."
- * below must be updated deliberately in the same commit as the fix.
+ * These tests pin which user the MOD_BOOKING_DESCRIPTION_OPTIONVIEW branch of
+ * bookingoption_description targets on the buy button. See
+ * Wunderbyte-GmbH/Wunderbyte-GmbH#2191 (detailed analysis) and
+ * Wunderbyte-GmbH/moodle-taskflowadapter_tuines#154 (customer report): a stale
+ * bookforuser entry must never redirect the detail view, a valid override and
+ * an explicitly passed foreign user must - always visibly labelled (#360).
  *
  * @package mod_booking
  * @category test
@@ -144,46 +142,40 @@ final class bookforuser_optionview_test extends booking_advanced_testcase {
     }
 
     /**
-     * A stale (expired) bookforuser entry redirects the detail view to the leaked
-     * user, even though an explicit $user object was passed into the constructor.
+     * A stale (expired) bookforuser entry no longer redirects the detail view.
      *
      * This is exactly the cross-tab scenario from taskflowadapter_tuines#154:
-     * the supervisor's unrelated tab renders the buy button for the employee.
-     * The #360 for-user label (name + ID under the button) must be present, so at
-     * least the wrong target is VISIBLE - that visibility guarantee must survive
-     * any future fix.
+     * the supervisor's unrelated tab must render the buy button for the
+     * supervisor, not for the employee whose assignment was viewed earlier.
      *
      * @covers \mod_booking\output\bookingoption_description::get_returnarray
      */
-    public function test_detail_view_ignores_passed_user_when_stale_cache_entry_exists(): void {
+    public function test_detail_view_discards_stale_cache_entry(): void {
         $env = $this->create_env();
         $this->setUser($env['viewer']);
 
         $cache = cache::make('mod_booking', 'bookforuser');
         $cache->set('bookforuser', [(int)$env['employee']->id, time() - 1]);
 
-        // Documents CURRENT behaviour: the passed $user (the acting viewer, as resolved
-        // by optionview.php) is ignored, the leaked cache entry wins.
         $bookitsection = $this->render_optionview_bookitsection(
             (int)$env['option']->id,
             \core_user::get_user($env['viewer']->id)
         );
 
-        $this->assertStringContainsString('data-userid="' . $env['employee']->id . '"', $bookitsection);
-        // The for-user label (issue Moodle-local_taskflow#360) makes the foreign target visible.
-        $this->assertStringContainsString('(ID:' . $env['employee']->id . ')', $bookitsection);
+        $this->assertStringContainsString('data-userid="' . $env['viewer']->id . '"', $bookitsection);
     }
 
     /**
-     * A fresh, VALID override is currently discarded on the detail view.
+     * A fresh, VALID override reaches the button within its validity window.
      *
-     * This documents the inverted expiry check at rendering level: the flow
-     * local_taskflow intends (set_bookforuser() right before the supervisor opens
-     * the option) does NOT reach the button within the validity window.
+     * This is the flow local_taskflow intends (set_bookforuser() right before the
+     * supervisor opens the option). The #360 for-user label (name + ID under the
+     * button) must make the foreign target VISIBLE - that visibility guarantee
+     * has to survive all future changes.
      *
      * @covers \mod_booking\output\bookingoption_description::get_returnarray
      */
-    public function test_detail_view_discards_valid_override_documents_inverted_expiry(): void {
+    public function test_detail_view_applies_valid_override(): void {
         $env = $this->create_env();
         $this->setUser($env['viewer']);
 
@@ -191,7 +183,8 @@ final class bookforuser_optionview_test extends booking_advanced_testcase {
 
         $bookitsection = $this->render_optionview_bookitsection((int)$env['option']->id, null);
 
-        // CURRENT (buggy) behaviour: valid override discarded, acting user targeted.
-        $this->assertStringContainsString('data-userid="' . $env['viewer']->id . '"', $bookitsection);
+        $this->assertStringContainsString('data-userid="' . $env['employee']->id . '"', $bookitsection);
+        // The for-user label (issue Moodle-local_taskflow#360) makes the foreign target visible.
+        $this->assertStringContainsString('(ID:' . $env['employee']->id . ')', $bookitsection);
     }
 }
