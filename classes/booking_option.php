@@ -1189,8 +1189,15 @@ class booking_option {
                 - booking_answers::count_places($ba->get_usersonlist())
                 - booking_answers::count_places($ba->get_usersreserved());
 
-            // We want to enrol people who have been waiting longer first.
-            usort($usersonwaitinglist, fn($a, $b) => $a->timemodified < $b->timemodified ? -1 : 1);
+            // We want to enrol people who have been waiting longer first. Tie-break on the
+            // answer id (ascending), mirroring select_student_in_bo.php's SQL sort - a bare
+            // "< ? -1 : 1" comparator lies about equal elements (returns 1 instead of 0),
+            // which can reorder genuinely tied waiting-list entries (see O2 in
+            // WAITLIST_REFACTOR_REQUIREMENTS_2026-08-04.md).
+            usort(
+                $usersonwaitinglist,
+                fn($a, $b) => ($a->timemodified <=> $b->timemodified) ?: ($a->baid <=> $b->baid)
+            );
             if ($noofuserstobook > 0 && !empty($ba->get_usersonwaitinglist())) {
                 // We delete the booking answers cache - because settings (limits, etc.) could be changed!
                 self::purge_cache_for_answers($this->optionid);
@@ -1273,7 +1280,12 @@ class booking_option {
             if (waitinglist_sync_status::reduction_gate_open($optionupdated, $context)) {
                 // 2. Update and inform users who have been put on the waiting list because of changed limits.
                 $usersonlist = array_merge($ba->get_usersonlist(), $ba->get_usersreserved());
-                usort($usersonlist, fn($a, $b) => $a->timemodified < $b->timemodified ? -1 : 1);
+                // Same tie-break fix as phase 1 above (O2): compare by baid when tied instead
+                // of silently reordering equal-timemodified entries.
+                usort(
+                    $usersonlist,
+                    fn($a, $b) => ($a->timemodified <=> $b->timemodified) ?: ($a->baid <=> $b->baid)
+                );
                 // We delete the booking answers cache - because settings (limits, etc.) could be changed!
                 self::purge_cache_for_answers($this->optionid);
 
