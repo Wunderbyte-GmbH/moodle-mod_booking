@@ -804,6 +804,35 @@ final class rules_waitinglist_notification_test extends booking_advanced_testcas
         $immediateafter = array_filter($tasksafterunconfirm, fn($t) => (int)$t->get_next_run_time() <= $now + 2);
         $this->assertNotEmpty($immediateafter);
 
+        // A1 (K7-Vorstufe/T4, WAITLIST_REFACTOR_TEST_COVERAGE_2026-08-04.md): this locks in
+        // the CURRENT, BROKEN behaviour as a deliberately separate, clearly labelled
+        // assertion - it documents today's Ist-Zustand and is NOT the desired outcome. K7
+        // policy (see WAITLIST_REFACTOR_ARCHITECTURE_2026-08-12.md §5) requires a manually
+        // unconfirmed (declined) person to be PERMANENTLY skipped until they actively
+        // re-join the waiting list - the next round must go to the next person in the queue
+        // (student 4), not re-offer the same seat to the person who just declined it
+        // (student 3). Today it does the latter: confirm_bookinganswer's dispatch has no
+        // "previously declined" exclusion, and un-confirm writes deliberately never bump
+        // timemodified (see the comment in booking_option::write_user_answer_to_db()), so
+        // student 3 stays first in queue order and gets immediately re-selected. This is
+        // exactly the u:rise incident's root cause. This assertion is DELIBERATELY not a bug
+        // to fix here - it is the baseline B1 (Zielverhalten, Phase 3) is written against, and
+        // must be replaced (not silently deleted) once B1 lands.
+        $immediateaftertargets = array_map(fn($t) => (int)$t->get_custom_data()->userid, $immediateafter);
+        $this->assertContains(
+            (int) $student[3]->id,
+            $immediateaftertargets,
+            'A1/K7 Ist-Zustand: the declined user (student 3) is immediately re-selected today ' .
+            'instead of being permanently skipped - see B1 for the target behaviour this ' .
+            'documents the absence of.'
+        );
+        $this->assertNotContains(
+            (int) $student[4]->id,
+            $immediateaftertargets,
+            'A1/K7 Ist-Zustand: the next-in-queue user (student 4) is NOT reached today, ' .
+            'because the declined user (student 3) still occupies the front of the queue.'
+        );
+
         ob_start();
         $plugingenerator->runtaskswithintime($now);
         ob_end_clean();
