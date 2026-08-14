@@ -445,6 +445,25 @@ class rules_info {
         // There are cases where an event is triggered twice in a very narrow timespan.
         $data['timecreated'] = strtotime(date('Y-m-d H:00:00', ($data['timecreated'] ?? time()) + 3600));
 
+        // Normalize loosely-typed event scalars before embedding them into rulejson: two
+        // independent triggers of the same underlying event (e.g. two call sites both
+        // reacting to the same cancellation) must serialize identically, or
+        // \core\task\manager::reschedule_or_queue_adhoc_task()'s exact-string customdata
+        // comparison silently fails to deduplicate and both triggers get their own task/mail
+        // (K5 in WAITLIST_REFACTOR_REQUIREMENTS_2026-08-04.md). userid in particular can reach
+        // here as either int or string depending on whether the caller went through a
+        // type-hinted function (e.g. booking_option::check_if_free_to_book_again(int $userid))
+        // or passed a raw value (e.g. straight from a DB record) to the event's create().
+        if (isset($data['userid'])) {
+            $data['userid'] = (int) $data['userid'];
+        }
+        if (isset($data['objectid'])) {
+            $data['objectid'] = (int) $data['objectid'];
+        }
+        if (isset($data['relateduserid'])) {
+            $data['relateduserid'] = (int) $data['relateduserid'];
+        }
+
         // Now we check all the existing rules from booking.
         foreach ($records as $record) {
             $rule = self::get_rule($record->rulename);
