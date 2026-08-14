@@ -96,7 +96,10 @@ class cachereport_service {
      * @return array
      */
     public function configuration(): array {
-        global $DB;
+        global $CFG, $DB;
+
+        // Lib is needed for defined constants.
+        require_once($CFG->dirroot . '/mod/booking/lib.php');
 
         $active = (bool) get_config('booking', 'usesqlfilteravailability');
 

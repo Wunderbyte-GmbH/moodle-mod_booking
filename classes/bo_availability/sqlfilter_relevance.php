@@ -160,7 +160,10 @@ class sqlfilter_relevance {
      * @return array{inuse:bool,byconditionid:array,usedids:array,markervalues:array}
      */
     private static function build(): array {
-        global $DB;
+        global $CFG, $DB;
+
+        // Lib is needed for defined constants.
+        require_once($CFG->dirroot . '/mod/booking/lib.php');
 
         $inuse = false;
         $byconditionid = [];

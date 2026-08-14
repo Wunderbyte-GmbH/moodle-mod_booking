@@ -205,6 +205,7 @@ class bo_info {
     ): array {
         global $USER, $CFG;
 
+        // Lib is needed for defined constants.
         require_once($CFG->dirroot . '/mod/booking/lib.php');
 
         // We only get full description when we book for another user.
@@ -663,8 +664,6 @@ class bo_info {
      * @return array
      */
     public static function get_conditions(int $condparam = MOD_BOOKING_CONDPARAM_ALL): array {
-
-        global $CFG;
 
         $classes = self::get_condition_classes();
         $conditions = [];
