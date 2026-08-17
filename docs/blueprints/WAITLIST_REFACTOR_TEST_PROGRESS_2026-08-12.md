@@ -53,9 +53,9 @@ flowchart TB
         B2["✅ B2 - K1/K2 Batch<br/>min(N,M) sofort, kein Ueberholen"]
         B3["✅ B3 - T8 Sofort-Weiterlauf<br/>nach Autobuchung kein Warten aufs Intervall"]
         B4["✅ B4 - K4 Fristablauf<br/>Offer expired, naechste Person sofort dran"]
-        B5["⬜ B5 - T7 Heartbeat<br/>verlorener Trigger wird nachgeholt"]
-        B6["⬜ B6 - K12 Hard-Stop<br/>Immer-Fehlkonfiguration trotzdem sicher"]
-        B7["⬜ B7 - G1 Zustands-API<br/>Offers/Status/Fristen pro Option abfragbar"]
+        B5["✅ B5 - T7 Heartbeat<br/>verlorener Trigger wird nachgeholt"]
+        B6["✅ B6 - K12 Hard-Stop<br/>Immer-Fehlkonfiguration trotzdem sicher"]
+        B7["✅ B7 - G1 Zustands-API<br/>Offers/Status/Fristen pro Option abfragbar"]
 
         B1 ~~~ B2 ~~~ B3 ~~~ B4 ~~~ B5 ~~~ B6 ~~~ B7
     end
@@ -503,9 +503,90 @@ Gleiche Vorgehensweise wie B1–B3/C1–C5: `class_exists()`-Guard (`progression
 ersten Lauf. Voller Regressionslauf aller 12 `booking_rules`-Testdateien: 44 Tests grün (852
 Assertions), 10 sauber geskippt (6×Kategorie C + B1 + B2 + B3 + B4), keine Fehler/Failures.
 
-**Als nächstes vorgeschlagen (🟨):** B5 (T7 Heartbeat — ein verlorener/verpasster Trigger wird
-durch den periodischen `waitlist_heartbeat_task` nachgeholt; Test simuliert eine Option mit
-freiem Platz und wartenden Personen, aber OHNE dass jemals `reconcile()` dafür aufgerufen wurde,
-dann direkter Aufruf von `waitlist_heartbeat_task::execute()` — prüft sowohl die
-Selbstheilung als auch den eng gescopten Query (nur Optionen mit freien Plätzen UND wartenden
-Personen OHNE offene Offers)). Warte auf Freigabe.
+**B5 (T7 Heartbeat) ist fertig (✅).** Neue Datei `waitlist_target_b5_heartbeat_test.php`. Vier
+Optionen parallel aufgebaut, um den engen Query-Scope aus §4.2 präzise abzugrenzen:
+- **Option A (echt verwaist):** Sitz freigegeben, 1 wartende Person, `reconcile()` bewusst NIE
+  dafür aufgerufen — der exakte "verlorener Trigger"-Fall.
+- **Option B:** freier Platz, aber KEINE wartenden Personen — nichts zu tun.
+- **Option C:** wartende Person, aber Sitz NIE freigegeben (keine freie Kapazität).
+- **Option D:** freier Platz + wartende Person, aber `reconcile()` wurde VORHER schon einmal
+  aufgerufen (hat bereits ein offenes Angebot).
+
+Zwei Teile:
+1. **§4.2-Query-Vertrag:** `db_waitlist_offer_repository->find_stalled_options()` direkt
+   aufgerufen (unabhängig vom Task selbst) — liefert NUR Option A. B, C und D werden alle
+   korrekt ausgeschlossen, jede aus einem anderen Grund (keine WL-Antworten / keine freie
+   Kapazität / bereits ein offenes Angebot) — direkter Beweis des engen Scopes aus der
+   USI-Lasttest-Lehre, nicht nur indirekt über Idempotenz-Zufall.
+2. **T7-Selbstheilung:** `waitlist_heartbeat_task->execute()` direkt aufgerufen. Ergebnis:
+   Options As wartende Person hat danach ein offenes Angebot (Selbstheilung bestätigt), Option B
+   bleibt unangetastet, Option C bleibt unangetastet (weiterhin `ONWAITINGLIST`, keine Exception
+   trotz voller Kapazität), Option D hat weiterhin genau EIN offenes Angebot (kein Duplikat).
+
+Gleiche Vorgehensweise wie B1–B4/C1–C5: `class_exists()`-Guard (`progression_factory`,
+`db_waitlist_offer_repository`, `waitlist_heartbeat_task`) + `markTestSkipped()`. Kleiner privater
+Helper `build_option()` eingeführt, um die vier ähnlich aufgebauten Optionen nicht viermal
+komplett auszuschreiben. Setup-Logik per Guard-Bypass verifiziert: Fehler exakt an der
+erwarteten "Class progression_factory not found"-Stelle (nach allen 3 ONWAITINGLIST-
+Preconditions über A/C/D zusammen), kein Bug gefunden. `phpcs` sauber (0/0) im ersten Lauf.
+Voller Regressionslauf aller 13 `booking_rules`-Testdateien: 45 Tests grün (852 Assertions), 11
+sauber geskippt (6×Kategorie C + B1–B5), keine Fehler/Failures.
+
+**B6 (K12 Hard-Stop) ist fertig (✅).** Neue Datei `waitlist_target_b6_hard_stop_test.php`, zwei
+Testmethoden (gleicher `build_option()`-Helper wie B5):
+- **B6a (absoluter No-op bei 0 freien Plätzen):** Sitz bleibt komplett besetzt, 3 Personen
+  warten, `reconcile()` einmal aufgerufen → NULL Angebote, alle 3 weiterhin komplett
+  unbehandelt, niemand versehentlich autogebucht — direkter Beweis, dass der `free <= 0`-Guard
+  ALLES blockiert, bevor überhaupt irgendeine andere Logik (K11-Bedingung, Preis-Entscheidung)
+  zum Zug kommt.
+- **B6b (Sturm redundanter Aufrufe):** 2 freie Plätze, 10 wartende Personen (stark
+  überzeichnet), `reconcile()` ZEHNMAL hintereinander aufgerufen (simuliert genau das
+  Fehlkonfigurations-/Doppel-Trigger-Szenario, gegen das K12 schützen soll) → am Ende trotzdem
+  exakt 2 offene Angebote, niemand doppelt, die restlichen 8 bleiben sauber unbehandelt — die
+  Kapazitätsgrenze hält auch bei beliebig häufigem/fehlerhaftem Retriggern.
+
+Gleiche Vorgehensweise wie B1–B5/C1–C5: `class_exists()`-Guard + `markTestSkipped()`. Setup-Logik
+per Guard-Bypass verifiziert: beide Tests scheitern exakt an der erwarteten "Class
+progression_factory not found"-Stelle (13 Preconditions insgesamt = 3+10 ONWAITINGLIST-Checks),
+kein Bug gefunden. `phpcs` sauber (0/0) im ersten Lauf. Voller Regressionslauf aller 14
+`booking_rules`-Testdateien: 47 Tests grün (852 Assertions), 13 sauber geskippt (6×Kategorie C +
+B1–B6), keine Fehler/Failures.
+
+**B7 (G1 Zustands-API) ist fertig (✅) — letzter Punkt von Kategorie B.** Neue Datei
+`waitlist_target_b7_state_view_test.php`. Baut EINE Option mit fünf Wartelisten-Kandidat:innen,
+die bewusst jeden relevanten Endzustand abdecken: kostenlos → autogebucht; bezahlt → offenes
+Angebot bleibt unangetastet; bezahlt → wird offeriert und lehnt ab (permanente K7-Sperre);
+bezahlt → wird ERST durch den freiwerdenden Platz der Ablehnung befördert; bezahlt → wird nie
+erreicht (echt unbehandelt).
+
+Kernaussage des Tests: G1 erfordert KEINE neue, dedizierte "Monitoring"-Klasse — die bereits in
+B1–B6 etablierten Repository-Methoden (`get_open_offers()`, `get_unbehandelte_waitinglist()`,
+`is_permanently_declined()`) liefern zusammengesetzt bereits eine vollständige, korrekte
+Zustands-Sicht. Geprüft: jede der fünf Personen landet in GENAU einem von vier Buckets (offenes
+Angebot / autogebucht / permanent abgelehnt / unbehandelt) — Vollständigkeits-Check über
+`array_merge` + Sortier-Vergleich gegen die erwartete Gesamtmenge, plus ein `count()`-Check, dass
+niemand doppelt gezählt wird. Zusätzlich: ein offenes Angebot trägt nachweislich eine echte,
+abfragbare Frist (`expiresat`, nicht leer) — die "Fristen"-Hälfte von "Offers/Status/Fristen pro
+Option abfragbar".
+
+Gleiche Vorgehensweise wie B1–B6/C1–C5: `class_exists()`-Guard (dieselben drei Klassen wie B1,
+KEINE zusätzliche) + `markTestSkipped()`. Setup-Logik per Guard-Bypass verifiziert: Fehler exakt
+an der erwarteten "Class progression_factory not found"-Stelle (nach allen 5
+ONWAITINGLIST-Preconditions), kein Bug gefunden. `phpcs` sauber (0/0) im ersten Lauf. Voller
+Regressionslauf aller 15 `booking_rules`-Testdateien: 48 Tests grün (852 Assertions), 14 sauber
+geskippt (6×Kategorie C + B1–B7), keine Fehler/Failures.
+
+## 🎉🎉 Kategorie B (Zielverhaltenstests, Phase 1c) vollständig abgeschlossen — PHASE 1 KOMPLETT
+
+Alle sieben B-Tests (B1–B7) vollständig geschrieben, reviewt und verifiziert, alle bewusst
+rot/skipped bis Phase 2 die jeweiligen Klassen liefert — exakt wie vom Blueprint gefordert. Mit
+B7 ist damit **Phase 1 (Testfundament) laut Implementierungsplan vollständig abgeschlossen**:
+Kategorie A (11/11, gegen `base` grün, 2 echte Bugs gefunden+gefixt), Kategorie C (Fixture-
+Builder + 5/5 Migrationstests, rot/skipped), Kategorie B (7/7 Zielverhaltenstests, rot/skipped).
+
+**Kein Produktionscode dieses Refactorings existiert bisher** — alles bis hierher war reine
+Testarbeit gegen heutigen bzw. geplanten Code. Nächster Schritt laut Plan: **Phase 2
+(Datenmodell + Reconciler)**, 20 Klassen/Tabellen in topologischer Reihenfolge des
+Abhängigkeitsgraphen aus `WAITLIST_REFACTOR_IMPLEMENTATION_PROGRESS_2026-08-12.md`, beginnend
+mit dem DB-Schema (`booking_waitlist_offers` + `booking_waitlist_declines`) und `offer_status`
+(State Pattern, keine Abhängigkeiten). Warte auf Freigabe.
