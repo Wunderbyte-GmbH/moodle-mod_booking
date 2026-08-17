@@ -31,7 +31,7 @@ nachweislich rendert: einfache Rechtecke, Zylinder für Tabellen, einfache Pfeil
 ```mermaid
 flowchart TB
     subgraph Domain["mod_booking/local/waitlist - Domaenenkern"]
-        offer_status["⬜ offer_status<br/>State Pattern, Paragraph 2.2"]
+        offer_status["✅ offer_status<br/>State Pattern, Paragraph 2.2"]
         waitlist_offer["⬜ waitlist_offer<br/>Entity"]
         waitlist_offer_repository["⬜ waitlist_offer_repository<br/>Interface, Paragraph 3.2"]
         db_waitlist_offer_repository["⬜ db_waitlist_offer_repository<br/>DB-Implementierung"]
@@ -66,8 +66,8 @@ flowchart TB
     end
 
     subgraph Data["Daten"]
-        booking_waitlist_offers[("⬜ booking_waitlist_offers<br/>Paragraph 2.1")]
-        booking_waitlist_declines[("⬜ booking_waitlist_declines<br/>Paragraph 2.3, K7 permanent")]
+        booking_waitlist_offers[("✅ booking_waitlist_offers<br/>Paragraph 2.1")]
+        booking_waitlist_declines[("✅ booking_waitlist_declines<br/>Paragraph 2.3, K7 permanent")]
     end
 
     progression --> waitlist_offer_repository
@@ -135,3 +135,64 @@ flowchart TB
 nur exemplarisch als ein Adapter-Pattern skizziert (§4) — hier für die Umsetzungsplanung auf alle
 8 Trigger-Fälle aus der Anforderungsliste aufgeschlüsselt. Bei Bedarf in Schritt 4 anpassen, falls
 sich beim Implementieren eine andere Aufteilung als sinnvoller erweist.
+
+---
+
+## Woran wir gerade arbeiten
+
+**DB-Schema (`booking_waitlist_offers` + `booking_waitlist_declines`) ist fertig (✅).** Erste
+Änderung an echtem Produktionscode in diesem Refactoring — und die erste unter dem ab jetzt
+geltenden Arbeitsmodus: Claude beschreibt was/wo/warum, Georg fügt den Code selbst ein (siehe
+Memory `waitlist_refactor_code_authorship`).
+
+Drei Dateien geändert:
+- `db/install.xml`: beide Tabellen nach Architektur §2.1/§2.3, plus `VERSION`-Attribut-Bump im
+  XMLDB-Header (Moodle-Konvention).
+- `version.php`: `$plugin->version` auf `2026081700` gebumpt.
+- `db/upgrade.php`: entsprechender `xmldb_table`-Upgrade-Block mit Savepoint.
+
+**Eigene Entscheidung in diesem Schritt** (Architektur-Doku legt nur ZustandsNAMEN fest, keine
+DB-Werte): `status`-Spalte in `booking_waitlist_offers` als `int(2)` mit numerischer Zuordnung
+`0=pending, 1=offered, 2=accepted, 3=declined, 4=expired, 5=skipped, 6=autobooked` — die nächste
+Klasse (`offer_status`, State Pattern) baut direkt darauf auf und muss diese Zuordnung
+respektieren.
+
+Verifiziert: `phpcs` sauber (0/0) nach einem kleinen Nachbesserungsschritt (doppelte Leerzeile in
+`upgrade.php`), `php admin/tool/phpunit/cli/init.php` lief fehlerfrei durch, beide Tabellen per
+`psql \d` gegen die PHPUnit-Test-DB direkt verifiziert — Primary Key, FK-Index auf `optionid`,
+UNIQUE-Constraint (`optionid, roundid, userid` bzw. `optionid, userid`) und der zusammengesetzte
+Such-Index (`userid, optionid, status`) sind alle exakt wie geplant vorhanden.
+
+**`offer_status` ist fertig (✅).** Erste vollständige Domänenklasse dieses Refactorings, und die
+erste unter dem neuen Arbeitsmodus (Claude beschreibt Datei für Datei, Georg fügt Code ein;
+Testdateien und Docblock-Nachbesserungen sind davon ausgenommen, siehe Memory
+`waitlist_refactor_code_authorship`).
+
+**Design-Entscheidung (per `AskUserQuestion` von Georg getroffen):** klassisches State Pattern
+mit Interface + 7 einzelnen Zustandsklassen (nicht ein PHP-Backed-Enum) — exakt wie im
+Architektur-Klassendiagramm §6 als `<<interface>>` gezeichnet. 9 neue Dateien:
+- `classes/local/waitlist/offer_status.php` — Interface (`can_transition_to()`,
+  `is_terminal()`, plus `get_code(): int` als eigene Ergänzung für die DB-Persistenz).
+- `classes/local/waitlist/offer_statuses/{pending,offered,accepted,declined,expired,skipped,autobooked}.php`
+  — je eine finale Klasse, Namenskonvention exakt wie beim bestehenden
+  `booking_rule_action`/`actions/`-Muster in diesem Codebase übernommen.
+- `tests/local/waitlist/offer_status_test.php` — 24 Tests (72 Assertions): jede der 7
+  dokumentierten Übergänge einzeln bestätigt, ALLE 42 übrigen der 7×7=49 möglichen Paarungen
+  exhaustiv per verschachtelter Schleife als verboten bestätigt (inkl. Selbst-Übergänge), ein
+  dediziert benannter K7-Test (`declined` hat null ausgehende Übergänge), terminale
+  Zustände + DB-Codes je einzeln per `dataProvider`, plus ein Eindeutigkeits-Check über alle
+  Codes.
+
+Zwei kleine Nachbesserungsrunden beim Einfügen nötig: (1) zweimal falscher Dateipfad
+(`waitinglist/` statt `waitlist/`, dann `waitlist/` statt `waitlist/offer_statuses/`) — jeweils
+sofort korrigiert; (2) `phpcs` bemängelte fehlende Methoden-Docblocks in allen 7 Zustandsklassen
+(meine Vorgabe war unvollständig) — nachgetragen.
+
+Verifiziert: `phpcs` sauber (0/0) über alle 9 Dateien, `phpunit` 24/24 grün (72 Assertions),
+keine Fehler.
+
+**Als nächstes vorgeschlagen (🟨):** `waitlist_offer` (Entity, §2.1) — hängt von `offer_status`
+ab. Reines Datenobjekt: eine Zeile aus `booking_waitlist_offers` als typisiertes PHP-Objekt
+(`id, optionid, userid, baid, roundid, status: offer_status, sortorder, offeredat, expiresat,
+ruleid, version, timecreated, timemodified`). Keine eigene Logik außer ggf. einem
+Convenience-Constructor. Warte auf Freigabe.
