@@ -17,9 +17,9 @@
 namespace mod_booking\checklist;
 
 use mod_booking\singleton_service;
+use local_wunderbyte_table\local\pdf\pdfa_pdf;
 use mod_booking\booking_option;
 use stdClass;
-use TCPDF;
 
 /**
  * Class checklist_generator
@@ -55,20 +55,8 @@ class checklist_generator {
      * @return void
      */
     public function generate_pdf() {
-        // Retrieve checklist HTML from configuration.
-        $checklisthtml = get_config('booking', 'checklisthtml');
-        // Use a default template if not configured.
-        if (empty(trim(strip_tags($checklisthtml)))) {
-            $checklisthtml = $this->get_default_checklist_html();
-        }
-
-        $replacements = $this->get_placeholder_replacements();
-
-        // Replace placeholders in the configured HTML.
-        $htmloutput = strtr($checklisthtml, $replacements);
-
-        // Generate PDF from the HTML.
-        $this->download_pdf_from_html($htmloutput);
+        // Generate PDF from the (placeholder replaced) HTML.
+        $this->download_pdf_from_html($this->render_html());
     }
 
     /**
@@ -120,17 +108,65 @@ class checklist_generator {
     }
 
     /**
+     * Returns the checklist HTML: configured template (setting checklisthtml) or the
+     * default template, with all placeholders replaced.
+     *
+     * @return string
+     */
+    public function render_html(): string {
+        // Retrieve checklist HTML from configuration.
+        $checklisthtml = get_config('booking', 'checklisthtml');
+        // Use a default template if not configured.
+        if (empty(trim(strip_tags($checklisthtml)))) {
+            $checklisthtml = $this->get_default_checklist_html();
+        }
+
+        $replacements = $this->get_placeholder_replacements();
+
+        // Replace placeholders in the configured HTML.
+        return strtr($checklisthtml, $replacements);
+    }
+
+    /**
+     * Whether the checklist is generated as PDF/A-2b (setting booking/pdfaenabled).
+     *
+     * @return bool
+     */
+    public static function pdfa_enabled(): bool {
+        return !empty(get_config('booking', 'pdfaenabled'));
+    }
+
+    /**
+     * Builds the checklist PDF document from the given HTML.
+     *
+     * With the setting booking/pdfaenabled the document is PDF/A-2b (see {@see pdfa_pdf}:
+     * all fonts embedded, core font names in the template mapped to the embeddable
+     * FreeFonts); otherwise it is generated exactly as before.
+     *
+     * @param string $html
+     * @return \pdf the finished document, ready for Output()
+     */
+    public function create_pdf_from_html(string $html): \pdf {
+        if (self::pdfa_enabled()) {
+            $pdf = new pdfa_pdf($this->orientation, PDF_UNIT, PDF_PAGE_FORMAT);
+        } else {
+            $pdf = new checklist_pdf($this->orientation, PDF_UNIT, PDF_PAGE_FORMAT);
+        }
+        $pdf->SetPrintHeader(false);
+        $pdf->SetPrintFooter(false);
+        $pdf->AddPage();
+        $pdf->writeHTML($html, true, false, true, false, '');
+        return $pdf;
+    }
+
+    /**
      * Generates a PDF file from HTML and downloads it.
      *
      * @param string $html
      * @return void
      */
     public function download_pdf_from_html(string $html) {
-        $pdf = new checklist_pdf($this->orientation, PDF_UNIT, PDF_PAGE_FORMAT);
-        $pdf->SetPrintHeader(false);
-        $pdf->SetPrintFooter(false);
-        $pdf->AddPage();
-        $pdf->writeHTML($html, true, false, true, false, '');
+        $pdf = $this->create_pdf_from_html($html);
         $pdf->Output('checklist.pdf', 'D');
     }
 

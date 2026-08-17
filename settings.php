@@ -2645,11 +2645,20 @@ if ($ADMIN->fulltree) {
             $signinsheetmodes
         )
     );
+    // PDF/A-2b for the sign-in sheet (HTML template mode) and the checklist (opt-in, plain TCPDF otherwise).
+    $settings->add(
+        new admin_setting_configcheckbox(
+            'booking/pdfaenabled',
+            get_string('pdfaenabled', 'mod_booking'),
+            get_string('pdfaenabled_desc', 'mod_booking'),
+            0
+        )
+    );
     $settings->add(
         new admin_setting_configtextarea(
             'booking/signinsheethtml',
             get_string('signinsheethtml', 'mod_booking'),
-            get_string('signinsheethtmldescription', 'mod_booking'),
+            get_string('signinsheethtmldescription', 'mod_booking') . '<br>' . get_string('pdfahint', 'mod_booking'),
             '', /* $defaultsigninsheethtml */
             PARAM_RAW
         )
@@ -2658,7 +2667,7 @@ if ($ADMIN->fulltree) {
         new admin_setting_configtextarea(
             'booking/checklisthtml',
             get_string('checklisthtml', 'mod_booking'),
-            get_string('checklisthtmldescription', 'mod_booking'),
+            get_string('checklisthtmldescription', 'mod_booking') . '<br>' . get_string('pdfahint', 'mod_booking'),
             '', /* $defaultsigninsheethtml */
             PARAM_RAW
         )

@@ -18,6 +18,7 @@ namespace mod_booking\signinsheet;
 use mod_booking\booking_option_settings;
 use mod_booking\option\fields\sharedplaces;
 use mod_booking\singleton_service;
+use local_wunderbyte_table\local\pdf\pdfa_pdf;
 use user_picture;
 use stdClass;
 
@@ -280,8 +281,12 @@ class signinsheet_generator {
         }
 
         // The instance setting is null as long as it was never configured (e.g. a
-        // freshly created instance): explode(null) would raise a deprecation.
-        $this->allfields = explode(',', $this->bookingoption->booking->settings->signinsheetfields ?? '');
+        // freshly created instance): explode(null) would raise a deprecation, and an
+        // empty entry would end up as "u. " in the user SQL.
+        $this->allfields = array_values(array_filter(
+            explode(',', $this->bookingoption->booking->settings->signinsheetfields ?? ''),
+            'strlen'
+        ));
         if (get_config('booking', 'numberrows') == 1) {
             $this->showrownumbers = true;
             $this->rownumber = 0;
@@ -339,6 +344,28 @@ class signinsheet_generator {
      * @return void
      */
     public function prepare_html() {
+        $settings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
+        $htmloutput = $this->render_html();
+
+        // Output the document in the specified format.
+        switch ($this->saveasformat) {
+            case 'word':
+                $this->download_word_from_html($htmloutput, $settings);
+                break;
+            case 'pdf':
+            default:
+                $this->download_pdf_from_html($htmloutput, $settings);
+                break;
+        }
+    }
+
+    /**
+     * Renders the sign-in sheet HTML from the configured template (setting signinsheethtml,
+     * default template as fallback): user rows, session columns, logo and title.
+     *
+     * @return string the HTML the PDF / Word document is generated from
+     */
+    public function render_html(): string {
         global $DB, $PAGE;
         $addsqlwhere = '';
         $groupparams = [];
@@ -556,18 +583,7 @@ class signinsheet_generator {
         // Replace table name placeholder.
         $htmloutput = str_replace('[[tablename]]', $headertitle, $htmloutput);
 
-        // Output the document in the specified format.
-        switch ($this->saveasformat) {
-            case 'pdf':
-                $this->download_pdf_from_html($htmloutput, $settings);
-                break;
-            case 'word':
-                $this->download_word_from_html($htmloutput, $settings);
-                break;
-            default:
-                $this->download_pdf_from_html($htmloutput, $settings);
-                break;
-        }
+        return $htmloutput;
     }
 
     /**
@@ -630,6 +646,38 @@ class signinsheet_generator {
 
 
     /**
+     * Whether the sign-in sheet (HTML mode) is generated as PDF/A-2b (setting booking/pdfaenabled).
+     *
+     * @return bool
+     */
+    public static function pdfa_enabled(): bool {
+        return !empty(get_config('booking', 'pdfaenabled'));
+    }
+
+    /**
+     * Builds the sign-in sheet PDF document from the given HTML.
+     *
+     * With the setting booking/pdfaenabled the document is PDF/A-2b (see {@see pdfa_pdf}:
+     * all fonts embedded, core font names in the template mapped to the embeddable
+     * FreeFonts); otherwise it is generated exactly as before.
+     *
+     * @param string $htmloutput HTML as returned by render_html()
+     * @return \pdf the finished document, ready for Output()
+     */
+    public function create_pdf_from_html(string $htmloutput): \pdf {
+        if (self::pdfa_enabled()) {
+            $pdf = new pdfa_pdf($this->orientation, PDF_UNIT, PDF_PAGE_FORMAT);
+        } else {
+            $pdf = new signin_pdf($this->orientation, PDF_UNIT, PDF_PAGE_FORMAT);
+        }
+        $pdf->setPrintHeader(false);
+        $pdf->setPrintFooter(false);
+        $pdf->AddPage();
+        $pdf->writeHTML($htmloutput, true, false, true, false, '');
+        return $pdf;
+    }
+
+    /**
      * Download PDF File from given html
      *
      * @param mixed $htmloutput
@@ -639,11 +687,7 @@ class signinsheet_generator {
      *
      */
     private function download_pdf_from_html($htmloutput, $settings) {
-        $pdf = new signin_pdf($this->orientation, PDF_UNIT, PDF_PAGE_FORMAT);
-        $pdf->setPrintHeader(false);
-        $pdf->setPrintFooter(false);
-        $pdf->AddPage();
-        $pdf->writeHTML($htmloutput, true, false, true, false, '');
+        $pdf = $this->create_pdf_from_html((string)$htmloutput);
         $downloadfilename = self::get_clean_filename($settings->get_title_with_prefix());
         $pdf->Output($downloadfilename . '.pdf', 'D');
     }
