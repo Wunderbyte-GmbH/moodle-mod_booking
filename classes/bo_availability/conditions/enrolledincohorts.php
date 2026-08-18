@@ -227,16 +227,20 @@ class enrolledincohorts implements bo_condition, freezable_condition {
                 $databasetype == 'mysql'
                 && booking_db_is_at_least_mariadb_106_or_mysql_8()
             ) {
+                // MySQL: JSON_TABLE must not read the availability column of the outer derived table (s1) - as soon as
+                // MySQL merges that derived table into the outer query, such a reference fails with
+                // "Incorrect arguments to JSON_TABLE". So we read the base table {booking_options} instead.
                 $where = "
                     (
                         COALESCE(availability, '[]') IS NOT NULL
-                        AND NOT EXISTS (
-                            SELECT 1 FROM JSON_TABLE(availability, '$[*]' COLUMNS (
+                        AND id NOT IN (
+                            SELECT bo_sf.id
+                            FROM {booking_options} bo_sf
+                            JOIN JSON_TABLE(bo_sf.availability, '$[*]' COLUMNS (
                                 id INT PATH '$.id',
                                 sqlfilter VARCHAR(10) PATH '$.sqlfilter'
-                            )) AS jt
-                            WHERE jt.id = $conditionid
-                            AND jt.sqlfilter = '1'
+                            )) AS jt ON jt.id = $conditionid
+                            WHERE jt.sqlfilter = '1'
                         )
                     )";
             } else {
@@ -295,17 +299,21 @@ class enrolledincohorts implements bo_condition, freezable_condition {
             $cohortidstext = array_map(fn($id) => "'" . $id . "'", array_keys($usercohorts));
             $appendwhere = implode(', ', $cohortidstext);
 
+            // MySQL: JSON_TABLE must not read the availability column of the outer derived table (s1) - as soon as
+            // MySQL merges that derived table into the outer query, such a reference fails with
+            // "Incorrect arguments to JSON_TABLE". So we read the base table {booking_options} instead.
             $where = "
                 COALESCE(availability, '[]') IS NOT NULL
                 AND (
                         (
-                            NOT EXISTS (
-                                SELECT 1 FROM JSON_TABLE(availability, '$[*]' COLUMNS (
+                            id NOT IN (
+                                SELECT bo_sf.id
+                                FROM {booking_options} bo_sf
+                                JOIN JSON_TABLE(bo_sf.availability, '$[*]' COLUMNS (
                                     id INT PATH '$.id',
                                     sqlfilter VARCHAR(10) PATH '$.sqlfilter'
-                                )) AS jt
-                                WHERE jt.id = $conditionid
-                                AND jt.sqlfilter = '1'
+                                )) AS jt ON jt.id = $conditionid
+                                WHERE jt.sqlfilter = '1'
                             )
                         )
                     OR (
