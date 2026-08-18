@@ -384,6 +384,98 @@ final class booking_option_test extends booking_advanced_testcase {
     }
 
     /**
+     * Test that toggling the completion of a booking option updates the activity completion of the instance.
+     *
+     * @covers \mod_booking\booking_option::toggle_user_completion
+     * @covers \mod_booking_observer::bookingoption_completed
+     * @covers \mod_booking_observer::bookingoption_uncompleted
+     *
+     * @param array $bdata
+     * @throws \coding_exception
+     * @throws \dml_exception
+     *
+     * @dataProvider booking_common_settings_provider
+     */
+    public function test_toggle_user_completion_updates_activity_completion(array $bdata): void {
+        global $DB, $CFG;
+
+        $CFG->enablecompletion = 1;
+
+        // Setup test data.
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+
+        // Create users.
+        $user1 = $this->getDataGenerator()->create_user();
+        $user2 = $this->getDataGenerator()->create_user(); // Booking manager.
+
+        $bdata['course'] = $course->id;
+        $bdata['bookingmanager'] = $user2->username;
+        // Automatic activity completion via the custom rule: one completed booking option is enough.
+        $bdata['enablecompletion'] = 1;
+        $bdata['completion'] = COMPLETION_TRACKING_AUTOMATIC;
+
+        $booking1 = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        $this->setAdminUser();
+
+        $this->getDataGenerator()->enrol_user($user1->id, $course->id);
+        $this->getDataGenerator()->enrol_user($user2->id, $course->id);
+
+        $record = new stdClass();
+        $record->bookingid = $booking1->id;
+        $record->text = 'Test option1';
+        $record->chooseorcreatecourse = 1; // Required.
+        $record->courseid = $course->id;
+        $record->description = 'Test description';
+        $record->optiondateid_0 = "0";
+        $record->daystonotify_0 = "0";
+        $record->coursestarttime_0 = strtotime('now - 2 day');
+        $record->courseendtime_0 = strtotime('now + 1 day');
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $option1 = $plugingenerator->create_option($record);
+
+        // Required to solve cache issue.
+        singleton_service::destroy_booking_option_singleton($option1->id);
+
+        $settings1 = singleton_service::get_instance_of_booking_option_settings($option1->id);
+        $bookingoption1 = singleton_service::get_instance_of_booking_option($settings1->cmid, $option1->id);
+
+        $bookingoption1->user_submit_response($user1, 0, 0, 0, MOD_BOOKING_VERIFIED);
+
+        $completionparams = ['coursemoduleid' => $settings1->cmid, 'userid' => $user1->id];
+
+        // Booked, but not completed yet.
+        $this->assertEquals(
+            COMPLETION_INCOMPLETE,
+            $DB->get_field('course_modules_completion', 'completionstate', $completionparams) ?: COMPLETION_INCOMPLETE
+        );
+
+        // Mark the option as completed - the event observer has to push the completion to the activity right away.
+        $bookingoption1->toggle_user_completion($user1->id);
+
+        $bookinganswers1 = booking_answers::get_instance_from_optionid($bookingoption1->id);
+        $this->assertEquals(1, $bookinganswers1->is_activity_completed($user1->id));
+        $this->assertEquals(
+            COMPLETION_COMPLETE,
+            $DB->get_field('course_modules_completion', 'completionstate', $completionparams)
+        );
+
+        // Undo the completion of the option - the activity completion has to be revoked as well.
+        singleton_service::destroy_booking_option_singleton($option1->id);
+        $bookingoption1 = singleton_service::get_instance_of_booking_option($settings1->cmid, $option1->id);
+        $bookingoption1->toggle_user_completion($user1->id);
+
+        $bookinganswers1 = booking_answers::get_instance_from_optionid($bookingoption1->id);
+        $this->assertEquals(0, $bookinganswers1->is_activity_completed($user1->id));
+        $this->assertEquals(
+            COMPLETION_INCOMPLETE,
+            $DB->get_field('course_modules_completion', 'completionstate', $completionparams)
+        );
+    }
+
+    /**
      * Data provider for booking_option_test
      *
      * @return array
