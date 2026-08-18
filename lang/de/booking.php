@@ -2219,7 +2219,8 @@ wurden. <br><br>Bitte stellen Sie sicher, dass zu allen E-Mail-Typen eine Vorlag
 $string['managebookedusers_heading'] = 'Buchungen verwalten für <b>{$a->scopestring}</b>: "{$a->title}"';
 $string['managebooking'] = 'Verwalten';
 $string['managebookinginstancetemplates'] = 'Buchungsinstanz-Vorlagen verwalten';
-$string['managecustomfieldoptions'] = 'Benutzerdefinierte Feldoptionen verwalten';
+$string['managecustomfieldoptions'] = 'Hierachische benutzerdefinierte Felder verwalten';
+$string['managecustomfieldoptions_desc'] = 'Verwalten Sie die übergeordneten/untergeordneten Auswahllisten, die von den benutzerdefinierten Feldern für Optionen in mod_booking verwendet werden';
 $string['manageoptiontemplates'] = 'Buchungsoptionsvorlagen verwalten';
 $string['manageresponses'] = 'Buchungen verwalten';
 $string['manageresponsesdownloadfields'] = 'Buchungen verwalten - Download (CSV, XLSX...)';

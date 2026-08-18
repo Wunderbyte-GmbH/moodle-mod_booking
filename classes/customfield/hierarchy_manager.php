@@ -400,39 +400,13 @@ class hierarchy_manager {
             return '';
         }
 
-        $parentof = [];
-        foreach ($rows as $row) {
-            $parentof[$row['id']] = $row['parentid'];
-        }
-
         $selects = [];
         foreach (array_values($rows) as $sortorder => $row) {
-            $depth = self::depth_of($row['id'], $parentof);
-            $label = str_repeat('- ', $depth) . $row['label'];
-            $label = self::quote_sql_string($label);
+            $label = self::quote_sql_string($row['label']);
             $selects[] = sprintf('SELECT %d AS sortorder, %d AS id, %s AS data', $sortorder, $row['id'], $label);
         }
 
         return 'SELECT id, data FROM (' . implode(' UNION ALL ', $selects) . ') optvals ORDER BY sortorder';
-    }
-
-    /**
-     * Computes the depth of a row by walking its parent chain.
-     *
-     * @param int $id
-     * @param array $parentof id => parentid
-     * @return int
-     */
-    private static function depth_of(int $id, array $parentof): int {
-        $depth = 0;
-        $cursor = $parentof[$id] ?? 0;
-        $guard = 0;
-        while ($cursor !== 0 && isset($parentof[$cursor]) && $guard < 100) {
-            $depth++;
-            $cursor = $parentof[$cursor];
-            $guard++;
-        }
-        return $depth;
     }
 
     /**
