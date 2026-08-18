@@ -1207,12 +1207,14 @@ class booking {
 
         $params = [];
 
-        $groupby = " " . implode(", ", $offieldsarray) . " ";
+        $offields = " " . implode(", ", $offieldsarray) . " ";
 
         $outerfrom = "(
-                        SELECT $groupby ";
+                        SELECT $offields ";
 
-        $innerfrom = empty($innerfrom) ? "FROM {booking_options} bo" : $innerfrom;
+        // A custom innerfrom (e.g. fieldofstudy) may deliver a derived table instead of {booking_options}.
+        $hascustominnerfrom = !empty($innerfrom);
+        $innerfrom = $hascustominnerfrom ? $innerfrom : "FROM {booking_options} bo";
 
         // If the user does not have the capability to see invisible options...
         if (!$context || !has_capability('mod/booking:canseeinvisibleoptions', $context)) {
@@ -1267,7 +1269,6 @@ class booking {
             $outerfrom .= ", ba.waitinglist, ba.userid as bookeduserid, ba.completed ";
             $where .= " AND waitinglist $inorequal
                         AND bookeduserid=:bookeduserid ";
-            $groupby .= " , ba.waitinglist, ba.userid, ba.completed ";
 
             $params['bookeduserid'] = $userid;
 
@@ -1314,26 +1315,31 @@ class booking {
         $innerfrom .= " $from2 ";
         $innerfrom .= " $from3 ";
 
-        $pattern = '/as.*?,/';
-        $addgroupby = preg_replace($pattern, ',', $select1 . ",");
-        $groupby .= !empty($addgroupby) ? ' , ' . $addgroupby : '';
-
-        // Here, $select2 (teachers) is an aggregate (sql_group_concat renders as
-        // GROUP_CONCAT on MySQL/MariaDB and STRING_AGG on PostgreSQL/MSSQL) and
-        // must never be echoed into GROUP BY, so it is intentionally not added here.
-
-        $addgroupby = preg_replace($pattern, ',', $select3 . ",");
-        $groupby .= !empty($addgroupby) ? ' , ' . $addgroupby : '';
-
-        $groupbyarray = (array)explode(',', $groupby);
-
-        foreach ($groupbyarray as $key => $value) {
-            if (empty(trim($value))) {
-                unset($groupbyarray[$key]);
+        // The outer select is normally NOT grouped: the teachers are already aggregated to one row per option
+        // inside their subquery (see return_sql_for_teachers) and all other joins (customfields, image file)
+        // return at most one row per booking option. Grouping by all columns of {booking_options} (including
+        // several TEXT columns) made MySQL 8 fail with "Out of sort memory" (error 1038).
+        // We only need a GROUP BY when the option rows can actually be multiplied:
+        // - by the join on the booking answers of a user (a user can have several answers for one option),
+        // - by a custom innerfrom (derived table), which may return the same option more than once.
+        $groupby = '';
+        if ($userid !== null || $hascustominnerfrom) {
+            // With the real {booking_options} table, bo.id is enough (functional dependency on the primary key).
+            // A derived table has no primary key, so there we have to list all columns.
+            $groupbyarray = $hascustominnerfrom ? $offieldsarray : ['bo.id'];
+            if ($userid !== null) {
+                $groupbyarray = array_merge($groupbyarray, ['ba.waitinglist', 'ba.userid', 'ba.completed']);
             }
+            // All non-aggregated columns of the supplementary selects have to be part of the GROUP BY.
+            $pattern = '/as.*?,/';
+            $addgroupby = preg_replace($pattern, ',', $select1 . "," . $select2 . "," . $select3 . ",");
+            foreach (explode(',', $addgroupby) as $value) {
+                if (!empty(trim($value))) {
+                    $groupbyarray[] = trim($value);
+                }
+            }
+            $groupby = "GROUP BY " . implode(" , ", $groupbyarray);
         }
-
-        $groupby = implode(" , ", $groupbyarray);
 
         // Now we merge all the params arrays.
         $params = array_merge($params, $params1, $params2, $params3, $params4 ?? []);
@@ -1342,11 +1348,9 @@ class booking {
         $from = $outerfrom;
         $from .= $innerfrom;
 
-        // Finally, we add the outer group by.
-        $groupby = "GROUP BY " . $groupby . "
+        // Finally, we close the subselect (with the outer group by, if needed).
+        $from .= " $groupby
                     ) s1";
-
-        $from .= $groupby;
 
         // Add the where at the right place.
         $filter .= " $filter1 ";

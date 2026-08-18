@@ -1531,7 +1531,9 @@ class booking_option_settings {
 
         global $DB;
 
-        $select = $DB->sql_group_concat('bt1.teacherobject') . ' as teacherobjects';
+        // The teachers are already aggregated to one row per option inside the subquery (bt1),
+        // so the outer select does not need any GROUP BY for this column.
+        $select = 'bt1.teacherobjects as teacherobjects';
 
         // We have to create the teacher object beforehand, in order to be able to use group_concat afterwards.
         $innerselect = $DB->sql_concat_join("''", [
@@ -1552,10 +1554,11 @@ class booking_option_settings {
 
         $from = 'LEFT JOIN
         (
-            SELECT bt.optionid, ' . $innerselect . ' as teacherobject
+            SELECT bt.optionid, ' . $DB->sql_group_concat($innerselect) . ' as teacherobjects
             FROM {booking_teachers} bt
             JOIN {user} u
             ON bt.userid = u.id
+            GROUP BY bt.optionid
         ) bt1
         ON bt1.optionid = bo.id';
 
