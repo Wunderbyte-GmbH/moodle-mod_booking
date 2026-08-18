@@ -158,22 +158,30 @@ final class progression {
         $free = $this->capacity->free_capacity($optionid);       // K2: Kapazität − Gebucht − offene Offers
         if ($free <= 0) { return; }                               // K12: strukturell, keine Sonderregel nötig
 
-        if (!$this->condition->execution_condition_met($optionid)) { return; }  // K11
+        $ruleids = $this->condition->applicable_rules($optionid);  // K11, mehrere Regeln möglich
+        if (empty($ruleids)) { return; }
 
         $excludeuserids = $this->offers->get_permanently_declined_userids($optionid); // K7
         $candidates = $this->offers->get_unbehandelte_waitinglist($optionid, $excludeuserids); // O1/O2
 
-        foreach ($candidates as $candidate) {
-            if ($free <= 0) { break; }                            // K1: min(N, M)
-            if (!$candidate->still_on_waitinglist()) { continue; } // K8, kein $free--
+        // Pro qualifizierender Regel (id ASC), gemeinsamer $free-Topf wird weitergereicht -
+        // Regel 1 nimmt was sie kann, Regel 2 den Rest usw. (entspricht dem heutigen Verhalten
+        // unabhängiger Ketten, jetzt aber mit echtem gemeinsamem Kapazitäts-Gate). Ein einmal in
+        // dieser Runde behandelter Kandidat darf keiner weiteren Regel erneut zugeteilt werden -
+        // Detail wird bei der Implementierung von progression selbst festgelegt.
+        foreach ($ruleids as $ruleid) {
+            foreach ($candidates as $candidate) {
+                if ($free <= 0) { break 2; }                            // K1: min(N, M)
+                if (!$candidate->still_on_waitinglist()) { continue; }  // K8, kein $free--
 
-            $decision = $this->decision->decide($candidate);
-            if ($decision === booking_decision::AUTOBOOK) {
-                $this->autobook($candidate, $optionid);            // K3, mit Re-Check auf freien Platz
-            } else {
-                $this->offer($candidate, $optionid, $this->clock->time()); // K4: expiresat = now + interval
+                $decision = $this->decision->decide($candidate);
+                if ($decision === booking_decision::AUTOBOOK) {
+                    $this->autobook($candidate, $optionid);             // K3, mit Re-Check auf freien Platz
+                } else {
+                    $this->offer($candidate, $optionid, $ruleid, $this->clock->time()); // K4
+                }
+                $free--;
             }
-            $free--;
         }
     }
 }
@@ -200,8 +208,8 @@ sequenceDiagram
     alt free <= 0
         P-->>Trigger: return (K12, strukturell)
     else free > 0
-        P->>Cond: execution_condition_met(optionid)
-        Cond-->>P: true/false (K11)
+        P->>Cond: applicable_rules(optionid)
+        Cond-->>P: ruleids[] (K11, mehrere Regeln möglich)
         P->>Repo: get_permanently_declined_userids(optionid)
         Repo-->>P: excludeuserids (K7)
         P->>Repo: get_unbehandelte_waitinglist(optionid, exclude)
@@ -211,12 +219,12 @@ sequenceDiagram
             Dec-->>P: AUTOBOOK oder OFFER
             alt AUTOBOOK (K3)
                 P->>Repo: transition(offer, autobooked)
-                P->>Msg: notify_autobooked(candidate)
+                P->>Msg: notify_autobooked(candidate, ruleid)
             else OFFER (K4)
                 P->>Clock: time()
                 Clock-->>P: now
                 P->>Repo: create_offer(..., expiresat = now + interval)
-                P->>Msg: notify_offer(offer)
+                P->>Msg: notify_offer(offer, ruleid)
             end
         end
     end
@@ -226,14 +234,20 @@ sequenceDiagram
 
 ```
 interface messaging_gateway {
-    public function notify_offer(waitlist_offer $offer, rule_configuration $config): void;
-    public function notify_autobooked(waitlist_candidate $candidate, rule_configuration $config): void;
+    public function notify_offer(waitlist_offer $offer, int $ruleid): void;
+    public function notify_autobooked(booking_waitlist_candidate $candidate, int $ruleid): void;
 }
 ```
 
 Wrapt den bestehenden `message_controller` + Platzhalter-Mechanismus (Blueprint §2.4:
 "Rules-Layer wird reiner Messaging-Layer"). Der Reconciler kennt nur dieses Interface, nicht
 Moodle-Messaging-Details — Dependency Inversion, macht Reconciler-Tests messaging-frei.
+
+`$ruleid` statt eines eigenen `rule_configuration`-Typs (ursprünglicher Entwurf, existierte nie im
+Code): `message_controller` liest Regel-Daten heute schon selbst per `ruleid` aus der DB, ein
+serialisiertes `rulejson` gilt im Bestandscode explizit als unzuverlässig ("Send the ruleid as
+rulejson often seems to not work", `send_mail_by_rule_adhoc.php`). `moodle_messaging_gateway`
+folgt demselben Muster.
 
 ## 4. Trigger-Schicht: Adapter Pattern
 
@@ -335,7 +349,8 @@ mod_booking\local\waitlist\
   db_waitlist_offer_repository.php (Implementierung, 3.2)
   booking_decision_strategy.php  (Interface + price_based_decision_strategy, 3.1)
   capacity_calculator.php        (K2)
-  rule_condition_checker.php     (K11/K12, liest bestehende rule_react_on_event-Konfiguration)
+  rule_condition_checker.php     (K11, liest bestehende rule_react_on_event/send_mail_interval-
+                                   Konfiguration; unterstützt mehrere aktive Regeln pro Instanz)
   messaging_gateway.php          (Interface + moodle_messaging_gateway, 3.4)
   progression.php                (Facade/Service, 3.3)
   progression_factory.php        (Composition Root — verdrahtet die DI-Kette einmal zentral)
@@ -393,16 +408,16 @@ classDiagram
         +free_capacity(optionid) int
     }
     class rule_condition_checker {
-        +execution_condition_met(optionid) bool
+        +applicable_rules(optionid) int[]
     }
     class messaging_gateway {
         <<interface>>
-        +notify_offer(offer, config)
-        +notify_autobooked(candidate, config)
+        +notify_offer(offer, ruleid)
+        +notify_autobooked(candidate, ruleid)
     }
     class moodle_messaging_gateway {
-        +notify_offer(offer, config)
-        +notify_autobooked(candidate, config)
+        +notify_offer(offer, ruleid)
+        +notify_autobooked(candidate, ruleid)
     }
     class progression_factory {
         +get() progression
