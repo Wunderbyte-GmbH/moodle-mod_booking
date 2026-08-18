@@ -2314,7 +2314,7 @@ Please make sure that there are existing e-mail templates in the booking setting
 $string['managebookedusers_heading'] = 'Manage bookings for <b>{$a->scopestring}</b>: "{$a->title}"';
 $string['managebooking'] = 'Manage';
 $string['managebookinginstancetemplates'] = 'Manage booking instance templates';
-$string['managecustomfieldoptions'] = 'Manage booking custom field options';
+$string['managecustomfieldoptions'] = 'Manage booking custom field hierachies';
 $string['managecustomfieldoptions_desc'] = 'Manage the parent/child option lists used by mod_booking option custom fields.';
 $string['manageoptiontemplates'] = 'Manage booking option templates';
 $string['manageresponses'] = 'Manage bookings';
