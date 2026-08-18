@@ -2109,18 +2109,18 @@ function booking_activitycompletion($selectedusers, $booking, $cmid, $optionid) 
             ['bookingid' => $booking->id, 'userid' => $selecteduser, 'completed' => '1']
         );
 
+        // Important: $userdata->completed already contains the NEW state, as booking_option::toggle_user_completion
+        // has written it to the DB before triggering the event which leads us here. So $countcomplete already
+        // includes (or excludes) the answer which has just been toggled.
         if ($userdata->completed == '1') {
-            if ($completion->is_enabled($cm) && $booking->enablecompletion > $countcomplete) {
-                $completion->update_state($cm, COMPLETION_INCOMPLETE, $selecteduser);
-            }
-        } else {
-            $countcomplete = $DB->count_records(
-                'booking_answers',
-                ['bookingid' => $booking->id, 'userid' => $selecteduser, 'completed' => '1']
-            );
-
+            // User has just been marked as completed for this option.
             if ($completion->is_enabled($cm) && $booking->enablecompletion <= $countcomplete) {
                 $completion->update_state($cm, COMPLETION_COMPLETE, $selecteduser);
+            }
+        } else {
+            // Completion for this option has just been undone.
+            if ($completion->is_enabled($cm) && $booking->enablecompletion > $countcomplete) {
+                $completion->update_state($cm, COMPLETION_INCOMPLETE, $selecteduser);
             }
         }
     }
