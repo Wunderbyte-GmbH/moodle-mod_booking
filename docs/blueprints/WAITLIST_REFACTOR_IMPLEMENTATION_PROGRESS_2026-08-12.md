@@ -32,16 +32,16 @@ nachweislich rendert: einfache Rechtecke, Zylinder für Tabellen, einfache Pfeil
 flowchart TB
     subgraph Domain["mod_booking/local/waitlist - Domaenenkern"]
         offer_status["✅ offer_status<br/>State Pattern, Paragraph 2.2"]
-        waitlist_offer["⬜ waitlist_offer<br/>Entity"]
-        waitlist_offer_repository["⬜ waitlist_offer_repository<br/>Interface, Paragraph 3.2"]
-        db_waitlist_offer_repository["⬜ db_waitlist_offer_repository<br/>DB-Implementierung"]
-        booking_decision_strategy["⬜ booking_decision_strategy<br/>Interface, Paragraph 3.1"]
-        price_based_decision_strategy["⬜ price_based_decision_strategy<br/>K3 K4 P1 P2"]
-        capacity_calculator["⬜ capacity_calculator<br/>K2"]
-        rule_condition_checker["⬜ rule_condition_checker<br/>K11 K12"]
-        messaging_gateway["⬜ messaging_gateway<br/>Interface, Paragraph 3.4"]
-        moodle_messaging_gateway["⬜ moodle_messaging_gateway<br/>Moodle-Messaging-Impl."]
-        progression["⬜ progression<br/>Facade reconcile, Paragraph 3.3<br/>einziger Schreibpfad"]
+        waitlist_offer["✅ waitlist_offer<br/>Entity"]
+        waitlist_offer_repository["✅ waitlist_offer_repository<br/>Interface, Paragraph 3.2"]
+        db_waitlist_offer_repository["✅ db_waitlist_offer_repository<br/>DB-Implementierung"]
+        booking_decision_strategy["✅ booking_decision_strategy<br/>Interface, Paragraph 3.1"]
+        price_based_decision_strategy["✅ price_based_decision_strategy<br/>K3 K4 P1 P2"]
+        capacity_calculator["✅ capacity_calculator<br/>K2"]
+        rule_condition_checker["✅ rule_condition_checker<br/>K11 (mehrere Regeln pro Instanz)"]
+        messaging_gateway["✅ messaging_gateway<br/>Interface, Paragraph 3.4"]
+        moodle_messaging_gateway["✅ moodle_messaging_gateway<br/>Moodle-Messaging-Impl."]
+        progression["✅ progression<br/>Facade reconcile, Paragraph 3.3<br/>einziger Schreibpfad"]
         progression_factory["⬜ progression_factory<br/>Composition Root"]
     end
 
@@ -111,7 +111,7 @@ flowchart TB
 | `booking_decision_strategy` | `local/waitlist/booking_decision_strategy.php` | Interface: Autobook vs. Offer | §3.1 |
 | `price_based_decision_strategy` | `local/waitlist/price_based_decision_strategy.php` | Preis-Entscheidung zum Behandlungszeitpunkt (K3/K4/P1/P2) | §3.1 |
 | `capacity_calculator` | `local/waitlist/capacity_calculator.php` | Freie Plätze = Kapazität − Gebucht − offene Offers | §5. K2 |
-| `rule_condition_checker` | `local/waitlist/rule_condition_checker.php` | "Führe aus wenn…"-Prüfung + struktureller K12-Guard | K11/K12 |
+| `rule_condition_checker` | `local/waitlist/rule_condition_checker.php` | "Führe aus wenn…"-Prüfung, `applicable_rules(optionid): int[]`, mehrere Regeln pro Instanz | K11 |
 | `messaging_gateway` | `local/waitlist/messaging_gateway.php` | Interface: Benachrichtigungen, Reconciler messaging-frei | §3.4 |
 | `moodle_messaging_gateway` | `local/waitlist/moodle_messaging_gateway.php` | Wrapt bestehenden `message_controller` | §3.4 |
 | `progression` | `local/waitlist/progression.php` | Facade — `reconcile()`, einziger Schreibpfad | §3.3 |
@@ -191,8 +191,234 @@ sofort korrigiert; (2) `phpcs` bemängelte fehlende Methoden-Docblocks in allen 
 Verifiziert: `phpcs` sauber (0/0) über alle 9 Dateien, `phpunit` 24/24 grün (72 Assertions),
 keine Fehler.
 
-**Als nächstes vorgeschlagen (🟨):** `waitlist_offer` (Entity, §2.1) — hängt von `offer_status`
-ab. Reines Datenobjekt: eine Zeile aus `booking_waitlist_offers` als typisiertes PHP-Objekt
-(`id, optionid, userid, baid, roundid, status: offer_status, sortorder, offeredat, expiresat,
-ruleid, version, timecreated, timemodified`). Keine eigene Logik außer ggf. einem
-Convenience-Constructor. Warte auf Freigabe.
+**`waitlist_offer` ist fertig (✅).** Reines Datenobjekt für eine Zeile aus
+`booking_waitlist_offers`, keine eigene Logik. Zwei Nachbesserungen beim Einfügen: (1) Moodle-
+`phpcs` mag PHP-8-Property-Promotion nicht (verlangt einen eigenen `/** @var */`-Docblock pro
+Property statt kombinierter `@param`-Tags im Konstruktor) — auf den klassischen Deklarieren-
+und-Zuweisen-Stil umgestellt, passend zum Rest des Codebase (kein `readonly` mehr, wird
+projektweit nirgends genutzt); (2) eine überzählige Leerzeile am Dateiende entfernt.
+
+Unit-Test `tests/local/waitlist/waitlist_offer_test.php` von Claude selbst geschrieben (Test-
+Dateien sind vom Copy-Paste-Modus ausgenommen): Konstruktor-Rundlauf über alle 13 Properties,
+plus ein Nachweis, dass `status` jede beliebige `offer_status`-Implementierung akzeptiert (nicht
+nur eine hartkodierte). `phpcs` sauber (0/0, ein eigener kleiner Nachbesserungsschritt bei
+uneinheitlicher Kommentar-Ausrichtung). Kombinierter Testlauf mit `offer_status_test.php`:
+26/26 grün, 87 Assertions, keine Fehler.
+
+**`waitlist_offer_repository` ist fertig (✅).** Reiner Vertrag, `phpcs` sauber im ersten Anlauf
+(0/0), keine Nachbesserung nötig. Kein eigener Unit-Test — bestätigt konsistent mit dem
+bestehenden `booking_rule_action`-Interface-Muster in diesem Codebase (reine Interfaces werden
+nicht separat getestet, das passiert über ihre Implementierungen).
+
+**`db_waitlist_offer_repository` ist fertig (✅).** Erste Klasse mit echtem DB-Zugriff in diesem
+Refactoring — und der bisher aufwendigste Schritt.
+
+**Design-Entscheidungen, die während der Umsetzung getroffen werden mussten** (Architektur-Doku
+lässt sie offen):
+- `\core\clock`-DI im Konstruktor (§5.1), optional mit Fallback auf `\core\di::get(...)` — damit
+  sowohl `progression_factory` später explizit injizieren kann, als auch alle bereits
+  geschriebenen B-/C-Tests (die `new db_waitlist_offer_repository()` ohne Argumente aufrufen)
+  automatisch den in `mock_clock_with_frozen()` registrierten Clock bekommen.
+- **"unbehandelt" ist NICHT rundengebunden**, sondern heißt "kein OFFENES (nicht-terminales)
+  Angebot" — eine Person mit nur einem abgelaufenen (`expired`) Angebot muss in einer späteren
+  Runde wieder als Kandidat:in auftauchen (siehe eigener Kommentar in `expired.php`). Nur
+  `declined` sperrt dauerhaft, über die separate `booking_waitlist_declines`-Tabelle — die
+  aufrufende Seite (`progression`, später) muss die K7-Ausschlussliste selbst per
+  `is_permanently_declined()` berechnen und übergeben, das Repository macht das nicht
+  automatisch (exakt wie B1s eigener Testcode das bereits vorgemacht hat).
+- `create_offer()` bekam nachträglich einen `$expiresat`-Parameter (Interface-Korrektur nötig —
+  die formale §3.2-Signatur hatte keinen, aber das Sequenzdiagramm in §3.3 zeigt ihn explizit;
+  ohne ihn gäbe es keinen Weg, K4 überhaupt zu setzen).
+- `baid` wird intern über eine Query gegen `booking_answers` aufgelöst, nicht als Parameter
+  übergeben (steht so auch nicht im Interface).
+- **Echter Bug beim Testen selbst gefunden UND korrigiert, bevor der Test geschrieben wurde:**
+  der ursprüngliche optimistische-Locking-Ansatz in `transition()` (Version NACH dem Schreiben
+  neu lesen) hatte eine Race-Lücke — ein zufällig exakt auf `alte_version+1` gelandeter,
+  unabhängiger Versionsstand hätte einen echten Konflikt fälschlich als "mein Update hat
+  geklappt" durchgewunken. Auf Vorher-Prüfung umgestellt (robuster, und passender zur
+  Architektur: das echte Nebenläufigkeits-Schutzmittel ist ohnehin das externe Lock aus §5.2,
+  das Versionsfeld nur redundantes Sicherheitsnetz).
+- `find_stalled_options()` (für B5/T7) bewusst NICHT in diesem Schritt enthalten — braucht
+  `capacity_calculator`, der laut Abhängigkeitsgraph erst danach kommt.
+
+**Unit-Test** `tests/local/waitlist/db_waitlist_offer_repository_test.php` von Claude selbst
+geschrieben, 9 Tests gegen die echte DB (`resetAfterTest()`, keine `booking_bookit()`-
+Choreografie nötig — reiner Repository-Test, keine FK-Constraints auf `optionid`/`userid`
+verifiziert): Persistenz + Clock-Nutzung, `baid`-Auflösung (inkl. Fallback auf 0), O1/O2-
+Reihenfolge UND Tie-Break bei identischem Timestamp, K4-Wiedereintritts-Fähigkeit nach Ablauf,
+gültige/ungültige Übergänge, idempotente K7-Sperre über mehrere Ablehnungen hinweg, und der
+optimistische-Lock-Konflikt-Fall (der den oben genannten Bug aufgedeckt hat).
+
+Verifiziert: `phpcs` sauber (0/0) für Implementierung und Test (je eine kleine
+Nachbesserungsrunde: fehlender Docblock-Einzeiler + Kommentar-Kleinbuchstaben in der Klasse;
+vier Kommentar-Kleinbuchstaben im Test, von Claude selbst behoben). `phpunit`: **9/9 grün beim
+ersten Lauf (38 Assertions)**, kombiniert mit den beiden vorherigen Testdateien: 35/35 grün
+(125 Assertions), keine Fehler.
+
+**`booking_decision_strategy` ist fertig (✅)** — zusammen mit zwei kleinen Hilfstypen, die die
+Architektur-Doku nur als Parameter-/Rückgabetyp erwähnte, ohne sie zu spezifizieren:
+- `booking_decision.php` (NEU) — Backed Enum mit zwei Werten (`AUTOBOOK`, `OFFER`). Kein State
+  Pattern nötig (anders als `offer_status`) — zwei Werte, kein eigenes Verhalten. Erstes Mal in
+  diesem Refactoring ein Enum verwendet, konsistent mit dem bereits bestehenden
+  `execution_point`-Enum-Präzedenzfall in diesem Codebase (`local/performance/actions/`).
+- `booking_waitlist_candidate.php` (NEU) — reines Datenobjekt (`optionid, userid, baid, user`),
+  klassischer Deklarieren-und-Zuweisen-Stil wie `waitlist_offer`. `$user` als volles
+  `\stdClass`-Objekt, weil `price::get_price('option', $optionid, $user)` (später in
+  `price_based_decision_strategy` gebraucht) ein komplettes User-Objekt erwartet, keine bloße Id.
+- `booking_decision_strategy.php` (NEU) — das eigentliche Interface: `decide(candidate):
+  booking_decision`.
+
+Alle drei Dateien `phpcs`-sauber im ersten Anlauf, einmal ein kleiner Pfad-Ausrutscher beim
+Einfügen (`tests/local/waitlist/` statt `classes/local/waitlist/`), sofort korrigiert. Zwei
+kleine Unit-Tests von Claude selbst dazu (`booking_decision_test.php`,
+`booking_waitlist_candidate_test.php`) — kein Test für das reine Interface, konsistent mit dem
+bereits etablierten Muster.
+
+Verifiziert: `phpcs` sauber (0/0) über alle 5 Dateien. Kombinierter Testlauf aller
+`local/waitlist`-Tests: **37/37 grün, 132 Assertions, keine Fehler.**
+
+**`price_based_decision_strategy` ist fertig (✅).** Drei Zeilen Kernlogik:
+`price::get_price()` frisch bei jedem Aufruf (P1), `$price['price'] ?? 0` statt nacktem
+Array-Zugriff (P2), Preis=0 → `AUTOBOOK` sonst `OFFER` (K3/K4). `phpcs` sauber im ersten Anlauf.
+
+**Zwei echte Setup-Bugs beim Testschreiben gefunden UND behoben** (guter Beleg, dass der
+DB-Test-Aufwand hier gerechtfertigt war):
+1. **Reihenfolge-Fehler:** Preiskategorien müssen VOR `create_option()` angelegt werden (wie in
+   A8/A9), nicht danach — sonst bekommt die Option keine Preis-Zeile für die Kategorie. Beim
+   ersten Testlauf alle 4 Tests mit "Error on set_data" fehlgeschlagen (fehlendes
+   `setAdminUser()` vor `create_option()`), dann nach dessen Behebung 2 von 4 Tests mit falschem
+   Ergebnis (`AUTOBOOK` statt `OFFER`) — Ursache zunächst fälschlich als Reihenfolge-Problem
+   vermutet, per Debug-Testfall mit `var_export()` gegen `price::get_price()` direkt widerlegt
+   (Preis wurde korrekt aufgelöst, wenn isoliert getestet).
+2. **Der tatsächliche Bug:** `singleton_service`s Preiskategorie-Cache ist STATISCH über den
+   ganzen PHPUnit-Prozess hinweg, wird von `resetAfterTest()` NICHT zurückgesetzt (das setzt nur
+   die DB zurück) — und da Auto-Increment-IDs nach jedem Reset wieder bei denselben Werten
+   starten, erbte ein "neuer" Test-User zufällig die ID eines User aus einem FRÜHEREN Test und
+   damit dessen gecachten (falschen) Kategoriewert. Exakt der A9-Fund, nur diesmal
+   testübergreifend statt innerhalb eines einzigen Tests. Behoben durch
+   `singleton_service::destroy_instance()` + `\cache_helper::purge_all()` in `setUp()` — fehlte
+   in meinem eigenen Test, ist aber Standard in bestehenden Testdateien wie
+   `waitinglist_sync_status_test.php`, die ich beim Schreiben übersehen hatte.
+
+4 Tests (K3, K4, P1, P2), alle grün nach der Korrektur. `phpcs` sauber (0/0). Kombinierter
+Testlauf aller `local/waitlist`-Tests: **41/41 grün, 138 Assertions, keine Fehler.**
+
+**`capacity_calculator` ist fertig (✅).** Eine Methode, `free_capacity()` = `max(0, maxanswers −
+gebucht − offene Angebote)`. Bewusste Design-Entscheidung: die "gebucht"-Zählung wurde NICHT neu
+geschrieben, sondern die bestehende, ausgereifte `\mod_booking\booking_answers\booking_answers`-
+Klasse wiederverwendet (korrekte `places`-Gewichtung, `RESERVED` zählt als belegt, `DELETED`
+nicht — Randfälle, die eine Neu-Implementierung leicht falsch machen könnte). Geprüft, ob
+`maxanswers = 0` in diesem Codebase „unbegrenzt" bedeutet (wie `maxoverbooking = -1` es für die
+Warteliste tut) — keine klare, durchgängige Konvention dafür gefunden, daher `maxanswers` wörtlich
+behandelt, kein Sonderfall.
+
+Ein kleiner `phpcs`-Nachbesserungsschritt (fehlender Docblock-Einzeiler am Konstruktor). Test von
+Claude selbst geschrieben, 6 Fälle, alle beim ERSTEN Lauf grün (guter Beleg für die
+Wiederverwendungs-Entscheidung): Grundformel, offene Angebote zählen mit, terminale Angebote
+NICHT, `places`-Gewichtung, `RESERVED`/`DELETED`-Unterscheidung, nie negativ.
+
+Verifiziert: `phpcs` sauber (0/0). Kombinierter Testlauf aller `local/waitlist`-Tests: **47/47
+grün, 144 Assertions, keine Fehler.**
+
+**`rule_condition_checker` ist fertig (✅).** Wichtige Design-Korrektur während der Umsetzung:
+die Architektur sah ursprünglich `execution_condition_met(optionid): bool` vor (eine Regel pro
+Instanz angenommen). Rückfrage bei Georg ergab: **mehrere unabhängige `rule_react_on_event` +
+`send_mail_interval`-Regeln pro Instanz sind gewollt und bleiben unterstützt** (z. B. zwei
+verschiedene Intervalle mit unterschiedlichen Bedingungen gleichzeitig aktiv) — genau wie im
+heutigen Code (`rules_info::get_companion_interval_rules_for_waitinglist_join()` ist explizit
+Mehrfach-Treffer-fähig). Architektur-Doc (§3.3, Sequenzdiagramm, §6) entsprechend korrigiert:
+Methode heißt jetzt `applicable_rules(optionid): int[]`, liefert alle aktuell zutreffenden
+Regel-IDs (aufsteigend sortiert) statt eines einzelnen bool. `progression::reconcile()`s
+Pseudocode iteriert jetzt pro Regel-ID über den gemeinsamen `$free`-Kapazitätstopf.
+
+Implementierung: liest `booking_rules` über die bestehende
+`booking_rules::get_list_of_saved_rules_by_context()` (Kontext + Event-Filter), filtert per PHP
+auf `rulejson->actionname === 'send_mail_interval'` und `isactive`, wertet die 5 Bedingungswerte
+über `booking_answers::is_fully_booked()`/`is_fully_booked_on_waitinglist()` aus (je einmal pro
+Aufruf berechnet, nicht pro Regel neu). K12 wird weiterhin NICHT hier getestet — strukturell
+durch den `free <= 0`-Guard in `reconcile()` selbst erfüllt (bereits durch B6 bewiesen, sobald
+`progression` existiert).
+
+Ein echter Bug während der Testerstellung gefunden und behoben: die erste Fassung nutzte
+`singleton_service::get_instance_of_booking_answers($settings)` — der Options-Generator liest
+beim Anlegen der Option bereits Answers, cached also einen leeren Stand, bevor der Test seine
+rohe Antwort-Zeile einfügt. Exakt das gleiche Problem, das `capacity_calculator` schon hatte;
+gleiche Lösung: frische `new booking_answers($settings)`-Instanz statt Singleton-Zugriff.
+
+9 Tests von Claude selbst geschrieben (alle 5 Bedingungswerte einzeln, mehrere aktive Regeln
+aufsteigend sortiert, inaktive Regel ausgeschlossen, falscher Aktionstyp ausgeschlossen, keine
+Regeln = leeres Array), 4 schlugen wegen des Singleton-Bugs zunächst fehl, nach der Korrektur
+alle grün. `phpcs` sauber (0/0, ein `MOODLE_INTERNAL`-Warning zunächst, da keine Seiteneffekte im
+File — entfernt, wie bei den Schwesterklassen ohne `require_once`).
+
+Kombinierter Testlauf aller `local/waitlist`-Tests: **56/56 grün, 157 Assertions, keine Fehler.**
+
+**`messaging_gateway`/`moodle_messaging_gateway` sind fertig (✅).** Design-Korrektur während der
+Umsetzung: §3.4 sah einen eigenen `rule_configuration`-Typ vor, der im Code nirgends existiert —
+ersetzt durch simples `int $ruleid` (Signatur jetzt `notify_offer(offer, ruleid)`/
+`notify_autobooked(candidate, ruleid)`), analog zu `message_controller`, das Regel-Daten selbst
+per `ruleid` aus der DB liest (Bestandscode-Kommentar: "Send the ruleid as rulejson often seems
+to not work"). Sequenzdiagramm-Inkonsistenz (1 statt 2 Argumente) ebenfalls korrigiert.
+`notify_offer()` liest Betreff/Template aus der `actiondata` der über `applicable_rules()`
+gefundenen Regel (wie `send_mail_interval` heute), `notify_autobooked()` nutzt die
+options-eigenen Status-Change-Templates (wie der heutige Warteliste-Sync-Autobook-Pfad).
+
+**Bekannte offene Lücke, vermerkt für den `progression`-Schritt:** `db_waitlist_offer_repository::
+create_offer()` schreibt `ruleid` aktuell hart auf `0` — muss beim Bau von `progression` auf die
+Regel-ID aus der `applicable_rules()`-Schleife erweitert werden, damit persistierte Offers ihre
+Regel-Zuordnung tragen.
+
+**Echter Bug während der Testerstellung gefunden+behoben:** erste Fassung nutzte
+`MOD_BOOKING_MSGCONTRPARAM_QUEUE_ADHOC` für beide Methoden — das prüft intern zusätzlich das
+unabhängige, veraltete Options-Setting `sendmail`; ohne dieses Setting wird still gar nichts
+verschickt (auch kein Adhoc-Task gequeued). Der nächstliegende Bestandscode-Präzedenzfall
+(`send_mail_by_rule_adhoc.php`) nutzt tatsächlich `MOD_BOOKING_MSGCONTRPARAM_SEND_NOW` — passt
+auch inhaltlich besser, da `progression::reconcile()` ohnehin schon innerhalb eines Adhoc-Tasks
+läuft. Fix übernommen, beide Testfälle danach grün ohne `runAdhocTasks()`.
+
+3 Tests von Claude selbst geschrieben (`redirectMessages()`-Sink gegen echten `message_controller`,
+kein Mocking): Regel-Betreff/-Template kommt beim Empfänger an, nicht auflösbare `ruleid` sendet
+nichts (defensiv), Autobook-Benachrichtigung kommt an. Alle 3 nach der Korrektur grün. `phpcs`
+sauber (0/0).
+
+Kombinierter Testlauf aller `local/waitlist`-Tests: **59/59 grün, 160 Assertions, keine Fehler.**
+
+**`progression` ist fertig (✅).** Die zentrale Reconciler-Facade, einziger Schreibpfad.
+
+Dabei zwei bereits fertige Dateien erweitert (notwendige Lücken, keine Bequemlichkeit):
+- `waitlist_offer_repository`/`db_waitlist_offer_repository`: `create_offer()` bekam den
+  `$ruleid`-Parameter (schließt die seit `messaging_gateway` offene Lücke), plus zwei neue
+  Methoden `get_permanently_declined_userids(optionid): int[]` (K7 — es gab bisher nur die
+  Einzelabfrage) und `is_still_on_waitinglist(optionid, userid): bool` (K8 — Live-Recheck, ob ein
+  Kandidat zwischen Schnappschuss und Verarbeitung die Warteliste verlassen hat). 4 neue Tests
+  dafür geschrieben, 13/13 grün, keine Regression an den 9 bestehenden Tests dieser Datei.
+
+Wichtigste Design-Entscheidung: **K3-Autobook nutzt das bestehende, ausgereifte
+`booking_option::user_submit_response()`** statt des schlanken `write_user_answer_to_db()` —
+Letzteres hätte Enrolment/Events/Regel-Ausführung manuell nachbauen müssen (Fehlerrisiko).
+`user_submit_response()` macht das automatisch, exakt wie der heutige Warteliste-Sync-Autobook-
+Pfad. Kleines Restrisiko (erneute interne Verfügbarkeitsprüfung kann `false` liefern) defensiv
+behandelt: Kandidat wird übersprungen, `$free` nicht verringert, weiter zum nächsten.
+
+Weitere Design-Punkte: `roundid` = `$this->clock->time()` je `reconcile()`-Aufruf; `sortorder`
+wird EINMAL zu Rundenbeginn aus der O1/O2-Reihenfolge eingefroren (nicht pro Regel neu berechnet,
+passend zum Feld-Kommentar auf `waitlist_offer`); ein `$treated`-Set verhindert, dass ein
+Kandidat unter einer zweiten Regel in derselben Runde nochmal verarbeitet wird; K4s
+`expiresat` liest das Intervall (Minuten) direkt aus der jeweiligen Regel-`actiondata`.
+
+6 Integrationstests von Claude selbst geschrieben, gegen ECHTE Kollaborateure (keine Mocks) —
+K12 (Kapazität=0 ⇒ kompletter No-op), K11 (keine passende Regel ⇒ No-op trotz freier Kapazität),
+K3 (kostenloser Kandidat wird real umgebucht + benachrichtigt), K4 (bezahlpflichtiger Kandidat
+bekommt Offer mit korrektem `expiresat`/Regel-Betreff, wird NICHT gebucht), K1 (Batch = min(N,M),
+späterer Kandidat bleibt unangetastet), K7 (permanent abgelehnter Nutzer bleibt ausgeschlossen,
+auch wenn er real wieder auf der Warteliste steht). **Alle 6 grün im ersten Lauf.** `phpcs`: 6
+kleine Stil-Warnings (Inline-Kommentare ohne Satzzeichen am Ende) — noch offen, keine Fehler.
+
+Kombinierter Testlauf aller `local/waitlist`-Tests: **69/69 grün, 188 Assertions, keine Fehler.**
+
+**Für morgen offen:**
+1. Die 6 phpcs-Stil-Warnings in `progression.php` nachziehen (Zeilen 105, 110, 111, 119, 127, 141
+   — Inline-Kommentare brauchen ein Satzzeichen am Ende).
+2. **Als nächstes vorgeschlagen (🟨):** `progression_factory` (Composition Root) — §6, verdrahtet
+   erstmals alle konkreten Implementierungen zu einer einzigen `progression`-Instanz. Danach
+   können die B1-B7-Zieltests (bisher `markTestSkipped()`) aktiviert werden. Warte auf Freigabe.
