@@ -4110,10 +4110,14 @@ class booking_option {
                     ];
                 }
                 // User is booked and event open, we return the button with the link to access, this is for the website.
+                // Preset names (zoommeeting, teamsmeeting, ...) are lang string keys, free-text names are shown as is.
+                $label = get_string_manager()->string_exists($field->cfgname, 'mod_booking')
+                    ? get_string($field->cfgname, 'mod_booking')
+                    : $field->cfgname;
                 return [
                     'name' => null,
                     'value' => "<a href=$field->value class='btn btn-secondary booking-meetinglink-btn'>"
-                        . $field->cfgname . "</a>",
+                        . $label . "</a>",
                 ];
             case MOD_BOOKING_DESCRIPTION_CALENDAR:
                 // Calendar is static, so we don't have to check for booked or not.
