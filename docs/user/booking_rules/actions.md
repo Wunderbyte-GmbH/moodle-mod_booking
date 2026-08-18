@@ -62,6 +62,8 @@ The most commonly used action. Schedules an ad-hoc task that sends a custom emai
 | **Send iCal attachment** | Toggle on to include an iCal (`.ics`) calendar event in the email. |
 | **Create or cancel iCal** | When *Send iCal* is enabled: choose `Create` to add the event to the recipient's calendar, or `Cancel` to remove it. |
 
+**Meeting request or published events?** The `.ics` contains one calendar event per date of the booking option. If the option has **one single date**, the file is a *meeting request* (`METHOD:REQUEST`): mail clients such as Outlook offer Accept/Decline buttons, and with the site setting *Use a non-native mailer* the invitation is even sent as inline calendar data. If the option has **several dates** (e.g. two time slots on the same day), the file is sent as *published events* (`METHOD:PUBLISH`) instead: every client (Outlook, Apple Calendar, ...) imports all dates, but there are no Accept/Decline buttons. This is a limitation of the iCal standard (RFC 5546): a meeting request may only contain one event, and Outlook would only add the first date. A `Cancel` iCal always uses `METHOD:CANCEL`.
+
 ### How it works internally
 
 Each user/option combination is queued as a Moodle ad-hoc task (`send_mail_by_rule_adhoc`). Before the task executes, the system checks whether the rule still applies (e.g., the booking option was not cancelled, the user is still booked). If the rule no longer applies, the email is silently skipped.

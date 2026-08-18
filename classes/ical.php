@@ -44,6 +44,27 @@ const MOD_BOOKING_DESCRIPTION_ICAL = 3;
  */
 class ical {
     /**
+     * iTIP method for a meeting request: the mail client offers accept/decline buttons.
+     *
+     * @var string
+     */
+    public const METHOD_REQUEST = 'REQUEST';
+
+    /**
+     * iTIP method for publishing events: they can be imported, but there are no accept/decline buttons.
+     *
+     * @var string
+     */
+    public const METHOD_PUBLISH = 'PUBLISH';
+
+    /**
+     * iTIP method for cancelling events.
+     *
+     * @var string
+     */
+    public const METHOD_CANCEL = 'CANCEL';
+
+    /**
      * $datesareset
      *
      * @var bool
@@ -177,6 +198,13 @@ class ical {
     protected $individualvevents = [];
 
     /**
+     * The iTIP method of the ical which is currently generated, see get_method().
+     *
+     * @var string
+     */
+    protected $method = '';
+
+    /**
      * Create a new mod_booking\ical instance
      *
      * @param object $booking the booking activity details
@@ -268,11 +296,10 @@ class ical {
             $this->role = 'NON-PARTICIPANT';
             $this->partstat = 'DECLINED';
             $this->status = "\nSTATUS:CANCELLED";
-            // Determine the correct iCal method.
-            $icalmethod = 'CANCEL';
-        } else {
-            $icalmethod = 'REQUEST';
         }
+        // Determine the correct iCal method.
+        $icalmethod = $this->get_method($cancel);
+        $this->method = $icalmethod;
 
         /* The ical is created for one specific user. So everything in it has to be in the language
         of this user and not in the language of whoever - or of whatever cron job - triggered the
@@ -301,6 +328,34 @@ class ical {
         }
 
         return ['booking.ics' => $filepathname];
+    }
+
+    /**
+     * Get the iTIP method (RFC 5546) which is used for the ical.
+     *
+     * A cancellation is always sent as METHOD:CANCEL.
+     *
+     * For the creation (or update) of the events, the method depends on the number of dates of the
+     * booking option: A METHOD:REQUEST is a meeting request, for which mail clients like Outlook
+     * offer the accept/decline buttons. But RFC 5546 (section 3.2.2) demands that all VEVENTs of a
+     * REQUEST have the same UID, so it can only carry ONE event. Outlook (Windows and web) strictly
+     * follows this and imports just the first VEVENT of a REQUEST with several events, while other
+     * clients (Apple Calendar, Outlook for Mac) import all of them. Therefore, a REQUEST is only
+     * used as long as the option has one single date. For options with several dates we fall back
+     * to METHOD:PUBLISH, which allows any number of independent VEVENTs (RFC 5546, section 3.2.1)
+     * and which every client imports completely - at the price of having no accept/decline buttons.
+     *
+     * @param bool $cancel true if the ical cancels the events
+     * @return string one of the METHOD_ constants
+     */
+    public function get_method(bool $cancel = false): string {
+        if ($cancel) {
+            return self::METHOD_CANCEL;
+        }
+        if (count($this->times) > 1) {
+            return self::METHOD_PUBLISH;
+        }
+        return self::METHOD_REQUEST;
     }
 
     /**
@@ -428,9 +483,15 @@ class ical {
             "SUMMARY:{$this->summary}",
             "TRANSP:OPAQUE{$this->status}",
             "ORGANIZER;CN={$fromusername}:MAILTO:{$fromuseremail}",
-            "{$attendee}",
-            "UID:{$uid}",
         ];
+
+        // A published event has no attendees, RFC 5546 (section 3.2.1) does not allow the ATTENDEE
+        // property for METHOD:PUBLISH. The attendee only belongs to a REQUEST or CANCEL, where the
+        // recipient is asked to accept or decline the meeting.
+        if ($this->method !== self::METHOD_PUBLISH) {
+            $veventparts[] = "{$attendee}";
+        }
+        $veventparts[] = "UID:{$uid}";
 
         if (!empty($this->location)) {
             $veventparts[] = "LOCATION:{$this->location}";

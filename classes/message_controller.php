@@ -676,8 +676,12 @@ class message_controller {
                     && empty($settings->selflearningcourse) // No icals for selflearningcourses!
                 ) {
                     // If message contains attachment (ics file), we need to mail it using PHPMailer
-                    // as Moodle core can not send messages with mime type text/calendar. This logic works
-                    // only when there is 1 date, so in the case we have more than one date, we don't use this logic.
+                    // as Moodle core can not send messages with mime type text/calendar. The ics is
+                    // sent as inline calendar data so that Outlook shows the accept/decline buttons.
+                    // This only works for a meeting request or cancellation with ONE single event
+                    // (METHOD:REQUEST / METHOD:CANCEL, see ical::get_method()). Options with several
+                    // dates get a METHOD:PUBLISH ical without accept/decline anyway, so we don't use
+                    // this logic for them and send them like every other message.
                     $sent = $this->send_message_with_ical($this->messagedata);
                 } else {
                     // In all other cases, use message_send.

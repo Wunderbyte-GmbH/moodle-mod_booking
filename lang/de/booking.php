@@ -3823,7 +3823,7 @@ $string['uselegacymailtemplates'] = 'Weiterhin veraltete E-Mail-Vorlagen verwend
 $string['uselegacymailtemplates_desc'] = 'Diese Funktion ist veraltet und wird in naher Zukunft entfernt. Wir empfehlen Ihnen dringend, Ihre Vorlagen und Einstellungen zu <a href="{$a}">Buchungs Regeln</a> zu migrieren.
 <span class="text-danger"><b>Vorsicht:</b> Wenn Sie dieses Kästchen deaktivieren, werden Ihre E-Mail-Vorlagen in Ihren Buchungsinstanzen nicht mehr angezeigt und verwendet.</span>';
 $string['usenonnativemailer'] = 'Einen nicht nativen Mailer anstelle des integrierten Moodle-Mailers verwenden';
-$string['usenonnativemailer_desc'] = 'Wenn aktiviert, werden E-Mails mit Kalendereinladungen über einen nicht nativen Mailer anstelle des integrierten Moodle-Mailers gesendet, um sicherzustellen, dass die Empfänger die Schaltflächen „Annehmen/Ablehnen“ sehen.';
+$string['usenonnativemailer_desc'] = 'Wenn aktiviert, werden E-Mails mit Kalendereinladungen über einen nicht nativen Mailer anstelle des integrierten Moodle-Mailers gesendet, um sicherzustellen, dass die Empfänger die Schaltflächen „Annehmen/Ablehnen“ sehen. Das gilt nur für Buchungsoptionen mit einem einzigen Termin: Eine Besprechungsanfrage (mit Annehmen/Ablehnen) kann nur einen Termin enthalten, Optionen mit mehreren Terminen werden daher immer als normale E-Mail mit der iCal-Datei aller Termine versendet.';
 $string['usenotificationlist'] = 'Verwende Benachrichtigungsliste';
 $string['useonlyonefield'] = 'Kein weiteres Feld';
 $string['useprice'] = 'Nur mit Preis buchbar';

@@ -214,6 +214,115 @@ final class ical_test extends booking_advanced_testcase {
     }
 
     /**
+     * The iTIP method depends on the number of dates of the option: A METHOD:REQUEST may only carry
+     * one single event (RFC 5546, all VEVENTs of a REQUEST must have the same UID), Outlook imports
+     * just the first event of a REQUEST with several events. So an option with one date is sent as
+     * REQUEST (with the attendee, so that the mail client offers accept/decline), an option with
+     * several dates as PUBLISH (without attendee, which is not allowed in a PUBLISH), which every
+     * client imports completely. A cancellation is always a CANCEL.
+     *
+     * @covers \mod_booking\ical::get_method
+     * @covers \mod_booking\ical::get_attachments
+     * @dataProvider ical_method_provider
+     * @param int $numberofdates
+     * @param string $expectedmethod
+     * @return void
+     */
+    public function test_ical_method_depends_on_number_of_dates(int $numberofdates, string $expectedmethod): void {
+        $env = $this->setup_environment($numberofdates);
+        $option = $env['option'];
+        $student1 = $env['users']['student1'];
+        $this->resetAfterTest();
+
+        $optionsettings = singleton_service::get_instance_of_booking_option_settings($option->id);
+        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($optionsettings->cmid);
+        $bookingmanager = $bookingsettings->bookingmanageruser;
+
+        // Creation of the events.
+        $ical = new ical($bookingsettings, $optionsettings, $student1, $bookingmanager, false);
+        $this->assertEquals($expectedmethod, $ical->get_method(false));
+        $this->assertEquals(ical::METHOD_CANCEL, $ical->get_method(true));
+
+        $attachments = $ical->get_attachments(false);
+        $file = file_get_contents($attachments['booking.ics']);
+        $unfolded = preg_replace("/\r\n[ \t]/", '', $file);
+
+        $this->assertStringContainsString("\r\nMETHOD:{$expectedmethod}\r\n", $file);
+        // All dates are in the file, no matter which method is used.
+        $this->assertEquals($numberofdates, substr_count($file, 'BEGIN:VEVENT'));
+        $this->assertEquals($numberofdates, substr_count($file, 'END:VEVENT'));
+        // Every event has its own UID.
+        $this->assertEquals($numberofdates, preg_match_all('/^UID:.+$/m', $unfolded, $uids));
+        $this->assertCount($numberofdates, array_unique($uids[0]));
+        // The organizer is mandatory for every method.
+        $this->assertEquals($numberofdates, substr_count($file, 'ORGANIZER;'));
+        $this->assertStringNotContainsString('STATUS:CANCELLED', $file);
+
+        if ($expectedmethod === ical::METHOD_REQUEST) {
+            // The meeting request asks the user to accept or decline.
+            $this->assertEquals(1, substr_count($unfolded, 'ATTENDEE;'));
+            $this->assertStringContainsString('PARTSTAT=NEEDS-ACTION', $unfolded);
+            $this->assertStringContainsString('MAILTO:' . $student1->email, $unfolded);
+        } else {
+            // A PUBLISH must not have attendees.
+            $this->assertStringNotContainsString('ATTENDEE', $file);
+            $this->assertStringNotContainsString('MAILTO:' . $student1->email, $unfolded);
+        }
+
+        // Cancellation of the events: always CANCEL, the attendee declines every date.
+        $ical = new ical($bookingsettings, $optionsettings, $student1, $bookingmanager, false);
+        $attachments = $ical->get_attachments(true);
+        $file = file_get_contents($attachments['booking.ics']);
+        $unfolded = preg_replace("/\r\n[ \t]/", '', $file);
+        $this->assertStringContainsString("\r\nMETHOD:CANCEL\r\n", $file);
+        $this->assertStringNotContainsString('METHOD:PUBLISH', $file);
+        $this->assertEquals($numberofdates, substr_count($file, 'BEGIN:VEVENT'));
+        $this->assertEquals($numberofdates, substr_count($unfolded, 'ATTENDEE;'));
+        $this->assertEquals($numberofdates, substr_count($file, 'STATUS:CANCELLED'));
+    }
+
+    /**
+     * Two time slots on the same day (the reported case) are two events with different UIDs and
+     * different times, sent as PUBLISH.
+     *
+     * @covers \mod_booking\ical::get_method
+     * @covers \mod_booking\ical::get_attachments
+     * @return void
+     */
+    public function test_ical_two_slots_on_the_same_day(): void {
+        $day = strtotime('20 June 2050 00:00 UTC');
+        $env = $this->setup_environment(2, [
+            'coursestarttime_0' => $day + 9 * 3600,
+            'courseendtime_0' => $day + 10 * 3600,
+            'coursestarttime_1' => $day + 14 * 3600,
+            'courseendtime_1' => $day + 15 * 3600,
+        ]);
+        $option = $env['option'];
+        $student1 = $env['users']['student1'];
+        $this->resetAfterTest();
+
+        $optionsettings = singleton_service::get_instance_of_booking_option_settings($option->id);
+        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($optionsettings->cmid);
+        $bookingmanager = $bookingsettings->bookingmanageruser;
+
+        $ical = new ical($bookingsettings, $optionsettings, $student1, $bookingmanager, false);
+        $this->assertCount(2, $ical->get_times());
+        $this->assertEquals(ical::METHOD_PUBLISH, $ical->get_method());
+
+        $attachments = $ical->get_attachments(false);
+        $file = file_get_contents($attachments['booking.ics']);
+        $unfolded = preg_replace("/\r\n[ \t]/", '', $file);
+
+        $this->assertStringContainsString("\r\nMETHOD:PUBLISH\r\n", $file);
+        $this->assertEquals(2, substr_count($file, 'BEGIN:VEVENT'));
+        $this->assertEquals(2, preg_match_all('/^DTSTART:(.+)$/m', $unfolded, $starts));
+        $this->assertEquals(['20500620T090000Z', '20500620T140000Z'], array_map('trim', $starts[1]));
+        $this->assertEquals(2, preg_match_all('/^UID:(.+)$/m', $unfolded, $uids));
+        $this->assertNotEquals(trim($uids[1][0]), trim($uids[1][1]));
+        $this->assertStringNotContainsString('ATTENDEE', $file);
+    }
+
+    /**
      * Scenario:
      * We book an option for 2 students.
      * We must have some adhoc tasks for each user that sends a message.
@@ -380,8 +489,15 @@ final class ical_test extends booking_advanced_testcase {
         $record->id = $option->id;
         $record->cmid = $settings->cmid;
         $record->text = 'New booking option text';
+        // Only the title is changed. The date keys of the creation record must not be submitted again:
+        // the existing date is merged into the form data anyway, so submitting optiondateid_0 = 0 on
+        // top would create a second date and the option would not be a meeting request any more.
+        foreach (['optiondateid_0', 'daystonotify_0', 'coursestarttime_0', 'courseendtime_0'] as $key) {
+            unset($record->{$key});
+        }
         booking_option::update($record);
         singleton_service::destroy_booking_option_singleton($option->id);
+        $this->assertEquals(1, $DB->count_records('booking_optiondates', ['optionid' => $option->id]));
 
         // Check if adhoc tasks are created as we updated the booking option and defined a rule for it.
         $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
@@ -439,10 +555,10 @@ final class ical_test extends booking_advanced_testcase {
 
         // Now you can assert ICS internals.
         $this->assertStringContainsString('BEGIN:VCALENDAR', $content);
-        $this->assertStringContainsString('BEGIN:VEVENT', $content);
-        $this->assertStringContainsString('SUMMARY:', $content);
+        $this->assertEquals(1, substr_count($content, 'BEGIN:VEVENT'));
+        $this->assertStringContainsString('SUMMARY:New booking option text', $content);
         $this->assertStringContainsString('ATTENDEE', $content);
-        // It should have REQUEST method as user booked the option.
+        // It should have REQUEST method as the option has one single date.
         $this->assertStringContainsString('METHOD:REQUEST', $content);
     }
 
@@ -978,6 +1094,28 @@ final class ical_test extends booking_advanced_testcase {
         }
 
         return $files;
+    }
+
+    /**
+     * Data provider for test_ical_method_depends_on_number_of_dates.
+     *
+     * @return array
+     */
+    public static function ical_method_provider(): array {
+        return [
+            'Option with single date is a meeting request' => [
+                1, // Number of dates in the booking option.
+                ical::METHOD_REQUEST,
+            ],
+            'Option with double dates is published' => [
+                2,
+                ical::METHOD_PUBLISH,
+            ],
+            'Option with triple dates is published' => [
+                3,
+                ical::METHOD_PUBLISH,
+            ],
+        ];
     }
 
     /**
