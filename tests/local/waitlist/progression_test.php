@@ -1,0 +1,440 @@
+<?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * Tests for progression (WAITLIST_REFACTOR_ARCHITECTURE_2026-08-12.md §3.3), the reconciler
+ * facade - the single write path for waitlist progression. Built against REAL collaborators
+ * (db_waitlist_offer_repository, price_based_decision_strategy, capacity_calculator,
+ * rule_condition_checker, moodle_messaging_gateway), not mocks, matching this whole refactor's
+ * established testing style - real DB fixtures, real message_controller sends via
+ * redirectMessages(). K3 autobook goes through the real booking_option::user_submit_response(),
+ * so these are integration-level tests, not pure unit tests.
+ *
+ * @package mod_booking
+ * @copyright 2026 Wunderbyte GmbH <info@wunderbyte.at>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+namespace mod_booking\local\waitlist;
+
+use mod_booking\singleton_service;
+
+defined('MOODLE_INTERNAL') || die();
+global $CFG;
+require_once($CFG->dirroot . '/mod/booking/lib.php');
+
+/**
+ * §3.3 tests for progression::reconcile().
+ *
+ * @package mod_booking
+ * @category test
+ * @copyright 2026 Wunderbyte GmbH <info@wunderbyte.at>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @covers \mod_booking\local\waitlist\progression::reconcile
+ */
+final class progression_test extends \advanced_testcase {
+    public function setUp(): void {
+        parent::setUp();
+        $this->resetAfterTest();
+        singleton_service::destroy_instance();
+        \cache_helper::purge_all();
+        set_config('cacheturnoffforbookinganswers', 1, 'booking');
+    }
+
+    /**
+     * Creates a course + booking with a custom 'pricecat' profile field wired up as the
+     * price-category selector - same fixture as price_based_decision_strategy_test.php.
+     *
+     * @return array [\stdClass $course, \stdClass $teacher, \stdClass $booking]
+     */
+    private function prepare_course_and_booking(): array {
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $teacher = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->create_custom_profile_field([
+            'datatype' => 'text',
+            'shortname' => 'pricecat',
+            'name' => 'pricecat',
+        ]);
+        set_config('pricecategoryfield', 'pricecat', 'booking');
+
+        $bdata = [
+            'name' => 'Progression Test',
+            'eventtype' => 'Test',
+            'enablecompletion' => 1,
+            'bookedtext' => ['text' => 'text'],
+            'waitingtext' => ['text' => 'text'],
+            'notifyemail' => ['text' => 'text'],
+            'statuschangetext' => ['text' => 'statuschangebody'],
+            'deletedtext' => ['text' => 'text'],
+            'pollurltext' => ['text' => 'text'],
+            'pollurlteacherstext' => ['text' => 'text'],
+            'notificationtext' => ['text' => 'text'],
+            'userleave' => ['text' => 'text'],
+            'tags' => '',
+            'course' => $course->id,
+            'bookingmanager' => $teacher->username,
+        ];
+        $this->setAdminUser();
+        $booking = $this->getDataGenerator()->create_module('booking', $bdata);
+        $this->getDataGenerator()->enrol_user($teacher->id, $course->id, 'editingteacher');
+
+        return [$course, $teacher, $booking];
+    }
+
+    /**
+     * Creates one useprice=1 option. Must be called AFTER all needed price categories already
+     * exist (same ordering requirement as price_based_decision_strategy_test.php).
+     *
+     * @param \stdClass $course
+     * @param \stdClass $teacher
+     * @param \stdClass $booking
+     * @param int $maxanswers
+     * @param int $maxoverbooking
+     * @return int the new option's id
+     */
+    private function create_priced_option(
+        \stdClass $course,
+        \stdClass $teacher,
+        \stdClass $booking,
+        int $maxanswers,
+        int $maxoverbooking
+    ): int {
+        $this->setAdminUser();
+
+        /** @var \mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+
+        $record = new \stdClass();
+        $record->bookingid = $booking->id;
+        $record->text = 'progression-option';
+        $record->chooseorcreatecourse = 1;
+        $record->courseid = $course->id;
+        $record->maxanswers = $maxanswers;
+        $record->maxoverbooking = $maxoverbooking;
+        $record->useprice = 1;
+        $record->importing = 1;
+        $record->description = 'Will start in 2050';
+        $record->optiondateid_0 = "0";
+        $record->daystonotify_0 = "0";
+        $record->coursestarttime_0 = strtotime('20 June 2050 15:00');
+        $record->courseendtime_0 = strtotime('20 July 2050 14:00');
+        $record->teachersforoption = $teacher->username;
+        $option = $plugingenerator->create_option($record);
+        singleton_service::destroy_booking_option_singleton($option->id);
+
+        return (int) $option->id;
+    }
+
+    /**
+     * Creates one price category.
+     *
+     * @param string $identifier
+     * @param float $value
+     * @return void
+     */
+    private function create_pricecategory(string $identifier, float $value): void {
+        /** @var \mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $plugingenerator->create_pricecategory((object) [
+            'ordernum' => 1,
+            'name' => $identifier,
+            'identifier' => $identifier,
+            'defaultvalue' => $value,
+            'pricecatsortorder' => 1,
+        ]);
+    }
+
+    /**
+     * Creates one active rule_react_on_event + send_mail_interval rule.
+     *
+     * @param int $condition one of the rule_react_on_event::* constants
+     * @param string $subject
+     * @param string $template
+     * @param int $intervalminutes
+     * @return int the new rule's id
+     */
+    private function create_interval_rule(
+        int $condition,
+        string $subject = 'progsubj',
+        string $template = 'progtmpl',
+        int $intervalminutes = 60
+    ): int {
+        /** @var \mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $actstr = json_encode([
+            'interval' => $intervalminutes,
+            'subject' => $subject,
+            'template' => $template,
+            'templateformat' => '1',
+        ]);
+        $record = $plugingenerator->create_rule([
+            'name' => 'progression-rule-' . $condition . '-' . $intervalminutes,
+            'conditionname' => 'select_student_in_bo',
+            'conditiondata' => '{"borole":"1"}',
+            'actionname' => 'send_mail_interval',
+            'actiondata' => $actstr,
+            'rulename' => 'rule_react_on_event',
+            'boevent' => '\\mod_booking\\event\\bookingoption_freetobookagain',
+            'condition' => (string) $condition,
+        ]);
+        return (int) $record->id;
+    }
+
+    /**
+     * Creates a user with the given price-category profile value, enrols them into the course,
+     * and puts them on the option's waiting list via a direct booking_answers insert.
+     *
+     * @param \stdClass $course
+     * @param int $optionid
+     * @param string $pricecat
+     * @param int $timemodified used for O1/O2 join-order control
+     * @return \stdClass the created user
+     */
+    private function waitlist_user(\stdClass $course, int $optionid, string $pricecat, int $timemodified): \stdClass {
+        global $DB;
+        $user = $this->getDataGenerator()->create_user(['profile_field_pricecat' => $pricecat]);
+        $this->getDataGenerator()->enrol_user($user->id, $course->id, 'student');
+        $DB->insert_record('booking_answers', (object) [
+            'bookingid' => 0,
+            'userid' => $user->id,
+            'optionid' => $optionid,
+            'timemodified' => $timemodified,
+            'timecreated' => $timemodified,
+            'waitinglist' => MOD_BOOKING_STATUSPARAM_WAITINGLIST,
+            'status' => 0,
+        ]);
+        return $user;
+    }
+
+    /**
+     * Builds a progression instance wired with real collaborators.
+     *
+     * @return progression
+     */
+    private function build_progression(): progression {
+        return new progression(
+            new db_waitlist_offer_repository(),
+            new price_based_decision_strategy(),
+            new capacity_calculator(new db_waitlist_offer_repository()),
+            new rule_condition_checker(),
+            new moodle_messaging_gateway()
+        );
+    }
+
+    /**
+     * K12: zero free capacity is a complete, unconditional no-op - not even reached far enough
+     * to look at rules/candidates.
+     */
+    public function test_k12_zero_free_capacity_is_a_complete_noop(): void {
+        global $DB;
+
+        [$course, $teacher, $booking] = $this->prepare_course_and_booking();
+        $this->create_pricecategory('freecat', 0);
+        $optionid = $this->create_priced_option($course, $teacher, $booking, 1, 5);
+        $this->create_interval_rule(0); // ALWAYS.
+
+        // Fill the single seat directly, so free capacity is 0.
+        $filler = $this->getDataGenerator()->create_user();
+        $DB->insert_record('booking_answers', (object) [
+            'bookingid' => 0,
+            'userid' => $filler->id,
+            'optionid' => $optionid,
+            'timemodified' => 1,
+            'timecreated' => 1,
+            'waitinglist' => MOD_BOOKING_STATUSPARAM_BOOKED,
+            'status' => 0,
+        ]);
+
+        $waiting = $this->waitlist_user($course, $optionid, 'freecat', 100);
+
+        $this->setAdminUser();
+        $this->build_progression()->reconcile($optionid, 'test');
+
+        $this->assertEquals(0, $DB->count_records('booking_waitlist_offers', ['optionid' => $optionid]));
+        $answer = $DB->get_record('booking_answers', ['optionid' => $optionid, 'userid' => $waiting->id]);
+        $this->assertEquals(MOD_BOOKING_STATUSPARAM_WAITINGLIST, (int) $answer->waitinglist);
+    }
+
+    /**
+     * K11: free capacity exists, but no applicable rule is configured - must also be a no-op.
+     */
+    public function test_k11_no_applicable_rule_is_a_noop(): void {
+        global $DB;
+
+        [$course, $teacher, $booking] = $this->prepare_course_and_booking();
+        $this->create_pricecategory('freecat', 0);
+        $optionid = $this->create_priced_option($course, $teacher, $booking, 5, 5);
+        // Deliberately no rule created at all.
+
+        $waiting = $this->waitlist_user($course, $optionid, 'freecat', 100);
+
+        $this->setAdminUser();
+        $this->build_progression()->reconcile($optionid, 'test');
+
+        $this->assertEquals(0, $DB->count_records('booking_waitlist_offers', ['optionid' => $optionid]));
+        $answer = $DB->get_record('booking_answers', ['optionid' => $optionid, 'userid' => $waiting->id]);
+        $this->assertEquals(MOD_BOOKING_STATUSPARAM_WAITINGLIST, (int) $answer->waitinglist);
+    }
+
+    /**
+     * K3: a free-price candidate must be autobooked (real seat flip via
+     * booking_option::user_submit_response()) and notified.
+     */
+    public function test_k3_free_candidate_is_autobooked_and_notified(): void {
+        global $DB;
+
+        [$course, $teacher, $booking] = $this->prepare_course_and_booking();
+        $this->create_pricecategory('freecat', 0);
+        $optionid = $this->create_priced_option($course, $teacher, $booking, 2, 5);
+        $ruleid = $this->create_interval_rule(0); // ALWAYS.
+
+        $candidate = $this->waitlist_user($course, $optionid, 'freecat', 100);
+
+        $this->setAdminUser();
+        $sink = $this->redirectMessages();
+        $this->build_progression()->reconcile($optionid, 'test');
+        $messages = $sink->get_messages();
+        $sink->close();
+
+        $answer = $DB->get_record('booking_answers', ['optionid' => $optionid, 'userid' => $candidate->id]);
+        $this->assertEquals(
+            MOD_BOOKING_STATUSPARAM_BOOKED,
+            (int) $answer->waitinglist,
+            'K3: a free candidate must actually be booked, not just have an offer row created.'
+        );
+
+        $offerrow = $DB->get_record('booking_waitlist_offers', ['optionid' => $optionid, 'userid' => $candidate->id]);
+        $this->assertNotEmpty($offerrow);
+        $this->assertEquals(6, (int) $offerrow->status, 'autobooked must persist as status code 6.');
+        $this->assertEquals($ruleid, (int) $offerrow->ruleid);
+
+        $matching = array_filter($messages, fn($m) => (int) $m->useridto === (int) $candidate->id);
+        $this->assertNotEmpty($matching, 'notify_autobooked() must have sent a message to the candidate.');
+    }
+
+    /**
+     * K4: a paid candidate must receive an offer (not be booked), with a hard-expiry deadline
+     * derived from the rule's own interval, and be notified with the rule's own subject/template.
+     */
+    public function test_k4_paid_candidate_receives_an_offer_not_a_booking(): void {
+        global $DB;
+
+        $clock = $this->mock_clock_with_frozen(1000000000);
+
+        [$course, $teacher, $booking] = $this->prepare_course_and_booking();
+        $this->create_pricecategory('paidcat', 80);
+        $optionid = $this->create_priced_option($course, $teacher, $booking, 2, 5);
+        $ruleid = $this->create_interval_rule(0, 'k4subj', 'k4tmpl', 45); // ALWAYS, 45 minutes.
+
+        $candidate = $this->waitlist_user($course, $optionid, 'paidcat', 100);
+
+        $this->setAdminUser();
+        $sink = $this->redirectMessages();
+        $this->build_progression()->reconcile($optionid, 'test');
+        $messages = $sink->get_messages();
+        $sink->close();
+
+        $answer = $DB->get_record('booking_answers', ['optionid' => $optionid, 'userid' => $candidate->id]);
+        $this->assertEquals(
+            MOD_BOOKING_STATUSPARAM_WAITINGLIST,
+            (int) $answer->waitinglist,
+            'K4: a paid candidate must stay on the waiting list, not be auto-booked.'
+        );
+
+        $offerrow = $DB->get_record('booking_waitlist_offers', ['optionid' => $optionid, 'userid' => $candidate->id]);
+        $this->assertNotEmpty($offerrow);
+        $this->assertEquals(1, (int) $offerrow->status, 'offered must persist as status code 1.');
+        $this->assertEquals($ruleid, (int) $offerrow->ruleid);
+        $this->assertEquals(
+            1000000000 + (45 * MINSECS),
+            (int) $offerrow->expiresat,
+            'K4: expiresat must be now + the rule\'s own interval.'
+        );
+
+        $matching = array_filter(
+            $messages,
+            fn($m) => (int) $m->useridto === (int) $candidate->id && $m->subject === 'k4subj'
+        );
+        $this->assertNotEmpty($matching, 'notify_offer() must send the rule-configured subject.');
+        unset($clock);
+    }
+
+    /**
+     * K1: the batch size is capped at free capacity (min(N, M)) - with 1 free seat and 2 eligible
+     * candidates, only the earlier joiner (O1/O2) is processed; the other is left untouched.
+     */
+    public function test_k1_batch_limits_to_free_capacity(): void {
+        global $DB;
+
+        [$course, $teacher, $booking] = $this->prepare_course_and_booking();
+        $this->create_pricecategory('freecat', 0);
+        $optionid = $this->create_priced_option($course, $teacher, $booking, 1, 5);
+        $this->create_interval_rule(0); // ALWAYS.
+
+        $earlier = $this->waitlist_user($course, $optionid, 'freecat', 100);
+        $later = $this->waitlist_user($course, $optionid, 'freecat', 200);
+
+        $this->setAdminUser();
+        $this->build_progression()->reconcile($optionid, 'test');
+
+        $this->assertEquals(
+            1,
+            $DB->count_records('booking_waitlist_offers', ['optionid' => $optionid]),
+            'K1: exactly one candidate must be processed when only one seat is free.'
+        );
+
+        $earlieranswer = $DB->get_record('booking_answers', ['optionid' => $optionid, 'userid' => $earlier->id]);
+        $this->assertEquals(MOD_BOOKING_STATUSPARAM_BOOKED, (int) $earlieranswer->waitinglist, 'O1/O2: earlier joiner must win.');
+
+        $lateranswer = $DB->get_record('booking_answers', ['optionid' => $optionid, 'userid' => $later->id]);
+        $this->assertEquals(
+            MOD_BOOKING_STATUSPARAM_WAITINGLIST,
+            (int) $lateranswer->waitinglist,
+            'K1: the later joiner must be left completely untouched once capacity is exhausted.'
+        );
+    }
+
+    /**
+     * K7: a permanently declined user must never receive a new offer/autobook, even while
+     * genuinely back on the waiting list with free capacity available.
+     */
+    public function test_k7_permanently_declined_user_is_excluded(): void {
+        global $DB;
+
+        [$course, $teacher, $booking] = $this->prepare_course_and_booking();
+        $this->create_pricecategory('freecat', 0);
+        $optionid = $this->create_priced_option($course, $teacher, $booking, 5, 5);
+        $this->create_interval_rule(0); // ALWAYS.
+
+        $declineduser = $this->waitlist_user($course, $optionid, 'freecat', 100);
+        $DB->insert_record('booking_waitlist_declines', (object) [
+            'optionid' => $optionid,
+            'userid' => $declineduser->id,
+            'timecreated' => 1,
+        ]);
+
+        $this->setAdminUser();
+        $this->build_progression()->reconcile($optionid, 'test');
+
+        $this->assertEquals(
+            0,
+            $DB->count_records('booking_waitlist_offers', ['optionid' => $optionid, 'userid' => $declineduser->id]),
+            'K7: a permanently declined user must never get a new offer row.'
+        );
+        $answer = $DB->get_record('booking_answers', ['optionid' => $optionid, 'userid' => $declineduser->id]);
+        $this->assertEquals(MOD_BOOKING_STATUSPARAM_WAITINGLIST, (int) $answer->waitinglist);
+    }
+}
