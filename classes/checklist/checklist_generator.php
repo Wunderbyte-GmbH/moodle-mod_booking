@@ -128,18 +128,9 @@ class checklist_generator {
     }
 
     /**
-     * Whether the checklist is generated as PDF/A-2b (setting booking/pdfaenabled).
-     *
-     * @return bool
-     */
-    public static function pdfa_enabled(): bool {
-        return !empty(get_config('booking', 'pdfaenabled'));
-    }
-
-    /**
      * Builds the checklist PDF document from the given HTML.
      *
-     * With the setting booking/pdfaenabled the document is PDF/A-2b (see {@see pdfa_pdf}:
+     * With the setting local_wunderbyte_table/pdfaenabled the document is PDF/A-2b (see {@see pdfa_pdf}:
      * all fonts embedded, core font names in the template mapped to the embeddable
      * FreeFonts); otherwise it is generated exactly as before.
      *
@@ -147,7 +138,7 @@ class checklist_generator {
      * @return \pdf the finished document, ready for Output()
      */
     public function create_pdf_from_html(string $html): \pdf {
-        if (self::pdfa_enabled()) {
+        if (pdfa_pdf::enabled()) {
             $pdf = new pdfa_pdf($this->orientation, PDF_UNIT, PDF_PAGE_FORMAT);
         } else {
             $pdf = new checklist_pdf($this->orientation, PDF_UNIT, PDF_PAGE_FORMAT);

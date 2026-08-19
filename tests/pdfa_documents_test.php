@@ -25,7 +25,7 @@ use stdClass;
 
 /**
  * The template based PDFs (sign-in sheet in HTML mode, checklist) are PDF/A-2b when the
- * setting booking/pdfaenabled is on - and exactly the previous output when it is off.
+ * setting local_wunderbyte_table/pdfaenabled is on - and exactly the previous output when it is off.
  *
  * Structural checks only; the full ISO validation runs when VERAPDF_BIN points to
  * the veraPDF CLI (local check).
@@ -51,7 +51,7 @@ final class pdfa_documents_test extends booking_advanced_testcase {
      */
     protected function setUp(): void {
         parent::setUp();
-        set_config('pdfaenabled', 1, 'booking');
+        set_config('pdfaenabled', 1, 'local_wunderbyte_table');
     }
 
     /**
@@ -254,7 +254,7 @@ final class pdfa_documents_test extends booking_advanced_testcase {
      * without any PDF/A processing (core fonts stay unembedded).
      */
     public function test_without_setting_previous_output_is_kept(): void {
-        set_config('pdfaenabled', 0, 'booking');
+        set_config('pdfaenabled', 0, 'local_wunderbyte_table');
         $bookingoption = $this->create_booked_option();
         set_config(
             'signinsheethtml',
