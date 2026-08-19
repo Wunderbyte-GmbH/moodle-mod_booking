@@ -169,7 +169,8 @@ class addbookingoption extends external_api {
             ),
             'addtocalendar' => new external_value(
                 PARAM_INT,
-                'To add to calendar set to 1, else 0.',
+                'Add to Moodle calendar: 0 = do not add, 1 = course event, 2 = site event ' .
+                    '(2 requires the capability mod/booking:createcalendarsiteevents).',
                 VALUE_DEFAULT,
                 0
             ),

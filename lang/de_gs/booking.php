@@ -33,8 +33,6 @@
 defined('MOODLE_INTERNAL') || die();
 
 $string['activitycompletionsuccess'] = 'Alle Nutzer/innen wurden für den Aktivitätsabschluss ausgewählt';
-$string['addtocalendardesc'] = 'Kurs-Kalenderevents können von ALLEN Kursteilnehmer/innen des Kurses gesehen werden. Falls Sie nicht möchten, dass Kurs-Kalenderevents
-erstellt werden, können Sie diese Einstellung standardmäßig ausschalten und sperren. Keine Sorge: Normale Kalenderevents für gebuchte Optionen (User-Events) werden weiterhin erstellt.';
 $string['addtogroup'] = 'Nutzer/innen automatisch in Gruppe des verknüpften Kurses einschreiben';
 $string['addtogroup_help'] = 'Nutzer/innen automatisch in eine Gruppe des Kurses eintragen, der in den Einstellungen der Buchungsoption verknüpft ist. Die Gruppe wird nach folgendem Schema automatisch erstellt: Aktivitätsname - Name der Buchungsoption';
 $string['addtogroupofcurrentcourse'] = 'Nutzer/innen automatisch in Gruppe(n) des Kurses einschreiben, in dem sich diese Buchungsinstanz befindet';
@@ -162,7 +160,7 @@ $string['cachedef_bookforuser'] = 'Für Nutzer/innen buchen (Cache)';
 $string['cachedef_usercompetenciescache'] = 'Kompetenzen von Nutzer/innen (Cache)';
 $string['cacheturnoffforbookinganswers'] = 'Caching der Antworten (der Buchungen durch Nutzer/innen) abschalten';
 $string['caladdascourseevent'] = 'Zum Kalender hinzufügen (nur für Teilnehmer/innen des Moodle-Kurses sichtbar)';
-$string['caladdassiteevent'] = 'Zum Kalender hinzufügen (für alle Nutzer/innen sichtbar)';
+$string['caladdassiteevent'] = 'Als Website-Termin hinzufügen (für alle Nutzer/innen der Website sichtbar)';
 $string['cancancelbookallow'] = 'Teilnehmer/innen dürfen Buchungen selbst stornieren';
 $string['cancancelbookdays'] = 'Nutzer/innen können nur bis n Tage vor Kursstart stornieren. Negative Werte meinen n Tage NACH Kursstart.';
 $string['cancancelbookdays:bookingclosingtime'] = 'Nutzer/innen können nur bis n Tage vor <b>Anmeldeschluss (Buchungsende)</b> stornieren. Negative Werte meinen n Tage NACH Anmeldeschluss.';

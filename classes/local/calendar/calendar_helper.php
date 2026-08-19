@@ -49,7 +49,7 @@ class calendar_helper {
      */
     public static function option_set_visibility_for_all_calendar_events(int $optionid, int $visible = 1): void {
         global $DB;
-        // First, hide the course event(s).
+        // First, hide the instance-wide event(s) (course or site events).
         $courseeventsql = "SELECT * FROM {event} WHERE uuid LIKE " .
             $DB->sql_concat((string)$optionid, "'-%'");
         $courseevents = $DB->get_records_sql($courseeventsql);
@@ -85,15 +85,15 @@ class calendar_helper {
     }
 
     /**
-     * Helper function to delete only course calendar events
-     * for a specific option.
+     * Helper function to delete only the instance-wide calendar events
+     * (course or site events, NOT user events) for a specific option.
      *
      * @param int $optionid
      */
     public static function option_delete_course_calendar_events(int $optionid): void {
         global $DB;
 
-        // Just to be safe, we also delete via uuid.
+        // Just to be safe, we also delete via uuid (which is set for course and site events alike).
         $courseeventsql = "SELECT * FROM {event} WHERE uuid LIKE " .
             $DB->sql_concat((string)$optionid, "'-%'");
         $courseevents = $DB->get_records_sql($courseeventsql);
@@ -110,7 +110,7 @@ class calendar_helper {
     }
 
     /**
-     * Helper function to delete only course calendar events
+     * Helper function to delete only user calendar events
      * for a specific option.
      *
      * @param int $optionid

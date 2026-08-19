@@ -248,7 +248,7 @@ These columns configure who is allowed to book the option.
 
 | Column | What it does | Example |
 |--------|-------------|---------|
-| `addtocalendar` | Add the option to the Moodle calendar (`1` = yes) | `1` |
+| `addtocalendar` | Add the sessions to the Moodle calendar: `0` = no, `1` = course event (visible to course participants), `2` = site event (visible to all users of the site; the importing user needs `mod/booking:createcalendarsiteevents`, otherwise the row fails with a permission error) | `1` |
 | `duration` | Duration of the option in seconds | `7200` |
 | `credits` | Number of credits awarded | `3` |
 | `removeafterminutes` | Remove the option from view X minutes after it starts | `60` |

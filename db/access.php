@@ -600,6 +600,20 @@ $capabilities = [
             'manager' => CAP_ALLOW,
         ],
     ],
+    /* Capability to set "Add as site event" (addtocalendar = 2) on a booking option.
+       Site calendar events are visible to EVERY user of the site (no enrolment needed),
+       so this mirrors moodle/calendar:manageentries on the front page (RISK_SPAM).
+       Enforced server-side in \mod_booking\option\fields\addtocalendar for all save
+       paths (option form, bulk form, web service, CSV import). New capabilities are
+       assigned to existing roles by archetype on upgrade (manager). */
+    'mod/booking:createcalendarsiteevents' => [
+        'riskbitmask' => RISK_SPAM,
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => [
+            'manager' => CAP_ALLOW,
+        ],
+    ],
     'mod/booking:executebulkoperations' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,

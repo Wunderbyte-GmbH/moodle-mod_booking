@@ -70,14 +70,17 @@ After generating a series, you can still add one-off sessions manually using **A
 
 | Field | Value | Description |
 |-------|-------|-------------|
-| **Add to course calendar** (`addtocalendar`) | `0` — Do not add | Sessions are not added to the Moodle course calendar. |
-| | `1` — Add as course event | Each session is added as an event to the course calendar. The event is visible to **all** enrolled course members, not just bookers. |
+| **Add to Moodle calendar** (`addtocalendar`) | `0` — Do not add to calendar | Sessions are not added to the Moodle calendar as instance-wide events. (Personal calendar events for booked users and teachers are created regardless.) |
+| | `1` — Add to calendar (visible only to participants of moodle course) | Each session is added as a **course event** to the calendar of the course the booking instance is in. The event is visible to **all** enrolled course members, not just bookers. |
+| | `2` — Add as site event (visible to all users of the site) | Each session is added as a **site event**. Site events are visible to **every user of the site** — an enrolment in the course of the booking instance is not needed. Requires the capability `mod/booking:createcalendarsiteevents` (default: manager; site administrators always have it). |
 
-> **Important:** Course calendar events are visible to everyone enrolled in the connected Moodle course. If you only want events to appear in a user's personal calendar after booking, leave this set to *Do not add* and rely on the iCal/e-mail notification system instead.
+> **Important:** Course calendar events are visible to everyone enrolled in the connected Moodle course, site events to everyone on the site. If you only want events to appear in a user's personal calendar after booking, leave this set to *Do not add to calendar* and rely on the iCal/e-mail notification system instead.
 
-When **Add to calendar** is set to 1 and you later remove or change a date, the corresponding calendar event is deleted or updated automatically.
+When **Add to Moodle calendar** is set to 1 or 2 and you later remove or change a date, the corresponding calendar event is deleted or updated automatically. Switching between course event and site event converts the existing events in place. Like course events, site events are hidden while the booking option is invisible or the booking activity is hidden.
 
-This setting can be **locked** by an admin for the whole installation so that it cannot be changed per option.
+**Site events and permissions:** the option *Add as site event* is only offered to users holding `mod/booking:createcalendarsiteevents`. For other users the dropdown shows only *Do not add* and *course event*; if the option already is a site event (set by a privileged user), the dropdown is shown read-only so the setting is preserved. The check is enforced on the server for every save path (option form, bulk editing, web service, CSV import) — a value of `2` submitted without the capability is rejected with a permission error.
+
+**Defaults (site administration):** `booking/addtocalendardefault` preselects the dropdown for **new** booking options (*Do not add*, *course event* or *site event*; *site event* falls back to *course event* for users without the capability). `booking/addtocalendar_locked` freezes the dropdown at that default for everyone, so it cannot be changed per option. Neither setting affects existing options, the CSV import or the web service.
 
 ---
 

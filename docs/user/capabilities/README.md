@@ -79,6 +79,7 @@ Moodle capabilities define what each role is allowed to do inside **mod_booking*
 | `mod/booking:updatebooking` | Edit all settings of any booking option (full edit) | coursecreator, manager |
 | `mod/booking:manageoptiontemplates` | Create and manage booking option templates | manager |
 | `mod/booking:manageoptiondates` | Add, edit, and delete session dates on any booking option | manager, editingteacher |
+| `mod/booking:createcalendarsiteevents` | Set "Add as site event" for a booking option — its sessions are then shown in the Moodle calendar of **every user of the site** (no enrolment needed). Without it the option form offers only course events; a value submitted without the capability (form, bulk editing, web service, CSV import) is rejected. Site administrators always have it. See [Dates › Add to calendar](../booking-option/02-dates.md#3-add-to-calendar). | manager |
 | `mod/booking:editoptionformconfig` | Configure which sections appear in the booking option form | manager |
 | `mod/booking:expertoptionform` | See the full "expert" option form (all fields visible) | editingteacher, manager |
 | `mod/booking:reducedoptionform1` | Access reduced form variant 1 (customisable field set) | *(No default)* |

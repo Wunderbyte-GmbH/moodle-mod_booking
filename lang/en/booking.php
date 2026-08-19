@@ -77,9 +77,11 @@ $string['addpricecategory'] = 'Add price category';
 $string['addpricecategoryinfo'] = 'You can add another price category';
 $string['address'] = 'Address';
 $string['addsemester'] = 'Add semester';
-$string['addtocalendar'] = 'Add to course calendar';
-$string['addtocalendardesc'] = 'Course calendar events are visible to ALL users within a course. If you do not want them to be created at all,
-you can turn this setting off and lock it by default. Don\'t worry: user calendar events for booked options will still be created anyways.';
+$string['addtocalendar'] = 'Add to Moodle calendar';
+$string['addtocalendar_locked'] = 'Lock "Add to Moodle calendar"';
+$string['addtocalendar_locked_desc'] = 'If enabled, the "Add to Moodle calendar" dropdown in the booking option form is frozen at the default set above and cannot be changed by option editors. User calendar events for booked options are created regardless of this setting.';
+$string['addtocalendardefault'] = 'Default for "Add to Moodle calendar" of new booking options';
+$string['addtocalendardefault_desc'] = 'Preselected value of the "Add to Moodle calendar" dropdown when a new booking option is created. "Site event" only takes effect for users who have the capability mod/booking:createcalendarsiteevents (site administrators always have it) - for all other users "Course event" is preselected instead. Existing booking options, the CSV import and the web service are not affected by this default.';
 $string['addtogroup'] = 'Automatically enrol users in group of connected course';
 $string['addtogroup_help'] = 'Automatically enrol users in a group of the course that is connected in the settings of the booking option. The group will be created automatically with the name: Booking name - Option name';
 $string['addtogroupofcurrentcourse'] = 'Automatically enrol users in group(s) of the course in which this booking instance is located';
@@ -807,6 +809,7 @@ $string['booking:choose'] = 'Book';
 $string['booking:comment'] = 'Add comments';
 $string['booking:communicate'] = 'Can communicate';
 $string['booking:conditionforms'] = "Submit condition forms like booking policy or subbookings";
+$string['booking:createcalendarsiteevents'] = 'Create site calendar events for booking options (visible to all users of the site, no enrolment needed)';
 $string['booking:deleteresponses'] = 'Delete responses';
 $string['booking:documentation'] = 'Booking: Documentation';
 $string['booking:downloadchecklist'] = 'Download checklist';
@@ -1206,9 +1209,9 @@ $string['cacheturnoffforbookinganswers_desc'] = 'This setting significantly incr
 $string['cacheturnoffforbookingsettings'] = 'Turn off caching of booking option settings';
 $string['cacheturnoffforbookingsettings_desc'] = 'This setting significantly increases the load on the database. However, if there are massive problems with the cache configuration, this setting can still be advantageous.';
 $string['caladdascourseevent'] = 'Add to calendar (visible only to participants of moodle course)';
-$string['caladdassiteevent'] = 'Add to calendar (visible to all users)';
+$string['caladdassiteevent'] = 'Add as site event (visible to all users of the site)';
 $string['calcustomdescriptions'] = 'Calendar Custom descriptions  <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
-$string['caldonotadd'] = 'Do not add to calendar of moodle course';
+$string['caldonotadd'] = 'Do not add to calendar';
 $string['caleventdescriptionfield'] = 'Custom field for the calendar event description';
 $string['caleventdescriptionfielddesc'] = 'Choose a custom field that will be used for the description in the calendar events.<br>
 You can use placeholders like {title} or {description} in the custom field default (or individual values on booking option level).<br>
@@ -1936,6 +1939,7 @@ $string['error:negativevaluenotallowed'] = 'Please enter a positive value.';
 $string['error:newcoursecategorycfieldmissing'] = 'You need to create a <a href="{$a->bookingcustomfieldsurl}"
  target="_blank">booking custom field</a> for new course categories first. After you have created one, make sure
  it is selected in the <a href="{$a->settingsurl}" target="_blank">Booking plugin settings</a>.';
+$string['error:nocapabilityforsiteevents'] = 'You are not allowed to add booking options as site events (capability mod/booking:createcalendarsiteevents missing). Please choose "course event" or "do not add".';
 $string['error:noendtagfound'] = 'End the placeholder section "{$a}" with backslash ("/").';
 $string['error:nofieldchosen'] = 'You have to choose a field.';
 $string['error:nooptionformprofile'] = 'You have no booking option form profile (mod/booking:expertoptionform or one of the reduced form capabilities), so saving a booking option is not possible. Please contact your administrator.';
@@ -2146,7 +2150,7 @@ $string['icsattachementerror'] = 'Something were wrong when trying to attach ICS
 $string['id'] = "Id";
 $string['identifier'] = 'Identification';
 $string['ifdefinedusedtomatch'] = 'If defined, will be used to match.';
-$string['importaddtocalendar'] = 'Zum Moodle Kalender hinzufügen';
+$string['importaddtocalendar'] = 'Add to Moodle calendar: 0 = do not add, 1 = course event, 2 = site event (requires the capability mod/booking:createcalendarsiteevents)';
 $string['importcolumnsinfos'] = 'Informations about columns to be imported:';
 $string['importcoursenumber'] = 'Moodle ID number of a Moodle course in which the participants are enrolled';
 $string['importcourseshortname'] = 'Short name of a Moodle course in which the participants are enrolled';

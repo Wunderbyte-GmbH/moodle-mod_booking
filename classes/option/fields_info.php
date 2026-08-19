@@ -81,6 +81,10 @@ class fields_info {
                 // Execute the prepare function of every field.
                 try {
                     $returnvalue = $classname::prepare_save_field($formdata, $newoption, $updateparam);
+                } catch (\required_capability_exception $e) {
+                    // Capability violations must never be swallowed: the caller (form, web service,
+                    // importer) has to fail loudly and nothing may be persisted.
+                    throw $e;
                 } catch (\Exception $e) {
                     $error[] = $e;
                 }

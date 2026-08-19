@@ -2565,6 +2565,30 @@ if ($ADMIN->fulltree) {
             0
         )
     );
+    // Default of the "Add to Moodle calendar" dropdown for NEW booking options.
+    // "Site event" (2) is only applied for users holding mod/booking:createcalendarsiteevents,
+    // see \mod_booking\option\fields\addtocalendar::instance_form_definition().
+    $settings->add(
+        new admin_setting_configselect(
+            'booking/addtocalendardefault',
+            get_string('addtocalendardefault', 'mod_booking'),
+            get_string('addtocalendardefault_desc', 'mod_booking'),
+            \mod_booking\calendar::ADDTOCALENDAR_NONE,
+            [
+                \mod_booking\calendar::ADDTOCALENDAR_NONE => get_string('caldonotadd', 'mod_booking'),
+                \mod_booking\calendar::ADDTOCALENDAR_COURSE => get_string('caladdascourseevent', 'mod_booking'),
+                \mod_booking\calendar::ADDTOCALENDAR_SITE => get_string('caladdassiteevent', 'mod_booking'),
+            ]
+        )
+    );
+    $settings->add(
+        new admin_setting_configcheckbox(
+            'booking/addtocalendar_locked',
+            get_string('addtocalendar_locked', 'mod_booking'),
+            get_string('addtocalendar_locked_desc', 'mod_booking'),
+            0
+        )
+    );
 
     $options = [
         1 => get_string('courseurl', 'mod_booking'),

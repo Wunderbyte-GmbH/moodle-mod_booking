@@ -337,7 +337,7 @@ class optiondate {
         }
         $optionid = $optiondate->optionid;
 
-        // Delete calendar course event for the optiondate.
+        // Delete calendar course or site event for the optiondate.
         if ($optiondate->eventid !== null && $optiondate->eventid !== 0) {
             $DB->delete_records('event', ['id' => $optiondate->eventid]);
         } else {
@@ -345,7 +345,7 @@ class optiondate {
             // Optionid and optiondateid are stored in uuid column like this: optionid-optiondateid.
             $DB->delete_records_select(
                 'event',
-                "eventtype = 'course'
+                "eventtype IN ('course', 'site')
                 AND courseid <> 0
                 AND component = 'mod_booking'
                 AND uuid = :pattern",

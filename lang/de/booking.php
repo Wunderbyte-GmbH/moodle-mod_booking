@@ -75,9 +75,11 @@ $string['addpricecategory'] = 'Neue Preiskategorie hinzufügen';
 $string['addpricecategoryinfo'] = 'Sie können eine weitere Preiskategorie definieren.';
 $string['address'] = 'Adresse';
 $string['addsemester'] = 'Semester hinzufügen';
-$string['addtocalendar'] = 'Zum Kurs-Kalender hinzufügen';
-$string['addtocalendardesc'] = 'Kurs-Kalenderevents können von ALLEN Kursteilnehmer:innen des Kurses gesehen werden. Falls Sie nicht möchten, dass Kurs-Kalenderevents
-erstellt werden, können Sie diese Einstellung standardmäßig ausschalten und sperren. Keine Sorge: Normale Kalenderevents für gebuchte Optionen (User-Events) werden weiterhin erstellt.';
+$string['addtocalendar'] = 'Zum Moodle-Kalender hinzufügen';
+$string['addtocalendar_locked'] = '"Zum Moodle-Kalender hinzufügen" sperren';
+$string['addtocalendar_locked_desc'] = 'Wenn aktiviert, ist das Auswahlfeld "Zum Moodle-Kalender hinzufügen" im Formular der Buchungsoption auf die oben eingestellte Vorbelegung fixiert und kann von Bearbeiter:innen der Option nicht geändert werden. Nutzer-Kalendereinträge für gebuchte Optionen werden unabhängig davon weiterhin erstellt.';
+$string['addtocalendardefault'] = 'Vorbelegung von "Zum Moodle-Kalender hinzufügen" bei neuen Buchungsoptionen';
+$string['addtocalendardefault_desc'] = 'Vorausgewählter Wert des Auswahlfelds "Zum Moodle-Kalender hinzufügen" beim Anlegen einer neuen Buchungsoption. "Website-Termin" greift nur für Nutzer:innen mit der Berechtigung mod/booking:createcalendarsiteevents (Administrator:innen haben sie immer) - für alle anderen wird stattdessen "Kurs-Termin" vorbelegt. Bestehende Buchungsoptionen, der CSV-Import und der Webservice sind von dieser Vorbelegung nicht betroffen.';
 $string['addtogroup'] = 'Nutzer:innen automatisch in Gruppe des verknüpften Kurses einschreiben';
 $string['addtogroup_help'] = 'Nutzer:innen automatisch in eine Gruppe des Kurses eintragen, der in den Einstellungen der Buchungsoption verknüpft ist. Die Gruppe wird nach folgendem Schema automatisch erstellt: Aktivitätsname - Name der Buchungsoption';
 $string['addtogroupofcurrentcourse'] = 'Nutzer:innen automatisch in Gruppe(n) des Kurses einschreiben, in dem sich diese Buchungsinstanz befindet';
@@ -794,6 +796,7 @@ $string['booking:changelockedcustomfields'] = 'Kann gesperrte benutzerdefinierte
 $string['booking:choose'] = 'Buchen';
 $string['booking:communicate'] = 'Kann kommunizieren (z.B. Nachrichten an gebuchte Nutzer:innen schicken)';
 $string['booking:conditionforms'] = "Formulare von Buchungsbedingungen abschicken (z.B. Buchungsbedingungen oder Zusatzbuchungen)";
+$string['booking:createcalendarsiteevents'] = 'Website-Termine für Buchungsoptionen im Kalender anlegen (für alle Nutzer:innen der Website sichtbar, keine Einschreibung nötig)';
 $string['booking:deleteresponses'] = 'Buchungen löschen';
 $string['booking:documentation'] = 'Booking: Dokumentation';
 $string['booking:downloadchecklist'] = 'Checkliste herunterladen.';
@@ -1134,9 +1137,9 @@ $string['cacheturnoffforbookinganswers_desc'] = 'Die Last auf die Datenbank wird
 $string['cacheturnoffforbookingsettings'] = 'Caching der Einstellungen der Buchungsoptionen abschalten';
 $string['cacheturnoffforbookingsettings_desc'] = 'Die Last auf die Datenbank wird durch diese Einstellung massiv erhöht. Bei schweren Problemen mit der Cache Kofiguration kann diese Einstellung dennoch vorteilhaft sein.';
 $string['caladdascourseevent'] = 'Zum Kalender hinzufügen (nur für Teilnehmer:innen des Moodle-Kurses sichtbar)';
-$string['caladdassiteevent'] = 'Zum Kalender hinzufügen (für alle Nutzer:innen sichtbar)';
+$string['caladdassiteevent'] = 'Als Website-Termin hinzufügen (für alle Nutzer:innen der Website sichtbar)';
 $string['calcustomdescriptions'] = 'Benutzerdefinierte Beschreibungen für den Kalender <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
-$string['caldonotadd'] = 'Nicht zum Kalender des Moodle-Kurses hinzufügen';
+$string['caldonotadd'] = 'Nicht zum Kalender hinzufügen';
 $string['caleventdescriptionfield'] = 'Benutzerdefiniertes Feld für die Beschreibung des Kalendereintrags';
 $string['caleventdescriptionfielddesc'] = 'Wählen Sie ein benutzerdefiniertes Feld aus, das für die Beschreibung in den Kalendereinträgen verwendet wird.<br>
 Sie können Platzhalter wie {title} oder {description} im Standardwert des benutzerdefinierten Feldes (oder als individuelle Werte auf Buchungsoptionsebene) verwenden.<br>
@@ -1842,6 +1845,7 @@ $string['error:newcoursecategorycfieldmissing'] = 'Sie müssen zuerst ein <a hre
  target="_blank">benutzerdefiniertes Buchungsoptionsfeld</a> erstellen, das für die Kurskategorien für automatisch
  erstellte Kurse verwendet wird. Stellen Sie sicher, dass Sie dieses Feld
  auch in den <a href="{$a->settingsurl}" target="_blank">Plugin-Einstellungen des Buchungsmoduls</a> ausgewählt haben.';
+$string['error:nocapabilityforsiteevents'] = 'Sie dürfen Buchungsoptionen nicht als Website-Termine hinzufügen (Berechtigung mod/booking:createcalendarsiteevents fehlt). Bitte wählen Sie "Kurs-Termin" oder "Nicht hinzufügen".';
 $string['error:noendtagfound'] = 'Beenden Sie den begonnenen Placeholder-Abschnitt "{$a}" durch einen Backslash ("/").';
 $string['error:nofieldchosen'] = 'Sie müssen ein Feld auswählen.';
 $string['error:nooptionformprofile'] = 'Sie haben kein Formular-Profil für Buchungsoptionen (mod/booking:expertoptionform oder eine der reduzierten Formular-Capabilities), daher kann keine Buchungsoption gespeichert werden. Bitte kontaktieren Sie Ihre Administration.';
@@ -2042,7 +2046,7 @@ $string['icsattachementerror'] = 'Beim Versuch, die ICS-Datei in message_control
 $string['id'] = "Id";
 $string['identifier'] = 'Identifikator';
 $string['ifdefinedusedtomatch'] = 'Wenn angegeben findet der Abgleich über diesen Wert statt.';
-$string['importaddtocalendar'] = 'Zum Moodle Kalender hinzufügen';
+$string['importaddtocalendar'] = 'Zum Moodle-Kalender hinzufügen: 0 = nicht hinzufügen, 1 = Kurs-Termin, 2 = Website-Termin (benötigt die Berechtigung mod/booking:createcalendarsiteevents)';
 $string['importcolumnsinfos'] = 'Informationen zu Importfeldern:';
 $string['importcoursenumber'] = 'Moodle ID Nummer eines Moodle-Kurses, in den die Buchenden eingeschrieben werden';
 $string['importcourseshortname'] = 'Kurzname eines Moodle-Kurses, in den die Buchenden eingeschrieben werden';
