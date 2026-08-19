@@ -27,10 +27,12 @@ namespace mod_booking\option\fields;
 use context;
 use context_module;
 use context_system;
+use html_writer;
 use mod_booking\calendar;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
 use mod_booking\singleton_service;
+use moodle_url;
 use MoodleQuickForm;
 use required_capability_exception;
 use stdClass;
@@ -291,13 +293,29 @@ class addtocalendar extends field_base {
             $mform->hideIf('addtocalendar', 'selflearningcourse', 'eq', 1);
         }
 
-        if (
-            (!$cansite && $current === calendar::ADDTOCALENDAR_SITE)
-            || get_config('booking', 'addtocalendar_locked')
-        ) {
+        $locked = !empty(get_config('booking', 'addtocalendar_locked'));
+        if ((!$cansite && $current === calendar::ADDTOCALENDAR_SITE) || $locked) {
             // Without the capability, a site event set by a privileged user must not be changed.
             // If the setting is locked in settings.php it will be frozen as well.
             $mform->freeze('addtocalendar');
+        }
+
+        // Tell administrators WHY the field is locked and where it can be unlocked.
+        if ($locked && has_capability('moodle/site:config', context_system::instance())) {
+            $link = html_writer::link(
+                new moodle_url('/admin/settings.php', ['section' => 'modsettingbooking'], 'admin-addtocalendar_locked'),
+                get_string('addtocalendarlockedhint_link', 'mod_booking'),
+                ['target' => '_blank']
+            );
+            $mform->addElement(
+                'static',
+                'addtocalendarlockedhint',
+                '',
+                '<div class="alert alert-info mb-0">' . get_string('addtocalendarlockedhint', 'mod_booking', $link) . '</div>'
+            );
+            if ($mform->elementExists('selflearningcourse')) {
+                $mform->hideIf('addtocalendarlockedhint', 'selflearningcourse', 'eq', 1);
+            }
         }
     }
 

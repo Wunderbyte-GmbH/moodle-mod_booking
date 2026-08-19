@@ -437,10 +437,25 @@ final class calendar_siteevent_test extends booking_advanced_testcase {
         $this->assertSame([0, 1, 2], $this->get_offered_values($element));
         $this->assertFalse($element->isFrozen());
 
-        // Locked setting freezes for everyone.
+        // Locked setting freezes for everyone; admins additionally get a hint linking to the setting.
         set_config('addtocalendar_locked', 1, 'booking');
-        $element = $this->render_addtocalendar_element($booking->cmid, 0);
-        $this->assertTrue($element->isFrozen());
+        $mform = $this->render_addtocalendar_form($booking->cmid, 0);
+        $this->assertTrue($mform->getElement('addtocalendar')->isFrozen());
+        $this->assertTrue($mform->elementExists('addtocalendarlockedhint'));
+        $hint = $mform->getElement('addtocalendarlockedhint')->toHtml();
+        $this->assertStringContainsString('section=modsettingbooking', $hint);
+        $this->assertStringContainsString('#admin-addtocalendar_locked', $hint);
+        $this->assertStringContainsString(get_string('addtocalendarlockedhint_link', 'mod_booking'), $hint);
+        // A teacher (no moodle/site:config) gets the frozen field but no hint.
+        $this->setUser($teacher);
+        $mform = $this->render_addtocalendar_form($booking->cmid, 0);
+        $this->assertTrue($mform->getElement('addtocalendar')->isFrozen());
+        $this->assertFalse($mform->elementExists('addtocalendarlockedhint'));
+        $this->setAdminUser();
+        // Unlocked: no hint for anyone.
+        set_config('addtocalendar_locked', 0, 'booking');
+        $mform = $this->render_addtocalendar_form($booking->cmid, 0);
+        $this->assertFalse($mform->elementExists('addtocalendarlockedhint'));
 
         // The default is NOT applied to existing options (set_data provides their stored value).
         set_config('addtocalendar_locked', 0, 'booking');
@@ -598,6 +613,20 @@ final class calendar_siteevent_test extends booking_advanced_testcase {
     }
 
     /**
+     * Renders the addtocalendar field into a fresh form.
+     *
+     * @param int $cmid
+     * @param int $optionid 0 for a new option
+     * @return \MoodleQuickForm
+     */
+    private function render_addtocalendar_form(int $cmid, int $optionid): \MoodleQuickForm {
+        $mform = new \MoodleQuickForm('addtocalendartestform' . uniqid(), 'post', '');
+        $formdata = ['id' => $optionid, 'cmid' => $cmid];
+        addtocalendar::instance_form_definition($mform, $formdata, [], [], false);
+        return $mform;
+    }
+
+    /**
      * Renders the addtocalendar field into a fresh form and returns its select element.
      *
      * @param int $cmid
@@ -605,10 +634,7 @@ final class calendar_siteevent_test extends booking_advanced_testcase {
      * @return \HTML_QuickForm_element
      */
     private function render_addtocalendar_element(int $cmid, int $optionid) {
-        $mform = new \MoodleQuickForm('addtocalendartestform' . uniqid(), 'post', '');
-        $formdata = ['id' => $optionid, 'cmid' => $cmid];
-        addtocalendar::instance_form_definition($mform, $formdata, [], [], false);
-        return $mform->getElement('addtocalendar');
+        return $this->render_addtocalendar_form($cmid, $optionid)->getElement('addtocalendar');
     }
 
     /**
