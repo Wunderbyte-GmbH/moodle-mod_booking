@@ -47,6 +47,10 @@ class booking_readiness_provider {
      * @return array{num_options:int,num_booked:int}
      */
     public static function get_booking_statistics(int $cmid, int $bookingid): array {
+        global $CFG, $DB;
+
+        require_once($CFG->dirroot . '/mod/booking/lib.php');
+
         $numoptions = 0;
         $numbooked = 0;
 
@@ -58,11 +62,24 @@ class booking_readiness_provider {
 
             $numoptions = $bookinginstance->get_all_options_count();
 
-            foreach ($bookinginstance->get_all_options(0, 0) as $option) {
-                $optionsettings = singleton_service::get_instance_of_booking_option_settings((int)$option->id);
-                $answers = singleton_service::get_instance_of_booking_answers($optionsettings);
-                $numbooked += count($answers->get_usersonlist());
-            }
+            // One aggregate query instead of instantiating the full settings and
+            // answers singletons for every single option of the instance - the
+            // panel is rendered on every view.php hit and the loop scaled linearly
+            // with the number of options (issue #2208). Count the distinct
+            // (option, user) pairs on the confirmed list, i.e. booked or reserved:
+            // the same population booking_answers::get_usersonlist() holds.
+            $sql = "SELECT COUNT(*)
+                      FROM (SELECT ba.optionid, ba.userid
+                              FROM {booking_answers} ba
+                              JOIN {booking_options} bo ON bo.id = ba.optionid
+                             WHERE bo.bookingid = :bookingid
+                               AND ba.waitinglist IN (:statusbooked, :statusreserved)
+                          GROUP BY ba.optionid, ba.userid) bookedpairs";
+            $numbooked = (int)$DB->count_records_sql($sql, [
+                'bookingid' => $bookingid,
+                'statusbooked' => MOD_BOOKING_STATUSPARAM_BOOKED,
+                'statusreserved' => MOD_BOOKING_STATUSPARAM_RESERVED,
+            ]);
         } catch (\Exception $e) {
             $numoptions = 0;
             $numbooked = 0;
