@@ -87,7 +87,10 @@ interface waitlist_offer_repository {
     public function transition(waitlist_offer $offer, offer_status $newstatus): void;
 
     /**
-     * Whether a user is permanently locked out of offers for this option (K7).
+     * Whether a user is locked out of offers for this option - either K7 (an active decline,
+     * always permanent) or K4 (an expired offer, permanent unless the option has waitlistrecycling
+     * enabled, in which case waitlist_heartbeat_task periodically resets these via
+     * reset_expired_locks()).
      *
      * @param int $optionid
      * @param int $userid
@@ -97,7 +100,7 @@ interface waitlist_offer_repository {
 
 
     /**
-     * All user ids permanently locked out of offers for this option (K7).
+     * All user ids currently locked out of offers for this option - see is_permanently_declined().
      *
      * @param int $optionid
      * @return int[]
@@ -113,4 +116,44 @@ interface waitlist_offer_repository {
      * @return bool
      */
     public function is_still_on_waitinglist(int $optionid, int $userid): bool;
+
+    /**
+     * Loads a single offer by id.
+     *
+     * @param int $id
+     * @return waitlist_offer|null null if no such offer exists (anymore).
+     */
+    public function get_offer_by_id(int $id): ?waitlist_offer;
+
+
+    /**
+     * Finds options that are genuinely "stalled" (T7, WAITLIST_REFACTOR_ARCHITECTURE_2026-08-12.md
+     * §4.2): have at least one waiting-list answer, no open offer yet, AND real free capacity -
+     * a narrowly-scoped query on purpose (a lesson from an earlier load-test experience), not
+     * "every option with any waiting list at all".
+     *
+     * @return int[] option ids
+     */
+    public function find_stalled_options(): array;
+
+    /**
+     * Waitlist-recycling: removes the K4 (expired) lock for every user currently locked out on
+     * this option, so they become offerable again on the next reconcile() - but only the
+     * expiry-locks (reason=4). A K7 lock (reason=3, an active decline) is never touched by this -
+     * that lock is permanent regardless of waitlistrecycling.
+     *
+     * @param int $optionid
+     * @return void
+     */
+    public function reset_expired_locks(int $optionid): void;
+
+    /**
+     * Finds options where waitlistrecycling is enabled AND the waiting list is currently fully
+     * flagged - at least one person is still waiting, nobody has an open (pending/offered) offer,
+     * and everyone still waiting is locked out (declined or expired). waitlist_heartbeat_task
+     * calls reset_expired_locks() on each of these, then reconcile()s them.
+     *
+     * @return int[] option ids
+     */
+    public function find_recyclable_options(): array;
 }

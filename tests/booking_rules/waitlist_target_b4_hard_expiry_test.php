@@ -75,7 +75,7 @@ final class waitlist_target_b4_hard_expiry_test extends booking_advanced_testcas
     private function target_api_exists(): bool {
         return class_exists('\mod_booking\local\waitlist\progression_factory')
             && class_exists('\mod_booking\local\waitlist\db_waitlist_offer_repository')
-            && class_exists('\mod_booking\local\waitlist\offer_status')
+            && interface_exists('\mod_booking\local\waitlist\offer_status')
             && class_exists('\mod_booking\task\expire_waitlist_offer_adhoc');
     }
 
@@ -147,6 +147,19 @@ final class waitlist_target_b4_hard_expiry_test extends booking_advanced_testcas
         $option = $plugingenerator->create_option($record);
         singleton_service::destroy_booking_option_singleton($option->id);
 
+        // K11: progression::reconcile() only acts when an active send_mail_interval rule applies
+        // - this test predates rule_condition_checker, so a plain ALWAYS rule is added here.
+        $plugingenerator->create_rule([
+            'name' => 'b4-interval-rule',
+            'conditionname' => 'select_student_in_bo',
+            'conditiondata' => '{"borole":"1"}',
+            'actionname' => 'send_mail_interval',
+            'actiondata' => json_encode(['interval' => 60, 'subject' => 's', 'template' => 't', 'templateformat' => '1']),
+            'rulename' => 'rule_react_on_event',
+            'boevent' => '\\mod_booking\\event\\bookingoption_freetobookagain',
+            'condition' => '0', // ALWAYS.
+        ]);
+
         $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
         $boinfo = new bo_info($settings);
         $optionobj = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
@@ -190,7 +203,6 @@ final class waitlist_target_b4_hard_expiry_test extends booking_advanced_testcas
 
         $factoryclass = '\mod_booking\local\waitlist\progression_factory';
         $repositoryclass = '\mod_booking\local\waitlist\db_waitlist_offer_repository';
-        $offerstatusclass = '\mod_booking\local\waitlist\offer_status';
         $expiretaskclass = '\mod_booking\task\expire_waitlist_offer_adhoc';
         $progression = $factoryclass::get();
         $repository = new $repositoryclass();
@@ -256,7 +268,7 @@ final class waitlist_target_b4_hard_expiry_test extends booking_advanced_testcas
         // K5 idempotency guard: resolve offer2 (accepted) BEFORE its own expiry task would run -
         // the (already-queued) expire task for offer2 must be a no-op, must NOT force it back to
         // expired, and must NOT trigger a bogus reconcile() that hands the seat to wluser3.
-        $repository->transition($offer2, $offerstatusclass::accepted());
+        $repository->transition($offer2, new \mod_booking\local\waitlist\offer_statuses\accepted());
         $clock->set_to((int) $offer2->expiresat + 1);
 
         ob_start();

@@ -76,6 +76,24 @@ final class db_waitlist_offer_repository_test extends \advanced_testcase {
     }
 
     /**
+     * Inserts a minimal real booking_options row - needed for find_recyclable_options() tests
+     * specifically, since (unlike the rest of this file) that query genuinely JOINs booking_options,
+     * so an arbitrary unbacked optionid will never match.
+     *
+     * @param int $waitlistrecycling
+     * @return int the inserted booking_options.id
+     */
+    private function insert_option(int $waitlistrecycling): int {
+        global $DB;
+        return $DB->insert_record('booking_options', (object) [
+            'bookingid' => 0,
+            'text' => 'waitlistrecycling fixture',
+            'description' => '',
+            'waitlistrecycling' => $waitlistrecycling,
+        ]);
+    }
+
+    /**
      * create_offer() must persist all fields correctly, resolve baid from booking_answers, and
      * derive its timestamps from the injected clock rather than a bare time() call.
      */
@@ -144,9 +162,12 @@ final class db_waitlist_offer_repository_test extends \advanced_testcase {
 
     /**
      * get_unbehandelte_waitinglist() must exclude users with an open offer AND users in the
-     * explicit exclude list, but must INCLUDE a user whose only row is terminal-but-not-declined
-     * (e.g. expired) - re-eligibility for a later round, per expired.php's documented intent.
-     * Must be ordered by original join time, then id as tie-break (O1/O2).
+     * explicit exclude list; a genuinely expired offer now (since 2026-08-20, Georg decision:
+     * "wer einmal das Angebot bekommen hat soll nicht nochmal gefragt werden") registers the same
+     * permanent lock as a declined offer (verified separately below) - the real caller
+     * (progression) is expected to pass get_permanently_declined_userids()'s result in as part of
+     * $excludeuserids, which this test does explicitly to mirror real usage. Must be ordered by
+     * original join time, then id as tie-break (O1/O2).
      */
     public function test_get_unbehandelte_waitinglist_scoping_and_ordering(): void {
         $repository = new db_waitlist_offer_repository();
@@ -166,9 +187,11 @@ final class db_waitlist_offer_repository_test extends \advanced_testcase {
         // Note: userexcluded has no offer, but is passed explicitly in $excludeuserids - must be excluded.
         $this->insert_waitinglist_answer($optionid, (int) $userexcluded->id, 200);
 
-        // Note: userexpired has only a TERMINAL, non-declined row - must still be included (K4, not K7).
-        $baidexpired = $this->insert_waitinglist_answer($optionid, (int) $userexpired->id, 300);
-        $repository->create_offer($optionid, (int) $userexpired->id, 1, 1, new expired());
+        // Note: userexpired's offer genuinely expired via transition() (the real production path,
+        // used by expire_waitlist_offer_adhoc) - must now be permanently locked, same as declined.
+        $this->insert_waitinglist_answer($optionid, (int) $userexpired->id, 300);
+        $expiredoffer = $repository->create_offer($optionid, (int) $userexpired->id, 1, 1, new offered());
+        $repository->transition($expiredoffer, new expired());
 
         // Note: userlater was never touched at all, joined later than userexpired.
         $baidlater = $this->insert_waitinglist_answer($optionid, (int) $userlater->id, 400);
@@ -178,25 +201,32 @@ final class db_waitlist_offer_repository_test extends \advanced_testcase {
         $baidtiewinning = $this->insert_waitinglist_answer($optionid, (int) $usertiebreakwinning->id, 500);
         $baidtielosing = $this->insert_waitinglist_answer($optionid, (int) $usertiebreaklosing->id, 500);
 
-        $unbehandelt = $repository->get_unbehandelte_waitinglist($optionid, [(int) $userexcluded->id]);
+        // Mirrors real progression usage: the caller merges the K7/K4 permanent-lock list into
+        // its own explicit excludes before calling get_unbehandelte_waitinglist().
+        $excludeuserids = array_merge([(int) $userexcluded->id], $repository->get_permanently_declined_userids($optionid));
+        $unbehandelt = $repository->get_unbehandelte_waitinglist($optionid, $excludeuserids);
         $useridsinorder = array_map(fn($u) => (int) $u->userid, $unbehandelt);
 
         $this->assertEquals(
-            [(int) $userexpired->id, (int) $userlater->id, (int) $usertiebreakwinning->id, (int) $usertiebreaklosing->id],
+            [(int) $userlater->id, (int) $usertiebreakwinning->id, (int) $usertiebreaklosing->id],
             $useridsinorder,
-            'Expected: expired-but-eligible user first (earliest join), then userlater, then the ' .
-            'tie-break pair ordered by baid ascending - and useropen/userexcluded absent entirely.'
+            'Expected: userlater first, then the tie-break pair ordered by baid ascending - and ' .
+            'useropen/userexcluded/userexpired absent entirely.'
         );
 
         $baidsbyuserid = [];
         foreach ($unbehandelt as $u) {
             $baidsbyuserid[(int) $u->userid] = (int) $u->baid;
         }
-        $this->assertEquals($baidexpired, $baidsbyuserid[(int) $userexpired->id]);
         $this->assertEquals($baidlater, $baidsbyuserid[(int) $userlater->id]);
         $this->assertEquals($baidtiewinning, $baidsbyuserid[(int) $usertiebreakwinning->id]);
         $this->assertEquals($baidtielosing, $baidsbyuserid[(int) $usertiebreaklosing->id]);
         $this->assertLessThan($baidtielosing, $baidtiewinning, 'Precondition: winning baid must genuinely be lower.');
+
+        $this->assertTrue(
+            $repository->is_permanently_declined($optionid, (int) $userexpired->id),
+            'An expired offer must register the same permanent lock as a declined one.'
+        );
     }
 
     /**
@@ -273,6 +303,42 @@ final class db_waitlist_offer_repository_test extends \advanced_testcase {
             1,
             $DB->count_records('booking_waitlist_declines', ['optionid' => $optionid, 'userid' => $userid]),
             'A second decline for the same user/option must not create a duplicate lock row.'
+        );
+    }
+
+    /**
+     * Transitioning to expired must ALSO create a permanent lock row, exactly like declined -
+     * 2026-08-20 Georg decision: nobody who has ever received an offer gets asked again, whether
+     * declined or simply left to expire. Also idempotent across repeated expiries, same as K7.
+     */
+    public function test_transition_to_expired_creates_idempotent_permanent_lock(): void {
+        global $DB;
+
+        $repository = new db_waitlist_offer_repository();
+        $optionid = 5051;
+        $userid = (int) $this->getDataGenerator()->create_user()->id;
+
+        $this->assertFalse($repository->is_permanently_declined($optionid, $userid));
+
+        $offer1 = $repository->create_offer($optionid, $userid, 1, 1, new offered());
+        $repository->transition($offer1, new expired());
+        $this->assertTrue(
+            $repository->is_permanently_declined($optionid, $userid),
+            'K4: an expired offer must register the same permanent lock as a declined offer.'
+        );
+        $this->assertEquals(
+            1,
+            $DB->count_records('booking_waitlist_declines', ['optionid' => $optionid, 'userid' => $userid])
+        );
+
+        // A second, independent offer (different round) for the same user, also expired - must
+        // not create a second lock row.
+        $offer2 = $repository->create_offer($optionid, $userid, 2, 1, new offered());
+        $repository->transition($offer2, new expired());
+        $this->assertEquals(
+            1,
+            $DB->count_records('booking_waitlist_declines', ['optionid' => $optionid, 'userid' => $userid]),
+            'A second expiry for the same user/option must not create a duplicate lock row.'
         );
     }
 
@@ -383,5 +449,128 @@ final class db_waitlist_offer_repository_test extends \advanced_testcase {
             $repository->is_still_on_waitinglist($optionid, $userid),
             'Once the answer flips to booked, the user must no longer count as still on the waiting list.'
         );
+    }
+
+    /**
+     * reset_expired_locks() must remove only reason=expired lock rows for the given option - a
+     * reason=declined (K7) lock must survive untouched, and a lock on a different option must
+     * never be touched either.
+     */
+    public function test_reset_expired_locks_removes_only_expired_reason_rows(): void {
+        global $DB;
+
+        $repository = new db_waitlist_offer_repository();
+        $optionid = 5200;
+        $otheroptionid = 5201;
+        $userexpired = (int) $this->getDataGenerator()->create_user()->id;
+        $userdeclined = (int) $this->getDataGenerator()->create_user()->id;
+        $userexpiredonotheroption = (int) $this->getDataGenerator()->create_user()->id;
+
+        $offerexpired = $repository->create_offer($optionid, $userexpired, 1, 1, new offered());
+        $repository->transition($offerexpired, new expired());
+
+        $offerdeclined = $repository->create_offer($optionid, $userdeclined, 1, 2, new offered());
+        $repository->transition($offerdeclined, new declined());
+
+        $offerother = $repository->create_offer($otheroptionid, $userexpiredonotheroption, 1, 1, new offered());
+        $repository->transition($offerother, new expired());
+
+        $repository->reset_expired_locks($optionid);
+
+        $this->assertFalse(
+            $repository->is_permanently_declined($optionid, $userexpired),
+            'The K4 (expired) lock must be gone after reset_expired_locks().'
+        );
+        $this->assertTrue(
+            $repository->is_permanently_declined($optionid, $userdeclined),
+            'The K7 (declined) lock must never be touched by reset_expired_locks().'
+        );
+        $this->assertTrue(
+            $repository->is_permanently_declined($otheroptionid, $userexpiredonotheroption),
+            'reset_expired_locks() must only affect the given option, never other options.'
+        );
+    }
+
+    /**
+     * find_recyclable_options() must return an option once it is fully flagged (everyone still
+     * waiting is locked out) AND waitlistrecycling is enabled.
+     */
+    public function test_find_recyclable_options_returns_option_when_fully_flagged_and_recycling_enabled(): void {
+        $repository = new db_waitlist_offer_repository();
+        $optionid = $this->insert_option(1);
+        $userid = (int) $this->getDataGenerator()->create_user()->id;
+
+        $this->insert_waitinglist_answer($optionid, $userid, 100);
+        $offer = $repository->create_offer($optionid, $userid, 1, 1, new offered());
+        $repository->transition($offer, new expired());
+
+        $this->assertContains($optionid, $repository->find_recyclable_options());
+    }
+
+    /**
+     * The same fully-flagged state must NOT be returned when waitlistrecycling is disabled (the
+     * default) - that option must stay permanently locked (K4=K7), not self-heal.
+     */
+    public function test_find_recyclable_options_excludes_when_recycling_disabled(): void {
+        $repository = new db_waitlist_offer_repository();
+        $optionid = $this->insert_option(0);
+        $userid = (int) $this->getDataGenerator()->create_user()->id;
+
+        $this->insert_waitinglist_answer($optionid, $userid, 100);
+        $offer = $repository->create_offer($optionid, $userid, 1, 1, new offered());
+        $repository->transition($offer, new expired());
+
+        $this->assertNotContains($optionid, $repository->find_recyclable_options());
+    }
+
+    /**
+     * Not yet fully flagged: one waiter is still locked out, but another has never been offered
+     * anything at all - that option is not "done" yet and must not be returned.
+     */
+    public function test_find_recyclable_options_excludes_when_someone_still_unlocked(): void {
+        $repository = new db_waitlist_offer_repository();
+        $optionid = $this->insert_option(1);
+        $userlocked = (int) $this->getDataGenerator()->create_user()->id;
+        $useruntouched = (int) $this->getDataGenerator()->create_user()->id;
+
+        $this->insert_waitinglist_answer($optionid, $userlocked, 100);
+        $this->insert_waitinglist_answer($optionid, $useruntouched, 200);
+        $offer = $repository->create_offer($optionid, $userlocked, 1, 1, new offered());
+        $repository->transition($offer, new expired());
+
+        $this->assertNotContains($optionid, $repository->find_recyclable_options());
+    }
+
+    /**
+     * Not yet fully flagged: someone still has a genuinely open (pending/offered) offer - the
+     * round is still in progress, must not be treated as recyclable.
+     */
+    public function test_find_recyclable_options_excludes_when_open_offer_exists(): void {
+        $repository = new db_waitlist_offer_repository();
+        $optionid = $this->insert_option(1);
+        $userid = (int) $this->getDataGenerator()->create_user()->id;
+
+        $this->insert_waitinglist_answer($optionid, $userid, 100);
+        $repository->create_offer($optionid, $userid, 1, 1, new offered());
+
+        $this->assertNotContains($optionid, $repository->find_recyclable_options());
+    }
+
+    /**
+     * A waiting list where everyone is locked out purely via K7 (active decline, no expiry at
+     * all) is also "fully flagged" by definition - it IS returned, but reset_expired_locks()
+     * would then simply be a no-op for it (nothing with reason=expired to delete), so this is
+     * harmless: documents the design decision explicitly rather than leaving it implicit.
+     */
+    public function test_find_recyclable_options_includes_option_locked_purely_via_decline(): void {
+        $repository = new db_waitlist_offer_repository();
+        $optionid = $this->insert_option(1);
+        $userid = (int) $this->getDataGenerator()->create_user()->id;
+
+        $this->insert_waitinglist_answer($optionid, $userid, 100);
+        $offer = $repository->create_offer($optionid, $userid, 1, 1, new offered());
+        $repository->transition($offer, new declined());
+
+        $this->assertContains($optionid, $repository->find_recyclable_options());
     }
 }
