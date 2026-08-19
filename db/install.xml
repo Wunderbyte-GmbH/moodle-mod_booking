@@ -179,6 +179,7 @@
         <FIELD NAME="json" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="This allows to add supplementary information which is not performance sensible like after booking actions etc."/>
         <FIELD NAME="sqlfilter" TYPE="int" LENGTH="2" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="This is a marker to show if the availability json in this specific option needs to be parsed to filter. 0 means no, 1 means yes."/>
         <FIELD NAME="competencies" TYPE="char" LENGTH="256" NOTNULL="false" SEQUENCE="false" COMMENT="ids of competencies acquired with completing this booking option"/>
+        <FIELD NAME="waitlistrecycling" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Waitlist-progression T-recycling: 0 = an expired offer permanently locks the user out (default), 1 = once everyone waiting is expiry-locked, the heartbeat task resets those locks and re-offers."/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
@@ -910,11 +911,12 @@
       </INDEXES>
     </TABLE>
 
-    <TABLE NAME="booking_waitlist_declines" COMMENT="Permanent, round-independent K7 lockout: a user in this table is never re-offered a seat for this option until they actively leave and rejoin the waiting list.">
+    <TABLE NAME="booking_waitlist_declines" COMMENT="Round-independent lockout ledger: a user in this table is not offered a seat for this option again. Permanent for reason=declined (K7, active decline - never resettable). For reason=expired (K4), the lock is resettable per-option via waitlistrecycling (see booking_options) once everyone still waiting is locked - see waitlist_heartbeat_task::find_recyclable_options().">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="optionid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="reason" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="3" SEQUENCE="false" COMMENT="The offer_status code that triggered this lock (3=declined, permanent; 4=expired, resettable via waitlistrecycling)."/>
         <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>

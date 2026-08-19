@@ -192,11 +192,19 @@ trait waitlist_old_chain_fixture_trait {
         // the chain genuinely "running": one user already treated, the rest still pending.
         // Note: select_student_in_bo's forced-late-joiner branch also matches the now-DELETED
         // occupant row (see A9/A11 memory) and produces its own harmless task - filter it out
-        // by only considering waiting-list users' own tasks.
+        // by only considering waiting-list users' own tasks. Also scope by THIS fixture's own
+        // ruleid - the rule is created at system context (contextid=1), so a second, unrelated
+        // build_running_mail_interval_chain() call within the same test (e.g. C3's orphaned-task
+        // control group) would otherwise ALSO match here, since a system-context rule applies to
+        // every option.
         $waitlistuserids = array_map(fn($u) => (int) $u->id, $waitlistusers);
         $taskclass = '\mod_booking\task\send_mail_by_rule_adhoc';
         $alltasks = \core\task\manager::get_adhoc_tasks($taskclass);
-        $alltasks = array_filter($alltasks, fn($t) => in_array((int) $t->get_custom_data()->userid, $waitlistuserids, true));
+        $alltasks = array_filter(
+            $alltasks,
+            fn($t) => in_array((int) $t->get_custom_data()->userid, $waitlistuserids, true)
+                && (int) $t->get_custom_data()->ruleid === (int) $rule->id
+        );
         $directtasks = array_filter($alltasks, fn($t) => empty($t->get_custom_data()->repeat));
         $repeattasks = array_filter($alltasks, fn($t) => !empty($t->get_custom_data()->repeat));
         if (count($directtasks) !== 1 || count($repeattasks) !== 1) {

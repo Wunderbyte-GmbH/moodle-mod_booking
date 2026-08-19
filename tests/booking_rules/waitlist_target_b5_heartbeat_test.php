@@ -134,6 +134,19 @@ final class waitlist_target_b5_heartbeat_test extends booking_advanced_testcase 
         $option = $plugingenerator->create_option($record);
         singleton_service::destroy_booking_option_singleton($option->id);
 
+        // K11: progression::reconcile() only acts when an active send_mail_interval rule applies
+        // - this test predates rule_condition_checker, so a plain ALWAYS rule is added here.
+        $plugingenerator->create_rule([
+            'name' => 'b5-interval-rule-' . $optiontext,
+            'conditionname' => 'select_student_in_bo',
+            'conditiondata' => '{"borole":"1"}',
+            'actionname' => 'send_mail_interval',
+            'actiondata' => json_encode(['interval' => 60, 'subject' => 's', 'template' => 't', 'templateformat' => '1']),
+            'rulename' => 'rule_react_on_event',
+            'boevent' => '\\mod_booking\\event\\bookingoption_freetobookagain',
+            'condition' => '0', // ALWAYS.
+        ]);
+
         $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
         $boinfo = new bo_info($settings);
         $optionobj = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);

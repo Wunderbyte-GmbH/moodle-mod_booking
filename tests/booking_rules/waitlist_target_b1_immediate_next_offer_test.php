@@ -80,7 +80,7 @@ final class waitlist_target_b1_immediate_next_offer_test extends booking_advance
     private function target_api_exists(): bool {
         return class_exists('\mod_booking\local\waitlist\progression_factory')
             && class_exists('\mod_booking\local\waitlist\db_waitlist_offer_repository')
-            && class_exists('\mod_booking\local\waitlist\offer_status');
+            && interface_exists('\mod_booking\local\waitlist\offer_status');
     }
 
     /**
@@ -151,6 +151,19 @@ final class waitlist_target_b1_immediate_next_offer_test extends booking_advance
         $option = $plugingenerator->create_option($record);
         singleton_service::destroy_booking_option_singleton($option->id);
 
+        // K11: progression::reconcile() only acts when an active send_mail_interval rule applies
+        // - this test predates rule_condition_checker, so a plain ALWAYS rule is added here.
+        $plugingenerator->create_rule([
+            'name' => 'b1-interval-rule',
+            'conditionname' => 'select_student_in_bo',
+            'conditiondata' => '{"borole":"1"}',
+            'actionname' => 'send_mail_interval',
+            'actiondata' => json_encode(['interval' => 60, 'subject' => 's', 'template' => 't', 'templateformat' => '1']),
+            'rulename' => 'rule_react_on_event',
+            'boevent' => '\\mod_booking\\event\\bookingoption_freetobookagain',
+            'condition' => '0', // ALWAYS.
+        ]);
+
         $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
         $boinfo = new bo_info($settings);
         $optionobj = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
@@ -194,7 +207,6 @@ final class waitlist_target_b1_immediate_next_offer_test extends booking_advance
 
         $factoryclass = '\mod_booking\local\waitlist\progression_factory';
         $repositoryclass = '\mod_booking\local\waitlist\db_waitlist_offer_repository';
-        $offerstatusclass = '\mod_booking\local\waitlist\offer_status';
         $progression = $factoryclass::get();
         $repository = new $repositoryclass();
 
@@ -216,7 +228,7 @@ final class waitlist_target_b1_immediate_next_offer_test extends booking_advance
 
         // T4: wluser1 manually declines (unconfirm). unconfirm_waitlist_adapter (Phase 3) will
         // perform this transition+reconcile sequence automatically - simulated directly here.
-        $repository->transition($offertowluser1, $offerstatusclass::declined());
+        $repository->transition($offertowluser1, new \mod_booking\local\waitlist\offer_statuses\declined());
         $progression->reconcile((int) $option->id, 'b1_test_after_decline');
 
         $this->assertTrue(
@@ -250,6 +262,9 @@ final class waitlist_target_b1_immediate_next_offer_test extends booking_advance
         // not a further decline) - proves K7 is a PERMANENT lockout, not merely "not reoffered
         // within the same reconcile() call" or "not reoffered this round".
         $DB->set_field('booking_options', 'maxanswers', 2, ['id' => $option->id]);
+        // The raw DB write bypasses the mod_booking/bookingoptionsettings MUC cache -
+        // destroy_booking_option_singleton() only clears the in-process singleton, not this.
+        \cache::make('mod_booking', 'bookingoptionsettings')->delete($option->id);
         singleton_service::destroy_booking_option_singleton($option->id);
         $progression->reconcile((int) $option->id, 'b1_test_later_unrelated_round');
 

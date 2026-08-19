@@ -103,6 +103,17 @@ final class waitlist_migration_c5_existing_rule_test extends booking_advanced_te
         /** @var \mod_booking_generator $plugingenerator */
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
 
+        // A price is required so the waiting-list user is genuinely OFFERED (K4, mailed via the
+        // rule's own subject/template) rather than autobooked (K3, price 0 - which uses a
+        // different, generic notify_autobooked() message with no custom subject at all).
+        $plugingenerator->create_pricecategory((object) [
+            'ordernum' => 1,
+            'name' => 'default',
+            'identifier' => 'default',
+            'defaultvalue' => 50,
+            'pricecatsortorder' => 1,
+        ]);
+
         // The rule is configured BEFORE the upgrade runs - this is the "existing rule" M5 is
         // about. Its exact subject/template is what we check survives the upgrade unchanged.
         $boevent = '"boevent":"\\\\mod_booking\\\\event\\\\bookingoption_freetobookagain"';
@@ -128,6 +139,8 @@ final class waitlist_migration_c5_existing_rule_test extends booking_advanced_te
         $record->maxanswers = 1;
         $record->maxoverbooking = 10;
         $record->waitforconfirmation = 1;
+        $record->useprice = 1;
+        $record->importing = 1;
         $record->description = 'Will start in 2050';
         $record->optiondateid_0 = "0";
         $record->daystonotify_0 = "0";

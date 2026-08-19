@@ -140,6 +140,19 @@ final class waitlist_target_b2_batch_promotion_test extends booking_advanced_tes
         $option = $plugingenerator->create_option($record);
         singleton_service::destroy_booking_option_singleton($option->id);
 
+        // K11: progression::reconcile() only acts when an active send_mail_interval rule applies
+        // - this test predates rule_condition_checker, so a plain ALWAYS rule is added here.
+        $plugingenerator->create_rule([
+            'name' => 'b2-interval-rule',
+            'conditionname' => 'select_student_in_bo',
+            'conditiondata' => '{"borole":"1"}',
+            'actionname' => 'send_mail_interval',
+            'actiondata' => json_encode(['interval' => 60, 'subject' => 's', 'template' => 't', 'templateformat' => '1']),
+            'rulename' => 'rule_react_on_event',
+            'boevent' => '\\mod_booking\\event\\bookingoption_freetobookagain',
+            'condition' => '0', // ALWAYS.
+        ]);
+
         $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
         $boinfo = new bo_info($settings);
         $optionobj = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
@@ -253,6 +266,9 @@ final class waitlist_target_b2_batch_promotion_test extends booking_advanced_tes
         // candidates) - both remaining candidates (wlusers[3], wlusers[4]) must be treated in
         // this one call, and nobody already-offered gets a second, duplicate offer.
         $DB->set_field('booking_options', 'maxanswers', 13, ['id' => $option->id]);
+        // The raw DB write bypasses the mod_booking/bookingoptionsettings MUC cache -
+        // destroy_booking_option_singleton() only clears the in-process singleton, not this.
+        \cache::make('mod_booking', 'bookingoptionsettings')->delete($option->id);
         singleton_service::destroy_booking_option_singleton($option->id);
         $progression->reconcile((int) $option->id, 'b2_test_round2_generous_capacity');
 

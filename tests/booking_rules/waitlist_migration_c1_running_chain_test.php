@@ -95,6 +95,17 @@ final class waitlist_migration_c1_running_chain_test extends booking_advanced_te
             array_filter($fixture->waitlistusers, fn($u) => (int) $u->id !== $treateduserid)
         );
 
+        // The fixture's own maxanswers=1 only ever frees ONE seat (the vacated occupant's) -
+        // genuinely just enough for the already-treated user's migrated offer, structurally not
+        // enough for the K1 catch-up this test is actually about. Free enough capacity for
+        // EVERYONE still waiting (not just the one the old, one-at-a-time chain was aware of) -
+        // this is the concrete K1/T8 scenario the migration must handle correctly: more capacity
+        // may genuinely be available than the old chain ever knew about.
+        global $DB;
+        $DB->set_field('booking_options', 'maxanswers', count($pendinguserids) + 1, ['id' => $fixture->option->id]);
+        \cache::make('mod_booking', 'bookingoptionsettings')->delete((int) $fixture->option->id);
+        singleton_service::destroy_booking_option_singleton((int) $fixture->option->id);
+
         // Run the migration once (this is what db/upgrade.php calls in Phase 3, per the plan's
         // "echter Aufruf von upgrade_step::run() im Versions-Upgrade").
         $upgradestepclass = '\mod_booking\local\waitlist\migration\upgrade_step';
@@ -121,15 +132,23 @@ final class waitlist_migration_c1_running_chain_test extends booking_advanced_te
         );
 
         // The still-pending users must now be correctly picked up by the NEW mechanism - each
-        // must have an open offer (or have been autobooked, if free/price 0) after reconcile().
+        // must have an open offer, OR have been autobooked (this fixture's option has no price
+        // category configured, so price resolves to 0 - K3 autobook, not K4 offer - a valid,
+        // just differently-shaped, "picked up" outcome; get_open_offers() alone would not see it,
+        // since autobooked is a terminal status, not an open one).
         $openoffers = $repository->get_open_offers((int) $fixture->option->id);
         $openofferuserids = array_map(fn($o) => (int) $o->userid, $openoffers);
         foreach ($pendinguserids as $pendinguserid) {
-            $this->assertContains(
-                $pendinguserid,
-                $openofferuserids,
-                "C1/M1: still-pending user {$pendinguserid} must have been picked up (open offer) " .
-                'by the new mechanism after migration - nothing may be silently lost.'
+            $isopenoffer = in_array($pendinguserid, $openofferuserids, true);
+            $isautobooked = !$DB->record_exists('booking_answers', [
+                'optionid' => (int) $fixture->option->id,
+                'userid' => $pendinguserid,
+                'waitinglist' => MOD_BOOKING_STATUSPARAM_WAITINGLIST,
+            ]);
+            $this->assertTrue(
+                $isopenoffer || $isautobooked,
+                "C1/M1: still-pending user {$pendinguserid} must have been picked up (open offer " .
+                'or autobooked) by the new mechanism after migration - nothing may be silently lost.'
             );
         }
 

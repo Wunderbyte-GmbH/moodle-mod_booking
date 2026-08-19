@@ -42,12 +42,12 @@ flowchart TB
         messaging_gateway["✅ messaging_gateway<br/>Interface, Paragraph 3.4"]
         moodle_messaging_gateway["✅ moodle_messaging_gateway<br/>Moodle-Messaging-Impl."]
         progression["✅ progression<br/>Facade reconcile, Paragraph 3.3<br/>einziger Schreibpfad"]
-        progression_factory["⬜ progression_factory<br/>Composition Root"]
+        progression_factory["✅ progression_factory<br/>Composition Root"]
     end
 
     subgraph Tasks["mod_booking/task"]
-        expire_waitlist_offer_adhoc["⬜ expire_waitlist_offer_adhoc<br/>Adhoc-Task, K4, Paragraph 4.1"]
-        waitlist_heartbeat_task["⬜ waitlist_heartbeat_task<br/>Scheduled Task, T7, Paragraph 4.2"]
+        expire_waitlist_offer_adhoc["✅ expire_waitlist_offer_adhoc<br/>Adhoc-Task, K4, Paragraph 4.1"]
+        waitlist_heartbeat_task["✅ waitlist_heartbeat_task<br/>Scheduled Task, T7, Paragraph 4.2"]
     end
 
     subgraph Adapters["Trigger-Adapter Paragraph 4"]
@@ -58,11 +58,9 @@ flowchart TB
     end
 
     subgraph Migration["mod_booking/local/waitlist/migration Paragraph 7"]
-        upgrade_step["⬜ upgrade_step<br/>Migrations-Einstiegspunkt M1-M5"]
-        legacy_chain_reader["⬜ legacy_chain_reader<br/>Interface"]
-        legacy_chain_reader_631ca237e["⬜ reader 631ca237e-Format<br/>aelteste Generation"]
-        legacy_chain_reader_1ea74eed0["⬜ reader 1ea74eed0-Format<br/>mittlere Generation"]
-        legacy_chain_reader_020289328["⬜ reader 020289328-Format<br/>neueste Generation"]
+        upgrade_step["✅ upgrade_step<br/>Migrations-Einstiegspunkt M1-M5"]
+        legacy_chain_reader["✅ legacy_chain_reader<br/>Interface"]
+        legacy_chain_reader_send_mail_interval["✅ legacy_chain_reader_send_mail_interval<br/>M1, einzige fixture-belegte Generation"]
     end
 
     subgraph Data["Daten"]
@@ -92,9 +90,7 @@ flowchart TB
     waitlist_heartbeat_task --> progression_factory
 
     upgrade_step --> legacy_chain_reader
-    legacy_chain_reader_631ca237e --> legacy_chain_reader
-    legacy_chain_reader_1ea74eed0 --> legacy_chain_reader
-    legacy_chain_reader_020289328 --> legacy_chain_reader
+    legacy_chain_reader_send_mail_interval --> legacy_chain_reader
     upgrade_step --> db_waitlist_offer_repository
 ```
 
@@ -124,9 +120,8 @@ flowchart TB
 | `booking_accepted_waitlist_adapter` | `event/observer/booking_accepted_waitlist_adapter.php` | Setzt Offer→accepted nach abgeschlossener Zahlung/Buchung | §4 |
 | `upgrade_step` | `local/waitlist/migration/upgrade_step.php` | Migrations-Einstiegspunkt, idempotent | §7, M1-M5 |
 | `legacy_chain_reader` | `local/waitlist/migration/legacy_chain_reader.php` | Interface: liest ein Alt-Ketten-Format | §7 |
-| `legacy_chain_reader_631ca237e` | `local/waitlist/migration/legacy_chain_reader_631ca237e.php` | Reader für älteste Ketten-Generation | §7 |
-| `legacy_chain_reader_1ea74eed0` | `local/waitlist/migration/legacy_chain_reader_1ea74eed0.php` | Reader für mittlere Ketten-Generation | §7 |
-| `legacy_chain_reader_020289328` | `local/waitlist/migration/legacy_chain_reader_020289328.php` | Reader für neueste Ketten-Generation | §7 |
+| `legacy_chain_state` | `local/waitlist/migration/legacy_chain_state.php` | Entity: extrahierter Alt-Ketten-Zustand | §7 |
+| `legacy_chain_reader_send_mail_interval` | `local/waitlist/migration/legacy_chain_reader_send_mail_interval.php` | Reader für M1 (send_mail_interval-Kette) - einzige konkret fixture-belegte Generation, s. Hinweis unten | §7 |
 | `booking_waitlist_offers` | `db/install.xml` | Tabelle: Single Source of Truth der Progression | §2.1 |
 | `booking_waitlist_declines` | `db/install.xml` | Tabelle: permanente K7-Sperrliste | §2.3 |
 
@@ -416,9 +411,253 @@ kleine Stil-Warnings (Inline-Kommentare ohne Satzzeichen am Ende) — noch offen
 
 Kombinierter Testlauf aller `local/waitlist`-Tests: **69/69 grün, 188 Assertions, keine Fehler.**
 
-**Für morgen offen:**
-1. Die 6 phpcs-Stil-Warnings in `progression.php` nachziehen (Zeilen 105, 110, 111, 119, 127, 141
-   — Inline-Kommentare brauchen ein Satzzeichen am Ende).
-2. **Als nächstes vorgeschlagen (🟨):** `progression_factory` (Composition Root) — §6, verdrahtet
-   erstmals alle konkreten Implementierungen zu einer einzigen `progression`-Instanz. Danach
-   können die B1-B7-Zieltests (bisher `markTestSkipped()`) aktiviert werden. Warte auf Freigabe.
+Die 6 phpcs-Stil-Warnings in `progression.php` nachgezogen (Inline-Kommentare mit Satzzeichen
+abgeschlossen) — Regressionslauf danach weiterhin grün.
+
+**`progression_factory` ist fertig (✅).** Composition Root, `static get(): progression`, baut bei
+jedem Aufruf frisch (kein statischer Cache — Konstruktion ist billig, vermeidet Testverschmutzung
+über Aufrufe hinweg). Ein phpcs-Nitpick (unnötiger `MOODLE_INTERNAL`-Check) unter der neuen
+Linting-Ausnahme direkt korrigiert. 2 Tests von Claude selbst geschrieben (Instanzen sind
+verschieden, End-to-End-Verdrahtung funktioniert echt) — beide grün.
+
+**Direkt danach: die B-Suite scharf geschaltet.** B1, B2, B3, B6, B7 liefen jetzt gegen die echte
+`progression_factory` (B4/B5 bleiben `markTestSkipped()`, brauchen noch
+`expire_waitlist_offer_adhoc`/`waitlist_heartbeat_task`). Drei der fünf Tests waren initial rot —
+**keine Bugs in der neuen Architektur**, sondern Fixture-Lücken, weil diese Tests VOR
+`rule_condition_checker` geschrieben wurden:
+- B2/B3/B6b fehlte schlicht eine `send_mail_interval`-Regel (K11 hat also korrekt "keine Regel ⇒
+  No-op" durchgesetzt) — je eine `ALWAYS`-Regel in der Fixture ergänzt.
+- B2 hatte zusätzlich einen echten, vorbestehenden Caching-Fund: `$DB->set_field('booking_options',
+  'maxanswers', ...)` umgeht den `mod_booking/bookingoptionsettings`-MUC-Cache;
+  `singleton_service::destroy_booking_option_singleton()` löscht nur den PHP-Prozess-Cache, nicht
+  diesen. Fix: `\cache::make('mod_booking', 'bookingoptionsettings')->delete($optionid)` direkt
+  nach dem rohen DB-Write. **Reusable finding**, analog zur `booking_answers`-MUC-Cache-Falle aus
+  `capacity_calculator_test` — jeder Test, der `maxanswers`/`maxoverbooking` per rohem `$DB->
+  set_field()` ändert, statt über den Options-Speicherpfad, braucht diesen Cache-Purge zusätzlich
+  zum Singleton-Destroy.
+
+Kombinierter Testlauf (B1/B2/B3/B6/B7 + alle `local/waitlist`-Tests): **77/77 grün, 239
+Assertions, 2 erwartet übersprungen (B4/B5), keine Fehler.**
+
+**Korrektur zur vorigen "77/77 grün"-Meldung:** B1 und B7 liefen dabei tatsächlich **nicht aktiv**,
+sondern wurden lautlos übersprungen (`Skipped`, 0 Assertions) — die Meldung war falsch. Ursache:
+`target_api_exists()` prüfte `class_exists('...offer_status')`, aber `offer_status` ist ein
+**Interface**, kein `class` — PHP's `class_exists()` matcht Interfaces grundsätzlich nicht
+(`interface_exists()` wäre nötig gewesen). Da Skips nicht als Fehler zählen, ist das im Aggregat
+nicht aufgefallen. Erst beim Bau von `expire_waitlist_offer_adhoc` (das B4 aktivieren sollte,
+B4 nutzt denselben fehlerhaften Guard) beim genaueren Hinsehen entdeckt und in B1/B4/B7 korrigiert
+(`class_exists` → `interface_exists`). Zusätzlich in allen dreien einen zweiten, verwandten Fund
+behoben: `$offerstatusclass::declined()`/`::accepted()` — eine geratene statische Fabrikmethode,
+die es im gebauten State-Pattern nie gab (der jeweilige Testdatei-Docblock hatte das selbst als
+"best-effort guess" markiert) — ersetzt durch `new offer_statuses\declined()`/`new
+offer_statuses\accepted()`. **Lehre:** bei `markTestSkipped()`-Guards immer aktiv verifizieren,
+dass sie tatsächlich `false` zurückgeben, sobald sie es nicht mehr sollten — ein Skip sieht im
+Aggregat-Testergebnis identisch "unauffällig" aus wie ein echtes Grün.
+
+**`expire_waitlist_offer_adhoc` ist fertig (✅).** Ein Task pro Offer, `nextruntime = expiresat`
+(in `progression::offer()` eingeplant via `\core\task\manager::queue_adhoc_task()`), K5-idempotent
+(No-op, falls das Offer beim Ausführen nicht mehr im Status "offered" ist). Nutzt
+`SEND_NOW`-Präzedenzfall-Wissen aus dem Messaging-Schritt nicht direkt, aber denselben
+"jede Klasse liest Regel-/Offer-Daten selbst per ID neu"-Stil.
+
+**Wichtige Politik-Entscheidung während dieses Schritts, ausgelöst durch einen von Claude selbst
+geschriebenen Integrationstest:** Ursprünglich (Claudes eigene, nie mit Georg abgestimmte Annahme
+beim Bau von `db_waitlist_offer_repository`) durfte ein abgelaufenes (nicht aktiv abgelehntes)
+Angebot in einer späteren Runde wieder infrage kommen. Das führte zu einem echten Bug: wartet
+außer dem Ex-Empfänger niemand, käme dieselbe Person durch den Sofort-Reconcile beim Ablaufen
+sofort wieder dran → Endlos-Spam-Schleife. Sind andere in der Schlange, würde die abgelaufene
+Person (frühester Beitritts-Zeitpunkt) sogar vor ihnen erneut drankommen — genau das Gegenteil
+von dem, was der (damals noch übersprungene) B4-Test von Anfang an verlangte.
+
+**Georgs Entscheidung:** Wer einmal ein Angebot bekommen hat, wird nicht nochmal gefragt — Ablauf
+sperrt jetzt **genauso permanent wie eine aktive Ablehnung** (K4 = K7-Mechanismus). Umsetzung:
+`db_waitlist_offer_repository::transition()`s Sperr-Bedingung erweitert von `instanceof declined`
+auf `instanceof declined || instanceof expired` — eine Zeile, da `expire_waitlist_offer_adhoc`
+ohnehin über `transition()` läuft, greift die bestehende `get_permanently_declined_userids()`-
+Ausschlussliste automatisch mit, **ohne dass `progression.php` selbst geändert werden musste**.
+Bestehender, jetzt gegenteiliger Test in `db_waitlist_offer_repository_test.php` korrigiert
+(`test_get_unbehandelte_waitinglist_scoping_and_ordering`), neuer dedizierter Test
+`test_transition_to_expired_creates_idempotent_permanent_lock` ergänzt.
+
+5 Tests von Claude selbst geschrieben für `expire_waitlist_offer_adhoc_test.php` (Grundfall,
+K5-Idempotenz bei bereits anderweitig aufgelöstem Offer, Idempotenz bei nicht mehr existierendem
+Offer, Integrationstest "nächster Kandidat rückt sofort nach", direkter Regressionstest für das
+Spam-Szenario "einziger Kandidat wird nicht sofort wieder gefragt"). Dazu 3 B-Suite-Dateien (B2,
+B3, B6b) wegen fehlender Regel-Fixture und B1/B4/B7 wegen der oben beschriebenen Guard-/
+Fabrikmethoden-Bugs korrigiert, plus dieselbe MUC-Cache-Falle (`bookingoptionsettings`) wie bei
+B2 auch in B1 gefunden und behoben.
+
+Kombinierter Testlauf (B1-B4, B6, B7 + `expire_waitlist_offer_adhoc_test.php` + alle
+`local/waitlist`-Tests): **85/85 grün, 302 Assertions, 1 erwartet übersprungen (B5, braucht noch
+`waitlist_heartbeat_task`), keine Fehler.**
+
+**`waitlist_heartbeat_task` ist fertig (✅) — 🎉 damit läuft jetzt die komplette Kategorie-B-Suite
+(B1–B7) aktiv und grün.**
+
+Umgesetzt: neue Repository-Methode `find_stalled_options(): int[]` (baut sich intern einen
+frischen `capacity_calculator` — keine zirkuläre Konstruktor-Abhängigkeit, da nur ein lokaler
+`new`-Aufruf zur Laufzeit, keine gegenseitige DI-Verdrahtung), die eng gescopte SQL-Kandidatenmenge
+(WL-Antwort vorhanden, kein offenes Angebot) plus PHP-seitigem `free_capacity() > 0`-Filter. Der
+Task selbst (`\core\task\scheduled_task`, `db/tasks.php`-Eintrag alle 5 Minuten als mechanische
+Untergrenze) throttelt zusätzlich über einen gespeicherten Last-Run-Zeitstempel auf ein
+konfigurierbares effektives Intervall (`admin_setting_configduration`, Default 900s/15min, im Code
+auf min. 300s/5min geklemmt — T7-Vorgabe exakt umgesetzt).
+
+**Wichtige Selbstkorrektur während dieses Schritts:** B5 hatte — wie zuvor schon B1-B3/B6/B7 —
+ebenfalls nie eine `send_mail_interval`-Regel angelegt (K11-Fixture-Lücke, gleiche Ursache wie
+mehrfach zuvor dokumentiert). In `build_option()` ergänzt.
+
+3 Tests von Claude selbst geschrieben (`waitlist_heartbeat_task_test.php`, Fokus auf das, was B5
+nicht abdeckt: die Throttle-Logik selbst): Grundfall (Selbstheilung), Innerhalb-des-Intervalls-
+kein-erneuter-Lauf, 5-Minuten-Untergrenze wird durchgesetzt auch wenn kürzer konfiguriert. Ein
+eigener Testfehler dabei selbst gefunden+behoben: die erste Fixture-Fassung nutzte eine
+kostenlose Preiskategorie → Kandidat wurde autobucht statt angeboten → `get_open_offers()` (nur
+offene Angebote, keine terminalen Autobuchungen) zeigte fälschlich 0. Auf bezahlpflichtige
+Kategorie umgestellt, danach alle 3 grün im zweiten Anlauf.
+
+**Finaler Regressionslauf (alle 7 B-Tests B1-B7 + beide Task-Testdateien + alle
+`local/waitlist`-Tests): 88/88 grün, 320 Assertions, keine Fehler, keine Skips mehr.**
+
+**Phase 2 fast komplett.** Verbleibend: `legacy_chain_reader` (+3 generationsspezifische Reader)
+und `upgrade_step` (aktiviert C1-C5, bisher rot/skipped seit Phase 1). Das ist die letzte
+Klassengruppe vor Phase 3 (Clean-Cut-Switchover).
+
+## Ergänzung (2026-08-19): Warteliste-Recycling nach vollständigem Durchlauf
+
+Neue, nicht im ursprünglichen 25-Knoten-Graphen enthaltene Anforderung von Georg: pro Option
+konfigurierbar, was passiert, sobald die Warteliste "vollständig geflaggt" ist (niemand, der noch
+wartet, kann noch ein Angebot bekommen - jeder ist entweder K7-declined oder K4-expired gesperrt,
+niemand hat ein offenes Angebot). Zwei Modi (ein dritter, "offen für alle - alle Kandidaten
+gleichzeitig statt der Reihe nach", wurde besprochen, aber bewusst zurückgestellt):
+
+- **Ende** (0, Default) - das bisherige K4=K7-Verhalten, permanent gesperrt.
+- **Erneut durchgehen** (1) - die K4-Sperren (nur die, niemals K7-declined) werden zurückgesetzt,
+  dieselben Kandidaten werden in ihrer ursprünglichen Reihenfolge erneut behandelt.
+
+**Wichtige Design-Entscheidung, die den Umbau klein gehalten hat:** die bestehende
+`booking_waitlist_declines`-Sperrtabelle (K7-Ledger) speichert den Lock schon heute als eigene
+Zeile statt live aus dem Offer-Status berechnet zu werden. Neues Feld `reason` (Offer-Status-Code,
+3=declined/4=expired) darauf, Reset = einfaches `DELETE ... WHERE reason=4` für die Option. Kein
+Zyklus-Zähler, kein Zeitstempel-Wasserzeichen nötig - `get_permanently_declined_userids()` bleibt
+komplett unverändert, liest einfach weiter die (jetzt kleinere) Tabelle.
+
+Umgesetzt:
+- **DB-Schema** (Version 2026081900): `booking_options.waitlistrecycling` (int, 0/1),
+  `booking_waitlist_declines.reason` (int, Default 3 für Alt-Zeilen - konservativ, damit kein
+  bestehender Lock versehentlich resettable wird).
+- **`waitlist_offer_repository`/`db_waitlist_offer_repository`**: zwei neue Methoden -
+  `reset_expired_locks(optionid)` (das DELETE) und `find_recyclable_options(): int[]` (Optionen mit
+  `waitlistrecycling=1`, mindestens ein wartender Kandidat, niemand offen/pending, alle
+  verbleibenden gesperrt - K7-only-Fälle zählen ebenfalls als "recyclable", sind aber harmlos, da
+  nichts mit `reason=4` zum Löschen da ist). `transition()`/`lock_permanently()` geben jetzt den
+  auslösenden Status-Code als `reason` mit.
+- **`waitlist_heartbeat_task`**: zweiter Block nach dem bestehenden Stalled-Loop - für jede Option
+  aus `find_recyclable_options()`: `reset_expired_locks()` dann `reconcile(..., 'waitlist:recycled')`.
+  `progression::reconcile()` selbst blieb unverändert.
+- **UI**: neues Options-Formularfeld (`classes/option/fields/waitlistrecycling.php`, automatisch
+  per Namespace-Scan erkannt, kein manuelles Registrieren nötig - Muster von `enrolmentstatus.php`
+  übernommen), Header "Advanced options", Lang-Strings.
+- **9 neue Tests** (Claude direkt geschrieben): 6 Repository-Ebene
+  (`db_waitlist_offer_repository_test.php` - Reset betrifft nur `reason=expired`, Erkennung des
+  "vollständig geflaggt"-Zustands inkl. aller Negativfälle), 3 Heartbeat-Ebene
+  (`waitlist_heartbeat_task_test.php` - End-to-End Recycling, Nicht-Recycling bleibt gesperrt,
+  K7-Decline wird nie zurückgesetzt auch mit `waitlistrecycling=1`).
+
+**Regressionslauf nach Fertigstellung: 89/89 lokale Waitlist-/Task-Tests (233 Assertions) + 8/8
+B-Suite (105 Assertions), keine Fehler.**
+
+Offen/zurückgestellt: der dritte Modus "offen für alle" (alle zurückgesetzten Kandidaten
+gleichzeitig statt sequenziell) würde `progression::reconcile()` selbst anfassen (K1-Batch-Cap
+optional umgehen) - Entscheidung zu offenen Restfragen (Aufräumen "verlorener" Wettlauf-Angebote)
+bewusst vertagt, auf Wunsch von Georg.
+
+**Als nächstes vorgeschlagen (🟨):** `legacy_chain_reader` (Interface) — liest die heutigen
+Alt-Ketten-Formate (3 Generationen), Voraussetzung für `upgrade_step`. Warte auf Freigabe.
+
+## Ergänzung (2026-08-19): `legacy_chain_reader` + `legacy_chain_reader_send_mail_interval` fertig
+
+**Wichtiger Scope-Fund vor der Umsetzung:** die drei im Graphen benannten Ketten-Generationen
+(`631ca237e-`, `1ea74eed0-`, `020289328-Format`) stammen aus dem externen
+`WAITLIST_REFACTOR_BLUEPRINT_2026-08-04.md` (secret_docs, mit Georg gemeinsam nachgeschlagen).
+Das Blueprint selbst definiert die drei Formate nirgends konkret - es benennt sie nur als
+Risiko-Label (§6, "Größte Einzel-Unbekannte") und sagt wörtlich: *"C-Fixtures decken die
+dokumentierten Generationen ab ..., Rest fängt M3-Bereinigung + T7-Heartbeat ab."* Der bereits in
+Phase 1 gebaute Fixture-Builder (`waitlist_old_chain_fixture_trait.php`) deckt tatsächlich nur
+**eine** konkrete Generation ab (das heutige, aktuelle Engine-Format). Entscheidung (mit Georg
+abgestimmt): statt drei Reader-Klassen gegen zwei nicht mehr recherchierbare Alt-Formate zu raten,
+nur **einen** Reader gegen das fixture-belegte, echte Format bauen - alles andere fällt bewusst
+(wie im Blueprint selbst vorgesehen) an die M3-Bereinigung + den T7-Heartbeat.
+
+Umgesetzt:
+- **`legacy_chain_reader`** (Interface, `local/waitlist/migration/`) - `can_read(stdClass
+  $taskrecord): bool` / `extract(stdClass $taskrecord): legacy_chain_state`, Strategy Pattern,
+  offen für weitere Reader falls in echten Produktionsdaten doch noch andere Formate auftauchen.
+- **`legacy_chain_state`** (Entity) - optionid, ruleid, usersalreadytreated (int[]), nextruntime
+  (die zu bewahrende Frist der zuletzt behandelten Person).
+- **`legacy_chain_reader_send_mail_interval`** (M1) - liest den `send_mail_by_rule_adhoc`-Repeat-Task
+  (`customdata->repeat==1`); `usersalreadytreated` steckt doppelt-JSON-kodiert in
+  `customdata->rulejson->intervaldata->usersalreadytreated` (aus `send_mail_interval::execute()`,
+  bestehender Code). Nur der Repeat-Task trägt den vollständigen, aktuellen Schnappschuss.
+- **6 Tests von Claude direkt geschrieben** (`legacy_chain_reader_send_mail_interval_test.php`):
+  4 Unit-Tests gegen handgebaute `{task_adhoc}`-Zeilen (falsche Klasse, Direkt-Task ohne
+  Repeat-Flag, kaputtes JSON, fehlende intervaldata - alle defensiv `false` statt Exception),
+  1 Unit-Test für den Wohlform-Fall, 1 End-to-End-Test gegen einen **echten**, vom heutigen Engine
+  produzierten Repeat-Task (`waitlist_old_chain_fixture_trait::build_running_mail_interval_chain()`) -
+  verifiziert `extract()` gegen die tatsächliche Form, nicht nur eine Annahme davon.
+
+**Regressionslauf: 95/95 lokale Waitlist-/Task-Tests grün, 248 Assertions, keine Fehler.**
+
+Offen für `upgrade_step` (nächster Schritt): M2 (offene `confirm_bookinganswer`-Freigabe) hat eine
+strukturell andere, einfachere Form (ein einzelner unberührter Direkt-Task, kein
+usersalreadytreated-Array im selben Sinn) - wird beim Bau von `upgrade_step` gesondert betrachtet,
+eventuell ganz ohne eigenen Reader (die Antwort-JSON `confirmwaitinglist` könnte bereits die
+Quelle der Wahrheit sein).
+
+## Ergänzung (2026-08-19): `upgrade_step` fertig - 🎉 damit sind C1-C5 jetzt aktiv und grün
+
+M2 bekam doch einen eigenen Reader (`legacy_chain_reader_confirm_bookinganswer`) - passt sauber
+in dieselbe `legacy_chain_state`-Form (ein einzelner Nutzer statt eines Arrays). Wichtiger Fund
+beim Bau: `send_mail_interval::execute()` queued für JEDEN verarbeiteten Kandidaten (auch den, der
+nur den Repeat-Trigger bekommt) unconditional einen eigenen `confirm_bookinganswer`-Companion-Task
+- ein und dieselbe Person kann also über BEIDE Reader auftauchen. Gelöst über einen einfachen
+Dedup-Check in `upgrade_step::reconstruct()` (Person bereits migriert? → überspringen), plus
+bewusste Verarbeitungsreihenfolge (Mail-Reader zuerst, damit dessen besser informierter Offer -
+mit der echten Restlaufzeit aus dem Repeat-Task statt der ungefähren Companion-Task-Zeit - gewinnt).
+
+Umgesetzt:
+- **`legacy_chain_reader_confirm_bookinganswer`** (M2) - liest den `confirm_bookinganswer_by_rule_adhoc`-Direkt-Task
+  (nicht den Repeat-Task).
+- **`upgrade_step`** - Inventur (beide Task-Klassen) → Rekonstruktion (Dedup-Check, nur falls
+  noch echt auf der Warteliste, `offered`-Status + eigener `expire_waitlist_offer_adhoc`-Task,
+  **keine** Mail - reine Rekonstruktion von Historie, kein neues Ereignis) → Bereinigung (beide
+  Task-Klassen komplett löschen, erkannt oder nicht - macht `run()` automatisch idempotent, da ein
+  zweiter Aufruf nichts mehr vorfindet). Ruft `progression::reconcile()` bewusst NICHT selbst auf -
+  das bleibt Aufgabe des Aufrufers (Phase 3 `db/upgrade.php`; alle C-Tests rufen es selbst auf).
+
+**Vier vorbestehende Bugs in den (bisher nie ausgeführten, weil immer geskippten) Phase-1-Testfixtures
+gefunden und behoben** - alle vier durch Claude in einer früheren Session geschrieben, jetzt zum
+ersten Mal überhaupt durchgelaufen:
+1. **C3**: zwei system-weite Regeln (`contextid=1`) aus zwei Fixture-Aufrufen im selben Test feuerten
+   beide auf dasselbe Event → doppelte Tasks. Fix: Task-Filter in `waitlist_old_chain_fixture_trait.php`
+   zusätzlich nach `ruleid` scopen.
+2. **C5**: keine Preiskategorie konfiguriert → Kandidat wurde autobucht statt angeboten → andere
+   Mail-Methode (`notify_autobooked`, generisches Template) statt der erwarteten Regel-Mail. Fix:
+   Preiskategorie ergänzt, wie bei den anderen Fixtures üblich.
+3. **C1**: testete, dass 2 wartende Personen ein Angebot bekommen, aber `maxanswers=1` ließ nach
+   dem Auszug nur 1 Platz frei - strukturell unmöglich unabhängig vom Migrationscode. Fix:
+   Kapazität nach Fixture-Aufbau gezielt erhöht.
+4. **C1 (zweiter Fund, gleicher Test)**: die eigene Kapazitäts-Erhöhung griff zunächst nicht - der
+   bekannte Singleton-Cache-Fallstrick (`singleton_service::destroy_booking_option_singleton()`
+   fehlte neben dem MUC-Cache-Purge, derselbe Bug-Typ wie schon mehrfach in der B-Suite gefunden).
+   Fix ergänzt. Außerdem stimmte die Testerwartung selbst nicht ganz: da diese Fixture-Option keine
+   Preiskategorie hat, werden wartende Personen bei freier Kapazität autobucht (K3), nicht mit
+   Mail angeboten (K4) - die Assertion prüfte aber nur `get_open_offers()`. Fix: Assertion prüft
+   jetzt beides (offen ODER autobucht), wie im Testkommentar selbst schon vorgesehen war.
+
+**Regressionslauf: 109/109 grün, 377 Assertions** (alle `local/waitlist`-Tests, beide Task-Tests,
+komplette B-Suite B1-B7, komplette C-Suite C1-C5), keine Fehler.
+
+**Phase 2 ist damit komplett** - alle 25 ursprünglich geplanten Knoten des Graphen sind grün
+(mit der bewussten, mit Georg abgestimmten Reduktion von 3 auf 2 Legacy-Chain-Reader). Nächster
+Schritt: Phase 3 (Clean-Cut-Switchover) - Trigger-Adapter verdrahten, `db/upgrade.php` scharf
+schalten, Legacy-Code entfernen.
