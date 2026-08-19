@@ -109,8 +109,11 @@ final class caching_db_reads_test extends \advanced_testcase {
         $before = $DB->perf_get_reads();
         singleton_service::get_instance_of_booking_option_settings($optionid);
         $delta = $DB->perf_get_reads() - $before;
-        $this->assertLessThan(
-            3,
+        // Exactly zero: any tolerance here hides per-field cache leaks - the
+        // slotconfig isset(null) defect (issue #2207) cost exactly 1 read and
+        // stayed green against the previous assertLessThan(3).
+        $this->assertSame(
+            0,
             $delta,
             "Rebuilding option settings from the MUC cache issued {$delta} DB reads; "
                 . "a full cache hit must not re-query the option."
@@ -129,6 +132,13 @@ final class caching_db_reads_test extends \advanced_testcase {
         foreach ($optionids as $optionid) {
             singleton_service::get_instance_of_booking_option_settings($optionid);
         }
+
+        // Drop the request-scoped singletons: the second pass must rebuild every
+        // settings object from the MUC cache. This pins the persistence of EVERY
+        // field in the cached payload - a field that is queried again on a warm
+        // cache (like the slotconfig isset(null) defect, see issue #2207) shows
+        // up here as one read per option.
+        singleton_service::destroy_instance();
 
         // Second pass: everything is warm.
         $before = $DB->perf_get_reads();

@@ -719,7 +719,10 @@ class booking_option_settings {
             $this->localize_customfields_for_templates();
 
             // If slot config is not present in cache object, load it once and cache it.
-            if (!isset($dbrecord->slotconfig)) {
+            // Options without a slot config legitimately cache NULL here, so we must
+            // check with property_exists: isset(null) would re-trigger the DB query
+            // on every single instantiation despite a warm cache (issue #2207).
+            if (!property_exists($dbrecord, 'slotconfig')) {
                 $this->load_slot_config_from_db($optionid);
                 $dbrecord->slotconfig = $this->slotconfig;
             } else {
