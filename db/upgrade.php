@@ -5701,5 +5701,26 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2026081700, 'booking');
     }
 
+    if ($oldversion < 2026081900) {
+        // Waitlist-progression: per-option recycling (T-recycling). An expired offer keeps
+        // locking the user out permanently by default (reason=expired in booking_waitlist_declines,
+        // same table/mechanism as the K7 decline lock) - but if waitlistrecycling is enabled for
+        // the option, waitlist_heartbeat_task resets those expiry-locks (and only those, never
+        // declined-locks) once nobody on the waiting list can receive an offer anymore.
+        $table = new xmldb_table('booking_options');
+        $field = new xmldb_field('waitlistrecycling', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $table = new xmldb_table('booking_waitlist_declines');
+        $field = new xmldb_field('reason', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '3');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        upgrade_mod_savepoint(true, 2026081900, 'booking');
+    }
+
     return true;
 }

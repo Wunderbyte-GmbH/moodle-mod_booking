@@ -3094,6 +3094,22 @@ if ($ADMIN->fulltree) {
                 ''
             )
         );
+        $settings->add(
+            new admin_setting_heading(
+                'waitlistheartbeat_heading',
+                get_string('waitlistheartbeatheading', 'mod_booking'),
+                get_string('waitlistheartbeatheading_desc', 'mod_booking')
+            )
+        );
+        $settings->add(
+            new admin_setting_configduration(
+                'booking/waitlistheartbeatinterval',
+                get_string('waitlistheartbeatinterval', 'mod_booking'),
+                get_string('waitlistheartbeatinterval_desc', 'mod_booking'),
+                900 // Default: 15 minutes. Never actually runs more often than every 5 minutes
+                // (db/tasks.php cron entry + waitlist_heartbeat_task's own floor).
+            )
+        );
     }
 }
 
