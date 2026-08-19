@@ -18,13 +18,14 @@
  * DB implementation of waitlist_offer_repository (WAITLIST_REFACTOR_ARCHITECTURE_2026-08-12.md
  * §3.2), backed by booking_waitlist_offers/booking_waitlist_declines (db/install.xml).
  *
- * "Unbehandelt" (get_unbehandelte_waitinglist()) is scoped to OPEN offers only, not to a
- * specific round: a candidate whose only existing row is terminal-but-not-declined (e.g.
- * expired, K4) must be able to reappear as a candidate in a later round - only declined is a
- * permanent lock (K7), enforced separately via booking_waitlist_declines. The caller
- * (progression, later) is responsible for computing the K7 exclude list itself via
- * is_permanently_declined() and passing it in - this repository does not apply that exclusion
- * automatically.
+ * "Unbehandelt" (get_unbehandelte_waitinglist()) is scoped to OPEN offers only, not to a specific
+ * round. Both a declined AND an expired offer permanently lock the user out of future offers for
+ * this option (booking_waitlist_declines) - nobody who has ever received an offer for an option
+ * gets asked again, whether they actively declined or simply let the deadline pass (explicit
+ * Georg decision, 2026-08-20 - supersedes an earlier, unconfirmed assumption made while building
+ * this class that only active declines should lock permanently). The caller (progression) is
+ * responsible for computing the exclude list itself via get_permanently_declined_userids() and
+ * passing it in - this repository does not apply that exclusion automatically.
  *
  * @package mod_booking
  * @copyright 2026 Wunderbyte GmbH <info@wunderbyte.at>
@@ -230,11 +231,10 @@ final class db_waitlist_offer_repository implements waitlist_offer_repository {
             ]
         );
 
-        if ($newstatus instanceof declined) {
-            $this->lock_permanently($offer->optionid, $offer->userid);
+        if ($newstatus instanceof declined || $newstatus instanceof expired) {
+            $this->lock_permanently($offer->optionid, $offer->userid, $newstatus->get_code());
         }
     }
-
 
     /**
      * Whether a user is permanently locked out of offers for this option (K7).
@@ -282,15 +282,126 @@ final class db_waitlist_offer_repository implements waitlist_offer_repository {
         ]);
     }
 
+    /**
+     * Loads a single offer by id.
+     *
+     * @param int $id
+     * @return waitlist_offer|null null if no such offer exists (anymore).
+     */
+    public function get_offer_by_id(int $id): ?waitlist_offer {
+        global $DB;
+        $record = $DB->get_record('booking_waitlist_offers', ['id' => $id], '*', IGNORE_MISSING);
+        if (empty($record)) {
+            return null;
+        }
+        return $this->hydrate($record);
+    }
+
 
     /**
-     * Inserts a permanent K7 lock row, unless one already exists.
+     * Finds options that are genuinely stalled - see interface docblock. Builds a fresh
+     * capacity_calculator locally (not a constructor dependency, to avoid a circular DI wiring
+     * with progression_factory) to reuse its authoritative free-capacity formula rather than
+     * re-deriving an approximate one here.
+     *
+     * @return int[]
+     */
+    public function find_stalled_options(): array {
+        global $DB;
+
+        $sql = "SELECT DISTINCT ba.optionid
+                  FROM {booking_answers} ba
+                 WHERE ba.waitinglist = :waitinglist
+                   AND NOT EXISTS (
+                         SELECT 1
+                           FROM {booking_waitlist_offers} bwo
+                          WHERE bwo.optionid = ba.optionid
+                            AND bwo.status IN (:pendingcode, :offeredcode)
+                       )";
+        $candidateoptionids = $DB->get_fieldset_sql($sql, [
+            'waitinglist' => MOD_BOOKING_STATUSPARAM_WAITINGLIST,
+            'pendingcode' => (new pending())->get_code(),
+            'offeredcode' => (new offered())->get_code(),
+        ]);
+
+        $capacity = new capacity_calculator($this);
+        $stalled = [];
+        foreach ($candidateoptionids as $optionid) {
+            if ($capacity->free_capacity((int) $optionid) > 0) {
+                $stalled[] = (int) $optionid;
+            }
+        }
+        return $stalled;
+    }
+
+
+    /**
+     * Waitlist-recycling: removes the K4 (expired) lock for every user currently locked out on
+     * this option. Never touches reason=declined (K7) rows - those are permanent regardless.
+     *
+     * @param int $optionid
+     * @return void
+     */
+    public function reset_expired_locks(int $optionid): void {
+        global $DB;
+        $DB->delete_records('booking_waitlist_declines', [
+            'optionid' => $optionid,
+            'reason' => (new expired())->get_code(),
+        ]);
+    }
+
+    /**
+     * Finds options where waitlistrecycling is enabled AND the waiting list is currently fully
+     * flagged: at least one person is still waiting, nobody has an open (pending/offered) offer,
+     * and every remaining waiter is locked out (declined or expired - either reason counts here,
+     * since a wholly declined list has nothing to reset either, reset_expired_locks() would just
+     * be a no-op for it).
+     *
+     * @return int[] option ids
+     */
+    public function find_recyclable_options(): array {
+        global $DB;
+        $sql = "SELECT DISTINCT bo.id
+                  FROM {booking_options} bo
+                  JOIN {booking_answers} ba ON ba.optionid = bo.id AND ba.waitinglist = :waitinglist
+                 WHERE bo.waitlistrecycling = 1
+                   AND NOT EXISTS (
+                         SELECT 1
+                           FROM {booking_answers} ba2
+                          WHERE ba2.optionid = bo.id
+                            AND ba2.waitinglist = :waitinglist2
+                            AND NOT EXISTS (
+                                  SELECT 1
+                                    FROM {booking_waitlist_declines} bwd
+                                   WHERE bwd.optionid = bo.id AND bwd.userid = ba2.userid
+                                )
+                       )
+                   AND NOT EXISTS (
+                         SELECT 1
+                           FROM {booking_waitlist_offers} bwo
+                          WHERE bwo.optionid = bo.id
+                            AND bwo.status IN (:pendingcode, :offeredcode)
+                       )";
+        return array_map('intval', $DB->get_fieldset_sql($sql, [
+            'waitinglist' => MOD_BOOKING_STATUSPARAM_WAITINGLIST,
+            'waitinglist2' => MOD_BOOKING_STATUSPARAM_WAITINGLIST,
+            'pendingcode' => (new pending())->get_code(),
+            'offeredcode' => (new offered())->get_code(),
+        ]));
+    }
+
+
+    /**
+     * Inserts a lock row, unless one already exists. $reason (the offer_status code that
+     * triggered the lock) determines resettability - reason=declined (K7) is never reset;
+     * reason=expired (K4) is reset by reset_expired_locks() when waitlistrecycling applies.
      *
      * @param int $optionid
      * @param int $userid
+     * @param int $reason the triggering offer_status::get_code() (declined or expired).
      * @return void
      */
-    private function lock_permanently(int $optionid, int $userid): void {
+    private function lock_permanently(int $optionid, int $userid, int $reason): void {
         global $DB;
         if ($DB->record_exists('booking_waitlist_declines', ['optionid' => $optionid, 'userid' => $userid])) {
             return;
@@ -298,6 +409,7 @@ final class db_waitlist_offer_repository implements waitlist_offer_repository {
         $DB->insert_record('booking_waitlist_declines', (object) [
             'optionid' => $optionid,
             'userid' => $userid,
+            'reason' => $reason,
             'timecreated' => $this->clock->time(),
         ]);
     }
