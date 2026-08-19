@@ -3979,6 +3979,7 @@ $string['taskconfirmbookinganswerbymailbyruleadhoc'] = 'Booking: Confirm booking
 $string['taskcreatecachereportsnapshot'] = 'Booking: Create cache report snapshot';
 $string['taskenrolbookeduserstocourse'] = 'Booking: Enrol booked users to course';
 $string['taskexecutebulkoperationsadhoc'] = 'Booking: Execute bulk operations on booking options (adhoc task)';
+$string['taskexpirewaitlistofferadhoc'] = 'Booking: Expire waitlist offer (adhoc task)';
 $string['taskfinalizetemplatecourse'] = 'Booking: Finalize course created from a template (adhoc task)';
 $string['taskprocesssourcemembershipsyncadhoc'] = 'Booking: Process source membership sync (adhoc task)';
 $string['taskpurgecampaigncaches'] = 'Booking: Clean caches for booking campaigns';
@@ -3989,6 +3990,7 @@ $string['tasksendconfirmationmails'] = 'Booking: Send confirmation mails';
 $string['tasksendmailbyruleadhoc'] = 'Booking: Send mail by rule (adhoc task)';
 $string['tasksendnotificationmails'] = 'Booking: Send notification mails';
 $string['tasksendremindermails'] = 'Booking: Send reminder mails';
+$string['taskwaitlistheartbeat'] = 'Booking: Waitlist heartbeat (self-healing)';
 $string['teacher'] = 'Teacher';
 $string['teacherdescription'] = 'Description';
 $string['teacherhourslabel'] = 'Hours';
@@ -4286,6 +4288,14 @@ The associated course can be found here: {$a->courselink}
 ';
 $string['waitingtextsubject'] = 'Booking status for {$a->title} has changed';
 $string['waitingtextsubjectbookingmanager'] = 'Booking status for {$a->title} has changed';
+$string['waitlistheartbeatheading'] = 'Waitlist heartbeat';
+$string['waitlistheartbeatheading_desc'] = 'Periodically re-checks waiting lists for a lost trigger (e.g. a crashed cron run) and self-heals them.';
+$string['waitlistheartbeatinterval'] = 'Waitlist heartbeat interval';
+$string['waitlistheartbeatinterval_desc'] = 'How often stalled waiting lists are re-checked and self-healed. Never runs more often than every 5 minutes, regardless of this setting.';
+$string['waitlistrecycling'] = 'Waiting list after full pass-through';
+$string['waitlistrecycling_help'] = 'A person who lets an offer expire is locked out of further offers for this booking option. This setting controls what happens once everyone still on the waiting list is locked out this way: "Stop" leaves them locked out permanently. "Go through again" resets those locks and offers seats to them again (in their original order), as soon as this is next checked by the waitlist heartbeat task. A person who actively declines an offer is always locked out permanently, regardless of this setting.';
+$string['waitlistrecyclingend'] = 'Stop';
+$string['waitlistrecyclingrecycle'] = 'Go through again';
 $string['waitspaceavailable'] = 'Places on waiting list available';
 $string['warningcustomfieldsforbiddenshortname'] = 'You cannot use the following shortname(s) for custom fields: <b>{$a}</b>.
 Please choose another shortname.';
