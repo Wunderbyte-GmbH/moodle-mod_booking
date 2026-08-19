@@ -787,15 +787,24 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
      *
      * @param string $area
      * @param int $itemid An identifier that is known to the plugin
+     * @param int $userid the user whose purchase would be cancelled, defaults to the current user
+     *                    (local_shopping_cart only asks for non-cashiers, who can only cancel their own purchases)
      *
      * @return bool true if cancelling is allowed, else false
      */
-    public static function allowed_to_cancel(string $area, int $itemid): bool {
+    public static function allowed_to_cancel(string $area, int $itemid, int $userid = 0): bool {
+        global $USER;
+
         $allowedtocancel = true;
         // Currently, we only check this for options.
         // Maybe we will need additional areas in the future.
         if ($area == 'option') {
             if (empty($itemid)) {
+                return false;
+            }
+
+            // Somebody else is booked via the enrollink of this purchase: the booker cannot cancel anymore.
+            if (enrollink::cancellation_blocked_by_used_enrollink($userid ?: (int)$USER->id, $itemid)) {
                 return false;
             }
 

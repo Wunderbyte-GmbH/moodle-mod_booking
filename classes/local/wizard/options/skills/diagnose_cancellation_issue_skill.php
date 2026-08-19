@@ -27,6 +27,7 @@ use mod_booking\bo_availability\bo_info;
 use mod_booking\bo_availability\conditions\cancelmyself;
 use mod_booking\booking;
 use mod_booking\booking_option;
+use mod_booking\enrollink;
 use mod_booking\local\wizard\booking\booking_skill_support;
 use mod_booking\local\wizard\engine\skill_trigger_provider_interface;
 use mod_booking\singleton_service;
@@ -711,9 +712,29 @@ class diagnose_cancellation_issue_skill extends booking_skill_base implements sk
                     $lang
                 );
             }
+
+            // Somebody else is booked via the enrollink of this booking ("enrol multiple users" form
+            // element): the booker cannot cancel anymore. cancelmyself stays the highest blocker in
+            // this state (it renders the explanation instead of the cancel button), so this has to
+            // be reported explicitly instead of "cancel flow available".
+            if (enrollink::cancellation_blocked_by_used_enrollink($diagnosticuserid, $settings->id)) {
+                $enrollinkblocked = true;
+                $reasons[] = $this->localized_string(
+                    $isselfdiagnosis
+                        ? 'agent_booking_diagnose_cancel_reason_enrollink_used'
+                        : 'agent_booking_diagnose_cancel_reason_enrollink_used_other',
+                    null,
+                    $lang
+                );
+                $reasons[] = $this->localized_string(
+                    'agent_booking_diagnose_cancel_reason_concrete_enrollink_used',
+                    null,
+                    $lang
+                );
+            }
         }
 
-        if ($highestid === MOD_BOOKING_BO_COND_CANCELMYSELF) {
+        if ($highestid === MOD_BOOKING_BO_COND_CANCELMYSELF && empty($enrollinkblocked)) {
             $reasons[] = $this->localized_string('agent_booking_diagnose_cancel_reason_cancel_button_available', null, $lang);
         }
 

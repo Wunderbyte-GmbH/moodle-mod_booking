@@ -161,6 +161,7 @@ $string['agent_booking_diagnose_cancel_reason_activity_completed_other'] = 'Stor
 $string['agent_booking_diagnose_cancel_reason_cancel_button_available'] = 'cancelmyself (id=105) ist aktuell die höchste blockierende Condition, daher sollte der Stornoablauf verfügbar sein.';
 $string['agent_booking_diagnose_cancel_reason_concrete_coolingoff_active'] = 'Konkrete Einstellung: booking/coolingoffperiod = {$a} Sekunden. Admin-Aktion: Cooling-off-Phase verkürzen oder auf 0 setzen.';
 $string['agent_booking_diagnose_cancel_reason_concrete_effective_canceluntil_passed'] = 'Konkrete Einstellung: Die wirksame Stornofrist (aus den Instanzeinstellungen berechnet) ist abgelaufen: {$a->timestamp} ({$a->date}). Admin-Aktion: allowupdatedays/allowupdatetimestamp oder die relative Stornoregel anpassen.';
+$string['agent_booking_diagnose_cancel_reason_concrete_enrollink_used'] = 'Konkreter Zustand: Eine andere Person ist über den Einschreibelink dieser Buchungsantwort gebucht (booking_enrollink_items mit consumed = 1 zum Bundle der Antwort). Selbststorno ist absichtlich gesperrt; bei Bedarf muss eine Kassier:in oder eine Person mit Buchungsverwaltungsrechten die Buchung stornieren (über den Link gebuchte Personen bleiben gebucht, der Link wird ungültig).';
 $string['agent_booking_diagnose_cancel_reason_concrete_instance_cancancelbook_disabled'] = 'Konkrete Einstellung: booking.cancancelbook != 1. Admin-Aktion: In der Buchungsinstanz "Nutzern erlauben, ihre Buchung selbst zu stornieren" aktivieren.';
 $string['agent_booking_diagnose_cancel_reason_concrete_instance_disablecancel'] = 'Konkrete Einstellung: booking.json.disablecancel = 1 (instanzweite Stornosperre). Admin-Aktion: In der Buchungsinstanz "Stornierung für die gesamte Buchungsinstanz deaktivieren" ausschalten.';
 $string['agent_booking_diagnose_cancel_reason_concrete_notbooked_state'] = 'Konkreter Zustand: bookinginformation.notbooked ist gesetzt. Ohne aktive Buchung ist Selbststorno nicht verfügbar.';
@@ -170,6 +171,8 @@ $string['agent_booking_diagnose_cancel_reason_coolingoff_active'] = 'Eine Coolin
 $string['agent_booking_diagnose_cancel_reason_effective_canceluntil_passed'] = 'Die wirksame Stornofrist ist abgelaufen (bis {$a}).';
 $string['agent_booking_diagnose_cancel_reason_elective_reservation'] = 'Sie haben aktuell nur eine Reservierung im Wahlkontext; in diesem Zustand ist Selbststorno nicht möglich.';
 $string['agent_booking_diagnose_cancel_reason_elective_reservation_other'] = 'Die ausgewählte Person hat aktuell nur eine Reservierung im Wahlkontext; in diesem Zustand ist Selbststorno nicht möglich.';
+$string['agent_booking_diagnose_cancel_reason_enrollink_used'] = 'Sie haben Plätze für andere Personen gebucht und jemand hat sich bereits über Ihren Einschreibelink eingebucht, daher können Sie diese Buchung nicht mehr stornieren.';
+$string['agent_booking_diagnose_cancel_reason_enrollink_used_other'] = 'Die ausgewählte Person hat Plätze für andere Personen gebucht und jemand hat sich bereits über ihren Einschreibelink eingebucht, daher kann sie diese Buchung nicht mehr stornieren.';
 $string['agent_booking_diagnose_cancel_reason_instance_cancancelbook_disabled'] = 'Selbststorno ist in dieser Buchungsinstanz deaktiviert (cancancelbook ist nicht aktiv).';
 $string['agent_booking_diagnose_cancel_reason_instance_disablecancel'] = 'Stornieren ist für die gesamte Buchungsinstanz deaktiviert.';
 $string['agent_booking_diagnose_cancel_reason_none'] = 'Aus dem aktuellen Zustand konnte kein konkreter Storno-Blocker abgeleitet werden.';
@@ -538,6 +541,7 @@ $string['bocondbookwithcredits'] = 'bookwithcredits: Mit Guthaben buchen';
 $string['bocondbookwithsubscription'] = 'bookwithsubscription: Mit Abonnement buchen';
 $string['bocondcampaignblockbooking'] = 'campaignblockbooking: Kampagne blockiert Buchung';
 $string['bocondcancelmyself'] = 'cancelmyself: Selbst stornieren';
+$string['bocondcancelmyselfenrollinkused'] = 'Sie können nicht mehr stornieren, da Ihr Einschreibelink bereits genutzt wurde.';
 $string['bocondcapbookingchoose'] = 'capbookingchoose: Berechtigung zum Buchen';
 $string['bocondcapbookingchooseavailable'] = 'Buchen möglich';
 $string['bocondcapbookingchoosefullavailable'] = 'Berechtigung auf dieser Instanz zu buchen';
@@ -1763,6 +1767,7 @@ $string['enrollink:4'] = 'Es sind keine freien Plätze mehr in Ihrem Kontingent 
 $string['enrollink:5'] = 'Keine Gastnutzer erlaubt';
 $string['enrollink:6'] = 'Ihre Anmeldung ist erfolgt und muss noch von einer berechtigten Person bestätigt werden.';
 $string['enrollink:7'] = 'Einschreibung nicht möglich: {$a}';
+$string['enrollink:8'] = 'Dieser Einschreibelink ist nicht mehr gültig, da die zugehörige Buchung storniert wurde.';
 $string['enrollinkreceivedfrom'] = 'Einschreibelink erhalten von';
 $string['enrollinkskipconditions'] = 'Bei Einschreibe-Links bestimmte Verfügbarkeitsbedingungen umgehen';
 $string['enrollinkskipconditions_desc'] = 'Wählen Sie aus, welche Verfügbarkeitsbedingungen umgangen werden sollen, wenn ein Benutzer über einen Einschreibe-Link bucht.';

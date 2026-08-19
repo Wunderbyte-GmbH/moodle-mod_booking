@@ -385,6 +385,8 @@ define('MOD_BOOKING_AUTOENROL_STATUS_NO_MORE_SEATS', 4);
 define('MOD_BOOKING_AUTOENROL_STATUS_LOGGED_IN_AS_GUEST', 5);
 define('MOD_BOOKING_AUTOENROL_STATUS_WAITINGLIST', 6);
 define('MOD_BOOKING_AUTOENROL_STATUS_BLOCKED_BY_CONDITION', 7);
+// The booking answer the enrollink bundle belongs to was cancelled - the link is dead.
+define('MOD_BOOKING_AUTOENROL_STATUS_BUNDLE_CANCELLED', 8);
 
 // Status for user submit response (enrolment into bookingoption).
 // 1 if we just added this booking option to the shopping cart, 2 for confirmation.

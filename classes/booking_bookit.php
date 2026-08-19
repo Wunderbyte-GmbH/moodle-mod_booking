@@ -30,6 +30,7 @@ use context_module;
 use context_system;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\bo_availability\conditions\cancelmyself;
+use mod_booking\enrollink;
 use mod_booking\local\modechecker;
 use mod_booking\output\bookingoption_description;
 use mod_booking\output\bookit_button;
@@ -582,9 +583,13 @@ class booking_bookit {
                 // hard-blocker it must still be able to cancel (otherwise the cancel button is dead).
                 $cancelmyself = new cancelmyself();
                 // Add a layer of security to not cancel just because of unintentional double click.
+                // A booking via whose enrollink somebody else is booked cannot be cancelled at all
+                // (cancelmyself renders the explanation instead of the cancel button), so it is
+                // never marked for cancellation either.
                 if (
                     !cancelmyself::apply_coolingoff_period($settings, $userid) &&
-                    !$cancelmyself->is_available($settings, $userid)
+                    !$cancelmyself->is_available($settings, $userid) &&
+                    !enrollink::cancellation_blocked_by_used_enrollink($userid, $settings->id)
                 ) {
                      // If the cancel condition is blocking here, we can actually mark the option for cancelation.
                     $cache = cache::make('mod_booking', 'confirmbooking');
@@ -593,13 +598,23 @@ class booking_bookit {
                     $cache->set($userid, [$cachekey => $now]);
                 }
             } else if ($id === MOD_BOOKING_BO_COND_CONFIRMCANCEL) {
-                // Here we are already one step further and only confirm the cancelation.
-                self::answer_booking_option($area, $itemid, MOD_BOOKING_STATUSPARAM_DELETED, $userid);
-
                 // Make sure cache is not blocking anymore.
                 $cache = cache::make('mod_booking', 'confirmbooking');
                 $cachekey = $userid . "_" . $settings->id . '_cancel';
                 $cache->delete($userid);
+
+                // Last line of defence (stale button, direct webservice call): somebody is booked
+                // via the enrollink of this booking, so it cannot be cancelled anymore. The
+                // re-rendered button shows the explanation.
+                if (enrollink::cancellation_blocked_by_used_enrollink($userid, $settings->id)) {
+                    return [
+                        'status' => 0,
+                        'message' => 'cancellationblockedbyenrollink',
+                    ];
+                }
+
+                // Here we are already one step further and only confirm the cancelation.
+                self::answer_booking_option($area, $itemid, MOD_BOOKING_STATUSPARAM_DELETED, $userid);
 
                 return [
                     'status' => 1,

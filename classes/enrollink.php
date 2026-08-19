@@ -353,10 +353,87 @@ class enrollink {
             return MOD_BOOKING_AUTOENROL_STATUS_LINK_NOT_VALID;
         }
 
+        // The link lives and dies with the booking it was created for: once the booker cancelled
+        // (and was maybe refunded), the remaining places must not be given away anymore.
+        if (!$this->bundle_booking_is_active()) {
+            return MOD_BOOKING_AUTOENROL_STATUS_BUNDLE_CANCELLED;
+        }
+
         if (empty($this->free_places_left())) {
             return MOD_BOOKING_AUTOENROL_STATUS_NO_MORE_SEATS;
         }
         return 0;
+    }
+
+    /**
+     * Checks whether the booking answer this bundle was created for is still active,
+     * i.e. the booker is still booked or on the waiting list.
+     *
+     * Legacy bundles without a stored answer id (baid = 0, created before the column existed)
+     * cannot be verified and are treated as active.
+     *
+     * @return bool
+     */
+    public function bundle_booking_is_active(): bool {
+        global $DB;
+
+        if (empty($this->bundle) || empty($this->bundle->baid)) {
+            return true;
+        }
+
+        $waitinglist = $DB->get_field('booking_answers', 'waitinglist', ['id' => $this->bundle->baid]);
+        if ($waitinglist === false) {
+            // The answer was deleted for good.
+            return false;
+        }
+        return in_array((int)$waitinglist, self::active_answer_states(), true);
+    }
+
+    /**
+     * The booking answer states in which a booker still holds the places of the bundle.
+     *
+     * @return int[]
+     */
+    private static function active_answer_states(): array {
+        return [MOD_BOOKING_STATUSPARAM_BOOKED, MOD_BOOKING_STATUSPARAM_WAITINGLIST];
+    }
+
+    /**
+     * Checks whether the active booking answer of the user for the given option owns an enrollink
+     * bundle via which somebody else is currently booked.
+     *
+     * Such a booking must not be cancelled by the booker anymore: the places handed out via the
+     * link are taken by other users, and the link itself would either die with the booking
+     * (see enrolment_blocking()) or keep giving away places of a cancelled purchase.
+     * The place the booker consumed for themselves does not count, and neither do link users
+     * whose own booking has been cancelled in the meantime.
+     *
+     * @param int $userid the booker
+     * @param int $optionid
+     *
+     * @return bool true if somebody else is booked via the enrollink of the user's booking
+     */
+    public static function cancellation_blocked_by_used_enrollink(int $userid, int $optionid): bool {
+        global $DB;
+
+        [$insql, $inparams] = $DB->get_in_or_equal(self::active_answer_states(), SQL_PARAMS_NAMED, 'wl');
+        [$insql2, $inparams2] = $DB->get_in_or_equal(self::active_answer_states(), SQL_PARAMS_NAMED, 'wl2');
+        // Booker's active answer -> its bundle -> consumed items of OTHER users -> their own active answer.
+        $sql = "SELECT COUNT(bei.id)
+                  FROM {booking_answers} ba
+                  JOIN {booking_enrollink_bundles} beb ON beb.baid = ba.id
+                  JOIN {booking_enrollink_items} bei ON bei.erlid = beb.erlid
+                  JOIN {booking_answers} linkba ON linkba.optionid = ba.optionid
+                       AND linkba.userid = bei.userid
+                       AND linkba.waitinglist $insql2
+                 WHERE ba.userid = :userid
+                       AND ba.optionid = :optionid
+                       AND ba.waitinglist $insql
+                       AND bei.consumed = 1
+                       AND bei.userid <> ba.userid";
+        $params = ['userid' => $userid, 'optionid' => $optionid] + $inparams + $inparams2;
+
+        return $DB->count_records_sql($sql, $params) > 0;
     }
 
 

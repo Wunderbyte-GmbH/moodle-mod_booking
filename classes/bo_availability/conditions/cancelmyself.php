@@ -31,6 +31,7 @@ use mod_booking\bo_availability\bo_info;
 use mod_booking\booking;
 use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
+use mod_booking\enrollink;
 use mod_booking\local\slotbooking\slot_change_policy;
 use mod_booking\price;
 use mod_booking\singleton_service;
@@ -153,6 +154,16 @@ class cancelmyself implements bo_condition {
                 $isavailable = true;
             } else if ($bookingsettings->cancancelbook != 1 || isset($bookinginformation['notbooked'])) {
                 $isavailable = true; // True means cancel button is not shown.
+            } else if (
+                (isset($bookinginformation['onwaitinglist']) || isset($bookinginformation['iambooked']))
+                && enrollink::cancellation_blocked_by_used_enrollink($userid, $optionid)
+            ) {
+                // The user booked places for other users and somebody already used the enrollink:
+                // cancelling is not possible anymore. The condition deliberately stays "blocking"
+                // (false) so the cancel slot is still rendered - render_button() shows the
+                // explanation instead of a cancel button there, and booking_bookit::bookit()
+                // refuses the cancellation on the server side.
+                $isavailable = false;
             } else if (isset($bookinginformation['onwaitinglist']) || isset($bookinginformation['iambooked'])) {
                 // If the user is allowed to cancel, we first check if the user is already booked or on the waiting list.
                 // We have to check if there's a limit until a certain date.
@@ -364,6 +375,22 @@ class cancelmyself implements bo_condition {
         global $USER, $PAGE;
         if ($userid === null) {
             $userid = $USER->id;
+        }
+
+        // Somebody already booked via the enrollink of this booking: no cancel button anymore,
+        // just the explanation (no role, no JS - nothing to click).
+        if (enrollink::cancellation_blocked_by_used_enrollink($userid, $settings->id)) {
+            return bo_info::render_button(
+                $settings,
+                $userid,
+                get_string('bocondcancelmyselfenrollinkused', 'mod_booking'),
+                'alert alert-warning small',
+                false,
+                $fullwidth,
+                '',
+                'option',
+                true
+            );
         }
 
         // At this point, we need some logic, because we have a different button for ...

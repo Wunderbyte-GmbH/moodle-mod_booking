@@ -28,6 +28,7 @@ use cache;
 use mod_booking\bo_availability\bo_condition;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_option_settings;
+use mod_booking\enrollink;
 use mod_booking\price;
 use mod_booking\singleton_service;
 use local_shopping_cart\shopping_cart_history;
@@ -166,6 +167,17 @@ class confirmcancel implements bo_condition {
                 if ($limittime > $cachedata[$cachekey]) {
                     $isavailable = true;
                 }
+            }
+
+            // The cancellation was marked, but somebody already booked via the enrollink of this
+            // booking in the meantime: there is nothing to confirm anymore, the booking cannot be
+            // cancelled (see cancelmyself and booking_bookit::bookit()). Checked only for a marked
+            // cancellation, so list views do not pay for the query.
+            if (
+                $isavailable === false
+                && enrollink::cancellation_blocked_by_used_enrollink($userid, $settings->id)
+            ) {
+                $isavailable = true;
             }
         }
 
