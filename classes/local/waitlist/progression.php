@@ -31,6 +31,7 @@ namespace mod_booking\local\waitlist;
 use mod_booking\local\waitlist\offer_statuses\autobooked;
 use mod_booking\local\waitlist\offer_statuses\offered;
 use mod_booking\singleton_service;
+use mod_booking\task\expire_waitlist_offer_adhoc;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
@@ -102,13 +103,13 @@ final class progression {
             return; // K12: structural, no special-case guard needed.
         }
 
-        $ruleids = $this->condition->applicable_rules($optionid); // K11
+        $ruleids = $this->condition->applicable_rules($optionid); // K11.
         if (empty($ruleids)) {
             return;
         }
 
-        $excludeuserids = $this->offers->get_permanently_declined_userids($optionid); // K7
-        $rows = $this->offers->get_unbehandelte_waitinglist($optionid, $excludeuserids); // O1/O2
+        $excludeuserids = $this->offers->get_permanently_declined_userids($optionid); // K7.
+        $rows = $this->offers->get_unbehandelte_waitinglist($optionid, $excludeuserids); // O1/O2.
 
         $roundid = $this->clock->time();
         $treated = [];
@@ -116,7 +117,7 @@ final class progression {
         foreach ($ruleids as $ruleid) {
             foreach ($rows as $index => $row) {
                 if ($free <= 0) {
-                    break 2; // K1: min(N, M)
+                    break 2; // K1: min(N, M).
                 }
 
                 $userid = (int) $row->userid;
@@ -124,7 +125,7 @@ final class progression {
                     continue;
                 }
                 if (!$this->offers->is_still_on_waitinglist($optionid, $userid)) {
-                    continue; // K8: left the waiting list mid-round, no $free--
+                    continue; // K8: left the waiting list mid-round, no $free--.
                 }
                 $treated[$userid] = true;
                 $sortorder = $index + 1; // Frozen at round start (O1-O3, O5), not per-rule.
@@ -138,7 +139,7 @@ final class progression {
                         $free--;
                     }
                 } else {
-                    $this->offer($candidate, $optionid, $ruleid, $roundid, $sortorder); // K4
+                    $this->offer($candidate, $optionid, $ruleid, $roundid, $sortorder); // K4.
                     $free--;
                 }
             }
@@ -220,6 +221,13 @@ final class progression {
             $expiresat,
             $ruleid
         );
+
+        // K4: one task per offer, scheduled to run exactly at the hard-expiry deadline.
+        $task = new expire_waitlist_offer_adhoc();
+        $task->set_custom_data(['offerid' => $offerobj->id]);
+        $task->set_next_run_time($expiresat);
+        \core\task\manager::queue_adhoc_task($task);
+
         $this->messaging->notify_offer($offerobj, $ruleid);
     }
 
