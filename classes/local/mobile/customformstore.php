@@ -101,7 +101,7 @@ class customformstore {
     public function validation($customform, $data): array {
         $errors = [];
         foreach ($customform as $key => $formelement) {
-            $identifier = 'customform_' . $formelement->formtype . "_" . $key;
+            $identifier = customform::get_element_identifier($formelement, (int)$key);
             if (
                 $formelement->formtype == 'url' &&
                 !self::isvalidhttpurl($data[$identifier])
@@ -197,7 +197,7 @@ class customformstore {
      */
     public function translate_errors($customform, $errors) {
         foreach ($customform as $key => &$customitem) {
-            $keyerroritem = 'customform_' . $customitem->formtype . '_' . $key;
+            $keyerroritem = customform::get_element_identifier($customitem, (int)$key);
             if (isset($errors[$keyerroritem])) {
                 $customitem->error = $errors[$keyerroritem];
             } else {
@@ -226,11 +226,11 @@ class customformstore {
             return false;
         }
 
-        if (!$element = $formsarray->{$key} ?? false) {
+        if (!$element = customform::find_element_by_id($formsarray, (int)$key)) {
             return false;
         }
 
-        $identifier = 'customform_' . $element->formtype . "_$key";
+        $identifier = customform::get_element_identifier($element, (int)$key);
 
         return $data->{$identifier} ?? '';
     }
@@ -258,7 +258,7 @@ class customformstore {
             }
             switch ($formelement->formtype) {
                 case "select":
-                    $key = 'customform_select_' . $formdatakey;
+                    $key = customform::get_element_identifier($formelement, (int)$formdatakey);
                     $lines = explode(PHP_EOL, $formelement->value);
                     foreach ($lines as $line) {
                         $linearray = explode(' => ', $line);
@@ -272,7 +272,7 @@ class customformstore {
                     $price += $additionalprice;
                     break;
                 case "enrolusersaction":
-                    $key = 'customform_enrolusersaction_' . $formdatakey;
+                    $key = customform::get_element_identifier($formelement, (int)$formdatakey);
                     if (isset($data[$key])) {
                         $factor = (int) $data[$key];
                         $price = $price * $factor;

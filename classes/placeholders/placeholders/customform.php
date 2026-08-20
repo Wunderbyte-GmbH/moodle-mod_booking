@@ -92,8 +92,13 @@ class customform extends \mod_booking\placeholders\placeholder_base {
 
                     if (strpos($key, 'customform_') !== false) {
                         $identifierarray = explode('_', $key);
-                        // Now we get get the options of this custom form select..
-                        if ($formelement = $formelements->{$identifierarray[2]} ?? false) {
+                        // The number in the answer key is the stable elementid of the element
+                        // (the position for answers that predate elementids).
+                        $elementid = (int)($identifierarray[2] ?? 0);
+                        $formelement = $elementid
+                            ? \mod_booking\bo_availability\conditions\customform::find_element_by_id($formelements, $elementid)
+                            : null;
+                        if ($formelement) {
                             // Make sure first we have a value.
                             $returnvalue = $value;
 

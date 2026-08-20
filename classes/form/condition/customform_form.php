@@ -199,8 +199,10 @@ class customform_form extends dynamic_form {
 
             $mform = $this->_form;
 
-            $counter = 1;
             foreach ($formvalue as $formelementkey => $formelementvalue) {
+                // The runtime identifier is built from the stable elementid; for json
+                // that predates elementids this is the position, i.e. the array key.
+                $counter = (int)($formelementvalue->elementid ?? $formelementkey);
                 // We might need custom solutions, therefore we have the switch here.
                 switch ($formelementvalue->formtype) {
                     case 'static':
@@ -418,8 +420,6 @@ class customform_form extends dynamic_form {
                         );
                     }
                 }
-
-                $counter++;
             }
 
             $dataarray['data']['formsarray'][] = $formelements;

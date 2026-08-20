@@ -402,8 +402,9 @@ class columns_helper {
             ) {
                 $columns['enrollink'] = get_string('enrollink', 'booking');
             }
-            $label = !empty($formelement->label) ? $formelement->label : 'label_' . $counter;
-            $columns['formfield_' . $counter] = format_string($label);
+            $elementid = (int)($formelement->elementid ?? $counter);
+            $label = !empty($formelement->label) ? $formelement->label : 'label_' . $elementid;
+            $columns['formfield_' . $elementid] = format_string($label);
         }
         return $columns;
     }
