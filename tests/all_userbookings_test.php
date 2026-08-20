@@ -251,7 +251,7 @@ final class all_userbookings_test extends booking_advanced_testcase {
                     'formtype' => 'deleteinfoscheckboxuser',
                     'label' => 'Delete info',
                     'fieldvalue' => '',
-                    'answerkey' => 'customform_deleteinfoscheckboxuser_1',
+                    'answerkey' => 'customform_deleteinfoscheckboxuser',
                     'answervalue' => '1',
                     'expected' => '1',
                 ],

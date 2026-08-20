@@ -58,6 +58,9 @@ const getField = (form, shortname, row) => {
         case 'value':
             name = `bo_cond_customform_value_1_${row}`;
             break;
+        case 'elementid':
+            name = `bo_cond_customform_elementid_1_${row}`;
+            break;
         case 'notempty':
             return form.querySelector(`input[type="checkbox"][name="bo_cond_customform_notempty_1_${row}"]`);
         case 'waitinglist':
@@ -75,6 +78,7 @@ const getField = (form, shortname, row) => {
  */
 const readRow = (form, row) => ({
     formtype: getField(form, 'select', row)?.value ?? '0',
+    elementid: getField(form, 'elementid', row)?.value ?? '',
     label: getField(form, 'label', row)?.value ?? '',
     value: getField(form, 'value', row)?.value ?? '',
     notempty: getField(form, 'notempty', row)?.checked ?? false,
@@ -94,6 +98,10 @@ const writeRow = (form, row, tuple) => {
         return;
     }
     select.value = tuple.formtype;
+    const elementid = getField(form, 'elementid', row);
+    if (elementid) {
+        elementid.value = tuple.elementid;
+    }
     const label = getField(form, 'label', row);
     if (label) {
         label.value = tuple.label;
@@ -121,7 +129,8 @@ const writeRow = (form, row, tuple) => {
  *
  * @returns {Object}
  */
-const emptyTuple = () => ({formtype: '0', label: '', value: '', notempty: false, waitinglist: false});
+// An empty elementid makes the server assign a fresh id from the nextelementid counter.
+const emptyTuple = () => ({formtype: '0', elementid: '', label: '', value: '', notempty: false, waitinglist: false});
 
 /**
  * Number of used rows (rows with a chosen form type). The hideIf chain
