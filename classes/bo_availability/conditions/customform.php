@@ -270,10 +270,11 @@ class customform implements bo_condition, freezable_condition {
      * @return void
      */
     public function add_condition_to_mform(MoodleQuickForm &$mform, int $optionid = 0, ?\moodleform $moodleform = null) {
-        global $DB, $CFG;
+        global $DB, $CFG, $PAGE;
 
         // Check if PRO version is activated.
         if (wb_payment::pro_version_is_activated()) {
+            $PAGE->requires->js_call_amd('mod_booking/customformeditor', 'init');
             $mform->addElement(
                 'advcheckbox',
                 'bo_cond_customform_restrict',
@@ -294,7 +295,6 @@ class customform implements bo_condition, freezable_condition {
 
             // We add four potential elements.
             $counter = 1;
-            $previous = 0;
 
             // Up to 50 elements are possible. 20 was too few for some clients. 50 is more than enough.
             while ($counter <= 50) {
@@ -309,6 +309,25 @@ class customform implements bo_condition, freezable_condition {
                     get_string('formtype', 'mod_booking'),
                     $formelementsarray
                 );
+
+                // Row editor buttons: move up/down, delete, insert below.
+                // They live inside the same group so the hideIf chain of the row applies to them too.
+                // The value shifting is done client side by mod_booking/customformeditor.
+                $editorbuttons = '<span class="ml-2 text-nowrap mbo-cfe-buttons">'
+                    . '<button type="button" class="btn btn-sm btn-outline-secondary" data-cfe-action="up"'
+                    . ' data-cfe-row="' . $counter . '" title="' . get_string('customformeditormoveup', 'mod_booking')
+                    . '"><i class="fa fa-arrow-up" aria-hidden="true"></i></button> '
+                    . '<button type="button" class="btn btn-sm btn-outline-secondary" data-cfe-action="down"'
+                    . ' data-cfe-row="' . $counter . '" title="' . get_string('customformeditormovedown', 'mod_booking')
+                    . '"><i class="fa fa-arrow-down" aria-hidden="true"></i></button> '
+                    . '<button type="button" class="btn btn-sm btn-outline-danger" data-cfe-action="delete"'
+                    . ' data-cfe-row="' . $counter . '" title="' . get_string('customformeditordelete', 'mod_booking')
+                    . '"><i class="fa fa-trash" aria-hidden="true"></i></button> '
+                    . '<button type="button" class="btn btn-sm btn-outline-primary" data-cfe-action="insert"'
+                    . ' data-cfe-row="' . $counter . '" title="' . get_string('customformeditorinsert', 'mod_booking')
+                    . '"><i class="fa fa-plus" aria-hidden="true"></i></button>'
+                    . '</span>';
+                $buttonarray[] =& $mform->createElement('html', $editorbuttons);
 
                 $mform->addGroup($buttonarray, 'formgroupelement_1_' . $counter, '', '', false, []);
                 $mform->hideIf('formgroupelement_1_' . $counter, 'bo_cond_customform_restrict', 'notchecked');
@@ -461,16 +480,11 @@ class customform implements bo_condition, freezable_condition {
                     'deleteinfoscheckboxuser'
                 );
 
-                if (!empty($previous)) {
-                    $mform->hideIf(
-                        'formgroupelement_1_' . $counter,
-                        'bo_cond_customform_select_1_' . $previous,
-                        'eq',
-                        0
-                    );
-                }
+                // Note: the visibility chain (only show used rows plus one empty row) is handled
+                // by mod_booking/customformeditor instead of a hideIf chain on the previous row.
+                // A hideIf chain cannot cope with temporarily empty rows created by the insert
+                // operation, and hideIf is client side anyway, so behaviour without JS is unchanged.
 
-                $previous = $counter;
                 $counter++;
             }
 
