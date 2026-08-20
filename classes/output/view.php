@@ -355,8 +355,10 @@ class view implements renderable, templatable {
         if (in_array('optionsiamresponsiblefor', $showviews)) {
             // If we show this table first, we don't load it lazy.
             $lazy = $whichview !== 'optionsiamresponsiblefor';
+            // Note: the method takes no userid (it resolves $USER itself); the first
+            // three parameters are the tfilter/tsearch/tsort booleans (issue #2212).
             $this->renderedresponsiblecontacttable =
-                $this->get_rendered_table_for_responsible_contact($USER->id, true, true, $lazy);
+                $this->get_rendered_table_for_responsible_contact(true, true, true, $lazy);
         }
 
         // Only the booking options of my institution.
@@ -778,18 +780,24 @@ class view implements renderable, templatable {
         $responsiblecontacttable->requirelogin = true;
 
         if ($lazy) {
-            // This line is only necessary, so we get rawdata.
-            $responsiblecontacttable->printtable($booking->get_pagination_setting(), true);
+            global $DB;
+            // Hide the tab without building the whole table: the previous full
+            // printtable() run (including the filter value counts over the whole
+            // instance) was only needed for the rawdata empty check below - a
+            // cheap existence check answers that question too (issue #2212).
+            if (!$DB->record_exists_sql("SELECT 'x' FROM {$from} WHERE {$where}", $params)) {
+                return null;
+            }
 
             [$idstring, $encodedtable, $out]
                 = $responsiblecontacttable->lazyouthtml($booking->get_pagination_setting(), true);
         } else {
             $out = $responsiblecontacttable->outhtml($booking->get_pagination_setting(), true);
-        }
 
-        // Return null if no rows are there, so no tab will be rendered.
-        if (empty($responsiblecontacttable->rawdata)) {
-            return null;
+            // Return null if no rows are there, so no tab will be rendered.
+            if (empty($responsiblecontacttable->rawdata)) {
+                return null;
+            }
         }
 
         return $out;
