@@ -776,10 +776,11 @@ if (!$tableallbookings->is_downloading()) {
             $tableallbookings->no_sorting('enrollinkreceivedfrom');
         }
 
-        $label = !empty($customformfield->label) ? $customformfield->label : 'label_' . $counter;
-        $columns[] = 'formfield_' . $counter;
+        $formfieldid = (int)($customformfield->elementid ?? $counter);
+        $label = !empty($customformfield->label) ? $customformfield->label : 'label_' . $formfieldid;
+        $columns[] = 'formfield_' . $formfieldid;
         $headers[] = format_string($label);
-        $tableallbookings->no_sorting('formfield_' . $counter);
+        $tableallbookings->no_sorting('formfield_' . $formfieldid);
     }
 
     if (booking_option::get_value_of_json_by_key($optionid, 'slot_enabled')) {
@@ -1497,8 +1498,9 @@ if (!$tableallbookings->is_downloading()) {
             $columns[] = 'enrollinkreceivedfrom';
             $headers[] = get_string('enrollinkreceivedfrom', 'mod_booking');
         }
-        $columns[] = 'formfield_' . $counter;
-        $headers[] = !empty($customformfield->label) ? $customformfield->label : 'label_' . $counter;
+        $formfieldid = (int)($customformfield->elementid ?? $counter);
+        $columns[] = 'formfield_' . $formfieldid;
+        $headers[] = !empty($customformfield->label) ? $customformfield->label : 'label_' . $formfieldid;
     }
 
     if (booking_option::get_value_of_json_by_key($optionid, 'slot_enabled')) {

@@ -182,7 +182,7 @@ class customform_prefill {
             return 'customform_deleteinfoscheckboxuser';
         }
 
-        return 'customform_' . $formelement->formtype . '_' . $key;
+        return 'customform_' . $formelement->formtype . '_' . ($formelement->elementid ?? $key);
     }
 
     /**

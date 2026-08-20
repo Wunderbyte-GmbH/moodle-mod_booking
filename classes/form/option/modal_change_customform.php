@@ -126,7 +126,7 @@ class modal_change_customform extends dynamic_form {
 
         foreach ($formelements as $counter => $formelement) {
             $formtype = $formelement->formtype ?? '';
-            $identifier = self::get_element_identifier($formtype, (int)$counter);
+            $identifier = self::get_element_identifier($formtype, (int)($formelement->elementid ?? $counter));
             $label = format_string($formelement->label ?? '');
 
             if (!in_array($formtype, self::EDITABLE_FORMTYPES, true)) {
@@ -255,7 +255,7 @@ class modal_change_customform extends dynamic_form {
             if (!in_array($formtype, self::EDITABLE_FORMTYPES, true)) {
                 continue;
             }
-            $identifier = self::get_element_identifier($formtype, (int)$counter);
+            $identifier = self::get_element_identifier($formtype, (int)($formelement->elementid ?? $counter));
             if (!property_exists($data, $identifier)) {
                 continue;
             }
@@ -391,7 +391,7 @@ class modal_change_customform extends dynamic_form {
             if (!in_array($formtype, self::EDITABLE_FORMTYPES, true)) {
                 continue;
             }
-            $identifier = self::get_element_identifier($formtype, (int)$counter);
+            $identifier = self::get_element_identifier($formtype, (int)($formelement->elementid ?? $counter));
             if (!array_key_exists($identifier, $data)) {
                 continue;
             }
