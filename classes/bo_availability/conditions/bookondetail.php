@@ -123,7 +123,7 @@ class bookondetail implements bo_condition {
                 && get_config('booking', 'bookonlyondetailspage')
             )
         ) {
-            if (!modechecker::use_special_details_page_treatment()) {
+            if (!modechecker::use_special_details_page_treatment($userid)) {
                 $isavailable = false;
             }
         }

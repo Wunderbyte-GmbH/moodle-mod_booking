@@ -156,7 +156,6 @@ $string['bookwithcreditsprofilefield_desc'] = 'Um die Funktion nutzen zu können
 $string['bstparticipants'] = 'Teilnehmer/innen';
 $string['bstteacher'] = 'Trainer/in(nen)';
 $string['cachedef_bookedusertable'] = 'Gebuchte Nutzer/innen-Tabelle (Cache)';
-$string['cachedef_bookforuser'] = 'Für Nutzer/innen buchen (Cache)';
 $string['cachedef_usercompetenciescache'] = 'Kompetenzen von Nutzer/innen (Cache)';
 $string['cacheturnoffforbookinganswers'] = 'Caching der Antworten (der Buchungen durch Nutzer/innen) abschalten';
 $string['caladdascourseevent'] = 'Zum Kalender hinzufügen (nur für Teilnehmer/innen des Moodle-Kurses sichtbar)';

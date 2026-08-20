@@ -227,7 +227,7 @@ class electivenotbookable implements bo_condition {
 
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
-        [$template, $data2] = booking_bookit::render_bookit_template_data($settings, 0, false);
+        [$template, $data2] = booking_bookit::render_bookit_template_data($settings, $userid, false);
         $data2 = reset($data2);
         $template = reset($template);
 

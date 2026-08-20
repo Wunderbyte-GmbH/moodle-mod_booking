@@ -63,9 +63,6 @@ class price {
     /** @var int $itemid if area is 'option' then itemid will be the optionid */
     public $itemid;
 
-    /** @var int $bookforuserid A static value which can be set in one request. */
-    private static $bookforuserid;
-
     /**
      * Reset method to clear the singleton state.
      *
@@ -73,7 +70,7 @@ class price {
      *
      */
     public static function destroy_singletons(): void {
-        self::$bookforuserid = null;
+        // Nothing to reset anymore, kept for API stability (used by the test generator).
     }
 
     /**
@@ -989,8 +986,10 @@ class price {
 
     /**
      * Return right user from userid.
-     * If there is no userid provided, we look in shopping cart cache, there might be a userid stored.
-     * If not, we use USER.
+     * If there is no userid provided, we check the request-bound shopping cart
+     * cashier mechanism ($_GET['_buyforuser_'], capability-gated), there might be a userid stored.
+     * If not, we use USER. The resolution is strictly request-bound: no session
+     * state may ever influence which user we act for.
      * @param int $userid
      * @return stdClass
      */
@@ -1011,24 +1010,6 @@ class price {
             }
         }
 
-        if (empty($userid) || $USER->id == $userid) {
-            // We can implement an override via the session cache.
-
-            $cache = cache::make('mod_booking', 'bookforuser');
-            $result = $cache->get('bookforuser');
-            if ($result) {
-                [$cacheduserid, $expirationtime] = $result;
-                if ($expirationtime > time()) {
-                    // A still valid override applies.
-                    $userid = $cacheduserid;
-                } else {
-                    // An expired entry must never be used again - discard it for good.
-                    $cache->delete('bookforuser');
-                    $userid = $USER->id;
-                }
-            }
-        }
-
         if ($userid) {
             $user = singleton_service::get_instance_of_user($userid);
         } else {
@@ -1038,25 +1019,21 @@ class price {
     }
 
     /**
-     * Sets the userid to singleton and cache.
-     * Validity is only 10 seconds.
-     * This is only meant to render correctly in one request and in following webservices.
+     * Formerly stored the userid in a session cache to influence user resolution
+     * in subsequent requests. The session cache allowed one request to leak its
+     * acting user into unrelated requests (and tabs) of the same session, so it
+     * was removed. User resolution is now strictly request-bound: pass the userid
+     * explicitly instead (see return_user_to_buy_for()).
      *
      * @param int $userid
      *
-     * @return [type]
+     * @return void
      *
+     * @deprecated since Wunderbyte-GmbH/Wunderbyte-GmbH#2214 - no-op, will be removed.
      */
     public static function set_bookforuser(int $userid) {
-        self::$bookforuserid = $userid;
-        $cache = cache::make('mod_booking', 'bookforuser');
-        $cache->set(
-            'bookforuser',
-            [
-                $userid,
-                time() + 10,
-            ]
-        );
+        // Intentional no-op. Kept so that older versions of local_shopping_cart
+        // and local_taskflow which still call this method do not fatal.
     }
 
     /**

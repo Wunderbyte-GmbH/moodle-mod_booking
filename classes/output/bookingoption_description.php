@@ -648,8 +648,8 @@ class bookingoption_description implements renderable, templatable {
 
                 // We set usertobuyfor here for better performance.
                 // An explicitly passed foreign user (capability-checked by optionview.php)
-                // wins over the session-based resolution. For the own user (or none),
-                // the legacy resolution (shopping cart cashier, bookforuser override) applies.
+                // wins. For the own user (or none), the request-bound resolution
+                // (shopping cart cashier param, else the logged-in user) applies.
                 $buyforuserid = ((int)$this->userid === (int)$USER->id) ? 0 : (int)$this->userid;
                 $this->usertobuyfor = price::return_user_to_buy_for($buyforuserid);
 

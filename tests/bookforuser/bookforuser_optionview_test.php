@@ -15,14 +15,14 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Characterization tests: which user the option detail view (OPTIONVIEW) targets.
+ * Tests: which user the option detail view (OPTIONVIEW) targets.
  *
  * These tests pin which user the MOD_BOOKING_DESCRIPTION_OPTIONVIEW branch of
  * bookingoption_description targets on the buy button. See
- * Wunderbyte-GmbH/Wunderbyte-GmbH#2191 (detailed analysis) and
- * Wunderbyte-GmbH/moodle-taskflowadapter_tuines#154 (customer report): a stale
- * bookforuser entry must never redirect the detail view, a valid override and
- * an explicitly passed foreign user must - always visibly labelled (#360).
+ * Wunderbyte-GmbH/Wunderbyte-GmbH#2191/#2214 (analysis and cache removal) and
+ * Wunderbyte-GmbH/moodle-taskflowadapter_tuines#154 (customer report): no
+ * session state may ever redirect the detail view, only an explicitly passed
+ * (capability-checked) foreign user may - always visibly labelled (#360).
  *
  * @package mod_booking
  * @category test
@@ -32,7 +32,6 @@
 
 namespace mod_booking;
 
-use cache;
 use mod_booking\output\bookingoption_description;
 use mod_booking\tests\booking_advanced_testcase;
 use tool_mocktesttime\time_mock;
@@ -42,7 +41,7 @@ global $CFG;
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 
 /**
- * Characterization tests for the OPTIONVIEW buy-for-user resolution.
+ * Tests for the OPTIONVIEW buy-for-user resolution.
  *
  * @package mod_booking
  * @category test
@@ -128,11 +127,11 @@ final class bookforuser_optionview_test extends booking_advanced_testcase {
     }
 
     /**
-     * Without any cache entry, the detail view targets the acting user.
+     * By default, the detail view targets the acting user.
      *
      * @covers \mod_booking\output\bookingoption_description::get_returnarray
      */
-    public function test_detail_view_targets_acting_user_without_cache_entry(): void {
+    public function test_detail_view_targets_acting_user_by_default(): void {
         $env = $this->create_env();
         $this->setUser($env['viewer']);
 
@@ -142,50 +141,33 @@ final class bookforuser_optionview_test extends booking_advanced_testcase {
     }
 
     /**
-     * A stale (expired) bookforuser entry no longer redirects the detail view.
+     * The deprecated set_bookforuser() never redirects the detail view.
      *
      * This is exactly the cross-tab scenario from taskflowadapter_tuines#154:
-     * the supervisor's unrelated tab must render the buy button for the
-     * supervisor, not for the employee whose assignment was viewed earlier.
+     * whatever another request planted, the supervisor's unrelated tab must
+     * render the buy button for the supervisor, not for the employee whose
+     * assignment was viewed earlier. Since #2214 there is no session state left
+     * that could carry such an override at all.
      *
      * @covers \mod_booking\output\bookingoption_description::get_returnarray
      */
-    public function test_detail_view_discards_stale_cache_entry(): void {
+    public function test_detail_view_ignores_set_bookforuser(): void {
         $env = $this->create_env();
         $this->setUser($env['viewer']);
 
-        $cache = cache::make('mod_booking', 'bookforuser');
-        $cache->set('bookforuser', [(int)$env['employee']->id, time() - 1]);
+        // Formerly this planted a session override; now it must have no effect,
+        // no matter whether the detail view resolves argless ...
+        price::set_bookforuser((int)$env['employee']->id);
+        $bookitsection = $this->render_optionview_bookitsection((int)$env['option']->id, null);
+        $this->assertStringContainsString('data-userid="' . $env['viewer']->id . '"', $bookitsection);
 
+        // ... or with the viewer passed explicitly (as optionview.php does).
+        price::set_bookforuser((int)$env['employee']->id);
         $bookitsection = $this->render_optionview_bookitsection(
             (int)$env['option']->id,
             \core_user::get_user($env['viewer']->id)
         );
-
         $this->assertStringContainsString('data-userid="' . $env['viewer']->id . '"', $bookitsection);
-    }
-
-    /**
-     * A fresh, VALID override reaches the button within its validity window.
-     *
-     * This is the flow local_taskflow intends (set_bookforuser() right before the
-     * supervisor opens the option). The #360 for-user label (name + ID under the
-     * button) must make the foreign target VISIBLE - that visibility guarantee
-     * has to survive all future changes.
-     *
-     * @covers \mod_booking\output\bookingoption_description::get_returnarray
-     */
-    public function test_detail_view_applies_valid_override(): void {
-        $env = $this->create_env();
-        $this->setUser($env['viewer']);
-
-        price::set_bookforuser((int)$env['employee']->id);
-
-        $bookitsection = $this->render_optionview_bookitsection((int)$env['option']->id, null);
-
-        $this->assertStringContainsString('data-userid="' . $env['employee']->id . '"', $bookitsection);
-        // The for-user label (issue Moodle-local_taskflow#360) makes the foreign target visible.
-        $this->assertStringContainsString('(ID:' . $env['employee']->id . ')', $bookitsection);
     }
 
     /**
@@ -193,28 +175,23 @@ final class bookforuser_optionview_test extends booking_advanced_testcase {
      * session-bound.
      *
      * This is the path optionview.php feeds after resolving its capability-checked
-     * userid param (the taskflow "Zur Schulung" link). It must win even over a
-     * valid session override for a DIFFERENT user, so the tab always books whom
-     * its own link addresses.
+     * userid param (the taskflow "Zur Schulung" link). The #360 for-user label
+     * (name + ID under the button) must make the foreign target VISIBLE - that
+     * visibility guarantee has to survive all future changes.
      *
      * @covers \mod_booking\output\bookingoption_description::get_returnarray
      */
     public function test_detail_view_uses_explicitly_passed_foreign_user(): void {
         $env = $this->create_env();
-        $other = $this->getDataGenerator()->create_user();
         $this->setUser($env['viewer']);
-
-        // A valid session override for ANOTHER user exists (e.g. a second
-        // assignment page was opened in a different tab just now).
-        price::set_bookforuser((int)$other->id);
 
         $bookitsection = $this->render_optionview_bookitsection(
             (int)$env['option']->id,
             \core_user::get_user($env['employee']->id)
         );
 
-        // The explicitly passed user wins over the session override.
         $this->assertStringContainsString('data-userid="' . $env['employee']->id . '"', $bookitsection);
+        // The for-user label (issue Moodle-local_taskflow#360) makes the foreign target visible.
         $this->assertStringContainsString('(ID:' . $env['employee']->id . ')', $bookitsection);
     }
 }

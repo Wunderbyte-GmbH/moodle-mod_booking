@@ -418,7 +418,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
      */
     public function col_text($values) {
 
-        global $PAGE;
+        global $PAGE, $USER;
 
         // If $values->id is missing, we show the values object in debug mode, so we can investigate what happens.
         if (empty($values->id)) {
@@ -450,7 +450,10 @@ class bookingoptions_wbtable extends wunderbyte_table {
             return '';
         }
 
-        $buyforuser = price::return_user_to_buy_for();
+        // Use the same target user as col_booknow/col_action: the foruserid stored
+        // on the table instance (e.g. set on the cashier page), falling back to
+        // the logged-in user. This keeps all columns of a row consistent.
+        $buyforuserid = !empty($this->foruserid) ? (int)$this->foruserid : (int)$USER->id;
         $cmid = $settings->cmid;
         $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
 
@@ -465,7 +468,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
             $url = new moodle_url("/mod/booking/optionview.php", [
                 "optionid" => (int) $settings->id,
                 "cmid" => (int) $cmid,
-                "userid" => (int) $buyforuser->id,
+                "userid" => $buyforuserid,
                 'returnto' => 'url',
                 'returnurl' => $returnurl,
             ]);

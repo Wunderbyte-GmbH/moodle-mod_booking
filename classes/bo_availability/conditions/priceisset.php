@@ -290,7 +290,7 @@ class priceisset implements bo_condition {
         // The book only on details page avoid js and allows booking only on the details page.
         if (
             get_config('booking', 'bookonlyondetailspage')
-            && !modechecker::use_special_details_page_treatment()
+            && !modechecker::use_special_details_page_treatment($userid)
         ) {
             $returnurl = $PAGE->url->out();
 

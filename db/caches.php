@@ -182,12 +182,6 @@ $definitions = [
         'staticaccelerationsize' => 1,
         'invalidationevents' => ['setbackbookinghistorytable'],
     ],
-    'bookforuser' => [
-        'mode' => cache_store::MODE_SESSION,
-        'simplekeys' => true,
-        'staticacceleration' => true,
-        'staticaccelerationsize' => 10,
-    ],
     'usercompetenciescache' => [
         'mode' => cache_store::MODE_APPLICATION,
         'simplekeys' => true,

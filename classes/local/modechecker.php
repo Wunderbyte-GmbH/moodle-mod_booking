@@ -25,7 +25,6 @@
 
 namespace mod_booking\local;
 use Exception;
-use mod_booking\price;
 
 
 /**
@@ -66,10 +65,11 @@ class modechecker {
      * This function determines if we should show the link to the details page or render the buttons right away.
      * It returns true when there should not be any special treatment.
      *
+     * @param int $userid the user we are acting for (0 means the logged-in user)
      * @return bool
      *
      */
-    public static function use_special_details_page_treatment() {
+    public static function use_special_details_page_treatment(int $userid = 0) {
         global $PAGE, $USER;
 
         // In CLI/Cron context (e.g., adhoc tasks), page URL is not set and not relevant.
@@ -113,8 +113,10 @@ class modechecker {
                     )
                 )
             ) {
-                $buyforuser = price::return_user_to_buy_for();
-                if ($buyforuser->id !== $USER->id) {
+                // When we act for another user (cashier, book for others), the button
+                // may be rendered right away. Only the explicitly passed userid counts
+                // here - resolution must be request-bound, never session state.
+                if (!empty($userid) && (int)$userid !== (int)$USER->id) {
                     return true;
                 }
                 return false;

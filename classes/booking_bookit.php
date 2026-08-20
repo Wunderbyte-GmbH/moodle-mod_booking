@@ -161,7 +161,7 @@ class booking_bookit {
                     $buttoncondition = $result['classname'];
                     break;
                 case MOD_BOOKING_BO_BUTTON_CANCEL:
-                    if (modechecker::use_special_details_page_treatment()) {
+                    if (modechecker::use_special_details_page_treatment($userid)) {
                         // When we show the cancel button, we can't have "just my alert", it would suppress this.
                         $justmyalert = false;
                         $extrabuttoncondition = $result['classname'];

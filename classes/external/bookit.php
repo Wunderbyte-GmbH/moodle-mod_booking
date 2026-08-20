@@ -104,16 +104,13 @@ class bookit extends external_api {
             ];
         }
 
-        // To make sure we still render for the right user.
-        price::set_bookforuser($userid);
-
         [$templates, $data] = booking_bookit::render_bookit_template_data($settings, $userid);
 
         // On booking, we clear the user-specific cache of the booking option answers.
         $cache = cache::make('mod_booking', 'bookingoptionsanswers');
         $cachekey = "$settings->id";
         $bacache = $cache->get($cachekey);
-        $user = price::return_user_to_buy_for();
+        $user = price::return_user_to_buy_for($userid);
 
         if (
             !empty($bacache)

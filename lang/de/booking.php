@@ -1104,7 +1104,6 @@ $string['bulkoperationspro'] = 'Bulk-Operationen (PRO)';
 $string['bulkoperationsqueued'] = 'Die Änderungen an {$a} Buchungsoption(en) werden im Hintergrund durchgeführt. Dies kann eine Weile dauern.';
 $string['bulkoperationstab'] = 'Bulk-Operationen';
 $string['cachedef_bookedusertable'] = 'Gebuchte Nutzer:innen-Tabelle (Cache)';
-$string['cachedef_bookforuser'] = 'Für Nutzer:innen buchen (Cache)';
 $string['cachedef_bookinganswers'] = 'Boooking Antworten (Cache)';
 $string['cachedef_bookinghistorytable'] = 'Buchungshistorie (Cache)';
 $string['cachedef_bookingoptions'] = 'Buchungsoptionen (Cache)';

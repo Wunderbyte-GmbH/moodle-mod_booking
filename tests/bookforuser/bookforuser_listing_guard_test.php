@@ -19,11 +19,9 @@
  *
  * These tests protect the listing/cashier path (shortcodes::init_table_for_courses
  * -> bookingoptions_wbtable->foruserid -> col_booknow), which is used by USI and
- * the cashier and must NOT change during the fix planned in
- * Wunderbyte-GmbH/Wunderbyte-GmbH#2191. They also document the currently existing
- * discrepancy inside one table row: col_booknow() uses the stateless foruserid
- * while col_text() builds the optionview link from the session-global
- * bookforuser cache - two sources of truth side by side.
+ * the cashier and must NOT change during the fixes of
+ * Wunderbyte-GmbH/Wunderbyte-GmbH#2191/#2214. Since #2214 all columns of a row
+ * resolve their target user from the stateless foruserid - one source of truth.
  *
  * @package mod_booking
  * @category test
@@ -162,29 +160,28 @@ final class bookforuser_listing_guard_test extends booking_advanced_testcase {
     }
 
     /**
-     * Documents the in-row discrepancy: col_booknow targets foruserid (stateless),
-     * col_text builds the optionview link from the session cache (here: empty ->
-     * acting user). Same row, two different target users.
+     * All columns of a row agree on the target user: col_booknow renders the
+     * button for foruserid and col_text builds the optionview link for the same
+     * foruserid (#2214 unified the former session-cache-based col_text).
      *
-     * The col_booknow half of this assertion is the USI/cashier behaviour that must
-     * survive #2191 unchanged. The col_text half documents current behaviour and may
-     * change in a later, separate unification step.
+     * The col_booknow half of this assertion is the USI/cashier behaviour that
+     * must survive unchanged.
      *
      * @covers \mod_booking\table\bookingoptions_wbtable::col_booknow
      * @covers \mod_booking\table\bookingoptions_wbtable::col_text
      */
-    public function test_row_booknow_and_text_link_disagree_on_target_user(): void {
+    public function test_row_booknow_and_text_link_agree_on_target_user(): void {
         $env = $this->create_env();
         $this->grant_bookforothers((int)$env['supervisor']->id);
         $this->setUser($env['supervisor']);
 
-        $table = new bookingoptions_wbtable('phase0disagree', (int)$env['employee']->id);
+        $table = new bookingoptions_wbtable('phase0agree', (int)$env['employee']->id);
         $values = (object)['id' => $env['option']->id, 'text' => 'Listing Guard Option'];
 
         $booknow = $table->col_booknow($values);
         $this->assertStringContainsString('data-userid="' . $env['employee']->id . '"', $booknow);
 
         $text = $table->col_text($values);
-        $this->assertStringContainsString('userid=' . $env['supervisor']->id, $text);
+        $this->assertStringContainsString('userid=' . $env['employee']->id, $text);
     }
 }

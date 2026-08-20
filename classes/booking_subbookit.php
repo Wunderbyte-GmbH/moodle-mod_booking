@@ -192,6 +192,10 @@ class booking_subbookit {
             if (!$allowedtobook) {
                 throw new moodle_exception('norighttoaccess', 'mod_booking');
             }
+        } else if (empty($userid)) {
+            // Resolve the userid explicitly, the called functions must never
+            // depend on any session state to determine the acting user.
+            $userid = (int)$USER->id;
         }
 
         if (strpos($area, 'subbooking') === 0) {

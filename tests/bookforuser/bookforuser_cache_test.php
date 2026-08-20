@@ -15,13 +15,14 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Tests for the bookforuser session cache in mod_booking\price.
+ * Tests pinning that the buy-for-user resolution is strictly request-bound.
  *
- * These tests pin the contract of the short-lived bookforuser override
- * (see Wunderbyte-GmbH/Wunderbyte-GmbH#2191 and the customer report
- * Wunderbyte-GmbH/moodle-taskflowadapter_tuines#154): a VALID override applies
- * within its 10 second window, an EXPIRED entry is discarded AND deleted so it
- * can never poison later requests of the same session again.
+ * The bookforuser session cache was removed (see Wunderbyte-GmbH/Wunderbyte-GmbH#2214,
+ * follow-up to #2191 and the customer report
+ * Wunderbyte-GmbH/moodle-taskflowadapter_tuines#154). These tests guarantee that
+ * NO session state may ever influence which user mod_booking acts for: only an
+ * explicitly passed userid or the request-bound (capability-gated) shopping cart
+ * cashier parameter may redirect the resolution.
  *
  * @package mod_booking
  * @category test
@@ -31,7 +32,6 @@
 
 namespace mod_booking;
 
-use cache;
 use mod_booking\tests\booking_advanced_testcase;
 use tool_mocktesttime\time_mock;
 
@@ -40,7 +40,7 @@ global $CFG;
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 
 /**
- * Tests for price::set_bookforuser() and price::return_user_to_buy_for().
+ * Tests for price::return_user_to_buy_for() and the deprecated price::set_bookforuser().
  *
  * @package mod_booking
  * @category test
@@ -59,119 +59,107 @@ final class bookforuser_cache_test extends booking_advanced_testcase {
     }
 
     /**
-     * A fresh, still-valid override written via set_bookforuser() is applied.
+     * Tests tear down.
+     */
+    public function tearDown(): void {
+        // The shopping cart cashier mechanism stores its target in the request
+        // superglobal - make sure it never leaks into other tests.
+        unset($_GET['_buyforuser_']);
+        parent::tearDown();
+    }
+
+    /**
+     * Without any explicit userid, the resolution returns the logged-in user.
      *
-     * This is the flow local_taskflow and the bookit webservice rely on:
-     * the override targets the given user within the validity window.
+     * @covers \mod_booking\price::return_user_to_buy_for
+     */
+    public function test_argless_resolution_returns_logged_in_user(): void {
+        $viewer = $this->getDataGenerator()->create_user();
+        $this->setUser($viewer);
+
+        $user = price::return_user_to_buy_for();
+
+        $this->assertEquals($viewer->id, $user->id);
+    }
+
+    /**
+     * The deprecated set_bookforuser() is a no-op: it must never influence any
+     * later resolution, neither argless nor with an explicit self-target.
+     *
+     * This kills the session leak from taskflowadapter_tuines#154 at the root:
+     * there is no session state left that one request could plant for another.
      *
      * @covers \mod_booking\price::set_bookforuser
      * @covers \mod_booking\price::return_user_to_buy_for
      */
-    public function test_valid_override_is_applied(): void {
+    public function test_set_bookforuser_is_a_noop(): void {
         $viewer = $this->getDataGenerator()->create_user();
         $employee = $this->getDataGenerator()->create_user();
         $this->setUser($viewer);
 
         price::set_bookforuser((int)$employee->id);
-        $user = price::return_user_to_buy_for();
-
-        $this->assertEquals($employee->id, $user->id);
-    }
-
-    /**
-     * An EXPIRED override is discarded and DELETED from the cache.
-     *
-     * This kills the cross-tab leak reported in taskflowadapter_tuines#154:
-     * once the validity window has passed, the entry may never be applied again.
-     *
-     * @covers \mod_booking\price::return_user_to_buy_for
-     */
-    public function test_expired_override_is_discarded_and_deleted(): void {
-        $viewer = $this->getDataGenerator()->create_user();
-        $employee = $this->getDataGenerator()->create_user();
-        $this->setUser($viewer);
-
-        $cache = cache::make('mod_booking', 'bookforuser');
-        $cache->set('bookforuser', [(int)$employee->id, time() - 1]);
 
         $user = price::return_user_to_buy_for();
-
         $this->assertEquals($viewer->id, $user->id);
-        // The stale entry has been cleaned up for good.
-        $this->assertFalse($cache->get('bookforuser'));
+
+        $user = price::return_user_to_buy_for((int)$viewer->id);
+        $this->assertEquals($viewer->id, $user->id);
+
+        // Simulate a request boundary in the same session: still no effect.
+        singleton_service::destroy_instance();
+        $user = price::return_user_to_buy_for();
+        $this->assertEquals($viewer->id, $user->id);
     }
 
     /**
-     * A valid override survives a request boundary within its window, an expired
-     * one is cleaned up across request boundaries too.
+     * An explicitly passed userid always wins.
      *
-     * singleton_service::destroy_instance() simulates the start of a new request
-     * in the same Moodle session (MODE_SESSION cache persists).
-     *
-     * @covers \mod_booking\price::return_user_to_buy_for
-     */
-    public function test_override_lifecycle_across_request_boundaries(): void {
-        $viewer = $this->getDataGenerator()->create_user();
-        $employee = $this->getDataGenerator()->create_user();
-        $this->setUser($viewer);
-
-        // Valid override set in "request 1" still applies in "request 2".
-        price::set_bookforuser((int)$employee->id);
-        singleton_service::destroy_instance();
-        $first = price::return_user_to_buy_for();
-        $this->assertEquals($employee->id, $first->id);
-
-        // An expired entry is discarded in a later request as well.
-        $cache = cache::make('mod_booking', 'bookforuser');
-        $cache->set('bookforuser', [(int)$employee->id, time() - 1]);
-        singleton_service::destroy_instance();
-        $second = price::return_user_to_buy_for();
-        $this->assertEquals($viewer->id, $second->id);
-        $this->assertFalse($cache->get('bookforuser'));
-    }
-
-    /**
-     * An explicit foreign userid bypasses the cache entirely.
-     *
-     * This is the path the cashier/multiuser checkout tests already rely on and
-     * must never regress.
+     * This is the path all webservices and the cashier/multiuser checkout rely
+     * on and must never regress.
      *
      * @covers \mod_booking\price::return_user_to_buy_for
      */
-    public function test_explicit_foreign_userid_bypasses_cache(): void {
+    public function test_explicit_userid_wins(): void {
         $viewer = $this->getDataGenerator()->create_user();
-        $employee = $this->getDataGenerator()->create_user();
         $other = $this->getDataGenerator()->create_user();
         $this->setUser($viewer);
 
-        $cache = cache::make('mod_booking', 'bookforuser');
-        $cache->set('bookforuser', [(int)$employee->id, time() - 1]);
-
         $user = price::return_user_to_buy_for((int)$other->id);
+
         $this->assertEquals($other->id, $user->id);
     }
 
     /**
-     * Passing one's OWN userid explicitly consults the cache: a valid override
-     * still wins (intended, e.g. bookit webservice re-rendering), while a stale
-     * entry no longer hijacks the call.
+     * The request-bound shopping cart cashier parameter applies only WITH the
+     * cashier capability: a regular user cannot redirect the resolution via the
+     * request parameter.
      *
      * @covers \mod_booking\price::return_user_to_buy_for
      */
-    public function test_explicit_own_userid_follows_override_lifecycle(): void {
+    public function test_cashier_request_param_is_capability_gated(): void {
+        if (!class_exists('local_shopping_cart\shopping_cart')) {
+            $this->markTestSkipped('local_shopping_cart is not installed.');
+        }
+
         $viewer = $this->getDataGenerator()->create_user();
         $employee = $this->getDataGenerator()->create_user();
         $this->setUser($viewer);
 
-        // Valid override wins over the explicit self-target.
-        price::set_bookforuser((int)$employee->id);
-        $user = price::return_user_to_buy_for((int)$viewer->id);
-        $this->assertEquals($employee->id, $user->id);
+        // The cashier page / shopping cart webservices seed the target user into
+        // the request superglobal - strictly request-bound, gone with the request.
+        \local_shopping_cart\shopping_cart::buy_for_user((int)$employee->id);
 
-        // A stale entry does NOT hijack the explicit self-target.
-        $cache = cache::make('mod_booking', 'bookforuser');
-        $cache->set('bookforuser', [(int)$employee->id, time() - 1]);
-        $user = price::return_user_to_buy_for((int)$viewer->id);
+        // Without the cashier capability the parameter is ignored.
+        $user = price::return_user_to_buy_for();
         $this->assertEquals($viewer->id, $user->id);
+
+        // With the cashier capability the parameter applies.
+        $systemcontext = \context_system::instance();
+        $roleid = $this->getDataGenerator()->create_role();
+        assign_capability('local/shopping_cart:cashier', CAP_ALLOW, $roleid, $systemcontext->id);
+        role_assign($roleid, $viewer->id, $systemcontext->id);
+
+        $user = price::return_user_to_buy_for();
+        $this->assertEquals($employee->id, $user->id);
     }
 }
