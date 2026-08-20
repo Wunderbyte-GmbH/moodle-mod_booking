@@ -33,6 +33,9 @@
 defined('MOODLE_INTERNAL') || die();
 
 $string['activitycompletionsuccess'] = 'Alle Nutzer/innen wurden für den Aktivitätsabschluss ausgewählt';
+$string['addtocalendar_locked_desc'] = 'Wenn aktiviert, ist das Auswahlfeld "Zum Moodle-Kalender hinzufügen" im Formular der Buchungsoption auf die oben eingestellte Vorbelegung fixiert und kann von Bearbeiter/innen der Option nicht geändert werden. Nutzer-Kalendereinträge für gebuchte Optionen werden unabhängig davon weiterhin erstellt.';
+$string['addtocalendardefault_desc'] = 'Vorausgewählter Wert des Auswahlfelds "Zum Moodle-Kalender hinzufügen" beim Anlegen einer neuen Buchungsoption. "Website-Termin" greift nur für Nutzer/innen mit der Berechtigung mod/booking:createcalendarsiteevents (Administrator/innen haben sie immer) - für alle anderen wird stattdessen "Kurs-Termin" vorbelegt. Bestehende Buchungsoptionen, der CSV-Import und der Webservice sind von dieser Vorbelegung nicht betroffen.';
+$string['addtocalendarlockedhint'] = 'Das Feld "Zum Moodle-Kalender hinzufügen" ist für alle Buchungsoptionen gesperrt (Plugin-Einstellung: "Zum Moodle-Kalender hinzufügen" sperren). Als Administrator/in können Sie es {$a}.';
 $string['addtogroup'] = 'Nutzer/innen automatisch in Gruppe des verknüpften Kurses einschreiben';
 $string['addtogroup_help'] = 'Nutzer/innen automatisch in eine Gruppe des Kurses eintragen, der in den Einstellungen der Buchungsoption verknüpft ist. Die Gruppe wird nach folgendem Schema automatisch erstellt: Aktivitätsname - Name der Buchungsoption';
 $string['addtogroupofcurrentcourse'] = 'Nutzer/innen automatisch in Gruppe(n) des Kurses einschreiben, in dem sich diese Buchungsinstanz befindet';
@@ -120,6 +123,7 @@ $string['booking:bookallstudents'] = 'Alle eingeschriebenen Teilnehmer/innen in 
 $string['booking:bookanyone'] = 'Darf alle Nutzer/innen buchen';
 $string['booking:changecustomformofotherusers'] = 'Formularwerte (Customform), die andere Nutzer/innen beim Buchen eingegeben haben, bearbeiten (PRO)';
 $string['booking:communicate'] = 'Kann kommunizieren (z.B. Nachrichten an gebuchte Nutzer/innen schicken)';
+$string['booking:createcalendarsiteevents'] = 'Website-Termine für Buchungsoptionen im Kalender anlegen (für alle Nutzer/innen der Website sichtbar, keine Einschreibung nötig)';
 $string['booking:duplicateanycourse'] = 'Beliebigen Kurs als Duplizierungsvorlage auswählen (auch Kurse, auf die der/die Nutzer/in keinen Zugriff hat)';
 $string['booking:managebookedusers'] = 'Buchungen von Nutzer/innen verwalten';
 $string['booking:overrideboconditions'] = 'Nutzer/in darf buchen auch wenn Verfügbarkeit false zurückliefert.';
