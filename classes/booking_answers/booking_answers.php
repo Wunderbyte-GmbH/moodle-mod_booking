@@ -1374,7 +1374,7 @@ class booking_answers {
         bool $excludeselflearningcourses = false
     ) {
 
-        global $DB, $CFG;
+        global $DB, $CFG, $USER;
 
         $answers = [];
         $data = singleton_service::get_answers_for_user($userid, $bookingid);
@@ -1385,11 +1385,20 @@ class booking_answers {
         // This is important so we only get instance-specific cache!
         $cachekey = "myanswers$bookingid";
 
+        // The cache key does not contain the userid, so the session cache must only ever hold the
+        // answers of the user the session belongs to. When the answers of ANOTHER user are needed
+        // (eg. conditions like the max number of bookings checked while booking for somebody else),
+        // the cache is bypassed in both directions: neither read (it holds the session user's
+        // answers) nor written (it would poison the session user's subsequent checks). Repeated
+        // lookups within the request are still covered by the userid-keyed singleton above.
+        $usecache = (int)$userid === (int)$USER->id
+            && !get_config('booking', 'cacheturnoffforbookinganswers');
+
         try {
             // If we don't have the answers in the singleton, we look in the cache.
             if (empty($answers)) {
                 $cache = \cache::make('mod_booking', 'bookinganswers');
-                if (!get_config('booking', 'cacheturnoffforbookinganswers')) {
+                if ($usecache) {
                     $data = $cache->get($cachekey);
                 } else {
                     $data = false;
@@ -1427,7 +1436,7 @@ class booking_answers {
 
                 $answers = $data['answers'];
                 singleton_service::set_answers_for_user($userid, $bookingid, $data);
-                if (!get_config('booking', 'cacheturnoffforbookinganswers')) {
+                if ($usecache) {
                     $cache->set($cachekey, $data);
                 }
             }

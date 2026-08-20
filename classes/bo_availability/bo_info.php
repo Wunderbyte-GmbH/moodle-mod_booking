@@ -399,6 +399,75 @@ class bo_info {
     }
 
     /**
+     * Returns the availability conditions that would block the given user from booking
+     * this option themselves, mapped from condition id to a plain-text description.
+     *
+     * This is meant for flows where an agent books FOR the given user (eg. subscribeusers.php).
+     * Therefore conditions that are part of the booking flow rather than real restrictions
+     * (bookit button, price, confirmation pages, booking policy, subbookings, customform),
+     * capacity conditions (fully booked, notify list - the waiting list logic of the booking
+     * process stays in charge of those) and conditions describing an already existing answer
+     * of the user are not reported as blockers.
+     *
+     * @param int $optionid
+     * @param int $userid the user the option would be booked for
+     * @return array [conditionid => description] of blocking conditions, empty if none block
+     */
+    public static function get_unmet_availability_conditions(int $optionid, int $userid): array {
+        global $CFG;
+
+        // Lib is needed for defined constants.
+        require_once($CFG->dirroot . '/mod/booking/lib.php');
+
+        // Conditions that must not be treated as blockers when someone else books for the user.
+        $irrelevantconditions = [
+            MOD_BOOKING_BO_COND_CONFIRMATION,
+            MOD_BOOKING_BO_COND_BOOKITBUTTON,
+            MOD_BOOKING_BO_COND_CONFIRMBOOKIT,
+            MOD_BOOKING_BO_COND_PRICEISSET,
+            MOD_BOOKING_BO_COND_NOSHOPPINGCART,
+            MOD_BOOKING_BO_COND_BOOKWITHCREDITS,
+            MOD_BOOKING_BO_COND_CONFIRMBOOKWITHCREDITS,
+            MOD_BOOKING_BO_COND_BOOKWITHSUBSCRIPTION,
+            MOD_BOOKING_BO_COND_CONFIRMBOOKWITHSUBSCRIPTION,
+            MOD_BOOKING_BO_COND_ELECTIVEBOOKITBUTTON,
+            MOD_BOOKING_BO_COND_ELECTIVENOTBOOKABLE,
+            MOD_BOOKING_BO_COND_ASKFORCONFIRMATION,
+            MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION,
+            MOD_BOOKING_BO_COND_BOOKINGPOLICY,
+            MOD_BOOKING_BO_COND_SUBBOOKING,
+            MOD_BOOKING_BO_COND_SUBBOOKINGBLOCKS,
+            MOD_BOOKING_BO_COND_JSON_CUSTOMFORM,
+            MOD_BOOKING_BO_COND_FULLYBOOKED,
+            MOD_BOOKING_BO_COND_NOTIFYMELIST,
+            MOD_BOOKING_BO_COND_ALREADYRESERVED,
+            MOD_BOOKING_BO_COND_BOOKONDETAIL,
+            MOD_BOOKING_BO_COND_CANCELMYSELF,
+            MOD_BOOKING_BO_COND_ONWAITINGLIST,
+            MOD_BOOKING_BO_COND_ALREADYBOOKED,
+            MOD_BOOKING_BO_COND_SLOTMOVE,
+            MOD_BOOKING_BO_COND_CONFIRMCANCEL,
+        ];
+
+        $blocking = [];
+        // The condition results only contain the conditions which are NOT available.
+        foreach (self::get_condition_results($optionid, $userid) as $result) {
+            $conditionid = (int)$result['id'];
+            if (in_array($conditionid, $irrelevantconditions, true)) {
+                continue;
+            }
+            $description = trim(strip_tags((string)($result['description'] ?? '')));
+            if ($description === '') {
+                // Make the blocker at least identifiable when a condition provides no description.
+                $classnameparts = explode('\\', (string)$result['classname']);
+                $description = end($classnameparts);
+            }
+            $blocking[$conditionid] = $description;
+        }
+        return $blocking;
+    }
+
+    /**
      * Obtains a string describing all availability restrictions (even if
      * they do not apply any more). Used to display information for staff
      * editing the website.

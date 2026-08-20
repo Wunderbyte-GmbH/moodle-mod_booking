@@ -217,6 +217,12 @@ define('MOD_BOOKING_BO_COND_CONFIRMBOOKIT', -80);
 define('MOD_BOOKING_BO_COND_BOOKITBUTTON', -90); // This is only used to show the book it button.
 define('MOD_BOOKING_BO_COND_CONFIRMATION', -100); // This is the last page after booking.
 
+// Modes of the global setting "bookotherusersavailability": how the "book other users" page
+// (subscribeusers.php) treats availability conditions that the selected users do not meet.
+define('MOD_BOOKING_BOOKOTHERUSERS_COND_IGNORE', 0);
+define('MOD_BOOKING_BOOKOTHERUSERS_COND_WARN', 1);
+define('MOD_BOOKING_BOOKOTHERUSERS_COND_BLOCK', 2);
+
 // Define conditions parameters.
 define('MOD_BOOKING_CONDPARAM_ALL', 0);
 define('MOD_BOOKING_CONDPARAM_HARDCODED_ONLY', 1);

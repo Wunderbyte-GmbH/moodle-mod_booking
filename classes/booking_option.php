@@ -1429,6 +1429,9 @@ class booking_option {
      *                       and one DB read per promoted user. Capacity stays correct because the
      *                       caller refreshes once before the loop and the $deferbroadcastpurge branch
      *                       below refreshes this option per iteration.
+     * @param bool $skipuserlimitcheck if true, the maxperuser limit of the booking instance is not
+     *                       enforced - eg. because an agent explicitly confirmed to exceed it on the
+     *                       "book other users" page. The capacity of the option is still respected.
      * @return bool true if booking was possible, false if meanwhile the booking got full
      */
     public function user_submit_response(
@@ -1443,6 +1446,7 @@ class booking_option {
         int $syncruleid = 0,
         bool $deferbroadcastpurge = false,
         bool $lockheld = false,
+        bool $skipuserlimitcheck = false,
     ) {
 
         global $USER;
@@ -1543,7 +1547,7 @@ class booking_option {
             $underlimit = ($bookingsettings->maxperuser == 0);
             $underlimit = $underlimit ||
                 (($this->booking->get_user_booking_count($user) - $subtractfromlimit) < $bookingsettings->maxperuser);
-            if (!$underlimit) {
+            if (!$underlimit && !$skipuserlimitcheck) {
                 // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
                 /* mtrace("Couldn't subscribe user $user->id because of maxperuser setting <br>"); */
                 return false;

@@ -1003,6 +1003,23 @@ if ($ADMIN->fulltree) {
             )
         );
 
+        $settings->add(
+            new admin_setting_configselect(
+                'booking/bookotherusersavailability',
+                get_string('bookotherusersavailability', 'mod_booking'),
+                get_string('bookotherusersavailability_desc', 'mod_booking'),
+                MOD_BOOKING_BOOKOTHERUSERS_COND_IGNORE,
+                [
+                    MOD_BOOKING_BOOKOTHERUSERS_COND_IGNORE =>
+                        get_string('bookotherusersavailability:ignore', 'mod_booking'),
+                    MOD_BOOKING_BOOKOTHERUSERS_COND_WARN =>
+                        get_string('bookotherusersavailability:warn', 'mod_booking'),
+                    MOD_BOOKING_BOOKOTHERUSERS_COND_BLOCK =>
+                        get_string('bookotherusersavailability:block', 'mod_booking'),
+                ]
+            )
+        );
+
         $conditionsdashboardurl = new moodle_url('/mod/booking/availabilityconditions.php');
         $conditionsheadingdesc = get_string('conditionssettings_desc', 'mod_booking') .
             '<br>' . get_string('conditionssettingslinkdashboard', 'mod_booking', $conditionsdashboardurl->out(false));
