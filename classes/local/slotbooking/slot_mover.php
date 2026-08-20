@@ -516,6 +516,15 @@ class slot_mover {
             return null;
         }
 
+        // Cheap settings-based gate FIRST: this method runs per rendered row via the
+        // slotmove bo condition, so it must stay DB-free for options that cannot be
+        // self-rebooked at all (issue #2209). The slot config is part of the cached
+        // option settings (reliable since #2207).
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        if (empty($settings->slotconfig) || empty($settings->slotconfig->allow_self_rebooking)) {
+            return null;
+        }
+
         $answer = $DB->get_record('booking_answers', [
             'optionid' => $optionid,
             'userid' => $userid,
