@@ -28,6 +28,9 @@ use stdClass;
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot . '/calendar/lib.php');
+// Needed for the MOD_BOOKING_STATUSPARAM_* constants: entry points like the
+// local_shopping_cart cancel web service reach this class without lib.php loaded.
+require_once($CFG->dirroot . '/mod/booking/lib.php');
 
 /**
  * Deal with elective
