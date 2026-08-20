@@ -407,6 +407,7 @@ $string['alwaysbookanyone_desc'] = 'Dies setzt lediglich die automatische Umscha
 $string['alwaysbookanyonealert'] = 'Sie haben Buchung mit der Einstellung <a href="{$a}" target="_blank">booking | alwaysbookanyone</a> so konfiguriert, dass immer alle Nutzer:innen aller Kurse gebucht werden können.';
 $string['alwaysshowlinkondetailspage'] = 'Immer den Link zur Buchungsoption auf der Kursseite anzeigen';
 $string['alwaysshowlinkondetailspage_desc'] = 'Die Detailseite kann über den Link im Titel oder das Header-Bild erreicht werden. Aber dies wird einen zusätzlichen Button hinzufügen.';
+$string['and'] = 'und';
 $string['andotherfield'] = "UND weiteres Feld";
 $string['annotation'] = 'Interne Anmerkung';
 $string['answer'] = "Antwort";
@@ -1559,6 +1560,7 @@ $string['dateparseformat'] = 'Datumsformat';
 $string['dateparseformat_help'] = 'Bitte Datum so wie es im CSV definiert wurde verwenden. Hilfe unter <a href="http://php.net/manual/en/function.date.php">Datumsdokumentation</a> für diese Einstellung.';
 $string['dates'] = 'Termine';
 $string['datesandentities'] = 'Termine mit Orten';
+$string['datescompact'] = 'Termine in Kompaktform: eine Zeile pro Tag, Uhrzeiten am selben Tag zusammengefasst';
 $string['datesheader'] = 'Termine';
 $string['dayofweek'] = 'Wochentag';
 $string['dayofweektime'] = 'Tag & Uhrzeit';
@@ -2040,6 +2042,11 @@ $string['helptext:placeholders'] = '<div class="alert alert-info" style="margin-
 </div>';
 $string['hidedescription'] = 'Beschreibung verstecken';
 $string['hidelistoncoursepage'] = 'Nein, Extra-Info nicht auf Kursseite anzeigen (Standard)';
+$string['hidetimezonesindates'] = 'Zeitzonen in Datumsangaben ausblenden';
+$string['hidetimezonesindates_desc'] = 'Normalerweise wird an dargestellte Termine eine Zeitzonen-Abkürzung (z.B. "(EDT)") angehängt,
+ wenn die Zeitzone einer Nutzerin/eines Nutzers von der Zeitzone der Website abweicht. Aktivieren Sie diese Einstellung, wenn in vom
+ Buchungsplugin dargestellten Terminen niemals Zeitzonen angezeigt werden sollen, z.B. in den Datums-Platzhaltern
+ ({dates}, {datesandentities}, {datescompact}, {startdate}, {starttime}, {enddate}, {endtime}).';
 $string['holiday'] = "Ferien / Feiertag(e)";
 $string['holidayend'] = 'Ende';
 $string['holidayendactive'] = 'Ende nicht am selben Tag';

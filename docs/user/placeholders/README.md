@@ -87,6 +87,7 @@ These placeholders resolve to properties of the **booking option** itself.
 | `{enddate}` | End date of the booking option (formatted date only) |
 | `{endtime}` | End time of the booking option (formatted time only) |
 | `{dates}` | All session dates as a formatted list (multi-session options show all dates) |
+| `{datescompact}` | All session dates in compact form: one line per day (separated by `<br>`), several dates on the same day combined into one line, e.g. "20 August 2026, 10:00-12:00, 13:00-15:00 and 17:00-18:00" |
 | `{datesandentities}` | All session dates with their associated entities/venues (requires `local_entities`) |
 | `{bookingdetails}` | Full formatted block: all dates, location, teachers, and option details in one output |
 | `{optiondatefromevent}` | The specific session date that triggered the event (for `rule_daysbefore` rules using `optiondatestarttime`) |

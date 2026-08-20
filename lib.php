@@ -2734,6 +2734,7 @@ function booking_pretty_duration($seconds) {
  * Format user date/time and append timezone abbreviation when required.
  *
  * Appends the timezone abbreviation only if:
+ * - The setting booking/hidetimezonesindates is NOT active, and
  * - Users can choose their own timezone (forcetimezone = 99), and
  * - The user's timezone differs from the site's timezone.
  *
@@ -2767,6 +2768,11 @@ function booking_format_userdate_with_timezone_abbr(int $time, string $format, ?
     // Determine which timezone the time is rendered in.
     $rendertz = ((string)$forcetimezone === '99') ? $usertz : $forcetimezone;
     $datestr = userdate($time, $format, $rendertz);
+
+    // Site admins can hide timezone strings in rendered dates entirely.
+    if (get_config('booking', 'hidetimezonesindates')) {
+        return $datestr;
+    }
 
     $forcetimezone = (string)$forcetimezone;
 

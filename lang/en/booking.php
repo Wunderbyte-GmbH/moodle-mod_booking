@@ -411,6 +411,7 @@ $string['alwaysbookanyone_desc'] = 'This will just set the automatic toggle on t
 $string['alwaysbookanyonealert'] = 'You have configured Booking so that it\'s always possible to book any user of any course with the setting <a href="{$a}" target="_blank">booking | alwaysbookanyone</a>.';
 $string['alwaysshowlinkondetailspage'] = 'Always show link on details page';
 $string['alwaysshowlinkondetailspage_desc'] = 'Details page can be reached via the link on the title or the header image. But this will add an additional button.';
+$string['and'] = 'and';
 $string['andotherfield'] = "AND additional field";
 $string['annotation'] = 'Internal annotation';
 $string['answer'] = "Answer";
@@ -1646,6 +1647,7 @@ $string['dateparseformat'] = 'Date parse format';
 $string['dateparseformat_help'] = 'Please, use date format like specified in CSV file. Help with <a href="http://php.net/manual/en/function.date.php">this</a> resource for options.';
 $string['dates'] = 'Dates';
 $string['datesandentities'] = 'Given dates with given entities';
+$string['datescompact'] = 'Dates in compact form: one line per day, times on the same day combined';
 $string['datesheader'] = 'Dates';
 $string['dayofweek'] = 'Weekday';
 $string['dayofweektime'] = 'Day & Time';
@@ -2144,6 +2146,11 @@ $string['helptext:placeholders'] = '<div class="alert alert-info" style="margin-
 </div>';
 $string['hidedescription'] = 'Hide description';
 $string['hidelistoncoursepage'] = 'Hide extra information on course page (default)';
+$string['hidetimezonesindates'] = 'Hide timezones in dates';
+$string['hidetimezonesindates_desc'] = 'Normally, a timezone abbreviation (e.g. "(EDT)") is appended to rendered dates
+ when the timezone of a user differs from the site timezone. Activate this setting if you never want timezone strings
+ to be rendered in dates displayed by the booking plugin, e.g. in the date-related placeholders
+ ({dates}, {datesandentities}, {datescompact}, {startdate}, {starttime}, {enddate}, {endtime}).';
 $string['holiday'] = "Holiday";
 $string['holidayend'] = 'End';
 $string['holidayendactive'] = 'End is not on the same day';

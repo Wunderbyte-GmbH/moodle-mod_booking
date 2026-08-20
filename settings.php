@@ -755,6 +755,16 @@ if ($ADMIN->fulltree) {
         )
     );
 
+    // Hide timezone strings in all dates rendered by the plugin (e.g. date-related placeholders).
+    $settings->add(
+        new admin_setting_configcheckbox(
+            'booking/hidetimezonesindates',
+            get_string('hidetimezonesindates', 'mod_booking'),
+            get_string('hidetimezonesindates_desc', 'mod_booking'),
+            0
+        )
+    );
+
     $slotbookingsdisplaymodes = [
         'availableforuser' => get_string('slot_bookings_display_mode_availableforuser', 'mod_booking'),
         'bookedvscapacity' => get_string('slot_bookings_display_mode_bookedvscapacity', 'mod_booking'),
