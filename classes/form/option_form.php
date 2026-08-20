@@ -76,9 +76,6 @@ class option_form extends dynamic_form {
 
         $mform = &$this->_form;
 
-        $mform->addElement('hidden', 'scrollpos');
-        $mform->setType('scrollpos', PARAM_INT);
-
         // Add all available fields in the right order.
         $classes = fields_info::instance_form_definition($mform, $formdata);
 
