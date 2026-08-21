@@ -373,6 +373,79 @@ final class progression_test extends \advanced_testcase {
     }
 
     /**
+     * W1-W3 (Phase 3 gap fix): an offer to a candidate on an option that requires waitlist
+     * confirmation, with confirmationonnotification enabled, must grant that confirmation - this
+     * is what actually lets bo_availability/conditions/onwaitinglist.php allow the booking.
+     * Without this, an offered candidate would receive a mail but could never actually book
+     * (found and fixed 2026-08-21 while removing the old confirm_bookinganswer_by_rule_adhoc
+     * chain, which used to be the only thing that ever set this flag).
+     */
+    public function test_k4_offer_grants_confirmation_when_required(): void {
+        global $DB;
+
+        [$course, $teacher, $booking] = $this->prepare_course_and_booking();
+        $this->create_pricecategory('paidcat', 80);
+        $optionid = $this->create_priced_option($course, $teacher, $booking, 2, 5);
+
+        // Enable waitlist confirmation + auto-grant-on-notification (mode 1, "for all").
+        $optionrecord = $DB->get_record('booking_options', ['id' => $optionid], '*', MUST_EXIST);
+        $json = json_decode($optionrecord->json ?: '{}');
+        $json->waitforconfirmation = 1;
+        $json->confirmationonnotification = 1;
+        $DB->set_field('booking_options', 'json', json_encode($json), ['id' => $optionid]);
+        \cache::make('mod_booking', 'bookingoptionsettings')->delete($optionid);
+        singleton_service::destroy_booking_option_singleton($optionid);
+
+        $this->create_interval_rule(0, 'confsubj', 'conftmpl', 45); // ALWAYS.
+        $candidate = $this->waitlist_user($course, $optionid, 'paidcat', 100);
+
+        $this->setAdminUser();
+        $this->build_progression()->reconcile($optionid, 'test');
+
+        $answer = $DB->get_record('booking_answers', ['optionid' => $optionid, 'userid' => $candidate->id]);
+        $answerjson = json_decode($answer->json ?: '{}');
+        $this->assertNotEmpty(
+            $answerjson->confirmwaitinglist ?? null,
+            'W1-W3: an offer must grant confirmation when the option requires it and ' .
+            'confirmationonnotification allows auto-granting - otherwise the candidate can ' .
+            'never actually book despite having an open offer.'
+        );
+    }
+
+    /**
+     * W1: confirmationonnotification=0 ("no auto-open") must NOT grant confirmation - matches
+     * the old system's behaviour exactly (nothing was ever queued/granted automatically either).
+     */
+    public function test_k4_offer_does_not_grant_confirmation_when_notification_mode_is_off(): void {
+        global $DB;
+
+        [$course, $teacher, $booking] = $this->prepare_course_and_booking();
+        $this->create_pricecategory('paidcat', 80);
+        $optionid = $this->create_priced_option($course, $teacher, $booking, 2, 5);
+
+        $optionrecord = $DB->get_record('booking_options', ['id' => $optionid], '*', MUST_EXIST);
+        $json = json_decode($optionrecord->json ?: '{}');
+        $json->waitforconfirmation = 1;
+        $json->confirmationonnotification = 0;
+        $DB->set_field('booking_options', 'json', json_encode($json), ['id' => $optionid]);
+        \cache::make('mod_booking', 'bookingoptionsettings')->delete($optionid);
+        singleton_service::destroy_booking_option_singleton($optionid);
+
+        $this->create_interval_rule(0, 'confsubj2', 'conftmpl2', 45); // ALWAYS.
+        $candidate = $this->waitlist_user($course, $optionid, 'paidcat', 100);
+
+        $this->setAdminUser();
+        $this->build_progression()->reconcile($optionid, 'test');
+
+        $answer = $DB->get_record('booking_answers', ['optionid' => $optionid, 'userid' => $candidate->id]);
+        $answerjson = json_decode($answer->json ?: '{}');
+        $this->assertEmpty(
+            $answerjson->confirmwaitinglist ?? null,
+            'W1: confirmationonnotification=0 must never auto-grant confirmation.'
+        );
+    }
+
+    /**
      * K1: the batch size is capped at free capacity (min(N, M)) - with 1 free seat and 2 eligible
      * candidates, only the earlier joiner (O1/O2) is processed; the other is left untouched.
      */
