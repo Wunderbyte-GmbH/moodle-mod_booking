@@ -61,6 +61,7 @@ flowchart TB
         upgrade_step["✅ upgrade_step<br/>Migrations-Einstiegspunkt M1-M5"]
         legacy_chain_reader["✅ legacy_chain_reader<br/>Interface"]
         legacy_chain_reader_send_mail_interval["✅ legacy_chain_reader_send_mail_interval<br/>M1, einzige fixture-belegte Generation"]
+        legacy_chain_reader_confirm_bookinganswer["✅ legacy_chain_reader_confirm_bookinganswer<br/>M2, offene Confirm-Freigabe"]
     end
 
     subgraph Data["Daten"]
@@ -91,6 +92,7 @@ flowchart TB
 
     upgrade_step --> legacy_chain_reader
     legacy_chain_reader_send_mail_interval --> legacy_chain_reader
+    legacy_chain_reader_confirm_bookinganswer --> legacy_chain_reader
     upgrade_step --> db_waitlist_offer_repository
 ```
 
@@ -122,6 +124,7 @@ flowchart TB
 | `legacy_chain_reader` | `local/waitlist/migration/legacy_chain_reader.php` | Interface: liest ein Alt-Ketten-Format | §7 |
 | `legacy_chain_state` | `local/waitlist/migration/legacy_chain_state.php` | Entity: extrahierter Alt-Ketten-Zustand | §7 |
 | `legacy_chain_reader_send_mail_interval` | `local/waitlist/migration/legacy_chain_reader_send_mail_interval.php` | Reader für M1 (send_mail_interval-Kette) - einzige konkret fixture-belegte Generation, s. Hinweis unten | §7 |
+| `legacy_chain_reader_confirm_bookinganswer` | `local/waitlist/migration/legacy_chain_reader_confirm_bookinganswer.php` | Reader für M2 (offene confirm_bookinganswer-Freigabe) | §7 |
 | `booking_waitlist_offers` | `db/install.xml` | Tabelle: Single Source of Truth der Progression | §2.1 |
 | `booking_waitlist_declines` | `db/install.xml` | Tabelle: permanente K7-Sperrliste | §2.3 |
 
@@ -717,3 +720,87 @@ Nächste Schritte: `db/upgrade.php` scharf schalten (echter `upgrade_step::run()
 Versions-Upgrade), dann Legacy-Code entfernen (Ketten-Logik, `confirm_bookinganswer_by_rule_adhoc`,
 Companion-Rules-Mechanik) - danach sollte die A-Suite wieder grün werden bzw. durch B-Äquivalente
 ersetzt sein.
+
+## `db/upgrade.php` scharf geschaltet (2026-08-21)
+
+`version.php` → `2026082100`, neuer Upgrade-Schritt ruft `upgrade_step::run()` echt auf. Georg hat
+diesen Schritt selbst eingetragen. PHPUnit-Umgebung neu initialisiert, 109/109 weiterhin grün.
+
+## Legacy-Code-Entfernung (2026-08-21) - 4 von 5 Schritten fertig
+
+**Wichtige Änderung am Arbeitsmodus für diesen Abschnitt:** Georg hat Claude für die
+Legacy-Entfernung volle Write/Edit-Berechtigung gegeben ("die Entfernungen kannst du selbst
+machen") - erstmals seit Phase 2 direkte Produktivcode-Änderungen ohne Paste-Workflow (siehe
+Memory `waitlist_refactor_code_authorship`).
+
+**Kritischer, vor der Entfernung selbst gefundener Bug:** `progression::offer()` (Phase 2) hatte
+eine echte fehlende Funktionalität - es setzte nie das `confirmwaitinglist`/`confirmationcount`-
+JSON-Flag auf `booking_answers`, das `bo_availability/conditions/onwaitinglist.php` tatsächlich
+prüft, um eine Buchung zu erlauben. Ohne Fix hätten Optionen mit `waitforconfirmation` durch die
+Entfernung von `confirm_bookinganswer_by_rule_adhoc` (bisher die einzige Stelle, die dieses Flag
+je setzte) komplett unbuchbar für wartende Personen werden - eine Mail wäre angekommen, aber
+niemand hätte je buchen können. Mit Georg abgestimmt: `confirmationonnotification`-Modus 1 und 2
+verhalten sich im neuen System GLEICH (jede angebotene Person wird individuell freigegeben, keine
+Kopplung/Entziehung zwischen Personen mehr - K1 begrenzt die Anzahl der Angebote pro Durchlauf
+ohnehin schon auf die freien Plätze, "nie mehr Freigaben als buchen können" ist damit strukturell
+garantiert). Fix: neue private Methode `progression::grant_confirmation_if_required()`, 2 neue
+Tests in `progression_test.php`.
+
+**Schritte 1-4 umgesetzt:**
+1. `send_mail_interval::execute()` → No-op (Klasse bleibt als Konfigurationsquelle für
+   Intervall/Betreff/Template).
+2. `confirm_bookinganswer`/`confirm_bookinganswer_by_rule_adhoc` → No-op (Klassen bleiben geladen,
+   falls Alt-Regeln/verwaiste Task-Zeilen noch darauf verweisen).
+3. `repeat`-Zweig in `send_mail_by_rule_adhoc` entfernt (Klasse bleibt für sonstige Regel-Mails).
+4. Companion-Rules-Mechanik in `rules_info.php` entfernt (`get_companion_interval_rules_for_waitinglist_join()`,
+   `option_is_fully_booked()`, `interval_rule_has_active_tasks()`, `forceexecuteoncurrentevent`-Pfad).
+   **Nebenwirkung, an Georg kommuniziert:** das war zugleich der bisherige T5-Trigger-Pfad
+   (später WL-Beitritt bei zufällig schon freier Kapazität) - ohne dedizierten
+   `latejoiner_waitlist_adapter` fängt jetzt nur noch der T7-Heartbeat (bis zu 15 Min Verzögerung
+   statt sofort) diesen Randfall ab. Akzeptabel, aber bewusst zu dokumentieren; ein dedizierter
+   Adapter könnte bei Bedarf noch ergänzt werden.
+
+**Schritt 5 final entschieden (2026-08-21): wird NICHT umgesetzt, Sonderfall bleibt dauerhaft
+bestehen.** Recherche ergab: kein O3-Test existiert (`test_o2_...`/`test_o4_...` schon, `test_o3_...`
+nie geschrieben) - und wichtiger, der Sonderfall wird von **mehreren aktiven Stellen** gebraucht,
+nicht nur von Alt-Code:
+1. **Der eigene neue Reconciler** - `db_waitlist_offer_repository::get_unbehandelte_waitinglist()`
+   berechnet die Runden-Reihenfolge direkt aus `MIN(ba.timemodified)`.
+2. **`sync_waiting_list()`** (`booking_option.php`) - eine weiterhin aktive, parallele
+   "sofort nachrücken"-Logik, sortiert nach `timemodified`, komplett unabhängig von diesem
+   Refactoring.
+3. **`manageusers_table.php`** - zeigt den Warteliste-Rang an (`userrank`,
+   `waitinglistshowplaceonwaitinglist`-Einstellung) und erlaubt manuelles Drag-and-Drop-Umsortieren,
+   das `timemodified` direkt schreibt.
+4. **`select_student_in_bo.php`** - Regel-Bedingung "wer ist als Nächstes dran", sortiert ebenfalls
+   nach `timemodified`.
+
+Eine Entfernung wäre also kein isoliertes Aufräumen mehr gewesen, sondern hätte alle vier Stellen
+gleichzeitig korrekt behandeln müssen - deutlich größerer Umfang als im Blueprint skizziert, ohne
+einen aktiven Korrektheitsfehler, der das erzwingt. Mit Georg abgestimmt: Sonderfall bleibt
+dauerhaft bestehen, schützt eine sinnvolle Invariante ("Confirm/Unconfirm sortiert nie um") über
+mehrere Stellen hinweg, auch für den eigenen neuen Code.
+
+**Zwei Testfixtures mussten wegen der jetzt live gutteten Alt-Engine umgebaut werden**
+(`waitlist_old_chain_fixture_trait.php`, Test-Code, direkt von Claude angepasst): sowohl die
+Mail- als auch die Confirm-Kette wurden bisher über die echte (jetzt entfernte) Engine erzeugt -
+beide Fixture-Methoden konstruieren jetzt die alten `task_adhoc`-Zeilen direkt (exakt dieselbe
+Form, die die Alt-Engine früher erzeugt hätte), da real produzierte Alt-Daten nur noch auf
+Bestandssystemen vor dem Upgrade existieren, nicht mehr im laufenden Code. Zusätzlich mussten C1/C3
+(zu wenig freie Kapazität in der Fixture) und C5 (Message-Sink wurde zu spät gestartet, da eine
+echte Stornierung jetzt selbst schon reconciled) angepasst werden.
+
+**Regressionslauf: 111/111 grün** (komplette `local/waitlist`-Suite inkl. 2 neuer
+Freigabe-Tests, Tasks, B1-B7, C1-C5). **31/58 Kategorie-A-Tests jetzt rot** (mehr als die
+vorherigen 11 - erwartet, da die Alt-Aktionen jetzt gar nichts mehr tun statt doppelt zu
+verarbeiten; bleibt wie mit Georg abgestimmt bis zum Schluss rot).
+
+**Offen für den Abschluss von Phase 3** (Schritt 5 jetzt final entschieden, s. oben - entfällt
+von dieser Liste):
+- Entscheidung zu `latejoiner_waitlist_adapter` (T5) - dedizierter Adapter oder Heartbeat-only bleibt so?
+- A1/K7 endgültig auflösen (Alt-Assertions durch B1-Äquivalente ersetzen statt nur rot stehen lassen).
+- Kategorie-A-Suite insgesamt: formal retiren/durch B-Suite ersetzen, oder gezielt nachziehen?
+
+**Phase 4 (Nacharbeiten) noch nicht begonnen:** Verhaltens-Doku aktualisieren, Release-Notes
+(K1/T8/K4/K7 als bewusste Verhaltensänderungen benennen), u:rise-Verifikation der 4 ursprünglich
+gemeldeten Szenarien, G1-Monitoring-Query ins Support-Playbook.
