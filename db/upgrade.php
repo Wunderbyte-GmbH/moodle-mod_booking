@@ -5722,5 +5722,14 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2026081900, 'booking');
     }
 
+    if ($oldversion < 2026082100) {
+        // Waitlist-progression refactoring (Phase 3): migrate any still-running legacy chains
+        // into the new booking_waitlist_offers model before the old chain code is removed.
+        // Idempotent (M4) - a plain no-op on a site with nothing currently running.
+        \mod_booking\local\waitlist\migration\upgrade_step::run();
+
+        upgrade_mod_savepoint(true, 2026082100, 'booking');
+    }
+
     return true;
 }
