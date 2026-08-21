@@ -80,14 +80,15 @@ trait waitlist_old_chain_fixture_trait {
      * task carrying usersalreadytreated in its rulejson snapshot, ready to pick up the next
      * ($waitlistcount - 1) unbehandelt users on its next run.
      *
-     * This is built entirely through the current (pre-refactor) engine - a real rule, a real
-     * option, real bookit()/cancel calls, a real freetobookagain trigger, and the direct task
-     * actually executed via runAdhocTasks() - not hand-constructed task_adhoc rows.
+     * The option/rule/waiting-list setup is built through the real engine (a real rule, real
+     * bookit() calls) - only the actual chain-task row is hand-constructed (Phase 3 removed the
+     * engine code that used to produce it live - see the inline comment at that point in this
+     * method for why, and why the fixture still matters despite that).
      *
      * @param int $waitlistcount total number of waiting-list users (>= 2)
      * @return stdClass {course, booking, option, settings, boinfo, optionobj, rule, teacher,
      *   occupant, waitlistusers (ordered array, join order), treateduser (already mailed),
-     *   pendinguser (next in the still-pending repeat chain), repeattask (adhoc_task)}
+     *   pendinguser (next in the still-pending repeat chain), repeattask (raw {task_adhoc} record)}
      */
     protected function build_running_mail_interval_chain(int $waitlistcount = 3): stdClass {
         if ($waitlistcount < 2) {
@@ -181,51 +182,70 @@ trait waitlist_old_chain_fixture_trait {
         }
         $this->setAdminUser();
 
-        // Free the seat -> schedules the chain's first direct mail task + a repeat task.
-        $this->setUser($occupant);
-        $optionobj->user_delete_response($occupant->id);
+        // Free the seat - via a RAW write, not the real cancel API: Phase 3 wired a real
+        // cancellation to self-heal immediately (freetobookagain_waitlist_adapter), which would
+        // reconcile every waiting-list user right away and defeat the whole point of this fixture
+        // (a genuine pre-upgrade "some already treated by the old chain, some still untouched"
+        // state). Same pattern as waitlist_target_b5_heartbeat_test.php's $rawfree.
+        global $DB;
+        $DB->set_field('booking_answers', 'waitinglist', MOD_BOOKING_STATUSPARAM_DELETED, [
+            'optionid' => $option->id,
+            'userid' => $occupant->id,
+        ]);
+        \cache::make('mod_booking', 'bookingoptionsettings')->delete($option->id);
+        \mod_booking\booking_option::purge_cache_for_answers($option->id);
         singleton_service::destroy_booking_option_singleton($option->id);
         singleton_service::destroy_booking_answers($option->id);
         $this->setAdminUser();
 
-        // Run only the DIRECT mail task (leave the repeat task pending) - this is what makes
-        // the chain genuinely "running": one user already treated, the rest still pending.
-        // Note: select_student_in_bo's forced-late-joiner branch also matches the now-DELETED
-        // occupant row (see A9/A11 memory) and produces its own harmless task - filter it out
-        // by only considering waiting-list users' own tasks. Also scope by THIS fixture's own
-        // ruleid - the rule is created at system context (contextid=1), so a second, unrelated
-        // build_running_mail_interval_chain() call within the same test (e.g. C3's orphaned-task
-        // control group) would otherwise ALSO match here, since a system-context rule applies to
-        // every option.
-        $waitlistuserids = array_map(fn($u) => (int) $u->id, $waitlistusers);
-        $taskclass = '\mod_booking\task\send_mail_by_rule_adhoc';
-        $alltasks = \core\task\manager::get_adhoc_tasks($taskclass);
-        $alltasks = array_filter(
-            $alltasks,
-            fn($t) => in_array((int) $t->get_custom_data()->userid, $waitlistuserids, true)
-                && (int) $t->get_custom_data()->ruleid === (int) $rule->id
-        );
-        $directtasks = array_filter($alltasks, fn($t) => empty($t->get_custom_data()->repeat));
-        $repeattasks = array_filter($alltasks, fn($t) => !empty($t->get_custom_data()->repeat));
-        if (count($directtasks) !== 1 || count($repeattasks) !== 1) {
-            throw new \coding_exception(
-                'Fixture setup failed: expected exactly one direct and one repeat mail task, got '
-                . count($directtasks) . ' direct, ' . count($repeattasks) . ' repeat.'
-            );
-        }
-        $directtask = reset($directtasks);
-        $treateduserid = (int) $directtask->get_custom_data()->userid;
-
-        ob_start();
-        $this->runAdhocTasks($taskclass, $treateduserid);
-        ob_get_clean();
-        $this->setAdminUser();
-
-        $repeattasksafter = array_filter(
-            \core\task\manager::get_adhoc_tasks($taskclass),
-            fn($t) => !empty($t->get_custom_data()->repeat)
-        );
-        $repeattask = reset($repeattasksafter);
+        // Hand-construct the repeat task row directly, rather than driving the real engine
+        // (send_mail_interval::execute() was gutted to a no-op in Phase 3's legacy-code removal -
+        // there is no live engine left that produces this shape). This mirrors EXACTLY what
+        // send_mail_interval::execute() used to write (classes/booking_rules/actions/
+        // send_mail_interval.php, pre-Phase-3): customdata->rulejson is itself a JSON string
+        // holding intervaldata->usersalreadytreated - see legacy_chain_reader_send_mail_interval's
+        // docblock. Real production data in this shape can still exist on a site upgrading from
+        // before this refactor, which is exactly what upgrade_step/legacy_chain_reader must
+        // handle - this fixture exists to keep exercising that, even though nothing in the
+        // current codebase can produce it live anymore.
+        $treateduserid = (int) $waitlistusers[0]->id;
+        $nextruntime = time() + 3600;
+        $intervaldata = (object) [
+            'usersalreadytreated' => [$treateduserid],
+            'nextruntime' => $nextruntime,
+            'interval' => 60,
+        ];
+        $repeatrulejson = json_encode((object) [
+            'name' => 'fixturechain',
+            'actionname' => 'send_mail_interval',
+            'actiondata' => (object) [
+                'subject' => 'freeplacedelaysubj',
+                'template' => 'freeplacedelaymsg',
+                'templateformat' => '1',
+                'interval' => 60,
+            ],
+            'intervaldata' => $intervaldata,
+        ]);
+        $repeattaskid = $DB->insert_record('task_adhoc', (object) [
+            'component' => 'mod_booking',
+            'classname' => '\mod_booking\task\send_mail_by_rule_adhoc',
+            'nextruntime' => $nextruntime,
+            'faildelay' => 0,
+            'customdata' => json_encode((object) [
+                'rulename' => 'rule_react_on_event',
+                'ruleid' => (int) $rule->id,
+                'rulejson' => $repeatrulejson,
+                'userid' => $treateduserid,
+                'optionid' => (int) $option->id,
+                'cmid' => (int) $settings->cmid,
+                'customsubject' => 'freeplacedelaysubj',
+                'custommessage' => 'freeplacedelaymsg',
+                'repeat' => 1,
+            ]),
+            'userid' => $treateduserid,
+            'timecreated' => time(),
+        ]);
+        $repeattask = $DB->get_record('task_adhoc', ['id' => $repeattaskid], '*', MUST_EXIST);
 
         $treateduser = null;
         $pendinguser = null;
@@ -364,29 +384,43 @@ trait waitlist_old_chain_fixture_trait {
         }
         $this->setAdminUser();
 
-        // Free the seat -> schedules the chain's first direct confirm task. Deliberately do
-        // NOT run it: an untouched, still-open offer is exactly the M2 fixture.
-        $this->setUser($occupant);
-        $optionobj->user_delete_response($occupant->id);
+        // Free the seat - via a RAW write, not the real cancel API: same reasoning as
+        // build_running_mail_interval_chain() (Phase 3 wired a real cancellation to self-heal
+        // immediately via freetobookagain_waitlist_adapter).
+        global $DB;
+        $DB->set_field('booking_answers', 'waitinglist', MOD_BOOKING_STATUSPARAM_DELETED, [
+            'optionid' => $option->id,
+            'userid' => $occupant->id,
+        ]);
+        \cache::make('mod_booking', 'bookingoptionsettings')->delete($option->id);
+        \mod_booking\booking_option::purge_cache_for_answers($option->id);
         singleton_service::destroy_booking_option_singleton($option->id);
         singleton_service::destroy_booking_answers($option->id);
         $this->setAdminUser();
 
-        // Note: select_student_in_bo's forced-late-joiner branch also matches the now-DELETED
-        // occupant row (see A9/A11 memory) and produces its own harmless task - filter it out
-        // by only considering waiting-list users' own tasks.
-        $waitlistuserids = array_map(fn($u) => (int) $u->id, $waitlistusers);
-        $taskclass = '\mod_booking\task\confirm_bookinganswer_by_rule_adhoc';
-        $alltasks = \core\task\manager::get_adhoc_tasks($taskclass);
-        $alltasks = array_filter($alltasks, fn($t) => in_array((int) $t->get_custom_data()->userid, $waitlistuserids, true));
-        $directtasks = array_filter($alltasks, fn($t) => empty($t->get_custom_data()->repeat));
-        if (count($directtasks) !== 1) {
-            throw new \coding_exception(
-                'Fixture setup failed: expected exactly one open direct confirm task, got ' . count($directtasks) . '.'
-            );
-        }
-        $confirmtask = reset($directtasks);
-        $offereduserid = (int) $confirmtask->get_custom_data()->userid;
+        // Hand-construct the open direct confirm task, rather than driving the real engine
+        // (confirm_bookinganswer::execute() was gutted to a no-op in Phase 3's legacy-code
+        // removal - see legacy_chain_reader_confirm_bookinganswer's docblock for the exact shape
+        // this mirrors). Deliberately not "executed": an untouched, still-open offer is exactly
+        // the M2 fixture.
+        $offereduserid = (int) $waitlistusers[0]->id;
+        $confirmtaskid = $DB->insert_record('task_adhoc', (object) [
+            'component' => 'mod_booking',
+            'classname' => '\mod_booking\task\confirm_bookinganswer_by_rule_adhoc',
+            'nextruntime' => time(),
+            'faildelay' => 0,
+            'customdata' => json_encode((object) [
+                'rulename' => 'rule_react_on_event',
+                'ruleid' => (int) $rule->id,
+                'rulejson' => $rule->rulejson ?? json_encode(['actionname' => 'confirm_bookinganswer']),
+                'userid' => $offereduserid,
+                'optionid' => (int) $option->id,
+                'cmid' => (int) $settings->cmid,
+            ]),
+            'userid' => $offereduserid,
+            'timecreated' => time(),
+        ]);
+        $confirmtask = $DB->get_record('task_adhoc', ['id' => $confirmtaskid], '*', MUST_EXIST);
 
         $offereduser = null;
         foreach ($waitlistusers as $u) {

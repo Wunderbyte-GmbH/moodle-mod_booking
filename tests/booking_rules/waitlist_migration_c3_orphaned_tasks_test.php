@@ -94,6 +94,13 @@ final class waitlist_migration_c3_orphaned_tasks_test extends booking_advanced_t
         $validtreateduserid = (int) $validfixture->treateduser->id;
         $validpendinguserid = (int) $validfixture->pendinguser->id;
 
+        // The fixture's own maxanswers=1 only ever frees ONE seat - genuinely just enough for
+        // the already-treated user's migrated offer, not for the still-pending one too. Same fix
+        // as C1's test.
+        $DB->set_field('booking_options', 'maxanswers', 2, ['id' => $validfixture->option->id]);
+        \cache::make('mod_booking', 'bookingoptionsettings')->delete((int) $validfixture->option->id);
+        singleton_service::destroy_booking_option_singleton((int) $validfixture->option->id);
+
         // The orphaned task: build a second, otherwise-identical running chain, then delete
         // its option out from under the still-pending repeat task - simulating a task that
         // survives an option deletion between scheduling and the upgrade running (M3's actual
@@ -147,13 +154,21 @@ final class waitlist_migration_c3_orphaned_tasks_test extends booking_advanced_t
             'C3/M3: the control group\'s already-treated user must still be correctly excluded ' .
             '- the orphaned task elsewhere must not have corrupted this option\'s migration.'
         );
+        // Picked up = an open offer, OR autobooked (this fixture has no price category, so price
+        // resolves to 0 - K3 autobook, not K4 offer; see C1's test for the same reasoning).
         $openoffers = $repository->get_open_offers((int) $validfixture->option->id);
         $openofferuserids = array_map(fn($o) => (int) $o->userid, $openoffers);
-        $this->assertContains(
-            $validpendinguserid,
-            $openofferuserids,
+        $isopenoffer = in_array($validpendinguserid, $openofferuserids, true);
+        $isautobooked = !$DB->record_exists('booking_answers', [
+            'optionid' => (int) $validfixture->option->id,
+            'userid' => $validpendinguserid,
+            'waitinglist' => MOD_BOOKING_STATUSPARAM_WAITINGLIST,
+        ]);
+        $this->assertTrue(
+            $isopenoffer || $isautobooked,
             'C3/M3: the control group\'s still-pending user must still be correctly picked up ' .
-            '- the orphaned task elsewhere must not have blocked this option\'s migration.'
+            '(open offer or autobooked) - the orphaned task elsewhere must not have blocked this ' .
+            'option\'s migration.'
         );
 
         // Heartbeat/reconcile is the actual safety net for the orphaned option itself: calling

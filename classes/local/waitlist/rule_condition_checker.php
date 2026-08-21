@@ -18,9 +18,8 @@
  * Reads the existing rule_react_on_event/send_mail_interval rule configuration
  * (WAITLIST_REFACTOR_ARCHITECTURE_2026-08-12.md §3.3/§6, K11) to decide which waitlist-progression
  * rule(s) are currently allowed to fire for an option. Multiple active rules per booking instance
- * are supported (e.g. two different intervals/conditions) - the existing DB schema and
- * rules_info::get_companion_interval_rules_for_waitinglist_join() already assume this, so this
- * class does too rather than silently narrowing it to one.
+ * are supported (e.g. two different intervals/conditions) - the existing DB schema already
+ * assumes this, so this class does too rather than silently narrowing it to one.
  *
  * @package mod_booking
  * @copyright 2026 Wunderbyte GmbH <info@wunderbyte.at>
