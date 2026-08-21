@@ -1728,6 +1728,11 @@ class booking_option {
                     ]
                 );
                 $event->trigger();
+
+                // Waitlist-progression refactoring (Phase 3): the person just completed their
+                // booking from the waiting list - accept their open offer, if the new mechanism
+                // has one for them.
+                \mod_booking\event\observer\booking_accepted_waitlist_adapter::accept($this->optionid, $user->id);
             }
 
             $baid = self::write_user_answer_to_db(
@@ -1790,6 +1795,11 @@ class booking_option {
         We keep this here (not in write_user_answer_to_db) to avoid retrigger loops
         from automatic UN_CONFIRM updates during task processing. */
         if ($status === MOD_BOOKING_BO_SUBMIT_STATUS_UN_CONFIRM) {
+            // Waitlist-progression refactoring (Phase 3): decline BEFORE check_if_free_to_book_again()
+            // below triggers reconcile() (via freetobookagain_waitlist_adapter) - K7 must lock this
+            // user out before the reconciler looks for the next candidate.
+            \mod_booking\event\observer\unconfirm_waitlist_adapter::decline($this->optionid, $user->id);
+
             self::check_if_free_to_book_again($this->settings, $user->id, true);
         }
 
@@ -5477,6 +5487,10 @@ class booking_option {
                     'userid' => $userid, // The user who did cancel.
                 ]);
                 $event->trigger();
+
+                // Waitlist-progression refactoring (Phase 3): drive the new reconciler directly -
+                // the event above stays for backward compatibility, it is no longer the transport.
+                \mod_booking\event\observer\freetobookagain_waitlist_adapter::reconcile($optionid);
             }
         }
     }
