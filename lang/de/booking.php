@@ -845,6 +845,7 @@ $string['booking:skill_mod_booking_create_slotbooking_option'] = 'KI-Skill: Slot
 $string['booking:skill_mod_booking_diagnose_booking_issue'] = 'KI-Skill: Buchungsproblem diagnostizieren';
 $string['booking:skill_mod_booking_diagnose_cancellation_issue'] = 'KI-Skill: Stornierungsproblem diagnostizieren';
 $string['booking:skill_mod_booking_diagnose_user_booking'] = 'KI-Skill: Buchung eines Nutzers diagnostizieren';
+$string['booking:skill_mod_booking_diagnose_waitinglist'] = 'KI-Skill: Warteliste einer Buchungsoption diagnostizieren';
 $string['booking:skill_mod_booking_get_option_details'] = 'KI-Skill: Details einer Buchungsoption abrufen';
 $string['booking:skill_mod_booking_list_option_properties'] = 'KI-Skill: Eigenschaften von Buchungsoptionen auflisten';
 $string['booking:skill_mod_booking_search_options'] = 'KI-Skill: Buchungsoptionen suchen';

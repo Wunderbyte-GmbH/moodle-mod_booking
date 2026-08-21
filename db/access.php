@@ -194,6 +194,15 @@ $capabilities = [
             'manager' => CAP_ALLOW,
         ],
     ],
+    'mod/booking:skill_mod_booking_diagnose_waitinglist' => [
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => [
+            'teacher' => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW,
+        ],
+    ],
     'mod/booking:skill_mod_booking_get_option_details' => [
         'captype' => 'read',
         'contextlevel' => CONTEXT_MODULE,

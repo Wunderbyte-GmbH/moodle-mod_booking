@@ -862,6 +862,7 @@ $string['booking:skill_mod_booking_create_slotbooking_option'] = 'AI skill: crea
 $string['booking:skill_mod_booking_diagnose_booking_issue'] = 'AI skill: diagnose a booking issue';
 $string['booking:skill_mod_booking_diagnose_cancellation_issue'] = 'AI skill: diagnose a cancellation issue';
 $string['booking:skill_mod_booking_diagnose_user_booking'] = 'AI skill: diagnose a user\'s booking';
+$string['booking:skill_mod_booking_diagnose_waitinglist'] = 'AI skill: diagnose the waiting list of a booking option';
 $string['booking:skill_mod_booking_get_option_details'] = 'AI skill: get booking option details';
 $string['booking:skill_mod_booking_list_instance_settings'] = 'AI skill: list booking instance settings';
 $string['booking:skill_mod_booking_list_option_properties'] = 'AI skill: list booking option properties';
