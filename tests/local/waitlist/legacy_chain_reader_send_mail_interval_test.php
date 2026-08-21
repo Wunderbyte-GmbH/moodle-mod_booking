@@ -164,7 +164,7 @@ final class legacy_chain_reader_send_mail_interval_test extends \advanced_testca
 
         $chain = $this->build_running_mail_interval_chain(3);
 
-        $taskrecord = $DB->get_record('task_adhoc', ['id' => $chain->repeattask->get_id()], '*', MUST_EXIST);
+        $taskrecord = $DB->get_record('task_adhoc', ['id' => $chain->repeattask->id], '*', MUST_EXIST);
 
         $reader = new legacy_chain_reader_send_mail_interval();
         $this->assertTrue(
