@@ -51,10 +51,10 @@ flowchart TB
     end
 
     subgraph Adapters["Trigger-Adapter Paragraph 4"]
-        freetobookagain_waitlist_adapter["⬜ freetobookagain_waitlist_adapter<br/>Storno maxanswers Kampagne T1-T3"]
-        latejoiner_waitlist_adapter["⬜ latejoiner_waitlist_adapter<br/>spaeter WL-Beitritt T5"]
-        unconfirm_waitlist_adapter["⬜ unconfirm_waitlist_adapter<br/>Unconfirm zu declined T4"]
-        booking_accepted_waitlist_adapter["⬜ booking_accepted_waitlist_adapter<br/>Zahlung Buchung zu accepted"]
+        freetobookagain_waitlist_adapter["✅ freetobookagain_waitlist_adapter<br/>Storno maxanswers Kampagne T1-T3<br/>deckt alle 4 Alt-Trigger-Stellen ab"]
+        latejoiner_waitlist_adapter["⬜ latejoiner_waitlist_adapter<br/>spaeter WL-Beitritt T5<br/>noch nicht recherchiert"]
+        unconfirm_waitlist_adapter["✅ unconfirm_waitlist_adapter<br/>Unconfirm zu declined T4"]
+        booking_accepted_waitlist_adapter["✅ booking_accepted_waitlist_adapter<br/>Zahlung Buchung zu accepted"]
     end
 
     subgraph Migration["mod_booking/local/waitlist/migration Paragraph 7"]
@@ -130,6 +130,13 @@ flowchart TB
 nur exemplarisch als ein Adapter-Pattern skizziert (§4) — hier für die Umsetzungsplanung auf alle
 8 Trigger-Fälle aus der Anforderungsliste aufgeschlüsselt. Bei Bedarf in Schritt 4 anpassen, falls
 sich beim Implementieren eine andere Aufteilung als sinnvoller erweist.
+
+**Aktualisierung beim Bau (Phase 3):** die 4 im Blueprint benannten Alt-Trigger-Stellen (Storno,
+maxanswers-Erhöhung, Kampagnen-Ende, generischer Fall) laufen heute bereits alle durch eine
+einzige zentrale Funktion, `booking_option::check_if_free_to_book_again()` - `freetobookagain_waitlist_adapter`
+deckt damit T1-T3 UND den generischen Fall mit einem einzigen Eingriffspunkt ab, keine separate
+Aufteilung nötig. `latejoiner_waitlist_adapter` (T5, später WL-Beitritt) ist noch offen/nicht
+recherchiert - eigene Trigger-Stelle, nicht Teil von `check_if_free_to_book_again()`.
 
 ---
 
