@@ -661,3 +661,52 @@ komplette B-Suite B1-B7, komplette C-Suite C1-C5), keine Fehler.
 (mit der bewussten, mit Georg abgestimmten Reduktion von 3 auf 2 Legacy-Chain-Reader). Nächster
 Schritt: Phase 3 (Clean-Cut-Switchover) - Trigger-Adapter verdrahten, `db/upgrade.php` scharf
 schalten, Legacy-Code entfernen.
+
+## Phase 3 begonnen (2026-08-19): alle 3 Trigger-Adapter verdrahtet
+
+**Wichtiger Fund vor dem Bau:** alle 4 im Blueprint benannten Alt-Trigger-Stellen (Storno,
+maxanswers-Erhöhung, Kampagnen-Ende, generischer Fall - `booking_option.php:978/1789/5290` +
+`purge_campaign_caches.php:143`) laufen heute bereits durch eine einzige zentrale Funktion,
+`booking_option::check_if_free_to_book_again()`. Damit reichen für den "Platz frei geworden"-Fall
+**ein** Adapter/Eingriffspunkt statt mehrerer.
+
+Umgesetzt (3 neue, sehr dünne Adapter-Klassen unter `classes/event/observer/`, alle rufen direkt
+`progression_factory::get()->reconcile()` bzw. `->transition()` auf, kein Event-Observer-Mechanismus
+nötig):
+- **`freetobookagain_waitlist_adapter::reconcile()`** - in `check_if_free_to_book_again()`
+  verdrahtet, deckt alle 4 Alt-Trigger-Stellen ab. Das `bookingoption_freetobookagain`-Event
+  bleibt unverändert bestehen (Rückwärtskompatibilität), ist aber nicht mehr Transportweg.
+- **`unconfirm_waitlist_adapter::decline()`** (T4, K7) - in `booking_option.php:1788ff` verdrahtet,
+  direkt VOR dem `check_if_free_to_book_again()`-Aufruf an derselben Stelle (Reihenfolge kritisch:
+  erst K7-Sperre setzen, dann reconcile() darf laufen).
+- **`booking_accepted_waitlist_adapter::accept()`** (T7) - in `booking_option.php` an der
+  `bookinganswer_movedupfromwaitinglist`-Event-Stelle verdrahtet.
+
+**Kritischer, während des Testens selbst gefundener Bug (Rekursion → Speicherüberlauf):**
+`booking_accepted_waitlist_adapter::accept()` rief ursprünglich zusätzlich `reconcile()` auf. Das
+feuert aber aus `user_submit_response()` heraus - genau das, was `progression::autobook()` selbst
+aufruft. Ein `reconcile()` dort re-entered also den bereits laufenden `reconcile()`-Aufruf, bucht
+weitere Kandidaten automatisch, was dasselbe Event erneut feuert usw. - ein echter Speicherüberlauf
+im Testlauf, kein theoretisches Risiko. Fix: `reconcile()`-Aufruf aus diesem einen Adapter entfernt
+(war ohnehin redundant - Akzeptieren gibt nie neue Kapazität frei).
+
+**Erwartete, temporäre Kollateralschäden (wie im Blueprint explizit vorgesehen - "kein
+Zwischen-Deploy mit Doppellogik", hier aber bewusst schrittweise zur Review aufgebaut):**
+- **11 von 58 Kategorie-A-Charakterisierungstests** (`rules_test.php`, `rules_waitinglist_test.php`,
+  `rules_waitinglist_notification_test.php`, `campaign_freetobookagain_test.php`) schlagen jetzt
+  fehl (Doppel-Mails/Doppel-Autobuchungen), weil Alt-Kette UND neuer Reconciler jetzt beide auf
+  denselben Triggern laufen - erwartet, bleibt so bis zur Legacy-Code-Entfernung. Mit Georg
+  abgestimmt: A-Suite bleibt bis zum Schluss rot, kein Zwischenfix.
+- **B5-Testfixture musste angepasst werden**: das "verlorener Trigger"-Szenario nutzte bisher eine
+  echte `user_delete_response()`-Stornierung, die jetzt selbst sofort reconciled - kann also nicht
+  mehr "verloren" sein. Fix: neuer `$rawfree`-Parameter in `build_option()`, setzt für Option A
+  den Platz per rohem DB-Write frei (plus `purge_cache_for_answers()`, sonst bleibt der
+  `booking_answers`-Cache veraltet) statt über die echte Buchungs-API.
+
+**Regressionslauf: 109/109 grün** (komplette `local/waitlist`-Suite, Tasks, B1-B7, C1-C5),
+**11/58 Kategorie-A-Tests erwartungsgemäß rot** (Doppellogik-Übergangszustand).
+
+Nächste Schritte: `db/upgrade.php` scharf schalten (echter `upgrade_step::run()`-Aufruf im
+Versions-Upgrade), dann Legacy-Code entfernen (Ketten-Logik, `confirm_bookinganswer_by_rule_adhoc`,
+Companion-Rules-Mechanik) - danach sollte die A-Suite wieder grün werden bzw. durch B-Äquivalente
+ersetzt sein.
