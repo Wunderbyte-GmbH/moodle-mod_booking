@@ -32,6 +32,7 @@ use mod_booking\booking;
 use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
 use mod_booking\local\slotbooking\slot_change_policy;
+use mod_booking\option\fields\multiplebookings;
 use mod_booking\price;
 use mod_booking\singleton_service;
 use MoodleQuickForm;
@@ -222,6 +223,18 @@ class cancelmyself implements bo_condition {
             }
         }
 
+        // If multiple bookings are enabled and the book-again gate (fixed wait time, or the last
+        // booked slot having ended) is satisfied for the user's booked answer, a new book-again
+        // round is legitimately starting - the OLD answer's own cancellability (computed above)
+        // must not block that round just because it still sits in BOOKED state until the round's
+        // own commit demotes it. Mirrors alreadybooked::is_available()'s own identical check.
+        if (!$isavailable) {
+            $currentanswer = $bookinganswer->get_users()[$userid] ?? null;
+            if (!empty($currentanswer) && multiplebookings::book_again_due((int)$settings->id, $currentanswer)) {
+                $isavailable = true;
+            }
+        }
+
         // If it's inversed, we inverse.
         if ($not) {
             $isavailable = !$isavailable;
@@ -257,22 +270,9 @@ class cancelmyself implements bo_condition {
      * @return bool
      */
     public function hard_block(booking_option_settings $settings, $userid): bool {
-        // Same slot-capacity step-back as alreadybooked::hard_block(): this condition exists to
-        // offer cancelling an existing booking, and (in the classic one-answer-per-option model)
-        // hard-blocking any further booking action while that "Cancel purchase" option is live is
-        // correct. But slot booking lets a user buy several separate slots for the same option
-        // (up to its own max_slots_per_user) - without this, buying an additional slot is blocked
-        // here even after alreadybooked/slotbooking's own hard_block() both allow it.
-        if (
-            !empty($settings->slotconfig)
-            && \mod_booking\local\slotbooking\slot_availability::has_remaining_slot_capacity(
-                (int)$settings->id,
-                (int)$userid
-            )
-        ) {
-            return false;
-        }
-
+        // Only ever checked once is_available() has already returned false (see docblock above) -
+        // the book-again gate is now checked THERE (see is_available() above), so by the time this
+        // runs it has already had its say; nothing left to special-case here.
         return true;
     }
 

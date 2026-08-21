@@ -29,6 +29,7 @@
 namespace mod_booking\local\slotbooking;
 
 use core_date;
+use mod_booking\bo_availability\conditions\cancelmyself;
 use mod_booking\singleton_service;
 use moodle_url;
 
@@ -110,6 +111,18 @@ class slot_dto {
         $config = $settings->slotconfig ?? null;
         $bufferwarmupminutes = max(0, (int)($config->buffer_warmup_minutes ?? 0));
         $buffercooldownminutes = max(0, (int)($config->buffer_cooldown_minutes ?? 0));
+        $maxslots = max(1, (int)($config->max_slots_per_user ?? 1));
+
+        // Whether THIS option can currently be cancelled by the user, and its own booking page -
+        // both are per-option (not per-slot), so computed once here rather than once per slot. Used
+        // to link a "Booked" slot (e.g. one belonging to a merged-in option in the multi-option
+        // calendar) back to where the user can actually manage/cancel it.
+        $cancelable = !cancelmyself::apply_coolingoff_period($settings, $userid)
+            && !(new cancelmyself())->is_available($settings, $userid);
+        $manageurl = (new moodle_url(
+            '/mod/booking/optionview.php',
+            ['cmid' => $settings->cmid, 'optionid' => $optionid]
+        ))->out(false);
 
         foreach ($slots as $slot) {
             $status = (string)($slot['status'] ?? 'unavailable');
@@ -130,6 +143,7 @@ class slot_dto {
 
             $result[] = [
                 'key' => $start . ':' . $end,
+                'optionid' => $optionid,
                 'start' => $start,
                 'end' => $end,
                 'daykey' => userdate($start, '%Y-%m-%d'),
@@ -148,6 +162,9 @@ class slot_dto {
                 'priceformatted' => $pricedata['priceformatted'],
                 'bufferwarmupminutes' => $bufferwarmupminutes,
                 'buffercooldownminutes' => $buffercooldownminutes,
+                'maxslots' => $maxslots,
+                'cancelable' => $status === 'booked' && $cancelable,
+                'manageurl' => ($status === 'booked' && $cancelable) ? $manageurl : '',
             ];
         }
 

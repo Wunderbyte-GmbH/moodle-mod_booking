@@ -21,7 +21,11 @@
 
 import DynamicForm from 'core_form/dynamicform';
 import {init as initSlotCalendarPicker} from 'mod_booking/slotCalendarPicker';
-import {saveSelection} from 'mod_booking/slotbooking/repository';
+import {
+    saveSelection,
+    allowAddItemToCart,
+    loadPreBookingPage as loadSwitchedOptionPage,
+} from 'mod_booking/slotbooking/repository';
 import {
     createTimeFormatter,
     createHiddenInputSelection,
@@ -31,8 +35,21 @@ import {
 } from 'mod_booking/slotbooking/slot_day_renderers';
 import Templates from 'core/templates';
 import Notification from 'core/notification';
+import Config from 'core/config';
+import {get_string as getString} from 'core/str';
 
 const SLOTBOOKING_REFRESH_EVENT = 'mod_booking:slotbooking-refresh';
+
+// A small, distinct palette so each merged option gets a stable, recognizable color across the
+// sidebar and the timesheet - cycles if there are more options than colors.
+const OPTION_COLOR_PALETTE = ['#0d6efd', '#d63384', '#fd7e14', '#20c997', '#6f42c1', '#dc3545', '#0dcaf0', '#adb5bd'];
+const buildOptionColorMap = (optionIds) => {
+    const map = new Map();
+    optionIds.forEach((id, index) => {
+        map.set(Number(id), OPTION_COLOR_PALETTE[index % OPTION_COLOR_PALETTE.length]);
+    });
+    return map;
+};
 
 const SELECTOR = {
     FORMCONTAINER: '.booking-slotbooking-prepage',
@@ -60,9 +77,33 @@ const isActuallyVisible = (el) => {
     return rect.width > 0 || rect.height > 0 || el.getClientRects().length > 0;
 };
 
-const getActiveFormContainer = () => {
-    const containers = Array.from(document.querySelectorAll(SELECTOR.FORMCONTAINER))
+/**
+ * Find the form container this init() call is responsible for.
+ *
+ * With a single [bookingoptionview] shortcode on a page there is only ever one candidate, so
+ * picking "the last visible one" happened to work. With two or more independent shortcode
+ * instances on the same page (see templates/condition/slotbooking.mustache, which calls
+ * init.init({{optionid}}) once per rendered instance), that heuristic made every instance's
+ * init() call resolve to the SAME (last) container, leaving every other instance's own markup
+ * never bound. When optionid is given, scope the candidate list to that instance's own
+ * container(s) first (data-optionid matches the shortcode's primary option) - the modal-vs-
+ * inline "prefer the open modal" disambiguation below still applies within that scope, for the
+ * case where this same option is also open in a popped-out modal.
+ *
+ * @param {?number} optionid primary option id of the instance calling init(), or null/undefined
+ *                            to fall back to the old page-wide "last visible" heuristic
+ * @returns {?HTMLElement}
+ */
+const getActiveFormContainer = (optionid) => {
+    let containers = Array.from(document.querySelectorAll(SELECTOR.FORMCONTAINER))
         .filter(el => isActuallyVisible(el) && el.querySelector('[data-region="slotbooking-form"]'));
+
+    if (optionid !== undefined && optionid !== null) {
+        const scoped = containers.filter(el => Number(el.dataset.optionid) === Number(optionid));
+        if (scoped.length > 0) {
+            containers = scoped;
+        }
+    }
 
     if (containers.length === 0) {
         return null;
@@ -203,7 +244,14 @@ const TIMELINE_MIN_PX_PER_HOUR = 30;
 const TIMELINE_MIN_HEIGHT_PX = 160;
 const TIMELINE_TARGET_PX_PER_TICK = 50;
 
-const renderCustomDayEditor = (container, daySlot, hiddenStartInput, durationSelect, timeFormatter, legendLabels = {}) => {
+const renderCustomDayEditor = (
+    container,
+    daySlot,
+    hiddenStartInput,
+    durationSelect,
+    timeFormatter,
+    legendLabels = {}
+) => {
     if (!daySlot || !hiddenStartInput || !durationSelect) {
         return;
     }
@@ -228,10 +276,18 @@ const renderCustomDayEditor = (container, daySlot, hiddenStartInput, durationSel
     container.appendChild(info);
 
     const controls = document.createElement('div');
-    controls.className = 'd-flex align-items-center gap-2 mb-2';
+    controls.className = 'd-flex align-items-center flex-wrap gap-2 mb-2';
+
+    const durationLabel = document.createElement('label');
+    durationLabel.className = 'small mb-0';
+    durationLabel.textContent = 'Duration';
+    controls.appendChild(durationLabel);
+
+    durationSelect.classList.add('booking-slot-duration-select');
+    controls.appendChild(durationSelect);
 
     const label = document.createElement('label');
-    label.className = 'small mb-0';
+    label.className = 'small mb-0 ms-2';
     label.textContent = 'Start';
     controls.appendChild(label);
 
@@ -312,7 +368,7 @@ const renderCustomDayEditor = (container, daySlot, hiddenStartInput, durationSel
         }
     }
 
-    const addBookedBlock = (start, end, mine) => {
+    const addBookedBlock = (start, end, mine, manageUrl) => {
         const span = openUntil - openFrom;
         if (span <= 0) {
             return;
@@ -327,23 +383,69 @@ const renderCustomDayEditor = (container, daySlot, hiddenStartInput, durationSel
         const top = ((clippedStart - openFrom) / span) * 100;
         const height = ((clippedEnd - clippedStart) / span) * 100;
 
+        // Use the SAME .booking-slot/--booked look the fixed-type grid draws its own booked slots
+        // with (see slot_grid_day.mustache), instead of a bare colored bar, so a userdefined
+        // booking reads the same way as every other calendar type.
         const block = document.createElement('div');
-        block.className = 'booking-slot-booked-range position-absolute '
-            + (mine ? 'booking-slot-booked-range--mine' : 'booking-slot-booked-range--blocked');
-        block.title = mine ? (legendLabels.mine || 'Your booking') : (legendLabels.blocked || 'Not bookable');
+        block.className = 'booking-slot booking-slot--booked position-absolute';
         block.style.top = `${top}%`;
         block.style.height = `${Math.max(2, height)}%`;
+        block.style.cursor = 'default';
+
+        if (!mine) {
+            // Someone else's booking - nothing to click through to, just mark the time as occupied.
+            block.title = legendLabels.blocked || 'Not bookable';
+            timeline.appendChild(block);
+            return;
+        }
+
+        // Time + badge share ONE line (unlike the fixed-type grid's separate header/badge-row -
+        // see slot_grid_day.mustache): this timeline is much shorter, so there is rarely room for
+        // two stacked lines without the badge getting clipped by .booking-slot's overflow:hidden.
+        const header = document.createElement('div');
+        header.className = 'booking-slot-header';
+
+        const timeLabel = document.createElement('div');
+        timeLabel.className = 'booking-slot-time';
+        timeLabel.textContent = `${toTimeValue(clippedStart, timeFormatter)} - ${toTimeValue(clippedEnd, timeFormatter)}`;
+        header.appendChild(timeLabel);
+
+        if (manageUrl) {
+            const link = document.createElement('a');
+            link.href = manageUrl;
+            link.target = '_blank';
+            link.rel = 'noopener';
+            link.className = 'booking-slot-badge booking-slot-badge--link';
+            link.textContent = legendLabels.mine || 'Booked';
+            // Without this, the click also bubbles up to timeline's own click handler (which
+            // moves the new-selection band to wherever was clicked) - confusing together with
+            // actually navigating away via the link.
+            link.addEventListener('click', (event) => event.stopPropagation());
+            header.appendChild(link);
+        } else {
+            const badge = document.createElement('div');
+            badge.className = 'booking-slot-badge';
+            badge.textContent = legendLabels.mine || 'Booked';
+            header.appendChild(badge);
+        }
+        block.appendChild(header);
+
         timeline.appendChild(block);
     };
 
     (Array.isArray(daySlot.bookedranges) ? daySlot.bookedranges : []).forEach(range => {
-        addBookedBlock(range.start, range.end, Boolean(range.mine));
+        addBookedBlock(range.start, range.end, Boolean(range.mine), range.manageurl);
     });
 
     const selectionBlock = document.createElement('div');
     selectionBlock.className = 'booking-slot-selection position-absolute';
     selectionBlock.style.top = '0';
     selectionBlock.style.height = '2px';
+    // Purely a visual indicator of the currently chosen new start/duration - it can end up
+    // positioned right on top of an existing booked block (e.g. the default start happens to
+    // match a previous pick), and being appended last it would otherwise sit above that block in
+    // paint order, intercepting clicks meant for its "Booked" link.
+    selectionBlock.style.pointerEvents = 'none';
     timeline.appendChild(selectionBlock);
 
     const syncStart = (timestamp) => {
@@ -374,9 +476,18 @@ const renderCustomDayEditor = (container, daySlot, hiddenStartInput, durationSel
         syncStart(toTimestampForDay(daySlot.start, timeInput.value));
     });
 
-    durationSelect.addEventListener('change', () => {
+    // durationSelect (unlike timeInput/timeline, which are recreated fresh inside `container` on
+    // every render) is a PERSISTENT element passed in from outside - renderCustomDayEditor runs
+    // again on every day switch and (since the multi-option sidebar) every option switch too.
+    // addEventListener would stack one more "change" handler on it each time, each still holding
+    // that OLD render's own openFrom/openUntil in its closure; several of them then firing for a
+    // single real change event lets a stale one write a wrong, out-of-range timestamp into
+    // hiddenStartInput first, which the current (correct) handler's own clamping then pulls all
+    // the way back to openFrom - i.e. the start time visibly resets to the day's opening time.
+    // Assigning .onchange instead of addEventListener replaces the previous handler outright.
+    durationSelect.onchange = () => {
         syncStart(Number(hiddenStartInput.value || openFrom));
-    });
+    };
 
     timeline.addEventListener('click', (event) => {
         const rect = timeline.getBoundingClientRect();
@@ -548,9 +659,14 @@ const renderTeacherSelection = async(
 
 /**
  * Init function.
+ *
+ * @param {?number} callsiteoptionid primary option id of the shortcode instance calling init()
+ *                            (see templates/condition/slotbooking.mustache) - scopes container
+ *                            lookup to this instance so multiple independent shortcodes on one
+ *                            page don't clobber each other. Optional for backwards compatibility.
  */
-export async function init() {
-    const container = getActiveFormContainer();
+export async function init(callsiteoptionid) {
+    const container = getActiveFormContainer(callsiteoptionid);
     if (!container) {
         return;
     }
@@ -562,10 +678,229 @@ export async function init() {
         return;
     }
 
+    // Multi-option sidebar: container.dataset.optionids (JSON array, primary id first) is only
+    // present when the calendar merges more than one option's slots - see
+    // templates/condition/slotbooking.mustache and bo_availability/conditions/slotbooking.php.
+    let allOptionIds = [Number(optionid) || 0];
+    try {
+        const parsedIds = JSON.parse(container.dataset.optionids || '[]');
+        if (Array.isArray(parsedIds) && parsedIds.length > 0) {
+            allOptionIds = parsedIds.map(id => Number(id)).filter(id => id > 0);
+        }
+    } catch {
+        allOptionIds = [Number(optionid) || 0];
+    }
+    const additionalOptionIds = allOptionIds.filter(id => id !== Number(optionid));
+    const optionColors = buildOptionColorMap(allOptionIds);
+
+    // The optionid that currently "owns" the user's selection - starts as the primary option and
+    // switches whenever the user picks a slot belonging to a different merged-in option (see
+    // enforceSingleOptionSelection() below). This is what actually gets booked on Continue.
+    let activeOptionId = Number(optionid) || 0;
+    let calendarPickerInstance = null;
+    const slotbookingSwitchedOptionMessage = await getString('slotbooking_switched_option', 'mod_booking');
+
+    // The calendar day (as a "YYYY-MM-DD" key) the user was last looking at - declared here (outer
+    // scope, not inside setupInteractiveUi) and kept up to date on every day change so it survives a
+    // setupInteractiveUi() re-run. Without this, a server-side validation failure (dynamicForm's
+    // SERVER_VALIDATION_ERROR/CLIENT_VALIDATION_ERROR, see below - both re-run setupInteractiveUi()
+    // against a freshly server-rendered form) recreates the calendar picker from scratch, which
+    // always defaults back to today/the first bookable day, silently discarding whatever day the
+    // user had navigated to right when they most need to see the validation error in context.
+    let persistedActiveDayKey = null;
+
+    // The userdefined custom-day sidebar's "which option is active" click handler - see
+    // setupCustomOptionSidebar in setupInteractiveUi. Declared here (not inside
+    // setupInteractiveUi) and REASSIGNED every time that function runs, because the sidebar DOM
+    // itself lives OUTSIDE the reloadable [data-region="slotbooking-form"] region: a
+    // reloadForm() (e.g. after SLOTBOOKING_REFRESH_EVENT, dispatched when the booking-complete
+    // modal is closed) replaces the calendar/editor markup with fresh elements and a fresh
+    // slotCalendarPicker instance, but the sidebar's own click listeners are only ever bound
+    // ONCE (guarded by a dataset flag) and would otherwise keep calling into the FIRST run's now
+    // detached picker forever - silently doing nothing visible and never actually switching
+    // activeOptionId. Routing every sidebar click through this indirection instead keeps it
+    // working after every reload.
+    let selectActiveCustomOption = null;
+
+    // Merged options can have entirely different prepage condition sequences (different step
+    // counts, different conditions) - there is no reliable way to continue THIS page's wizard for
+    // a different option. Once a slot from a non-primary merged option is actually booked (see the
+    // FORM_SUBMITTED handler below), send the browser to that option's own booking page instead,
+    // where a correctly-sequenced flow starts fresh. Only present for multi-option calendars (see
+    // slotbooking.php render_page()).
+    let optionUrls = new Map();
+    if (container.dataset.optionurls) {
+        try {
+            const parsedurls = JSON.parse(container.dataset.optionurls);
+            optionUrls = new Map(Object.entries(parsedurls).map(([id, url]) => [Number(id), String(url)]));
+        } catch (e) {
+            optionUrls = new Map();
+        }
+    }
+
+    // Whether each merged option has a price at all - see addSwitchedOptionToCart below. Reading
+    // it from the OPTION's own setting (rather than trying to infer it from the selected slot's
+    // own data) works uniformly across slot types - userdefined slots carry no per-slot price at
+    // all, only fixed-type ones do.
+    let optionUseprice = new Map();
+    if (container.dataset.optionprices) {
+        try {
+            const parsedprices = JSON.parse(container.dataset.optionprices);
+            optionUseprice = new Map(Object.entries(parsedprices).map(([id, useprice]) => [Number(id), Boolean(useprice)]));
+        } catch (e) {
+            optionUseprice = new Map();
+        }
+    }
+
+    // Try to book a merged-in, non-primary option's slot selection straight into the shopping
+    // cart, skipping this page's wizard entirely - requesting page 0 of THAT option's own prepage
+    // sequence (with slotbooking explicitly skipped - see below) is enough: if nothing else is
+    // blocking, bo_info::load_pre_booking_page() commits the add-to-cart itself and returns the
+    // confirmation page. Only when something else genuinely needs the user's attention (another
+    // prepage condition for that option) do we fall back to a full-page redirect to that option's
+    // own booking page, where it can be shown correctly.
+    const addSwitchedOptionToCart = async(targetOptionId, targetUserId) => {
+        const fallbackToOptionPage = () => {
+            window.location.href = optionUrls.get(targetOptionId);
+        };
+
+        try {
+            // Skipping slotbooking's own page below only makes sense once we KNOW its selection is
+            // actually bookable right now - re-picking a slot the user already holds (e.g. a repeat
+            // purchase past max_slots_per_user) is still rejected by hard_block() same as always,
+            // but forcibly skipping slotbooking would bypass that check and silently proceed to an
+            // empty-handed "success". save_slot_selection runs the exact same bookability check
+            // hard_block() does, so validate with it first and surface the real reason if it fails,
+            // instead of redirecting anywhere.
+            const keys = getSelectedSlotKeys(getSelectionInput(container));
+            const teacherSelectionInputEl = container.querySelector('input[name="slot_teacher_selection"]');
+            const teacherMap = teacherSelectionInputEl ? parseTeacherSelection(teacherSelectionInputEl) : {};
+            const validation = await saveSelection(targetOptionId, targetUserId, keys, teacherMap);
+            if (!validation.valid) {
+                const messages = (validation.errors && typeof validation.errors === 'object')
+                    ? Object.values(validation.errors).filter(Boolean)
+                    : [];
+                Notification.addNotification({
+                    message: messages.length > 0 ? String(messages[0]) : slotbookingSwitchedOptionMessage,
+                    type: 'danger',
+                });
+                return;
+            }
+
+            const allowResult = await allowAddItemToCart(targetOptionId, targetUserId);
+            if (![0, 1, 5].includes(Number(allowResult?.success))) {
+                fallbackToOptionPage();
+                return;
+            }
+
+            // Slotbooking's own is_available() is intentionally hard-coded to "not available"
+            // whenever slot booking is enabled at all (its page stays visible/re-editable
+            // throughout the flow by design - see slotbooking.php condition::is_available()) - the
+            // actual slot-selection gate is hard_block(), checked separately (just confirmed above
+            // via save_slot_selection). Without skipping it here, page 0 would just re-render its
+            // own calendar again instead of progressing past it.
+            const pageResult = await loadSwitchedOptionPage(targetOptionId, targetUserId, 0, 'slotbooking');
+            const templates = String(pageResult?.template || '').split(',');
+            if (!templates.includes('mod_booking/condition/confirmation')) {
+                fallbackToOptionPage();
+                return;
+            }
+
+            // Free/priceless options never actually reach the cart - allow_add_item_to_cart.php
+            // returns success without touching it at all (see its own useprice check), and the
+            // booking is completed directly by loadSwitchedOptionPage above. Redirecting to
+            // checkout.php in that case lands on a confusingly empty cart instead of confirming
+            // anything; only a genuinely paid selection (added to a payable cart) belongs there.
+            // optionUseprice comes from the option's OWN setting (see the comment where it's built
+            // above) - NOT reconstructed from the selected slot's own data, which does not exist at
+            // all for userdefined slots (only fixed-type ones carry a per-slot price), and would
+            // otherwise make an empty `keys` array vacuously look "free" via .every(). If the
+            // price info is missing/unparseable for some reason, default to treating it as PAID -
+            // worst case that shows an empty cart page, whereas defaulting the other way could
+            // falsely claim a still-unpaid booking was "successfully booked".
+            const isFreeSelection = optionUseprice.has(Number(targetOptionId))
+                && !optionUseprice.get(Number(targetOptionId));
+            if (isFreeSelection) {
+                const targetUrl = optionUrls.get(targetOptionId);
+                window.location.href = targetUrl + (targetUrl.includes('?') ? '&' : '?') + 'justbooked=1';
+                return;
+            }
+
+            window.location.href = Config.wwwroot + '/local/shopping_cart/checkout.php';
+        } catch (e) {
+            fallbackToOptionPage();
+        }
+    };
+
+    // Wires the sidebar's per-option toggle rows and its "invert selection" button to the
+    // calendar picker's slotFilter, purely client-side (all merged options' slots are already
+    // loaded - see slot_calendar_data in slotbooking_form.php). No-op if there is no sidebar
+    // (single option) or no calendar picker yet (e.g. list/selectgroups view modes aren't merged).
+    const setupSidebar = (picker) => {
+        if (!picker) {
+            return;
+        }
+        const sidebarRegion = container.querySelector('[data-region="slotbooking-sidebar"]');
+        if (!sidebarRegion || sidebarRegion.dataset.slotSidebarBound === '1') {
+            return;
+        }
+        sidebarRegion.dataset.slotSidebarBound = '1';
+
+        const items = Array.from(sidebarRegion.querySelectorAll('.booking-slotbooking-sidebar-item'));
+        const excludedOptionIds = new Set();
+
+        const applyFilter = () => {
+            picker.setSlotFilter(excludedOptionIds.size > 0
+                ? (slot) => !excludedOptionIds.has(Number(slot.optionid))
+                : null);
+        };
+
+        const toggleOne = (item) => {
+            const itemOptionId = Number(item.dataset.optionid || 0);
+            if (!itemOptionId) {
+                return;
+            }
+            if (excludedOptionIds.has(itemOptionId)) {
+                excludedOptionIds.delete(itemOptionId);
+                item.classList.remove('booking-slotbooking-sidebar-item-filtered');
+            } else {
+                excludedOptionIds.add(itemOptionId);
+                item.classList.add('booking-slotbooking-sidebar-item-filtered');
+            }
+        };
+
+        items.forEach(item => {
+            const itemColor = optionColors.get(Number(item.dataset.optionid || 0));
+            if (itemColor) {
+                item.style.borderLeftColor = itemColor;
+            }
+            item.addEventListener('click', () => {
+                toggleOne(item);
+                applyFilter();
+            });
+            item.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    toggleOne(item);
+                    applyFilter();
+                }
+            });
+        });
+
+        const invertButton = sidebarRegion.querySelector('.booking-slotbooking-sidebar-invert');
+        if (invertButton) {
+            invertButton.addEventListener('click', () => {
+                items.forEach(toggleOne);
+                applyFilter();
+            });
+        }
+    };
+
     const dynamicForm = new DynamicForm(formRegion, 'mod_booking\\form\\condition\\slotbooking_form');
     let currentLoadArgs = {
         id: optionid,
         userid,
+        additionalids: additionalOptionIds.length > 0 ? JSON.stringify(additionalOptionIds) : '',
     };
     const setupInteractiveUi = async() => {
         // Scope to the booking form: in Fall 2 the move tab carries its own slot-calendar-picker
@@ -597,6 +932,21 @@ export async function init() {
             return;
         }
 
+        // Moved above the userdefined custom-day branch below (it used to live further down,
+        // defined only for the fixed-type calendar/list pickers) so BOTH branches can keep the
+        // hidden "id" field (and activeOptionId) in sync with whichever merged option the user is
+        // actually working with right now.
+        const setActiveOptionId = (newOptionId) => {
+            if (newOptionId === activeOptionId) {
+                return;
+            }
+            activeOptionId = newOptionId;
+            const idInput = formRegion.querySelector('input[name="id"]');
+            if (idInput) {
+                idInput.value = String(activeOptionId);
+            }
+        };
+
         // Every slot mode (calendar grid, multi-select list, single-select selectgroups and the
         // userdefined custom-day calendar) now sources its selectable slots from the embedded
         // slot_calendar_data hidden field, filled by the form's definition(). The fixed modes carry a
@@ -605,33 +955,106 @@ export async function init() {
         const slots = parseSlots(jsonInput);
 
         if (calendarRoot && customStartInput && customDurationSelect && customEditorRoot && slots.length > 0) {
+            const originalDurationRow = customDurationSelect.closest('.form-group, .fitem');
+            if (originalDurationRow) {
+                originalDurationRow.style.display = 'none';
+            }
+
             let lastCustomDaySlot = slots[0] || null;
+            // Which merged option is currently "active" for the custom-day picker. Unlike the
+            // fixed-type merged calendar (a shared "start:end" slot grid, where picking any slot
+            // implicitly picks its option), userdefined mode has no shared grid - each option has
+            // its own free-form start/duration picker, so exactly one option is active at a time,
+            // switched via the sidebar (see setupCustomOptionSidebar below). Starts on the primary
+            // option (or, when this is a setupInteractiveUi() re-run after a validation error -
+            // see persistedActiveDayKey above and the SERVER_VALIDATION_ERROR/CLIENT_VALIDATION_ERROR
+            // handlers below - on whichever option activeOptionId already carried over from before
+            // the reload, so a switched-to option isn't silently discarded back to the primary one
+            // right when the user needs to see why it failed); with no sidebar (single option, no
+            // merge) it just never changes.
+            let lastChosenCustomOptionId = activeOptionId || Number(optionid) || 0;
             let customCalendarPicker = null;
 
-            const findCustomDaySlot = (dayKey, daySlots) => {
-                if (Array.isArray(daySlots) && daySlots.length > 0) {
-                    return daySlots[0];
-                }
+            // A day can carry one entry PER merged option (see optionid/optionname on each day -
+            // slotbooking_form.php get_custom_open_days()) - always scope down to the currently
+            // active option (see lastChosenCustomOptionId above) so only ITS entry for this day is
+            // ever considered, never a different merged option's.
+            const getCustomDayCandidates = (dayKey, daySlots) => {
+                const raw = Array.isArray(daySlots) && daySlots.length > 0
+                    ? daySlots
+                    : (dayKey ? slots.filter(slot => toDayKey(slot.start || 0, timezone) === dayKey) : []);
+                const scoped = lastChosenCustomOptionId
+                    ? raw.filter(slot => Number(slot.optionid || optionid) === lastChosenCustomOptionId)
+                    : raw;
 
-                if (dayKey) {
-                    const fromAllSlots = slots.find(slot => {
-                        return toDayKey(slot.start || 0, timezone) === dayKey;
-                    });
-                    if (fromAllSlots) {
-                        return fromAllSlots;
+                const byOption = new Map();
+                scoped.forEach(slot => {
+                    const oid = Number(slot.optionid || optionid);
+                    if (!byOption.has(oid)) {
+                        byOption.set(oid, slot);
                     }
-                }
-
-                return null;
+                });
+                return Array.from(byOption.values());
             };
 
-            const renderResolvedCustomDay = (dayKey = '', daySlots = []) => {
-                const daySlot = findCustomDaySlot(dayKey, daySlots);
-                if (!daySlot) {
-                    return false;
+            // Shown when the currently active option has no bookable day entry for whichever day
+            // is selected (e.g. its own opening days/valid-from-until don't cover it), so a stale
+            // previous day's editor doesn't linger on screen looking like it still applies.
+            const renderNoCustomDayAvailable = () => {
+                customEditorRoot.innerHTML = '';
+                const info = document.createElement('div');
+                info.className = 'small text-muted';
+                info.textContent = 'Für diese Buchungsoption ist an diesem Tag kein Termin verfügbar.';
+                customEditorRoot.appendChild(info);
+                customEditorRoot.style.display = '';
+            };
+
+            // Each merged option can allow different durations (own min/max/step - see
+            // durationoptions/defaultduration on each day, slotbooking_form.php
+            // get_custom_open_days()). The <select> is otherwise a static copy of only the PRIMARY
+            // option's own duration options, so submitting whatever it already shows after
+            // switching to a different option can silently pick a duration that option's own
+            // config validation() rejects. Rebuild it for whichever option was actually chosen.
+            const applyCustomDurationOptions = (daySlot) => {
+                const durationOptions = daySlot && daySlot.durationoptions && typeof daySlot.durationoptions === 'object'
+                    ? daySlot.durationoptions
+                    : null;
+                if (!durationOptions) {
+                    return;
                 }
 
+                const previousValue = customDurationSelect.value;
+                customDurationSelect.innerHTML = '';
+                Object.keys(durationOptions).forEach(seconds => {
+                    const option = document.createElement('option');
+                    option.value = seconds;
+                    option.textContent = durationOptions[seconds];
+                    customDurationSelect.appendChild(option);
+                });
+
+                const defaultDuration = String(daySlot.defaultduration || '');
+                if (defaultDuration && Object.prototype.hasOwnProperty.call(durationOptions, defaultDuration)) {
+                    customDurationSelect.value = defaultDuration;
+                } else if (Object.prototype.hasOwnProperty.call(durationOptions, previousValue)) {
+                    // Same duration is valid for the newly chosen option too - keep it instead of
+                    // silently resetting what the user already picked.
+                    customDurationSelect.value = previousValue;
+                }
+            };
+
+            const renderChosenCustomDay = (daySlot) => {
+                const optionChanged = lastCustomDaySlot
+                    && Number(lastCustomDaySlot.optionid || optionid) !== Number(daySlot.optionid || optionid);
                 lastCustomDaySlot = daySlot;
+                lastChosenCustomOptionId = Number(daySlot.optionid || optionid);
+                setActiveOptionId(lastChosenCustomOptionId);
+                applyCustomDurationOptions(daySlot);
+                if (optionChanged) {
+                    // A start time chosen under a different option's opening hours/duration is not
+                    // meaningful here - let renderCustomDayEditor derive a fresh default from this
+                    // option's own openfrom instead of reusing a stale timestamp.
+                    customStartInput.value = '0';
+                }
                 renderCustomDayEditor(
                     customEditorRoot,
                     daySlot,
@@ -641,6 +1064,16 @@ export async function init() {
                     legendLabels
                 );
                 customEditorRoot.style.display = '';
+            };
+
+            const renderResolvedCustomDay = (dayKey = '', daySlots = []) => {
+                const candidates = getCustomDayCandidates(dayKey, daySlots);
+                if (candidates.length === 0) {
+                    renderNoCustomDayAvailable();
+                    return false;
+                }
+
+                renderChosenCustomDay(candidates[0]);
                 return true;
             };
 
@@ -654,24 +1087,78 @@ export async function init() {
                     ? (customCalendarPicker.slotsByDay.get(activeDay) || [])
                     : [];
 
-                if (renderResolvedCustomDay(activeDay, activeDaySlots)) {
-                    return true;
+                return renderResolvedCustomDay(activeDay, activeDaySlots);
+            };
+
+            // Lets the user pick WHICH merged booking option is active from the existing
+            // multi-option sidebar, instead of a separate chooser embedded in the editor (which
+            // had no way back to reconsider once picked). Single-select (unlike the fixed-type
+            // merged calendar's multi-toggle filter sidebar - see setupSidebar above): exactly one
+            // option is ever active for the free-form start/duration picker, so there is no
+            // "invert selection" concept here.
+            const setupCustomOptionSidebar = () => {
+                const sidebarRegion = container.querySelector('[data-region="slotbooking-sidebar"]');
+                if (!sidebarRegion) {
+                    return;
                 }
 
-                if (lastCustomDaySlot) {
-                    renderCustomDayEditor(
-                        customEditorRoot,
-                        lastCustomDaySlot,
-                        customStartInput,
-                        customDurationSelect,
-                        timeFormatter,
-                        legendLabels
-                    );
-                    customEditorRoot.style.display = '';
-                    return true;
+                const items = Array.from(sidebarRegion.querySelectorAll('.booking-slotbooking-sidebar-item'));
+
+                const applyActiveState = () => {
+                    items.forEach(item => {
+                        const isActive = Number(item.dataset.optionid || 0) === lastChosenCustomOptionId;
+                        item.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+                        item.style.backgroundColor = isActive ? 'rgba(13, 110, 253, 0.1)' : '';
+                        item.style.fontWeight = isActive ? '600' : '';
+                    });
+                };
+
+                // Reassigned on EVERY setupInteractiveUi() run (see the declaration of
+                // selectActiveCustomOption above) so the sidebar's own, only-ever-bound-once click
+                // listeners below always act on the CURRENT calendar picker/day-resolution
+                // closures, not a stale set from a previous run whose DOM has since been replaced.
+                selectActiveCustomOption = (itemOptionId) => {
+                    if (!itemOptionId || itemOptionId === lastChosenCustomOptionId) {
+                        return;
+                    }
+                    lastChosenCustomOptionId = itemOptionId;
+                    applyActiveState();
+                    // setSlotFilter re-renders the calendar grid AND (since showSlotList is false
+                    // for this picker) re-invokes onDayChange for the currently active day with the
+                    // newly filtered slots - which is exactly renderResolvedCustomDay again, so the
+                    // editor below switches to the newly active option immediately.
+                    customCalendarPicker.setSlotFilter(slot => Number(slot.optionid || optionid) === itemOptionId);
+                };
+
+                // lastChosenCustomOptionId is re-seeded from activeOptionId on every run (see its
+                // declaration above), so a reload keeps whichever option was actually active - sync
+                // the sidebar's own highlight with that even when the listeners below are already
+                // bound from an earlier run.
+                applyActiveState();
+
+                if (sidebarRegion.dataset.slotSidebarBound === '1') {
+                    return;
+                }
+                sidebarRegion.dataset.slotSidebarBound = '1';
+
+                const invertButton = sidebarRegion.querySelector('.booking-slotbooking-sidebar-invert');
+                if (invertButton) {
+                    invertButton.style.display = 'none';
                 }
 
-                return false;
+                items.forEach(item => {
+                    const itemColor = optionColors.get(Number(item.dataset.optionid || 0));
+                    if (itemColor) {
+                        item.style.borderLeftColor = itemColor;
+                    }
+                    item.addEventListener('click', () => selectActiveCustomOption?.(Number(item.dataset.optionid || 0)));
+                    item.addEventListener('keydown', (event) => {
+                        if (event.key === 'Enter' || event.key === ' ') {
+                            event.preventDefault();
+                            selectActiveCustomOption?.(Number(item.dataset.optionid || 0));
+                        }
+                    });
+                });
             };
 
             if (!calendarRoot.dataset.slotCalendarInitialized) {
@@ -680,24 +1167,42 @@ export async function init() {
                     timezone,
                     maxSelection: 1,
                     dayCountFormatter: (daySlots) => {
-                        const daySlot = Array.isArray(daySlots) ? daySlots[0] : null;
-                        return daySlot && daySlot.bookable ? 'Buchbar' : 'Nicht buchbar';
+                        const candidates = getCustomDayCandidates('', daySlots);
+                        return candidates.some(c => c.bookable) ? 'Buchbar' : 'Nicht buchbar';
                     },
                     dayStateResolver: (daySlots) => {
-                        const daySlot = Array.isArray(daySlots) ? daySlots[0] : null;
-                        return daySlot && daySlot.bookable ? '' : 'full';
+                        const candidates = getCustomDayCandidates('', daySlots);
+                        return candidates.some(c => c.bookable) ? '' : 'full';
                     },
-                    slotFilter: () => false,
-                    emptySlotListText: '',
+                    // This custom-day mode renders its OWN editor below (customEditorRoot) instead
+                    // of the picker's built-in slot-list panel - suppress that panel the same way
+                    // the fixed-type calendar does (showSlotList: false), not by filtering every
+                    // slot out (the previous "slotFilter: () => false" here made daySlots empty
+                    // BEFORE dayCountFormatter/dayStateResolver ever saw it, so every day rendered
+                    // as "full"/pink regardless of real availability - see slotCalendarPicker.js
+                    // renderCalendarGrid(), which filters before calling either callback).
+                    showSlotList: false,
+                    // Scope the very first render to the currently active option too
+                    // (setupCustomOptionSidebar below only changes this again once the user actually
+                    // clicks a different sidebar item), so a merged non-primary option's days never
+                    // flash into view.
+                    slotFilter: (slot) => Number(slot.optionid || optionid) === lastChosenCustomOptionId,
+                    // Reopen on whichever day the user was last looking at (see persistedActiveDayKey
+                    // above) rather than always defaulting back to today/the first bookable day - most
+                    // relevant right after a validation error re-renders this picker from scratch, so
+                    // the error stays visible in the context the user was already looking at.
+                    initialActiveDay: persistedActiveDayKey,
                     onChange: () => {
                         // Custom mode persists start/duration via dedicated inputs.
                     },
                     onDayChange: (dayKey, daySlots) => {
+                        persistedActiveDayKey = dayKey;
                         renderResolvedCustomDay(dayKey, daySlots);
                     },
                 });
 
                 calendarRoot.dataset.slotCalendarInitialized = '1';
+                setupCustomOptionSidebar();
                 renderFromPickerState();
                 window.requestAnimationFrame(() => {
                     if (!customEditorRoot.childElementCount) {
@@ -715,7 +1220,65 @@ export async function init() {
             slotsMap.set(key, slot);
         });
 
-        const teacherAnchor = listPickerRoot || fixedEditorRoot || calendarRoot || selectionInput;
+        // Each merged option can allow a different number of simultaneous slots
+        // (max_slots_per_user) - derived directly from the already-loaded slots (every slot carries
+        // its own option's limit as `maxslots`; see slot_dto.php), rather than the single
+        // slot_max_selection hidden field, which only ever reflects the PRIMARY option's own limit.
+        const optionMaxMap = new Map();
+        slots.forEach(slot => {
+            const oid = Number(slot.optionid || optionid);
+            if (!optionMaxMap.has(oid)) {
+                optionMaxMap.set(oid, Math.max(1, Number(slot.maxslots || 1)));
+            }
+        });
+
+        let lastKnownSelectionKeys = [];
+        const resolveSlotOptionId = (key) => {
+            const slot = slotsMap.get(key);
+            return slot ? Number(slot.optionid || optionid) : Number(optionid);
+        };
+
+        // (setActiveOptionId now lives further up, before the userdefined custom-day branch, so
+        // both branches share the same definition.)
+
+        // Only one option's slots can be booked in a single pass: if the newly picked slot belongs
+        // to a different option than the current selection, drop the old selection rather than
+        // submitting a mix of slots from two different booking options.
+        const enforceSingleOptionSelection = (selection) => {
+            if (selection.length === 0) {
+                lastKnownSelectionKeys = [];
+                return selection;
+            }
+
+            const addedKey = selection.find(key => !lastKnownSelectionKeys.includes(key));
+            const targetOptionId = addedKey ? resolveSlotOptionId(addedKey) : resolveSlotOptionId(selection[0]);
+
+            const resolved = selection.filter(key => resolveSlotOptionId(key) === targetOptionId);
+            if (resolved.length !== selection.length) {
+                Notification.addNotification({
+                    message: slotbookingSwitchedOptionMessage,
+                    type: 'info',
+                });
+                // The picker's own selected keys still hold the dropped, wrong-option entries at
+                // this point (its onChange fired with them already included) - correct its internal
+                // state too, so the calendar doesn't keep highlighting a slot that no longer counts
+                // as selected once selectionInput.value is overwritten below.
+                if (calendarPickerInstance) {
+                    calendarPickerInstance.selected = new Set(resolved);
+                    calendarPickerInstance.render();
+                }
+            }
+
+            setActiveOptionId(targetOptionId);
+            lastKnownSelectionKeys = resolved;
+            return resolved;
+        };
+
+        // Anchor the teacher-selection/live-feedback regions after the WHOLE calendar+fixed-editor
+        // row (not just fixedEditorRoot, which is only one flex item inside that row) so they land
+        // on their own line below both columns instead of squeezing in as a third flex item.
+        const calendarWrapper = container.querySelector('[data-region="slot-calendar-wrapper"]');
+        const teacherAnchor = listPickerRoot || calendarWrapper || fixedEditorRoot || calendarRoot || selectionInput;
         const teacherContainer = ensureTeacherContainer(container, teacherAnchor);
         const teachersRequired = Math.max(0, Number(teachersRequiredInput?.value || 0));
 
@@ -779,7 +1342,7 @@ export async function init() {
                 }
                 const teacherMap = parseTeacherSelection(teacherSelectionInput);
                 try {
-                    const result = await saveSelection(Number(optionid) || 0, Number(userid) || 0, keys, teacherMap);
+                    const result = await saveSelection(Number(activeOptionId) || 0, Number(userid) || 0, keys, teacherMap);
                     renderLiveFeedback(result);
                 } catch (e) {
                     renderLiveFeedback(null);
@@ -790,11 +1353,19 @@ export async function init() {
         if (calendarRoot && !calendarRoot.dataset.slotCalendarInitialized) {
             const maxInput = container.querySelector('input[name="slot_max_selection"]');
             const maxSlots = Number(maxInput?.value || 1);
+            // Resolves to whichever option currently owns the selection - falls back to the primary
+            // option's maxSlots when nothing is selected yet.
+            const resolveMaxSlots = (optId) => optionMaxMap.get(Number(optId)) || maxSlots;
 
             const calendarOptions = {
                 slots,
                 timezone,
                 maxSelection: maxSlots,
+                // Reopen on whichever day the user was last looking at (see persistedActiveDayKey
+                // above) rather than always defaulting back to today/the first bookable day - most
+                // relevant right after a validation error re-renders this picker from scratch, so the
+                // error stays visible in the context the user was already looking at.
+                initialActiveDay: persistedActiveDayKey,
                 initialSelection: fixedEditorRoot
                     ? []
                     : (selectionInput.value
@@ -803,7 +1374,8 @@ export async function init() {
                 onChange: fixedEditorRoot
                     ? () => {}
                     : (selection) => {
-                        selectionInput.value = selection.join(',');
+                        const resolved = enforceSingleOptionSelection(selection);
+                        selectionInput.value = resolved.join(',');
                         selectionInput.dispatchEvent(new Event('change', {bubbles: true}));
                     },
             };
@@ -823,32 +1395,67 @@ export async function init() {
                     await renderFixedSlotsEditor(
                         fixedEditorRoot,
                         normalizedDaySlots,
-                        createHiddenInputSelection(selectionInput, maxSlots),
-                        timeFormatter
+                        createHiddenInputSelection(selectionInput, resolveMaxSlots, {
+                            resolveOptionId: resolveSlotOptionId,
+                            onOptionSwitch: () => Notification.addNotification({
+                                message: slotbookingSwitchedOptionMessage,
+                                type: 'info',
+                            }),
+                        }),
+                        timeFormatter,
+                        optionColors
                     );
 
                     if (!fixedEditorRoot.childElementCount) {
                         fixedEditorRoot.style.display = 'none';
                     }
                 };
-                calendarOptions.onDayChange = (_dayKey, daySlots) => {
+                calendarOptions.onDayChange = (dayKey, daySlots) => {
+                    persistedActiveDayKey = dayKey;
                     renderFixedEditorForDay(daySlots);
+                };
+            } else {
+                calendarOptions.onDayChange = (dayKey) => {
+                    persistedActiveDayKey = dayKey;
                 };
             }
 
-            initSlotCalendarPicker(calendarRoot, calendarOptions);
+            calendarPickerInstance = initSlotCalendarPicker(calendarRoot, calendarOptions);
             calendarRoot.dataset.slotCalendarInitialized = '1';
+            setupSidebar(calendarPickerInstance);
         }
 
         if (listPickerRoot) {
             const listMaxInput = container.querySelector('input[name="slot_max_selection"]');
             const listMaxSlots = Number(listMaxInput?.value || 1);
-            await renderSlotList(listPickerRoot, slots, createHiddenInputSelection(selectionInput, listMaxSlots));
+            const resolveListMaxSlots = (optId) => optionMaxMap.get(Number(optId)) || listMaxSlots;
+            await renderSlotList(listPickerRoot, slots, createHiddenInputSelection(selectionInput, resolveListMaxSlots, {
+                resolveOptionId: resolveSlotOptionId,
+                onOptionSwitch: () => Notification.addNotification({
+                    message: slotbookingSwitchedOptionMessage,
+                    type: 'info',
+                }),
+            }));
         }
 
         if (!selectionInput.dataset.slotSelectionBound) {
             selectionInput.addEventListener('change', refreshTeacherSelection);
             selectionInput.addEventListener('change', liveValidate);
+            // Keep activeOptionId (and the hidden "id" field) in sync no matter which selection
+            // mechanism fired the change - the calendar picker's onChange already calls
+            // setActiveOptionId itself, but the fixedEditorRoot/listPickerRoot pickers only go
+            // through createHiddenInputSelection, which doesn't know about booking options at all.
+            selectionInput.addEventListener('change', () => {
+                const keys = getSelectedSlotKeys(selectionInput);
+                if (keys.length > 0) {
+                    // Prefer the option id createHiddenInputSelection stamped onto the input itself
+                    // (unambiguous - it came from the clicked slot's own lane) over
+                    // resolveSlotOptionId(key), which can't tell two merged options apart when they
+                    // happen to share a "start:end" key.
+                    const activeFromDataset = Number(selectionInput.dataset.activeOptionId || 0);
+                    setActiveOptionId(activeFromDataset || resolveSlotOptionId(keys[0]));
+                }
+            });
             selectionInput.dataset.slotSelectionBound = '1';
         }
 
@@ -946,19 +1553,53 @@ export async function init() {
 
     setupMoveTab();
 
-    dynamicForm.addEventListener(dynamicForm.events.FORM_SUBMITTED, e => {
+    dynamicForm.addEventListener(dynamicForm.events.FORM_SUBMITTED, async(e) => {
         e.preventDefault();
         const response = e.detail;
 
-        if (response) {
-            if (!continuebutton) {
-                continuebutton = getValidationTriggerButton(container);
-                bindValidationToContinueButton(continuebutton);
+        if (!response) {
+            return;
+        }
+
+        // Which option the server actually just processed - read from process_dynamic_submission()'s
+        // own returned "id" field (JSON-encoded into response.data by core_form_dynamic_form)
+        // rather than trusting the client-side activeOptionId tracking alone. activeOptionId SHOULD
+        // always match it (see setActiveOptionId), but a client-side desync there (e.g. the
+        // multi-option sidebar resolving to a different option than what was visibly shown) would
+        // otherwise submit against the wrong option unnoticed - this is the authoritative source.
+        let submittedOptionId = activeOptionId;
+        try {
+            const parsedData = JSON.parse(response.data || 'null');
+            if (parsedData && parsedData.id) {
+                submittedOptionId = Number(parsedData.id);
             }
-            if (continuebutton) {
-                continuebutton.dataset.blocked = 'false';
-                continuebutton.click();
-            }
+        } catch (e) {
+            // Malformed/missing response.data - fall back to activeOptionId above.
+        }
+
+        // If that isn't this page's primary option, this page's wizard can't continue the booking
+        // for it (different merged options can have entirely different prepage condition
+        // sequences) - try booking it straight into the cart instead (see addSwitchedOptionToCart
+        // above), falling back to a full redirect to that option's own booking page only if
+        // something else still needs the user's attention.
+        if (submittedOptionId !== Number(optionid) && optionUrls.has(submittedOptionId)) {
+            const confirmTitle = await getString('confirmbookingtitle', 'mod_booking');
+            const confirmQuestion = await getString('confirmbookinglong', 'mod_booking');
+            const yesLabel = await getString('yes');
+            const noLabel = await getString('no');
+            Notification.confirm(confirmTitle, confirmQuestion, yesLabel, noLabel, () => {
+                addSwitchedOptionToCart(submittedOptionId, Number(userid) || 0);
+            });
+            return;
+        }
+
+        if (!continuebutton) {
+            continuebutton = getValidationTriggerButton(container);
+            bindValidationToContinueButton(continuebutton);
+        }
+        if (continuebutton) {
+            continuebutton.dataset.blocked = 'false';
+            continuebutton.click();
         }
     });
 

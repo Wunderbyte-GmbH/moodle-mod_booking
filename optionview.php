@@ -44,6 +44,7 @@ $userid = optional_param('userid', 0, PARAM_INT);
 $returnto = optional_param('returnto', '', PARAM_ALPHA);
 $returnurl = optional_param('returnurl', '', PARAM_URL);
 $redirecttocourse = optional_param('redirecttocourse', 0, PARAM_INT);
+$justbooked = optional_param('justbooked', 0, PARAM_INT);
 
 $cvpwd = optional_param('cvpwd', '', PARAM_TEXT);
 $cvfield = optional_param('cvfield', '', PARAM_TEXT);
@@ -128,6 +129,11 @@ if ($settings && !empty($settings->id)) {
 
     $PAGE->set_title(format_string($settings->get_title_with_prefix()));
     $PAGE->set_pagelayout('base');
+
+    if ($justbooked) {
+        \core\notification::success(get_string('slot_justbooked_notification', 'mod_booking'));
+    }
+
 
     echo $OUTPUT->header();
     // phpcs:ignore moodle.Commenting.TodoComment.MissingInfoInline

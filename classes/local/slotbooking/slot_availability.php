@@ -258,6 +258,80 @@ class slot_availability {
     }
 
     /**
+     * Whether a candidate slot time-overlaps an existing booking (or pending hold) of this
+     * option that is NOT the exact same occurrence.
+     *
+     * The underlying resource (room, vehicle, teacher slot, ...) is single-instance and time-
+     * exclusive: two different, merely overlapping start-time variants can never run
+     * concurrently, even when max_participants_per_slot has headroom. Capacity only governs
+     * multiple people sharing the exact same start/end occurrence - it must never be read as
+     * "this many independent overlapping time windows may run at once".
+     *
+     * Deliberately does NOT accept a "these are the user's own other active answers, ignore
+     * them too" exclusion list the way count_bookings()/has_buffer_conflict() do: those exist so
+     * re-validating a selection the user already holds does not count it as an occupant against
+     * itself, but that already-covered case is the EXACT-match continue below. Skipping the
+     * user's own OTHER (distinct, merely overlapping) answers here as well would defeat the
+     * entire point of this check - two different bookings of theirs are exactly as mutually
+     * exclusive as anyone else's.
+     *
+     * @param int $optionid booking option id
+     * @param int $slotstart candidate slot start timestamp
+     * @param int $slotend candidate slot end timestamp
+     * @param int $excludeanswerid booking answer id to ignore (move flow: the answer being moved,
+     *                              re-validating its own new target must not self-block)
+     * @param int $excludemoveid pending move id to ignore (holder re-validating their own target)
+     * @param array|null $holds pending holds to include; resolved from the store when null
+     * @return bool
+     */
+    public static function has_overlapping_distinct_booking(
+        int $optionid,
+        int $slotstart,
+        int $slotend,
+        int $excludeanswerid = 0,
+        int $excludemoveid = 0,
+        ?array $holds = null
+    ): bool {
+        foreach (self::get_booked_slot_ranges_by_answer($optionid) as $answerid => $ranges) {
+            if ($excludeanswerid > 0 && $answerid === $excludeanswerid) {
+                continue;
+            }
+
+            foreach ($ranges as $range) {
+                $rangestart = (int)($range['start'] ?? 0);
+                $rangeend = (int)($range['end'] ?? 0);
+                if ($rangestart === $slotstart && $rangeend === $slotend) {
+                    // Exact same occurrence - capacity (count_bookings) governs this, not exclusivity.
+                    continue;
+                }
+                if (self::slots_overlap($rangestart, $rangeend, $slotstart, $slotend)) {
+                    return true;
+                }
+            }
+        }
+
+        $holds = $holds ?? slot_move_store::get_active_holds_for_option($optionid);
+        foreach ($holds as $hold) {
+            if ($excludemoveid > 0 && $hold['moveid'] === $excludemoveid) {
+                continue;
+            }
+
+            foreach ($hold['slots'] as $range) {
+                $rangestart = (int)($range['start'] ?? 0);
+                $rangeend = (int)($range['end'] ?? 0);
+                if ($rangestart === $slotstart && $rangeend === $slotend) {
+                    continue;
+                }
+                if (self::slots_overlap($rangestart, $rangeend, $slotstart, $slotend)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Small adapter around buffer_math::collides() for the ['start' => int, 'end' => int] range
      * shape used throughout this class. Both sides share the same warmup/cooldown, since buffer
      * settings are per-option, not per-slot.
@@ -416,9 +490,8 @@ class slot_availability {
      * their active answers (a user can hold more than one - see
      * get_active_answer_ids_for_user()), deduplicated and sorted by start time.
      *
-     * Canonical source for "which slots does this user currently hold" - capacity logic
-     * (has_remaining_slot_capacity()) and display (e.g. the booked slots shown in the
-     * booking options table) both build on it, so they always agree.
+     * Canonical source for "which slots does this user currently hold" - display (e.g. the booked
+     * slots shown in the booking options table) builds on it.
      *
      * @param int $optionid booking option id
      * @param int $userid user id
@@ -488,31 +561,6 @@ class slot_availability {
         }
 
         return $slotkeyset;
-    }
-
-    /**
-     * Whether the user can still buy additional slots for this option, i.e. the number of slots
-     * they currently hold (across all of their own active answers, which can be more than one -
-     * see get_active_answer_ids_for_user()) is below the option's max_slots_per_user.
-     *
-     * Used to let a user keep purchasing separate slots up to that limit (e.g. buying several
-     * "phases" over time) even once they already hold at least one - unlike the generic
-     * multiplebookings setting, which is a time-based re-booking gate, not a capacity one.
-     *
-     * @param int $optionid booking option id
-     * @param int $userid user id
-     * @return bool
-     */
-    public static function has_remaining_slot_capacity(int $optionid, int $userid): bool {
-        $config = self::get_slot_config($optionid);
-        if (empty($config)) {
-            return false;
-        }
-
-        $maxslots = max(1, (int)($config->max_slots_per_user ?? 1));
-        $bookedcount = count(self::get_booked_slot_key_set_for_user($optionid, $userid));
-
-        return $bookedcount < $maxslots;
     }
 
     /**
@@ -626,6 +674,23 @@ class slot_availability {
         ) {
             $result['status'] = 'unavailable';
             $result['errormessage'] = get_string('slot_error_buffer_conflict', 'mod_booking');
+            return $result;
+        }
+
+        // A distinct (not exact-match) time-overlap with an existing booking always blocks the
+        // slot, regardless of remaining capacity - see has_overlapping_distinct_booking().
+        if (
+            self::has_overlapping_distinct_booking(
+                $optionid,
+                $slotstart,
+                $slotend,
+                $excludeanswerid,
+                $excludemoveid,
+                $holds
+            )
+        ) {
+            $result['status'] = 'unavailable';
+            $result['errormessage'] = get_string('slot_error_selected_unavailable', 'mod_booking');
             return $result;
         }
 

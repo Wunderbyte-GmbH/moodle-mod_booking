@@ -869,6 +869,16 @@ div.checkbox:has(label[for^="id_bo_cond_allowedtobookininstance_capabilitynotnee
     min-width: 0;
 }
 
+.booking-slot-timeline-axis {
+    width: 100%;
+    min-width: 0;
+}
+
+.booking-slot-timeline-lanes {
+    width: 100%;
+    min-width: 0;
+}
+
 .booking-slot-timeline {
     overflow: hidden;
     background: linear-gradient(to bottom, #f8f9fa, #fff);
@@ -876,11 +886,14 @@ div.checkbox:has(label[for^="id_bo_cond_allowedtobookininstance_capabilitynotnee
 
 .booking-slot-timeline--fixed {
     flex: 1 1 auto;
-    min-width: 12rem;
-    display: flex;
-    flex-direction: column;
-    max-height: 420px;
-    overflow-y: auto;
+    min-width: 10rem;
+    position: relative;
+}
+
+/* Divider between lane columns - replaces the old per-lane border+gap now that all lanes live
+   inside one shared bordered box (see .booking-slot-timeline-wrapper--scroll below). */
+.booking-slot-timeline--fixed + .booking-slot-timeline--fixed {
+    border-left: 1px solid rgba(0, 0, 0, 0.125);
 }
 
 .booking-slot-timeline--clickable {
@@ -889,6 +902,7 @@ div.checkbox:has(label[for^="id_bo_cond_allowedtobookininstance_capabilitynotnee
 
 .booking-slot-timeline-labels {
     width: 2.8rem;
+    border-right: 1px solid rgba(0, 0, 0, 0.125);
 }
 
 .booking-slot-timeline-label {
@@ -909,12 +923,12 @@ div.checkbox:has(label[for^="id_bo_cond_allowedtobookininstance_capabilitynotnee
     pointer-events: none;
 }
 
-/* Fixed-grid slot blocks: stacked rows, not absolutely/proportionally positioned. Each
-   bookable row keeps this minimum height and never shrinks further; the timeline scrolls
-   instead (see .booking-slot-timeline--fixed). */
+/* Fixed-grid slot blocks: positioned absolutely (top/height set inline, in percent of the
+   shared timeline - see slot_day_renderers.js), proportional to real elapsed time. */
 .booking-slot {
-    flex: 0 0 auto;
-    min-height: 64px;
+    position: absolute;
+    left: 0;
+    right: 0;
     overflow: hidden;
     padding: 2px 4px;
     border-top: 1px solid transparent;
@@ -941,14 +955,11 @@ div.checkbox:has(label[for^="id_bo_cond_allowedtobookininstance_capabilitynotnee
     cursor: default;
 }
 
-/* Warmup/cooldown buffer separator: a static, non-bookable, content-free marker that a
-   buffer applies here (see slot_day_renderers.js). Always the same small height regardless
-   of the configured minutes, deliberately not to scale, so it can never crowd out the
-   bookable rows on a dense day. Subdued grey so it recedes behind the actual slots. */
+/* Warmup/cooldown buffer separator: a static, non-bookable, content-free marker that a buffer
+   applies here (see slot_day_renderers.js). Now drawn to scale like everything else on the
+   shared timeline - it's positioned absolutely the same way real slots are. Subdued grey so it
+   recedes behind the actual slots. */
 .booking-slot--buffer {
-    flex: 0 0 auto;
-    min-height: 10px;
-    height: 10px;
     padding: 0;
     border-top: 1px solid rgba(73, 80, 87, 0.45);
     background:
@@ -993,11 +1004,26 @@ div.checkbox:has(label[for^="id_bo_cond_allowedtobookininstance_capabilitynotnee
 }
 
 .booking-slot-badge {
-    margin-left: auto;
+    display: inline-block;
     font-size: 0.6rem;
     font-weight: 700;
     line-height: 1.2;
     white-space: nowrap;
+}
+
+.booking-slot-badge-row {
+    text-align: center;
+}
+
+.booking-slot-badge--link {
+    color: inherit;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.booking-slot-badge--link:hover,
+.booking-slot-badge--link:focus {
+    text-decoration: none;
 }
 
 .booking-slot-price {
@@ -1025,8 +1051,14 @@ div.checkbox:has(label[for^="id_bo_cond_allowedtobookininstance_capabilitynotnee
    so it stays readable on long opening windows; this wrapper caps how tall it can get on
    screen and scrolls the rest, instead of stretching the page. */
 .booking-slot-timeline-wrapper--scroll {
-    max-height: 480px;
+    max-height: 640px;
+    overflow-x: auto;
     overflow-y: auto;
+    border: 1px solid rgba(0, 0, 0, 0.125);
+    border-radius: 0.375rem;
+    /* Top padding gives the first tick label's translateY(-50%) room to sit fully inside the
+       scrollable box instead of getting clipped at its top edge. */
+    padding-top: 0.9rem;
 }
 
 .booking-slot-legend-swatch {
@@ -1129,6 +1161,12 @@ div.checkbox:has(label[for^="id_bo_cond_allowedtobookininstance_capabilitynotnee
     white-space: nowrap;
 }
 
+.booking-slot-list-manage {
+    margin-left: 0.5rem;
+    font-size: 0.75rem;
+    white-space: nowrap;
+}
+
 /* ----------------------------------------------------------------------------
  * Slot calendar picker engine (slotCalendarPicker.js). Static layout extracted
  * from JS inline styles (Stage 2c). Dynamic styling (price colours, responsive
@@ -1186,6 +1224,107 @@ div.checkbox:has(label[for^="id_bo_cond_allowedtobookininstance_capabilitynotnee
     overflow-wrap: anywhere;
     white-space: normal;
     text-align: left;
+}
+
+/* The slot calendar/list picker's mform "static" element wrapper: mform's default 3/9 label+content
+   grid column split leaves the calendar cramped inside a 75%-wide content column, and the label
+   itself ("Slot") is redundant here (the description text above the picker already explains it).
+   The wrapper id carries a random per-instance suffix (fitem_id_slot_calendar_ui_XXXXXXXX), so
+   match on the stable prefix instead of an exact id. */
+[id^="fitem_id_slot_calendar_ui"] > .col-md-3,
+[id^="fitem_id_slot_list_ui"] > .col-md-3 {
+    display: none;
+}
+
+[id^="fitem_id_slot_calendar_ui"] > .col-md-9,
+[id^="fitem_id_slot_list_ui"] > .col-md-9 {
+    flex: 0 0 100%;
+    max-width: 100%;
+}
+
+/* .col-md-9 above is itself display:flex (Bootstrap .felement), which makes the mform-generated
+   .form-control-static a flex item. Without an explicit flex-basis, a flex item's "auto" width
+   doesn't fill the container the way a normal block element would - it shrink-to-fits around its
+   content's preferred size instead, letting the calendar/timeline inside dictate the width and
+   overflow straight past .col-md-9 (this is what was pushing the calendar/timeline past the card
+   edge). Force it to actually fill and shrink with its container instead. */
+[id^="fitem_id_slot_calendar_ui"] > .col-md-9 > .form-control-static,
+[id^="fitem_id_slot_list_ui"] > .col-md-9 > .form-control-static {
+    flex: 1 1 auto;
+    min-width: 0;
+    width: 100%;
+}
+
+/* Multi-option slotbooking sidebar (bookingoptionview shortcode with a comma-separated optionid with a comma-separated optionid
+   list): a list of booking options next to the merged calendar, toggled per-option to filter which
+   options' slots are shown. See amd/src/condition/slotBooking.js for the click/invert wiring. */
+.booking-slotbooking-layout {
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.booking-slotbooking-sidebar {
+    flex: 0 0 14rem;
+    width: 14rem;
+    min-width: 10rem;
+    max-width: 100%;
+    position: sticky;
+    top: calc(61px + 1rem);
+}
+
+/* format_text() wraps shortcode/description output in <div class="no-overflow"> (Boost:
+   `.no-overflow { overflow: auto; }`). Any ancestor with overflow != visible breaks
+   position: sticky relative to the page scroll, which is why the sidebar moved to its
+   offset position but then just scrolled away with the rest of the content instead of
+   sticking. Scope the override to only wrappers that actually contain our layout, so we
+   don't touch .no-overflow's normal clipping behaviour elsewhere on the site. */
+.no-overflow:has(.booking-slotbooking-layout) {
+    overflow: visible;
+}
+
+.booking-slotbooking-main {
+    min-width: 0;
+}
+
+.booking-slotbooking-sidebar-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.booking-slotbooking-sidebar-item {
+    cursor: pointer;
+    padding: 0.375rem 0.5rem;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-left-width: 4px;
+    border-radius: 0.25rem;
+    overflow-wrap: anywhere;
+    user-select: none;
+}
+
+.booking-slotbooking-sidebar-item:hover,
+.booking-slotbooking-sidebar-item:focus-visible {
+    border-color: #0d6efd;
+    outline: none;
+}
+
+.booking-slotbooking-sidebar-item-filtered {
+    color: #6c757d;
+    text-decoration: line-through;
+    border-color: transparent;
+    background-color: rgba(0, 0, 0, 0.03);
+}
+
+@media (max-width: 767.98px) {
+    .booking-slotbooking-layout {
+        flex-direction: column;
+    }
+
+    .booking-slotbooking-sidebar {
+        flex: 1 1 auto;
+        width: 100%;
+        position: static;
+    }
 }
 
 /* Bulk operations table (matches both the [bulkoperations] shortcode and the bulk operations tab).
