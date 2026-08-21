@@ -28,6 +28,7 @@
 
 namespace mod_booking\local\waitlist;
 
+use mod_booking\booking_option;
 use mod_booking\local\waitlist\offer_statuses\autobooked;
 use mod_booking\local\waitlist\offer_statuses\offered;
 use mod_booking\singleton_service;
@@ -228,6 +229,8 @@ final class progression {
         $task->set_next_run_time($expiresat);
         \core\task\manager::queue_adhoc_task($task);
 
+        $this->grant_confirmation_if_required($candidate, $optionid);
+
         $this->messaging->notify_offer($offerobj, $ruleid);
     }
 
@@ -247,5 +250,53 @@ final class progression {
         $rulejson = json_decode($rulerecord->rulejson);
         $minutes = (int) ($rulejson->actiondata->interval ?? 60);
         return $minutes * MINSECS;
+    }
+
+    /**
+     * Grants this candidate the "confirmed" flag on their waiting-list answer, if the option
+     * requires waitlist confirmation AND automatically grants it on notification (W1-W3, Phase 3
+     * gap fix - WAITLIST_REFACTOR_BLUEPRINT_2026-08-04.md §2.4 confirmationonnotification):
+     * this is what actually lets bo_availability/conditions/onwaitinglist.php allow the booking -
+     * without it, an offered candidate would receive a mail but could never actually book.
+     *
+     * waitforconfirmation=0 (no confirmation required at all) and confirmationonnotification=0
+     * ("don't auto-grant on notification") are both a no-op here - matches the old system exactly.
+     * confirmationonnotification 1 ("for everyone") and 2 ("one at a time") are treated the same:
+     * grant THIS candidate only, never touching anyone else's grant - K1 already caps how many
+     * candidates are offered per reconcile() pass to the actual free capacity, so "never more
+     * grants than can book" holds structurally, without needing to couple/revoke across
+     * candidates (per Georg, 2026-08-21 - the old exclusive-mode auto-revoke is intentionally not
+     * reproduced; a person's grant stays independently, manually adjustable via the existing
+     * per-user confirmation UI regardless of what this method does).
+     *
+     * @param booking_waitlist_candidate $candidate
+     * @param int $optionid
+     * @return void
+     */
+    private function grant_confirmation_if_required(booking_waitlist_candidate $candidate, int $optionid): void {
+        global $DB;
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        if (empty($settings) || empty($settings->waitforconfirmation) || empty($settings->confirmationonnotification)) {
+            return;
+        }
+
+        $answer = $DB->get_record('booking_answers', ['id' => $candidate->baid], '*', IGNORE_MISSING);
+        if (empty($answer)) {
+            return;
+        }
+
+        booking_option::write_user_answer_to_db(
+            $answer->bookingid,
+            $answer->frombookingid,
+            $answer->userid,
+            $answer->optionid,
+            MOD_BOOKING_STATUSPARAM_WAITINGLIST,
+            $answer->id,
+            null,
+            MOD_BOOKING_BO_SUBMIT_STATUS_CONFIRMATION,
+            "",
+            MOD_BOOKING_STATUSPARAM_WAITINGLIST_CONFIRMED
+        );
     }
 }

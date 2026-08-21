@@ -183,9 +183,12 @@ final class waitlist_migration_c5_existing_rule_test extends booking_advanced_te
         $upgradestepclass = '\mod_booking\local\waitlist\migration\upgrade_step';
         $upgradestepclass::run();
 
-        // Free the seat, then drive the NEW mechanism directly (Phase 3's trigger adapters are
-        // out of scope for Phase 1 - this simulates what freetobookagain_waitlist_adapter will
-        // eventually do automatically).
+        // Free the seat. Phase 3 has since wired freetobookagain_waitlist_adapter for real - the
+        // cancellation below now triggers reconcile() (and its mail) itself, synchronously - the
+        // sink must be open BEFORE that happens, or the message is missed.
+        $sink = $this->redirectMessages();
+        ob_start();
+
         $this->setUser($occupant);
         $optionobj->user_delete_response($occupant->id);
         singleton_service::destroy_booking_option_singleton($option->id);
@@ -195,8 +198,8 @@ final class waitlist_migration_c5_existing_rule_test extends booking_advanced_te
         $factoryclass = '\mod_booking\local\waitlist\progression_factory';
         $progression = $factoryclass::get();
 
-        $sink = $this->redirectMessages();
-        ob_start();
+        // Redundant now that the real trigger already reconciled above, but harmless (idempotent)
+        // and keeps this test robust if that wiring ever changes again.
         $progression->reconcile((int) $option->id, 'migration_test_c5');
         // Note: reconcile() may deliver synchronously or via an adhoc task, depending on the
         // final Phase 2 implementation - run any pending tasks too, robust to either choice.
