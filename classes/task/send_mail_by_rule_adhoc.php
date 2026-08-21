@@ -136,15 +136,6 @@ class send_mail_by_rule_adhoc extends \core\task\adhoc_task {
                 return;
             }
 
-            // We add the option that this task can actually rerun the rule which created it.
-            // This will be currently done only by the action "send_mail_interval".
-            // The important thing: We will not send the mail, because recipients might have changed.
-            // We just reexecute the event, which will then determine the right recipients and take over.
-            if (!empty($taskdata->repeat)) {
-                $rule->execute($taskdata->optionid);
-                return;
-            }
-
             // We might receive an error here, because we refer to cmids which no longer exist.
             // That's not a problem, we just abort sending the task.
             try {

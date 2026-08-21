@@ -437,11 +437,6 @@ class rules_info {
 
         $contextid = $event->contextid;
         $records = booking_rules::get_list_of_saved_rules_by_context($contextid, $eventname);
-        $records = array_merge(
-            $records,
-            self::get_companion_interval_rules_for_waitinglist_join($contextid, $optionid, $eventname, $data)
-        );
-
         // There are cases where an event is triggered twice in a very narrow timespan.
         $data['timecreated'] = strtotime(date('Y-m-d H:00:00', ($data['timecreated'] ?? time()) + 3600));
 
@@ -478,15 +473,13 @@ class rules_info {
             $rule->set_ruledata($record);
 
             // We only execute if the rule in question listens to the right event.
-            if (!empty($rule->boevent)) {
-                if (!empty($record->forceexecuteoncurrentevent) || $data['eventname'] == $rule->boevent) {
-                    self::$rulestoexecute[] = [
-                        'optionid' => $optionid,
-                        'userid' => (int)($record->forceuseridfromevent ?? 0),
-                        'rule' => $rule,
-                        'ruleid' => $rule->ruleid,
-                    ];
-                }
+            if (!empty($rule->boevent) && $data['eventname'] == $rule->boevent) {
+                self::$rulestoexecute[] = [
+                    'optionid' => $optionid,
+                    'userid' => 0,
+                    'rule' => $rule,
+                    'ruleid' => $rule->ruleid,
+                ];
             }
         }
     }
@@ -549,121 +542,6 @@ class rules_info {
             unset(self::$rulestoexecute[$key]);
             $rule->execute($rulearray['optionid'], $rulearray['userid'] ?? 0);
         }
-    }
-
-    /**
-     * Reuse free-to-book-again chain rules (actions send_mail_interval or confirm_bookinganswer)
-     * for late waiting-list joins after the original chain drained.
-     *
-     * @param int $contextid
-     * @param int $optionid
-     * @param string $eventname
-     * @param array $data
-     * @return array
-     */
-    private static function get_companion_interval_rules_for_waitinglist_join(
-        int $contextid,
-        int $optionid,
-        string $eventname,
-        array $data
-    ): array {
-        if (
-            $eventname !== '\\mod_booking\\event\\bookingoptionwaitinglist_booked'
-            || empty($optionid)
-            || self::option_is_fully_booked($optionid)
-        ) {
-            return [];
-        }
-
-        $records = booking_rules::get_list_of_saved_rules_by_context(
-            $contextid,
-            '\\mod_booking\\event\\bookingoption_freetobookagain'
-        );
-
-        $companionrecords = [];
-        foreach ($records as $record) {
-            $rulejson = json_decode($record->rulejson);
-            if (
-                empty($rulejson)
-                || !in_array($rulejson->actionname ?? '', ['send_mail_interval', 'confirm_bookinganswer'], true)
-                || ($rulejson->conditionname ?? '') !== 'select_student_in_bo'
-                || self::interval_rule_has_active_tasks(
-                    (int)$record->id,
-                    $optionid,
-                    (int)($data['relateduserid'] ?? 0)
-                )
-            ) {
-                continue;
-            }
-
-            $record->forceexecuteoncurrentevent = true;
-            $record->forceuseridfromevent = (int)($data['relateduserid'] ?? 0);
-            $companionrecords[] = $record;
-        }
-
-        return $companionrecords;
-    }
-
-    /**
-     * Check if the option still has a free seat.
-     *
-     * @param int $optionid
-     * @return bool
-     */
-    private static function option_is_fully_booked(int $optionid): bool {
-        try {
-            singleton_service::destroy_booking_answers($optionid);
-            $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
-            $bookinganswers = singleton_service::get_instance_of_booking_answers($settings);
-            return $bookinganswers->is_fully_booked();
-        } catch (\Throwable $e) {
-            return true;
-        }
-    }
-
-    /**
-     * Check whether chain adhoc tasks already exist that make a companion re-trigger redundant.
-     *
-     * Only a pending repeat-trigger task re-queries the waitinglist and therefore picks a new
-     * joiner up. A pending DIRECT task for another user does not - the chain may end with it,
-     * stranding the new joiner. So we only block when a repeat-trigger for the same rule and
-     * option is pending, or when the joining user already has their own pending task
-     * (duplicate protection).
-     *
-     * @param int $ruleid
-     * @param int $optionid
-     * @param int $joininguserid userid of the user who just joined the waitinglist (0 = unknown)
-     * @return bool
-     */
-    private static function interval_rule_has_active_tasks(int $ruleid, int $optionid, int $joininguserid = 0): bool {
-        $taskclasses = [
-            \mod_booking\task\confirm_bookinganswer_by_rule_adhoc::class,
-            \mod_booking\task\send_mail_by_rule_adhoc::class,
-        ];
-
-        foreach ($taskclasses as $taskclass) {
-            $tasks = \core\task\manager::get_adhoc_tasks($taskclass);
-            foreach ($tasks as $task) {
-                $taskdata = $task->get_custom_data();
-                if (
-                    (int)($taskdata->ruleid ?? 0) !== $ruleid
-                    || (int)($taskdata->optionid ?? 0) !== $optionid
-                ) {
-                    continue;
-                }
-                // A pending repeat-trigger will re-query the waitinglist and pick the joiner up.
-                if (!empty($taskdata->repeat)) {
-                    return true;
-                }
-                // Without a known joining user we keep the conservative behavior: any task blocks.
-                // A pending direct task for the joining user themselves means: no duplicate.
-                if (empty($joininguserid) || (int)($taskdata->userid ?? 0) === $joininguserid) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
     }
 
     /**
