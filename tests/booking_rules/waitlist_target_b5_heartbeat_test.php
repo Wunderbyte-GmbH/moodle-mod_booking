@@ -100,7 +100,8 @@ final class waitlist_target_b5_heartbeat_test extends booking_advanced_testcase 
         string $optiontext,
         int $occupantcount,
         int $waitlistcount,
-        bool $freeseats
+        bool $freeseats,
+        bool $rawfree = false
     ): \stdClass {
         $occupants = [];
         for ($i = 0; $i < $occupantcount; $i++) {
@@ -182,9 +183,29 @@ final class waitlist_target_b5_heartbeat_test extends booking_advanced_testcase 
         $this->setAdminUser();
 
         if ($freeseats) {
-            foreach ($occupants as $occupant) {
-                $this->setUser($occupant);
-                $optionobj->user_delete_response($occupant->id);
+            if ($rawfree) {
+                // Phase 3: a real user_delete_response() now itself triggers reconcile() via
+                // freetobookagain_waitlist_adapter (booking_option::check_if_free_to_book_again()),
+                // so it can no longer produce a genuinely "lost trigger" state - free the seat via
+                // a raw write instead, bypassing that trigger entirely (same pattern already used
+                // in waitlist_heartbeat_task_test.php's create_stalled_option()).
+                global $DB;
+                foreach ($occupants as $occupant) {
+                    $DB->set_field('booking_answers', 'waitinglist', MOD_BOOKING_STATUSPARAM_DELETED, [
+                        'optionid' => $option->id,
+                        'userid' => $occupant->id,
+                    ]);
+                }
+                // Raw writes bypass the cache purges user_delete_response() would normally do -
+                // without this, booking_answers' own cached answer set stays stale and
+                // capacity_calculator would still see the occupant as booked.
+                \cache::make('mod_booking', 'bookingoptionsettings')->delete($option->id);
+                booking_option::purge_cache_for_answers($option->id);
+            } else {
+                foreach ($occupants as $occupant) {
+                    $this->setUser($occupant);
+                    $optionobj->user_delete_response($occupant->id);
+                }
             }
             singleton_service::destroy_booking_option_singleton($option->id);
             singleton_service::destroy_booking_answers($option->id);
@@ -237,7 +258,9 @@ final class waitlist_target_b5_heartbeat_test extends booking_advanced_testcase 
 
         // Option A - the genuinely stalled option: seat freed, one candidate waiting, but
         // reconcile() is deliberately NEVER called for it - the exact "lost trigger" scenario.
-        $optiona = $this->build_option($course, $teacher, $booking, $plugingenerator, 'b5-stalled', 1, 1, true);
+        // rawfree=true: a real cancellation now self-heals immediately via the Phase 3 trigger
+        // adapter, so this is the only way left to genuinely simulate a lost trigger.
+        $optiona = $this->build_option($course, $teacher, $booking, $plugingenerator, 'b5-stalled', 1, 1, true, true);
 
         // Option B - free capacity, but no waiting-list candidates at all - nothing to do,
         // must not appear (no "aktive WL-Antworten").
