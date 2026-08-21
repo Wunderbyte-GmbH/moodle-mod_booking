@@ -341,6 +341,12 @@ final class shopping_cart_cancellation_with_price_test extends booking_advanced_
         $record->useprice = 1; // Use price from the default category.
         $record->importing = 1;
         $record->teachersforoption = $teacher->username;
+        // Re-anchor the relative session times at TEST time: PHPUnit resolves data providers at
+        // suite start, while get_quota_consumed() uses the real now at assert time. On a slow
+        // runner the suite ages the -48h/+72h anchors past the 0.405 rounding boundary and the
+        // expected exact 0.40 becomes 0.41 (issue #1523, CI run 32373616891 after ~45 min).
+        $record->coursestarttime_0 = strtotime('now -48 hours');
+        $record->courseendtime_0 = strtotime('now +72 hours');
         $option1 = $plugingenerator->create_option($record);
 
         singleton_service::destroy_booking_option_singleton($option1->id); // Require to avoid caching issues.
