@@ -31,10 +31,12 @@
 namespace mod_booking\local\waitlist;
 
 use mod_booking\singleton_service;
+use mod_booking\tests\local\waitlist\waitlist_progression_fixture_trait;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot . '/mod/booking/lib.php');
+require_once(__DIR__ . '/waitlist_progression_fixture_trait.php');
 
 /**
  * §3.3 tests for progression::reconcile().
@@ -46,192 +48,14 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @covers \mod_booking\local\waitlist\progression::reconcile
  */
 final class progression_test extends \advanced_testcase {
+    use waitlist_progression_fixture_trait;
+
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest();
         singleton_service::destroy_instance();
         \cache_helper::purge_all();
         set_config('cacheturnoffforbookinganswers', 1, 'booking');
-    }
-
-    /**
-     * Creates a course + booking with a custom 'pricecat' profile field wired up as the
-     * price-category selector - same fixture as price_based_decision_strategy_test.php.
-     *
-     * @return array [\stdClass $course, \stdClass $teacher, \stdClass $booking]
-     */
-    private function prepare_course_and_booking(): array {
-        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
-        $teacher = $this->getDataGenerator()->create_user();
-        $this->getDataGenerator()->create_custom_profile_field([
-            'datatype' => 'text',
-            'shortname' => 'pricecat',
-            'name' => 'pricecat',
-        ]);
-        set_config('pricecategoryfield', 'pricecat', 'booking');
-
-        $bdata = [
-            'name' => 'Progression Test',
-            'eventtype' => 'Test',
-            'enablecompletion' => 1,
-            'bookedtext' => ['text' => 'text'],
-            'waitingtext' => ['text' => 'text'],
-            'notifyemail' => ['text' => 'text'],
-            'statuschangetext' => ['text' => 'statuschangebody'],
-            'deletedtext' => ['text' => 'text'],
-            'pollurltext' => ['text' => 'text'],
-            'pollurlteacherstext' => ['text' => 'text'],
-            'notificationtext' => ['text' => 'text'],
-            'userleave' => ['text' => 'text'],
-            'tags' => '',
-            'course' => $course->id,
-            'bookingmanager' => $teacher->username,
-        ];
-        $this->setAdminUser();
-        $booking = $this->getDataGenerator()->create_module('booking', $bdata);
-        $this->getDataGenerator()->enrol_user($teacher->id, $course->id, 'editingteacher');
-
-        return [$course, $teacher, $booking];
-    }
-
-    /**
-     * Creates one useprice=1 option. Must be called AFTER all needed price categories already
-     * exist (same ordering requirement as price_based_decision_strategy_test.php).
-     *
-     * @param \stdClass $course
-     * @param \stdClass $teacher
-     * @param \stdClass $booking
-     * @param int $maxanswers
-     * @param int $maxoverbooking
-     * @return int the new option's id
-     */
-    private function create_priced_option(
-        \stdClass $course,
-        \stdClass $teacher,
-        \stdClass $booking,
-        int $maxanswers,
-        int $maxoverbooking
-    ): int {
-        $this->setAdminUser();
-
-        /** @var \mod_booking_generator $plugingenerator */
-        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
-
-        $record = new \stdClass();
-        $record->bookingid = $booking->id;
-        $record->text = 'progression-option';
-        $record->chooseorcreatecourse = 1;
-        $record->courseid = $course->id;
-        $record->maxanswers = $maxanswers;
-        $record->maxoverbooking = $maxoverbooking;
-        $record->useprice = 1;
-        $record->importing = 1;
-        $record->description = 'Will start in 2050';
-        $record->optiondateid_0 = "0";
-        $record->daystonotify_0 = "0";
-        $record->coursestarttime_0 = strtotime('20 June 2050 15:00');
-        $record->courseendtime_0 = strtotime('20 July 2050 14:00');
-        $record->teachersforoption = $teacher->username;
-        $option = $plugingenerator->create_option($record);
-        singleton_service::destroy_booking_option_singleton($option->id);
-
-        return (int) $option->id;
-    }
-
-    /**
-     * Creates one price category.
-     *
-     * @param string $identifier
-     * @param float $value
-     * @return void
-     */
-    private function create_pricecategory(string $identifier, float $value): void {
-        /** @var \mod_booking_generator $plugingenerator */
-        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
-        $plugingenerator->create_pricecategory((object) [
-            'ordernum' => 1,
-            'name' => $identifier,
-            'identifier' => $identifier,
-            'defaultvalue' => $value,
-            'pricecatsortorder' => 1,
-        ]);
-    }
-
-    /**
-     * Creates one active rule_react_on_event + send_mail_interval rule.
-     *
-     * @param int $condition one of the rule_react_on_event::* constants
-     * @param string $subject
-     * @param string $template
-     * @param int $intervalminutes
-     * @return int the new rule's id
-     */
-    private function create_interval_rule(
-        int $condition,
-        string $subject = 'progsubj',
-        string $template = 'progtmpl',
-        int $intervalminutes = 60
-    ): int {
-        /** @var \mod_booking_generator $plugingenerator */
-        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
-        $actstr = json_encode([
-            'interval' => $intervalminutes,
-            'subject' => $subject,
-            'template' => $template,
-            'templateformat' => '1',
-        ]);
-        $record = $plugingenerator->create_rule([
-            'name' => 'progression-rule-' . $condition . '-' . $intervalminutes,
-            'conditionname' => 'select_student_in_bo',
-            'conditiondata' => '{"borole":"1"}',
-            'actionname' => 'send_mail_interval',
-            'actiondata' => $actstr,
-            'rulename' => 'rule_react_on_event',
-            'boevent' => '\\mod_booking\\event\\bookingoption_freetobookagain',
-            'condition' => (string) $condition,
-        ]);
-        return (int) $record->id;
-    }
-
-    /**
-     * Creates a user with the given price-category profile value, enrols them into the course,
-     * and puts them on the option's waiting list via a direct booking_answers insert.
-     *
-     * @param \stdClass $course
-     * @param int $optionid
-     * @param string $pricecat
-     * @param int $timemodified used for O1/O2 join-order control
-     * @return \stdClass the created user
-     */
-    private function waitlist_user(\stdClass $course, int $optionid, string $pricecat, int $timemodified): \stdClass {
-        global $DB;
-        $user = $this->getDataGenerator()->create_user(['profile_field_pricecat' => $pricecat]);
-        $this->getDataGenerator()->enrol_user($user->id, $course->id, 'student');
-        $DB->insert_record('booking_answers', (object) [
-            'bookingid' => 0,
-            'userid' => $user->id,
-            'optionid' => $optionid,
-            'timemodified' => $timemodified,
-            'timecreated' => $timemodified,
-            'waitinglist' => MOD_BOOKING_STATUSPARAM_WAITINGLIST,
-            'status' => 0,
-        ]);
-        return $user;
-    }
-
-    /**
-     * Builds a progression instance wired with real collaborators.
-     *
-     * @return progression
-     */
-    private function build_progression(): progression {
-        return new progression(
-            new db_waitlist_offer_repository(),
-            new price_based_decision_strategy(),
-            new capacity_calculator(new db_waitlist_offer_repository()),
-            new rule_condition_checker(),
-            new moodle_messaging_gateway()
-        );
     }
 
     /**
