@@ -59,19 +59,48 @@ class confirmbooking implements confirmbooking_interface {
             return [$approved, $message, $reload]; // Can approve regardless of any other conditions.
         }
 
+        // On refusal this workflow always returns an EMPTY message: it cannot say who is
+        // supposed to confirm, so a workflow which is also responsible for the option (e.g.
+        // the supervisor workflow with its confirmation order) must provide the meaningful
+        // message. check_confirm_capability falls back to the generic mod_booking string
+        // when no workflow has anything to say.
         $approved = false;
-        $message = get_string('notallowedtoconfirm', 'bookingextension_confirmation_trainer');
+        $message = '';
         $reload = false;
 
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
         $context = context_module::instance($settings->cmid);
+
+        // This subplugin only governs options which actually use the trainer confirmation
+        // workflow (same condition as in return_where_sql). Without this check, an enabled
+        // trainer subplugin would approve any answer for anyone with bookforothers and
+        // thereby bypass the confirmation order of other workflows (e.g. supervisor).
+        $jsonobject = $settings->jsonobject ?? null;
+        if (
+            empty($jsonobject)
+            || empty($jsonobject->waitforconfirmation)
+            || empty($jsonobject->confirmationtrainerenabled)
+        ) {
+            return [$approved, $message, $reload];
+        }
+
+        // A PE (HR users list of the supervisor workflow) must follow the supervisor
+        // confirmation order - their bookforothers must not route them through the
+        // trainer workflow.
+        $supervisorclass = '\\bookingextension_confirmation_supervisor\\local\\confirmbooking';
+        if (
+            class_exists($supervisorclass)
+            && get_config('bookingextension_confirmation_supervisor', 'confirmationsupervisorenabled')
+            && $supervisorclass::is_pe($approverid)
+        ) {
+            return [$approved, $message, $reload];
+        }
 
         // TODO: MDL-0 Since supervisor and HR have the same capability, we need to check
         // if we really need something to prevent the user from confirming the booking answer
         // when the user is a supervisor or HR.
         if (has_capability('mod/booking:bookforothers', $context)) {
             $approved = true;
-            $message = '';
         }
 
         return [$approved, $message, $reload];

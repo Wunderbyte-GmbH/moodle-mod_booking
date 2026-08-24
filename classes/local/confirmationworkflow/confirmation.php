@@ -31,7 +31,9 @@ class confirmation {
      * @param int $optionid ID of the booking option.
      * @param int $approverid ID of the user trying to confirm.
      * @param int $userid ID of the user being confirmed.
-     * @return array [$allowed (bool), $message (string), $reload (bool)]
+     * @return array [$allowed (bool), $message (string), $reload (bool), $approvedby (string)]
+     *               $approvedby is the name of the subplugin whose workflow granted the
+     *               confirmation (e.g. 'confirmation_trainer'), or '' when nobody approved.
      */
     public static function check_confirm_capability(int $optionid, int $approverid, int $userid): array {
         global $USER;
@@ -53,15 +55,18 @@ class confirmation {
                     $classname::has_capability_to_confirm_booking($optionid, $approverid, $userid);
 
                 if ($allowed) {
-                    return [true, '', false]; // Short-circuit on first positive.
-                } else {
+                    return [true, '', false, $plugin->name]; // Short-circuit on first positive.
+                } else if (!empty($message)) {
+                    // Plugins without jurisdiction over the option (or over this user) return
+                    // an empty message; it must not overwrite the specific message of the
+                    // responsible workflow.
                     $returnmessage = $message;
                     $reload = $reloadflag ?? false;
                 }
             }
         }
 
-        return [$allowedtoconfirm, $returnmessage, $reload];
+        return [$allowedtoconfirm, $returnmessage, $reload, ''];
     }
 
     /**
