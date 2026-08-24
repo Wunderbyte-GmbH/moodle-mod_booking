@@ -248,6 +248,23 @@ final class db_waitlist_offer_repository implements waitlist_offer_repository {
         return $DB->record_exists('booking_waitlist_declines', ['optionid' => $optionid, 'userid' => $userid]);
     }
 
+    /**
+     * Whether a user is locked out specifically via an ACTIVE decline (K7) - see interface
+     * docblock.
+     *
+     * @param int $optionid
+     * @param int $userid
+     * @return bool
+     */
+    public function is_actively_declined(int $optionid, int $userid): bool {
+        global $DB;
+        return $DB->record_exists('booking_waitlist_declines', [
+            'optionid' => $optionid,
+            'userid' => $userid,
+            'reason' => (new declined())->get_code(),
+        ]);
+    }
+
 
     /**
      * All user ids permanently locked out of offers for this option (K7).
@@ -390,6 +407,103 @@ final class db_waitlist_offer_repository implements waitlist_offer_repository {
         ]));
     }
 
+    /**
+     * Typ 2 ("offen nach Durchlauf"): whether this option's freed seat is currently open for
+     * direct booking by anyone except K7-permanently-declined.
+     *
+     * @param int $optionid
+     * @return bool
+     */
+    public function is_open_mode_active(int $optionid): bool {
+        global $DB;
+        return (bool) $DB->get_field('booking_options', 'waitlistopenmode', ['id' => $optionid]);
+    }
+
+    /**
+     * Activates Typ-2 open mode for this option.
+     *
+     * @param int $optionid
+     * @return void
+     */
+    public function activate_open_mode(int $optionid): void {
+        global $DB;
+        $DB->set_field('booking_options', 'waitlistopenmode', 1, ['id' => $optionid]);
+    }
+
+    /**
+     * Deactivates Typ-2 open mode for this option.
+     *
+     * @param int $optionid
+     * @return void
+     */
+    public function deactivate_open_mode(int $optionid): void {
+        global $DB;
+        $DB->set_field('booking_options', 'waitlistopenmode', 0, ['id' => $optionid]);
+    }
+
+    /**
+     * Finds options where waitlistrecycling=2, open mode is not yet active, and the waiting list
+     * is currently fully flagged - same condition as find_recyclable_options(), just scoped to
+     * waitlistrecycling=2 instead of =1.
+     *
+     * @return int[] option ids
+     */
+    public function find_open_mode_activation_candidates(): array {
+        global $DB;
+        $sql = "SELECT DISTINCT bo.id
+                  FROM {booking_options} bo
+                  JOIN {booking_answers} ba ON ba.optionid = bo.id AND ba.waitinglist = :waitinglist
+                 WHERE bo.waitlistrecycling = 2
+                   AND bo.waitlistopenmode = 0
+                   AND NOT EXISTS (
+                         SELECT 1
+                           FROM {booking_answers} ba2
+                          WHERE ba2.optionid = bo.id
+                            AND ba2.waitinglist = :waitinglist2
+                            AND NOT EXISTS (
+                                  SELECT 1
+                                    FROM {booking_waitlist_declines} bwd
+                                   WHERE bwd.optionid = bo.id AND bwd.userid = ba2.userid
+                                )
+                       )
+                   AND NOT EXISTS (
+                         SELECT 1
+                           FROM {booking_waitlist_offers} bwo
+                          WHERE bwo.optionid = bo.id
+                            AND bwo.status IN (:pendingcode, :offeredcode)
+                       )";
+        return array_map('intval', $DB->get_fieldset_sql($sql, [
+            'waitinglist' => MOD_BOOKING_STATUSPARAM_WAITINGLIST,
+            'waitinglist2' => MOD_BOOKING_STATUSPARAM_WAITINGLIST,
+            'pendingcode' => (new pending())->get_code(),
+            'offeredcode' => (new offered())->get_code(),
+        ]));
+    }
+
+    /**
+     * Finds options currently in Typ-2 open mode whose freed seat has actually been taken (free
+     * capacity is back to 0). Builds a fresh capacity_calculator locally, same reasoning as
+     * find_stalled_options() - avoids a circular DI wiring with progression_factory.
+     *
+     * @return int[] option ids
+     */
+    public function find_open_mode_options_to_deactivate(): array {
+        global $DB;
+        $candidateoptionids = $DB->get_fieldset_select(
+            'booking_options',
+            'id',
+            'waitlistopenmode = 1'
+        );
+
+        $capacity = new capacity_calculator($this);
+        $todeactivate = [];
+        foreach ($candidateoptionids as $optionid) {
+            if ($capacity->free_capacity((int) $optionid) <= 0) {
+                $todeactivate[] = (int) $optionid;
+            }
+        }
+        return $todeactivate;
+    }
 
     /**
      * Inserts a lock row, unless one already exists. $reason (the offer_status code that
