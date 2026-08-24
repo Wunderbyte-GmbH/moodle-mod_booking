@@ -99,6 +99,14 @@ final class progression {
      * @return void
      */
     public function reconcile(int $optionid, string $reason = ''): void {
+        if ($this->offers->is_open_mode_active($optionid)) {
+            // Typ 2 ("offen nach Durchlauf"): der frei gewordene Platz ist offen für alle außer
+            // K7-Gesperrte (bo_availability/conditions/onwaitinglist.php) - der Reconciler greift
+            // hier bewusst nicht ein. waitlist_heartbeat_task erkennt, sobald der Platz genommen
+            // wurde, und schaltet den Modus wieder aus; erst danach läuft hier wieder normal.
+            return;
+        }
+
         $free = $this->capacity->free_capacity($optionid);
         if ($free <= 0) {
             return; // K12: structural, no special-case guard needed.

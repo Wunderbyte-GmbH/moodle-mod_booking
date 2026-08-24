@@ -119,3 +119,53 @@ Offen bleibt laut `WAITLIST_REFACTOR_IMPLEMENTATION_PROGRESS_2026-08-12.md`: die
 E2E-Szenarien aus Teil 1 (Georgs eigene Aufgabe, echte Instanz nötig), sowie die separat
 dokumentierten offenen Punkte `latejoiner_waitlist_adapter` (T5), A1/K7-Kategorie-A-Bereinigung
 und Phase 4 (Nacharbeiten/Release-Notes).
+
+---
+
+## Teil 3 — Neues Feature (2026-08-24): Warteliste Typ 2 "offen nach Durchlauf"
+
+Dritter Wert von `waitlistrecycling` (0 = einmalig, 1 = loop, **2 = offen nach Durchlauf**, neu).
+Wenn die Warteliste einmal komplett durchgearbeitet wurde, ohne dass der frei gewordene Platz
+beansprucht wurde, darf ab diesem Zeitpunkt **jede/r** (Warteliste oder nicht) den Platz direkt
+buchen - außer K7-permanent Gesperrte (aktiv abgelehnt). K4-Gesperrte (Frist verstrichen) dürfen
+in diesem Modus buchen. Sobald der Platz genommen ist, kehrt die Option automatisch in den
+normalen Angebots-Modus zurück - neue Wartelisten-Beitritte danach werden wieder ganz normal per
+Angebot (K1/K3/K4) behandelt, nicht rückwirkend die alte, bereits ausgeschiedene Kohorte.
+
+**Architektur-Entscheidung:** Aktivierung UND Deaktivierung laufen ausschließlich über
+`waitlist_heartbeat_task` (kein neuer Trigger-Pfad) - konsistent mit der bestehenden
+T7-Selbstheilungs-Philosophie. Laufzeit-Flag `booking_options.waitlistopenmode` (0/1), gesetzt/
+gelöscht von `db_waitlist_offer_repository::activate_open_mode()`/`deactivate_open_mode()`,
+erkannt von `find_open_mode_activation_candidates()` (spiegelt `find_recyclable_options()`, nur
+auf `waitlistrecycling=2` statt `=1` gefiltert) und `find_open_mode_options_to_deactivate()`
+(spiegelt `find_stalled_options()`-Muster, filtert auf freie Kapazität <= 0). `progression::reconcile()`
+bekommt dafür nur einen einzigen frühen Return am Anfang. Die eigentliche Buchen-Sperre wird in
+`onwaitinglist::is_available()` umgangen (neuer Zweig zwischen der bestehenden
+`waitforconfirmation`-Leerprüfung und der bestehenden `confirmationcount`-Prüfung).
+
+Geänderte/neue Dateien: `db/install.xml`, `db/upgrade.php` (Savepoint 2026082401), `version.php`,
+`classes/local/waitlist/waitlist_offer_repository.php` (+5 Interface-Methoden +
+`is_actively_declined()`), `classes/local/waitlist/db_waitlist_offer_repository.php` (Implementierung),
+`classes/local/waitlist/progression.php`, `classes/bo_availability/conditions/onwaitinglist.php`,
+`classes/task/waitlist_heartbeat_task.php`, `classes/option/fields/waitlistrecycling.php`
+(3. Dropdown-Option), `lang/en/booking.php` + `lang/de/booking.php`.
+
+- [x] **G1 (Aktivierung + Gate):** Heartbeat aktiviert Open Mode für eine fully-flagged
+  `waitlistrecycling=2`-Liste; echter `onwaitinglist::is_available()`-Gate öffnet sich für K4,
+  bleibt zu für K7. ✅ `tests/local/waitlist/waitlist_openmode_heartbeat_activation_test.php`
+  (echter Fund unterwegs: `is_permanently_declined()` unterscheidet nicht zwischen K7/K4 -
+  dedizierte `is_actively_declined()`-Methode ergänzt; 117/117 Regression grün, freigegeben).
+
+**Noch offen (Ideen für weitere Tests, noch nicht geschrieben):**
+- [ ] **G2 (Deaktivierung):** sobald der offene Platz tatsächlich gebucht wird (freie Kapazität
+  wieder 0), muss der nächste Heartbeat-Lauf `waitlistopenmode` zurücksetzen -
+  `find_open_mode_options_to_deactivate()`/`deactivate_open_mode()`.
+- [ ] **G3 (reconcile() pausiert):** solange Open Mode aktiv ist, darf `progression::reconcile()`
+  keine neuen Angebote erzeugen, auch nicht bei einem neuen Trigger (z. B. ein Neuzugang auf der
+  Warteliste).
+- [ ] **G4 (frischer Kandidat nach Reset):** nach der Deaktivierung muss ein NEU beigetretener
+  Kandidat ganz normal per Angebot behandelt werden - die alte, bereits ausgeschiedene Kohorte
+  (K4/K7) wird dabei nicht erneut berücksichtigt (siehe Gespräch 2026-08-24).
+- [ ] **G5 (Re-Aktivierung):** wenn die neue Kohorte aus G4 ihrerseits erschöpft, ohne den Platz zu
+  nehmen, muss Open Mode erneut aktivieren - inklusive der alten K4-Personen aus der vorigen
+  Kohorte, die weiterhin (nur) über Open Mode zugreifen dürfen, nicht über ein Angebot.
