@@ -260,12 +260,23 @@ class get_option_details_skill extends booking_skill_base implements skill_trigg
 
         $resolvedids = $this->resolve_target_option_ids($input, $cmid, $userid, $maxitems);
         if (empty($resolvedids)) {
+            // Distinguish "the ids you named live in another booking activity" from a plain
+            // resolution miss, so the answer can say why nothing came back.
+            $outofscope = $this->input_names_only_out_of_scope_ids($input, $cmid);
+            $stringkey = $outofscope
+                ? 'agent_booking_details_error_option_out_of_scope'
+                : 'agent_booking_diagnose_error_option_resolve';
+
             return [
                 'status' => 'error',
-                'detail' => $this->localized_string('agent_booking_diagnose_error_option_resolve', null, $outputlang),
+                'detail' => $this->localized_string($stringkey, null, $outputlang),
                 'resultid' => null,
                 'optiondetails' => [],
-                'debugmessage' => $this->build_task_debug_message(self::TASK_NAME, $input, ['Resolved ids: none']),
+                'debugmessage' => $this->build_task_debug_message(
+                    self::TASK_NAME,
+                    $input,
+                    ['Resolved ids: none' . ($outofscope ? ' (all direct ids outside instance scope)' : '')]
+                ),
             ];
         }
 
@@ -624,18 +635,28 @@ class get_option_details_skill extends booking_skill_base implements skill_trigg
     private function resolve_target_option_ids(array $input, int $cmid, int $userid, int $maxitems): array {
         $ids = [];
 
-        // Direct id inputs work in all contexts because option settings are loaded globally.
+        // Direct id inputs resolve globally, so in module context they must be bound to the
+        // hosting booking instance further down; otherwise a chat running in instance A would
+        // answer about — and offer a booking card for — an option in instance B.
+        $directids = [];
         $optionid = (int)($input['optionid'] ?? 0);
         if ($optionid > 0) {
-            $ids[] = $optionid;
+            $directids[] = $optionid;
         }
 
         $optionids = is_array($input['optionids'] ?? null) ? (array)$input['optionids'] : [];
         foreach ($optionids as $id) {
             $intid = (int)$id;
             if ($intid > 0) {
-                $ids[] = $intid;
+                $directids[] = $intid;
             }
+        }
+
+        // Instance scope gate: in module context only ids belonging to this cmid's booking
+        // instance survive. System context (cmid = 0) stays cross-instance by design and is
+        // guarded by the capability gate alone.
+        foreach ($this->filter_ids_to_instance_scope($directids, $cmid) as $scopedid) {
+            $ids[] = $scopedid;
         }
 
         $query = trim((string)($input['optionquery'] ?? ''));
@@ -682,6 +703,90 @@ class get_option_details_skill extends booking_skill_base implements skill_trigg
         ));
 
         return array_slice($ids, 0, $maxitems);
+    }
+
+    /**
+     * Whether the input named option ids and every one of them sits outside this instance.
+     *
+     * Used only to pick the more precise error string; the actual gate lives in
+     * filter_ids_to_instance_scope(). A free-text optionquery makes this false, because then an
+     * empty result is a resolution miss rather than a scope rejection. A purely numeric
+     * optionquery counts as a named id: planners routinely pass "88" that way, and by the time
+     * this runs the cmid-scoped title lookup has already failed.
+     *
+     * @param array $input
+     * @param int   $cmid
+     * @return bool
+     */
+    private function input_names_only_out_of_scope_ids(array $input, int $cmid): bool {
+        global $DB;
+
+        if ($cmid <= 0) {
+            return false;
+        }
+
+        $directids = [];
+        $optionid = (int)($input['optionid'] ?? 0);
+        if ($optionid > 0) {
+            $directids[] = $optionid;
+        }
+        foreach ((array)($input['optionids'] ?? []) as $id) {
+            $intid = (int)$id;
+            if ($intid > 0) {
+                $directids[] = $intid;
+            }
+        }
+
+        $query = trim((string)($input['optionquery'] ?? ''));
+        if ($query !== '') {
+            if (!preg_match('/^\d+$/', $query)) {
+                return false;
+            }
+            // Only claim "wrong instance" when the id really exists somewhere else.
+            if (!$DB->record_exists('booking_options', ['id' => (int)$query])) {
+                return false;
+            }
+            $directids[] = (int)$query;
+        }
+
+        return !empty($directids) && empty($this->filter_ids_to_instance_scope($directids, $cmid));
+    }
+
+    /**
+     * Restrict directly supplied option ids to the booking instance behind the given cmid.
+     *
+     * Only applies in module context. Mirrors the scope check already used for bulk option
+     * resolution in booking_skill_support::resolve_bulk_option_ids().
+     *
+     * @param array $ids  Option ids taken verbatim from the skill input.
+     * @param int   $cmid Resolved cmid (0 when the context is system-wide).
+     * @return array<int,int>
+     */
+    private function filter_ids_to_instance_scope(array $ids, int $cmid): array {
+        global $DB;
+
+        if ($cmid <= 0 || empty($ids)) {
+            return array_values(array_map('intval', $ids));
+        }
+
+        $cm = get_coursemodule_from_id('booking', $cmid, 0, false, IGNORE_MISSING);
+        if (!$cm) {
+            // Fail closed: without a resolvable instance we cannot prove the option belongs here.
+            return [];
+        }
+
+        $scoped = [];
+        foreach ($ids as $id) {
+            $intid = (int)$id;
+            if ($intid <= 0) {
+                continue;
+            }
+            if ($DB->record_exists('booking_options', ['id' => $intid, 'bookingid' => (int)$cm->instance])) {
+                $scoped[] = $intid;
+            }
+        }
+
+        return $scoped;
     }
 
     /**
