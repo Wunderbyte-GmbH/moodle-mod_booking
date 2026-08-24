@@ -151,6 +151,7 @@ $string['agent_booking_customformelement_invalid_formtype'] = 'customformelement
 $string['agent_booking_customformelement_label_required'] = 'customformelements[{$a->n}].label ist für den Formtyp "{$a->formtype}" erforderlich.';
 $string['agent_booking_customformelement_not_object'] = 'customformelements[{$a}] muss ein Objekt sein.';
 $string['agent_booking_customformelements_max'] = 'Feld "customformelements" unterstützt höchstens 50 Elemente.';
+$string['agent_booking_details_error_option_out_of_scope'] = 'Diese Buchungsoption gehört nicht zu der Buchungsaktivität, in der Sie gerade arbeiten. Ihre Details sind hier daher nicht verfügbar.';
 $string['agent_booking_diagnose_ambiguity_last_preview_multiple'] = 'Ihre letzte Vorschau enthält mehrere Optionen. Bitte sagen Sie mir, welche Sie meinen.';
 $string['agent_booking_diagnose_ambiguity_option_required'] = 'Welche Buchungsoption meinen Sie? Bitte geben Sie den Titel oder die ID der Option an.';
 $string['agent_booking_diagnose_ambiguity_option_specify'] = 'Bitte präzisieren Sie die Buchungsoption.';

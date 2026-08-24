@@ -119,6 +119,113 @@ final class get_option_details_capability_test extends advanced_testcase {
     }
 
     /**
+     * A fully privileged actor must still not cross the instance boundary in module context.
+     *
+     * The capability gate alone lets an admin through (the hosting activity is visible to them),
+     * so this is the scope regression from Wunderbyte-GmbH/Wunderbyte-GmbH#2230: a chat running
+     * in instance A answered about — and offered a booking card for — an option in instance B.
+     */
+    public function test_privileged_actor_cannot_cross_instance_in_module_context(): void {
+        global $USER;
+
+        $env = $this->setup_two_instances();
+
+        $this->setAdminUser();
+        $result = (new get_option_details_skill())->execute(
+            ['optionid' => (int)$env['optionb']->id, 'requested_fields' => ['title']],
+            (int)$env['contexta']->id,
+            (int)$USER->id
+        );
+
+        $this->assertSame('error', (string)($result['status'] ?? ''));
+        $this->assertEmpty(
+            (array)($result['optiondetails'] ?? []),
+            'An option of another booking instance must not be readable from this module context.'
+        );
+        $this->assertEmpty(
+            (array)($result['previewoptionids'] ?? []),
+            'An out-of-scope option must not reach the preview card.'
+        );
+        $this->assertSame(
+            get_string('agent_booking_details_error_option_out_of_scope', 'mod_booking'),
+            (string)($result['detail'] ?? ''),
+            'The rejection must name the instance scope rather than a generic resolution miss.'
+        );
+    }
+
+    /**
+     * A numeric optionquery ("88") must be rejected with the same scope wording as an optionid.
+     *
+     * Planners frequently pass a spoken option number through optionquery rather than optionid,
+     * so the honest "belongs to another activity" answer must not depend on which field was used.
+     */
+    public function test_numeric_optionquery_from_other_instance_reports_scope(): void {
+        global $USER;
+
+        $env = $this->setup_two_instances();
+
+        $this->setAdminUser();
+        $result = (new get_option_details_skill())->execute(
+            ['optionquery' => (string)$env['optionb']->id, 'requested_fields' => ['title']],
+            (int)$env['contexta']->id,
+            (int)$USER->id
+        );
+
+        $this->assertSame('error', (string)($result['status'] ?? ''));
+        $this->assertEmpty((array)($result['optiondetails'] ?? []));
+        $this->assertSame(
+            get_string('agent_booking_details_error_option_out_of_scope', 'mod_booking'),
+            (string)($result['detail'] ?? '')
+        );
+    }
+
+    /**
+     * A numeric query that matches no option at all stays a plain resolution miss.
+     */
+    public function test_unknown_numeric_optionquery_reports_generic_miss(): void {
+        global $USER;
+
+        $env = $this->setup_two_instances();
+
+        $this->setAdminUser();
+        $result = (new get_option_details_skill())->execute(
+            ['optionquery' => '99999999', 'requested_fields' => ['title']],
+            (int)$env['contexta']->id,
+            (int)$USER->id
+        );
+
+        $this->assertSame('error', (string)($result['status'] ?? ''));
+        $this->assertSame(
+            get_string('agent_booking_diagnose_error_option_resolve', 'mod_booking'),
+            (string)($result['detail'] ?? ''),
+            'A non-existent id must not be reported as belonging to another activity.'
+        );
+    }
+
+    /**
+     * System context stays deliberately cross-instance for an actor who may see the option.
+     */
+    public function test_privileged_actor_may_read_other_instance_in_system_context(): void {
+        global $USER;
+
+        $env = $this->setup_two_instances();
+
+        $this->setAdminUser();
+        $result = (new get_option_details_skill())->execute(
+            ['optionid' => (int)$env['optionb']->id, 'requested_fields' => ['title']],
+            (int)\context_system::instance()->id,
+            (int)$USER->id
+        );
+
+        $this->assertSame('executed', (string)($result['status'] ?? ''));
+        $ids = array_map(
+            static fn(array $d): int => (int)($d['optionid'] ?? 0),
+            (array)($result['optiondetails'] ?? [])
+        );
+        $this->assertContains((int)$env['optionb']->id, $ids);
+    }
+
+    /**
      * The owning instance's teacher CAN read their own option's details.
      */
     public function test_own_instance_option_is_visible(): void {
