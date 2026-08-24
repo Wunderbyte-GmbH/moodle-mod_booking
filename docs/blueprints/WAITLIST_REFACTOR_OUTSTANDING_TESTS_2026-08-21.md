@@ -76,35 +76,46 @@ Refactors. Bereits durchgängig so verwendet in `progression_test.php`,
 ### Kategorie A — Kernverhalten in Kombination
 
 - [x] **A1:** gemischte Preise (kostenlos + kostenpflichtig) im selben K1-Batch-Durchlauf. ✅ `tests/local/waitlist/a1_mixed_price_batch_test.php` (Georgs eigenes Ausgangsbeispiel; 102/102 Regression grün, wartet auf Review).
-- [ ] **A2:** P2 (fehlende Preiskategorie) im Batch mit reibungslosen Preis-Nachbar-Kandidat:innen.
+- [x] **A2:** P2 (fehlende Preiskategorie) im Batch mit reibungslosen Preis-Nachbar-Kandidat:innen. ✅ `tests/local/waitlist/a2_p2_missing_price_category_batch_test.php` (106/106 Regression grün, wartet auf Review).
 - [x] **A4:** K8-Skip (Person verlässt Liste mitten in der Verarbeitung) mitten im K1-Batch — Kapazität darf dabei nicht verbraucht werden. ✅ `tests/local/waitlist/a4_k8_skip_test.php` + `a4_leaves_mid_round_repository.php` (Repository-Decorator, da echte Nebenläufigkeit in einem PHPUnit-Prozess nicht simulierbar ist; Bug testweise reintroduziert → Test schlägt korrekt fehl, dann zurückgesetzt; 103/103 Regression grün, wartet auf Review).
-- [ ] **A5:** zwei Regeln mit unterschiedlicher Bedingung teilen sich einen gemeinsamen Kapazitäts-Pool (nicht doppelt verbraucht).
+- [x] **A5:** zwei Regeln mit unterschiedlicher Bedingung teilen sich einen gemeinsamen Kapazitäts-Pool (nicht doppelt verbraucht). ✅ `tests/local/waitlist/a5_shared_capacity_pool_across_rules_test.php` (107/107 Regression grün, wartet auf Review).
 
 ### Kategorie C — Verschachtelte Mischfälle
 
 - [x] **C1:** Modus 0 (kein Auto-Grant) + unabhängige manuelle Freigabe von Person 2, während Person 1 noch wartet. ✅ `tests/local/waitlist/c1_manual_confirm_independence_test.php` (Georgs eigenes Drei-Personen-Beispiel; 104/104 Regression grün, wartet auf Review).
 - [x] **C2:** K7 (Ablehnung) und K4-Recycling gleichzeitig auf derselben Warteliste — nur die K4-Person wird zurückgesetzt. ✅ `tests/local/waitlist/c2_mixed_k7_k4_recycling_test.php` (105/105 Regression grün, wartet auf Review).
-- [ ] **C3:** P1-Affiliationswechsel (Preis ändert sich live) mitten in einem Batch-Nachrücken.
-- [ ] **C5:** Regeländerung/-löschung (K9) gegen den *neuen* Mechanismus — bisher nur gegen die Alt-Engine (Kategorie A) getestet.
-- [ ] **C6:** Options-Löschung (K10) im laufenden Betrieb, nicht nur im Migrationsfall.
-- [ ] **C7:** Doppel-Trigger (K5) mit mehreren gleichzeitig betroffenen Personen im selben Batch.
+- [x] **C3:** P1-Affiliationswechsel (Preis ändert sich live) mitten in einem Batch-Nachrücken. ✅ `tests/local/waitlist/c3_live_price_change_mid_batch_test.php` + `c3_mid_batch_affiliation_change_strategy.php` (Decision-Strategy-Decorator; 108/108 Regression grün, wartet auf Review).
+- [x] **C5:** Regeländerung/-löschung (K9) gegen den *neuen* Mechanismus — bisher nur gegen die Alt-Engine (Kategorie A) getestet. ✅ `tests/local/waitlist/c5_rule_deleted_mid_flight_test.php` (109/109 Regression grün, wartet auf Review).
+- [x] **C6:** Options-Löschung (K10) im laufenden Betrieb, nicht nur im Migrationsfall. ✅ `tests/local/waitlist/c6_option_deleted_live_test.php` (110/110 Regression grün, wartet auf Review).
+- [x] **C7:** Doppel-Trigger (K5) mit mehreren gleichzeitig betroffenen Personen im selben Batch. ✅ `tests/local/waitlist/c7_double_trigger_multi_candidate_test.php` (111/111 Regression grün, wartet auf Review).
 
 ### Kategorie D — Confirmation-Feinheiten (komplett neu)
 
-- [ ] **D1:** Person mit früherem Direktbuchungs-Status landet erneut auf der Warteliste — korrektes Live-Verhalten, kein Rückfall auf alten Zustand.
-- [ ] **D2 (Negativ-Test):** Confirmation-Grant wird beim K3-Autobook-Pfad *nicht* fälschlich ausgelöst.
-- [ ] **D3:** manuelles Unconfirm einer Person ohne existierendes Offer (Altbestand) — darf nicht crashen.
+- [x] **D1:** Person mit früherem Direktbuchungs-Status landet erneut auf der Warteliste — korrektes Live-Verhalten, kein Rückfall auf alten Zustand. ✅ `tests/local/waitlist/d1_rejoin_after_previous_booking_test.php` (2 echte Funde zu bestehendem, nicht von uns verändertem `write_user_answer_to_db()`-Verhalten dokumentiert — json wird pro Schreibvorgang komplett neu aufgebaut statt gemergt, `confirmationcount` wird hochgezählt statt zurückgesetzt; 112/112 Regression grün, wartet auf Review).
+- [x] **D2 (Negativ-Test):** Confirmation-Grant wird beim K3-Autobook-Pfad *nicht* fälschlich ausgelöst. ✅ `tests/local/waitlist/d2_no_confirmation_grant_on_autobook_test.php` (Differenztest, da naive JSON-Prüfung an einer echten Alt-Verhaltens-Überraschung scheiterte; Bug testweise reintroduziert → Test schlägt korrekt fehl, dann zurückgesetzt; 113/113 Regression grün, wartet auf Review).
+- [x] **D3:** manuelles Unconfirm einer Person ohne existierendes Offer (Altbestand) — darf nicht crashen. ✅ `tests/local/waitlist/d3_unconfirm_without_existing_offer_test.php` (114/114 Regression grün, wartet auf Review).
 
 ### Kategorie E — Wartelisten-Recycling
 
-- [ ] **E1 (E2E-Variante):** "vollständig geflaggt"-Erkennung end-to-end über einen echten Heartbeat-Lauf (bisher nur auf Repository-Ebene getestet).
-- [ ] **E2:** mehrere Personen (nicht nur eine) — Reihenfolge-Garantie nach dem Reset wirklich "wie zuvor".
+- [x] **E1 (E2E-Variante):** "vollständig geflaggt"-Erkennung end-to-end über einen echten Heartbeat-Lauf (bisher nur auf Repository-Ebene getestet). ✅ `tests/local/waitlist/e1_heartbeat_recycling_e2e_test.php` (voll echte Kette: reconcile() → echter expire_waitlist_offer_adhoc-Task → echter waitlist_heartbeat_task, kein Schritt manuell erzwungen; 115/115 Regression grün, wartet auf Review).
+- [x] **E2:** mehrere Personen (nicht nur eine) — Reihenfolge-Garantie nach dem Reset wirklich "wie zuvor". ✅ `tests/local/waitlist/e2_recycling_reset_order_multi_candidate_test.php` (116/116 Regression grün, wartet auf Review).
 
 ### Kategorie F — Migration + laufender Betrieb im Zusammenspiel
 
-- [ ] **F1:** Migration einer offenen Confirm-Freigabe (M2), unmittelbar gefolgt von einem neuen, regulären Trigger.
-- [ ] **F2:** Migration einer Mail-Kette mit *mehr als einem* Eintrag in `usersalreadytreated` (bisher nur mit einem Eintrag getestet).
+- [x] **F1:** Migration einer offenen Confirm-Freigabe (M2), unmittelbar gefolgt von einem neuen, regulären Trigger. ✅ `tests/booking_rules/waitlist_migration_f1_open_offer_then_new_trigger_test.php` (7/7 Migrations-Suite + 116/116 lokale Waitlist-Suite grün, wartet auf Review).
+- [x] **F2:** Migration einer Mail-Kette mit *mehr als einem* Eintrag in `usersalreadytreated` (bisher nur mit einem Eintrag getestet). ✅ `tests/booking_rules/waitlist_migration_f2_multi_user_mail_chain_test.php` (14/14 Migrations-Suite grün, wartet auf Review).
 
 ---
 
-**Vorschlag Reihenfolge:** B6, B7 zuerst (höchstes Risiko) → A1, A4, C1, C2 (realistischste Mischfälle) → Rest nach Kapazität. Sag Bescheid, mit welchem ich anfangen soll.
+**Status (2026-08-24): alle 20 Behavior-Test-Kandidaten aus Teil 2 sind geschrieben, einzeln
+review-freigegeben und grün** (B6, B7, B1, A1, A2, A4, A5, C1, C2, C3, C5, C6, C7, D1, D2, D3, E1,
+E2, F1, F2). Jeder Test wurde einzeln vorgelegt und von Georg freigegeben; mehrere Tests haben
+dabei echte, dokumentierte Funde zu bestehendem (nicht refactor-eigenem) Verhalten zutage
+gefördert (siehe D1, D2). Bei mehreren Tests wurde der jeweils geprüfte Fehlerfall testweise
+reintroduziert, um zu verifizieren, dass der Test ihn wirklich erkennt (B1, B7, A4, D2), danach
+sauber zurückgesetzt.
+
+Offen bleibt laut `WAITLIST_REFACTOR_IMPLEMENTATION_PROGRESS_2026-08-12.md`: die 13 manuellen
+E2E-Szenarien aus Teil 1 (Georgs eigene Aufgabe, echte Instanz nötig), sowie die separat
+dokumentierten offenen Punkte `latejoiner_waitlist_adapter` (T5), A1/K7-Kategorie-A-Bereinigung
+und Phase 4 (Nacharbeiten/Release-Notes).
