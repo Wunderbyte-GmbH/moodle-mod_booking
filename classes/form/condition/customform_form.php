@@ -306,6 +306,7 @@ class customform_form extends dynamic_form {
                             format_string($formelementvalue->label) ?? "Label " . $counter
                         );
                         $mform->setDefault('customform_url_' . $counter, $formelementvalue->value);
+                        $mform->setType($identifier, PARAM_TEXT);
                         break;
                     case 'mail':
                         $identifier = 'customform_' . $formelementvalue->formtype . '_' . $counter;
@@ -315,6 +316,7 @@ class customform_form extends dynamic_form {
                             format_string($formelementvalue->label) ?? "Label " . $counter
                         );
                         $mform->setDefault('customform_mail_' . $counter, $formelementvalue->value);
+                        $mform->setType($identifier, PARAM_TEXT);
                         break;
                     case 'deleteinfoscheckboxuser':
                         if ($deleteform) {
@@ -396,6 +398,25 @@ class customform_form extends dynamic_form {
                                 get_string('enrolmultipleusersformmode:donotbookmyself:hint', 'mod_booking')
                             );
                         }
+                }
+
+                // Mandatory elements get the core required marker (red exclamation mark),
+                // so participants see which fields they have to fill in before they submit.
+                // Mirrors the handling of the modal to change form values (modal_change_customform).
+                if (
+                    !empty($formelementvalue->notempty)
+                    && !in_array($formelementvalue->formtype, ['static', 'deleteinfoscheckboxuser'])
+                ) {
+                    $identifier = 'customform_' . $formelementvalue->formtype . '_' . $counter;
+                    if ($mform->elementExists($identifier)) {
+                        $mform->addRule(
+                            $identifier,
+                            get_string('error:mustnotbeempty', 'mod_booking'),
+                            'required',
+                            null,
+                            'client'
+                        );
+                    }
                 }
 
                 $counter++;
