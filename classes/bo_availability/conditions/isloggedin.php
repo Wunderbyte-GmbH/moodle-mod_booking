@@ -29,7 +29,6 @@ namespace mod_booking\bo_availability\conditions;
 use mod_booking\bo_availability\bo_condition;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_option_settings;
-use moodle_url;
 use MoodleQuickForm;
 
 defined('MOODLE_INTERNAL') || die();
@@ -224,37 +223,12 @@ class isloggedin implements bo_condition {
         bool $not = false,
         bool $fullwidth = true
     ): array {
-        global $SESSION;
-        $courseid = $settings->courseid;
-
         $label = $this->get_description_string(false, $full, $settings);
         $style = 'btn btn-' . get_config('booking', 'loginbuttonforbookingoptionscoloroptions') ?? 'btn btn-warning';
 
-        $returnurl = "";
-        if (get_config('booking', 'showbookingdetailstoall')) {
-            $returnurl = new moodle_url(
-                '/mod/booking/optionview.php',
-                [
-                  'optionid' => $settings->id,
-                 'cmid' => $settings->cmid,
-                ]
-            );
-        }
+        // Sends the user back to the details page of this option after logging in.
+        $url = bo_info::set_login_returnurl($settings);
 
-        if (get_config('booking', 'redirectonlogintocourse') && !empty($courseid)) {
-            $returnurl = new moodle_url(
-                '/mod/booking/optionview.php',
-                [
-                    'optionid' => $settings->id,
-                    'cmid' => $settings->cmid,
-                    'redirecttocourse' => 1,
-                ]
-            );
-        }
-        $url = new moodle_url('/login/index.php');
-        if (!empty($returnurl)) {
-                $SESSION->wantsurl = $returnurl->out(false);
-        }
         $button = bo_info::render_button(
             $settings,
             $userid,
