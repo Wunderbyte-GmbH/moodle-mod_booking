@@ -36,6 +36,7 @@ const MAXROWS = 50;
 
 const SELECTOR = {
     BUTTON: '[data-cfe-action]',
+    BUTTONS: '.mbo-cfe-buttons',
 };
 
 /**
@@ -173,6 +174,11 @@ const updateVisibility = (form) => {
         const select = getField(form, 'select', i);
         const isempty = !select || select.value === '0' || select.value === '';
         group.classList.toggle('d-none', isempty && i > used + 1);
+        // A row without an element has nothing to move, delete or insert below.
+        const buttons = group.querySelector(SELECTOR.BUTTONS);
+        if (buttons) {
+            buttons.classList.toggle('d-none', isempty);
+        }
     }
 };
 

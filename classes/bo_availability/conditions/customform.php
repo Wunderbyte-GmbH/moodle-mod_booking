@@ -314,7 +314,13 @@ class customform implements bo_condition, freezable_condition {
                 // Row editor buttons: move up/down, delete, insert below.
                 // They live inside the same group so the hideIf chain of the row applies to them too.
                 // The value shifting is done client side by mod_booking/customformeditor.
-                $editorbuttons = '<span class="ml-2 text-nowrap mbo-cfe-buttons">'
+                // A row without an element has nothing to move, delete or insert below, so its
+                // buttons stay hidden until a form type is chosen (kept in sync by the same module).
+                $buttonsclasses = 'ml-2 text-nowrap mbo-cfe-buttons';
+                if ($selectedformtype === '' || $selectedformtype === '0') {
+                    $buttonsclasses .= ' d-none';
+                }
+                $editorbuttons = '<span class="' . $buttonsclasses . '">'
                     . '<button type="button" class="btn btn-sm btn-outline-secondary" data-cfe-action="up"'
                     . ' data-cfe-row="' . $counter . '" title="' . get_string('customformeditormoveup', 'mod_booking')
                     . '"><i class="fa fa-arrow-up" aria-hidden="true"></i></button> '
