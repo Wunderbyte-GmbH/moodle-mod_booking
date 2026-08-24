@@ -66,11 +66,33 @@ class confirmbooking implements confirmbooking_interface {
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
         $context = context_module::instance($settings->cmid);
 
+        // This subplugin only governs options which actually use the trainer confirmation
+        // workflow (same condition as in return_where_sql). Without this check, an enabled
+        // trainer subplugin would approve any answer for anyone with bookforothers and
+        // thereby bypass the confirmation order of other workflows (e.g. supervisor).
+        $jsonobject = $settings->jsonobject ?? null;
+        if (
+            empty($jsonobject)
+            || empty($jsonobject->waitforconfirmation)
+            || empty($jsonobject->confirmationtrainerenabled)
+        ) {
+            // No message: this plugin has no jurisdiction over the option, so it must not
+            // override the (possibly more specific) message of the responsible workflow.
+            return [$approved, '', $reload];
+        }
+
         // TODO: MDL-0 Since supervisor and HR have the same capability, we need to check
         // if we really need something to prevent the user from confirming the booking answer
         // when the user is a supervisor or HR.
         if (has_capability('mod/booking:bookforothers', $context)) {
             $approved = true;
+            $message = '';
+        } else {
+            // The user just lacks the capability of this workflow. This workflow cannot say who
+            // is supposed to confirm, so it returns no message and lets a workflow which is also
+            // responsible for this option (e.g. the supervisor workflow with its confirmation
+            // order) provide the meaningful one. check_confirm_capability falls back to the
+            // generic mod_booking string when no workflow has anything to say.
             $message = '';
         }
 

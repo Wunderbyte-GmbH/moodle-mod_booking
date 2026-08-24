@@ -54,7 +54,9 @@ class confirmation {
 
                 if ($allowed) {
                     return [true, '', false]; // Short-circuit on first positive.
-                } else {
+                } else if (!empty($message)) {
+                    // Plugins without jurisdiction over the option return an empty message;
+                    // it must not overwrite a specific message of the responsible workflow.
                     $returnmessage = $message;
                     $reload = $reloadflag ?? false;
                 }
