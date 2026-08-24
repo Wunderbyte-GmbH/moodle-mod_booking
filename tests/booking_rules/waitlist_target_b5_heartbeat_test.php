@@ -90,6 +90,7 @@ final class waitlist_target_b5_heartbeat_test extends booking_advanced_testcase 
      * @param int $occupantcount
      * @param int $waitlistcount
      * @param bool $freeseats whether to immediately cancel all occupants after setup
+     * @param bool $rawfree whether to free seats by raw DB delete instead of cancelling
      * @return \stdClass {option, settings, boinfo, optionobj, occupants, waitlistusers}
      */
     private function build_option(
