@@ -1454,11 +1454,16 @@ class booking {
             'teacherobjects' => '%"id":' . $teacherid . ',%',
         ];
 
+        $context = null;
         if (!empty($bookingid)) {
             $options['bookingid'] = $bookingid;
+            // Pass the instance context so that mod/booking:canseeinvisibleoptions is respected.
+            // Without a context, get_options_filter_sql() always hides invisible options.
+            $booking = singleton_service::get_instance_of_booking_by_bookingid($bookingid);
+            $context = $booking->context ?? null;
         }
 
-        return self::get_options_filter_sql(0, 0, '', '*', null, [], $options);
+        return self::get_options_filter_sql(0, 0, '', '*', $context, [], $options);
     }
 
     /**
