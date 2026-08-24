@@ -241,11 +241,12 @@ class isloggedinprice implements bo_condition {
         // Fetch config.
         $displayloginbutton = self::add_loginbutton();
         $link = "";
-        $style = "";
+        $style = 'hidden';
         $label = get_string('bocondisloggedinnotavailable', 'mod_booking');
         // Render button according to settings.
         if (!empty($displayloginbutton['showbutton'])) {
-            $link = "/login/index.php";
+            // Sends the user back to the details page of this option after logging in.
+            $link = bo_info::set_login_returnurl($settings);
             $style = "bookinglinkbutton btn btn-" . $displayloginbutton['buttonstyle'];
         }
 
@@ -253,7 +254,7 @@ class isloggedinprice implements bo_condition {
             $settings,
             $userid,
             $label,
-            $link !== '' ? $style : 'hidden',
+            $style,
             true,
             $fullwidth,
             'alert',
