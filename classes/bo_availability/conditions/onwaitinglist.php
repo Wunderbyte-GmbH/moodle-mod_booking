@@ -141,10 +141,10 @@ class onwaitinglist implements bo_condition {
                     (new db_waitlist_offer_repository())->is_open_mode_active($bookinganswer->optionid)
                     && !(new db_waitlist_offer_repository())->is_actively_declined($bookinganswer->optionid, $userid)
                 ) {
-                    // Type 2 ("open after full pass", waitlistrecycling=2): the waiting list has
-                    // been fully processed once without the freed-up spot being claimed - from
-                    // now on anyone (except permanently K7-blocked users) may book directly,
-                    // regardless of a still-missing approval/confirmation.
+                    // Typ 2 ("offen nach Durchlauf", waitlistrecycling=2): die Warteliste wurde
+                    // einmal komplett durchgearbeitet, ohne dass der frei gewordene Platz
+                    // beansprucht wurde - ab jetzt darf jede/r (außer K7-permanent Gesperrte)
+                    // direkt buchen, unabhängig von einer noch fehlenden Freigabe/Bestätigung.
                     $isavailable = true;
                 } else if (!empty($ba->json)) {
                     // Or when confirmation is already given. Get number of current confirmations then compare it
