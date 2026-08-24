@@ -144,6 +144,111 @@ final class wizard_option_skill_result_fields_test extends booking_advanced_test
     }
 
     /**
+     * A default lookup answers the seat question with real numbers, not a shrug.
+     *
+     * Before this, maxanswers was outside the default set, so the agent told users "no limit is
+     * defined" while the option card next to it showed "1 / 4".
+     *
+     * @return void
+     */
+    public function test_get_option_details_default_fields_report_seats(): void {
+        $env = $this->setup_booking('Seats booking');
+        $option = $this->create_option($env, 'Seats option');
+        $this->book_user((int)$option->id, (int)$env['student']->id);
+
+        $this->setAdminUser();
+        $result = (new get_option_details_skill())->execute(
+            ['optionid' => (int)$option->id, 'includesessions' => false],
+            (int)$env['modulecontext']->id,
+            (int)get_admin()->id
+        );
+
+        $this->assertSame('executed', $result['status']);
+
+        $availability = (array)($result['optiondetails'][0]['standard_fields']['availability'] ?? []);
+        $this->assertTrue($availability['places_limited'], 'maxanswers 4 must read as a real limit.');
+        $this->assertSame(4, $availability['maxanswers']);
+        $this->assertSame(1, $availability['booked']);
+        $this->assertSame(3, $availability['freeplaces']);
+        $this->assertFalse($availability['fullybooked']);
+
+        // Location and image ride along in the default set, so the common questions are answerable.
+        $fields = (array)($result['optiondetails'][0]['standard_fields'] ?? []);
+        $this->assertArrayHasKey('location', $fields);
+        $this->assertArrayHasKey('imageurl', $fields);
+
+        // Sessions were switched off for this call, so they are unknown here — never "none".
+        $this->assertContains('sessions', (array)($result['detail_capabilities']['omitted_fields'] ?? []));
+        $this->assertNotContains('sessions', (array)($result['optiondetails'][0]['empty_fields'] ?? []));
+    }
+
+    /**
+     * An unlimited option must read as unlimited rather than as missing data.
+     *
+     * @return void
+     */
+    public function test_get_option_details_reports_unlimited_places(): void {
+        global $DB;
+
+        $env = $this->setup_booking('Unlimited booking');
+        $option = $this->create_option($env, 'Unlimited option');
+        $DB->set_field('booking_options', 'maxanswers', 0, ['id' => (int)$option->id]);
+        \cache::make('mod_booking', 'bookingoptionsettings')->delete((int)$option->id);
+        singleton_service::destroy_instance();
+
+        $this->setAdminUser();
+        $result = (new get_option_details_skill())->execute(
+            ['optionid' => (int)$option->id, 'includesessions' => false],
+            (int)$env['modulecontext']->id,
+            (int)get_admin()->id
+        );
+
+        $availability = (array)($result['optiondetails'][0]['standard_fields']['availability'] ?? []);
+        $this->assertFalse($availability['places_limited']);
+        $this->assertArrayNotHasKey(
+            'freeplaces',
+            $availability,
+            'Free places are meaningless without a limit and must not be invented as 0.'
+        );
+    }
+
+    /**
+     * Not-looked-up and genuinely-unset fields must be distinguishable in the payload.
+     *
+     * @return void
+     */
+    public function test_get_option_details_separates_omitted_from_empty_fields(): void {
+        $env = $this->setup_booking('Omitted booking');
+        $option = $this->create_option($env, 'Omitted option');
+
+        $this->setAdminUser();
+        $result = (new get_option_details_skill())->execute(
+            [
+                'optionid' => (int)$option->id,
+                'requested_fields' => ['title', 'location'],
+                'includesessions' => false,
+            ],
+            (int)$env['modulecontext']->id,
+            (int)get_admin()->id
+        );
+
+        $omitted = (array)($result['detail_capabilities']['omitted_fields'] ?? []);
+        $this->assertContains('availability', $omitted, 'A field that was not requested is unknown, not absent.');
+        $this->assertContains('description', $omitted);
+        $this->assertNotContains('title', $omitted);
+        $this->assertNotContains('location', $omitted);
+
+        $empty = (array)($result['optiondetails'][0]['empty_fields'] ?? []);
+        $this->assertContains('location', $empty, 'Location was looked up and is unset, so it counts as empty.');
+        $this->assertNotContains('title', $empty);
+        $this->assertNotContains(
+            'availability',
+            $empty,
+            'A field that was never looked up must not be reported as empty.'
+        );
+    }
+
+    /**
      * Build a course + booking instance with an enrolled student.
      *
      * @param string $bookingname Name of the booking activity.
