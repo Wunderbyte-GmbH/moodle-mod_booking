@@ -62,8 +62,8 @@ interface waitlist_offer_repository {
      * @param int $roundid
      * @param int $sortorder
      * @param offer_status $status
-     * @param int $ruleid
      * @param int $expiresat 0 = no deadline (e.g. autobooked); real deadline for a genuine offer.
+     * @param int $ruleid
      * @return waitlist_offer
      */
     public function create_offer(
