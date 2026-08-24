@@ -2,6 +2,9 @@
 * Bugfix: The placeholders {startdate}, {starttime}, {enddate}, {endtime} and {pollstartdate} are cached per user now, like {dates}: their values are rendered with userdate() in the language (and timezone) of the user, and rule mails force the language of each recipient - with the previous per-option cachekey, the second recipient of a multilingual cron run got the date format of the first one. {starttime} additionally never stored its value in the cache at all.
 * Bugfix: When booking option singleton is destroyed, then also destroy placeholder singletons.
 
+## Version 9.7.6 (2026082100)
+* Bugfix: The plugin version was lower than the highest upgrade savepoint (2026082100) introduced with the waiting-list progression migration, so the upgrade step wrote a version into the database that version.php did not know about and the savepoints check of the CI failed. The version is raised to match the savepoint. (Wunderbyte-GmbH/moodle-mod_booking#1525)
+
 ## Version 9.7.6 (2026082001)
 * Bugfix: The capability mod/booking:skill_mod_booking_diagnose_waitinglist was never defined in db/access.php, so the diagnose_waitinglist AI skill (added in 9.7.5) was denied everywhere with "Capability is NOT defined". The capability is now declared like its diagnose siblings (read, module context, teacher/editingteacher/manager) including en/de capability strings. (Wunderbyte-GmbH/Wunderbyte-GmbH#2168)
 
