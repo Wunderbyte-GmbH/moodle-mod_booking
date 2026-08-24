@@ -1597,7 +1597,6 @@ class booking_option {
                         // Else, we might move from booked to waitinglist, we just continue.
 
                         if ($ismultipbookingsoptionenable) {
-
                             // When the multiple booking option is enabled, we need to check if the
                             // book-again gate (fixed wait time, or the last booked slot having ended)
                             // is satisfied. If it is not yet due, we don't allow the user to book again.
