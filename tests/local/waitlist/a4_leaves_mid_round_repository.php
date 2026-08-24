@@ -186,4 +186,63 @@ final class a4_leaves_mid_round_repository implements waitlist_offer_repository 
     public function find_recyclable_options(): array {
         return $this->inner->find_recyclable_options();
     }
+
+    /**
+     * Delegates unchanged.
+     *
+     * @param int $optionid
+     * @param int $userid
+     * @return bool
+     */
+    public function is_actively_declined(int $optionid, int $userid): bool {
+        return $this->inner->is_actively_declined($optionid, $userid);
+    }
+
+    /**
+     * Delegates unchanged.
+     *
+     * @param int $optionid
+     * @return bool
+     */
+    public function is_open_mode_active(int $optionid): bool {
+        return $this->inner->is_open_mode_active($optionid);
+    }
+
+    /**
+     * Delegates unchanged.
+     *
+     * @param int $optionid
+     * @return void
+     */
+    public function activate_open_mode(int $optionid): void {
+        $this->inner->activate_open_mode($optionid);
+    }
+
+    /**
+     * Delegates unchanged.
+     *
+     * @param int $optionid
+     * @return void
+     */
+    public function deactivate_open_mode(int $optionid): void {
+        $this->inner->deactivate_open_mode($optionid);
+    }
+
+    /**
+     * Delegates unchanged.
+     *
+     * @return int[]
+     */
+    public function find_open_mode_activation_candidates(): array {
+        return $this->inner->find_open_mode_activation_candidates();
+    }
+
+    /**
+     * Delegates unchanged.
+     *
+     * @return int[]
+     */
+    public function find_open_mode_options_to_deactivate(): array {
+        return $this->inner->find_open_mode_options_to_deactivate();
+    }
 }

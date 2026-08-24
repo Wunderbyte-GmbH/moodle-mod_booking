@@ -4007,6 +4007,7 @@ Hier geht\'s zum dazugehörigen Kurs: {$a->courselink}
 ';
 $string['waitingtextsubject'] = 'Buchung auf Warteliste für {$a->title}';
 $string['waitingtextsubjectbookingmanager'] = 'Wartelistenbuchung für {$a->title} von {$a->participant}';
+$string['waitlistrecyclingopen'] = 'Nach vollständigem Durchlauf öffnen';
 $string['waitspaceavailable'] = 'Wartelistenplätze verfügbar';
 $string['warningcustomfieldsforbiddenshortname'] = 'Sie können die folgenden Kurzbezeichnungen für benutzerdefinierte Felder nicht verwenden: <b>{$a}</b>.
 Bitte wählen Sie eine andere Kurzbezeichnung.';
