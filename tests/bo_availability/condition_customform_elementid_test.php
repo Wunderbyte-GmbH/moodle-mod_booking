@@ -25,6 +25,7 @@
 namespace mod_booking;
 
 use mod_booking\tests\booking_advanced_testcase;
+use mod_booking\bo_availability\bo_info;
 use mod_booking\bo_availability\conditions\customform;
 use stdClass;
 
@@ -199,6 +200,87 @@ final class condition_customform_elementid_test extends booking_advanced_testcas
         $condition = customform::instance()->get_condition_object_for_json($defaults);
         $this->assertSame([1 => 1, 2 => 2, 3 => 4], $this->get_elementids($condition));
         $this->assertSame(5, $condition->nextelementid);
+    }
+
+    /**
+     * Deleting a form element removes it from the definition, but never touches what
+     * participants already entered: their answers stay in booking_answers under the
+     * unchanged key customform_{formtype}_{elementid}.
+     *
+     * @covers \mod_booking\bo_availability\bo_info::save_json_conditions_from_form
+     * @covers \mod_booking\bo_availability\conditions\customform::get_condition_object_for_json
+     */
+    public function test_deleting_an_element_keeps_stored_user_answers(): void {
+        global $DB;
+
+        $this->resetAfterTest();
+
+        $course = $this->getDataGenerator()->create_course();
+        $booking = $this->getDataGenerator()->create_module('booking', [
+            'course' => $course->id,
+            'name' => 'Test Booking',
+            'eventtype' => 'Test event',
+        ]);
+        $user = $this->getDataGenerator()->create_user();
+
+        $optionid = $DB->insert_record('booking_options', (object)[
+            'bookingid' => $booking->id,
+            'identifier' => uniqid(),
+            'text' => 'Option with a custom form',
+            'description' => '',
+            'address' => '',
+            'location' => '',
+            'institution' => '',
+        ]);
+
+        // Save the three-element form the way the option form does.
+        $fromform = $this->get_base_fromform(true);
+        $fromform->id = $optionid;
+        bo_info::save_json_conditions_from_form($fromform);
+        $DB->set_field('booking_options', 'availability', $fromform->availability, ['id' => $optionid]);
+
+        // A participant filled in all three fields.
+        $answerid = $DB->insert_record('booking_answers', (object)[
+            'bookingid' => $booking->id,
+            'optionid' => $optionid,
+            'userid' => $user->id,
+            'json' => json_encode((object)[
+                'condition_customform' => (object)[
+                    'customform_shorttext_1' => 'Anna',
+                    'customform_select_2' => 'a',
+                    'customform_mail_3' => 'anna@example.com',
+                ],
+            ]),
+            'timecreated' => time(),
+            'timemodified' => time(),
+        ]);
+
+        // Now the third element is deleted in the option form: the row is cleared,
+        // exactly as the customformeditor module leaves it behind.
+        $delete = $this->get_base_fromform(true);
+        $delete->id = $optionid;
+        $delete->bo_cond_customform_select_1_3 = '0';
+        $delete->bo_cond_customform_label_1_3 = '';
+        $delete->bo_cond_customform_value_1_3 = '';
+        $delete->bo_cond_customform_elementid_1_3 = 0;
+        bo_info::save_json_conditions_from_form($delete);
+        $DB->set_field('booking_options', 'availability', $delete->availability, ['id' => $optionid]);
+
+        singleton_service::destroy_instance();
+        \cache_helper::purge_by_definition('mod_booking', 'bookingoptionsettings');
+
+        // The definition lost the element.
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $formelements = customform::return_formelements($settings);
+        $this->assertCount(2, (array)$formelements);
+        $this->assertNull(customform::find_element_by_id((array)$formelements, 3));
+
+        // The answers of the participant are untouched - including the one behind the
+        // deleted element, which keeps its key because elementids are never reused.
+        $stored = json_decode($DB->get_field('booking_answers', 'json', ['id' => $answerid]));
+        $this->assertSame('Anna', $stored->condition_customform->customform_shorttext_1);
+        $this->assertSame('a', $stored->condition_customform->customform_select_2);
+        $this->assertSame('anna@example.com', $stored->condition_customform->customform_mail_3);
     }
 
     /**
