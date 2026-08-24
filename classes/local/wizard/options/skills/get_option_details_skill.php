@@ -33,13 +33,23 @@ class get_option_details_skill extends booking_skill_base implements skill_trigg
     /** Task name constant. */
     public const TASK_NAME = 'mod_booking.get_option_details';
 
-    /** Default fields returned on the first detail lookup. */
+    /**
+     * Default fields returned on the first detail lookup.
+     *
+     * Covers the questions people actually ask about an option: what is it, who runs it, when,
+     * what does it cost, is there room left, where, and is there a picture. Anything missing here
+     * used to be reported as "not set" rather than "not asked for" — see omitted_fields below.
+     * "description" stays out on purpose: it can be arbitrarily long and would dominate context.
+     */
     private const DEFAULT_STANDARD_FIELDS = [
         'title',
         'teachers',
         'sessions',
         'price',
         'currency',
+        'availability',
+        'location',
+        'imageurl',
     ];
 
     /** All supported standard fields for targeted follow-up lookups. */
@@ -56,6 +66,7 @@ class get_option_details_skill extends booking_skill_base implements skill_trigg
         'courseendtime',
         'costcenter',
         'maxanswers',
+        'availability',
         'location',
         'visibility',
     ];
@@ -117,7 +128,12 @@ class get_option_details_skill extends booking_skill_base implements skill_trigg
                 'requested_fields' => [
                     'type' => 'array',
                     'description' => 'Optional targeted standard fields (e.g. description, price, teachers). '
-                        . 'If omitted, returns a compact default set and capability hints.',
+                        . 'If omitted, returns a default set covering title, teachers, sessions, price, '
+                        . 'availability (seat limit, booked, free places, waiting list), location and imageurl. '
+                        . 'Fields left out of a call are listed in detail_capabilities.omitted_fields: they were '
+                        . 'not looked up, which says nothing about whether the option has such a value. '
+                        . 'Fields that were looked up and are genuinely unset appear in the per-option '
+                        . 'empty_fields list.',
                     'required' => false,
                 ],
                 'include_customfields' => [
@@ -186,9 +202,14 @@ class get_option_details_skill extends booking_skill_base implements skill_trigg
                 'guidance' => [
                     '- Use booking.get_option_details when the user asks for specific fields of an option',
                     '  (e.g. teachers, sessions, times, image, price context).',
-                    '- Prefer optionid when already known; otherwise resolve via optionquery first.',
-                    '- First call can be compact to learn available detail fields; follow-up calls can target',
-                    '  requested_fields and optional customfield_keys for precise details.',
+                    '- Prefer optionid when already known; otherwise pass the title as optionquery — this skill',
+                    '  resolves the title itself, so a separate search step is not required.',
+                    '- Never state that a value does not exist for a field listed in',
+                    '  detail_capabilities.omitted_fields. Those fields were not looked up. If the user asked',
+                    '  about one, call this skill again with that field in requested_fields.',
+                    '- Only the per-option empty_fields list justifies saying that something is not set.',
+                    '- For seat questions read standard_fields.availability: places_limited=false means there is',
+                    '  no limit; otherwise use freeplaces, booked and maxanswers.',
                     '- Keep batch usage small and intentional (max a few options).',
                 ],
             ],
@@ -307,7 +328,13 @@ class get_option_details_skill extends booking_skill_base implements skill_trigg
                 }
             }
 
-            $selectedstandard = $this->select_standard_fields($info, $requestedfields, $includesessions, $settings);
+            $selectedstandard = $this->select_standard_fields(
+                $info,
+                $requestedfields,
+                $includesessions,
+                $settings,
+                $userid
+            );
             $selectedcustomfields = $this->select_custom_fields($settings, $includecustomfields, $customfieldkeys);
 
             $details[] = [
@@ -315,6 +342,9 @@ class get_option_details_skill extends booking_skill_base implements skill_trigg
                 'title' => (string)($info['title'] ?? ''),
                 'requested_fields' => $requestedfields,
                 'standard_fields' => $selectedstandard,
+                // Fields that WERE looked up and genuinely carry no value. Everything not listed
+                // here and not in standard_fields simply was not requested — see omitted_fields.
+                'empty_fields' => $this->collect_empty_fields($selectedstandard, $includesessions),
                 'customfields' => $selectedcustomfields,
                 'capabilities' => $capability,
             ];
@@ -354,6 +384,13 @@ class get_option_details_skill extends booking_skill_base implements skill_trigg
         $detailcapabilities = [
             'supported_standard_fields' => self::SUPPORTED_STANDARD_FIELDS,
             'default_standard_fields' => self::DEFAULT_STANDARD_FIELDS,
+            // Supported fields that this call did NOT look up. Their absence from the payload says
+            // nothing about whether the option has such a value; ask again with requested_fields.
+            // Sessions suppressed via includesessions=false count as not looked up, not as absent.
+            'omitted_fields' => array_values(array_diff(
+                self::SUPPORTED_STANDARD_FIELDS,
+                $includesessions ? $requestedfields : array_diff($requestedfields, ['sessions'])
+            )),
             'available_customfields' => array_values($availablecustomfields),
         ];
 
@@ -456,13 +493,15 @@ class get_option_details_skill extends booking_skill_base implements skill_trigg
      * @param array $requestedfields
      * @param bool $includesessions
      * @param object|null $settings booking_option_settings of the option (null-safe)
+     * @param int $userid Acting user, needed for the booking-answers based availability snapshot.
      * @return array
      */
     private function select_standard_fields(
         array $info,
         array $requestedfields,
         bool $includesessions,
-        ?object $settings = null
+        ?object $settings = null,
+        int $userid = 0
     ): array {
         $selected = [];
         foreach ($requestedfields as $field) {
@@ -504,6 +543,11 @@ class get_option_details_skill extends booking_skill_base implements skill_trigg
                 case 'maxanswers':
                     $selected['maxanswers'] = (int)($settings->maxanswers ?? 0);
                     break;
+                case 'availability':
+                    if ($settings) {
+                        $selected['availability'] = $this->build_availability_snapshot($settings, $userid);
+                    }
+                    break;
                 case 'location':
                     $selected['location'] = (string)($settings->location ?? '');
                     break;
@@ -518,6 +562,85 @@ class get_option_details_skill extends booking_skill_base implements skill_trigg
         }
 
         return $selected;
+    }
+
+    /**
+     * Build the seat situation of an option: limit, taken, free, waiting list.
+     *
+     * "How many places are left" cannot be answered from maxanswers alone — it needs the booking
+     * stand. This mirrors what the option card already shows ("0 / 12") via col_availableplaces,
+     * so the written answer can no longer contradict the preview next to it.
+     *
+     * @param object $settings booking_option_settings of the option
+     * @param int $userid Acting user (booking information is user-relative).
+     * @return array
+     */
+    private function build_availability_snapshot(object $settings, int $userid): array {
+        $answers = singleton_service::get_instance_of_booking_answers($settings);
+        $wrapped = (array)$answers->return_all_booking_information($userid);
+        // The array is keyed by the actor's own booking status (iambooked, notbooked, ...);
+        // unwrap it the same way col_availableplaces does.
+        $info = array_pop($wrapped);
+        $info = is_array($info) ? $info : [];
+
+        $maxanswers = (int)($settings->maxanswers ?? 0);
+        $booked = (int)($info['booked'] ?? 0);
+
+        $snapshot = [
+            // False means there is no limit at all — which is a real answer, not missing data.
+            'places_limited' => $maxanswers > 0,
+            'maxanswers' => $maxanswers,
+            'booked' => $booked,
+            'fullybooked' => !empty($info['fullybooked']),
+            'waiting' => (int)($info['waiting'] ?? 0),
+        ];
+
+        if ($maxanswers > 0) {
+            $snapshot['freeplaces'] = isset($info['freeonlist'])
+                ? (int)$info['freeonlist']
+                : max(0, $maxanswers - $booked);
+        }
+
+        if (isset($info['maxoverbooking'])) {
+            $snapshot['waitinglist_max'] = (int)$info['maxoverbooking'];
+        }
+        if (isset($info['freeonwaitinglist'])) {
+            // The value -1 is the sentinel for an unlimited waiting list; pass it through unchanged.
+            $snapshot['waitinglist_free'] = (int)$info['freeonwaitinglist'];
+        }
+
+        return $snapshot;
+    }
+
+    /**
+     * Names of the looked-up fields that genuinely carry no value.
+     *
+     * Only fields present in the selection are considered: a field that was never requested is
+     * unknown, not empty, and belongs in omitted_fields instead.
+     *
+     * @param array $selected
+     * @param bool $includesessions When false, sessions were suppressed rather than found empty.
+     * @return array<int,string>
+     */
+    private function collect_empty_fields(array $selected, bool $includesessions = true): array {
+        $empty = [];
+        foreach ($selected as $field => $value) {
+            if ($field === 'sessions' && !$includesessions) {
+                continue;
+            }
+            if (is_array($value)) {
+                // The availability snapshot is always populated, so an empty array means "no data".
+                if (empty($value)) {
+                    $empty[] = (string)$field;
+                }
+                continue;
+            }
+            if ($value === null || trim((string)$value) === '') {
+                $empty[] = (string)$field;
+            }
+        }
+
+        return $empty;
     }
 
     /**
