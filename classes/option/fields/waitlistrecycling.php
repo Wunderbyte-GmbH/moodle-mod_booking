@@ -16,7 +16,9 @@
 
 /**
  * Waitlist-progression: whether a fully-flagged waiting list (everyone still waiting locked out,
- * K7 declined or K4 expired) stays locked, or is reset and re-offered by waitlist_heartbeat_task.
+ * K7 declined or K4 expired) stays locked (0), is reset and re-offered by waitlist_heartbeat_task
+ * (1), or opens the freed seat for direct booking by anyone except K7-declined (2) - see
+ * db_waitlist_offer_repository::find_open_mode_activation_candidates().
  *
  * @package mod_booking
  * @copyright 2026 Wunderbyte GmbH <info@wunderbyte.at>
@@ -125,7 +127,9 @@ class waitlistrecycling extends field_base {
             $waitlistrecyclingoptions = [
                 0 => get_string('waitlistrecyclingend', 'mod_booking'),
                 1 => get_string('waitlistrecyclingrecycle', 'mod_booking'),
+                2 => get_string('waitlistrecyclingopen', 'mod_booking'),
             ];
+
             $mform->addElement(
                 'select',
                 'waitlistrecycling',

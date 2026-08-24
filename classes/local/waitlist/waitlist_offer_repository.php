@@ -98,6 +98,18 @@ interface waitlist_offer_repository {
      */
     public function is_permanently_declined(int $optionid, int $userid): bool;
 
+    /**
+     * Whether a user is locked out specifically via an ACTIVE decline (K7) - unlike
+     * is_permanently_declined(), this ignores K4 (expired) locks entirely. Used by Typ-2 open
+     * mode (onwaitinglist::is_available()) to distinguish "must stay excluded forever" (K7) from
+     * "may book directly once open mode is active" (K4).
+     *
+     * @param int $optionid
+     * @param int $userid
+     * @return bool
+     */
+    public function is_actively_declined(int $optionid, int $userid): bool;
+
 
     /**
      * All user ids currently locked out of offers for this option - see is_permanently_declined().
@@ -156,4 +168,52 @@ interface waitlist_offer_repository {
      * @return int[] option ids
      */
     public function find_recyclable_options(): array;
+
+    /**
+     * Typ 2 ("offen nach Durchlauf", waitlistrecycling=2): whether this option's freed seat is
+     * currently open for direct booking by anyone (except K7-permanently-declined) - see
+     * bo_availability/conditions/onwaitinglist.php. Set by activate_open_mode() once the waiting
+     * list has been fully worked through without the seat being claimed; cleared by
+     * deactivate_open_mode() once the seat is actually taken.
+     *
+     * @param int $optionid
+     * @return bool
+     */
+    public function is_open_mode_active(int $optionid): bool;
+
+    /**
+     * Activates Typ-2 open mode for this option (see is_open_mode_active()).
+     *
+     * @param int $optionid
+     * @return void
+     */
+    public function activate_open_mode(int $optionid): void;
+
+    /**
+     * Deactivates Typ-2 open mode for this option, once the freed seat has been taken - the
+     * option returns to normal offer-based processing for whoever joins the waiting list next.
+     *
+     * @param int $optionid
+     * @return void
+     */
+    public function deactivate_open_mode(int $optionid): void;
+
+    /**
+     * Finds options where waitlistrecycling=2, open mode is not yet active, and the waiting list
+     * is currently fully flagged (same "fully flagged" condition as find_recyclable_options(),
+     * just gated on a different waitlistrecycling value and a different action - open up instead
+     * of resetting locks). waitlist_heartbeat_task calls activate_open_mode() on each of these.
+     *
+     * @return int[] option ids
+     */
+    public function find_open_mode_activation_candidates(): array;
+
+    /**
+     * Finds options currently in Typ-2 open mode whose freed seat has actually been taken (free
+     * capacity is back to 0) - open mode has done its job and must be switched off again.
+     * waitlist_heartbeat_task calls deactivate_open_mode() on each of these.
+     *
+     * @return int[] option ids
+     */
+    public function find_open_mode_options_to_deactivate(): array;
 }
