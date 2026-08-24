@@ -839,7 +839,7 @@ class slotbooking_form extends dynamic_form {
             $openfrom = max($openfrom, $rangestart);
             $openuntil = min($openuntil, $rangeend);
 
-            // $rangestart ("now", for today) can land on this day's openfrom with arbitrary
+            // The $rangestart ("now", for today) can land on this day's openfrom with arbitrary
             // seconds (whatever second time() returned) instead of a clean interval boundary.
             // validation() requires every submitted start to be exactly
             // "$dayopening + k * startintervalseconds" (see the userdefined branch there) - an

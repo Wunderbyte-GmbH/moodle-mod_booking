@@ -47,7 +47,10 @@ final class legacy_chain_reader_send_mail_interval implements legacy_chain_reade
     private const CLASSNAME = '\\' . send_mail_by_rule_adhoc::class;
 
     /**
-     * {@inheritDoc}
+     * Whether this reader recognises the given raw {task_adhoc} row.
+     *
+     * @param stdClass $taskrecord a raw {task_adhoc} row (id, classname, customdata, nextruntime, ...)
+     * @return bool
      */
     public function can_read(stdClass $taskrecord): bool {
         if (($taskrecord->classname ?? '') !== self::CLASSNAME) {
@@ -66,7 +69,10 @@ final class legacy_chain_reader_send_mail_interval implements legacy_chain_reade
     }
 
     /**
-     * {@inheritDoc}
+     * Extracts the chain state from a row this reader recognises.
+     *
+     * @param stdClass $taskrecord a raw {task_adhoc} row
+     * @return legacy_chain_state
      */
     public function extract(stdClass $taskrecord): legacy_chain_state {
         $customdata = json_decode($taskrecord->customdata);
