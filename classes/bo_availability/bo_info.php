@@ -1112,6 +1112,49 @@ class bo_info {
     }
 
     /**
+     * Store the booking option details page as the target users return to after logging in.
+     *
+     * Used by every condition that renders a login button, so that logging in leads back to the
+     * option the user actually clicked instead of the page they started on.
+     *
+     * @param booking_option_settings $settings
+     *
+     * @return string the url of the login page
+     *
+     */
+    public static function set_login_returnurl(booking_option_settings $settings): string {
+        global $SESSION;
+
+        $returnurl = null;
+        if (get_config('booking', 'showbookingdetailstoall')) {
+            $returnurl = new moodle_url(
+                '/mod/booking/optionview.php',
+                [
+                    'optionid' => $settings->id,
+                    'cmid' => $settings->cmid,
+                ]
+            );
+        }
+
+        if (get_config('booking', 'redirectonlogintocourse') && !empty($settings->courseid)) {
+            $returnurl = new moodle_url(
+                '/mod/booking/optionview.php',
+                [
+                    'optionid' => $settings->id,
+                    'cmid' => $settings->cmid,
+                    'redirecttocourse' => 1,
+                ]
+            );
+        }
+
+        if (!empty($returnurl)) {
+            $SESSION->wantsurl = $returnurl->out(false);
+        }
+
+        return (new moodle_url('/login/index.php'))->out(false);
+    }
+
+    /**
      * If billboard is activated, we want to overwrite the warning messages with the billboard text.
      *
      *
