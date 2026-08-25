@@ -21,6 +21,7 @@ use core_reportbuilder\local\entities\base;
 use core_reportbuilder\local\filters\boolean_select;
 use core_reportbuilder\local\filters\date;
 use core_reportbuilder\local\filters\number;
+use core_reportbuilder\local\filters\select;
 use core_reportbuilder\local\helpers\format;
 use core_reportbuilder\local\report\column;
 use core_reportbuilder\local\report\filter;
@@ -275,6 +276,28 @@ class booking_answers extends base {
             "{$ba}.status"
         ))
             ->add_joins($this->get_joins());
+
+        // Waiting list status filter (same statuses as the waitinglist column shows).
+        $filters[] = (new filter(
+            select::class,
+            'waitinglist',
+            new lang_string('waitinglist', 'mod_booking'),
+            $this->get_entity_name(),
+            "{$ba}.waitinglist"
+        ))
+            ->add_joins($this->get_joins())
+            ->set_options_callback(static function (): array {
+                global $CFG;
+                require_once($CFG->dirroot . '/mod/booking/lib.php');
+                return [
+                    MOD_BOOKING_STATUSPARAM_BOOKED => get_string('booked', 'mod_booking'),
+                    MOD_BOOKING_STATUSPARAM_WAITINGLIST => get_string('waitinglist', 'mod_booking'),
+                    MOD_BOOKING_STATUSPARAM_RESERVED => get_string('vuebookingstatsreserved', 'mod_booking'),
+                    MOD_BOOKING_STATUSPARAM_NOTIFYMELIST => get_string('bocondnotifymelist', 'mod_booking'),
+                    MOD_BOOKING_STATUSPARAM_DELETED => get_string('deleted', 'mod_booking'),
+                    MOD_BOOKING_STATUSPARAM_PREVIOUSLYBOOKED => get_string('bookingstatuspreviouslybooked', 'mod_booking'),
+                ];
+            });
 
         return $filters;
     }

@@ -29,6 +29,7 @@ use core_reportbuilder\tests\core_reportbuilder_testcase;
 use core_reportbuilder_generator;
 use mod_booking\reportbuilder\datasource\booking_answers_datasource;
 use mod_booking\reportbuilder\datasource\booking_options_datasource;
+use mod_booking\reportbuilder\datasource\booking_teachers_datasource;
 use mod_booking_generator;
 use stdClass;
 use tool_mocktesttime\time_mock;
@@ -136,6 +137,7 @@ final class reportbuilder_test extends core_reportbuilder_testcase {
         booking_bookit::bookit('option', $this->option2->id, $this->user2->id);
         $this->datasource_stress_test_columns(booking_answers_datasource::class);
         $this->datasource_stress_test_columns(booking_options_datasource::class);
+        $this->datasource_stress_test_columns(booking_teachers_datasource::class);
     }
 
     /**
@@ -156,6 +158,7 @@ final class reportbuilder_test extends core_reportbuilder_testcase {
         booking_bookit::bookit('option', $this->option2->id, $this->user2->id);
         $this->datasource_stress_test_conditions(booking_answers_datasource::class, 'booking_answers:timecreated');
         $this->datasource_stress_test_conditions(booking_options_datasource::class, 'booking_options:text');
+        $this->datasource_stress_test_conditions(booking_teachers_datasource::class, 'booking_options:text');
     }
 
     /**
@@ -165,6 +168,7 @@ final class reportbuilder_test extends core_reportbuilder_testcase {
      *
      */
     private function set_up_scenario() {
+        global $DB;
         $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
         $users = [
             ['username' => 'user1', 'firstname' => 'User', 'lastname' => '1', 'email' => 'user1@example.com'],
@@ -198,6 +202,7 @@ final class reportbuilder_test extends core_reportbuilder_testcase {
             $record->daystonotify_0 = "0";
             $record->coursestarttime_0 = strtotime('20 June 2050');
             $record->courseendtime_0 = strtotime('20 July 2050');
+            $record->teachersforoption = 'user3';
             /** @var mod_booking_generator $plugingenerator */
             $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
             $options[$opt] = $plugingenerator->create_option($record);
@@ -205,5 +210,14 @@ final class reportbuilder_test extends core_reportbuilder_testcase {
         $this->option1 = $options[1];
         $this->option2 = $options[2];
         $this->option3 = $options[3];
+
+        // Assign real competencies to option 1 so the competencies column and filter are exercised.
+        $competencygenerator = $this->getDataGenerator()->get_plugin_generator('core_competency');
+        $framework = $competencygenerator->create_framework();
+        $competency1 = $competencygenerator->create_competency(['competencyframeworkid' => $framework->get('id')]);
+        $competency2 = $competencygenerator->create_competency(['competencyframeworkid' => $framework->get('id')]);
+        $DB->set_field('booking_options', 'competencies', "{$competency1->get('id')},{$competency2->get('id')}", [
+            'id' => $this->option1->id,
+        ]);
     }
 }

@@ -19,11 +19,14 @@ namespace mod_booking\reportbuilder\local\entities;
 use core\lang_string;
 use core_reportbuilder\local\entities\base;
 use core_reportbuilder\local\filters\date;
+use core_reportbuilder\local\filters\number;
 use core_reportbuilder\local\filters\text;
 use core_reportbuilder\local\helpers\custom_fields;
 use core_reportbuilder\local\helpers\format;
 use core_reportbuilder\local\report\column;
 use core_reportbuilder\local\report\filter;
+use mod_booking\local\competencies\competencies_handler;
+use mod_booking\reportbuilder\local\filters\competency_selector;
 
 /**
  * Booking option entity for Report Builder.
@@ -44,7 +47,20 @@ class booking_options extends base {
     protected function get_default_tables(): array {
         return [
             'booking_options',
+            'booking',
         ];
+    }
+
+    /**
+     * Join from booking_options to its parent booking instance.
+     *
+     * @return string
+     */
+    protected function get_booking_join(): string {
+        $optionalias = $this->get_table_alias('booking_options');
+        $bookingalias = $this->get_table_alias('booking');
+
+        return "LEFT JOIN {booking} {$bookingalias} ON {$bookingalias}.id = {$optionalias}.bookingid";
     }
 
     /**
@@ -187,6 +203,92 @@ class booking_options extends base {
             ->add_fields("{$tablealias}.description, {$tablealias}.descriptionformat")
             ->set_is_sortable(false);
 
+        // Maximum number of participants.
+        $columns[] = (new column(
+            'maxanswers',
+            new lang_string('maxanswers', 'mod_booking'),
+            $this->get_entity_name()
+        ))
+            ->add_joins($this->get_joins())
+            ->set_type(column::TYPE_INTEGER)
+            ->add_field("{$tablealias}.maxanswers")
+            ->set_is_sortable(true);
+
+        // Minimum number of participants.
+        $columns[] = (new column(
+            'minanswers',
+            new lang_string('minanswers', 'mod_booking'),
+            $this->get_entity_name()
+        ))
+            ->add_joins($this->get_joins())
+            ->set_type(column::TYPE_INTEGER)
+            ->add_field("{$tablealias}.minanswers")
+            ->set_is_sortable(true);
+
+        // Booking opening time (bookable from).
+        $columns[] = (new column(
+            'bookingopeningtime',
+            new lang_string('bookingopeningtime', 'mod_booking'),
+            $this->get_entity_name()
+        ))
+            ->add_joins($this->get_joins())
+            ->set_type(column::TYPE_TIMESTAMP)
+            ->add_field("{$tablealias}.bookingopeningtime")
+            ->set_is_sortable(true)
+            ->add_callback([format::class, 'userdate']);
+
+        // Booking closing time (bookable until).
+        $columns[] = (new column(
+            'bookingclosingtime',
+            new lang_string('bookingclosingtime', 'mod_booking'),
+            $this->get_entity_name()
+        ))
+            ->add_joins($this->get_joins())
+            ->set_type(column::TYPE_TIMESTAMP)
+            ->add_field("{$tablealias}.bookingclosingtime")
+            ->set_is_sortable(true)
+            ->add_callback([format::class, 'userdate']);
+
+        // Competencies acquired with this booking option (stored as comma-separated ids).
+        $columns[] = (new column(
+            'competencies',
+            new lang_string('competencies', 'mod_booking'),
+            $this->get_entity_name()
+        ))
+            ->add_joins($this->get_joins())
+            ->set_type(column::TYPE_TEXT)
+            ->add_field("{$tablealias}.competencies")
+            ->set_is_sortable(false)
+            ->add_callback(static function ($value): string {
+                if (empty($value)) {
+                    return '';
+                }
+                $names = [];
+                foreach (explode(',', (string)$value) as $competencyid) {
+                    $competencyid = (int)trim($competencyid);
+                    if (!$competencyid) {
+                        continue;
+                    }
+                    $shortname = competencies_handler::get_competency_shortname_by_id($competencyid);
+                    if ($shortname !== '') {
+                        $names[] = $shortname;
+                    }
+                }
+                return implode(', ', $names);
+            });
+
+        // Name of the parent booking instance.
+        $columns[] = (new column(
+            'bookinginstance',
+            new lang_string('bookinginstance', 'mod_booking'),
+            $this->get_entity_name()
+        ))
+            ->add_joins($this->get_joins())
+            ->add_join($this->get_booking_join())
+            ->set_type(column::TYPE_TEXT)
+            ->add_field("{$this->get_table_alias('booking')}.name", 'bookinginstance')
+            ->set_is_sortable(true);
+
         return $columns;
     }
 
@@ -238,6 +340,67 @@ class booking_options extends base {
             "{$tablealias}.courseendtime"
         ))
             ->add_joins($this->get_joins());
+
+        // Maximum number of participants number filter.
+        $filters[] = (new filter(
+            number::class,
+            'maxanswers',
+            new lang_string('maxanswers', 'mod_booking'),
+            $this->get_entity_name(),
+            "{$tablealias}.maxanswers"
+        ))
+            ->add_joins($this->get_joins());
+
+        // Minimum number of participants number filter.
+        $filters[] = (new filter(
+            number::class,
+            'minanswers',
+            new lang_string('minanswers', 'mod_booking'),
+            $this->get_entity_name(),
+            "{$tablealias}.minanswers"
+        ))
+            ->add_joins($this->get_joins());
+
+        // Booking opening time date filter.
+        $filters[] = (new filter(
+            date::class,
+            'bookingopeningtime',
+            new lang_string('bookingopeningtime', 'mod_booking'),
+            $this->get_entity_name(),
+            "{$tablealias}.bookingopeningtime"
+        ))
+            ->add_joins($this->get_joins());
+
+        // Booking closing time date filter.
+        $filters[] = (new filter(
+            date::class,
+            'bookingclosingtime',
+            new lang_string('bookingclosingtime', 'mod_booking'),
+            $this->get_entity_name(),
+            "{$tablealias}.bookingclosingtime"
+        ))
+            ->add_joins($this->get_joins());
+
+        // Competencies select filter (matches an id inside the stored comma-separated list).
+        $filters[] = (new filter(
+            competency_selector::class,
+            'competencies',
+            new lang_string('competencies', 'mod_booking'),
+            $this->get_entity_name(),
+            "{$tablealias}.competencies"
+        ))
+            ->add_joins($this->get_joins());
+
+        // Booking instance name text filter.
+        $filters[] = (new filter(
+            text::class,
+            'bookinginstance',
+            new lang_string('bookinginstance', 'mod_booking'),
+            $this->get_entity_name(),
+            "{$this->get_table_alias('booking')}.name"
+        ))
+            ->add_joins($this->get_joins())
+            ->add_join($this->get_booking_join());
 
         return $filters;
     }
