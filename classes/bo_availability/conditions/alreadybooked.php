@@ -29,6 +29,7 @@ use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_option_settings;
 use mod_booking\local\modechecker;
 use mod_booking\option\fields\multiplebookings;
+use mod_booking\local\slotbooking\slot_availability;
 use mod_booking\singleton_service;
 use moodle_url;
 use MoodleQuickForm;
@@ -129,6 +130,18 @@ class alreadybooked implements bo_condition {
         // booked slot having ended) is satisfied for the user's booked answer, this condition
         // does not block.
         if (!empty($currentanswer) && multiplebookings::book_again_due($settings->id, $currentanswer)) {
+            $isavailable = true;
+        }
+
+        // Slot booking capacity purchases are independent of multiplebookings: if the user still
+        // has remaining slot capacity (max_slots_per_user), this condition must not block either -
+        // otherwise load_pre_booking_page()'s "already booked" top-blocker gate silently swallows
+        // the commit (the confirmation page reports success without actually creating the answer).
+        if (
+            !empty($currentanswer)
+            && !empty($settings->slotconfig)
+            && slot_availability::has_remaining_slot_capacity((int)$settings->id, (int)$userid)
+        ) {
             $isavailable = true;
         }
 

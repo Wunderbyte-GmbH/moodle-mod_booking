@@ -297,6 +297,9 @@ class booking_option_settings {
     /** @var int $waitforconfirmation Only books to waitinglist and manually confirm every booking. */
     public $waitforconfirmation = 0;
 
+    /** @var int $waitlistopenmode Typ-2 "open after full pass" waitlist mode is active for this option. */
+    public $waitlistopenmode = 0;
+
     /** @var int $confirmationonnotification Only books to waitinglist and manually confirm every booking. */
     public $confirmationonnotification = 0;
 
@@ -427,6 +430,7 @@ class booking_option_settings {
             // Fields in DB.
             $this->id = $optionid;
             $this->bookingid = $dbrecord->bookingid;
+            $this->waitlistopenmode = (int)($dbrecord->waitlistopenmode ?? 0);
             $this->identifier = $dbrecord->identifier;
             $this->titleprefix = $dbrecord->titleprefix;
             $this->text = $dbrecord->text;

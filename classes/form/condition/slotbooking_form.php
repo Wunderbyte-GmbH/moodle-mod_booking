@@ -30,10 +30,8 @@ use core_form\dynamic_form;
 use html_writer;
 use mod_booking\local\mobile\slotbookingstore;
 use mod_booking\bo_availability\conditions\cancelmyself;
-use mod_booking\booking_option;
 use mod_booking\local\slotbooking\slot_availability;
 use mod_booking\local\slotbooking\slot_dto;
-use mod_booking\option\fields\multiplebookings;
 use mod_booking\singleton_service;
 use moodle_url;
 use stdClass;
@@ -445,28 +443,6 @@ class slotbooking_form extends dynamic_form {
         // same option at once, so every one of them must be excluded, not just the first.
         $ownanswerids = slot_availability::get_active_answer_ids_for_user($optionid, $userid);
 
-        // The slotbooking calendar/Continue button now stays available for the WHOLE life of a
-        // slot option (see alreadybooked::get_description()'s slotconfig bypass) - this is the
-        // place that actually enforces whether a new booking round is allowed at all. If the user
-        // already holds an active answer, this submission is a "book again" round, allowed only if
-        // "Allow to book again" is enabled AND its own gate (fixed wait time, or the last booked
-        // slot having ended) is due. Without this, a genuinely disallowed/not-yet-due extra booking
-        // would sail through validation() (evaluate_slot_for_user() itself does not check this at
-        // all) all the way to book_user_on_option() (booking_option.php), which then silently
-        // no-ops instead of ever creating an answer - the user would see a "successful" confirmation
-        // for a booking that never actually happened.
-        $currentanswer = singleton_service::get_instance_of_booking_answers($settings)->get_users()[$userid] ?? null;
-        if (!empty($currentanswer)) {
-            $ismultipbookingsoptionenable = booking_option::get_value_of_json_by_key($optionid, 'multiplebookings');
-            if (
-                !$ismultipbookingsoptionenable
-                || !multiplebookings::book_again_due($optionid, $currentanswer)
-            ) {
-                $errors[$errortarget] = get_string('slot_error_book_again_not_allowed', 'mod_booking');
-                return $errors;
-            }
-        }
-
         if ($slottype === 'userdefined') {
             $start = (int)($data['slot_custom_start'] ?? 0);
             $duration = (int)($data['slot_custom_duration'] ?? 0);
@@ -489,6 +465,21 @@ class slotbooking_form extends dynamic_form {
 
             if (!slot_availability::is_within_slot_openings($optionid, $start, $end)) {
                 $errors[$errortarget] = get_string('slot_error_selected_unavailable', 'mod_booking');
+                return $errors;
+            }
+
+            // The slotbooking calendar/Continue button now stays available for the WHOLE life of a
+            // slot option (see alreadybooked::get_description()'s slotconfig bypass) - this is the
+            // place that actually enforces whether a new booking round is allowed at all. Slots the
+            // user already owns don't count as "new" (has_capacity_for_selection() excludes them),
+            // so re-validating an already-booked/cached selection never trips this - only a
+            // genuinely additional slot beyond max_slots_per_user does. Without this, an exhausted
+            // extra booking would sail through validation() (evaluate_slot_for_user() itself does
+            // not check this at all) all the way to book_user_on_option() (booking_option.php),
+            // which then silently no-ops instead of ever creating an answer - the user would see a
+            // "successful" confirmation for a booking that never actually happened.
+            if (!slot_availability::has_capacity_for_selection($optionid, $userid, [$start . ':' . $end])) {
+                $errors[$errortarget] = get_string('slot_error_max_slots_reached', 'mod_booking');
                 return $errors;
             }
 
@@ -549,6 +540,12 @@ class slotbooking_form extends dynamic_form {
         // check alone would not catch them overlapping each other.
         if (slot_availability::ranges_overlap_internally($parsedranges)) {
             $errors[$errortarget] = get_string('slot_error_selection_overlap', 'mod_booking');
+            return $errors;
+        }
+
+        // Same capacity gate as the userdefined branch above - see its comment.
+        if (!slot_availability::has_capacity_for_selection($optionid, $userid, $entries)) {
+            $errors[$errortarget] = get_string('slot_error_max_slots_reached', 'mod_booking');
             return $errors;
         }
 
