@@ -383,6 +383,8 @@ $string['privacy:metadata:bookingslotstudentteacher:teacherid'] = 'Nutzer-ID der
 $string['privacy:metadata:bookingslotstudentteacher:userid'] = 'Person (Teilnehmer/in), der die Trainer/in zugewiesen ist';
 $string['privacy:metadata:bookingteacherunavailability'] = 'Abwesenheitszeiträume von Trainer/innen für die Slot-Buchung';
 $string['privacy:metadata:bookingteacherunavailability:teacherid'] = 'Nutzer-ID der abwesenden Trainer/in';
+$string['privacy:metadata:bookingwaitlistdeclines'] = 'Sperrliste für Nutzer/innen, die ein Wartelisten-Angebot abgelehnt oder verfallen lassen haben';
+$string['privacy:metadata:bookingwaitlistoffers'] = 'Wartelisten-Angebote und -Entscheidungen pro Nutzer/in';
 $string['privacy:metadata:restscript'] = 'Die Buchungsaktion "REST-Script ausführen" sendet Buchungsdaten an einen externen REST-Endpunkt. Daten werden nur übertragen, wenn ein/e Trainer/in oder Admin eine solche Aktion explizit für eine Buchungsoption konfiguriert hat; der Ziel-Endpunkt ist Teil dieser Konfiguration.';
 $string['problemsofcohortorgroupbooking'] = '<br><p>Es konnten nicht alle Buchungen durchgeführt werden:</p>
 <ul>
