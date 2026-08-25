@@ -39,6 +39,27 @@ use stdClass;
  */
 final class listtoapprove_trainer_test extends advanced_testcase {
     /**
+     * Tests set up.
+     */
+    public function setUp(): void {
+        parent::setUp();
+        // On MariaDB, phpunit resets auto-increments so every test reuses identical ids.
+        // Without destroying the singletons, cached users/answers/settings from a previous
+        // test (same ids!) leak into the next one and distort the confirmation counts.
+        singleton_service::destroy_instance();
+    }
+
+    /**
+     * Mandatory clean-up after each test.
+     */
+    public function tearDown(): void {
+        parent::tearDown();
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $plugingenerator->teardown();
+    }
+
+    /**
      * Happy path of the trainer workflow: a user with mod/booking:bookforothers sees the
      * pending answer with the thumbs-up button, can confirm it, and afterwards the answer
      * is booked and no longer rendered in the listtoapprove.
