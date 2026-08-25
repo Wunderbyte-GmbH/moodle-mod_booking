@@ -628,7 +628,7 @@ class mod_booking_generator extends testing_module_generator {
             $ruleobject->ruledata->boevent = $ruledraft->eventname ?? $ruledraft->boevent ?? '';
             $ruleobject->ruledata->aftercompletion = $ruledraft->aftercompletion ?? '';
             $ruleobject->ruledata->condition = $ruledraft->condition ?? '';
-            $ruleobject->ruledata->cancelrules = explode(',', $ruledraft->cancelrules) ?? [];
+            $ruleobject->ruledata->cancelrules = explode(',', $ruledraft->cancelrules ?? '');
         }
         // It is critical of having eventname.
         $record->eventname = $ruledraft->eventname ?? $ruleobject->ruledata->boevent ?? '';
