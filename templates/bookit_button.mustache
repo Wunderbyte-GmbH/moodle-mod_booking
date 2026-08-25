@@ -57,7 +57,13 @@
         interactive part is the main area below, which is a real <button> whenever the condition
         actually offers an action.
     }}
-    <div class="booking-button-area noprice flex-grow-1"
+    {{!
+        d-flex flex-column: the areas (bell, warning of an availability condition in "top", the
+        main button, the price label in "sub", the details dots) are stacked vertically. Plugin css
+        loaded in every theme (e.g. local_urise) sets display:flex on .booking-button-area; without
+        an explicit direction that laid the warning out LEFT of the book button.
+    }}
+    <div class="booking-button-area noprice flex-grow-1 d-flex flex-column"
         data-itemid="{{itemid}}"
         data-componentname="mod_booking"
         data-area="{{area}}"

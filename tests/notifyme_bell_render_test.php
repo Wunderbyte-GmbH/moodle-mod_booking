@@ -61,7 +61,7 @@ final class notifyme_bell_render_test extends booking_advanced_testcase {
      * per render - before the template split, the embedded standalone bell
      * template rendered a second, nested copy of it.
      */
-    private const PRICEWRAPPER = 'w-100 d-flex justify-content-center booking-button-area';
+    private const PRICEWRAPPER = 'w-100 d-flex flex-column align-items-center justify-content-center booking-button-area';
 
     /**
      * Tests set up.
