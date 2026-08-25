@@ -30,10 +30,8 @@ use core_form\dynamic_form;
 use html_writer;
 use mod_booking\local\mobile\slotbookingstore;
 use mod_booking\bo_availability\conditions\cancelmyself;
-use mod_booking\booking_option;
 use mod_booking\local\slotbooking\slot_availability;
 use mod_booking\local\slotbooking\slot_dto;
-use mod_booking\option\fields\multiplebookings;
 use mod_booking\singleton_service;
 use moodle_url;
 use stdClass;
@@ -444,28 +442,6 @@ class slotbooking_form extends dynamic_form {
         // "Book again" (multiplebookings) lets a user hold more than one active answer for the
         // same option at once, so every one of them must be excluded, not just the first.
         $ownanswerids = slot_availability::get_active_answer_ids_for_user($optionid, $userid);
-
-        // The slotbooking calendar/Continue button now stays available for the WHOLE life of a
-        // slot option (see alreadybooked::get_description()'s slotconfig bypass) - this is the
-        // place that actually enforces whether a new booking round is allowed at all. If the user
-        // already holds an active answer, this submission is a "book again" round, allowed only if
-        // "Allow to book again" is enabled AND its own gate (fixed wait time, or the last booked
-        // slot having ended) is due. Without this, a genuinely disallowed/not-yet-due extra booking
-        // would sail through validation() (evaluate_slot_for_user() itself does not check this at
-        // all) all the way to book_user_on_option() (booking_option.php), which then silently
-        // no-ops instead of ever creating an answer - the user would see a "successful" confirmation
-        // for a booking that never actually happened.
-        $currentanswer = singleton_service::get_instance_of_booking_answers($settings)->get_users()[$userid] ?? null;
-        if (!empty($currentanswer)) {
-            $ismultipbookingsoptionenable = booking_option::get_value_of_json_by_key($optionid, 'multiplebookings');
-            if (
-                !$ismultipbookingsoptionenable
-                || !multiplebookings::book_again_due($optionid, $currentanswer)
-            ) {
-                $errors[$errortarget] = get_string('slot_error_book_again_not_allowed', 'mod_booking');
-                return $errors;
-            }
-        }
 
         if ($slottype === 'userdefined') {
             $start = (int)($data['slot_custom_start'] ?? 0);
