@@ -41,6 +41,8 @@ use mod_booking\local\waitlist\offer_statuses\declined;
 use mod_booking\local\waitlist\offer_statuses\expired;
 use mod_booking\local\waitlist\offer_statuses\skipped;
 use mod_booking\local\waitlist\offer_statuses\autobooked;
+use mod_booking\singleton_service;
+use cache_helper;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
@@ -428,6 +430,7 @@ final class db_waitlist_offer_repository implements waitlist_offer_repository {
     public function activate_open_mode(int $optionid): void {
         global $DB;
         $DB->set_field('booking_options', 'waitlistopenmode', 1, ['id' => $optionid]);
+        self::invalidate_settings_cache($optionid);
     }
 
     /**
@@ -439,6 +442,22 @@ final class db_waitlist_offer_repository implements waitlist_offer_repository {
     public function deactivate_open_mode(int $optionid): void {
         global $DB;
         $DB->set_field('booking_options', 'waitlistopenmode', 0, ['id' => $optionid]);
+        self::invalidate_settings_cache($optionid);
+    }
+
+    /**
+     * Purges the cached/singleton booking_option_settings for this option after a raw write to
+     * booking_options.waitlistopenmode - this bypasses booking_option::update() (which would
+     * otherwise purge this automatically), and onwaitinglist.php now reads $settings->waitlistopenmode
+     * instead of querying it fresh each time, so a stale singleton/cache would silently keep the
+     * gate closed (or open) after a real activate/deactivate.
+     *
+     * @param int $optionid
+     * @return void
+     */
+    private static function invalidate_settings_cache(int $optionid): void {
+        cache_helper::invalidate_by_event('setbackoptionsettings', [$optionid]);
+        singleton_service::destroy_booking_option_singleton($optionid);
     }
 
     /**
