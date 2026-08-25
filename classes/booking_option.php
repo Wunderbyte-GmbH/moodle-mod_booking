@@ -42,6 +42,7 @@ use mod_booking\local\entities_compat;
 use mod_booking\bo_availability\conditions\customform;
 use mod_booking\bo_availability\conditions\slotbooking;
 use mod_booking\local\waitinglist\waitinglist_sync_status;
+use mod_booking\local\slotbooking\slot_availability;
 use mod_booking\event\booking_debug;
 use mod_booking\event\booking_rulesexecutionfailed;
 use mod_booking\event\bookinganswer_movedupfromwaitinglist;
@@ -1581,6 +1582,14 @@ class booking_option {
                     case MOD_BOOKING_STATUSPARAM_BOOKED:
                         // Check if multiple bookings are enabled.
                         $ismultipbookingsoptionenable = self::get_value_of_json_by_key($this->id, 'multiplebookings');
+                        // Slot booking lets a user buy several separate slots for the same option
+                        // (up to its own max_slots_per_user), independently of the generic
+                        // multiplebookings setting above. Without this, the branch below never
+                        // resets $currentanswerid, so write_user_answer_to_db() UPDATES the user's
+                        // existing (first) answer in place instead of inserting a new one for the
+                        // additional slot - silently overwriting/losing the first slot's data.
+                        $hasslotcapacity = !empty($this->settings->slotconfig)
+                            && slot_availability::has_remaining_slot_capacity($this->id, $user->id);
 
                         // If we come from sync_waiting_list it might be possible that someone is moved from booked to waiting list.
                         // If we are already booked and multiple bookings is not enabled, we don't do anything.
@@ -1591,12 +1600,19 @@ class booking_option {
                             !$ismultipbookingsoptionenable
                             || $currentanswer->timemodified == $timebooked
                             )
+                            && !$hasslotcapacity
                         ) {
                             return true;
                         }
                         // Else, we might move from booked to waitinglist, we just continue.
 
-                        if ($ismultipbookingsoptionenable) {
+                        if ($hasslotcapacity) {
+                            // Capacity-based additional slot purchase takes priority over (and is
+                            // fully independent of) multiplebookings: it is always additive - never
+                            // replacing/demoting the user's existing answer(s) - and must not be
+                            // blocked by an unrelated, not-yet-due multiplebookings gate below.
+                            $currentanswerid = null;
+                        } else if ($ismultipbookingsoptionenable) {
                             // When the multiple booking option is enabled, we need to check if the
                             // book-again gate (fixed wait time, or the last booked slot having ended)
                             // is satisfied. If it is not yet due, we don't allow the user to book again.
@@ -4695,6 +4711,12 @@ class booking_option {
         // When we set back the booking_answers...
         // ... we have to make sure it's also deleted in the singleton service.
         singleton_service::destroy_booking_answers($optionid);
+
+        // Slot booking keeps its own per-request cache of booked ranges (populated by whatever
+        // availability check ran before this write - e.g. hard_block()/is_available() during the
+        // booking flow itself); it must be cleared here too, or a slot option's occupancy/count
+        // stays stale for the rest of this request after a book/cancel/waitlist-promote action.
+        slot_availability::clear_request_cache($optionid);
 
         // At the end, we re-write into singleton.
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);

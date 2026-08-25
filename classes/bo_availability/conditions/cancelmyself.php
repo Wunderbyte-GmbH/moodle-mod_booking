@@ -33,7 +33,6 @@ use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
 use mod_booking\enrollink;
 use mod_booking\local\slotbooking\slot_change_policy;
-use mod_booking\option\fields\multiplebookings;
 use mod_booking\price;
 use mod_booking\singleton_service;
 use MoodleQuickForm;
@@ -231,18 +230,6 @@ class cancelmyself implements bo_condition {
             $answer = $bookinganswer->get_usersonlist()[$userid] ?? null;
             if ($answer === null || !slot_change_policy::answer_all_slots_actionable($answer)) {
                 $isavailable = true; // Not fully cancellable: at least one booked slot is locked.
-            }
-        }
-
-        // If multiple bookings are enabled and the book-again gate (fixed wait time, or the last
-        // booked slot having ended) is satisfied for the user's booked answer, a new book-again
-        // round is legitimately starting - the OLD answer's own cancellability (computed above)
-        // must not block that round just because it still sits in BOOKED state until the round's
-        // own commit demotes it. Mirrors alreadybooked::is_available()'s own identical check.
-        if (!$isavailable) {
-            $currentanswer = $bookinganswer->get_users()[$userid] ?? null;
-            if (!empty($currentanswer) && multiplebookings::book_again_due((int)$settings->id, $currentanswer)) {
-                $isavailable = true;
             }
         }
 
