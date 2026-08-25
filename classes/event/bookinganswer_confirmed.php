@@ -27,7 +27,12 @@ namespace mod_booking\event;
 /**
  * The bookinganswer_confirmed event class.
  *
- * @property-read array $other { Extra information about event. Acesss an instance of the booking module }
+ * @property-read array $other {
+ *     Extra information about event.
+ *     - string approvedby: name of the workflow subplugin which granted the confirmation
+ *       (e.g. 'confirmation_trainer', 'confirmation_supervisor'), empty for legacy events.
+ *     - int baid: id of the confirmed booking_answers record.
+ * }
  * @since Moodle 2.7
  * @copyright 2024 Magdalena Holczik, info@wunderbyte.at
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -63,7 +68,18 @@ class bookinganswer_confirmed extends \core\event\base {
      */
     public function get_description() {
 
-        return get_string('bookingoptionconfirmed:description', 'mod_booking', $this->data);
+        $description = get_string('bookingoptionconfirmed:description', 'mod_booking', $this->data);
+
+        // Older events were triggered without the approving workflow in 'other'.
+        if (!empty($this->other['approvedby'])) {
+            $description .= ' ' . get_string(
+                'bookingoptionconfirmed:descriptionworkflow',
+                'mod_booking',
+                $this->other['approvedby']
+            );
+        }
+
+        return $description;
     }
 
     /**

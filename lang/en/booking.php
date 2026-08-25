@@ -955,6 +955,7 @@ $string['bookingoptioncantbecancelledanymore'] = 'Cancelling was possible until 
 $string['bookingoptioncompleted'] = 'Booking option completed';
 $string['bookingoptionconfirmed'] = 'Booking option confirmed';
 $string['bookingoptionconfirmed:description'] = 'User with ID {$a->userid} enabled booking of booking option {$a->objectid} for user with ID {$a->relateduserid}.';
+$string['bookingoptionconfirmed:descriptionworkflow'] = 'The confirmation was granted by the "{$a}" workflow.';
 $string['bookingoptioncreated'] = 'Booking option created';
 $string['bookingoptiondatecreated'] = 'Booking option date created';
 $string['bookingoptiondatedeleted'] = 'Booking option date deleted';

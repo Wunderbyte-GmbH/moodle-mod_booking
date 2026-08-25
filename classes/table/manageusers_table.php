@@ -602,6 +602,12 @@ class manageusers_table extends wunderbyte_table {
                 'context' => context_system::instance(),
                 'userid' => $USER->id,
                 'relateduserid' => $user->id,
+                'other' => [
+                    // For logging: which workflow granted this confirmation (e.g.
+                    // 'confirmation_trainer' or 'confirmation_supervisor') and the answer id.
+                    'approvedby' => $approvedby,
+                    'baid' => $baid,
+                ],
             ]
         );
         $event->trigger();

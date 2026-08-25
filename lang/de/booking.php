@@ -936,6 +936,7 @@ $string['bookingoptioncantbecancelledanymore'] = 'Stornierung war bis zum {$a} m
 $string['bookingoptioncompleted'] = 'Buchungsoption abgeschlossen';
 $string['bookingoptionconfirmed'] = 'Buchungsoption bestätigt';
 $string['bookingoptionconfirmed:description'] = 'Nutzer:in mit ID {$a->userid} hat Nutzer:in mit ID {$a->relateduserid} für die Buchung der Option Nr. {$a->objectid} freigeschaltet.';
+$string['bookingoptionconfirmed:descriptionworkflow'] = 'Die Bestätigung erfolgte über den Workflow "{$a}".';
 $string['bookingoptioncreated'] = 'Buchungsoption angelegt';
 $string['bookingoptiondatecreated'] = 'Termin erstellt';
 $string['bookingoptiondatedeleted'] = 'Termin gelöscht';
