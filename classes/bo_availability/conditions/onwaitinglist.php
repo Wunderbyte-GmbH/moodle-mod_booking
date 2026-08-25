@@ -138,7 +138,7 @@ class onwaitinglist implements bo_condition {
                 if (empty($settings->waitforconfirmation)) {
                     $isavailable = true;
                 } else if (
-                    (new db_waitlist_offer_repository())->is_open_mode_active($bookinganswer->optionid)
+                    !empty($settings->waitlistopenmode)
                     && !(new db_waitlist_offer_repository())->is_actively_declined($bookinganswer->optionid, $userid)
                 ) {
                     // Typ 2 ("offen nach Durchlauf", waitlistrecycling=2): die Warteliste wurde
