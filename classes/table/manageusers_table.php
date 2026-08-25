@@ -505,7 +505,7 @@ class manageusers_table extends wunderbyte_table {
         $optionid = $record->optionid;
 
         // Check all bookingextension subplugins for confirm capability.
-        [$allowedtoconfirm, $returnmessage, $reload] =
+        [$allowedtoconfirm, $returnmessage, $reload, $approvedby] =
             confirmation::check_confirm_capability($optionid, $USER->id, $userid);
 
         if (!$allowedtoconfirm) {
@@ -516,8 +516,19 @@ class manageusers_table extends wunderbyte_table {
             ];
         }
 
-        // Check number of required confirmation.
-        $requiredconfirmationscount = confirmation::get_required_confirmation_count($optionid);
+        // The number of required confirmations depends on the workflow which granted THIS
+        // confirmation: e.g. the trainer workflow completes with a single confirmation, even
+        // when the supervisor workflow on the same option requires two steps.
+        $approvingclass = "\\bookingextension_{$approvedby}\\local\\confirmbooking";
+        if (
+            !empty($approvedby)
+            && class_exists($approvingclass)
+            && method_exists($approvingclass, 'get_required_confirmation_count')
+        ) {
+            $requiredconfirmationscount = $approvingclass::get_required_confirmation_count($optionid);
+        } else {
+            $requiredconfirmationscount = confirmation::get_required_confirmation_count($optionid);
+        }
 
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
