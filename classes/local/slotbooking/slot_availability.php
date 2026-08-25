@@ -564,6 +564,57 @@ class slot_availability {
     }
 
     /**
+     * Whether the user can still buy additional slots for this option, i.e. the number of slots
+     * they currently hold (across all of their own active answers, which can be more than one -
+     * see get_active_answer_ids_for_user()) is below the option's max_slots_per_user.
+     *
+     * Used to let a user keep purchasing separate slots up to that limit (e.g. buying several
+     * "phases" over time) even once they already hold at least one - unlike the generic
+     * multiplebookings setting, which is a time-based re-booking gate, not a capacity one.
+     *
+     * @param int $optionid booking option id
+     * @param int $userid user id
+     * @return bool
+     */
+    public static function has_remaining_slot_capacity(int $optionid, int $userid): bool {
+        $config = self::get_slot_config($optionid);
+        if (empty($config)) {
+            return false;
+        }
+
+        $maxslots = max(1, (int)($config->max_slots_per_user ?? 1));
+        $bookedcount = count(self::get_booked_slot_key_set_for_user($optionid, $userid));
+
+        return $bookedcount < $maxslots;
+    }
+
+    /**
+     * Whether the user has enough remaining slot capacity to hold $requestedkeys, i.e. slots the
+     * user already owns among $requestedkeys don't count as "new" - only genuinely additional keys
+     * are checked against the remaining room up to max_slots_per_user. This is what lets a
+     * re-validation of an already-booked/cached selection (e.g. the checkout page's calendar
+     * re-validating on every change) pass even once the user is already at capacity, while a
+     * request for a truly new/different slot beyond that capacity is still correctly blocked.
+     *
+     * @param int $optionid booking option id
+     * @param int $userid user id
+     * @param string[] $requestedkeys slot keys ("start:end") being requested/selected
+     * @return bool
+     */
+    public static function has_capacity_for_selection(int $optionid, int $userid, array $requestedkeys): bool {
+        $config = self::get_slot_config($optionid);
+        if (empty($config)) {
+            return false;
+        }
+
+        $maxslots = max(1, (int)($config->max_slots_per_user ?? 1));
+        $ownedkeys = self::get_booked_slot_key_set_for_user($optionid, $userid);
+        $newkeys = array_diff($requestedkeys, array_keys($ownedkeys));
+
+        return (count($ownedkeys) + count($newkeys)) <= $maxslots;
+    }
+
+    /**
      * Returns true if slot has capacity remaining and teacher constraints are met.
      *
      * @param int $optionid booking option id

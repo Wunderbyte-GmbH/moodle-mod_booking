@@ -311,8 +311,12 @@ define('MOD_BOOKING_OPTION_FIELD_SUBBOOKINGS', 370);
 define('MOD_BOOKING_OPTION_FIELD_ACTIONS', 380);
 define('MOD_BOOKING_OPTION_FIELD_ADVANCED', 390);
 define('MOD_BOOKING_OPTION_FIELD_WAITFORCONFIRMATION', 391);
-define('MOD_BOOKING_OPTION_FIELD_WAITLISTRECYCLING', 392);
+// 392-399 are reserved for confirmation workflows by bookingextension/confirmation_trainer/lib.php
+// (392) and bookingextension/confirmation_supervisor/lib.php (393) - do not reuse here.
 define('MOD_BOOKING_OPTION_FIELD_DISABLEBOOKINGUSERS', 400);
+// 401 is the next free id (401-409 are otherwise unused; 501 below is separately reserved by
+// bookingextension/respondapi/lib.php).
+define('MOD_BOOKING_OPTION_FIELD_WAITLISTRECYCLING', 401);
 define('MOD_BOOKING_OPTION_FIELD_DISABLECANCEL', 410);
 define('MOD_BOOKING_OPTION_FIELD_CANCELUNTIL', 420);
 define('MOD_BOOKING_OPTION_FIELD_ATTACHMENT', 430);
