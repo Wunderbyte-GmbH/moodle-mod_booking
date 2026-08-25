@@ -72,7 +72,9 @@ final class waitlist_migration_fixture_builder_test extends booking_advanced_tes
         // snapshot's usersalreadytreated list - this is the actual "old format" state C1 must
         // migrate.
         $this->assertNotNull($fixture->repeattask, 'Fixture must leave a pending repeat task.');
-        $customdata = $fixture->repeattask->get_custom_data();
+        // The trait hands out the raw {task_adhoc} record (see its docblock), so the queued
+        // payload is read from the customdata column rather than from a task object.
+        $customdata = json_decode($fixture->repeattask->customdata);
         $this->assertEquals(1, $customdata->repeat ?? 0);
         $rulejson = json_decode($customdata->rulejson);
         $treatedlist = $rulejson->intervaldata->usersalreadytreated ?? [];
@@ -119,7 +121,7 @@ final class waitlist_migration_fixture_builder_test extends booking_advanced_tes
         $this->assertNotNull($fixture->offereduser, 'Fixture must identify the offered user.');
         $this->assertNotNull($fixture->confirmtask, 'Fixture must leave a pending, open confirm task.');
         $this->assertEmpty(
-            $fixture->confirmtask->get_custom_data()->repeat ?? null,
+            json_decode($fixture->confirmtask->customdata)->repeat ?? null,
             'The open offer must be the direct confirm task, not the repeat-trigger.'
         );
 
