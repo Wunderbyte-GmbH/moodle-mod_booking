@@ -178,7 +178,20 @@ class booking_bookit {
                     $buttoncondition = $result['classname'];
                     break;
                 case MOD_BOOKING_BO_BUTTON_CANCEL:
-                    if (modechecker::use_special_details_page_treatment() && empty($settings->slotconfig)) {
+                    // Slot-booking options suppress this generic cancel button only in the
+                    // persistent-calendar context (inlinestartpage='slotbooking') - there,
+                    // cancelling happens via the link inside the user's booked slot instead (per
+                    // Georg, 2026-08-25, see slot_persistent_calendar_test.php). Everywhere else
+                    // (e.g. the plain option list row, which never shows a calendar) a slot option
+                    // must surface "Undo my booking" exactly like any other option - the guard used
+                    // to suppress it unconditionally for every slot option in every context, which
+                    // meant it could never appear anywhere for a slot option, including the list
+                    // view (booking_slotbooking_fixed.feature scenario "cancelling a booked slot
+                    // frees it up for booking again").
+                    if (
+                        modechecker::use_special_details_page_treatment()
+                        && (empty($settings->slotconfig) || strcasecmp($inlinestartpage, 'slotbooking') !== 0)
+                    ) {
                         // When we show the cancel button, we can't have "just my alert", it would suppress this.
                         $justmyalert = false;
                         $extrabuttoncondition = $result['classname'];
