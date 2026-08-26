@@ -23,12 +23,22 @@
  */
 
 use mod_booking\booking_option;
+use mod_booking\local\connectedcourse;
 use mod_booking\teachers_handler;
 
 /**
  * Structure step to restore one booking activity
  */
 class restore_booking_activity_structure_step extends restore_activity_structure_step {
+    /**
+     * Maps the courseid of a connected Moodle course to the id of the copy made for it during
+     * this restore. Several booking options may share one connected course, and they must keep
+     * sharing it afterwards, so every source course is copied at most once per restore.
+     *
+     * @var array
+     */
+    protected $connectedcoursemap = [];
+
     /**
      * Function that will return the structure to be processed by this restore_step.
      * Must return one array of @restore_path_element elements
@@ -276,6 +286,11 @@ class restore_booking_activity_structure_step extends restore_activity_structure
 
         $newitemid = $DB->insert_record('booking_options', $data);
 
+        /* The connected Moodle course is not part of this backup - only its id is - so the
+        restored option points at the very same course as the original. When the site asks for
+        it, duplicate that course as well, so the copy is a self contained duplicate. */
+        $this->duplicate_connected_course((int) $newitemid, (int) ($data->courseid ?? 0));
+
         // Also copy custom fields (e.g. sports).
         // Note: Do not confuse normal customfields (stored in customfield_data) with booking_customfields (used for optiondates).
         // This SQL will only select customfields for the mod_booking component.
@@ -356,6 +371,66 @@ class restore_booking_activity_structure_step extends restore_activity_structure
         }
 
         $this->set_mapping('booking_option', $oldid, $newitemid);
+    }
+
+    /**
+     * Duplicate the Moodle course connected to a restored booking option.
+     *
+     * A course is not part of an activity backup, so a restored option inherits the courseid of
+     * the original and both end up enrolling into the same Moodle course. With the
+     * duplicatemoodlecourses setting turned on, the connected course is copied as well and the
+     * restored option is pointed at the copy.
+     *
+     * The copy itself is asynchronous: a course shell exists immediately, its content is filled
+     * in by the core copy task on the next cron run.
+     *
+     * @param int $newoptionid the id of the booking option just restored
+     * @param int $oldcourseid the connected course as stored in the backup file
+     * @return void
+     */
+    protected function duplicate_connected_course(int $newoptionid, int $oldcourseid) {
+
+        global $DB;
+
+        if (empty($newoptionid) || empty($oldcourseid)) {
+            return;
+        }
+
+        // The very same setting which already governs duplication of a single booking option.
+        if (!get_config('booking', 'duplicatemoodlecourses')) {
+            return;
+        }
+
+        /* On a different site the stored courseid refers to a course of the origin site and
+        means nothing here, so there is nothing meaningful to copy. */
+        if (!$this->get_task()->is_samesite()) {
+            return;
+        }
+
+        if (!$DB->record_exists('course', ['id' => $oldcourseid])) {
+            return;
+        }
+
+        // Options which shared one connected course must keep sharing it, so a source course is
+        // copied only once per restore and every further option reuses that copy.
+        if (isset($this->connectedcoursemap[$oldcourseid])) {
+            $DB->set_field('booking_options', 'courseid', $this->connectedcoursemap[$oldcourseid], ['id' => $newoptionid]);
+            return;
+        }
+
+        $newcourseid = connectedcourse::copy_course($oldcourseid);
+
+        if (empty($newcourseid)) {
+            return;
+        }
+
+        $this->connectedcoursemap[$oldcourseid] = $newcourseid;
+        $DB->set_field('booking_options', 'courseid', $newcourseid, ['id' => $newoptionid]);
+
+        /* Name the copy after the option which owns it. Only the option that actually triggered
+        the copy does this - for a shared course, renaming it again for every further option
+        would just leave it named after whichever option happened to come last. */
+        connectedcourse::apply_naming_scheme($newcourseid, $newoptionid);
     }
 
     /**
