@@ -1436,6 +1436,20 @@ $string['confirmrecurringoptionerror'] = 'Sie können mit jeder dieser Optionen 
 $string['confirmrecurringoptionoverwrite'] = 'Alle Felder angleichen';
 $string['connectedbooking'] = '[VERALTET] Vorgeschaltete Buchung';
 $string['connectedbooking_help'] = 'Buchung von der Teilnehmer:innen übernommen werden. Es kann bestimmt werden wie viele Teilnehmer:innen übernommen werden.';
+$string['connectedcoursefullname'] = 'Vollständiger Kursname';
+$string['connectedcoursefullname_desc'] = 'Vorlage für den vollständigen Namen des verbundenen Moodle-Kurses. Leer lassen, um das bisherige Verhalten beizubehalten. Vollständige Kursnamen müssen nicht eindeutig sein.';
+$string['connectedcourseidnumber'] = 'Kurs-ID';
+$string['connectedcourseidnumber_desc'] = 'Vorlage für die Kurs-ID des verbundenen Moodle-Kurses. Leer lassen, um das bisherige Verhalten beizubehalten (keine Kurs-ID). Kurs-IDs müssen eindeutig sein: Wenn der erzeugte Wert bereits von einem anderen Kurs verwendet wird, bleibt die Kurs-ID leer.';
+$string['connectedcoursenaming'] = 'Benennung der verbundenen Kurse <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
+$string['connectedcoursenaming_desc'] = 'Hier können Sie festlegen, wie die mit einer Buchungsoption verbundenen Moodle-Kurse benannt werden - sowohl bei der Neuanlage als auch beim Duplizieren.
+Jedes Feld ist eine Vorlage, die Platzhalter enthalten kann, z.B. <code>{titlewithoutprefix}_{optionid}</code>.
+Lassen Sie ein Feld leer, um für dieses Feld das bisherige Verhalten beizubehalten.
+<br><br>
+Die hier nützlichsten Platzhalter sind <code>{titlewithoutprefix}</code> (der Titel der Buchungsoption ohne Präfix), <code>{optionid}</code> (die ID der Buchungsoption) und <code>{instancename}</code> (der Name der Buchungsinstanz). Es können alle Platzhalter verwendet werden, die auch für E-Mail-Vorlagen zur Verfügung stehen.
+<br><br>
+<b>Hinweis:</b> Verwenden Sie hier nicht <code>{title}</code> oder <code>{bookingoptionname}</code>. Beide benötigen eine angemeldete Person und ergeben daher eine leere Zeichenkette, wenn ein Kurs im Hintergrund erstellt oder dupliziert wird, z.B. durch einen geplanten Task. Verwenden Sie stattdessen <code>{titlewithoutprefix}</code>.';
+$string['connectedcourseshortname'] = 'Kurzer Kursname';
+$string['connectedcourseshortname_desc'] = 'Vorlage für den kurzen Namen des verbundenen Moodle-Kurses. Leer lassen, um das bisherige Verhalten beizubehalten. Kurze Kursnamen müssen eindeutig sein: Mit <code>{optionid}</code> wird die Eindeutigkeit automatisch erreicht. Ist der erzeugte Wert bereits vergeben, wird eine Zahl angehängt.';
 $string['connectedmoodlecourse'] = 'Verbundener Moodle-Kurs';
 $string['connectedmoodlecourse_help'] = 'Wählen Sie "Neuen Kurs erstellen...", wenn Sie wollen, dass ein neuer Moodle-Kurs für diese Buchungsoption angelegt werden soll.';
 $string['consumeatonce'] = 'Alle Credits müssen in einer Buchung verbraucht werden';
