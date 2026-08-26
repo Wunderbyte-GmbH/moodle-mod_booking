@@ -108,35 +108,34 @@ final class booking_waitinglist_confirmation_test extends advanced_testcase {
     }
 
     /**
-     * Regression test for the one-at-a-time WL confirmation chain:
-     * when a paid WL user's confirm-task runs (paid path), the chain architecture
-     * (confirm_bookinganswer creates tasks one by one, like send_mail_interval)
-     * ensures that late joiners (s8, s9) are naturally picked up on each fresh WL
-     * query without any explicit re-trigger.
+     * Rewritten 2026-08-26 for the waitlist-progression refactor (Phase 3): the old
+     * confirm_bookinganswer task chain (which notified/"confirmed" ALL waiting-list users
+     * regardless of real free capacity) is gone - confirm_bookinganswer and
+     * confirm_bookinganswer_by_rule_adhoc are now deliberate no-ops
+     * (WAITLIST_REFACTOR_BLUEPRINT_2026-08-04.md §2.5). progression::reconcile() is the new,
+     * single write path and enforces K1/K2 (free capacity = maxanswers - booked - open offers):
+     * exactly ONE offer is created per real free seat, never more - a correctness improvement
+     * over the old behaviour, not a like-for-like replacement (confirmed with Georg, 2026-08-26).
      *
      * Scenario
      * --------
      * maxanswers=2 → s1+s2 fully book via shopping_cart.
-     * s3–s7 (all price=100/default) join WL.
-     * s1 cancels → freetobookagain fires → chain creates:
-     *   - 1 direct confirm task for s3 (first WL user)
-     *   - 1 repeat-trigger task for s4 (second WL user, repeat=1)
-     *   All other WL users (s5–s7) are skipped in the initial event.
-     * s8+s9 join WL AFTER the cancel (late joiners).
-     * Batches are run until no tasks remain:
-     *   - Each batch processes one direct confirm + one repeat-trigger.
-     *   - The repeat-trigger re-executes the rule with a fresh WL query (usersalreadytreated
-     *     is stored in rulejson) so late joiners are picked up when their turn comes.
-     * After all batches:
-     *   - s3–s9: WL=1, confirmationcount=1 in booking_answer JSON (all 7 WL users confirmed).
-     *   - Total booked (WL=0) = 1 (s2 only; s1 cancelled, all WL users stay on WL in paid path).
+     * s3–s7 (all price=100/default) join WL, in that order.
+     * s1 cancels → check_if_free_to_book_again() → freetobookagain_waitlist_adapter →
+     * progression::reconcile() runs SYNCHRONOUSLY (no task queue for the offer step) → exactly
+     * ONE offer for s3 (oldest WL user, K1), confirmationonnotification=1 grants confirmation
+     * immediately (PRICEISSET) - s4-s7 stay untouched (ONWAITINGLIST).
+     * s8+s9 join WL AFTER the cancel (late joiners) - capacity is fully consumed by s3's open
+     * offer, so they get nothing either, exactly like s4-s7.
+     * s3 completes real payment via shopping_cart → truly booked (WL=0) - the seat s3's offer
+     * reserved is now actually taken, so no new capacity opens for anyone else.
+     * s2 also cancels (second real seat frees) → reconciler offers the next-oldest UNTOUCHED WL
+     * user, s4 - NOT s8/s9, proving late joiners stay behind pre-existing WL members (O1/O2).
      *
-     * @covers \mod_booking\task\confirm_bookinganswer_by_rule_adhoc::execute
+     * @covers \mod_booking\local\waitlist\progression::reconcile
+     * @covers \mod_booking\local\waitlist\progression::grant_confirmation_if_required
+     * @covers \mod_booking\event\observer\freetobookagain_waitlist_adapter::reconcile
      * @covers \mod_booking\booking_option::check_if_free_to_book_again
-     * @covers \mod_booking\event\bookingoption_freetobookagain
-     * @covers \mod_booking\booking_rules\rules\rule_react_on_event
-     * @covers \mod_booking\booking_rules\actions\confirm_bookinganswer
-     * @covers \mod_booking\booking_rules\conditions\select_student_in_bo
      */
     public function test_all_paid_waitinglist_users_get_tasks_and_late_joiners_retriggered(): void {
         global $DB;
@@ -209,23 +208,30 @@ final class booking_waitinglist_confirmation_test extends advanced_testcase {
         }
 
         // Create booking rule: react on freetobookagain, select all WL users (borole=1),
-        // action = confirm_bookinganswer.
-        $boevent = '"boevent":"\\\\mod_booking\\\\event\\\\bookingoption_freetobookagain"';
+        // action = send_mail_interval - the new architecture's rule_condition_checker only
+        // recognizes this actionname as a waitlist-progression rule (K11); confirm_bookinganswer
+        // rows are silently ignored, and reconcile() no-ops entirely without an applicable rule.
+        $actiondata = json_encode([
+            'interval' => 60,
+            'subject' => 'confirmwaitinglistsubj',
+            'template' => 'confirmwaitinglistmsg',
+            'templateformat' => '1',
+        ]);
         $ruledata = [
             'name' => 'confirmwaitinglistusers',
             'conditionname' => 'select_student_in_bo',
-            'contextid' => 1,
             'conditiondata' => '{"borole":"1"}',
-            'actionname' => 'confirm_bookinganswer',
-            'actiondata' => '{}',
+            'actionname' => 'send_mail_interval',
+            'actiondata' => $actiondata,
             'rulename' => 'rule_react_on_event',
-            'ruledata' => '{' . $boevent . ',"aftercompletion":0,"cancelrules":[]}',
+            'boevent' => '\\mod_booking\\event\\bookingoption_freetobookagain',
+            'condition' => (string) \mod_booking\booking_rules\rules\rule_react_on_event::ALWAYS,
         ];
         $plugingenerator->create_rule($ruledata);
 
         // Create booking option: maxanswers=2 (fully booked by s1+s2), useprice=1,
-        // waitforconfirmation=2, confirmationonnotification=1 (non-exclusive, all WL users
-        // can be confirmed in parallel; value 2 would cause an infinite loop with the re-trigger).
+        // waitforconfirmation=2, confirmationonnotification=1 (grant confirmation as soon as the
+        // offer is created, no separate manual-confirm step).
         $record = new stdClass();
         $record->bookingid = $booking1->id;
         $record->text = 'bugabfixtest';
@@ -266,7 +272,7 @@ final class booking_waitinglist_confirmation_test extends advanced_testcase {
             );
         }
 
-        // Phase 2: s3–s7 join WL (all have price=100 → paid path when their tasks run).
+        // Phase 2: s3–s7 join WL (all have price=100 → paid/offer path once capacity allows).
         for ($i = 3; $i <= 7; $i++) {
             time_mock::set_mock_time(strtotime('+1 hour', time_mock::get_mock_time()));
             $this->setUser($student[$i]);
@@ -287,28 +293,50 @@ final class booking_waitinglist_confirmation_test extends advanced_testcase {
             );
         }
 
-        // Phase 3: s1 cancels → freetobookagain fires → tasks for ALL 5 WL users (s3–s7).
-        // select_student_in_bo has no seat-count limit: it selects every WL user.
+        // Phase 3: s1 cancels → progression::reconcile() runs synchronously → exactly ONE offer
+        // for the oldest WL user (s3, K1) - s4-s7 are left completely untouched.
         time_mock::set_mock_time(strtotime('+1 hour', time_mock::get_mock_time()));
         $this->setAdminUser();
         singleton_service::destroy_booking_option_singleton($option->id);
         $boption = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
         $boption->user_delete_response($student[1]->id);
 
-        $tasksaftercancel = \core\task\manager::get_adhoc_tasks(\mod_booking\task\confirm_bookinganswer_by_rule_adhoc::class);
+        $offersaftercancel = $DB->get_records('booking_waitlist_offers', ['optionid' => $option->id]);
         $this->assertCount(
-            2,
-            $tasksaftercancel,
-            'Chain architecture: expected exactly 2 tasks after s1 cancels: '
-            . '1 direct confirm for s3 (first WL user) + 1 repeat-trigger for s4 (second WL user). '
-            . 'select_student_in_bo returns all 5 WL users but the action only creates 2 tasks per event.'
+            1,
+            $offersaftercancel,
+            'K1: exactly one offer must exist after s1 cancels - only one real seat freed up, ' .
+            'regardless of how many users are waiting.'
+        );
+        $offer = reset($offersaftercancel);
+        $this->assertEquals(
+            (int) $student[3]->id,
+            (int) $offer->userid,
+            'The offer must go to s3, the oldest untouched WL user.'
         );
 
-        // Phase 4: s8 and s9 join WL AFTER the tasks for s3–s7 are already queued (late joiners).
         singleton_service::destroy_booking_option_singleton($option->id);
         $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
         $boinfo = new bo_info($settings);
 
+        [$id] = $boinfo->is_available($settings->id, $student[3]->id, true);
+        $this->assertEquals(
+            MOD_BOOKING_BO_COND_PRICEISSET,
+            $id,
+            'student3: confirmationonnotification=1 must grant confirmation as soon as the offer is created.'
+        );
+        for ($i = 4; $i <= 7; $i++) {
+            [$id] = $boinfo->is_available($settings->id, $student[$i]->id, true);
+            $this->assertEquals(
+                MOD_BOOKING_BO_COND_ONWAITINGLIST,
+                $id,
+                "student{$i}: must stay untouched on WL - no free capacity left (K1)."
+            );
+        }
+
+        // Phase 4: s8 and s9 join WL AFTER s3's offer already consumed the only free seat -
+        // capacity is 0, so they must be left untouched exactly like s4-s7 (late joiners never
+        // jump the queue, O1/O2).
         for ($i = 8; $i <= 9; $i++) {
             time_mock::set_mock_time(strtotime('+1 hour', time_mock::get_mock_time()));
             $this->setUser($student[$i]);
@@ -329,71 +357,62 @@ final class booking_waitinglist_confirmation_test extends advanced_testcase {
             );
         }
 
-        // Confirm s8 and s9 still have no confirm tasks (joined after the initial freetobookagain).
-        $alltasksbefore = \core\task\manager::get_adhoc_tasks(\mod_booking\task\confirm_bookinganswer_by_rule_adhoc::class);
-        $taskfors8before = array_filter($alltasksbefore, fn($t) => $t->get_custom_data()->userid == $student[8]->id);
-        $taskfors9before = array_filter($alltasksbefore, fn($t) => $t->get_custom_data()->userid == $student[9]->id);
-        $this->assertEmpty($taskfors8before, 's8 must have no confirm task before batch 1 runs (late joiner)');
-        $this->assertEmpty($taskfors9before, 's9 must have no confirm task before batch 1 runs (late joiner)');
-
-        // Phase 5: Run all batches until no tasks remain.
-        // Each batch processes one direct confirm (paid path → confirmationcount=1) and one
-        // repeat-trigger (re-executes rule with fresh WL query → picks up late joiners and
-        // creates the next pair of tasks). The chain terminates when all WL users have been
-        // processed (everyone is in usersalreadytreated, rule returns empty records).
-        $this->setAdminUser();
-        $mocktime = time_mock::get_mock_time();
-        $maxbatches = 20; // Safety cap: 7 WL users × 1 batch each + buffer.
-        $batchcount = 0;
-        do {
-            ob_start();
-            $plugingenerator->runtaskswithintime($mocktime);
-            ob_end_clean();
-            $batchcount++;
-            $remaining = \core\task\manager::get_adhoc_tasks(\mod_booking\task\confirm_bookinganswer_by_rule_adhoc::class);
-        } while (!empty($remaining) && $batchcount < $maxbatches);
-
-        $this->assertLessThan(
-            $maxbatches,
-            $batchcount,
-            'Chain must terminate within ' . $maxbatches . ' batches (possible infinite loop)'
+        $offersafterlatejoin = $DB->get_records('booking_waitlist_offers', ['optionid' => $option->id]);
+        $this->assertCount(
+            1,
+            $offersafterlatejoin,
+            'Late joiners s8/s9 must not trigger any new offer - no seat freed up for them.'
         );
 
-        // Refresh singletons after all task runs.
-        for ($i = 1; $i <= 9; $i++) {
-            singleton_service::destroy_user($student[$i]->id);
-        }
+        // Phase 5: s3 actually completes payment - the seat their offer reserved is now truly
+        // taken. No new capacity opens up for anyone else as a result.
+        $this->setAdminUser();
+        shopping_cart::delete_all_items_from_cart($student[3]->id);
+        shopping_cart::buy_for_user($student[3]->id);
+        $cartstore = cartstore::instance($student[3]->id);
+        shopping_cart::add_item_to_cart('mod_booking', 'option', $settings->id, -1);
+        shopping_cart::confirm_payment($student[3]->id, LOCAL_SHOPPING_CART_PAYMENT_METHOD_CASHIER_CASH);
+        singleton_service::destroy_user($student[3]->id);
         singleton_service::destroy_booking_option_singleton($option->id);
         $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
         $boinfo = new bo_info($settings);
 
-        // Final assertions: all 7 WL users (s3–s9) must have confirmationcount=1.
-        for ($i = 3; $i <= 9; $i++) {
-            $answer = $DB->get_record('booking_answers', [
-                'optionid' => $option->id,
-                'userid' => $student[$i]->id,
-                'waitinglist' => MOD_BOOKING_STATUSPARAM_WAITINGLIST,
-            ]);
-            $this->assertNotEmpty($answer, "student{$i} must have a booking_answers record on WL");
-            $answerjson = empty($answer->json) ? (object)[] : json_decode($answer->json);
-            $this->assertEquals(
-                1,
-                $answerjson->confirmationcount ?? 0,
-                "Chain: student{$i} must have confirmationcount=1 after all chain batches ran"
-            );
-        }
-
-        // All 7 WL users must be at PRICEISSET (confirmed by admin, awaiting payment).
-        for ($i = 3; $i <= 9; $i++) {
+        [$id] = $boinfo->is_available($settings->id, $student[3]->id, true);
+        $this->assertEquals(
+            MOD_BOOKING_BO_COND_ALREADYBOOKED,
+            $id,
+            'student3 must be truly booked (WL=0) after completing payment.'
+        );
+        foreach ([4, 5, 6, 7, 8, 9] as $i) {
             [$id] = $boinfo->is_available($settings->id, $student[$i]->id, true);
             $this->assertEquals(
-                MOD_BOOKING_BO_COND_PRICEISSET,
+                MOD_BOOKING_BO_COND_ONWAITINGLIST,
                 $id,
-                "student{$i}: after paid-path confirm task, user should be at PRICEISSET"
+                "student{$i}: must still be untouched - s3 paying did not free a NEW seat."
             );
         }
 
-        // Sanity: only s2 remains booked (s1 cancelled; all WL users stay on WL in paid path).
+        // Phase 6: s2 also cancels → a second real seat frees up → the reconciler must offer the
+        // next-oldest UNTOUCHED WL user, s4 - NOT s8/s9, proving late joiners stay in order.
+        time_mock::set_mock_time(strtotime('+1 hour', time_mock::get_mock_time()));
+        $boption = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
+        $boption->user_delete_response($student[2]->id);
+
+        $offersfinal = $DB->get_records('booking_waitlist_offers', ['optionid' => $option->id], 'id ASC');
+        $this->assertCount(
+            2,
+            $offersfinal,
+            'Two offers must exist in total now: s3 (already resolved via payment) + s4 (new).'
+        );
+        $newoffer = end($offersfinal);
+        $this->assertEquals(
+            (int) $student[4]->id,
+            (int) $newoffer->userid,
+            'The second real seat must go to s4 (oldest remaining untouched WL user), not s8/s9 (late joiners).'
+        );
+
+        // Sanity: exactly s2 (booked, then cancelled) is gone, s3 truly booked, everyone else
+        // still on WL except s4 (offered, not yet paid - stays WL=1 until payment).
         $bookedcount = $DB->count_records('booking_answers', [
             'optionid' => $option->id,
             'waitinglist' => MOD_BOOKING_STATUSPARAM_BOOKED,
@@ -401,38 +420,33 @@ final class booking_waitinglist_confirmation_test extends advanced_testcase {
         $this->assertEquals(
             1,
             $bookedcount,
-            'Only s2 should remain booked after s1 cancelled and all WL users stayed on WL (paid path)'
+            'Only s3 should be truly booked (s1 and s2 both cancelled, s4-s9 remain on WL).'
         );
     }
 
     /**
-     * Regression test for Bug A: after a free-user's confirm-task auto-books them, the fix
-     * must purge the option cache and call check_if_free_to_book_again so that any remaining
-     * free seat triggers a new freetobookagain event, which in turn re-queues confirm tasks
-     * for waitinglist users who joined AFTER the original event (e.g. student5).
+     * Rewritten 2026-08-26 for the waitlist-progression refactor (Phase 3). The old "Bug A" fix
+     * this test protected (auto-booking a free user must re-fire freetobookagain so a remaining
+     * free seat re-queues a confirm task for late joiners) is now structurally built into
+     * progression::reconcile(): its inner loop (K1) already processes as many candidates - mixed
+     * offer/autobook decisions - as fit into the free capacity of a SINGLE reconcile() call, no
+     * task queue or re-trigger needed at all. This test now verifies that guarantee directly.
      *
      * Scenario
      * --------
      * maxanswers=2 → s1+s2 fully book via shopping_cart.
-     * s3 (price=100) + s4 (price=0/student) join WL (s3 first, s4 second).
-     * Admin raises maxanswers to 4 → freetobookagain fires → confirm tasks created for s3+s4.
-     * s5 joins WL AFTER the tasks are already queued (so s5 has no task yet).
-     * runtaskswithintime:
-     *   - s3 task → paid path → stays WL=1 (2 seats remain free after s3 stays on WL).
-     *   - s4 task → free path → auto-booked → Bug-A fix fires freetobookagain → new tasks for s3+s5.
-     * Expected state after two runtaskswithintime rounds:
-     *   - After batch 1: s3 confirmed (paid, stays WL), s4's repeat-trigger re-executes the rule
-     *     → new confirm task for s4 + repeat-trigger for s5 created; s4 NOT yet auto-booked.
-     *   - s5 has a pending task after batch 1 (chain: repeat-trigger).
-     *   - After batch 2: s4 auto-booked (free path), s5's repeat-trigger creates a direct confirm task.
-     *   - Booked (WL=0): s1, s2, s4  → exactly 3 records after batch 2.
+     * s3 (price=100, paid) + s4 (price=0/student, free) join WL, s3 first.
+     * Admin raises maxanswers to 4 → 2 seats free → ONE progression::reconcile() call must
+     * process BOTH: s3 gets an offer (K4), s4 is autobooked immediately (K3) - no batches.
+     * s5 joins WL AFTER that reconcile() already ran: capacity is now 4 - 3 booked (s1,s2,s4) -
+     * 1 open offer (s3) = 0, so s5 must be left completely untouched (K1/late-joiner ordering,
+     * already covered end-to-end for the cascading-cancellation case by
+     * test_all_paid_waitinglist_users_get_tasks_and_late_joiners_retriggered - this test's own
+     * value-add is the single-call, mixed-decision multi-candidate batch).
      *
-     * @covers \mod_booking\task\confirm_bookinganswer_by_rule_adhoc::execute
+     * @covers \mod_booking\local\waitlist\progression::reconcile
+     * @covers \mod_booking\event\observer\freetobookagain_waitlist_adapter::reconcile
      * @covers \mod_booking\booking_option::check_if_free_to_book_again
-     * @covers \mod_booking\event\bookingoption_freetobookagain
-     * @covers \mod_booking\booking_rules\rules\rule_react_on_event
-     * @covers \mod_booking\booking_rules\actions\confirm_bookinganswer
-     * @covers \mod_booking\booking_rules\conditions\select_student_in_bo
      */
     public function test_free_user_autobooking_retriggers_task_for_late_joining_waitinglist_user(): void {
         global $DB;
@@ -507,18 +521,24 @@ final class booking_waitinglist_confirmation_test extends advanced_testcase {
         }
 
         // Create booking rule: react on freetobookagain, select waitinglist users,
-        // action = confirm_bookinganswer (no mail, no counter limit, no repeat mechanism).
-        // This ensures the ONLY path for student5 to receive a task is the re-trigger fix.
-        $boevent = '"boevent":"\\\\mod_booking\\\\event\\\\bookingoption_freetobookagain"';
+        // action = send_mail_interval - the only actionname rule_condition_checker recognizes
+        // as a waitlist-progression rule (K11); without it, reconcile() finds no applicable rule
+        // and no-ops entirely, not even the K3 autobook.
+        $actiondata = json_encode([
+            'interval' => 60,
+            'subject' => 'confirmwaitinglistsubj',
+            'template' => 'confirmwaitinglistmsg',
+            'templateformat' => '1',
+        ]);
         $ruledata = [
             'name' => 'confirmwaitinglistusers',
             'conditionname' => 'select_student_in_bo',
-            'contextid' => 1,
             'conditiondata' => '{"borole":"1"}',
-            'actionname' => 'confirm_bookinganswer',
-            'actiondata' => '{}',
+            'actionname' => 'send_mail_interval',
+            'actiondata' => $actiondata,
             'rulename' => 'rule_react_on_event',
-            'ruledata' => '{' . $boevent . ',"aftercompletion":0,"cancelrules":[]}',
+            'boevent' => '\\mod_booking\\event\\bookingoption_freetobookagain',
+            'condition' => (string) \mod_booking\booking_rules\rules\rule_react_on_event::ALWAYS,
         ];
         $plugingenerator->create_rule($ruledata);
 
@@ -611,17 +631,65 @@ final class booking_waitinglist_confirmation_test extends advanced_testcase {
         booking_option::update($updaterecord);
         singleton_service::destroy_booking_option_singleton($option->id);
         $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
+        $boinfo = new bo_info($settings);
 
-        // The rule must have created confirm tasks for student3 and student4 (the two WL users).
-        $tasksafter = \core\task\manager::get_adhoc_tasks(\mod_booking\task\confirm_bookinganswer_by_rule_adhoc::class);
+        // KEY ASSERTION: a SINGLE reconcile() call (triggered synchronously by
+        // check_if_free_to_book_again() from booking_option::update()) must process BOTH WL
+        // users in one pass - no task queue, no batches, no re-trigger needed.
+        // progression::autobook() also writes a booking_waitlist_offers row (status=autobooked,
+        // an audit-trail entry, not an open offer) - so both candidates always get a row here;
+        // what matters is each one's STATUS, and only "offered" counts as an open offer against
+        // capacity (db_waitlist_offer_repository::get_open_offers()).
+        $offers = $DB->get_records('booking_waitlist_offers', ['optionid' => $option->id], 'sortorder ASC');
         $this->assertCount(
             2,
-            $tasksafter,
-            'Expected exactly 2 confirm tasks (for student3 and student4) after maxanswers increase'
+            $offers,
+            'Both s3 (offered) and s4 (autobooked) must have a booking_waitlist_offers row after '
+            . 'the maxanswers increase - one reconcile() call, no separate batches.'
+        );
+        $offersbyuserid = [];
+        foreach ($offers as $o) {
+            $offersbyuserid[(int) $o->userid] = (int) $o->status;
+        }
+        $this->assertEquals(
+            (new \mod_booking\local\waitlist\offer_statuses\offered())->get_code(),
+            $offersbyuserid[(int) $student[3]->id] ?? null,
+            's3 (paid candidate) must be offered, not autobooked.'
+        );
+        $this->assertEquals(
+            (new \mod_booking\local\waitlist\offer_statuses\autobooked())->get_code(),
+            $offersbyuserid[(int) $student[4]->id] ?? null,
+            's4 (free candidate) must be autobooked, not merely offered.'
         );
 
-        // Phase 4: student5 joins AFTER the tasks are already queued.
-        // student5 will NOT have a confirm task at this point.
+        // S4 (free, price=0): autobooked immediately (K3) - in the SAME reconcile() call as s3's
+        // offer, not a separate batch.
+        singleton_service::destroy_user($student[4]->id);
+        [$id] = $boinfo->is_available($settings->id, $student[4]->id, true);
+        $this->assertEquals(
+            MOD_BOOKING_BO_COND_ALREADYBOOKED,
+            $id,
+            'student4 (free user) must be autobooked in the same reconcile() call as s3\'s offer - '
+            . 'no separate batch/re-trigger needed under the new architecture.'
+        );
+
+        // Exactly 3 booked (s1, s2, s4) - s3 stays on WL (offered, not booked yet).
+        $bookedrecords = $DB->get_records('booking_answers', [
+            'optionid' => $option->id,
+            'waitinglist' => MOD_BOOKING_STATUSPARAM_BOOKED,
+        ]);
+        $this->assertCount(
+            3,
+            $bookedrecords,
+            'Expected exactly 3 booked (s1, s2, s4) immediately after the maxanswers increase.'
+        );
+
+        // Phase 4: student5 joins AFTER reconcile() already ran. Free capacity is now
+        // 4 (maxanswers) - 3 (booked: s1,s2,s4) - 1 (open offer: s3) = 0, so student5 must be
+        // left completely untouched - no offer, no autobook, just ONWAITINGLIST (K1/O1-O2:
+        // late joiners never jump the queue). The end-to-end "does a late joiner eventually get
+        // processed once real capacity frees up again" guarantee is already covered by
+        // test_all_paid_waitinglist_users_get_tasks_and_late_joiners_retriggered.
         time_mock::set_mock_time(strtotime('+1 hour', time_mock::get_mock_time()));
         $this->setUser($student[5]);
         singleton_service::destroy_user($student[5]->id);
@@ -632,125 +700,40 @@ final class booking_waitinglist_confirmation_test extends advanced_testcase {
         [$id] = $boinfo->is_available($settings->id, $student[5]->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
 
-        // Confirm student5 has no confirm task yet (joined after the initial event fired).
-        $alltasks = \core\task\manager::get_adhoc_tasks(\mod_booking\task\confirm_bookinganswer_by_rule_adhoc::class);
-        $taskfors5before = array_filter($alltasks, fn($t) => $t->get_custom_data()->userid == $student[5]->id);
-        $this->assertEmpty(
-            $taskfors5before,
-            'student5 must have no confirm task before tasks run (joined after the initial freetobookagain event)'
-        );
-
-        /* Phase 5: Run batch 1.
-        student3 task (direct confirm, repeat=0): paid (price=100) -> confirmwaitinglist JSON set, stays on WL.
-        student4 task (repeat-trigger, repeat=1): re-executes the rule with fresh WL query.
-        -> rule creates a new direct confirm task for s4 + a repeat-trigger for s5.
-        -> s4 is NOT auto-booked yet in this batch.
-        */
-        $this->setAdminUser();
-        $mocktime = time_mock::get_mock_time();
-        ob_start();
-        $plugingenerator->runtaskswithintime($mocktime);
-        ob_end_clean();
-
-        // Assertions after batch 1.
-
-        // KEY ASSERTION: student5 must now have a pending task created by the chain.
-        // s4's repeat-trigger re-executed the rule (fresh WL query included s5), which created
-        // a repeat-trigger task for s5. Without the chain architecture this would never happen.
-        $tasksafterb1 = \core\task\manager::get_adhoc_tasks(\mod_booking\task\confirm_bookinganswer_by_rule_adhoc::class);
-        $taskfors5 = array_filter($tasksafterb1, fn($t) => $t->get_custom_data()->userid == $student[5]->id);
-        $this->assertNotEmpty(
-            $taskfors5,
-            'Chain: a confirm_bookinganswer_by_rule_adhoc task for student5 must exist after batch 1 '
-            . '(created when s4\'s repeat-trigger re-executed the rule and the fresh WL query included s5)'
-        );
-
-        // Phase 6: Run batch 2.
-        // student4 task (direct confirm, repeat=0): free (price=0) -> user_submit_response auto-books s4.
-        // student5 task (repeat-trigger, repeat=1): re-executes rule -> creates direct confirm task for s5.
-        $this->setAdminUser();
-        ob_start();
-        $plugingenerator->runtaskswithintime($mocktime);
-        ob_end_clean();
-
-        // Assertions after batch 2.
-
-        // Student4 must now be fully booked (auto-booked by free path in batch 2).
-        singleton_service::destroy_user($student[4]->id);
-        singleton_service::destroy_booking_option_singleton($option->id);
-        $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
-        $boinfo = new bo_info($settings);
-        [$id] = $boinfo->is_available($settings->id, $student[4]->id, true);
-        $this->assertEquals(
-            MOD_BOOKING_BO_COND_ALREADYBOOKED,
-            $id,
-            'student4 (free user) should have been auto-booked in batch 2'
-        );
-
-        // The option must still have a free seat (maxanswers=4, booked: s1+s2+s4=3).
-        // Use a direct DB count to avoid any Moodle-cache or singleton contamination.
-        $bookedrecords = $DB->get_records('booking_answers', [
-            'optionid' => $option->id,
-            'waitinglist' => MOD_BOOKING_STATUSPARAM_BOOKED,
-        ]);
-        $bookedcount = count($bookedrecords);
-        // Diagnostic: list the booked user IDs vs expected.
-        $expecteduserids = [$student[1]->id, $student[2]->id, $student[4]->id];
-        $actualuserids = array_column(array_values($bookedrecords), 'userid');
-        sort($expecteduserids);
-        sort($actualuserids);
-        $this->assertEquals(
-            3,
-            $bookedcount,
-            sprintf(
-                'Expected exactly 3 booked (s1=%d,s2=%d,s4=%d) after batch 2 but got %d: actual booked userids=[%s] '
-                    . '(s3=%d s5=%d)',
-                $student[1]->id,
-                $student[2]->id,
-                $student[4]->id,
-                $bookedcount,
-                implode(',', $actualuserids),
-                $student[3]->id,
-                $student[5]->id
-            )
-        );
-
-        // Student5 must have a direct confirm task (created when s5's repeat-trigger re-ran the rule in batch 2).
-        $tasksafterb2 = \core\task\manager::get_adhoc_tasks(\mod_booking\task\confirm_bookinganswer_by_rule_adhoc::class);
-        $taskfors5b2 = array_filter($tasksafterb2, fn($t) => $t->get_custom_data()->userid == $student[5]->id);
-        $this->assertNotEmpty(
-            $taskfors5b2,
-            'Chain: student5 must have a pending confirm task after batch 2 '
-            . '(created when s5\'s repeat-trigger re-executed the rule in batch 2)'
+        $offersafters5 = $DB->get_records('booking_waitlist_offers', ['optionid' => $option->id]);
+        $this->assertCount(
+            2,
+            $offersafters5,
+            'student5 joining must not create any new offer/autobook row - no free capacity left (K1).'
         );
     }
 
     /**
-     * Regression for confirmationonnotification=2 (exclusive mode):
-     *
-     * Requirement (a): if two free seats are available and one WL user gets booked (free path),
-     * other WL users must still get notified one-at-a-time via the chain.
-     *
-     * Requirement (b): users added to WL after freetobookagain was created must still get notified
-     * if a place is still free, but must not be notified if all places have already been taken.
+     * Rewritten 2026-08-26 for the waitlist-progression refactor (Phase 3). The old
+     * "confirmationonnotification 1 vs 2 (exclusive)" distinction does not exist in the new
+     * grant_confirmation_if_required() (local/waitlist/progression.php:288): it treats ANY
+     * non-zero confirmationonnotification value identically - grant confirmation immediately once
+     * an offer/autobook is created. This test now verifies exactly that: mode 2 behaves the same
+     * as mode 1 (already covered for mode 1 by
+     * test_free_user_autobooking_retriggers_task_for_late_joining_waitinglist_user), and that a
+     * late joiner still gets nothing once K1 capacity is exhausted - the old "one seat consumed,
+     * other WL user still notified one-at-a-time" requirement no longer holds, because an OFFER
+     * now correctly reserves its seat (open offers count against capacity) instead of being a
+     * capacity-free notification - confirmed with Georg, 2026-08-26 (see
+     * test_all_paid_waitinglist_users_get_tasks_and_late_joiners_retriggered's docblock for the
+     * same finding).
      *
      * Scenario
      * --------
      * maxanswers=2 -> s1+s2 are fully booked.
      * s3 (paid) + s4 (free) join WL.
-     * maxanswers increased to 4 -> two free seats available, initial chain tasks created.
-     * s5 (free) joins WL AFTER initial tasks are queued -> no task yet.
-     * batch1: s3 direct-confirm (paid, stays WL), s4 repeat-trigger reruns rule -> s5 gets task.
-     * batch2: s4 direct-confirm (free, booked), s5 repeat-trigger reruns rule -> s5 direct task exists.
-     *   -> proves (a): one seat consumed, other WL user still notified.
-     * batch3: s5 direct-confirm (free, booked) -> all seats consumed.
-     * s6 joins WL AFTER seats consumed -> must never receive task.
+     * maxanswers increased to 4 -> ONE reconcile() call processes both: s3 offered (K4,
+     * confirmation granted immediately despite mode=2), s4 autobooked (K3) - both free seats
+     * claimed in that single call.
+     * s5 (free) joins WL AFTER that reconcile() already ran -> capacity is 0, s5 gets nothing.
      *
-     * @covers \mod_booking\task\confirm_bookinganswer_by_rule_adhoc::execute
-     * @covers \mod_booking\event\bookingoption_freetobookagain
-     * @covers \mod_booking\booking_rules\rules\rule_react_on_event
-     * @covers \mod_booking\booking_rules\actions\confirm_bookinganswer
-     * @covers \mod_booking\booking_rules\conditions\select_student_in_bo
+     * @covers \mod_booking\local\waitlist\progression::reconcile
+     * @covers \mod_booking\local\waitlist\progression::grant_confirmation_if_required
      */
     public function test_confirmationmode2_late_joiner_notified_while_seat_free_but_not_after_full(): void {
         global $DB;
@@ -823,17 +806,23 @@ final class booking_waitinglist_confirmation_test extends advanced_testcase {
             $plugingenerator->create_pricecategory($pc);
         }
 
-        // Rule reacts on freetobookagain and confirms WL users.
-        $boevent = '"boevent":"\\\\mod_booking\\\\event\\\\bookingoption_freetobookagain"';
+        // Rule reacts on freetobookagain - action = send_mail_interval, the only actionname
+        // rule_condition_checker recognizes as a waitlist-progression rule (K11).
+        $actiondata = json_encode([
+            'interval' => 60,
+            'subject' => 'confirmwaitinglistsubj',
+            'template' => 'confirmwaitinglistmsg',
+            'templateformat' => '1',
+        ]);
         $ruledata = [
             'name' => 'confirmwaitinglistusers',
             'conditionname' => 'select_student_in_bo',
-            'contextid' => 1,
             'conditiondata' => '{"borole":"1"}',
-            'actionname' => 'confirm_bookinganswer',
-            'actiondata' => '{}',
+            'actionname' => 'send_mail_interval',
+            'actiondata' => $actiondata,
             'rulename' => 'rule_react_on_event',
-            'ruledata' => '{' . $boevent . ',"aftercompletion":0,"cancelrules":[]}',
+            'boevent' => '\\mod_booking\\event\\bookingoption_freetobookagain',
+            'condition' => (string) \mod_booking\booking_rules\rules\rule_react_on_event::ALWAYS,
         ];
         $plugingenerator->create_rule($ruledata);
 
@@ -920,15 +909,37 @@ final class booking_waitinglist_confirmation_test extends advanced_testcase {
         $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
         $boinfo = new bo_info($settings);
 
-        $taskclass = \mod_booking\task\confirm_bookinganswer_by_rule_adhoc::class;
-        $tasksafterupdate = \core\task\manager::get_adhoc_tasks($taskclass);
-        $this->assertCount(
-            2,
-            $tasksafterupdate,
-            'Mode 2 chain setup: expected exactly 2 initial tasks (direct + repeat-trigger).'
+        // ONE reconcile() call must process both WL users: s3 offered, s4 autobooked - see
+        // test_free_user_autobooking_retriggers_task_for_late_joining_waitinglist_user for the
+        // same K1 mechanism verified in detail (mode=1 there).
+        $offers = $DB->get_records('booking_waitlist_offers', ['optionid' => $option->id]);
+        $offersbyuserid = [];
+        foreach ($offers as $o) {
+            $offersbyuserid[(int) $o->userid] = (int) $o->status;
+        }
+        $this->assertCount(2, $offers, 'Both s3 (offered) and s4 (autobooked) must be processed in one reconcile() call.');
+        $this->assertEquals(
+            (new \mod_booking\local\waitlist\offer_statuses\offered())->get_code(),
+            $offersbyuserid[(int) $student[3]->id] ?? null,
+            's3 (paid candidate) must be offered.'
+        );
+        $this->assertEquals(
+            (new \mod_booking\local\waitlist\offer_statuses\autobooked())->get_code(),
+            $offersbyuserid[(int) $student[4]->id] ?? null,
+            's4 (free candidate) must be autobooked.'
         );
 
-        // Late joiner s5 joins after event/tasks were already created.
+        // Mode-2-specific assertion: confirmation must be granted immediately for s3, exactly
+        // like mode 1 - grant_confirmation_if_required() does not distinguish 1 from 2.
+        [$id] = $boinfo->is_available($settings->id, $student[3]->id, true);
+        $this->assertEquals(
+            MOD_BOOKING_BO_COND_PRICEISSET,
+            $id,
+            'confirmationonnotification=2 must grant confirmation immediately, same as mode 1.'
+        );
+
+        // Late joiner s5 joins after reconcile() already claimed both free seats - capacity is
+        // 0 (4 maxanswers - 3 booked[s1,s2,s4] - 1 open offer[s3]), so s5 must get nothing.
         time_mock::set_mock_time(strtotime('+1 hour', time_mock::get_mock_time()));
         $this->setUser($student[5]);
         singleton_service::destroy_user($student[5]->id);
@@ -939,117 +950,48 @@ final class booking_waitinglist_confirmation_test extends advanced_testcase {
         [$id] = $boinfo->is_available($settings->id, $student[5]->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
 
-        $alltasksbefore = \core\task\manager::get_adhoc_tasks($taskclass);
-        $taskfors5before = array_filter($alltasksbefore, fn($t) => $t->get_custom_data()->userid == $student[5]->id);
-        $this->assertEmpty(
-            $taskfors5before,
-            'Requirement (b, positive precondition): s5 must have no task immediately after late join (event already queued).'
-        );
-
-        // Run batch 1: s3 direct confirm + s4 repeat trigger reruns rule and includes s5.
-        $this->setAdminUser();
-        $mocktime = time_mock::get_mock_time();
-        ob_start();
-        $plugingenerator->runtaskswithintime($mocktime);
-        ob_end_clean();
-
-        $tasksafterb1 = \core\task\manager::get_adhoc_tasks($taskclass);
-        $taskfors5b1 = array_filter($tasksafterb1, fn($t) => $t->get_custom_data()->userid == $student[5]->id);
-        $this->assertNotEmpty(
-            $taskfors5b1,
-            'Requirement (b, positive): late joiner s5 must be notified while a seat is still free.'
-        );
-
-        // Run batch 2: s4 direct free-booking consumes one seat, s5 repeat creates direct s5 task.
-        ob_start();
-        $plugingenerator->runtaskswithintime($mocktime);
-        ob_end_clean();
-
-        $bookedcountafterb2 = $DB->count_records('booking_answers', [
-            'optionid' => $option->id,
-            'waitinglist' => MOD_BOOKING_STATUSPARAM_BOOKED,
-        ]);
-        $this->assertEquals(3, $bookedcountafterb2, 'After batch 2 exactly one of two free seats must be consumed (booked=3).');
-
-        $tasksafterb2 = \core\task\manager::get_adhoc_tasks($taskclass);
-        $taskfors5b2 = array_filter($tasksafterb2, fn($t) => $t->get_custom_data()->userid == $student[5]->id);
-        $this->assertNotEmpty(
-            $taskfors5b2,
-            'Requirement (a): after one user is booked with two seats available, other WL users (s5) must still be notified.'
-        );
-
-        // Run batch 3: s5 direct free-booking consumes the last free seat.
-        ob_start();
-        $plugingenerator->runtaskswithintime($mocktime);
-        ob_end_clean();
-
-        $finalbookedcount = $DB->count_records('booking_answers', [
-            'optionid' => $option->id,
-            'waitinglist' => MOD_BOOKING_STATUSPARAM_BOOKED,
-        ]);
-        $this->assertEquals(4, $finalbookedcount, 'All seats must be consumed after s4 and s5 free-booking runs (booked=4).');
-
-        // Late joiner s6 joins only after option is full.
-        time_mock::set_mock_time(strtotime('+1 hour', time_mock::get_mock_time()));
-        $this->setUser($student[6]);
-        singleton_service::destroy_user($student[6]->id);
-        booking_bookit::bookit('option', $settings->id, $student[6]->id);
-        [$id] = $boinfo->is_available($settings->id, $student[6]->id, false);
-        $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION, $id);
-        booking_bookit::bookit('option', $settings->id, $student[6]->id);
-        [$id] = $boinfo->is_available($settings->id, $student[6]->id, true);
-        $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
-
-        $tasksbefores6run = \core\task\manager::get_adhoc_tasks($taskclass);
-        $taskfors6 = array_filter($tasksbefores6run, fn($t) => $t->get_custom_data()->userid == $student[6]->id);
-        $this->assertEmpty(
-            $taskfors6,
-            'Requirement (b, negative): late joiner s6 must not be notified after all seats are already taken.'
-        );
-
-        // Even running tasks again must not create a task for s6.
-        $this->setAdminUser();
-        ob_start();
-        $plugingenerator->runtaskswithintime($mocktime);
-        ob_end_clean();
-
-        $tasksafters6run = \core\task\manager::get_adhoc_tasks($taskclass);
-        $taskfors6after = array_filter($tasksafters6run, fn($t) => $t->get_custom_data()->userid == $student[6]->id);
-        $this->assertEmpty(
-            $taskfors6after,
-            'Requirement (b, negative): s6 should remain without notification task after subsequent task runs.'
+        $offersafters5 = $DB->get_records('booking_waitlist_offers', ['optionid' => $option->id]);
+        $this->assertCount(
+            2,
+            $offersafters5,
+            'Late joiner s5 must not trigger any new offer/autobook - no free capacity left (K1).'
         );
     }
 
     /**
-     * Regression test for the drained-chain late joiner with action confirm_bookinganswer:
-     * once the confirm-chain has fully drained (all WL users confirmed, no tasks left),
-     * a NEW user joining the WL must immediately receive a confirm task as long as the
-     * option still has a free seat. This is handled by the companion rule mechanism in
-     * rules_info::collect_rules_for_execution(), which re-triggers freetobookagain rules
-     * on bookingoptionwaitinglist_booked - it must cover the confirm_bookinganswer action,
-     * not only send_mail_interval.
+     * Rewritten 2026-08-26 for the waitlist-progression refactor (Phase 3). The old "companion
+     * mechanism" this test protected (a late joiner immediately gets notified once the chain has
+     * drained, as long as a seat is nominally free) does not carry over cleanly: under the new
+     * architecture, an outstanding, unresolved OFFER correctly counts against free capacity
+     * (capacity_calculator: maxanswers - booked - open_offers). So once s3 has an open offer, the
+     * option's free capacity is genuinely 0, and a new joiner (s4) correctly gets nothing - there
+     * is no seat to give them, unlike the old chain where "confirmed but still on WL" never
+     * consumed capacity.
+     *
+     * Separately, this test surfaced a real, confirmed gap while investigating (T5,
+     * WAITLIST_REFACTOR_IMPLEMENTATION_PROGRESS_2026-08-12.md: "latejoiner_waitlist_adapter ...
+     * noch offen/nicht recherchiert"): progression::reconcile() is only ever triggered by a
+     * cancellation/maxanswers-change (freetobookagain_waitlist_adapter), an offer expiring
+     * (expire_waitlist_offer_adhoc), or the periodic waitlist_heartbeat_task (T7, up to ~15min) -
+     * never by a user simply JOINING the waiting list. So if real free capacity DID exist at
+     * join time, the joiner would not be offered immediately, only picked up by the next
+     * heartbeat run. Confirmed with Georg (2026-08-26): not implementing T5 now, tracked
+     * separately, this test intentionally does not exercise the heartbeat's catch-up (that
+     * belongs in a dedicated T5/T7 test once T5 is built).
      *
      * Scenario
      * --------
      * maxanswers=2 → s1+s2 force-booked by admin (fully booked).
      * s3 (paid) joins WL.
-     * s1 cancels → freetobookagain fires → exactly 1 direct confirm task for s3
-     *   (single WL user → counter never reaches 1, no repeat-trigger).
-     * Batch runs → s3 confirmed (paid, stays WL), task queue EMPTY (chain drained).
-     * s4 joins WL AFTER the drain → companion mechanism must create a direct confirm
-     *   task for exactly s4 (seat still free: s3 stays on WL in paid path).
-     * Batch runs → s4 confirmed (confirmationcount=1, PRICEISSET).
+     * s1 cancels → ONE reconcile() call → s3 gets an offer (K4), confirmation granted
+     *   immediately (confirmationonnotification=1) → PRICEISSET.
+     * s4 joins WL while s3's offer is still open → free capacity is 0 (maxanswers=2 - booked=1[s2]
+     *   - open_offers=1[s3]) → s4 must get nothing (T5 gap aside, there is genuinely no seat).
      * Admin shrinks maxanswers to 1 → option fully booked with s2 alone.
-     * s5 joins WL → must NOT receive a task (option_is_fully_booked gate).
+     * s5 joins WL → must NOT receive an offer either (same reason, now trivially true).
      *
-     * @covers \mod_booking\booking_rules\rules_info::collect_rules_for_execution
-     * @covers \mod_booking\task\confirm_bookinganswer_by_rule_adhoc::execute
-     * @covers \mod_booking\event\bookingoption_freetobookagain
-     * @covers \mod_booking\event\bookingoptionwaitinglist_booked
-     * @covers \mod_booking\booking_rules\rules\rule_react_on_event
-     * @covers \mod_booking\booking_rules\actions\confirm_bookinganswer
-     * @covers \mod_booking\booking_rules\conditions\select_student_in_bo
+     * @covers \mod_booking\local\waitlist\progression::reconcile
+     * @covers \mod_booking\local\waitlist\capacity_calculator::free_capacity
      */
     public function test_confirm_chain_drained_late_joiner_gets_confirmation_task(): void {
         global $DB;
@@ -1108,18 +1050,23 @@ final class booking_waitinglist_confirmation_test extends advanced_testcase {
             'pricecatsortorder' => 1,
         ]);
 
-        // Create booking rule: react on freetobookagain, select all WL users (borole=1),
-        // action = confirm_bookinganswer (same rule as in the chain tests above).
-        $boevent = '"boevent":"\\\\mod_booking\\\\event\\\\bookingoption_freetobookagain"';
+        // Create booking rule: react on freetobookagain - action = send_mail_interval, the only
+        // actionname rule_condition_checker recognizes as a waitlist-progression rule (K11).
+        $actiondata = json_encode([
+            'interval' => 60,
+            'subject' => 'confirmwaitinglistsubj',
+            'template' => 'confirmwaitinglistmsg',
+            'templateformat' => '1',
+        ]);
         $ruledata = [
             'name' => 'confirmwaitinglistusers',
             'conditionname' => 'select_student_in_bo',
-            'contextid' => 1,
             'conditiondata' => '{"borole":"1"}',
-            'actionname' => 'confirm_bookinganswer',
-            'actiondata' => '{}',
+            'actionname' => 'send_mail_interval',
+            'actiondata' => $actiondata,
             'rulename' => 'rule_react_on_event',
-            'ruledata' => '{' . $boevent . ',"aftercompletion":0,"cancelrules":[]}',
+            'boevent' => '\\mod_booking\\event\\bookingoption_freetobookagain',
+            'condition' => (string) \mod_booking\booking_rules\rules\rule_react_on_event::ALWAYS,
         ];
         $rule = $plugingenerator->create_rule($ruledata);
 
@@ -1148,8 +1095,6 @@ final class booking_waitinglist_confirmation_test extends advanced_testcase {
         singleton_service::destroy_booking_singleton_by_cmid($settings->cmid);
         $boption = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
         $boinfo = new bo_info($settings);
-
-        $taskclass = \mod_booking\task\confirm_bookinganswer_by_rule_adhoc::class;
 
         // Phase 1: Admin force-books s1 and s2 to fill the option (maxanswers=2 → fully booked).
         for ($i = 1; $i <= 2; $i++) {
@@ -1187,26 +1132,26 @@ final class booking_waitinglist_confirmation_test extends advanced_testcase {
             'student3: second bookit should result in ONWAITINGLIST'
         );
 
-        // Phase 3: s1 cancels → freetobookagain fires → exactly 1 direct confirm task for s3
-        // (single WL user → the action never reaches counter=1, so no repeat-trigger is created).
+        // Phase 3: s1 cancels → ONE reconcile() call offers the seat to s3 (K4), confirmation
+        // granted immediately (confirmationonnotification=1) → PRICEISSET.
         time_mock::set_mock_time(strtotime('+1 hour', time_mock::get_mock_time()));
         $this->setAdminUser();
         singleton_service::destroy_booking_option_singleton($option->id);
         $boption = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
         $boption->user_delete_response($student[1]->id);
 
-        $tasksaftercancel = \core\task\manager::get_adhoc_tasks($taskclass);
+        $offersaftercancel = $DB->get_records('booking_waitlist_offers', ['optionid' => $option->id]);
         $this->assertCount(
             1,
-            $tasksaftercancel,
-            'Expected exactly 1 direct confirm task for s3 after s1 cancels (single WL user, no repeat-trigger).'
+            $offersaftercancel,
+            'Expected exactly one offer for s3 after s1 cancels (single WL user, one free seat).'
         );
+        $offer = reset($offersaftercancel);
+        $this->assertEquals((int) $student[3]->id, (int) $offer->userid);
 
-        // Phase 4: Run the batch → s3 confirmed (paid path, stays WL), chain fully drained.
-        $mocktime = time_mock::get_mock_time();
-        ob_start();
-        $plugingenerator->runtaskswithintime($mocktime);
-        ob_end_clean();
+        singleton_service::destroy_booking_option_singleton($option->id);
+        $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
+        $boinfo = new bo_info($settings);
 
         $answer3 = $DB->get_record('booking_answers', [
             'optionid' => $option->id,
@@ -1218,21 +1163,16 @@ final class booking_waitinglist_confirmation_test extends advanced_testcase {
         $this->assertEquals(
             1,
             $answer3json->confirmationcount ?? 0,
-            'student3 must have confirmationcount=1 after the chain batch ran'
+            'student3 must have confirmationcount=1 immediately after reconcile() ran'
         );
-        $this->assertCount(
-            0,
-            \core\task\manager::get_adhoc_tasks($taskclass),
-            'Drained-chain precondition: no confirm tasks may remain after the batch ran.'
-        );
+        [$id] = $boinfo->is_available($settings->id, $student[3]->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_PRICEISSET, $id);
 
-        // Phase 5 (KEY): s4 joins WL AFTER the chain has drained. The companion mechanism must
-        // re-trigger the freetobookagain rule for exactly s4 (one free seat left: s3 stays on WL).
+        // Phase 4 (rewritten intent, see docblock): s4 joins WL while s3's offer is still open.
+        // Free capacity is 0 (maxanswers=2 - booked=1[s2] - open_offers=1[s3]) - there is
+        // genuinely no seat to give s4, so they must get nothing (not a "companion mechanism"
+        // failing, capacity is correctly exhausted).
         time_mock::set_mock_time(strtotime('+1 hour', time_mock::get_mock_time()));
-        singleton_service::destroy_booking_option_singleton($option->id);
-        $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
-        $boinfo = new bo_info($settings);
-
         $this->setUser($student[4]);
         singleton_service::destroy_user($student[4]->id);
         booking_bookit::bookit('option', $settings->id, $student[4]->id);
@@ -1250,53 +1190,15 @@ final class booking_waitinglist_confirmation_test extends advanced_testcase {
             'student4: second bookit should result in ONWAITINGLIST'
         );
 
-        $tasksafterlatejoin = array_filter(
-            \core\task\manager::get_adhoc_tasks($taskclass),
-            fn($task) => (int)($task->get_custom_data()->ruleid ?? 0) === (int)$rule->id
-        );
-        $latejoinuserids = array_map(fn($task) => (int)($task->get_custom_data()->userid ?? 0), $tasksafterlatejoin);
-        $this->assertEquals(
-            [(int)$student[4]->id],
-            array_values($latejoinuserids),
-            'Late joiner s4=' . $student[4]->id . ' must get exactly one confirm task right after joining '
-                . 'the drained WL; actual queued confirm userids: [' . implode(',', $latejoinuserids) . ']'
-        );
-
-        // Run the batch → s4 confirmed (paid path, stays WL).
-        $this->setAdminUser();
-        $mocktime = time_mock::get_mock_time();
-        ob_start();
-        $plugingenerator->runtaskswithintime($mocktime);
-        ob_end_clean();
-
-        $answer4 = $DB->get_record('booking_answers', [
-            'optionid' => $option->id,
-            'userid' => $student[4]->id,
-            'waitinglist' => MOD_BOOKING_STATUSPARAM_WAITINGLIST,
-        ]);
-        $this->assertNotEmpty($answer4, 'student4 must have a booking_answers record on WL');
-        $answer4json = empty($answer4->json) ? (object)[] : json_decode($answer4->json);
-        $this->assertEquals(
+        $offersafters4 = $DB->get_records('booking_waitlist_offers', ['optionid' => $option->id]);
+        $this->assertCount(
             1,
-            $answer4json->confirmationcount ?? 0,
-            'Late joiner student4 must have confirmationcount=1 after their confirm task ran'
+            $offersafters4,
+            's4 joining while s3\'s offer is still open must not create any new offer - no free capacity.'
         );
 
-        singleton_service::destroy_user($student[4]->id);
-        singleton_service::destroy_booking_option_singleton($option->id);
-        $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
-        $boinfo = new bo_info($settings);
-        [$id] = $boinfo->is_available($settings->id, $student[4]->id, true);
-        $this->assertEquals(
-            MOD_BOOKING_BO_COND_PRICEISSET,
-            $id,
-            'student4: after paid-path confirm task, user should be at PRICEISSET'
-        );
-
-        // Phase 6 (negative): shrink maxanswers to 1 → option fully booked with s2 alone.
-        // (A force-book of s1 would land him on the WL with waitforconfirmation=2 and itself
-        // trigger the companion mechanism, so we make the option full via the setting instead.)
-        // A late joiner must NOT receive a confirm task when no seat is free.
+        // Phase 5 (negative, now trivially true too): shrink maxanswers to 1 → option fully
+        // booked with s2 alone. A late joiner (s5) must not receive an offer either.
         time_mock::set_mock_time(strtotime('+1 hour', time_mock::get_mock_time()));
         $this->setAdminUser();
         $updaterecord = new stdClass();
@@ -1326,12 +1228,7 @@ final class booking_waitinglist_confirmation_test extends advanced_testcase {
         $bookinganswers = singleton_service::get_instance_of_booking_answers($settings);
         $this->assertTrue(
             $bookinganswers->is_fully_booked(),
-            'Phase 6 premise: option must be fully booked after maxanswers was reduced to 1.'
-        );
-        $this->assertCount(
-            0,
-            \core\task\manager::get_adhoc_tasks($taskclass),
-            'Phase 6 premise: no confirm tasks may be queued before s5 joins.'
+            'Phase 5 premise: option must be fully booked after maxanswers was reduced to 1.'
         );
 
         $this->setUser($student[5]);
@@ -1345,26 +1242,11 @@ final class booking_waitinglist_confirmation_test extends advanced_testcase {
             'student5: second bookit should result in ONWAITINGLIST'
         );
 
+        $offersafters5 = $DB->get_records('booking_waitlist_offers', ['optionid' => $option->id]);
         $this->assertCount(
-            0,
-            \core\task\manager::get_adhoc_tasks($taskclass),
-            'Late joiner s5 must NOT trigger any confirm task when the option is fully booked.'
-        );
-
-        // Even running tasks again must not create a task for s5.
-        $this->setAdminUser();
-        $mocktime = time_mock::get_mock_time();
-        ob_start();
-        $plugingenerator->runtaskswithintime($mocktime);
-        ob_end_clean();
-
-        $tasksfors5after = array_filter(
-            \core\task\manager::get_adhoc_tasks($taskclass),
-            fn($task) => (int)($task->get_custom_data()->userid ?? 0) === (int)$student[5]->id
-        );
-        $this->assertEmpty(
-            $tasksfors5after,
-            's5 should remain without confirm task after subsequent task runs.'
+            1,
+            $offersafters5,
+            'Late joiner s5 must NOT trigger any new offer when the option is fully booked.'
         );
     }
 
@@ -1425,16 +1307,23 @@ final class booking_waitinglist_confirmation_test extends advanced_testcase {
             'pricecatsortorder' => 1,
         ]);
 
-        $boevent = '"boevent":"\\\\mod_booking\\\\event\\\\bookingoption_freetobookagain"';
+        // Action = send_mail_interval - the only actionname rule_condition_checker recognizes as
+        // a waitlist-progression rule (K11); confirm_bookinganswer is a Phase-3 no-op.
+        $actiondata = json_encode([
+            'interval' => 60,
+            'subject' => 'confirmwaitinglistsubj',
+            'template' => 'confirmwaitinglistmsg',
+            'templateformat' => '1',
+        ]);
         $plugingenerator->create_rule([
             'name' => 'confirmwaitinglistusers',
             'conditionname' => 'select_student_in_bo',
-            'contextid' => 1,
             'conditiondata' => '{"borole":"1"}',
-            'actionname' => 'confirm_bookinganswer',
-            'actiondata' => '{}',
+            'actionname' => 'send_mail_interval',
+            'actiondata' => $actiondata,
             'rulename' => 'rule_react_on_event',
-            'ruledata' => '{' . $boevent . ',"aftercompletion":0,"cancelrules":[]}',
+            'boevent' => '\\mod_booking\\event\\bookingoption_freetobookagain',
+            'condition' => (string) \mod_booking\booking_rules\rules\rule_react_on_event::ALWAYS,
         ]);
 
         $record = new stdClass();
@@ -1681,13 +1570,14 @@ final class booking_waitinglist_confirmation_test extends advanced_testcase {
     }
 
     /**
-     * A user who joins the waitinglist while the LAST direct confirm task of a chain is still
-     * pending (no repeat-trigger in the queue anymore) must still receive a confirm task:
-     * previously the companion mechanism was blocked by ANY pending task of the rule/option,
-     * although only a repeat-trigger re-queries the waitinglist.
+     * Rewritten 2026-08-26 for the waitlist-progression refactor (Phase 3) - same finding as
+     * test_confirm_chain_drained_late_joiner_gets_confirmation_task's docblock (T5 gap,
+     * capacity now correctly reserved by an open offer): s3's offer is still open/unresolved
+     * when s4 joins, so free capacity is genuinely 0 (maxanswers=2 - booked=1[s2] -
+     * open_offers=1[s3]) - s4 must get nothing, not "exactly one task despite s3 still pending".
      *
-     * @covers \mod_booking\booking_rules\rules_info::collect_rules_for_execution
-     * @covers \mod_booking\event\bookingoptionwaitinglist_booked
+     * @covers \mod_booking\local\waitlist\progression::reconcile
+     * @covers \mod_booking\local\waitlist\capacity_calculator::free_capacity
      */
     public function test_late_joiner_during_last_pending_direct_task_gets_task(): void {
         global $DB;
@@ -1698,24 +1588,21 @@ final class booking_waitinglist_confirmation_test extends advanced_testcase {
         $student = $scenario['student'];
         $plugingenerator = $scenario['plugingenerator'];
         $option = $scenario['option'];
-        $taskclass = \mod_booking\task\confirm_bookinganswer_by_rule_adhoc::class;
 
-        // S1 cancels -> single WL user s3 -> exactly ONE direct task, no repeat-trigger.
+        // S1 cancels -> single WL user s3 -> reconcile() offers the one free seat to s3.
         time_mock::set_mock_time(strtotime('+1 hour', time_mock::get_mock_time()));
         $this->setAdminUser();
         singleton_service::destroy_booking_option_singleton($option->id);
         $boption = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
         $boption->user_delete_response($student[1]->id);
 
-        $tasks = \core\task\manager::get_adhoc_tasks($taskclass);
-        $this->assertCount(1, $tasks, 'Premise: single WL user -> exactly one direct confirm task.');
-        $task = reset($tasks);
-        $this->assertEmpty(
-            $task->get_custom_data()->repeat ?? 0,
-            'Premise: the single pending task must be a direct task, not a repeat-trigger.'
-        );
+        $offers = $DB->get_records('booking_waitlist_offers', ['optionid' => $option->id]);
+        $this->assertCount(1, $offers, 'Premise: single WL user -> exactly one offer.');
+        $offer = reset($offers);
+        $this->assertEquals((int) $student[3]->id, (int) $offer->userid);
 
-        // S4 joins the WL while s3's direct task is still pending.
+        // S4 joins the WL while s3's offer is still open (unresolved) - capacity is 0, s4 must
+        // get nothing (T5 gap aside, there is genuinely no seat - see docblock).
         time_mock::set_mock_time(strtotime('+1 hour', time_mock::get_mock_time()));
         singleton_service::destroy_booking_option_singleton($option->id);
         $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
@@ -1727,27 +1614,31 @@ final class booking_waitinglist_confirmation_test extends advanced_testcase {
         [$id] = $boinfo->is_available($settings->id, $student[4]->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id, 'student4 should be on the waitinglist');
 
-        $tasksfors4 = array_filter(
-            \core\task\manager::get_adhoc_tasks($taskclass),
-            fn($t) => (int)($t->get_custom_data()->userid ?? 0) === (int)$student[4]->id
-        );
+        $offersafters4 = $DB->get_records('booking_waitlist_offers', ['optionid' => $option->id]);
         $this->assertCount(
             1,
-            $tasksfors4,
-            'Late joiner s4 must get exactly one confirm task although s3\'s direct task is still pending '
-                . '(only a repeat-trigger may block the companion mechanism).'
+            $offersafters4,
+            's4 joining while s3\'s offer is still open must not create any new offer - no free capacity.'
         );
 
-        // Drain: both users end up confirmed once.
-        $this->drain_confirm_tasks($plugingenerator);
-        foreach ([3, 4] as $i) {
-            $answer = $DB->get_record('booking_answers', [
-                'optionid' => $option->id,
-                'userid' => $student[$i]->id,
-                'waitinglist' => MOD_BOOKING_STATUSPARAM_WAITINGLIST,
-            ]);
-            $json = empty($answer->json) ? (object)[] : json_decode($answer->json);
-            $this->assertEquals(1, $json->confirmationcount ?? 0, "student{$i} must be confirmed exactly once");
-        }
+        // Sanity: s3 alone ends up confirmed once (s4 never got anything to be confirmed by).
+        // No task-draining here: reconcile() already ran synchronously at cancel time, and
+        // draining would risk running s3's own K4 hard-expiry task if enough mock time has
+        // passed, which would cascade a fresh offer to s4 and defeat the point of this check.
+        $answer3 = $DB->get_record('booking_answers', [
+            'optionid' => $option->id,
+            'userid' => $student[3]->id,
+            'waitinglist' => MOD_BOOKING_STATUSPARAM_WAITINGLIST,
+        ]);
+        $json3 = empty($answer3->json) ? (object)[] : json_decode($answer3->json);
+        $this->assertEquals(1, $json3->confirmationcount ?? 0, 'student3 must be confirmed exactly once');
+
+        $answer4 = $DB->get_record('booking_answers', [
+            'optionid' => $option->id,
+            'userid' => $student[4]->id,
+            'waitinglist' => MOD_BOOKING_STATUSPARAM_WAITINGLIST,
+        ]);
+        $json4 = empty($answer4->json) ? (object)[] : json_decode($answer4->json);
+        $this->assertEquals(0, $json4->confirmationcount ?? 0, 'student4 must not be confirmed - never got an offer');
     }
 }
