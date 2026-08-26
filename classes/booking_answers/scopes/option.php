@@ -446,9 +446,22 @@ class option extends scope_base {
         }
 
         // Fixed order of the first columns, all others follow in their existing order.
-        // On the waiting list, the user rank stays at the very first place.
+        // The confirm/delete action column (waiting list) is always rendered at the very first place,
+        // followed by the user rank.
         $orderedcolumns = [];
-        foreach (['userrank', 'userpic', 'firstname', 'lastname', 'email', 'completed', 'status', 'notes', 'places'] as $key) {
+        $fixedorder = [
+            'userrank',
+            'action_confirm_delete',
+            'userpic',
+            'firstname',
+            'lastname',
+            'email',
+            'completed',
+            'status',
+            'notes',
+            'places',
+        ];
+        foreach ($fixedorder as $key) {
             if (isset($columns[$key])) {
                 $orderedcolumns[$key] = $columns[$key];
                 unset($columns[$key]);
