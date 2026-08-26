@@ -26,6 +26,9 @@
 namespace mod_booking\local;
 
 use core_course_external;
+use core_text;
+use mod_booking\placeholders\placeholders_info;
+use mod_booking\singleton_service;
 use moodle_exception;
 use stdClass;
 use context_course;
@@ -206,6 +209,150 @@ class connectedcourse {
                 $newoption->courseid = $newoption->courseid ?: 0;
                 break;
         }
+    }
+
+    /**
+     * Apply the configured naming scheme to the Moodle course connected to a booking option.
+     *
+     * The three settings connectedcoursefullname, connectedcourseshortname and
+     * connectedcourseidnumber hold placeholder templates, for example
+     * "{titlewithoutprefix}_{optionid}". An empty setting means: leave that field as it is,
+     * which keeps the naming every site had before these settings existed.
+     *
+     * This must run AFTER the booking option has been saved, because {optionid} can only be
+     * rendered once the option actually has an id.
+     *
+     * @param int $courseid the connected Moodle course
+     * @param int $optionid the booking option the course belongs to
+     * @return void
+     */
+    public static function apply_naming_scheme(int $courseid, int $optionid) {
+
+        global $CFG, $DB;
+
+        require_once($CFG->dirroot . '/course/lib.php');
+
+        if (empty($courseid) || empty($optionid)) {
+            return;
+        }
+
+        $templates = [
+            'fullname' => trim((string) get_config('booking', 'connectedcoursefullname')),
+            'shortname' => trim((string) get_config('booking', 'connectedcourseshortname')),
+            'idnumber' => trim((string) get_config('booking', 'connectedcourseidnumber')),
+        ];
+
+        // No template configured at all: nothing to do, the legacy naming stays untouched.
+        if (empty(array_filter($templates))) {
+            return;
+        }
+
+        if (!$course = $DB->get_record('course', ['id' => $courseid], 'id, fullname, shortname, idnumber')) {
+            return;
+        }
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $cmid = (int) ($settings->cmid ?? 0);
+
+        $update = new stdClass();
+        $update->id = $courseid;
+        $haschanges = false;
+
+        // Full course names do not have to be unique, so the rendered value can be used as it is.
+        if (!empty($templates['fullname'])) {
+            $fullname = self::render_naming_template($templates['fullname'], $cmid, $optionid, 254);
+            if ($fullname !== '' && $fullname !== $course->fullname) {
+                $update->fullname = $fullname;
+                $haschanges = true;
+            }
+        }
+
+        // Short course names have to be unique. Templates containing {optionid} are unique by
+        // construction, but we cannot rely on that, so we fall back to appending a counter.
+        if (!empty($templates['shortname'])) {
+            $shortname = self::render_naming_template($templates['shortname'], $cmid, $optionid, 255);
+            if ($shortname !== '') {
+                $shortname = self::make_shortname_unique($shortname, $courseid);
+                if ($shortname !== $course->shortname) {
+                    $update->shortname = $shortname;
+                    $haschanges = true;
+                }
+            }
+        }
+
+        /* Course ID numbers have to be unique as well. Appending a counter would defeat the
+        purpose here though - the value is meant to BE the booking option id and stay
+        machine readable. So we rather leave the field alone and tell the admin about it. */
+        if (!empty($templates['idnumber'])) {
+            $idnumber = self::render_naming_template($templates['idnumber'], $cmid, $optionid, 100);
+            if ($idnumber !== '' && $idnumber !== $course->idnumber) {
+                $params = ['idnumber' => $idnumber, 'courseid' => $courseid];
+                if ($DB->record_exists_select('course', 'idnumber = :idnumber AND id <> :courseid', $params)) {
+                    debugging(
+                        "mod_booking: could not set the course id number '$idnumber' on course $courseid, " .
+                        "it is already used by another course.",
+                        DEBUG_DEVELOPER
+                    );
+                } else {
+                    $update->idnumber = $idnumber;
+                    $haschanges = true;
+                }
+            }
+        }
+
+        if (!$haschanges) {
+            return;
+        }
+
+        update_course($update);
+    }
+
+    /**
+     * Render one naming template and cut it to the length the course table can store.
+     *
+     * @param string $template the configured template, may contain placeholders
+     * @param int $cmid
+     * @param int $optionid
+     * @param int $maxlength the maximum length of the target course field
+     * @return string the rendered value, empty if the template rendered to nothing
+     */
+    private static function render_naming_template(string $template, int $cmid, int $optionid, int $maxlength): string {
+
+        $value = trim((string) placeholders_info::render_text($template, $cmid, $optionid));
+
+        if ($value === '') {
+            return '';
+        }
+
+        return core_text::substr($value, 0, $maxlength);
+    }
+
+    /**
+     * Make a course shortname unique by appending a counter, ignoring the course itself.
+     *
+     * @param string $shortname the rendered shortname
+     * @param int $courseid the course which is going to carry the shortname
+     * @return string a shortname no other course uses
+     */
+    private static function make_shortname_unique(string $shortname, int $courseid): string {
+
+        global $DB;
+
+        $candidate = $shortname;
+        $i = 1;
+
+        while ($DB->record_exists_select(
+            'course',
+            'shortname = :shortname AND id <> :courseid',
+            ['shortname' => $candidate, 'courseid' => $courseid]
+        )) {
+            $suffix = '_' . $i;
+            // Keep the result within the 255 characters the course table allows.
+            $candidate = core_text::substr($shortname, 0, 255 - core_text::strlen($suffix)) . $suffix;
+            $i++;
+        }
+
+        return $candidate;
     }
 
     /**
