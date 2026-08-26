@@ -27,6 +27,10 @@ namespace mod_booking;
 
 use advanced_testcase;
 use mod_booking\local\connectedcourse;
+use mod_booking\option\fields\courseid;
+use mod_booking_generator;
+use required_capability_exception;
+use stdClass;
 
 /**
  * Tests for \mod_booking\local\connectedcourse::copy_course.
@@ -149,5 +153,88 @@ final class connectedcourse_copy_test extends advanced_testcase {
         // Nothing was queued for a source that does not exist.
         $copytasks = \core\task\manager::get_adhoc_tasks(\core\task\asynchronous_copy_task::class);
         $this->assertCount(0, $copytasks);
+    }
+
+    /**
+     * Create a booking option connected to a Moodle course, and return the option plus that course.
+     *
+     * @return array [$option, $connectedcourse]
+     */
+    private function create_option_with_connected_course(): array {
+        $this->setAdminUser();
+
+        $course = $this->getDataGenerator()->create_course();
+        $bookingmanager = $this->getDataGenerator()->create_user();
+        $booking = $this->getDataGenerator()->create_module('booking', [
+            'course' => $course->id,
+            'bookingmanager' => $bookingmanager->username,
+        ]);
+        $connectedcourse = $this->getDataGenerator()->create_course(['shortname' => 'connectedsource']);
+
+        $record = new stdClass();
+        $record->bookingid = $booking->id;
+        $record->text = 'Option to duplicate';
+        $record->chooseorcreatecourse = 1;
+        $record->courseid = $connectedcourse->id;
+        $record->importing = 1;
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+
+        return [$plugingenerator->create_option($record), $connectedcourse];
+    }
+
+    /**
+     * Authorisation lives at the call site: duplicating a booking option is refused for a user
+     * who may not copy the connected course.
+     *
+     * copy_course() itself checks nothing, so this check in courseid::set_data() is the only
+     * thing standing between "may duplicate a booking option" and "may copy any Moodle course
+     * some option happens to point at". If it is ever removed, this test must fail.
+     *
+     * @covers \mod_booking\option\fields\courseid::set_data
+     * @return void
+     */
+    public function test_duplication_is_refused_without_course_copy_capabilities(): void {
+        set_config('duplicatemoodlecourses', 1, 'booking');
+
+        [$option] = $this->create_option_with_connected_course();
+        $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
+
+        // A plain user, holding none of moodle/backup:backupcourse, moodle/restore:restorecourse
+        // or moodle/course:create on the connected course.
+        $user = $this->getDataGenerator()->create_user();
+        $this->setUser($user);
+
+        $data = new stdClass();
+        $data->oldcopyoptionid = $option->id;
+
+        $this->expectException(required_capability_exception::class);
+        courseid::set_data($data, $settings);
+    }
+
+    /**
+     * The counterpart: with the capabilities in place the copy goes ahead and is marked as ours,
+     * so that the naming scheme may later be applied to it.
+     *
+     * @covers \mod_booking\option\fields\courseid::set_data
+     * @return void
+     */
+    public function test_duplication_copies_the_course_with_capabilities(): void {
+        set_config('duplicatemoodlecourses', 1, 'booking');
+
+        [$option, $connectedcourse] = $this->create_option_with_connected_course();
+        $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
+
+        // The helper leaves us as the admin user, who holds every capability.
+        $data = new stdClass();
+        $data->oldcopyoptionid = $option->id;
+
+        courseid::set_data($data, $settings);
+
+        $this->assertNotEmpty($data->courseid);
+        $this->assertNotEquals($connectedcourse->id, $data->courseid);
+        // The copy is marked as one we made, which is what allows it to be renamed later.
+        $this->assertEquals($data->courseid, $data->connectedcoursecopied);
     }
 }
