@@ -263,6 +263,8 @@ class restore_booking_activity_structure_step extends restore_activity_structure
             $data->usermodified = $this->get_mappingid('user', $data->usermodified) ?: 0;
         }
 
+        $this->remap_connected_course($data);
+
         $cmid = null;
         $cmidsql = "SELECT cm.id AS cmid
                     FROM {course_modules} cm
@@ -371,6 +373,39 @@ class restore_booking_activity_structure_step extends restore_activity_structure
         }
 
         $this->set_mapping('booking_option', $oldid, $newitemid);
+    }
+
+    /**
+     * Make sure a restored booking option does not point at a foreign Moodle course.
+     *
+     * A Moodle course is never part of an activity backup - only its id is. On a restore onto
+     * a DIFFERENT site that id belongs to the origin site, so keeping it would silently connect
+     * the option to whichever unrelated course happens to carry that id here, or to a course
+     * that does not exist at all. Neither is a connection anybody asked for.
+     *
+     * The one id which can be translated is the course the backup was taken from: an option
+     * enrolling into that course should now enrol into the course we are restoring into.
+     * Everything else loses its connection and has to be re-established by hand.
+     *
+     * On the same site the id is still valid and is left untouched.
+     *
+     * @param stdClass $data the booking option data from the backup file, modified in place
+     * @return void
+     */
+    protected function remap_connected_course(stdClass $data) {
+
+        if (empty($data->courseid) || $this->get_task()->is_samesite()) {
+            return;
+        }
+
+        $originalcourseid = (int) ($this->get_task()->get_info()->original_course_id ?? 0);
+
+        if (!empty($originalcourseid) && (int) $data->courseid === $originalcourseid) {
+            $data->courseid = $this->get_courseid();
+            return;
+        }
+
+        $data->courseid = 0;
     }
 
     /**
