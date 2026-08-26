@@ -4119,6 +4119,7 @@ $string['timerestrict'] = 'Restrict answering to this time period: This is depre
 $string['title'] = "Title";
 $string['titleprefix'] = 'Prefix';
 $string['titleprefix_help'] = 'Add a prefix which will be shown before the option title, e.g. "BB42".';
+$string['titlewithoutprefix'] = 'Title without prefix';
 $string['to'] = 'To';
 $string['toomanytoshow'] = 'Too many records found...';
 $string['toomuchusersbooked'] = 'The max number of users you can book is: {$a}';

@@ -3831,6 +3831,7 @@ $string['timerestrict'] = 'Buchungsoption auf diesen Zeitraum beschränken: Dies
 $string['title'] = "Titel";
 $string['titleprefix'] = 'Präfix';
 $string['titleprefix_help'] = 'Fügen Sie ein Präfix hinzu, das vor dem Titel angezeigt wird, z.B. "BB42".';
+$string['titlewithoutprefix'] = 'Titel ohne Präfix';
 $string['to'] = 'bis';
 $string['toomanytoshow'] = 'Zu viele gefunden...';
 $string['toomuchusersbooked'] = 'Maximale Anzahl an Nutzer:innen, die Sie buchen können: {$a}';
