@@ -697,14 +697,26 @@ final class rules_waitinglist_notification_test extends booking_advanced_testcas
     }
 
     /**
-     * Manual unconfirm of a currently task-confirmed WL user should trigger the next task immediately,
-     * while the task after that should still respect the rule's configured interval delay.
+     * Rewritten 2026-08-26 for the waitlist-progression refactor (Phase 3). The old version of
+     * this test deliberately locked in a KNOWN-BROKEN behaviour (documented inline as "A1/K7
+     * Ist-Zustand, NOT the desired outcome") pending B1's target-behaviour fix: a manually
+     * unconfirmed (declined) WL user was immediately re-selected for the same seat instead of
+     * being permanently skipped. B1 has since landed (see
+     * tests/local/waitlist/b1_k7_lock_persists_across_rounds_test.php) - this test now verifies
+     * the CORRECT behaviour through the real UI-level path (user_submit_response(...,
+     * MOD_BOOKING_BO_SUBMIT_STATUS_UN_CONFIRM, ...) -> unconfirm_waitlist_adapter::decline()),
+     * complementing B1's own repository-level coverage.
      *
-     * @covers \mod_booking\task\confirm_bookinganswer_by_rule_adhoc::execute
-     * @covers \mod_booking\event\bookingoption_freetobookagain
-     * @covers \mod_booking\booking_rules\rules\rule_react_on_event
-     * @covers \mod_booking\booking_rules\actions\send_mail_interval
-     * @covers \mod_booking\booking_rules\actions\confirm_bookinganswer
+     * Scenario
+     * --------
+     * maxanswers=2 -> s1+s2 force-booked. s3-s5 join WL (all price=100).
+     * s1 cancels -> ONE reconcile() call offers the one free seat to s3 (oldest WL, K4).
+     * s3 is manually unconfirmed (MOD_BOOKING_BO_SUBMIT_STATUS_UN_CONFIRM) -> their offer is
+     * declined (K7: permanent lock) and unconfirm_waitlist_adapter's own immediate reconcile()
+     * offers the same now-free seat to s4 (next-oldest untouched WL candidate) - NOT back to s3.
+     *
+     * @covers \mod_booking\event\observer\unconfirm_waitlist_adapter::decline
+     * @covers \mod_booking\local\waitlist\progression::reconcile
      */
     public function test_manual_unconfirm_triggers_immediate_next_task_but_keeps_interval_for_following_task(): void {
         global $DB;
@@ -824,18 +836,28 @@ final class rules_waitinglist_notification_test extends booking_advanced_testcas
             $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
         }
 
-        // Cancel the first booked user to free a seat and trigger freetobookagain.
+        // Progression's own expiresat/reconcile() timing runs on \core\clock, not
+        // tool_mocktesttime's time() - the two are deliberately unsynchronized
+        // (WAITLIST_REFACTOR_OUTSTANDING_TESTS_2026-08-21.md), so \core\clock has to be
+        // explicitly synced to this test's mocked time or the K4 offer's expiresat would be
+        // computed against real wall time instead.
+        $this->mock_clock_with_frozen(time_mock::get_mock_time());
+
+        // Cancel the first booked user to free a seat -> ONE reconcile() call offers it to s3
+        // (oldest WL, K4).
         $this->setAdminUser();
         $option->user_delete_response($student[1]->id);
 
         $now = time_mock::get_mock_time();
-        $intervalseconds = 60 * 60;
-        $tolerance = 5;
 
-        $this->setAdminUser();
-        ob_start();
-        $plugingenerator->runtaskswithintime($now);
-        ob_end_clean();
+        $offersaftercancel = $DB->get_records('booking_waitlist_offers', ['optionid' => $settings->id]);
+        $this->assertCount(1, $offersaftercancel, 'Exactly one offer (s3, oldest WL) after s1 cancels.');
+        $offer = reset($offersaftercancel);
+        $this->assertEquals((int) $student[3]->id, (int) $offer->userid);
+        $this->assertEquals(
+            (new \mod_booking\local\waitlist\offer_statuses\offered())->get_code(),
+            (int) $offer->status
+        );
 
         $answer3 = $DB->get_record('booking_answers', [
             'optionid' => $settings->id,
@@ -846,13 +868,8 @@ final class rules_waitinglist_notification_test extends booking_advanced_testcas
         $answer3json = empty($answer3->json) ? (object)[] : json_decode($answer3->json);
         $this->assertEquals(1, $answer3json->confirmwaitinglist ?? 0);
 
-        $taskclass = \mod_booking\task\confirm_bookinganswer_by_rule_adhoc::class;
-        $tasksbeforeunconfirm = \core\task\manager::get_adhoc_tasks($taskclass);
-        $immediatebefore = array_filter($tasksbeforeunconfirm, fn($t) => (int)$t->get_next_run_time() <= $now);
-        $delayedbefore = array_filter($tasksbeforeunconfirm, fn($t) => (int)$t->get_next_run_time() > $now);
-        $this->assertCount(0, $immediatebefore);
-        $this->assertNotEmpty($delayedbefore);
-
+        // Manually unconfirm s3 -> unconfirm_waitlist_adapter::decline() transitions their offer
+        // to declined (K7: permanent lock) and immediately reconciles again.
         $this->setAdminUser();
         $option->user_submit_response(
             $student[3],
@@ -862,64 +879,54 @@ final class rules_waitinglist_notification_test extends booking_advanced_testcas
             MOD_BOOKING_VERIFIED
         );
 
-        $tasksafterunconfirm = \core\task\manager::get_adhoc_tasks($taskclass);
-        $immediateafter = array_filter($tasksafterunconfirm, fn($t) => (int)$t->get_next_run_time() <= $now + 2);
-        $this->assertNotEmpty($immediateafter);
-
-        // A1 (K7-Vorstufe/T4, WAITLIST_REFACTOR_TEST_COVERAGE_2026-08-04.md): this locks in
-        // the CURRENT, BROKEN behaviour as a deliberately separate, clearly labelled
-        // assertion - it documents today's Ist-Zustand and is NOT the desired outcome. K7
-        // policy (see WAITLIST_REFACTOR_ARCHITECTURE_2026-08-12.md §5) requires a manually
-        // unconfirmed (declined) person to be PERMANENTLY skipped until they actively
-        // re-join the waiting list - the next round must go to the next person in the queue
-        // (student 4), not re-offer the same seat to the person who just declined it
-        // (student 3). Today it does the latter: confirm_bookinganswer's dispatch has no
-        // "previously declined" exclusion, and un-confirm writes deliberately never bump
-        // timemodified (see the comment in booking_option::write_user_answer_to_db()), so
-        // student 3 stays first in queue order and gets immediately re-selected. This is
-        // exactly the u:rise incident's root cause. This assertion is DELIBERATELY not a bug
-        // to fix here - it is the baseline B1 (Zielverhalten, Phase 3) is written against, and
-        // must be replaced (not silently deleted) once B1 lands.
-        $immediateaftertargets = array_map(fn($t) => (int)$t->get_custom_data()->userid, $immediateafter);
-        $this->assertContains(
-            (int) $student[3]->id,
-            $immediateaftertargets,
-            'A1/K7 Ist-Zustand: the declined user (student 3) is immediately re-selected today ' .
-            'instead of being permanently skipped - see B1 for the target behaviour this ' .
-            'documents the absence of.'
+        $offersafterunconfirm = $DB->get_records('booking_waitlist_offers', ['optionid' => $settings->id], 'id ASC');
+        $this->assertCount(
+            2,
+            $offersafterunconfirm,
+            'Two offers must exist now: s3 (declined) + s4 (the new one, next-oldest untouched WL candidate).'
         );
-        $this->assertNotContains(
-            (int) $student[4]->id,
-            $immediateaftertargets,
-            'A1/K7 Ist-Zustand: the next-in-queue user (student 4) is NOT reached today, ' .
-            'because the declined user (student 3) still occupies the front of the queue.'
+        $offersbyuserid = [];
+        foreach ($offersafterunconfirm as $o) {
+            $offersbyuserid[(int) $o->userid] = (int) $o->status;
+        }
+        $this->assertEquals(
+            (new \mod_booking\local\waitlist\offer_statuses\declined())->get_code(),
+            $offersbyuserid[(int) $student[3]->id] ?? null,
+            'B1/K7: the manually unconfirmed s3 must be permanently declined, not left open.'
+        );
+        $this->assertEquals(
+            (new \mod_booking\local\waitlist\offer_statuses\offered())->get_code(),
+            $offersbyuserid[(int) $student[4]->id] ?? null,
+            'B1/K7: the freed seat must go to s4 (next-oldest untouched WL candidate), NOT back ' .
+            'to s3 - this is exactly the u:rise incident B1 fixed (WAITLIST_REFACTOR_ARCHITECTURE_' .
+            '2026-08-12.md §5).'
+        );
+        $this->assertArrayNotHasKey(
+            (int) $student[5]->id,
+            $offersbyuserid,
+            's5 must remain untouched - no free capacity left for a second offer.'
         );
 
-        ob_start();
-        $plugingenerator->runtaskswithintime($now);
-        ob_end_clean();
-
-        $remainingtasks = \core\task\manager::get_adhoc_tasks($taskclass);
-        $remainingdelayed = array_filter($remainingtasks, fn($t) => (int)$t->get_next_run_time() > $now);
-        $this->assertNotEmpty($remainingdelayed);
-
-        $minremainingruntime = min(array_map(fn($t) => (int)$t->get_next_run_time(), $remainingdelayed));
-        $this->assertGreaterThanOrEqual(
-            $now + $intervalseconds - $tolerance,
-            $minremainingruntime
-        );
+        // The new offer for s4 must respect the rule's own interval as its hard-expiry deadline
+        // (K4), same mechanism the old "second task keeps the interval delay" assertion checked.
+        $offerfors4 = $DB->get_record('booking_waitlist_offers', ['optionid' => $settings->id, 'userid' => $student[4]->id]);
+        $this->assertGreaterThanOrEqual($now + 60 * 60 - 5, (int) $offerfors4->expiresat);
     }
 
     /**
-     * Late WL joiners should restart an interval chain if the previous chain already drained
-     * while the option still has a free seat.
-     * @covers \mod_booking\booking_rules\rules_info::collect_rules_for_execution
-     * @covers \mod_booking\booking_rules\rules_info::filter_rules_and_execute
-     * @covers \mod_booking\booking_rules\rules\rule_react_on_event
-     * @covers \mod_booking\booking_rules\actions\send_mail_interval
-     * @covers \mod_booking\booking_rules\conditions\select_student_in_bo
-     * @covers \mod_booking\event\bookingoption_freetobookagain
-     * @covers \mod_booking\event\bookingoptionwaitinglist_booked
+     * Rewritten 2026-08-26 for the waitlist-progression refactor (Phase 3) - same finding as
+     * test_confirm_chain_drained_late_joiner_gets_confirmation_task and
+     * test_late_joiner_during_last_pending_direct_task_gets_task (see their docblocks): s3's
+     * offer is still open/unresolved when s4 joins, so free capacity is genuinely 0 (maxanswers=2
+     * - booked=1[s2] - open_offers=1[s3]) - s4 must get nothing, not "restart an interval chain".
+     * The old "companion mechanism" this test protected does not exist in the new architecture;
+     * an outstanding offer correctly reserves its seat instead of being a capacity-free
+     * notification. Separately, T5 (no adapter re-checks capacity on a plain WL join - see the
+     * two docblocks above) means even genuinely-free capacity wouldn't be picked up immediately
+     * here, only via the next unrelated trigger or the heartbeat's ~15min catch-up.
+     *
+     * @covers \mod_booking\local\waitlist\progression::reconcile
+     * @covers \mod_booking\local\waitlist\capacity_calculator::free_capacity
      */
     public function test_late_waitinglist_joiner_after_interval_chain_drains_gets_new_task(): void {
         global $DB;
@@ -1035,13 +1042,14 @@ final class rules_waitinglist_notification_test extends booking_advanced_testcas
         [$id] = $boinfo->is_available($settings->id, $student[3]->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
 
+        // ONE reconcile() call offers the one free seat to s3 (K4) - synchronous, no task queue.
         $this->setAdminUser();
         $option->user_delete_response($student[1]->id);
 
-        $now = time_mock::get_mock_time();
-        ob_start();
-        $plugingenerator->runtaskswithintime($now);
-        ob_end_clean();
+        $offersaftercancel = $DB->get_records('booking_waitlist_offers', ['optionid' => $settings->id]);
+        $this->assertCount(1, $offersaftercancel, 'Exactly one offer (s3, oldest WL) after s1 cancels.');
+        $offer = reset($offersaftercancel);
+        $this->assertEquals((int) $student[3]->id, (int) $offer->userid);
 
         $answer3 = $DB->get_record('booking_answers', [
             'optionid' => $settings->id,
@@ -1057,6 +1065,9 @@ final class rules_waitinglist_notification_test extends booking_advanced_testcas
         $this->assertCount(0, \core\task\manager::get_adhoc_tasks($confirmtaskclass));
         $this->assertCount(0, \core\task\manager::get_adhoc_tasks($mailtaskclass));
 
+        // S4 joins while s3's offer is still open - free capacity is 0 (maxanswers=2 - booked=1[s2]
+        // - open_offers=1[s3]), so s4 must get nothing (see docblock: no "restart the chain" -
+        // there is genuinely no seat, T5 aside).
         time_mock::set_mock_time(strtotime('+1 minute', time_mock::get_mock_time()));
         $this->setUser($student[4]);
         booking_bookit::bookit('option', $settings->id, $student[4]->id);
@@ -1066,62 +1077,14 @@ final class rules_waitinglist_notification_test extends booking_advanced_testcas
         [$id] = $boinfo->is_available($settings->id, $student[4]->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
 
-        $allconfirmtasksforrule = array_filter(
-            \core\task\manager::get_adhoc_tasks($confirmtaskclass),
-            fn($task) => (int)($task->get_custom_data()->ruleid ?? 0) === (int)$rule->id
+        $offersafters4 = $DB->get_records('booking_waitlist_offers', ['optionid' => $settings->id]);
+        $this->assertCount(
+            1,
+            $offersafters4,
+            's4 joining must not create any new offer - no free capacity left (K1).'
         );
-        $allmailtasksforrule = array_filter(
-            \core\task\manager::get_adhoc_tasks($mailtaskclass),
-            fn($task) => (int)($task->get_custom_data()->ruleid ?? 0) === (int)$rule->id
-        );
-        $confirmuserids = array_map(fn($task) => (int)($task->get_custom_data()->userid ?? 0), $allconfirmtasksforrule);
-        $mailuserids = array_map(fn($task) => (int)($task->get_custom_data()->userid ?? 0), $allmailtasksforrule);
-        $this->assertTrue(
-            in_array((int)$student[4]->id, $confirmuserids, true),
-            'Expected confirm task for late joiner s4=' . $student[4]->id
-                . ' (s3=' . $student[3]->id . '); actual queued confirm userids: ['
-                . implode(',', $confirmuserids) . ']'
-        );
-        $this->assertTrue(
-            in_array((int)$student[4]->id, $mailuserids, true),
-            'Expected mail task for late joiner s4=' . $student[4]->id
-                . ' (s3=' . $student[3]->id . '); actual queued mail userids: ['
-                . implode(',', $mailuserids) . ']'
-        );
-
-        $newnow = time_mock::get_mock_time();
-        foreach ($allconfirmtasksforrule as $task) {
-            $this->assertLessThanOrEqual($newnow, (int)$task->get_next_run_time());
-        }
-        foreach ($allmailtasksforrule as $task) {
-            $this->assertLessThanOrEqual($newnow, (int)$task->get_next_run_time());
-        }
-
-        // Run the queued late-joiner tasks and verify exactly one mail for the late joiner.
-        $sink = $this->redirectMessages();
-        ob_start();
-        $this->runAdhocTasks();
-        $messages = $sink->get_messages();
-        ob_get_clean();
-        $sink->close();
-
-        $this->assertCount(1, $messages);
-        $this->assertEquals($student[4]->id, (int)$messages[0]->useridto);
-        $this->assertEquals('freeplacedelaysubj', $messages[0]->subject);
-        $this->assertEquals('freeplacedelaymsg', $messages[0]->fullmessage);
-
-        $messagekeys = [];
-        foreach ($messages as $message) {
-            $messagekey = (int)$message->useridto . ':' . $message->subject;
-            $this->assertArrayNotHasKey($messagekey, $messagekeys);
-            $messagekeys[$messagekey] = true;
-        }
-
-        $remainingmailtasksforrule = array_filter(
-            \core\task\manager::get_adhoc_tasks($mailtaskclass),
-            fn($task) => (int)($task->get_custom_data()->ruleid ?? 0) === (int)$rule->id
-        );
-        $this->assertCount(0, $remainingmailtasksforrule);
+        $this->assertCount(0, \core\task\manager::get_adhoc_tasks($confirmtaskclass));
+        $this->assertCount(0, \core\task\manager::get_adhoc_tasks($mailtaskclass));
     }
 
     /**
