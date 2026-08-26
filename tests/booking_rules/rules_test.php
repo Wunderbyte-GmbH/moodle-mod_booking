@@ -1254,7 +1254,14 @@ final class rules_test extends booking_advanced_testcase {
                 $this->assertStringContainsString($ruledata1['actiondata'], $customdata->rulejson);
                 $this->assertEquals($teacher1->id, $message->get_userid());
                 $rulejson = json_decode($customdata->rulejson);
-                $this->assertContains($rulejson->datafromevent->relateduserid, [$student1->id, $student2->id]);
+                // Cast both sides to int: relateduserid comes back as int from the JSON, while
+                // $student->id can be a string (DB-driver dependent) - PHPUnit 11's assertContains
+                // compares strictly (===), so a bare int-vs-string mismatch fails even though the
+                // values are numerically identical.
+                $this->assertContains(
+                    (int) $rulejson->datafromevent->relateduserid,
+                    [(int) $student1->id, (int) $student2->id]
+                );
             }
         }
     }

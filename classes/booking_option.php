@@ -1743,10 +1743,25 @@ class booking_option {
                     ]
                 );
                 $event->trigger();
+            }
 
+            if (
+                $waitinglist == MOD_BOOKING_STATUSPARAM_BOOKED
+                && (
+                    !empty($answersonwaitinglist[$user->id])
+                    || !empty($bookinganswers->get_usersreserved()[$user->id])
+                )
+            ) {
                 // Waitlist-progression refactoring (Phase 3): the person just completed their
                 // booking from the waiting list - accept their open offer, if the new mechanism
-                // has one for them.
+                // has one for them. Must also cover the standard shopping_cart 2-step flow
+                // (WAITINGLIST -> RESERVED -> BOOKED): by the time this final BOOKED write
+                // happens, the candidate has already left the "usersonwaitinglist" bucket for
+                // "usersreserved" - checking only the former silently left their
+                // booking_waitlist_offers row stuck at "offered" forever, permanently
+                // undercounting capacity_calculator::free_capacity() for this option (found
+                // 2026-08-26 while rewriting booking_waitinglist_confirmation_test.php for the
+                // new architecture).
                 \mod_booking\event\observer\booking_accepted_waitlist_adapter::accept($this->optionid, $user->id);
             }
 
@@ -2138,6 +2153,21 @@ class booking_option {
                     $currentanswer->waitinglist,
                     $currentanswer->baid,
                     $currentanswer->timecreated
+                );
+
+                // Waitlist-progression refactoring (Phase 3): this is the RESERVED -> BOOKED
+                // transition used by the standard shopping_cart checkout flow (reserve on
+                // add-to-cart, confirm here on payment) - it never goes through
+                // user_submit_response(), so the equivalent accept-adapter call has to live here
+                // too. A no-op if the user has no open offer under the new mechanism. Without
+                // this, a real, paid waitlist booking completed via the cart left its
+                // booking_waitlist_offers row stuck at "offered" forever, permanently
+                // undercounting capacity_calculator::free_capacity() for this option (found
+                // 2026-08-26 while rewriting booking_waitinglist_confirmation_test.php for the
+                // new architecture).
+                \mod_booking\event\observer\booking_accepted_waitlist_adapter::accept(
+                    $currentanswer->optionid,
+                    $currentanswer->userid
                 );
 
                 $counter++;
