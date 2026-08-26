@@ -236,6 +236,34 @@ Best regards,
 The Booking Team
 ```
 
+### Conditional text: `{#name}...{/name}`
+
+Text that only makes sense together with a placeholder can be wrapped in a **section**: `{#name}` opens it, `{/name}` closes it, and `{name}` is the placeholder the section depends on. When the placeholder renders a value, the two markers are removed and the text in between stays; when the placeholder is **empty**, the whole section - markers, text and the placeholder itself - is removed.
+
+```
+{#location}Venue: {location}{/location}
+{#dates}
+Dates:
+{dates}
+{/dates}
+```
+
+With a location set, the first line becomes `Venue: Vienna`; without one, nothing of it remains - no dangling "Venue:" label. The same applies to the dates block, e.g. for self-learning courses, where `{dates}`, `{datescompact}`, `{startdate}`, `{starttime}`, `{enddate}` and `{endtime}` are always empty (see [Dates and times](#3-dates-and-times)).
+
+Sections work wherever placeholders are rendered - rule emails (subject and body), confirmation texts, option descriptions - and:
+
+- may span several lines and HTML paragraphs (`<p>{#location}</p><p>Venue: {location}</p><p>{/location}</p>` is removed as a whole; an empty `<p></p>` can remain, which is invisible in the mail),
+- may be nested: `{#title}{title} {#location}in {location}{/location}{/title}` keeps the outer section and drops only the inner one when the location is empty,
+- may be used several times with the same name - every `{#name}...{/name}` block in the text is handled.
+
+**Limitations**
+
+- Whether a section is kept or removed is decided by the placeholder `{name}` itself, so `{name}` has to occur somewhere in the text (usually inside the section). A section without it, e.g. `{#location}Venue{/location}`, is left untouched - including the markers.
+- Sections must refer to an existing placeholder. `{#foo}...{/foo}` for an unknown name stays in the text as it is.
+- A missing closing marker disables the removal: `{#location}Venue: {location}` renders as `{#location}Venue: ` when the location is empty.
+- "Empty" means empty in the PHP sense: a value of `0` counts as empty as well, so a section depending on a numeric placeholder disappears when the number is zero.
+- Only the placeholder named in the markers is checked. Other placeholders inside the section are rendered normally, even if they are empty.
+
 ### In confirmation texts (option form)
 
 The same tokens work in the **Confirmation text** field of the booking option's **Advanced** section.

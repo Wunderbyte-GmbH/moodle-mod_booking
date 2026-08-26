@@ -35,6 +35,10 @@ use stdClass;
 use moodle_url;
 use Throwable;
 
+defined('MOODLE_INTERNAL') || die();
+
+require_once($CFG->dirroot . '/mod/booking/lib.php');
+
 /**
  * Settings class for booking option instances.
  *
@@ -370,6 +374,15 @@ class booking_option_settings {
      */
     public function get_booking_option_properties(): array {
         return array_keys(get_object_vars($this));
+    }
+
+    /**
+     * Whether this option is a self-learning course: no option dates and no official start or end.
+     *
+     * @return bool
+     */
+    public function is_selflearningcourse(): bool {
+        return (int) $this->type === MOD_BOOKING_OPTIONTYPE_SELFLEARNINGCOURSE;
     }
 
     /**

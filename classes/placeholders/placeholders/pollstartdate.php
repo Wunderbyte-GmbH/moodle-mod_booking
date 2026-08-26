@@ -77,7 +77,8 @@ class pollstartdate extends \mod_booking\placeholders\placeholder_base {
 
             $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
-            $value = $settings->coursestarttime ?
+            // Self-learning courses have no dates and no official start or end.
+            $value = $settings->coursestarttime && !$settings->is_selflearningcourse() ?
                 userdate((int) $settings->coursestarttime, get_string('pollstrftimedate', 'booking')) : '';
 
             // Save the value to profit from singleton.

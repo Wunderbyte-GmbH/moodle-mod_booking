@@ -163,7 +163,7 @@ class placeholders_info {
                 }
 
                 $searchstring = '{' . $placeholder . '}';
-                $text = str_replace($searchstring, $value, $text);
+                $text = str_replace($searchstring, $value ?? '', $text);
             } else if (!empty($optionid)) {
                 // The customfields class takes care of booking custom fields...
                 // ... and custom user profile fields.

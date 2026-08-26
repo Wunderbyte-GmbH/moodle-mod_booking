@@ -78,7 +78,8 @@ class startdate extends \mod_booking\placeholders\placeholder_base {
             $timeformat = get_string('strftimedate', 'langconfig');
 
             $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
-            $value = $settings->coursestarttime ?
+            // Self-learning courses have no dates and no official start or end.
+            $value = $settings->coursestarttime && !$settings->is_selflearningcourse() ?
                 userdate($settings->coursestarttime, $timeformat) : '';
 
             // Save the value to profit from singleton.

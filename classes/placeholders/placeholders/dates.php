@@ -85,12 +85,17 @@ class dates extends \mod_booking\placeholders\placeholder_base {
             if (isset(placeholders_info::$placeholders[$cachekey])) {
                 return placeholders_info::$placeholders[$cachekey];
             }
-            /** @var \mod_booking\output\renderer $output*/
-            $output = $PAGE->get_renderer('mod_booking');
+            if ($settings->is_selflearningcourse()) {
+                // Self-learning courses have no dates and no official start or end.
+                $value = '';
+            } else {
+                /** @var \mod_booking\output\renderer $output*/
+                $output = $PAGE->get_renderer('mod_booking');
 
-            // Render optiondates using a template.
-            $data = new optiondates_only($settings);
-            $value = $output->render_optiondates_only($data);
+                // Render optiondates using a template.
+                $data = new optiondates_only($settings);
+                $value = $output->render_optiondates_only($data);
+            }
 
             // Save the value to profit from singleton.
             placeholders_info::$placeholders[$cachekey] = $value;

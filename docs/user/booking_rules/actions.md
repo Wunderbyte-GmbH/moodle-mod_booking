@@ -164,6 +164,8 @@ No additional configuration fields are required for this action beyond the stand
 
 The `send_mail` and `send_mail_interval` actions support a rich set of placeholders that are substituted with real values when the email is sent.
 
+Text that should only appear when a placeholder has a value can be wrapped in a section: `{#location}Venue: {location}{/location}` is dropped as a whole when the location is empty. See [Conditional text](../placeholders/README.md#conditional-text-namename) in the placeholders reference for the rules and limitations.
+
 Commonly used placeholders:
 
 | Placeholder | Replaced with |

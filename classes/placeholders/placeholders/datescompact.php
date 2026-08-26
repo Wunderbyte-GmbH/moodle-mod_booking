@@ -88,8 +88,13 @@ class datescompact extends \mod_booking\placeholders\placeholder_base {
                 return placeholders_info::$placeholders[$cachekey];
             }
 
-            $sessions = dates_handler::return_dates_with_strings($settings);
-            $value = self::render_compact_dates($sessions);
+            if ($settings->is_selflearningcourse()) {
+                // Self-learning courses have no dates and no official start or end.
+                $value = '';
+            } else {
+                $sessions = dates_handler::return_dates_with_strings($settings);
+                $value = self::render_compact_dates($sessions);
+            }
 
             // Save the value to profit from singleton.
             placeholders_info::$placeholders[$cachekey] = $value;

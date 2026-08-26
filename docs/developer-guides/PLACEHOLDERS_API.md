@@ -33,6 +33,7 @@ When `placeholders_info::render_text()` is called with a text containing `{token
 2. For each token, the class name is derived: the token `{myfieldname}` maps to class `myfieldname` in the namespace `mod_booking\placeholders\placeholders\`.
 3. If the class exists and `is_applicable()` returns `true`, `return_value()` is called.
 4. The returned string replaces the `{token}` in the text.
+5. Finally, conditional sections `{#name}...{/name}` are evaluated: if the placeholder `{name}` rendered an empty value (`''`, `null` or `'0'` - PHP `empty()`), the whole section is removed from the text, otherwise only the two markers. A section is only evaluated if `{name}` occurs in the text and resolves to an existing placeholder. Return `''` rather than `null` for "no value" (see [Conditional text](../user/placeholders/README.md#conditional-text-namename) in the user reference).
 
 Namespaces searched (in order):
 1. `mod_booking\placeholders\placeholders\` — core placeholder classes
