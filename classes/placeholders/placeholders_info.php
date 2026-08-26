@@ -260,6 +260,30 @@ class placeholders_info {
     }
 
     /**
+     * Drop all cached placeholder values of one booking option.
+     *
+     * The cachekeys are "$classname-$optionid", "$classname-$optionid-$userid" or
+     * "$classname-$optionid-$placeholder", so every entry whose second segment is the
+     * option id is removed. Called from singleton_service::destroy_booking_option_singleton(),
+     * so placeholders like {dates} are rendered anew after the option (e.g. its dates) changed
+     * within the same PHP process - cron runs many adhoc tasks in one process, phpunit too.
+     *
+     * @param int $optionid
+     * @return void
+     */
+    public static function purge_for_option(int $optionid): void {
+        if ($optionid <= 0) {
+            return;
+        }
+        foreach (array_keys(self::$placeholders) as $cachekey) {
+            $segments = explode('-', (string) $cachekey);
+            if (isset($segments[1]) && $segments[1] === (string) $optionid) {
+                unset(self::$placeholders[$cachekey]);
+            }
+        }
+    }
+
+    /**
      * Create list of localized placeholders.
      * @param bool $pollurl
      * @return array|void

@@ -24,6 +24,7 @@ use mod_booking\booking_answers\booking_answers;
 use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
 use mod_booking\booking_settings;
+use mod_booking\placeholders\placeholders_info;
 use stdClass;
 
 /**
@@ -258,6 +259,9 @@ class singleton_service {
      */
     public static function destroy_booking_option_singleton($optionid) {
         $instance = self::get_instance();
+
+        // Placeholders rendered for this option (e.g. {dates}) must be rendered anew as well.
+        placeholders_info::purge_for_option((int) $optionid);
 
         if (
             isset($instance->bookingoptionsettings[$optionid])
