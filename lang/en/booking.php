@@ -1518,6 +1518,20 @@ $string['confirmusers'] = 'Confirm users activity';
 $string['confirmuserswith'] = 'Confirm users who completed activity or received badge';
 $string['connectedbooking'] = '[DEPRECATED] Connected booking';
 $string['connectedbooking_help'] = 'Booking instance eligible for transferring booked users. You can define from which option within the selected booking instance and how many users you will accept.';
+$string['connectedcoursefullname'] = 'Full course name';
+$string['connectedcoursefullname_desc'] = 'Template for the full name of the connected Moodle course. Leave empty to keep the current behaviour. Full course names do not have to be unique.';
+$string['connectedcourseidnumber'] = 'Course ID number';
+$string['connectedcourseidnumber_desc'] = 'Template for the course ID number of the connected Moodle course. Leave empty to keep the current behaviour (no course ID number). Course ID numbers have to be unique: if the rendered value is already taken by another course, it is left empty instead.';
+$string['connectedcoursenaming'] = 'Connected course naming <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
+$string['connectedcoursenaming_desc'] = 'Here you can define how the Moodle courses connected to a booking option are named - both when they are newly created and when they are duplicated.
+Every field is a template which may contain placeholders, e.g. <code>{titlewithoutprefix}_{optionid}</code>.
+Leave a field empty to keep the current behaviour for that field.
+<br><br>
+The most useful placeholders here are <code>{titlewithoutprefix}</code> (the booking option title without the prefix), <code>{optionid}</code> (the ID of the booking option) and <code>{instancename}</code> (the name of the booking instance). All placeholders available for mail templates can be used.
+<br><br>
+<b>Note:</b> Do not use <code>{title}</code> or <code>{bookingoptionname}</code> here. Both of them need a logged in user and therefore render as an empty string when a course is created or duplicated in the background, e.g. by a scheduled task. Use <code>{titlewithoutprefix}</code> instead.';
+$string['connectedcourseshortname'] = 'Short course name';
+$string['connectedcourseshortname_desc'] = 'Template for the short name of the connected Moodle course. Leave empty to keep the current behaviour. Short course names have to be unique: adding <code>{optionid}</code> makes them unique automatically. If the rendered value is already taken, a number is appended.';
 $string['connectedmoodlecourse'] = 'Connected Moodle course';
 $string['connectedmoodlecourse_help'] = 'Choose "Create new course..." if you want a new Moodle course to be created for this booking option.';
 $string['consumeatonce'] = 'All credits have to be consumed at once';
