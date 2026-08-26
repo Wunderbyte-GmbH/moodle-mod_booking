@@ -119,7 +119,7 @@ class connectedcourse {
         // (the heavy backup+restore happens later in the queued async task).
         $newcourseid = \restore_dbops::create_new_course($fullnamewithprefix, $shortname, $categoryid);
 
-        // Copy data for the restore controller (same shape as courseid::create_copy()).
+        // Copy data for the restore controller (same shape as self::create_copy()).
         $copydata = new stdClass();
         $copydata->courseid = $origincourseid;
         $copydata->fullname = $fullnamewithprefix;
@@ -209,6 +209,115 @@ class connectedcourse {
                 $newoption->courseid = $newoption->courseid ?: 0;
                 break;
         }
+    }
+
+    /**
+     * Copy a Moodle course and return the id of the copy.
+     *
+     * This is the mechanism only: it does NOT check any capabilities, because it is called
+     * both from an interactive form and from background code (adhoc tasks, restore steps)
+     * where the acting user is not the person who triggered the duplication. Callers which
+     * act on behalf of a user must do their own authorisation before calling this.
+     *
+     * The copy is created as a shell immediately, so its id is known right away, while the
+     * actual backup and restore happen later in the queued adhoc task.
+     *
+     * @param int $sourcecourseid the course to copy
+     * @return int the id of the new course, 0 if the source course does not exist
+     */
+    public static function copy_course(int $sourcecourseid): int {
+
+        global $DB;
+
+        if (empty($sourcecourseid) || !$DB->record_exists('course', ['id' => $sourcecourseid])) {
+            return 0;
+        }
+
+        $sourcecourse = get_course($sourcecourseid);
+
+        // Gather copy data. The names given here are provisional: when a naming scheme is
+        // configured, apply_naming_scheme() overwrites them once the option id is known.
+        $copydata = new stdClass();
+        $copydata->courseid = $sourcecourseid;
+        $copydata->fullname = $sourcecourse->fullname . " (" . get_string('copy', 'mod_booking') . ")";
+        $copydata->shortname = $sourcecourse->shortname . "_" . strtolower(get_string('copy', 'mod_booking'));
+        $copydata->category = $sourcecourse->category;
+        $copydata->visible = $sourcecourse->visible;
+        $copydata->startdate = $sourcecourse->startdate;
+        $copydata->enddate = $sourcecourse->enddate;
+        $copydata->idnumber = '';
+        $copydata->userdata = "0"; // This might be a feature in a future version.
+        $copydata->keptroles = [];
+        // Roles ($copydata->keptroles = [roleid1, roleid2,...]) are also not yet included.
+
+        return self::create_copy($copydata);
+    }
+
+    /**
+     * Creates a course copy.
+     *
+     * @param stdClass $copydata Course copy data from process_formdata
+     * @return int $newcourseid the id of the new course
+     */
+    private static function create_copy(stdClass $copydata): int {
+
+        global $CFG;
+
+        require_once($CFG->dirroot . '/backup/util/includes/backup_includes.php');
+        require_once($CFG->dirroot . '/backup/util/includes/restore_includes.php');
+
+        /* The copy is performed by the system on the user's behalf, not by the user directly.
+        Running it as the admin keeps it working where there is no meaningful acting user -
+        adhoc tasks and restore steps - and matches create_course_from_template_course(). */
+        $adminid = get_admin()->id;
+
+        $copyids = [];
+
+        // Create the initial backupcontoller.
+        $bc = new \backup_controller(
+            \backup::TYPE_1COURSE,
+            $copydata->courseid,
+            \backup::FORMAT_MOODLE,
+            \backup::INTERACTIVE_NO,
+            \backup::MODE_COPY,
+            $adminid,
+            \backup::RELEASESESSION_YES
+        );
+        $copyids['backupid'] = $bc->get_backupid();
+
+        // Create the initial restore contoller.
+        [$fullname, $shortname] = \restore_dbops::calculate_course_names(
+            0,
+            get_string('copyingcourse', 'backup'),
+            get_string('copyingcourseshortname', 'backup')
+        );
+        $newcourseid = \restore_dbops::create_new_course($fullname, $shortname, $copydata->category);
+        $rc = new \restore_controller(
+            $copyids['backupid'],
+            $newcourseid,
+            \backup::INTERACTIVE_NO,
+            \backup::MODE_COPY,
+            $adminid,
+            \backup::TARGET_NEW_COURSE,
+            null,
+            \backup::RELEASESESSION_NO,
+            $copydata
+        );
+        $copyids['restoreid'] = $rc->get_restoreid();
+
+        $bc->set_status(\backup::STATUS_AWAITING);
+        $bc->get_status();
+        $rc->save_controller();
+
+        // Create the ad-hoc task to perform the course copy.
+        $asynctask = new \core\task\asynchronous_copy_task();
+        $asynctask->set_custom_data($copyids);
+        \core\task\manager::queue_adhoc_task($asynctask);
+
+        // Clean up the controller.
+        $bc->destroy();
+
+        return (int) $newcourseid;
     }
 
     /**
