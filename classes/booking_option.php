@@ -2261,6 +2261,10 @@ class booking_option {
                 ]
             );
             $event->trigger();
+            // T5: reconcile immediately in case capacity happens to already be free right now
+            // (waitforconfirmation routes everyone onto the waitinglist unconditionally). Without
+            // this, only waitlist_heartbeat_task (T7, up to ~15 min delay) would pick it up.
+            \mod_booking\event\observer\latejoiner_waitlist_adapter::reconcile($this->optionid);
         } else {
             $event = event\bookingoption_booked::create(
                 ['objectid' => $this->optionid,
