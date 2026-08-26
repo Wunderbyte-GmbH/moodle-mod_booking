@@ -150,25 +150,14 @@ final class waitlist_migration_fixture_builder_test extends booking_advanced_tes
             'The offer must still be open - the confirm task must not have run yet.'
         );
 
-        // Sanity-check: actually running the still-open task now must produce the expected
-        // confirm write, proving the fixture is a real, functional pending task (not an
-        // orphaned/broken one).
-        // Note: confirm_bookinganswer_by_rule_adhoc tasks are queued under the ADMIN/acting
-        // user's id (see confirm_bookinganswer::execute() -> queue_task($record, $USER->id,
-        // ...)), NOT the offered candidate's id - the candidate only appears inside the task's
-        // customdata. So filter by classname only here (already scoped to exactly one direct
-        // task above; the queue also contains the harmless repeat-trigger task, which just
-        // re-executes the rule).
-        $this->setAdminUser();
-        ob_start();
-        $this->runAdhocTasks('\mod_booking\task\confirm_bookinganswer_by_rule_adhoc');
-        ob_get_clean();
-
-        $answerafter = $DB->get_record('booking_answers', ['id' => $answer->id]);
-        $jsonafter = empty($answerafter->json) ? null : json_decode($answerafter->json);
-        $this->assertNotEmpty(
-            $jsonafter->confirmwaitinglist ?? null,
-            'Running the fixture\'s open confirm task must actually confirm the offered user.'
-        );
+        // No longer sanity-checked by actually running the task: confirm_bookinganswer_by_rule_
+        // adhoc::execute() is a deliberate permanent no-op since the waitlist-progression
+        // refactoring (Phase 3) - on a real upgraded site, upgrade_step::run() migrates/removes
+        // this leftover legacy row during the Moodle upgrade itself, so the task never runs
+        // again in current code. This fixture deliberately builds the raw pre-upgrade state
+        // WITHOUT running upgrade_step, so there is nothing left here that could still make the
+        // old task "work". The fixture's actual validity is proven by the C1-C5 migration tests,
+        // which run upgrade_step::run() against it and verify the migrated result - that is the
+        // real functional check now, not executing the neutered legacy task directly.
     }
 }
