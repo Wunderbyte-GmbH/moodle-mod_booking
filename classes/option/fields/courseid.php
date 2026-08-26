@@ -54,9 +54,11 @@ class courseid extends field_base {
      * Some fields are saved with the booking option...
      * This is normal behaviour.
      * Some can be saved only post save (when they need the option id).
+     * The connected course is created during prepare_save_field, but naming it needs the
+     * option id, so the naming scheme is applied post save.
      * @var int
      */
-    public static $save = MOD_BOOKING_EXECUTION_NORMAL;
+    public static $save = MOD_BOOKING_EXECUTION_POSTSAVE;
 
     /**
      * This identifies the header under which this particular field should be displayed.
@@ -139,7 +141,9 @@ class courseid extends field_base {
 
         global $DB;
 
-        if (is_array($data['courseid'])) {
+        // The key is absent when no course is selected at all, e.g. when importing an option
+        // which lets mod_booking create the connected course (chooseorcreatecourse = 2).
+        if (isset($data['courseid']) && is_array($data['courseid'])) {
             $data['courseid'] = reset($data['courseid']);
         }
 
@@ -258,6 +262,14 @@ class courseid extends field_base {
             0
         );
         $mform->hideIf('createnewmoodlecoursefromtemplatewithusers', 'chooseorcreatecourse', 'neq', 3);
+
+        /* When a booking option is duplicated, the connected Moodle course is copied while the
+        form is being loaded - see set_data(). The copy is a course we own and may rename, but by
+        the time the form is submitted it looks exactly like a course the user picked by hand.
+        This hidden field carries the id of that copy through the form, so that save_data() can
+        tell the two apart and never renames a course the user merely selected. */
+        $mform->addElement('hidden', 'connectedcoursecopied', 0);
+        $mform->setType('connectedcoursecopied', PARAM_INT);
     }
 
     /**
@@ -307,6 +319,8 @@ class courseid extends field_base {
                 && !empty($settings->courseid)
             ) {
                 $newcourseid = self::copy_moodle_course($data->oldcopyoptionid);
+                // Remember that this course is our own copy, so that save_data() may rename it.
+                $data->connectedcoursecopied = $newcourseid;
             }
 
             // If there is no $newcourseid, then the old courseid ($settings->{$key}) will be taken.
@@ -318,6 +332,39 @@ class courseid extends field_base {
 
             $data->{$key} = $value;
         }
+    }
+
+    /**
+     * Apply the configured naming scheme to the connected Moodle course.
+     *
+     * This runs post save because the naming templates may contain {optionid}, which only
+     * exists once the booking option has been written to the database.
+     *
+     * @param stdClass $formdata
+     * @param stdClass $option
+     * @return void
+     */
+    public static function save_data(stdClass &$formdata, stdClass &$option) {
+
+        $courseid = (int) ($option->courseid ?? 0);
+        $optionid = (int) ($option->id ?? 0);
+
+        if (empty($courseid) || empty($optionid)) {
+            return;
+        }
+
+        /* Only rename courses which mod_booking created itself. A course the user picked from
+        the list belongs to somebody else and may well be shared by many booking options -
+        renaming it would be destructive and is never what the naming scheme is meant to do. */
+        $created = in_array((int) ($formdata->chooseorcreatecourse ?? 1), [2, 3], true);
+        $copied = !empty($formdata->connectedcoursecopied)
+            && (int) $formdata->connectedcoursecopied === $courseid;
+
+        if (!$created && !$copied) {
+            return;
+        }
+
+        connectedcourse::apply_naming_scheme($courseid, $optionid);
     }
 
     /**
