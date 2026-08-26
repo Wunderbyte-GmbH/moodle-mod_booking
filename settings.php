@@ -2327,6 +2327,44 @@ if ($ADMIN->fulltree) {
         )
     );
 
+    // PRO feature: Naming of the Moodle courses connected to booking options.
+    if ($proversion) {
+        $settings->add(
+            new admin_setting_heading(
+                'connectedcoursenaming',
+                get_string('connectedcoursenaming', 'mod_booking'),
+                get_string('connectedcoursenaming_desc', 'mod_booking')
+            )
+        );
+        $settings->add(
+            new admin_setting_configtext(
+                'booking/connectedcoursefullname',
+                get_string('connectedcoursefullname', 'mod_booking'),
+                get_string('connectedcoursefullname_desc', 'mod_booking'),
+                '',
+                PARAM_TEXT
+            )
+        );
+        $settings->add(
+            new admin_setting_configtext(
+                'booking/connectedcourseshortname',
+                get_string('connectedcourseshortname', 'mod_booking'),
+                get_string('connectedcourseshortname_desc', 'mod_booking'),
+                '',
+                PARAM_TEXT
+            )
+        );
+        $settings->add(
+            new admin_setting_configtext(
+                'booking/connectedcourseidnumber',
+                get_string('connectedcourseidnumber', 'mod_booking'),
+                get_string('connectedcourseidnumber_desc', 'mod_booking'),
+                '',
+                PARAM_TEXT
+            )
+        );
+    }
+
     if ($proversion) {
         $settings->add(
             new admin_setting_heading(
