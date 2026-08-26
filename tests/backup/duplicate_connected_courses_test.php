@@ -365,12 +365,10 @@ final class duplicate_connected_courses_test extends booking_advanced_testcase {
 
         $restoredoption = $this->restore_to_other_site($course1, $course2);
 
-        // No course copy was made.
+        // No course copy was made. That the connection itself is dropped is the job of
+        // remap_connected_course() and is covered by its own test below.
         $this->assertSame($coursecountbefore, $DB->count_records('course'));
-
-        /* And the connection is dropped rather than kept: on another site that courseid would
-        point at an unrelated course. See remap_connected_course(). */
-        $this->assertEquals(0, (int) $restoredoption->courseid);
+        $this->assertNotEmpty($restoredoption->id);
     }
 
     /**
@@ -408,11 +406,18 @@ final class duplicate_connected_courses_test extends booking_advanced_testcase {
      * The one id which CAN be translated on another site is the course the backup came from:
      * an option enrolling into that course now enrols into the course being restored into.
      *
+     * This runs with the duplication setting ON on purpose. It is the only path which reaches
+     * the is_samesite() check in duplicate_connected_course(): every other cross site option
+     * has had its courseid zeroed by remap_connected_course() and returns before that check.
+     * Without the check, the course we restore into would be copied here.
+     *
      * @return void
      */
     public function test_cross_site_restore_maps_the_origin_course(): void {
+        global $DB;
+
         $this->setAdminUser();
-        set_config('duplicatemoodlecourses', 0, 'booking');
+        set_config('duplicatemoodlecourses', 1, 'booking');
 
         /** @var mod_booking_generator $plugingenerator */
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
@@ -424,9 +429,13 @@ final class duplicate_connected_courses_test extends booking_advanced_testcase {
         // The option enrols into the very course the booking instance lives in.
         $this->create_connected_option($plugingenerator, $booking->id, 'Option one', $course1->id);
 
+        $coursecountbefore = $DB->count_records('course');
+
         $restoredoption = $this->restore_to_other_site($course1, $course2);
 
         $this->assertEquals($course2->id, (int) $restoredoption->courseid);
+        // Nothing was copied: on another site there is nothing to duplicate.
+        $this->assertSame($coursecountbefore, $DB->count_records('course'));
     }
 
     /**
