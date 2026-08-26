@@ -27,6 +27,7 @@ namespace mod_booking;
 
 use advanced_testcase;
 use mod_booking\local\connectedcourse;
+use mod_booking\option\fields\courseid;
 use mod_booking\placeholders\placeholders_info;
 use stdClass;
 
@@ -281,6 +282,128 @@ final class connectedcourse_naming_test extends advanced_testcase {
         $course = $this->reload_course($connectedcourse->id);
         $this->assertSame(254, strlen($course->fullname));
         $this->assertSame(str_repeat('a', 254), $course->fullname);
+    }
+
+    /**
+     * A course the user merely picked from the list is never renamed, even with templates
+     * configured. It may belong to somebody else and be shared by many booking options.
+     *
+     * @covers \mod_booking\option\fields\courseid::save_data
+     * @return void
+     */
+    public function test_selected_course_is_not_renamed(): void {
+        set_config('connectedcoursefullname', '{titlewithoutprefix}', 'booking');
+        set_config('connectedcourseshortname', '{titlewithoutprefix}_{optionid}', 'booking');
+        set_config('connectedcourseidnumber', '{optionid}', 'booking');
+
+        // create_option_with_connected_course() uses chooseorcreatecourse = 1, i.e. the user
+        // selected an existing course. This goes through the real save pipeline.
+        [, $connectedcourse] = $this->create_option_with_connected_course('Aerial Yoga', 'PF1');
+
+        $course = $this->reload_course($connectedcourse->id);
+        $this->assertSame(self::ORIGINALFULLNAME, $course->fullname);
+        $this->assertSame(self::ORIGINALSHORTNAME, $course->shortname);
+        $this->assertSame('', $course->idnumber);
+    }
+
+    /**
+     * A course created by mod_booking itself is renamed when the option is saved.
+     *
+     * @covers \mod_booking\option\fields\courseid::save_data
+     * @return void
+     */
+    public function test_newly_created_course_is_renamed(): void {
+        global $DB;
+
+        set_config('connectedcoursefullname', '{titlewithoutprefix}', 'booking');
+        set_config('connectedcourseshortname', '{titlewithoutprefix}_{optionid}', 'booking');
+        set_config('connectedcourseidnumber', '{optionid}', 'booking');
+
+        $this->setAdminUser();
+
+        $course = $this->getDataGenerator()->create_course();
+        $bookingmanager = $this->getDataGenerator()->create_user();
+        $booking = $this->getDataGenerator()->create_module('booking', [
+            'course' => $course->id,
+            'bookingmanager' => $bookingmanager->username,
+        ]);
+
+        $record = new stdClass();
+        $record->bookingid = $booking->id;
+        $record->text = 'Aerial Yoga';
+        $record->titleprefix = 'PF1';
+        // Let mod_booking create a brand new Moodle course for this option.
+        $record->chooseorcreatecourse = 2;
+        $record->importing = 1;
+
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $option = $plugingenerator->create_option($record);
+
+        $newcourseid = (int) $DB->get_field('booking_options', 'courseid', ['id' => $option->id]);
+        $this->assertNotEmpty($newcourseid);
+
+        $newcourse = $this->reload_course($newcourseid);
+        $this->assertSame('Aerial Yoga', $newcourse->fullname);
+        $this->assertSame('Aerial Yoga_' . $option->id, $newcourse->shortname);
+        $this->assertSame((string) $option->id, $newcourse->idnumber);
+    }
+
+    /**
+     * A course mod_booking copied during option duplication is renamed as well. The copy is
+     * marked with the connectedcoursecopied form field, because by submit time it is otherwise
+     * indistinguishable from a course the user picked by hand.
+     *
+     * @covers \mod_booking\option\fields\courseid::save_data
+     * @return void
+     */
+    public function test_copied_course_is_renamed(): void {
+        set_config('connectedcoursefullname', '{titlewithoutprefix}', 'booking');
+
+        [$option, $connectedcourse] = $this->create_option_with_connected_course('Aerial Yoga', 'PF1');
+
+        // Rebuild what the submitted duplication form looks like: the course is a copy we own,
+        // even though the select still says "connected Moodle course".
+        $formdata = (object) [
+            'chooseorcreatecourse' => 1,
+            'connectedcoursecopied' => $connectedcourse->id,
+        ];
+        $optionrecord = (object) [
+            'id' => $option->id,
+            'courseid' => $connectedcourse->id,
+        ];
+
+        courseid::save_data($formdata, $optionrecord);
+
+        $course = $this->reload_course($connectedcourse->id);
+        $this->assertSame('Aerial Yoga', $course->fullname);
+    }
+
+    /**
+     * The marker only counts for the course it actually names. A stale marker pointing at some
+     * other course must not turn the selected course into a rename target.
+     *
+     * @covers \mod_booking\option\fields\courseid::save_data
+     * @return void
+     */
+    public function test_marker_for_a_different_course_is_ignored(): void {
+        set_config('connectedcoursefullname', '{titlewithoutprefix}', 'booking');
+
+        [$option, $connectedcourse] = $this->create_option_with_connected_course('Aerial Yoga', 'PF1');
+        $othercourse = $this->getDataGenerator()->create_course();
+
+        $formdata = (object) [
+            'chooseorcreatecourse' => 1,
+            'connectedcoursecopied' => $othercourse->id,
+        ];
+        $optionrecord = (object) [
+            'id' => $option->id,
+            'courseid' => $connectedcourse->id,
+        ];
+
+        courseid::save_data($formdata, $optionrecord);
+
+        $course = $this->reload_course($connectedcourse->id);
+        $this->assertSame(self::ORIGINALFULLNAME, $course->fullname);
     }
 
     /**
