@@ -544,6 +544,19 @@ export function bookit(itemid, area, userid, data, clickedFromModal = null) {
                 }
 
                 skipreload = true;
+                // "notallowedtobook" means the webservice changed nothing at all, so there is
+                // nothing to re-render either. Re-rendering it anyway is actively harmful for an
+                // option that is blocked but still has a price: the server then returns one
+                // template per rendered area (bookit_button for the condition's alert,
+                // bookit_price for the area holding the add-to-cart button), the loop below renders
+                // every template into every area, and the duplicate detection resolves the
+                // resulting collision by REMOVING one of the two areas - which is what made the
+                // add-to-cart button and the checkout link next to it disappear. The correct state
+                // is produced by local_shopping_cart (which really did add the item) and by the
+                // table reload, so leaving the markup untouched here is both safe and sufficient.
+                if (res.status == 0 && res.message === 'notallowedtobook') {
+                    return;
+                }
                 if (button.dataset.nojs == 1
                     && res.status == 0
                     && 1 == 2) {
