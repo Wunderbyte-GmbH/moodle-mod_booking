@@ -143,4 +143,14 @@ class datesandentities extends \mod_booking\placeholders\placeholder_base {
     public static function is_applicable(): bool {
         return core_plugin_manager::instance()->get_plugin_info('local_entities') ? true : false;
     }
+
+    /**
+     * This placeholder is supported in the sign-in sheet HTML template.
+     *
+     * @return bool
+     *
+     */
+    public static function for_signinsheet(): bool {
+        return true;
+    }
 }

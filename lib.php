@@ -72,6 +72,11 @@ define('MOD_BOOKING_DESCRIPTION_MAIL', 4); // Shows link with text "go to bookin
 define('MOD_BOOKING_DESCRIPTION_OPTIONVIEW', 5); // Description for booking option preview page.
 define('MOD_BOOKING_DESCRIPTION_CARTITEM', 6); // Description for a reduced description we use in bookingbookit.
 
+// Lists of placeholders, see placeholders_info::return_list_of_placeholders().
+define('MOD_BOOKING_PLACEHOLDERS_ALL', 0); // Every applicable placeholder.
+define('MOD_BOOKING_PLACEHOLDERS_POLLURL', 1); // Only the placeholders usable in poll urls (for_pollurl()).
+define('MOD_BOOKING_PLACEHOLDERS_SIGNINSHEET', 2); // Sign-in sheet HTML template: no custom user profile fields.
+
 // Define message parameters.
 define('MOD_BOOKING_MSGPARAM_CONFIRMATION', 1);
 define('MOD_BOOKING_MSGPARAM_WAITINGLIST', 2);
