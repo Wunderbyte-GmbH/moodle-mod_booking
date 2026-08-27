@@ -544,6 +544,7 @@ class booking_bookit {
             /* TODO: Refactor this.
              First, we need a switch.
              Second the reaction code should be included in the condition classes themselves, to improve maintainability. */
+            $confirmationarmed = false;
             if ($id < MOD_BOOKING_BO_COND_BOOKITBUTTON) {
                 $isavailable = true;
             } else if ($id === MOD_BOOKING_BO_COND_BOOKITBUTTON) {
@@ -552,6 +553,9 @@ class booking_bookit {
                 $now = time();
                 $cache->set($userid, [$cachekey => $now]);
 
+                // The click DID change something - it armed the two-step confirmation, so the
+                // button has to be re-rendered (Wunderbyte-GmbH/Wunderbyte-GmbH#2306).
+                $confirmationarmed = true;
                 $isavailable = false;
             } else if ($id === MOD_BOOKING_BO_COND_BOOKWITHCREDITS) {
                 $cache = cache::make('mod_booking', 'confirmbooking');
@@ -559,6 +563,9 @@ class booking_bookit {
                 $now = time();
                 $cache->set($userid, [$cachekey => $now]);
 
+                // The click DID change something - it armed the two-step confirmation, so the
+                // button has to be re-rendered (Wunderbyte-GmbH/Wunderbyte-GmbH#2306).
+                $confirmationarmed = true;
                 $isavailable = false;
             } else if ($id === MOD_BOOKING_BO_COND_BOOKWITHSUBSCRIPTION) {
                 $cache = cache::make('mod_booking', 'confirmbooking');
@@ -566,6 +573,9 @@ class booking_bookit {
                 $now = time();
                 $cache->set($userid, [$cachekey => $now]);
 
+                // The click DID change something - it armed the two-step confirmation, so the
+                // button has to be re-rendered (Wunderbyte-GmbH/Wunderbyte-GmbH#2306).
+                $confirmationarmed = true;
                 $isavailable = false;
             } else if ($id === MOD_BOOKING_BO_COND_CONFIRMBOOKIT) {
                 // Make sure cache is not blocking anymore.
@@ -613,6 +623,9 @@ class booking_bookit {
                 $now = time();
                 $cache->set($userid, [$cachekey => $now]);
 
+                // The click DID change something - it armed the two-step confirmation, so the
+                // button has to be re-rendered (Wunderbyte-GmbH/Wunderbyte-GmbH#2306).
+                $confirmationarmed = true;
                 $isavailable = false;
             } else if ($id === MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION) {
                 // Make sure cache is not blocking anymore.
@@ -645,6 +658,9 @@ class booking_bookit {
                     $now = time();
                     $cache->set($userid, [$cachekey => $now]);
 
+                    // Same as for booking: the click armed the confirmation, so the button has to
+                    // be re-rendered to say "click again" (Wunderbyte-GmbH/Wunderbyte-GmbH#2306).
+                    $confirmationarmed = true;
                 }
             } else if ($id === MOD_BOOKING_BO_COND_CONFIRMCANCEL) {
                 // Make sure cache is not blocking anymore.
@@ -732,9 +748,12 @@ class booking_bookit {
             }
 
             if (!$isavailable) {
+                // Two situations share this branch and the client has to tell them apart: nothing
+                // changed at all (the button must stay as it is, see #2277), or the two-step
+                // confirmation was just armed (the button must switch to "click again").
                 return [
                     'status' => 0,
-                    'message' => 'notallowedtobook',
+                    'message' => $confirmationarmed ? 'confirmationarmed' : 'notallowedtobook',
                 ];
             }
             return array_merge(
