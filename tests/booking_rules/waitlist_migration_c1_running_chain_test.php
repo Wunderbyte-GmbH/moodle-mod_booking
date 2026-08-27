@@ -131,26 +131,25 @@ final class waitlist_migration_c1_running_chain_test extends booking_advanced_te
             'C1/M1: the already-treated user must not be treated as an unhandled candidate after migration.'
         );
 
-        // The still-pending users must now be correctly picked up by the NEW mechanism - each
-        // must have an open offer, OR have been autobooked (this fixture's option has no price
-        // category configured, so price resolves to 0 - K3 autobook, not K4 offer - a valid,
-        // just differently-shaped, "picked up" outcome; get_open_offers() alone would not see it,
-        // since autobooked is a terminal status, not an open one).
-        $openoffers = $repository->get_open_offers((int) $fixture->option->id);
-        $openofferuserids = array_map(fn($o) => (int) $o->userid, $openoffers);
+        // The still-pending users must now be correctly picked up by the NEW mechanism. The
+        // outcome is deterministic here: this fixture's option has no price category configured,
+        // so price resolves to 0 - K3 autobook, not K4 offer - and the capacity was raised above
+        // to leave a free seat for every one of them. So each must actually BE booked; asserting
+        // only "no longer on the waiting list" would also pass if the answer had been deleted,
+        // which is precisely the silent loss this test is meant to rule out.
         foreach ($pendinguserids as $pendinguserid) {
-            $isopenoffer = in_array($pendinguserid, $openofferuserids, true);
-            $isautobooked = !$DB->record_exists('booking_answers', [
-                'optionid' => (int) $fixture->option->id,
-                'userid' => $pendinguserid,
-                'waitinglist' => MOD_BOOKING_STATUSPARAM_WAITINGLIST,
-            ]);
             $this->assertTrue(
-                $isopenoffer || $isautobooked,
-                "C1/M1: still-pending user {$pendinguserid} must have been picked up (open offer " .
-                'or autobooked) by the new mechanism after migration - nothing may be silently lost.'
+                $DB->record_exists('booking_answers', [
+                    'optionid' => (int) $fixture->option->id,
+                    'userid' => $pendinguserid,
+                    'waitinglist' => MOD_BOOKING_STATUSPARAM_BOOKED,
+                ]),
+                "C1/M1: still-pending user {$pendinguserid} must have been autobooked by the new " .
+                'mechanism after migration - nothing may be silently lost.'
             );
         }
+        $openoffers = $repository->get_open_offers((int) $fixture->option->id);
+        $openofferuserids = array_map(fn($o) => (int) $o->userid, $openoffers);
 
         // No user may end up with more than one open offer (K5/idempotency must hold across
         // the migration boundary too - the UNIQUE(optionid, roundid, userid) constraint from

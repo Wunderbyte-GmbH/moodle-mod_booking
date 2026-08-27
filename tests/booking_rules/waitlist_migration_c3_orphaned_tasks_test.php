@@ -154,21 +154,18 @@ final class waitlist_migration_c3_orphaned_tasks_test extends booking_advanced_t
             'C3/M3: the control group\'s already-treated user must still be correctly excluded ' .
             '- the orphaned task elsewhere must not have corrupted this option\'s migration.'
         );
-        // Picked up = an open offer, OR autobooked (this fixture has no price category, so price
-        // resolves to 0 - K3 autobook, not K4 offer; see C1's test for the same reasoning).
-        $openoffers = $repository->get_open_offers((int) $validfixture->option->id);
-        $openofferuserids = array_map(fn($o) => (int) $o->userid, $openoffers);
-        $isopenoffer = in_array($validpendinguserid, $openofferuserids, true);
-        $isautobooked = !$DB->record_exists('booking_answers', [
-            'optionid' => (int) $validfixture->option->id,
-            'userid' => $validpendinguserid,
-            'waitinglist' => MOD_BOOKING_STATUSPARAM_WAITINGLIST,
-        ]);
+        // Picked up means actually booked here: this fixture has no price category, so price
+        // resolves to 0 - K3 autobook, not K4 offer - and maxanswers was raised above to leave a
+        // seat free. Asserting only "no longer on the waiting list" would also pass if the answer
+        // had been deleted, which is exactly the failure mode this test guards against.
         $this->assertTrue(
-            $isopenoffer || $isautobooked,
-            'C3/M3: the control group\'s still-pending user must still be correctly picked up ' .
-            '(open offer or autobooked) - the orphaned task elsewhere must not have blocked this ' .
-            'option\'s migration.'
+            $DB->record_exists('booking_answers', [
+                'optionid' => (int) $validfixture->option->id,
+                'userid' => $validpendinguserid,
+                'waitinglist' => MOD_BOOKING_STATUSPARAM_BOOKED,
+            ]),
+            'C3/M3: the control group\'s still-pending user must still be correctly autobooked ' .
+            '- the orphaned task elsewhere must not have blocked this option\'s migration.'
         );
 
         // Heartbeat/reconcile is the actual safety net for the orphaned option itself: calling
