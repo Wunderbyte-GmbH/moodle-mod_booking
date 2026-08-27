@@ -1480,12 +1480,27 @@ class booking_option_settings {
     }
 
     /**
-     * Function to include all the values of the given custom profile fields to a table.
-     * The table is joined via userinfodata.userid = bookinganswer.userid & userinfofield.id = userinfodata.fieldid
-     * To be able to filter for the same param twice, we use this structure for searchparams [[$fieldnmae => $fieldvalue]]
+     * The column alias under which return_sql_for_custom_profile_field() selects the value of a
+     * custom user profile field: derived from the field id, never from the shortname - PostgreSQL
+     * folds unquoted aliases to lowercase ("Dienstgrad" would come back as "dienstgrad") and a
+     * shortname can be a reserved word ("rank" in MySQL 8).
      *
-     * @param array $userinfofields
-     * @return array
+     * @param int $fieldid id of the user_info_field record
+     * @return string
+     */
+    public static function custom_profile_field_alias(int $fieldid): string {
+        return 'cf' . $fieldid;
+    }
+
+    /**
+     * Function to include all the values of the given custom profile fields to a table.
+     * One LEFT JOIN on {user_info_data} per field via userinfodata.userid = bookinganswer.userid
+     * (alias ba) and userinfodata.fieldid = the field; the value is selected as the column named by
+     * custom_profile_field_alias(). Empty values are not joined (the column is NULL then).
+     *
+     * @param array $userinfofields records of {user_info_field}, all fields if empty
+     * @return array [$select (leading comma), $from, $where (unused), $params] - the params MUST be
+     *               passed to the query
      */
     public static function return_sql_for_custom_profile_field($userinfofields = []): array {
 
@@ -1495,41 +1510,18 @@ class booking_option_settings {
             $userinfofields = $DB->get_records('user_info_field', []);
         }
 
-         $select = '';
-         $from = '';
-         $where = '';
-         $params = [];
-        // Now we have the names of the customfields. We can now run through them and add them as colums.
-
-        $counter = 1;
-        if (!empty($userinfofields)) {
-            $select = " , ";
-        }
+        $selects = [];
+        $from = '';
+        $where = '';
+        $params = [];
         foreach ($userinfofields as $userinfofield) {
-            $name = $userinfofield->shortname;
-
-            $select .= "s$counter.data as $name ";
-
-            // After the last instance, we don't add a comma.
-            $select .= $counter >= count($userinfofields) ? "" : ", ";
-
-            $from .= " LEFT JOIN
-            (
-                SELECT ud.id, ud.data, ud.userid
-                FROM {user_info_data} ud
-                JOIN {user_info_field} uif
-                ON ud.fieldid = uif.id
-                WHERE uif.shortname LIKE '$name' AND ud.data <> ''
-            ) s$counter
-            ON s$counter.userid = ba.userid ";
-
-            // phpcs:disable
-            // Add the variables to the params array.
-            // $params[$name . '_componentname'] = 'mod_booking';
-            // $params["cf_$name"] = $name;
-            // phpcs:enable
-            $counter++;
+            $alias = self::custom_profile_field_alias((int) $userinfofield->id);
+            $selects[] = "$alias.data AS $alias";
+            $from .= " LEFT JOIN {user_info_data} $alias
+                ON $alias.userid = ba.userid AND $alias.fieldid = :$alias AND $alias.data <> '' ";
+            $params[$alias] = (int) $userinfofield->id;
         }
+        $select = empty($selects) ? '' : ', ' . implode(', ', $selects) . ' ';
 
         return [$select, $from, $where, $params];
     }

@@ -3554,13 +3554,15 @@ $string['signinsheetdefaults_desc'] = 'These settings are used for the sign-in s
 $string['signinsheetdownload'] = 'Download sign-in sheet';
 $string['signinsheetfields'] = 'Sign-in sheet fields (PDF)';
 $string['signinsheethtml'] = 'HTML template for generating signature sheets';
-$string['signinsheethtmldescription'] = 'You can use the following placeholders:<br>
+$string['signinsheethtmlallplaceholders'] = 'Placeholders of the booking rules supported in the sign-in sheet template (written as [[...]])';
+$string['signinsheethtmldescription'] = 'You can use the following placeholders (not case sensitive: [[FULLNAME]] works like [[fullname]]):<br>
 <br>
 <b>Inside [[users]] ... [[/users]]:</b><br>
-[[fullname]], [[firstname]], [[lastname]], [[email]], [[signature]], [[institution]], [[description]], [[city]], [[country]], [[idnumber]], [[phone1]], [[department]], [[address]], [[places]], [[userpic]]<br>
+[[fullname]], [[firstname]], [[lastname]], [[email]], [[signature]], [[institution]], [[description]], [[city]], [[country]], [[idnumber]], [[phone1]], [[department]], [[address]], [[places]], [[userpic]] and custom user profile fields via their shortname, e.g. [[myshortname]]<br>
 <br>
 <b>Outside of [[users]]:</b><br>
 [[location]], [[dayofweektime]], [[teachers]], [[dates]], [[logourl]], [[tablename]]<br>
+Additionally, the placeholders of the booking rules listed below can be used outside of [[users]] - written with double square brackets instead of curly braces, e.g. [[bookingoptionname]], [[startdate]], [[numberparticipants]] or custom booking option fields via their shortname ([[myshortname]]). Custom user profile fields and other placeholders referring to a user (e.g. [[firstname]]) are only available inside of [[users]].<br>
 <br>
 Use only basic HTML that is supported by TCPDF / PhpWord. To insert signatures into a table, use the CSS class <code>"signaturetable"</code>.';
 $string['signinsheetlocation'] = 'Location: ';

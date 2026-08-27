@@ -7,7 +7,8 @@ Placeholders are tokens in the form `{tokenname}` that mod_booking replaces with
 - **Booking rule email templates** (subject and body of `send_mail` and `send_mail_interval` actions)
 - **Booking confirmation and notification texts** configured in booking option settings (Advanced section)
 - **iCal event descriptions** attached to rule emails — placeholders are resolved there too, and `{mlang}` multi-language filters are supported, so calendar entries arrive in the recipient's language. HTML and links in iCal descriptions are cleaned up so they also display correctly in Outlook.
-- **Poll URL fields** on booking options (only placeholders that have `for_pollurl() = true`)
+- **Poll URL fields** on booking options (only placeholders that have `for_pollurl() = true`, plus custom booking option fields)
+- **Sign-in sheet HTML template** (setting `signinsheethtml`, outside of the `[[users]]` section) — only placeholders that have `for_signinsheet() = true`, written as `[[tokenname]]` instead of `{tokenname}`
 
 Each placeholder maps to a PHP class under `classes/placeholders/placeholders/`. The token name is the class name surrounded by braces, e.g., class `firstname` → `{firstname}`.
 
@@ -270,7 +271,11 @@ The same tokens work in the **Confirmation text** field of the booking option's 
 
 ### In poll URLs
 
-Only placeholders where `for_pollurl()` returns `true` (such as `{firstname}`, `{lastname}`, `{email}`) are substituted inside poll URL fields. All others are left unchanged.
+Only placeholders where `for_pollurl()` returns `true` (such as `{firstname}`, `{lastname}`, `{email}`) are substituted inside poll URL fields. Custom booking option fields are substituted as well, referenced by their shortname (`{shortname}`). All other placeholders are left unchanged (they end up URL encoded, e.g. `%7Bdates%7D`).
+
+### In sign-in sheet templates
+
+All `[[...]]` placeholders of the sign-in sheet template are case-insensitive (`[[FullName]]`, `[[EXTRANAME]]`). Outside of the `[[users]]` section, the HTML template of the sign-in sheet (setting `signinsheethtml`) accepts the placeholders where `for_signinsheet()` returns `true` (values of the option, instance and course) — written with double square brackets instead of braces, e.g. `[[bookingoptionname]]`, `[[startdate]]`, `[[numberparticipants]]` or a custom booking option field `[[shortname]]`. Custom user profile fields (`[[shortname]]`) are available inside `[[users]]` only, where they are rendered per booked user. The template's own placeholders (`[[location]]`, `[[dayofweektime]]`, `[[teachers]]`, `[[dates]]`, `[[logourl]]`, `[[tablename]]`) keep their sign-in sheet specific values; other user related placeholders such as `[[firstname]]` and event related ones are not available outside of `[[users]]` and stay unresolved.
 
 ### Cross-references
 

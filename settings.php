@@ -1565,7 +1565,7 @@ if ($ADMIN->fulltree) {
 
         $description = htmlcomponents::render_bootstrap_collapsible(
             get_string('pollurltemplate_desc', 'mod_booking'),
-            trim(placeholders_info::return_list_of_placeholders(true))
+            trim(placeholders_info::return_list_of_placeholders(MOD_BOOKING_PLACEHOLDERS_POLLURL))
         );
 
         $settings->add(
@@ -2700,7 +2700,18 @@ if ($ADMIN->fulltree) {
         new admin_setting_configtextarea(
             'booking/signinsheethtml',
             get_string('signinsheethtml', 'mod_booking'),
-            get_string('signinsheethtmldescription', 'mod_booking') . '<br>' . get_string('pdfahint', 'mod_booking'),
+            get_string('signinsheethtmldescription', 'mod_booking') . '<br>' . get_string('pdfahint', 'mod_booking')
+                . htmlcomponents::render_bootstrap_collapsible(
+                    get_string('signinsheethtmlallplaceholders', 'mod_booking'),
+                    // Outside of [[users]] the template resolves the placeholders of the booking rules,
+                    // written with double square brackets instead of the curly braces.
+                    trim(str_replace(
+                        ['{', '}'],
+                        ['[[', ']]'],
+                        placeholders_info::return_list_of_placeholders(MOD_BOOKING_PLACEHOLDERS_SIGNINSHEET)
+                    )),
+                    'signinsheetplaceholders'
+                ),
             '', /* $defaultsigninsheethtml */
             PARAM_RAW
         )

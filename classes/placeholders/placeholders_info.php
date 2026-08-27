@@ -50,8 +50,16 @@ class placeholders_info {
 
     /**
      * @var array $localizedplaceholders classname (= placeholder tag) => localized description
+     *            of the list built last (see $localizedplaceholderlists)
      */
     public static array $localizedplaceholders = [];
+
+    /**
+     * @var array $localizedplaceholderlists the localized placeholders per list (keys are the
+     *            MOD_BOOKING_PLACEHOLDERS_* constants): the reduced lists are subsets and must
+     *            never be served as the full list.
+     */
+    private static array $localizedplaceholderlists = [];
 
     /**
      * Function which takes a text, replaces the placeholders...
@@ -104,10 +112,7 @@ class placeholders_info {
         $noreturn = [];
         $return = [];
 
-        $namespaces[] = 'mod_booking\placeholders\placeholders\\';
-        foreach (core_plugin_manager::instance()->get_plugins_of_type('bookingextension') as $plugin) {
-            $namespaces[] = "bookingextension_{$plugin->name}\\placeholders\\";
-        }
+        $namespaces = self::get_placeholder_namespaces();
 
         foreach ($placeholders as $placeholder) {
             // We might need more complex placeholder for iteration...
@@ -235,20 +240,17 @@ class placeholders_info {
     /**
      * This builds an returns a list of localized placeholders.
      * They are stored statically and thus available throughout the ttl.
-     * @param bool $pollurl
+     * @param int $list which list: MOD_BOOKING_PLACEHOLDERS_ALL (default), MOD_BOOKING_PLACEHOLDERS_POLLURL
+     *                  (only placeholders usable in poll urls) or MOD_BOOKING_PLACEHOLDERS_SIGNINSHEET
+     *                  (sign-in sheet HTML template), see belongs_to_list() to add further lists
      * @throws coding_exception
      * @return string
      *
      */
-    public static function return_list_of_placeholders($pollurl = false): string {
-
-        // If it's already build, we can skip this.
-        if (empty(self::$localizedplaceholders)) {
-            self::create_list_of_localized_placeholders($pollurl);
-        }
+    public static function return_list_of_placeholders(int $list = MOD_BOOKING_PLACEHOLDERS_ALL): string {
 
         $placeholders = [];
-        foreach (self::$localizedplaceholders as $classname => $localized) {
+        foreach (self::create_list_of_localized_placeholders($list) as $classname => $localized) {
             $placeholders[] = "<li data-id='$classname'>{" . $classname . "} " . $localized . "</li>";
         }
 
@@ -284,18 +286,82 @@ class placeholders_info {
     }
 
     /**
-     * Create list of localized placeholders.
-     * @param bool $pollurl
-     * @return array|void
+     * The namespaces placeholder classes live in: mod_booking and the bookingextension plugins.
+     *
+     * @return string[] namespaces with trailing backslash
+     */
+    private static function get_placeholder_namespaces(): array {
+        $namespaces = ['mod_booking\placeholders\placeholders\\'];
+        foreach (core_plugin_manager::instance()->get_plugins_of_type('bookingextension') as $plugin) {
+            $namespaces[] = "bookingextension_{$plugin->name}\\placeholders\\";
+        }
+        return $namespaces;
+    }
+
+    /**
+     * Resolves a placeholder as written in a text (e.g. "teacher2" or "myshortname") to its class:
+     * digits are stripped like in render_text(), tags without a class are custom fields handled by
+     * the customfields class.
+     *
+     * @param string $placeholder the tag without braces
+     * @return string fully qualified classname
+     */
+    public static function get_placeholder_class(string $placeholder): string {
+        $identifier = preg_replace('/\d/', '', $placeholder);
+        foreach (self::get_placeholder_namespaces() as $namespace) {
+            if (class_exists($namespace . $identifier)) {
+                return $namespace . $identifier;
+            }
+        }
+        return customfields::class;
+    }
+
+    /**
+     * Whether a placeholder as written in a text belongs to the given list of placeholders.
+     *
+     * @param string $placeholder the tag without braces, e.g. "bookingoptionname" or "myshortname"
+     * @param int $list one of the MOD_BOOKING_PLACEHOLDERS_* constants
+     * @return bool
+     */
+    public static function placeholder_belongs_to_list(string $placeholder, int $list): bool {
+        return self::belongs_to_list(self::get_placeholder_class($placeholder), $list);
+    }
+
+    /**
+     * Whether a placeholder class belongs to the given list of placeholders.
+     * New lists (MOD_BOOKING_PLACEHOLDERS_* constants in lib.php) are added here.
+     *
+     * @param string $classname fully qualified placeholder class
+     * @param int $list one of the MOD_BOOKING_PLACEHOLDERS_* constants
+     * @return bool
+     */
+    private static function belongs_to_list(string $classname, int $list): bool {
+        switch ($list) {
+            case MOD_BOOKING_PLACEHOLDERS_POLLURL:
+                return $classname::for_pollurl();
+            case MOD_BOOKING_PLACEHOLDERS_SIGNINSHEET:
+                return $classname::for_signinsheet();
+            case MOD_BOOKING_PLACEHOLDERS_ALL:
+            default:
+                return true;
+        }
+    }
+
+    /**
+     * Create list of localized placeholders (cached per list for the request: every list is
+     * built and stored separately).
+     * @param int $list one of the MOD_BOOKING_PLACEHOLDERS_* constants
+     * @return array classname (= placeholder tag) => localized description
      * @throws coding_exception
      *
      */
-    private static function create_list_of_localized_placeholders($pollurl = false) {
+    private static function create_list_of_localized_placeholders(int $list = MOD_BOOKING_PLACEHOLDERS_ALL): array {
 
-        // If it's already build, we can skip this.
-        if (!empty(self::$localizedplaceholders)) {
+        if (isset(self::$localizedplaceholderlists[$list])) {
+            self::$localizedplaceholders = self::$localizedplaceholderlists[$list];
             return self::$localizedplaceholders;
         }
+        $localizedplaceholders = [];
 
         $placeholders =
             core_component::get_component_classes_in_namespace(
@@ -318,23 +384,22 @@ class placeholders_info {
                 continue;
             }
 
-            if (
-                $pollurl
-                && !$key::for_pollurl()
-            ) {
+            if (!self::belongs_to_list($key, $list)) {
                 continue;
             }
             $component = core_component::get_component_from_classname($key);
             $class = substr(strrchr($key, '\\'), 1);
             if (isset($specialtreatmentclasses[$class])) {
-                self::$localizedplaceholders[$class] = $specialtreatmentclasses[$class];
+                $localizedplaceholders[$class] = $specialtreatmentclasses[$class];
                 continue;
             }
             // We use the classnames as keys and the localized strings as values.
             // The classname is the actual placeholder tag, so it is guaranteed to be
             // unique - identical translations of two placeholders must not collide.
-            self::$localizedplaceholders[$class] = get_string($class, $component);
+            $localizedplaceholders[$class] = get_string($class, $component);
         }
-        return self::$localizedplaceholders;
+        self::$localizedplaceholderlists[$list] = $localizedplaceholders;
+        self::$localizedplaceholders = $localizedplaceholders;
+        return $localizedplaceholders;
     }
 }

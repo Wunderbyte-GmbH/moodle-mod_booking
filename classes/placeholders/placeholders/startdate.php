@@ -100,4 +100,14 @@ class startdate extends \mod_booking\placeholders\placeholder_base {
     public static function is_applicable(): bool {
         return true;
     }
+
+    /**
+     * This placeholder is supported in the sign-in sheet HTML template.
+     *
+     * @return bool
+     *
+     */
+    public static function for_signinsheet(): bool {
+        return true;
+    }
 }
