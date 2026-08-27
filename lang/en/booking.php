@@ -3544,6 +3544,8 @@ $string['signinonesession'] = 'Display date(s) in the header';
 $string['signinsheet_htmltemplate'] = 'HTML template';
 $string['signinsheet_legacy'] = 'Classic sign-in sheet';
 $string['signinsheetaddress'] = 'Address: ';
+$string['signinsheetcolumndate'] = '{$a->month} {$a->dayordinal}';
+$string['signinsheetcolumndatetime'] = '{$a->monthabbr} {$a->dayordinal}, {$a->time}';
 $string['signinsheetconfigure'] = 'Configure sign-in sheet';
 $string['signinsheetconfigureinfo'] = 'Once you have configured and downloaded the sign-in sheet, you can simply use the "{$a->downloadbutton}" button (it keeps the settings of your last download).<br><br>As long as no settings have been saved for a booking option yet, the settings of the booking instance apply (section "{$a->instancesection}") or – if the instance uses the plugin configuration – the global presets (section "{$a->presetssection}").<br><br>Active sign-in sheet mode: <b>{$a->mode}</b>';
 $string['signinsheetconfigureinfoadmin'] = '(As an admin you can change the mode in the <a href="{$a}" target="_blank">plugin settings</a>.)';
