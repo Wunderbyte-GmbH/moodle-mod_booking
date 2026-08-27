@@ -183,4 +183,16 @@ class customfields extends \mod_booking\placeholders\placeholder_base {
     public static function is_applicable(): bool {
         return true;
     }
+
+    /**
+     * Custom booking option fields are supported in the sign-in sheet template. Custom user profile
+     * fields are available there inside of [[users]] only, rendered per booked user by the sign-in
+     * sheet itself (see signinsheet_generator::render_html()), never through this class.
+     *
+     * @return bool
+     *
+     */
+    public static function for_signinsheet(): bool {
+        return true;
+    }
 }
