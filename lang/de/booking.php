@@ -3291,13 +3291,15 @@ $string['signinsheetdefaults_desc'] = 'Diese Einstellungen werden für den Downl
 $string['signinsheetdownload'] = 'Unterschriftenliste herunterladen';
 $string['signinsheetfields'] = 'Auf der Unterschriftenliste (PDF-Download)';
 $string['signinsheethtml'] = 'HTML-Vorlage zur Erstellung von Unterschriftenlisten';
-$string['signinsheethtmldescription'] = 'Sie können die folgenden Platzhalter verwenden:<br>
+$string['signinsheethtmlallplaceholders'] = 'In der Vorlage für Unterschriftenlisten unterstützte Platzhalter der Buchungsregeln (als [[...]] zu schreiben)';
+$string['signinsheethtmldescription'] = 'Sie können die folgenden Platzhalter verwenden (Groß-/Kleinschreibung spielt keine Rolle: [[FULLNAME]] funktioniert wie [[fullname]]):<br>
 <br>
 <b>Innerhalb von [[users]] ... [[/users]]:</b><br>
-[[fullname]], [[firstname]], [[lastname]], [[email]], [[signature]], [[institution]], [[description]], [[city]], [[country]], [[idnumber]], [[phone1]], [[department]], [[address]], [[places]], [[userpic]]<br>
+[[fullname]], [[firstname]], [[lastname]], [[email]], [[signature]], [[institution]], [[description]], [[city]], [[country]], [[idnumber]], [[phone1]], [[department]], [[address]], [[places]], [[userpic]] sowie benutzerdefinierte Profilfelder über ihren Kurznamen, z.B. [[meinkurzname]]<br>
 <br>
 <b>Außerhalb von [[users]]:</b><br>
 [[location]], [[dayofweektime]], [[teachers]], [[dates]], [[logourl]], [[tablename]]<br>
+Zusätzlich können außerhalb von [[users]] die unten aufgelisteten Platzhalter der Buchungsregeln verwendet werden - mit doppelten eckigen Klammern statt geschweifter Klammern geschrieben, z.B. [[bookingoptionname]], [[startdate]], [[numberparticipants]] oder benutzerdefinierte Felder der Buchungsoption über ihren Kurznamen ([[meinkurzname]]). Benutzerdefinierte Profilfelder und andere personenbezogene Platzhalter (z.B. [[firstname]]) stehen nur innerhalb von [[users]] zur Verfügung.<br>
 <br>
 Verwenden Sie nur einfaches HTML, das von TCPDF / PhpWord unterstützt wird. Um Unterschriften in eine Tabelle einzufügen, verwenden Sie die CSS-Klasse <code>"signaturetable"</code>.';
 $string['signinsheetlocation'] = 'Ort: ';

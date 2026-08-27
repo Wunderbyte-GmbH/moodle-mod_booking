@@ -17,12 +17,15 @@
 namespace mod_booking\signinsheet;
 use mod_booking\booking_option_settings;
 use mod_booking\option\fields\sharedplaces;
+use core_text;
+use mod_booking\placeholders\placeholders_info;
 use mod_booking\singleton_service;
 use local_wunderbyte_table\local\pdf\pdfa_pdf;
 use user_picture;
 use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
+require_once($CFG->dirroot . '/mod/booking/lib.php');
 \core_php_time_limit::raise();
 raise_memory_limit(MEMORY_HUGE);
 require_once($CFG->dirroot . '/local/wunderbyte_table/lib/phpwordinit.php');
@@ -238,6 +241,25 @@ class signinsheet_generator {
     public $customuserfields = [];
 
     /**
+     * Placeholders outside of [[users]] which render_html() resolves itself. They are kept away
+     * from the placeholder engine (see render_rule_placeholders()) because their values differ
+     * from the booking rules placeholders of the same name: [[dates]] follows the "sessions"
+     * download setting, [[teachers]] is a plain comma separated list of names, [[location]]
+     * includes the entity, [[tablename]] follows the "title" download setting.
+     */
+    private const TEMPLATE_PLACEHOLDERS = ['location', 'dayofweektime', 'teachers', 'dates', 'logourl', 'tablename'];
+
+    /**
+     * Marks the position of the [[users]] section until the generated user rows are inserted.
+     */
+    private const USERROWS_MARKER = '@@signinsheet_userrows@@';
+
+    /**
+     * Protect the curly braces of the template itself (e.g. css rules) from the placeholder engine.
+     */
+    private const BRACE_MARKERS = ['@@signinsheet_lbrace@@', '@@signinsheet_rbrace@@'];
+
+    /**
      * Define basic variable values for signinsheet pdf
      *
      * @param \stdClass $pdfoptions
@@ -363,6 +385,13 @@ class signinsheet_generator {
      * Renders the sign-in sheet HTML from the configured template (setting signinsheethtml,
      * default template as fallback): user rows, session columns, logo and title.
      *
+     * Outside of the [[users]] section every placeholder the template mode does not resolve
+     * itself (TEMPLATE_PLACEHOLDERS) is handed to the placeholder engine of the booking rules,
+     * so custom booking option fields ([[myshortname]]) and the rule placeholders supported there
+     * (for_signinsheet(): [[bookingoptionname]], [[startdate]], ...) can be used - written with double
+     * square brackets instead of the curly braces of the rules. Custom user profile fields are
+     * available inside of [[users]] only, rendered per booked user.
+     *
      * @return string the HTML the PDF / Word document is generated from
      */
     public function render_html(): string {
@@ -427,6 +456,7 @@ class signinsheet_generator {
             $sql,
             array_merge(
                 $groupparams,
+                $params1,
                 ['optionid' => $this->optionid]
             )
         );
@@ -460,7 +490,8 @@ class signinsheet_generator {
         }
 
         // Extract user template from the configuration HTML.
-        preg_match('/\[\[users\]\](.*?)\[\[\/users\]\]/s', $confightml, $matches);
+        // All [[...]] placeholders of the template are case-insensitive ([[USERS]], [[FullName]], ...).
+        preg_match('/\[\[users\]\](.*?)\[\[\/users\]\]/si', $confightml, $matches);
         $usertemplate = isset($matches[1]) ? $matches[1] : '';
 
         $extrasessioncols = $this->get_extra_session_columns();
@@ -506,14 +537,17 @@ class signinsheet_generator {
                 '[[places]]' => $user->places ?? '',
             ];
 
+            // The value of each custom user profile field is selected by the sql above under an alias
+            // derived from the field id (see booking_option_settings::custom_profile_field_alias()).
             foreach ($customuserfields as $customuserfield) {
                 $fieldtype = $customuserfield->datatype;
                 $shortname = $customuserfield->shortname;
+                $alias = booking_option_settings::custom_profile_field_alias((int) $customuserfield->id);
                 if ($fieldtype == 'datetime') {
-                    $cleanvalue = $user->$shortname ?? 0;
-                    $value = $cleanvalue != 0 ? userdate($user->$shortname, get_string('strftimedate', 'langconfig')) : '';
+                    $cleanvalue = $user->$alias ?? 0;
+                    $value = $cleanvalue != 0 ? userdate($user->$alias, get_string('strftimedate', 'langconfig')) : '';
                 } else {
-                    $value = $user->$shortname ?? '';
+                    $value = $user->$alias ?? '';
                 }
                 $replacements['[[' . $shortname . ']]'] = $value ?? '';
             }
@@ -528,14 +562,19 @@ class signinsheet_generator {
             }
             $sessioncols = str_repeat('<td></td>', count($extrasessioncols));
             foreach ($replacements as $placeholder => $realvalue) {
-                $row = str_replace($placeholder, $realvalue, $row);
+                $row = str_ireplace($placeholder, $realvalue, $row);
             }
             $row = str_replace('</tr>', $sessioncols . '</tr>', $row);
             $userrows .= $row;
         }
 
-        // Replace the [[users]] section with generated user rows.
-        $htmloutput = preg_replace('/\[\[users\]\].*?\[\[\/users\]\]/s', $userrows, $confightml);
+        // The generated user rows are inserted as the very last step (see below), so neither the
+        // placeholder engine nor the replacements of the template placeholders ever parse user data.
+        $htmloutput = preg_replace('/\[\[users\]\].*?\[\[\/users\]\]/si', self::USERROWS_MARKER, $confightml);
+
+        // Custom booking option fields and all other placeholders of the booking rules. Runs before
+        // the template placeholders are replaced, so their values are never parsed for placeholders.
+        $htmloutput = $this->render_rule_placeholders($htmloutput, $settings);
 
         // Determine the header title.
         if ($this->title == 2) {
@@ -564,26 +603,105 @@ class signinsheet_generator {
         // classic PDF MultiCell); in HTML they need to become <br> tags.
         $dates = $this->pdfsessions != -1 && $this->pdfsessions != -2 ? nl2br($this->sessionsstring) : '';
 
-        $htmloutput = str_replace('[[location]]', $location, $htmloutput);
-        $htmloutput = str_replace('[[dayofweektime]]', $dayofweektime, $htmloutput);
-        $htmloutput = str_replace('[[teachers]]', $teachers, $htmloutput);
-        $htmloutput = str_replace('[[dates]]', $dates, $htmloutput);
+        $htmloutput = str_ireplace('[[location]]', $location, $htmloutput);
+        $htmloutput = str_ireplace('[[dayofweektime]]', $dayofweektime, $htmloutput);
+        $htmloutput = str_ireplace('[[teachers]]', $teachers, $htmloutput);
+        $htmloutput = str_ireplace('[[dates]]', $dates, $htmloutput);
         // Add the logo to the HTML as a data URI, so TCPDF and PhpWord can render
         // it without fetching a pluginfile URL (which would require a login session).
         if ($this->get_signinsheet_logo()) {
             $src = 'data:' . $this->signinsheetlogo->get_mimetype() . ';base64,' .
                 base64_encode($this->signinsheetlogo->get_content());
-            $htmloutput = str_replace('[[logourl]]', $src, $htmloutput);
+            $htmloutput = str_ireplace('[[logourl]]', $src, $htmloutput);
         } else {
             // No logo configured: drop the img tag, an unresolved placeholder would make PhpWord throw.
             $htmloutput = preg_replace('/<img[^>]*\[\[logourl\]\][^>]*>/i', '', $htmloutput);
-            $htmloutput = str_replace('[[logourl]]', '', $htmloutput);
+            $htmloutput = str_ireplace('[[logourl]]', '', $htmloutput);
         }
 
         // Replace table name placeholder.
-        $htmloutput = str_replace('[[tablename]]', $headertitle, $htmloutput);
+        $htmloutput = str_ireplace('[[tablename]]', $headertitle, $htmloutput);
+
+        // Finally the user rows (str_replace: user data must not be treated as a regex replacement).
+        $htmloutput = str_replace(self::USERROWS_MARKER, $userrows, $htmloutput);
 
         return $htmloutput;
+    }
+
+    /**
+     * Resolves the [[...]] placeholders outside of [[users]] which the template mode does not
+     * handle itself (TEMPLATE_PLACEHOLDERS) with the placeholder engine of the booking rules
+     * (placeholders_info::render_text()): custom booking option fields by their shortname,
+     * [[bookingoptionname]], [[startdate]], [[numberparticipants]], ...
+     *
+     * The engine works with the {...} notation, the templates use [[...]] - case-insensitively:
+     * [[BookingOptionName]] is bridged to {bookingoptionname}. Only the placeholders themselves are
+     * bridged: curly braces that are part of the template (css rules in a style
+     * block, inline styles) are protected, so the engine never sees them, and placeholders the
+     * engine cannot resolve are handed back in the [[...]] notation - they stay visible in the
+     * document, as before. Only placeholders supported in sign-in sheets are handed to the engine
+     * (for_signinsheet() of the placeholder class, custom booking option fields via the customfields
+     * class), all others stay unresolved as well - e.g. [[firstname]] outside of [[users]]. Custom
+     * user profile fields are rendered per booked user inside of the [[users]] section only.
+     *
+     * @param string $html the template with the [[users]] section already replaced by USERROWS_MARKER
+     * @param booking_option_settings $settings
+     * @return string
+     */
+    private function render_rule_placeholders(string $html, booking_option_settings $settings): string {
+        global $USER;
+
+        if (!preg_match_all('/\[\[([^\[\]{}]+)\]\]/', $html, $matches)) {
+            return $html;
+        }
+        // Custom user profile fields are rendered per booked user inside of [[users]] only (see the
+        // user rows above): outside they stay unresolved - unless a custom booking option field has
+        // the same shortname, which takes precedence in the engine as well.
+        $profilefields = [];
+        foreach ($this->customuserfields as $field) {
+            $profilefields[] = core_text::strtolower($field->shortname);
+            $profilefields[] = core_text::strtolower($field->shortname) . '-related';
+        }
+        // Placeholder as written in the template => tag of the engine (placeholder tags are lowercase:
+        // class names, custom field shortnames). Only placeholders supported in sign-in sheets are
+        // handed to the engine (for_signinsheet()).
+        $placeholders = [];
+        foreach (array_unique($matches[1]) as $placeholder) {
+            $tag = core_text::strtolower($placeholder);
+            if (
+                in_array($tag, self::TEMPLATE_PLACEHOLDERS, true)
+                || !placeholders_info::placeholder_belongs_to_list($tag, MOD_BOOKING_PLACEHOLDERS_SIGNINSHEET)
+                || (in_array($tag, $profilefields, true) && !isset($settings->customfieldsfortemplates[$tag]))
+            ) {
+                continue;
+            }
+            $placeholders[$placeholder] = $tag;
+        }
+        if (empty($placeholders)) {
+            return $html;
+        }
+
+        $html = str_replace(['{', '}'], self::BRACE_MARKERS, $html);
+        foreach ($placeholders as $placeholder => $tag) {
+            $html = str_replace("[[$placeholder]]", '{' . $tag . '}', $html);
+        }
+
+        $html = placeholders_info::render_text(
+            $html,
+            (int) $settings->cmid,
+            (int) $this->optionid,
+            (int) $USER->id,
+            0,
+            0,
+            0,
+            MOD_BOOKING_DESCRIPTION_MAIL
+        );
+
+        // Unresolved placeholders (e.g. a typo) stay visible in the template notation, as written.
+        foreach ($placeholders as $placeholder => $tag) {
+            $html = str_replace('{' . $tag . '}', "[[$placeholder]]", $html);
+        }
+        return str_replace(self::BRACE_MARKERS, ['{', '}'], $html);
     }
 
     /**
@@ -771,6 +889,7 @@ class signinsheet_generator {
             $sql,
             array_merge(
                 $groupparams,
+                $params1,
                 ['optionid' => $this->optionid]
             )
         );
@@ -1003,8 +1122,8 @@ class signinsheet_generator {
 
                         foreach ($this->customuserfields as $customuserfield) {
                             if ($value == $customuserfield->shortname) {
-                                $name = $user->{$value} ?? $user->{strtolower($value)};
-                                $name = format_string($name);
+                                $alias = booking_option_settings::custom_profile_field_alias((int) $customuserfield->id);
+                                $name = format_string($user->{$alias} ?? '');
                                 $w = 25;
                                 $rotate = false;
                                 break;

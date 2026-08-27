@@ -122,8 +122,30 @@ class myvalue extends placeholder_base {
     public static function for_pollurl(): bool {
         return false; // Set to true for simple text values
     }
+
+    /**
+     * Whether this placeholder is supported in the sign-in sheet HTML template
+     * (written as [[tokenname]] there). placeholder_base defaults to false - opt in
+     * only for values of the option, instance or course; the sheet is rendered for
+     * the downloading user, not for a recipient or an event.
+     */
+    public static function for_signinsheet(): bool {
+        return false;
+    }
 }
 ```
+
+### Placeholder lists
+
+`placeholders_info::return_list_of_placeholders()` renders the localized list of placeholders shown in forms and settings. It takes one of the constants defined in `lib.php`:
+
+| Constant | Contents |
+|---|---|
+| `MOD_BOOKING_PLACEHOLDERS_ALL` (default) | every applicable placeholder |
+| `MOD_BOOKING_PLACEHOLDERS_POLLURL` | placeholders with `for_pollurl() = true` (poll URL fields of the option form, setting `pollurltemplate`) |
+| `MOD_BOOKING_PLACEHOLDERS_SIGNINSHEET` | placeholders with `for_signinsheet() = true` (setting `signinsheethtml`, shown as `[[tokenname]]`; the sign-in sheet generator renders only these) |
+
+Each list is built once per request and cached separately. To add a list, define a constant in `lib.php`, add a case to `placeholders_info::belongs_to_list()` and, if the selection depends on the placeholder, a `for_...()` method on `placeholder_base` that classes override. Remember to `require_once` `mod/booking/lib.php` in every file using the constants.
 
 ---
 
