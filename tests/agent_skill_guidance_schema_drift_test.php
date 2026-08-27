@@ -103,7 +103,7 @@ final class agent_skill_guidance_schema_drift_test extends advanced_testcase {
             }
             foreach ((array)$skill->get_contextual_prompt_packs() as $pack) {
                 $packid = (string)($pack['id'] ?? '?');
-                foreach ((array)($pack['guidance'] ?? []) as $line) {
+                foreach (self::merge_wrapped_lines((array)($pack['guidance'] ?? [])) as $line) {
                     $line = (string)$line;
                     // Negative advice and override-token enumerations legitimately name
                     // keys that must not (or cannot) be sent.
@@ -127,17 +127,7 @@ final class agent_skill_guidance_schema_drift_test extends advanced_testcase {
                         }
                     }
 
-                    if (!preg_match_all('/\b[a-z][a-z0-9_]{7,}\b/', strtolower($line), $tokens)) {
-                        continue;
-                    }
-                    foreach (array_unique($tokens[0]) as $token) {
-                        if (
-                            !isset($allknownkeys[$token])
-                            || isset($allowed[$token])
-                            || in_array($token, self::PROSE_WORDS, true)
-                        ) {
-                            continue;
-                        }
+                    foreach (self::offending_tokens($line, $allowed, $allknownkeys) as $token) {
                         $violations[] = $skillname . ' [' . $packid . ']: recommends "' . $token
                             . '" which its schema does not accept — line: ' . trim($line);
                     }
@@ -150,6 +140,125 @@ final class agent_skill_guidance_schema_drift_test extends advanced_testcase {
             $violations,
             "Guidance/schema drift found (fix the guidance line or name the owning skill in it):\n"
             . implode("\n", $violations)
+        );
+    }
+
+
+    /**
+     * Guidance packs store bullets as wrapped source lines: a bullet starts with "-", its
+     * continuations are indented. The rule has to see a whole bullet, otherwise the context sits
+     * on the previous line - get_option_details names standard_fields.availability on one line and
+     * the fields it holds on the next (Wunderbyte-GmbH/Wunderbyte-GmbH#2294), and a skill named
+     * for a two-step hint would be missed the same way.
+     *
+     * @param array $lines raw guidance lines
+     * @return string[] one entry per bullet
+     */
+    private static function merge_wrapped_lines(array $lines): array {
+        $bullets = [];
+        foreach ($lines as $line) {
+            $line = (string)$line;
+            if (trim($line) === '') {
+                continue;
+            }
+            if (str_starts_with(trim($line), '-') || empty($bullets)) {
+                $bullets[] = trim($line);
+                continue;
+            }
+            $bullets[count($bullets) - 1] .= ' ' . trim($line);
+        }
+
+        return $bullets;
+    }
+
+    /**
+     * Parameter keys a single guidance line recommends although the skill it belongs to does not
+     * accept them. Extracted so the rule itself can be tested with synthetic lines below.
+     *
+     * @param string $line the guidance line
+     * @param array $allowed keys accepted here (own schema + explicitly named skills), key => true
+     * @param array $allknownkeys every parameter key of every registered skill, key => true
+     * @return string[] offending tokens, in order of appearance
+     */
+    private static function offending_tokens(string $line, array $allowed, array $allknownkeys): array {
+        // A line explaining how to READ THE RESULT names result fields, not parameters
+        // (Wunderbyte-GmbH/Wunderbyte-GmbH#2294). get_option_details' seat guidance points at
+        // standard_fields.availability and then names freeplaces/booked/maxanswers - the last of
+        // which is an input parameter of create_option/update_option, which is what used to trip
+        // this rule. Only lines that actually reference a result container are exempt, so ordinary
+        // guidance (the coursequery drift this test was written for) is still checked.
+        if (preg_match('/\b(standard_fields|detail_capabilities|empty_fields|omitted_fields)\b/i', $line)) {
+            return [];
+        }
+
+        if (!preg_match_all('/\b[a-z][a-z0-9_]{7,}\b/', strtolower($line), $tokens)) {
+            return [];
+        }
+
+        $offending = [];
+        foreach (array_unique($tokens[0]) as $token) {
+            if (
+                !isset($allknownkeys[$token])
+                || isset($allowed[$token])
+                || in_array($token, self::PROSE_WORDS, true)
+            ) {
+                continue;
+            }
+            $offending[] = $token;
+        }
+
+        return $offending;
+    }
+
+    /**
+     * The exemption for result-reading lines must not blunt the rule: a line that really
+     * recommends a foreign parameter key is still reported.
+     *
+     * @covers \mod_booking\agent_skill_guidance_schema_drift_test::offending_tokens
+     */
+    public function test_result_field_references_are_not_parameter_recommendations(): void {
+        $allknownkeys = ['coursequery' => true, 'maxanswers' => true, 'optionquery' => true];
+        $allowed = ['optionquery' => true];
+
+        // The drift this test exists for (thread 550) is still caught.
+        $this->assertSame(
+            ['coursequery'],
+            self::offending_tokens('Use coursequery when the course is known.', $allowed, $allknownkeys)
+        );
+
+        // Wrapped bullets are merged first, so the context on the previous line still counts.
+        $this->assertSame(
+            ['- For seat questions read standard_fields.availability: places_limited=false means there is'
+                . ' no limit; otherwise use freeplaces, booked and maxanswers.'],
+            self::merge_wrapped_lines([
+                '- For seat questions read standard_fields.availability: places_limited=false means there is',
+                '  no limit; otherwise use freeplaces, booked and maxanswers.',
+            ])
+        );
+
+        // Reading the result is not a parameter recommendation.
+        $this->assertSame(
+            [],
+            self::offending_tokens(
+                '- For seat questions read standard_fields.availability: places_limited=false means there is'
+                    . ' no limit; otherwise use freeplaces, booked and maxanswers.',
+                $allowed,
+                $allknownkeys
+            )
+        );
+        $this->assertSame(
+            [],
+            self::offending_tokens(
+                '- Never state that a value does not exist for a field listed in omitted_fields.',
+                $allowed,
+                $allknownkeys
+            )
+        );
+
+        // A key the line's own skill accepts stays fine, with or without a result reference.
+        $this->assertSame(
+            [],
+            self::offending_tokens('Prefer optionquery when the title is known.', $allowed, $allknownkeys)
         );
     }
 }
