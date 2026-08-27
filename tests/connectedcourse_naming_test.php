@@ -296,7 +296,7 @@ final class connectedcourse_naming_test extends advanced_testcase {
         set_config('connectedcourseshortname', '{titlewithoutprefix}_{optionid}', 'booking');
         set_config('connectedcourseidnumber', '{optionid}', 'booking');
 
-        // create_option_with_connected_course() uses chooseorcreatecourse = 1, i.e. the user
+        // Create_option_with_connected_course() uses chooseorcreatecourse = 1, i.e. the user
         // selected an existing course. This goes through the real save pipeline.
         [, $connectedcourse] = $this->create_option_with_connected_course('Aerial Yoga', 'PF1');
 

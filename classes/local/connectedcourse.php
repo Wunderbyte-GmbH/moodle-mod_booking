@@ -450,11 +450,13 @@ class connectedcourse {
         $candidate = $shortname;
         $i = 1;
 
-        while ($DB->record_exists_select(
-            'course',
-            'shortname = :shortname AND id <> :courseid',
-            ['shortname' => $candidate, 'courseid' => $courseid]
-        )) {
+        while (
+            $DB->record_exists_select(
+                'course',
+                'shortname = :shortname AND id <> :courseid',
+                ['shortname' => $candidate, 'courseid' => $courseid]
+            )
+        ) {
             $suffix = '_' . $i;
             // Keep the result within the 255 characters the course table allows.
             $candidate = core_text::substr($shortname, 0, 255 - core_text::strlen($suffix)) . $suffix;
