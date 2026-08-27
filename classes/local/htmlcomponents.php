@@ -257,26 +257,30 @@ class htmlcomponents {
      *
      * @param string $headertext
      * @param string $bodytext
+     * @param string $collapseid id of the collapsible - must be unique on the page
      *
      * @return string
      *
      */
-    public static function render_bootstrap_collapsible(string $headertext, string $bodytext) {
-        // Example function body.
+    public static function render_bootstrap_collapsible(
+        string $headertext,
+        string $bodytext,
+        string $collapseid = 'pollurlplaceholders'
+    ) {
         $returnstring = html_writer::tag(
             'p',
             '<i class="fa fa-lightbulb-o" aria-hidden="true"></i>&nbsp;' .
             html_writer::link(
-                '#pollurlplaceholders',
+                '#' . $collapseid,
                 $headertext,
                 [
                     'class' => 'p-0',
                     'data-toggle' => 'collapse',
                     'data-bs-toggle' => 'collapse',
-                    'data-bs-target' => '#pollurlplaceholders',
+                    'data-bs-target' => '#' . $collapseid,
                     'role' => 'button',
                     'aria-expanded' => 'false',
-                    'aria-controls' => 'pollurlplaceholders',
+                    'aria-controls' => $collapseid,
                 ]
             )
         ) .
@@ -288,7 +292,7 @@ class htmlcomponents {
             '',
             [
                 'class' => 'collapse',
-                'id' => 'pollurlplaceholders',
+                'id' => $collapseid,
             ]
         );
 

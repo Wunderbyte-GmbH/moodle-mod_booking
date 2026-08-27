@@ -129,4 +129,14 @@ class description extends \mod_booking\placeholders\placeholder_base {
         // Full description does not make sense in a pollurl. So we return false here.
         return false;
     }
+
+    /**
+     * This placeholder is supported in the sign-in sheet HTML template.
+     *
+     * @return bool
+     *
+     */
+    public static function for_signinsheet(): bool {
+        return true;
+    }
 }

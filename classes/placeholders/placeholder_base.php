@@ -55,4 +55,17 @@ class placeholder_base {
     public static function for_pollurl(): bool {
         return false;
     }
+
+    /**
+     * Function determine if placeholder class works for the sign-in sheet HTML template
+     * (list MOD_BOOKING_PLACEHOLDERS_SIGNINSHEET, written as [[tokenname]] there). Only placeholders
+     * explicitly supported opt in - values of the booking option, instance or course; user or event
+     * related placeholders stay unresolved in the sign-in sheet.
+     *
+     * @return bool
+     *
+     */
+    public static function for_signinsheet(): bool {
+        return false;
+    }
 }

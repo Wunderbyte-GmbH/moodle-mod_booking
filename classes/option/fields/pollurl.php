@@ -33,6 +33,9 @@ use mod_booking\utils\wb_payment;
 use MoodleQuickForm;
 use stdClass;
 
+defined('MOODLE_INTERNAL') || die();
+require_once($CFG->dirroot . '/mod/booking/lib.php');
+
 /**
  * Class to handle one property of the booking_option_settings class.
  *
@@ -166,7 +169,7 @@ class pollurl extends field_base {
         $mform->setDefault('pollurlteachers', get_config('booking', 'pollurlteacherstemplate') ?: '');
 
         if (wb_payment::pro_version_is_activated()) {
-            $availableplaceholders = placeholders_info::return_list_of_placeholders(true);
+            $availableplaceholders = placeholders_info::return_list_of_placeholders(MOD_BOOKING_PLACEHOLDERS_POLLURL);
             $mform->addElement(
                 'static',
                 'pollurlplaceholdersexplanation',
