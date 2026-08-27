@@ -27,9 +27,9 @@
 namespace mod_booking\bo_availability\conditions;
 
 use mod_booking\bo_availability\bo_condition;
-use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_option_settings;
 use mod_booking\output\bookingoption_description;
+use mod_booking\singleton_service;
 use mod_booking\price;
 use MoodleQuickForm;
 
@@ -204,29 +204,28 @@ class confirmation implements bo_condition {
         global $USER;
         $userid = empty($userid) ? $USER->id : $userid;
 
-        // Get blocking conditions, including prepages$prepages etc.
-        $results = bo_info::get_condition_results($optionid, $userid);
-        $lastresultid = array_pop($results)['id'];
-
         $data = new bookingoption_description($optionid, null, MOD_BOOKING_DESCRIPTION_WEBSITE, true, false);
         $bodata = $data->get_returnarray();
 
-        // A booked-state top blocker (incl. SLOTMOVE, which only blocks for an actually-booked,
-        // self-rebookable user) means the booking succeeded — otherwise the user sees a false error.
-        if (in_array($lastresultid, MOD_BOOKING_BO_COND_BOOKED_STATES, true)) {
-            $bodata['alreadybooked'] = true;
-        } else {
-            switch ($lastresultid) {
-                case MOD_BOOKING_BO_COND_ALREADYRESERVED:
-                    $bodata['alreadyreserved'] = true;
-                    break;
-                case MOD_BOOKING_BO_COND_ONWAITINGLIST:
-                    $bodata['onwaitinglist'] = true;
-                    break;
-                default:
-                    $bodata['notyetbooked'] = true;
-                    break;
-            }
+        // Read what actually happened to the user, not which condition blocks the option now
+        // (Wunderbyte-GmbH/Wunderbyte-GmbH#2281). An option can legitimately stay bookable after a
+        // successful booking - a slot option with per-user slot capacity left, multiple bookings -
+        // and deriving success from the top blocker reported a failure for exactly those.
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $bookinganswers = singleton_service::get_instance_of_booking_answers($settings);
+        switch ($bookinganswers->user_status($userid)) {
+            case MOD_BOOKING_STATUSPARAM_BOOKED:
+                $bodata['alreadybooked'] = true;
+                break;
+            case MOD_BOOKING_STATUSPARAM_RESERVED:
+                $bodata['alreadyreserved'] = true;
+                break;
+            case MOD_BOOKING_STATUSPARAM_WAITINGLIST:
+                $bodata['onwaitinglist'] = true;
+                break;
+            default:
+                $bodata['notyetbooked'] = true;
+                break;
         }
 
         $dataarray[] = [
