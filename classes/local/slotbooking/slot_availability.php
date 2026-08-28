@@ -1173,15 +1173,21 @@ class slot_availability {
      *
      * @param int $optionid booking option id
      * @param int $userid user id
+     * @param bool $ignoreuserslotcap keep slots selectable even once the user used up
+     *                                max_slots_per_user (see get_slots_with_status_for_range())
      * @return array
      */
-    public static function get_slots_with_status(int $optionid, int $userid = 0): array {
+    public static function get_slots_with_status(
+        int $optionid,
+        int $userid = 0,
+        bool $ignoreuserslotcap = false
+    ): array {
         [$rangestart, $rangeend] = self::get_default_slot_range($optionid);
         if ($rangeend <= $rangestart) {
             return [];
         }
 
-        return self::get_slots_with_status_for_range($optionid, $rangestart, $rangeend, $userid);
+        return self::get_slots_with_status_for_range($optionid, $rangestart, $rangeend, $userid, $ignoreuserslotcap);
     }
 
     /**
@@ -1248,13 +1254,18 @@ class slot_availability {
      * @param int $rangestart range start timestamp
      * @param int $rangeend range end timestamp
      * @param int $userid user id
+     * @param bool $ignoreuserslotcap keep slots selectable even once the user used up
+     *                                max_slots_per_user - needed by the slot MOVE flow, where the
+     *                                user gives up one of their own slots to take another and is by
+     *                                definition already at the cap
      * @return array
      */
     public static function get_slots_with_status_for_range(
         int $optionid,
         int $rangestart,
         int $rangeend,
-        int $userid = 0
+        int $userid = 0,
+        bool $ignoreuserslotcap = false
     ): array {
         $config = self::get_slot_config($optionid);
         if (empty($config)) {
@@ -1274,6 +1285,15 @@ class slot_availability {
         $userbookedslotset = $userid > 0
             ? self::get_booked_slot_key_set_for_user($optionid, $userid)
             : [];
+
+        // Once the user used up max_slots_per_user, no further slot is bookable BY THEM, no matter
+        // how much per-slot capacity is still free. evaluate_slot_for_user() deliberately does not
+        // know about this cap (it answers "is this slot free?", not "may this user take one more?"),
+        // so without this gate every remaining slot would keep reporting 'open' - and the row's
+        // "available for you" counter would promise slots the user cannot actually book.
+        $userslotcapreached = !$ignoreuserslotcap
+            && $userid > 0
+            && !self::has_remaining_slot_capacity($optionid, $userid);
 
         // Fetch the option-wide pending holds once and reuse them across all slots below,
         // instead of re-querying them per slot inside count_bookings()/evaluate_slot_for_user().
@@ -1300,6 +1320,21 @@ class slot_availability {
             }
 
             $bookings = self::count_bookings($optionid, $slotstart, $slotend, 0, 0, $holds);
+
+            if ($userslotcapreached) {
+                // Slots the user already holds are handled by the 'booked' branch above; everything
+                // else is out of reach for them now.
+                $result[] = [
+                    'start' => $slotstart,
+                    'end' => $slotend,
+                    'status' => 'unavailable',
+                    'bookings' => $bookings,
+                    'capacity' => $capacity,
+                    'warningmessage' => '',
+                ];
+                continue;
+            }
+
             $evaluation = self::evaluate_slot_for_user(
                 $optionid,
                 $slotstart,

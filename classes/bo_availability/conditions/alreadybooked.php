@@ -228,6 +228,15 @@ class alreadybooked implements bo_condition {
         ) {
             return [$isavailable, $description, MOD_BOOKING_BO_PREPAGE_NONE, MOD_BOOKING_BO_BUTTON_INDIFFERENT];
         }
+        // A blocked slot option without a rebookable answer still needs to claim the row's main
+        // button (so the list shows "Start" instead of a stale "Book now"), but must NOT use
+        // JUSTMYALERT here: booking_bookit.php's role dispatch forces $renderprepagemodal=false for
+        // JUSTMYALERT unconditionally, which would drop the row out of the prepagemodal render path
+        // and silently swallow an already-claimed CANCEL extra button (e.g. "Undo my booking") along
+        // with it. MYBUTTON claims the main button the same way without that side effect.
+        if (!$isavailable && !empty($settings->slotconfig)) {
+            return [$isavailable, $description, MOD_BOOKING_BO_PREPAGE_NONE, MOD_BOOKING_BO_BUTTON_MYBUTTON];
+        }
         return [$isavailable, $description, MOD_BOOKING_BO_PREPAGE_NONE, MOD_BOOKING_BO_BUTTON_JUSTMYALERT];
     }
 

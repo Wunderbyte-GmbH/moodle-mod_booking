@@ -623,6 +623,9 @@ class booking_bookit {
                 $now = time();
                 $cache->set($userid, [$cachekey => $now]);
 
+                // The click DID change something - it armed the two-step confirmation, so the
+                // button has to be re-rendered (Wunderbyte-GmbH/Wunderbyte-GmbH#2306).
+                $confirmationarmed = true;
                 $isavailable = false;
             } else if ($id === MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION) {
                 // Make sure cache is not blocking anymore.
