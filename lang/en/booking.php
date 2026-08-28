@@ -1482,6 +1482,7 @@ $string['conditionsskippedwarning'] = '<div class="alert alert-warning" role="al
 $string['conditiontextfield'] = 'Value';
 $string['conditionwarningatbottom'] = 'Show frozen condition warning below the fields';
 $string['conditionwarningatbottom_desc'] = 'When enabled, the warning shown for a frozen or skipped availability condition is placed at the bottom of the condition (above the separator line) instead of above the condition\'s fields.';
+$string['confirm:ersaverelationsforoptiondates'] = 'Some dates have a different entity than the option. I confirm that I want to overwrite them with the main entity.';
 $string['configurefields'] = 'Configure fields and columns';
 $string['confirm:ersaverelationsforoptiondates'] = 'Some dates have a different entity than the option. I confirm that I want to overwrite them with the main entity.';
 $string['confirmactivtyfrom'] = 'Confirm users activity from';
@@ -2610,6 +2611,7 @@ $string['numberrowsdesc'] = 'Number each row of the sign-in sheet. Number will b
 $string['numberwaitinglist'] = "Number on waitinglist";
 $string['numgenerator'] = 'Enable rec. number generation?';
 $string['numrec'] = "Rec. num.";
+$string['novalidtitlefound'] = 'No valid title found';
 $string['off'] = "off";
 $string['on'] = "on";
 $string['onecohortmustbefound'] = 'User has to be member to at least one of these cohorts';

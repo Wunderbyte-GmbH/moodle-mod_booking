@@ -1406,6 +1406,7 @@ $string['conditionsskippedwarning'] = '<div class="alert alert-warning" role="al
 $string['conditiontextfield'] = 'Wert';
 $string['conditionwarningatbottom'] = 'Warnung für eingefrorene Bedingung unterhalb der Felder anzeigen';
 $string['conditionwarningatbottom_desc'] = 'Wenn aktiviert, wird die Warnung für eine eingefrorene oder übersprungene Verfügbarkeitsbedingung am unteren Ende der Bedingung (oberhalb der Trennlinie) angezeigt, anstatt oberhalb der Felder der Bedingung.';
+$string['confirm:ersaverelationsforoptiondates'] = 'Einige Termine haben eine abweichende Entität. Ich bestätige, dass diese mit der Haupt-Entität überschrieben werden sollen.';
 $string['configurefields'] = 'Spalten und Felder anpassen';
 $string['confirm:ersaverelationsforoptiondates'] = 'Einige Termine haben eine abweichende Entität. Ich bestätige, dass diese mit der Haupt-Entität überschrieben werden sollen.';
 $string['confirmationdeleted'] = 'Bestätigung gelöscht';
@@ -2501,6 +2502,7 @@ $string['numberrowsdesc'] = 'Nummerierung der Zeilen in der Unterschriftenliste 
 $string['numberwaitinglist'] = "Max auf Warteliste";
 $string['numgenerator'] = 'Automatische Seitennummerierung aktivieren?';
 $string['numrec'] = "Eintragsnummer.";
+$string['novalidtitlefound'] = 'Kein gültiger Titel gefunden';
 $string['off'] = "Aus";
 $string['on'] = "An";
 $string['onecohortmustbefound'] = 'Zumindest eine dieser globalen Gruppen muss zutreffen';
