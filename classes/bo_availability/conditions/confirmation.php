@@ -207,6 +207,9 @@ class confirmation implements bo_condition {
         $data = new bookingoption_description($optionid, null, MOD_BOOKING_DESCRIPTION_WEBSITE, true, false);
         $bodata = $data->get_returnarray();
 
+        $results = bo_info::get_condition_results($optionid, $userid);
+        $lastresultid = array_pop($results)['id'];
+
         // A booked-state top blocker (incl. SLOTMOVE, which only blocks for an actually-booked,
         // self-rebookable user) means the booking succeeded — otherwise the user sees a false
         // error. This alone is not enough for slot bookings though: slotbooking's own condition
