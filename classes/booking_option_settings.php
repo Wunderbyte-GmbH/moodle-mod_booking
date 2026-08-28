@@ -544,7 +544,7 @@ class booking_option_settings {
                 $this->useprice = null; // Important: Use null as default so it will also work with old DB records.
             }
 
-            // If the course module id (cmid) is not yet set, we load it. //TODO: bookingid 0 bei option templates berücksichtigen!!
+            // If the course module id (cmid) is not yet set, we load it. //TODO: take bookingid 0 into account for option templates!!
             if (!isset($dbrecord->cmid)) {
                 $cm = get_coursemodule_from_instance('booking', $dbrecord->bookingid);
 
