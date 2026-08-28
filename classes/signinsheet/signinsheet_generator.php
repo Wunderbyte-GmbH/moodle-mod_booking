@@ -471,7 +471,8 @@ class signinsheet_generator {
         // Generate session header columns with vertical text.
         $sessionheader = '';
         foreach ($extrasessioncols as $sessiondate) {
-            $sessionheader .= '<th class="vertical-text">' . $sessiondate . '</th>';
+            $sessionheader .= '<th class="vertical-text" style="text-align: center; vertical-align: middle;">'
+                . $sessiondate . '</th>';
         }
 
         if (count($extrasessioncols) > 0) {
@@ -1099,40 +1100,86 @@ class signinsheet_generator {
     }
 
     /**
-     * Add extra columns for sessions.
+     * Add extra columns for sessions: the date of each session, with the start time added for
+     * days with more than one session, so the columns can be told apart.
      * @return array an array of strings, containing the dates (names) of the extra columns
      */
     private function get_extra_session_columns() {
 
         $settings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
 
-        $sessioncolnames = [];
-
-        // If there are no sessions...
-        if (empty($settings->sessions)) {
+        // If there are no sessions or no columns are wanted...
+        if (empty($settings->sessions) || $this->extrasessioncols == -1) {
             return [];
+        }
+        if ($this->extrasessioncols == 0) {
+            // Add columns for all sessions.
+            $sessions = $settings->sessions;
+        } else if (isset($settings->sessions[$this->extrasessioncols])) {
+            // Add a column for a specific session.
+            $sessions = [$settings->sessions[$this->extrasessioncols]];
         } else {
-            if ($this->extrasessioncols == -1) {
-                return [];
-            } else if ($this->extrasessioncols == 0) {
-                // Add columns for all sessions.
-                $val = [];
-                foreach ($settings->sessions as $session) {
-                    $sessioncolnames[] = userdate(
-                        $session->coursestarttime,
-                        get_string('strftimedateshortmonthabbr', 'langconfig')
-                    );
-                }
-            } else {
-                // Add a column for a specific session.
-                $sessioncolnames[] = userdate(
-                    $settings->sessions[$this->extrasessioncols]->coursestarttime,
-                    get_string('strftimedateshortmonthabbr', 'langconfig')
-                );
-            }
+            return [];
+        }
+
+        // The column label is the date. When the option has more than one session on the same day,
+        // the start time is added, so the columns can be told apart.
+        $sessionsperday = [];
+        foreach ($settings->sessions as $session) {
+            $day = userdate($session->coursestarttime, '%Y-%m-%d');
+            $sessionsperday[$day] = ($sessionsperday[$day] ?? 0) + 1;
+        }
+        $sessioncolnames = [];
+        foreach ($sessions as $session) {
+            $day = userdate($session->coursestarttime, '%Y-%m-%d');
+            $sessioncolnames[] = $this->format_session_column_label(
+                (int) $session->coursestarttime,
+                $sessionsperday[$day] > 1
+            );
         }
 
         return $sessioncolnames;
+    }
+
+    /**
+     * Label of an extra session column in the language of the user: "August 27th" / "27. August",
+     * with the start time "Aug. 27th, 3:00 pm" / "27. Aug., 15:00" (strings signinsheetcolumndate and
+     * signinsheetcolumndatetime).
+     *
+     * @param int $timestamp start of the session
+     * @param bool $withtime add the start time (days with more than one session)
+     * @return string
+     */
+    private function format_session_column_label(int $timestamp, bool $withtime): string {
+        $day = (int) userdate($timestamp, '%d');
+        $month = userdate($timestamp, '%B');
+        $monthabbr = userdate($timestamp, '%b');
+        // An abbreviated month gets a dot (Aug., Sept.) unless the language already adds one
+        // (German "Aug.") or the name is not abbreviated at all (May, März, Mai).
+        if ($monthabbr !== $month && !str_ends_with($monthabbr, '.')) {
+            $monthabbr .= '.';
+        }
+        $a = (object) [
+            'day' => $day,
+            'dayordinal' => $day . self::english_ordinal_suffix($day),
+            'month' => $month,
+            'monthabbr' => $monthabbr,
+            'time' => core_text::strtolower(userdate($timestamp, get_string('strftimetime', 'langconfig'))),
+        ];
+        return get_string($withtime ? 'signinsheetcolumndatetime' : 'signinsheetcolumndate', 'mod_booking', $a);
+    }
+
+    /**
+     * English ordinal suffix of a day of month (1st, 2nd, 3rd, 4th, 11th, 21st).
+     *
+     * @param int $day
+     * @return string
+     */
+    private static function english_ordinal_suffix(int $day): string {
+        if (in_array($day % 100, [11, 12, 13], true)) {
+            return 'th';
+        }
+        return ['th', 'st', 'nd', 'rd'][$day % 10] ?? 'th';
     }
 
     /**
@@ -1560,7 +1607,7 @@ class signinsheet_generator {
                     $name,
                     1,
                     (count($this->allfields) == $c ? 1 : 0),
-                    '',
+                    'C',
                     0,
                     "",
                     1
