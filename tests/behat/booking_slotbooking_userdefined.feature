@@ -77,13 +77,13 @@ Feature: Slot booking option of type "userdefined" lets a student pick a free st
     And I follow "Continue"
     Then I should see "Thank you! You have successfully booked" in the ".modal-dialog.modal-xl .condition-confirmation" "css_element"
     And I follow "Close"
-    ## A second, entirely different (non-overlapping) slot must still be rejected - not because it
-    ## overlaps anything, but purely because capacity (1) is already used up.
-    When I click on "Book now" "text" in the ".allbookingoptionstable_r1" "css_element"
-    And I wait "1" seconds
-    And I set the field with xpath "//*[@data-region='slot-custom-editor']//input[@type='time']" to "11:00"
-    And I follow "Continue"
-    Then I should see "You have already reached the maximum number of slots you can book for this option."
+    ## With max_slots_per_user (1) used up, a second slot is not merely rejected on submit - the row
+    ## no longer offers booking at all and locks to the booked state with the course "Start" link,
+    ## exactly like every other slot type does (see booking_slotbooking.feature). The server-side
+    ## rejection message itself stays covered by slotbooking_form::validation() in
+    ## tests/form/condition/slotbooking_form_test.php.
+    Then I should see "Start" in the ".allbookingoptionstable_r1" "css_element"
+    And I should not see "Book now" in the ".allbookingoptionstable_r1" "css_element"
 
   @javascript
   Scenario: Userdefined slotbooking: a paid option leads to the shopping cart instead of an immediate confirmation

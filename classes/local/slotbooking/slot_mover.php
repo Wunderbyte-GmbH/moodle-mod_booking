@@ -124,7 +124,10 @@ class slot_mover {
         // Offer every selectable slot within the option's validity range (the same range the
         // booking picker uses), not just the next 30 days — so far-future options (e.g. June 2035)
         // can be rebooked too.
-        $slots = slot_availability::get_slots_with_status($optionid, $userid);
+        // A user who is moving a slot has by definition already used up their slot allowance (they
+        // are giving one of their own slots back to take another), so the max_slots_per_user gate
+        // in get_slots_with_status() must not apply here - it would leave no target to move to.
+        $slots = slot_availability::get_slots_with_status($optionid, $userid, true);
 
         $calendarslots = [];
         $calendarslotkeyset = [];
