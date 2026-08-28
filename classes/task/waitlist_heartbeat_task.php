@@ -90,16 +90,16 @@ class waitlist_heartbeat_task extends \core\task\scheduled_task {
             progression_factory::get()->reconcile((int) $optionid, 'waitlist:recycled');
         }
 
-        // Typ 2 ("offen nach Durchlauf"): Liste einmal komplett durchgearbeitet, Platz noch
-        // unbeansprucht - ab jetzt direkt für alle außer K7-Gesperrte buchbar (siehe
-        // onwaitinglist::is_available()). Kein reconcile() nötig - progression::reconcile()
-        // würde wegen des gerade gesetzten Flags ohnehin sofort wieder zurückkehren.
+        // Type 2 ("open after full pass"): list has been fully processed once, spot still
+        // unclaimed - from now on directly bookable for everyone except K7-blocked users (see
+        // onwaitinglist::is_available()). No reconcile() needed - progression::reconcile()
+        // would immediately return anyway because of the flag just set.
         foreach ($repository->find_open_mode_activation_candidates() as $optionid) {
             $repository->activate_open_mode((int) $optionid);
         }
 
-        // Platz wurde inzwischen genommen (freie Kapazität wieder 0) - Modus abschalten, damit
-        // künftige, neue Wartelisten-Beitritte wieder ganz normal per Angebot behandelt werden.
+        // Spot has meanwhile been taken (free capacity back to 0) - deactivate the mode so
+        // future new waitlist joins are handled normally via offer again.
         foreach ($repository->find_open_mode_options_to_deactivate() as $optionid) {
             $repository->deactivate_open_mode((int) $optionid);
         }
