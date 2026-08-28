@@ -719,7 +719,7 @@ export class SlotCalendarPicker {
             }
 
             const selected = this.selected.has(slot.key);
-            // Farbwahl je nach Modus: Unavailability = rot, Availability = grün.
+            // Color choice depending on mode: Unavailability = red, Availability = green.
             let markmode = 'unavailability';
             if (typeof this.root.closest === 'function') {
                 const form = this.root.closest('form');
@@ -730,7 +730,7 @@ export class SlotCalendarPicker {
                     }
                 }
             }
-            // Vorher alle btn-* Farbklassen entfernen, damit keine doppelt bleiben.
+            // First remove all btn-* color classes, so none remain duplicated.
             btn.classList.remove('btn-success', 'btn-danger', 'btn-outline-secondary');
             if (selected) {
                 if (markmode === 'unavailability') {

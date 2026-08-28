@@ -699,6 +699,7 @@ export async function init(callsiteoptionid) {
     let activeOptionId = Number(optionid) || 0;
     let calendarPickerInstance = null;
     const slotbookingSwitchedOptionMessage = await getString('slotbooking_switched_option', 'mod_booking');
+    const slotbookingNoCustomDayAvailableMessage = await getString('slotbooking_no_custom_day_available', 'mod_booking');
 
     // The calendar day (as a "YYYY-MM-DD" key) the user was last looking at - declared here (outer
     // scope, not inside setupInteractiveUi) and kept up to date on every day change so it survives a
@@ -1004,7 +1005,7 @@ export async function init(callsiteoptionid) {
                 customEditorRoot.innerHTML = '';
                 const info = document.createElement('div');
                 info.className = 'small text-muted';
-                info.textContent = 'Für diese Buchungsoption ist an diesem Tag kein Termin verfügbar.';
+                info.textContent = slotbookingNoCustomDayAvailableMessage;
                 customEditorRoot.appendChild(info);
                 customEditorRoot.style.display = '';
             };

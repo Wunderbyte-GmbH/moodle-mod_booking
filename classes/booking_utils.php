@@ -134,7 +134,7 @@ class booking_utils {
                     )
                 ) {
                          // The user might not actually exist.
-                        // This can be the case when das was backup restored or the user was deleted.
+                        // This can be the case when this was backup restored or the user was deleted.
                         $params->{"teacher" . $i} = $user->firstname . ' ' . $user->lastname;
                         $i++;
                 }
