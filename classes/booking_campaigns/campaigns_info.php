@@ -198,6 +198,10 @@ class campaigns_info {
         $campaign = self::get_campaign_by_name($data->bookingcampaigntype);
         $campaign->save_campaign($data);
 
+        // The singleton memoizes the campaign list for the request (including an empty list),
+        // so a saved campaign has to invalidate it - otherwise it stays invisible until the next request.
+        singleton_service::reset_campaigns();
+
         // Every time when we save a campaign, we have to purge data right away.
         cache_helper::purge_by_event('setbackoptionstable');
         cache_helper::purge_by_event('setbackoptionsettings');
