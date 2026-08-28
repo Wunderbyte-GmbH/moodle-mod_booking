@@ -84,6 +84,9 @@ class singleton_service {
     /** @var array $campaigns */
     public array $campaigns = [];
 
+    /** @var bool $campaignsloaded Whether campaigns were already fetched (an empty result is a valid, cacheable result). */
+    public bool $campaignsloaded = false;
+
     /** @var array $courses */
     public array $courses = [];
 
@@ -646,7 +649,7 @@ class singleton_service {
 
         $instance = self::get_instance();
 
-        if (empty($instance->campaigns)) {
+        if (!$instance->campaignsloaded) {
             $campaigns = $DB->get_records('booking_campaigns');
 
             if (!$campaigns || empty($campaigns)) {
@@ -654,6 +657,7 @@ class singleton_service {
             } else {
                 $instance->campaigns = $campaigns;
             }
+            $instance->campaignsloaded = true;
         }
 
         return (array)$instance->campaigns;
@@ -665,7 +669,8 @@ class singleton_service {
      */
     public static function destroy_all_campaigns(): array {
         $instance = self::get_instance();
-        unset($instance->campaigns);
+        $instance->campaigns = [];
+        $instance->campaignsloaded = false;
 
         return [];
     }
@@ -681,6 +686,7 @@ class singleton_service {
 
         if (empty($id)) {
             $instance->campaigns = [];
+            $instance->campaignsloaded = false;
         } else {
             unset($instance->campaigns[$id]);
         }
