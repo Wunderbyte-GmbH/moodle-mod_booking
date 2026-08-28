@@ -207,25 +207,32 @@ class confirmation implements bo_condition {
         $data = new bookingoption_description($optionid, null, MOD_BOOKING_DESCRIPTION_WEBSITE, true, false);
         $bodata = $data->get_returnarray();
 
-        // Read what actually happened to the user, not which condition blocks the option now
-        // (Wunderbyte-GmbH/Wunderbyte-GmbH#2281). An option can legitimately stay bookable after a
-        // successful booking - a slot option with per-user slot capacity left, multiple bookings -
-        // and deriving success from the top blocker reported a failure for exactly those.
+        // A booked-state top blocker (incl. SLOTMOVE, which only blocks for an actually-booked,
+        // self-rebookable user) means the booking succeeded — otherwise the user sees a false
+        // error. This alone is not enough for slot bookings though: slotbooking's own condition
+        // (id 2) stays permanently blocking by design (see its own docblock), even once the user
+        // has genuinely completed a slot booking - it would otherwise wrongly become the highest
+        // blocking id and mask the real state. Cross-check the user's actual booking_answers
+        // status directly (same helper bookingoption_description already uses) as a second,
+        // authoritative signal.
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
         $bookinganswers = singleton_service::get_instance_of_booking_answers($settings);
-        switch ($bookinganswers->user_status($userid)) {
-            case MOD_BOOKING_STATUSPARAM_BOOKED:
-                $bodata['alreadybooked'] = true;
-                break;
-            case MOD_BOOKING_STATUSPARAM_RESERVED:
-                $bodata['alreadyreserved'] = true;
-                break;
-            case MOD_BOOKING_STATUSPARAM_WAITINGLIST:
-                $bodata['onwaitinglist'] = true;
-                break;
-            default:
-                $bodata['notyetbooked'] = true;
-                break;
+        $userisbooked = $bookinganswers->user_status($userid) === MOD_BOOKING_STATUSPARAM_BOOKED;
+
+        if ($userisbooked || in_array($lastresultid, MOD_BOOKING_BO_COND_BOOKED_STATES, true)) {
+            $bodata['alreadybooked'] = true;
+        } else {
+            switch ($lastresultid) {
+                case MOD_BOOKING_BO_COND_ALREADYRESERVED:
+                    $bodata['alreadyreserved'] = true;
+                    break;
+                case MOD_BOOKING_BO_COND_ONWAITINGLIST:
+                    $bodata['onwaitinglist'] = true;
+                    break;
+                default:
+                    $bodata['notyetbooked'] = true;
+                    break;
+            }
         }
 
         $dataarray[] = [
