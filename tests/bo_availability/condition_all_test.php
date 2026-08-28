@@ -1794,7 +1794,9 @@ final class condition_all_test extends booking_advanced_testcase {
         $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMBOOKWITHCREDITS, $id);
 
         $this->expectException(\moodle_exception::class);
-        $this->expectExceptionMessage('mod_booking/notenoughcredits');
+        // The message users actually get, resolved through the lang file - asserting the raw
+        // identifier would only pin Moodle's missing-string fallback again (Wunderbyte-GmbH/Wunderbyte-GmbH#2309).
+        $this->expectExceptionMessage(get_string('notenoughcredits', 'mod_booking'));
         $result = booking_bookit::bookit('option', $settings1->id, $student1->id);
     }
 
