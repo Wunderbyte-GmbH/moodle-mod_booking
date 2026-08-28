@@ -281,7 +281,7 @@ class slotbooking extends field_base {
         $mform->hideIf('slot_add_examiners', 'optiontype', 'neq', MOD_BOOKING_OPTIONTYPE_SLOTBOOKING);
         $mform->hideIf('slot_add_examiners', 'slot_type', 'eq', 'userdefined');
 
-        // Examiner Pool: Autocomplete für beliebige Nutzer (wie bei Lehrerauswahl in anderen booking-Formularen).
+        // Examiner pool: autocomplete for arbitrary users (like the teacher selection in other booking forms).
         $useroptions = [];
         if (!empty($formdata['cmid'])) {
             global $CFG;
@@ -290,7 +290,7 @@ class slotbooking extends field_base {
 
             [$course] = get_course_and_cm_from_cmid((int)$formdata['cmid']);
             $coursecontext = context_course::instance($course->id);
-            // Alle Nutzer mit Namen und E-Mail (ggf. einschränken, z.B. auf course users oder site users, je nach Policy).
+            // All users with name and email (restrict if needed, e.g. to course users or site users, depending on policy).
             $users = get_enrolled_users($coursecontext, '', 0, 'u.id, u.firstname, u.lastname, u.email');
             $userids = array_map(static function ($user): int {
                 return (int)$user->id;

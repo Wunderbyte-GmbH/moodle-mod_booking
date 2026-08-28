@@ -399,7 +399,7 @@ class teachers_handler {
     }
 
     // phpcs:ignore moodle.Commenting.TodoComment.MissingInfoInline
-    // TODO: diese Functions aus dates_handler rausnehmen und von hier aus verwenden!
+    // TODO: take these functions out of dates_handler and use them from here instead!
 
     /**
      * Helper function to add a new teacher to every (currently existing)
