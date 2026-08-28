@@ -528,6 +528,24 @@ class columns_helper {
      * @return bool
      */
     public static function show_certificate_columns(int $optionid): bool {
+
+        // The check on the issued certificates is expensive and the columns are
+        // resolved for several tables of the same option within one request,
+        // so the result is memoized per optionid.
+        $instance = singleton_service::get_instance();
+        if (!isset($instance->showcertificatecolumns[$optionid])) {
+            $instance->showcertificatecolumns[$optionid] = self::check_certificate_columns($optionid);
+        }
+        return $instance->showcertificatecolumns[$optionid];
+    }
+
+    /**
+     * Uncached implementation of show_certificate_columns.
+     *
+     * @param int $optionid
+     * @return bool
+     */
+    private static function check_certificate_columns(int $optionid): bool {
         global $DB;
 
         if (!empty(booking_option::get_value_of_json_by_key($optionid, 'certificate'))) {
@@ -537,22 +555,33 @@ class columns_helper {
             return true;
         }
         if (class_exists('tool_certificate\certificate')) {
+            // The LIKE conditions are a cheap prefilter only (they may match e.g. optionid 24431
+            // when looking for 2443, and cover the value stored with and without quotes); the
+            // JSON extraction remains the authoritative filter. Without the prefilter, the JSON
+            // of every single issue row would have to be parsed.
+            $params = [
+                'optionid' => $optionid,
+                'likeint' => '%"bookingoptionid":' . $optionid . '%',
+                'likestr' => '%"bookingoptionid":"' . $optionid . '"%',
+            ];
             switch ($DB->get_dbfamily()) {
                 case 'postgres':
                     $existssql = "
                         SELECT 1
                           FROM {tool_certificate_issues} tci
-                         WHERE (tci.data::jsonb ->> 'bookingoptionid') ~ '^[0-9]+$'
+                         WHERE (tci.data LIKE :likeint OR tci.data LIKE :likestr)
+                           AND (tci.data::jsonb ->> 'bookingoptionid') ~ '^[0-9]+$'
                            AND (tci.data::jsonb ->> 'bookingoptionid')::int = :optionid
                     ";
-                    return $DB->record_exists_sql($existssql, ['optionid' => $optionid]);
+                    return $DB->record_exists_sql($existssql, $params);
                 case 'mysql':
                     $existssql = "
                         SELECT 1
                           FROM {tool_certificate_issues} tci
-                         WHERE CAST(JSON_UNQUOTE(JSON_EXTRACT(tci.data, '$.bookingoptionid')) AS UNSIGNED) = :optionid
+                         WHERE (tci.data LIKE :likeint OR tci.data LIKE :likestr)
+                           AND CAST(JSON_UNQUOTE(JSON_EXTRACT(tci.data, '$.bookingoptionid')) AS UNSIGNED) = :optionid
                     ";
-                    return $DB->record_exists_sql($existssql, ['optionid' => $optionid]);
+                    return $DB->record_exists_sql($existssql, $params);
             }
         }
         return false;

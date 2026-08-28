@@ -130,7 +130,6 @@ class booked_users implements renderable, templatable {
         $ba = new booking_answers();
         /** @var scope_base $class */
         $class = $ba->return_class_for_scope($scope);
-        $columns = $class->return_cols_for_tables(MOD_BOOKING_STATUSPARAM_BOOKED, $scopeid);
 
         $defalutlabels = self::default_tables_labels();
         // Get the custom labels of the tables from the scope class.
@@ -144,6 +143,11 @@ class booked_users implements renderable, templatable {
         $existingcustomfields = booking_handler::get_customfields($customfields);
         $customfields = array_values(array_map(fn($a) => $a->shortname, $existingcustomfields));
 
+        // Resolving the columns can be expensive (e.g. the certificate column checks
+        // the issued certificates), so it is only done for tables that are shown.
+        if ($showbooked) {
+            $columns = $class->return_cols_for_tables(MOD_BOOKING_STATUSPARAM_BOOKED, $scopeid);
+        }
         $this->bookedusers = $showbooked ?
             $this->render_users_table(
                 $scope,
@@ -162,7 +166,9 @@ class booked_users implements renderable, templatable {
             $scope != 'optiondate'
             || $scope != 'supervisorteamreduced'
         ) {
-            $columns = $class->return_cols_for_tables(MOD_BOOKING_STATUSPARAM_WAITINGLIST, $scopeid);
+            if ($showwaiting) {
+                $columns = $class->return_cols_for_tables(MOD_BOOKING_STATUSPARAM_WAITINGLIST, $scopeid);
+            }
             $this->waitinglist = $showwaiting ? $this->render_users_table(
                 $scope,
                 $scopeid,
@@ -176,7 +182,9 @@ class booked_users implements renderable, templatable {
                 $customfields
             ) : null;
 
-            $columns = $class->return_cols_for_tables(MOD_BOOKING_STATUSPARAM_RESERVED, $scopeid);
+            if ($showreserved) {
+                $columns = $class->return_cols_for_tables(MOD_BOOKING_STATUSPARAM_RESERVED, $scopeid);
+            }
             $this->reservedusers = $showreserved ? $this->render_users_table(
                 $scope,
                 $scopeid,
@@ -186,7 +194,9 @@ class booked_users implements renderable, templatable {
                 array_values($columns),
             ) : null;
 
-            $columns = $class->return_cols_for_tables(MOD_BOOKING_STATUSPARAM_NOTIFYMELIST, $scopeid);
+            if ($showtonotify) {
+                $columns = $class->return_cols_for_tables(MOD_BOOKING_STATUSPARAM_NOTIFYMELIST, $scopeid);
+            }
             $this->userstonotify = $showtonotify ? $this->render_users_table(
                 $scope,
                 $scopeid,
@@ -196,7 +206,9 @@ class booked_users implements renderable, templatable {
                 array_values($columns),
             ) : null;
 
-            $columns = $class->return_cols_for_tables(MOD_BOOKING_STATUSPARAM_DELETED, $scopeid);
+            if ($showdeleted) {
+                $columns = $class->return_cols_for_tables(MOD_BOOKING_STATUSPARAM_DELETED, $scopeid);
+            }
             $this->deletedusers = $showdeleted ? $this->render_users_table(
                 $scope,
                 $scopeid,
@@ -208,7 +220,9 @@ class booked_users implements renderable, templatable {
                 true
             ) : null;
 
-            $columns = $class->return_cols_for_tables(MOD_BOOKING_STATUSPARAM_WAITINGLIST, $scopeid);
+            if ($showoptionstoconfirm) {
+                $columns = $class->return_cols_for_tables(MOD_BOOKING_STATUSPARAM_WAITINGLIST, $scopeid);
+            }
             $this->optionstoconfirm = $showoptionstoconfirm ? $this->render_users_table(
                 $scope,
                 $scopeid,
@@ -222,7 +236,9 @@ class booked_users implements renderable, templatable {
                 $customfields,
             ) : null;
 
-            $columns = $class->return_cols_for_tables(MOD_BOOKING_STATUSPARAM_PREVIOUSLYBOOKED, $scopeid);
+            if ($showpreviouslybooked) {
+                $columns = $class->return_cols_for_tables(MOD_BOOKING_STATUSPARAM_PREVIOUSLYBOOKED, $scopeid);
+            }
             $this->previouslybooked = $showpreviouslybooked ? $this->render_users_table(
                 $scope,
                 $scopeid,

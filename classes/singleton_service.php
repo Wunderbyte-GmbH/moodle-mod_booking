@@ -119,6 +119,9 @@ class singleton_service {
     /** @var array $tempdataforcertificate */
     public array $tempdataforcertificate;
 
+    /** @var array $showcertificatecolumns Memoized result of columns_helper::show_certificate_columns, keyed by optionid. */
+    public array $showcertificatecolumns = [];
+
     /** @var array $bookingimagefilerecords */
     public array $bookingimagefilerecords;
 
