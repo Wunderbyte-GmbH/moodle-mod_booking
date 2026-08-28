@@ -218,12 +218,13 @@ class alreadybooked implements bo_condition {
         // and/or is not currently allowed to book again - the slotbooking condition's OWN
         // validation() now enforces that (with a clear notification instead of a silent no-op), not
         // this generic condition hiding the Continue button behind a flat "Booked" alert.
+        // Only step back when a rebookable answer actually exists - otherwise slotmove::is_available()
+        // never claims the button either (it stays INDIFFERENT too when there is nothing to rebook,
+        // see slot_mover::get_self_rebookable_answer()), and no condition is left to render the
+        // "already booked"/"Start" state at all - the row silently falls back to "Book now".
         if (
             !$isavailable
-            && (
-                \mod_booking\local\slotbooking\slot_mover::get_self_rebookable_answer((int)$settings->id, (int)$userid) !== null
-                || !empty($settings->slotconfig)
-            )
+            && \mod_booking\local\slotbooking\slot_mover::get_self_rebookable_answer((int)$settings->id, (int)$userid) !== null
         ) {
             return [$isavailable, $description, MOD_BOOKING_BO_PREPAGE_NONE, MOD_BOOKING_BO_BUTTON_INDIFFERENT];
         }
