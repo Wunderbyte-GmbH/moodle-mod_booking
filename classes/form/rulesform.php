@@ -51,7 +51,7 @@ class rulesform extends dynamic_form {
         // If we open an existing rule, we need to save the id right away.
         if (!empty($ajaxformdata['id'])) {
             $mform->addElement('hidden', 'id', $ajaxformdata['id']);
-            $mform->setType('id', PARAM_INT); // Fix: setType für id, damit keine Debugging-Warnung in Moodle 4.5 erscheint.
+            $mform->setType('id', PARAM_INT); // Fix: setType for id, so no debugging warning appears in Moodle 4.5.
             $this->prepare_ajaxformdata($ajaxformdata);
         } else if (!empty($ajaxformdata['btn_bookingruletemplates'])) {
             $this->prepare_ajaxformdata($ajaxformdata);

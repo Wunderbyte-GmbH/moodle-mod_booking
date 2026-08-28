@@ -98,7 +98,7 @@ class booking_rules_agent_service {
     public function resolve_template(int $templateid = 0, string $templatequery = ''): array {
         $templates = $this->list_templates();
         if (empty($templates)) {
-            return ['status' => 'error', 'message' => 'Keine Rule-Templates verfuegbar.'];
+            return ['status' => 'error', 'message' => get_string('agent_booking_rules_no_templates_available', 'mod_booking')];
         }
 
         if ($templateid !== 0) {
@@ -107,12 +107,12 @@ class booking_rules_agent_service {
                     return ['status' => 'ok', 'template' => $template];
                 }
             }
-            return ['status' => 'error', 'message' => 'Template-ID wurde nicht gefunden.'];
+            return ['status' => 'error', 'message' => get_string('agent_booking_rules_templateid_not_found', 'mod_booking')];
         }
 
         $query = trim($templatequery);
         if ($query === '') {
-            return ['status' => 'error', 'message' => 'Bitte Template-ID oder Template-Suchbegriff angeben.'];
+            return ['status' => 'error', 'message' => get_string('agent_booking_rules_provide_templateid_or_query', 'mod_booking')];
         }
 
         $exact = [];
@@ -147,7 +147,7 @@ class booking_rules_agent_service {
         if (count($candidates) > 1) {
             return [
                 'status' => 'ambiguity',
-                'message' => 'Mehrere Templates passen. Bitte konkreter werden oder templateid angeben.',
+                'message' => get_string('agent_booking_rules_multiple_templates_match', 'mod_booking'),
                 'candidates' => array_values(array_map(static function (array $item): array {
                     return [
                         'templateid' => (int)($item['templateid'] ?? 0),
@@ -309,7 +309,7 @@ class booking_rules_agent_service {
     public function resolve_rule(int $contextid, int $ruleid = 0, string $rulequery = ''): array {
         $rules = $this->list_rules_for_context($contextid);
         if (empty($rules)) {
-            return ['status' => 'error', 'message' => 'Keine Buchungsregeln im aktuellen Kontext gefunden.'];
+            return ['status' => 'error', 'message' => get_string('agent_booking_rules_no_rules_in_context', 'mod_booking')];
         }
 
         if ($ruleid > 0) {
@@ -318,12 +318,12 @@ class booking_rules_agent_service {
                     return ['status' => 'ok', 'rule' => $rule];
                 }
             }
-            return ['status' => 'error', 'message' => 'Regel-ID wurde im aktuellen Kontext nicht gefunden.'];
+            return ['status' => 'error', 'message' => get_string('agent_booking_rules_ruleid_not_found_in_context', 'mod_booking')];
         }
 
         $query = trim($rulequery);
         if ($query === '') {
-            return ['status' => 'error', 'message' => 'Bitte ruleid oder rulequery angeben.'];
+            return ['status' => 'error', 'message' => get_string('agent_booking_rules_provide_ruleid_or_query', 'mod_booking')];
         }
 
         if (ctype_digit($query)) {
@@ -350,7 +350,7 @@ class booking_rules_agent_service {
         if (count($candidates) > 1) {
             return [
                 'status' => 'ambiguity',
-                'message' => 'Mehrere Regeln passen. Bitte ruleid angeben.',
+                'message' => get_string('agent_booking_rules_multiple_rules_match', 'mod_booking'),
                 'candidates' => array_values(array_map(static function (array $item): array {
                     return [
                         'id' => (int)($item['id'] ?? 0),
@@ -360,7 +360,7 @@ class booking_rules_agent_service {
             ];
         }
 
-        return ['status' => 'error', 'message' => 'Keine passende Regel gefunden.'];
+        return ['status' => 'error', 'message' => get_string('agent_booking_rules_no_matching_rule', 'mod_booking')];
     }
 
     /**
@@ -375,12 +375,12 @@ class booking_rules_agent_service {
         global $DB;
 
         if ($templateid >= 0) {
-            return ['status' => 'error', 'message' => 'Es werden nur vordefinierte Templates (negative IDs) unterstuetzt.'];
+            return ['status' => 'error', 'message' => get_string('agent_booking_rules_only_predefined_templates_supported', 'mod_booking')];
         }
 
         $templaterecord = templaterule::get_template_record_by_id($templateid);
         if (empty($templaterecord) || empty($templaterecord->rulejson)) {
-            return ['status' => 'error', 'message' => 'Template konnte nicht geladen werden.'];
+            return ['status' => 'error', 'message' => get_string('agent_booking_rules_template_load_failed', 'mod_booking')];
         }
 
         $seed = (object)[
@@ -391,7 +391,7 @@ class booking_rules_agent_service {
         ];
         $data = rules_info::set_data_for_form($seed);
         if (!($data instanceof stdClass)) {
-            return ['status' => 'error', 'message' => 'Template-Daten konnten nicht vorbereitet werden.'];
+            return ['status' => 'error', 'message' => get_string('agent_booking_rules_template_data_prepare_failed', 'mod_booking')];
         }
 
         $data->id = 0;
@@ -412,12 +412,12 @@ class booking_rules_agent_service {
         $newruleid = rules_info::save_booking_rule($data);
 
         if ($newruleid <= 0) {
-            return ['status' => 'error', 'message' => 'Regel wurde gespeichert, konnte aber nicht eindeutig ermittelt werden.'];
+            return ['status' => 'error', 'message' => get_string('agent_booking_rules_saved_rule_not_determined', 'mod_booking')];
         }
 
         $saved = $DB->get_record('booking_rules', ['id' => $newruleid], '*', IGNORE_MISSING);
         if (!$saved) {
-            return ['status' => 'error', 'message' => 'Regel wurde erstellt, konnte aber nicht geladen werden.'];
+            return ['status' => 'error', 'message' => get_string('agent_booking_rules_created_rule_load_failed', 'mod_booking')];
         }
 
         return ['status' => 'ok', 'rule' => $this->normalize_rule_record($saved)];
@@ -442,13 +442,13 @@ class booking_rules_agent_service {
 
         $record = $DB->get_record('booking_rules', ['id' => $ruleid], '*', IGNORE_MISSING);
         if (!$record) {
-            return ['status' => 'error', 'message' => 'Regel wurde nicht gefunden.'];
+            return ['status' => 'error', 'message' => get_string('agent_booking_rules_rule_not_found', 'mod_booking')];
         }
 
         if ((int)$record->contextid !== $contextid) {
             return [
                 'status' => 'error',
-                'message' => 'Nur Regeln des aktuellen Buchungskontexts duerfen bearbeitet werden.',
+                'message' => get_string('agent_booking_rules_only_current_context_editable', 'mod_booking'),
             ];
         }
 
@@ -458,16 +458,16 @@ class booking_rules_agent_service {
         ];
         $data = rules_info::set_data_for_form($seed);
         if (!($data instanceof stdClass)) {
-            return ['status' => 'error', 'message' => 'Regeldaten konnten nicht vorbereitet werden.'];
+            return ['status' => 'error', 'message' => get_string('agent_booking_rules_rule_data_prepare_failed', 'mod_booking')];
         }
 
         if ($templateid !== 0) {
             if ($templateid >= 0) {
-                return ['status' => 'error', 'message' => 'Nur vordefinierte Templates (negative IDs) sind erlaubt.'];
+                return ['status' => 'error', 'message' => get_string('agent_booking_rules_only_predefined_templates_allowed', 'mod_booking')];
             }
             $templaterecord = templaterule::get_template_record_by_id($templateid);
             if (empty($templaterecord) || empty($templaterecord->rulejson)) {
-                return ['status' => 'error', 'message' => 'Template konnte nicht geladen werden.'];
+                return ['status' => 'error', 'message' => get_string('agent_booking_rules_template_load_failed', 'mod_booking')];
             }
 
             $templatedataseed = (object)[
@@ -505,7 +505,7 @@ class booking_rules_agent_service {
 
         $saved = $DB->get_record('booking_rules', ['id' => $ruleid], '*', IGNORE_MISSING);
         if (!$saved) {
-            return ['status' => 'error', 'message' => 'Regel wurde aktualisiert, konnte aber nicht geladen werden.'];
+            return ['status' => 'error', 'message' => get_string('agent_booking_rules_updated_rule_load_failed', 'mod_booking')];
         }
 
         return ['status' => 'ok', 'rule' => $this->normalize_rule_record($saved)];
