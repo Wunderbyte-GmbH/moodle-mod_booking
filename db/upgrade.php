@@ -5820,7 +5820,7 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2026083106, 'booking');
     }
 
-    if ($oldversion < 2026082802) {
+    if ($oldversion < 2026082807) {
         // Waitlist-progression: Typ 2 ("offen nach Durchlauf", waitlistrecycling=2) - runtime
         // flag, set/cleared exclusively by waitlist_heartbeat_task, see
         // db_waitlist_offer_repository::is_open_mode_active()/activate_open_mode()/
@@ -5831,7 +5831,7 @@ function xmldb_booking_upgrade($oldversion) {
             $dbman->add_field($table, $field);
         }
 
-        upgrade_mod_savepoint(true, 2026082802, 'booking');
+        upgrade_mod_savepoint(true, 2026082807, 'booking');
     }
 
     return true;
