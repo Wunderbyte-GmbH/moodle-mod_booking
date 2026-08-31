@@ -375,7 +375,10 @@ class booking_rules_agent_service {
         global $DB;
 
         if ($templateid >= 0) {
-            return ['status' => 'error', 'message' => get_string('agent_booking_rules_only_predefined_templates_supported', 'mod_booking')];
+            return [
+            'status' => 'error',
+            'message' => get_string('agent_booking_rules_only_predefined_templates_supported', 'mod_booking'),
+            ];
         }
 
         $templaterecord = templaterule::get_template_record_by_id($templateid);
@@ -391,7 +394,10 @@ class booking_rules_agent_service {
         ];
         $data = rules_info::set_data_for_form($seed);
         if (!($data instanceof stdClass)) {
-            return ['status' => 'error', 'message' => get_string('agent_booking_rules_template_data_prepare_failed', 'mod_booking')];
+            return [
+                'status' => 'error',
+                'message' => get_string('agent_booking_rules_template_data_prepare_failed', 'mod_booking'),
+            ];
         }
 
         $data->id = 0;
@@ -458,12 +464,18 @@ class booking_rules_agent_service {
         ];
         $data = rules_info::set_data_for_form($seed);
         if (!($data instanceof stdClass)) {
-            return ['status' => 'error', 'message' => get_string('agent_booking_rules_rule_data_prepare_failed', 'mod_booking')];
+            return [
+                'status' => 'error',
+                'message' => get_string('agent_booking_rules_rule_data_prepare_failed', 'mod_booking'),
+            ];
         }
 
         if ($templateid !== 0) {
             if ($templateid >= 0) {
-                return ['status' => 'error', 'message' => get_string('agent_booking_rules_only_predefined_templates_allowed', 'mod_booking')];
+                return [
+                    'status' => 'error',
+                    'message' => get_string('agent_booking_rules_only_predefined_templates_allowed', 'mod_booking'),
+                ];
             }
             $templaterecord = templaterule::get_template_record_by_id($templateid);
             if (empty($templaterecord) || empty($templaterecord->rulejson)) {
