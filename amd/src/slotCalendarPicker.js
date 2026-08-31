@@ -20,8 +20,51 @@
  */
 
 import {createTimeFormatter, renderFixedSlotsEditor} from 'mod_booking/slotbooking/slot_day_renderers';
+import {getString} from 'core/str';
 
-const WEEK_DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+// Short weekday names in the viewer's locale, Monday first. Derived from Intl rather than a lang
+// string, so they stay consistent with the month label (toMonthLabel below also uses Intl).
+const buildWeekDays = () => {
+    // 2024-01-01 was a Monday, so this walks Mon..Sun.
+    const monday = new Date(2024, 0, 1);
+    const formatter = new Intl.DateTimeFormat(undefined, {weekday: 'short'});
+    return Array.from({length: 7}, (ignored, index) => {
+        const day = new Date(monday);
+        day.setDate(monday.getDate() + index);
+        return formatter.format(day);
+    });
+};
+
+const WEEK_DAYS = buildWeekDays();
+
+// The picker builds its DOM synchronously, so labels start as English fallbacks and are swapped in
+// once the string request resolves (usually instantly - core/str caches strings in the browser).
+// The counting labels keep their placeholders, so a translation can put the numbers where its
+// own word order needs them instead of forcing the English "3/5 selected" layout.
+const DEFAULT_LABELS = {
+    month: 'Month',
+    week: 'Week',
+    weekof: 'Week of {date}',
+    pricelegend: 'Price legend:',
+    slotcount: '{count} slots',
+    selectedcount: '{selected}/{max} selected',
+};
+
+const LABELS_PROMISE = Promise.all([
+    getString('slot_calendar_month', 'mod_booking'),
+    getString('slot_calendar_week', 'mod_booking'),
+    getString('slot_calendar_week_of', 'mod_booking', '{date}'),
+    getString('slot_calendar_price_legend', 'mod_booking'),
+    getString('slot_calendar_slot_count', 'mod_booking', '{count}'),
+    getString('slot_calendar_selected_count', 'mod_booking', {selected: '{selected}', max: '{max}'}),
+]).then(([month, week, weekof, pricelegend, slotcount, selectedcount]) => ({
+    month,
+    week,
+    weekof,
+    pricelegend,
+    slotcount,
+    selectedcount,
+})).catch(() => ({...DEFAULT_LABELS}));
 
 const createDayKeyFormatter = (timezone) => {
     try {
@@ -150,10 +193,21 @@ export class SlotCalendarPicker {
         this.priceScaleMin = 0;
         this.priceScaleMax = 0;
 
+        this.labels = {...DEFAULT_LABELS};
+
         this.prepareData();
         this.buildLayout();
         this.render();
         this.emitChange();
+
+        LABELS_PROMISE.then(labels => {
+            this.labels = labels;
+            this.applyLabels();
+            return;
+        }).catch(() => {
+            // Keep the fallback labels - a failed string request must not break the picker.
+            return;
+        });
 
         if (this.activeDay) {
             const activeDaySlots = this.slotsByDay.get(this.activeDay) || [];
@@ -304,7 +358,7 @@ export class SlotCalendarPicker {
         this.monthBtn = document.createElement('button');
         this.monthBtn.type = 'button';
         this.monthBtn.className = 'btn btn-outline-secondary';
-        this.monthBtn.textContent = 'Month';
+        this.monthBtn.textContent = this.labels.month;
         this.monthBtn.addEventListener('click', () => {
             this.viewMode = 'month';
             this.alignCurrentDateToAvailableView();
@@ -314,7 +368,7 @@ export class SlotCalendarPicker {
         this.weekBtn = document.createElement('button');
         this.weekBtn.type = 'button';
         this.weekBtn.className = 'btn btn-outline-secondary';
-        this.weekBtn.textContent = 'Week';
+        this.weekBtn.textContent = this.labels.week;
         this.weekBtn.addEventListener('click', () => {
             this.viewMode = 'week';
             this.alignCurrentDateToAvailableView();
@@ -447,11 +501,28 @@ export class SlotCalendarPicker {
         return days;
     }
 
+    /**
+     * Push the resolved labels into the already rendered DOM. The two view buttons are only
+     * written in buildLayout(), so they are updated directly; everything else picks the new
+     * labels up from the re-render.
+     */
+    applyLabels() {
+        if (this.monthBtn) {
+            this.monthBtn.textContent = this.labels.month;
+        }
+        if (this.weekBtn) {
+            this.weekBtn.textContent = this.labels.week;
+        }
+        if (this.container) {
+            this.render();
+        }
+    }
+
     render() {
         this.alignCurrentDateToAvailableView();
 
         this.title.textContent = this.viewMode === 'week'
-            ? `Week of ${this.currentDate.toLocaleDateString()}`
+            ? this.labels.weekof.replace('{date}', this.currentDate.toLocaleDateString())
             : toMonthLabel(this.currentDate);
 
         this.monthBtn.classList.toggle('btn-primary', this.viewMode === 'month');
@@ -587,7 +658,7 @@ export class SlotCalendarPicker {
                 if (this.dayCountFormatter) {
                     count.textContent = String(this.dayCountFormatter(daySlots));
                 } else {
-                    count.textContent = `${daySlots.length} slots`;
+                    count.textContent = this.labels.slotcount.replace('{count}', String(daySlots.length));
                 }
                 btn.appendChild(count);
 
@@ -882,7 +953,9 @@ export class SlotCalendarPicker {
     }
 
     renderSelectionInfo() {
-        this.selectionInfo.textContent = `${this.selected.size}/${this.maxSelection} selected`;
+        this.selectionInfo.textContent = this.labels.selectedcount
+            .replace('{selected}', String(this.selected.size))
+            .replace('{max}', String(this.maxSelection));
     }
 
     getPriceColor(price) {
@@ -927,7 +1000,7 @@ export class SlotCalendarPicker {
 
         const title = document.createElement('span');
         title.className = 'fw-bold';
-        title.textContent = 'Preis-Legende:';
+        title.textContent = this.labels.pricelegend;
         row.appendChild(title);
 
         const addLegendItem = (color, label, selected = false) => {
