@@ -44,6 +44,35 @@ class behat_mod_booking extends behat_base {
     private array $lastdiagnosecancellationresult = [];
 
     /**
+     * Set the userdefined slot editor's start time field to an HH:MM value, deterministically.
+     *
+     * Typing into an <input type="time"> via WebDriver's setValue interprets the keystrokes
+     * through the browser locale's 12h/24h segment UI - on the en 12h locale the CI (and a local
+     * behat site) runs under, sending "09:15" ends up as "01:15" in the field. The visible value
+     * then never reaches the form's hidden start field, and the submit silently books the day's
+     * default start instead of the time the scenario asked for. Setting the value property
+     * directly and dispatching the input/change events sidesteps the segment UI entirely.
+     *
+     * @When /^I set the slot start time field to "(?P<timevalue_string>\d{2}:\d{2})"$/
+     * @param string $timevalue HH:MM, 24h
+     * @return void
+     */
+    public function i_set_the_slot_start_time_field_to(string $timevalue): void {
+        $js = <<<EOF
+            (function() {
+                const field = document.querySelector('[data-region="slot-custom-editor"] input[type="time"]');
+                if (!field) {
+                    throw new Error('slot start time field not found');
+                }
+                field.value = '{$timevalue}';
+                field.dispatchEvent(new Event('input', {bubbles: true}));
+                field.dispatchEvent(new Event('change', {bubbles: true}));
+            })();
+        EOF;
+        $this->execute_script($js);
+    }
+
+    /**
      * Skip equipment scenarios when the installed local_entities lacks the equipment feature.
      *
      * The equipment UI (location-scoped quantity fields and the "Show equipment for the
