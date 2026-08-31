@@ -830,7 +830,7 @@ class signinsheet_generator {
         $this->pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
         $this->pdf->setFontSubsetting(false);
         $this->pdf->AddPage();
-        $this->pdf->setJPEGQuality(80);
+        $this->pdf->setJPEGQuality(100);
         $this->pdf->setCellPadding(1);
 
         $this->get_signinsheet_logo_footer();
@@ -1239,8 +1239,8 @@ class signinsheet_generator {
                 '',
                 '',
                 'T',
-                true,
-                150,
+                false,
+                300,
                 'R',
                 false,
                 false,
