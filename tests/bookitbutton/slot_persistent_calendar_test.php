@@ -233,13 +233,15 @@ final class slot_persistent_calendar_test extends booking_advanced_testcase {
         singleton_service::destroy_instance();
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
-        // No inlinestartpage - matches bookingoptions_wbtable::col_booknow() for a list row.
-        [, $datas] = booking_bookit::render_bookit_template_data($settings, $userid, true, '');
+        // Render the row exactly as bookingoptions_wbtable::col_booknow() does (no inlinestartpage).
+        // Assert on the rendered HTML rather than on a data field of one particular template shape:
+        // depending on which condition claims the button, the row is built either from the plain
+        // bookit_button template or from the prepagemodal one, and only the latter carries a
+        // 'buttonhtml' property. Both must surface the cancel button, which is what this guards.
+        global $PAGE;
+        $PAGE->set_context(\context_module::instance((int)$settings->cmid));
+        $html = booking_bookit::render_bookit_button($settings, $userid);
 
-        $html = '';
-        foreach ($datas as $data) {
-            $html .= $data->buttonhtml ?? '';
-        }
         $this->assertStringContainsString(get_string('cancelmyself', 'mod_booking'), $html);
         $this->assertStringContainsString('bo-cancel-button', $html);
     }

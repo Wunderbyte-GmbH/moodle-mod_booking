@@ -32,7 +32,7 @@ Feature: Slot booking option of type "userdefined" lets a student pick a free st
     Given I am on the "BookingUserdefBasic" Activity page logged in as student1
     When I click on "Book now" "text" in the ".allbookingoptionstable_r1" "css_element"
     And I wait "1" seconds
-    And I set the field with xpath "//*[@data-region='slot-custom-editor']//input[@type='time']" to "10:30"
+    And I set the slot start time field to "10:30"
     And I follow "Continue"
     Then I should see "Thank you! You have successfully booked" in the ".modal-dialog.modal-xl .condition-confirmation" "css_element"
 
@@ -48,7 +48,7 @@ Feature: Slot booking option of type "userdefined" lets a student pick a free st
     ## First booking: 09:00 - 09:45.
     When I click on "Book now" "text" in the ".allbookingoptionstable_r1" "css_element"
     And I wait "1" seconds
-    And I set the field with xpath "//*[@data-region='slot-custom-editor']//input[@type='time']" to "09:00"
+    And I set the slot start time field to "09:00"
     And I follow "Continue"
     Then I should see "Thank you! You have successfully booked" in the ".modal-dialog.modal-xl .condition-confirmation" "css_element"
     And I follow "Close"
@@ -56,7 +56,7 @@ Feature: Slot booking option of type "userdefined" lets a student pick a free st
     ## and (regression guard) the calendar must stay on this same day/option instead of resetting.
     When I click on "Book now" "text" in the ".allbookingoptionstable_r1" "css_element"
     And I wait "1" seconds
-    And I set the field with xpath "//*[@data-region='slot-custom-editor']//input[@type='time']" to "09:15"
+    And I set the slot start time field to "09:15"
     And I follow "Continue"
     Then I should see "The selected slot is no longer available. Please choose another one."
     And the field with xpath "//*[@data-region='slot-custom-editor']//input[@type='time']" matches value "09:15"
@@ -73,7 +73,7 @@ Feature: Slot booking option of type "userdefined" lets a student pick a free st
     ## First (and, per max_slots_per_user=1, only allowed) booking: 09:00 - 09:45.
     When I click on "Book now" "text" in the ".allbookingoptionstable_r1" "css_element"
     And I wait "1" seconds
-    And I set the field with xpath "//*[@data-region='slot-custom-editor']//input[@type='time']" to "09:00"
+    And I set the slot start time field to "09:00"
     And I follow "Continue"
     Then I should see "Thank you! You have successfully booked" in the ".modal-dialog.modal-xl .condition-confirmation" "css_element"
     And I follow "Close"
@@ -108,7 +108,7 @@ Feature: Slot booking option of type "userdefined" lets a student pick a free st
     Given I am on the "BookingUserdefPrice" Activity page logged in as student1
     When I click on "Add to cart" "text" in the ".allbookingoptionstable_r1" "css_element"
     And I wait "1" seconds
-    And I set the field with xpath "//*[@data-region='slot-custom-editor']//input[@type='time']" to "10:00"
+    And I set the slot start time field to "10:00"
     And I follow "Continue"
     Then I should see "Thank you! You have successfully put Userdefined priced option into the shopping cart." in the ".modal-dialog.modal-xl .modalMainContent" "css_element"
     When I click on "Proceed to checkout" "text" in the ".modal-dialog.modal-xl .modalFooter" "css_element"

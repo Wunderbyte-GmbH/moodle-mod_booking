@@ -77,8 +77,11 @@ Feature: Slot booking option renders fixed calendar slots in student timezone
     And I follow "Continue"
     And I should see "Thank you! You have successfully booked" in the ".modal-dialog.modal-xl .condition-confirmation" "css_element"
     And I follow "Close"
-    ## Capacity exhausted (2 of 2 slots): now the row locks to the booked state with the course "Start" link.
-    And I should see "10" in the ".allbookingoptionstable_r1 .bookings " "css_element"
+    ## Capacity exhausted (2 of 2 slots): now the row locks to the booked state with the course
+    ## "Start" link, and the "available for you" counter drops to 0 - with max_slots_per_user used
+    ## up, no remaining slot is bookable by this user any more, however much per-slot capacity is
+    ## still free.
+    And I should see "0" in the ".allbookingoptionstable_r1 .bookings " "css_element"
     And I should see "Start" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Booked slots" in the ".allbookingoptionstable_r1 " "css_element"
     And I should see "9 May 2046, 4:00 PM - 4:20 PM" in the ".allbookingoptionstable_r1 " "css_element"

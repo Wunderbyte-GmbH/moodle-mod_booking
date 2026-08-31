@@ -472,9 +472,17 @@ const renderCustomDayEditor = (
         hiddenStartInput.dispatchEvent(new Event('change', {bubbles: true}));
     };
 
-    timeInput.addEventListener('change', () => {
+    // Bind 'input' in addition to 'change': 'change' only fires when the time field loses focus,
+    // so a submit racing right after typing (a fast user, and reliably behat's "set field" followed
+    // immediately by "I follow Continue") would serialize the form BEFORE the hidden start value
+    // was ever synced - the previous/default start (the day's opening time) got submitted instead
+    // of what is visibly in the field. 'input' fires on every keystroke/programmatic set, so the
+    // hidden field is always current by the time anything reads it.
+    const synctimefield = () => {
         syncStart(toTimestampForDay(daySlot.start, timeInput.value));
-    });
+    };
+    timeInput.addEventListener('change', synctimefield);
+    timeInput.addEventListener('input', synctimefield);
 
     // durationSelect (unlike timeInput/timeline, which are recreated fresh inside `container` on
     // every render) is a PERSISTENT element passed in from outside - renderCustomDayEditor runs
@@ -1343,7 +1351,9 @@ export async function init(callsiteoptionid) {
                 }
                 const teacherMap = parseTeacherSelection(teacherSelectionInput);
                 try {
-                    const result = await saveSelection(Number(activeOptionId) || 0, Number(userid) || 0, keys, teacherMap);
+                    // persistselection=false: feedback only - a late response of this debounced
+                    // call must never (re)write the slot store behind the booking commit's back.
+                    const result = await saveSelection(Number(activeOptionId) || 0, Number(userid) || 0, keys, teacherMap, false);
                     renderLiveFeedback(result);
                 } catch (e) {
                     renderLiveFeedback(null);
@@ -1499,6 +1509,18 @@ export async function init(callsiteoptionid) {
                 event.preventDefault();
                 event.stopPropagation();
                 event.stopImmediatePropagation();
+                // Flush the visible custom start time into its hidden field before submitting.
+                // The sync normally rides on the time input's own input/change events, but not
+                // every way of setting the field fires those reliably (WebDriver's setValue in
+                // behat does not) - without this, the submit serializes whatever start the hidden
+                // field last saw (the day's default), silently booking a different time than the
+                // one visible in the field.
+                const customtimeinput = container.querySelector(
+                    '[data-region="slot-custom-editor"] input[type=time]'
+                );
+                if (customtimeinput) {
+                    customtimeinput.dispatchEvent(new Event('change', {bubbles: true}));
+                }
                 dynamicForm.submitFormAjax();
             }
         });

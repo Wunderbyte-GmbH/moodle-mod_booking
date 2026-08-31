@@ -68,14 +68,20 @@ export const getBookedSlots = (cmid, optionid) =>
  * @param {number} userid
  * @param {Array<string>} selection slot keys ("start:end")
  * @param {object} teacherselection map of slot key to teacher id list
+ * @param {boolean} persistselection false = validate/price only, do NOT write the slot store.
+ *                                   Used by the debounced live pre-validation: its late responses
+ *                                   would otherwise race the booking commit and repopulate the
+ *                                   store after the commit already cleared it, so the previous
+ *                                   selection comes back preselected on the next booking pass.
  * @return {Promise<{valid: boolean, errors: object, price: number}>}
  */
-export const saveSelection = (optionid, userid, selection, teacherselection = {}) =>
+export const saveSelection = (optionid, userid, selection, teacherselection = {}, persistselection = true) =>
     call('mod_booking_save_slot_selection', {
         optionid,
         userid,
         selection: JSON.stringify(selection),
         teacherselection: JSON.stringify(teacherselection),
+        persistselection,
     }).then((response) => ({
         valid: response.valid,
         errors: JSON.parse(response.errors),
