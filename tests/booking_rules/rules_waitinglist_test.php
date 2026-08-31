@@ -1040,6 +1040,11 @@ final class rules_waitinglist_test extends booking_advanced_testcase {
         $trace1 = ob_get_clean();
         $messages1 = $sink1->get_messages();
         $sink1->close();
+        // The deleted option / broken cmid makes message_controller and booking_settings emit
+        // debugging() notices - expected side effects of exactly the situation K10 creates.
+        // Clear instead of assert: Moodle <= 4.5 (PHPUnit 9) fails a test on unasserted
+        // debugging() calls, while 5.x (PHPUnit 11) no longer collects them assertably.
+        $this->resetDebugging();
         // Note: runAdhocTasks() switches $USER to the executed task's assigned user and never
         // restores it (see A4) - reset before building the next option below.
         $this->setAdminUser();
@@ -1119,6 +1124,11 @@ final class rules_waitinglist_test extends booking_advanced_testcase {
         ob_start();
         $this->runAdhocTasks();
         ob_get_clean();
+        // The deleted option / broken cmid makes message_controller and booking_settings emit
+        // debugging() notices - expected side effects of exactly the situation K10 creates.
+        // Clear instead of assert: Moodle <= 4.5 (PHPUnit 9) fails a test on unasserted
+        // debugging() calls, while 5.x (PHPUnit 11) no longer collects them assertably.
+        $this->resetDebugging();
         $messages2 = $sink2->get_messages();
         $sink2->close();
         $this->setAdminUser();
@@ -1240,6 +1250,11 @@ final class rules_waitinglist_test extends booking_advanced_testcase {
         ob_start();
         $this->runAdhocTasks();
         ob_get_clean();
+        // The deleted option / broken cmid makes message_controller and booking_settings emit
+        // debugging() notices - expected side effects of exactly the situation K10 creates.
+        // Clear instead of assert: Moodle <= 4.5 (PHPUnit 9) fails a test on unasserted
+        // debugging() calls, while 5.x (PHPUnit 11) no longer collects them assertably.
+        $this->resetDebugging();
         $this->setAdminUser();
 
         $offer3after = $DB->get_record('booking_waitlist_offers', ['id' => $offer3->id]);
