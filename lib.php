@@ -50,6 +50,25 @@ define('MOD_BOOKING_BOOKINGOPTION_DEFAULTFIELDS', "identifier,titleprefix,text,d
 "showdates,dayofweektime,location,institution,course,courseshortname," .
 "minanswers,bookings,bookingopeningtime,bookingclosingtime,coursestarttime");
 
+// Default fields (columns) for the manage responses page (report.php).
+define('MOD_BOOKING_RESPONSES_DEFAULTFIELDS', "completed,status,rating,numrec,places,fullname," .
+"timecreated,timebooked,institution,waitinglist,city,department,notes,userpic,indexnumber,email," .
+"certificate,allusercertificates,completeddate");
+
+// Default fields for the download of booked users (report.php download).
+define('MOD_BOOKING_REPORT_DEFAULTFIELDS', "optionid,booking,institution,location,coursestarttime," .
+"city,department,courseendtime,numrec,userid,username,firstname,lastname,email,completed," .
+"waitinglist,status,groups,notes,idnumber,timecreated,timebooked,completeddate");
+
+// Default fields for the sign-in sheet.
+define('MOD_BOOKING_SIGNINSHEET_DEFAULTFIELDS', "fullname,firstname,lastname,institution,description," .
+"city,country,idnumber,email,phone1,department,address,role,userpic,places,timecreated,signature," .
+"signinextracols1,signinextracols2,signinextracols3");
+
+// Default views (tabs) shown on the booking options overview (view.php).
+define('MOD_BOOKING_SHOWVIEWS_DEFAULTFIELDS', "showall,mybooking,myoptions,optionsiamresponsiblefor," .
+"showactive,myinstitution,showvisible,showinvisible,bulkoperations");
+
 // View params.
 define('MOD_BOOKING_VIEW_PARAM_LIST', 0); // List view.
 define('MOD_BOOKING_VIEW_PARAM_CARDS', 1); // Cards view.
@@ -795,6 +814,10 @@ function booking_add_instance($booking) {
 
     if (isset($booking->responsesfields) && is_array($booking->responsesfields) && count($booking->responsesfields) > 0) {
         $booking->responsesfields = implode(',', $booking->responsesfields);
+    } else if (empty($booking->responsesfields)) {
+        // Nothing (or an empty selection) given: fall back to the defaults, an empty
+        // string would render the manage responses page without any standard columns.
+        $booking->responsesfields = MOD_BOOKING_RESPONSES_DEFAULTFIELDS;
     }
 
     if (isset($booking->additionalfields) && is_array($booking->additionalfields) && count($booking->additionalfields) > 0) {
@@ -823,17 +846,19 @@ function booking_add_instance($booking) {
 
     if (isset($booking->showviews) && is_array($booking->showviews) && count($booking->showviews) > 0) {
         $booking->showviews = implode(',', $booking->showviews);
-    } else if (!isset($booking->showviews) || $booking->showviews === null) {
-        $booking->showviews = '';
+    } else if (empty($booking->showviews)) {
+        $booking->showviews = MOD_BOOKING_SHOWVIEWS_DEFAULTFIELDS;
     }
 
     if (isset($booking->reportfields) && is_array($booking->reportfields) && count($booking->reportfields) > 0) {
         $booking->reportfields = implode(',', $booking->reportfields);
+    } else if (empty($booking->reportfields)) {
+        $booking->reportfields = MOD_BOOKING_REPORT_DEFAULTFIELDS;
     }
 
     if (isset($booking->optionsfields) && is_array($booking->optionsfields) && count($booking->optionsfields) > 0) {
         $booking->optionsfields = implode(',', $booking->optionsfields);
-    } else {
+    } else if (empty($booking->optionsfields)) {
         $booking->optionsfields = MOD_BOOKING_BOOKINGOPTION_DEFAULTFIELDS;
     }
 
@@ -843,7 +868,7 @@ function booking_add_instance($booking) {
         && count($booking->optionsdownloadfields) > 0
     ) {
         $booking->optionsdownloadfields = implode(',', $booking->optionsdownloadfields);
-    } else {
+    } else if (empty($booking->optionsdownloadfields)) {
         $booking->optionsdownloadfields = MOD_BOOKING_BOOKINGOPTION_DEFAULTFIELDS;
     }
 
@@ -853,6 +878,8 @@ function booking_add_instance($booking) {
         && count($booking->signinsheetfields) > 0
     ) {
         $booking->signinsheetfields = implode(',', $booking->signinsheetfields);
+    } else if (empty($booking->signinsheetfields)) {
+        $booking->signinsheetfields = MOD_BOOKING_SIGNINSHEET_DEFAULTFIELDS;
     }
 
     // Copy the text fields out.
@@ -1080,14 +1107,22 @@ function booking_update_instance($booking) {
 
     if (isset($booking->responsesfields) && is_array($booking->responsesfields) && count($booking->responsesfields) > 0) {
         $booking->responsesfields = implode(',', $booking->responsesfields);
+    } else if (isset($booking->responsesfields) && empty($booking->responsesfields)) {
+        // An explicitly empty selection falls back to the defaults, an empty string
+        // would render the manage responses page without any standard columns.
+        $booking->responsesfields = MOD_BOOKING_RESPONSES_DEFAULTFIELDS;
     }
 
     if (isset($booking->reportfields) && is_array($booking->reportfields) && count($booking->reportfields) > 0) {
         $booking->reportfields = implode(',', $booking->reportfields);
+    } else if (isset($booking->reportfields) && empty($booking->reportfields)) {
+        $booking->reportfields = MOD_BOOKING_REPORT_DEFAULTFIELDS;
     }
 
     if (isset($booking->signinsheetfields) && is_array($booking->signinsheetfields) && count($booking->signinsheetfields) > 0) {
         $booking->signinsheetfields = implode(',', $booking->signinsheetfields);
+    } else if (isset($booking->signinsheetfields) && empty($booking->signinsheetfields)) {
+        $booking->signinsheetfields = MOD_BOOKING_SIGNINSHEET_DEFAULTFIELDS;
     }
 
     if (empty($booking->templateid)) {
@@ -1104,7 +1139,7 @@ function booking_update_instance($booking) {
 
     if (isset($booking->optionsfields) && is_array($booking->optionsfields) && count($booking->optionsfields) > 0) {
         $booking->optionsfields = implode(',', $booking->optionsfields);
-    } else {
+    } else if (empty($booking->optionsfields)) {
         $booking->optionsfields = MOD_BOOKING_BOOKINGOPTION_DEFAULTFIELDS;
     }
 
@@ -1114,7 +1149,7 @@ function booking_update_instance($booking) {
         && count($booking->optionsdownloadfields) > 0
     ) {
         $booking->optionsdownloadfields = implode(',', $booking->optionsdownloadfields);
-    } else {
+    } else if (empty($booking->optionsdownloadfields)) {
         $booking->optionsdownloadfields = MOD_BOOKING_BOOKINGOPTION_DEFAULTFIELDS;
     }
 

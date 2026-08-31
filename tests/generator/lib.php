@@ -166,7 +166,7 @@ class mod_booking_generator extends testing_module_generator {
             'whichview' => 'showall',
             'optionsfields' => 'description,statusdescription,teacher,showdates,dayofweektime,
                                 location,institution,minanswers',
-            'reportsfields' => 'optionid,booking,institution,location,coursestarttime,
+            'reportfields' => 'optionid,booking,institution,location,coursestarttime,
                                 city,department,courseendtime,numrec,userid,username,
                                 firstname,lastname,email,completed,waitinglist,status,
                                 groups,notes,idnumber',
