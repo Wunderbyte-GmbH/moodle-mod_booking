@@ -5661,7 +5661,7 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2026080701, 'booking');
     }
 
-    if ($oldversion < 2026081700) {
+    if ($oldversion < 2026083101) {
         // Waitlist-progression refactoring (Phase 2): single source of truth for the new
         // reconciler's offer/decision state, and the permanent K7 decline lockout list.
         $table = new xmldb_table('booking_waitlist_offers');
@@ -5698,10 +5698,10 @@ function xmldb_booking_upgrade($oldversion) {
             $dbman->create_table($table);
         }
 
-        upgrade_mod_savepoint(true, 2026081700, 'booking');
+        upgrade_mod_savepoint(true, 2026083101, 'booking');
     }
 
-    if ($oldversion < 2026081900) {
+    if ($oldversion < 2026083102) {
         // Waitlist-progression: per-option recycling (T-recycling). An expired offer keeps
         // locking the user out permanently by default (reason=expired in booking_waitlist_declines,
         // same table/mechanism as the K7 decline lock) - but if waitlistrecycling is enabled for
@@ -5719,19 +5719,19 @@ function xmldb_booking_upgrade($oldversion) {
             $dbman->add_field($table, $field);
         }
 
-        upgrade_mod_savepoint(true, 2026081900, 'booking');
+        upgrade_mod_savepoint(true, 2026083102, 'booking');
     }
 
-    if ($oldversion < 2026082100) {
+    if ($oldversion < 2026083103) {
         // Waitlist-progression refactoring (Phase 3): migrate any still-running legacy chains
         // into the new booking_waitlist_offers model before the old chain code is removed.
         // Idempotent (M4) - a plain no-op on a site with nothing currently running.
         \mod_booking\local\waitlist\migration\upgrade_step::run();
 
-        upgrade_mod_savepoint(true, 2026082100, 'booking');
+        upgrade_mod_savepoint(true, 2026083103, 'booking');
     }
 
-    if ($oldversion < 2026082401) {
+    if ($oldversion < 2026083104) {
         // Waitlist-progression: Typ 2 ("offen nach Durchlauf", waitlistrecycling=2) - runtime
         // flag, set/cleared exclusively by waitlist_heartbeat_task, see
         // db_waitlist_offer_repository::is_open_mode_active()/activate_open_mode()/
@@ -5742,7 +5742,7 @@ function xmldb_booking_upgrade($oldversion) {
             $dbman->add_field($table, $field);
         }
 
-        upgrade_mod_savepoint(true, 2026082401, 'booking');
+        upgrade_mod_savepoint(true, 2026083104, 'booking');
     }
 
     return true;
