@@ -18,6 +18,10 @@ namespace mod_booking;
 
 use stdClass;
 
+defined('MOODLE_INTERNAL') || die();
+
+require_once($CFG->dirroot . '/mod/booking/lib.php');
+
 /**
  * Settings class for booking instances.
  *
@@ -511,6 +515,28 @@ class booking_settings {
             $this->beforecompletedtext = $dbrecord->beforecompletedtext;
             $this->aftercompletedtext = $dbrecord->aftercompletedtext;
             $this->signinsheetfields = $dbrecord->signinsheetfields;
+
+            // Programmatically created instances (webservices, generators, wizard) may lack
+            // the field list settings, and older records may carry whitespace from a wrapped
+            // string. Normalize and fall back to the defaults, so pages like report.php do
+            // not silently lose all their standard columns.
+            $this->responsesfields = booking_normalize_fieldlist(
+                $this->responsesfields,
+                MOD_BOOKING_RESPONSES_DEFAULTFIELDS
+            );
+            $this->reportfields = booking_normalize_fieldlist($this->reportfields, MOD_BOOKING_REPORT_DEFAULTFIELDS);
+            $this->optionsfields = booking_normalize_fieldlist(
+                $this->optionsfields,
+                MOD_BOOKING_BOOKINGOPTION_DEFAULTFIELDS
+            );
+            $this->optionsdownloadfields = booking_normalize_fieldlist(
+                $this->optionsdownloadfields,
+                MOD_BOOKING_BOOKINGOPTION_DEFAULTFIELDS
+            );
+            $this->signinsheetfields = booking_normalize_fieldlist(
+                $this->signinsheetfields,
+                MOD_BOOKING_SIGNINSHEET_DEFAULTFIELDS
+            );
             $this->comments = $dbrecord->comments;
             $this->ratings = $dbrecord->ratings;
             $this->removeuseronunenrol = $dbrecord->removeuseronunenrol;

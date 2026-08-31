@@ -164,14 +164,17 @@ class mod_booking_generator extends testing_module_generator {
             'assessed' => 0,
             'showviews' => 'showall,showactive,mybooking,myoptions,optionsiamresponsiblefor,myinstitution',
             'whichview' => 'showall',
-            'optionsfields' => 'description,statusdescription,teacher,showdates,dayofweektime,
-                                location,institution,minanswers',
-            'reportsfields' => 'optionid,booking,institution,location,coursestarttime,
-                                city,department,courseendtime,numrec,userid,username,
-                                firstname,lastname,email,completed,waitinglist,status,
-                                groups,notes,idnumber',
-            'responsesfields' => 'completed,status,rating,numrec,fullname,timecreated,
-                                institution,waitinglist,city,department,notes',
+            // No optionsfields on purpose: booking_add_instance() falls back to
+            // MOD_BOOKING_BOOKINGOPTION_DEFAULTFIELDS, which is the column set the
+            // behat features expect (responsiblecontact, coursestarttime, ...).
+            'reportfields' => 'optionid,booking,institution,location,coursestarttime,city,department,' .
+                'courseendtime,numrec,userid,username,firstname,lastname,email,completed,waitinglist,' .
+                'status,groups,notes,idnumber',
+            // No institution here: the column was line wrapped out of this list for as long as
+            // the behat features exist, and several of them assert positional column ids
+            // (#mod_booking_all_users_sort_new_r0_cN). Adding it back shifts every id behind it.
+            'responsesfields' => 'completed,status,rating,numrec,fullname,timecreated,' .
+                'waitinglist,city,department,notes',
             'sendmail' => 1,
 
         ];

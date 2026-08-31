@@ -85,11 +85,7 @@ final class columns_helper_test extends advanced_testcase {
         $booking = $this->getDataGenerator()->create_module('booking', [
             'course' => $course->id,
             'responsesfields' => 'fullname,email,city,timecreated,supervisor,completed',
-            'reportsfields' => 'ignored', // Generator typo key, set real one below.
-        ]);
-        // The generator does not pass reportfields through, so set it directly.
-        $DB->set_field('booking', 'reportfields', 'optionid,booking,location,username,email,timecreated,supervisor', [
-            'id' => $booking->id,
+            'reportfields' => 'optionid,booking,location,username,email,timecreated,supervisor',
         ]);
         singleton_service::destroy_instance();
 
@@ -172,16 +168,24 @@ final class columns_helper_test extends advanced_testcase {
         $table = $bookedusers->return_raw_table('instanceanswers', $settings->cmid, MOD_BOOKING_STATUSPARAM_BOOKED);
         $this->assertCount(1, $table->rawdata);
 
-        // 5. Empty settings fall back to the default columns.
+        // 5. Empty settings fall back to the full default field lists
+        // (MOD_BOOKING_RESPONSES_DEFAULTFIELDS / MOD_BOOKING_REPORT_DEFAULTFIELDS).
+        // Rating (not assessed), numrec (no number generator), indexnumber (unsupported)
+        // and the certificate columns (no certificates) are skipped, userpic moves to the front.
         $DB->set_field('booking', 'responsesfields', '', ['id' => $booking->id]);
         $DB->set_field('booking', 'reportfields', '', ['id' => $booking->id]);
         singleton_service::destroy_instance();
         \cache::make('mod_booking', 'cachedbookinginstances')->purge();
         $class = $ba->return_class_for_scope('option');
         $cols = $class->return_cols_for_tables(MOD_BOOKING_STATUSPARAM_BOOKED, $option->id);
-        $this->assertSame(['firstname', 'lastname', 'email', 'status', 'notes'], array_keys($cols));
+        $this->assertSame(
+            ['userpic', 'firstname', 'lastname', 'email', 'completed', 'status', 'notes', 'places',
+                'timecreated', 'timebooked', 'institution', 'waitinglist', 'city', 'department', 'completeddate'],
+            array_keys($cols)
+        );
         $dcols = $class->return_cols_for_download(MOD_BOOKING_STATUSPARAM_BOOKED, $option->id);
-        $this->assertSame(array_keys($cols), array_keys($dcols));
+        $this->assertContains('username', array_keys($dcols));
+        $this->assertContains('email', array_keys($dcols));
 
         // 6. Option-specific values are mapped too; rating stays skipped as the instance is not assessed,
         // indexnumber is not supported (anymore) and userpic is moved to the front.
