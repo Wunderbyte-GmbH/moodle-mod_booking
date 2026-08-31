@@ -108,30 +108,23 @@ class mod_booking_observer {
      * @param \core\event\user_enrolment_deleted $event
      */
     public static function user_enrolment_deleted(\core\event\user_enrolment_deleted $event) {
-        global $DB;
         $cp = (object) $event->other['userenrolment'];
+
+        // Removing the user's responses is heavy (waitlist sync, mails, unenrolments from
+        // connected courses), so it runs in an adhoc task. The task re-checks the
+        // enrolment at execution time, so a quick re-enrolment is not destroyed.
         if ($cp->lastenrol) {
-            $sql = 'SELECT bo.id, bo.bookingid
-            FROM {booking_options} bo
-            JOIN {booking} b ON bo.bookingid = b.id
-            WHERE bo.courseid = :courseid
-            AND b.removeuseronunenrol = 1';
-            $params = ['courseid' => $cp->courseid];
-            $options = $DB->get_records_sql($sql, $params);
-            if (!empty($options)) {
-                foreach ($options as $option) {
-                    $bo = booking_option::create_option_from_optionid($option->id, $option->bookingid);
-                    $bo->user_delete_response($cp->userid);
-                }
-                $optionids = array_keys($options);
-                 [$insql, $inparams] = $DB->get_in_or_equal($optionids, SQL_PARAMS_NAMED);
-                $inparams['userid'] = $cp->userid;
-                $DB->delete_records_select(
-                    'booking_teachers',
-                    "userid = :userid AND optionid $insql",
-                    $inparams
-                );
+            $task = new \mod_booking\task\remove_responses_on_unenrol_adhoc();
+            $task->set_custom_data([
+                'courseid' => $cp->courseid,
+                'userid' => $cp->userid,
+            ]);
+            // Run the task as the user who performed the unenrolment, so the
+            // cancellation messages keep the correct "cancelled by" semantics.
+            if (!empty($event->userid) && $event->userid > 0) {
+                $task->set_userid($event->userid);
             }
+            \core\task\manager::queue_adhoc_task($task, true);
         }
 
         // When a user is unenrolled from a course, check if we need to delete her answer.
@@ -147,6 +140,7 @@ class mod_booking_observer {
             $userid
         );
     }
+
 
     /**
      * Function to execute when a booking option has been created.
@@ -415,39 +409,12 @@ class mod_booking_observer {
      * Change calendar entry when custom field is changed.
      *
      * @param \mod_booking\event\custom_field_changed $event
-     * @throws dml_exception
      */
     public static function custom_field_changed(\mod_booking\event\custom_field_changed $event) {
-        global $DB;
-
-        $alloptions = $DB->get_records_sql(
-            "SELECT id, bookingid
-            FROM {booking_options}
-            WHERE addtocalendar IN (1, 2) AND calendarid > 0"
-        );
-
-        foreach ($alloptions as $key => $value) {
-            $tmpcmid = $DB->get_record_sql(
-                "SELECT cm.id FROM {course_modules} cm
-                JOIN {modules} md ON md.id = cm.module
-                JOIN {booking} m ON m.id = cm.instance
-                WHERE md.name = 'booking' AND cm.instance = ?",
-                [$value->bookingid]
-            );
-
-            // There are no calendar entries for whole booking options anymore. Only for optiondates!
-            // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-            /* new calendar($tmpcmid->id, $value->id, 0, calendar::MOD_BOOKING_TYPEOPTION); */
-
-            $allteachers = $DB->get_records_sql(
-                "SELECT userid FROM {booking_teachers} WHERE optionid = ? AND calendarid > 0",
-                [$value->id]
-            );
-
-            foreach ($allteachers as $keyt => $valuet) {
-                new calendar($tmpcmid->id, $value->id, $valuet->userid, calendar::MOD_BOOKING_TYPETEACHERUPDATE);
-            }
-        }
+        // Updating teacher calendar entries for all options is heavy, so move it to an adhoc task.
+        // The second parameter deduplicates: repeated form saves queue the task only once.
+        $task = new \mod_booking\task\update_teacher_calendar_entries_adhoc();
+        \core\task\manager::queue_adhoc_task($task, true);
     }
 
     /**
