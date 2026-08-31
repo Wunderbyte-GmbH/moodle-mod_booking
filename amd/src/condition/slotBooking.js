@@ -280,7 +280,7 @@ const renderCustomDayEditor = (
 
     const durationLabel = document.createElement('label');
     durationLabel.className = 'small mb-0';
-    durationLabel.textContent = 'Duration';
+    durationLabel.textContent = legendLabels.duration || 'Duration';
     controls.appendChild(durationLabel);
 
     durationSelect.classList.add('booking-slot-duration-select');
@@ -288,7 +288,7 @@ const renderCustomDayEditor = (
 
     const label = document.createElement('label');
     label.className = 'small mb-0 ms-2';
-    label.textContent = 'Start';
+    label.textContent = legendLabels.start || 'Start';
     controls.appendChild(label);
 
     const timeInput = document.createElement('input');
@@ -708,6 +708,8 @@ export async function init(callsiteoptionid) {
     let calendarPickerInstance = null;
     const slotbookingSwitchedOptionMessage = await getString('slotbooking_switched_option', 'mod_booking');
     const slotbookingNoCustomDayAvailableMessage = await getString('slotbooking_no_custom_day_available', 'mod_booking');
+    const slotbookingDurationLabel = await getString('slot_booking_duration', 'mod_booking');
+    const slotbookingStartLabel = await getString('slot_booking_start', 'mod_booking');
 
     // The calendar day (as a "YYYY-MM-DD" key) the user was last looking at - declared here (outer
     // scope, not inside setupInteractiveUi) and kept up to date on every day change so it survives a
@@ -935,6 +937,8 @@ export async function init(callsiteoptionid) {
         const legendLabels = {
             mine: (legendMineInput?.value || 'Your booking').trim(),
             blocked: (legendBlockedInput?.value || 'Not bookable').trim(),
+            duration: slotbookingDurationLabel,
+            start: slotbookingStartLabel,
         };
 
         if (!selectionInput) {
