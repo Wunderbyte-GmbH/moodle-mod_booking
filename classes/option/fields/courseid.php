@@ -109,6 +109,17 @@ class courseid extends field_base {
             $formdata->courseid = reset($formdata->courseid);
         }
 
+        // Capture what was actually submitted BEFORE handle_user_choice() and the fallback below
+        // can rewrite it. None of these three keys is persisted anywhere - they only exist on the
+        // form - so without logging them here there is no way to reconstruct afterwards which
+        // template was used and whether its users were meant to come along.
+        $submitted = [
+            'chooseorcreatecourse' => $formdata->chooseorcreatecourse ?? null,
+            'coursetemplateid' => $formdata->coursetemplateid ?? null,
+            'createnewmoodlecoursefromtemplatewithusers' =>
+                $formdata->createnewmoodlecoursefromtemplatewithusers ?? null,
+        ];
+
         /* Create a new course and put it either in a new course category
         or in an already existing one. */
         connectedcourse::handle_user_choice($newoption, $formdata);
@@ -124,8 +135,131 @@ class courseid extends field_base {
         parent::prepare_save_field($formdata, $newoption, $updateparam, 0);
 
         $instance = new courseid();
-        $changes = $instance->check_for_changes($formdata, $instance);
-        return $changes;
+        $changes = [];
+
+        $courseidchanges = $instance->check_for_changes($formdata, $instance);
+        if (!empty($courseidchanges)) {
+            $changes['courseid'] = $courseidchanges;
+        }
+
+        // A course created from a template is a one-way operation that cannot be inspected later:
+        // the copy runs asynchronously as the admin user, and the three parameters that steer it
+        // are gone as soon as the form is submitted. So whenever a template copy is requested,
+        // record all three unconditionally. check_for_changes() cannot be used for this - it drops
+        // any value whose old and new state are both empty, which would silently swallow exactly
+        // the case worth logging: "transfer the users" left unticked.
+        if ((int) ($submitted['chooseorcreatecourse'] ?? 0) === 3) {
+            foreach ($submitted as $formkey => $value) {
+                $changes[$formkey] = [
+                    'changes' => [
+                        'fieldname' => 'courseid',
+                        'formkey' => $formkey,
+                        'oldvalue' => '',
+                        'newvalue' => (string) ($value ?? ''),
+                    ],
+                ];
+            }
+        }
+
+        // Returning a non-empty array unconditionally would make booking_utils::react_on_changes()
+        // treat every single save as a change and mail all booked users, so stay silent when
+        // there is nothing to report.
+        return empty($changes) ? [] : ['changes' => $changes];
+    }
+
+    /**
+     * Render the recorded changes for the event description.
+     *
+     * All entries of this field share the fieldname 'courseid' (the renderer resolves the field
+     * class from it), so the individual form key decides the label and how the value is displayed.
+     *
+     * @param array $changes
+     * @return array
+     */
+    public function get_changes_description(array $changes): array {
+
+        $formkey = $changes['formkey'] ?? 'courseid';
+        $oldvalue = $changes['oldvalue'] ?? '';
+        $newvalue = $changes['newvalue'] ?? '';
+
+        switch ($formkey) {
+            case 'chooseorcreatecourse':
+                $fieldnamestring = get_string('connectedmoodlecourse', 'mod_booking');
+                $oldvalue = self::describe_course_choice($oldvalue);
+                $newvalue = self::describe_course_choice($newvalue);
+                break;
+            case 'coursetemplateid':
+                $fieldnamestring = get_string('createnewmoodlecoursefromtemplate', 'mod_booking');
+                $oldvalue = self::describe_course($oldvalue);
+                $newvalue = self::describe_course($newvalue);
+                break;
+            case 'createnewmoodlecoursefromtemplatewithusers':
+                $fieldnamestring = get_string('createnewmoodlecoursefromtemplatewithusers', 'mod_booking');
+                // An unticked box is the value we most need on record, so both states are spelled out.
+                $oldvalue = '';
+                $newvalue = empty($newvalue) ? get_string('off', 'mod_booking') : get_string('on', 'mod_booking');
+                break;
+            default:
+                // The connected course itself is handled by the generic implementation.
+                return parent::get_changes_description($changes);
+        }
+
+        if ((empty($oldvalue) && empty($newvalue)) || $oldvalue == $newvalue) {
+            return [
+                'info' => get_string('changeinfochanged', 'mod_booking', $fieldnamestring) . ".",
+            ];
+        }
+
+        return [
+            'fieldname' => $fieldnamestring,
+            'oldvalue' => $oldvalue,
+            'newvalue' => $newvalue,
+        ];
+    }
+
+    /**
+     * Turn a chooseorcreatecourse value into the label the form shows for it.
+     *
+     * @param mixed $value
+     * @return string
+     */
+    private static function describe_course_choice($value): string {
+
+        if ($value === '' || $value === null) {
+            return '';
+        }
+
+        $labels = [
+            0 => 'nomoodlecourseconnection',
+            1 => 'connectedmoodlecourse',
+            2 => 'createnewmoodlecourse',
+            3 => 'createnewmoodlecoursefromtemplate',
+        ];
+
+        $key = $labels[(int) $value] ?? null;
+        return empty($key) ? (string) $value : get_string($key, 'mod_booking');
+    }
+
+    /**
+     * Turn a course id into a readable "name (ID: x)" string.
+     *
+     * @param mixed $value
+     * @return string
+     */
+    private static function describe_course($value): string {
+
+        global $DB;
+
+        if (empty($value)) {
+            return '';
+        }
+
+        $fullname = $DB->get_field('course', 'fullname', ['id' => (int) $value]);
+        return get_string(
+            'changesinentity',
+            'mod_booking',
+            (object) ['id' => (int) $value, 'name' => ($fullname ?: '')]
+        );
     }
 
     /**
