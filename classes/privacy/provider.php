@@ -423,9 +423,9 @@ class provider implements
                     self::export_booking($bookingdata, $context, $user);
                 }
                 $historydata = $DB->get_records('booking_history', ['userid' => $user->id, 'answerid' => $bookinganswer->id]);
+                $possiblehistorystatuses = booking::get_array_of_possible_booking_history_statuses();
                 foreach ($historydata as $history) {
-                    $possiblehistorystatuses = booking::get_array_of_possible_booking_history_statuses();
-                    $history['status'] = $possiblehistorystatuses[$history['status']];
+                    $history->status = $possiblehistorystatuses[$history->status] ?? $history->status;
                 }
                 $bookingdata = [
                     'bookingname' => $bookinganswer->bookingname,

@@ -21,6 +21,9 @@ use core_privacy\local\metadata\collection;
 use core_privacy\local\metadata\types\database_table;
 use core_privacy\local\request\approved_contextlist;
 use core_privacy\local\request\approved_userlist;
+use core_privacy\local\request\writer;
+use mod_booking\booking;
+use mod_booking_generator;
 
 /**
  * Privacy provider tests for mod_booking.
@@ -215,5 +218,58 @@ final class provider_test extends \core_privacy\tests\provider_testcase {
         $this->assertFalse($DB->record_exists('booking_slot_moves', ['userid' => $student->id]));
         $this->assertFalse($DB->record_exists('booking_slot_student_teacher', ['userid' => $student->id]));
         $this->assertFalse($DB->record_exists('booking_sync_attempts', ['userid' => $student->id]));
+    }
+
+    /**
+     * export_user_data() must not crash for a user with booking_history rows, and must translate
+     * the raw history status code to its human-readable label instead of leaving it untouched.
+     *
+     * Regression test for GH-1517: the history loop used to access the stdClass rows returned by
+     * $DB->get_records() with array syntax ($history['status']), which throws "Cannot use object
+     * of type stdClass as array" and aborted the whole export for the booking instance.
+     */
+    public function test_export_user_data_includes_booking_history_with_readable_status(): void {
+        global $DB;
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        $course = $this->getDataGenerator()->create_course();
+        $booking = $this->getDataGenerator()->create_module('booking', ['course' => $course->id]);
+        $context = context_module::instance($booking->cmid);
+
+        $student = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->enrol_user($student->id, $course->id, 'student');
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = $this->getDataGenerator()->get_plugin_generator('mod_booking');
+        $option = $plugingenerator->create_option([
+            'bookingid' => $booking->id,
+            'text' => 'GDPR export option',
+            'description' => 'GDPR export option',
+        ]);
+        $plugingenerator->create_answer(['optionid' => $option->id, 'userid' => $student->id]);
+
+        // Sanity check: booking the option must actually have written a booking_history row,
+        // otherwise this test would not exercise the crashing code path at all.
+        $rawhistory = $DB->get_records('booking_history', ['userid' => $student->id]);
+        $this->assertNotEmpty($rawhistory, 'Fixture did not produce a booking_history row.');
+
+        $possiblestatuses = booking::get_array_of_possible_booking_history_statuses();
+
+        // This used to throw "Cannot use object of type stdClass as array" (GH-1517).
+        $this->export_context_data_for_user($student->id, $context, 'mod_booking');
+        // Read the exported data.
+        $data = writer::with_context($context)->get_data([]);
+        $this->assertNotEmpty($data);
+        // The crash happened before export_booking() ran, so the whole instance's data
+        // (not just history) was lost. Make sure it now survives alongside the history.
+        $this->assertNotEmpty($data->bookedoptions ?? null, 'Booking data for the instance was lost.');
+        $this->assertNotEmpty($data->historydata ?? null);
+
+        foreach ($data->historydata as $history) {
+            $raw = $rawhistory[$history->id];
+            $this->assertSame($possiblestatuses[$raw->status] ?? $raw->status, $history->status);
+            $this->assertNotSame($raw->status, $history->status, 'Status was not translated to its label.');
+        }
     }
 }
