@@ -5661,5 +5661,80 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2026080701, 'booking');
     }
 
+    if ($oldversion < 2026083106) {
+        // Stable element identity for the customform availability condition (issue #2195):
+        // every form element gets a persistent elementid, the condition a monotonic
+        // nextelementid counter. elementid := historical position, so every stored answer
+        // key customform_{formtype}_{position} in booking_answers stays valid - no answer
+        // data is rewritten. Idempotent: elements that already have an elementid are kept.
+        // Stored subbookingadditemformlink values reference elements by position; since
+        // elementid := position they remain valid as elementids without rewriting.
+        $lockfactory = \core\lock\lock_config::get_lock_factory('mod_booking');
+        $lock = $lockfactory->get_lock('customformelementidupgrade', 10, 600);
+
+        $select = $DB->sql_like('availability', ':customform');
+        $rs = $DB->get_recordset_select(
+            'booking_options',
+            $select,
+            ['customform' => '%customform%'],
+            'id',
+            'id, availability'
+        );
+        foreach ($rs as $record) {
+            $availability = json_decode($record->availability);
+            if (!is_array($availability)) {
+                continue;
+            }
+            $changed = false;
+            foreach ($availability as $condition) {
+                if (
+                    empty($condition->class)
+                    || strpos($condition->class, 'conditions\\customform') === false
+                    || empty($condition->formsarray)
+                ) {
+                    continue;
+                }
+                $maxid = 0;
+                foreach ($condition->formsarray as $form) {
+                    foreach ($form as $formelement) {
+                        if (isset($formelement->elementid)) {
+                            $maxid = max($maxid, (int)$formelement->elementid);
+                        }
+                    }
+                }
+                foreach ($condition->formsarray as $form) {
+                    foreach ($form as $key => $formelement) {
+                        if (!isset($formelement->elementid)) {
+                            $formelement->elementid = (int)$key;
+                            $maxid = max($maxid, (int)$key);
+                            $changed = true;
+                        }
+                    }
+                }
+                if (!isset($condition->nextelementid) || (int)$condition->nextelementid <= $maxid) {
+                    $condition->nextelementid = $maxid + 1;
+                    $changed = true;
+                }
+            }
+            if ($changed) {
+                $DB->set_field(
+                    'booking_options',
+                    'availability',
+                    json_encode($availability),
+                    ['id' => $record->id]
+                );
+            }
+        }
+        $rs->close();
+
+        if ($lock) {
+            $lock->release();
+        }
+
+        \cache_helper::purge_by_definition('mod_booking', 'bookingoptionsettings');
+
+        upgrade_mod_savepoint(true, 2026083106, 'booking');
+    }
+
     return true;
 }
