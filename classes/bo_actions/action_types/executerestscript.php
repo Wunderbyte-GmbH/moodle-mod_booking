@@ -259,28 +259,27 @@ class executerestscript extends booking_action {
 
         $verify = !empty($actiondata->sslverify);
 
-        $curl = curl_init();
-
-        curl_setopt_array($curl, [
-          CURLOPT_URL => $actiondata->rest_script ?? null,
-          CURLOPT_RETURNTRANSFER => true,
-          CURLOPT_ENCODING => '',
-          CURLOPT_MAXREDIRS => 10,
-          CURLOPT_TIMEOUT => 0,
-          CURLOPT_FOLLOWLOCATION => true,
-          CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-          CURLOPT_CUSTOMREQUEST => 'POST',
-          CURLOPT_POSTFIELDS => $usejson ? $jsonbody : $params,
-          CURLOPT_SSL_VERIFYPEER => $verify,
-          CURLOPT_SSL_VERIFYHOST => $verify ? 2 : 0,
-          CURLOPT_HTTPHEADER => $headers,
+        // Moodle's wrapper is used for proxy support ($CFG->proxyhost and friends), which a raw
+        // curl handle ignores. Security is deliberately skipped: the endpoint can only be set by
+        // a site admin (see actionsform::check_access_for_dynamic_submission), so the blocklist
+        // would add no protection here, but its defaults - private ranges, localhost and any port
+        // other than 80/443 - would break existing actions that call internal endpoints.
+        $curl = new \curl(['ignoresecurity' => true]);
+        $curl->setHeader($headers);
+        $curl->setopt([
+            'CURLOPT_ENCODING' => '',
+            'CURLOPT_MAXREDIRS' => 10,
+            'CURLOPT_TIMEOUT' => 0,
+            'CURLOPT_FOLLOWLOCATION' => true,
+            'CURLOPT_HTTP_VERSION' => CURL_HTTP_VERSION_1_1,
+            'CURLOPT_SSL_VERIFYPEER' => $verify,
+            'CURLOPT_SSL_VERIFYHOST' => $verify ? 2 : 0,
         ]);
-        $response = curl_exec($curl);
 
-        $info = curl_getinfo($curl);
-        $error = curl_error($curl);
+        $response = $curl->post($actiondata->rest_script ?? '', $usejson ? $jsonbody : $params);
 
-        curl_close($curl);
+        $info = $curl->get_info();
+        $error = $curl->error;
 
         return $response;
     }
