@@ -365,9 +365,12 @@ class ical {
      * @return string path to tempfile
      */
     protected function generate_tempfile($icaldata) {
-        global $CFG;
+        // The path is stored in the customdata of an adhoc task and read again by cron in a
+        // later request, so this must NOT use make_request_directory(): that directory is
+        // deleted at the end of the current request, and the attachment would be gone before
+        // the mail is actually sent.
         $this->tempfilename = md5($icaldata . microtime());
-        $tempfilepathname = $CFG->tempdir . '/' . $this->tempfilename;
+        $tempfilepathname = make_temp_directory('mod_booking/ical') . '/' . $this->tempfilename;
         file_put_contents($tempfilepathname, $icaldata);
         return $tempfilepathname;
     }
