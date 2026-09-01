@@ -102,8 +102,14 @@ class send_confirmation_mails extends \core\task\adhoc_task {
                                 // After sending we can delete the attachment.
                                 if (!empty($taskdata->attachment)) {
                                     foreach ($taskdata->attachment as $key => $attached) {
-                                        $search = str_replace($CFG->tempdir . '/', '', $attached);
-                                        if ($DB->count_records_select('task_adhoc', "customdata LIKE '%$search%'") == 1) {
+                                        // Match on the file name only. The full path is stored
+                                        // JSON-encoded in customdata (slashes escaped), so a path
+                                        // with directories in it would never match the LIKE.
+                                        $like = $DB->sql_like('customdata', ':search');
+                                        $params = [
+                                            'search' => '%' . $DB->sql_like_escape(basename($attached)) . '%',
+                                        ];
+                                        if ($DB->count_records_select('task_adhoc', $like, $params) == 1) {
                                             if (file_exists($attached)) {
                                                 unlink($attached);
                                             }
