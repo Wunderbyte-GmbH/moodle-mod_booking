@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="mod/booking/db" VERSION="2022122000" COMMENT="XMLDB file for Moodle mod/booking"
+<XMLDB PATH="mod/booking/db" VERSION="2026081700" COMMENT="XMLDB file for Moodle mod/booking"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
@@ -179,6 +179,8 @@
         <FIELD NAME="json" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="This allows to add supplementary information which is not performance sensible like after booking actions etc."/>
         <FIELD NAME="sqlfilter" TYPE="int" LENGTH="2" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="This is a marker to show if the availability json in this specific option needs to be parsed to filter. 0 means no, 1 means yes."/>
         <FIELD NAME="competencies" TYPE="char" LENGTH="256" NOTNULL="false" SEQUENCE="false" COMMENT="ids of competencies acquired with completing this booking option"/>
+        <FIELD NAME="waitlistrecycling" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Waitlist-progression T-recycling: 0 = an expired offer permanently locks the user out (default), 1 = once everyone waiting is expiry-locked, the heartbeat task resets those locks and re-offers."/>
+        <FIELD NAME="waitlistopenmode" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Waitlist-progression Typ 2 (waitlistrecycling=2, 'offen nach Durchlauf') Laufzeit-Flag: 1 = die Warteliste wurde einmal komplett durchgearbeitet, ohne dass der frei gewordene Platz beansprucht wurde - jede/r (außer K7-permanent Gesperrte) darf ihn direkt buchen, kein Angebot mehr nötig. Wird von waitlist_heartbeat_task auf 0 zurückgesetzt, sobald die Kapazität wieder erschöpft ist."/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
@@ -883,5 +885,47 @@
         <INDEX NAME="timecreatedx" UNIQUE="false" FIELDS="timecreated"/>
       </INDEXES>
     </TABLE>
+
+    <TABLE NAME="booking_waitlist_offers" COMMENT="Single source of truth for the waitlist-progression reconciler: one row per offered/autobooked/declined/expired/skipped waitlist decision.">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="optionid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="baid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="booking_answers.id this offer/autobooking is about."/>
+        <FIELD NAME="roundid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Groups all decisions made in the same reconcile() pass."/>
+        <FIELD NAME="status" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="0 pending, 1 offered, 2 accepted, 3 declined, 4 expired, 5 skipped, 6 autobooked."/>
+        <FIELD NAME="sortorder" TYPE="int" LENGTH="20" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Frozen at round start (O1-O3, O5), never changed afterward."/>
+        <FIELD NAME="offeredat" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="0 until an offer is actually made."/>
+        <FIELD NAME="expiresat" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="0 = no deadline (e.g. pending/autobooked)."/>
+        <FIELD NAME="ruleid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="version" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="Optimistic locking counter."/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="optionid" TYPE="foreign" FIELDS="optionid" REFTABLE="booking_options" REFFIELDS="id"/>
+        <KEY NAME="optionid-roundid-userid" TYPE="unique" FIELDS="optionid, roundid, userid"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="userid-optionid-status" UNIQUE="false" FIELDS="userid, optionid, status"/>
+      </INDEXES>
+    </TABLE>
+
+    <TABLE NAME="booking_waitlist_declines" COMMENT="Round-independent lockout ledger: a user in this table is not offered a seat for this option again. Permanent for reason=declined (K7, active decline - never resettable). For reason=expired (K4), the lock is resettable per-option via waitlistrecycling (see booking_options) once everyone still waiting is locked - see waitlist_heartbeat_task::find_recyclable_options().">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="optionid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="reason" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="3" SEQUENCE="false" COMMENT="The offer_status code that triggered this lock (3=declined, permanent; 4=expired, resettable via waitlistrecycling)."/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="optionid" TYPE="foreign" FIELDS="optionid" REFTABLE="booking_options" REFFIELDS="id"/>
+        <KEY NAME="optionid-userid" TYPE="unique" FIELDS="optionid, userid"/>
+      </KEYS>
+    </TABLE>
+
   </TABLES>
 </XMLDB>

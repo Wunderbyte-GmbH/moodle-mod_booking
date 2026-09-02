@@ -5736,5 +5736,89 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2026083106, 'booking');
     }
 
+    if ($oldversion < 2026090201) {
+        // Waitlist-progression refactoring (Phase 2): single source of truth for the new
+        // reconciler's offer/decision state, and the permanent K7 decline lockout list.
+        $table = new xmldb_table('booking_waitlist_offers');
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('optionid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('userid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('baid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('roundid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('status', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('sortorder', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('offeredat', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('expiresat', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('ruleid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('version', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '1');
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('optionid', XMLDB_KEY_FOREIGN, ['optionid'], 'booking_options', ['id']);
+        $table->add_key('optionid-roundid-userid', XMLDB_KEY_UNIQUE, ['optionid', 'roundid', 'userid']);
+        $table->add_index('userid-optionid-status', XMLDB_INDEX_NOTUNIQUE, ['userid', 'optionid', 'status']);
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        $table = new xmldb_table('booking_waitlist_declines');
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('optionid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('userid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('optionid', XMLDB_KEY_FOREIGN, ['optionid'], 'booking_options', ['id']);
+        $table->add_key('optionid-userid', XMLDB_KEY_UNIQUE, ['optionid', 'userid']);
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        upgrade_mod_savepoint(true, 2026090201, 'booking');
+    }
+
+    if ($oldversion < 2026090202) {
+        // Waitlist-progression: per-option recycling (T-recycling). An expired offer keeps
+        // locking the user out permanently by default (reason=expired in booking_waitlist_declines,
+        // same table/mechanism as the K7 decline lock) - but if waitlistrecycling is enabled for
+        // the option, waitlist_heartbeat_task resets those expiry-locks (and only those, never
+        // declined-locks) once nobody on the waiting list can receive an offer anymore.
+        $table = new xmldb_table('booking_options');
+        $field = new xmldb_field('waitlistrecycling', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $table = new xmldb_table('booking_waitlist_declines');
+        $field = new xmldb_field('reason', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '3');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        upgrade_mod_savepoint(true, 2026090202, 'booking');
+    }
+
+    if ($oldversion < 2026090203) {
+        // Waitlist-progression refactoring (Phase 3): migrate any still-running legacy chains
+        // into the new booking_waitlist_offers model before the old chain code is removed.
+        // Idempotent (M4) - a plain no-op on a site with nothing currently running.
+        \mod_booking\local\waitlist\migration\upgrade_step::run();
+
+        upgrade_mod_savepoint(true, 2026090203, 'booking');
+    }
+
+    if ($oldversion < 2026090204) {
+        // Waitlist-progression: Typ 2 ("offen nach Durchlauf", waitlistrecycling=2) - runtime
+        // flag, set/cleared exclusively by waitlist_heartbeat_task, see
+        // db_waitlist_offer_repository::is_open_mode_active()/activate_open_mode()/
+        // deactivate_open_mode().
+        $table = new xmldb_table('booking_options');
+        $field = new xmldb_field('waitlistopenmode', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        upgrade_mod_savepoint(true, 2026090204, 'booking');
+    }
+
     return true;
 }
