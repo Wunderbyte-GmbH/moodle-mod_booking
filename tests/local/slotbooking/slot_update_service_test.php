@@ -105,6 +105,11 @@ final class slot_update_service_test extends booking_advanced_testcase {
         global $DB;
 
         [$optionid, $bookingid, $userid] = $this->create_priced_move_option(5.0);
+        // A reduction is a partial cancellation, so the instance must allow cancelling at all
+        // (release_self enforces slot_mover::self_release_policy_blocked()).
+        $DB->set_field('booking', 'cancancelbook', 1, ['id' => $bookingid]);
+        $settings = \mod_booking\singleton_service::get_instance_of_booking_option_settings($optionid);
+        cache::make('mod_booking', 'cachedbookinginstances')->delete((int)$settings->cmid);
         [$nine, $ten] = $this->three_slots($optionid, $userid);
 
         // Partial reduction: drop the +5 slot, keep the free one -> refund, answer shrinks to 1.

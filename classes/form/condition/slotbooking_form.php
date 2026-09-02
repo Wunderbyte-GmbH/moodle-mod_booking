@@ -186,6 +186,21 @@ class slotbooking_form extends dynamic_form {
     }
 
     /**
+     * Whether the per-user slot cap applies when building this form's picker slots.
+     *
+     * The booking form applies it: a user at max_slots_per_user gets no bookable slots and the
+     * definition explains why instead of rendering a dead picker. The update editor
+     * (slotupdate_form) overrides this to true - its user is at the cap by definition (they hold
+     * the booking being edited), and with the cap applied the inherited definition would replace
+     * the whole editor with the max-slots-reached message.
+     *
+     * @return bool
+     */
+    protected function ignore_user_slot_cap(): bool {
+        return false;
+    }
+
+    /**
      * Form definition.
      *
      * @return void
@@ -233,7 +248,9 @@ class slotbooking_form extends dynamic_form {
         // prefix, so merging additional options into them would silently collide or drop entries
         // between two options sharing a time range. Merging only happens for slot_calendar_data
         // below, and only in the calendar view mode.
-        $pickerslots = $slottype === 'userdefined' ? [] : slot_dto::build_picker_slots($optionid, $userid);
+        $pickerslots = $slottype === 'userdefined'
+            ? []
+            : slot_dto::build_picker_slots($optionid, $userid, $this->ignore_user_slot_cap());
         $openslots = self::to_open_slots($pickerslots);
 
         $mform->addElement('hidden', 'slot_max_selection', (string)$maxslots);
@@ -350,6 +367,32 @@ class slotbooking_form extends dynamic_form {
 
         if (empty($openslots)) {
             $mform->addElement('static', 'slot_selection_info', '', get_string('slot_no_open_slots', 'mod_booking'));
+            $mform->addElement('hidden', 'slot_selection', '');
+            $mform->setType('slot_selection', PARAM_TEXT);
+            return;
+        }
+
+        // to_open_slots() maps every picker slot through unchanged - including 'booked' ones, and
+        // the 'unavailable' ones a user gets once they have used up max_slots_per_user - so neither
+        // guard above can ever be empty for somebody who already holds a slot. Without this the
+        // form renders a picker in which every single entry is unselectable, together with a
+        // Continue button that can only fail validation, and says nothing about why.
+        $hasbookableslots = false;
+        foreach ($calendarslots as $calendarslot) {
+            if (!empty($calendarslot['bookable'])) {
+                $hasbookableslots = true;
+                break;
+            }
+        }
+
+        if (!$hasbookableslots) {
+            // Distinguish the two reasons: the option genuinely has nothing open right now, versus
+            // this particular user having taken all the slots they are allowed to hold.
+            $nothingbookablemessage = slot_availability::has_remaining_slot_capacity($optionid, $userid)
+                ? get_string('slot_no_open_slots', 'mod_booking')
+                : get_string('slot_error_max_slots_reached', 'mod_booking');
+
+            $mform->addElement('static', 'slot_selection_info', '', $nothingbookablemessage);
             $mform->addElement('hidden', 'slot_selection', '');
             $mform->setType('slot_selection', PARAM_TEXT);
             return;
