@@ -1,0 +1,101 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_booking/slotbooking/slot_selection_summary
+
+    Summary of the slots the user has currently selected but not yet booked, rendered below the
+    calendar in the fixed-grid booking interface (booking_interface = calendar).
+
+    It exists because that interface's day timeline only ever draws ONE day: with
+    max_slots_per_user above 1 the selection legitimately spans several days, so without this list
+    a slot picked on another day is invisible and can only be found by navigating back to the right
+    day by hand. Each row therefore both names its day and can navigate to it.
+
+    Rendered by condition/slotBooking.js, which also owns the click handling - this template only
+    renders markup. It is never rendered with an empty rows array; the caller hides the whole
+    region instead.
+
+    Both buttons MUST stay type="button": this markup lives inside the slotbooking mform, where a
+    default-type button would submit the booking form.
+
+    The remove button carries core's icon-no-margin helper: core styles every .icon with
+    "margin: 0 .5rem 0 0" (theme/boost/scss/moodle/icons.scss), which on an icon-only button offsets
+    the glyph to the left of centre instead of sitting in the middle of it.
+
+    Context variables required for this template:
+    * heading - Translated heading, e.g. "Selected slots".
+    * countlabel - Translated "<n> of <max> selected" label (built caller-side so the placeholders
+      are resolved through get_string with an object parameter).
+    * showtotal - Whether to render the total row (true only when the option uses prices).
+    * totalformatted - Formatted running total, e.g. "90.00 EUR". Only used when showtotal.
+    * rows - The selected slots, in selection order.
+        * key - Slot key in the form "start:end". Read back by the remove handler.
+        * daykey - "YYYY-MM-DD" day key AS PRODUCED BY THE PICKER (slotCalendarPicker's
+          findDayKeyForSlotKey), used by the jump handler. Deliberately not the server DTO's own
+          "daykey" field, which is not zero-padded.
+        * daylabel - Human readable day, e.g. "Wed, 2 September 2026".
+        * timelabel - Human readable time range, e.g. "09:30 - 10:00".
+        * priceformatted - Formatted price for this slot, empty when no price applies.
+
+    Example context (json):
+    {
+        "heading": "Selected slots",
+        "countlabel": "2 of 3 selected",
+        "showtotal": true,
+        "totalformatted": "90.00 EUR",
+        "rows": [
+            {"key": "1788357600:1788359400", "daykey": "2026-09-02", "daylabel": "Wed, 2 September 2026", "timelabel": "09:30 - 10:00", "priceformatted": "45.00 EUR"},
+            {"key": "1788530400:1788532200", "daykey": "2026-09-04", "daylabel": "Fri, 4 September 2026", "timelabel": "10:00 - 10:30", "priceformatted": "45.00 EUR"}
+        ]
+    }
+}}
+<div class="booking-slot-selection-summary border rounded p-2 mt-3">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-1">
+        <span class="fw-bold">{{heading}}</span>
+        <span class="small text-muted">{{countlabel}}</span>
+    </div>
+    <ul class="list-unstyled mb-0">
+        {{#rows}}
+            <li class="booking-slot-selection-summary-row d-flex align-items-center flex-wrap gap-2 py-1 border-top"
+                data-slot-key="{{key}}" data-day-key="{{daykey}}">
+                <button type="button"
+                        class="btn btn-link p-0 text-start flex-grow-1 booking-slot-selection-summary-jump"
+                        data-action="goto-day"
+                        title="{{#str}}slot_selection_gotoday, mod_booking{{/str}}">
+                    <span class="booking-slot-selection-summary-day">{{daylabel}}</span>
+                    <span class="booking-slot-selection-summary-time">{{timelabel}}</span>
+                </button>
+                {{#priceformatted}}
+                    <span class="small text-muted booking-slot-selection-summary-price">{{priceformatted}}</span>
+                {{/priceformatted}}
+                <button type="button"
+                        class="btn btn-sm btn-outline-danger icon-no-margin booking-slot-selection-summary-remove"
+                        data-action="remove-slot"
+                        aria-label="{{#str}}slot_selection_remove, mod_booking{{/str}}"
+                        title="{{#str}}slot_selection_remove, mod_booking{{/str}}">
+                    {{#pix}}t/delete, core{{/pix}}
+                </button>
+            </li>
+        {{/rows}}
+    </ul>
+    {{#showtotal}}
+        <div class="d-flex justify-content-end align-items-center gap-2 border-top pt-1 mt-1">
+            <span class="small">{{#str}}slot_selection_total, mod_booking{{/str}}</span>
+            <span class="fw-bold booking-slot-selection-summary-total">{{totalformatted}}</span>
+        </div>
+    {{/showtotal}}
+</div>
