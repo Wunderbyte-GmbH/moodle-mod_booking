@@ -1420,6 +1420,9 @@ class shortcodes {
                 AND e.enrol = 'cohort'";
 
         $courses = $DB->get_fieldset_sql($sql, $params);
+        if (empty($courses)) {
+            return get_string('nofieldofstudyfound', 'mod_booking');
+        }
 
         // Second: Get the courses that are affected.
         // Third: Create the json to obtain the booking options.
