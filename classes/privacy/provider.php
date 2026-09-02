@@ -90,6 +90,30 @@ class provider implements
         );
 
         $collection->add_database_table(
+            'booking_waitlist_offers',
+            [
+                'userid' => 'privacy:metadata:bookingwaitlistoffers:userid',
+                'optionid' => 'privacy:metadata:bookingwaitlistoffers:optionid',
+                'status' => 'privacy:metadata:bookingwaitlistoffers:status',
+                'offeredat' => 'privacy:metadata:bookingwaitlistoffers:offeredat',
+                'expiresat' => 'privacy:metadata:bookingwaitlistoffers:expiresat',
+                'timecreated' => 'privacy:metadata:bookingwaitlistoffers:timecreated',
+            ],
+            'privacy:metadata:bookingwaitlistoffers'
+        );
+
+        $collection->add_database_table(
+            'booking_waitlist_declines',
+            [
+                'userid' => 'privacy:metadata:bookingwaitlistdeclines:userid',
+                'optionid' => 'privacy:metadata:bookingwaitlistdeclines:optionid',
+                'reason' => 'privacy:metadata:bookingwaitlistdeclines:reason',
+                'timecreated' => 'privacy:metadata:bookingwaitlistdeclines:timecreated',
+            ],
+            'privacy:metadata:bookingwaitlistdeclines'
+        );
+
+        $collection->add_database_table(
             'booking_ratings',
             [
                 'userid' => 'privacy:metadata:bookingratings:userid',

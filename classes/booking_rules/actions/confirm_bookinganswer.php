@@ -14,11 +14,24 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * Legacy rule action, kept only so existing booking_rules rows referencing
+ * actionname="confirm_bookinganswer" stay loadable (rule listing/editing UI instantiates actions
+ * by name). Deliberately a no-op since the waitlist-progression refactoring (Phase 3,
+ * WAITLIST_REFACTOR_BLUEPRINT_2026-08-04.md §2.5): granting waitlist confirmation on notification
+ * is now progression::offer()'s job (local/waitlist/progression.php,
+ * grant_confirmation_if_required()), driven by the trigger adapters in classes/event/observer/,
+ * not through this rule-engine dispatch path anymore.
+ *
+ * @package mod_booking
+ * @copyright 2025 Wunderbyte GmbH <info@wunderbyte.at>
+ * @author Mahdi Poustini
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 namespace mod_booking\booking_rules\actions;
 
 use mod_booking\booking_rules\booking_rule_action;
-use mod_booking\local\confirmationworkflow\confirmation;
-use mod_booking\task\confirm_bookinganswer_by_rule_adhoc;
 use MoodleQuickForm;
 use stdClass;
 
@@ -27,13 +40,7 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 
 /**
- * Action to create an ad-hoc task that confirms booking answers with a price,
- * or sets the confirmation JSON for booking answers with no price for persons on the waiting list.
- *
- * The ad-hoc task will execute only if 'confirmationonnotification' is enabled.
- *
- * If 'confirmationonnotification' is equal to 2, the task will set the confirmation
- * only for only one person at a time from the waiting list.
+ * No-op rule action, kept only for backward compatibility with existing rule rows.
  *
  * @package mod_booking
  * @copyright 2025 Wunderbyte GmbH <info@wunderbyte.at>
@@ -44,28 +51,10 @@ class confirm_bookinganswer implements booking_rule_action {
     /** @var string $actionname */
     public $actionname = 'confirm_bookinganswer';
 
-    /** @var int $ruleid */
+    /** @var int|null $ruleid unused now (execute() is a no-op) - kept declared because
+     *  rule_react_on_event::execute() unconditionally sets $action->ruleid on every action,
+     *  regardless of type. */
     public $ruleid = null;
-
-    /**
-     * The adhoc task will be runned at this time.
-     * @var int $actionname
-     */
-    public $adhocnextruntime = 0;
-
-    /**
-     * The rule's JSON, stored so execute() can maintain the usersalreadytreated chain.
-     * Updated by set_actiondata_from_json() on each rule re-execution.
-     * @var string
-     */
-    private string $rulejson = '{}';
-
-    /**
-     * Tracks how many WL users have been processed in the current foreach loop.
-     * counter=0 → create direct confirm task; counter=1 → create repeat-trigger task; counter≥2 → skip.
-     * @var int
-     */
-    private int $counter = 0;
 
     /**
      * Load json data from DB into the object.
@@ -80,7 +69,7 @@ class confirm_bookinganswer implements booking_rule_action {
      * @param string $json a json string for a booking rule
      */
     public function set_actiondata_from_json(string $json) {
-        $this->rulejson = $json;
+        // Nothing to set.
     }
 
     /**
@@ -132,143 +121,11 @@ class confirm_bookinganswer implements booking_rule_action {
     /**
      * Execute the action.
      *
-     * Creates confirm tasks one at a time using a send_mail_interval-style chain:
-     * - counter=0 (first unprocessed WL user): create a direct confirm task, add user to
-     *   usersalreadytreated in rulejson, advance counter.
-     * - counter=1 (second user): create a repeat-trigger task (repeat=1). When this task
-     *   runs it re-executes the rule against a fresh WL query, naturally picking up late
-     *   joiners and continuing the chain.
-     * - counter>=2: return immediately (subsequent users will be handled by the chain).
+     * Intentionally empty - see class docblock.
      *
-     * Users already confirmed in a previous chain iteration are skipped via
-     * usersalreadytreated stored in rulejson.
-     *
-     * The stdclass has to have the keys userid, optionid & cmid & nextruntime.
      * @param stdClass $record
      */
     public function execute(stdClass $record) {
-        global $DB, $USER;
-
-        /* This action can be invoked indirectly (e.g. by send_mail_interval) without
-        set_actiondata_from_json() having been called. In that case we must reload the
-        canonical rulejson from DB so repeat tasks can re-execute the rule safely.
-        */
-        $jsonobject = json_decode($this->rulejson);
-        if (empty($jsonobject) || !isset($jsonobject->ruledata)) {
-            $rulerecord = $DB->get_record('booking_rules', ['id' => $this->ruleid], 'rulejson', IGNORE_MISSING);
-            if (!empty($rulerecord->rulejson)) {
-                $this->rulejson = $rulerecord->rulejson;
-                $jsonobject = json_decode($this->rulejson);
-            }
-        }
-
-        if (empty($jsonobject)) {
-            $jsonobject = (object)[];
-        }
-        if (!isset($jsonobject->confirmdata)) {
-            $jsonobject->confirmdata = (object)['usersalreadytreated' => []];
-        }
-
-        // Skip users already processed in a previous chain iteration.
-        $alreadytreated = (array)($jsonobject->confirmdata->usersalreadytreated ?? []);
-        if (in_array($record->userid, $alreadytreated)) {
-            return;
-        }
-
-        // Skip users who already hold the required confirmation(s): a restarted chain
-        // (e.g. a new freetobookagain event) must advance to the next unconfirmed user
-        // instead of re-treating confirmed ones (which would inflate confirmationcount).
-        if ($this->user_already_confirmed($record)) {
-            return;
-        }
-
-        if ($this->counter === 0) {
-            // First unprocessed user: record as treated and create a direct confirm task.
-            $jsonobject->confirmdata->usersalreadytreated[] = $record->userid;
-            $this->rulejson = json_encode($jsonobject);
-            $this->queue_task($record, $USER->id ?? 2, false);
-        } else if ($this->counter === 1) {
-            // Second user: create a repeat-trigger task. When it runs it will re-execute the
-            // rule (fresh WL query) so that late joiners are naturally picked up.
-            $this->queue_task($record, $USER->id ?? 2, true);
-        } else {
-            return;
-        }
-
-        $this->counter++;
-    }
-
-    /**
-     * Check whether the user's waitinglist answer already holds the required confirmation(s).
-     * get_required_confirmation_count() returns 0 when no confirmation subplugin is enabled,
-     * so we treat 1 as the minimum required count.
-     *
-     * @param stdClass $record the rule record (userid, optionid, …)
-     * @return bool
-     */
-    private function user_already_confirmed(stdClass $record): bool {
-        global $DB;
-        $bookinganswer = $DB->get_record('booking_answers', [
-            'optionid' => $record->optionid,
-            'userid' => $record->userid,
-            'waitinglist' => MOD_BOOKING_STATUSPARAM_WAITINGLIST,
-        ], 'id, json', IGNORE_MISSING);
-        if (empty($bookinganswer) || empty($bookinganswer->json)) {
-            return false;
-        }
-        $json = json_decode($bookinganswer->json);
-        if (empty($json->confirmwaitinglist)) {
-            return false;
-        }
-        $requiredcount = max(1, confirmation::get_required_confirmation_count((int)$record->optionid));
-        return ((int)($json->confirmationcount ?? 0)) >= $requiredcount;
-    }
-
-    /**
-     * Queue a confirm_bookinganswer_by_rule_adhoc task.
-     * @param stdClass $record the rule record (userid, optionid, cmid, …)
-     * @param int $userid the Moodle user ID to associate with the task
-     * @param bool $repeat if true the task will re-execute the rule instead of confirming a user
-     */
-    private function queue_task(stdClass $record, int $userid, bool $repeat): void {
-        $task = new confirm_bookinganswer_by_rule_adhoc();
-        $taskdata = [
-            'rulename' => $record->rulename,
-            'ruleid'   => $this->ruleid,
-            'rulejson' => $this->rulejson,
-            'userid'   => $record->userid,
-            'optionid' => $record->optionid,
-            'cmid'     => $record->cmid,
-        ];
-        if ($repeat) {
-            $taskdata['repeat'] = 1;
-        }
-        if (!empty($record->optiondateid)) {
-            $taskdata['optiondateid'] = $record->optiondateid;
-        }
-        $task->set_custom_data($taskdata);
-        $task->set_userid($userid);
-        if ($this->adhocnextruntime !== 0) {
-            $task->set_next_run_time($this->adhocnextruntime);
-        }
-        \core\task\manager::reschedule_or_queue_adhoc_task($task);
-    }
-
-    /**
-     * Summary of set_next_runtime
-     * @param mixed $timeinseconds
-     * @return void
-     */
-    public function set_next_runtime_for_adhoc($timeinseconds) {
-        $this->adhocnextruntime = $timeinseconds;
-    }
-
-    /**
-     * Setter for ruleid.
-     * @param mixed $ruleid
-     * @return void
-     */
-    public function set_ruleid($ruleid) {
-        $this->ruleid = $ruleid;
+        // Intentionally empty - see class docblock.
     }
 }
