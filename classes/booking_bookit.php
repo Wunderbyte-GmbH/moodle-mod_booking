@@ -68,20 +68,32 @@ class booking_bookit {
      * @param int $userid
      * @param string $inlinestartpage optional condition shortname to render inline (e.g. 'slotbooking')
      * @param int|null $viewparam the view currently being rendered (MOD_BOOKING_VIEW_PARAM_*), null if unknown
+     * @param array $additionaloptionids additional option ids to be passed to the button (e.g. for elective booking)
+     * @param bool $hidesidebar if true, the sidebar is hidden
      * @return string
      */
     public static function render_bookit_button(
         booking_option_settings $settings,
         int $userid = 0,
         string $inlinestartpage = '',
-        ?int $viewparam = null
+        ?int $viewparam = null,
+        array $additionaloptionids = [],
+        bool $hidesidebar = false
     ) {
 
         global $PAGE;
 
         /** @var renderer $output */
         $output = $PAGE->get_renderer('mod_booking');
-        [$templates, $datas] = self::render_bookit_template_data($settings, $userid, true, $inlinestartpage, $viewparam);
+        [$templates, $datas] = self::render_bookit_template_data(
+            $settings,
+            $userid,
+            true,
+            $inlinestartpage,
+            $viewparam,
+            $additionaloptionids,
+            $hidesidebar
+        );
 
         $html = '';
 
@@ -109,6 +121,8 @@ class booking_bookit {
      * @param bool $renderprepagemodal
      * @param string $inlinestartpage optional condition shortname to render inline (e.g. 'slotbooking')
      * @param int|null $viewparam the view currently being rendered (MOD_BOOKING_VIEW_PARAM_*), null if unknown
+     * @param array $additionaloptionids additional option ids to be passed to the button (e.g. for elective booking)
+     * @param bool $hidesidebar if true, the sidebar is hidden
      * @return array
      */
     public static function render_bookit_template_data(
@@ -116,7 +130,9 @@ class booking_bookit {
         int $userid = 0,
         bool $renderprepagemodal = true,
         string $inlinestartpage = '',
-        ?int $viewparam = null
+        ?int $viewparam = null,
+        array $additionaloptionids = [],
+        bool $hidesidebar = false
     ) {
         global $PAGE;
 
@@ -162,7 +178,20 @@ class booking_bookit {
                     $buttoncondition = $result['classname'];
                     break;
                 case MOD_BOOKING_BO_BUTTON_CANCEL:
-                    if (modechecker::use_special_details_page_treatment($userid)) {
+                    // Slot-booking options suppress this generic cancel button only in the
+                    // persistent-calendar context (inlinestartpage='slotbooking') - there,
+                    // cancelling happens via the link inside the user's booked slot instead (per
+                    // Georg, 2026-08-25, see slot_persistent_calendar_test.php). Everywhere else
+                    // (e.g. the plain option list row, which never shows a calendar) a slot option
+                    // must surface "Undo my booking" exactly like any other option - the guard used
+                    // to suppress it unconditionally for every slot option in every context, which
+                    // meant it could never appear anywhere for a slot option, including the list
+                    // view (booking_slotbooking_fixed.feature scenario "cancelling a booked slot
+                    // frees it up for booking again").
+                    if (
+                        modechecker::use_special_details_page_treatment()
+                        && (empty($settings->slotconfig) || strcasecmp($inlinestartpage, 'slotbooking') !== 0)
+                    ) {
                         // When we show the cancel button, we can't have "just my alert", it would suppress this.
                         $justmyalert = false;
                         $extrabuttoncondition = $result['classname'];
@@ -205,7 +234,21 @@ class booking_bookit {
                 } else {
                     $skipcondition = new $skipconditionclass();
                 }
-                $conditionrenderdata = $skipcondition->render_page($settings->id, $userid);
+                // The slotbooking condition is usually still "blocking" (no selection made yet) on
+                // a user's first visit, so it gets picked up here rather than by the persistent-
+                // calendar branch further down - thread the multi-option sidebar params through
+                // here too, or a merged calendar would silently fall back to single-option
+                // rendering for every not-yet-booked user.
+                if (strcasecmp($inlinestartpage, 'slotbooking') === 0) {
+                    $conditionrenderdata = $skipcondition->render_page(
+                        $settings->id,
+                        $userid,
+                        $additionaloptionids,
+                        $hidesidebar
+                    );
+                } else {
+                    $conditionrenderdata = $skipcondition->render_page($settings->id, $userid);
+                }
 
                 // Render the condition HTML via the Moodle template engine (server-side).
                 /** @var renderer $output */
@@ -276,7 +319,12 @@ class booking_bookit {
             && !empty($settings->slotconfig)
         ) {
             $slotbookingcondition = new \mod_booking\bo_availability\conditions\slotbooking();
-            $conditionrenderdata = $slotbookingcondition->render_page($settings->id, $userid);
+            $conditionrenderdata = $slotbookingcondition->render_page(
+                $settings->id,
+                $userid,
+                $additionaloptionids,
+                $hidesidebar
+            );
 
             /** @var renderer $output */
             $output = $PAGE->get_renderer('mod_booking');
@@ -596,6 +644,7 @@ class booking_bookit {
                     $cachekey = $userid . "_" . $settings->id . "_cancel";
                     $now = time();
                     $cache->set($userid, [$cachekey => $now]);
+
                 }
             } else if ($id === MOD_BOOKING_BO_COND_CONFIRMCANCEL) {
                 // Make sure cache is not blocking anymore.

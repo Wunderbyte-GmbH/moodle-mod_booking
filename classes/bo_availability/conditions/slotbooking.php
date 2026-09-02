@@ -37,6 +37,7 @@ use mod_booking\local\slotbooking\slot_price;
 use MoodleQuickForm;
 use mod_booking\utils\wb_payment;
 use moodle_exception;
+use moodle_url;
 use stdClass;
 
 /**
@@ -168,6 +169,18 @@ class slotbooking implements bo_condition {
         // holds is counted as an occupant against itself and wrongly re-blocks the flow.
         $ownanswerids = slot_availability::get_active_answer_ids_for_user((int)$settings->id, (int)$userid);
 
+        // Same capacity gate as slotbooking_form::validation() and save_slot_selection - checked
+        // again here as a commit-time backstop, since hard_block() is what actually decides
+        // whether the booking proceeds. Slots the user already owns don't count as "new" here
+        // (has_capacity_for_selection() excludes them), so re-committing an already-booked/cached
+        // selection never trips this - only a genuinely additional slot beyond max_slots_per_user
+        // does. Independent of the generic multiplebookings setting (see booking_option.php /
+        // alreadybooked.php, which already treat them as two separate mechanisms).
+        $requestedkeys = array_map(static fn(array $r): string => $r[0] . ':' . $r[1], $ranges);
+        if (!slot_availability::has_capacity_for_selection((int)$settings->id, (int)$userid, $requestedkeys)) {
+            return true;
+        }
+
         $teachersrequired = slot_availability::get_teachers_required((int)$settings->id);
         $teacherselection = $store->get_selected_teachers_by_slot($data);
 
@@ -241,13 +254,83 @@ class slotbooking implements bo_condition {
      *
      * @param int $optionid option id
      * @param int $userid user id
+     * @param array $additionaloptionids further option ids to merge into the calendar (sidebar filter)
+     * @param bool $hidesidebar suppress the sidebar even when multiple option ids are given
      * @return array
      */
-    public function render_page(int $optionid, int $userid = 0) {
+    public function render_page(
+        int $optionid,
+        int $userid = 0,
+        array $additionaloptionids = [],
+        bool $hidesidebar = false
+    ) {
+        $optionids = array_values(array_unique(array_merge([$optionid], $additionaloptionids)));
+        $ismultioption = count($optionids) > 1;
+
         $data = [
             'optionid' => $optionid,
             'userid' => $userid,
+            'multioption' => $ismultioption,
         ];
+
+        if ($ismultioption) {
+            $data['optionidsjson'] = json_encode($optionids);
+
+            // Merged options can have entirely different prepage condition sequences (different
+            // step counts, different conditions), so once the user actually books a slot from a
+            // non-primary option, the JS hard-redirects to THAT option's own booking page instead
+            // of trying to continue this page's wizard for it - see condition/slotBooking.js. Build
+            // that URL for every merged option here (independent of hidesidebar - the sidebar can be
+            // hidden while the merge/filter/booking plumbing still works).
+            // Also carries whether each merged option actually has a price - addSwitchedOptionToCart
+            // in the JS needs this to decide whether a completed add-to-cart call actually finished
+            // the booking (free, no cart involved) or only added it to a PAID cart still awaiting
+            // checkout. Reading it here (the option's own useprice) is the only reliable source -
+            // reconstructing it from the selected slot's own data does not work for every slot type
+            // (e.g. userdefined has no per-slot price at all, only a per-option one).
+            $optionurls = [];
+            $optionuseprices = [];
+            foreach ($optionids as $urloptionid) {
+                try {
+                    $urlsettings = singleton_service::get_instance_of_booking_option_settings($urloptionid);
+                } catch (\Throwable $e) {
+                    continue;
+                }
+                if (empty($urlsettings->id)) {
+                    continue;
+                }
+                $optionurls[$urlsettings->id] = (new moodle_url(
+                    '/mod/booking/optionview.php',
+                    ['cmid' => $urlsettings->cmid, 'optionid' => $urlsettings->id]
+                ))->out(false);
+                $optionuseprices[$urlsettings->id] = !empty($urlsettings->useprice);
+            }
+            $data['optionurlsjson'] = json_encode($optionurls);
+            $data['optionpricesjson'] = json_encode($optionuseprices);
+        }
+
+        // Multi-option sidebar: only relevant once there's more than one option to choose from,
+        // and only when the caller hasn't asked to hide it (see shortcodes::bookingoptionview()).
+        $showsidebar = $ismultioption && !$hidesidebar;
+        $data['showsidebar'] = $showsidebar;
+        if ($showsidebar) {
+            $sidebaroptions = [];
+            foreach ($optionids as $sidebaroptionid) {
+                try {
+                    $sidebarsettings = singleton_service::get_instance_of_booking_option_settings($sidebaroptionid);
+                } catch (\Throwable $e) {
+                    continue;
+                }
+                if (empty($sidebarsettings->id)) {
+                    continue;
+                }
+                $sidebaroptions[] = [
+                    'optionid' => $sidebarsettings->id,
+                    'name' => format_string($sidebarsettings->text),
+                ];
+            }
+            $data['sidebaroptions'] = $sidebaroptions;
+        }
 
         // Fall 2: in a book-again (multiplebookings) state, a booked user who may also self-rebook
         // is offered the move as a tab inside this same prepage. Deliver the hidden move-tab mount

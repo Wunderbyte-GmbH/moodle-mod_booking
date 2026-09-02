@@ -136,15 +136,19 @@ final class slot_persistent_calendar_test extends booking_advanced_testcase {
 
     /**
      * When the user already has a cancellable booked slot AND slot capacity remains (so the
-     * inline calendar is shown to buy another slot), the "Cancel purchase" button must still be
-     * surfaced alongside the calendar - this is the regression guard for the reported bug where
-     * it disappeared entirely once alreadybooked/cancelmyself were fixed to no longer force the
-     * flat "Booked + Cancel" fallback (which happened to render both) once slot capacity remained
-     * and the flow switched to the inline-calendar path instead.
+     * inline calendar is shown to buy another slot), no generic "Cancel purchase" button must be
+     * surfaced below the calendar - by design (per Georg, 2026-08-25), cancelling a slot option
+     * happens via the link inside the user's booked slot in the calendar itself, which takes them
+     * to the booking option's own page to cancel there. A bottom-level cancel button here would be
+     * ambiguous (which of the user's - possibly several - booked slots would it cancel?) and would
+     * only confuse users who can still book further slots. This replaces a previous version of
+     * this test that asserted the opposite (a leftover assumption from before this UX decision was
+     * made explicit); booking_bookit.php's own slotconfig guard already does the right thing here
+     * and was intentionally left unchanged.
      *
      * @return void
      */
-    public function test_cancel_button_shown_alongside_inline_calendar_when_capacity_remains(): void {
+    public function test_no_cancel_button_shown_alongside_inline_calendar_when_capacity_remains(): void {
         global $DB;
 
         /** @var \mod_booking_generator $plugingenerator */
@@ -184,17 +188,62 @@ final class slot_persistent_calendar_test extends booking_advanced_testcase {
         [$templates, $datas] = booking_bookit::render_bookit_template_data($settings, $userid, true, 'slotbooking');
 
         $this->assertContains('mod_booking/bookingpage/prepageinlinestart', $templates);
-        $this->assertContains(
+        $this->assertNotContains(
             'mod_booking/bookit_button',
             $templates,
-            'The cancel button must be rendered alongside the inline calendar, not dropped.'
+            'No bottom-level button/cancel control should be rendered alongside the inline calendar' .
+                ' while slot capacity remains - cancelling happens via the link inside the booked slot.'
         );
+    }
 
-        $cancelindex = array_search('mod_booking/bookit_button', $templates, true);
-        $this->assertNotFalse($cancelindex);
-        $canceldata = $datas[$cancelindex]->data ?? [];
-        $class = (string)($canceldata['main']['class'] ?? '');
-        $this->assertStringContainsString('bo-cancel-button', $class);
+    /**
+     * The plain option list row (inlinestartpage='' - no calendar in view at all, e.g.
+     * bookingoptions_wbtable's "Book now" column) is a different rendering context from the
+     * persistent inline calendar above: there is no calendar for a bottom cancel button to be
+     * redundant alongside, so a slot option must surface "Undo my booking" here exactly like any
+     * other option does (booking_multiple_bookings.feature) - this is the regression guard for the
+     * reported bug where booking_bookit.php's slotconfig guard suppressed the cancel button
+     * unconditionally for every slot option in every context, including this one
+     * (booking_slotbooking_fixed.feature scenario "cancelling a booked slot frees it up for
+     * booking again").
+     *
+     * @return void
+     */
+    public function test_cancel_button_shown_in_list_view_with_no_capacity_remaining(): void {
+        global $DB;
+
+        [$optionid, $userid] = $this->create_fixed_slot_option();
+        $bookingid = $this->get_bookingid($optionid);
+        $DB->set_field('booking', 'cancancelbook', 1, ['id' => $bookingid]);
+        $settingsforcmid = singleton_service::get_instance_of_booking_option_settings($optionid);
+        \cache::make('mod_booking', 'cachedbookinginstances')->delete((int)$settingsforcmid->cmid);
+        singleton_service::destroy_instance();
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $slots = slot_dto::build_picker_slots($optionid, $userid);
+        $this->assertNotEmpty($slots);
+
+        $this->create_booked_slot_answer(
+            $optionid,
+            (int)$settings->bookingid,
+            $userid,
+            (int)$slots[0]['start'],
+            (int)$slots[0]['end']
+        );
+        singleton_service::destroy_instance();
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+
+        // Render the row exactly as bookingoptions_wbtable::col_booknow() does (no inlinestartpage).
+        // Assert on the rendered HTML rather than on a data field of one particular template shape:
+        // depending on which condition claims the button, the row is built either from the plain
+        // bookit_button template or from the prepagemodal one, and only the latter carries a
+        // 'buttonhtml' property. Both must surface the cancel button, which is what this guards.
+        global $PAGE;
+        $PAGE->set_context(\context_module::instance((int)$settings->cmid));
+        $html = booking_bookit::render_bookit_button($settings, $userid);
+
+        $this->assertStringContainsString(get_string('cancelmyself', 'mod_booking'), $html);
+        $this->assertStringContainsString('bo-cancel-button', $html);
     }
 
     /**

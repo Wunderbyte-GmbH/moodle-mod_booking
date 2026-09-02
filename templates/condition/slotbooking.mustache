@@ -8,16 +8,32 @@
     * data-optionid
     * data-userid
     * data-region
+    * data-optionids (present whenever more than one option id was given, even if the sidebar is hidden)
+    * data-optionurls (same gating as data-optionids - JSON map of optionid -> that option's own
+      booking page URL, used to hard-redirect there when a non-primary merged option gets booked)
+    * data-optionprices (same gating as data-optionids - JSON map of optionid -> bool, whether that
+      option has a price at all; used to tell a completed-but-free add-to-cart apart from one that
+      only reached a paid cart still awaiting checkout)
 
     Example context (json):
     {
         "optionid": 42,
         "userid": 5,
         "showmovetab": true,
-        "baid": 99
+        "baid": 99,
+        "multioption": true,
+        "showsidebar": true,
+        "sidebaroptions": [
+            {"optionid": 42, "name": "Option A"},
+            {"optionid": 43, "name": "Option B"}
+        ],
+        "optionidsjson": "[42,43]",
+        "optionurlsjson": "{\"42\":\"https:\/\/example.org\/mod\/booking\/optionview.php?cmid=5&optionid=42\",\"43\":\"https:\/\/example.org\/mod\/booking\/optionview.php?cmid=5&optionid=43\"}",
+        "optionpricesjson": "{\"42\":false,\"43\":true}"
     }
 }}
-<div class="booking-slotbooking-prepage" data-optionid="{{optionid}}" data-userid="{{userid}}">
+<div class="booking-slotbooking-prepage{{#showsidebar}} booking-slotbooking-prepage-multi{{/showsidebar}}"
+     data-optionid="{{optionid}}" data-userid="{{userid}}"{{#multioption}} data-optionids="{{optionidsjson}}" data-optionurls="{{optionurlsjson}}" data-optionprices="{{optionpricesjson}}"{{/multioption}}>
     {{#showmovetab}}
     {{! Fall 2: book-again and self-service move offered side by side as tabs in one prepage. }}
     <ul class="nav nav-tabs booking-slotbooking-tabs mb-3" role="tablist">
@@ -30,9 +46,14 @@
     </ul>
     {{/showmovetab}}
 
-    <div data-slotpane="book">
-        <p class="mb-3">{{#str}}slotbooking_prepage_description, mod_booking{{/str}}</p>
-        <div data-region="slotbooking-form"></div>
+    <div data-slotpane="book" class="{{#showsidebar}}d-flex booking-slotbooking-layout{{/showsidebar}}">
+        {{#showsidebar}}
+        {{> mod_booking/slotbooking/slotbooking_sidebar }}
+        {{/showsidebar}}
+        <div class="booking-slotbooking-main flex-grow-1">
+            <p class="mb-3">{{#str}}slotbooking_prepage_description, mod_booking{{/str}}</p>
+            <div data-region="slotbooking-form"></div>
+        </div>
     </div>
 
     {{#showmovetab}}
@@ -50,6 +71,6 @@
 </div>
 {{#js}}
 require(['mod_booking/condition/slotBooking'], function(init) {
-    init.init();
+    init.init({{optionid}});
 });
 {{/js}}

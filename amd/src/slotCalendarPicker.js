@@ -112,6 +112,13 @@ export class SlotCalendarPicker {
             ? 'No open slots on this day.'
             : String(options.emptySlotListText);
         this.showSlotList = options.showSlotList !== false;
+        // Caller-supplied day ("YYYY-MM-DD", the same format toDayKey()/dayKeyFormatter produce) to
+        // reopen on instead of the usual defaults (today/the first bookable day, or a day the user is
+        // already booked on - see prepareData() below). Used to restore the previously viewed day
+        // after this picker gets re-created from scratch (e.g. slotBooking.js re-running
+        // setupInteractiveUi() after a server validation error) instead of silently jumping back to
+        // whichever day the defaults would otherwise pick.
+        this.initialActiveDay = options.initialActiveDay ? String(options.initialActiveDay) : null;
         this.showPriceLegend = Boolean(options.showPriceLegend);
         this.dayStateResolver = typeof options.dayStateResolver === 'function' ? options.dayStateResolver : null;
         this.resetSelectionOnDayChange = Boolean(options.resetSelectionOnDayChange);
@@ -237,6 +244,14 @@ export class SlotCalendarPicker {
                 this.activeDay = bookedDayKey;
                 this.currentDate = cloneDate(new Date(`${bookedDayKey}T00:00:00`));
             }
+        }
+
+        // An explicitly requested day (see initialActiveDay above) wins over both defaults above -
+        // only when it actually still has data, so a stale/no-longer-relevant day never leaves the
+        // calendar looking blank.
+        if (this.initialActiveDay && this.slotsByDay.has(this.initialActiveDay)) {
+            this.activeDay = this.initialActiveDay;
+            this.currentDate = cloneDate(new Date(`${this.initialActiveDay}T00:00:00`));
         }
     }
 
@@ -460,6 +475,29 @@ export class SlotCalendarPicker {
         this.updateNavigationState();
     }
 
+    /**
+     * Update the slot filter predicate and re-render from the already-loaded slot data.
+     * Used by the multi-option sidebar to show/hide slots per option id without any new
+     * webservice round-trip - every option's slots are already present in this.slotsByDay.
+     *
+     * @param {Function|null} fn predicate(slot) => boolean, or null to clear the filter
+     */
+    setSlotFilter(fn) {
+        this.slotFilter = typeof fn === 'function' ? fn : null;
+        this.render();
+
+        // render() only refreshes the calendar grid and (when showSlotList is true) the picker's
+        // own slot list/timeline. When showSlotList is false, an external region owns the day's
+        // slot display via onDayChange (see condition/slotBooking.js's fixedEditorRoot branch) -
+        // notify it too, or filtering an option out of the sidebar wouldn't remove its slots from
+        // that region.
+        if (!this.showSlotList && this.activeDay) {
+            const daySlots = this.slotsByDay.get(this.activeDay) || [];
+            const visibleSlots = this.slotFilter ? daySlots.filter(this.slotFilter) : daySlots;
+            this.onDayChange(this.activeDay, visibleSlots);
+        }
+    }
+
     renderCalendarGrid() {
         this.calendarGrid.innerHTML = '';
 
@@ -486,7 +524,8 @@ export class SlotCalendarPicker {
 
         days.forEach(date => {
             const dayKey = toDateKeyFromDate(date);
-            const daySlots = this.slotsByDay.get(dayKey) || [];
+            const rawDaySlots = this.slotsByDay.get(dayKey) || [];
+            const daySlots = this.slotFilter ? rawDaySlots.filter(this.slotFilter) : rawDaySlots;
 
             const cell = document.createElement('div');
             cell.className = 'booking-slot-calendar-cell';
@@ -680,7 +719,7 @@ export class SlotCalendarPicker {
             }
 
             const selected = this.selected.has(slot.key);
-            // Farbwahl je nach Modus: Unavailability = rot, Availability = grün.
+            // Color choice depending on mode: Unavailability = red, Availability = green.
             let markmode = 'unavailability';
             if (typeof this.root.closest === 'function') {
                 const form = this.root.closest('form');
@@ -691,7 +730,7 @@ export class SlotCalendarPicker {
                     }
                 }
             }
-            // Vorher alle btn-* Farbklassen entfernen, damit keine doppelt bleiben.
+            // First remove all btn-* color classes, so none remain duplicated.
             btn.classList.remove('btn-success', 'btn-danger', 'btn-outline-secondary');
             if (selected) {
                 if (markmode === 'unavailability') {

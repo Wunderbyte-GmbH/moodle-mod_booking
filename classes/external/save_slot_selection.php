@@ -60,6 +60,16 @@ class save_slot_selection extends external_api {
                 VALUE_DEFAULT,
                 '{}'
             ),
+            'persistselection' => new external_value(
+                PARAM_BOOL,
+                'Persist the valid selection to the slot store (default). The live pre-validation
+                 feedback in the booking form passes false: it fires debounced on every selection
+                 change, so its late responses would otherwise race the booking commit and rewrite
+                 the store AFTER the commit already cleared it - leaving the previous selection
+                 preselected on the next booking pass.',
+                VALUE_DEFAULT,
+                true
+            ),
         ]);
     }
 
@@ -70,9 +80,16 @@ class save_slot_selection extends external_api {
      * @param int $userid user id (0 = current user)
      * @param string $selection JSON encoded list of slot keys
      * @param string $teacherselection JSON encoded teacher map
+     * @param bool $persistselection persist to the slot store; false = validate/price only
      * @return array{valid: bool, errors: string, price: float}
      */
-    public static function execute(int $optionid, int $userid, string $selection, string $teacherselection = '{}'): array {
+    public static function execute(
+        int $optionid,
+        int $userid,
+        string $selection,
+        string $teacherselection = '{}',
+        bool $persistselection = true
+    ): array {
         global $USER;
 
         $params = self::validate_parameters(self::execute_parameters(), [
@@ -80,6 +97,7 @@ class save_slot_selection extends external_api {
             'userid' => $userid,
             'selection' => $selection,
             'teacherselection' => $teacherselection,
+            'persistselection' => $persistselection,
         ]);
 
         $optionid = $params['optionid'];
@@ -128,7 +146,23 @@ class save_slot_selection extends external_api {
         // itself and wrongly reported as unavailable.
         $ownanswerids = slot_availability::get_active_answer_ids_for_user($optionid, $userid);
 
-        foreach ($keys as $key) {
+        // A user who already holds a (non-cancelled) answer for this option can only pick keys
+        // that either are already their own or still fit within remaining capacity
+        // (max_slots_per_user) - has_capacity_for_selection() excludes already-owned keys from
+        // counting as "new", so re-validating an already-booked/cached selection never trips this.
+        // Checked here too (not just slotbooking_form::validation()) so the live preview this
+        // webservice powers (see slotBooking.js liveValidate()) surfaces the same "max slots
+        // reached" message the instant an otherwise-bookable slot is clicked, instead of only after
+        // a full form submit round-trip.
+        if (!slot_availability::has_capacity_for_selection($optionid, $userid, $keys)) {
+            $errors['slot_selection'] = get_string('slot_error_max_slots_reached', 'mod_booking');
+        }
+
+        // Once the too-many/overlap checks above have already rejected this selection, skip the
+        // per-slot bookability loop below entirely - an otherwise-bookable slot would silently
+        // overwrite the more specific error already set above (both write to the same
+        // 'slot_selection' key) with a vaguer, misleading one.
+        foreach (empty($errors) ? $keys : [] as $key) {
             [$start, $end] = array_map('intval', array_pad(explode(':', $key, 2), 2, 0));
             if ($end <= $start) {
                 $errors['slot_selection'] = get_string('slot_error_selection_required', 'mod_booking');
@@ -166,11 +200,13 @@ class save_slot_selection extends external_api {
 
         $price = 0.0;
         if (empty($errors) && !empty($slots)) {
-            $store = new slotbookingstore($userid, $optionid);
-            $store->set_slotbooking_data((object)[
-                'slot_selection' => implode(',', $keys),
-                'slot_teacher_selection' => json_encode($normalizedteachers),
-            ]);
+            if (!empty($params['persistselection'])) {
+                $store = new slotbookingstore($userid, $optionid);
+                $store->set_slotbooking_data((object)[
+                    'slot_selection' => implode(',', $keys),
+                    'slot_teacher_selection' => json_encode($normalizedteachers),
+                ]);
+            }
             $price = slot_price::calculate_price($optionid, count($slots), $userid, $slots);
         }
 

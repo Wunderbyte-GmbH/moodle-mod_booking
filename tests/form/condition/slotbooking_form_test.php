@@ -383,6 +383,72 @@ final class slotbooking_form_test extends booking_advanced_testcase {
     }
 
     /**
+     * Once max_slots_per_user is used up, submitting a further, entirely free and non-overlapping
+     * slot must be rejected with the dedicated "maximum reached" message - not with a generic
+     * "no longer available" one, and above all not silently accepted (book_user_on_option() would
+     * then no-op and the user would see a confirmation for a booking that never happened).
+     *
+     * The list row no longer even offers booking in this state (alreadybooked claims the button,
+     * see booking_slotbooking_userdefined.feature), so this server-side guard is what keeps a
+     * stale page or a direct webservice call from slipping through.
+     *
+     * @return void
+     */
+    public function test_userdefined_second_slot_beyond_max_is_rejected(): void {
+        [$option, $userid] = $this->create_slot_option_with_config([
+            'slot_type' => 'userdefined',
+            'booking_interface' => 'calendar',
+            'slot_duration_minutes' => 45,
+            'slot_interval_minutes' => 15,
+            'slot_start_interval_minutes' => 15,
+            'slot_max_days_per_slot' => 1,
+            'opening_time' => '09:00',
+            'closing_time' => '17:00',
+            'valid_from' => strtotime('2050-01-07 00:00:00 UTC'),
+            'valid_until' => strtotime('2050-01-10 23:59:59 UTC'),
+            'days_of_week' => '1,2,3,4,5,6,7',
+            'max_participants_per_slot' => 5,
+            'max_slots_per_user' => 1,
+        ]);
+
+        // Derive the times from the option's own open days rather than hardcoding them: the
+        // opening hours are applied in the server timezone, so fixed UTC timestamps would land
+        // outside the opening window and trip an earlier validation branch instead.
+        $openday = $this->invoke_private_static(
+            slotbooking_form::class,
+            'get_custom_open_days',
+            [$option->id, $userid]
+        )[0];
+        $firststart = (int)$openday['openfrom'];
+
+        // The one slot the user is allowed to have.
+        $this->create_booked_slot_answer($option->id, $userid, $firststart, $firststart + 2700);
+        singleton_service::destroy_instance();
+
+        $form = new slotbooking_form(null, [], 'post', '', [], true, [
+            'id' => $option->id,
+            'userid' => $userid,
+        ], true);
+
+        // A second slot two hours later - free, and deliberately NOT overlapping the first one, so
+        // the only possible reason to reject it is the exhausted per-user slot allowance.
+        $secondstart = $firststart + 2 * HOURSECS;
+        $errors = $form->validation([
+            'id' => $option->id,
+            'userid' => $userid,
+            'slot_validation_error_target' => 'slot_calendar_ui',
+            'slot_custom_start' => $secondstart,
+            'slot_custom_duration' => 2700,
+        ], []);
+
+        $this->assertArrayHasKey('slot_calendar_ui', $errors);
+        $this->assertSame(
+            get_string('slot_error_max_slots_reached', 'mod_booking'),
+            $errors['slot_calendar_ui']
+        );
+    }
+
+    /**
      * A user can hold more than one active answer for the same option at once ("book again" /
      * multiplebookings, e.g. several separately purchased "phases" added to the cart one at a
      * time). Re-validating a selection spanning slots from *several* of the user's own answers

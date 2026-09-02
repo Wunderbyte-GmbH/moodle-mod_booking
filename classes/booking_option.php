@@ -4690,6 +4690,17 @@ class booking_option {
         // ... we have to make sure it's also deleted in the singleton service.
         singleton_service::destroy_booking_answers($optionid);
 
+        // The option list (local_wunderbyte_table) caches its rendered rows application-wide and
+        // only refreshes on this explicit event - without it, a row's button/availability state
+        // (e.g. "Book now" vs "Start") stays stale indefinitely, even across full page reloads.
+        cache_helper::purge_by_event('changesinwunderbytetable');
+
+        // Slot booking keeps its own per-request cache of booked ranges (populated by whatever
+        // availability check ran before this write - e.g. hard_block()/is_available() during the
+        // booking flow itself); it must be cleared here too, or a slot option's occupancy/count
+        // stays stale for the rest of this request after a book/cancel/waitlist-promote action.
+        slot_availability::clear_request_cache($optionid);
+
         // At the end, we re-write into singleton.
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
         singleton_service::get_instance_of_booking_answers($settings);

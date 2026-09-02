@@ -29,6 +29,7 @@ use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_option_settings;
 use mod_booking\local\modechecker;
 use mod_booking\option\fields\multiplebookings;
+use mod_booking\local\slotbooking\slot_availability;
 use mod_booking\singleton_service;
 use moodle_url;
 use MoodleQuickForm;
@@ -132,6 +133,18 @@ class alreadybooked implements bo_condition {
             $isavailable = true;
         }
 
+        // Slot booking capacity purchases are independent of multiplebookings: if the user still
+        // has remaining slot capacity (max_slots_per_user), this condition must not block either -
+        // otherwise load_pre_booking_page()'s "already booked" top-blocker gate silently swallows
+        // the commit (the confirmation page reports success without actually creating the answer).
+        if (
+            !empty($currentanswer)
+            && !empty($settings->slotconfig)
+            && slot_availability::has_remaining_slot_capacity((int)$settings->id, (int)$userid)
+        ) {
+            $isavailable = true;
+        }
+
         // If it's inversed, we inverse.
         if ($not) {
             $isavailable = !$isavailable;
@@ -167,22 +180,8 @@ class alreadybooked implements bo_condition {
      * @return bool
      */
     public function hard_block(booking_option_settings $settings, $userid): bool {
-        // Mirrors the slot-capacity step-back in get_description(): without this, the commit
-        // path (bo_info::get_condition_results() with hard-block on, see booking_bookit::bookit())
-        // stays blocked here even once get_description() already stepped ALREADYBOOKED back to
-        // INDIFFERENT, so clicking "Continue" for an additional slot silently no-ops instead of
-        // creating the new answer - and the post-click confirmation page shows a false "success"
-        // regardless, since it treats ALREADYBOOKED as a terminal/expected block.
-        if (
-            !empty($settings->slotconfig)
-            && \mod_booking\local\slotbooking\slot_availability::has_remaining_slot_capacity(
-                (int)$settings->id,
-                (int)$userid
-            )
-        ) {
-            return false;
-        }
-
+        // Only ever checked once is_available() has already returned false (see docblock above) -
+        // book_again_due() has already had its say there; nothing left to special-case here.
         return true;
     }
 
@@ -213,27 +212,21 @@ class alreadybooked implements bo_condition {
         // When self-service slot rebooking is available for this booked user, the slotmove
         // condition (higher id) owns the button + prepage. alreadybooked steps back to INDIFFERENT
         // so its JUSTMYALERT does not suppress the move prepage modal.
+        //
+        // Slot booking options keep the Continue button (and the merged multi-option calendar, if
+        // any) available for the whole life of the option, even once the user has an active answer
+        // and/or is not currently allowed to book again - the slotbooking condition's OWN
+        // validation() now enforces that (with a clear notification instead of a silent no-op), not
+        // this generic condition hiding the Continue button behind a flat "Booked" alert.
+        // Only step back when a rebookable answer actually exists - otherwise slotmove::is_available()
+        // never claims the button either (it stays INDIFFERENT too when there is nothing to rebook,
+        // see slot_mover::get_self_rebookable_answer()), and no condition is left to render the
+        // "already booked"/"Start" state at all - the row silently falls back to "Book now".
         if (
             !$isavailable
+            && \mod_booking\local\slotbooking\slot_mover::get_self_rebookable_answer((int)$settings->id, (int)$userid) !== null
         ) {
-            // Slot booking lets a user buy several separate slots for the same option, up to its own
-            // max_slots_per_user (e.g. purchasing distinct "phases" over time) - that is a capacity
-            // limit, independent of the generic (time-based) multiplebookings re-booking gate above.
-            // While capacity remains, step back to INDIFFERENT so the slotbooking condition owns the
-            // button/prepage again for the next purchase, instead of JUSTMYALERT permanently locking
-            // the option to "Booked" after the first slot.
-            if (
-                \mod_booking\local\slotbooking\slot_mover::get_self_rebookable_answer((int)$settings->id, (int)$userid) !== null ||
-                (
-                    !empty($settings->slotconfig) &&
-                    \mod_booking\local\slotbooking\slot_availability::has_remaining_slot_capacity(
-                        (int)$settings->id,
-                        (int)$userid
-                    )
-                )
-            ) {
-                return [$isavailable, $description, MOD_BOOKING_BO_PREPAGE_NONE, MOD_BOOKING_BO_BUTTON_INDIFFERENT];
-            }
+            return [$isavailable, $description, MOD_BOOKING_BO_PREPAGE_NONE, MOD_BOOKING_BO_BUTTON_INDIFFERENT];
         }
         return [$isavailable, $description, MOD_BOOKING_BO_PREPAGE_NONE, MOD_BOOKING_BO_BUTTON_JUSTMYALERT];
     }

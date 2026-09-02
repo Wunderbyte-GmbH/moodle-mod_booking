@@ -29,6 +29,7 @@ use context_system;
 use core_form\dynamic_form;
 use html_writer;
 use mod_booking\local\mobile\slotbookingstore;
+use mod_booking\bo_availability\conditions\cancelmyself;
 use mod_booking\local\slotbooking\slot_availability;
 use mod_booking\local\slotbooking\slot_dto;
 use mod_booking\singleton_service;
@@ -218,9 +219,20 @@ class slotbooking_form extends dynamic_form {
             $teachersrequired = 0;
         }
 
+        // Raw list of additional (merged-in) option ids from the slotbooking sidebar, before any
+        // per-slot-type gating. The fixed-type branch below only merges in calendar view mode (see
+        // its own comment); the userdefined branch always merges when this option is part of a
+        // multi-option sidebar at all, since it has no alternate list/selectgroups fallback picker
+        // whose "start:end" keys could collide across options.
+        $rawadditionaloptionids = self::get_additional_option_ids($formdata);
+
         // Build the canonical picker DTO once. $pickerslots is embedded verbatim for the JS picker
         // (Stufe 2, WS-identical payload), while $openslots is the flat shape the server-side
-        // selectgroups/empty-check consume.
+        // selectgroups/empty-check consume. Both stay scoped to the primary option only - the
+        // list/selectgroups fallback pickers below key each slot as "start:end" with no option
+        // prefix, so merging additional options into them would silently collide or drop entries
+        // between two options sharing a time range. Merging only happens for slot_calendar_data
+        // below, and only in the calendar view mode.
         $pickerslots = $slottype === 'userdefined' ? [] : slot_dto::build_picker_slots($optionid, $userid);
         $openslots = self::to_open_slots($pickerslots);
 
@@ -269,7 +281,18 @@ class slotbooking_form extends dynamic_form {
             $mform->setType('slot_custom_duration', PARAM_INT);
             $mform->setDefault('slot_custom_duration', self::get_default_custom_duration($config, $durationoptions));
 
+            // Multi-option merge (from the slotbooking sidebar): each merged option gets its own
+            // open-day entries (own opening hours/duration options/capacity/bookedranges), tagged
+            // with optionid so the JS's sidebar can switch which one is active. Each day's
+            // bookedranges stay scoped to that SAME option only (see get_custom_open_days()) - a
+            // booking on one merged option must not appear on another merged option's timeline,
+            // they are separate bookable things that merely happen to share this sidebar. This is
+            // deliberately not gated on $viewmode (see the $rawadditionaloptionids comment above).
             $customdays = self::get_custom_open_days($optionid, $userid);
+            foreach ($rawadditionaloptionids as $additionaloptionid) {
+                $customdays = array_merge($customdays, self::get_custom_open_days($additionaloptionid, $userid));
+            }
+
             $mform->addElement('hidden', 'slot_calendar_data', json_encode($customdays));
             $mform->setType('slot_calendar_data', PARAM_RAW_TRIMMED);
 
@@ -281,11 +304,11 @@ class slotbooking_form extends dynamic_form {
 
             $calendarcontainer = html_writer::div('', 'booking-slot-calendar-picker', [
                 'data-region' => 'slot-calendar-picker',
-                'style' => 'flex:1 1 36rem; min-width:36rem; width:100%; max-width:100%;',
+                'style' => 'flex:1 1 36rem; min-width:0; width:100%; max-width:100%;',
             ]);
             $customeditorcontainer = html_writer::div('', 'booking-slot-custom-editor', [
                 'data-region' => 'slot-custom-editor',
-                'style' => 'flex:1 1 22rem; min-width:22rem; width:100%; max-width:100%;',
+                'style' => 'flex:1 1 22rem; min-width:0; width:100%; max-width:100%;',
             ]);
 
             $calendarwrapper = html_writer::div(
@@ -300,11 +323,30 @@ class slotbooking_form extends dynamic_form {
             return;
         }
 
+        // Multi-option merge (from the slotbooking sidebar) only applies to the calendar view mode -
+        // see the scoping note above.
+        $additionaloptionids = $viewmode === 'calendar' ? $rawadditionaloptionids : [];
+        $calendarslots = $pickerslots;
+        foreach ($additionaloptionids as $additionaloptionid) {
+            $calendarslots = array_merge($calendarslots, slot_dto::build_picker_slots($additionaloptionid, $userid));
+        }
+
         // Stufe 2: embed the selectable-slot snapshot so the picker JS reads it from the form instead
         // of calling the get_slots webservice. Same field name as the userdefined custom-day calendar
-        // so the JS reads a single hidden field; payload is byte-identical to what get_slots returns.
-        $mform->addElement('hidden', 'slot_calendar_data', json_encode($pickerslots));
+        // so the JS reads a single hidden field; payload is byte-identical to what get_slots returns
+        // for a single option, and additionally carries every merged-in option's slots when applicable.
+        $mform->addElement('hidden', 'slot_calendar_data', json_encode($calendarslots));
         $mform->setType('slot_calendar_data', PARAM_RAW_TRIMMED);
+
+        // Gate on $calendarslots (a superset of $openslots once merged) instead of $openslots alone,
+        // so a primary option with no open slots of its own doesn't hide an otherwise-open merged
+        // calendar.
+        if (empty($calendarslots)) {
+            $mform->addElement('static', 'slot_selection_info', '', get_string('slot_no_open_slots', 'mod_booking'));
+            $mform->addElement('hidden', 'slot_selection', '');
+            $mform->setType('slot_selection', PARAM_TEXT);
+            return;
+        }
 
         if (empty($openslots)) {
             $mform->addElement('static', 'slot_selection_info', '', get_string('slot_no_open_slots', 'mod_booking'));
@@ -321,11 +363,11 @@ class slotbooking_form extends dynamic_form {
 
             $calendarcontainer = html_writer::div('', 'booking-slot-calendar-picker', [
                 'data-region' => 'slot-calendar-picker',
-                'style' => 'flex:1 1 36rem; min-width:36rem; width:100%; max-width:100%;',
+                'style' => 'flex:1 1 36rem; min-width:0; width:100%; max-width:100%;',
             ]);
             $fixededitorcontainer = html_writer::div('', 'booking-slot-fixed-editor', [
                 'data-region' => 'slot-fixed-editor',
-                'style' => 'flex:1 1 22rem; min-width:22rem; width:100%; max-width:100%;',
+                'style' => 'flex:1 1 22rem; min-width:0; width:100%; max-width:100%;',
             ]);
 
             $calendarwrapper = html_writer::div(
@@ -333,6 +375,7 @@ class slotbooking_form extends dynamic_form {
                 'd-flex flex-column flex-lg-row flex-wrap align-items-start gap-3',
                 [
                     'style' => 'width:100%;',
+                    'data-region' => 'slot-calendar-wrapper',
                 ]
             );
             $mform->addElement('static', 'slot_calendar_ui', get_string('slot_selection', 'mod_booking'), $calendarwrapper);
@@ -379,13 +422,19 @@ class slotbooking_form extends dynamic_form {
             $errortarget = 'slot_selection';
         }
 
-        $maxslots = max(1, (int)($data['slot_max_selection'] ?? 1));
-
         $optionid = (int)($data['id'] ?? 0);
         $userid = (int)($data['userid'] ?? 0);
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
         $config = $settings->slotconfig ?? null;
         $slottype = (string)($config->slot_type ?? 'fixed');
+
+        // Recomputed from $optionid's OWN config rather than trusting the submitted
+        // slot_max_selection hidden field: that field only ever reflects the PRIMARY option's limit
+        // (set once when the form first loads - see definition()). $optionid here already correctly
+        // reflects the switched-to option (see setActiveOptionId in condition/slotBooking.js), so
+        // deriving the cap from its own config keeps server-side validation in sync with whichever
+        // option is actually being booked.
+        $maxslots = max(1, (int)($config->max_slots_per_user ?? 1));
 
         // Re-validating a selection already persisted as the user's own answer (e.g. after it
         // was added to the shopping cart) must not count that answer as an occupant against
@@ -416,6 +465,21 @@ class slotbooking_form extends dynamic_form {
 
             if (!slot_availability::is_within_slot_openings($optionid, $start, $end)) {
                 $errors[$errortarget] = get_string('slot_error_selected_unavailable', 'mod_booking');
+                return $errors;
+            }
+
+            // The slotbooking calendar/Continue button now stays available for the WHOLE life of a
+            // slot option (see alreadybooked::get_description()'s slotconfig bypass) - this is the
+            // place that actually enforces whether a new booking round is allowed at all. Slots the
+            // user already owns don't count as "new" (has_capacity_for_selection() excludes them),
+            // so re-validating an already-booked/cached selection never trips this - only a
+            // genuinely additional slot beyond max_slots_per_user does. Without this, an exhausted
+            // extra booking would sail through validation() (evaluate_slot_for_user() itself does
+            // not check this at all) all the way to book_user_on_option() (booking_option.php),
+            // which then silently no-ops instead of ever creating an answer - the user would see a
+            // "successful" confirmation for a booking that never actually happened.
+            if (!slot_availability::has_capacity_for_selection($optionid, $userid, [$start . ':' . $end])) {
+                $errors[$errortarget] = get_string('slot_error_max_slots_reached', 'mod_booking');
                 return $errors;
             }
 
@@ -476,6 +540,12 @@ class slotbooking_form extends dynamic_form {
         // check alone would not catch them overlapping each other.
         if (slot_availability::ranges_overlap_internally($parsedranges)) {
             $errors[$errortarget] = get_string('slot_error_selection_overlap', 'mod_booking');
+            return $errors;
+        }
+
+        // Same capacity gate as the userdefined branch above - see its comment.
+        if (!slot_availability::has_capacity_for_selection($optionid, $userid, $entries)) {
+            $errors[$errortarget] = get_string('slot_error_max_slots_reached', 'mod_booking');
             return $errors;
         }
 
@@ -603,6 +673,35 @@ class slotbooking_form extends dynamic_form {
     }
 
     /**
+     * Parse the additional option ids passed in from the multi-option slotbooking sidebar.
+     *
+     * Contract with the JS side (amd/src/condition/slotBooking.js): the DynamicForm's ajaxformdata
+     * carries an "additionalids" entry - a JSON-encoded array of option ids - alongside the existing
+     * "id"/"userid" entries, whenever the container has more than one option id (see the
+     * data-optionids attribute on templates/condition/slotbooking.mustache).
+     *
+     * @param array $formdata dynamic form ajaxformdata
+     * @return int[]
+     */
+    private static function get_additional_option_ids(array $formdata): array {
+        $raw = (string)($formdata['additionalids'] ?? '');
+        if ($raw === '') {
+            return [];
+        }
+
+        $decoded = json_decode($raw, true);
+        if (!is_array($decoded)) {
+            return [];
+        }
+
+        return array_values(array_unique(array_filter(
+            array_map('intval', $decoded),
+            fn($id) => $id > 0
+        )));
+    }
+
+
+    /**
      * Build allowed duration options for user-defined slots.
      *
      * @param object|null $config
@@ -694,6 +793,24 @@ class slotbooking_form extends dynamic_form {
         $capacity = max(1, (int)($config->max_participants_per_slot ?? 1));
         $mindurationseconds = max(1, (int)($config->slot_interval_minutes ?? 60)) * MINSECS;
         $stepseconds = max(1, (int)($config->slot_start_interval_minutes ?? 30)) * MINSECS;
+        // Each merged option can allow different durations (own min/max/step) - carried on every
+        // day entry so the JS can rebuild the duration <select> for whichever option the user
+        // actually picks in the multi-option chooser below, instead of leaving it stuck on
+        // whatever the PRIMARY option's own duration options happened to be.
+        $durationoptions = self::get_custom_duration_options($config);
+        $defaultduration = self::get_default_custom_duration($config, $durationoptions);
+
+        // Whether THIS option can currently be cancelled by the user, and its own booking page -
+        // both per-option (not per-day), computed once here. Lets the JS show a clickable "Booked"
+        // link on the user's own booked range in the timeline, mirroring
+        // slot_dto::build_picker_slots()'s manageurl for the fixed-type grid.
+        $cancelable = !cancelmyself::apply_coolingoff_period($settings, $userid)
+            && !(new cancelmyself())->is_available($settings, $userid);
+        $manageurl = (new moodle_url(
+            '/mod/booking/optionview.php',
+            ['cmid' => $settings->cmid, 'optionid' => $optionid]
+        ))->out(false);
+
         $days = [];
         $daycursor = strtotime('midnight', $rangestart);
 
@@ -718,6 +835,24 @@ class slotbooking_form extends dynamic_form {
 
             $openfrom = max($openfrom, $rangestart);
             $openuntil = min($openuntil, $rangeend);
+
+            // The $rangestart ("now", for today) can land on this day's openfrom with arbitrary
+            // seconds (whatever second time() returned) instead of a clean interval boundary.
+            // validation() requires every submitted start to be exactly
+            // "$dayopening + k * startintervalseconds" (see the userdefined branch there) - an
+            // unaligned openfrom here would make the very FIRST selectable moment of TODAY always
+            // fail that check, even though evaluate_slot_for_user() itself has no problem with it.
+            // Snap forward to the next valid boundary.
+            $dayopeningforalignment = $daycursor + $openingseconds;
+            if ($openfrom > $dayopeningforalignment) {
+                $stepsfromopening = (int)ceil(($openfrom - $dayopeningforalignment) / $stepseconds);
+                $openfrom = $dayopeningforalignment + ($stepsfromopening * $stepseconds);
+            }
+
+            if ($openuntil <= $openfrom) {
+                $daycursor += DAYSECS;
+                continue;
+            }
 
             $bookable = false;
             for ($candidate = $openfrom; $candidate + $mindurationseconds <= $openuntil; $candidate += $stepseconds) {
@@ -744,14 +879,28 @@ class slotbooking_form extends dynamic_form {
                 $daycursor + DAYSECS,
                 $userid
             );
+            $bookedranges = array_map(static function (array $range) use ($cancelable, $manageurl): array {
+                if (!empty($range['mine'])) {
+                    $range['manageurl'] = $cancelable ? $manageurl : '';
+                }
+                return $range;
+            }, $bookedranges);
             $days[] = [
-                'key' => (string)$daycursor,
+                // Prefixed with optionid: with a merged sidebar, two different options can each
+                // have an entry for the same calendar date - the day-grouping in the JS keys purely
+                // by calendar date (see toDayKey()), so a shared key here is not itself a problem,
+                // but keeping it unique avoids surprises in any code that maps by 'key'.
+                'key' => $optionid . ':' . $daycursor,
+                'optionid' => $optionid,
+                'optionname' => format_string($settings->text ?? ''),
                 'start' => $daycursor,
                 'end' => $daycursor + DAYSECS,
                 'daylabel' => slot_dto::day_label($daycursor),
                 'timelabel' => slot_dto::time_range_label($openfrom, $openuntil),
                 'openfrom' => $openfrom,
                 'openuntil' => $openuntil,
+                'durationoptions' => $durationoptions,
+                'defaultduration' => $defaultduration,
                 'startintervalminutes' => max(1, (int)($config->slot_start_interval_minutes ?? 30)),
                 'bookable' => 1,
                 'capacity' => $capacity,
