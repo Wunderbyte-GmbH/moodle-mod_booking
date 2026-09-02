@@ -1,0 +1,54 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_booking/bookingoption_description_slotoverview
+
+    Data carrier for the read-only slot availability overview. Renders NO visible markup.
+
+    A user who has used up max_slots_per_user is blocked from the booking button, and with it from
+    the slot picker - which is otherwise the only place the option's remaining availability is ever
+    shown. This embeds that option's slots so clicking the "Booked" status bar can open them in a
+    modal (see mod_booking/slotbooking/slot_overview_modal).
+
+    The list is deliberately NOT rendered here: it is drawn by the same JS renderer the booking
+    picker uses (slotbooking/slot_day_renderers renderSlotList), so the day grouping and the row
+    markup exist exactly once and the two lists cannot drift apart.
+
+    Context variables required for this template:
+    * slotoverviewexist - Whether there is anything to embed. Nothing renders when falsy.
+    * slotoverviewoptionid - The option these slots belong to; the trigger is matched to it via the
+      data-itemid on .booking-button-area, so several options on one page stay independent.
+    * slotoverviewjson - JSON-encoded array of slot DTOs (slot_dto::build_picker_slots()).
+
+    Example context (json):
+    {
+        "slotoverviewexist": true,
+        "slotoverviewoptionid": 5140,
+        "slotoverviewjson": "[{\"key\":\"1788357600:1788359400\",\"start\":1788357600,\"end\":1788359400,\"daylabel\":\"Thursday, 3 September 2026\",\"timelabel\":\"9:00 AM - 9:40 AM\",\"status\":\"open\"}]"
+    }
+}}
+{{#slotoverviewexist}}
+    <div data-region="slot-overview-source"
+         data-optionid="{{slotoverviewoptionid}}"
+         data-slots="{{slotoverviewjson}}"
+         hidden></div>
+    {{#js}}
+        require(['mod_booking/slotbooking/slot_overview_modal'], function(module) {
+            module.init();
+        });
+    {{/js}}
+{{/slotoverviewexist}}
