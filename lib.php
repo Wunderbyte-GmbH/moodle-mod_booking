@@ -835,12 +835,13 @@ function booking_add_instance($booking) {
 
     $booking->timemodified = time();
 
-    // Nothing (or an empty selection) given: fall back to the defaults, an empty
-    // string would render the manage responses page without any standard columns.
-    $booking->responsesfields = booking_normalize_fieldlist(
-        $booking->responsesfields ?? null,
-        MOD_BOOKING_RESPONSES_DEFAULTFIELDS
-    );
+    if (isset($booking->responsesfields) && is_array($booking->responsesfields) && count($booking->responsesfields) > 0) {
+        $booking->responsesfields = implode(',', $booking->responsesfields);
+    } else if (empty($booking->responsesfields)) {
+        // Nothing (or an empty selection) given: fall back to the defaults, an empty
+        // string would render the manage responses page without any standard columns.
+        $booking->responsesfields = MOD_BOOKING_RESPONSES_DEFAULTFIELDS;
+    }
 
     if (isset($booking->additionalfields) && is_array($booking->additionalfields) && count($booking->additionalfields) > 0) {
         $booking->additionalfields = implode(',', $booking->additionalfields);
@@ -866,24 +867,43 @@ function booking_add_instance($booking) {
         $booking->timeopen = $booking->timeclose = 0;
     }
 
-    $booking->showviews = booking_normalize_fieldlist($booking->showviews ?? null, MOD_BOOKING_SHOWVIEWS_DEFAULTFIELDS);
+    if (isset($booking->showviews) && is_array($booking->showviews) && count($booking->showviews) > 0) {
+        $booking->showviews = implode(',', $booking->showviews);
+    } else if (empty($booking->showviews)) {
+        $booking->showviews = MOD_BOOKING_SHOWVIEWS_DEFAULTFIELDS;
+    }
 
-    $booking->reportfields = booking_normalize_fieldlist($booking->reportfields ?? null, MOD_BOOKING_REPORT_DEFAULTFIELDS);
+    if (isset($booking->reportfields) && is_array($booking->reportfields) && count($booking->reportfields) > 0) {
+        $booking->reportfields = implode(',', $booking->reportfields);
+    } else if (empty($booking->reportfields)) {
+        $booking->reportfields = MOD_BOOKING_REPORT_DEFAULTFIELDS;
+    }
 
-    $booking->optionsfields = booking_normalize_fieldlist(
-        $booking->optionsfields ?? null,
-        MOD_BOOKING_BOOKINGOPTION_DEFAULTFIELDS
-    );
+    if (isset($booking->optionsfields) && is_array($booking->optionsfields) && count($booking->optionsfields) > 0) {
+        $booking->optionsfields = implode(',', $booking->optionsfields);
+    } else if (empty($booking->optionsfields)) {
+        $booking->optionsfields = MOD_BOOKING_BOOKINGOPTION_DEFAULTFIELDS;
+    }
 
-    $booking->optionsdownloadfields = booking_normalize_fieldlist(
-        $booking->optionsdownloadfields ?? null,
-        MOD_BOOKING_BOOKINGOPTION_DEFAULTFIELDS
-    );
+    if (
+        isset($booking->optionsdownloadfields)
+        && is_array($booking->optionsdownloadfields)
+        && count($booking->optionsdownloadfields) > 0
+    ) {
+        $booking->optionsdownloadfields = implode(',', $booking->optionsdownloadfields);
+    } else if (empty($booking->optionsdownloadfields)) {
+        $booking->optionsdownloadfields = MOD_BOOKING_BOOKINGOPTION_DEFAULTFIELDS;
+    }
 
-    $booking->signinsheetfields = booking_normalize_fieldlist(
-        $booking->signinsheetfields ?? null,
-        MOD_BOOKING_SIGNINSHEET_DEFAULTFIELDS
-    );
+    if (
+        isset($booking->signinsheetfields)
+        && is_array($booking->signinsheetfields)
+        && count($booking->signinsheetfields) > 0
+    ) {
+        $booking->signinsheetfields = implode(',', $booking->signinsheetfields);
+    } else if (empty($booking->signinsheetfields)) {
+        $booking->signinsheetfields = MOD_BOOKING_SIGNINSHEET_DEFAULTFIELDS;
+    }
 
     // Copy the text fields out.
     $booking->bookedtext = $booking->bookedtext['text'] ?? $booking->bookedtext ?? null;
@@ -1108,26 +1128,24 @@ function booking_update_instance($booking) {
         $booking->showviews = '';
     }
 
-    // Only touch the field lists that were actually submitted: a property left unset means
-    // the element was not part of the form, so update_record() keeps the stored value.
-    // An explicitly empty selection falls back to the defaults, an empty string would
-    // render the manage responses page without any standard columns.
-    if (isset($booking->responsesfields)) {
-        $booking->responsesfields = booking_normalize_fieldlist(
-            $booking->responsesfields,
-            MOD_BOOKING_RESPONSES_DEFAULTFIELDS
-        );
+    if (isset($booking->responsesfields) && is_array($booking->responsesfields) && count($booking->responsesfields) > 0) {
+        $booking->responsesfields = implode(',', $booking->responsesfields);
+    } else if (isset($booking->responsesfields) && empty($booking->responsesfields)) {
+        // An explicitly empty selection falls back to the defaults, an empty string
+        // would render the manage responses page without any standard columns.
+        $booking->responsesfields = MOD_BOOKING_RESPONSES_DEFAULTFIELDS;
     }
 
-    if (isset($booking->reportfields)) {
-        $booking->reportfields = booking_normalize_fieldlist($booking->reportfields, MOD_BOOKING_REPORT_DEFAULTFIELDS);
+    if (isset($booking->reportfields) && is_array($booking->reportfields) && count($booking->reportfields) > 0) {
+        $booking->reportfields = implode(',', $booking->reportfields);
+    } else if (isset($booking->reportfields) && empty($booking->reportfields)) {
+        $booking->reportfields = MOD_BOOKING_REPORT_DEFAULTFIELDS;
     }
 
-    if (isset($booking->signinsheetfields)) {
-        $booking->signinsheetfields = booking_normalize_fieldlist(
-            $booking->signinsheetfields,
-            MOD_BOOKING_SIGNINSHEET_DEFAULTFIELDS
-        );
+    if (isset($booking->signinsheetfields) && is_array($booking->signinsheetfields) && count($booking->signinsheetfields) > 0) {
+        $booking->signinsheetfields = implode(',', $booking->signinsheetfields);
+    } else if (isset($booking->signinsheetfields) && empty($booking->signinsheetfields)) {
+        $booking->signinsheetfields = MOD_BOOKING_SIGNINSHEET_DEFAULTFIELDS;
     }
 
     if (empty($booking->templateid)) {
@@ -1142,15 +1160,21 @@ function booking_update_instance($booking) {
         $booking->iselective = !empty($booking->iselective) ? $booking->iselective : 0;
     }
 
-    $booking->optionsfields = booking_normalize_fieldlist(
-        $booking->optionsfields ?? null,
-        MOD_BOOKING_BOOKINGOPTION_DEFAULTFIELDS
-    );
+    if (isset($booking->optionsfields) && is_array($booking->optionsfields) && count($booking->optionsfields) > 0) {
+        $booking->optionsfields = implode(',', $booking->optionsfields);
+    } else if (empty($booking->optionsfields)) {
+        $booking->optionsfields = MOD_BOOKING_BOOKINGOPTION_DEFAULTFIELDS;
+    }
 
-    $booking->optionsdownloadfields = booking_normalize_fieldlist(
-        $booking->optionsdownloadfields ?? null,
-        MOD_BOOKING_BOOKINGOPTION_DEFAULTFIELDS
-    );
+    if (
+        isset($booking->optionsdownloadfields)
+        && is_array($booking->optionsdownloadfields)
+        && count($booking->optionsdownloadfields) > 0
+    ) {
+        $booking->optionsdownloadfields = implode(',', $booking->optionsdownloadfields);
+    } else if (empty($booking->optionsdownloadfields)) {
+        $booking->optionsdownloadfields = MOD_BOOKING_BOOKINGOPTION_DEFAULTFIELDS;
+    }
 
     if (isset($booking->categoryid) && is_array($booking->categoryid) && count($booking->categoryid) > 0) {
         $booking->categoryid = implode(',', $booking->categoryid);

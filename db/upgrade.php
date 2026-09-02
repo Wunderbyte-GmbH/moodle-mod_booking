@@ -5820,5 +5820,19 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2026083106, 'booking');
     }
 
+    if ($oldversion < 2026082807) {
+        // Waitlist-progression: Typ 2 ("offen nach Durchlauf", waitlistrecycling=2) - runtime
+        // flag, set/cleared exclusively by waitlist_heartbeat_task, see
+        // db_waitlist_offer_repository::is_open_mode_active()/activate_open_mode()/
+        // deactivate_open_mode().
+        $table = new xmldb_table('booking_options');
+        $field = new xmldb_field('waitlistopenmode', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        upgrade_mod_savepoint(true, 2026082807, 'booking');
+    }
+
     return true;
 }
