@@ -84,4 +84,12 @@ $tasks = [
         'dayofweek' => '*',
         'month' => '*',
     ],
+    ['classname' => 'mod_booking\task\waitlist_heartbeat_task',
+        'blocking' => 0,
+        'minute' => '*/5',
+        'hour' => '*',
+        'day' => '*',
+        'dayofweek' => '*',
+        'month' => '*',
+    ],
 ];

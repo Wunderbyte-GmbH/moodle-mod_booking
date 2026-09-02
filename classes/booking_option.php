@@ -41,8 +41,8 @@ use local_entities\entitiesrelation_handler;
 use mod_booking\local\entities_compat;
 use mod_booking\bo_availability\conditions\customform;
 use mod_booking\bo_availability\conditions\slotbooking;
-use mod_booking\local\slotbooking\slot_availability;
 use mod_booking\local\waitinglist\waitinglist_sync_status;
+use mod_booking\local\slotbooking\slot_availability;
 use mod_booking\event\booking_debug;
 use mod_booking\event\booking_rulesexecutionfailed;
 use mod_booking\event\bookinganswer_movedupfromwaitinglist;
@@ -1190,8 +1190,15 @@ class booking_option {
                 - booking_answers::count_places($ba->get_usersonlist())
                 - booking_answers::count_places($ba->get_usersreserved());
 
-            // We want to enrol people who have been waiting longer first.
-            usort($usersonwaitinglist, fn($a, $b) => $a->timemodified < $b->timemodified ? -1 : 1);
+            // We want to enrol people who have been waiting longer first. Tie-break on the
+            // answer id (ascending), mirroring select_student_in_bo.php's SQL sort - a bare
+            // "< ? -1 : 1" comparator lies about equal elements (returns 1 instead of 0),
+            // which can reorder genuinely tied waiting-list entries (see O2 in
+            // WAITLIST_REFACTOR_REQUIREMENTS_2026-08-04.md).
+            usort(
+                $usersonwaitinglist,
+                fn($a, $b) => ($a->timemodified <=> $b->timemodified) ?: ($a->baid <=> $b->baid)
+            );
             if ($noofuserstobook > 0 && !empty($ba->get_usersonwaitinglist())) {
                 // We delete the booking answers cache - because settings (limits, etc.) could be changed!
                 self::purge_cache_for_answers($this->optionid);
@@ -1274,7 +1281,12 @@ class booking_option {
             if (waitinglist_sync_status::reduction_gate_open($optionupdated, $context)) {
                 // 2. Update and inform users who have been put on the waiting list because of changed limits.
                 $usersonlist = array_merge($ba->get_usersonlist(), $ba->get_usersreserved());
-                usort($usersonlist, fn($a, $b) => $a->timemodified < $b->timemodified ? -1 : 1);
+                // Same tie-break fix as phase 1 above (O2): compare by baid when tied instead
+                // of silently reordering equal-timemodified entries.
+                usort(
+                    $usersonlist,
+                    fn($a, $b) => ($a->timemodified <=> $b->timemodified) ?: ($a->baid <=> $b->baid)
+                );
                 // We delete the booking answers cache - because settings (limits, etc.) could be changed!
                 self::purge_cache_for_answers($this->optionid);
 
@@ -1733,6 +1745,26 @@ class booking_option {
                 $event->trigger();
             }
 
+            if (
+                $waitinglist == MOD_BOOKING_STATUSPARAM_BOOKED
+                && (
+                    !empty($answersonwaitinglist[$user->id])
+                    || !empty($bookinganswers->get_usersreserved()[$user->id])
+                )
+            ) {
+                // Waitlist-progression refactoring (Phase 3): the person just completed their
+                // booking from the waiting list - accept their open offer, if the new mechanism
+                // has one for them. Must also cover the standard shopping_cart 2-step flow
+                // (WAITINGLIST -> RESERVED -> BOOKED): by the time this final BOOKED write
+                // happens, the candidate has already left the "usersonwaitinglist" bucket for
+                // "usersreserved" - checking only the former silently left their
+                // booking_waitlist_offers row stuck at "offered" forever, permanently
+                // undercounting capacity_calculator::free_capacity() for this option (found
+                // 2026-08-26 while rewriting booking_waitinglist_confirmation_test.php for the
+                // new architecture).
+                \mod_booking\event\observer\booking_accepted_waitlist_adapter::accept($this->optionid, $user->id);
+            }
+
             $baid = self::write_user_answer_to_db(
                 $this->booking->id,
                 $frombookingid,
@@ -1793,6 +1825,11 @@ class booking_option {
         We keep this here (not in write_user_answer_to_db) to avoid retrigger loops
         from automatic UN_CONFIRM updates during task processing. */
         if ($status === MOD_BOOKING_BO_SUBMIT_STATUS_UN_CONFIRM) {
+            // Waitlist-progression refactoring (Phase 3): decline BEFORE check_if_free_to_book_again()
+            // below triggers reconcile() (via freetobookagain_waitlist_adapter) - K7 must lock this
+            // user out before the reconciler looks for the next candidate.
+            \mod_booking\event\observer\unconfirm_waitlist_adapter::decline($this->optionid, $user->id);
+
             self::check_if_free_to_book_again($this->settings, $user->id, true);
         }
 
@@ -2118,6 +2155,21 @@ class booking_option {
                     $currentanswer->timecreated
                 );
 
+                // Waitlist-progression refactoring (Phase 3): this is the RESERVED -> BOOKED
+                // transition used by the standard shopping_cart checkout flow (reserve on
+                // add-to-cart, confirm here on payment) - it never goes through
+                // user_submit_response(), so the equivalent accept-adapter call has to live here
+                // too. A no-op if the user has no open offer under the new mechanism. Without
+                // this, a real, paid waitlist booking completed via the cart left its
+                // booking_waitlist_offers row stuck at "offered" forever, permanently
+                // undercounting capacity_calculator::free_capacity() for this option (found
+                // 2026-08-26 while rewriting booking_waitinglist_confirmation_test.php for the
+                // new architecture).
+                \mod_booking\event\observer\booking_accepted_waitlist_adapter::accept(
+                    $currentanswer->optionid,
+                    $currentanswer->userid
+                );
+
                 $counter++;
             }
         }
@@ -2225,6 +2277,10 @@ class booking_option {
                 ]
             );
             $event->trigger();
+            // T5: reconcile immediately in case capacity happens to already be free right now
+            // (waitforconfirmation routes everyone onto the waitinglist unconditionally). Without
+            // this, only waitlist_heartbeat_task (T7, up to ~15 min delay) would pick it up.
+            \mod_booking\event\observer\latejoiner_waitlist_adapter::reconcile($this->optionid);
         } else {
             $event = event\bookingoption_booked::create(
                 ['objectid' => $this->optionid,
@@ -5480,6 +5536,10 @@ class booking_option {
                     'userid' => $userid, // The user who did cancel.
                 ]);
                 $event->trigger();
+
+                // Waitlist-progression refactoring (Phase 3): drive the new reconciler directly -
+                // the event above stays for backward compatibility, it is no longer the transport.
+                \mod_booking\event\observer\freetobookagain_waitlist_adapter::reconcile($optionid);
             }
         }
     }
