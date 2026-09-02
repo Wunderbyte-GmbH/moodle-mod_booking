@@ -32,6 +32,7 @@ use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_answers\booking_answers;
 use mod_booking\booking_option_settings;
 use mod_booking\local\confirmationworkflow\confirmation;
+use mod_booking\local\waitlist\db_waitlist_offer_repository;
 use mod_booking\singleton_service;
 use MoodleQuickForm;
 
@@ -135,6 +136,15 @@ class onwaitinglist implements bo_condition {
                 // If there are places free, we might want to allow booking.
                 // Either when we don't need confirmation.
                 if (empty($settings->waitforconfirmation)) {
+                    $isavailable = true;
+                } else if (
+                    (new db_waitlist_offer_repository())->is_open_mode_active($bookinganswer->optionid)
+                    && !(new db_waitlist_offer_repository())->is_actively_declined($bookinganswer->optionid, $userid)
+                ) {
+                    // Type 2 ("open after full pass", waitlistrecycling=2): the waiting list has
+                    // been fully processed once without the freed-up spot being claimed - from
+                    // now on anyone (except permanently K7-blocked users) may book directly,
+                    // regardless of a still-missing approval/confirmation.
                     $isavailable = true;
                 } else if (!empty($ba->json)) {
                     // Or when confirmation is already given. Get number of current confirmations then compare it

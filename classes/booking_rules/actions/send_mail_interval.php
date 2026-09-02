@@ -18,7 +18,6 @@ namespace mod_booking\booking_rules\actions;
 
 use mod_booking\booking_rules\booking_rule_action;
 use mod_booking\placeholders\placeholders_info;
-use mod_booking\task\send_mail_by_rule_adhoc;
 use MoodleQuickForm;
 use stdClass;
 
@@ -52,9 +51,6 @@ class send_mail_interval implements booking_rule_action {
 
     /** @var int $interval is set in minutes */
     public $interval = 0;
-
-    /** @var int $counter */
-    public $counter = 0;
 
     /**
      * Load json data from DB into the object.
@@ -187,93 +183,19 @@ class send_mail_interval implements booking_rule_action {
 
     /**
      * Execute the action.
-     * The stdclass has to have the keys userid, optionid & cmid & nextruntime.
+     *
+     * Deliberately a no-op since the waitlist-progression refactoring (Phase 3,
+     * WAITLIST_REFACTOR_BLUEPRINT_2026-08-04.md §2.5): this action's only remaining role is as a
+     * configuration source (interval/subject/template, read via rule_condition_checker and
+     * progression's own offer_interval_seconds()/messaging_gateway) - the actual offering and
+     * mailing now happens through progression::reconcile(), driven by the trigger adapters in
+     * classes/event/observer/, not through this rule-engine dispatch path anymore. Kept as a
+     * no-op rather than removed because booking_rule_action::execute() is a required interface
+     * method and rule_react_on_event's dispatch still calls it for every matching candidate.
+     *
      * @param stdClass $record
      */
     public function execute(stdClass $record) {
-        global $DB;
-
-        // This will be potentially run multiple times in a loop.
-        // The first time, we just want to send the normal mail.
-        // But we need to give the task already the information that we want to repeat this.
-        // And we need to store the information, to which user we have sent this information already.
-        // Then we abort.
-        // When the same action is run again, we will see the information that this is a rerun.
-        // We check if the currently to treat record was already treated (user 1 on waintinlist might still be user one).
-        // If that's the case, we skip it.
-        // We send message to next user.
-
-        $interval = $this->interval;
-
-        $nextruntime = $record->nextruntime;
-
-        $jsonobject = json_decode($this->rulejson);
-        $repeat = 0;
-
-        if (!isset($jsonobject->intervaldata)) {
-            $jsonobject->intervaldata = (object)[
-                'nextruntime' => $nextruntime,
-                'usersalreadytreated' => [],
-                'interval' => $interval,
-            ];
-        } else {
-            // If we are dealing with an interval execution...
-            // We first check if the current user has already been treated.
-            // If so, we abort.
-            if (in_array($record->userid, $jsonobject->intervaldata->usersalreadytreated)) {
-                return;
-            }
-        }
-
-        if ($this->counter === 0) {
-            // If it's a new user, we store the information.
-            $jsonobject->intervaldata->usersalreadytreated[] = $record->userid;
-            $userid = $record->userid;
-        } else if ($this->counter === 1) {
-            // If this is the second user, we set the repeat flag.
-            $repeat = 1;
-            // The next execution will be delayed.
-            $nextruntime = $nextruntime + $interval * 60;
-        } else if ($this->counter > 1) {
-            return;
-        }
-
-        $this->rulejson = json_encode($jsonobject);
-
-        $this->counter++;
-
-        // Create adhioc to set confirmation settings for the booking answer record.
-        $action = new confirm_bookinganswer();
-        $action->set_next_runtime_for_adhoc($nextruntime);
-        $action->set_ruleid($this->ruleid);
-        $action->execute($record);
-
-        // Create adhoc for sending email.
-        $task = new send_mail_by_rule_adhoc();
-        $taskdata = [
-            // We need the JSON, so we can check if the rule still applies...
-            // ...on task execution.
-            'rulename' => $record->rulename,
-            'ruleid' => $this->ruleid,
-            'rulejson' => $this->rulejson,
-            'userid' => $record->userid,
-            'optionid' => $record->optionid,
-            'cmid' => $record->cmid,
-            'customsubject' => $this->subject,
-            'custommessage' => $this->template,
-            'repeat' => $repeat,
-        ];
-        // Only add the optiondateid if it is set.
-        // We need it for session reminders.
-        if (!empty($record->optiondateid)) {
-            $taskdata['optiondateid'] = $record->optiondateid;
-        }
-        $task->set_custom_data($taskdata);
-        $task->set_userid($record->userid);
-
-        $task->set_next_run_time($nextruntime);
-
-        // Now queue the task or reschedule it if it already exists (with matching data).
-        \core\task\manager::reschedule_or_queue_adhoc_task($task);
+        // Intentionally empty - see docblock above.
     }
 }
