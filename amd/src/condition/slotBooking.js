@@ -569,6 +569,35 @@ const ensureFeedbackRegion = (container, anchor) => {
     return feedbackRegion;
 };
 
+/**
+ * Container for the selected-slots summary, inserted right below the calendar+timeline row.
+ *
+ * Same lazy pattern as ensureTeacherContainer/ensureFeedbackRegion above: the region is created
+ * client-side rather than by the mform, and lives INSIDE the reloadable form region, so a
+ * dynamicForm.load() disposes of it and the next setupInteractiveUi() run recreates it.
+ *
+ * @param {HTMLElement} container
+ * @param {HTMLElement} anchor element to insert after
+ * @returns {HTMLElement}
+ */
+const ensureSelectionSummary = (container, anchor) => {
+    let summaryRegion = container.querySelector('[data-region="slot-selection-summary"]');
+    if (summaryRegion) {
+        return summaryRegion;
+    }
+
+    summaryRegion = document.createElement('div');
+    summaryRegion.dataset.region = 'slot-selection-summary';
+
+    if (anchor && anchor.parentNode) {
+        anchor.parentNode.insertBefore(summaryRegion, anchor.nextSibling);
+    } else {
+        container.appendChild(summaryRegion);
+    }
+
+    return summaryRegion;
+};
+
 const renderTeacherSelection = async(
     teacherContainer,
     selectedSlotKeys,
@@ -1287,7 +1316,21 @@ export async function init(callsiteoptionid) {
         // row (not just fixedEditorRoot, which is only one flex item inside that row) so they land
         // on their own line below both columns instead of squeezing in as a third flex item.
         const calendarWrapper = container.querySelector('[data-region="slot-calendar-wrapper"]');
-        const teacherAnchor = listPickerRoot || calendarWrapper || fixedEditorRoot || calendarRoot || selectionInput;
+        const summaryAnchor = calendarWrapper || fixedEditorRoot || calendarRoot || selectionInput;
+
+        // Selected-slots summary: only for the fixed-grid CALENDAR interface, and only when more
+        // than one slot may be selected at once. That interface draws exactly ONE day at a time, so
+        // with max_slots_per_user > 1 a slot picked on another day is otherwise invisible - it can
+        // be neither seen nor removed without hunting for the right day by hand. With a single
+        // selectable slot the timeline's own highlight already says everything, and the list
+        // interface shows every day at once, so neither of those needs it.
+        const maxSelectionInput = container.querySelector('input[name="slot_max_selection"]');
+        const summaryEnabled = Boolean(fixedEditorRoot && calendarRoot)
+            && Number(maxSelectionInput?.value || 1) > 1;
+        const summaryRegion = summaryEnabled ? ensureSelectionSummary(container, summaryAnchor) : null;
+
+        // Falls back to exactly the previous anchor chain when there is no summary.
+        const teacherAnchor = listPickerRoot || summaryRegion || summaryAnchor;
         const teacherContainer = ensureTeacherContainer(container, teacherAnchor);
         const teachersRequired = Math.max(0, Number(teachersRequiredInput?.value || 0));
 
@@ -1303,6 +1346,115 @@ export async function init(callsiteoptionid) {
             );
         };
 
+        // The selection adapter shared by the day timeline and the summary's remove buttons.
+        // Assigned once in the calendar-init block below (it needs resolveMaxSlots), and used from
+        // both, so removing a slot in the summary is indistinguishable from clicking it off in the
+        // timeline. This used to be built FRESH inside renderFixedEditorForDay on every single day
+        // switch, which is precisely why nothing outside the currently drawn day could read or
+        // touch the selection.
+        let fixedSelection = null;
+        // Re-renders the day timeline currently on screen. The timeline only repaints on a day
+        // change or from its own click handler, so an external change to the selection - the
+        // summary's remove button - would otherwise leave a just-removed slot still painted as
+        // selected until the user navigates to another day and back.
+        let refreshFixedEditor = null;
+
+        // Server-validated total for the current selection (see renderLiveFeedback below). Kept so
+        // the summary can show the price that will ACTUALLY be charged, rather than a client-side
+        // sum which knows nothing about rules or the user's own price category.
+        let lastValidatedTotal = null;
+
+        const summaryHeading = summaryRegion
+            ? await getString('slot_selection_summary_heading', 'mod_booking')
+            : '';
+
+        const renderSelectionSummary = async() => {
+            if (!summaryRegion) {
+                return;
+            }
+
+            const keys = getSelectedSlotKeys(selectionInput);
+            if (keys.length === 0) {
+                summaryRegion.innerHTML = '';
+                return;
+            }
+
+            let currency = '';
+            const rows = [];
+            keys.forEach(key => {
+                const slot = slotsMap.get(key);
+                if (!slot) {
+                    return;
+                }
+                if (!currency) {
+                    currency = String(slot.currency || '').trim();
+                }
+                rows.push({
+                    key,
+                    // The PICKER's own day key - deliberately not slot.daykey, which slot_dto
+                    // builds with userdate('%Y-%m-%d') and therefore does NOT zero-pad
+                    // ("2026-10-9"), so it would never match a picker day key on a single-digit
+                    // date and every such row's "jump to day" would silently do nothing.
+                    daykey: calendarPickerInstance
+                        ? (calendarPickerInstance.findDayKeyForSlotKey(key) || '')
+                        : '',
+                    daylabel: String(slot.daylabel || ''),
+                    timelabel: String(slot.timelabel || key),
+                    priceformatted: (usePrices && Number(slot.price || 0) > 0 && slot.priceformatted)
+                        ? String(slot.priceformatted)
+                        : '',
+                });
+            });
+
+            if (rows.length === 0) {
+                summaryRegion.innerHTML = '';
+                return;
+            }
+
+            const maxSlots = Math.max(1, Number(maxSelectionInput?.value || 1));
+            const showtotal = usePrices && lastValidatedTotal !== null && lastValidatedTotal > 0;
+            const {html, js} = await Templates.renderForPromise('mod_booking/slotbooking/slot_selection_summary', {
+                heading: summaryHeading,
+                countlabel: await getString('slot_selection_count', 'mod_booking', {
+                    count: rows.length,
+                    max: maxSlots,
+                }),
+                showtotal,
+                totalformatted: showtotal
+                    ? `${lastValidatedTotal.toFixed(2)}${currency ? ' ' + currency : ''}`
+                    : '',
+                rows,
+            });
+            Templates.replaceNodeContents(summaryRegion, html, js);
+
+            summaryRegion.querySelectorAll('[data-action="goto-day"]').forEach(button => {
+                button.addEventListener('click', () => {
+                    const dayKey = button.closest('[data-day-key]')?.dataset.dayKey || '';
+                    if (dayKey && calendarPickerInstance) {
+                        calendarPickerInstance.goToDay(dayKey);
+                    }
+                });
+            });
+
+            summaryRegion.querySelectorAll('[data-action="remove-slot"]').forEach(button => {
+                button.addEventListener('click', () => {
+                    const key = button.closest('[data-slot-key]')?.dataset.slotKey || '';
+                    if (!key || !fixedSelection) {
+                        return;
+                    }
+                    // Routed through the same adapter the timeline uses, so this persists to the
+                    // hidden input and dispatches 'change' - which re-renders the summary, the day
+                    // timeline and the calendar day badges together, from one source of truth.
+                    fixedSelection.toggle(key);
+                    // See refreshFixedEditor above: the timeline does not listen for selection
+                    // changes, so the removed slot would stay highlighted on the visible day.
+                    if (refreshFixedEditor) {
+                        refreshFixedEditor();
+                    }
+                });
+            });
+        };
+
         // Live server-side pre-validation: on every selection change we ask the save_slot_selection
         // webservice whether the current selection is bookable and what it costs, and surface the first
         // error (or the running total price) inline. The DynamicForm submit stays the final gate.
@@ -1311,6 +1463,8 @@ export async function init(callsiteoptionid) {
             feedbackRegion.classList.remove('text-danger', 'text-success');
             if (!result) {
                 feedbackRegion.textContent = '';
+                lastValidatedTotal = null;
+                renderSelectionSummary();
                 return;
             }
 
@@ -1324,10 +1478,23 @@ export async function init(callsiteoptionid) {
                 } else {
                     feedbackRegion.textContent = '';
                 }
+                lastValidatedTotal = null;
+                renderSelectionSummary();
                 return;
             }
 
             const price = Number(result.price || 0);
+            lastValidatedTotal = price;
+
+            // With the summary present the total belongs in ITS total row, directly under the
+            // per-slot prices it adds up - printing it here as well would show the same number
+            // twice in two places. This region then carries validation errors only.
+            if (summaryRegion) {
+                feedbackRegion.textContent = '';
+                renderSelectionSummary();
+                return;
+            }
+
             if (usePrices && price > 0) {
                 const selectedKeys = getSelectedSlotKeys(selectionInput);
                 const currency = String(slotsMap.get(selectedKeys[0])?.currency || '').trim();
@@ -1368,8 +1535,28 @@ export async function init(callsiteoptionid) {
             // option's maxSlots when nothing is selected yet.
             const resolveMaxSlots = (optId) => optionMaxMap.get(Number(optId)) || maxSlots;
 
+            // ONE adapter for the whole setupInteractiveUi() run (see the declaration above),
+            // instead of a new one per day render. Must exist before initSlotCalendarPicker below:
+            // the picker fires onDayChange from inside its own constructor, which lands in
+            // renderFixedEditorForDay and needs it immediately.
+            if (fixedEditorRoot) {
+                fixedSelection = createHiddenInputSelection(selectionInput, resolveMaxSlots, {
+                    resolveOptionId: resolveSlotOptionId,
+                    onOptionSwitch: () => Notification.addNotification({
+                        message: slotbookingSwitchedOptionMessage,
+                        type: 'info',
+                    }),
+                });
+            }
+
+            const selectedDayLabel = await getString('slot_selection_selectedday', 'mod_booking');
+
             const calendarOptions = {
                 slots,
+                selectedLabel: selectedDayLabel,
+                // The summary owns the count when it is present, as a real translated string -
+                // the picker's built-in counter would otherwise print the same thing twice.
+                showSelectionInfo: !summaryEnabled,
                 timezone,
                 maxSelection: maxSlots,
                 // Reopen on whichever day the user was last looking at (see persistedActiveDayKey
@@ -1394,8 +1581,10 @@ export async function init(callsiteoptionid) {
             if (fixedEditorRoot) {
                 calendarOptions.showSlotList = false;
                 calendarOptions.showPriceLegend = usePrices;
+                let lastRenderedDaySlots = [];
                 const renderFixedEditorForDay = async(daySlots) => {
                     const normalizedDaySlots = Array.isArray(daySlots) ? daySlots : [];
+                    lastRenderedDaySlots = normalizedDaySlots;
                     if (normalizedDaySlots.length === 0) {
                         fixedEditorRoot.innerHTML = '';
                         fixedEditorRoot.style.display = 'none';
@@ -1406,13 +1595,7 @@ export async function init(callsiteoptionid) {
                     await renderFixedSlotsEditor(
                         fixedEditorRoot,
                         normalizedDaySlots,
-                        createHiddenInputSelection(selectionInput, resolveMaxSlots, {
-                            resolveOptionId: resolveSlotOptionId,
-                            onOptionSwitch: () => Notification.addNotification({
-                                message: slotbookingSwitchedOptionMessage,
-                                type: 'info',
-                            }),
-                        }),
+                        fixedSelection,
                         timeFormatter,
                         optionColors
                     );
@@ -1421,6 +1604,7 @@ export async function init(callsiteoptionid) {
                         fixedEditorRoot.style.display = 'none';
                     }
                 };
+                refreshFixedEditor = () => renderFixedEditorForDay(lastRenderedDaySlots);
                 calendarOptions.onDayChange = (dayKey, daySlots) => {
                     persistedActiveDayKey = dayKey;
                     renderFixedEditorForDay(daySlots);
@@ -1467,11 +1651,30 @@ export async function init(callsiteoptionid) {
                     setActiveOptionId(activeFromDataset || resolveSlotOptionId(keys[0]));
                 }
             });
+            // Mirror the hidden input's selection into the calendar picker. The picker does not own
+            // the selection in this mode (initialSelection is [] and onChange a no-op - see the
+            // fixedEditorRoot branch above), so without this its this.selected stayed permanently
+            // empty: the day cells could not badge days holding a selection, and the built-in
+            // counter always read "0/N selected" no matter what had actually been picked.
+            selectionInput.addEventListener('change', () => {
+                if (calendarPickerInstance) {
+                    calendarPickerInstance.setSelectedKeys(getSelectedSlotKeys(selectionInput));
+                }
+            });
+            selectionInput.addEventListener('change', renderSelectionSummary);
             selectionInput.dataset.slotSelectionBound = '1';
         }
 
+        // Seed both from whatever the input already carries: after a server validation error the
+        // mform brings the previous slot_selection back, and the badges/summary must come back with
+        // it rather than looking like nothing was ever selected.
+        if (calendarPickerInstance) {
+            calendarPickerInstance.setSelectedKeys(getSelectedSlotKeys(selectionInput));
+        }
+        await renderSelectionSummary();
         await refreshTeacherSelection();
         liveValidate();
+
     };
 
     const reloadForm = async(reloadArgs = null) => {
