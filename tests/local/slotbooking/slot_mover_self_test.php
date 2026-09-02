@@ -673,7 +673,11 @@ final class slot_mover_self_test extends booking_advanced_testcase {
     public function test_release_self_partial(): void {
         global $DB;
 
-        [$option, $userid, , $bookingid] = $this->create_self_rebooking_option();
+        [$option, $userid, $cmid, $bookingid] = $this->create_self_rebooking_option();
+        // Releasing is a (partial) cancellation, so the instance must allow cancelling at all
+        // (release_self enforces self_release_policy_blocked()).
+        $DB->set_field('booking', 'cancancelbook', 1, ['id' => $bookingid]);
+        \cache::make('mod_booking', 'cachedbookinginstances')->delete($cmid);
         $slots = slot_dto::build_picker_slots($option->id, $userid);
         $keep = ['start' => (int)$slots[0]['start'], 'end' => (int)$slots[0]['end']];
         $drop = ['start' => (int)$slots[1]['start'], 'end' => (int)$slots[1]['end']];
@@ -697,6 +701,16 @@ final class slot_mover_self_test extends booking_advanced_testcase {
         );
         $this->assertSame([$keep['start'] . ':' . $keep['end']], $keys);
 
+        // The released range must be gone from the AGGREGATED ranges too - they are read via
+        // teachers_per_slot when present, so a stale entry there would keep the slot "booked"
+        // in the booked-slots list and the capacity/overlap checks.
+        \mod_booking\local\slotbooking\slot_availability::clear_request_cache($option->id);
+        $rangekeys = array_map(
+            static fn(array $r): string => $r['start'] . ':' . $r['end'],
+            \mod_booking\local\slotbooking\slot_availability::get_booked_slot_ranges_for_user($option->id, $userid)
+        );
+        $this->assertSame([$keep['start'] . ':' . $keep['end']], $rangekeys);
+
         $cancelled = array_filter(
             $events,
             static fn($e) => $e instanceof \mod_booking\event\bookinganswer_slotcancelled
@@ -712,7 +726,11 @@ final class slot_mover_self_test extends booking_advanced_testcase {
     public function test_release_self_rejects_locked_slot(): void {
         global $DB;
 
-        [$option, $userid, , $bookingid] = $this->create_self_rebooking_option();
+        [$option, $userid, $cmid, $bookingid] = $this->create_self_rebooking_option();
+        // Allow cancellation on the instance so the policy gate passes and the locked-slot
+        // rejection below is really what this test exercises.
+        $DB->set_field('booking', 'cancancelbook', 1, ['id' => $bookingid]);
+        \cache::make('mod_booking', 'cachedbookinginstances')->delete($cmid);
         $DB->set_field('booking_slot_config', 'change_deadline_minutes', 30, ['optionid' => $option->id]);
 
         $slots = slot_dto::build_picker_slots($option->id, $userid);
@@ -727,6 +745,73 @@ final class slot_mover_self_test extends booking_advanced_testcase {
         $this->setUser($userid);
         $this->expectException(\moodle_exception::class);
         slot_mover::release_self($option->id, $baid, [$lockedkey]);
+    }
+
+    /**
+     * Releasing the last slot of ONE answer cancels only that answer: a user can hold several
+     * active answers on one option (book again), and the full-deletion path the release falls
+     * into must be scoped to the answer being released, not sweep up every answer of the user.
+     *
+     * @covers \mod_booking\local\slotbooking\slot_mover::release_self
+     */
+    public function test_release_self_last_slot_cancels_only_that_answer(): void {
+        global $DB;
+
+        [$option, $userid, $cmid, $bookingid] = $this->create_self_rebooking_option();
+        $DB->set_field('booking', 'cancancelbook', 1, ['id' => $bookingid]);
+        \cache::make('mod_booking', 'cachedbookinginstances')->delete($cmid);
+
+        $slots = slot_dto::build_picker_slots($option->id, $userid);
+        $first = ['start' => (int)$slots[0]['start'], 'end' => (int)$slots[0]['end']];
+        $second = ['start' => (int)$slots[1]['start'], 'end' => (int)$slots[1]['end']];
+        $baid1 = $this->create_booked_slot_answer_multi($option->id, $bookingid, $userid, [$first]);
+        $baid2 = $this->create_booked_slot_answer_multi($option->id, $bookingid, $userid, [$second]);
+        booking_option::purge_cache_for_answers($option->id);
+
+        $this->setUser($userid);
+        $result = slot_mover::release_self($option->id, $baid1, [$first['start'] . ':' . $first['end']]);
+
+        $this->assertTrue($result['cancelled']);
+        $this->assertSame(
+            MOD_BOOKING_STATUSPARAM_DELETED,
+            (int)$DB->get_field('booking_answers', 'waitinglist', ['id' => $baid1])
+        );
+        // The user's OTHER answer must be untouched.
+        $this->assertSame(
+            MOD_BOOKING_STATUSPARAM_BOOKED,
+            (int)$DB->get_field('booking_answers', 'waitinglist', ['id' => $baid2])
+        );
+    }
+
+    /**
+     * The cancellation policy gates the per-slot release: with the instance-level cancancelbook
+     * switch off, releasing a slot must be refused even though self-rebooking is enabled - a user
+     * who releases slots one by one has cancelled their booking just the same, so the partial
+     * cancellation obeys the same policy as the full one.
+     *
+     * @covers \mod_booking\local\slotbooking\slot_mover::release_self
+     * @covers \mod_booking\local\slotbooking\slot_mover::self_release_policy_blocked
+     */
+    public function test_release_self_blocked_by_cancellation_policy(): void {
+        global $DB;
+
+        [$option, $userid, $cmid, $bookingid] = $this->create_self_rebooking_option();
+        // Explicitly forbid cancellation on the instance (the generator default is 0 already;
+        // set it anyway so the precondition is stated, not inherited).
+        $DB->set_field('booking', 'cancancelbook', 0, ['id' => $bookingid]);
+        \cache::make('mod_booking', 'cachedbookinginstances')->delete($cmid);
+
+        $slots = slot_dto::build_picker_slots($option->id, $userid);
+        $keep = ['start' => (int)$slots[0]['start'], 'end' => (int)$slots[0]['end']];
+        $drop = ['start' => (int)$slots[1]['start'], 'end' => (int)$slots[1]['end']];
+        $baid = $this->create_booked_slot_answer_multi($option->id, $bookingid, $userid, [$keep, $drop]);
+
+        $this->assertTrue(slot_mover::self_release_policy_blocked($option->id, $userid));
+
+        $this->setUser($userid);
+        $this->expectException(\moodle_exception::class);
+        $this->expectExceptionMessage(get_string('slot_release_policy_blocked', 'mod_booking'));
+        slot_mover::release_self($option->id, $baid, [$drop['start'] . ':' . $drop['end']]);
     }
 
     /**
@@ -848,7 +933,18 @@ final class slot_mover_self_test extends booking_advanced_testcase {
             'enddate' => (int)$slots[count($slots) - 1]['end'],
             'json' => '',
         ];
-        slot_answer::set_slot_data($answer, ['slots' => $slots, 'teachers' => []]);
+        // Mirror the real booking flow's payload: it stores teachers_per_slot (and num_slots)
+        // alongside slots, and extract_booked_ranges_from_answer() PREFERS teachers_per_slot -
+        // a fixture without it would let a release path that forgets to update it pass.
+        slot_answer::set_slot_data($answer, [
+            'slots' => $slots,
+            'num_slots' => count($slots),
+            'teachers_per_slot' => array_map(
+                static fn(array $s): array => ['start' => $s['start'], 'end' => $s['end'], 'teachers' => []],
+                $slots
+            ),
+            'teachers' => [],
+        ]);
 
         return (int)$DB->insert_record('booking_answers', $answer);
     }

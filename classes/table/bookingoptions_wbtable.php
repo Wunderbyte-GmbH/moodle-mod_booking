@@ -25,6 +25,7 @@
 namespace mod_booking\table;
 use core_completion\progress;
 use mod_booking\bo_availability\conditions\alreadybooked;
+use mod_booking\bo_availability\conditions\slotmove;
 use mod_booking\booking_answers\booking_answers;
 use core_plugin_manager;
 use mod_booking\local\modechecker;
@@ -57,6 +58,8 @@ use mod_booking\output\col_teacher;
 use mod_booking\price;
 use mod_booking\singleton_service;
 use mod_booking\local\slotbooking\slot_availability;
+use mod_booking\local\slotbooking\slot_dto;
+use mod_booking\local\slotbooking\slot_mover;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -756,8 +759,17 @@ class bookingoptions_wbtable extends wunderbyte_table {
                     $slotcounttext = $bookedslots . ' / ' . $bookableslots;
                 }
             } else {
+                // Report what is still available ON THE OPTION, not what this particular user may
+                // still book. get_slots_with_status() otherwise downgrades every remaining slot to
+                // 'unavailable' once the user has used up max_slots_per_user, so somebody who is at
+                // their limit saw a bare "0" next to an option that still has hundreds of free
+                // slots. Passing $ignoreuserslotcap = true skips that per-user gate only - per-slot
+                // capacity, opening hours and overlap rules all still apply, so a genuinely full
+                // option still counts 0.
+                $availableslots = slot_availability::get_slots_with_status((int)$values->id, $targetuserid, true);
+
                 $availableuserslots = 0;
-                foreach ($slots as $slot) {
+                foreach ($availableslots as $slot) {
                     if (in_array((string)($slot['status'] ?? 'unavailable'), ['open', 'warning'], true)) {
                         $availableuserslots++;
                     }
@@ -1047,7 +1059,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
      * @throws coding_exception
      */
     public function col_showdates($values) {
-        global $USER;
+        global $USER, $PAGE, $OUTPUT;
 
         // If $values->id is missing, we show the values object in debug mode, so we can investigate what happens.
         if (empty($values->id)) {
@@ -1078,26 +1090,26 @@ class bookingoptions_wbtable extends wunderbyte_table {
         $isslotoption = (int)($settings->type ?? MOD_BOOKING_OPTIONTYPE_DEFAULT) === MOD_BOOKING_OPTIONTYPE_SLOTBOOKING;
         if ($isslotoption) {
             // A user can hold more than one active answer for a slot option (buying several slots
-            // up to max_slots_per_user), so aggregate the booked slots across ALL of their active
-            // answers - usersonlist would only expose the newest answer per user.
-            $slots = slot_availability::get_booked_slot_ranges_for_user($optionid, (int)$USER->id);
+            // up to max_slots_per_user), and each answer carries its slots as ranges - the helper
+            // aggregates across all of them, where usersonlist would only expose the newest answer
+            // per user. Shared with the booking option detail page (see
+            // output\bookingoption_description) so the two views can never name different slots.
+            $slotrows = slot_dto::build_booked_slot_rows($optionid, (int)$USER->id);
 
-            if (empty($slots)) {
+            if (!$this->is_downloading()) {
+                // Load the per-slot cancel module for EVERY slot option row - even rows without
+                // booked slots or buttons. The options table re-renders rows via AJAX (e.g. right
+                // after booking), where $PAGE->requires no longer executes; only the document-level
+                // delegated listener bound during the initial page load catches the buttons that
+                // appear in such a re-render. The module is tiny and no-ops without buttons.
+                $PAGE->requires->js_call_amd('mod_booking/slotbooking/slot_release', 'init');
+            }
+
+            if (empty($slotrows)) {
                 return '';
             }
 
-            $slotlines = [];
-            foreach ($slots as $slot) {
-                $start = (int)$slot['start'];
-                $end = (int)$slot['end'];
-                $slotlines[] = userdate($start, get_string('strftimedatetime', 'langconfig'))
-                    . ' - ' . userdate($end, get_string('strftimetime', 'langconfig'));
-            }
-
-            if (empty($slotlines)) {
-                return '';
-            }
-
+            $slotlines = array_column($slotrows, 'label');
             $label = get_string('slot_report_numslots', 'mod_booking');
 
             if ($this->is_downloading()) {
@@ -1113,11 +1125,62 @@ class bookingoptions_wbtable extends wunderbyte_table {
             $ret .= html_writer::span(html_writer::tag('b', s($label) . ':'));
             $ret .= html_writer::end_div();
 
-            foreach ($slotlines as $line) {
-                $ret .= html_writer::div(s($line));
+            // Per-slot cancel buttons, same gate and same AMD module as the option detail page
+            // (bookingoption_description_bookedslots.mustache): self-service only, option opted
+            // into self-rebooking, cancellation policy allows it; per row the relative deadline
+            // decides. Read-only rows stay plain text.
+            $releaseavailable = slot_mover::per_slot_release_available($optionid, (int)$USER->id);
+
+            foreach ($slotrows as $slotrow) {
+                $line = s($slotrow['label']);
+                if ($releaseavailable && !empty($slotrow['cancelable'])) {
+                    $releaselabel = get_string('slot_release_action', 'mod_booking');
+                    $line .= html_writer::tag(
+                        'button',
+                        $OUTPUT->pix_icon('t/delete', ''),
+                        [
+                            'type' => 'button',
+                            'class' => 'btn btn-sm btn-outline-danger icon-no-margin ms-auto booking-slot-release',
+                            'data-action' => 'booking-slot-release',
+                            'data-optionid' => $slotrow['optionid'],
+                            'data-baid' => $slotrow['baid'],
+                            'data-slotkey' => $slotrow['key'],
+                            'data-slotlabel' => $slotrow['label'],
+                            'aria-label' => $releaselabel,
+                            'title' => $releaselabel,
+                        ]
+                    );
+                }
+                $ret .= html_writer::div($line, 'd-flex align-items-center flex-wrap gap-2');
             }
 
             $ret .= html_writer::end_div();
+
+            // Same hidden data carrier the option detail page emits (see
+            // bookingoption_description_slotoverview.mustache): when the user has no allowance
+            // left, the booking button and the slot picker are blocked, so clicking the "Booked"
+            // bar opens the option's remaining availability in a modal instead. The list itself is
+            // drawn by the shared JS renderer; only the slot data travels in the page.
+            // Skipped when the slotmove condition owns the button (self-rebooking enabled and
+            // possible): its move prepage shows the same list interactively, and opening the
+            // read-only overview on top would stack two modals whose focus traps fight.
+            $slotmovecondition = new slotmove();
+            if (
+                $slotmovecondition->is_available($settings, (int)$USER->id)
+                && !slot_availability::has_remaining_slot_capacity($optionid, (int)$USER->id)
+            ) {
+                $overviewslots = slot_dto::build_picker_slots($optionid, (int)$USER->id, true);
+                if (!empty($overviewslots)) {
+                    $ret .= html_writer::div('', '', [
+                        'data-region' => 'slot-overview-source',
+                        'data-optionid' => $optionid,
+                        'data-slots' => json_encode($overviewslots),
+                        'hidden' => 'hidden',
+                    ]);
+                    $PAGE->requires->js_call_amd('mod_booking/slotbooking/slot_overview_modal', 'init');
+                }
+            }
+
             return $ret;
         }
 

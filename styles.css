@@ -1126,10 +1126,21 @@ div.checkbox:has(label[for^="id_bo_cond_allowedtobookininstance_capabilitynotnee
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
+    /* A rolling-type option over a few weeks produces several hundred slots. Without a bound the
+       list pushes the wizard's "Continue" button hundreds of rows below the fold; scrolling inside
+       its own box keeps that button reachable no matter how many days there are. Same approach the
+       calendar's day timeline already takes (.booking-slot-timeline-wrapper--scroll below). */
+    max-height: 60vh;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .booking-slot-list-item {
     display: flex;
+    /* Both this element's parents (.booking-slot-list and .booking-slot-day-items) are flex
+       columns with a bounded height, and flex items shrink to fit by default - which squashed
+       every row to a few unreadable pixels instead of letting the parent scroll. */
+    flex: 0 0 auto;
     gap: 0.5rem;
     align-items: center;
     justify-content: space-between;
@@ -1147,11 +1158,20 @@ div.checkbox:has(label[for^="id_bo_cond_allowedtobookininstance_capabilitynotnee
     border-color: rgba(13, 110, 253, 0.75);
 }
 
+/* "booked" always means booked BY THIS USER - slots taken by others are dropped upstream by
+   build_picker_slots() - so it gets the same blue "your booking" treatment in every list rather
+   than reading as a generic disabled row. */
 .booking-slot-list-item--booked {
-    color: rgb(73, 80, 87);
-    background: rgba(108, 117, 125, 0.18);
-    border-color: rgba(108, 117, 125, 0.6);
+    color: rgb(13, 70, 170);
+    background: rgba(13, 110, 253, 0.18);
+    border-color: rgba(13, 110, 253, 0.75);
     cursor: default;
+}
+
+.booking-slot-list-status {
+    margin-left: auto;
+    font-size: 0.8rem;
+    white-space: nowrap;
 }
 
 .booking-slot-list-price {
@@ -1165,6 +1185,104 @@ div.checkbox:has(label[for^="id_bo_cond_allowedtobookininstance_capabilitynotnee
     margin-left: 0.5rem;
     font-size: 0.75rem;
     white-space: nowrap;
+}
+
+.booking-button-mainarea--clickable {
+    cursor: pointer;
+}
+
+.booking-button-mainarea--clickable:hover,
+.booking-button-mainarea--clickable:focus-visible {
+    filter: brightness(0.96);
+}
+
+/* ----------------------------------------------------------------------------
+ * Collapsible day groups inside the slot list (slot_day_list.mustache).
+ * ------------------------------------------------------------------------- */
+.booking-slot-day-group {
+    /* Never shrink: .booking-slot-list is a bounded flex column, so without this all the day
+       headers compress together rather than overflowing into that container's scrollbar. */
+    flex: 0 0 auto;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    border-radius: 0.25rem;
+    /* Deliberately NOT overflow:hidden. position:sticky on the day header below resolves against
+       the nearest scrolling ancestor, and any element in between with overflow:hidden disables it
+       outright - the corners are rounded on the toggle itself instead. */
+}
+
+.booking-slot-day-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    min-height: 2.25rem;
+    padding: 0.4rem 0.6rem;
+    background: rgba(0, 0, 0, 0.03);
+    border: 0;
+    border-radius: calc(0.25rem - 1px) calc(0.25rem - 1px) 0 0;
+    text-align: left;
+    cursor: pointer;
+    /* Keeps the day visible while scrolling through its own expanded slots inside the bounded
+       list box above - without it a long day scrolls its own heading out of view. */
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+.booking-slot-day-toggle[aria-expanded="false"] {
+    border-radius: calc(0.25rem - 1px);
+}
+
+.booking-slot-day-toggle:hover,
+.booking-slot-day-toggle:focus-visible {
+    background: rgba(0, 0, 0, 0.07);
+}
+
+.booking-slot-day-caret {
+    flex: 0 0 auto;
+    font-size: 0.75rem;
+    line-height: 1;
+    transition: transform 0.15s ease;
+}
+
+.booking-slot-day-toggle[aria-expanded="true"] .booking-slot-day-caret {
+    transform: rotate(90deg);
+}
+
+.booking-slot-day-label {
+    font-weight: 600;
+}
+
+.booking-slot-day-count {
+    margin-left: auto;
+    font-size: 0.85rem;
+    color: rgb(108, 117, 125);
+    white-space: nowrap;
+}
+
+.booking-slot-day-selected {
+    flex: 0 0 auto;
+    min-width: 1.25rem;
+    padding: 0 0.35rem;
+    border-radius: 999px;
+    background: #0d6efd;
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-align: center;
+}
+
+.booking-slot-day-items {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.4rem;
+    /* An expanded day gets a comfortable amount of room and then scrolls on its own, so a day with
+       very many slots (rolling options generate one every few minutes) cannot push every other day
+       out of the bounded list above. Around 20rem shows ~8 slots without any inner scrollbar,
+       which covers the common case. */
+    max-height: 20rem;
+    overflow-y: auto;
 }
 
 /* ----------------------------------------------------------------------------

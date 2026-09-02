@@ -32,6 +32,7 @@
  */
 
 import Templates from 'core/templates';
+import {get_string as getString} from 'core/str';
 
 /**
  * Build a locale-aware time formatter for the given timezone.
@@ -394,20 +395,20 @@ export const renderFixedSlotsEditor = async(container, daySlots, selection, time
 };
 
 /**
- * Render a day's slots as a flat clickable list.
+ * Group slot DTOs into days, chronologically.
  *
- * @param {HTMLElement} container
+ * Sorted by each day's earliest start TIMESTAMP, never by comparing day keys as strings:
+ * slot_dto::build_picker_slots() builds "daykey" with userdate('%Y-%m-%d'), which does not
+ * zero-pad, so "2026-10-9" sorts after "2026-10-16" lexically. The key is therefore treated as an
+ * opaque grouping/lookup token only.
+ *
  * @param {Array<object>} slots slot DTOs
- * @param {object} selection selection interface (see createHiddenInputSelection)
- * @return {Promise<void>}
+ * @param {object} selection selection interface
+ * @return {Array<object>} day groups, each { daykey, daylabel, minstart, items }
  */
-export const renderSlotList = async(container, slots, selection) => {
-    if (!Array.isArray(slots) || slots.length === 0 || !selection) {
-        container.innerHTML = '';
-        return;
-    }
+const groupSlotsByDay = (slots, selection) => {
+    const groups = new Map();
 
-    const items = [];
     slots.forEach(slot => {
         const slotStart = Number(slot.start || 0);
         const slotEnd = Number(slot.end || 0);
@@ -421,11 +422,27 @@ export const renderSlotList = async(container, slots, selection) => {
             selection.deselect(key);
         }
 
+        // Fall back to a timestamp-derived bucket only if the DTO carries no daykey at all - the
+        // value itself is never parsed, just used to group and to address a day later.
+        const dayKey = String(slot.daykey || '') || `start:${Math.floor(slotStart / 86400)}`;
+        if (!groups.has(dayKey)) {
+            groups.set(dayKey, {
+                daykey: dayKey,
+                daylabel: String(slot.daylabel || ''),
+                minstart: slotStart,
+                items: [],
+            });
+        }
+
+        const group = groups.get(dayKey);
+        group.minstart = Math.min(group.minstart, slotStart);
+
         const slotPrice = Number(slot.price || 0);
-        items.push({
+        group.items.push({
             key,
+            start: slotStart,
             optionid: Number(slot.optionid || 0),
-            label: `${slot.daylabel || ''} - ${slot.timelabel || key}`,
+            timelabel: String(slot.timelabel || key),
             priceformatted: (slotPrice > 0 && slot.priceformatted) ? String(slot.priceformatted) : '',
             selected: !isBooked && selection.isSelected(key),
             booked: isBooked,
@@ -433,8 +450,129 @@ export const renderSlotList = async(container, slots, selection) => {
         });
     });
 
-    const {html, js} = await Templates.renderForPromise('mod_booking/slotbooking/slot_day_list', {items});
+    const ordered = Array.from(groups.values()).sort((a, b) => a.minstart - b.minstart);
+    ordered.forEach(group => group.items.sort((a, b) => a.start - b.start));
+    return ordered;
+};
+
+/**
+ * Render slots as a list of collapsible day groups.
+ *
+ * Slots used to be rendered as one flat list of every slot on every day, which for a rolling-type
+ * option spanning a few weeks means several hundred rows - pushing the wizard's "Continue" button
+ * far below the fold. Grouping collapses that to one row per day.
+ *
+ * Because the selection lives in a hidden input rather than in the DOM, a COLLAPSED day can still
+ * hold selected slots. The day header therefore carries a selected-count badge, and the badge is
+ * always rendered (just hidden at zero) so refresh() can update it in place - re-rendering the
+ * whole list on every click would throw away the user's manual expand/collapse state.
+ *
+ * @param {HTMLElement} container
+ * @param {Array<object>} slots slot DTOs
+ * @param {object} selection selection interface (see createHiddenInputSelection)
+ * @return {Promise<?object>} controller { refresh(), expandDay(dayKey), getDayKeyForSlot(key) },
+ *   or null when there was nothing to render
+ */
+export const renderSlotList = async(container, slots, selection) => {
+    if (!Array.isArray(slots) || slots.length === 0 || !selection) {
+        container.innerHTML = '';
+        return null;
+    }
+
+    const dayGroups = groupSlotsByDay(slots, selection);
+    if (dayGroups.length === 0) {
+        container.innerHTML = '';
+        return null;
+    }
+
+    // Which days open on first render: any day already holding a selected or "current" slot (the
+    // move flow marks the user's existing booking that way), so a restored selection is never
+    // hidden behind a collapsed header. If nothing is selected yet, open the first day that has
+    // something actually bookable, so the list is not a wall of closed rows.
+    const hasPick = (group) => group.items.some(item => item.selected || selection.isCurrent(item.key));
+    const anyPicked = dayGroups.some(hasPick);
+    let openedFallback = false;
+    dayGroups.forEach(group => {
+        if (anyPicked) {
+            group.expanded = hasPick(group);
+            return;
+        }
+        group.expanded = !openedFallback && group.items.some(item => !item.booked);
+        openedFallback = openedFallback || group.expanded;
+    });
+
+    // One get_string per day, but they all resolve from a single cached fetch of the template.
+    const countLabels = await Promise.all(
+        dayGroups.map(group => getString('slot_day_slotcount', 'mod_booking', group.items.length))
+    );
+    dayGroups.forEach((group, index) => {
+        group.countlabel = countLabels[index];
+        group.selectedcount = group.items.filter(item => item.selected).length;
+    });
+
+    const {html, js} = await Templates.renderForPromise('mod_booking/slotbooking/slot_day_list', {
+        days: dayGroups,
+    });
     Templates.replaceNodeContents(container, html, js);
+
+    // Slot key -> day key, so a caller holding only a selected slot key (the selected-slots
+    // summary) can ask which day to open for it.
+    const slotKeyToDayKey = new Map();
+    dayGroups.forEach(group => {
+        group.items.forEach(item => slotKeyToDayKey.set(item.key, group.daykey));
+    });
+
+    const groupElements = new Map();
+    container.querySelectorAll('.booking-slot-day-group').forEach(element => {
+        groupElements.set(String(element.dataset.dayKey || ''), element);
+    });
+
+    const setExpanded = (groupElement, expanded) => {
+        const toggle = groupElement.querySelector('[data-action="toggle-day"]');
+        const itemsRegion = groupElement.querySelector('[data-region="day-items"]');
+        if (!toggle || !itemsRegion) {
+            return;
+        }
+        toggle.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+        itemsRegion.hidden = !expanded;
+    };
+
+    const refreshDayBadges = () => {
+        groupElements.forEach(groupElement => {
+            const badge = groupElement.querySelector('.booking-slot-day-selected');
+            if (!badge) {
+                return;
+            }
+            let count = 0;
+            groupElement.querySelectorAll('.booking-slot-list-item').forEach(item => {
+                if (!item.classList.contains('booking-slot-list-item--booked')
+                        && selection.isSelected(item.dataset.slotKey)) {
+                    count++;
+                }
+            });
+            badge.textContent = String(count);
+            badge.hidden = count === 0;
+        });
+    };
+
+    const refreshItems = () => {
+        container.querySelectorAll('.booking-slot-list-item').forEach(item => {
+            if (item.classList.contains('booking-slot-list-item--booked')) {
+                return;
+            }
+            item.classList.toggle('booking-slot-list-item--selected', selection.isSelected(item.dataset.slotKey));
+        });
+        refreshDayBadges();
+    };
+
+    groupElements.forEach(groupElement => {
+        const toggle = groupElement.querySelector('[data-action="toggle-day"]');
+        if (toggle) {
+            toggle.addEventListener('click', () => {
+                setExpanded(groupElement, toggle.getAttribute('aria-expanded') !== 'true');
+            });
+        }
+    });
 
     container.querySelectorAll('.booking-slot-list-item').forEach(item => {
         const key = item.dataset.slotKey;
@@ -450,12 +588,28 @@ export const renderSlotList = async(container, slots, selection) => {
             }
             const optionId = item.dataset.optionId ? Number(item.dataset.optionId) : null;
             selection.toggle(key, optionId);
-            container.querySelectorAll('.booking-slot-list-item').forEach(el => {
-                if (el.classList.contains('booking-slot-list-item--booked')) {
-                    return;
-                }
-                el.classList.toggle('booking-slot-list-item--selected', selection.isSelected(el.dataset.slotKey));
-            });
+            refreshItems();
         });
     });
+
+    refreshDayBadges();
+
+    return {
+        // Re-apply selected state and day badges from the selection, WITHOUT re-rendering, so an
+        // external change (the summary's remove button) shows up without collapsing the days the
+        // user opened by hand.
+        refresh: refreshItems,
+        getDayKeyForSlot: (slotKey) => slotKeyToDayKey.get(String(slotKey)) || null,
+        expandDay: (dayKey) => {
+            const groupElement = groupElements.get(String(dayKey || ''));
+            if (!groupElement) {
+                return false;
+            }
+            setExpanded(groupElement, true);
+            // 'nearest' keeps the scroll inside the list's own bounded box (see .booking-slot-list
+            // in styles.css) instead of yanking the whole page around.
+            groupElement.scrollIntoView({block: 'nearest', behavior: 'smooth'});
+            return true;
+        },
+    };
 };

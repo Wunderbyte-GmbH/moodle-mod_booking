@@ -84,6 +84,21 @@ class slotupdate_form extends slotbooking_form {
     }
 
     /**
+     * The update editor ignores max_slots_per_user when building its picker universe.
+     *
+     * Its user holds the very booking being edited, so with the cap applied the inherited
+     * definition() finds no bookable slot and swaps the whole editor for the max-slots-reached
+     * message. The cap is irrelevant here anyway: growing the booking is rejected by
+     * slot_update_service (edit-only), and the real slot universe is overridden with the move
+     * context's target slots in set_data_for_dynamic_submission().
+     *
+     * @return bool
+     */
+    protected function ignore_user_slot_cap(): bool {
+        return true;
+    }
+
+    /**
      * Form definition: the update-specific hidden fields plus the inherited input layer.
      *
      * The hidden fields are added BEFORE the parent definition because the parent returns early in

@@ -1316,21 +1316,22 @@ export async function init(callsiteoptionid) {
         // row (not just fixedEditorRoot, which is only one flex item inside that row) so they land
         // on their own line below both columns instead of squeezing in as a third flex item.
         const calendarWrapper = container.querySelector('[data-region="slot-calendar-wrapper"]');
-        const summaryAnchor = calendarWrapper || fixedEditorRoot || calendarRoot || selectionInput;
+        const summaryAnchor = listPickerRoot || calendarWrapper || fixedEditorRoot || calendarRoot || selectionInput;
 
-        // Selected-slots summary: only for the fixed-grid CALENDAR interface, and only when more
-        // than one slot may be selected at once. That interface draws exactly ONE day at a time, so
-        // with max_slots_per_user > 1 a slot picked on another day is otherwise invisible - it can
-        // be neither seen nor removed without hunting for the right day by hand. With a single
-        // selectable slot the timeline's own highlight already says everything, and the list
-        // interface shows every day at once, so neither of those needs it.
+        // Selected-slots summary. Both MULTI-select interfaces need it: the calendar grid draws
+        // exactly one day at a time, and the list now collapses its days (see
+        // slot_day_list.mustache) - either way a slot picked elsewhere is out of sight, and can be
+        // neither reviewed nor removed without hunting for the right day by hand. The single-select
+        // variants never hide a selection, so they do not get one.
         const maxSelectionInput = container.querySelector('input[name="slot_max_selection"]');
-        const summaryEnabled = Boolean(fixedEditorRoot && calendarRoot)
+        const summaryEnabled = Boolean(listPickerRoot || (fixedEditorRoot && calendarRoot))
             && Number(maxSelectionInput?.value || 1) > 1;
         const summaryRegion = summaryEnabled ? ensureSelectionSummary(container, summaryAnchor) : null;
 
-        // Falls back to exactly the previous anchor chain when there is no summary.
-        const teacherAnchor = listPickerRoot || summaryRegion || summaryAnchor;
+        // Since summaryAnchor now leads with listPickerRoot, this keeps the previous ordering in both
+        // modes: the summary sits right under whichever picker is rendered, teachers below it.
+        const teacherAnchor = summaryRegion || summaryAnchor;
+
         const teacherContainer = ensureTeacherContainer(container, teacherAnchor);
         const teachersRequired = Math.max(0, Number(teachersRequiredInput?.value || 0));
 
@@ -1353,6 +1354,13 @@ export async function init(callsiteoptionid) {
         // switch, which is precisely why nothing outside the currently drawn day could read or
         // touch the selection.
         let fixedSelection = null;
+
+        // The list picker's controller (see renderSlotList's return value), when the list interface
+        // is the one rendered. The counterpart to calendarPickerInstance: it answers which day a
+        // slot key belongs to, opens that day, and re-applies selected state plus day badges after
+        // an external change.
+        let listController = null;
+
         // Re-renders the day timeline currently on screen. The timeline only repaints on a day
         // change or from its own click handler, so an external change to the selection - the
         // summary's remove button - would otherwise leave a just-removed slot still painted as
@@ -1367,6 +1375,39 @@ export async function init(callsiteoptionid) {
         const summaryHeading = summaryRegion
             ? await getString('slot_selection_summary_heading', 'mod_booking')
             : '';
+
+        // Which day a selected slot sits on, and how to reveal it - answered by whichever picker is
+        // actually rendered. The calendar knows its own day keys; the list knows its day groups.
+        // Neither uses the DTO's own "daykey" field, which slot_dto builds with
+        // userdate('%Y-%m-%d') and therefore does not zero-pad ("2026-10-9").
+        const resolveDayKeyForSlot = (key) => {
+            if (calendarPickerInstance) {
+                return calendarPickerInstance.findDayKeyForSlotKey(key) || '';
+            }
+            if (listController) {
+                return listController.getDayKeyForSlot(key) || '';
+            }
+            return '';
+        };
+
+        const goToDayKey = (dayKey) => {
+            if (calendarPickerInstance) {
+                calendarPickerInstance.goToDay(dayKey);
+            } else if (listController) {
+                listController.expandDay(dayKey);
+            }
+        };
+
+        // Neither picker listens for selection changes, so an external removal has to tell the one
+        // on screen to repaint - otherwise the just-removed slot stays highlighted.
+        const refreshActivePicker = () => {
+            if (refreshFixedEditor) {
+                refreshFixedEditor();
+            }
+            if (listController) {
+                listController.refresh();
+            }
+        };
 
         const renderSelectionSummary = async() => {
             if (!summaryRegion) {
@@ -1395,9 +1436,7 @@ export async function init(callsiteoptionid) {
                     // builds with userdate('%Y-%m-%d') and therefore does NOT zero-pad
                     // ("2026-10-9"), so it would never match a picker day key on a single-digit
                     // date and every such row's "jump to day" would silently do nothing.
-                    daykey: calendarPickerInstance
-                        ? (calendarPickerInstance.findDayKeyForSlotKey(key) || '')
-                        : '',
+                    daykey: resolveDayKeyForSlot(key),
                     daylabel: String(slot.daylabel || ''),
                     timelabel: String(slot.timelabel || key),
                     priceformatted: (usePrices && Number(slot.price || 0) > 0 && slot.priceformatted)
@@ -1430,8 +1469,8 @@ export async function init(callsiteoptionid) {
             summaryRegion.querySelectorAll('[data-action="goto-day"]').forEach(button => {
                 button.addEventListener('click', () => {
                     const dayKey = button.closest('[data-day-key]')?.dataset.dayKey || '';
-                    if (dayKey && calendarPickerInstance) {
-                        calendarPickerInstance.goToDay(dayKey);
+                    if (dayKey) {
+                        goToDayKey(dayKey);
                     }
                 });
             });
@@ -1448,9 +1487,7 @@ export async function init(callsiteoptionid) {
                     fixedSelection.toggle(key);
                     // See refreshFixedEditor above: the timeline does not listen for selection
                     // changes, so the removed slot would stay highlighted on the visible day.
-                    if (refreshFixedEditor) {
-                        refreshFixedEditor();
-                    }
+                    refreshActivePicker();
                 });
             });
         };
@@ -1624,14 +1661,19 @@ export async function init(callsiteoptionid) {
             const listMaxInput = container.querySelector('input[name="slot_max_selection"]');
             const listMaxSlots = Number(listMaxInput?.value || 1);
             const resolveListMaxSlots = (optId) => optionMaxMap.get(Number(optId)) || listMaxSlots;
-            await renderSlotList(listPickerRoot, slots, createHiddenInputSelection(selectionInput, resolveListMaxSlots, {
+            // Hoisted into fixedSelection for the same reason as the calendar branch: the summary's
+            // remove buttons must act on the SAME adapter the list's own clicks use, not a second
+            // one built from the input behind its back.
+            fixedSelection = createHiddenInputSelection(selectionInput, resolveListMaxSlots, {
                 resolveOptionId: resolveSlotOptionId,
                 onOptionSwitch: () => Notification.addNotification({
                     message: slotbookingSwitchedOptionMessage,
                     type: 'info',
                 }),
-            }));
+            });
+            listController = await renderSlotList(listPickerRoot, slots, fixedSelection);
         }
+
 
         if (!selectionInput.dataset.slotSelectionBound) {
             selectionInput.addEventListener('change', refreshTeacherSelection);

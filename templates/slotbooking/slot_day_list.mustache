@@ -17,37 +17,92 @@
 {{!
     @template mod_booking/slotbooking/slot_day_list
 
-    Clickable slot list for the multi-select list booking interface. Selection state
-    is driven by the condition/slotBooking picker; this template only renders the markup.
+    Clickable slot list for the multi-select list booking interface, grouped into collapsible days.
+
+    Slots used to be rendered as ONE flat list of every slot on every day. A rolling-type option
+    spanning a few weeks produces several hundred entries that way (40 min slots every 20 min over
+    a month is ~250), which pushed the wizard's "Continue" button far below the fold and made
+    finding a particular date a long scroll. Grouping by day collapses that to one row per day; the
+    list itself also scrolls inside a bounded box (see .booking-slot-list in styles.css) so
+    "Continue" stays reachable no matter how many days there are.
+
+    Selection state is driven by the condition/slotBooking picker; this template only renders the
+    markup. Selection lives in a hidden input, NOT in the DOM, so a day that is currently collapsed
+    can still hold selected slots - hence selectedcount on the day header.
+
+    The day toggle MUST stay type="button": this markup is rendered inside the slotbooking mform,
+    where a default-type button would submit the booking form.
 
     Context variables required for this template:
-    * items - Array of selectable slots.
-        * key - Slot key in the form "start:end".
-        * label - Human readable "<day> - <time range>" label.
-        * priceformatted - Formatted price string, empty when no price applies.
-        * selected - Whether the slot is currently selected.
-        * booked - Whether the slot is already booked (not selectable).
-        * manageurl - URL to the slot's own booking option page, only set when the slot is booked
-          AND that option is currently cancelable by the user; empty otherwise.
+    * days - Array of day groups, already ordered chronologically by the caller.
+        * daykey - Opaque per-day grouping key, used by the caller to expand a specific day. NOT
+          safe to sort or compare as a date: slot_dto builds it with userdate('%Y-%m-%d'), which
+          does not zero-pad ("2026-10-9").
+        * daylabel - Human readable day, e.g. "Thursday, 3 September 2026".
+        * countlabel - Translated slot count for this day, e.g. "8 slots".
+        * selectedcount - How many slots of this day are currently selected. 0 renders no badge.
+        * expanded - Whether this day starts expanded.
+        * items - The day's slots.
+            * key - Slot key in the form "start:end".
+            * optionid - Owning booking option id (merged multi-option calendars).
+            * timelabel - Time range only, e.g. "9:00 AM - 9:40 AM"; the day is on the header.
+            * priceformatted - Formatted price string, empty when no price applies.
+            * selected - Whether the slot is currently selected.
+            * booked - Whether the slot is already booked BY THIS USER (not selectable). Slots taken
+              by others are dropped upstream by build_picker_slots(), so "booked" always means
+              "yours" here and is labelled as such.
+            * manageurl - URL to the slot's own booking option page, only set when the slot is
+              booked AND that option is currently cancelable by the user; empty otherwise.
 
     Example context (json):
     {
-        "items": [
-            {"key": "1620:1640", "label": "Monday, 7 May 2046 - 4:00 PM - 4:40 PM", "priceformatted": "", "selected": false, "booked": false},
-            {"key": "1660:1680", "label": "Monday, 7 May 2046 - 4:20 PM - 5:00 PM", "priceformatted": "€10.00", "selected": true, "booked": false}
+        "days": [
+            {
+                "daykey": "2026-09-3", "daylabel": "Thursday, 3 September 2026",
+                "countlabel": "8 slots", "selectedcount": 1, "expanded": true,
+                "items": [
+                    {"key": "1620:1640", "optionid": 5140, "timelabel": "9:00 AM - 9:40 AM", "priceformatted": "", "selected": false, "booked": false, "manageurl": ""},
+                    {"key": "1660:1680", "optionid": 5140, "timelabel": "9:20 AM - 10:00 AM", "priceformatted": "45.00 EUR", "selected": true, "booked": false, "manageurl": ""}
+                ]
+            },
+            {
+                "daykey": "2026-09-4", "daylabel": "Friday, 4 September 2026",
+                "countlabel": "8 slots", "selectedcount": 0, "expanded": false,
+                "items": [
+                    {"key": "1700:1720", "optionid": 5140, "timelabel": "9:00 AM - 9:40 AM", "priceformatted": "", "selected": false, "booked": true, "manageurl": "https://example.com/mod/booking/optionview.php?cmid=94&optionid=5140"}
+                ]
+            }
         ]
     }
 }}
 <div class="booking-slot-list" role="group">
-    {{#items}}
-        <div class="booking-slot-list-item{{#selected}} booking-slot-list-item--selected{{/selected}}{{#booked}} booking-slot-list-item--booked{{/booked}}" data-slot-key="{{key}}" data-option-id="{{optionid}}">
-            <span class="booking-slot-list-label">{{label}}</span>
-            {{#priceformatted}}
-                <span class="booking-slot-list-price">{{priceformatted}}</span>
-            {{/priceformatted}}
-            {{#manageurl}}
-                <a href="{{manageurl}}" target="_blank" rel="noopener" class="booking-slot-list-manage">{{#str}}managebooking, mod_booking{{/str}}</a>
-            {{/manageurl}}
+    {{#days}}
+        <div class="booking-slot-day-group" data-day-key="{{daykey}}">
+            <button type="button" class="booking-slot-day-toggle" data-action="toggle-day"
+                    aria-expanded="{{#expanded}}true{{/expanded}}{{^expanded}}false{{/expanded}}">
+                <span class="booking-slot-day-caret" aria-hidden="true">&#9656;</span>
+                <span class="booking-slot-day-label">{{daylabel}}</span>
+                <span class="booking-slot-day-count">{{countlabel}}</span>
+                <span class="booking-slot-day-selected" {{^selectedcount}}hidden{{/selectedcount}}
+                      title="{{#str}}slot_selection_selectedday, mod_booking{{/str}}">{{selectedcount}}</span>
+            </button>
+            <div class="booking-slot-day-items" data-region="day-items" {{^expanded}}hidden{{/expanded}}>
+                {{#items}}
+                    <div class="booking-slot-list-item{{#selected}} booking-slot-list-item--selected{{/selected}}{{#booked}} booking-slot-list-item--booked{{/booked}}" data-slot-key="{{key}}" data-option-id="{{optionid}}">
+                        <span class="booking-slot-list-label">{{timelabel}}</span>
+                        {{#priceformatted}}
+                            <span class="booking-slot-list-price">{{priceformatted}}</span>
+                        {{/priceformatted}}
+                        <span class="booking-slot-list-status">
+                            {{#booked}}{{#str}}slot_legend_mine, mod_booking{{/str}}{{/booked}}
+                            {{^booked}}{{#str}}slot_legend_available, mod_booking{{/str}}{{/booked}}
+                        </span>
+                        {{#manageurl}}
+                            <a href="{{manageurl}}" target="_blank" rel="noopener" class="booking-slot-list-manage">{{#str}}managebooking, mod_booking{{/str}}</a>
+                        {{/manageurl}}
+                    </div>
+                {{/items}}
+            </div>
         </div>
-    {{/items}}
+    {{/days}}
 </div>
