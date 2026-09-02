@@ -213,6 +213,91 @@ class behat_mod_booking extends behat_base {
     }
 
     /**
+     * Open the option detail page (optionview.php) for an option identified by option text and
+     * booking name. Visits the URL directly instead of clicking through the booking instance's
+     * option list, so it also works for a user who is not logged in: optionview.php deliberately
+     * skips require_login() and the option list page does not.
+     *
+     * @Given /^I am on the option detail page for option "([^"]*)" in booking "([^"]*)"$/
+     * @param string $optiontext
+     * @param string $bookingname
+     * @return void
+     */
+    public function i_am_on_the_option_detail_page_for_option_in_booking(
+        string $optiontext,
+        string $bookingname
+    ): void {
+        global $DB;
+
+        $booking = $DB->get_records('booking', ['name' => $bookingname], 'id DESC', '*', 0, 1);
+        $booking = reset($booking);
+        if (!$booking) {
+            throw new \dml_missing_record_exception('booking', ['name' => $bookingname]);
+        }
+        $cm = get_coursemodule_from_instance('booking', (int)$booking->id, (int)$booking->course, false, MUST_EXIST);
+        $option = $DB->get_record('booking_options', [
+            'bookingid' => $booking->id,
+            'text' => $optiontext,
+        ], '*', MUST_EXIST);
+
+        $url = new \moodle_url('/mod/booking/optionview.php', [
+            'cmid' => (int)$cm->id,
+            'optionid' => (int)$option->id,
+        ]);
+        $this->getSession()->visit($this->locate_path($url->out_as_local_url(false)));
+    }
+
+    /**
+     * Point one option's description at the bookingoptionview shortcode for ANOTHER option (both
+     * resolved by option text within the same booking instance).
+     *
+     * This exists so a test can click a "Login to book" button for the target option from a page
+     * that is not the target's own detail page. That distinction matters: clicking the button
+     * FROM the target's own optionview.php would send the browser's HTTP Referer to
+     * /login/index.php as that same optionview.php URL, and login/index.php falls back to the
+     * Referer as $SESSION->wantsurl when nothing else set it - so a test driven that way could
+     * land back on the target even if the plugin's own deep-link code
+     * (bo_info::set_login_returnurl()) did nothing at all. Rendering the target's button on the
+     * ORIGIN option's page instead removes that false positive: after login, landing on the
+     * target's optionview.php can then only be explained by the plugin explicitly having stored
+     * it as the post-login destination. optionview.php runs option descriptions through
+     * format_text(), which applies the shortcodes filter same as any other page.
+     *
+     * @Given /^I make option "([^"]*)" show option "([^"]*)" via shortcode, both in booking "([^"]*)"$/
+     * @param string $originoptiontext
+     * @param string $targetoptiontext
+     * @param string $bookingname
+     * @return void
+     */
+    public function i_make_option_show_option_via_shortcode(
+        string $originoptiontext,
+        string $targetoptiontext,
+        string $bookingname
+    ): void {
+        global $DB;
+
+        $booking = $DB->get_records('booking', ['name' => $bookingname], 'id DESC', '*', 0, 1);
+        $booking = reset($booking);
+        if (!$booking) {
+            throw new \dml_missing_record_exception('booking', ['name' => $bookingname]);
+        }
+        $origin = $DB->get_record('booking_options', [
+            'bookingid' => $booking->id,
+            'text' => $originoptiontext,
+        ], '*', MUST_EXIST);
+        $target = $DB->get_record('booking_options', [
+            'bookingid' => $booking->id,
+            'text' => $targetoptiontext,
+        ], '*', MUST_EXIST);
+
+        $DB->set_field('booking_options', 'description', '[bookingoptionview optionid="' . (int)$target->id . '"]', [
+            'id' => $origin->id,
+        ]);
+        \mod_booking\booking_option::purge_cache_for_option((int)$origin->id);
+        singleton_service::destroy_booking_option_singleton((int)$origin->id);
+    }
+
+    /**
      * Open the "new booking option" form page for a booking instance by name.
      *
      * @Given /^I open the new booking option page for booking "([^"]*)"$/
