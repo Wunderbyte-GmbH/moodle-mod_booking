@@ -122,7 +122,15 @@ export class SlotCalendarPicker {
         this.showPriceLegend = Boolean(options.showPriceLegend);
         this.dayStateResolver = typeof options.dayStateResolver === 'function' ? options.dayStateResolver : null;
         this.resetSelectionOnDayChange = Boolean(options.resetSelectionOnDayChange);
+        // Whether to render the built-in "x/N selected" counter line. True for callers that own
+        // their selection through this.selected (the report and move flows), where it is
+        // authoritative. The booking flow's calendar + fixed-grid mode passes false: there the
+        // selection is owned by the hidden slot_selection input (see condition/slotBooking.js), and
+        // the count is shown - translated - in the selected-slots summary below the calendar
+        // instead, so it must not appear twice.
+        this.showSelectionInfo = options.showSelectionInfo !== false;
         this.timezone = String(options.timezone || '').trim();
+
 
         // Per-day slot representation: 'list' (flat buttons, built-in) or 'timeline' (the shared
         // proportional renderer also used by the booking flow). Defaults to the list.
@@ -139,6 +147,8 @@ export class SlotCalendarPicker {
         this.lockedKeys = new Set(Array.isArray(options.lockedKeys) ? options.lockedKeys : []);
         this.currentLabel = options.currentLabel === undefined ? '' : String(options.currentLabel);
         this.lockedLabel = options.lockedLabel === undefined ? '' : String(options.lockedLabel);
+        this.selectedLabel = options.selectedLabel === undefined ? '' : String(options.selectedLabel);
+
 
         this.slotsByDay = new Map();
         this.allDayKeys = [];
@@ -348,7 +358,9 @@ export class SlotCalendarPicker {
         if (this.showSlotList) {
             this.container.appendChild(this.slotList);
         }
-        this.container.appendChild(this.selectionInfo);
+        if (this.showSelectionInfo) {
+            this.container.appendChild(this.selectionInfo);
+        }
         this.root.appendChild(this.container);
 
         this.applyResponsiveStyles();
@@ -498,6 +510,81 @@ export class SlotCalendarPicker {
         }
     }
 
+    /**
+     * Replace the picker's selection from an external owner and re-render.
+     *
+     * The booking flow's calendar + fixed-grid mode keeps the authoritative selection in the hidden
+     * slot_selection input, not in this.selected (see condition/slotBooking.js: it passes
+     * initialSelection: [] and a no-op onChange, because the day timeline rendered OUTSIDE the
+     * picker owns the clicking). Without this, this.selected stayed permanently empty there, so the
+     * day cells could not mark days carrying a selection and the built-in counter always read
+     * "0/N selected" no matter what the user had actually picked.
+     *
+     * Deliberately does NOT fire onChange: the caller is the source of truth here, so echoing the
+     * change back would just re-enter whatever wrote it.
+     *
+     * @param {Array<string>} keys currently selected slot keys
+     */
+    setSelectedKeys(keys) {
+        this.selected = new Set(Array.isArray(keys) ? keys.map(key => String(key)) : []);
+        this.render();
+    }
+
+    /**
+     * Find which calendar day a slot key belongs to.
+     *
+     * Resolved from the picker's own slotsByDay rather than re-derived caller-side: day keys here
+     * are built with the USER's timezone (toDateKey via this.dayKeyFormatter), while a caller
+     * working from a Date object would use the BROWSER's (toDateKeyFromDate). The two can differ by
+     * a day, which would send "jump to this slot's day" to the wrong day. Note also that the
+     * server-side DTO's own "daykey" field is NOT usable here: slot_dto::build_picker_slots()
+     * builds it with userdate('%Y-%m-%d'), which does not zero-pad ("2026-10-9"), while every day
+     * key in this class is zero-padded.
+     *
+     * @param {string} slotKey slot key ("start:end")
+     * @return {?string} "YYYY-MM-DD" day key, or null when the key is not among the loaded slots
+     */
+    findDayKeyForSlotKey(slotKey) {
+        const needle = String(slotKey);
+        const match = Array.from(this.slotsByDay.entries())
+            .find(([, daySlots]) => daySlots.some(slot => String(slot.key) === needle));
+        return match ? match[0] : null;
+    }
+
+    /**
+     * Programmatically open a given day, bringing the month/week view along with it.
+     *
+     * Used by the selected-slots summary below the calendar (see condition/slotBooking.js) to jump
+     * straight to the day a selected slot sits on - which may well be in a different month than the
+     * one currently shown, hence moving this.currentDate too. Mirrors how prepareData() honours
+     * initialActiveDay, so no new date handling is introduced.
+     *
+     * @param {string} dayKey "YYYY-MM-DD", as produced by findDayKeyForSlotKey()
+     * @return {boolean} whether that day existed and was opened
+     */
+    goToDay(dayKey) {
+        const targetDay = String(dayKey || '');
+        if (!targetDay || !this.slotsByDay.has(targetDay)) {
+            return false;
+        }
+
+        const changed = this.activeDay !== targetDay;
+        this.activeDay = targetDay;
+        this.currentDate = cloneDate(new Date(`${targetDay}T00:00:00`));
+        this.render();
+
+        // Only when the day actually changed, matching the day-cell click handler in
+        // renderCalendarGrid() - re-notifying for the day already on screen would pointlessly
+        // re-render the external day timeline (and flicker) on every summary click.
+        if (changed) {
+            const daySlots = this.slotsByDay.get(targetDay) || [];
+            const visibleSlots = this.slotFilter ? daySlots.filter(this.slotFilter) : daySlots;
+            this.onDayChange(targetDay, visibleSlots);
+        }
+
+        return true;
+    }
+
     renderCalendarGrid() {
         this.calendarGrid.innerHTML = '';
 
@@ -577,6 +664,23 @@ export class SlotCalendarPicker {
                     marker.title = this.currentLabel;
                 }
                 dayHeader.appendChild(marker);
+            }
+
+            // Days holding part of the current selection get a count badge, so a slot picked on one
+            // day stays discoverable while the user is looking at another - with max_slots_per_user
+            // above 1 the selection spans days, but the day timeline only ever draws the active one.
+            // Uses the same accent as the dayHasCurrent ring above rather than a Bootstrap badge
+            // class, so both markers stay visually consistent under any theme.
+            const daySelectedCount = daySlots.filter(slot => this.selected.has(slot.key)).length;
+            if (daySelectedCount > 0) {
+                const selectedBadge = document.createElement('span');
+                selectedBadge.className = 'small fw-bold text-white px-1 rounded';
+                selectedBadge.style.backgroundColor = '#0d6efd';
+                selectedBadge.textContent = String(daySelectedCount);
+                if (this.selectedLabel) {
+                    selectedBadge.title = this.selectedLabel;
+                }
+                dayHeader.appendChild(selectedBadge);
             }
 
             btn.appendChild(dayHeader);
