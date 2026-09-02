@@ -467,7 +467,9 @@ class slot_update_service {
         if (count($newkeys) === 0) {
             $answer = $ctx['answer'];
             $option = singleton_service::get_instance_of_booking_option((int)$settings->cmid, $optionid);
-            $option->user_delete_response((int)$answer->userid);
+            // Scope the deletion to THIS answer row - the user may hold further active answers
+            // on this option (book again), and cancelling one booking must not delete the others.
+            $option->user_delete_response((int)$answer->userid, onlybaid: (int)$answer->id);
             return self::outcome('cancel', 0.0, 0, ['newstart' => 0, 'newend' => 0, 'slotcount' => 0]);
         }
 
