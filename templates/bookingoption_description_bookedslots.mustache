@@ -1,0 +1,95 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_booking/bookingoption_description_bookedslots
+
+    The slots a user currently holds on a slot booking booking option.
+
+    Slot options have no optiondates at all - the booked slots live as ranges inside the user's
+    booking answer - so the neighbouring "dates" partial is always empty for them. Without this the
+    option page showed a bare "Booked" and never said WHICH slots that meant, and once
+    max_slots_per_user was used up the slot picker stopped opening, so there was no way left to
+    find out.
+
+    Rendered from bookingoption_description, and scoped to the user that description is rendered
+    FOR - which is not necessarily the logged in user.
+
+    When slotreleaseenabled is set (self-service only: the viewing user IS the booked user, the
+    option opts into self-rebooking and the cancellation policy allows it - see
+    slot_mover::per_slot_release_available()) each still-cancelable row carries a cancel button
+    that releases exactly that slot via the release_slots webservice
+    (mod_booking/slotbooking/slot_release). Rows past their relative deadline stay read-only.
+
+    Context variables required for this template:
+    * bookedslotsexist - Whether the user holds any booked slot on this option. Nothing renders
+      when this is falsy.
+    * slotreleaseenabled - Whether per-slot cancel buttons are offered.
+    * bookedslots - The booked slots, ordered by start time.
+        * daylabel - Localised day, e.g. "Friday, 4 September 2026".
+        * timelabel - Localised time range, e.g. "9:20 AM - 10:00 AM".
+        * optionid, baid, key - Address of this slot for the release webservice.
+        * cancelable - Whether this slot is still before its release deadline.
+
+    Example context (json):
+    {
+        "bookedslotsexist": true,
+        "slotreleaseenabled": true,
+        "bookedslots": [
+            {"daylabel": "Friday, 4 September 2026", "timelabel": "9:20 AM - 10:00 AM",
+             "optionid": 5140, "baid": 2229, "key": "1788852000:1788854400", "cancelable": true},
+            {"daylabel": "Wednesday, 9 September 2026", "timelabel": "10:00 AM - 10:40 AM",
+             "optionid": 5140, "baid": 2229, "key": "1789286400:1789288800", "cancelable": false}
+        ]
+    }
+}}
+{{#bookedslotsexist}}
+    <div class="bo_bookedslots list-group-item border-0 ps-0 pe-0">
+        <div class="booking-showdates-title">
+            <i class="fa fa-calendar fa-fw" aria-hidden="true"></i>&nbsp;<b>{{#str}}slot_report_numslots, mod_booking{{/str}}</b>
+        </div>
+        <div class="list-group">
+            {{#bookedslots}}
+                <div class="list-group-item bo_bookedslot d-flex align-items-center flex-wrap gap-2">
+                    <b class="bo_bookedslot_day">{{daylabel}}</b>
+                    <span class="bo_bookedslot_time">{{timelabel}}</span>
+                    {{#slotreleaseenabled}}
+                        {{#cancelable}}
+                            <button type="button"
+                                    class="btn btn-sm btn-outline-danger icon-no-margin ms-auto booking-slot-release"
+                                    data-action="booking-slot-release"
+                                    data-optionid="{{optionid}}"
+                                    data-baid="{{baid}}"
+                                    data-slotkey="{{key}}"
+                                    data-slotlabel="{{daylabel}}, {{timelabel}}"
+                                    aria-label="{{#str}}slot_release_action, mod_booking{{/str}}"
+                                    title="{{#str}}slot_release_action, mod_booking{{/str}}">
+                                {{#pix}}t/delete, core{{/pix}}
+                            </button>
+                        {{/cancelable}}
+                    {{/slotreleaseenabled}}
+                </div>
+            {{/bookedslots}}
+        </div>
+    </div>
+    {{#slotreleaseenabled}}
+        {{#js}}
+            require(['mod_booking/slotbooking/slot_release'], function(module) {
+                module.init();
+            });
+        {{/js}}
+    {{/slotreleaseenabled}}
+{{/bookedslotsexist}}

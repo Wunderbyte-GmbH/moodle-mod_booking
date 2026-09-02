@@ -97,10 +97,17 @@ class slot_dto {
      *
      * @param int $optionid booking option id
      * @param int $userid user id
+     * @param bool $ignoreuserslotcap skip the per-user max_slots_per_user gate, so the result
+     *  describes what the OPTION still has rather than what this user may book. Used by the
+     *  read-only availability overview shown to a user who has used up their allowance.
      * @return array<int, array<string, mixed>>
      */
-    public static function build_picker_slots(int $optionid, int $userid): array {
-        $slots = slot_availability::get_slots_with_status($optionid, $userid);
+    public static function build_picker_slots(
+        int $optionid,
+        int $userid,
+        bool $ignoreuserslotcap = false
+    ): array {
+        $slots = slot_availability::get_slots_with_status($optionid, $userid, $ignoreuserslotcap);
         $result = [];
 
         // Buffer settings are per-option, so every slot DTO carries the same values; the day
@@ -169,6 +176,57 @@ class slot_dto {
         }
 
         return $result;
+    }
+
+    /**
+     * Booked slot ranges of one user on one option, formatted for display.
+     *
+     * A user's slots are stored as ranges INSIDE their booking answer(s), not as one answer per
+     * slot, so aggregating them like this is the only way to name what somebody actually holds.
+     * It is the same data the picker paints as "booked".
+     *
+     * Shared deliberately: the options table's showdates column and the booking option detail page
+     * both render it, and before this existed only the table did - which is how a fully booked
+     * option could end up showing "Booked" without saying anywhere WHICH slots that meant.
+     *
+     * @param int $optionid booking option id
+     * @param int $userid user id
+     * @return array<int, array<string, mixed>> rows of ['start', 'end', 'daylabel', 'timelabel', 'label']
+     */
+    public static function build_booked_slot_rows(int $optionid, int $userid): array {
+        $rows = [];
+
+        // Per-row release metadata: which answer row the slot lives in and whether the relative
+        // per-slot deadline still allows giving it up (slot_change_policy is the single source of
+        // truth, same rule release_self() enforces server-side).
+        $offset = slot_change_policy::resolve_deadline_minutes($optionid);
+        $now = time();
+
+        foreach (slot_availability::get_booked_slot_ranges_for_user($optionid, $userid) as $range) {
+            $start = (int)($range['start'] ?? 0);
+            $end = (int)($range['end'] ?? 0);
+            if ($start <= 0 || $end <= $start) {
+                continue;
+            }
+
+            $rows[] = [
+                'start' => $start,
+                'end' => $end,
+                'daylabel' => self::day_label($start),
+                'timelabel' => self::time_range_label($start, $end),
+                // Kept byte-identical to what bookingoptions_wbtable::col_showdates rendered before
+                // this was extracted out of it, so moving that caller onto this helper cannot change
+                // any existing output.
+                'label' => userdate($start, get_string('strftimedatetime', 'langconfig'))
+                    . ' - ' . userdate($end, get_string('strftimetime', 'langconfig')),
+                'key' => $start . ':' . $end,
+                'optionid' => $optionid,
+                'baid' => (int)($range['baid'] ?? 0),
+                'cancelable' => slot_change_policy::slot_actionable($start, $offset, $now),
+            ];
+        }
+
+        return $rows;
     }
 
     /**

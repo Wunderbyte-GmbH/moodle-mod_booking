@@ -26,6 +26,7 @@ namespace mod_booking\local\slotbooking;
 
 use core_text;
 use mod_booking\local\entities_compat;
+use mod_booking\option\fields\multiplebookings;
 use mod_booking\singleton_service;
 
 /**
@@ -498,6 +499,23 @@ class slot_availability {
      * @return array list of ['start' => int, 'end' => int] ranges
      */
     public static function get_booked_slot_ranges_for_user(int $optionid, int $userid): array {
+        return self::collect_booked_slot_ranges($optionid, $userid, false);
+    }
+
+    /**
+     * Collect a user's booked slot ranges on an option.
+     *
+     * @param int $optionid booking option id
+     * @param int $userid user id
+     * @param bool $onlycountingtowardscap when true, skip bookings that have already passed the
+     *  "Allow to book again" gate - see the comment at the skip below
+     * @return array list of ['start' => int, 'end' => int] ranges
+     */
+    private static function collect_booked_slot_ranges(
+        int $optionid,
+        int $userid,
+        bool $onlycountingtowardscap
+    ): array {
         if ($optionid <= 0 || $userid <= 0) {
             return [];
         }
@@ -524,6 +542,17 @@ class slot_availability {
                 continue;
             }
 
+            // max_slots_per_user caps ONE booking, not everything a user may ever hold. Once
+            // "Allow to book again" permits a new booking, the previous booking's slots stop
+            // consuming the allowance and the new booking starts from zero again. Those slots stay
+            // booked and keep their time ranges reserved through the normal per-slot capacity and
+            // overlap checks - they simply no longer occupy part of the allowance.
+            // With "Allow to book again" disabled (the default), book_again_due() is always false,
+            // so nothing is skipped and the cap behaves exactly as it did before.
+            if ($onlycountingtowardscap && multiplebookings::book_again_due($optionid, (object)$answer)) {
+                continue;
+            }
+
             $ranges = self::extract_booked_ranges_from_answer((object)$answer);
             foreach ($ranges as $range) {
                 $start = (int)($range['start'] ?? 0);
@@ -535,6 +564,11 @@ class slot_availability {
                 $rangesbykey[$start . ':' . $end] = [
                     'start' => $start,
                     'end' => $end,
+                    // The answer row holding this range - a user can hold several answers on one
+                    // option (book again), and any per-slot action (release_slots WS) must address
+                    // the row the slot actually lives in. NOTE: in the booking_answers singleton's
+                    // answer shape 'id' is the USER id; the booking_answers row id is 'baid'.
+                    'baid' => (int)($answer->baid ?? 0),
                 ];
             }
         }
@@ -564,6 +598,26 @@ class slot_availability {
     }
 
     /**
+     * Slot keys the user holds in bookings that still count against max_slots_per_user.
+     *
+     * Unlike get_booked_slot_key_set_for_user(), which answers "which slots does this user hold"
+     * (used to paint their own slots as booked in the picker), this answers "how much of their
+     * allowance is used up" - and a booking that may already be re-booked no longer uses any.
+     *
+     * @param int $optionid booking option id
+     * @param int $userid user id
+     * @return array
+     */
+    private static function get_capacity_relevant_slot_key_set_for_user(int $optionid, int $userid): array {
+        $slotkeyset = [];
+        foreach (self::collect_booked_slot_ranges($optionid, $userid, true) as $range) {
+            $slotkeyset[$range['start'] . ':' . $range['end']] = true;
+        }
+
+        return $slotkeyset;
+    }
+
+    /**
      * Whether the user can still buy additional slots for this option, i.e. the number of slots
      * they currently hold (across all of their own active answers, which can be more than one -
      * see get_active_answer_ids_for_user()) is below the option's max_slots_per_user.
@@ -583,7 +637,7 @@ class slot_availability {
         }
 
         $maxslots = max(1, (int)($config->max_slots_per_user ?? 1));
-        $bookedcount = count(self::get_booked_slot_key_set_for_user($optionid, $userid));
+        $bookedcount = count(self::get_capacity_relevant_slot_key_set_for_user($optionid, $userid));
 
         return $bookedcount < $maxslots;
     }
@@ -608,7 +662,7 @@ class slot_availability {
         }
 
         $maxslots = max(1, (int)($config->max_slots_per_user ?? 1));
-        $ownedkeys = self::get_booked_slot_key_set_for_user($optionid, $userid);
+        $ownedkeys = self::get_capacity_relevant_slot_key_set_for_user($optionid, $userid);
         $newkeys = array_diff($requestedkeys, array_keys($ownedkeys));
 
         return (count($ownedkeys) + count($newkeys)) <= $maxslots;

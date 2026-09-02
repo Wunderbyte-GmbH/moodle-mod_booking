@@ -197,11 +197,13 @@ final class slot_repeat_purchase_answer_test extends booking_advanced_testcase {
             $this->assertSame((int) MOD_BOOKING_STATUSPARAM_BOOKED, (int) $answer->waitinglist);
         }
 
-        // The user's booked ranges aggregate across both answers (as shown in the options table).
+        // The user's booked ranges aggregate across both answers (as shown in the options table),
+        // each tagged with the answer row it lives in (per-slot release addresses that row).
+        [$answer1, $answer2] = array_values($answers);
         $ranges = slot_availability::get_booked_slot_ranges_for_user($optionid, $userid);
         $this->assertSame([
-            ['start' => $firststart, 'end' => $firststart + (60 * MINSECS)],
-            ['start' => $secondstart, 'end' => $secondstart + (60 * MINSECS)],
+            ['start' => $firststart, 'end' => $firststart + (60 * MINSECS), 'baid' => (int)$answer1->id],
+            ['start' => $secondstart, 'end' => $secondstart + (60 * MINSECS), 'baid' => (int)$answer2->id],
         ], $ranges);
 
         // Third attempt: capacity exhausted - the booked-state gate must swallow the commit again.
