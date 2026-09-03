@@ -319,7 +319,7 @@ class courseid extends field_base {
             'valuehtmlcallback' => function ($value) {
                 global $DB, $OUTPUT;
                 // Check if the course is currently being duplicated.
-                $sql = "SELECT c.id, c.fullname, c.shortname
+                $sql = "SELECT c.id, c.fullname, c.shortname, c.visible
                         FROM {course} c
                         JOIN {backup_controllers} bc
                         ON c.id = bc.itemid
@@ -331,7 +331,7 @@ class courseid extends field_base {
 
                 if (empty($duplicatingcourse)) {
                     // Check if the course exists.
-                    $sql = "SELECT c.id, c.fullname, c.shortname
+                    $sql = "SELECT c.id, c.fullname, c.shortname, c.visible
                             FROM {course} c
                             WHERE c.id = :courseid";
                     $params = ['courseid' => $value];

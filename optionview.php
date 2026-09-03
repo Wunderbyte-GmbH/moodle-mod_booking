@@ -24,6 +24,7 @@
  */
 
 use mod_booking\booking_option;
+use mod_booking\local\connectedcourse;
 use mod_booking\local\override_user_field;
 use mod_booking\local\customform_prefill;
 use mod_booking\output\bookingoption_description;
@@ -78,7 +79,12 @@ $ba = singleton_service::get_instance_of_booking_answers($settings);
 $bausersonlist = $ba->get_usersonlist();
 $courseid = $settings->courseid;
 
-if ($redirecttocourse === 1 && isset($bausersonlist[$USER->id])) {
+// Booked users are sent on to the course after login - unless the course is hidden for them.
+if (
+    $redirecttocourse === 1
+    && isset($bausersonlist[$USER->id])
+    && connectedcourse::can_user_see_connected_course((int)$courseid, $USER->id)
+) {
     $url = new moodle_url('/course/view.php', ['id' => $courseid]);
     redirect($url->out());
 }

@@ -26,6 +26,7 @@
 namespace mod_booking\local;
 
 use core_course_external;
+use mod_booking\singleton_service;
 use moodle_exception;
 use stdClass;
 use context_course;
@@ -39,6 +40,39 @@ use context_course;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class connectedcourse {
+    /**
+     * Whether the user may open the connected course.
+     *
+     * A hidden course (course.visible = 0) can be connected to an option and booked like any other,
+     * but a link to it is only useful for users who may see hidden courses: everybody else gets
+     * Moodle's "course is hidden" page. Callers rendering a "go to course" link use this to hide it.
+     *
+     * @param int $courseid the connected course, 0 if none
+     * @param int $userid the user who would follow the link, 0 for the current user
+     * @return bool true if the course exists and is visible, or the user may see hidden courses in it
+     */
+    public static function can_user_see_connected_course(int $courseid, int $userid = 0): bool {
+        global $USER;
+
+        if (empty($courseid)) {
+            return false;
+        }
+        $course = singleton_service::get_course($courseid);
+        if (empty($course)) {
+            // The course has been deleted.
+            return false;
+        }
+        if (!empty($course->visible)) {
+            return true;
+        }
+        $userid = $userid ?: (int)($USER->id ?? 0);
+        if (empty($userid)) {
+            return false;
+        }
+        $context = context_course::instance($courseid, IGNORE_MISSING);
+        return $context && has_capability('moodle/course:viewhiddencourses', $context, $userid);
+    }
+
     /**
      * Create new course.
      * @param stdClass $newoption

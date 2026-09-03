@@ -76,6 +76,11 @@ class search_courses extends external_api {
                     'id' => new \core_external\external_value(PARAM_INT, 'ID of the course'),
                     'fullname' => new \core_external\external_value(PARAM_TEXT, 'Name of the course'),
                     'shortname' => new \core_external\external_value(PARAM_TEXT, 'Shortname of the course'),
+                    'visible' => new \core_external\external_value(
+                        PARAM_INT,
+                        '1 if the course is visible, 0 if it is hidden',
+                        VALUE_OPTIONAL
+                    ),
                 ])
             ),
             'warnings' => new \core_external\external_value(PARAM_TEXT, 'Warnings'),

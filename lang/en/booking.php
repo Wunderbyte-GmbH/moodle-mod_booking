@@ -1543,6 +1543,7 @@ $string['coursecalendarurl'] = "URL for course calendar";
 $string['coursedate'] = 'Date';
 $string['coursedoesnotexist'] = 'The Coursenumber {$a} does not exist';
 $string['courseduplicating'] = 'DO NOT REMOVE this item. Moodle course is being copied with next run of CRON task.';
+$string['coursehidden'] = 'Hidden course';
 $string['courseendtime'] = 'End time of the course';
 $string['courseid'] = 'Course to subscribe to';
 $string['courselink'] = "Link to course related to bookingoption";

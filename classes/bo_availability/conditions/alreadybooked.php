@@ -27,6 +27,7 @@ namespace mod_booking\bo_availability\conditions;
 use mod_booking\bo_availability\bo_condition;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_option_settings;
+use mod_booking\local\connectedcourse;
 use mod_booking\local\modechecker;
 use mod_booking\option\fields\multiplebookings;
 use mod_booking\local\slotbooking\slot_availability;
@@ -277,9 +278,11 @@ class alreadybooked implements bo_condition {
     ): array {
 
         $link = '';
+        // A hidden course is only linked for users who may see it, the others get the plain "booked" label.
         if (
             get_config('booking', 'linktomoodlecourseonbookedbutton')
             && !empty($settings->courseid)
+            && connectedcourse::can_user_see_connected_course($settings->courseid, $userid)
         ) {
             $label = get_string('coursestart', 'mod_booking');
             $url = new \moodle_url('/course/view.php', ['id' => $settings->courseid]);
