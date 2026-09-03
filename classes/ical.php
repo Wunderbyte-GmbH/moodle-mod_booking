@@ -25,6 +25,7 @@
 
 namespace mod_booking;
 
+use mod_booking\local\connectedcourse;
 use mod_booking\output\description\description_ical;
 
 /**
@@ -263,7 +264,12 @@ class ical {
         and shows the newlines as [0x0A] junk. So we switch it for commas
         here. Remember commas need to be escaped too. */
         $icalfieldlocation = (int)\get_config('booking', 'icalfieldlocation');
-        if ($this->option->courseid && $icalfieldlocation == 1) {
+        // The location is the course url only if the recipient may see the course (hidden courses).
+        if (
+            $this->option->courseid
+            && $icalfieldlocation == 1
+            && connectedcourse::can_user_see_connected_course((int)$this->option->courseid, (int)$this->user->id)
+        ) {
             $url = new \moodle_url('/course/view.php', ['id' => $this->option->courseid]);
             $this->location = $this->escape($url->out());
         } else if ($icalfieldlocation == 2) {

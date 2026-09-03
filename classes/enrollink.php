@@ -22,6 +22,7 @@ use html_writer;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\bo_availability\conditions\customform;
 use mod_booking\event\enrollink_triggered;
+use mod_booking\local\connectedcourse;
 use moodle_url;
 use stdClass;
 
@@ -297,7 +298,11 @@ class enrollink {
      *
      */
     public function get_courselink_url(): string {
-        if (empty($this->bundle->courseid)) {
+        if (
+            empty($this->bundle->courseid)
+            || !connectedcourse::can_user_see_connected_course((int)$this->bundle->courseid)
+        ) {
+            // No course, or a hidden course the user may not see.
             return "";
         }
         $url = new moodle_url('/course/view.php', ['id' => $this->bundle->courseid]);

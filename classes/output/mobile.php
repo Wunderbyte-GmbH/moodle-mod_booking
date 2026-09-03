@@ -32,6 +32,7 @@ use mod_booking\bo_availability\bo_info;
 use mod_booking\bo_availability\conditions\customform;
 use mod_booking\booking;
 use mod_booking\booking_bookit;
+use mod_booking\local\connectedcourse;
 use mod_booking\local\mobile\customformstore;
 use mod_booking\local\mobile\mobileformbuilder;
 use mod_booking\places;
@@ -273,9 +274,11 @@ class mobile {
      */
     public static function render_course_button(&$data) {
         global $CFG;
+        // A hidden course is only linked for users who may see it, the others get no course button.
         if (
             isset($data['courseid']) &&
-            (int)$data['courseid'] > 0
+            (int)$data['courseid'] > 0 &&
+            connectedcourse::can_user_see_connected_course((int)$data['courseid'])
         ) {
             $linktocourse = $CFG->wwwroot . '/course/view.php?id=' . $data['courseid'];
             if (get_config('booking', 'linktomoodlecourseonbookedbutton')) {

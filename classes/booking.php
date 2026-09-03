@@ -259,11 +259,14 @@ class booking {
      * @return array
      */
     public static function load_courses(string $query) {
-        global $DB;
+        global $DB, $USER;
 
         // Users with this capability may pick ANY course as a duplication source, including
         // courses they cannot otherwise see or access. For everyone else we restrict the list
-        // to visible courses in which they may manually enrol.
+        // to the courses in which they may manually enrol. Hidden courses are included: the
+        // booking enrols through enrol_manual, which does not depend on the course visibility,
+        // and the links to a hidden course are only shown to users who may see it
+        // (see connectedcourse::can_user_see_connected_course).
         $canduplicateany = has_capability('mod/booking:duplicateanycourse', \context_system::instance());
 
         $values = explode(' ', $query);
@@ -273,24 +276,21 @@ class booking {
         $params = [];
         $innerwhere = '';
         if (!$canduplicateany) {
-            $totalcount = 1;
-            $allcourses = get_courses_search(
-                [],
-                'c.fullname ASC',
-                0,
-                9999999,
-                $totalcount,
-                ['enrol/manual:enrol']
-            );
-            $allcourseids = array_keys($allcourses);
-            [$incourseids, $inparams] = $DB->get_in_or_equal($allcourseids, SQL_PARAMS_NAMED, 'inparam');
-            // Check for c.visible = 1 is important, so we do not load any invisible courses!
-            $innerwhere = "WHERE c.visible = 1 AND c.id $incourseids";
-            $params = $inparams;
+            // Returns false when the user may not enrol anywhere. The site course is listed as well.
+            $courses = get_user_capability_course('enrol/manual:enrol', $USER->id, true) ?: [];
+            $courseids = array_diff(array_column($courses, 'id'), [SITEID]);
+            if (empty($courseids)) {
+                return [
+                    'warnings' => '',
+                    'list' => [0 => self::no_course_selected_entry()],
+                ];
+            }
+            [$incourseids, $params] = $DB->get_in_or_equal($courseids, SQL_PARAMS_NAMED, 'inparam');
+            $innerwhere = "WHERE c.id $incourseids";
         }
 
         $sql = "SELECT * FROM (
-                    SELECT c.id, c.shortname, c.fullname, $fullsql AS fulltextstring
+                    SELECT c.id, c.shortname, c.fullname, c.visible, $fullsql AS fulltextstring
                     FROM {course} c
                     $innerwhere
                 ) AS fulltexttable";
@@ -320,6 +320,7 @@ class booking {
                     'id' => $record->id,
                     'shortname' => $record->shortname,
                     'fullname' => $record->fullname,
+                    'visible' => (int)$record->visible,
             ];
 
             $count++;
@@ -327,17 +328,27 @@ class booking {
         }
 
         // 0 ... No course has been selected.
-        $coursearray[0] = (object)[
-            'id' => 0,
-            'shortname' => get_string('nocourseselected', 'mod_booking'),
-            'fullname' => get_string('nocourseselected', 'mod_booking'),
-        ];
+        $coursearray[0] = self::no_course_selected_entry();
 
         $rs->close();
 
         return [
                 'warnings' => count($coursearray) > 100 ? get_string('toomanytoshow', 'mod_booking') : '',
                 'list' => count($coursearray) > 100 ? [] : $coursearray,
+        ];
+    }
+
+    /**
+     * The "no course selected" entry of the course autocomplete.
+     *
+     * @return object
+     */
+    private static function no_course_selected_entry(): object {
+        return (object)[
+            'id' => 0,
+            'shortname' => get_string('nocourseselected', 'mod_booking'),
+            'fullname' => get_string('nocourseselected', 'mod_booking'),
+            'visible' => 1,
         ];
     }
 

@@ -50,6 +50,8 @@ When mode `1` is selected, an autocomplete search field appears:
 
 Once linked, every user who books this option is immediately enrolled in the selected course using the standard Moodle enrolment mechanism.
 
+The search lists every course in which you may enrol users manually (`enrol/manual:enrol`), hidden courses included - they carry a **Hidden course** badge. This lets you prepare and sell an option before the course is released: booked users are enrolled as usual, but the links to the course ("Start" on the booked button, "Go to Moodle course", the buttons of the Moodle app, the redirect to the course after login, the link on the enrol link page and the iCal location) are only shown once the course is visible. Users who may see hidden courses (`moodle/course:viewhiddencourses`, e.g. managers and editing teachers of the course) see the links at any time.
+
 ### CSV import
 
 Use `enroltocourseshortname` (preferred) or `courseid` (internal numeric ID) in the CSV:

@@ -29,15 +29,17 @@
     * id int course id
     * shortname string short name of the course
     * fullname string name of the course
+    * visible int 1 if the course is visible, 0 if it is hidden (a badge is shown)
 
     Example context (json):
     {
         "id" : 12,
         "shortname" : "courseshortname",
-        "fullname" : "Full name of the course"
+        "fullname" : "Full name of the course",
+        "visible" : 0
     }
 }}
 <span class="course-suggestion font-weight-bold">
-    {{fullname}} (ID: {{id}})<br>
+    {{fullname}} (ID: {{id}}){{^visible}} <span class="badge badge-secondary">{{#str}} coursehidden, mod_booking {{/str}}</span>{{/visible}}<br>
     <small>{{shortname}}</small>
 </span>

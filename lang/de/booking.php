@@ -1458,6 +1458,7 @@ $string['coursecalendarurl'] = "Kurskalenderlink";
 $string['coursedate'] = 'Kurstermin';
 $string['coursedoesnotexist'] = 'Die Kursnummer {$a} existiert nicht';
 $string['courseduplicating'] = 'Diesen Eintrag NICHT ENTFERNEN. Moodle-Kurs wird mit der nächsten Ausführung des CRON-Tasks kopiert.';
+$string['coursehidden'] = 'Verborgener Kurs';
 $string['courseendtime'] = 'Kursende';
 $string['courseid'] = 'Kurs, in den eingeschrieben wird';
 $string['courselink'] = "Link zum Kurs in Beziehung mit Buchungsoption";

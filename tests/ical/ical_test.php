@@ -733,6 +733,48 @@ final class ical_test extends booking_advanced_testcase {
     }
 
     /**
+     * The LOCATION of the ics file is the url of the connected course - but not for a recipient
+     * who may not see the course while it is hidden.
+     *
+     * @covers \mod_booking\ical
+     * @covers \mod_booking\local\connectedcourse::can_user_see_connected_course
+     * @return void
+     */
+    public function test_ical_location_omits_hidden_course_for_students(): void {
+        global $DB;
+
+        $env = $this->setup_environment();
+        $student1 = $env['users']['student1'];
+        $course = $env['course'];
+        set_config('icalfieldlocation', 1, 'booking');
+
+        $render = function (\stdClass $recipient) use ($env): string {
+            singleton_service::destroy_instance();
+            $optionsettings = singleton_service::get_instance_of_booking_option_settings($env['option']->id);
+            $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($optionsettings->cmid);
+            $ical = new ical($bookingsettings, $optionsettings, $recipient, $bookingsettings->bookingmanageruser, false);
+            $attachments = $ical->get_attachments(false);
+            return file_get_contents($attachments['booking.ics']);
+        };
+
+        // Visible course: the url is the location.
+        $this->assertStringContainsString(
+            'course/view.php?id=' . $course->id,
+            $this->get_ics_property($render($student1), 'LOCATION')
+        );
+
+        // Hidden course: no location for the student...
+        $DB->set_field('course', 'visible', 0, ['id' => $course->id]);
+        $this->assertStringNotContainsString('LOCATION', $render($student1));
+
+        // ...but for a recipient who may see hidden courses.
+        $this->assertStringContainsString(
+            'course/view.php?id=' . $course->id,
+            $this->get_ics_property($render(get_admin()), 'LOCATION')
+        );
+    }
+
+    /**
      * The description of the ics file can be defined by the admin via a booking option custom field.
      * This test makes sure that the placeholders used in such a template are rendered and that the
      * result is correctly formatted for the ics file - for the plain text DESCRIPTION as well as for

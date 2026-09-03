@@ -27,6 +27,7 @@ use core_completion\progress;
 use mod_booking\bo_availability\conditions\alreadybooked;
 use mod_booking\booking_answers\booking_answers;
 use core_plugin_manager;
+use mod_booking\local\connectedcourse;
 use mod_booking\local\modechecker;
 use mod_booking\local\override_user_field;
 use mod_booking\output\col_responsiblecontacts;
@@ -899,6 +900,14 @@ class bookingoptions_wbtable extends wunderbyte_table {
         }
 
         $settings = singleton_service::get_instance_of_booking_option_settings($values->id, $values);
+
+        // No link without a course, and none to a hidden course for users who may not see it.
+        if (
+            empty($settings->courseid)
+            || !connectedcourse::can_user_see_connected_course($settings->courseid, $USER->id)
+        ) {
+            return '';
+        }
 
         $ret = '';
 
