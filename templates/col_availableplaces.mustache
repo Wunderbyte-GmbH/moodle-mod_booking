@@ -40,7 +40,7 @@
                 <span class="text-danger font-weight-bold">{{booked}}</span>
             {{/fullybooked}}
             {{^fullybooked}}
-                <span class="text-success font-weight-bold">{{booked}}</span>
+                <span class="text-darkgreen font-weight-bold">{{booked}}</span>
             {{/fullybooked}}
                 / {{maxanswers}}
         {{/showbookingplacesinfotext}}
@@ -50,7 +50,7 @@
     </span>
 {{/maxanswers}}
 {{^maxanswers}}
-    <span class="text-success font-weight-bold">{{booked}}</span>
+    <span class="text-darkgreen font-weight-bold">{{booked}}</span>
             / {{#str}} unlimitedplaces, mod_booking {{/str}}
 {{/maxanswers}}
 

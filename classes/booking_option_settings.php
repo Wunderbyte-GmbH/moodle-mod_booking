@@ -22,6 +22,7 @@ use context_user;
 use core_plugin_manager;
 use html_writer;
 use local_entities\entitiesrelation_handler;
+use local_wunderbyte_table\local\customfield\wbt_field_controller_info;
 use mod_booking\bo_availability\bo_subinfo;
 use mod_booking\bo_availability\conditions\subbooking;
 use mod_booking\booking_campaigns\campaigns_info;
@@ -33,6 +34,10 @@ use moodle_exception;
 use stdClass;
 use moodle_url;
 use Throwable;
+
+defined('MOODLE_INTERNAL') || die();
+
+require_once($CFG->dirroot . '/mod/booking/lib.php');
 
 /**
  * Settings class for booking option instances.
@@ -106,6 +111,12 @@ class booking_option_settings {
 
     /** @var int $timemodified */
     public $timemodified = null;
+
+    /** @var int $usercreated ID of the user who created this booking option. */
+    public $usercreated = 0;
+
+    /** @var int $usermodified ID of the user who last modified this booking option. */
+    public $usermodified = 0;
 
     /** @var int $addtocalendar */
     public $addtocalendar = null;
@@ -212,6 +223,9 @@ class booking_option_settings {
     /** @var string $manageresponsesurl */
     public $manageresponsesurl = null;
 
+    /** @var string $bookingstrackerurl */
+    public $bookingstrackerurl = null;
+
     /** @var string $optiondatesteachersurl */
     public $optiondatesteachersurl = null;
 
@@ -234,10 +248,13 @@ class booking_option_settings {
     public $dayofweek = null;
 
     /** @var string $availability in json format */
-    public $availability = null;
+    public $availability = '[]';
 
     /** @var int $status like 1 for cancelled */
     public $status = null;
+
+    /** @var int $type booking option type (0 = default, 1 = selflearningcourse, 2 = slotbooking) */
+    public $type = null;
 
     /** @var string $imageurl url */
     public $imageurl = '';
@@ -284,6 +301,9 @@ class booking_option_settings {
     /** @var int $waitforconfirmation Only books to waitinglist and manually confirm every booking. */
     public $waitforconfirmation = 0;
 
+    /** @var int $waitlistopenmode Typ-2 "open after full pass" waitlist mode is active for this option. */
+    public $waitlistopenmode = 0;
+
     /** @var int $confirmationonnotification Only books to waitinglist and manually confirm every booking. */
     public $confirmationonnotification = 0;
 
@@ -304,6 +324,9 @@ class booking_option_settings {
 
     /** @var array $subpluginssettings Collects Data that Subplugins need in the Settings singleton*/
     public $subpluginssettings = [];
+
+    /** @var ?stdClass $slotconfig Cached slot booking configuration for this option */
+    public $slotconfig = null;
 
     /**
      * Constructor for the booking option settings class.
@@ -357,6 +380,15 @@ class booking_option_settings {
     }
 
     /**
+     * Whether this option is a self-learning course: no option dates and no official start or end.
+     *
+     * @return bool
+     */
+    public function is_selflearningcourse(): bool {
+        return (int) $this->type === MOD_BOOKING_OPTIONTYPE_SELFLEARNINGCOURSE;
+    }
+
+    /**
      * Set all the values from DB, if necessary.
      * If we have passed on the cached object, we use this one.
      *
@@ -388,6 +420,8 @@ class booking_option_settings {
                 $context = context_system::instance();
             }
 
+            // The select/from/where fragments are internal SQL built by get_options_filter_sql().
+            // They never contain raw values: everything variable is bound via $params placeholders.
             [$select, $from, $where, $params] = booking::get_options_filter_sql(
                 0,
                 1,
@@ -409,6 +443,7 @@ class booking_option_settings {
             // Fields in DB.
             $this->id = $optionid;
             $this->bookingid = $dbrecord->bookingid;
+            $this->waitlistopenmode = (int)($dbrecord->waitlistopenmode ?? 0);
             $this->identifier = $dbrecord->identifier;
             $this->titleprefix = $dbrecord->titleprefix;
             $this->text = $dbrecord->text;
@@ -426,6 +461,8 @@ class booking_option_settings {
             $this->limitanswers = $dbrecord->limitanswers;
             $this->timecreated = $dbrecord->timecreated;
             $this->timemodified = $dbrecord->timemodified;
+            $this->usercreated = $dbrecord->usercreated ?? 0;
+            $this->usermodified = $dbrecord->usermodified ?? 0;
             $this->addtocalendar = $dbrecord->addtocalendar;
             $this->calendarid = $dbrecord->calendarid;
             $this->pollurl = $dbrecord->pollurl;
@@ -454,11 +491,18 @@ class booking_option_settings {
             $this->timemadevisible = $dbrecord->timemadevisible;
             $this->annotation = $dbrecord->annotation;
             $this->dayofweek = $dbrecord->dayofweek;
-            $this->availability = $dbrecord->availability;
+            $this->availability = $dbrecord->availability ?? '[]';
             $this->status = $dbrecord->status;
             $this->responsiblecontact = !empty($dbrecord->responsiblecontact) ? explode(',', $dbrecord->responsiblecontact) : [];
             $this->sqlfilter = $dbrecord->sqlfilter;
             $this->competencies = $dbrecord->competencies;
+
+            // Legacy: Previously selflearningcourse was stored as JSON property.
+            if (!isset($dbrecord->type)) {
+                $dbrecord->type = (int) (json_decode($dbrecord->json ?? '')?->selflearningcourse ?? 0);
+            }
+            $this->type = (int) $dbrecord->type;
+            $this->selflearningcourse = $dbrecord->type == 1 ? 1 : 0;
 
             // If we have a responsible contact id, we load the corresponding user object.
             if (!isset($dbrecord->responsiblecontactuser)) {
@@ -502,10 +546,10 @@ class booking_option_settings {
                 $this->boactions = [];
                 $this->canceluntil = 0;
                 $this->useprice = null; // Important: Use null as default so it will also work with old DB records.
-                $this->selflearningcourse = 0;
             }
 
-            // If the course module id (cmid) is not yet set, we load it. //TODO: bookingid 0 bei option templates berücksichtigen!!
+            // If the course module id (cmid) is not yet set, we load it.
+            // take bookingid 0 into account for option templates!!
             if (!isset($dbrecord->cmid)) {
                 $cm = get_coursemodule_from_instance('booking', $dbrecord->bookingid);
 
@@ -545,6 +589,14 @@ class booking_option_settings {
                 $this->manageresponsesurl = $dbrecord->manageresponsesurl;
             }
 
+            // If the key "bookingstrackerurl" is not yet set, we need to generate it.
+            if (!isset($dbrecord->bookingstrackerurl)) {
+                $this->generate_bookingstracker_url($optionid);
+                $dbrecord->bookingstrackerurl = $this->bookingstrackerurl;
+            } else {
+                $this->bookingstrackerurl = $dbrecord->bookingstrackerurl;
+            }
+
             // If the key "optiondatesteachersurl" is not yet set, we need to generate it.
             if (!isset($dbrecord->optiondatesteachersurl)) {
                 $this->generate_optiondatesteachers_url($optionid);
@@ -553,6 +605,15 @@ class booking_option_settings {
                 }
             } else {
                 $this->optiondatesteachersurl = $dbrecord->optiondatesteachersurl;
+            }
+            // If the key "customfields" is not yet set, we need to load them via handler first.
+            if (!isset($dbrecord->customfields)) {
+                $this->load_customfields($optionid);
+                $dbrecord->customfields = $this->customfields;
+                $dbrecord->customfieldsfortemplates = $this->customfieldsfortemplates ?? [];
+            } else {
+                $this->customfields = $dbrecord->customfields;
+                $this->customfieldsfortemplates = $dbrecord->customfieldsfortemplates ?? [];
             }
 
             // If the key "imageurl" is not yet set, we need to load from DB.
@@ -597,16 +658,6 @@ class booking_option_settings {
                 $dbrecord->teacherids = $this->teacherids;
             } else {
                 $this->teacherids = $dbrecord->teacherids;
-            }
-
-            // If the key "customfields" is not yet set, we need to load them via handler first.
-            if (!isset($dbrecord->customfields)) {
-                $this->load_customfields($optionid);
-                $dbrecord->customfields = $this->customfields;
-                $dbrecord->customfieldsfortemplates = $this->customfieldsfortemplates ?? [];
-            } else {
-                $this->customfields = $dbrecord->customfields;
-                $this->customfieldsfortemplates = $dbrecord->customfieldsfortemplates ?? [];
             }
 
             // If a cost center is defined in plugin settings, we load it directly into the booking option settings.
@@ -676,6 +727,24 @@ class booking_option_settings {
                 $dbrecord->subpluginssettings = $this->subpluginssettings;
             } else {
                 $this->subpluginssettings = $dbrecord->subpluginssettings ?? [];
+            }
+
+            // The customfieldsfortemplates values live in the language-agnostic bookingoptionsettings
+            // cache, so resolve their human-readable display values for the CURRENT language now,
+            // on every instantiation. This keeps customfields (e.g. select labels) in sync with the
+            // active language - just like dates - instead of "sticking" to the language that first
+            // populated the cache. Only the instance is updated; $dbrecord (cache) keeps its raw keys.
+            $this->localize_customfields_for_templates();
+
+            // If slot config is not present in cache object, load it once and cache it.
+            // Options without a slot config legitimately cache NULL here, so we must
+            // check with property_exists: isset(null) would re-trigger the DB query
+            // on every single instantiation despite a warm cache (issue #2207).
+            if (!property_exists($dbrecord, 'slotconfig')) {
+                $this->load_slot_config_from_db($optionid);
+                $dbrecord->slotconfig = $this->slotconfig;
+            } else {
+                $this->slotconfig = $dbrecord->slotconfig;
             }
             return $dbrecord;
         }
@@ -747,6 +816,19 @@ class booking_option_settings {
                 $this->subpluginssettings[$plugin->name] = $class::load_data_for_settings_singleton($optionid);
             }
         }
+    }
+
+    /**
+     * Load slot booking config for this option from DB.
+     *
+     * @param int $optionid
+     * @return void
+     */
+    private function load_slot_config_from_db(int $optionid): void {
+        global $DB;
+
+        $record = $DB->get_record('booking_slot_config', ['optionid' => $optionid], '*', IGNORE_MISSING);
+        $this->slotconfig = $record ?: null;
     }
 
     /**
@@ -876,22 +958,27 @@ class booking_option_settings {
      * @param int $optionid
      */
     private function generate_manageresponses_url(int $optionid) {
-        global $CFG;
-
         if (!empty($this->cmid) && !empty($optionid)) {
             $manageresponsesmoodleurl = new moodle_url(
                 '/mod/booking/report.php',
                 ['id' => $this->cmid, 'optionid' => $optionid]
             );
+            $this->manageresponsesurl = html_entity_decode($manageresponsesmoodleurl->out(), ENT_QUOTES);
+        }
+    }
 
-            // Use html_entity_decode to convert "&amp;" to a simple "&" character.
-            if ($CFG->version >= 2023042400) {
-                // Moodle 4.2 needs second param.
-                $this->manageresponsesurl = html_entity_decode($manageresponsesmoodleurl->out(), ENT_QUOTES);
-            } else {
-                // Moodle 4.1 and older.
-                $this->manageresponsesurl = html_entity_decode($manageresponsesmoodleurl->out(), ENT_COMPAT);
-            }
+    /**
+     * Function to generate the bookingstracker URL (to report2.php) to track responses (answers) for an option.
+     *
+     * @param int $optionid
+     */
+    private function generate_bookingstracker_url(int $optionid) {
+        if (!empty($this->cmid) && !empty($optionid)) {
+            $bookingstrackermoodleurl = new moodle_url(
+                '/mod/booking/report2.php',
+                ['cmid' => $this->cmid, 'optionid' => $optionid]
+            );
+            $this->bookingstrackerurl = html_entity_decode($bookingstrackermoodleurl->out(), ENT_QUOTES);
         }
     }
 
@@ -967,69 +1054,97 @@ class booking_option_settings {
             $customfieldid = $bookingsettings->bookingimagescustomfield ?? null;
 
             if (!empty($customfieldid)) {
-                $customfieldvalue = $DB->get_field(
-                    'customfield_data',
-                    'value',
-                    ['fieldid' => $customfieldid, 'instanceid' => $optionid]
-                );
-
-                if (!empty($customfieldvalue)) {
-                    $customfieldvalue = strtolower($customfieldvalue);
-
-                    if (
-                        !$imgfiles = $DB->get_records_sql("SELECT id, contextid, filepath, filename
-                                 FROM {files}
-                                 WHERE component = 'mod_booking'
-                                 AND itemid = :bookingid
-                                 AND filearea = 'bookingimages'
-                                 AND LOWER(filename) LIKE :customfieldvaluewithextension
-                                 AND filesize > 0
-                                 AND source is not null", ['bookingid' => $bookingid,
-                                    'customfieldvaluewithextension' => "$customfieldvalue.%",
-                                    ])
-                    ) {
-                        return;
+                $customfieldvalue = '';
+                foreach ($this->customfieldsfortemplates as $field) {
+                    if ($field['fieldid'] == $customfieldid) {
+                        $customfieldvalue = $field['value'];
+                        break;
                     }
+                }
 
-                    // There might be more than one image, so we only use the first one.
-                    $imgfile = reset($imgfiles);
-
-                    if (!empty($imgfile)) {
-                        // If a fallback image has been found for the customfield value, then use this one.
-
-                        $url = moodle_url::make_pluginfile_url(
-                            $imgfile->contextid,
-                            'mod_booking',
-                            'bookingimages',
-                            $bookingid,
-                            $imgfile->filepath,
-                            $imgfile->filename
-                        );
-
-                        $this->imageurl = $url->out(false);
-                        return;
+                // We match with lowercased filenames, so make sure the value(s) is/are lowercased too.
+                if (!empty($customfieldvalue)) {
+                    if (is_array($customfieldvalue)) {
+                        $customfieldvalue = array_map('strtolower', $customfieldvalue);
+                    } else if (is_string($customfieldvalue)) {
+                        $customfieldvalue = strtolower($customfieldvalue);
                     }
                 }
             }
 
-            // If still no image could be found, we check if there is a default image.
-            $imgfile = $DB->get_record_sql("SELECT id, contextid, filepath, filename
-            FROM {files}
-            WHERE component = 'mod_booking'
-            AND itemid = :bookingid
-            AND filearea = 'bookingimages'
-            AND LOWER(filename) LIKE 'default.%'
-            AND filesize > 0
-            AND source is not null", ['bookingid' => $bookingid]);
+            $imagefiles = singleton_service::load_booking_image($bookingid);
 
-            if (!empty($imgfile)) {
+            // If we have not yet any images in the singleton, we fetch them from db.
+            if (reset($imagefiles) == false) {
+                // We have found nothing and need to load it.
+                $imagefiles = $DB->get_records_sql(
+                    "SELECT id, contextid, filepath, filename
+                            FROM {files}
+                            WHERE component = 'mod_booking'
+                            AND itemid = :bookingid
+                            AND filearea = 'bookingimages'
+                            AND filesize > 0
+                            AND source is not null",
+                    ['bookingid' => $bookingid]
+                );
+                if (empty($imagefiles)) {
+                    $imagefiles = [(object)[]];
+                }
+                singleton_service::set_booking_image($bookingid, $imagefiles);
+            }
+
+            foreach ($imagefiles as $imgfile) {
+                if (empty($imgfile->filename)) {
+                    continue;
+                }
+                // We look for default right away.
+                if (strpos(strtolower($imgfile->filename), 'default.') === 0) {
+                    // If we found it, we keep the current $imgfile.
+                    $defaultimage = $imgfile;
+                }
+
+                if (
+                    !empty($customfieldvalue)
+                ) {
+                    if (is_string($customfieldvalue) && strpos(strtolower($imgfile->filename), $customfieldvalue) === 0) {
+                        // We found the image, so we can stop searching.
+                        $imagefile = $imgfile;
+                        break;
+                    } else if (is_array($customfieldvalue)) {
+                        foreach ($customfieldvalue as $cfvalue) {
+                            if (strpos(strtolower($imgfile->filename), $cfvalue) === 0) {
+                                /* If we have more than one value, we take the first image
+                                that matches one of the customfield values. */
+                                $imagefile = $imgfile;
+                                break 2;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (!empty($imagefile)) {
+                // If a fallback image has been found for the customfield value, then use this one.
                 $url = moodle_url::make_pluginfile_url(
-                    $imgfile->contextid,
+                    $imagefile->contextid,
                     'mod_booking',
                     'bookingimages',
                     $bookingid,
-                    $imgfile->filepath,
-                    $imgfile->filename
+                    $imagefile->filepath,
+                    $imagefile->filename
+                );
+                $this->imageurl = $url->out(false);
+                return;
+            }
+
+            if (!empty($defaultimage)) {
+                $url = moodle_url::make_pluginfile_url(
+                    $defaultimage->contextid,
+                    'mod_booking',
+                    'bookingimages',
+                    $bookingid,
+                    $defaultimage->filepath,
+                    $defaultimage->filename
                 );
                 // If a fallback image has been found for the customfield value, then use this one.
                 $this->imageurl = $url->out(false);
@@ -1050,11 +1165,9 @@ class booking_option_settings {
      *
      * @param int $optionid
      */
-    private function load_customfields(int $optionid) {
-        global $DB;
+    private function load_customfields(int $optionid): void {
 
         $handler = booking_handler::create();
-
         $datas = $handler->get_instance_data($optionid, true);
 
         foreach ($datas as $data) {
@@ -1065,22 +1178,63 @@ class booking_option_settings {
             $fieldid = $field->get('id');
             $value = $data->get_value();
 
-            if (!empty($value)) {
-                $this->customfields[$shortname] = $value;
+            $this->customfields[$shortname] = $value;
 
-                if ($type === 'select') {
-                    $options = singleton_service::get_customfields_select_options($fieldid);
-                    $value = $options[$value];
-                }
+            // Use the corresponding field controller to get the real value of the custom field.
+            $fieldcontroller = wbt_field_controller_info::get_instance_by_shortname($shortname, 'mod_booking', 'booking');
+            $value = $fieldcontroller->get_option_value_by_key($value);
 
-                // We also return the customfieldsfortemplates where we get the real values of the selects.
-                $this->customfieldsfortemplates[$shortname] = [
-                    'label' => $label,
-                    'key' => $shortname,
-                    'value' => $value,
-                    'type' => $type,
-                ];
+            // We also return the customfieldsfortemplates where we get the real values of the selects.
+            $this->customfieldsfortemplates[$shortname] = [
+                // Store the whole field object too so we can use it instead of DB calls.
+                'field' => $field->to_record(),
+                'fieldid' => $fieldid,
+                'label' => $label,
+                'key' => $shortname,
+                'value' => $value,
+                'type' => $type,
+            ];
+        }
+    }
+
+    /**
+     * Resolve the human-readable customfield display values for the current language.
+     *
+     * The customfieldsfortemplates 'value' entries are stored in the bookingoptionsettings cache,
+     * whose key is the optionid only (no language). A value formatted via format_string() at
+     * cache-build time would therefore "stick" to that language even after the user switches the
+     * site/session language. To avoid this we re-derive the display value from the raw,
+     * language-neutral key kept in $this->customfields on every instantiation, mirroring how dates
+     * are rendered with current_language().
+     *
+     * This re-runs the exact same field controller call as load_customfields(), so the result is
+     * identical apart from honouring the current language. Only the instance is mutated; the cached
+     * stdClass returned by set_values() keeps its raw keys, so direct cache readers and
+     * return_settings_as_stdclass() consumers are unaffected.
+     */
+    private function localize_customfields_for_templates(): void {
+        global $PAGE;
+
+        // Textarea customfields are re-derived below via format_text(), which runs the filter chain
+        // (multilang, emoticons, ...) and therefore initialises the page theme - and that needs a
+        // page context. Back-end callers (AJAX form submissions, scheduled tasks, events, CLI) may
+        // construct booking_option_settings before any context has been established, which makes
+        // format_text() throw "$PAGE->context was not set". Fall back to the system context so
+        // multilang/filters still run for those callers, but only when no context has been set yet:
+        // passing null to moodle_page::set_context() installs the system context only if the page
+        // has none, and is a silent no-op when a context already exists. Guarding on the URL instead
+        // would wrongly override an already-established context (e.g. a module context set via
+        // require_login() without a page URL, as happens in behat and web-service requests),
+        // triggering "unsupported modification of PAGE->context".
+        $PAGE->set_context(null);
+
+        foreach ($this->customfieldsfortemplates as $shortname => $unused) {
+            if (!array_key_exists($shortname, $this->customfields)) {
+                continue;
             }
+            $fieldcontroller = wbt_field_controller_info::get_instance_by_shortname($shortname, 'mod_booking', 'booking');
+            $this->customfieldsfortemplates[$shortname]['value'] =
+                $fieldcontroller->get_option_value_by_key($this->customfields[$shortname]);
         }
     }
 
@@ -1176,18 +1330,10 @@ class booking_option_settings {
                 $this->jsonobject->confirmationonnotification = $this->confirmationonnotification;
                 $dbrecord->confirmationonnotification = $this->confirmationonnotification;
             }
-
-            // Selflearningcourse flag for course with duration but no optiondates.
-            if (!empty($this->jsonobject->selflearningcourse)) {
-                $this->selflearningcourse = (int)$this->jsonobject->selflearningcourse;
-                $this->jsonobject->selflearningcourse = $this->selflearningcourse;
-                $dbrecord->selflearningcourse = $this->selflearningcourse;
-            }
         } else {
             $this->boactions = $dbrecord->boactions ?? null;
             $this->canceluntil = $dbrecord->canceluntil ?? 0;
             $this->useprice = $dbrecord->useprice ?? null;
-            $this->selflearningcourse = $dbrecord->selflearningcourse ?? 0;
             $this->waitforconfirmation = $dbrecord->waitforconfirmation ?? 0;
             $this->confirmationonnotification = $dbrecord->confirmationonnotification ?? 0;
             $this->jsonobject = $dbrecord->jsonobject ?? null;
@@ -1262,7 +1408,6 @@ class booking_option_settings {
         This allows us to systematically build the sql to get all the relevant information.
     */
 
-
     /**
      * Function to include all the values of one given customfield to a table bo.
      * The table is joined via bo.id=cfd.instanceid.
@@ -1270,9 +1415,14 @@ class booking_option_settings {
      *
      * @param array $filterarray
      * @param array $selectedshortnames
+     * @param string $optionidcolumn
      * @return array
      */
-    public static function return_sql_for_customfield(array &$filterarray = [], $selectedshortnames = []): array {
+    public static function return_sql_for_customfield(
+        array &$filterarray = [],
+        array $selectedshortnames = [],
+        string $optionidcolumn = 'bo.id'
+    ): array {
 
         global $DB;
 
@@ -1280,6 +1430,7 @@ class booking_option_settings {
          $customfields = booking_handler::get_customfields($selectedshortnames);
 
          $select = '';
+         $selectparts = [];
          $from = '';
          $where = '';
          $params = [];
@@ -1302,16 +1453,11 @@ class booking_option_settings {
                 );
             }
 
-            $select .= "cfd$counter.value as $name ";
-
-            // Append comma if not the last element.
-            if ($counter < count($customfields)) {
-                $select .= ", ";
-            }
+            $selectparts[] = "cfd$counter.value as $name";
 
             // Add LEFT JOIN using the known field ID.
             $from .= " LEFT JOIN {customfield_data} cfd$counter
-                    ON cfd$counter.instanceid = bo.id
+                    ON cfd$counter.instanceid = $optionidcolumn
                     AND cfd$counter.fieldid = :cfid$counter ";
 
             // Add the ID to the params array.
@@ -1328,6 +1474,11 @@ class booking_option_settings {
             }
 
             $counter++;
+        }
+
+        $select = implode(', ', $selectparts);
+        if (!empty($select)) {
+            $select .= ' ';
         }
 
         return [$select, $from, $where, $params];
@@ -1398,7 +1549,9 @@ class booking_option_settings {
 
         global $DB;
 
-        $select = $DB->sql_group_concat('bt1.teacherobject') . ' as teacherobjects';
+        // The teachers are already aggregated to one row per option inside the subquery (bt1),
+        // so the outer select does not need any GROUP BY for this column.
+        $select = 'bt1.teacherobjects as teacherobjects';
 
         // We have to create the teacher object beforehand, in order to be able to use group_concat afterwards.
         $innerselect = $DB->sql_concat_join("''", [
@@ -1419,10 +1572,11 @@ class booking_option_settings {
 
         $from = 'LEFT JOIN
         (
-            SELECT bt.optionid, ' . $innerselect . ' as teacherobject
+            SELECT bt.optionid, ' . $DB->sql_group_concat($innerselect) . ' as teacherobjects
             FROM {booking_teachers} bt
             JOIN {user} u
             ON bt.userid = u.id
+            GROUP BY bt.optionid
         ) bt1
         ON bt1.optionid = bo.id';
 

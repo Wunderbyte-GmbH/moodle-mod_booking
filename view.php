@@ -25,8 +25,10 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use mod_booking\customfield\booking_handler;
 use mod_booking\output\business_card;
 use mod_booking\output\view;
+use mod_booking\local\htmlcomponents;
 use mod_booking\singleton_service;
 
 require_once(__DIR__ . '/../../config.php');
@@ -46,13 +48,34 @@ $whichview = optional_param('whichview', '', PARAM_ALPHA);
 require_course_login($course, false, $cm);
 $context = context_module::instance($cm->id);
 
-// phpcs:disable
-// $return = mobile::mobile_system_view([]);
-// $settings = singleton_service::get_instance_of_booking_option_settings(8485);
-// $data = $settings->return_settings_as_stdclass();
-// phpcs:enable
-
 require_capability('mod/booking:view', $context);
+
+// Block site admins if legacy mail templates are still enabled but the removal has not been acknowledged.
+// This can be removed in a future release once legacy mails have been removed completely.
+if (
+    is_siteadmin()
+    && !empty(get_config('booking', 'uselegacymailtemplates'))
+    && empty(get_config('booking', 'legacymailremovalacknowledged'))
+    && !defined('BEHAT_SITE_RUNNING') // Do not block in Behat tests.
+) {
+    $settingsurl = new moodle_url(
+        '/admin/settings.php',
+        ['section' => 'modsettingbooking'],
+        'admin-uselegacymailtemplates'
+    );
+    $PAGE->set_url(new moodle_url('/mod/booking/view.php', ['id' => $cmid]));
+    $PAGE->set_context($context);
+    $PAGE->set_title(get_string('modulename', 'mod_booking'));
+    $PAGE->set_heading(get_string('modulename', 'mod_booking'));
+    echo $OUTPUT->header();
+    echo $OUTPUT->notification(
+        get_string('upgrade:legacymailacknowledgementrequired', 'mod_booking', $settingsurl->out()),
+        \core\output\notification::NOTIFY_WARNING,
+        false
+    );
+    echo $OUTPUT->footer();
+    exit;
+}
 
 // URL params.
 $urlparams = [
@@ -93,13 +116,18 @@ $output = $PAGE->get_renderer('mod_booking');
 
 echo $OUTPUT->header();
 
+// Show a clear message if the instance references customfields that are missing on this
+// platform, e.g. after restoring a course backup from another Moodle site.
+echo booking_handler::create()->check_for_missing_customfields_and_return_warning($bookingsettings, $context);
+
 // If we have specified a teacher as organizer, we show a "busines_card" with photo, else legacy organizer description.
+ $organizerhtml = '';
 if (
     !empty($bookingsettings->organizatorname)
     && ($organizerid = (int)$bookingsettings->organizatorname)
 ) {
     $data = new business_card($bookingsettings, $organizerid);
-    echo $output->render_business_card($data);
+    $organizerhtml = $output->render_business_card($data);
 }
 
 // Attachments.
@@ -115,7 +143,7 @@ $files = $fs->get_area_files(
 if (count($files) > 1) {
     echo html_writer::start_tag('div');
     echo html_writer::tag('label', '<i class="fa fa-paperclip" aria-hidden="true"></i> ' .
-        get_string('attachedfiles', 'mod_booking') . ': ', ['class' => 'ml-3 mt-1 mb-3 bold']);
+        get_string('attachedfiles', 'mod_booking') . ': ', ['class' => 'ms-3 mt-1 mb-3 bold']);
 
     foreach ($files as $file) {
         if ($file->get_filesize() > 0) {
@@ -132,14 +160,14 @@ if (count($files) > 1) {
             $out[] = html_writer::link($url, $filename);
         }
     }
-    echo html_writer::tag('span', implode(', ', $out), ['class' => 'ml-2']);
+    echo html_writer::tag('span', implode(', ', $out), ['class' => 'ms-2']);
     echo html_writer::end_tag('div');
 }
 
 // Booking instance tags (default Moodle tags).
 if (!empty($CFG->usetags)) {
     $tags = core_tag_tag::get_item_tags('mod_booking', 'booking', $bookingsettings->id);
-    echo $OUTPUT->tag_list($tags, null, 'booking-tags ml-3 mb-3');
+    echo $OUTPUT->tag_list($tags, null, 'booking-tags ms-3 mb-3');
 }
 
 // As of Moodle 4.0 activity description will be shown automatically in module header.
@@ -151,7 +179,31 @@ if (!empty($CFG->usetags)) {
 
 // Now we show the actual view.
 $view = new view($cmid, $whichview, $optionid);
-echo $output->render_view($view);
+$classicview = $organizerhtml . $output->render_view($view);
+$enginecomponent = \mod_booking\local\wizard\engine_component::active();
+$aireadyclass = \mod_booking\local\wizard\engine_component::aiready_class();
+
+$hasoptions = $booking->get_all_options_count() > 0;
+$tabs = [
+    [
+        'title' => '<i class="fa fa-list" aria-hidden="true"></i>',
+        'label' => get_string('classicview', 'mod_booking'),
+        'body' => $classicview,
+        'active' => $hasoptions,
+    ],
+];
+
+if (!empty($aireadyclass)) {
+    $aitemplatedata = (new $aireadyclass((int)$context->id, $USER->id))->export_for_template();
+    $tabs[] = [
+        'title' => '<i class="fa fa-magic" aria-hidden="true"></i>',
+        'label' => get_string('aiinstructions', $enginecomponent),
+        'body' => $OUTPUT->render_from_template($enginecomponent . '/aiinstructions', $aitemplatedata),
+        'active' => !$hasoptions,
+    ];
+}
+
+echo htmlcomponents::render_bootstrap_earmarks($tabs, 'booking-view-tabs-' . $cmid);
 
 if (!get_config('booking', 'turnoffwunderbytelogo')) {
     // Wunderbyte info and footer.

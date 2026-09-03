@@ -70,7 +70,7 @@ class bookinganswer_cancelled extends \core\event\base {
         $relateduserid = $this->data['relateduserid']; // Affected user - the user who was cancelled from the option.
         $optionid = $this->data['objectid']; // The option id.
 
-        // TODO: Gute Description machen.
+        // TODO MDL-00000: Create a proper description.
 
         $user = singleton_service::get_instance_of_user((int) $userid);
         $relateduser = singleton_service::get_instance_of_user((int) $relateduserid);

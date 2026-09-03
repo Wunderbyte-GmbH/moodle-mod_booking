@@ -59,13 +59,12 @@
         "currency": "EUR",
         "pricecategoryname": "Price",
         "dayofweektime": "FR, 10:30 - 11:45",
-        "sport": "Aerial Yoga",
         "customfields": {
             "sport": [
-            "AERIAL YOGA"
+                "AERIAL YOGA"
             ],
             "botags": [
-            ""
+                ""
             ]
         },
         "bookinginformation": {
@@ -138,7 +137,7 @@
 }}
 
 <p class="m-3">{{#str}} doyouwanttobook, mod_booking, {{{title}}} {{/str}}</p>
-<div class="bookingoption-description-prepagemodal-bookit w-100 ml-3 mr-3 ms-3 me-3 mb-3 mt-1 p-2 text-justify bg-light border border-secondary rounded">
+<div class="bookingoption-description-prepagemodal-bookit w-100 ms-3 me-3 mb-3 mt-1 p-2 text-justify bg-light border border-secondary rounded text-start">
     <div class="container-fluid">
         <div class="row">
             {{#imageurl}}
@@ -149,12 +148,9 @@
             {{#imageurl}}<div class="col-md-9">{{/imageurl}}
             {{^imageurl}}<div class="col-md-12">{{/imageurl}}
                 <h2 class="title" >{{{title}}}</h2>
-                <h6 class="h6-category">
-                    {{sport}}
-                </h6>
-                <div class="ml-3 ms-3" {{^teachers}} style="display:none"{{/teachers}}>
+                <div class="ms-3" {{^teachers}} style="display:none"{{/teachers}}>
                     {{#teachers}}
-                        <span class="mr-1 me-1"><i class="fa fa-graduation-cap" aria-hidden="true"></i> {{firstname}} {{lastname}}</span>
+                        <span class="me-1"><i class="fa fa-graduation-cap" aria-hidden="true"></i> {{firstname}} {{lastname}}</span>
                     {{/teachers}}
                 </div>
                 <ul class="infolist" style="list-style: none;">

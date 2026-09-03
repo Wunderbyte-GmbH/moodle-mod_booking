@@ -30,6 +30,7 @@ use mod_booking\bo_availability\bo_condition;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_option_settings;
 use mod_booking\output\bookingoption_description;
+use mod_booking\singleton_service;
 use mod_booking\price;
 use MoodleQuickForm;
 
@@ -81,6 +82,25 @@ class confirmation implements bo_condition {
     }
 
     /**
+     * Returns the name of the condition.
+     *
+     * @return string
+     *
+     */
+    public function get_name(): string {
+        return get_string('bocondconfirmation', 'mod_booking');
+    }
+
+    /**
+     * Returns whether the condition is skippable or not.
+     *
+     * @return bool
+     */
+    public function is_skippable(): bool {
+        return false;
+    }
+
+    /**
      * Determines whether a particular item is currently available
      * according to this availability condition.
      * @param booking_option_settings $settings Item we're checking
@@ -101,9 +121,10 @@ class confirmation implements bo_condition {
      * This will be used if the conditions should not only block booking...
      * ... but actually hide the conditons alltogether.
      * @param int $userid
+     * @param array $params This is the array with parameters for the sql query.
      * @return array
      */
-    public function return_sql(int $userid = 0): array {
+    public function return_sql(int $userid = 0, &$params = []): array {
 
         return ['', '', '', [], ''];
     }
@@ -184,26 +205,38 @@ class confirmation implements bo_condition {
         global $USER;
         $userid = empty($userid) ? $USER->id : $userid;
 
-        // Get blocking conditions, including prepages$prepages etc.
-        $results = bo_info::get_condition_results($optionid, $userid);
-        $lastresultid = array_pop($results)['id'];
-
         $data = new bookingoption_description($optionid, null, MOD_BOOKING_DESCRIPTION_WEBSITE, true, false);
         $bodata = $data->get_returnarray();
 
-        switch ($lastresultid) {
-            case MOD_BOOKING_BO_COND_ALREADYBOOKED:
-                $bodata['alreadybooked'] = true;
-                break;
-            case MOD_BOOKING_BO_COND_ALREADYRESERVED:
-                $bodata['alreadyreserved'] = true;
-                break;
-            case MOD_BOOKING_BO_COND_ONWAITINGLIST:
-                $bodata['onwaitinglist'] = true;
-                break;
-            default:
-                $bodata['notyetbooked'] = true;
-                break;
+        $results = bo_info::get_condition_results($optionid, $userid);
+        $lastresultid = array_pop($results)['id'];
+
+        // A booked-state top blocker (incl. SLOTMOVE, which only blocks for an actually-booked,
+        // self-rebookable user) means the booking succeeded — otherwise the user sees a false
+        // error. This alone is not enough for slot bookings though: slotbooking's own condition
+        // (id 2) stays permanently blocking by design (see its own docblock), even once the user
+        // has genuinely completed a slot booking - it would otherwise wrongly become the highest
+        // blocking id and mask the real state. Cross-check the user's actual booking_answers
+        // status directly (same helper bookingoption_description already uses) as a second,
+        // authoritative signal.
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $bookinganswers = singleton_service::get_instance_of_booking_answers($settings);
+        $userisbooked = $bookinganswers->user_status($userid) === MOD_BOOKING_STATUSPARAM_BOOKED;
+
+        if ($userisbooked || in_array($lastresultid, MOD_BOOKING_BO_COND_BOOKED_STATES, true)) {
+            $bodata['alreadybooked'] = true;
+        } else {
+            switch ($lastresultid) {
+                case MOD_BOOKING_BO_COND_ALREADYRESERVED:
+                    $bodata['alreadyreserved'] = true;
+                    break;
+                case MOD_BOOKING_BO_COND_ONWAITINGLIST:
+                    $bodata['onwaitinglist'] = true;
+                    break;
+                default:
+                    $bodata['notyetbooked'] = true;
+                    break;
+            }
         }
 
         $dataarray[] = [

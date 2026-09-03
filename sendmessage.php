@@ -33,7 +33,7 @@ use mod_booking\singleton_service;
 
 $id = required_param('id', PARAM_INT);
 $optionid = required_param('optionid', PARAM_INT);
-$uids = required_param('uids', PARAM_RAW);
+$uids = required_param('uids', PARAM_SEQUENCE); // Comma-separated list of user ids, each id is additionally cleaned to int below.
 
 $url = new moodle_url(
     '/mod/booking/sendmessage.php',
@@ -71,10 +71,10 @@ if ($mform->is_cancelled()) {
     redirect($redirecturl, '', 0);
 } else if ($data = $mform->get_data()) {
     // Clean form data.
-    $cleanuids = clean_param_array(json_decode($uids), PARAM_INT);
+    $cleanuids = array_filter(clean_param_array(explode(',', $uids), PARAM_INT));
 
     // Now, let's send the custom message.
-    send_custom_message($optionid, $data->subject, $data->message['text'], $cleanuids);
+    booking_send_custom_message($optionid, $data->subject, $data->message['text'], $cleanuids);
 
     redirect($redirecturl, get_string('messagesend', 'booking'), 5);
 }
@@ -98,7 +98,7 @@ echo $OUTPUT->footer();
  * @param string $message
  * @param array $selecteduserids
  */
-function send_custom_message(int $optionid, string $subject, string $message, array $selecteduserids) {
+function booking_send_custom_message(int $optionid, string $subject, string $message, array $selecteduserids) {
     global $DB, $USER;
 
     $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
@@ -136,6 +136,7 @@ function send_custom_message(int $optionid, string $subject, string $message, ar
             ],
         ]);
         $event->trigger();
+        cache_helper::purge_by_event('setbackeventlogtable');
     }
 
     // Check, if a bulk message has been sent.
@@ -161,6 +162,7 @@ function send_custom_message(int $optionid, string $subject, string $message, ar
                 ],
             ]);
             $event->trigger();
+            cache_helper::purge_by_event('setbackeventlogtable');
         }
     }
 }

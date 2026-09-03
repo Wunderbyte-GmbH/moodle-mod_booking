@@ -86,6 +86,25 @@ class bookwithcredits implements bo_condition {
     }
 
     /**
+     * Returns the name of the condition.
+     *
+     * @return string
+     *
+     */
+    public function get_name(): string {
+        return 'credits';
+    }
+
+    /**
+     * Returns whether the condition is skippable or not.
+     *
+     * @return bool
+     */
+    public function is_skippable(): bool {
+        return false;
+    }
+
+    /**
      * Determines whether a particular item is currently available
      * according to this availability condition.
      * @param booking_option_settings $settings Item we're checking
@@ -136,9 +155,10 @@ class bookwithcredits implements bo_condition {
      * This will be used if the conditions should not only block booking...
      * ... but actually hide the conditons alltogether.
      * @param int $userid
+     * @param array $params This is the array with parameters for the sql query.
      * @return array
      */
-    public function return_sql(int $userid = 0): array {
+    public function return_sql(int $userid = 0, &$params = []): array {
 
         return ['', '', '', [], ''];
     }
@@ -222,7 +242,7 @@ class bookwithcredits implements bo_condition {
 
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
-        [$template, $data2] = booking_bookit::render_bookit_template_data($settings, 0, false);
+        [$template, $data2] = booking_bookit::render_bookit_template_data($settings, $userid, false);
         $data2 = reset($data2);
         $template = reset($template);
 
@@ -322,7 +342,7 @@ class bookwithcredits implements bo_condition {
      * @param booking_option_settings $settings
      * @return string
      */
-    private function get_description_string($isavailable, $full, $settings): string {
+    public function get_description_string($isavailable, $full, $settings): string {
 
         if (
             !$isavailable

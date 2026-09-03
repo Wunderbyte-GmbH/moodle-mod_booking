@@ -24,10 +24,13 @@
  */
 
 use core\lock\lock;
+use local_shopping_cart\local\vatnrchecker;
+use mod_booking\bo_availability\conditions\booking_time;
 use mod_booking\booking;
 use mod_booking\booking_rules\booking_rules;
 use mod_booking\booking_rules\rules_info;
 use mod_booking\output\view;
+use mod_booking\price;
 use mod_booking\table\bookingoptions_wbtable;
 use mod_booking\booking_option;
 use mod_booking\booking_campaigns\campaigns_info;
@@ -38,7 +41,24 @@ use mod_booking\price as Mod_bookingPrice;
 use local_shopping_cart\shopping_cart;
 use local_shopping_cart\local\cartstore;
 use mod_booking\bo_actions\actions_info;
+use mod_booking\bo_availability\conditions\allowedtobookininstance;
+use mod_booking\bo_availability\conditions\customform;
+use mod_booking\bo_availability\conditions\enrolledincohorts;
+use mod_booking\bo_availability\conditions\enrolledincourse;
+use mod_booking\bo_availability\conditions\hascompetency;
 use mod_booking\bo_availability\conditions\maxoptionsfromcategory;
+use mod_booking\bo_availability\conditions\nooverlapping;
+use mod_booking\bo_availability\conditions\nooverlappingproxy;
+use mod_booking\bo_availability\conditions\previouslybooked;
+use mod_booking\bo_availability\conditions\selectusers;
+use mod_booking\bo_availability\conditions\userprofilefield_1_default;
+use mod_booking\bo_availability\conditions\userprofilefield_2_custom;
+use mod_booking\customfield\booking_handler;
+use mod_booking\local\certificate_conditions\certificate_conditions;
+use mod_booking\local\competencies\competencies_handler;
+use mod_booking\local\slotbooking\slot_availability;
+use mod_booking\local\slotbooking\slot_rules;
+use mod_booking\settings\optionformconfig\optionformconfig_info;
 use mod_booking\enrollink;
 use tool_mocktesttime\time_mock;
 
@@ -70,6 +90,9 @@ class mod_booking_generator extends testing_module_generator {
     public function reset() {
         $this->bookingoptions = 0;
 
+        // Keep test runs symmetric: clear backing caches and static acceleration
+        // when the generator is reset, not only during teardown.
+        cache_helper::purge_all();
         parent::reset();
     }
 
@@ -84,11 +107,34 @@ class mod_booking_generator extends testing_module_generator {
         cache_helper::purge_all();
         singleton_service::destroy_instance();
         singleton_service::reset_campaigns();
-        maxoptionsfromcategory::reset_instance();
         enrollink::destroy_instances();
+        optionformconfig_info::destroy_singletons();
+        Mod_bookingPrice::destroy_singletons();
         rules_info::destroy_singletons();
-        rules_info::$rulestoexecute = [];
+        bo_info::destroy_singletons();
+        allowedtobookininstance::reset_instance();
+        customform::reset_instance();
+        enrolledincohorts::reset_instance();
+        enrolledincourse::reset_instance();
+        hascompetency::reset_instance();
+        maxoptionsfromcategory::reset_instance();
+        nooverlapping::reset_instance();
+        nooverlappingproxy::reset_instance();
+        previouslybooked::reset_instance();
+        selectusers::reset_instance();
+        userprofilefield_1_default::reset_instance();
+        userprofilefield_2_custom::reset_instance();
         booking_rules::$rules = [];
+        price::destroy_singletons();
+        booking_time::destroy_instances();
+        // Slotbooking static caches.
+        slot_availability::reset_caches();
+        slot_rules::reset_caches();
+        // Other static caches.
+        booking_handler::reset_caches();
+        competencies_handler::reset_caches();
+        certificate_conditions::reset_caches();
+        booking_time::destroy_instances();
         // Shopping cart.
         cartstore::reset();
         // Time mock.
@@ -118,14 +164,17 @@ class mod_booking_generator extends testing_module_generator {
             'assessed' => 0,
             'showviews' => 'showall,showactive,mybooking,myoptions,optionsiamresponsiblefor,myinstitution',
             'whichview' => 'showall',
-            'optionsfields' => 'description,statusdescription,teacher,showdates,dayofweektime,
-                                location,institution,minanswers',
-            'reportsfields' => 'optionid,booking,institution,location,coursestarttime,
-                                city,department,courseendtime,numrec,userid,username,
-                                firstname,lastname,email,completed,waitinglist,status,
-                                groups,notes,idnumber',
-            'responsesfields' => 'completed,status,rating,numrec,fullname,timecreated,
-                                institution,waitinglist,city,department,notes',
+            // No optionsfields on purpose: booking_add_instance() falls back to
+            // MOD_BOOKING_BOOKINGOPTION_DEFAULTFIELDS, which is the column set the
+            // behat features expect (responsiblecontact, coursestarttime, ...).
+            'reportfields' => 'optionid,booking,institution,location,coursestarttime,city,department,' .
+                'courseendtime,numrec,userid,username,firstname,lastname,email,completed,waitinglist,' .
+                'status,groups,notes,idnumber',
+            // No institution here: the column was line wrapped out of this list for as long as
+            // the behat features exist, and several of them assert positional column ids
+            // (#mod_booking_all_users_sort_new_r0_cN). Adding it back shifts every id behind it.
+            'responsesfields' => 'completed,status,rating,numrec,fullname,timecreated,' .
+                'waitinglist,city,department,notes',
             'sendmail' => 1,
 
         ];
@@ -157,7 +206,51 @@ class mod_booking_generator extends testing_module_generator {
         }
         $record->semesterid = $semesterid;
 
+        // Process instance's bookingimagescustomfield.
+        if (!empty($record->bookingimagescustomfield)) {
+            if (!is_numeric($record->bookingimagescustomfield)) {
+                $record->bookingimagescustomfield = $this->get_customfield_id($record->bookingimagescustomfield);
+            }
+        }
+
         return parent::create_instance($record, $options);
+    }
+
+    /**
+     * Returns the mapping between human friendly names and data generator methods.
+     *
+     * @param array $data
+     * @return void
+     */
+    public function create_bookingimage(array $data): void {
+        global $CFG;
+
+        $bookingid = $data['bookingid'];
+        $filepath = $data['filepath'];
+        $filename = $data['filename'];
+
+        $fullfilepath = rtrim("{$CFG->dirroot}/" . ltrim($filepath, '/'), '/');
+        if (!file_exists($fullfilepath)) {
+            throw new coding_exception("File '{$fullfilepath}' does not exist");
+        }
+
+        $cm = get_coursemodule_from_instance('booking', $bookingid, 0, false, MUST_EXIST);
+        $context = context_module::instance($cm->id);
+        $fs = get_file_storage();
+        $storedfilepath = trim($filepath, '/');
+        $storedfilepath = $storedfilepath === '' ? '/' : "/{$storedfilepath}/";
+
+        $filerecord = [
+            'contextid' => $context->id,
+            'component' => 'mod_booking',
+            'filearea' => 'bookingimages',
+            'itemid' => $bookingid,
+            'filepath' => '/',
+            'filename' => basename($fullfilepath),
+            'source' => basename($fullfilepath),
+        ];
+
+        $fs->create_file_from_pathname($filerecord, $fullfilepath);
     }
 
     /**
@@ -190,6 +283,17 @@ class mod_booking_generator extends testing_module_generator {
 
         $record = (object) $record;
 
+        // A seed carrying an indexed date row (coursestarttime_<n>) without the matching
+        // optiondateid_<n> would silently persist NO date at all: dates::
+        // get_list_of_submitted_dates() only parses indexed rows keyed by optiondateid_.
+        // Inject the missing marker (0 = new date) so test seeds always mean what they say.
+        foreach (preg_grep('/^coursestarttime_\d+$/', array_keys((array) $record)) as $key) {
+            $idkey = 'optiondateid_' . substr($key, strlen('coursestarttime_'));
+            if (!property_exists($record, $idkey)) {
+                $record->{$idkey} = 0;
+            }
+        }
+
         // Finalizing object with required properties.
         $record->id = $record->id ?? 0;
         $record->optionid = $record->optionid ?? 0;
@@ -201,12 +305,27 @@ class mod_booking_generator extends testing_module_generator {
         $record->addtocalendar = !empty($record->addtocalendar) ? $record->addtocalendar : 0;
         $record->maxanswers = !empty($record->maxanswers) ? $record->maxanswers : 0;
 
+        if (!empty($record->useprice)) {
+            // We must force importing to get price defaults being set properly.
+            $record->importing = 1;
+        }
+
         // Process option teachers.
         if (!empty($record->teachersforoption)) {
             $teacherarr = explode(',', $record->teachersforoption);
             $record->teachersforoption = [];
             foreach ($teacherarr as $teacher) {
-                $record->teachersforoption[] = $this->get_user(trim($teacher));
+                $userid = $this->get_user(trim($teacher));
+                if (!empty($record->importing)) {
+                    $record->teachersforoption[] = core_user::get_user($userid, 'email', MUST_EXIST)->email;
+                } else {
+                    $record->teachersforoption[] = $userid;
+                }
+            }
+            // Special treatment for importing: represent teachers as emails.
+            if (!empty($record->importing)) {
+                $record->teacheremail = implode(',', $record->teachersforoption);
+                $record->teachersforoption = [];
             }
         } else {
             $record->teachersforoption = [];
@@ -259,6 +378,65 @@ class mod_booking_generator extends testing_module_generator {
             $DB->set_field('booking_options', 'timemadevisible', $record->timemadevisible, ['id' => $record->id]);
             singleton_service::destroy_booking_option_singleton($record->id);
         }
+
+        return $record;
+    }
+
+    /**
+     * Function to create a booking option template.
+     *
+     * Templates are booking options with bookingid = 0. Unlike create_option(),
+     * this method does not require 'text' (defaults to '') and requires 'templatename' instead.
+     * The templatename is stored in the JSON field via the addastemplate field logic.
+     *
+     * @param ?array|stdClass $record Must contain 'bookingid' (for cmid/context) and 'templatename'.
+     * @return stdClass the booking option template object
+     */
+    public function create_template($record = null) {
+
+        $record = (array) $record;
+
+        if (!isset($record['bookingid'])) {
+            throw new coding_exception(
+                'bookingid must be present in mod_booking_generator::create_template() $record'
+            );
+        }
+
+        if (!isset($record['templatename'])) {
+            throw new coding_exception(
+                'templatename must be present in mod_booking_generator::create_template() $record'
+            );
+        }
+
+        // Default text to empty string for templates.
+        if (!isset($record['text'])) {
+            $record['text'] = '';
+        }
+
+        // Set addastemplate flag so that addastemplate::prepare_save_field() sets bookingid=0
+        // and stores templatename in the JSON field.
+        $record['addastemplate'] = 1;
+
+        $booking = singleton_service::get_instance_of_booking_by_bookingid($record['bookingid']);
+
+        $this->bookingoptions++;
+
+        $record = (object) $record;
+
+        $record->id = $record->id ?? 0;
+        $record->optionid = $record->optionid ?? 0;
+        $record->cmid = $booking->cmid;
+        $record->identifier = $record->identifier ?? booking_option::create_truly_unique_option_identifier();
+
+        $context = context_module::instance($record->cmid);
+
+        $record->addtocalendar = 0;
+        $record->maxanswers = !empty($record->maxanswers) ? $record->maxanswers : 0;
+        $record->teachersforoption = [];
+        $record->responsiblecontact = [];
+
+        // Create / save booking option template.
+        $record->id = booking_option::update($record, $context);
 
         return $record;
     }
@@ -450,7 +628,7 @@ class mod_booking_generator extends testing_module_generator {
             $ruleobject->ruledata->boevent = $ruledraft->eventname ?? $ruledraft->boevent ?? '';
             $ruleobject->ruledata->aftercompletion = $ruledraft->aftercompletion ?? '';
             $ruleobject->ruledata->condition = $ruledraft->condition ?? '';
-            $ruleobject->ruledata->cancelrules = explode(',', $ruledraft->cancelrules) ?? [];
+            $ruleobject->ruledata->cancelrules = explode(',', $ruledraft->cancelrules ?? '');
         }
         // It is critical of having eventname.
         $record->eventname = $ruledraft->eventname ?? $ruleobject->ruledata->boevent ?? '';
@@ -573,7 +751,6 @@ class mod_booking_generator extends testing_module_generator {
 
         $wherearray = [
             'bookingid' => (int) $booking->id,
-            'id' => $optionid,
         ];
         [$fields, $from, $where, $params, $filter] =
                 booking::get_options_filter_sql(
@@ -586,10 +763,11 @@ class mod_booking_generator extends testing_module_generator {
                     $wherearray,
                     null,
                     [MOD_BOOKING_STATUSPARAM_BOOKED],
-                    '',
+                    " id=:ctfoooptionid ",
                     '',
                     $showonlyonetable
                 );
+        $params['ctfoooptionid'] = $optionid;
         $showonlyonetable->set_filter_sql($fields, $from, $where, $filter, $params);
 
         $showonlyonetable->printtable(10, true);
@@ -623,6 +801,28 @@ class mod_booking_generator extends testing_module_generator {
         $sql = 'SELECT id FROM {booking_rules} WHERE rulejson LIKE \'%' . $param . '%\'';
         if (!$id = $DB->get_field_sql($sql)) {
             throw new Exception('The specified rule with name "' . $rulename . '" does not exist');
+        }
+        return $id;
+    }
+
+    /**
+     * Get the customfieldID using an identifier.
+     *
+     * @param string $identifier
+     * @return int The customfield id
+     */
+    private function get_customfield_id(string $identifier): int {
+        global $DB;
+
+        $sql = "SELECT cf.id
+                  FROM {customfield_field} cf
+                  JOIN {customfield_category} cc ON cf.categoryid = cc.id
+                 WHERE cf.shortname = :shortname
+                   AND cc.component = 'mod_booking'
+                   AND cc.area = 'booking'";
+
+        if (!$id = $DB->get_field_sql($sql, ['shortname' => $identifier])) {
+            throw new Exception('The specified booking customfield with shortname "' . $identifier . '" does not exist');
         }
         return $id;
     }
@@ -662,15 +862,8 @@ class mod_booking_generator extends testing_module_generator {
                 $task->set_lock($lock);
                 $cronlock->release();
 
-                if ($CFG->version >= 2023042400) {
-                    // Moodle 4.2 and newer.
-                    \core\cron::prepare_core_renderer();
-                    \core\cron::setup_user($user);
-                } else {
-                    // Moodle 4.1 and older.
-                    cron_prepare_core_renderer();
-                    cron_setup_user($user);
-                }
+                \core\cron::prepare_core_renderer();
+                \core\cron::setup_user($user);
 
                 $task->execute();
                 \core\task\manager::adhoc_task_complete($task);
@@ -679,5 +872,61 @@ class mod_booking_generator extends testing_module_generator {
             }
         }
         $tasks->close();
+    }
+
+
+    /**
+     * Compare two stdClass objects and return the differences as an array.
+     *
+     * @param stdClass $obj1
+     * @param stdClass $obj2
+     *
+     * @return array
+     *
+     */
+    public function objdiff(stdClass $obj1, stdClass $obj2): array {
+        $a1 = (array)$obj1;
+        $a2 = (array)$obj2;
+        return $this->arrdiff($a1, $a2);
+    }
+
+    /**
+     * Compare two arrays recursively and return the differences as an array.
+     *
+     * @param array $a1
+     * @param array $a2
+     *
+     * @return array
+     *
+     */
+    public function arrdiff(array $a1, array $a2): array {
+        $r = [];
+        foreach ($a1 as $k => $v) {
+            if (array_key_exists($k, $a2)) {
+                if ($v instanceof stdClass) {
+                    $rad = $this->objdiff($v, $a2[$k]);
+                    if (count($rad)) {
+                        $r[$k] = $rad;
+                    }
+                } else if (is_array($v)) {
+                    $rad = $this->arrdiff($v, $a2[$k]);
+                    if (count($rad)) {
+                        $r[$k] = $rad;
+                    }
+                } else if (is_double($v)) {
+                    // Required to avoid rounding errors due to the conversion from string representation to double.
+                    if (abs($v - $a2[$k]) > 0.000000000001) {
+                        $r[$k] = [$v, $a2[$k]];
+                    }
+                } else {
+                    if ($v != $a2[$k]) {
+                        $r[$k] = [$v, $a2[$k]];
+                    }
+                }
+            } else {
+                $r[$k] = [$v, null];
+            }
+        }
+        return $r;
     }
 }

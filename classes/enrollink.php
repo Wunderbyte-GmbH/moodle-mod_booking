@@ -19,6 +19,7 @@ namespace mod_booking;
 use context_course;
 use context_module;
 use html_writer;
+use mod_booking\bo_availability\bo_info;
 use mod_booking\bo_availability\conditions\customform;
 use mod_booking\event\enrollink_triggered;
 use moodle_url;
@@ -27,6 +28,9 @@ use stdClass;
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot . '/calendar/lib.php');
+// Needed for the MOD_BOOKING_STATUSPARAM_* constants: entry points like the
+// local_shopping_cart cancel web service reach this class without lib.php loaded.
+require_once($CFG->dirroot . '/mod/booking/lib.php');
 
 /**
  * Deal with elective
@@ -146,6 +150,11 @@ class enrollink {
             return $block;
         }
 
+        // A logout state must not trigger enrolment side effects.
+        if (!isloggedin()) {
+            return MOD_BOOKING_AUTOENROL_STATUS_EXCEPTION;
+        }
+
         if (isguestuser()) {
             return MOD_BOOKING_AUTOENROL_STATUS_LOGGED_IN_AS_GUEST;
         }
@@ -168,7 +177,7 @@ class enrollink {
                 return MOD_BOOKING_AUTOENROL_STATUS_EXCEPTION;
             }
             // Enrol to bookingoption and reduce places in bookinganswer.
-            $bo->user_submit_response(
+            $result = $bo->user_submit_response(
                 $user,
                 $booking->id,
                 1,
@@ -176,6 +185,9 @@ class enrollink {
                 MOD_BOOKING_VERIFIED,
                 $this->erlid
             );
+            if ($result === false) {
+                return MOD_BOOKING_AUTOENROL_STATUS_BLOCKED_BY_CONDITION;
+            }
             // Change answer if user was enrolled only to waitinglist.
             if ($this->enrolmentstatus_waitinglist($bo->settings)) {
                 $courseenrolmentstatus = MOD_BOOKING_AUTOENROL_STATUS_WAITINGLIST;
@@ -344,10 +356,87 @@ class enrollink {
             return MOD_BOOKING_AUTOENROL_STATUS_LINK_NOT_VALID;
         }
 
+        // The link lives and dies with the booking it was created for: once the booker cancelled
+        // (and was maybe refunded), the remaining places must not be given away anymore.
+        if (!$this->bundle_booking_is_active()) {
+            return MOD_BOOKING_AUTOENROL_STATUS_BUNDLE_CANCELLED;
+        }
+
         if (empty($this->free_places_left())) {
             return MOD_BOOKING_AUTOENROL_STATUS_NO_MORE_SEATS;
         }
         return 0;
+    }
+
+    /**
+     * Checks whether the booking answer this bundle was created for is still active,
+     * i.e. the booker is still booked or on the waiting list.
+     *
+     * Legacy bundles without a stored answer id (baid = 0, created before the column existed)
+     * cannot be verified and are treated as active.
+     *
+     * @return bool
+     */
+    public function bundle_booking_is_active(): bool {
+        global $DB;
+
+        if (empty($this->bundle) || empty($this->bundle->baid)) {
+            return true;
+        }
+
+        $waitinglist = $DB->get_field('booking_answers', 'waitinglist', ['id' => $this->bundle->baid]);
+        if ($waitinglist === false) {
+            // The answer was deleted for good.
+            return false;
+        }
+        return in_array((int)$waitinglist, self::active_answer_states(), true);
+    }
+
+    /**
+     * The booking answer states in which a booker still holds the places of the bundle.
+     *
+     * @return int[]
+     */
+    private static function active_answer_states(): array {
+        return [MOD_BOOKING_STATUSPARAM_BOOKED, MOD_BOOKING_STATUSPARAM_WAITINGLIST];
+    }
+
+    /**
+     * Checks whether the active booking answer of the user for the given option owns an enrollink
+     * bundle via which somebody else is currently booked.
+     *
+     * Such a booking must not be cancelled by the booker anymore: the places handed out via the
+     * link are taken by other users, and the link itself would either die with the booking
+     * (see enrolment_blocking()) or keep giving away places of a cancelled purchase.
+     * The place the booker consumed for themselves does not count, and neither do link users
+     * whose own booking has been cancelled in the meantime.
+     *
+     * @param int $userid the booker
+     * @param int $optionid
+     *
+     * @return bool true if somebody else is booked via the enrollink of the user's booking
+     */
+    public static function cancellation_blocked_by_used_enrollink(int $userid, int $optionid): bool {
+        global $DB;
+
+        [$insql, $inparams] = $DB->get_in_or_equal(self::active_answer_states(), SQL_PARAMS_NAMED, 'wl');
+        [$insql2, $inparams2] = $DB->get_in_or_equal(self::active_answer_states(), SQL_PARAMS_NAMED, 'wl2');
+        // Booker's active answer -> its bundle -> consumed items of OTHER users -> their own active answer.
+        $sql = "SELECT COUNT(bei.id)
+                  FROM {booking_answers} ba
+                  JOIN {booking_enrollink_bundles} beb ON beb.baid = ba.id
+                  JOIN {booking_enrollink_items} bei ON bei.erlid = beb.erlid
+                  JOIN {booking_answers} linkba ON linkba.optionid = ba.optionid
+                       AND linkba.userid = bei.userid
+                       AND linkba.waitinglist $insql2
+                 WHERE ba.userid = :userid
+                       AND ba.optionid = :optionid
+                       AND ba.waitinglist $insql
+                       AND bei.consumed = 1
+                       AND bei.userid <> ba.userid";
+        $params = ['userid' => $userid, 'optionid' => $optionid] + $inparams + $inparams2;
+
+        return $DB->count_records_sql($sql, $params) > 0;
     }
 
 
@@ -362,6 +451,23 @@ class enrollink {
     public function get_readable_info($info): string {
         $string = get_string('enrollink:' . $info, 'mod_booking');
         return $string;
+    }
+
+    /**
+     * Returns the description of the first blocking booking condition for the given user.
+     * Used to display the specific reason why enrolment was prevented.
+     *
+     * @param int $userid
+     * @return string HTML description from the blocking condition
+     */
+    public function get_condition_block_description(int $userid): string {
+        $optionid = $this->bundle->optionid;
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $boinfo = new bo_info($settings);
+        bo_info::set_enrollink_context(true);
+        [, , $description] = $boinfo->is_available($optionid, $userid, false);
+        bo_info::set_enrollink_context(false);
+        return $description ?? '';
     }
 
     /**
@@ -570,6 +676,9 @@ class enrollink {
             return false;
         }
         $data = json_decode($answer->json);
+        if (empty($data->condition_customform)) {
+            return false;
+        }
         foreach ($data->condition_customform as $key => $value) {
             if (
                 strpos($key, 'customform_enroluserwhobookedcheckbox_enrolusersaction') === 0
@@ -596,6 +705,82 @@ class enrollink {
             'erlid',
             ['baid' => $baid]
         );
+    }
+
+    /**
+     * Get the bundle from which a user has consumed an enrollink item for a given option.
+     *
+     * @param int $userid
+     * @param int $optionid
+     *
+     * @return stdClass|null
+     */
+    public static function get_bundle_used_by_user(int $userid, int $optionid): ?stdClass {
+        global $DB;
+
+        $sql = "SELECT beb.*
+                  FROM {booking_enrollink_items} bei
+                  JOIN {booking_enrollink_bundles} beb ON beb.erlid = bei.erlid
+                 WHERE bei.userid = :userid
+                       AND bei.consumed = 1
+                       AND beb.optionid = :optionid
+              ORDER BY bei.id DESC";
+        $records = $DB->get_records_sql($sql, ['userid' => $userid, 'optionid' => $optionid], 0, 1);
+        return $records ? reset($records) : null;
+    }
+
+    /**
+     * Get the erlid connected to a user for a given option -
+     * either from a bundle the user has booked or from an enrollink the user has used.
+     *
+     * @param int $userid
+     * @param int $optionid
+     *
+     * @return string
+     */
+    public static function get_erlid_for_user(int $userid, int $optionid): string {
+        global $DB;
+
+        $bundles = $DB->get_records(
+            'booking_enrollink_bundles',
+            ['userid' => $userid, 'optionid' => $optionid],
+            'id DESC',
+            'id, erlid',
+            0,
+            1
+        );
+        if (!empty($bundles)) {
+            return reset($bundles)->erlid ?? '';
+        }
+        $bundle = self::get_bundle_used_by_user($userid, $optionid);
+        return $bundle->erlid ?? '';
+    }
+
+    /**
+     * Render the user from whom the given user has received the enrollink.
+     * Returns an empty string if the user has booked the bundle themselves.
+     *
+     * @param int $userid
+     * @param int $optionid
+     * @param bool $ashtml if true, the name links to the user profile
+     *
+     * @return string
+     */
+    public static function render_enrollink_received_from(int $userid, int $optionid, bool $ashtml = true): string {
+        $bundle = self::get_bundle_used_by_user($userid, $optionid);
+        if (empty($bundle) || (int)$bundle->userid === $userid) {
+            return '';
+        }
+        $buyer = singleton_service::get_instance_of_user((int)$bundle->userid);
+        if (empty($buyer)) {
+            return '';
+        }
+        $name = fullname($buyer);
+        if (!$ashtml) {
+            return $name;
+        }
+        $url = new moodle_url('/user/profile.php', ['id' => $buyer->id]);
+        return html_writer::link($url, $name);
     }
 
     /**

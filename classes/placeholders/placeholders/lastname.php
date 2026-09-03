@@ -38,7 +38,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @author Georg Maißer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class lastname {
+class lastname extends \mod_booking\placeholders\placeholder_base {
     /**
      * Function which takes a text, replaces the placeholders...
      * ... and returns the text with the correct values.
@@ -95,6 +95,16 @@ class lastname {
      *
      */
     public static function is_applicable(): bool {
+        return true;
+    }
+
+    /**
+     * Function determine if placeholder class works for pollurl.
+     *
+     * @return bool
+     *
+     */
+    public static function for_pollurl(): bool {
         return true;
     }
 }

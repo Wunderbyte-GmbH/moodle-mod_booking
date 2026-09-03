@@ -41,7 +41,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @author Georg Maißer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class bookingoptiondetaillink {
+class bookingoptiondetaillink extends \mod_booking\placeholders\placeholder_base {
     /**
      * Function which takes a text, replaces the placeholders...
      * ... and returns the text with the correct values.
@@ -96,7 +96,6 @@ class bookingoptiondetaillink {
                 $bookingoptiondetaillink = new moodle_url("/mod/booking/optionview.php", [
                     "optionid" => (int)$settings->id,
                     "cmid" => (int)$cmid,
-                    "userid" => (int)$userid,
                     'returnto' => 'url',
                     'returnurl' => $returnurl,
                 ]);

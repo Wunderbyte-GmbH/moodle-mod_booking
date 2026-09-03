@@ -1,0 +1,135 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_booking/bookingpage/prepageinlinestart
+
+    Renders a prepage condition inline (always visible, no button click needed).
+    A "Continue" button opens the remaining prepage steps in a modal or inline collapse.
+
+    Classes required for JS:
+    * inlinestart-continue-btn
+
+    Data attributes required for JS:
+    * data-optionid, data-userid, data-skipcondition, data-remainingpages,
+      data-remaininguniqid, data-useinline
+
+    Example context (json):
+    {
+        "optionid": 42,
+        "userid": 5,
+        "uniquid": "abc123",
+        "remaininguniqid": "def456",
+        "conditionhtml": "<div>...</div>",
+        "skipcondition": "slotbooking",
+        "remainingpages": 2,
+        "hasremainingpages": true,
+        "useinline": false
+    }
+}}
+
+{{! ── Inline-start area (always visible) ── }}
+<div class="mod-booking-inlinestart"
+     id="sbPrePageInlineStart_{{optionid}}_{{uniquid}}"
+     data-optionid="{{optionid}}"
+     data-userid="{{userid}}"
+     data-skipcondition="{{skipcondition}}">
+
+    {{! Server-rendered condition HTML (e.g. slot booking calendar) }}
+    {{{conditionhtml}}}
+
+    {{#hasremainingpages}}
+    <div class="d-flex justify-content-end mt-3 mb-2">
+        <button class="btn btn-primary inlinestart-continue-btn"
+                data-optionid="{{optionid}}"
+                data-userid="{{userid}}"
+                data-skipcondition="{{skipcondition}}"
+                data-remainingpages="{{remainingpages}}"
+                data-remaininguniqid="{{remaininguniqid}}"
+                data-useinline="{{#useinline}}1{{/useinline}}{{^useinline}}0{{/useinline}}">
+            {{#str}} continue {{/str}}
+        </button>
+    </div>
+    {{/hasremainingpages}}
+</div>
+
+{{#hasremainingpages}}
+{{#useinline}}
+{{! ── Remaining pages – inline collapse ── }}
+<div class="content w-100 inlineprepagearea">
+    <div class="collapse prepage-inline prepage-body"
+         id="sbPrePageInline_{{optionid}}_{{remaininguniqid}}"
+         data-uniquid="{{remaininguniqid}}"
+         data-optionid="{{optionid}}"
+         data-userid="{{userid}}"
+         data-pages="{{remainingpages}}"
+         data-skipcondition="{{skipcondition}}">
+        <div class="modalHeader row"></div>
+        <div class="modalMainContent row"></div>
+        <div class="modalButtonAreaContainer row d-flex justify-content-center">
+            <div class="modalButtonArea w-25"></div>
+        </div>
+        <div class="modalFooter row"></div>
+    </div>
+</div>
+{{/useinline}}
+{{^useinline}}
+{{! ── Remaining pages – Bootstrap modal ── }}
+<div class="modal fade"
+     id="sbPrePageModal_{{optionid}}_{{remaininguniqid}}"
+     tabindex="-1" role="dialog"
+     aria-label="sbPrePageModalLabel" aria-hidden="true"
+     data-uniquid="{{remaininguniqid}}"
+     data-optionid="{{optionid}}"
+     data-userid="{{userid}}"
+     data-pages="{{remainingpages}}"
+     data-skipcondition="{{skipcondition}}">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-body prepage-body">
+                <div class="modalHeader row"></div>
+                <div class="modalMainContent row"></div>
+                <div class="modalButtonAreaContainer row d-flex justify-content-center">
+                    <div class="modalButtonArea w-25"></div>
+                </div>
+                <div class="modalFooter row"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{{/useinline}}
+{{/hasremainingpages}}
+
+{{#js}}
+require(['mod_booking/bookit'], function(fn) {
+    fn.initprepageinlinestart(
+        {{optionid}},
+        {{userid}},
+        '{{skipcondition}}',
+        {{remainingpages}},
+        '{{remaininguniqid}}',
+        {{#useinline}}true{{/useinline}}{{^useinline}}false{{/useinline}}
+    );
+    {{#hasremainingpages}}
+    {{#useinline}}
+    fn.initprepageinline({{optionid}}, {{userid}}, {{remainingpages}}, '{{remaininguniqid}}');
+    {{/useinline}}
+    {{^useinline}}
+    fn.initprepagemodal({{optionid}}, {{userid}}, {{remainingpages}}, '{{remaininguniqid}}');
+    {{/useinline}}
+    {{/hasremainingpages}}
+});
+{{/js}}

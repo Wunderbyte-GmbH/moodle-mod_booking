@@ -39,7 +39,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @author Georg Maißer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class changes {
+class changes extends \mod_booking\placeholders\placeholder_base {
     /**
      * Function which takes a text, replaces the placeholders...
      * ... and returns the text with the correct values.
@@ -67,7 +67,6 @@ class changes {
         int $descriptionparam = MOD_BOOKING_DESCRIPTION_WEBSITE,
         string $rulejson = ''
     ) {
-
         $rulejson = json_decode($rulejson);
         if (
             !empty($rulejson)
@@ -96,7 +95,6 @@ class changes {
      * @return string
      */
     public static function return_placeholder_text() {
-
         return get_string('changesplaceholdertext', 'mod_booking');
     }
 

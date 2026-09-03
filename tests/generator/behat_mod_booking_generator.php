@@ -35,7 +35,21 @@ class behat_mod_booking_generator extends behat_generator_base {
                 'singular' => 'option',
                 'datagenerator' => 'option',
                 'required' => ['booking', 'text', 'description'],
-                'switchids' => ['booking' => 'bookingid', 'course' => 'courseid', 'semester' => 'semesterid'],
+                'switchids' => [
+                    'booking' => 'bookingid',
+                    'course' => 'courseid',
+                    'semester' => 'semesterid',
+                    // Optional 'entity' column: a local_entities entity name; the resolved id lands
+                    // in the option-level entity form field, so the created option gets the entity
+                    // relation and location exactly like a form submission.
+                    'entity' => 'local_entities_entityid_0',
+                ],
+            ],
+            'bookingimages' => [
+                'singular' => 'bookingimage',
+                'datagenerator' => 'bookingimage',
+                'required' => ['filepath', 'filename', 'booking'],
+                'switchids' => ['booking' => 'bookingid'],
             ],
             'answers' => [
                 'singular' => 'answer',
@@ -99,10 +113,27 @@ class behat_mod_booking_generator extends behat_generator_base {
     protected function get_booking_id(string $bookingname): int {
         global $DB;
 
-        if (!$id = $DB->get_field('booking', 'id', ['name' => $bookingname])) {
-            throw new Exception('The specified booking activity with name "' . $bookingname . '" does not exist');
+        // Support explicit disambiguation for duplicate booking names:
+        // "Booking name::COURSESHORTNAME", e.g. "My booking::C2".
+        if (strpos($bookingname, '::') !== false) {
+            [$name, $courseshortname] = array_map('trim', explode('::', $bookingname, 2));
+            $courseid = $DB->get_field('course', 'id', ['shortname' => $courseshortname]);
+            if (!$courseid) {
+                throw new Exception('The specified course shortname "' . $courseshortname . '" does not exist');
+            } else {
+                $id = $DB->get_field('booking', 'id', ['name' => $name, 'course' => $courseid]);
+                if (!$id) {
+                    throw new Exception('The specified booking activity with name "'
+                        . $name . '" and course shortname "' . $courseshortname . '" does not exist');
+                }
+                return $id;
+            }
+        } else {
+            if (!$id = $DB->get_field('booking', 'id', ['name' => $bookingname])) {
+                throw new Exception('The specified booking activity with name "' . $bookingname . '" does not exist');
+            }
+            return $id;
         }
-        return $id;
     }
 
     /**
@@ -131,6 +162,21 @@ class behat_mod_booking_generator extends behat_generator_base {
 
         if (!$id = $DB->get_field('booking_options', 'id', ['text' => $identifier])) {
             throw new Exception('The specified booking option with name text "' . $identifier . '" does not exist');
+        }
+        return $id;
+    }
+
+    /**
+     * Get the id of a local_entities entity by its name (for the optional 'entity' option column).
+     *
+     * @param string $name the entity name
+     * @return int The entity id
+     */
+    protected function get_entity_id(string $name): int {
+        global $DB;
+
+        if (!$id = $DB->get_field('local_entities', 'id', ['name' => $name])) {
+            throw new Exception('The specified entity with name "' . $name . '" does not exist (is local_entities installed?)');
         }
         return $id;
     }

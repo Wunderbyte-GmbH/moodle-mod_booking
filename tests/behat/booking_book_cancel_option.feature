@@ -30,7 +30,7 @@ Feature: In a booking instance
     And I change viewport size to "1366x10000"
 
   @javascript
-  Scenario: Booking option cancellation: disable cancellation and booking of oprion as a student
+  Scenario: Booking option cancellation: disable cancellation and booking of option as a student
     Given the following "mod_booking > options" exist:
       | booking    | text          | course | description  |
       | My booking | Test option 1 | C1     | Cancellation |
@@ -48,23 +48,67 @@ Feature: In a booking instance
     And I should not see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I should not see "Undo my booking" in the ".allbookingoptionstable_r1 .booknow" "css_element"
 
-  @javascript
-  Scenario: Booking option cancellation: book oprion as a student and self-cancell it
+  @javascript @accessibility @booking_report2_tracker
+  Scenario: Booking option cancellation: book option as a student and self-cancell it
     Given the following "mod_booking > options" exist:
       | booking    | text          | course | description  |
       | My booking | Test option 1 | C1     | Cancellation |
     And I am on the "My booking" Activity page logged in as student1
+    ## Validate accessibility of booking options table before booking
+    And the page should meet accessibility standards
+    ## And the page should meet accessibility standards with "best-practice" extra tests
+    ## Proceed with booking and cancellation
     And I should see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
+    ## Validate accessibility of booking options table before booking
+    And the page should meet accessibility standards
     And I should see "Click again to confirm booking" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r1" "css_element"
+    ## Validate accessibility of booking options table before booking
+    And the page should meet accessibility standards
     And I should see "Start" in the ".allbookingoptionstable_r1" "css_element"
     And I should not see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
+    ## Validate accessibility of booking options table before booking
+    And the page should meet accessibility standards
     And I should see "Undo my booking" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I click on "Undo my booking" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
+    ## Validate accessibility of booking options table before booking
+    And the page should meet accessibility standards
     Then I should see "Click again to confirm cancellation" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Click again to confirm cancellation" "text" in the ".allbookingoptionstable_r1" "css_element"
+    ## Validate accessibility of booking options table before booking
+    And the page should meet accessibility standards
     And I should see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
+    And I log out
+    ## ==================================================
+    ## Validate report2_tracker page for deleted bookings
+    And I log in as "admin"
+    And I visit "/mod/booking/report2.php"
+    And I should see "Manage bookings for Site: \"Acceptance test site\""
+    ## Default - agregated view of booking options
+    And I click on "Deleted bookings" "text" in the "#accordion-heading-deletedusers" "css_element"
+    And I should see "1 of 1 records found" in the ".wunderbyteTableClass.deleted_system_0" "css_element"
+    And I should see "Test option 1" in the "#deleted_system_0_r1" "css_element"
+    And I should see "My booking" in the "#deleted_system_0_r1" "css_element"
+    And I should see "1" in the "#deleted_system_0_r1" "css_element"
+    ## Switch to the non-aggregated answers view.
+    And I click on "View all bookings separately" "link"
+    And I wait until the page is ready
+    And I click on "Deleted bookings" "text" in the "#accordion-heading-deletedusers" "css_element"
+    And I should see "1 of 1 records found" in the ".wunderbyteTableClass.deleted_systemanswers_0" "css_element"
+    And I should see "Test option 1" in the "#deleted_systemanswers_0_r1" "css_element"
+    And I should see "My booking" in the "#deleted_systemanswers_0_r1" "css_element"
+    And I should see "Student" in the "#deleted_systemanswers_0_r1" "css_element"
+    And I should see "student1@example.com" in the "#deleted_systemanswers_0_r1" "css_element"
+    ## Validate booking history for selected booking option
+    And I click on "Booking history" "text" in the "#accordion-heading-bookinghistory" "css_element"
+    ##And I wait "130" seconds
+    And I should see "student1@example.com" in the ".wunderbyteTableClass.bookinghistorytable_system_0 .columnclass.email" "css_element"
+    ## TODO: different default order of records in mysql vs pgsql
+    ##And I should see "0 - Booked" in the ".wunderbyteTableClass.bookinghistorytable_system_0 .columnclass.status" "css_element"
+    ##And I should see "10 - Booking removed" in the ".wunderbyteTableClass.bookinghistorytable_system_0 .columnclass.email" "css_element"
+    And I should see "0 - Booked" in the "//table[contains(@id, 'bookinghistorytable_system_')]" "xpath_element"
+    And I should see "10 - Booking removed" in the "//table[contains(@id, 'bookinghistorytable_system_')]" "xpath_element"
 
   @javascript
   Scenario: Booking option cancellation: try self-cancell future option as a student with different disallow settings

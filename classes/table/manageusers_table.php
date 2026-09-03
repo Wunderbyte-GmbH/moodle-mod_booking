@@ -24,9 +24,16 @@
  */
 
 namespace mod_booking\table;
+use html_writer;
+use mod_booking\bo_availability\conditions\customform;
+use mod_booking\local\certificateclass;
+use mod_booking\local\certificate_conditions\certificate_conditions;
+use mod_booking\local\slotbooking\slot_answer;
+use user_picture;
 use moodle_exception;
 use core_plugin_manager;
 use mod_booking\enrollink;
+use mod_booking\event\bookingoption_completed;
 use mod_booking\event\bookinganswer_confirmed;
 use mod_booking\event\bookinganswer_denied;
 use mod_booking\local\bookingstracker\bookingstracker_helper;
@@ -60,6 +67,11 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class manageusers_table extends wunderbyte_table {
+    /**
+     * Fixed format of all time columns in the table downloads, e.g. "2026-08-13 10:29".
+     */
+    private const DOWNLOADTIMEFORMAT = '%Y-%m-%d %H:%M';
+
     /**
      * Checkbox column.
      * @param stdClass $values
@@ -97,7 +109,10 @@ class manageusers_table extends wunderbyte_table {
         if (empty($values->timemodified)) {
             return '';
         }
-        return date('d.m.Y', $values->timemodified);
+        if ($this->is_downloading()) {
+            return userdate($values->timemodified, self::DOWNLOADTIMEFORMAT);
+        }
+        return date('d.m.Y H:i:s', $values->timemodified);
     }
 
     /**
@@ -110,11 +125,75 @@ class manageusers_table extends wunderbyte_table {
         if (empty($values->coursestarttime)) {
             return '';
         }
+        if ($this->is_downloading()) {
+            return userdate($values->coursestarttime, self::DOWNLOADTIMEFORMAT);
+        }
         return date('d.m.Y', $values->coursestarttime);
     }
 
     /**
-     * Return column timebooked.
+     * Return column courseendtime.
+     *
+     * @param stdClass $values
+     * @return string
+     */
+    public function col_courseendtime(stdClass $values): string {
+        if (empty($values->courseendtime)) {
+            return '';
+        }
+        if ($this->is_downloading()) {
+            return userdate($values->courseendtime, self::DOWNLOADTIMEFORMAT);
+        }
+        return date('d.m.Y', $values->courseendtime);
+    }
+
+    /**
+     * Return column timecreated (creation date of the booking answer),
+     * displayed exactly like on report.php.
+     *
+     * @param stdClass $values
+     * @return string
+     */
+    public function col_timecreated(stdClass $values): string {
+        if (empty($values->timecreated)) {
+            return '';
+        }
+        if ($this->is_downloading()) {
+            return userdate($values->timecreated, self::DOWNLOADTIMEFORMAT);
+        }
+        return userdate($values->timecreated);
+    }
+
+    /**
+     * Return column completed (activity completion).
+     *
+     * @param stdClass $values
+     * @return string
+     */
+    public function col_completed(stdClass $values): string {
+        if ($this->is_downloading()) {
+            return empty($values->completed) ? get_string('no') : get_string('yes');
+        }
+        if (empty($values->completed)) {
+            return '';
+        }
+        return '<i class="fa fa-xl fa-check-square text-success" title="' .
+            get_string('completed', 'mod_booking') . '" aria-label="' .
+            get_string('completed', 'mod_booking') . '"></i>';
+    }
+
+    /**
+     * Return column waitinglist (booking status).
+     *
+     * @param stdClass $values
+     * @return string
+     */
+    public function col_waitinglist(stdClass $values): string {
+        return $this->col_bookingstatus($values);
+    }
+
+    /**
+     * Return column timebooked (booking date), displayed exactly like on report.php.
      *
      * @param stdClass $values
      * @return string
@@ -123,7 +202,27 @@ class manageusers_table extends wunderbyte_table {
         if (empty($values->timebooked)) {
             return '';
         }
-        return date('d.m.Y', $values->timemodified);
+        if ($this->is_downloading()) {
+            return userdate($values->timebooked, self::DOWNLOADTIMEFORMAT);
+        }
+        return userdate($values->timebooked);
+    }
+    /**
+     * Return column completeddate.
+     *
+     * @param stdClass $values
+     *
+     * @return string
+     *
+     */
+    public function col_completeddate(stdClass $values): string {
+        if (empty($values->completeddate)) {
+            return '';
+        }
+        if ($this->is_downloading()) {
+            return userdate($values->completeddate, self::DOWNLOADTIMEFORMAT);
+        }
+        return date('d.m.Y', $values->completeddate);
     }
 
      /**
@@ -181,6 +280,22 @@ class manageusers_table extends wunderbyte_table {
             $helper->set_reportoptionlink($helper->get_optionviewlink());
         }
         return $helper->render_col_text();
+    }
+
+    /**
+     * Return booking instance column: the instance name, linked to the view.php
+     * of the instance (plain name in downloads).
+     *
+     * @param stdClass $values
+     * @return string
+     */
+    public function col_instancename(stdClass $values) {
+        $name = format_string($values->instancename ?? '');
+        if ($this->is_downloading() || empty($values->cmid)) {
+            return $name;
+        }
+        $url = new moodle_url('/mod/booking/view.php', ['id' => $values->cmid]);
+        return html_writer::link($url, $name);
     }
 
     /**
@@ -250,6 +365,50 @@ class manageusers_table extends wunderbyte_table {
     }
 
     /**
+     * Returns the enrollink the user has created (customform enrolusersaction field) or used for this option.
+     *
+     * @param stdClass $values
+     * @return string
+     */
+    public function col_enrollink(stdClass $values): string {
+        $erlid = '';
+        // In option scope, the row id is the booking answer id. Other scopes provide "baid".
+        $baid = $values->baid ?? $values->id ?? 0;
+        if (!empty($baid) && is_numeric($baid)) {
+            $erlid = enrollink::get_erlid_from_baid((int)$baid) ?? '';
+        }
+        if (empty($erlid) && !empty($values->userid) && !empty($values->optionid)) {
+            // The user did not create a bundle - check if the user created or used an enrollink for this option.
+            $erlid = enrollink::get_erlid_for_user((int)$values->userid, (int)$values->optionid);
+        }
+        if (empty($erlid)) {
+            return '';
+        }
+        if ($this->is_downloading()) {
+            $url = new moodle_url('/mod/booking/enrollink.php', ['erlid' => $erlid]);
+            return $url->out(false);
+        }
+        return enrollink::create_enrollink($erlid);
+    }
+
+    /**
+     * Returns the user from whom the enrollink was received (with link to the user profile).
+     *
+     * @param stdClass $values
+     * @return string
+     */
+    public function col_enrollinkreceivedfrom(stdClass $values): string {
+        if (empty($values->userid) || empty($values->optionid)) {
+            return '';
+        }
+        return enrollink::render_enrollink_received_from(
+            (int)$values->userid,
+            (int)$values->optionid,
+            !$this->is_downloading()
+        );
+    }
+
+    /**
      * Return count of booking answers.
      *
      * @param stdClass $values
@@ -265,6 +424,12 @@ class manageusers_table extends wunderbyte_table {
         $settings = singleton_service::get_instance_of_booking_option_settings($values->optionid);
         $maxanswers = empty($settings->maxanswers) ? get_string('unlimitedplaces', 'mod_booking') : $settings->maxanswers;
         $maxoverbooking = $settings->maxoverbooking ?? 0;
+
+        // A negative limit denotes an unlimited waiting list, just as an empty
+        // maxanswers value denotes unlimited regular places.
+        if ($maxoverbooking == -1) {
+            $maxoverbooking = get_string('unlimitedplaces', 'mod_booking');
+        }
 
         if ($values->waitinglist == 0) {
             return "<b>" . ($values->answerscount ?? 0) . "</b>/" . $maxanswers;
@@ -376,12 +541,13 @@ class manageusers_table extends wunderbyte_table {
         // If booking option is booked with a price, we don't book directly but just allow to book.
         // Exeption: The booking is autoenrol and needs to be booked directly...
         // In this case price can be given for bookingoption, but was already payed before.
+        $erwaitinglist = enrollink::enrolmentstatus_waitinglist($settings);
         if (
             !empty($settings->jsonobject->useprice)
             && (isset($userprice['price']) && $userprice['price'] != 0)
             && empty(get_config('booking', 'turnoffwaitinglist'))
             && (
-                $erwaitinglist = enrollink::enrolmentstatus_waitinglist($settings) === false
+                $erwaitinglist === false
                 || enrollink::is_initial_answer($record) === true
             ) // Only the initial answer of enrollink needs to be bought.
         ) {
@@ -644,8 +810,12 @@ class manageusers_table extends wunderbyte_table {
                 $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
                 $context = context_module::instance($settings->cmid);
 
-                if (!has_capability('mod/booking:bookforothers', $context)) {
-                    throw new moodle_exception('Missing capability: mod/booking:bookforothers', 'mod_booking');
+                // Deleting responses requires the same capability as on the old
+                // report.php (and as the delete button itself is gated with).
+                // Note: since this is a write capability, it is not part of the
+                // default role of non-editing teachers on new installations.
+                if (!has_capability('mod/booking:deleteresponses', $context)) {
+                    throw new moodle_exception('Missing capability: mod/booking:deleteresponses', 'mod_booking');
                 }
 
                 $option = singleton_service::get_instance_of_booking_option($settings->cmid, $optionid);
@@ -674,6 +844,209 @@ class manageusers_table extends wunderbyte_table {
     }
 
     /**
+     * Enrol the users of the checked booking answers into the course connected
+     * to their booking option. Uses the transmitaction pattern (actionbutton).
+     * Migrated from the old report.php bulk action subscribetocourse: enrols
+     * manually (enrol_user with $manual = true), so it also works when the
+     * instance has auto-enrolment disabled.
+     *
+     * @param int $id
+     * @param string $data
+     * @return array
+     */
+    public function action_enrol_checked_booking_answers(int $id, string $data): array {
+
+        global $DB;
+
+        $jsonobject = json_decode($data);
+
+        $bookinganswerids = $jsonobject->checkedids;
+
+        foreach ($bookinganswerids as $bookinganswerid) {
+            if (!$answerrecord = $DB->get_record('booking_answers', ['id' => $bookinganswerid])) {
+                throw new moodle_exception(
+                    'invalidanswerid',
+                    'mod_booking',
+                    '',
+                    null,
+                    'Answer ID: ' . $bookinganswerid . ' not found in table booking_answers.'
+                );
+            }
+
+            $optionid = $answerrecord->optionid;
+            $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+            $context = context_module::instance($settings->cmid);
+
+            // Subscribeusers authorizes putting other users into bookings and
+            // courses. Since this is a write capability, it is not part of the
+            // default role of non-editing teachers on new installations.
+            if (!has_capability('mod/booking:subscribeusers', $context)) {
+                throw new moodle_exception('Missing capability: mod/booking:subscribeusers', 'mod_booking');
+            }
+
+            if (empty($settings->courseid)) {
+                return [
+                    'success' => 0,
+                    'message' => get_string('nocourse', 'mod_booking'),
+                ];
+            }
+
+            $option = singleton_service::get_instance_of_booking_option($settings->cmid, $optionid);
+            $option->enrol_user((int)$answerrecord->userid, true);
+        }
+
+        return [
+            'success' => 1,
+            'message' => get_string('userssuccessfullenrolled', 'mod_booking'),
+            'reload' => 1,
+        ];
+    }
+
+    /**
+     * Toggle the completion status of the checked booking answers.
+     * Uses the transmitaction pattern (actionbutton).
+     * Same behaviour as the "Toggle completion status" button on report.php.
+     *
+     * @param int $id
+     * @param string $data
+     * @return array
+     */
+    public function action_toggle_completion_booking_answers(int $id, string $data): array {
+
+        global $DB;
+
+        $jsonobject = json_decode($data);
+
+        $bookinganswerids = $jsonobject->checkedids;
+
+        foreach ($bookinganswerids as $bookinganswerid) {
+            if ($answerrecord = $DB->get_record('booking_answers', ['id' => $bookinganswerid])) {
+                $optionid = $answerrecord->optionid;
+
+                $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+                $context = context_module::instance($settings->cmid);
+
+                // Managebookedusers is the general edit gate of the tracker:
+                // read-only roles (e.g. non-editing teachers) must not change
+                // the completion status.
+                if (!has_capability('mod/booking:managebookedusers', $context)) {
+                    throw new moodle_exception('Missing capability: mod/booking:managebookedusers', 'mod_booking');
+                }
+
+                $option = singleton_service::get_instance_of_booking_option($settings->cmid, $optionid);
+                $option->toggle_user_completion($answerrecord->userid);
+            } else {
+                throw new moodle_exception(
+                    'invalidanswerid',
+                    'mod_booking',
+                    '',
+                    null,
+                    'Answer ID: ' . $bookinganswerid . ' not found in table booking_answers.'
+                );
+            }
+        }
+
+        return [
+            'success' => 1,
+            'message' => get_string('activitycompletionsuccess', 'mod_booking'),
+            'reload' => 1,
+        ];
+    }
+
+    /**
+     * Trigger the check for the given users in the given options if the are allowed to recieve a certificate and if so,
+     * issue the one that is stored in the settings.
+     *
+     * @param int $id
+     * @param string $data
+     * @return array
+     */
+    public function action_trigger_certificate_booking_answers(int $id, string $data): array {
+        global $DB, $USER;
+
+        $failure = [
+            'success' => 0,
+            'message' => get_string('certificatenotactive', 'mod_booking'),
+            'reload' => 1,
+        ];
+
+        if (
+            !class_exists('tool_certificate\certificate')
+            || !get_config('booking', 'certificateon')
+        ) {
+            return $failure;
+        }
+
+        // Server-side recheck of the button gate: report2 is also readable by
+        // users without any certificate rights.
+        if (!has_capability('tool/certificate:manage', context_system::instance())) {
+            throw new moodle_exception('Missing capability: tool/certificate:manage', 'mod_booking');
+        }
+
+        $jsonobject = json_decode($data);
+
+        $bookinganswerids = $jsonobject->checkedids;
+        $triggered = false;
+        foreach ($bookinganswerids as $bookinganswerid) {
+            if ($answerrecord = $DB->get_record('booking_answers', ['id' => $bookinganswerid])) {
+                $optionid = $answerrecord->optionid;
+
+                $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+
+                $certificateid = booking_option::get_value_of_json_by_key((int) $settings->id, 'certificate') ?? 0;
+                $presenceconfig = get_config('booking', 'presencestatustoissuecertificate');
+
+                // Manually trigger condition-based certificate actions with a synthetic completion event.
+                // This action runs outside the observer flow where bookingoption_completed is usually dispatched.
+                $manualevent = bookingoption_completed::create([
+                    'objectid' => (int)$optionid,
+                    'context' => context_module::instance((int)$settings->cmid),
+                    'userid' => (int)$USER->id,
+                    'relateduserid' => (int)$answerrecord->userid,
+                    'other' => ['cmid' => (int)$settings->cmid],
+                ]);
+                if (
+                    certificate_conditions::evaluate_certificate_conditions_with_result(
+                        $manualevent,
+                        (int)$answerrecord->userid,
+                        (int)$optionid
+                    )
+                ) {
+                    $triggered = true;
+                }
+
+                // Keep legacy trigger behaviour for option-level certificate configuration.
+                if (
+                    !empty($certificateid)
+                    && (empty($presenceconfig) || $answerrecord->status == $presenceconfig)
+                    && (!empty($presenceconfig) || $answerrecord->completed != 0)
+                ) {
+                    $triggered = true;
+                    certificateclass::issue_certificate($optionid, $answerrecord->userid, 0, (int)$certificateid);
+                }
+            } else {
+                throw new moodle_exception(
+                    'invalidanswerid',
+                    'mod_booking',
+                    '',
+                    null,
+                    'Answer ID: ' . $bookinganswerid . ' not found in table booking_answers.'
+                );
+            }
+        }
+
+        if (!$triggered) {
+            $failure['message'] = get_string('certificatenotapplyforusers', 'booking');
+            return $failure;
+        }
+        return [
+            'success' => 1,
+            'message' => get_string('certificatestriggered', 'mod_booking'),
+            'reload' => 1,
+        ];
+    }
+
+    /**
      * This handles the action column with buttons, icons, checkboxes.
      *
      * @param stdClass $values
@@ -686,15 +1059,17 @@ class manageusers_table extends wunderbyte_table {
         $optionid = $values->optionid;
 
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $cmid = $settings->cmid ?? 0;
         $ba = singleton_service::get_instance_of_booking_answers($settings);
-
         $jsonobject = (!empty($values->json)) ? json_decode($values->json) : null;
 
         if (!empty($jsonobject)) {
             if (!empty($jsonobject->confirmwaitinglist)) {
                 $data[] = [
                     'label' => get_string('unconfirm', 'mod_booking'), // Name of your action button.
-                    'class' => "btn btn-nolabel unconfirmbooking-username-{$values->username} ",
+                    'title' => get_string('unconfirm', 'mod_booking'), // Name of your action button.
+                    'arialabel' => get_string('unconfirm', 'mod_booking'), // Name of your action button.
+                    'class' => "btn btn-nolabel unconfirmbooking-username-{$values->username}",
                     'href' => '#', // You can either use the link, or JS, or both.
                     'iclass' => 'fa fa-ban', // Add an icon before the label.
                     'id' => $values->id,
@@ -747,16 +1122,21 @@ class manageusers_table extends wunderbyte_table {
         } else {
             $currentconfirmations = 0;
         }
-
+        $bookingoptionjsonobject = !empty($settings->json) ? json_decode($settings->json) : null;
+        $waitforconfirmation = property_exists($bookingoptionjsonobject, 'waitforconfirmation')
+                                ? $bookingoptionjsonobject->waitforconfirmation : 0;
         if (
                 $allowedtoconfirm
                 && $requiredconfirmations > $currentconfirmations
+                && $waitforconfirmation
+                && $ba->user_status($values->userid) != MOD_BOOKING_STATUSPARAM_BOOKED
         ) {
             $data[] = [
-                'label' => '', // Name of your action button.
+                'arialabel' => get_string('actionbuttonconfirm', 'mod_booking'), // Name of your action button.
+                'title' => get_string('actionbuttonconfirm', 'mod_booking'), // Name of your action button.
                 'class' => "btn btn-nolabel confirmbooking-username-{$values->username} ",
                 'href' => '#', // You can either use the link, or JS, or both.
-                'iclass' => 'fa fa-check', // Add an icon before the label.
+                'iclass' => 'fa fa-thumbs-up', // Add an icon before the label.
                 'id' => $values->id,
                 'name' => $values->id,
                 'methodname' => 'confirmbooking', // The method needs to be added to your child of wunderbyte_table class.
@@ -774,8 +1154,9 @@ class manageusers_table extends wunderbyte_table {
 
             // Deny booking Button.
             $data[] = [
-                'label' => '', // Name of your action button.
-                'class' => '',
+                'title' => get_string('actionbuttondeny', 'mod_booking'), // Name of your action button.
+                'arialabel' => get_string('actionbuttondeny', 'mod_booking'), // Name of your action button.
+                'class' => 'btn btn-nolabel',
                 'href' => '#', // You can either use the link, or JS, or both.
                 'iclass' => 'fa fa-thumbs-down', // Add an icon before the label.
                 'id' => $values->id,
@@ -794,34 +1175,43 @@ class manageusers_table extends wunderbyte_table {
             ];
         }
 
-        // Trash booking button.
-        $data[] = [
-            'label' => '', // Name of your action button.
-            'class' => '',
-            'href' => '#', // You can either use the link, or JS, or both.
-            'iclass' => 'fa fa-trash', // Add an icon before the label.
-            'id' => $values->id,
-            'name' => $values->id,
-            'methodname' => 'deletebooking', // The method needs to be added to your child of wunderbyte_table class.
-            'data' => [ // Will be added eg as data-id = $values->id, so values can be transmitted to the method above.
+        // Trash booking button - only add if the user has the capability to delete booking answers.
+        if (
+            !empty($cmid) && has_capability('mod/booking:deleteresponses', context_module::instance($cmid))
+            || has_capability('mod/booking:deleteresponses', context_system::instance())
+        ) {
+            $data[] = [
+                'title' => get_string('actionbuttondelete', 'mod_booking'), // Name of your action button.
+                'arialabel' => get_string('actionbuttondelete', 'mod_booking'), // Name of your action button.
+                'class' => 'btn btn-nolabel',
+                'href' => '#', // You can either use the link, or JS, or both.
+                'iclass' => 'fa fa-trash', // Add an icon before the label.
                 'id' => $values->id,
-                'labelcolumn' => 'username',
-                'titlestring' => 'delete',
-                'bodystring' => 'deletebookinglong',
-                'submitbuttonstring' => 'delete',
-                'component' => 'mod_booking',
-                'optionid' => $values->optionid,
-                'userid' => $values->userid,
-            ],
-        ];
+                'name' => $values->id,
+                'methodname' => 'deletebooking', // The method needs to be added to your child of wunderbyte_table class.
+                'data' => [ // Will be added eg as data-id = $values->id, so values can be transmitted to the method above.
+                    'id' => $values->id,
+                    'labelcolumn' => 'username',
+                    'titlestring' => 'delete',
+                    'bodystring' => 'deletebookinglong',
+                    'submitbuttonstring' => 'delete',
+                    'component' => 'mod_booking',
+                    'optionid' => $values->optionid,
+                    'userid' => $values->userid,
+                ],
+            ];
+        }
 
         // This transforms the array to make it easier to use in mustache template.
-        table::transform_actionbuttons_array($data);
+        if (!empty($data)) {
+            table::transform_actionbuttons_array($data);
 
-        return $OUTPUT->render_from_template(
-            'local_wunderbyte_table/component_actionbutton',
-            ['showactionbuttons' => $data]
-        );
+            return $OUTPUT->render_from_template(
+                'local_wunderbyte_table/component_actionbutton',
+                ['showactionbuttons' => $data]
+            );
+        }
+        return '';
     }
 
     /**
@@ -834,33 +1224,40 @@ class manageusers_table extends wunderbyte_table {
 
         global $OUTPUT;
 
-        $data[] = [
-            'label' => '', // Name of your action button.
-            'class' => '',
-            'href' => '#', // You can either use the link, or JS, or both.
-            'iclass' => 'fa fa-trash', // Add an icon before the label.
-            'id' => $values->id,
-            'name' => $values->id,
-            'methodname' => 'deletebooking', // The method needs to be added to your child of wunderbyte_table class.
-            'data' => [ // Will be added eg as data-id = $values->id, so values can be transmitted to the method above.
+        $settings = singleton_service::get_instance_of_booking_option_settings($values->optionid);
+        $cmid = $settings->cmid ?? 0;
+
+        if (!empty($cmid) && has_capability('mod/booking:deleteresponses', context_module::instance($cmid))) {
+            $data[] = [
+                'label' => get_string('actionbuttondelete', 'mod_booking'), // Name of your action button.
+                'class' => '',
+                'href' => '#', // You can either use the link, or JS, or both.
+                'iclass' => 'fa fa-trash', // Add an icon before the label.
                 'id' => $values->id,
-                'labelcolumn' => 'username',
-                'titlestring' => 'delete',
-                'bodystring' => 'deletebookinglong',
-                'submitbuttonstring' => 'delete',
-                'component' => 'mod_booking',
-                'optionid' => $values->optionid,
-                'userid' => $values->userid,
-            ],
-        ];
+                'name' => $values->id,
+                'methodname' => 'deletebooking', // The method needs to be added to your child of wunderbyte_table class.
+                'data' => [ // Will be added eg as data-id = $values->id, so values can be transmitted to the method above.
+                    'id' => $values->id,
+                    'labelcolumn' => 'username',
+                    'titlestring' => 'delete',
+                    'bodystring' => 'deletebookinglong',
+                    'submitbuttonstring' => 'delete',
+                    'component' => 'mod_booking',
+                    'optionid' => $values->optionid,
+                    'userid' => $values->userid,
+                ],
+            ];
 
-        // This transforms the array to make it easier to use in mustache template.
-        table::transform_actionbuttons_array($data);
+            // This transforms the array to make it easier to use in mustache template.
+            table::transform_actionbuttons_array($data);
 
-        return $OUTPUT->render_from_template(
-            'local_wunderbyte_table/component_actionbutton',
-            ['showactionbuttons' => $data]
-        );
+            return $OUTPUT->render_from_template(
+                'local_wunderbyte_table/component_actionbutton',
+                ['showactionbuttons' => $data]
+            );
+        }
+        // If user has no capability to delete, we return an empty string to not show the button.
+        return '';
     }
 
     /**
@@ -933,5 +1330,313 @@ class manageusers_table extends wunderbyte_table {
             'local_wunderbyte_table/component_actionbutton',
             ['showactionbuttons' => $data]
         );
+    }
+
+    /**
+     * Renders the image of the user.
+     *
+     * @param stdClass $values
+     * @return string
+     */
+    public function col_userpic(stdClass $values): string {
+        global $PAGE;
+
+        if (empty($values->userid)) {
+            return '';
+        }
+        $user = singleton_service::get_instance_of_user((int)$values->userid);
+        $userpic = new user_picture($user);
+        $userpic->size = 200;
+        $userpictureurl = $userpic->get_url($PAGE);
+        return html_writer::img(
+            $userpictureurl,
+            "link",
+            ['height' => 100]
+        );
+    }
+
+    /**
+     * Renders the index number of the row.
+     *
+     * @param stdClass $values
+     * @return string
+     */
+    public function col_indexnumber(stdClass $values): string {
+        $optionid = $values->optionid ?? 0;
+        return (string)singleton_service::get_index_number($this->uniqueid . $optionid, (string)$values->id);
+    }
+
+    /**
+     * Renders the aggregated rating of the booking answer (read-only).
+     *
+     * @param stdClass $values
+     * @return string
+     */
+    public function col_rating(stdClass $values): string {
+        global $DB;
+
+        if (!isset($values->rating) || $values->rating === null || $values->rating === '') {
+            return '';
+        }
+
+        $optionsettings = singleton_service::get_instance_of_booking_option_settings((int)($values->optionid ?? 0));
+        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($optionsettings->cmid ?? 0);
+        $value = (float)$values->rating;
+
+        // See RATING_AGGREGATE_COUNT in rating/lib.php.
+        if ((int)($bookingsettings->assessed ?? 0) === 2) {
+            return (string)(int)$value;
+        }
+
+        // For custom scales, map the value back to the scale item.
+        $scaleid = (int)($bookingsettings->scale ?? 0);
+        if ($scaleid < 0 && ($scale = $DB->get_record('scale', ['id' => -$scaleid]))) {
+            $scaleitems = explode(',', $scale->scale);
+            $index = max(1, min(count($scaleitems), (int)round($value)));
+            return format_string(trim($scaleitems[$index - 1]));
+        }
+
+        return format_float($value, 2);
+    }
+
+    /**
+     * Renders the group(s) of the user in the course of the booking instance.
+     *
+     * @param stdClass $values
+     * @return string
+     */
+    public function col_groups(stdClass $values): string {
+        global $DB;
+
+        $optionsettings = singleton_service::get_instance_of_booking_option_settings((int)($values->optionid ?? 0));
+        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($optionsettings->cmid ?? 0);
+        $courseid = (int)($bookingsettings->course ?? 0);
+        if (empty($courseid) || empty($values->userid)) {
+            return '';
+        }
+
+        $groups = groups_get_user_groups($courseid, (int)$values->userid);
+        if (empty($groups[0])) {
+            return '';
+        }
+        [$insql, $inparams] = $DB->get_in_or_equal($groups[0]);
+        $groupnames = $DB->get_fieldset_select('groups', 'name', 'id ' . $insql, $inparams);
+        return implode(', ', array_map('format_string', $groupnames));
+    }
+
+    /**
+     * Renders the latest certificate of the user for the booking option.
+     *
+     * @param stdClass $values
+     * @return string
+     */
+    public function col_certificate(stdClass $values): string {
+        $certificates = certificateclass::get_certificates_for_user_option(
+            (int)($values->userid ?? 0),
+            (int)($values->optionid ?? 0)
+        );
+        if (empty($certificates)) {
+            return '';
+        }
+
+        $lastcertificate = end($certificates);
+        if (empty($lastcertificate->timecreated) || empty($lastcertificate->code)) {
+            return '';
+        }
+
+        if (empty($lastcertificate->expires)) {
+            $text = get_string('certificatewithoutexpiration', 'mod_booking');
+        } else {
+            $dateformatted = userdate($lastcertificate->expires);
+            $text = get_string('certificatewithexpiration', 'mod_booking', $dateformatted);
+        }
+        $statusicon = (time() < $lastcertificate->expires) ? '&#x2705; ' : '&#x274C; ';
+        $url = new moodle_url(
+            "/pluginfile.php/1/tool_certificate/issues/{$lastcertificate->timecreated}/{$lastcertificate->code}.pdf"
+        );
+        return $statusicon . html_writer::link($url, $text, ['target' => '_blank']);
+    }
+
+    /**
+     * Renders all certificates of the user for the booking option.
+     *
+     * @param stdClass $values
+     * @return string
+     */
+    public function col_allusercertificates(stdClass $values): string {
+        global $OUTPUT;
+        static $id = 1;
+
+        $certificates = certificateclass::get_certificates_for_user_option(
+            (int)($values->userid ?? 0),
+            (int)($values->optionid ?? 0)
+        );
+        if (empty($certificates)) {
+            return '';
+        }
+
+        $certdata = [];
+        foreach ($certificates as $certificate) {
+            $url = new moodle_url(
+                "/pluginfile.php/1/tool_certificate/issues/{$certificate->timecreated}/{$certificate->code}.pdf"
+            );
+            $certdata[] = [
+                'code' => $certificate->code,
+                'timecreated' => userdate($certificate->timecreated),
+                'expires' => !empty($certificate->expires) ? userdate($certificate->expires)
+                    : get_string('certificatewithoutexpiration', 'mod_booking'),
+                'url' => $url,
+            ];
+        }
+        $fullname = "{$values->firstname} {$values->lastname}";
+        $data = [
+            'title' => get_string('certificatemodalheader', 'mod_booking', $fullname),
+            'certificates' => $certdata,
+            'id' => $id,
+        ];
+        $id++;
+        return $OUTPUT->render_from_template('mod_booking/report/allusercertificate_modal', $data);
+    }
+
+    /**
+     * Renders the number of booked slots (slotbooking options).
+     *
+     * @param stdClass $values
+     * @return string
+     */
+    public function col_slotnumslots(stdClass $values): string {
+        return slot_answer::render_numslots($values);
+    }
+
+    /**
+     * Renders the start time of the first booked slot (slotbooking options).
+     *
+     * @param stdClass $values
+     * @return string
+     */
+    public function col_slotstarttime(stdClass $values): string {
+        if ($this->is_downloading()) {
+            return slot_answer::render_starttime($values, self::DOWNLOADTIMEFORMAT);
+        }
+        return slot_answer::render_starttime($values);
+    }
+
+    /**
+     * Renders the end time of the last booked slot (slotbooking options).
+     *
+     * @param stdClass $values
+     * @return string
+     */
+    public function col_slotendtime(stdClass $values): string {
+        if ($this->is_downloading()) {
+            return slot_answer::render_endtime($values, self::DOWNLOADTIMEFORMAT);
+        }
+        return slot_answer::render_endtime($values);
+    }
+
+    /**
+     * Renders the assigned teachers from the slot JSON (slotbooking options).
+     *
+     * @param stdClass $values
+     * @return string
+     */
+    public function col_slotteachers(stdClass $values): string {
+        return slot_answer::render_teachers($values);
+    }
+
+    /**
+     * Renders the slot price paid from the slot JSON (slotbooking options).
+     *
+     * @param stdClass $values
+     * @return string
+     */
+    public function col_slotprice(stdClass $values): string {
+        return slot_answer::render_price($values);
+    }
+
+    /**
+     * Renders the move slot action link (slotbooking options).
+     *
+     * @param stdClass $values
+     * @return string
+     */
+    public function col_moveslot(stdClass $values): string {
+        $settings = singleton_service::get_instance_of_booking_option_settings((int)($values->optionid ?? 0));
+        $cmid = $settings->cmid ?? 0;
+        if (empty($cmid)) {
+            return '';
+        }
+
+        $context = context_module::instance($cmid);
+        $canmoveslots = has_capability('mod/booking:moveslots', $context)
+            || has_capability('mod/booking:updatebooking', $context);
+        if (!$canmoveslots) {
+            return '';
+        }
+
+        $slotdata = slot_answer::get_slot_data($values);
+        if (empty($slotdata)) {
+            return '';
+        }
+
+        // In option scope, the row id is the booking answer id. Other scopes provide "baid".
+        $url = new moodle_url('/mod/booking/moveslot.php', [
+            'id' => $cmid,
+            'optionid' => $values->optionid,
+            'baid' => (int)($values->baid ?? $values->id ?? 0),
+        ]);
+
+        return html_writer::link($url, get_string('slot_move_action', 'mod_booking'));
+    }
+
+    /**
+     * This function is called for each data row to allow processing of columns which do not have a *_cols function.
+     *
+     * @param mixed $colname
+     * @param mixed $values
+     *
+     * @return string
+     *
+     */
+    public function other_cols($colname, $values) {
+        // Custom user profile fields configured in responsesfields/reportfields
+        // are selected as "cust<shortname>" holding "datatype|data".
+        // If the value does not match that pattern, fall through: the column
+        // might be a booking option customfield with a shortname starting with "cust".
+        if (substr($colname, 0, 4) === 'cust') {
+            $tmp = explode('|', $values->{$colname} ?? '', 2);
+            if (count($tmp) == 2) {
+                return $tmp[0] == 'datetime'
+                    ? userdate($tmp[1], get_string('strftimedate', 'langconfig'))
+                    : format_string($tmp[1]);
+            }
+        }
+        // Answers to the fields of the customform availability condition, like on report.php.
+        // They are stored in the json of the booking answer (in optiondate scope selected as
+        // "bajson", because there "json" holds the json of the optiondate answer).
+        if (substr($colname, 0, 10) === 'formfield_') {
+            $optionid = (int)($values->optionid ?? 0);
+            $json = $values->bajson ?? $values->json ?? '';
+            if (empty($optionid) || empty($json)) {
+                return '';
+            }
+            $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+            [, $counter] = explode('_', $colname);
+            $customformvalue = customform::get_customform_field_value(
+                $settings,
+                (object)['json' => $json],
+                (int)$counter
+            );
+            return $customformvalue === null ? '' : format_string($customformvalue);
+        }
+        $settings = singleton_service::get_instance_of_booking_option_settings($values->optionid ?? 0);
+        if ($settings->customfields[$colname] ?? false) {
+            if (!isset($values->$colname)) {
+                return '';
+            }
+            return $settings->customfieldsfortemplates[$colname]["value"];
+        } else {
+            return $values->$colname;
+        }
     }
 }

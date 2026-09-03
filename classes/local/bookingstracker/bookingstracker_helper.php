@@ -142,6 +142,7 @@ class bookingstracker_helper {
         $data = [
             'id' => $this->values->id, // Can be optionid or answerid, depending on scope.
             'text' => $this->values->text,
+            'detailstitle' => get_string('report2showoptiondetails', 'mod_booking', $this->values->text),
             'texticon' => $this->texticon,
             'optionlink' => $this->optionviewlink->out(false),
             'report2option' => $this->reportoptionlink->out(false),

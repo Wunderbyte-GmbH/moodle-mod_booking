@@ -55,8 +55,8 @@ class select_users_from_userfield_of_eventuser implements booking_rule_condition
      * @return bool true if it can be combined
      */
     public function can_be_combined_with_bookingruletype(string $bookingruletype): bool {
-        // This rule cannot be combined with the "days before" rule as it has no event.
-        if ($bookingruletype == 'rule_daysbefore') {
+        // This rule cannot be combined with the "days before" or "specific time" rule as it has no event.
+        if (in_array($bookingruletype, ['rule_daysbefore', 'rule_specifictime'])) {
             return false;
         } else {
             return true;

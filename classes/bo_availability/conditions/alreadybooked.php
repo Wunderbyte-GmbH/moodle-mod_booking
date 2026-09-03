@@ -28,6 +28,8 @@ use mod_booking\bo_availability\bo_condition;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_option_settings;
 use mod_booking\local\modechecker;
+use mod_booking\option\fields\multiplebookings;
+use mod_booking\local\slotbooking\slot_availability;
 use mod_booking\singleton_service;
 use moodle_url;
 use MoodleQuickForm;
@@ -78,6 +80,24 @@ class alreadybooked implements bo_condition {
     public function is_shown_in_mform(): bool {
         return false;
     }
+    /**
+     * Returns the name of the condition.
+     *
+     * @return string
+     *
+     */
+    public function get_name(): string {
+        return get_string('bocondalreadybooked', 'mod_booking');
+    }
+
+    /**
+     * Returns whether the condition is skippable or not.
+     *
+     * @return bool
+     */
+    public function is_skippable(): bool {
+        return false;
+    }
 
     /**
      * Determines whether a particular item is currently available
@@ -104,16 +124,24 @@ class alreadybooked implements bo_condition {
         }
 
         $allanswers = $bookinganswer->get_users();
-        $currentanswer = $allanswers[$USER->id] ?? null;
+        $currentanswer = $allanswers[$userid] ?? null;
 
-        // Get the real booking time.
-        $timebooked = (int) (empty($currentanswer) ) ? 0 : $currentanswer->timebooked;
+        // If multiple bookings are enabled and the book-again gate (fixed wait time or the last
+        // booked slot having ended) is satisfied for the user's booked answer, this condition
+        // does not block.
+        if (!empty($currentanswer) && multiplebookings::book_again_due($settings->id, $currentanswer)) {
+            $isavailable = true;
+        }
 
-        // Check if multiple bookings are enabled and if the required time to wait before
-        // the next book is passed, then this condition does not blocks.
-        $ismultipbookingsoptionenable = $settings->jsonobject->multiplebookings ?? 0;
-        $allowtobookagainafter = $settings->jsonobject->allowtobookagainafter ?? 0;
-        if ($ismultipbookingsoptionenable && ($timebooked + $allowtobookagainafter) <= time()) {
+        // Slot booking capacity purchases are independent of multiplebookings: if the user still
+        // has remaining slot capacity (max_slots_per_user), this condition must not block either -
+        // otherwise load_pre_booking_page()'s "already booked" top-blocker gate silently swallows
+        // the commit (the confirmation page reports success without actually creating the answer).
+        if (
+            !empty($currentanswer)
+            && !empty($settings->slotconfig)
+            && slot_availability::has_remaining_slot_capacity((int)$settings->id, (int)$userid)
+        ) {
             $isavailable = true;
         }
 
@@ -130,9 +158,10 @@ class alreadybooked implements bo_condition {
      * This will be used if the conditions should not only block booking...
      * ... but actually hide the conditons alltogether.
      * @param int $userid
+     * @param array $params This is the array with parameters for the sql query.
      * @return array
      */
-    public function return_sql(int $userid = 0): array {
+    public function return_sql(int $userid = 0, &$params = []): array {
 
         return ['', '', '', [], ''];
     }
@@ -151,6 +180,8 @@ class alreadybooked implements bo_condition {
      * @return bool
      */
     public function hard_block(booking_option_settings $settings, $userid): bool {
+        // Only ever checked once is_available() has already returned false (see docblock above) -
+        // book_again_due() has already had its say there; nothing left to special-case here.
         return true;
     }
 
@@ -172,13 +203,31 @@ class alreadybooked implements bo_condition {
      *   this item
      */
     public function get_description(booking_option_settings $settings, $userid = null, $full = false, $not = false): array {
-
         $description = '';
 
         $isavailable = $this->is_available($settings, $userid, $not);
 
         $description = !$isavailable ? $this->get_description_string($isavailable, $full, $settings) : '';
 
+        // When self-service slot rebooking is available for this booked user, the slotmove
+        // condition (higher id) owns the button + prepage. alreadybooked steps back to INDIFFERENT
+        // so its JUSTMYALERT does not suppress the move prepage modal.
+        //
+        // Slot booking options keep the Continue button (and the merged multi-option calendar, if
+        // any) available for the whole life of the option, even once the user has an active answer
+        // and/or is not currently allowed to book again - the slotbooking condition's OWN
+        // validation() now enforces that (with a clear notification instead of a silent no-op), not
+        // this generic condition hiding the Continue button behind a flat "Booked" alert.
+        // Only step back when a rebookable answer actually exists - otherwise slotmove::is_available()
+        // never claims the button either (it stays INDIFFERENT too when there is nothing to rebook,
+        // see slot_mover::get_self_rebookable_answer()), and no condition is left to render the
+        // "already booked"/"Start" state at all - the row silently falls back to "Book now".
+        if (
+            !$isavailable
+            && \mod_booking\local\slotbooking\slot_mover::get_self_rebookable_answer((int)$settings->id, (int)$userid) !== null
+        ) {
+            return [$isavailable, $description, MOD_BOOKING_BO_PREPAGE_NONE, MOD_BOOKING_BO_BUTTON_INDIFFERENT];
+        }
         return [$isavailable, $description, MOD_BOOKING_BO_PREPAGE_NONE, MOD_BOOKING_BO_BUTTON_JUSTMYALERT];
     }
 
@@ -267,7 +316,7 @@ class alreadybooked implements bo_condition {
      * @param booking_option_settings $settings
      * @return string
      */
-    private function get_description_string(bool $isavailable, bool $full, booking_option_settings $settings) {
+    public function get_description_string(bool $isavailable, bool $full, booking_option_settings $settings) {
 
         if (
             !$isavailable

@@ -39,6 +39,12 @@ use local_wunderbyte_table\wunderbyte_table;
  */
 class optionstoconfirmreduced extends optionstoconfirm {
     /**
+     * Scope name.
+     * @var string
+     */
+    public $scope = 'optionstoconfirmreduced';
+
+    /**
      * Render users table based on status param
      *
      * @param string $scope
@@ -69,7 +75,7 @@ class optionstoconfirmreduced extends optionstoconfirm {
         $table = new manageusers_table($tablename);
         if (!empty($customfields)) {
             $customfieldheadings = [];
-            $customfieldsarray = booking_handler::get_customfields([array_values($customfields)]);
+            $customfieldsarray = booking_handler::get_customfields(array_values($customfields));
             foreach ($customfieldsarray as $customfield) {
                 $customfieldheadings[] = $customfield->name;
             }
@@ -84,6 +90,12 @@ class optionstoconfirmreduced extends optionstoconfirm {
             $table->use_pages = true;
         }
         $table->set_sql($fields, $from, $where, $params);
+
+        // Sorting settings.
+        $this->define_sortablecolumns_from_columns($table, $columns, $headers);
+        $table->sort_default_column = 'name';
+        $table->sort_default_order = SORT_ASC;
+
         return $table;
     }
 
@@ -91,16 +103,17 @@ class optionstoconfirmreduced extends optionstoconfirm {
      * This functions defines the columns for each scope.
      *
      * @param int $statusparam
+     * @param int $scopeid
      *
      * @return array
      *
      */
-    public function return_cols_for_tables(int $statusparam): array {
+    public function return_cols_for_tables(int $statusparam, int $scopeid = 0): array {
         $columns = [
             'name' => get_string('fullname', 'core'),
             'text' => get_string('bookingoptionname', 'mod_booking'),
             'action_confirm_delete' => get_string('confirmbooking', 'mod_booking'),
-            'timemodified' => get_string('timecreated', 'core'),
+            'coursestarttime' => get_string('coursestarttime', 'mod_booking'),
         ];
         return $columns;
     }

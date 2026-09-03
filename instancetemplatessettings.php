@@ -54,6 +54,7 @@ if ((has_capability('mod/booking:updatebooking', $context) || has_capability('mo
 $pageurl = new moodle_url('/mod/booking/instancetemplatessettings.php');
 
 if (!empty($instancetodelete) && $instancetodelete > 0) {
+    require_sesskey();
     $DB->delete_records('booking_instancetemplate', ['id' => $instancetodelete]);
     redirect($pageurl, get_string('templatedeleted', 'mod_booking'), 5);
 }

@@ -26,11 +26,13 @@ namespace mod_booking\bo_availability;
 
 use context_module;
 use context_system;
+use core_component;
 use local_shopping_cart\shopping_cart;
 use mod_booking\booking;
 use mod_booking\booking_bookit;
 use mod_booking\booking_context_helper;
 use mod_booking\booking_option_settings;
+use mod_booking\bo_availability\conditions\bookitbutton;
 use mod_booking\output\button_notifyme;
 use mod_booking\output\col_price;
 use mod_booking\price;
@@ -75,6 +77,19 @@ class bo_info {
     /** @var int userid for a given user */
     protected $userid;
 
+    /** @var bool Whether the current booking is triggered via an enrollink. */
+    private static bool $isenrollinkcontext = false;
+
+    /**
+     * Sets the enrollink context for the current booking request.
+     *
+     * @param bool $active
+     * @return void
+     */
+    public static function set_enrollink_context(bool $active): void {
+        self::$isenrollinkcontext = $active;
+    }
+
     /**
      * Constructs with item details.
      *
@@ -106,24 +121,28 @@ class bo_info {
      * This function displays debugging() messages if the availability
      * information is invalid.
      *
-     * @param ?int $optionid
-     * @param int $userid If set, specifies a different user ID to check availability for
+     * @param int|null $optionid
+     * @param int $userid
      * @param bool $hardblock
      * @param bool $noblockingpages
-     * @return array [isavailable, description]
+     * @param array $ignoredconditionids
+     *
+     * @return array
+     *
      */
     public function is_available(
         ?int $optionid = null,
         int $userid = 0,
         bool $hardblock = false,
-        bool $noblockingpages = false
+        bool $noblockingpages = false,
+        array $ignoredconditionids = []
     ): array {
 
         if (!$optionid) {
             $optionid = $this->optionid;
         }
 
-        $results = $this->get_condition_results($optionid, $userid, $hardblock);
+        $results = $this->get_condition_results($optionid, $userid, $hardblock, $ignoredconditionids);
 
         if (count($results) === 0) {
             $id = MOD_BOOKING_BO_COND_CONFIRMATION; // This is the lowest id.
@@ -173,11 +192,18 @@ class bo_info {
      * @param int|null $optionid
      * @param int $userid
      * @param bool $onlyhardblock
+     * @param array $ignoredconditionids
      * @return array
      */
-    public static function get_condition_results(?int $optionid = null, int $userid = 0, bool $onlyhardblock = false): array {
+    public static function get_condition_results(
+        ?int $optionid = null,
+        int $userid = 0,
+        bool $onlyhardblock = false,
+        array $ignoredconditionids = []
+    ): array {
         global $USER, $CFG;
 
+        // Lib is needed for defined constants.
         require_once($CFG->dirroot . '/mod/booking/lib.php');
 
         // We only get full description when we book for another user.
@@ -186,10 +212,11 @@ class bo_info {
 
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
-        $conditions = self::get_conditions(MOD_BOOKING_CONDPARAM_HARDCODED_ONLY);
+        $conditions = self::get_available_conditions(MOD_BOOKING_CONDPARAM_HARDCODED_ONLY);
 
         if (!empty($settings->availability)) {
             $availabilityarray = json_decode($settings->availability);
+            self::exclude_conditions($availabilityarray);
 
             // If the json is not valid, we throw an error.
             if (!is_array($availabilityarray) && (!$availabilityarray || empty($availabilityarray))) {
@@ -212,6 +239,7 @@ class bo_info {
         }
 
         $resultsarray = [];
+        $ignoredconditionkeys = array_flip(array_map('intval', $ignoredconditionids));
 
         $overrideconditions = [];
 
@@ -220,6 +248,11 @@ class bo_info {
         They come from the field 'availability' field of the booking options table. */
         while (count($conditions) > 0) {
             $condition = array_shift($conditions);
+
+            $conditionid = (int)($condition->id ?? 0);
+            if (!empty($ignoredconditionkeys) && isset($ignoredconditionkeys[$conditionid])) {
+                continue;
+            }
 
             $classname = get_class($condition);
 
@@ -364,6 +397,75 @@ class bo_info {
     }
 
     /**
+     * Returns the availability conditions that would block the given user from booking
+     * this option themselves, mapped from condition id to a plain-text description.
+     *
+     * This is meant for flows where an agent books FOR the given user (eg. subscribeusers.php).
+     * Therefore conditions that are part of the booking flow rather than real restrictions
+     * (bookit button, price, confirmation pages, booking policy, subbookings, customform),
+     * capacity conditions (fully booked, notify list - the waiting list logic of the booking
+     * process stays in charge of those) and conditions describing an already existing answer
+     * of the user are not reported as blockers.
+     *
+     * @param int $optionid
+     * @param int $userid the user the option would be booked for
+     * @return array [conditionid => description] of blocking conditions, empty if none block
+     */
+    public static function get_unmet_availability_conditions(int $optionid, int $userid): array {
+        global $CFG;
+
+        // Lib is needed for defined constants.
+        require_once($CFG->dirroot . '/mod/booking/lib.php');
+
+        // Conditions that must not be treated as blockers when someone else books for the user.
+        $irrelevantconditions = [
+            MOD_BOOKING_BO_COND_CONFIRMATION,
+            MOD_BOOKING_BO_COND_BOOKITBUTTON,
+            MOD_BOOKING_BO_COND_CONFIRMBOOKIT,
+            MOD_BOOKING_BO_COND_PRICEISSET,
+            MOD_BOOKING_BO_COND_NOSHOPPINGCART,
+            MOD_BOOKING_BO_COND_BOOKWITHCREDITS,
+            MOD_BOOKING_BO_COND_CONFIRMBOOKWITHCREDITS,
+            MOD_BOOKING_BO_COND_BOOKWITHSUBSCRIPTION,
+            MOD_BOOKING_BO_COND_CONFIRMBOOKWITHSUBSCRIPTION,
+            MOD_BOOKING_BO_COND_ELECTIVEBOOKITBUTTON,
+            MOD_BOOKING_BO_COND_ELECTIVENOTBOOKABLE,
+            MOD_BOOKING_BO_COND_ASKFORCONFIRMATION,
+            MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION,
+            MOD_BOOKING_BO_COND_BOOKINGPOLICY,
+            MOD_BOOKING_BO_COND_SUBBOOKING,
+            MOD_BOOKING_BO_COND_SUBBOOKINGBLOCKS,
+            MOD_BOOKING_BO_COND_JSON_CUSTOMFORM,
+            MOD_BOOKING_BO_COND_FULLYBOOKED,
+            MOD_BOOKING_BO_COND_NOTIFYMELIST,
+            MOD_BOOKING_BO_COND_ALREADYRESERVED,
+            MOD_BOOKING_BO_COND_BOOKONDETAIL,
+            MOD_BOOKING_BO_COND_CANCELMYSELF,
+            MOD_BOOKING_BO_COND_ONWAITINGLIST,
+            MOD_BOOKING_BO_COND_ALREADYBOOKED,
+            MOD_BOOKING_BO_COND_SLOTMOVE,
+            MOD_BOOKING_BO_COND_CONFIRMCANCEL,
+        ];
+
+        $blocking = [];
+        // The condition results only contain the conditions which are NOT available.
+        foreach (self::get_condition_results($optionid, $userid) as $result) {
+            $conditionid = (int)$result['id'];
+            if (in_array($conditionid, $irrelevantconditions, true)) {
+                continue;
+            }
+            $description = trim(strip_tags((string)($result['description'] ?? '')));
+            if ($description === '') {
+                // Make the blocker at least identifiable when a condition provides no description.
+                $classnameparts = explode('\\', (string)$result['classname']);
+                $description = end($classnameparts);
+            }
+            $blocking[$conditionid] = $description;
+        }
+        return $blocking;
+    }
+
+    /**
      * Obtains a string describing all availability restrictions (even if
      * they do not apply any more). Used to display information for staff
      * editing the website.
@@ -414,10 +516,15 @@ class bo_info {
         $mform->addElement('header', 'availabilityconditions', get_string('availabilityconditionsheader', 'mod_booking'));
 
         $conditions = self::get_conditions(MOD_BOOKING_CONDPARAM_MFORM_ONLY);
-
+        $visibilitymanager = new condition_visibility_manager();
         foreach ($conditions as $condition) {
             // For each condition, add the appropriate form fields.
             $condition->add_condition_to_mform($mform, $optionid, $moodleform);
+            if ($visibilitymanager->is_condition_skipped($condition->id)) {
+                $visibilitymanager->disable_elements_in_mform($mform, $condition, true);
+            } else if ($visibilitymanager->is_condition_frozen($condition->id)) {
+                $visibilitymanager->disable_elements_in_mform($mform, $condition, false);
+            }
         }
     }
 
@@ -493,7 +600,56 @@ class bo_info {
         // This will be saved in the table booking_options in the 'availability' field.
         $fromform->availability = json_encode($arrayforjson);
         $fromform->sqlfilter = $sqlfilter;
+
+        // The set of values referenced by sqlfilter conditions may have changed.
+        sqlfilter_relevance::purge();
         // Without an optionid we do nothing.
+    }
+
+    /**
+     * The raw SQL parts of all used mform conditions for the given user - without
+     * the capability gate, without the booked-user bypass and without the final
+     * sqlfilter guard wrapper. Shared by return_sql_from_conditions() and the
+     * strictly read-only cache report, which uses it to compute the general-view
+     * stem SQL for arbitrary users without switching the session user.
+     *
+     * @param int $userid
+     * @return array [select, from, filter, params, wherefragments]
+     */
+    public static function conditions_sql_parts(int $userid): array {
+        $conditions = self::get_available_conditions(MOD_BOOKING_CONDPARAM_MFORM_ONLY);
+        $selectall = '';
+        $fromall = '';
+        $filterall = '';
+        $paramsarray = [];
+        $wherearray = [];
+        foreach ($conditions as $class) {
+            if (method_exists($class, 'instance')) {
+                $condition = $class::instance();
+            } else {
+                $condition = new $class();
+            }
+
+            // Conditions no option on the site uses are skipped entirely: their
+            // SQL could only ever restrict options that carry them, but it would
+            // bloat the WHERE with per-row json checks and enlarge the material
+            // the table cache key is built from.
+            if (sqlfilter_relevance::condition_is_skippable($condition)) {
+                continue;
+            }
+
+            [$select, $from, $filter, $params, $where] = $condition->return_sql($userid, $paramsarray);
+
+            $selectall .= $select;
+            $fromall .= $from;
+            $filterall .= $filter;
+            if (!empty($where)) {
+                $wherearray[] = $where;
+            }
+            $paramsarray = array_merge($paramsarray, $params);
+        }
+
+        return [$selectall, $fromall, $filterall, $paramsarray, $wherearray];
     }
 
     /**
@@ -503,12 +659,11 @@ class bo_info {
      */
     public static function return_sql_from_conditions(int $userid) {
         global $PAGE;
-        // First, we get all the relevant conditions.
-        $conditions = self::get_conditions(MOD_BOOKING_CONDPARAM_MFORM_ONLY);
-        $selectall = '';
-        $fromall = '';
-        $filterall = '';
-        $paramsarray = [];
+
+        // Check if SQL filter for availability conditions is enabled.
+        if (!get_config('booking', 'usesqlfilteravailability')) {
+            return ['', '', '', [], ''];
+        }
 
         $cm = $PAGE->cm;
         if (
@@ -526,22 +681,18 @@ class bo_info {
             // A teacher would not see hidden bookingconditions on startpage but in courselist they would be displayed.
             return ['', '', '', [], ''];
         }
-        foreach ($conditions as $class) {
-            if (method_exists($class, 'instance')) {
-                $condition = $class::instance();
-            } else {
-                $condition = new $class();
-            }
 
-            [$select, $from, $filter, $params, $where] = $condition->return_sql($userid);
+        // Without a single option using the SQL filter there is nothing to
+        // restrict: skip building the user specific WHERE altogether, so every
+        // user shares the same (empty) SQL and thus the same table cache entries.
+        if (!sqlfilter_relevance::any_sqlfilter_in_use()) {
+            return ['', '', '', [], ''];
+        }
 
-            $selectall .= $select;
-            $fromall .= $from;
-            $filterall .= $filter;
-            if (!empty($where)) {
-                $wherearray[] = $where;
-            }
-            $paramsarray = array_merge($paramsarray, $params);
+        [$selectall, $fromall, $filterall, $paramsarray, $wherearray] = self::conditions_sql_parts($userid);
+
+        if (empty($wherearray)) {
+            return ['', '', '', [], ''];
         }
 
         $where = implode(" AND ", $wherearray);
@@ -563,9 +714,7 @@ class bo_info {
 
         // For performance reason we have a flag if we need to check the value at all.
         $where = " (
-                        sqlfilter < 1 OR $bypass (
-                            $where
-                            )
+                        sqlfilter < 1 OR $bypass $where
                         )
                         ";
 
@@ -583,57 +732,62 @@ class bo_info {
      */
     public static function get_conditions(int $condparam = MOD_BOOKING_CONDPARAM_ALL): array {
 
-        global $CFG;
-
-        // First, we get all the available conditions from our directory.
-        $path = $CFG->dirroot . '/mod/booking/classes/bo_availability/conditions/*.php';
-        $filelist = glob($path);
-
+        $classes = self::get_condition_classes();
         $conditions = [];
 
         // We just want filenames, as they are also the classnames.
-        foreach ($filelist as $filepath) {
-            $path = pathinfo($filepath);
-            $filename = 'mod_booking\\bo_availability\\conditions\\' . $path['filename'];
-
-            // We instantiate all the classes, because we need some information.
-            if (class_exists($filename)) {
-                if (method_exists($filename, 'instance')) {
-                    $instance = $filename::instance();
-                } else {
-                    $instance = new $filename();
-                }
-
-                switch ($condparam) {
-                    case MOD_BOOKING_CONDPARAM_HARDCODED_ONLY:
-                        if ($instance->is_json_compatible() === false) {
-                            $conditions[] = $instance;
-                        }
-                        break;
-                    case MOD_BOOKING_CONDPARAM_JSON_ONLY:
-                        if ($instance->is_json_compatible() === true) {
-                            $conditions[] = $instance;
-                        }
-                        break;
-                    case MOD_BOOKING_CONDPARAM_MFORM_ONLY:
-                        if ($instance->is_shown_in_mform()) {
-                            $conditions[] = $instance;
-                        }
-                        break;
-                    case MOD_BOOKING_CONDPARAM_CANBEOVERRIDDEN:
-                        if (isset($instance->overridable) && $instance->overridable === true) {
-                            $conditions[] = $instance;
-                        }
-                        break;
-                    case MOD_BOOKING_CONDPARAM_ALL:
-                    default:
+        foreach ($classes as $classname => $path) {
+            if (!class_exists($classname)) {
+                continue;
+            }
+            if (method_exists($classname, 'instance')) {
+                $instance = $classname::instance();
+            } else {
+                $instance = new $classname();
+            }
+            switch ($condparam) {
+                case MOD_BOOKING_CONDPARAM_HARDCODED_ONLY:
+                    if ($instance->is_json_compatible() === false) {
                         $conditions[] = $instance;
-                        break;
-                }
+                    }
+                    break;
+                case MOD_BOOKING_CONDPARAM_JSON_ONLY:
+                    if ($instance->is_json_compatible() === true) {
+                        $conditions[] = $instance;
+                    }
+                    break;
+                case MOD_BOOKING_CONDPARAM_MFORM_ONLY:
+                    if ($instance->is_shown_in_mform()) {
+                        $conditions[] = $instance;
+                    }
+                    break;
+                case MOD_BOOKING_CONDPARAM_CANBEOVERRIDDEN:
+                    if (isset($instance->overridable) && $instance->overridable === true) {
+                        $conditions[] = $instance;
+                    }
+                    break;
+                case MOD_BOOKING_CONDPARAM_ALL:
+                default:
+                    $conditions[] = $instance;
+                    break;
             }
         }
 
         return $conditions;
+    }
+
+    /**
+     * Gets the available conditions depending on settings.
+     *
+     * @param int $condparam
+     *
+     * @return array
+     *
+     */
+    public static function get_available_conditions(int $condparam = MOD_BOOKING_CONDPARAM_ALL): array {
+        $allconditions = self::get_conditions($condparam);
+        self::exclude_conditions($allconditions);
+        return $allconditions;
     }
 
     /**
@@ -648,7 +802,6 @@ class bo_info {
         if (class_exists($filename)) {
             return new $filename();
         }
-
         return null;
     }
 
@@ -658,9 +811,10 @@ class bo_info {
      * @param int $optionid
      * @param int $pagenumber
      * @param int $userid
+     * @param string $skipcondition optional condition shortname to exclude (e.g. 'slotbooking')
      * @return array
      */
-    public static function load_pre_booking_page(int $optionid, int $pagenumber, int $userid) {
+    public static function load_pre_booking_page(int $optionid, int $pagenumber, int $userid, string $skipcondition = '') {
 
         $results = self::get_condition_results($optionid, $userid);
 
@@ -670,7 +824,7 @@ class bo_info {
         });
 
         // Sorted List of blocking conditions which also provide a proper page.
-        $conditions = self::return_sorted_conditions($results);
+        $conditions = self::return_sorted_conditions($results, $skipcondition);
         $condition = self::return_class_of_current_page($conditions, $pagenumber);
 
         // If the current condition doesn't have the "pre" key...
@@ -698,14 +852,15 @@ class bo_info {
 
                 if (
                     !(
-                        $id === MOD_BOOKING_BO_COND_ALREADYBOOKED
+                        in_array($id, MOD_BOOKING_BO_COND_BOOKED_STATES, true)
                         || $id === MOD_BOOKING_BO_COND_ONWAITINGLIST
                     )
                 ) {
-                    $response = booking_bookit::bookit('option', $optionid, $userid);
+                    $bookitdata = bookitbutton::get_book_intent_override_data_json();
+                    $response = booking_bookit::bookit('option', $optionid, $userid, $bookitdata);
                     if ($response['status'] != 1) {
                         // We need to book twice, as confirmation might be in place.
-                        $response = booking_bookit::bookit('option', $optionid, $userid);
+                        $response = booking_bookit::bookit('option', $optionid, $userid, $bookitdata);
                     }
                 }
             } else {
@@ -865,7 +1020,7 @@ class bo_info {
         array $showdetaildots = []
     ) {
 
-        global $PAGE;
+        global $USER;
 
         $user = singleton_service::get_instance_of_user($userid);
 
@@ -892,6 +1047,13 @@ class bo_info {
                 'label' => $label,
                 'class' => "$classes $extraclasses text-center",
                 'role' => $role,
+                // Conditions that render something to click pass the role "button", the ones that
+                // only show a message (fully booked, not available yet, ...) pass "alert" or
+                // nothing. Only the former may become a real <button> in the template: making the
+                // message states focusable buttons would announce them wrongly and add empty stops
+                // to the tab order.
+                'isbutton' => $role === 'button',
+                'foruser' => self::get_for_user_button_string($userid),
             ],
             'showdetaildots' => empty($showdetaildots) ? false : $showdetaildots,
         ];
@@ -1019,6 +1181,49 @@ class bo_info {
     }
 
     /**
+     * Store the booking option details page as the target users return to after logging in.
+     *
+     * Used by every condition that renders a login button, so that logging in leads back to the
+     * option the user actually clicked instead of the page they started on.
+     *
+     * @param booking_option_settings $settings
+     *
+     * @return string the url of the login page
+     *
+     */
+    public static function set_login_returnurl(booking_option_settings $settings): string {
+        global $SESSION;
+
+        $returnurl = null;
+        if (get_config('booking', 'showbookingdetailstoall')) {
+            $returnurl = new moodle_url(
+                '/mod/booking/optionview.php',
+                [
+                    'optionid' => $settings->id,
+                    'cmid' => $settings->cmid,
+                ]
+            );
+        }
+
+        if (get_config('booking', 'redirectonlogintocourse') && !empty($settings->courseid)) {
+            $returnurl = new moodle_url(
+                '/mod/booking/optionview.php',
+                [
+                    'optionid' => $settings->id,
+                    'cmid' => $settings->cmid,
+                    'redirecttocourse' => 1,
+                ]
+            );
+        }
+
+        if (!empty($returnurl)) {
+            $SESSION->wantsurl = $returnurl->out(false);
+        }
+
+        return (new moodle_url('/login/index.php'))->out(false);
+    }
+
+    /**
      * If billboard is activated, we want to overwrite the warning messages with the billboard text.
      *
      *
@@ -1054,9 +1259,10 @@ class bo_info {
      * If there are just booking & confirmation pages, we supress them.
      *
      * @param array $results
+     * @param string $skipcondition optional condition shortname to exclude (e.g. 'slotbooking')
      * @return array
      */
-    public static function return_sorted_conditions(array $results) {
+    public static function return_sorted_conditions(array $results, string $skipcondition = '') {
 
         // Make sure the keys are set.
         $prepages = [];
@@ -1088,6 +1294,15 @@ class bo_info {
             // One no button condition determines this for all.
             if ($result['button'] === MOD_BOOKING_BO_BUTTON_NOBUTTON) {
                 $showbutton = false;
+            }
+
+            // Skip a condition whose shortname matches $skipcondition (case-insensitive).
+            if (!empty($skipcondition)) {
+                $classparts = explode('\\', $result['classname']);
+                $conditionshortname = array_pop($classparts);
+                if (strcasecmp($conditionshortname, $skipcondition) === 0) {
+                    continue;
+                }
             }
 
             $newclass = [
@@ -1135,8 +1350,15 @@ class bo_info {
         // We can in the future include a setting which will allow for always showing booking modal.
         // But right now, we will always suppress the Booking modal, when there is only one page.
         // This single page has to be necessarily the confirmation page.
-        if ((count($prepages['pre']) + count($prepages['post'])) < 2) {
-            return [];
+        $total = count($prepages['pre']) + count($prepages['post']);
+        if ($total < 2) {
+            // Exception: when an inline condition was already completed ($skipcondition is set),
+            // we must show whatever pages remain – even if it's just one (e.g. the confirmation).
+            if (empty($skipcondition) || $total < 1) {
+                return [];
+            }
+            // With skipcondition and exactly 1 remaining page: return as-is.
+            // The booking action is triggered by load_pre_booking_page, not by a separate book step.
         } else if (empty($prepages['pre'])) {
             array_unshift($conditionsarray, $prepages['book']);
         }
@@ -1249,25 +1471,11 @@ class bo_info {
         $continuelink = '#';
 
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
-        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($settings->cmid);
 
-        $viewparam = booking::get_value_of_json_by_key($settings->bookingid, 'viewparam');
-        $turnoffmodals = 0; // By default, we use modals.
-
-        // NOTE: If either cards view is set as viewparam or we have a template switcher containing the cards view...
-        // ...we cannot use inline modals as they are only supported by the list views currently!
-        // Todo: Implement inline modals for cards view.
-        if (
-            ($viewparam != MOD_BOOKING_VIEW_PARAM_CARDS)
-            && !(
-                $bookingsettings->switchtemplates
-                && in_array(MOD_BOOKING_VIEW_PARAM_CARDS, $bookingsettings->switchtemplatesselection)
-            )
-        ) {
-            // Only if we use list view, we can use inline modals.
-            // So only in this case, we need to check the config setting.
-            $turnoffmodals = get_config('booking', 'turnoffmodals');
-        }
+        // We are inside a webservice here, so we do not know which view is rendered on the client.
+        // This only decides which action name we put into the markup - prepageFooter.js always
+        // closes the container the button actually lives in (modal or inline collapse).
+        $turnoffmodals = booking_bookit::use_inline_prepages($settings);
 
         if ($conditions[$pagenumber]['id'] === MOD_BOOKING_BO_COND_CONFIRMATION) {
             // We need to decide if we want to show on the last page a "go to checkout" button.
@@ -1302,6 +1510,13 @@ class bo_info {
                 $continueaction = empty($turnoffmodals) ? 'closemodal' : 'closeinline';
                 $continuelabel = get_string('close', 'mod_booking');
             }
+        }
+
+        if ($conditions[$pagenumber]['id'] === MOD_BOOKING_BO_COND_SLOTMOVE) {
+            // Self-service slot rebooking has no "continue": the move is committed by the
+            // submit button inside the move prepage (move_slot webservice), which then closes
+            // the prepage. So no footer continue button is rendered at all.
+            $continuebutton = false;
         }
 
         $footerdata['data']['continuebutton'] = $continuebutton; // Show button at all.
@@ -1434,5 +1649,95 @@ class bo_info {
         }
 
         return $errors;
+    }
+
+    /**
+     * This function creates a string containing the user's full name,
+     * which is used to add a label to the button.
+     *
+     * It returns an empty string when the given user is the same as the logged-in user.
+     *
+     * @param int|string $userid
+     * @return void
+     */
+    public static function get_for_user_button_string(int|string $userid): string {
+        global $USER;
+        // Dispaly name of the user if buying is for another user.
+        $foruser = '';
+        $user = singleton_service::get_instance_of_user($userid);
+        if ($userid != $USER->id && !empty($user)) {
+            $fullname = fullname($user);
+            $foruser = "{$fullname} (ID:$user->id)";
+        }
+
+        return $foruser;
+    }
+    /**
+     * Fetches all skippable conditions for settings page.
+     *
+     * @return array
+     *
+     */
+    public static function get_skippable_conditions() {
+        $conditions = [];
+        $classes = self::get_condition_classes();
+        foreach ($classes as $classname => $path) {
+            if (method_exists($classname, 'instance')) {
+                $instance = $classname::instance();
+            } else {
+                $instance = new $classname();
+            }
+            if ($instance->is_skippable()) {
+                $conditions[$instance->get_id()] = $instance->get_name();
+            }
+        }
+        return $conditions;
+    }
+    /**
+     * Fetches all condition classes for settings page.
+     *
+     * @return array
+     *
+     */
+    private static function get_condition_classes() {
+        $classes = core_component::get_component_classes_in_namespace(
+            'mod_booking',
+            'bo_availability\\conditions'
+        );
+        return $classes;
+    }
+
+    /**
+     * Helperfunction to exclude conditions which are set as excluded in the config from the array of conditions.
+     *
+     * @param array $conditions
+     *
+     * @return void
+     *
+     */
+    private static function exclude_conditions(array &$conditions) {
+        $statehelper = new condition_state_helper();
+        // This is where the conditions are actually skipped (excluded).
+        foreach ($conditions as $key => $condition) {
+            if ($statehelper->should_skip_condition($condition->id, self::$isenrollinkcontext)) {
+                unset($conditions[$key]);
+            }
+        }
+    }
+
+    /**
+     * Destroy all singletons.
+     *
+     * @return void
+     *
+     */
+    public static function destroy_singletons() {
+        self::$isenrollinkcontext = false;
+        $conditions = self::get_condition_classes();
+        foreach ($conditions as $classname => $path) {
+            if (method_exists($classname, 'destroy_instance')) {
+                $classname::destroy_instance();
+            }
+        };
     }
 }

@@ -72,6 +72,25 @@ class optiontemplatessettings_table extends table_sql {
     }
 
     /**
+     * Display the template name. Uses templatename from JSON if available, otherwise falls back to text.
+     *
+     * @param object $values
+     * @return string
+     */
+    public function col_name($values) {
+        if (!empty($values->json)) {
+            $jsonobj = json_decode($values->json);
+            if (!empty($jsonobj->templatename)) {
+                return format_string($jsonobj->templatename);
+            }
+        }
+        if (!empty($values->name)) {
+            return format_string($values->name);
+        }
+        return '-';
+    }
+
+    /**
      * Display the booking instances where template is used.
      *
      * @param object $values
@@ -111,7 +130,7 @@ class optiontemplatessettings_table extends table_sql {
         $delete = get_string('delete');
         $url = new moodle_url(
             '/mod/booking/optiontemplatessettings.php',
-            ['optionid' => $values->optionid, 'action' => 'delete', 'id' => $this->cmid]
+            ['optionid' => $values->optionid, 'action' => 'delete', 'id' => $this->cmid, 'sesskey' => sesskey()]
         );
         $output .= $OUTPUT->single_button($url, $delete, 'get');
         $edit = get_string('edit');

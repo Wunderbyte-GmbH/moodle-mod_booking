@@ -35,16 +35,21 @@
         "pricecategoryname" : "student"
     }
 }}
-{{#onlist}}
-    <div class="booking-button-notifyarea mb-3">
-        {{> mod_booking/button_notifyme }}
-    </div>
-{{/onlist}}
 {{#price}}
-<div class="w-100 d-flex justify-content-center booking-button-area"
+{{!
+    flex-column: the areas of this wrapper (warning of an availability condition in "top",
+    the price with the add-to-cart button, the price label in "sub") are stacked vertically,
+    exactly like in bookit_button. As a plain flex row the "top" alert (e.g. "maximum number of
+    bookings reached" or "overlaps with your booked options") ended up LEFT of the price and
+    the cart button instead of above it - in the list and cards views as well as on the
+    option detail page.
+}}
+<div class="w-100 d-flex flex-column align-items-center justify-content-center booking-button-area"
     data-itemid="{{itemid}}"
     data-area="{{area}}"
+    data-componentname="mod_booking"
     data-results="{{results}}"
+    data-userid="{{userid}}"
     {{#dataaction}}data-action="{{dataaction}}"{{/dataaction}} >
     {{#top}}
         <div class="booking-button-toparea mb-2 {{class}}" role="{{role}}">
@@ -52,6 +57,19 @@
         </div>
     {{/top}}
     <div class="pricecontainer mb-2 {{#fullwidth}}w-100{{/fullwidth}}">
+        {{!
+            The bell sits INSIDE the booking-button-area wrapper on purpose:
+            the wrapper is what bookit.js replaces on re-renders, so a bell
+            outside of it would survive every update as a stale leftover.
+            Only the bare bell partial is embedded - the standalone
+            button_notifyme template would inherit this context and render
+            the price a second time.
+        }}
+        {{#onlist}}
+            <div class="booking-button-notifyarea mb-3 w-100 text-center">
+                {{> mod_booking/button_notifyme_bell }}
+            </div>
+        {{/onlist}}
         <span class="pricecurrency h5 text-nowrap">
             {{#priceformatted}}{{priceformatted}} {{currency}}{{/priceformatted}}
             {{^priceformatted}}{{price}} {{currency}}{{/priceformatted}}
@@ -75,6 +93,11 @@
 </div>
 {{/price}}
 {{^price}}
+    {{#onlist}}
+        <div class="booking-button-notifyarea mb-3">
+            {{> mod_booking/button_notifyme_bell }}
+        </div>
+    {{/onlist}}
     {{#priceitems}}
         <div class="pricecurrency mb-2">
             {{#priceformatted}}{{priceformatted}} {{currency}}{{/priceformatted}}

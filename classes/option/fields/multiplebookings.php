@@ -18,8 +18,10 @@ namespace mod_booking\option\fields;
 
 use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
+use mod_booking\local\slotbooking\slot_mover;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
+use mod_booking\singleton_service;
 use MoodleQuickForm;
 use stdClass;
 
@@ -32,6 +34,25 @@ use stdClass;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class multiplebookings extends field_base {
+    /**
+     * Book again is disabled: the user may not book the option again.
+     * @var int
+     */
+    public const MODE_DISABLED = 0;
+
+    /**
+     * Book again is allowed once a fixed waiting time after the original booking has passed
+     * (configured via the "allowtobookagainafter" duration).
+     * @var int
+     */
+    public const MODE_AFTER_DURATION = 1;
+
+    /**
+     * Book again is allowed once the end of the user's last currently booked slot has passed.
+     * @var int
+     */
+    public const MODE_AFTER_LAST_SLOT = 2;
+
     /**
      * This ID is used for sorting execution.
      * @var int
@@ -86,15 +107,25 @@ class multiplebookings extends field_base {
         $returnvalue = null
     ): array {
 
-        // We store the information fro the multiplebookings option in the JSON.
+        // We store the information for the multiplebookings option in the JSON.
         // So this has to happen BEFORE JSON is saved!
-        if (empty($formdata->multiplebookings)) {
-            // This will store the correct JSON to $optionvalues->json.
-            booking_option::add_data_to_json($newoption, "multiplebookings", 0); // 0 means could not have multiple bookings.
-            booking_option::add_data_to_json($newoption, "allowtobookagainafter", 0); // 0 means could not have multiple bookings.
-        } else {
-            booking_option::add_data_to_json($newoption, "multiplebookings", 1); // 1 means can have multiple bookings.
-            booking_option::add_data_to_json($newoption, "allowtobookagainafter", $formdata->allowtobookagainafter ?? 0);
+        $mode = (int)($formdata->multiplebookings ?? self::MODE_DISABLED);
+        switch ($mode) {
+            case self::MODE_AFTER_DURATION:
+                // Book again is gated by a fixed waiting time after the original booking.
+                booking_option::add_data_to_json($newoption, "multiplebookings", self::MODE_AFTER_DURATION);
+                booking_option::add_data_to_json($newoption, "allowtobookagainafter", $formdata->allowtobookagainafter ?? 0);
+                break;
+            case self::MODE_AFTER_LAST_SLOT:
+                // Book again is gated by the end of the last booked slot; the duration is irrelevant.
+                booking_option::add_data_to_json($newoption, "multiplebookings", self::MODE_AFTER_LAST_SLOT);
+                booking_option::add_data_to_json($newoption, "allowtobookagainafter", 0);
+                break;
+            default:
+                // Book again disabled.
+                booking_option::add_data_to_json($newoption, "multiplebookings", self::MODE_DISABLED);
+                booking_option::add_data_to_json($newoption, "allowtobookagainafter", 0);
+                break;
         }
 
         parent::prepare_save_field($formdata, $newoption, $updateparam, '');
@@ -125,20 +156,24 @@ class multiplebookings extends field_base {
         }
 
         $mform->addElement(
-            'advcheckbox',
+            'select',
             'multiplebookings',
             get_string('multiplebookings', 'mod_booking'),
-            null,
-            null,
-            [0, 1]
+            [
+                self::MODE_DISABLED => get_string('multiplebookings_disabled', 'mod_booking'),
+                self::MODE_AFTER_DURATION => get_string('multiplebookings_afterduration', 'mod_booking'),
+                self::MODE_AFTER_LAST_SLOT => get_string('multiplebookings_afterlastslot', 'mod_booking'),
+            ]
         );
+        $mform->setType('multiplebookings', PARAM_INT);
 
         $mform->addElement(
             'duration',
             'allowtobookagainafter',
             get_string('allowtobookagainafter', 'mod_booking')
         );
-        $mform->hideIf('allowtobookagainafter', 'multiplebookings', 'neq', '1');
+        // The waiting-time duration only applies to the fixed-duration mode.
+        $mform->hideIf('allowtobookagainafter', 'multiplebookings', 'neq', (string)self::MODE_AFTER_DURATION);
     }
 
     /**
@@ -164,6 +199,42 @@ class multiplebookings extends field_base {
 
             $allowtobookagainafter = booking_option::get_value_of_json_by_key($settings->id, 'allowtobookagainafter') ?? 0;
             $data->allowtobookagainafter = (int)$allowtobookagainafter;
+        }
+    }
+
+    /**
+     * Single source of truth for the "book again" (multiplebookings) gate.
+     *
+     * Tells whether a user holding the given booked answer is currently allowed to book the
+     * option again. All runtime callers (the alreadybooked availability condition, the
+     * booking_option rebooking flow and the slotbooking move tab) branch through here so the
+     * timing logic lives in exactly one place. Behaviour per configured mode:
+     *  - MODE_DISABLED: never.
+     *  - MODE_AFTER_DURATION: once the configured waiting time after the original booking
+     *    (timebooked + allowtobookagainafter) has passed.
+     *  - MODE_AFTER_LAST_SLOT: once the end of the user's last currently booked slot has passed,
+     *    read from the booked (waitinglist = BOOKED) answer itself.
+     *
+     * @param int $optionid booking option id
+     * @param stdClass $answer the user's currently booked answer (waitinglist = BOOKED)
+     * @return bool true when the user may book again now
+     */
+    public static function book_again_due(int $optionid, stdClass $answer): bool {
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $mode = (int)($settings->jsonobject->multiplebookings ?? self::MODE_DISABLED);
+
+        switch ($mode) {
+            case self::MODE_AFTER_DURATION:
+                $allowafter = (int)($settings->jsonobject->allowtobookagainafter ?? 0);
+                $timebooked = (int)($answer->timebooked ?? $answer->timecreated ?? 0);
+                return ($timebooked + $allowafter) <= time();
+
+            case self::MODE_AFTER_LAST_SLOT:
+                $lastslotend = slot_mover::last_booked_slot_end($answer);
+                return $lastslotend > 0 && $lastslotend <= time();
+
+            default:
+                return false;
         }
     }
 }

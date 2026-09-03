@@ -27,6 +27,7 @@
 
 namespace mod_booking\output;
 
+use context_system;
 use local_wunderbyte_table\filters\types\datepicker;
 use local_wunderbyte_table\filters\types\standardfilter;
 use local_wunderbyte_table\wunderbyte_table;
@@ -40,6 +41,7 @@ use moodle_exception;
 use renderer_base;
 use renderable;
 use templatable;
+use tool_certificate\certificate;
 
 /**
  * This file contains the definition for the renderable classes for booked users.
@@ -69,6 +71,9 @@ class booked_users implements renderable, templatable {
 
     /** @var string $bookinghistory rendered table of bookinghistory */
     public $bookinghistory;
+
+    /** @var string $sentmessages rendered table of sent messages */
+    public $sentmessages;
 
     /** @var string $previouslybooked rendered table of previouslybooked */
     public $previouslybooked;
@@ -104,6 +109,7 @@ class booked_users implements renderable, templatable {
      * @param int $cmid optional course module id of booking instance
      * @param bool $showreducedbuttons
      * @param array $customfields
+     * @param bool $showsentmessages
      */
     public function __construct(
         string $scope = 'system',
@@ -118,12 +124,12 @@ class booked_users implements renderable, templatable {
         bool $showpreviouslybooked = false,
         int $cmid = 0,
         bool $showreducedbuttons = false,
-        array $customfields = []
+        array $customfields = [],
+        bool $showsentmessages = false
     ) {
         $ba = new booking_answers();
         /** @var scope_base $class */
         $class = $ba->return_class_for_scope($scope);
-        $columns = $class->return_cols_for_tables(MOD_BOOKING_STATUSPARAM_BOOKED);
 
         $defalutlabels = self::default_tables_labels();
         // Get the custom labels of the tables from the scope class.
@@ -137,6 +143,11 @@ class booked_users implements renderable, templatable {
         $existingcustomfields = booking_handler::get_customfields($customfields);
         $customfields = array_values(array_map(fn($a) => $a->shortname, $existingcustomfields));
 
+        // Resolving the columns can be expensive (e.g. the certificate column checks
+        // the issued certificates), so it is only done for tables that are shown.
+        if ($showbooked) {
+            $columns = $class->return_cols_for_tables(MOD_BOOKING_STATUSPARAM_BOOKED, $scopeid);
+        }
         $this->bookedusers = $showbooked ?
             $this->render_users_table(
                 $scope,
@@ -146,7 +157,8 @@ class booked_users implements renderable, templatable {
                 array_keys($columns),
                 array_values($columns),
                 false,
-                true
+                true,
+                $customfields
             ) : null;
 
         // For optiondate scope, we only show booked users.
@@ -154,7 +166,9 @@ class booked_users implements renderable, templatable {
             $scope != 'optiondate'
             || $scope != 'supervisorteamreduced'
         ) {
-            $columns = $class->return_cols_for_tables(MOD_BOOKING_STATUSPARAM_WAITINGLIST);
+            if ($showwaiting) {
+                $columns = $class->return_cols_for_tables(MOD_BOOKING_STATUSPARAM_WAITINGLIST, $scopeid);
+            }
             $this->waitinglist = $showwaiting ? $this->render_users_table(
                 $scope,
                 $scopeid,
@@ -164,10 +178,13 @@ class booked_users implements renderable, templatable {
                 array_values($columns),
                 // Sorting of waiting list only possible if setting to show place is enabled.
                 (bool)get_config('booking', 'waitinglistshowplaceonwaitinglist'),
-                true
+                true,
+                $customfields
             ) : null;
 
-            $columns = $class->return_cols_for_tables(MOD_BOOKING_STATUSPARAM_RESERVED);
+            if ($showreserved) {
+                $columns = $class->return_cols_for_tables(MOD_BOOKING_STATUSPARAM_RESERVED, $scopeid);
+            }
             $this->reservedusers = $showreserved ? $this->render_users_table(
                 $scope,
                 $scopeid,
@@ -177,7 +194,9 @@ class booked_users implements renderable, templatable {
                 array_values($columns),
             ) : null;
 
-            $columns = $class->return_cols_for_tables(MOD_BOOKING_STATUSPARAM_NOTIFYMELIST);
+            if ($showtonotify) {
+                $columns = $class->return_cols_for_tables(MOD_BOOKING_STATUSPARAM_NOTIFYMELIST, $scopeid);
+            }
             $this->userstonotify = $showtonotify ? $this->render_users_table(
                 $scope,
                 $scopeid,
@@ -187,7 +206,9 @@ class booked_users implements renderable, templatable {
                 array_values($columns),
             ) : null;
 
-            $columns = $class->return_cols_for_tables(MOD_BOOKING_STATUSPARAM_DELETED);
+            if ($showdeleted) {
+                $columns = $class->return_cols_for_tables(MOD_BOOKING_STATUSPARAM_DELETED, $scopeid);
+            }
             $this->deletedusers = $showdeleted ? $this->render_users_table(
                 $scope,
                 $scopeid,
@@ -199,7 +220,9 @@ class booked_users implements renderable, templatable {
                 true
             ) : null;
 
-            $columns = $class->return_cols_for_tables(MOD_BOOKING_STATUSPARAM_WAITINGLIST);
+            if ($showoptionstoconfirm) {
+                $columns = $class->return_cols_for_tables(MOD_BOOKING_STATUSPARAM_WAITINGLIST, $scopeid);
+            }
             $this->optionstoconfirm = $showoptionstoconfirm ? $this->render_users_table(
                 $scope,
                 $scopeid,
@@ -213,7 +236,9 @@ class booked_users implements renderable, templatable {
                 $customfields,
             ) : null;
 
-            $columns = $class->return_cols_for_tables(MOD_BOOKING_STATUSPARAM_PREVIOUSLYBOOKED);
+            if ($showpreviouslybooked) {
+                $columns = $class->return_cols_for_tables(MOD_BOOKING_STATUSPARAM_PREVIOUSLYBOOKED, $scopeid);
+            }
             $this->previouslybooked = $showpreviouslybooked ? $this->render_users_table(
                 $scope,
                 $scopeid,
@@ -226,6 +251,9 @@ class booked_users implements renderable, templatable {
 
             // Booking history table.
             $this->bookinghistory = $showbookinghistory ? $this->render_bookinghistory_table($scope, $scopeid) : null;
+
+            // Sent messages table (message_sent events, like "Show messages" on report.php).
+            $this->sentmessages = $showsentmessages ? $this->render_sentmessages_table($scope, $scopeid) : null;
         }
     }
 
@@ -268,17 +296,18 @@ class booked_users implements renderable, templatable {
             $paginate,
             $customfields
         );
-
-        // Activate sorting dropdown.
-        $table->cardsort = true;
-
+        // Important: If there is no table, we return null right away.
+        if (empty($table)) {
+            return null;
+        }
+        $table->cardsort = true; // Activate sorting dropdown.
         $table->showcountlabel = true;
         $table->showdownloadbutton = true;
         $table->showdownloadbuttonatbottom = true;
         $table->showreloadbutton = true;
         $table->showrowcountselect = true;
 
-        $html = $table->outhtml(10, false);
+        $html = $table->outhtml(100, false);
         return count($table->rawdata) > 0 ? $html : null;
     }
 
@@ -303,7 +332,7 @@ class booked_users implements renderable, templatable {
         $ba = new booking_answers();
         /** @var scope_base $class */
         $class = $ba->return_class_for_scope($scope);
-        $columns = $class->return_cols_for_tables($statusparam);
+        $columns = $class->return_cols_for_tables($statusparam, $scopeid);
         $table = $class->return_users_table(
             $scope,
             $scopeid,
@@ -314,6 +343,12 @@ class booked_users implements renderable, templatable {
             false,
             false
         );
+
+        // Some scopes don't provide a table for every status param
+        // (e.g. optiondate only has booked users).
+        if ($table === null) {
+            return null;
+        }
 
         $table->outhtml(20000, false);
 
@@ -338,6 +373,13 @@ class booked_users implements renderable, templatable {
                 break;
             case 'option':
                 $optionid = $scopeid;
+                $wherepart = "WHERE bh.optionid = :optionid";
+                $params = ['optionid' => $optionid];
+                break;
+            case 'optiondate':
+                global $DB;
+                $optiondateid = $scopeid;
+                $optionid = $DB->get_field('booking_optiondates', 'optionid', ['id' => $optiondateid]);
                 $wherepart = "WHERE bh.optionid = :optionid";
                 $params = ['optionid' => $optionid];
                 break;
@@ -390,6 +432,11 @@ class booked_users implements renderable, templatable {
             ORDER BY bh.id DESC
         ) s1";
         $where = "1=1";
+
+        // A booking extension can limit the answers the current user may see (e.g. their team).
+        // The history of an answer must never show more than the answer itself.
+        $ba = new booking_answers();
+        $where .= $ba->return_class_for_scope($scope)->get_answers_restriction_sql('userid', $scopeid, $params);
 
         $table->set_sql($fields, $from, $where, $params);
         $table->define_cache('mod_booking', 'bookinghistorytable');
@@ -477,6 +524,8 @@ class booked_users implements renderable, templatable {
         ];
         $sortablecolumns = array_merge($sortablecolumns1, $sortablecolumns2);
         $table->define_sortablecolumns($sortablecolumns);
+        $table->sort_default_column = 'timecreated';
+        $table->sort_default_order = SORT_DESC;
         $table->showrowcountselect = true;
 
         // Activate sorting dropdown.
@@ -492,8 +541,85 @@ class booked_users implements renderable, templatable {
             'instancename',
         ]);
 
-        [$idstring, $tablecachehash, $html] = $table->lazyouthtml(20, true);
+        [$idstring, $tablecachehash, $html] = $table->lazyouthtml(100, true);
         return $html;
+    }
+
+    /**
+     * Helper function to get the sent messages table (message_sent events) for the provided scope,
+     * like the "Show messages" section on report.php.
+     * The message_sent events are triggered with system context, so all scopes have to be
+     * resolved via the objectid (which holds the optionid).
+     *
+     * @param string $scope can be system, course, instance, option or optiondate (incl. answers variants)
+     * @param int $scopeid id matching the scope
+     * @return ?string the rendered table, null if the scope is not supported
+     */
+    private function render_sentmessages_table(string $scope = 'system', int $scopeid = 0): ?string {
+        global $DB;
+
+        $optionid = 0;
+        $extrawhere = '';
+        $extraparams = [];
+        switch ($scope) {
+            case 'system':
+            case 'systemanswers':
+                break;
+            case 'option':
+                $optionid = $scopeid;
+                break;
+            case 'optiondate':
+                $optionid = (int)$DB->get_field('booking_optiondates', 'optionid', ['id' => $scopeid]);
+                break;
+            case 'instance':
+            case 'instanceanswers':
+                $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($scopeid);
+                $extrawhere = " AND objectid IN (
+                    SELECT id FROM {booking_options} WHERE bookingid = :sentmsgbookingid) ";
+                $extraparams['sentmsgbookingid'] = $bookingsettings->id ?? 0;
+                break;
+            case 'course':
+            case 'courseanswers':
+                $extrawhere = " AND objectid IN (
+                    SELECT bo.id
+                    FROM {booking_options} bo
+                    JOIN {booking} b ON b.id = bo.bookingid
+                    WHERE b.course = :sentmsgcourseid) ";
+                $extraparams['sentmsgcourseid'] = $scopeid;
+                break;
+            default:
+                return null;
+        }
+
+        // A booking extension can limit the answers the current user may see (e.g. their team).
+        // Messages are restricted by their recipient, so no message to a user outside of the
+        // team of a supervisor is shown.
+        $ba = new booking_answers();
+        $extrawhere .= $ba->return_class_for_scope($scope)->get_answers_restriction_sql(
+            'relateduserid',
+            $scopeid,
+            $extraparams
+        );
+
+        // Like on report.php, show the recipient (relateduserid) instead of the generic "user"
+        // column, so it is unambiguous who each message was sent to (the sender is in the description).
+        $messagecolumns = [
+            'relateduserid' => get_string('messagerecipient', 'mod_booking'),
+            'eventname' => get_string('eventname', 'core'),
+            'description' => get_string('description', 'core'),
+            'timecreated' => get_string('timecreated', 'core'),
+        ];
+        $eventslist = new eventslist(
+            $optionid,
+            ['\mod_booking\event\message_sent'],
+            'messagescountlabel',
+            $messagecolumns,
+            0,
+            $extrawhere,
+            $extraparams
+        );
+
+        return $eventslist->eventstable;
     }
 
     /**
@@ -509,6 +635,7 @@ class booked_users implements renderable, templatable {
             'userstonotify' => $this->userstonotify ?? null,
             'deletedusers' => $this->deletedusers ?? null,
             'bookinghistory' => $this->bookinghistory ?? null,
+            'sentmessages' => $this->sentmessages ?? null,
             'optionstoconfirm' => $this->optionstoconfirm ?? null,
             'deputydisplay' => $this->deputydisplay ?? null,
             'previouslybooked' => $this->previouslybooked ?? null,
@@ -532,7 +659,7 @@ class booked_users implements renderable, templatable {
         string $icon,
         string $formname,
         array $data,
-        string $css = 'btn btn-primary btn-sm ml-1'
+        string $css = 'btn btn-primary btn-sm me-2'
     ): array {
         return [
             'label' => get_string($labelkey, 'mod_booking'),
@@ -548,6 +675,62 @@ class booked_users implements renderable, templatable {
     }
 
     /**
+     * Function to create the "Toggle completion status" button.
+     *
+     * @param string $label custom button label, falls back to the default string
+     * @return array
+     *
+     */
+    public static function create_completion_button(string $label = ''): array {
+        return [
+            'iclass' => 'fa fa-check-square fa-fw',
+            'label' => !empty($label) ? $label : get_string('confirmoptioncompletion', 'mod_booking'),
+            'class' => 'btn btn-primary btn-sm me-2',
+            'href' => '#',
+            'methodname' => 'toggle_completion_booking_answers',
+            'nomodal' => false,
+            'selectionmandatory' => true,
+            'id' => -1,
+            'data' => [
+                'id' => 'id',
+                'titlestring' => 'confirmoptioncompletion',
+                'bodystring' => 'confirmoptioncompletionbody',
+                'submitbuttonstring' => 'apply',
+                'component' => 'mod_booking',
+            ],
+        ];
+    }
+
+    /**
+     * Function to create the "Enrol users in the course" button.
+     *
+     * Migrated from the old report.php bulk action subscribetocourse: enrols
+     * the checked users manually into the course connected to the option.
+     *
+     * @return array
+     *
+     */
+    public static function create_enrol_button(): array {
+        return [
+            'iclass' => 'fa fa-graduation-cap fa-fw',
+            'label' => get_string('subscribetocourse', 'mod_booking'),
+            'class' => 'btn btn-primary btn-sm me-2',
+            'href' => '#',
+            'methodname' => 'enrol_checked_booking_answers',
+            'nomodal' => false,
+            'selectionmandatory' => true,
+            'id' => -1,
+            'data' => [
+                'id' => 'id',
+                'titlestring' => 'subscribetocourse',
+                'bodystring' => 'subscribetocoursebody',
+                'submitbuttonstring' => 'apply',
+                'component' => 'mod_booking',
+            ],
+        ];
+    }
+
+    /**
      * Function to create delete button.
      *
      * @return array
@@ -555,9 +738,9 @@ class booked_users implements renderable, templatable {
      */
     public static function create_delete_button(): array {
         return [
-            'iclass' => 'fa fa-trash mr-1',
+            'iclass' => 'fa fa-trash fa-fw',
             'label' => get_string('bookingstrackerdelete', 'mod_booking'),
-            'class' => 'btn btn-danger btn-sm ml-1',
+            'class' => 'btn btn-danger btn-sm me-2',
             'href' => '#',
             'methodname' => 'delete_checked_booking_answers',
             'nomodal' => false,
@@ -568,6 +751,36 @@ class booked_users implements renderable, templatable {
                 'titlestring' => 'delete',
                 'bodystring' => 'deletecheckedanswersbody',
                 'submitbuttonstring' => 'delete',
+                'component' => 'mod_booking',
+            ],
+        ];
+    }
+
+    /**
+     * Function to create delete button.
+     *
+     * @return array
+     *
+     */
+    public static function create_certificate_button(): array {
+        global $USER;
+        if (!get_config('booking', 'certificateon') || !has_capability('tool/certificate:manage', context_system::instance())) {
+            return [];
+        }
+        return [
+            'iclass' => 'fa fa-fw fa-certificate',
+            'label' => get_string('bookingstrackertriggercertificate', 'mod_booking'),
+            'class' => 'btn btn-primary btn-sm me-2',
+            'href' => '#',
+            'methodname' => 'trigger_certificate_booking_answers',
+            'nomodal' => false,
+            'selectionmandatory' => true,
+            'id' => -1,
+            'data' => [
+                'id' => 'id',
+                'titlestring' => 'issuecertificate',
+                'bodystring' => 'issuecertificatebody',
+                'submitbuttonstring' => 'apply',
                 'component' => 'mod_booking',
             ],
         ];
@@ -586,7 +799,7 @@ class booked_users implements renderable, templatable {
             'deletedbookings' => get_string('deletedbookings', 'mod_booking'),
             'bookinghistory' => get_string('bookinghistory', 'mod_booking'),
             'optionstoconfirm' => get_string('optionstoconfirm', 'mod_booking'),
-            'previouselybooked' => get_string('previouselybooked', 'mod_booking'),
+            'previouslybooked' => get_string('previouslybooked', 'mod_booking'),
         ];
     }
 }

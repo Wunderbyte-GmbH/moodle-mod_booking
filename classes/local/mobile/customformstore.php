@@ -27,6 +27,7 @@ namespace mod_booking\local\mobile;
 
 use cache;
 use mod_booking\bo_availability\conditions\customform;
+use mod_booking\booking_answers\booking_answers;
 use mod_booking\singleton_service;
 use stdClass;
 
@@ -100,7 +101,7 @@ class customformstore {
     public function validation($customform, $data): array {
         $errors = [];
         foreach ($customform as $key => $formelement) {
-            $identifier = 'customform_' . $formelement->formtype . "_" . $key;
+            $identifier = customform::get_element_identifier($formelement, (int)$key);
             if (
                 $formelement->formtype == 'url' &&
                 !self::isvalidhttpurl($data[$identifier])
@@ -140,12 +141,35 @@ class customformstore {
             } else if (
                 $formelement->formtype == 'enrolusersaction'
             ) {
-                if (!(int) $data[$identifier]) {
-                    $errors[$identifier] = get_string('error:chooseint', 'mod_booking');
+                $rawvalue = $data[$identifier];
+                if (!preg_match('/^\d+$/', (string) $rawvalue)) {
+                    $errors[$identifier] = get_string('error:enrolusersactionnotnumeric', 'mod_booking');
+                } else {
+                    $nritems = (int) $rawvalue;
+                    if ($nritems === 0) {
+                        $errors[$identifier] = get_string('error:chooseint', 'mod_booking');
+                    } else {
+                        $settings = singleton_service::get_instance_of_booking_option_settings($data['id']);
+                        if (!empty($settings->maxanswers)) {
+                            $ba = singleton_service::get_instance_of_booking_answers($settings);
+                            // Usersonlist already contains both booked and reserved users.
+                            $freeonlist = $settings->maxanswers - booking_answers::count_places($ba->get_usersonlist());
+                            if ($nritems > $freeonlist) {
+                                $errors[$identifier] = get_string(
+                                    'error:enrolusersactionexceedscapacity',
+                                    'mod_booking',
+                                    max(0, $freeonlist)
+                                );
+                            }
+                        }
+                    }
                 }
             }
-            if (!empty($formelement->notempty)) {
-                if (empty($data[$identifier])) {
+            if (
+                !empty($formelement->notempty)
+                && isset($data[$identifier])
+            ) {
+                if (empty(trim($data[$identifier]))) {
                     $errors[$identifier] = get_string('error:mustnotbeempty', 'mod_booking');
                 }
             }
@@ -173,13 +197,14 @@ class customformstore {
      */
     public function translate_errors($customform, $errors) {
         foreach ($customform as $key => &$customitem) {
-            $keyerroritem = 'customform_' . $customitem->formtype . '_' . $key;
+            $keyerroritem = customform::get_element_identifier($customitem, (int)$key);
             if (isset($errors[$keyerroritem])) {
                 $customitem->error = $errors[$keyerroritem];
             } else {
                 $customitem->error = false;
             }
         }
+        unset($customitem); // Important: Break the reference after the loop!
         return $customform;
     }
 
@@ -201,11 +226,11 @@ class customformstore {
             return false;
         }
 
-        if (!$element = $formsarray->{$key} ?? false) {
+        if (!$element = customform::find_element_by_id($formsarray, (int)$key)) {
             return false;
         }
 
-        $identifier = 'customform_' . $element->formtype . "_$key";
+        $identifier = customform::get_element_identifier($element, (int)$key);
 
         return $data->{$identifier} ?? '';
     }
@@ -233,7 +258,7 @@ class customformstore {
             }
             switch ($formelement->formtype) {
                 case "select":
-                    $key = 'customform_select_' . $formdatakey;
+                    $key = customform::get_element_identifier($formelement, (int)$formdatakey);
                     $lines = explode(PHP_EOL, $formelement->value);
                     foreach ($lines as $line) {
                         $linearray = explode(' => ', $line);
@@ -247,7 +272,7 @@ class customformstore {
                     $price += $additionalprice;
                     break;
                 case "enrolusersaction":
-                    $key = 'customform_enrolusersaction_' . $formdatakey;
+                    $key = customform::get_element_identifier($formelement, (int)$formdatakey);
                     if (isset($data[$key])) {
                         $factor = (int) $data[$key];
                         $price = $price * $factor;

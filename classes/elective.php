@@ -61,15 +61,20 @@ class elective {
         );
         $mform->setExpanded('electivesettings', false);
 
-        $mform->addElement('checkbox', 'iselective', get_string('iselective', 'booking'));
+        // Advcheckboxes on purpose: they always submit 0 or 1 when rendered, so a missing
+        // key unambiguously means "element was not part of the form" (e.g. no PRO license)
+        // and the stored value can be kept. A plain checkbox submits nothing when
+        // unchecked, which also made unchecking enforceorder/consumeatonce impossible
+        // (the missing key never wrote a 0 to the DB).
+        $mform->addElement('advcheckbox', 'iselective', get_string('iselective', 'booking'));
 
-        $mform->addElement('checkbox', 'enforceorder', get_string('enforceorder', 'booking'));
+        $mform->addElement('advcheckbox', 'enforceorder', get_string('enforceorder', 'booking'));
         $mform->addHelpButton('enforceorder', 'enforceorder', 'mod_booking');
 
         $mform->addElement('advcheckbox', 'enforceteacherorder', get_string('enforceteacherorder', 'booking'));
         $mform->addHelpButton('enforceteacherorder', 'enforceteacherorder', 'mod_booking');
 
-        $mform->addElement('checkbox', 'consumeatonce', get_string('consumeatonce', 'booking'));
+        $mform->addElement('advcheckbox', 'consumeatonce', get_string('consumeatonce', 'booking'));
         $mform->addHelpButton('consumeatonce', 'consumeatonce', 'mod_booking');
 
         $opts = [0 => get_string('unlimitedcredits', 'mod_booking')];
@@ -391,10 +396,15 @@ class elective {
         FROM {booking_answers} ba
         INNER JOIN {booking_options} bo
         ON ba.optionid = bo.id
-        WHERE ba.userid = $USER->id
-        AND bo.bookingid = $booking->id";
+        WHERE ba.userid = :userid
+        AND bo.bookingid = :bookingid";
 
-        $data = $DB->get_records_sql($sql);
+        $params = [
+            'userid' => $USER->id,
+            'bookingid' => $booking->id,
+        ];
+
+        $data = $DB->get_records_sql($sql, $params);
         $credits = 0;
 
         foreach ($data as $item) {
@@ -417,11 +427,13 @@ class elective {
         FROM {booking_answers} ba
         INNER JOIN {booking_options} bo
         ON ba.optionid = bo.id
-        WHERE ba.userid = $USER->id
-        AND bo.bookingid = $booking->id
+        WHERE ba.userid = :userid
+        AND bo.bookingid = :bookingid
         AND ba.waitinglist =:bookingstatus";
 
         $params = [
+            'userid' => $USER->id,
+            'bookingid' => $booking->id,
             'bookingstatus' => MOD_BOOKING_STATUSPARAM_RESERVED,
         ];
 
@@ -447,16 +459,14 @@ class elective {
     public static function return_credits_selected($booking) {
         global $DB;
 
-        if (
-            !isset($_GET['list'])
-                || (!$electivesarray = json_decode($_GET['list']))
-        ) {
-            $listorder = '[]';
-        } else {
-            $listorder = $_GET['list'];
-        }
+        // The list of the currently selected electives is passed as a JSON encoded array
+        // of option ids, so we fetch it as PARAM_RAW and clean each id individually below.
+        $listorder = optional_param('list', '[]', PARAM_RAW);
 
         $electivesarray = json_decode($listorder);
+        if (!is_array($electivesarray)) {
+            $electivesarray = [];
+        }
 
         $credits = 0;
         foreach ($electivesarray as $selected) {

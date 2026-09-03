@@ -1,0 +1,67 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_booking/slotbooking/slot_teacher_select
+
+    Per-slot teacher (examiner) selection for the slot booking picker. The
+    condition/slotBooking picker computes the option lists and wires the change
+    handlers; this template only renders the markup.
+
+    Context variables required for this template:
+    * heading - Heading text, e.g. "Examiners per slot: 2".
+    * rows - One entry per selected slot.
+        * slotkey - Slot key "start:end".
+        * slotlabel - Slot label "<day> · <time range>".
+        * multiple - Whether multiple teachers can be picked.
+        * size - Visible option count for multi-selects.
+        * showempty - Whether to render the leading empty option (single-select).
+        * options - Selectable teachers.
+            * value - Teacher id.
+            * label - Teacher full name.
+            * selected - Whether the teacher is currently selected.
+
+    Example context (json):
+    {
+        "heading": "Examiners per slot: 1",
+        "rows": [
+            {
+                "slotkey": "1620:1640",
+                "slotlabel": "Monday, 7 May 2046 · 4:00 PM - 4:40 PM",
+                "multiple": false,
+                "size": 0,
+                "showempty": true,
+                "options": [
+                    {"value": "5", "label": "Teacher 1", "selected": false}
+                ]
+            }
+        ]
+    }
+}}
+<div class="small fw-bold mb-2">{{heading}}</div>
+{{#rows}}
+    <div class="mb-2 p-2 border rounded">
+        <div class="small fw-bold mb-1">{{slotlabel}}</div>
+        <select class="form-control form-control-sm" data-slot-key="{{slotkey}}"{{#multiple}} multiple size="{{size}}"{{/multiple}}>
+            {{#showempty}}
+                <option value="">-</option>
+            {{/showempty}}
+            {{#options}}
+                <option value="{{value}}"{{#selected}} selected{{/selected}}>{{label}}</option>
+            {{/options}}
+        </select>
+    </div>
+{{/rows}}

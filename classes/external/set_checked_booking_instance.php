@@ -27,15 +27,12 @@ declare(strict_types=1);
 namespace mod_booking\external;
 
 use dml_exception;
-use external_api;
-use external_function_parameters;
-use external_single_structure;
-use external_value;
+use core_external\external_api;
+use core_external\external_function_parameters;
+use core_external\external_single_structure;
+use core_external\external_value;
 use mod_booking\coursecategories;
-
-defined('MOODLE_INTERNAL') || die();
-
-require_once($CFG->libdir . '/externallib.php');
+use mod_booking\singleton_service;
 
 /**
  * External Service to create a booking option.
@@ -74,6 +71,23 @@ class set_checked_booking_instance extends external_api {
                 'id' => $id,
             ]
         );
+
+        // This service is a helper service for a separate project.
+        // If the class local_urise\permissions does not exist, we can assume that the service is called from an external source.
+        if (!class_exists('local_urise\permissions')) {
+            return [
+                'successs' => 0,
+            ];
+        }
+
+        $bookingsettings = singleton_service::get_instance_of_booking_by_bookingid($params['id']);
+        $context = \context_module::instance($bookingsettings->cmid);
+        self::validate_context($context);
+        if (!has_capability('local/urise:viewdashboard', $context)) {
+            return [
+                'successs' => 0,
+            ];
+        }
 
         $status = coursecategories::set_configured_booking_instances($params['id']);
 

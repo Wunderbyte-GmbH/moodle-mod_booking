@@ -29,8 +29,10 @@ namespace mod_booking\bo_availability\conditions;
 use context_system;
 use Exception;
 use mod_booking\bo_availability\bo_condition;
+use mod_booking\bo_availability\freezable_condition;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_option_settings;
+use mod_booking\local\customform_prefill;
 use mod_booking\local\mobile\customformstore;
 use mod_booking\singleton_service;
 use mod_booking\utils\wb_payment;
@@ -47,7 +49,7 @@ use stdClass;
  * @copyright 2022 Wunderbyte GmbH
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class customform implements bo_condition {
+class customform implements bo_condition, freezable_condition {
     /** @var int $id Id is set via json during construction but we still need a default ID */
     public $id = MOD_BOOKING_BO_COND_JSON_CUSTOMFORM;
 
@@ -80,6 +82,16 @@ class customform implements bo_condition {
             self::$instance = new self($id);
         }
         return self::$instance;
+    }
+
+    /**
+     * Reset method to clear the singleton state.
+     *
+     * @return void
+     *
+     */
+    public static function reset_instance(): void {
+        self::$instance = null;
     }
 
     /**
@@ -121,6 +133,25 @@ class customform implements bo_condition {
     }
 
     /**
+     * Returns the name of the condition.
+     *
+     * @return string
+     *
+     */
+    public function get_name(): string {
+        return get_string('bocondcustomform', 'mod_booking');
+    }
+
+    /**
+     * Returns whether the condition is skippable or not.
+     *
+     * @return bool
+     */
+    public function is_skippable(): bool {
+        return true;
+    }
+
+    /**
      * Determines whether a particular item is currently available
      * according to this availability condition.
      * @param booking_option_settings $settings Item we're checking
@@ -129,24 +160,11 @@ class customform implements bo_condition {
      * @return bool True if available
      */
     public function is_available(booking_option_settings $settings, int $userid, bool $not = false): bool {
-
         // This is the return value. Not available to begin with.
         $isavailable = false;
 
         if (empty($this->customsettings->formsarray)) {
             $isavailable = true;
-        } else {
-            $ba = singleton_service::get_instance_of_booking_answers($settings);
-            $usersonlist = $ba->get_usersonlist();
-            $usersonwaitinglist = $ba->get_usersonwaitinglist();
-            // If the user is already on a list...
-            if (($usersonlist[$userid] ?? false) || ($usersonwaitinglist[$userid] ?? false)) {
-                $customformstore = new customformstore($userid, $settings->id);
-                // If the form is already filled out, don't show it again.
-                if ($customformstore->get_customform_data()) {
-                    $isavailable = true;
-                }
-            }
         }
 
         // If it's inversed, we inverse.
@@ -162,9 +180,10 @@ class customform implements bo_condition {
      * This will be used if the conditions should not only block booking...
      * ... but actually hide the conditons alltogether.
      * @param int $userid
+     * @param array $params This is the array with parameters for the sql query.
      * @return array
      */
-    public function return_sql(int $userid = 0): array {
+    public function return_sql(int $userid = 0, &$params = []): array {
 
         return ['', '', '', [], ''];
     }
@@ -227,11 +246,35 @@ class customform implements bo_condition {
      * @param ?\moodleform $moodleform
      * @return void
      */
+    /**
+     * Returns the ordered list of form element names this condition adds to the option form.
+     * The first element is used as the warning insertion anchor.
+     * Dynamic per-entry elements (bo_cond_customform_select_1_N etc.) are not listed here
+     * as they are variable in count; freezing the restrict checkbox indicates condition state.
+     *
+     * @return string[]
+     */
+    public function get_condition_form_elements(): array {
+        return [
+            'bo_cond_customform_restrict',
+            'bo_cond_customform_deleteinfoscheckboxadmin',
+        ];
+    }
+
+    /**
+     * Add condition-specific form elements to the booking option form.
+     *
+     * @param MoodleQuickForm $mform Booking option form instance.
+     * @param int $optionid Booking option id.
+     * @param ?\moodleform $moodleform Parent form instance.
+     * @return void
+     */
     public function add_condition_to_mform(MoodleQuickForm &$mform, int $optionid = 0, ?\moodleform $moodleform = null) {
-        global $DB, $CFG;
+        global $DB, $CFG, $PAGE;
 
         // Check if PRO version is activated.
         if (wb_payment::pro_version_is_activated()) {
+            $PAGE->requires->js_call_amd('mod_booking/customformeditor', 'init');
             $mform->addElement(
                 'advcheckbox',
                 'bo_cond_customform_restrict',
@@ -252,11 +295,13 @@ class customform implements bo_condition {
 
             // We add four potential elements.
             $counter = 1;
-            $previous = 0;
 
             // Up to 50 elements are possible. 20 was too few for some clients. 50 is more than enough.
             while ($counter <= 50) {
                 $buttonarray = [];
+                $selectedformtype = (string)($this->customsettings->formsarray->{$counter}->formtype ?? '');
+                $selectedlabel = (string)($this->customsettings->formsarray->{$counter}->label ?? '');
+                $selectedelementid = (int)($this->customsettings->formsarray->{$counter}->elementid ?? $counter);
 
                 // Create a select to chose which type of form element to display.
                 $buttonarray[] =& $mform->createElement(
@@ -266,8 +311,39 @@ class customform implements bo_condition {
                     $formelementsarray
                 );
 
+                // Row editor buttons: move up/down, delete, insert below.
+                // They live inside the same group so the hideIf chain of the row applies to them too.
+                // The value shifting is done client side by mod_booking/customformeditor.
+                // A row without an element has nothing to move, delete or insert below, so its
+                // buttons stay hidden until a form type is chosen (kept in sync by the same module).
+                $buttonsclasses = 'ml-2 text-nowrap mbo-cfe-buttons';
+                if ($selectedformtype === '' || $selectedformtype === '0') {
+                    $buttonsclasses .= ' d-none';
+                }
+                $editorbuttons = '<span class="' . $buttonsclasses . '">'
+                    . '<button type="button" class="btn btn-sm btn-outline-secondary" data-cfe-action="up"'
+                    . ' data-cfe-row="' . $counter . '" title="' . get_string('customformeditormoveup', 'mod_booking')
+                    . '"><i class="fa fa-arrow-up" aria-hidden="true"></i></button> '
+                    . '<button type="button" class="btn btn-sm btn-outline-secondary" data-cfe-action="down"'
+                    . ' data-cfe-row="' . $counter . '" title="' . get_string('customformeditormovedown', 'mod_booking')
+                    . '"><i class="fa fa-arrow-down" aria-hidden="true"></i></button> '
+                    . '<button type="button" class="btn btn-sm btn-outline-danger" data-cfe-action="delete"'
+                    . ' data-cfe-row="' . $counter . '" title="' . get_string('customformeditordelete', 'mod_booking')
+                    . '"><i class="fa fa-trash" aria-hidden="true"></i></button> '
+                    . '<button type="button" class="btn btn-sm btn-outline-primary" data-cfe-action="insert"'
+                    . ' data-cfe-row="' . $counter . '" title="' . get_string('customformeditorinsert', 'mod_booking')
+                    . '"><i class="fa fa-plus" aria-hidden="true"></i></button>'
+                    . '</span>';
+                $buttonarray[] =& $mform->createElement('html', $editorbuttons);
+
                 $mform->addGroup($buttonarray, 'formgroupelement_1_' . $counter, '', '', false, []);
                 $mform->hideIf('formgroupelement_1_' . $counter, 'bo_cond_customform_restrict', 'notchecked');
+
+                // Stable identity of the element; moved along with the row values by
+                // mod_booking/customformeditor. Empty for new rows: the server then
+                // assigns a fresh id from the nextelementid counter.
+                $mform->addElement('hidden', 'bo_cond_customform_elementid_1_' . $counter, 0);
+                $mform->setType('bo_cond_customform_elementid_1_' . $counter, PARAM_INT);
 
                 $mform->addElement(
                     'text',
@@ -275,7 +351,7 @@ class customform implements bo_condition {
                     get_string('bocondcustomformlabel', 'mod_booking'),
                     []
                 );
-                $mform->setType('bo_cond_customform_label_1_' . $counter, PARAM_TEXT);
+                $mform->setType('bo_cond_customform_label_1_' . $counter, PARAM_CLEANHTML);
 
                 // We need a few rules. We don't show label...
                 // ... when no element is chosen, when upper button is not checked.
@@ -292,6 +368,26 @@ class customform implements bo_condition {
                     'eq',
                     'deleteinfoscheckboxuser'
                 );
+
+                if (customform_prefill::is_enabled()) {
+                    $prefillidentifier = self::get_prefill_identifier_for_form_element($selectedformtype, $selectedelementid);
+                    $labelslug = self::normalize_prefill_label_key($selectedlabel);
+                    if ($labelslug === '') {
+                        $labelslug = 'label_slug';
+                    }
+                    $prefillhint = '<small class="text-muted" style="font-size:0.75rem;">'
+                        . 'Prefill key: <code>prefill_' . s($prefillidentifier) . '</code>'
+                        . ' | Label key: <code>prefill_' . s($labelslug) . '</code>'
+                        . '</small>';
+                    $mform->addElement('static', 'bo_cond_customform_prefillhint_1_' . $counter, '', $prefillhint);
+                    $mform->hideIf('bo_cond_customform_prefillhint_1_' . $counter, 'bo_cond_customform_restrict', 'notchecked');
+                    $mform->hideIf(
+                        'bo_cond_customform_prefillhint_1_' . $counter,
+                        'bo_cond_customform_select_1_' . $counter,
+                        'eq',
+                        0
+                    );
+                }
 
                 // We need to create all possible elements and hide them via "hideif" right now.
                 $mform->addElement(
@@ -397,18 +493,16 @@ class customform implements bo_condition {
                     'deleteinfoscheckboxuser'
                 );
 
-                if (!empty($previous)) {
-                    $mform->hideIf(
-                        'formgroupelement_1_' . $counter,
-                        'bo_cond_customform_select_1_' . $previous,
-                        'eq',
-                        0
-                    );
-                }
+                // Note: the visibility chain (only show used rows plus one empty row) is handled
+                // by mod_booking/customformeditor instead of a hideIf chain on the previous row.
+                // A hideIf chain cannot cope with temporarily empty rows created by the insert
+                // operation, and hideIf is client side anyway, so behaviour without JS is unchanged.
 
-                $previous = $counter;
                 $counter++;
             }
+
+            $mform->addElement('hidden', 'bo_cond_customform_nextelementid', 0);
+            $mform->setType('bo_cond_customform_nextelementid', PARAM_INT);
 
             $mform->addElement(
                 'advcheckbox',
@@ -464,7 +558,10 @@ class customform implements bo_condition {
             );
         }
 
-        $mform->addElement('html', '<hr class="w-50"/>');
+        $mform->addElement(
+            'html',
+            '<div id="bo_cond_customform_restrict_hr" class="d-flex justify-content-end"><hr class="w-75"/></div>'
+        );
     }
 
     /**
@@ -493,6 +590,93 @@ class customform implements bo_condition {
             'buttontype' => 1, // This means that the continue button is disabled.
         ];
         return $returnarray;
+    }
+
+    /**
+     * The runtime identifier of one form element, used as key in the booking answer json.
+     *
+     * @param stdClass $formelement
+     * @param ?int $fallbackkey position of the element, used when elementid is not yet set
+     * @return string
+     */
+    public static function get_element_identifier(stdClass $formelement, ?int $fallbackkey = null): string {
+        $formtype = $formelement->formtype ?? '';
+        // The privacy checkbox of the user is stored without counter.
+        if ($formtype === 'deleteinfoscheckboxuser') {
+            return 'customform_deleteinfoscheckboxuser';
+        }
+        return 'customform_' . $formtype . '_' . ($formelement->elementid ?? $fallbackkey);
+    }
+
+    /**
+     * The report column key of one form element.
+     *
+     * @param stdClass $formelement
+     * @param ?int $fallbackkey position of the element, used when elementid is not yet set
+     * @return string
+     */
+    public static function get_column_key(stdClass $formelement, ?int $fallbackkey = null): string {
+        return 'formfield_' . ($formelement->elementid ?? $fallbackkey);
+    }
+
+    /**
+     * Find a form element by its stable elementid.
+     *
+     * Falls back to the array key for condition json that predates elementids.
+     *
+     * @param array|object $formelements the elements of one form, keyed by position
+     * @param int $elementid
+     * @return ?stdClass
+     */
+    public static function find_element_by_id($formelements, int $elementid): ?stdClass {
+        foreach ((array)$formelements as $key => $formelement) {
+            if ((int)($formelement->elementid ?? $key) === $elementid) {
+                return $formelement;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Normalize a customform condition object: make sure every form element has a stable
+     * elementid and the condition carries a valid nextelementid counter.
+     *
+     * For elements without elementid the historical position is assigned, so every stored
+     * answer key customform_{formtype}_{position} stays valid by definition. Used by the
+     * upgrade step (via identical inline logic), by set_defaults() for restored old backups
+     * and by external json imports.
+     *
+     * @param stdClass $condition decoded customform condition object
+     * @return bool true if the condition was changed
+     */
+    public static function add_elementids_to_condition(stdClass $condition): bool {
+        if (empty($condition->formsarray)) {
+            return false;
+        }
+        $changed = false;
+        $maxid = 0;
+        foreach ($condition->formsarray as $form) {
+            foreach ($form as $formelement) {
+                if (isset($formelement->elementid)) {
+                    $maxid = max($maxid, (int)$formelement->elementid);
+                }
+            }
+        }
+        foreach ($condition->formsarray as $form) {
+            foreach ($form as $key => $formelement) {
+                if (!isset($formelement->elementid)) {
+                    $formelement->elementid = (int)$key;
+                    $maxid = max($maxid, (int)$key);
+                    $changed = true;
+                }
+            }
+        }
+        // The counter is monotonic and must never be reset, so ids are never reused.
+        if (!isset($condition->nextelementid) || (int)$condition->nextelementid <= $maxid) {
+            $condition->nextelementid = $maxid + 1;
+            $changed = true;
+        }
+        return $changed;
     }
 
     /**
@@ -528,12 +712,21 @@ class customform implements bo_condition {
         // In the future, we will allow for more than one custom form.
         // We create a new form.
         $newform = [];
+        $newformindex = 1;
 
         $key = 'bo_cond_customform_select_' . $formcounter . '_' . $counter;
         while (isset($fromform->{$key})) {
-            $formobject = new stdClass();
+            $formtype = (string)($fromform->{$key} ?? '0');
 
-            $formobject->formtype = $fromform->{$key};
+            // Ignore empty placeholder rows but keep scanning next rows.
+            if ($formtype === '0' || $formtype === '') {
+                $counter++;
+                $key = 'bo_cond_customform_select_' . $formcounter . '_' . $counter;
+                continue;
+            }
+
+            $formobject = new stdClass();
+            $formobject->formtype = $formtype;
 
             $key = 'bo_cond_customform_label_' . $formcounter . '_' . $counter;
             $formobject->label = $fromform->{$key} ?? null;
@@ -547,23 +740,46 @@ class customform implements bo_condition {
             $key = 'bo_cond_customform_enroluserstowaitinglist' . $counter;
             $formobject->enroluserstowaitinglist = $fromform->{$key} ?? null;
 
-            $newform[$counter] = $formobject;
+            $key = 'bo_cond_customform_elementid_' . $formcounter . '_' . $counter;
+            $formobject->elementid = (int)($fromform->{$key} ?? 0);
 
-            // If the next key is not there, we increase $formcounter, else $counter.
-            $key = 'bo_cond_customform_select_' . $formcounter . '_' . ($counter + 1);
-            if (!empty($fromform->{$key})) {
-                $counter++;
-            } else {
-                // Make sure we start a new form and save this one.
-                $conditionobject->formsarray[$formcounter] = $newform;
-                $newform = [];
-                $formcounter++;
-            }
+            // Keep stored keys sequential so runtime identifiers remain stable.
+            $newform[$newformindex] = $formobject;
+            $newformindex++;
+
+            $counter++;
+            $key = 'bo_cond_customform_select_' . $formcounter . '_' . $counter;
+        }
+
+        if (!empty($newform)) {
+            $conditionobject->formsarray[$formcounter] = $newform;
         }
 
         if (empty($conditionobject->formsarray)) {
             return new stdClass();
         }
+
+        // Assign fresh elementids to new rows from the monotonic nextelementid counter.
+        // Programmatic setters (webservices, wizard, generator) do not submit elementids,
+        // so all their rows get fresh ids 1...N - exactly the historical numbering.
+        $nextelementid = (int)($fromform->bo_cond_customform_nextelementid ?? 0);
+        foreach ($conditionobject->formsarray as $formelements) {
+            foreach ($formelements as $formobject) {
+                if ($formobject->elementid > 0) {
+                    $nextelementid = max($nextelementid, $formobject->elementid + 1);
+                }
+            }
+        }
+        $nextelementid = max($nextelementid, 1);
+        foreach ($conditionobject->formsarray as $formelements) {
+            foreach ($formelements as $formobject) {
+                if (empty($formobject->elementid)) {
+                    $formobject->elementid = $nextelementid;
+                    $nextelementid++;
+                }
+            }
+        }
+        $conditionobject->nextelementid = $nextelementid;
 
         // Might be an empty object.
         return $conditionobject;
@@ -578,6 +794,12 @@ class customform implements bo_condition {
 
         if (!empty($acdefault->formsarray)) {
             $defaultvalues->bo_cond_customform_restrict = 1;
+        }
+
+        // Restored old backups or externally imported json may predate elementids.
+        self::add_elementids_to_condition($acdefault);
+        if (isset($acdefault->nextelementid)) {
+            $defaultvalues->bo_cond_customform_nextelementid = (int)$acdefault->nextelementid;
         }
 
         foreach ($acdefault->formsarray as $formcounter => $form) {
@@ -596,6 +818,9 @@ class customform implements bo_condition {
 
                 $key = 'bo_cond_customform_enroluserstowaitinglist' . $counter;
                 $defaultvalues->{$key} = $formelement->enroluserstowaitinglist ?? 0;
+
+                $key = 'bo_cond_customform_elementid_' . $formcounter . '_' . $counter;
+                $defaultvalues->{$key} = (int)($formelement->elementid ?? $counter);
             }
         }
         if (isset($acdefault->deleteinfoscheckboxadmin) && !empty($acdefault->deleteinfoscheckboxadmin)) {
@@ -637,7 +862,7 @@ class customform implements bo_condition {
      * @param booking_option_settings $settings
      * @return string
      */
-    private function get_description_string(bool $isavailable, bool $full, booking_option_settings $settings) {
+    public function get_description_string(bool $isavailable, bool $full, booking_option_settings $settings) {
 
         if (
             !$isavailable
@@ -744,6 +969,39 @@ class customform implements bo_condition {
     }
 
     /**
+     * Return prefill identifier pattern for one customform element row.
+     *
+     * @param string $formtype
+     * @param int $counter
+     * @return string
+     */
+    private static function get_prefill_identifier_for_form_element(string $formtype, int $counter): string {
+        if ($formtype === 'deleteinfoscheckboxuser') {
+            return 'customform_deleteinfoscheckboxuser';
+        }
+
+        if ($formtype === '' || $formtype === '0') {
+            return 'customform_<formtype>_' . $counter;
+        }
+
+        return 'customform_' . $formtype . '_' . $counter;
+    }
+
+    /**
+     * Normalize label to the slug key variant used for prefill params.
+     *
+     * @param string $label
+     * @return string
+     */
+    private static function normalize_prefill_label_key(string $label): string {
+        // Labels may contain HTML (e.g. links); slugs must be built from the visible text only.
+        // Keep in sync with customform_prefill::normalize_prefill_key.
+        $label = \core_text::strtolower(trim(strip_tags($label)));
+        $label = preg_replace('/[^[:alnum:]]+/u', '_', $label);
+        return trim((string)$label, '_');
+    }
+
+    /**
      * This interprets the availability column, looks for an entry from this class and returns the fields.
      * @param booking_option_settings $settings
      * @return object
@@ -788,6 +1046,87 @@ class customform implements bo_condition {
             }
         }
         return $answer;
+    }
+
+    /**
+     * Returns a customform answer value for one field.
+     *
+     * For select fields, the stored numeric index is resolved to the configured label.
+     *
+     * @param booking_option_settings $settings
+     * @param stdClass $bookinganswer
+     * @param int $fieldindex stable elementid of the field (position for pre-elementid json).
+     * @return string|null
+     */
+    public static function get_customform_field_value(
+        booking_option_settings $settings,
+        stdClass $bookinganswer,
+        int $fieldindex
+    ): ?string {
+        if ($fieldindex < 1 || empty($settings->availability) || empty($bookinganswer->json)) {
+            return null;
+        }
+
+        $formelements = self::return_formelements($settings);
+        if (is_object($formelements)) {
+            $formelements = (array)$formelements;
+        }
+        if (!is_array($formelements)) {
+            return null;
+        }
+
+        // Since elementids exist, the index is the stable elementid of the field.
+        // find_element_by_id() falls back to the array key for pre-elementid json.
+        $field = self::find_element_by_id($formelements, $fieldindex);
+        if (!$field) {
+            return null;
+        }
+
+        $answerjson = json_decode($bookinganswer->json);
+        if (!isset($answerjson->condition_customform)) {
+            return null;
+        }
+
+        $answerkey = self::get_element_identifier($field, $fieldindex);
+        if (!isset($answerjson->condition_customform->{$answerkey})) {
+            return null;
+        }
+
+        $uservalue = $answerjson->condition_customform->{$answerkey};
+        if ($field->formtype !== 'select' || !isset($field->value)) {
+            return (string)$uservalue;
+        }
+
+        $rawoptions = preg_split('/\r\n|\r|\n/', (string)$field->value);
+        $options = [];
+        foreach ($rawoptions as $rawoption) {
+            $rawoption = trim((string)$rawoption);
+            if ($rawoption !== '') {
+                $options[] = $rawoption;
+            }
+        }
+
+        if (isset($options[(int)$uservalue])) {
+            $selectedoption = $options[(int)$uservalue];
+            $uservalue = trim((string)$uservalue);
+            foreach ($options as $option) {
+                if (strpos($option, '=>') !== false) {
+                    $parts = array_map('trim', explode('=>', $option));
+                    $label = $parts[0] ?? '';
+                    $mappedvalue = $parts[1] ?? '';
+                    if ($uservalue === $label || $uservalue === $mappedvalue) {
+                        return $mappedvalue;
+                    }
+                    continue;
+                }
+                if ($uservalue === $option) {
+                    return $option;
+                }
+            }
+            return $selectedoption;
+        }
+
+        return $uservalue;
     }
 
     /**

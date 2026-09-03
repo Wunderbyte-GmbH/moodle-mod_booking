@@ -14,10 +14,24 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * Legacy rule action, kept only so existing booking_rules rows referencing
+ * actionname="confirm_bookinganswer" stay loadable (rule listing/editing UI instantiates actions
+ * by name). Deliberately a no-op since the waitlist-progression refactoring (Phase 3,
+ * WAITLIST_REFACTOR_BLUEPRINT_2026-08-04.md §2.5): granting waitlist confirmation on notification
+ * is now progression::offer()'s job (local/waitlist/progression.php,
+ * grant_confirmation_if_required()), driven by the trigger adapters in classes/event/observer/,
+ * not through this rule-engine dispatch path anymore.
+ *
+ * @package mod_booking
+ * @copyright 2025 Wunderbyte GmbH <info@wunderbyte.at>
+ * @author Mahdi Poustini
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 namespace mod_booking\booking_rules\actions;
 
 use mod_booking\booking_rules\booking_rule_action;
-use mod_booking\task\confirm_bookinganswer_by_rule_adhoc;
 use MoodleQuickForm;
 use stdClass;
 
@@ -26,13 +40,7 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 
 /**
- * Action to create an ad-hoc task that confirms booking answers with a price,
- * or sets the confirmation JSON for booking answers with no price for persons on the waiting list.
- *
- * The ad-hoc task will execute only if 'confirmationonnotification' is enabled.
- *
- * If 'confirmationonnotification' is equal to 2, the task will set the confirmation
- * only for only one person at a time from the waiting list.
+ * No-op rule action, kept only for backward compatibility with existing rule rows.
  *
  * @package mod_booking
  * @copyright 2025 Wunderbyte GmbH <info@wunderbyte.at>
@@ -43,14 +51,10 @@ class confirm_bookinganswer implements booking_rule_action {
     /** @var string $actionname */
     public $actionname = 'confirm_bookinganswer';
 
-    /** @var int $ruleid */
+    /** @var int|null $ruleid unused now (execute() is a no-op) - kept declared because
+     *  rule_react_on_event::execute() unconditionally sets $action->ruleid on every action,
+     *  regardless of type. */
     public $ruleid = null;
-
-    /**
-     * The adhoc task will be runned at this time.
-     * @var int $actionname
-     */
-    public $adhocnextruntime = 0;
 
     /**
      * Load json data from DB into the object.
@@ -116,52 +120,12 @@ class confirm_bookinganswer implements booking_rule_action {
 
     /**
      * Execute the action.
-     * The stdclass has to have the keys userid, optionid & cmid & nextruntime.
+     *
+     * Intentionally empty - see class docblock.
+     *
      * @param stdClass $record
      */
     public function execute(stdClass $record) {
-        global $USER;
-        $task = new confirm_bookinganswer_by_rule_adhoc();
-
-        $taskdata = [
-            'rulename' => $record->rulename,
-            'ruleid' => $this->ruleid,
-            'userid' => $record->userid,
-            'optionid' => $record->optionid,
-            'cmid' => $record->cmid,
-        ];
-        // Only add the optiondateid if it is set.
-        // We need it for session reminders.
-        if (!empty($record->optiondateid)) {
-            $taskdata['optiondateid'] = $record->optiondateid;
-        }
-        $task->set_custom_data($taskdata);
-        $currentuserid = $USER->id ?? 2;
-        $task->set_userid($currentuserid);
-
-        if ($this->adhocnextruntime !== 0) {
-            $task->set_next_run_time($this->adhocnextruntime);
-        }
-
-        // Now queue the task or reschedule it if it already exists (with matching data).
-        \core\task\manager::reschedule_or_queue_adhoc_task($task);
-    }
-
-    /**
-     * Summary of set_next_runtime
-     * @param mixed $timeinseconds
-     * @return void
-     */
-    public function set_next_runtime_for_adhoc($timeinseconds) {
-        $this->adhocnextruntime = $timeinseconds;
-    }
-
-    /**
-     * Setter for ruleid.
-     * @param mixed $ruleid
-     * @return void
-     */
-    public function set_ruleid($ruleid) {
-        $this->ruleid = $ruleid;
+        // Intentionally empty - see class docblock.
     }
 }

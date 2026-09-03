@@ -33,6 +33,7 @@ use mod_booking\booking_answers\booking_answers;
 use mod_booking\booking_bookit;
 use mod_booking\booking_option_settings;
 use mod_booking\output\bookingoption_description;
+use mod_booking\price;
 use mod_booking\singleton_service;
 use MoodleQuickForm;
 
@@ -66,6 +67,24 @@ class askforconfirmation implements bo_condition {
     public function get_id(): int {
         return $this->id;
     }
+    /**
+     * Returns the name of the condition.
+     *
+     * @return string
+     *
+     */
+    public function get_name(): string {
+        return get_string(identifier: 'bocondaskforconfirmation', component: 'mod_booking');
+    }
+
+    /**
+     * Returns whether the condition is skippable or not.
+     *
+     * @return bool
+     */
+    public function is_skippable(): bool {
+        return false;
+    }
 
     /**
      * Needed to see if class can take JSON.
@@ -97,6 +116,22 @@ class askforconfirmation implements bo_condition {
         // And when it's set in the option.
 
         $isavailable = true;
+
+        // If a price is set for the option but no valid price can be determined for this user...
+        // ... (e.g. the user has no matching price category and the fallback to the default price...
+        // ... category is turned off), price::get_price() returns an empty array without a 'price' key.
+        // In that case we must NOT block here: otherwise the user could be placed on the waiting list...
+        // ... and later be booked automatically for free without ever paying. Instead, we leave this...
+        // ... condition available and let the priceisset condition (lower id, evaluated afterwards) block.
+        if (
+            !empty($settings->jsonobject->useprice)
+            && $user = singleton_service::get_instance_of_user($userid)
+        ) {
+            $price = price::get_price('option', $settings->id, $user);
+            if (!isset($price['price'])) {
+                return $not ? !$isavailable : $isavailable;
+            }
+        }
 
         // Get the booking answers for this instance.
         $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
@@ -161,9 +196,10 @@ class askforconfirmation implements bo_condition {
      * This will be used if the conditions should not only block booking...
      * ... but actually hide the conditons alltogether.
      * @param int $userid
+     * @param array $params This is the array with parameters for the sql query.
      * @return array
      */
-    public function return_sql(int $userid = 0): array {
+    public function return_sql(int $userid = 0, &$params = []): array {
 
         return ['', '', '', [], ''];
     }
@@ -335,7 +371,7 @@ class askforconfirmation implements bo_condition {
      * @param booking_option_settings $settings
      * @return string
      */
-    private function get_description_string($isavailable, $full, $settings): string {
+    public function get_description_string($isavailable, $full, $settings): string {
 
         if (
             !$isavailable

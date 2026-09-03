@@ -25,13 +25,17 @@
 namespace mod_booking;
 
 use coding_exception;
+use mod_booking\local\slotbooking\slot_answer;
+use mod_booking\bo_availability\conditions\customform;
 use mod_booking\output\report_edit_bookingnotes;
 use html_writer;
 use moodle_url;
 use stdClass;
 use user_picture;
+use context_module;
 defined('MOODLE_INTERNAL') || die();
-require_once('../../lib/tablelib.php');
+global $CFG;
+require_once($CFG->libdir . '/tablelib.php');
 
 /**
  * Displays all bookings for a booking option
@@ -89,6 +93,20 @@ class all_userbookings extends \table_sql {
     protected function col_timecreated($values) {
         if ($values->timecreated > 0) {
             return userdate($values->timecreated);
+        }
+
+        return '';
+    }
+
+    /**
+     * This function is called for each data row to allow processing of the timebooked value.
+     * @param object $values
+     * @return string
+     * @throws coding_exception
+     */
+    protected function col_timebooked($values) {
+        if ($values->timebooked > 0) {
+            return userdate($values->timebooked);
         }
 
         return '';
@@ -211,6 +229,14 @@ class all_userbookings extends \table_sql {
      * @throws coding_exception
      */
     protected function col_coursestarttime($values) {
+        $slotdata = slot_answer::get_slot_data($values);
+        if (!empty($slotdata['slots']) && is_array($slotdata['slots'])) {
+            $firstslot = reset($slotdata['slots']);
+            if (is_array($firstslot) && !empty($firstslot['start'])) {
+                return userdate((int)$firstslot['start'], get_string('strftimedatetime', 'langconfig'));
+            }
+        }
+
         if ($values->coursestarttime == 0) {
             return '';
         } else {
@@ -225,11 +251,101 @@ class all_userbookings extends \table_sql {
      * @throws coding_exception
      */
     protected function col_courseendtime($values) {
+        $slotdata = slot_answer::get_slot_data($values);
+        if (!empty($slotdata['slots']) && is_array($slotdata['slots'])) {
+            $lastslot = end($slotdata['slots']);
+            if (is_array($lastslot) && !empty($lastslot['end'])) {
+                return userdate((int)$lastslot['end'], get_string('strftimedatetime', 'langconfig'));
+            }
+        }
+
         if ($values->courseendtime == 0) {
             return '';
         } else {
             return userdate($values->courseendtime, get_string('strftimedatetime', 'langconfig'));
         }
+    }
+
+    /**
+     * Column for number of booked slots.
+     *
+     * @param object $values
+     * @return string
+     */
+    protected function col_slotnumslots($values): string {
+        return slot_answer::render_numslots($values);
+    }
+
+    /**
+     * Column for slot start time.
+     *
+     * @param object $values
+     * @return string
+     */
+    protected function col_slotstarttime($values): string {
+        return slot_answer::render_starttime($values);
+    }
+
+    /**
+     * Column for slot end time.
+     *
+     * @param object $values
+     * @return string
+     */
+    protected function col_slotendtime($values): string {
+        return slot_answer::render_endtime($values);
+    }
+
+    /**
+     * Column for assigned teachers from slot JSON.
+     *
+     * @param object $values
+     * @return string
+     */
+    protected function col_slotteachers($values): string {
+        return slot_answer::render_teachers($values);
+    }
+
+    /**
+     * Column for slot price paid from slot JSON.
+     *
+     * @param object $values
+     * @return string
+     */
+    protected function col_slotprice($values): string {
+        return slot_answer::render_price($values);
+    }
+
+    /**
+     * Column for move slot action.
+     *
+     * @param object $values
+     * @return string
+     */
+    protected function col_moveslot($values): string {
+        if (empty($this->cm)) {
+            return '';
+        }
+
+        $context = context_module::instance($this->cm->id);
+        $canmoveslots = has_capability('mod/booking:moveslots', $context)
+            || has_capability('mod/booking:updatebooking', $context);
+        if (!$canmoveslots) {
+            return '';
+        }
+
+        $slotdata = slot_answer::get_slot_data($values);
+        if (empty($slotdata)) {
+            return '';
+        }
+
+        $url = new moodle_url('/mod/booking/moveslot.php', [
+            'id' => $this->cm->id,
+            'optionid' => $values->optionid,
+            'baid' => $values->id,
+        ]);
+
+        return html_writer::link($url, get_string('slot_move_action', 'mod_booking'));
     }
 
     /**
@@ -281,9 +397,11 @@ class all_userbookings extends \table_sql {
                 return get_string('sharedplacenoselect', 'mod_booking', $values);
             }
 
+            $userlabel = fullname($values);
             return '<input id="check' . $values->id .
                      '" type="checkbox" class="usercheckbox" name="user[][' . $values->userid .
-                     ']" value="' . $values->userid . '" />';
+                     ']" value="' . $values->userid . '" aria-label="' .
+                     s(get_string('selectuser', 'mod_booking')) . '" />';
         } else {
             return '';
         }
@@ -318,9 +436,37 @@ class all_userbookings extends \table_sql {
      *
      */
     public function col_enrollink($values): string {
-        $erlid = enrollink::get_erlid_from_baid($values->id) ?? "";
-        $value = empty($erlid) ? "" : \mod_booking\enrollink::create_enrollink($erlid);
-        return $value;
+        // When downloading, the booking answer id is selected as "uniqueid" instead of "id".
+        $baid = $values->id ?? $values->uniqueid ?? 0;
+        $erlid = empty($baid) ? "" : (enrollink::get_erlid_from_baid((int)$baid) ?? "");
+        if (empty($erlid)) {
+            // The user did not create a bundle - check if the user created or used an enrollink for this option.
+            $erlid = enrollink::get_erlid_for_user((int)$values->userid, (int)$values->optionid);
+        }
+        if (empty($erlid)) {
+            return "";
+        }
+        if ($this->is_downloading()) {
+            $url = new moodle_url('/mod/booking/enrollink.php', ['erlid' => $erlid]);
+            return $url->out(false);
+        }
+        return \mod_booking\enrollink::create_enrollink($erlid);
+    }
+
+    /**
+     * Returns the user from whom the enrollink was received (with link to the user profile).
+     *
+     * @param object $values
+     *
+     * @return string
+     *
+     */
+    public function col_enrollinkreceivedfrom($values): string {
+        return enrollink::render_enrollink_received_from(
+            (int)$values->userid,
+            (int)$values->optionid,
+            !$this->is_downloading()
+        );
     }
 
     /**
@@ -386,6 +532,7 @@ class all_userbookings extends \table_sql {
             $ba = singleton_service::get_instance_of_booking_answers($settings);
             $usersonlist = $ba->get_usersonlist();
             $usersonwaitinglist = $ba->get_usersonwaitinglist();
+
             if (
                 $answer = $usersonlist[(int)$value->userid]
                 ?? $usersonwaitinglist[(int)$value->userid]
@@ -393,18 +540,9 @@ class all_userbookings extends \table_sql {
             ) {
                 [$prefix, $counter] = explode('_', $colname);
 
-                if (
-                    isset($answer->json) &&
-                    $jsonobject = json_decode($answer->json)
-                ) {
-                    if (isset($jsonobject->condition_customform)) {
-                        foreach ($jsonobject->condition_customform as $key => $value) {
-                            $array = explode('_', $key);
-                            if (isset($array[2]) &&  $array[2] == $counter) {
-                                return format_string((string)$value);
-                            }
-                        }
-                    }
+                $customformvalue = customform::get_customform_field_value($settings, $answer, (int)$counter);
+                if ($customformvalue !== null) {
+                    return format_string($customformvalue);
                 }
             }
             return '';
@@ -564,7 +702,13 @@ class all_userbookings extends \table_sql {
                         ['class' => "transfersubmit"]
                     );
                     echo \html_writer::div(get_string('transferheading', 'mod_booking'), 'mt-2');
-                    echo $dropdown = \html_writer::select($transferto, 'transferoption');
+                    echo $dropdown = \html_writer::select(
+                        $transferto,
+                        'transferoption',
+                        '',
+                        null,
+                        ['aria-label' => get_string('transferheading', 'mod_booking')]
+                    );
                     $attributes = ['type' => 'submit',
                         'class' => 'transfersubmit btn btn-secondary btn-sm',
                         'id' => 'transfersubmit',
@@ -671,10 +815,13 @@ class all_userbookings extends \table_sql {
                 'selectpresencestatus',
                 '',
                 ['' => 'choosedots'],
-                ['class' => 'mt-3']
+                [
+                    'class' => 'mt-3',
+                    'aria-label' => get_string('selectpresencestatus', 'booking'),
+                ]
             );
 
-            echo '<div class="singlebutton ml-2">' .
+            echo '<div class="singlebutton ms-2">' .
                 '<input type="submit" class="btn btn-success btn-sm mt-3" name="changepresencestatus" value="' .
                 get_string('confirmpresence', 'booking') . '" /></div>';
         }
@@ -683,6 +830,62 @@ class all_userbookings extends \table_sql {
 
         echo '<hr>';
     }
+    /**
+     * Return certificate issues for the current row, using SQL fallback if aggregated JSON is invalid.
+     *
+     * @param stdClass $values
+     * @return array
+     */
+    private function get_certificates_for_row(stdClass $values): array {
+        global $DB;
+
+        if (!empty($values->certificate)) {
+            $decoded = json_decode($values->certificate);
+            if (is_array($decoded)) {
+                return $decoded;
+            }
+            if (is_object($decoded)) {
+                return (array)$decoded;
+            }
+        }
+
+        if (empty($values->userid) || empty($values->optionid)) {
+            return [];
+        }
+
+        $params = [
+            'userid' => (int)$values->userid,
+            'optionid' => (int)$values->optionid,
+        ];
+        $databasetype = $DB->get_dbfamily();
+
+        switch ($databasetype) {
+            case 'postgres':
+                $sql = "
+                    SELECT id, code, expires, timecreated
+                      FROM {tool_certificate_issues}
+                     WHERE userid = :userid
+                       AND (data::jsonb ->> 'bookingoptionid') ~ '^[0-9]+$'
+                       AND (data::jsonb ->> 'bookingoptionid')::int = :optionid
+                     ORDER BY timecreated, id
+                ";
+                break;
+            case 'mysql':
+                $sql = "
+                    SELECT id, code, expires, timecreated
+                      FROM {tool_certificate_issues}
+                     WHERE userid = :userid
+                       AND CAST(JSON_UNQUOTE(JSON_EXTRACT(data, '$.bookingoptionid')) AS UNSIGNED) = :optionid
+                     ORDER BY timecreated, id
+                ";
+                break;
+            default:
+                return [];
+        }
+
+        return array_values($DB->get_records_sql($sql, $params));
+    }
+
     /**
      * Column for latest Certificate.
      *
@@ -696,16 +899,22 @@ class all_userbookings extends \table_sql {
         $cross = '&#x274C; ';
         $now = time();
 
-        if (!isset($values->certificate)) {
+        $certificates = $this->get_certificates_for_row($values);
+        if (empty($certificates)) {
             return "";
         }
 
-        $certificates = json_decode($values->certificate);
         $expiredates = [];
+        $timecreated = [];
+        $code = [];
         foreach ($certificates as $cert) {
             $expiredates[] = $cert->expires;
             $timecreated[] = $cert->timecreated;
             $code[] = $cert->code;
+        }
+
+        if (empty($timecreated) || empty($code)) {
+            return "";
         }
 
         $lastexpiredate = end($expiredates);
@@ -735,10 +944,10 @@ class all_userbookings extends \table_sql {
     public function col_allusercertificates(stdClass $values) {
         global $OUTPUT;
         static $id = 1;
-        if (empty($values->certificate)) {
+        $certificates = $this->get_certificates_for_row($values);
+        if (empty($certificates)) {
             return "";
         }
-        $certificates = json_decode($values->certificate);
         $certdata = [];
         $fullname = "{$values->firstname} {$values->lastname}";
 
@@ -761,5 +970,19 @@ class all_userbookings extends \table_sql {
         ];
         $id++;
         return $OUTPUT->render_from_template('mod_booking/report/allusercertificate_modal', $data);
+    }
+    /**
+     * Column for completed date.
+     *
+     * @param stdClass $values
+     *
+     * @return string
+     *
+     */
+    public function col_completeddate(stdClass $values) {
+        if (isset($values->completeddate)) {
+            return userdate($values->completeddate);
+        }
+        return '';
     }
 }

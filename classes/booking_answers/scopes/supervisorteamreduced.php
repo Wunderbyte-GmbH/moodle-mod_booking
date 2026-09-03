@@ -17,6 +17,7 @@
 namespace mod_booking\booking_answers\scopes;
 
 use Exception;
+use mod_booking\customfield\booking_handler;
 use mod_booking\table\manageusers_table;
 use local_wunderbyte_table\wunderbyte_table;
 
@@ -29,6 +30,12 @@ use local_wunderbyte_table\wunderbyte_table;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later>
  */
 class supervisorteamreduced extends supervisorteam {
+    /**
+     * Scope name.
+     * @var string
+     */
+    public $scope = 'supervisorteamreduced';
+
     /**
      * Render users table based on status param
      *
@@ -61,6 +68,14 @@ class supervisorteamreduced extends supervisorteam {
 
         $table->define_cache('mod_booking', "bookedusertable");
         if (!empty($customfields)) {
+            $customfieldheadings = [];
+            $customfieldvalues = [];
+            $customfieldsarray = booking_handler::get_customfields($customfields);
+            foreach ($customfieldsarray as $customfield) {
+                // Customfield helper class on rendering.
+                $customfieldheadings[] = $customfield->name;
+            }
+            $headers = array_merge($headers, $customfieldheadings);
             $columns = array_merge($columns, $customfields);
         }
         $table->define_columns($columns);
@@ -71,7 +86,12 @@ class supervisorteamreduced extends supervisorteam {
         }
 
         $table->set_sql($fields, $from, $where, $params);
-        $table->sortablecolumns = $columns;
+
+        // Sorting settings.
+        $this->define_sortablecolumns_from_columns($table, $columns, $headers);
+        $table->sort_default_column = 'name';
+        $table->sort_default_order = SORT_ASC;
+
         $table->fulltextsearchcolumns = ['name', 'text'];
 
         return $table;
@@ -103,14 +123,16 @@ class supervisorteamreduced extends supervisorteam {
      * This functions defines the columns for each scope.
      *
      * @param int $statusparam
+     * @param int $scopeid
      *
      * @return array
      *
      */
-    public function return_cols_for_tables(int $statusparam): array {
+    public function return_cols_for_tables(int $statusparam, int $scopeid = 0): array {
         $columns = [
             'name' => get_string('fullname', 'core'),
             'text' => get_string('bookingoptionname', 'mod_booking'),
+            'action_confirm_delete' => get_string('unconfirm', 'mod_booking'),
             'coursestarttime' => get_string('coursestart', 'core'),
         ];
         return $columns;

@@ -98,6 +98,9 @@ class send_reminder_mails extends \core\task\scheduled_task {
                     // Use an event to log that reminder1 has been sent.
                     $event = reminder1_sent::create([
                         'context' => context_system::instance(),
+                        // System/cron actor; this is a per-option summary event with many recipients,
+                        // so no single relateduserid is set (per-recipient detail is in message_sent).
+                        'userid' => 0,
                         'objectid' => $record->optionid,
                     ]);
                     $event->trigger();
@@ -115,6 +118,9 @@ class send_reminder_mails extends \core\task\scheduled_task {
                     // Use an event to log that reminder2 has been sent.
                     $event = reminder2_sent::create([
                         'context' => context_system::instance(),
+                        // System/cron actor; this is a per-option summary event with many recipients,
+                        // so no single relateduserid is set (per-recipient detail is in message_sent).
+                        'userid' => 0,
                         'objectid' => $record->optionid,
                     ]);
                     $event->trigger();
@@ -196,6 +202,9 @@ class send_reminder_mails extends \core\task\scheduled_task {
                         // Use an event to log that teacher reminder has been sent.
                         $event = reminder_teacher_sent::create([
                             'context' => context_system::instance(),
+                            // System/cron actor; this is a per-option summary event with many recipients,
+                            // so no single relateduserid is set (per-recipient detail is in message_sent).
+                            'userid' => 0,
                             'objectid' => $record->optionid,
                             'other' => [
                                 'msgparam' => MOD_BOOKING_MSGPARAM_REMINDER_TEACHER,

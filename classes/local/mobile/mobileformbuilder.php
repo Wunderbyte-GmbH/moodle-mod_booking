@@ -25,6 +25,8 @@
 
 namespace mod_booking\local\mobile;
 
+use mod_booking\bo_availability\conditions\customform;
+
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/mod/booking/lib.php');
@@ -132,11 +134,14 @@ class mobileformbuilder {
         $resetsubmissionform = '';
 
         foreach ($formsarray as $key => $submission) {
+            $submission->headertext = get_string('headerform', 'mod_booking');
+            $submission->canceltext = get_string('cancel', 'mod_booking');
+            $submission->submissiontext = get_string('submit', 'mod_booking');
             $data = [
               'myform' => (array)$submission,
             ];
             if ($submission->formtype != 'static') {
-                $data['myform']['name'] = 'customform_' . $submission->formtype . '_' . $key;
+                $data['myform']['name'] = customform::get_element_identifier($submission, (int)$key);
             }
             if (!isset($submission->error) || $submission->error) {
                 switch ($submission->formtype) {

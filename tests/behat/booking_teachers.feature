@@ -45,7 +45,7 @@ Feature: In a booking - create options and assign or substituing teachers
     And I should see "Booking option - Teachers" in the "#region-main" "css_element"
     And I should see "No teacher" in the "[id^=optiondates_teachers_table] td.teacher" "css_element"
     And I click on "Edit" "link" in the "[id^=optiondates_teachers_table] td.edit" "css_element"
-    And I wait "1" seconds
+    And I wait until the page is ready
     And I should see "Teachers" in the ".modal-header" "css_element"
     When I set the following fields to these values:
       | Teachers | teacher1   |
@@ -68,11 +68,11 @@ Feature: In a booking - create options and assign or substituing teachers
     And I should see "Booking option - Teachers" in the "#region-main" "css_element"
     And I should see "No teacher" in the "[id^=optiondates_teachers_table] td.teacher" "css_element"
     When I click on "Edit" "link" in the "[id^=optiondates_teachers_table] td.edit" "css_element"
-    And I wait "1" seconds
+    And I wait until the page is ready
     And I should see "Teachers" in the ".modal-header" "css_element"
     And I set the following fields to these values:
-      | Teachers    | teacher1,teacher2,teacher3 |
-      | Reason      | Assign three |
+      | Teachers | teacher1,teacher2,teacher3 |
+      | Reason   | Assign three               |
     And I press "Save changes"
     Then I should see "Teacher 1" in the "[id^=optiondates_teachers_table] td.teacher" "css_element"
     And I should see "Teacher 2" in the "[id^=optiondates_teachers_table] td.teacher" "css_element"
@@ -90,8 +90,8 @@ Feature: In a booking - create options and assign or substituing teachers
   @javascript
   Scenario: Booking option: set teachers availability by custom profilefield value
     Given the following config values are set as admin:
-       | config                                      | value        | plugin  |
-       | selectteacherswithprofilefieldonly          | 1            | booking |
+      | config                             | value | plugin  |
+      | selectteacherswithprofilefieldonly | 1     | booking |
     And I log in as "admin"
     And I set the following administration settings values:
       | selectteacherswithprofilefieldonlyfield | teacherforoption |
@@ -103,6 +103,7 @@ Feature: In a booking - create options and assign or substituing teachers
     And I am on the "My booking" Activity page
     And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I expand all fieldsets
+    And I wait until ".collapsing" "css_element" does not exist
     And I expand the "Assign teachers:" autocomplete
     And I should see "Teacher 1" in the "//div[contains(@id, 'fitem_id_teachersforoption_')]//ul[contains(@class, 'form-autocomplete-suggestions')]" "xpath_element"
     And I should see "Teacher 2" in the "//div[contains(@id, 'fitem_id_teachersforoption_')]//ul[contains(@class, 'form-autocomplete-suggestions')]" "xpath_element"

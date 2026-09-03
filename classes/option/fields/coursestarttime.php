@@ -128,22 +128,6 @@ class coursestarttime extends field_base {
         if (!empty($settings->selflearningcourse)) {
             parent::set_data($data, $settings);
             $data->coursestarttime = (int)($data->coursestarttime ?? 0);
-            // We only do this conversion for templates.
-            // Otherwise, it will work with unix timestamps just fine.
-            if (
-                !empty($data->fromtemplate)
-                && !empty($data->coursestarttime)
-                && is_number($data->coursestarttime)
-            ) {
-                $coursestarttime = $data->coursestarttime;
-                $data->coursestarttime = [
-                    "day"    => date("d", $coursestarttime),
-                    "month"  => date("m", $coursestarttime),
-                    "year"   => date("Y", $coursestarttime),
-                    "hour"   => date("H", $coursestarttime),
-                    "minute" => date("i", $coursestarttime),
-                ];
-            }
         } else {
             return;
         }
@@ -184,34 +168,36 @@ class coursestarttime extends field_base {
             $selflearningcourselabel = get_config('booking', 'selflearningcourselabel');
         }
 
-        if ($selflearningcourseactive === 1) {
-            $mform->addElement(
-                'static',
-                'selflearningcoursecoursestarttimealert',
-                '',
-                '<div class="alert alert-light">' .
-                    get_string('selflearningcoursecoursestarttimealert', 'mod_booking', $selflearningcourselabel) .
-                '</div>'
-            );
-            $mform->hideIf('selflearningcoursecoursestarttimealert', 'selflearningcourse', 'neq', 1);
-        }
+        if ($mform->elementExists('selflearningcourse')) {
+            if ($selflearningcourseactive === 1) {
+                $mform->addElement(
+                    'static',
+                    'selflearningcoursecoursestarttimealert',
+                    '',
+                    '<div class="alert alert-light">' .
+                        get_string('selflearningcoursecoursestarttimealert', 'mod_booking', $selflearningcourselabel) .
+                    '</div>'
+                );
+                $mform->hideIf('selflearningcoursecoursestarttimealert', 'selflearningcourse', 'neq', 1);
+            }
 
-        $mform->addElement(
-            'date_time_selector',
-            'coursestarttime',
-            get_string('selflearningcoursecoursestarttime', 'mod_booking'),
-            time_handler::set_timeintervall(),
-        );
-        $mform->setType('coursestarttime', PARAM_INT);
-        $mform->setDefault("coursestarttime", time_handler::prettytime(time(), false));
-        $mform->addHelpButton(
-            'coursestarttime',
-            'selflearningcoursecoursestarttime',
-            'mod_booking',
-            '',
-            false,
-            $selflearningcourselabel
-        );
-        $mform->hideIf('coursestarttime', 'selflearningcourse', 'neq', 1);
+            $mform->addElement(
+                'date_time_selector',
+                'coursestarttime',
+                get_string('selflearningcoursecoursestarttime', 'mod_booking'),
+                time_handler::set_timeintervall(),
+            );
+            $mform->setType('coursestarttime', PARAM_INT);
+            $mform->setDefault("coursestarttime", time_handler::prettytime(time(), false));
+            $mform->addHelpButton(
+                'coursestarttime',
+                'selflearningcoursecoursestarttime',
+                'mod_booking',
+                '',
+                false,
+                $selflearningcourselabel
+            );
+            $mform->hideIf('coursestarttime', 'selflearningcourse', 'neq', 1);
+        }
     }
 }

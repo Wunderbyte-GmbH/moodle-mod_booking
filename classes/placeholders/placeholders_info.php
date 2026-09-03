@@ -49,7 +49,7 @@ class placeholders_info {
     public static array $placeholders = [];
 
     /**
-     * @var array $localizedplaceholders
+     * @var array $localizedplaceholders classname (= placeholder tag) => localized description
      */
     public static array $localizedplaceholders = [];
 
@@ -65,6 +65,7 @@ class placeholders_info {
      * @param float $price
      * @param int $descriptionparam
      * @param ?string $rulejson
+     * @param bool $pollurl // Render only pollurl params.
      * @return string
      */
     public static function render_text(
@@ -76,13 +77,21 @@ class placeholders_info {
         int $duedate = 0,
         float $price = 0,
         int $descriptionparam = MOD_BOOKING_DESCRIPTION_WEBSITE,
-        ?string $rulejson = null
+        ?string $rulejson = null,
+        $pollurl = false
     ) {
 
         global $USER;
 
+        if (str_contains($text, '%7B')) {
+            // In case the '{}' characters have been URL encoded, we need to decode them again.
+            $encodedbrackets  = ['%7B', '%7D'];
+            $decodedbrackets = ['{', '}'];
+            $text = str_replace($encodedbrackets, $decodedbrackets, $text);
+        }
+
         // First, identify all the placeholders.
-        preg_match_all('/{(.*?)}/', $text, $matches);
+        preg_match_all('/{(?!mlang\b)(?!mlang\s)(.*?)}/', $text, $matches);
         $placeholders = $matches[1];
 
         if (empty($userid)) {
@@ -97,7 +106,7 @@ class placeholders_info {
 
         $namespaces[] = 'mod_booking\placeholders\placeholders\\';
         foreach (core_plugin_manager::instance()->get_plugins_of_type('bookingextension') as $plugin) {
-                $namespaces[] = "bookingextension_{$plugin->name}\\placeholders\\";
+            $namespaces[] = "bookingextension_{$plugin->name}\\placeholders\\";
         }
 
         foreach ($placeholders as $placeholder) {
@@ -121,6 +130,13 @@ class placeholders_info {
                 }
             }
             if (class_exists($class)) {
+                if (
+                    $pollurl
+                    && !$class::for_pollurl()
+                ) {
+                    continue;
+                }
+
                 $value = $class::return_value(
                     $cmid,
                     $optionid,
@@ -147,7 +163,7 @@ class placeholders_info {
                 }
 
                 $searchstring = '{' . $placeholder . '}';
-                $text = str_replace($searchstring, $value, $text);
+                $text = str_replace($searchstring, $value ?? '', $text);
             } else if (!empty($optionid)) {
                 // The customfields class takes care of booking custom fields...
                 // ... and custom user profile fields.
@@ -158,7 +174,8 @@ class placeholders_info {
                     $text,
                     $placeholders,
                     $placeholder,
-                    $fieldexists
+                    $fieldexists,
+                    $rulejson ?? ''
                 );
             }
 
@@ -218,19 +235,21 @@ class placeholders_info {
     /**
      * This builds an returns a list of localized placeholders.
      * They are stored statically and thus available throughout the ttl.
-     * @return string
+     * @param bool $pollurl
      * @throws coding_exception
+     * @return string
+     *
      */
-    public static function return_list_of_placeholders(): string {
+    public static function return_list_of_placeholders($pollurl = false): string {
 
         // If it's already build, we can skip this.
         if (empty(self::$localizedplaceholders)) {
-            self::create_list_of_localized_placeholders();
+            self::create_list_of_localized_placeholders($pollurl);
         }
 
         $placeholders = [];
-        foreach (self::$localizedplaceholders as $key => $value) {
-            $placeholders[] = "<li data-id='$value'>{" . $value . "} " . $key . "</li>";
+        foreach (self::$localizedplaceholders as $classname => $localized) {
+            $placeholders[] = "<li data-id='$classname'>{" . $classname . "} " . $localized . "</li>";
         }
 
         $returnstring = implode('<br>', $placeholders);
@@ -241,11 +260,37 @@ class placeholders_info {
     }
 
     /**
+     * Drop all cached placeholder values of one booking option.
+     *
+     * The cachekeys are "$classname-$optionid", "$classname-$optionid-$userid" or
+     * "$classname-$optionid-$placeholder", so every entry whose second segment is the
+     * option id is removed. Called from singleton_service::destroy_booking_option_singleton(),
+     * so placeholders like {dates} are rendered anew after the option (e.g. its dates) changed
+     * within the same PHP process - cron runs many adhoc tasks in one process, phpunit too.
+     *
+     * @param int $optionid
+     * @return void
+     */
+    public static function purge_for_option(int $optionid): void {
+        if ($optionid <= 0) {
+            return;
+        }
+        foreach (array_keys(self::$placeholders) as $cachekey) {
+            $segments = explode('-', (string) $cachekey);
+            if (isset($segments[1]) && $segments[1] === (string) $optionid) {
+                unset(self::$placeholders[$cachekey]);
+            }
+        }
+    }
+
+    /**
      * Create list of localized placeholders.
+     * @param bool $pollurl
      * @return array|void
      * @throws coding_exception
+     *
      */
-    private static function create_list_of_localized_placeholders() {
+    private static function create_list_of_localized_placeholders($pollurl = false) {
 
         // If it's already build, we can skip this.
         if (!empty(self::$localizedplaceholders)) {
@@ -272,14 +317,23 @@ class placeholders_info {
             if (!$key::is_applicable()) {
                 continue;
             }
+
+            if (
+                $pollurl
+                && !$key::for_pollurl()
+            ) {
+                continue;
+            }
             $component = core_component::get_component_from_classname($key);
             $class = substr(strrchr($key, '\\'), 1);
             if (isset($specialtreatmentclasses[$class])) {
-                self::$localizedplaceholders[$specialtreatmentclasses[$class]] = $class;
+                self::$localizedplaceholders[$class] = $specialtreatmentclasses[$class];
                 continue;
             }
-            // We use the localized strings as keys and the classnames as values.
-            self::$localizedplaceholders[get_string($class, $component)] = $class;
+            // We use the classnames as keys and the localized strings as values.
+            // The classname is the actual placeholder tag, so it is guaranteed to be
+            // unique - identical translations of two placeholders must not collide.
+            self::$localizedplaceholders[$class] = get_string($class, $component);
         }
         return self::$localizedplaceholders;
     }

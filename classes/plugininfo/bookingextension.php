@@ -25,6 +25,7 @@
 namespace mod_booking\plugininfo;
 
 use core\plugininfo\base;
+use stdClass;
 
 /**
  * Models subplugin define classes.
@@ -84,5 +85,16 @@ class bookingextension extends base {
      */
     public static function get_allowedruleeventkeys(): array {
         return [];
+    }
+
+    /**
+     * Return extension-specific history description.
+     *
+     * @param stdClass $values booking history row values
+     * @param array $info decoded json payload
+     * @return string
+     */
+    public static function get_booking_history_description(stdClass $values, array $info): string {
+        return '';
     }
 }

@@ -26,7 +26,7 @@
 
 namespace mod_booking;
 
-use advanced_testcase;
+use mod_booking\tests\booking_advanced_testcase;
 use coding_exception;
 use mod_booking\option\dates_handler;
 use mod_booking\price;
@@ -43,26 +43,15 @@ use tool_mocktesttime\time_mock;
  * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-final class booking_importer_test extends advanced_testcase {
+final class booking_importer_test extends booking_advanced_testcase {
     /**
      * Tests set up.
      */
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest();
-        time_mock::init();
         time_mock::set_mock_time(strtotime('now'));
         singleton_service::destroy_instance();
-    }
-
-    /**
-     * Mandatory clean-up after each test.
-     */
-    public function tearDown(): void {
-        parent::tearDown();
-        /** @var mod_booking_generator $plugingenerator */
-        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
-        $plugingenerator->teardown();
     }
 
     /**
@@ -77,6 +66,10 @@ final class booking_importer_test extends advanced_testcase {
         $this->resetAfterTest();
         // It is important to set timezone to have all dates correct!
         $this->setTimezone('Europe/London');
+        // We also set the timezone in the config, as we have logic in booking/lib
+        // that reads the timezone via get_config() to determine whether
+        // the user's timezone differs from the system timezone.
+        set_config('timezone', 'Europe/London');
 
         // Setup course.
         $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
@@ -321,6 +314,77 @@ final class booking_importer_test extends advanced_testcase {
         $priceoption = array_shift($optionprices);
         $this->assertEquals($pricecat2->identifier, $priceoption->pricecategoryidentifier);
         $this->assertEquals('89.00', $priceoption->price);
+    }
+
+    /**
+     * An indexed date column pair without optiondateid_<n> must still persist the date.
+     *
+     * The CSV import guide documents coursestarttime_<n>/courseendtime_<n> columns for
+     * multi-session imports. dates::get_list_of_submitted_dates() however only parses an
+     * indexed date row when the matching optiondateid_<n> key is present, so an import row
+     * carrying only the date pair currently loses the date SILENTLY: the option is created
+     * without any session and without an error. This test pins the desired behavior — the
+     * import must either persist the date or reject the row loudly — and fails until the
+     * import path injects the missing marker.
+     *
+     * @covers \mod_booking\importer\bookingoptionsimporter::execute_bookingoptions_csv_import
+     */
+    public function test_csv_import_indexed_date_without_optiondateid_persists_date(): void {
+        global $DB;
+        $this->resetAfterTest();
+
+        $course = $this->getDataGenerator()->create_course();
+        $booking = $this->getDataGenerator()->create_module('booking', [
+            'course' => $course->id,
+            'name' => 'Indexed date import',
+            'eventtype' => 'Test event',
+            'bookedtext' => ['text' => 'text'],
+            'waitingtext' => ['text' => 'text'],
+            'notifyemail' => ['text' => 'text'],
+            'statuschangetext' => ['text' => 'text'],
+            'deletedtext' => ['text' => 'text'],
+            'pollurltext' => ['text' => 'text'],
+            'pollurlteacherstext' => ['text' => 'text'],
+            'notificationtext' => ['text' => 'text'],
+            'userleave' => ['text' => 'text'],
+        ]);
+        $cm = get_coursemodule_from_instance('booking', $booking->id);
+        $this->setAdminUser();
+
+        $formdata = new stdClass();
+        $formdata->delimiter_name = 'comma';
+        $formdata->enclosure = '"';
+        $formdata->encoding = 'utf-8';
+        $formdata->updateexisting = true;
+        $formdata->dateparseformat = 'j.n.Y H:i:s';
+        $formdata->cmid = $cm->id;
+
+        // Timestamps are documented as always passed through unchanged for indexed cells.
+        $start = strtotime('now + 10 days 09:00');
+        $end = strtotime('now + 10 days 11:00');
+        $csv = "text,identifier,maxanswers,coursestarttime_1,courseendtime_1\n"
+            . "\"Indexed date option\",idxnodate1,10,{$start},{$end}\n";
+
+        $importer = new bookingoptionsimporter();
+        $result = $importer->execute_bookingoptions_csv_import($formdata, $csv);
+
+        $this->assertIsArray($result);
+        $this->assertEmpty($result['errors']);
+        $this->assertEquals(1, $result['success']);
+
+        $option = $DB->get_record('booking_options', ['identifier' => 'idxnodate1'], '*', MUST_EXIST);
+
+        // The documented indexed date pair must not vanish silently.
+        $this->assertTrue(
+            booking_utils::booking_option_has_optiondates((int) $option->id),
+            'The imported indexed date row (coursestarttime_1 without optiondateid_1) must persist an option date.'
+        );
+        $settings = singleton_service::get_instance_of_booking_option_settings((int) $option->id);
+        $this->assertEquals(
+            $start,
+            (int) $settings->coursestarttime,
+            'The imported coursestarttime_1 must be persisted as the option coursestarttime.'
+        );
     }
 
     /**

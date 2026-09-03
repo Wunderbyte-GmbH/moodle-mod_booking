@@ -28,7 +28,7 @@
  * within booking options and move them into the new DB field 'identifier'.
  * @return void
  */
-function migrate_booking_option_identifiers_2022090802() {
+function booking_migrate_option_identifiers_2022090802() {
     global $DB;
     if ($separator = get_config('booking', 'uniqueoptionnameseparator')) {
         if ($recordstomigrate = $DB->get_records('booking_options')) {
@@ -53,7 +53,7 @@ function migrate_booking_option_identifiers_2022090802() {
  * so we need to set the area to "option" for each migrated row.
  * @return void
  */
-function migrate_optionids_for_prices_2022112901() {
+function booking_migrate_optionids_for_prices_2022112901() {
     global $DB;
     if ($recordstomigrate = $DB->get_records('booking_prices')) {
         foreach ($recordstomigrate as $record) {
@@ -68,7 +68,7 @@ function migrate_optionids_for_prices_2022112901() {
  * for the list of booking options. So after the new view gets introduced,
  * we need to set all fields so nothing disappears.
  */
-function migrate_optionsfields_2023022800() {
+function booking_migrate_optionsfields_2023022800() {
     global $DB;
     if ($recordstomigrate = $DB->get_records('booking')) {
         foreach ($recordstomigrate as $record) {
@@ -82,7 +82,7 @@ function migrate_optionsfields_2023022800() {
 /**
  * Fix descriptionformat for all booking options.
  */
-function fix_bookingoption_descriptionformat_2024022700() {
+function booking_fix_bookingoption_descriptionformat_2024022700() {
     global $DB;
     $DB->execute(
         "UPDATE {booking_options}
@@ -94,7 +94,7 @@ function fix_bookingoption_descriptionformat_2024022700() {
 /**
  * Fix showlistoncoursepage for all booking instances.
  */
-function fix_showlistoncoursepage_2024030801() {
+function booking_fix_showlistoncoursepage_2024030801() {
     global $DB;
     $DB->execute(
         "UPDATE {booking}
@@ -107,7 +107,7 @@ function fix_showlistoncoursepage_2024030801() {
  * Migrate former bookingids to contextids.
  * @return void
  */
-function migrate_contextids_2024040901() {
+function booking_migrate_contextids_2024040901() {
     global $DB;
 
     $DB->execute(
@@ -122,7 +122,7 @@ function migrate_contextids_2024040901() {
  * @return [type]
  *
  */
-function fix_booking_templateid() {
+function booking_fix_templateid() {
 
     global $DB;
 
@@ -143,7 +143,7 @@ function fix_booking_templateid() {
  * @return void
  *
  */
-function fix_places_for_booking_answers() {
+function booking_fix_places_for_booking_answers() {
 
     global $DB;
 
@@ -161,7 +161,7 @@ function fix_places_for_booking_answers() {
  *
  * @return void
  */
-function remove_completiongradeitemnumber_2025010803() {
+function booking_remove_completiongradeitemnumber_2025010803() {
     global $DB;
 
     $bookingmoduleid = $DB->get_field('modules', 'id', ['name' => 'booking']);
@@ -216,10 +216,103 @@ function booking_upgrade_change_id_425_to_391() {
                 $updated = true;
             }
         }
+        unset($element); // Important: Break the reference after the loop!
 
         if ($updated) {
             $record->json = json_encode($jsondata, JSON_UNESCAPED_SLASHES);
             $DB->update_record('booking_form_config', $record);
         }
+    }
+}
+
+/**
+ * Migrate old selflearningcourse json flag to new booking option type.
+ */
+function booking_migrate_selflearningcourse_json_to_type_2025122201(): void {
+    global $DB;
+    // Fetch all booking options.
+    $records = $DB->get_records('booking_options', [], '', 'id, json, type');
+    if (empty($records)) {
+        return;
+    }
+    foreach ($records as $record) {
+        $type = 0; // Default type.
+        if (!empty($record->json)) {
+            $jsonobject = json_decode($record->json);
+            if (json_last_error() === JSON_ERROR_NONE) {
+                if (
+                    isset($jsonobject->selflearningcourse)
+                    && $jsonobject->selflearningcourse == 1
+                ) {
+                    $type = 1; // Self-learning course type.
+                }
+            }
+        }
+        if ($record->type === null) {
+            // Only update if type is not already set.
+            $DB->set_field(
+                'booking_options',
+                'type',
+                $type,
+                ['id' => $record->id]
+            );
+        }
+    }
+}
+
+/**
+ * Delete custom fields in tool_certificate component.
+ *
+ * @return void
+ */
+function booking_delete_customfields_in_tool_certificate_2026030500(): void {
+    global $DB;
+
+    // Get the categories for this component.
+    $categories = $DB->get_records('customfield_category', ['component' => 'tool_certificate']);
+
+    foreach ($categories as $category) {
+        $categorycontroller = \core_customfield\category_controller::create($category->id);
+        try {
+            $handler = \core_customfield\handler::get_handler(
+                $category->component,
+                $category->area,
+                $category->itemid
+            );
+            $handler->delete_category($categorycontroller);
+        } catch (moodle_exception $e) {
+            // Might happen when plugin tool_certificate is not installed.
+            // In this case, we can just ignore the error and continue.
+            return;
+        }
+    }
+}
+
+/**
+ * Delete all duplicated custom fields of a booking option (same optionid and cfgname),
+ * keeping only the oldest row (lowest id) of every group.
+ *
+ * This runs as one set-based pass with bulk deletes, so it stays fast on big tables.
+ * The previous implementation re-scanned the whole table once per deleted duplicate,
+ * which could time out during upgrades on production sites.
+ *
+ * @return void
+ */
+function booking_delete_duplicate_customfields_2017112101(): void {
+    global $DB;
+
+    $sql = "SELECT bcf.id
+              FROM {booking_customfields} bcf
+              JOIN (SELECT optionid, cfgname, MIN(id) AS keepid
+                      FROM {booking_customfields}
+                  GROUP BY optionid, cfgname
+                    HAVING COUNT(*) > 1) dup
+                ON dup.optionid = bcf.optionid AND dup.cfgname = bcf.cfgname
+             WHERE bcf.id <> dup.keepid";
+    $duplicateids = $DB->get_fieldset_sql($sql);
+
+    foreach (array_chunk($duplicateids, 1000) as $chunk) {
+        [$insql, $inparams] = $DB->get_in_or_equal($chunk);
+        $DB->delete_records_select('booking_customfields', "id $insql", $inparams);
     }
 }

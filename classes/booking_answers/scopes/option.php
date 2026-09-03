@@ -25,10 +25,14 @@
 
 namespace mod_booking\booking_answers\scopes;
 
+use context_system;
 use local_wunderbyte_table\wunderbyte_table;
 use mod_booking\booking_answers\scope_base;
+use mod_booking\form\option\modal_change_customform;
+use mod_booking\local\bookingstracker\columns_helper;
 use mod_booking\output\booked_users;
 use mod_booking\singleton_service;
+use mod_booking\utils\wb_payment;
 use context_module;
 use mod_booking\table\manageusers_table;
 use moodle_url;
@@ -42,6 +46,12 @@ use moodle_url;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class option extends scope_base {
+    /**
+     * Scope name.
+     * @var string
+     */
+    public $scope = 'option';
+
     /**
      * Render users table based on status param
      *
@@ -113,6 +123,9 @@ class option extends scope_base {
                     'status' => get_string('presence', 'mod_booking'),
                     'presencecount' => get_string('presencecount', 'mod_booking'),
                 ];
+                $sortablecolumns['timecreated'] = get_string('timecreated', 'mod_booking');
+                // Keep participant lists alphabetical; timecreated remains available
+                // as an explicit sort when it is selected in responsesfields.
                 $table->sort_default_column = 'lastname';
                 $table->sort_default_order = SORT_ASC;
                 break;
@@ -130,6 +143,7 @@ class option extends scope_base {
                         'lastname' => get_string('lastname'),
                         'email' => get_string('email'),
                     ];
+                    // Preserve the legacy alphabetical order when manual waiting-list ranking is disabled.
                     $table->sort_default_column = 'lastname';
                     $table->sort_default_order = SORT_ASC;
                 }
@@ -139,7 +153,7 @@ class option extends scope_base {
                     'firstname' => get_string('firstname'),
                     'lastname' => get_string('lastname'),
                     'email' => get_string('email'),
-                    'timebooked' => get_string('timebooked', 'mod_booking'),
+                    'timebooked' => get_string('bookingdate', 'mod_booking'),
                 ];
                 $table->sort_default_column = 'timebooked';
                 $table->sort_default_order = SORT_DESC;
@@ -158,44 +172,192 @@ class option extends scope_base {
 
         $table->define_sortablecolumns($sortablecolumns);
 
+        $responsesfields = [];
         if (
             $statusparam == MOD_BOOKING_STATUSPARAM_BOOKED
             && !empty($cmid)
             && !empty($optionid)
         ) {
+            $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
+            $responsesfields = columns_helper::responsesfields($cmid);
+            if (empty($responsesfields)) {
+                // Without configured fields the tables fall back to their default columns
+                // (incl. status & notes), so the matching action buttons stay available.
+                $responsesfields = ['status', 'notes'];
+            }
+
+            // Managebookedusers is the general edit gate of the tracker: users
+            // without it (e.g. non-editing teachers) can read the report but
+            // must not change any booking data, even if their role carries the
+            // action-specific capability by default.
+            $canmanagebookedusers = has_capability('mod/booking:managebookedusers', context_module::instance($cmid));
+
+            // Like on report.php, the "Toggle completion status" button is only shown
+            // if the completed column is configured in the responsesfields setting.
+            if (in_array('completed', $responsesfields) && $canmanagebookedusers) {
+                $table->actionbuttons[] = booked_users::create_completion_button(
+                    $bookingsettings->btncacname ?? ''
+                );
+            }
+
+            if (in_array('status', $responsesfields) && $canmanagebookedusers) {
+                $table->actionbuttons[] = booked_users::create_action_button(
+                    'presence',
+                    'fa fa-user-o fa-fw',
+                    'mod_booking\\form\\optiondates\\modal_change_status',
+                    [
+                        'scope' => 'option',
+                        'titlestring' => 'changepresencestatus',
+                        'submitbuttonstring' => 'save',
+                        'component' => 'mod_booking',
+                        'cmid' => $cmid,
+                        'optionid' => $optionid ?? 0,
+                    ],
+                    'btn btn-primary btn-sm me-2'
+                );
+            }
+
+            if (in_array('notes', $responsesfields) && $canmanagebookedusers) {
+                $table->actionbuttons[] = booked_users::create_action_button(
+                    'notes',
+                    'fa fa-pencil fa-fw',
+                    'mod_booking\\form\\optiondates\\modal_change_notes',
+                    [
+                        'scope' => 'option',
+                        'titlestring' => 'notes',
+                        'submitbuttonstring' => 'save',
+                        'component' => 'mod_booking',
+                        'cmid' => $cmid,
+                        'optionid' => $optionid ?? 0,
+                    ],
+                    'btn btn-primary btn-sm me-2'
+                );
+            }
+
+            if (has_capability('mod/booking:communicate', context_module::instance($cmid))) {
+                $table->actionbuttons[] = booked_users::create_action_button(
+                    'sendcustommsg',
+                    'fa fa-envelope fa-fw',
+                    'mod_booking\\form\\modal_send_custom_message',
+                    [
+                        'titlestring' => 'sendcustommsg',
+                        'submitbuttonstring' => 'sendmessage',
+                        'component' => 'mod_booking',
+                        'cmid' => $cmid,
+                        'optionid' => $optionid ?? 0,
+                    ],
+                    'btn btn-primary btn-sm me-2'
+                );
+            }
+
+            if (has_capability('mod/booking:subscribeusers', context_module::instance($cmid))) {
+                $table->actionbuttons[] = booked_users::create_action_button(
+                    'transferusers',
+                    'fa fa-exchange fa-fw',
+                    'mod_booking\\form\\modal_transfer_users',
+                    [
+                        'titlestring' => 'transferusers',
+                        'submitbuttonstring' => 'transfer',
+                        'component' => 'mod_booking',
+                        'cmid' => $cmid,
+                        'optionid' => $optionid ?? 0,
+                    ],
+                    'btn btn-primary btn-sm me-2'
+                );
+            }
+
+            // Rate users (migrated from report.php): only if the rating column is
+            // configured, ratings are enabled on the instance (assessed) and the
+            // user may actually rate. Visibility checks the plugin permission
+            // mod/booking:rate (which booking_rate enforces on submit) instead of
+            // moodle/rating:rate, which almost every role has by default.
+            if (
+                in_array('rating', $responsesfields)
+                && !empty($bookingsettings->assessed)
+                && (
+                    booking_check_if_teacher($optionid)
+                    || has_capability('mod/booking:rate', context_module::instance($cmid))
+                )
+            ) {
+                $table->actionbuttons[] = booked_users::create_action_button(
+                    'bookingstrackersetrating',
+                    'fa fa-star-half-o fa-fw',
+                    'mod_booking\\form\\modal_set_rating',
+                    [
+                        'titlestring' => 'bookingstrackersetrating',
+                        'submitbuttonstring' => 'save',
+                        'component' => 'mod_booking',
+                        'cmid' => $cmid,
+                        'optionid' => $optionid ?? 0,
+                    ],
+                    'btn btn-primary btn-sm me-2'
+                );
+            }
+
+            // Enrol users in the course (migrated from report.php): only useful
+            // when the instance does not auto-enrol anyway and the option has a
+            // connected course. Gated by subscribeusers - the plugin capability
+            // for putting other users into bookings/courses (the old report.php
+            // button was gated by communicate, which is a messaging capability
+            // and had nothing to do with enrolment).
+            $optionsettings = singleton_service::get_instance_of_booking_option_settings($optionid);
+            if (
+                empty($bookingsettings->autoenrol)
+                && (int)($optionsettings->courseid ?? 0) > 0
+                && has_capability('mod/booking:subscribeusers', context_module::instance($cmid))
+            ) {
+                $table->actionbuttons[] = booked_users::create_enrol_button();
+            }
+        }
+
+        // Edit the customform values of a single booking answer (PRO feature):
+        // the formfield_* columns exist on the booked and waiting list tables.
+        // Gated by its own capability (default: manager only); the modal
+        // enforces capability and PRO gate on the server side again.
+        if (
+            in_array($statusparam, [MOD_BOOKING_STATUSPARAM_BOOKED, MOD_BOOKING_STATUSPARAM_WAITINGLIST])
+            && !empty($cmid)
+            && !empty($optionid)
+            && wb_payment::pro_version_is_activated()
+            && has_capability('mod/booking:changecustomformofotherusers', context_module::instance($cmid))
+            && !empty(modal_change_customform::editable_formelements($settings))
+        ) {
             $table->actionbuttons[] = booked_users::create_action_button(
-                'presence',
-                'fa fa-user-o',
-                'mod_booking\\form\\optiondates\\modal_change_status',
+                'editcustomformvalues',
+                'fa fa-pencil-square-o fa-fw',
+                'mod_booking\\form\\option\\modal_change_customform',
                 [
                     'scope' => 'option',
-                    'titlestring' => 'changepresencestatus',
+                    'titlestring' => 'editcustomformvalues',
                     'submitbuttonstring' => 'save',
                     'component' => 'mod_booking',
                     'cmid' => $cmid,
                     'optionid' => $optionid ?? 0,
                 ],
-                'btn btn-primary btn-sm ml-2'
+                'btn btn-primary btn-sm me-2'
             );
+        }
 
-            $table->actionbuttons[] = booked_users::create_action_button(
-                'notes',
-                'fa fa-pencil',
-                'mod_booking\\form\\optiondates\\modal_change_notes',
-                [
-                    'scope' => 'option',
-                    'titlestring' => 'notes',
-                    'submitbuttonstring' => 'save',
-                    'component' => 'mod_booking',
-                    'cmid' => $cmid,
-                    'optionid' => $optionid ?? 0,
-                ]
-            );
+        if (
+            $statusparam == MOD_BOOKING_STATUSPARAM_BOOKED
+            && !empty($certificatebutton = booked_users::create_certificate_button())
+            && (
+                in_array('certificate', $responsesfields)
+                || in_array('allusercertificates', $responsesfields)
+            )
+        ) {
+            $table->actionbuttons[] = $certificatebutton;
         }
 
         if ($statusparam != MOD_BOOKING_STATUSPARAM_DELETED) {
             $table->addcheckboxes = true;
-            $table->actionbuttons[] = booked_users::create_delete_button();
+
+            // Only show delete button if user has capability to delete responses.
+            if (
+                $this->has_capability_in_scope($scopeid, 'mod/booking:deleteresponses')
+            ) {
+                $table->actionbuttons[] = booked_users::create_delete_button();
+            }
         }
 
         return $table;
@@ -205,28 +367,48 @@ class option extends scope_base {
      * This functions defines the columns for each scope.
      *
      * @param int $statusparam
+     * @param int $scopeid
      *
      * @return array
      *
      */
-    public function return_cols_for_tables(int $statusparam): array {
+    public function return_cols_for_tables(int $statusparam, int $scopeid = 0): array {
 
-        $columns = [
-            'firstname' => get_string('firstname', 'core'),
-            'lastname'  => get_string('lastname', 'core'),
-            'email'     => get_string('email', 'core'),
-        ];
+        // Columns configured in the instance setting "Manage Responses Page & Bookings Tracker" (responsesfields).
+        $columns = columns_helper::display_columns($this->get_cmid_for_scopeid($scopeid), $scopeid);
+        $configured = !empty($columns);
+        if (!$configured) {
+            $columns = [
+                'firstname' => get_string('firstname', 'core'),
+                'lastname'  => get_string('lastname', 'core'),
+                'email'     => get_string('email', 'core'),
+            ];
+        }
 
+        // Columns for the fields of the customform availability condition, like on report.php.
+        $columns = array_merge($columns, columns_helper::customform_columns($scopeid, true));
+
+        // Slot columns for slotbooking options, like on report.php.
+        $columns = array_merge($columns, columns_helper::slot_columns($scopeid));
+
+        // Status-specific columns: the confirm/delete action columns stay automatic,
+        // but status (presence) and notes strictly follow the responsesfields setting -
+        // only the unconfigured fallback shows them by default.
         switch ($statusparam) {
             case MOD_BOOKING_STATUSPARAM_BOOKED:
-                if (get_config('booking', 'bookingstrackerpresencecounter')) {
+                if (
+                    get_config('booking', 'bookingstrackerpresencecounter')
+                    && !isset($columns['presencecount'])
+                ) {
                     $columns['presencecount'] = get_string('presencecount', 'mod_booking');
                 }
-                $columns['status'] = get_string('presence', 'mod_booking');
-                $columns['notes'] = get_string('notes', 'mod_booking');
+                if (!$configured) {
+                    $columns['status'] = get_string('presence', 'mod_booking');
+                    $columns['notes'] = get_string('notes', 'mod_booking');
+                }
                 break;
             case MOD_BOOKING_STATUSPARAM_WAITINGLIST:
-                $columns['action_confirm_delete'] = get_string('bookingstrackerdelete', 'mod_booking');
+                $columns['action_confirm_delete'] = get_string('actionsonbookinganswer', 'mod_booking');
                 if (get_config('booking', 'waitinglistshowplaceonwaitinglist')) {
                     // Use array_merge to add the user rank at the first place.
                     $columns = array_merge(
@@ -242,14 +424,135 @@ class option extends scope_base {
             case MOD_BOOKING_STATUSPARAM_NOTBOOKED:
                 break;
             case MOD_BOOKING_STATUSPARAM_BOOKED_DELETED:
-                $columns['timemodified'] = get_string('timemodified', 'mod_booking');
+                if (!isset($columns['timemodified'])) {
+                    $columns['timemodified'] = get_string('timemodified', 'mod_booking');
+                }
                 break;
             case MOD_BOOKING_STATUSPARAM_PREVIOUSLYBOOKED:
-                $columns['timebooked'] = get_string('timebooked', 'mod_booking');
+                if (!isset($columns['timebooked'])) {
+                    $columns['timebooked'] = get_string('bookingdate', 'mod_booking');
+                }
                 break;
         }
 
+        // If the option supports enrolling multiple users (customform enrolusersaction field),
+        // we always show the enrollink columns.
+        if (
+            !empty($scopeid)
+            && in_array($statusparam, [MOD_BOOKING_STATUSPARAM_BOOKED, MOD_BOOKING_STATUSPARAM_WAITINGLIST])
+            && columns_helper::has_enrolusersaction($scopeid)
+        ) {
+            $columns = self::add_enrollink_columns($columns);
+        }
+
+        // Fixed order of the first columns, all others follow in their existing order.
+        // The confirm/delete action column (waiting list) is always rendered at the very first place,
+        // followed by the user rank.
+        $orderedcolumns = [];
+        $fixedorder = [
+            'userrank',
+            'action_confirm_delete',
+            'userpic',
+            'firstname',
+            'lastname',
+            'email',
+            'completed',
+            'status',
+            'notes',
+            'places',
+        ];
+        foreach ($fixedorder as $key) {
+            if (isset($columns[$key])) {
+                $orderedcolumns[$key] = $columns[$key];
+                unset($columns[$key]);
+            }
+        }
+        $columns = array_merge($orderedcolumns, $columns);
+
         return $columns;
+    }
+
+    /**
+     * Adds the enrollink columns. If an enrollink column already exists (customform mapping),
+     * "received from" is inserted right after it, otherwise both are appended.
+     *
+     * @param array $columns
+     * @return array
+     */
+    private static function add_enrollink_columns(array $columns): array {
+        if (!isset($columns['enrollink'])) {
+            $columns['enrollink'] = get_string('enrollink', 'mod_booking');
+            $columns['enrollinkreceivedfrom'] = get_string('enrollinkreceivedfrom', 'mod_booking');
+            return $columns;
+        }
+        $newcolumns = [];
+        foreach ($columns as $key => $value) {
+            $newcolumns[$key] = $value;
+            if ($key === 'enrollink') {
+                $newcolumns['enrollinkreceivedfrom'] = get_string('enrollinkreceivedfrom', 'mod_booking');
+            }
+        }
+        return $newcolumns;
+    }
+
+    /**
+     * This functions defines the columns for the table download.
+     *
+     * @param int $statusparam
+     * @param int $scopeid
+     *
+     * @return array
+     *
+     */
+    public function return_cols_for_download(int $statusparam, int $scopeid = 0): array {
+
+        // Columns configured in the instance setting "Manage responses - Download" (reportfields).
+        $columns = columns_helper::download_columns($this->get_cmid_for_scopeid($scopeid), $scopeid);
+        if (empty($columns)) {
+            return $this->return_cols_for_tables($statusparam, $scopeid);
+        }
+
+        // Columns for the fields of the customform availability condition, like on report.php.
+        $columns = array_merge($columns, columns_helper::customform_columns($scopeid));
+
+        // Slot columns for slotbooking options, like on report.php.
+        $columns = array_merge($columns, columns_helper::slot_columns($scopeid));
+
+        if (
+            $statusparam == MOD_BOOKING_STATUSPARAM_WAITINGLIST
+            && get_config('booking', 'waitinglistshowplaceonwaitinglist')
+            && !isset($columns['userrank'])
+        ) {
+            $columns = array_merge(
+                ['userrank' => get_string('userrank', 'mod_booking')],
+                $columns
+            );
+        }
+
+        // If the option supports enrolling multiple users (customform enrolusersaction field),
+        // we always add the enrollink columns (as in the display table).
+        if (
+            !empty($scopeid)
+            && in_array($statusparam, [MOD_BOOKING_STATUSPARAM_BOOKED, MOD_BOOKING_STATUSPARAM_WAITINGLIST])
+            && columns_helper::has_enrolusersaction($scopeid)
+        ) {
+            $columns = self::add_enrollink_columns($columns);
+        }
+
+        return $columns;
+    }
+
+    /**
+     * Resolves the cmid of the booking instance for the given scopeid (optionid).
+     *
+     * @param int $scopeid
+     * @return int
+     */
+    public function get_cmid_for_scopeid(int $scopeid): int {
+        if (empty($scopeid)) {
+            return 0;
+        }
+        return singleton_service::get_instance_of_booking_option_settings($scopeid)->cmid ?? 0;
     }
 
     /**
@@ -320,6 +623,19 @@ class option extends scope_base {
         $whereneedtoconfirm = '';
         $whereneedtoconfirmjoin = '';
 
+        // Subselects for the custom user profile fields configured in the instance settings.
+        [$profilefieldselect, $profilefieldparams] = columns_helper::profilefield_sql(
+            $this->get_cmid_for_scopeid($optionid)
+        );
+        $params = array_merge($params, $profilefieldparams);
+
+        // Additional selects/joins for configured columns (price/currency, rating).
+        [$extraselect, $extrajoin, $extraparams] = columns_helper::extra_fields_sql(
+            $this->get_cmid_for_scopeid($optionid),
+            $optionid
+        );
+        $params = array_merge($params, $extraparams);
+
         // We need to set a limit for the query in mysqlfamily.
         $fields = 's1.*';
         $from = "
@@ -333,6 +649,10 @@ class option extends scope_base {
                     u.firstname,
                     u.lastname,
                     u.email,
+                    u.institution,
+                    u.city,
+                    u.department,
+                    u.idnumber,
                     ba.waitinglist,
                     ba.status,
                     ba.notes,
@@ -340,18 +660,35 @@ class option extends scope_base {
                     ba.timemodified,
                     ba.timecreated,
                     ba.timebooked,
+                    ba.completed,
+                    ba.completeddate,
+                    ba.places,
+                    ba.startdate,
+                    ba.enddate,
                     ba.optionid,
                     ba.json,
+                    bo.text,
+                    bo.titleprefix,
+                    bo.location,
+                    bo.coursestarttime,
+                    bo.courseendtime,
                     '" . $scope . "' AS scope
+                    $profilefieldselect
+                    $extraselect
                 FROM {booking_answers} ba
                 JOIN {user} u ON ba.userid = u.id
+                JOIN {booking_options} bo ON bo.id = ba.optionid
                 $whereneedtoconfirmjoin
                 $presencecountsqlpart
+                $extrajoin
                 WHERE ba.waitinglist=:statusparam $whereoptionid1 $whereneedtoconfirm
                 LIMIT 1000000
             ) s2
             $orderby
         ) s1";
+
+        // A booking extension can limit the answers the current user may see (e.g. their team).
+        $where .= $this->get_answers_restriction_sql('userid', $scopeid, $params);
 
         return [$fields, $from, $where, $params];
     }
@@ -362,8 +699,12 @@ class option extends scope_base {
      * @param string $capability
      */
     public function has_capability_in_scope($scopeid, $capability) {
-        $cmid = singleton_service::get_instance_of_booking_option_settings($scopeid)->cmid;
-        return has_capability($capability, context_module::instance($cmid));
+        if (!empty($scopeid)) {
+            $cmid = singleton_service::get_instance_of_booking_option_settings($scopeid)->cmid;
+            return has_capability($capability, context_module::instance($cmid));
+        } else {
+            return has_capability($capability, context_system::instance());
+        }
     }
 
     /**
@@ -378,12 +719,13 @@ class option extends scope_base {
      *
      */
     public function show_download_button(wunderbyte_table &$table, string $scope, int $scopeid, int $statusparam) {
-        if ($this->has_capability_in_scope($scopeid, 'mod/booking:updatebooking')) {
+        if ($this->has_capability_in_scope($scopeid, 'mod/booking:downloadresponses')) {
             $baseurl = new moodle_url(
                 '/mod/booking/download_report2.php',
                 [
                     'scope' => self::return_classname(),
                     'statusparam' => $statusparam,
+                    'scopeid' => $scopeid,
                 ]
             );
             $table->define_baseurl($baseurl);

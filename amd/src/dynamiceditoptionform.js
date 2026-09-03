@@ -37,6 +37,143 @@ const SELECTORS = {
     PAGE: '[id="page"]'
 };
 
+/**
+ * DynamicForm subclass that preserves the user's view state across the full
+ * form re-render every no-submit action (add date, delete date, apply date,
+ * change template, ...) triggers: core disables the pressed button (focus falls
+ * back to body) and replaces the whole form DOM without restoring scroll or
+ * focus, so the viewport ends up at a wrong place and manually opened
+ * optiondate cards (plain Bootstrap collapses without server-side state)
+ * snap shut.
+ */
+class EditOptionDynamicForm extends DynamicForm {
+
+    /** @type {?object} View state captured right before a no-submit reload. */
+    viewsnapshot = null;
+
+    /**
+     * Capture the view state, then let core process the no-submit button.
+     *
+     * @param {Element} button the no-submit button that was pressed
+     */
+    processNoSubmitButton(button) {
+        this.viewsnapshot = {
+            scrolly: window.scrollY,
+            buttonname: button.getAttribute('name'),
+            opencollapseids: [...this.container.querySelectorAll('.collapse.show[id]')].map(el => el.id),
+        };
+        super.processNoSubmitButton(button);
+    }
+
+    /**
+     * Drop a pending snapshot when the reload failed, so a later unrelated
+     * reload does not restore stale state.
+     *
+     * @param {Object} exception
+     */
+    onSubmitError(exception) {
+        this.viewsnapshot = null;
+        super.onSubmitError(exception);
+    }
+
+    /**
+     * Update the form and restore the captured view state afterwards.
+     * Reloads without a snapshot (initial load, cancel, validation errors)
+     * behave exactly as in core.
+     *
+     * Note: core's Templates.replaceNodeContents works synchronously and
+     * returns the new DOM nodes, NOT a promise. Promise.resolve() keeps this
+     * working either way should core ever become asynchronous here.
+     *
+     * @param {Object} response server response containing html and js
+     * @returns {*} whatever core's updateForm returns
+     */
+    updateForm(response) {
+        const snapshot = this.viewsnapshot;
+        this.viewsnapshot = null;
+        const result = super.updateForm(response);
+        if (snapshot) {
+            Promise.resolve(result).then(() => {
+                this.restoreViewState(snapshot);
+                return null;
+            }).catch(() => null);
+        }
+        return result;
+    }
+
+    /**
+     * Re-open collapsibles that were open before the reload and bring the
+     * pressed button back into view. Only elements with stable ids (like the
+     * optiondate cards, booking_optiondate_collapse<idx>) can match again;
+     * mform section headers get random ids per render but their state is
+     * already restored server-side, so they simply never match here.
+     *
+     * @param {Object} snapshot view state captured in processNoSubmitButton
+     */
+    restoreViewState(snapshot) {
+        snapshot.opencollapseids.forEach(id => {
+            const collapse = document.getElementById(id);
+            if (collapse && !collapse.classList.contains('show')) {
+                collapse.classList.add('show');
+                const escaped = CSS.escape(id);
+                const toggles = document.querySelectorAll(
+                    `[data-target="#${escaped}"], [data-bs-target="#${escaped}"], [href="#${escaped}"]`
+                );
+                toggles.forEach(toggle => {
+                    toggle.classList.remove('collapsed');
+                    toggle.setAttribute('aria-expanded', 'true');
+                });
+            }
+        });
+
+        // Prefer anchoring on the pressed button (names are stable across
+        // renders, element ids are not because of data-random-ids). Fall back
+        // to the raw scroll position if the button is gone or has no box
+        // (e.g. the d-none trigger buttons behind select changes).
+        const button = snapshot.buttonname
+            ? this.container.querySelector(`[name="${CSS.escape(snapshot.buttonname)}"]`)
+            : null;
+        if (button && button.getClientRects().length > 0) {
+            button.scrollIntoView({block: 'center'});
+            button.focus({preventScroll: true});
+            this.keepAnchored(button);
+        } else {
+            window.scrollTo(0, snapshot.scrolly);
+        }
+    }
+
+    /**
+     * Keep the given element vertically centered while the freshly replaced
+     * form settles: late module inits (autocomplete enhancement swaps huge
+     * multi-selects for compact tag inputs, editors initialise, ...) shift
+     * content above the anchor by over a thousand pixels for seconds after the
+     * DOM replace. Total page height can stay roughly constant meanwhile
+     * (content below grows while content above shrinks), so we poll the
+     * element's own viewport position instead of observing page height.
+     * Stops as soon as the user interacts or after a few seconds.
+     *
+     * @param {Element} element the element to keep in view
+     */
+    keepAnchored(element) {
+        const interactionevents = ['wheel', 'touchstart', 'keydown', 'mousedown'];
+        const timer = setInterval(() => {
+            if (!element.isConnected || element.getClientRects().length === 0) {
+                return;
+            }
+            const rect = element.getBoundingClientRect();
+            const offset = (rect.top + rect.height / 2) - (window.innerHeight / 2);
+            if (Math.abs(offset) > 40) {
+                element.scrollIntoView({block: 'center'});
+            }
+        }, 150);
+        const stop = () => {
+            clearInterval(timer);
+            interactionevents.forEach(type => window.removeEventListener(type, stop));
+        };
+        interactionevents.forEach(type => window.addEventListener(type, stop, {passive: true}));
+        setTimeout(stop, 5000);
+    }
+}
 
 export const init = (cmid, id, optionid, bookingid, copyoptionid, returnurl) => {
     // Initialize the form - pass the container element and the form class name.
@@ -48,7 +185,7 @@ export const init = (cmid, id, optionid, bookingid, copyoptionid, returnurl) => 
 
     // eslint-disable-next-line no-console
     console.log(element);
-    const dynamicForm = new DynamicForm(element, 'mod_booking\\form\\option_form');
+    const dynamicForm = new EditOptionDynamicForm(element, 'mod_booking\\form\\option_form');
 
     // eslint-disable-next-line no-console
     console.log(dynamicForm);
@@ -100,10 +237,18 @@ export const init = (cmid, id, optionid, bookingid, copyoptionid, returnurl) => 
         console.log('validation error');
     });
 
-    var checkbox1 = document.querySelector('[type="checkbox"][name="restrictanswerperiodopening"]');
-    var checkbox2 = document.querySelector('[type="checkbox"][name="restrictanswerperiodclosing"]');
-    var conditionalCheckbox = document.querySelector('[type="checkbox"][name="bo_cond_booking_time_sqlfiltercheck"]');
-    let closest = conditionalCheckbox.closest('[class^="form-group row"],[class*=" fitem"]');
+    const checkbox1 = document.querySelector('[type="checkbox"][name="restrictanswerperiodopening"]');
+    const checkbox2 = document.querySelector('[type="checkbox"][name="restrictanswerperiodclosing"]');
+    const conditionalCheckbox = document.querySelector('[type="checkbox"][name="bo_cond_booking_time_sqlfiltercheck"]');
+    let closest = null;
+    if (conditionalCheckbox) {
+        // Support both Moodle 4.5 (Bootstrap 4) and 5.1 (Bootstrap 5)
+        closest = conditionalCheckbox.closest(
+            '[class^="form-group row"],' + // Moodle 4.5.
+            '[class*="fitem"],' + // Moodle legacy.
+            '[data-fieldtype]' // Moodle 5.1 form field wrapper.
+        );
+    }
 
     dynamicForm.addEventListener('change', e => {
         // eslint-disable-next-line no-console
@@ -112,6 +257,25 @@ export const init = (cmid, id, optionid, bookingid, copyoptionid, returnurl) => 
         if (e.target.name == 'optiontemplateid') {
             window.skipClientValidation = true;
             let button = document.querySelector('[name="btn_changetemplate"]');
+            dynamicForm.processNoSubmitButton(button);
+        }
+
+        if (e.target.name == 'optiontype') {
+            window.skipClientValidation = true;
+            // Synchronize selflearningcourse hidden field with optiontype selection.
+            // MOD_BOOKING_OPTIONTYPE_SELFLEARNINGCOURSE = 1
+
+            let selflearningField = document.querySelector('[name="selflearningcourse"]');
+            if (selflearningField) {
+                selflearningField.value = (e.target.value == 1) ? 1 : 0;
+            }
+            let button = document.querySelector('[name="btn_optiontype"]');
+            dynamicForm.processNoSubmitButton(button);
+        }
+
+        if (e.target.name == 'slot_type') {
+            window.skipClientValidation = true;
+            let button = document.querySelector('[name="btn_slot_type"]');
             dynamicForm.processNoSubmitButton(button);
         }
 

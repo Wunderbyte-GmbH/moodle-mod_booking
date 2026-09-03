@@ -46,7 +46,7 @@ class send_mail implements booking_rule_action {
     /** @var int $ruleid */
     public $ruleid = null;
 
-    /** @var string $sendical */
+    /** @var int $sendical */
     public $sendical = null;
 
     /** @var string $sendicalcreateorcancel */
@@ -75,7 +75,7 @@ class send_mail implements booking_rule_action {
         $jsonobject = json_decode($json);
         $actiondata = $jsonobject->actiondata;
 
-        $this->sendical = $actiondata->sendical ?? '';
+        $this->sendical = $actiondata->sendical ?? 0;
         $this->sendicalcreateorcancel = $actiondata->sendicalcreateorcancel ?? '';
         $this->subject = $actiondata->subject;
         $this->template = $actiondata->template;
@@ -161,7 +161,7 @@ class send_mail implements booking_rule_action {
         $jsonobject->name = $data->name ?? $this->actionname;
         $jsonobject->actionname = $this->actionname;
         $jsonobject->actiondata = new stdClass();
-        $jsonobject->actiondata->sendical = $data->action_send_mail_sendical;
+        $jsonobject->actiondata->sendical = $data->action_send_mail_sendical ?? 0;
         $jsonobject->actiondata->sendicalcreateorcancel = $data->action_send_mail_sendicalcreateorcancel ?? '';
         $jsonobject->actiondata->subject = $data->action_send_mail_subject;
         $jsonobject->actiondata->template = $data->action_send_mail_template['text'];
@@ -180,7 +180,7 @@ class send_mail implements booking_rule_action {
         $jsonobject = json_decode($record->rulejson);
         $actiondata = $jsonobject->actiondata;
 
-        $data->action_send_mail_sendical = $actiondata->sendical;
+        $data->action_send_mail_sendical = $actiondata->sendical ?? 0;
         $data->action_send_mail_sendicalcreateorcancel = $actiondata->sendicalcreateorcancel ?? '';
         $data->action_send_mail_subject = $actiondata->subject;
         $data->action_send_mail_template = [];
@@ -236,27 +236,6 @@ class send_mail implements booking_rule_action {
         $task->set_userid($record->userid);
 
         $task->set_next_run_time($record->nextruntime);
-
-        // If the same task already exists, don't queue it again.
-        $similartasks = $DB->get_records('task_adhoc', [
-            'nextruntime' => $record->nextruntime,
-            'userid' => $record->userid,
-            ]);
-
-        if (!empty($similartasks)) {
-            foreach ($similartasks as $similartask) {
-                if (!isset($similartask->customdata)) {
-                    continue;
-                }
-                $oldtaskdata = json_decode($similartask->customdata);
-                unset($oldtaskdata->optiondateid);
-                unset($taskdata['optiondateid']);
-                if ($oldtaskdata == (object)$taskdata) {
-                    // A similar task has already been created before, we therefore don't queue the task again.
-                    return;
-                }
-            }
-        }
 
         // Now queue the task or reschedule it.
         \core\task\manager::reschedule_or_queue_adhoc_task($task);

@@ -30,7 +30,7 @@ Feature: Edit booking's settings for the view swithing as a teacher and use it a
       | My booking | Option4 | C1     | Deskr 4     | teacher1          |
     And I change viewport size to "1366x10000"
 
-  @javascript
+  @javascript @accessibility
   Scenario: Booking settings - display template view switcher and use it
     Given I am on the "My booking" Activity page logged in as teacher1
     And I follow "Settings"
@@ -41,40 +41,56 @@ Feature: Edit booking's settings for the view swithing as a teacher and use it a
     And I wait "1" seconds
     And ".allbookingoptionstable .mod-booking-view-card-image-and-body-area" "css_element" should exist
     And ".allbookingoptionstable .allbookingoptionstable_r1" "css_element" should not exist
+    ## Validate accessibility of page
+    And the page should meet accessibility standards
     ## Validate List view with image on the left
     And I set the field "wbtabletemplateswitcher" to "List view with image on the left"
     And I wait "1" seconds
     And ".allbookingoptionstable .allbookingoptionstable_r1 .mod-booking-view-list-image.rounded-start" "css_element" should exist
+    ## Validate accessibility of page
+    And the page should meet accessibility standards
     ## Validate List view with image on the right
     And I set the field "wbtabletemplateswitcher" to "List view with image on the right"
     And I wait "1" seconds
     And ".allbookingoptionstable .allbookingoptionstable_r1 .mod-booking-view-list-image.rounded-end" "css_element" should exist
+    ## Validate accessibility of page
+    And the page should meet accessibility standards
     ## Validate List view with image on the left over half the width
     And I set the field "wbtabletemplateswitcher" to "List view with image on the left over half the width"
     And I wait "1" seconds
     And ".allbookingoptionstable .allbookingoptionstable_r1 .mod-booking-view-list-image-half" "css_element" should exist
+    ## Validate accessibility of page
+    And the page should meet accessibility standards
     And I log out
     ## Change view for student1
     And I am on the "My booking" Activity page logged in as student1
     And I set the field "wbtabletemplateswitcher" to "Cards view"
     And I wait "1" seconds
     And ".allbookingoptionstable .mod-booking-view-card-image-and-body-area" "css_element" should exist
+    ## Validate accessibility of page
+    And the page should meet accessibility standards
     And I log out
     ## Change view for student2
     And I am on the "My booking" Activity page logged in as student2
     And I set the field "wbtabletemplateswitcher" to "List view with image on the right"
     And I wait "1" seconds
     And ".allbookingoptionstable .allbookingoptionstable_r1 .mod-booking-view-list-image.rounded-end" "css_element" should exist
+    ## Validate accessibility of page
+    And the page should meet accessibility standards
     ## Validate if view settings were preserved for teacher1
     And I log out
     And I am on the "My booking" Activity page logged in as teacher1
     And ".allbookingoptionstable .allbookingoptionstable_r1 .mod-booking-view-list-image-half" "css_element" should exist
+    ## Validate accessibility of page
+    And the page should meet accessibility standards
     And I log out
     ## Validate if view settings were preserved for student1
     And I am on the "My booking" Activity page logged in as student1
     And ".allbookingoptionstable .mod-booking-view-card-image-and-body-area" "css_element" should exist
+    ## Validate accessibility of page
+    And the page should meet accessibility standards
 
-  @javascript
+  @javascript @accessibility
   Scenario: Booking settings - manage template view switcher
     Given I am on the "My booking" Activity page logged in as teacher1
     And I follow "Settings"
@@ -86,6 +102,8 @@ Feature: Edit booking's settings for the view swithing as a teacher and use it a
     And I set the field "wbtabletemplateswitcher" to "Cards view"
     And I wait "1" seconds
     And ".allbookingoptionstable .mod-booking-view-card-image-and-body-area" "css_element" should exist
+    ## Validate accessibility of page
+    And the page should meet accessibility standards
     And I log out
     ## Remove Cards view as teacher1
     And I am on the "My booking" Activity page logged in as teacher1
@@ -98,4 +116,6 @@ Feature: Edit booking's settings for the view swithing as a teacher and use it a
     And I wait "1" seconds
     And ".allbookingoptionstable .mod-booking-view-card-image-and-body-area" "css_element" should not exist
     And ".allbookingoptionstable .wunderbyte-table-list .allbookingoptionstable_r1 .col-md-9" "css_element" should exist
+    ## Validate accessibility of page
+    And the page should meet accessibility standards
     And I log out

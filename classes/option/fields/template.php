@@ -25,6 +25,7 @@
 namespace mod_booking\option\fields;
 
 use mod_booking\booking_option_settings;
+use mod_booking\dates;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
 use mod_booking\utils\wb_payment;
@@ -32,6 +33,7 @@ use coding_exception;
 use dml_exception;
 use moodle_exception;
 use MoodleQuickForm;
+use MoodleQuickForm_duration;
 use stdClass;
 
 /**
@@ -124,11 +126,27 @@ class template extends field_base {
 
         // Option templates.
         $optiontemplates = ['' => ''];
-        $alloptiontemplates = $DB->get_records('booking_options', ['bookingid' => 0], '', $fields = 'id, text', 0, 0);
+        $alloptiontemplates = $DB->get_records('booking_options', ['bookingid' => 0], '', $fields = 'id, text, json', 0, 0);
 
         if (empty($alloptiontemplates)) {
             return;
         }
+
+        // Determine the display name for each template: templatename from JSON takes priority over text.
+        foreach ($alloptiontemplates as $template) {
+            $template->displayname = $template->text;
+            if (!empty($template->json)) {
+                $jsonobj = json_decode($template->json);
+                if (!empty($jsonobj->templatename)) {
+                    $template->displayname = $jsonobj->templatename;
+                }
+            }
+        }
+
+        // Sort templates alphabetically by display name.
+        usort($alloptiontemplates, function ($a, $b) {
+            return strcmp($a->displayname, $b->displayname);
+        });
 
         // Standardfunctionality to add a header to the mform (only if its not yet there).
         if ($applyheader) {
@@ -140,10 +158,10 @@ class template extends field_base {
         $mform->addElement(
             'submit',
             'btn_changetemplate',
-            'xxx',
+            get_string('changetemplate', 'mod_booking'),
             [
-            'class' => 'd-none',
-            'data-action' => 'btn_changetemplate',
+                'class' => 'd-none',
+                'data-action' => 'btn_changetemplate',
             ]
         );
 
@@ -152,14 +170,19 @@ class template extends field_base {
             $alloptiontemplates = [reset($alloptiontemplates)];
             $mform->addElement(
                 'static',
-                'nolicense',
-                get_string('licensekeycfg', 'mod_booking'),
-                get_string('licensekeycfgdesc', 'mod_booking')
+                'optiontypeprohintnoproversion',
+                '',
+                '<i class="fa fa-lightbulb-o" aria-hidden="true"></i>&nbsp;' .
+                get_string(
+                    'optiontypeprohintnoproversion',
+                    'mod_booking',
+                    'https://showroom.wunderbyte.at/course/view.php?id=62'
+                )
             );
         }
 
         foreach ($alloptiontemplates as $key => $value) {
-            $optiontemplates[$value->id] = $value->text;
+            $optiontemplates[$value->id] = $value->displayname;
         }
 
         $mform->addElement(
@@ -180,6 +203,15 @@ class template extends field_base {
     public static function set_data(stdClass &$data, booking_option_settings $settings) {
 
         if (!empty($data->id)) {
+            /* When editing an existing template (not applying a template to a new option),
+            load templatename from JSON so it is present in the form and gets saved again. */
+            if (
+                empty($data->fromtemplate)
+                && !isset($data->templatename)
+                && isset($settings->jsonobject)
+            ) {
+                $data->templatename = $settings->jsonobject->templatename ?? '';
+            }
             return;
         }
 
@@ -251,6 +283,23 @@ class template extends field_base {
                 if ($mform->elementExists($k) && $v !== null) {
                     if ($mform->elementExists($k)) {
                         $element = $mform->getElement($k);
+
+                        // Some elements need special handling to convert the value from the template into the format they need.
+                        if ($element->getType() === 'date_time_selector' && is_number($v)) {
+                            // Date time selectors need timestamps converted to arrays.
+                            $v = dates::timestamp_to_array($v);
+                        } else if ($element->getType() === 'duration' && is_number($v)) {
+                            // Duration elements need seconds converted to number and unit.
+                            $durationinseconds = (int) $v;
+                            // Instantiate a dummy duration element (required to call the method).
+                            $durationelement = new MoodleQuickForm_duration('duration', 'Duration');
+                            // Convert the seconds to number and unit using the dummy element.
+                            [$number, $timeunit] = $durationelement->seconds_to_unit($durationinseconds);
+                            $v = [
+                                'number' => $number,
+                                'timeunit' => $timeunit,
+                            ];
+                        }
                         $element->setValue($v);
                     }
                 }

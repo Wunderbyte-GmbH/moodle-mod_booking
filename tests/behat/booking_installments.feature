@@ -44,6 +44,9 @@ Feature: Enabling installments as admin configuring installments as a teacher an
       | enableinstallments  | 1     | local_shopping_cart |
       | timebetweenpayments | 2     | local_shopping_cart |
       | reminderdaysbefore  | 1     | local_shopping_cart |
+      ## Flush every log event to the DB immediately so the "Recent updates" table
+      ## (reads logstore_standard_log) never races the buffered writer's shutdown flush.
+      | buffersize          | 1     | logstore_standard   |
     And I change viewport size to "1366x10000"
     ##And I log out
 
@@ -65,41 +68,90 @@ Feature: Enabling installments as admin configuring installments as a teacher an
       | Due nr. of days before coursestart     | 1  |
     And I press "Save"
     And I should see "Only one of these values can be more than 0"
-    And I set the following fields to these values:
-      | Due nr. of days after initial purchase | 0 |
+    ##And I set the following fields to these values:
+    ##  | Due nr. of days after initial purchase | 0 |
+    And I set the field "Due nr. of days after initial purchase" to "0"
+    And I set the field "After saving..." to "Stay here"
     And I press "Save"
     And I wait "1" seconds
-    And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
-    And the field "Down payment" matches value "44"
-    And the field "Number of Payments" matches value "2"
+    And I follow "Shopping Cart"
+    And I set the field "Down payment" to "42"
+    And I set the field "Number of Payments" to "3"
+    And I set the field "Due nr. of days before coursestart" to "2"
+    And I set the field "After saving..." to "Stay here"
+    And I press "Save"
+    And I wait "1" seconds
+    ##And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
+    And the field "Down payment" matches value "42"
+    And the field "Number of Payments" matches value "3"
     And the field "Due nr. of days after initial purchase" matches value "0"
-    And the field "Due nr. of days before coursestart" matches value "1"
+    And the field "Due nr. of days before coursestart" matches value "2"
     ## Above is little bit faster than the following
     ##And the following fields match these values:
-    ##  | Down payment                           | 44 |
-    ##  | Number of Payments                     | 2  |
+    ##  | Down payment                           | 42 |
+    ##  | Number of Payments                     | 3  |
     ##  | Due nr. of days after initial purchase | 0  |
-    ##  | Due nr. of days before coursestart     | 1  |
+    ##  | Due nr. of days before coursestart     | 2  |
+    ## Validate updates of installment settings
+    And I click on "Show recent updates..." "button"
+    And I wait until the page is ready
+    And I wait until "2 of 2 records found" "text" exists
+    And I should see "2 of 2 records found" in the "#showEventList" "css_element"
+    And I should see "[DELETED]" in the "#showEventList .columnclass.description" "css_element"
+    And I should see "Down payment : 44" in the "#showEventList .columnclass.description" "css_element"
+    And I should see "[NEW]" in the "#showEventList .columnclass.description" "css_element"
+    And I should see "Down payment : 42" in the "#showEventList .columnclass.description" "css_element"
+    And I should see "Number of Payments : 2" in the "#showEventList .columnclass.description" "css_element"
+    And I should see "Number of Payments : 3" in the "#showEventList .columnclass.description" "css_element"
+    And I should see "Due nr. of days before coursestart : 1" in the "#showEventList .columnclass.description" "css_element"
+    And I should see "Due nr. of days before coursestart : 2" in the "#showEventList .columnclass.description" "css_element"
     And I log out
 
-  @javascript
+  @javascript @accessibility @booking_report2_tracker
   Scenario: Add an installment for a booking option via DB and brought it as student
     Given the following "mod_booking > options" exist:
       | booking     | text               | course | description | importing | useprice | sch_allowinstallment | sch_downpayment | sch_numberofpayments | sch_duedaysbeforecoursestart | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 |
       | BookingInst | Option-installment | C1     | Deskr2      | 1         | 1        | 1                    | 44              | 2                    | 1                            | 0              | 0              | ## +6 days ##     | ## +8 days ##   |
     And I am on the "BookingInst" Activity page logged in as student1
+    ## Validate accessibility of booking options table before booking
+    And the page should meet accessibility standards
     And I click on "Add to cart" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I visit "/local/shopping_cart/checkout.php"
     And I wait "1" seconds
+    ## Validate accessibility of booking options table before booking
+    And the page should meet accessibility standards
     And I set the field "Use installment payments" to "checked"
     And I wait "1" seconds
+    ## Validate accessibility of booking options table before booking
+    And the page should meet accessibility standards
     And I should see "Down payment for Option-installment"
     And I should see "44 EUR instead of 88 EUR"
     And I should see "Further payments"
     And I should see "2" occurrences of "22 EUR on" in the ".sc_installments .furtherpayments" "css_element"
     When I press "Checkout"
     And I wait "1" seconds
+    ## Validate accessibility of booking options table before booking
+    And the page should meet accessibility standards
     And I press "Confirm"
     Then I should see "Payment successful!"
     And I should see "Option-installment" in the ".payment-success ul.list-group" "css_element"
     And I should see "44.00 EUR" in the ".payment-success ul.list-group" "css_element"
+    ## Validate accessibility of booking options table before booking
+    And the page should meet accessibility standards
+    And I log out
+    ## ==================================================
+    ## Validate report2_tracker page for booking installment
+    And I log in as "admin"
+    And I visit "/mod/booking/report2.php"
+    And I should see "Bookings" in the "#accordion-heading-bookedusers" "css_element"
+    And I should see "1 of 1 records found" in the ".wunderbyteTableClass.booked_system_0" "css_element"
+    And I should see "Option-installment" in the "#booked_system_0_r1" "css_element"
+    And I should see "1/Unlimited" in the "#booked_system_0_r1" "css_element"
+    ## Validate booking history for selected booking option.
+    ## Rows are matched by their status because rows created within the same
+    ## second have no deterministic order across the supported databases.
+    And I click on "Booking history" "text" in the "#accordion-heading-bookinghistory" "css_element"
+    And I should see "student1@example.com" in the "//tr[starts-with(@id, 'bookinghistorytable_system_0_r') and contains(., '2 - Reserved')]" "xpath_element"
+    And I should see "student1@example.com" in the "//tr[starts-with(@id, 'bookinghistorytable_system_0_r') and contains(., '0 - Booked')]" "xpath_element"
+    ## Validate accessibility of report2_tracker page
+    And the page should meet accessibility standards

@@ -41,21 +41,29 @@ Feature: In a booking - create options and filter it
     ## 2044/05/20 - 2044/05/22
     And I change viewport size to "1366x10000"
 
-  @javascript
+  @javascript @accessibility
   Scenario: Booking option list: filtering by teachers and by dates
-    Given I am on the "My booking" Activity page logged in as teacher1
+    Given I am on the "My booking" Activity page logged in as student1
     ## And I press "Filter table"
     And I click on "Filter table" "button" in the ".allbookingoptionstable.wunderbyte_table_filter_on" "css_element"
+    ## Validate accessibility of booking options table before booking
+    And the page should meet accessibility standards
     ## Filtering by teacher assigned to a single option
     And I click on "Teachers" "button"
+    ## Validate accessibility of booking options table before booking
+    And the page should meet accessibility standards
     And I should see "2, Teacher" in the ".allbookingoptionstable .wunderbyteTableFilter" "css_element"
     And I set the field "2, Teacher" in the ".allbookingoptionstable .wunderbyteTableFilter" "css_element" to "checked"
     And I should see "Teacher 2" in the ".allbookingoptionstable_r1" "css_element"
     And "//div[contains(@class, 'allbookingoptionstable_r2')]" "xpath_element" should not exist
+    ## Validate accessibility of booking options table before booking (disabled due to violations in Moodle 4.5 core)
+    And the page should meet accessibility standards
     And I set the field "2, Teacher" in the ".allbookingoptionstable .wunderbyteTableFilter" "css_element" to ""
     And I should see "Teacher 3" in the ".allbookingoptionstable_r3" "css_element"
     ## Filtering by teacher assigned to the pair of options
     And I set the field "1, Teacher" in the ".allbookingoptionstable .wunderbyteTableFilter" "css_element" to "checked"
+    ## Validate accessibility of booking options table before booking
+    And the page should meet accessibility standards
     And I should see "Teacher 1" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Teacher 1" in the ".allbookingoptionstable_r2" "css_element"
     And "//div[contains(@class, 'allbookingoptionstable_r3')]" "xpath_element" should not exist
@@ -66,12 +74,18 @@ Feature: In a booking - create options and filter it
     And I click on "//aside[contains(@class, 'wunderbyte_table_components')]" "xpath_element"
     ## Filtering by timespan
     And I click on "Course time" "button"
+    ## Validate accessibility of booking options table before booking
+    ## Disabled for a while (violation in date/time filter control: "Target has insufficient size because it is partially obscured")
+    And the page should meet accessibility standards
     ## TODO: actual dates has been set as -1 day for some reason (same as in wb_table).
     And I set the following fields to these values:
       | date-coursestarttime | 2044-05-17 |
       | date-courseendtime   | 2044-05-21 |
       | Display records      | within     |
       | coursestarttime      | 1          |
+    ## Validate accessibility of booking options table before booking
+    ## DISABLED as of https://github.com/Wunderbyte-GmbH/Wunderbyte-GmbH/issues/1597#issuecomment-4488399024
+    And the page should meet accessibility standards
     And I should see "Option - Teacher2" in the ".allbookingoptionstable_r1" "css_element"
     And I set the field "Display records" to "overlapping beginning"
     And I should see "Option - Teacher1" in the ".allbookingoptionstable_r1" "css_element"
@@ -80,6 +94,14 @@ Feature: In a booking - create options and filter it
     And I set the field "Display records" to "overlapping"
     And I should see "Option - Teacher1" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Option - Teacher2" in the ".allbookingoptionstable_r2" "css_element"
+    ## Hide active filter form
+    ## Workaround for case when hidden "search" "input" intercepts focus - so we cannot press "Teachers" "button"
+    And I click on "//aside[contains(@class, 'wunderbyte_table_components')]" "xpath_element"
+    ## Validate accessibility of booking options table before booking (disabled due to violations in Moodle 4.5 core)
+    And the page should meet accessibility standards
     ## Hide filter - required for a new filter tool
     ## Workaround for case when hidden "search" "input" intercepts focus - so we cannot press "Teachers" "button"
     And I click on "//aside[contains(@class, 'wunderbyte_table_components')]" "xpath_element"
+    ## Validate accessibility of booking options table before booking
+    ## Disabled for a while (violation in date/time filter control: "Target has insufficient size because it is partially obscured")
+    And the page should meet accessibility standards

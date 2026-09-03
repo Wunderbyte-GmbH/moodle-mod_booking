@@ -1,3 +1,37 @@
+.prepage-booking-page input[data-slot-selection-checkbox="1"].form-check-input + label {
+    margin: 0 0 0 0.45rem;
+    display: inline;
+}
+
+/* Slot teacher assignments: compact layout and cleaner spacing. */
+#page-mod-booking-slotteacherassignments form.mform div.fitem {
+    border-top: 1px solid #d9d9d9;
+    padding-top: 0.6rem;
+    margin-top: 0.35rem;
+    margin-bottom: 0.45rem;
+}
+
+#page-mod-booking-slotteacherassignments form.mform .fitem .col-md-3 {
+    padding-top: 0.25rem;
+}
+
+#page-mod-booking-slotteacherassignments form.mform .fgroup .checkbox {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1rem;
+}
+
+#page-mod-booking-slotteacherassignments form.mform .fgroup .form-check {
+    margin: 0;
+}
+
+#page-mod-booking-slotteacherassignments form.mform .fgroup .form-check-input {
+    margin-top: 0.2rem;
+}
+
+#page-mod-booking-slotteacherassignments form.mform .fgroup .form-check-label {
+    margin-left: 0.35rem;
+}
 .mod-booking .results {
     border-collapse: separate;
 }
@@ -292,8 +326,23 @@ if there only was one booking option. */
 }
 
 /* Subbooking Timeslot */
+/* The price chip in this table is a <button> now (it adds a slot to the cart, so it has to be
+   operable by keyboard). Strip the browser's own button chrome so the table keeps its look. Wrapped
+   in :where() on purpose: that keeps the specificity at a single class, so the state rules below
+   still win over it. */
+.mod-booking-timeslotbooking :where(button.wb_shopping_cart) {
+    border: 0;
+    padding: 1px;
+    font: inherit;
+    color: inherit;
+    background-color: transparent;
+}
+
 .mod-booking-timeslotbooking [data-bookable="1"] {
-    background: var(--info);
+    /* Fixed instead of var(--info): with Bootstrap's default info colour (#17a2b8, which is what
+       themes that build their variables after the Bootstrap import end up with) white text is only
+       3:1. #006d80 keeps the cyan and reaches 6:1. */
+    background: #006d80;
     color: #fff;
     vertical-align: middle;
     cursor: pointer;
@@ -323,18 +372,42 @@ if there only was one booking option. */
     height: 100%;
 }
 
-.wb_shopping_cart.disabled {
-    background: var(--success);
-    color: white;
+/* "Already in the cart": greyed out, because the item can only be taken out again in the cart
+   itself - a click on the button does nothing (see cart.js).
+   The state is carried by the disabled class plus aria-disabled, never by the disabled attribute,
+   because the button has to stay focusable so keyboard and screen reader users can find out why it
+   does not react.
+   The greys are fixed and the dimming is switched off on purpose:
+   - Bootstrap dims .btn.disabled to 65% opacity, which blends label and background together and
+     leaves 2.7:1. At full strength #495057 on #e9ecef is 6.9:1, so the button reads as inactive but
+     stays legible (the label is the only place that says the item is in the cart).
+   - A colour from a theme variable is whatever that theme's Bootstrap build produced and can land
+     far below the required 4.5:1.
+   Three classes so the rules win over ".btn.disabled", which is loaded after this stylesheet. */
+.btn.wb_shopping_cart.disabled,
+.btn.wb_shopping_cart.disabled .addtocartstring,
+.btn.wb_shopping_cart.disabled .fa-cart-plus {
+    color: #495057;
 }
 
-.wb_shopping_cart.disabled {
-    background: var(--success);
-    color: white;
+.btn.wb_shopping_cart.disabled {
+    background: #e9ecef;
+    border-color: #adb5bd;
+    opacity: 1;
+    cursor: default;
+}
+
+/* Not bookable: white on an amber background is around 2:1, dark text on it is 8.3:1. Same
+   reasoning as above for pinning the colour; the nested selectors are needed because themes colour
+   the label and the icon separately. */
+.wb_shopping_cart[data-bookable="false"],
+.wb_shopping_cart[data-bookable="false"] .addtocartstring,
+.wb_shopping_cart[data-bookable="false"] .fa-cart-plus {
+    color: #1d2125;
 }
 
 .wb_shopping_cart[data-bookable="false"] {
-    background: var(--warning);
+    background: #f0ad4e;
 }
 
 #page-mod-booking-optiondates .dropdown-menu,
@@ -343,7 +416,6 @@ if there only was one booking option. */
 #page-mod-booking-teachers_instance_report .dropdown-menu,
 #page-mod-booking-recalculateprices .dropdown-menu,
 #page-mod-booking-mod .dropdown-menu,
-#page-mod-booking-view .dropdown-menu,
 #page-mod-booking-instancetemplateadd .dropdown-menu,
 #page-mod-booking-importoptions .dropdown-menu,
 #page-mod-booking-tagtemplates .dropdown-menu,
@@ -352,6 +424,11 @@ if there only was one booking option. */
 #page-mod-booking-subscribeusers .dropdown-menu,
 #page-mod-booking-viewconfirmation .dropdown-menu,
 #page-mod-booking-editoptions .dropdown-menu {
+    width: max-content;
+}
+
+/* Special rule to keep the dropdown menu of the table filter within width limits of the .dropdownMenuButton element */
+#page-mod-booking-view .dropdown:not(.wunderbyteTableFilter .dropdown) > .dropdown-menu {
     width: max-content;
 }
 
@@ -369,7 +446,8 @@ if there only was one booking option. */
 }
 
 #prepage-booking-tabs li {
-    color: lightgray;
+    /*color: lightgray;*/
+    color: #767676;
     list-style-type: none;
     font-size: 15px;
     width: 25%;
@@ -430,10 +508,28 @@ if there only was one booking option. */
     width: 70%;
 }
 
-#page-mod-booking-view .wunderbyte-table-list .action {
+#page-mod-booking-view .wunderbyte-table-list .action:not(.imageright-card .action) {
     position: absolute;
     top: 0;
     right: 0;
+}
+
+.wunderbyte-table-list .imageright-card .action {
+    position: absolute;
+    top: 0;
+    right: 25%;
+}
+
+/* Bootstrap 4 (Moodle 4.5) sets position:relative on every grid column; Bootstrap 5
+   (Moodle 5+) does not. Reset the columns inside imageright cards to static so the
+   absolutely positioned .action menubar anchors to the .card -- its right:25% then
+   lands just left of the right-hand header image consistently on both versions. */
+.wunderbyte-table-list .imageright-card [class*="col-"] {
+    position: static;
+}
+
+.wunderbyte-table-list .booknow {
+    margin-top: 1rem;
 }
 
 /* DO NOT USE #page-mod-booking-view because this needs to work in shortcodes too! */
@@ -444,7 +540,7 @@ if there only was one booking option. */
 
 /* DO NOT USE #page-mod-booking-view because this needs to work in shortcodes too! */
 .mod-booking-view-list-image {
-    width: inherit;
+    width: 100%;
     height: 100%;
     object-fit: cover;
     max-height: 300px;
@@ -452,7 +548,7 @@ if there only was one booking option. */
 }
 
 .mod-booking-view-list-image-half {
-    width: inherit;
+    width: 100%;
     height: 100%;
     object-fit: cover;
     border-radius: 0;
@@ -522,6 +618,12 @@ We need this for teachers for example. */
     white-space: nowrap;
 }
 
+.col-teacher-teacher a {
+    align-items: center;
+    display: inline-flex;
+    min-height: 24px;
+}
+
 /* Styles for new report.php */
 #accordion-usertables .columnclass.option {
     max-width: 100px;
@@ -569,9 +671,17 @@ div.checkbox:has(label[for^="id_bo_cond_allowedtobookininstance_capabilitynotnee
     margin: 0 !important;
 }
 
-#page-mod-booking-report2 .pagination {
-    font-size: calc(0.9rem + 0.045vw);
-    margin-left: 20px;
+/* With many columns, the table must scroll horizontally inside its container instead
+   of blowing it up: the container is a css grid and grid items do not shrink below
+   their content width unless min-width is reset. */
+#page-mod-booking-report2 .wunderbyte_table_container {
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+#page-mod-booking-report2 .wunderbyte_table_container .wunderbyteTableClass {
+    min-width: 0;
+    overflow-x: auto;
 }
 
 #page-mod-booking-report2 .pagination {
@@ -579,19 +689,158 @@ div.checkbox:has(label[for^="id_bo_cond_allowedtobookininstance_capabilitynotnee
     margin-left: 20px;
 }
 
-.report2-nav-divider {
-    margin-left: 3px;
-    margin-right: 3px;
-    font-size: x-large;
+#page-mod-booking-report2 .pagination {
+    font-size: calc(0.9rem + 0.045vw);
+    margin-left: 20px;
+}
+
+/* Bookings Tracker (report2.php): scope breadcrumb navigation.
+   Each crumb is a rounded box (scope label above, name/link below);
+   chevron arrows point to the next hierarchy level. */
+.report2-breadcrumb {
+    background-color: transparent;
+    padding: 0;
+    align-items: center;
+    row-gap: 0.5rem;
+}
+
+.report2-breadcrumb .breadcrumb-item {
+    display: flex;
+    align-items: center;
+}
+
+/* Arrow pointing to the next hierarchy level instead of the default "/". */
+.report2-breadcrumb .breadcrumb-item + .breadcrumb-item::before {
+    content: "\276f";
+    padding-right: 0.6rem;
+    color: #495057;
+    font-size: 1rem;
+}
+
+/* Hide the decorative arrow from screen readers where the alt text syntax is supported. */
+@supports (content: "x" / "y") {
+    .report2-breadcrumb .breadcrumb-item + .breadcrumb-item::before {
+        content: "\276f" / "";
+    }
+}
+
+.report2-breadcrumb .report2-breadcrumb-box {
+    border: 1px solid var(--bs-border-color, rgba(0, 0, 0, 0.2));
+    border-radius: 0.5rem;
+    padding: 0.3rem 0.9rem;
+    background-color: var(--bs-tertiary-bg, rgba(0, 0, 0, 0.02));
+    line-height: 1.3;
+}
+
+/* Boxes containing a link lift slightly on hover and on keyboard focus
+   to signal clickability. */
+.report2-breadcrumb .report2-breadcrumb-box:has(a):hover,
+.report2-breadcrumb .report2-breadcrumb-box:focus-within {
+    border-color: var(--bs-secondary-color, #6c757d);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+/* Contrast of the scope label (WCAG 1.4.3, AA needs 4.5:1 for this font size).
+   Bootstrap's "text-muted" (#6c757d) only reaches 4.49:1 on the crumb box and 4.08:1 on the
+   tinted box of the active crumb -- both fail. $gray-700 stays above 6.5:1 on every
+   background used here, including a brand colour that is almost black. */
+.report2-breadcrumb .report2-breadcrumb-label {
+    line-height: 1.2;
+    color: #495057;
+}
+
+.report2-breadcrumb .report2-breadcrumb-name {
+    font-size: 1.05rem;
+    white-space: nowrap;
+}
+
+/* The current scope gets the primary accent of the theme. */
+.report2-breadcrumb .breadcrumb-item.active {
+    color: inherit;
+}
+
+.report2-breadcrumb .breadcrumb-item.active .report2-breadcrumb-box {
+    border-color: var(--bs-primary, var(--primary, #0f6cbf));
+    background-color: rgba(15, 108, 191, 0.07);
+}
+
+/* Tint the active box with the actual theme primary where color-mix is supported. */
+@supports (background-color: color-mix(in srgb, red 10%, transparent)) {
+    .report2-breadcrumb .breadcrumb-item.active .report2-breadcrumb-box {
+        background-color: color-mix(in srgb, var(--bs-primary, var(--primary, #0f6cbf)) 10%, transparent);
+    }
+}
+
+.report2-breadcrumb .breadcrumb-item.active .report2-breadcrumb-name {
+    font-weight: 500;
+}
+
+/* Minimum 24x24 px target size (WCAG 2.5.8) for the icon-only page link. */
+.report2-breadcrumb .report2-breadcrumb-pagelink {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 24px;
+    min-height: 24px;
+}
+
+/* The sessions dropdown toggle is a real button (native Enter/Space handling),
+   styled to blend in with the crumb names. */
+.report2-breadcrumb .report2-sessions-toggle {
+    font-size: inherit;
+    line-height: inherit;
+    vertical-align: baseline;
+    border: 0;
+}
+
+.report2-breadcrumb .report2-sessions-menu {
+    max-height: 50vh;
+    overflow-y: auto;
 }
 
 #page-mod-booking-report2 #accordion-usertables .sortcolumn {
     background-color: transparent;
 }
 
+#page-mod-booking-report2 #accordion-usertables .card {
+    margin-bottom: 10px;
+}
+
+#page-mod-booking-report2 #accordion-usertables .card,
+#page-mod-booking-report2 #accordion-usertables .card-header {
+    border-radius: 0;
+}
+
+/* Report2 (Bookings Tracker) button margins. */
+#page-mod-booking-report2 .btn.btn-sm {
+    margin-bottom: 0.6em;
+}
+
 /* Booking config settings. */
 #page-admin-setting-modsettingbooking #admin-selectteacherswithprofilefieldonlyfield,
-#page-admin-setting-modsettingbooking #admin-selectteacherswithprofilefieldonlyvalue {
+#page-admin-setting-modsettingbooking #admin-selectteacherswithprofilefieldonlyvalue,
+#page-admin-setting-modsettingbooking #admin-entitytreefiltertoplevelonly,
+#page-admin-setting-modsettingbooking #admin-entitytreefiltershowlocationhovercard,
+#page-admin-setting-modsettingbooking #admin-entitytreefiltershowlocationimages {
+    margin-left: 75px;
+}
+
+#page-admin-setting-modbookingconditions #admin-bookingtimerelativedefaultopeningduration,
+#page-admin-setting-modbookingconditions #admin-bookingtimerelativedefaultclosingduration,
+#page-admin-setting-modbookingconditions #admin-bookingtimerelativedefaultopeningbeforeafter,
+#page-admin-setting-modbookingconditions #admin-bookingtimerelativedefaultclosingbeforeafter,
+#page-admin-setting-modbookingconditions #admin-bookingtimerelativedefaultopeningdatefield,
+#page-admin-setting-modbookingconditions #admin-bookingtimerelativedefaultclosingdatefield,
+#page-admin-setting-modbookingconditions #admin-bookingopeningtimerelativeautoapply,
+#page-admin-setting-modbookingconditions #admin-bookingclosingtimerelativeautoapply,
+#page-admin-setting-modbookingfolder #admin-bookingtimerelativedefaultopeningduration,
+#page-admin-setting-modbookingfolder #admin-bookingtimerelativedefaultclosingduration,
+#page-admin-setting-modbookingfolder #admin-bookingtimerelativedefaultopeningbeforeafter,
+#page-admin-setting-modbookingfolder #admin-bookingtimerelativedefaultclosingbeforeafter,
+#page-admin-setting-modbookingfolder #admin-bookingtimerelativedefaultopeningdatefield,
+#page-admin-setting-modbookingfolder #admin-bookingtimerelativedefaultclosingdatefield,
+#page-admin-setting-modbookingfolder #admin-bookingopeningtimerelativeautoapply,
+#page-admin-setting-modbookingfolder #admin-bookingclosingtimerelativeautoapply {
     margin-left: 75px;
 }
 
@@ -604,4 +853,587 @@ div.checkbox:has(label[for^="id_bo_cond_allowedtobookininstance_capabilitynotnee
 
 .condition-bookingpolicy-form .checkbox {
     display: flex;
+}
+
+.text-darkgreen {
+    color: #146c43;
+}
+
+/* ----------------------------------------------------------------------------
+ * Slotbooking picker (condition/slotBooking.js – fixed-grid & userdefined modes).
+ * Static visual styling extracted from JS inline styles (Stage 2b, step 1).
+ * Dynamic positioning (top/height in %, pixel heights) stays inline in the JS.
+ * ------------------------------------------------------------------------- */
+.booking-slot-timeline-wrapper {
+    width: 100%;
+    min-width: 0;
+}
+
+.booking-slot-timeline-axis {
+    width: 100%;
+    min-width: 0;
+}
+
+.booking-slot-timeline-lanes {
+    width: 100%;
+    min-width: 0;
+}
+
+.booking-slot-timeline {
+    overflow: hidden;
+    background: linear-gradient(to bottom, #f8f9fa, #fff);
+}
+
+.booking-slot-timeline--fixed {
+    flex: 1 1 auto;
+    min-width: 10rem;
+    position: relative;
+}
+
+/* Divider between lane columns - replaces the old per-lane border+gap now that all lanes live
+   inside one shared bordered box (see .booking-slot-timeline-wrapper--scroll below). */
+.booking-slot-timeline--fixed + .booking-slot-timeline--fixed {
+    border-left: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+.booking-slot-timeline--clickable {
+    cursor: crosshair;
+}
+
+.booking-slot-timeline-labels {
+    width: 2.8rem;
+    border-right: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+.booking-slot-timeline-label {
+    left: 0;
+    right: 0;
+    font-size: 0.65rem;
+    line-height: 1;
+    text-align: right;
+    white-space: nowrap;
+    transform: translateY(-50%);
+}
+
+.booking-slot-timeline-tick {
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: rgba(0, 0, 0, 0.1);
+    pointer-events: none;
+}
+
+/* Fixed-grid slot blocks: positioned absolutely (top/height set inline, in percent of the
+   shared timeline - see slot_day_renderers.js), proportional to real elapsed time. */
+.booking-slot {
+    position: absolute;
+    left: 0;
+    right: 0;
+    overflow: hidden;
+    padding: 2px 4px;
+    border-top: 1px solid transparent;
+    border-radius: 2px;
+    cursor: pointer;
+}
+
+.booking-slot--available {
+    color: rgb(20, 100, 60);
+    background: rgba(25, 135, 84, 0.12);
+    border-top-color: rgba(25, 135, 84, 0.45);
+}
+
+.booking-slot--selected {
+    color: rgb(13, 70, 170);
+    background: rgba(13, 110, 253, 0.22);
+    border-top-color: rgba(13, 110, 253, 0.75);
+}
+
+.booking-slot--booked {
+    color: rgb(73, 80, 87);
+    background: rgba(108, 117, 125, 0.22);
+    border-top-color: rgba(108, 117, 125, 0.8);
+    cursor: default;
+}
+
+/* Warmup/cooldown buffer separator: a static, non-bookable, content-free marker that a buffer
+   applies here (see slot_day_renderers.js). Now drawn to scale like everything else on the
+   shared timeline - it's positioned absolutely the same way real slots are. Subdued grey so it
+   recedes behind the actual slots. */
+.booking-slot--buffer {
+    padding: 0;
+    border-top: 1px solid rgba(73, 80, 87, 0.45);
+    background:
+        repeating-linear-gradient(
+            45deg,
+            rgba(73, 80, 87, 0.22),
+            rgba(73, 80, 87, 0.22) 4px,
+            rgba(73, 80, 87, 0.42) 4px,
+            rgba(73, 80, 87, 0.42) 8px
+        );
+    cursor: default;
+    pointer-events: none;
+}
+
+/* The user's currently booked slot in the move timeline: a distinct ring on top of the
+   selected/available colour (matches the calendar grid's "current" day marker). */
+.booking-slot--current {
+    box-shadow: inset 0 0 0 2px #0d6efd;
+}
+
+/* A booked slot past its deadline in the move timeline: stays selected, cannot be given up. */
+.booking-slot--locked {
+    cursor: not-allowed;
+    opacity: 0.85;
+    box-shadow: inset 0 0 0 2px rgba(108, 117, 125, 0.85);
+}
+
+.booking-slot-header {
+    display: flex;
+    gap: 0.35rem;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.booking-slot-time {
+    overflow: hidden;
+    font-size: 0.65rem;
+    font-weight: 600;
+    line-height: 1.2;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.booking-slot-badge {
+    display: inline-block;
+    font-size: 0.6rem;
+    font-weight: 700;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+
+.booking-slot-badge-row {
+    text-align: center;
+}
+
+.booking-slot-badge--link {
+    color: inherit;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.booking-slot-badge--link:hover,
+.booking-slot-badge--link:focus {
+    text-decoration: none;
+}
+
+.booking-slot-price {
+    margin-left: auto;
+    font-size: 0.6rem;
+    font-weight: 600;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+
+.booking-slot-teachers {
+    overflow: hidden;
+    font-size: 0.6rem;
+    line-height: 1.2;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Userdefined-mode timeline (renderCustomDayEditor). */
+.booking-slot-time-input {
+    max-width: 10rem;
+}
+
+/* Timeline grows to a minimum of TIMELINE_MIN_PX_PER_HOUR per opening hour (see slotBooking.js)
+   so it stays readable on long opening windows; this wrapper caps how tall it can get on
+   screen and scrolls the rest, instead of stretching the page. */
+.booking-slot-timeline-wrapper--scroll {
+    max-height: 640px;
+    overflow-x: auto;
+    overflow-y: auto;
+    border: 1px solid rgba(0, 0, 0, 0.125);
+    border-radius: 0.375rem;
+    /* Top padding gives the first tick label's translateY(-50%) room to sit fully inside the
+       scrollable box instead of getting clipped at its top edge. */
+    padding-top: 0.9rem;
+}
+
+.booking-slot-legend-swatch {
+    display: inline-block;
+    width: 0.75rem;
+    height: 0.75rem;
+    border-radius: 2px;
+}
+
+.booking-slot-legend-swatch--mine {
+    background: rgba(73, 80, 87, 0.3);
+    border: 1px solid rgba(73, 80, 87, 0.7);
+}
+
+.booking-slot-legend-swatch--blocked {
+    background:
+        repeating-linear-gradient(
+            45deg,
+            rgba(108, 117, 125, 0.3),
+            rgba(108, 117, 125, 0.3) 3px,
+            rgba(108, 117, 125, 0.5) 3px,
+            rgba(108, 117, 125, 0.5) 6px
+        );
+    border: 1px solid rgba(108, 117, 125, 0.6);
+}
+
+/* A range the current user already booked: a solid grey block, distinct from the blue
+   in-progress selection (.booking-slot-selection) and from the hatched --blocked pattern used
+   for other users' bookings, so all three read as different things at a glance. */
+.booking-slot-booked-range--mine {
+    left: 0;
+    right: 0;
+    background: rgba(73, 80, 87, 0.3);
+    border-top: 1px solid rgba(73, 80, 87, 0.7);
+    border-bottom: 1px solid rgba(73, 80, 87, 0.7);
+}
+
+/* A range booked by someone else: not selectable, styled as a neutral occupied area (matches
+   .booking-slot--booked used by the fixed/rolling grid) rather than an alarming red. */
+.booking-slot-booked-range--blocked {
+    left: 0;
+    right: 0;
+    background:
+        repeating-linear-gradient(
+            45deg,
+            rgba(108, 117, 125, 0.16),
+            rgba(108, 117, 125, 0.16) 4px,
+            rgba(108, 117, 125, 0.28) 4px,
+            rgba(108, 117, 125, 0.28) 8px
+        );
+    border-top: 1px solid rgba(108, 117, 125, 0.6);
+    border-bottom: 1px solid rgba(108, 117, 125, 0.6);
+}
+
+.booking-slot-selection {
+    left: 0;
+    right: 0;
+    background: rgba(13, 110, 253, 0.2);
+    border-top: 1px solid rgba(13, 110, 253, 0.75);
+    border-bottom: 1px solid rgba(13, 110, 253, 0.75);
+}
+
+/* List-view slot picker (multi-select, renderSlotList). */
+.booking-slot-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.booking-slot-list-item {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.4rem 0.6rem;
+    color: rgb(20, 100, 60);
+    background: rgba(25, 135, 84, 0.08);
+    border: 1px solid rgba(25, 135, 84, 0.45);
+    border-radius: 0.25rem;
+    cursor: pointer;
+}
+
+.booking-slot-list-item--selected {
+    color: rgb(13, 70, 170);
+    background: rgba(13, 110, 253, 0.18);
+    border-color: rgba(13, 110, 253, 0.75);
+}
+
+.booking-slot-list-item--booked {
+    color: rgb(73, 80, 87);
+    background: rgba(108, 117, 125, 0.18);
+    border-color: rgba(108, 117, 125, 0.6);
+    cursor: default;
+}
+
+.booking-slot-list-price {
+    margin-left: auto;
+    font-size: 0.85rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.booking-slot-list-manage {
+    margin-left: 0.5rem;
+    font-size: 0.75rem;
+    white-space: nowrap;
+}
+
+/* ----------------------------------------------------------------------------
+ * Slot calendar picker engine (slotCalendarPicker.js). Static layout extracted
+ * from JS inline styles (Stage 2c). Dynamic styling (price colours, responsive
+ * column/row sizing, active-day/markmode colours) stays inline in the JS.
+ * ------------------------------------------------------------------------- */
+.booking-slot-calendar-ui {
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+}
+
+.booking-slot-calendar-toolbar {
+    gap: 0.5rem;
+}
+
+.booking-slot-calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 0.25rem;
+    align-items: stretch;
+    width: 100%;
+    min-width: 0;
+}
+
+.booking-slot-calendar-slots {
+    width: 100%;
+    min-width: 0;
+}
+
+.booking-slot-calendar-head {
+    min-width: 0;
+    padding: 0.25rem 0;
+}
+
+.booking-slot-calendar-cell {
+    min-width: 0;
+}
+
+.booking-slot-calendar-day-btn {
+    overflow-wrap: anywhere;
+    white-space: normal;
+}
+
+.booking-slot-calendar-slot-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.25rem;
+    width: 100%;
+    min-width: 0;
+}
+
+.booking-slot-calendar-slot-btn {
+    width: 100%;
+    overflow-wrap: anywhere;
+    white-space: normal;
+    text-align: left;
+}
+
+/* The slot calendar/list picker's mform "static" element wrapper: mform's default 3/9 label+content
+   grid column split leaves the calendar cramped inside a 75%-wide content column, and the label
+   itself ("Slot") is redundant here (the description text above the picker already explains it).
+   The wrapper id carries a random per-instance suffix (fitem_id_slot_calendar_ui_XXXXXXXX), so
+   match on the stable prefix instead of an exact id. */
+[id^="fitem_id_slot_calendar_ui"] > .col-md-3,
+[id^="fitem_id_slot_list_ui"] > .col-md-3 {
+    display: none;
+}
+
+[id^="fitem_id_slot_calendar_ui"] > .col-md-9,
+[id^="fitem_id_slot_list_ui"] > .col-md-9 {
+    flex: 0 0 100%;
+    max-width: 100%;
+}
+
+/* .col-md-9 above is itself display:flex (Bootstrap .felement), which makes the mform-generated
+   .form-control-static a flex item. Without an explicit flex-basis, a flex item's "auto" width
+   doesn't fill the container the way a normal block element would - it shrink-to-fits around its
+   content's preferred size instead, letting the calendar/timeline inside dictate the width and
+   overflow straight past .col-md-9 (this is what was pushing the calendar/timeline past the card
+   edge). Force it to actually fill and shrink with its container instead. */
+[id^="fitem_id_slot_calendar_ui"] > .col-md-9 > .form-control-static,
+[id^="fitem_id_slot_list_ui"] > .col-md-9 > .form-control-static {
+    flex: 1 1 auto;
+    min-width: 0;
+    width: 100%;
+}
+
+/* Multi-option slotbooking sidebar (bookingoptionview shortcode with a comma-separated optionid with a comma-separated optionid
+   list): a list of booking options next to the merged calendar, toggled per-option to filter which
+   options' slots are shown. See amd/src/condition/slotBooking.js for the click/invert wiring. */
+.booking-slotbooking-layout {
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.booking-slotbooking-sidebar {
+    flex: 0 0 14rem;
+    width: 14rem;
+    min-width: 10rem;
+    max-width: 100%;
+    position: sticky;
+    top: calc(61px + 1rem);
+}
+
+/* format_text() wraps shortcode/description output in <div class="no-overflow"> (Boost:
+   `.no-overflow { overflow: auto; }`). Any ancestor with overflow != visible breaks
+   position: sticky relative to the page scroll, which is why the sidebar moved to its
+   offset position but then just scrolled away with the rest of the content instead of
+   sticking. Scope the override to only wrappers that actually contain our layout, so we
+   don't touch .no-overflow's normal clipping behaviour elsewhere on the site. */
+.no-overflow:has(.booking-slotbooking-layout) {
+    overflow: visible;
+}
+
+.booking-slotbooking-main {
+    min-width: 0;
+}
+
+.booking-slotbooking-sidebar-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.booking-slotbooking-sidebar-item {
+    cursor: pointer;
+    padding: 0.375rem 0.5rem;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-left-width: 4px;
+    border-radius: 0.25rem;
+    overflow-wrap: anywhere;
+    user-select: none;
+}
+
+.booking-slotbooking-sidebar-item:hover,
+.booking-slotbooking-sidebar-item:focus-visible {
+    border-color: #0d6efd;
+    outline: none;
+}
+
+.booking-slotbooking-sidebar-item-filtered {
+    color: #6c757d;
+    text-decoration: line-through;
+    border-color: transparent;
+    background-color: rgba(0, 0, 0, 0.03);
+}
+
+@media (max-width: 767.98px) {
+    .booking-slotbooking-layout {
+        flex-direction: column;
+    }
+
+    .booking-slotbooking-sidebar {
+        flex: 1 1 auto;
+        width: 100%;
+        position: static;
+    }
+}
+
+/* Bulk operations table (matches both the [bulkoperations] shortcode and the bulk operations tab).
+Keep the column headers on one line even in narrow containers instead of breaking them mid-word. */
+table[id*="bulkoperationstable"] th {
+    white-space: nowrap;
+    word-break: normal;
+    overflow-wrap: normal;
+    hyphens: none;
+}
+
+/* Location cell for deep (3+ level) entity hierarchies: the ancestor path appears in a pure-CSS
+   card on hover AND on keyboard focus (:focus-within) — no Bootstrap tooltip JS, so the behaviour
+   is identical on Bootstrap 4 (Moodle 4.x) and 5 (Moodle 5.x). Screenreaders read the path from
+   visually hidden text inside the link instead (the card is aria-hidden). */
+.mod-booking-location-cell {
+    position: relative;
+    display: inline-block;
+}
+
+.mod-booking-location-cell .mod-booking-location-path {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 1000;
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 0.25rem;
+    padding: 0.5rem 0.75rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    white-space: nowrap;
+}
+
+.mod-booking-location-cell:hover .mod-booking-location-path,
+.mod-booking-location-cell:focus-within .mod-booking-location-path {
+    display: block;
+}
+
+.mod-booking-location-pathitem {
+    display: block;
+}
+
+.mod-booking-location-pathimg {
+    height: 24px;
+    width: 24px;
+    object-fit: cover;
+    border-radius: 0.25rem;
+    margin-right: 0.25rem;
+    vertical-align: middle;
+}
+
+/*
+ * Accessibility (WCAG 2 AA color-contrast): the muted grey used for small
+ * booking meta texts (#77838f, ~3.86:1 on white) fails the minimum 4.5:1
+ * ratio. Darken to an accessible grey (#767676, ~4.57:1).
+ * Covered by booking_installments.feature "the page should meet accessibility standards".
+ */
+.booking-showdates-area,
+.booking-showdates-title b {
+    color: #767676;
+}
+
+/*
+ * The theme defines .text-gray as #77838f and aggregates it after this plugin's
+ * CSS, so a plain .text-gray rule would lose the cascade. The doubled-class
+ * selector raises specificity (0,2,0) to win without !important. Fixes the
+ * bookings count column and other muted booking meta texts (and any element
+ * inheriting the colour from a .text-gray cell, e.g. the waiting-list span).
+ */
+.text-gray.text-gray {
+    color: #767676;
+}
+
+/*
+ * Inline pre booking pages (site setting booking | turnoffmodals).
+ *
+ * The pre booking pages are built for a modal body, where the negative margins of their .row
+ * elements are compensated by the padding of .modal-body. Rendered inline, the area is appended to
+ * the booking option row, which has no such padding - so the rows stuck out over the card border on
+ * the left (and right). We neutralise the gutters here and center the content instead.
+ */
+.prepage-inline {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+}
+
+.prepage-inline > .row {
+    justify-content: center;
+    margin-left: 0;
+    margin-right: 0;
+}
+
+/* The inline area is appended to the option row, so it must not add a gutter of its own either. */
+.inlineprepagearea {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+/*
+ * Booking instance settings (mod_form), section "Automatic course and group enrolment":
+ * indent the group enrolment setting of the connected course, because it is only shown
+ * when "Automatically enrol users in connected course" is activated (dependency).
+ */
+#page-mod-booking-mod .fitem.row:has(input[name="addtogroup"]) {
+    padding-left: 2rem;
+}
+
+/* Custom form: Checkbox labels. */
+.condition-customform .form-check span[id$="description"] {
+    margin-left: 0.5rem;
 }

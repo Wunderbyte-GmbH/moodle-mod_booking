@@ -38,7 +38,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @author Georg Maißer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class endtime {
+class endtime extends \mod_booking\placeholders\placeholder_base {
     /**
      * Function which takes a text, replaces the placeholders...
      * ... and returns the text with the correct values.
@@ -68,10 +68,9 @@ class endtime {
         $classname = substr(strrchr(get_called_class(), '\\'), 1);
 
         if (!empty($optionid)) {
-            // The cachekey depends on the kind of placeholder and it's ttl.
-            // If it's the same for all users, we don't use userid.
-            // If it's the same for all options of a cmid, we don't use optionid.
-            $cachekey = "$classname-$optionid";
+            // The rendered date depends on the language (and timezone) of the user the text is rendered for
+            // (rule mails force the language of each recipient), so the cachekey has to include the userid.
+            $cachekey = "$classname-$optionid-$userid";
             if (isset(placeholders_info::$placeholders[$cachekey])) {
                 return placeholders_info::$placeholders[$cachekey];
             }
@@ -79,7 +78,8 @@ class endtime {
             $timeformat = get_string('strftimetime', 'langconfig');
 
             $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
-            $value = $settings->courseendtime ?
+            // Self-learning courses have no dates and no official start or end.
+            $value = $settings->courseendtime && !$settings->is_selflearningcourse() ?
                 userdate($settings->courseendtime, $timeformat) : '';
 
             // Save the value to profit from singleton.

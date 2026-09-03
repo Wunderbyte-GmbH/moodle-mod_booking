@@ -26,15 +26,12 @@ declare(strict_types=1);
 
 namespace mod_booking\external;
 
-use external_api;
-use external_function_parameters;
-use external_value;
-use external_single_structure;
+use core_external\external_api;
+use core_external\external_function_parameters;
+use core_external\external_value;
+use core_external\external_single_structure;
 use mod_booking\bo_availability\bo_info;
-
-defined('MOODLE_INTERNAL') || die();
-
-require_once($CFG->libdir . '/externallib.php');
+use mod_booking\permissions;
 
 /**
  * External Service for load pre_booking page.
@@ -55,6 +52,12 @@ class load_pre_booking_page extends external_api {
             'optionid' => new external_value(PARAM_INT, 'option id'),
             'userid' => new external_value(PARAM_INT, 'user id', VALUE_DEFAULT, 0),
             'pagenumber' => new external_value(PARAM_INT, 'number of page we want to load'),
+            'skipcondition' => new external_value(
+                PARAM_ALPHANUMEXT,
+                'condition shortname to skip (e.g. slotbooking)',
+                VALUE_DEFAULT,
+                ''
+            ),
             ]);
     }
 
@@ -64,10 +67,11 @@ class load_pre_booking_page extends external_api {
      * @param int $optionid
      * @param int $userid
      * @param int $pagenumber
+     * @param string $skipcondition optional condition shortname to exclude from the sorted pages
      *
      * @return array
      */
-    public static function execute(int $optionid, int $userid, int $pagenumber): array {
+    public static function execute(int $optionid, int $userid, int $pagenumber, string $skipcondition = ''): array {
         global $USER;
 
         $params = self::validate_parameters(
@@ -76,10 +80,23 @@ class load_pre_booking_page extends external_api {
                 'optionid' => $optionid,
                 'userid' => $userid,
                 'pagenumber' => $pagenumber,
+                'skipcondition' => $skipcondition,
             ]
         );
 
-        $result = bo_info::load_pre_booking_page($params['optionid'], $params['pagenumber'], $params['userid']);
+        // The user needs access to the booking instance the option belongs to.
+        // Users with mod/booking:choose may book without course access (e.g. via shortcode lists).
+        $settings = \mod_booking\singleton_service::get_instance_of_booking_option_settings($params['optionid']);
+        permissions::validate_context_for_booking((int)($settings->cmid ?? 0));
+        // Loading the pre booking pages of another user needs the book for others (or cashier) rights.
+        \mod_booking\form\condition\customform_form::require_userid_access($params['userid'], $params['optionid']);
+
+        $result = bo_info::load_pre_booking_page(
+            $params['optionid'],
+            $params['pagenumber'],
+            $params['userid'],
+            $params['skipcondition']
+        );
 
         return $result;
     }
@@ -98,7 +115,7 @@ class load_pre_booking_page extends external_api {
                     VALUE_REQUIRED
                 ),
                 'template' => new external_value(
-                    PARAM_RAW,
+                    PARAM_TEXT,
                     'The name of the template which is needed to render the content.',
                     VALUE_REQUIRED
                 ),

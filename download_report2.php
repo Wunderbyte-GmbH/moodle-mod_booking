@@ -35,13 +35,25 @@ require_login();
 require_once($CFG->dirroot . '/local/wunderbyte_table/classes/wunderbyte_table.php');
 
 $download = optional_param('download', '', PARAM_ALPHA);
-$encodedtable = optional_param('encodedtable', '', PARAM_RAW);
+$encodedtable = optional_param('encodedtable', '', PARAM_ALPHANUM); // Md5 hash referencing the cached table definition.
 $scope = optional_param('scope', '', PARAM_TEXT);
 $statusparam = optional_param('statusparam', '', PARAM_INT); // Value as stored in field 'waitinglist'.
+$scopeid = optional_param('scopeid', 0, PARAM_INT); // Needed to resolve the booking instance settings.
 
 $syscontext = context_system::instance();
 $PAGE->set_context($syscontext);
 $PAGE->set_url('/download_report2.php');
+
+$ba = new booking_answers();
+/** @var \mod_booking\booking_answers\scope_base $class */
+$class = $ba->return_class_for_scope($scope);
+
+// Server-side re-check of the capability which also gates the download button:
+// downloading the responses (personal data of the booked users) requires
+// mod/booking:downloadresponses in the context of the requested scope.
+if (!$class->has_capability_in_scope($scopeid, 'mod/booking:downloadresponses')) {
+    throw new required_capability_exception($syscontext, 'mod/booking:downloadresponses', 'nopermissions', '');
+}
 
 // Table will be of an instance of the child class extending wunderbyte_table.
 /** @var manageusers_table $table */
@@ -55,10 +67,9 @@ $table->is_downloading($download, $fileandsheetname, $fileandsheetname);
 $table->headers = [];
 $table->columns = [];
 
-$ba = new booking_answers();
-/** @var \mod_booking\booking_answers\scope_base $class */
-$class = $ba->return_class_for_scope($scope);
-$columns = $class->return_cols_for_tables($statusparam);
+// The download columns can be configured per booking instance
+// via the setting "Manage responses - Download" (reportfields).
+$columns = $class->return_cols_for_download($statusparam, $scopeid);
 $table->define_headers(array_values($columns));
 $table->define_columns(array_keys($columns));
 

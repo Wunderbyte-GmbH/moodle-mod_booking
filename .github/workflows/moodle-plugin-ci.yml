@@ -3,21 +3,23 @@ name: Moodle Plugin CI
 on: [push, pull_request]
 
 jobs:
-  moodle500:
+  moodle500to502:
     uses: Wunderbyte-GmbH/catalyst-moodle-workflows/.github/workflows/ci.yml@main
     with:
       # Change these based on your plugin's requirements
       disable_release: true  # Use true if using the tag-based release workflow
-      moodle_branches: "MOODLE_500_STABLE"  # Optional: Only test specific Moodle versions
+      moodle_branches: "MOODLE_500_STABLE MOODLE_501_STABLE MOODLE_502_STABLE"  # Optional: Only test specific Moodle versions
+      min_php: '8.2'  # Optional: Set minimum PHP version
 
       # Command to install more dependencies
       extra_plugin_runners: |
-        moodle-plugin-ci add-plugin --branch MOODLE_401_DEV Wunderbyte-GmbH/moodle-local_wunderbyte_table
-        moodle-plugin-ci add-plugin --branch MOODLE_401_DEV Wunderbyte-GmbH/moodle-local_shopping_cart
+        moodle-plugin-ci add-plugin --branch MOODLE_405_DEV Wunderbyte-GmbH/moodle-local_wunderbyte_table
+        moodle-plugin-ci add-plugin --branch MOODLE_405_DEV Wunderbyte-GmbH/moodle-local_shopping_cart
         moodle-plugin-ci add-plugin --branch main Wunderbyte-GmbH/moodle-local_entities
         moodle-plugin-ci add-plugin --branch main Wunderbyte-GmbH/moodle-customfield_dynamicformat
         moodle-plugin-ci add-plugin --branch main Wunderbyte-GmbH/moodle-tool_mocktesttime
         moodle-plugin-ci add-plugin --branch master branchup/moodle-filter_shortcodes
+        moodle-plugin-ci add-plugin --branch master iarenaza/moodle-filter_multilang2
         moodle-plugin-ci add-plugin --branch MOODLE_500_STABLE moodleworkplace/moodle-tool_certificate
 
       # If you need to ignore specific paths (third-party libraries are ignored by default)
@@ -53,6 +55,34 @@ jobs:
         # Set additional environment variables
         # echo "SOME_PATHS=OpenTBS, TinyButStrong" >> $GITHUB_ENV
 
+        # WORKAROUND 24/07/2026: moodle-plugin-ci codechecker passes every plugin
+        # PHP file as an argument; Symfony Process flattens the command into a
+        # single 'sh -c' string, which counts as ONE argument against the Linux
+        # per-argument limit MAX_ARG_STRLEN (128 KiB). With Moodle 5.1+ the
+        # plugin lives under moodle/public/, pushing the string over the limit:
+        # proc_open fails with "Unable to launch a new process" (Process.php:356).
+        # Patch the installed moodle-plugin-ci to pass files via phpcs --file-list.
+        # Remove once fixed upstream in moodlehq/moodle-plugin-ci.
+        perl -0pi -e 's/foreach \(\$files as \$file\) \{\n            \$cmd\[\] = \$file;\n        \}/\$fileList = \$this->tempFile . "-file-list";\n        file_put_contents(\$fileList, implode(PHP_EOL, \$files));\n        \$cmd[] = "--file-list=" . \$fileList;/s' "$GITHUB_WORKSPACE/m-ci/src/Command/CodeCheckerCommand.php"
+        grep -q -- '--file-list' "$GITHUB_WORKSPACE/m-ci/src/Command/CodeCheckerCommand.php" && echo "codechecker patched to use --file-list" || { echo "codechecker --file-list patch FAILED - check moodle-plugin-ci upstream"; exit 1; }
+        # END OF WORKAROUND 24/07/2026
+
+        # WORKAROUND 03/08/2026: moodle-plugin-ci phpdoc passes all plugin files
+        # as ONE comma-joined '-p=' argument; with Moodle 5.1+ public/ paths this
+        # exceeds MAX_ARG_STRLEN (mod_booking: 131396 > 131072 bytes). On
+        # PHP >= 8.3 proc_open (posix_spawn) fails hard ("Unable to launch a new
+        # process", Process.php:356), which also skips the cleanup that removes
+        # local_moodlecheck from the Moodle tree and thereby breaks phpunit AND
+        # behat ("environment was initialised for different version"). On
+        # PHP <= 8.2 the exec failure was swallowed and phpdoc silently checked
+        # nothing. moodlecheck.php has no --file-list option, but -p accepts a
+        # directory and recurses; the plugin has no PHP files in ignored dirs,
+        # so passing the plugin directory checks the identical file set.
+        # Remove once fixed upstream in moodlehq/moodle-plugin-ci.
+        perl -0pi -e "s/implode\(',', \\\$files\)/\\\$this->plugin->directory/" "$GITHUB_WORKSPACE/m-ci/src/Command/PHPDocCommand.php"
+        grep -q -- "this->plugin->directory" "$GITHUB_WORKSPACE/m-ci/src/Command/PHPDocCommand.php" && echo "phpdoc patched to pass plugin directory" || { echo "phpdoc directory patch FAILED - check moodle-plugin-ci upstream"; exit 1; }
+        # END OF WORKAROUND 03/08/2026
+
         # WORKAROUND 17/04/2025: The following code is a workaround for the "File is stale and needs to be rebuilt" error
         # This occurs when AMD modules import Moodle core dependencies
         # See issue: https://github.com/moodlehq/moodle-plugin-ci/issues/350
@@ -80,22 +110,23 @@ jobs:
         # Go Back to main directory
         cd ..
         # END OF WORKAROUND
-  moodle401to405:
+  moodle405:
     uses: Wunderbyte-GmbH/catalyst-moodle-workflows/.github/workflows/ci.yml@main
     with:
       # Change these based on your plugin's requirements
       disable_release: true  # Use true if using the tag-based release workflow
-      moodle_branches: "MOODLE_401_STABLE MOODLE_404_STABLE MOODLE_405_STABLE"  # Optional: Only test specific Moodle versions
-      min_php: '7.4'  # Optional: Set minimum PHP version
+      moodle_branches: "MOODLE_405_STABLE"  # Optional: Only test specific Moodle versions
+      min_php: '8.1'  # Optional: Set minimum PHP version
 
       # Command to install more dependencies
       extra_plugin_runners: |
-        moodle-plugin-ci add-plugin --branch MOODLE_401_DEV Wunderbyte-GmbH/moodle-local_wunderbyte_table
-        moodle-plugin-ci add-plugin --branch MOODLE_401_DEV Wunderbyte-GmbH/moodle-local_shopping_cart
+        moodle-plugin-ci add-plugin --branch MOODLE_405_DEV Wunderbyte-GmbH/moodle-local_wunderbyte_table
+        moodle-plugin-ci add-plugin --branch MOODLE_405_DEV Wunderbyte-GmbH/moodle-local_shopping_cart
         moodle-plugin-ci add-plugin --branch main Wunderbyte-GmbH/moodle-local_entities
         moodle-plugin-ci add-plugin --branch main Wunderbyte-GmbH/moodle-customfield_dynamicformat
         moodle-plugin-ci add-plugin --branch main Wunderbyte-GmbH/moodle-tool_mocktesttime
         moodle-plugin-ci add-plugin --branch master branchup/moodle-filter_shortcodes
+        moodle-plugin-ci add-plugin --branch master iarenaza/moodle-filter_multilang2
         moodle-plugin-ci add-plugin --branch MOODLE_400_STABLE moodleworkplace/moodle-tool_certificate
 
       # If you need to ignore specific paths (third-party libraries are ignored by default)
@@ -130,6 +161,34 @@ jobs:
       workarounds: |
         # Set additional environment variables
         # echo "SOME_PATHS=OpenTBS, TinyButStrong" >> $GITHUB_ENV
+
+        # WORKAROUND 24/07/2026: moodle-plugin-ci codechecker passes every plugin
+        # PHP file as an argument; Symfony Process flattens the command into a
+        # single 'sh -c' string, which counts as ONE argument against the Linux
+        # per-argument limit MAX_ARG_STRLEN (128 KiB). With Moodle 5.1+ the
+        # plugin lives under moodle/public/, pushing the string over the limit:
+        # proc_open fails with "Unable to launch a new process" (Process.php:356).
+        # Patch the installed moodle-plugin-ci to pass files via phpcs --file-list.
+        # Remove once fixed upstream in moodlehq/moodle-plugin-ci.
+        perl -0pi -e 's/foreach \(\$files as \$file\) \{\n            \$cmd\[\] = \$file;\n        \}/\$fileList = \$this->tempFile . "-file-list";\n        file_put_contents(\$fileList, implode(PHP_EOL, \$files));\n        \$cmd[] = "--file-list=" . \$fileList;/s' "$GITHUB_WORKSPACE/m-ci/src/Command/CodeCheckerCommand.php"
+        grep -q -- '--file-list' "$GITHUB_WORKSPACE/m-ci/src/Command/CodeCheckerCommand.php" && echo "codechecker patched to use --file-list" || { echo "codechecker --file-list patch FAILED - check moodle-plugin-ci upstream"; exit 1; }
+        # END OF WORKAROUND 24/07/2026
+
+        # WORKAROUND 03/08/2026: moodle-plugin-ci phpdoc passes all plugin files
+        # as ONE comma-joined '-p=' argument; with Moodle 5.1+ public/ paths this
+        # exceeds MAX_ARG_STRLEN (mod_booking: 131396 > 131072 bytes). On
+        # PHP >= 8.3 proc_open (posix_spawn) fails hard ("Unable to launch a new
+        # process", Process.php:356), which also skips the cleanup that removes
+        # local_moodlecheck from the Moodle tree and thereby breaks phpunit AND
+        # behat ("environment was initialised for different version"). On
+        # PHP <= 8.2 the exec failure was swallowed and phpdoc silently checked
+        # nothing. moodlecheck.php has no --file-list option, but -p accepts a
+        # directory and recurses; the plugin has no PHP files in ignored dirs,
+        # so passing the plugin directory checks the identical file set.
+        # Remove once fixed upstream in moodlehq/moodle-plugin-ci.
+        perl -0pi -e "s/implode\(',', \\\$files\)/\\\$this->plugin->directory/" "$GITHUB_WORKSPACE/m-ci/src/Command/PHPDocCommand.php"
+        grep -q -- "this->plugin->directory" "$GITHUB_WORKSPACE/m-ci/src/Command/PHPDocCommand.php" && echo "phpdoc patched to pass plugin directory" || { echo "phpdoc directory patch FAILED - check moodle-plugin-ci upstream"; exit 1; }
+        # END OF WORKAROUND 03/08/2026
 
         # WORKAROUND 17/04/2025: The following code is a workaround for the "File is stale and needs to be rebuilt" error
         # This occurs when AMD modules import Moodle core dependencies

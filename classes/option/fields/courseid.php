@@ -242,6 +242,15 @@ class courseid extends field_base {
         $mform->hideIf('coursetemplateid', 'chooseorcreatecourse', 'neq', 3);
         $mform->addHelpButton('coursetemplateid', 'createnewmoodlecoursefromtemplate', 'mod_booking');
 
+        // Inform that the course is created immediately but its content is copied in the background.
+        $mform->addElement(
+            'static',
+            'coursetemplateinfo',
+            '',
+            get_string('createnewmoodlecoursefromtemplateinfo', 'mod_booking')
+        );
+        $mform->hideIf('coursetemplateinfo', 'chooseorcreatecourse', 'neq', 3);
+
         $mform->addElement(
             'advcheckbox',
             'createnewmoodlecoursefromtemplatewithusers',

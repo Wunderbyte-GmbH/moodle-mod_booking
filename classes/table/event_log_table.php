@@ -105,4 +105,20 @@ class event_log_table extends wunderbyte_table {
         $user = singleton_service::get_instance_of_user($values->userid);
         return "$user->firstname $user->lastname";
     }
+
+    /**
+     * Transform relateduserid (the receiver) to username.
+     *
+     * @param object $values The row data.
+     * @return string
+     */
+    public function col_relateduserid($values) {
+
+        if (empty($values->relateduserid)) {
+            return '';
+        }
+
+        $user = singleton_service::get_instance_of_user($values->relateduserid);
+        return "$user->firstname $user->lastname";
+    }
 }

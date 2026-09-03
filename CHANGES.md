@@ -1,3 +1,826 @@
+## Version 9.7.9 (2026090204)
+* New feature: Waiting list progression refactoring - the legacy chains of confirm_bookinganswer / send_mail_interval rule actions and their adhoc tasks are replaced by a reconciler (progression) with a single source of truth: booking_waitlist_offers holds every offered / accepted / declined / expired / skipped / autobooked decision per round, booking_waitlist_declines is the round-independent lockout ledger (declined = permanent, expired = resettable). Offers expire via expire_waitlist_offer_adhoc, a waitlist_heartbeat_task (every 5 minutes, admin setting waitlistheartbeatinterval) self-heals lost triggers, the per-option field waitlistrecycling controls what happens after a full pass (stop / go through again / open up), the open mode (type 2) lets anyone book directly once the list was processed without the seat being claimed. Event observers (adapters) drive the reconciler from booked, unconfirmed, cancelled and late-joined answers; still-running legacy chains are migrated on upgrade (idempotent). The onwaitinglist condition reads the open mode state from the repository. Privacy metadata, unit and behat tests, and architecture blueprints included. (Wunderbyte-GmbH/moodle-mod_booking#1506)
+* Bugfix: Booking rules normalize userid, objectid and relateduserid to int before embedding them into rulejson, so two triggers of the same event deduplicate into one adhoc task. Waiting list ordering tie-breaks on the answer id when timemodified is equal. (Wunderbyte-GmbH/moodle-mod_booking#1506)
+* Note: The upgrade steps of this feature are anchored above the base version 2026090200 (savepoints 2026090201 - 2026090204), all steps are guarded and idempotent, so sites that already ran the earlier anchors (2026083101 - 2026083104 on MOODLE_405_DEV) pass through again without changes. (Wunderbyte-GmbH/moodle-mod_booking#1506)
+
+## Version 9.7.9 (2026090200)
+* New feature: Slot booking - several booking options can be merged into one calendar (multi-option calendar view with sidebar, shortcode support), user-defined and rolling slot types, an option defines how many slots one user can book at once (max_slots_per_user), a slot that overlaps a distinct existing booking is exclusive regardless of remaining capacity, the "available for you" counter respects the per-user slot cap, the slotbooking condition validates a selection itself with a clear notification instead of a silent no-op, a per-request cache of booked slot ranges is kept and cleared on every answer write. Behat coverage for the fixed, rolling, session and user-defined slot types. (Wunderbyte-GmbH/Wunderbyte-GmbH#2054)
+* Documentation: Complete slot booking user guide. (Wunderbyte-GmbH/Wunderbyte-GmbH#2231)
+* New feature: The elementid migration for customform elements of existing booking options is part of this branch now (savepoint 2026083106). The feature code was already here, but the migration that assigns the stable ids was missing, so installed sites never got their elements anchored. elementid := historical position, therefore every stored answer key customform_{formtype}_{position} stays valid and no answer data is rewritten. The step is idempotent and includes templates. (Wunderbyte-GmbH/Wunderbyte-GmbH#2195)
+* Bugfix: The add-to-cart button is kept when bookit reports that nothing changed. (Wunderbyte-GmbH/Wunderbyte-GmbH#2277)
+* Bugfix: The confirmation page reads the booking result from the user's actual booking state, not from the blocker cascade - for slot options the slotbooking condition stays blocking by design and masked the real state. (Wunderbyte-GmbH/Wunderbyte-GmbH#2281)
+* Bugfix: An armed two-step confirmation (click again to book/cancel) is told apart from a no-op booking answer, so the button is re-rendered to "click again" instead of staying as it is. (Wunderbyte-GmbH/Wunderbyte-GmbH#2306)
+* Improvement: Missing language strings added, hardcoded texts replaced by localized strings, comments translated to english. (Wunderbyte-GmbH/Wunderbyte-GmbH#2085, Wunderbyte-GmbH/Wunderbyte-GmbH#2117)
+* Bugfix: Removed html build inside a string of the dynamic option date form. (Wunderbyte-GmbH/Wunderbyte-GmbH#2116)
+* Bugfix: The option list cache (local_wunderbyte_table) is purged on every booking answer write, so a row's button state no longer stays stale across page reloads.
+* Test: The credits test asserts the message users actually get, not the missing-string fallback. (Wunderbyte-GmbH/Wunderbyte-GmbH#2309)
+
+## Version 9.7.9 (2026083100)
+* New feature: Custom form elements can be moved, inserted and deleted directly in the booking option form. Every element keeps a stable elementid, so the answer keys stored in booking_answers (customform_{formtype}_{position}) stay valid when elements are reordered - reordering no longer shifts the answers of one field onto another. Deleting a field removes the field, never the answers already given for it. On rows without a field, the row buttons are hidden. (Wunderbyte-GmbH/Wunderbyte-GmbH#2195)
+* Improvement: Mandatory custom form fields are marked as required in the prepage modal (client side rule and error message), and the url and mail element types get their missing setType() call. (Wunderbyte-GmbH/Wunderbyte-GmbH#2232)
+* Bugfix: Scroll position, focus and the open state of the date cards survive the no-submit reloads of the booking option form - editing a long option no longer jumps back to the top of the page on every internal form reload. (Wunderbyte-GmbH/Wunderbyte-GmbH#2215)
+* Bugfix: Booking instances created outside the module form (webservices, wizard, generators) fall back to the default field lists for responsesfields, reportfields, signinsheetfields and showviews instead of being stored empty - report.php rendered no standard columns at all for such instances, and the custom form columns ended up leftmost. Existing instances with empty field lists are healed when their settings are read. (Wunderbyte-GmbH/Wunderbyte-GmbH#2310)
+* Bugfix: get_all_options_of_teacher_sql() is passed the instance context, so canseeinvisibleoptions is evaluated in the context it belongs to and invisible options stay invisible for teachers without that capability. (Wunderbyte-GmbH/Wunderbyte-GmbH#2237)
+* Bugfix: Direct option ids handed to the get_option_details AI skill are checked against the booking instance in scope, so an id from another instance is rejected instead of answered. (Wunderbyte-GmbH/Wunderbyte-GmbH#2230)
+* Bugfix: The get_option_details AI skill reports the seats of an option correctly and distinguishes fields that were not requested from fields that are empty. (Wunderbyte-GmbH/Wunderbyte-GmbH#2233)
+* Improvement: The deep link back to a booking option after login also works for options with a price. (Wunderbyte-GmbH/Wunderbyte-GmbH#1182)
+
+* Bugfix: Saving a booking campaign resets the campaign list memoized in the singleton_service for the current request. Since the empty campaign list is memoized as well (9.7.8, #2307), a campaign created within a request that had already read the (empty) list stayed invisible for the rest of that request - the blockbooking and customfield limit campaign tests failed on all CI cells for that reason; delete_campaign() already did the reset. (Wunderbyte-GmbH/Wunderbyte-GmbH#2307)
+* Improvement: The date placeholders {dates}, {datescompact}, {startdate}, {starttime}, {enddate}, {endtime} and {pollstartdate} render an empty value for self-learning courses (option type "self-learning course"): such options have no option dates and no official start or end, but dates left over from before a type change (or imported together with the type) were still rendered. Together with the section syntax {#dates}...{/dates} (the text between the markers is dropped when the placeholder is empty) this hides date related passages of rule mails and descriptions for self-learning courses. {datesandentities} keeps its dedicated self-learning course text (remaining duration).
+* Improvement: The placeholders documentation explains the conditional text syntax {#name}...{/name} (the section is removed as a whole when the placeholder is empty) including its limitations: the placeholder has to occur in the text, unknown names and missing closing markers leave the section untouched, and a value of 0 counts as empty.
+* Bugfix: Warnings of availability conditions (e.g. "maximum number of bookings reached" or "overlaps with the option(s) you booked") are always shown ABOVE the book button and above the price / add-to-cart button now, never next to them. Two causes: the wrapper of the price button (bookit_price) was a horizontal flex row, and the area of the plain book button (bookit_button) had no direction at all, so plugin css loaded in every theme (local_urise sets display:flex on .booking-button-area) laid the warning out left of the "Book now" button - in the list and cards views as well as on the option detail page. Both templates are explicit vertical flex columns now (warning, button / price, price label). theme_lexa ships its own copies of both templates and got the same fix (its price label / button row is nested below the warning), theme_musi uses the core templates.
+* Bugfix: The placeholders {startdate}, {starttime}, {enddate}, {endtime} and {pollstartdate} are cached per user now, like {dates}: their values are rendered with userdate() in the language (and timezone) of the user, and rule mails force the language of each recipient - with the previous per-option cachekey, the second recipient of a multilingual cron run got the date format of the first one. {starttime} additionally never stored its value in the cache at all.
+* Bugfix: When booking option singleton is destroyed, then also destroy placeholder singletons.
+* Bugfix: Placeholders without a value (e.g. {institution} of an option without institution, which returns null) no longer trigger a PHP 8.1+ deprecation (str_replace() with null) while the text is rendered.
+
+## Version 9.7.6 (2026082101)
+* New feature: Form elements of the customform availability condition can be moved, inserted and deleted in the booking option form (buttons per row) without breaking existing booking answers. Every element now carries a stable elementid (migration assigns the historical position, so all stored answer keys stay valid - no answer data is rewritten); the runtime identifier customform_{formtype}_{elementid} and the report column formfield_{elementid} are built from that id, so reordering no longer shifts the mapping between answers and elements. New elements get their id from a monotonic nextelementid counter that never reuses freed ids. The prefill key hint of the option form shows the stable id now, and the subbooking additionalitem form link references elements by elementid. Also fixes the report lookup of the deleteinfoscheckboxuser answer, which was searched with a counter suffix although it is stored without one. (Wunderbyte-GmbH/Wunderbyte-GmbH#2195)
+* Bugfix: The option form no longer jumps back to the top on no-submit reloads (adding a date, a customform element or any other no-submit button): scroll position, the focused element and the expanded date cards are preserved. (Wunderbyte-GmbH/Wunderbyte-GmbH#2215)
+* Improvement: Mandatory elements of the custom booking form (customform availability condition) are marked as required in the prepage modal now: the label carries the core required marker (red exclamation mark) and the client-side check runs before submission, exactly like the modal to change form values in the Bookings Tracker. Static texts and the privacy consent checkbox stay unmarked, they have no input to fill in. The url and mail element types also got their missing setType(), which made every form build emit a Moodle debugging message. (Wunderbyte-GmbH/Wunderbyte-GmbH#2232)
+* Bugfix: get_option_details reports the seats of an option correctly and never presents a field that was not requested as absent: the default set now covers availability, location and imageurl, availability is assembled from booking_answers (an option without a limit reports places_limited=false instead of a made-up zero), and the result carries omitted_fields next to per-option empty_fields. (Wunderbyte-GmbH/Wunderbyte-GmbH#2233)
+* Bugfix: Teachers with mod/booking:canseeinvisibleoptions see invisible options in their taught courses again - get_all_options_of_teacher_sql evaluated the capability without the instance context. (Wunderbyte-GmbH/Wunderbyte-GmbH#2237)
+* Bugfix: A booking option id supplied directly to get_option_details is bound to the booking instance of the cmid now. In module context it bypassed the instance scope entirely, so a chat running in one booking activity answered about - and rendered a bookable preview card for - an option in another activity. (Wunderbyte-GmbH/Wunderbyte-GmbH#2230)
+* Improvement: Users who log in from the login button of an option that shows a price return to that option afterwards. The isloggedinprice condition linked to the login page without a return url, so those users ended up wherever they had started; the return url logic moved into bo_info::set_login_returnurl() and is used by both login conditions. (Wunderbyte-GmbH/Wunderbyte-GmbH#1182)
+
+## Version 9.7.6 (2026082100)
+* Bugfix: The plugin version was lower than the highest upgrade savepoint (2026082100) introduced with the waiting-list progression migration, so the upgrade step wrote a version into the database that version.php did not know about and the savepoints check of the CI failed. The version is raised to match the savepoint. (Wunderbyte-GmbH/moodle-mod_booking#1525)
+
+## Version 9.7.6 (2026082001)
+* Bugfix: The capability mod/booking:skill_mod_booking_diagnose_waitinglist was never defined in db/access.php, so the diagnose_waitinglist AI skill (added in 9.7.5) was denied everywhere with "Capability is NOT defined". The capability is now declared like its diagnose siblings (read, module context, teacher/editingteacher/manager) including en/de capability strings. (Wunderbyte-GmbH/Wunderbyte-GmbH#2168)
+
+## Version 9.7.6 (2026081901)
+* Improvement: The bookforuser session cache was removed entirely - the acting user is now resolved strictly request-bound (explicit userid, else the capability-gated shopping cart cashier param, else the logged-in user). The single-key MODE_SESSION cache was shared across all tabs of a login and let one request leak its acting user into unrelated requests of the same session. price::set_bookforuser() stays as a deprecated no-op so older local_shopping_cart/local_taskflow versions do not fatal. (Wunderbyte-GmbH/Wunderbyte-GmbH#2214)
+* Improvement: The lazy responsible-contact tab of view.php no longer runs a full table render (including the filter build with per-column value counts over the whole instance) just to decide whether the tab should be shown - one cheap existence check on the already-built SQL replaces it. On a cold cache this contributed ~600ms DB time per view.php request. (Wunderbyte-GmbH/Wunderbyte-GmbH#2212)
+* Improvement: The slotmove booking condition checks the cheap settings gate (slot config present and self-rebooking allowed, read from the cached option settings) BEFORE fetching the user's booked answer - previously every rendered booking options table row paid one booking_answers read per shown option per request, even on instances without any slot config. (Wunderbyte-GmbH/Wunderbyte-GmbH#2209)
+
+* New feature: The sign-in sheet in HTML template mode (setting signinsheethtml) and the checklist (setting checklisthtml) can be generated as PDF/A-2b (archivable) - switched on with the setting "Create PDF/A-2b compliant PDFs" of the Wunderbyte Table plugin (local_wunderbyte_table/pdfaenabled, off by default): all fonts are embedded (Helvetica/Times/Courier in templates are mapped to FreeSans/FreeSerif/FreeMono), CMYK images are converted to RGB, images referenced by URL are downloaded by the server (Moodle's cURL security settings apply) and left out when they cannot be loaded. When the setting is off the PDFs are generated exactly as before. Requires local_wunderbyte_table 3.3.2 (2026081800).
+* New feature: Booking option dates can now be added to the Moodle calendar as site events ("Add to Moodle calendar" > "Add as site event (visible to all users of the site)", addtocalendar = 2) in addition to the existing course events - site events are shown in the calendar of every user of the site, no enrolment in the course of the booking instance is needed (they are created without modulename/instance on purpose: Moodle's calendar filters module events by course module visibility and enrolment, which would hide them again for unenrolled users; an earlier attempt stored them with eventtype 'booking' and they ended up as "other events"). Setting the value requires the new capability mod/booking:createcalendarsiteevents (module context, RISK_SPAM; default: manager archetype, assigned to existing manager roles on upgrade - custom roles have to be granted manually; site administrators always have it). Without it the option form offers only "do not add" and "course event"; an option that already is a site event is shown read-only, so the decision of a privileged user is preserved when others edit the option. The check is enforced server-side for all save paths (option form, bulk editing, web service addbookingoption, CSV import) - a value of 2 submitted without the capability is rejected with a permission error and nothing is saved; the option form additionally shows a validation error. Switching between course and site events converts the existing calendar events in place (same event ids), switching to "do not add" deletes them; invisible options and hidden booking activities hide site events like course events. New settings: booking/addtocalendardefault preselects the dropdown for NEW booking options (do not add / course event / site event - site event falls back to course event for users without the capability), booking/addtocalendar_locked (until now read by the form but never defined) freezes the dropdown at that default - administrators then see a hint below the locked field linking directly to that setting, where it can be unlocked. Labels renamed for consistency: "Add to course calendar" > "Add to Moodle calendar", "Do not add to calendar of moodle course" > "Do not add to calendar". Capability violations thrown by option fields are no longer swallowed by fields_info::prepare_save_fields().
+* New feature: New placeholder {datescompact} rendering the dates of a booking option like {dates}, but without bullet points: one line per day (separated by a &lt;br&gt; HTML tag), and several dates on the same day are combined into a single line - the date is shown once, the time slots follow separated by commas with a localized "and" before the last one (e.g. "20 August 2026, 10:00-12:00, 13:00-15:00 and 17:00-18:00"; German: "20. August 2026, 10:00-12:00, 13:00-15:00 und 17:00-18:00"). Dates spanning more than one day keep the full date string known from {dates}. Like {dates}, timezone abbreviations are appended to the times when the user's timezone differs from the site timezone (see the new setting below to turn them off).
+* New feature: New setting "Hide timezones in dates" (booking/hidetimezonesindates, off by default): when active, the timezone abbreviation that is normally appended to rendered dates when a user's timezone differs from the site timezone (e.g. "(EDT)") is never rendered in the dates displayed by the plugin - most importantly the date-related placeholders ({dates}, {datesandentities}, {datescompact}, {startdate}, {starttime}, {enddate}, {endtime}), but everything going through the plugin's timezone-aware date formatting is covered, so booking opening/closing times in the tables and option descriptions lose the abbreviation as well. Note that only the label is hidden - the times themselves are still rendered in the timezone of the user.
+* New feature: New global setting "Availability conditions when booking other users" (booking/bookotherusersavailability) decides how the "Book other users" page (subscribeusers.php) handles availability conditions of the booking option which the selected users do not meet. "Ignore availability conditions" (default) keeps the behavior known so far: conditions are not checked when booking for others. "Show a warning that needs to be confirmed" lists the affected users together with the conditions they do not meet, and the users are only booked after the booking agent confirms with "Book anyway" (cancelling books nobody); a confirmed warning also overrides the "Max current bookings per user" limit of the instance for exactly the users the warning listed with that blocker, so confirming really books them (new parameter $skipuserlimitcheck of user_submit_response - the capacity of the option is still respected). For users blocked by that limit, the warning and the block-mode error additionally name the booking options they are already booked in. "Block booking if availability conditions are not met" refuses to book exactly those users - they are listed with the blocking conditions in an error message, while selected users who do meet the conditions are still booked. Only real availability restrictions count as blockers (booking times, "booking option has started", profile field / enrolment / cohort / competency / selected-users restrictions, blocking campaigns, overlapping options, max number of bookings etc.); steps of the normal booking flow (bookit button, price, confirmation pages, booking policy, subbookings, custom form), capacity ("fully booked" - the existing waiting list logic stays in charge) and already-booked states are not. Cohort/group booking on the same page is not affected by the setting.
+* Bugfix: Marking a booking option as completed (or undoing it) updates the activity completion of the booking instance again right away - the checkbox in the course view stayed unchecked until a completion recompute (e.g. a cache purge) happened, although the booking answer was set to completed and the completion event fired correctly. Root cause: since the separation of activity completion and option completion (v8.16.2), booking_option::toggle_user_completion() writes the new completion state to the DB before triggering the event which leads to booking_activitycompletion(), so the two branches of that function checked the state that was already toggled and were therefore inverted - in the common case (one option to complete, option just completed) COMPLETION_COMPLETE was never pushed at all. Phpunit pins both directions now: completing an option writes the completion of the activity immediately, undoing it revokes it (#1341, #1546).
+* Bugfix: The iCal (.ics) of a booking rule mail for a booking option with several dates (e.g. two time slots on the same day) only added the first date to the calendar in Outlook (Windows and web), while Outlook for Mac or Apple Calendar added all of them. The file was sent as METHOD:REQUEST (meeting request) which, according to RFC 5546, may only carry one single event - Outlook strictly follows this and ignores the other VEVENTs. Options with more than one date are now sent as METHOD:PUBLISH (without ATTENDEE, as required for a PUBLISH), which every client imports completely - at the price of having no Accept/Decline buttons for those options. Options with one single date are still sent as METHOD:REQUEST, so the Accept/Decline buttons - including the inline invitation of the "Use a non-native mailer" setting - keep working there; cancellations stay METHOD:CANCEL.
+* Bugfix: Two guards between an enrolment link (customform "Enrol multiple users" field) and the cancellation of the booking it belongs to. (1) As soon as somebody else is booked via the enrolment link, the booker cannot cancel that booking anymore: the cancel button on the booking option is replaced by the note "You cannot cancel anymore because your enrolment link has already been used.", the cancel flow of the bookit webservice refuses (no cancellation mark, no confirm step, stale confirm clicks are rejected) and the local_shopping_cart callback allowed_to_cancel() denies the cancellation for the booker ("Cancel purchase" in the purchase history is hidden with "No cancelation possible."); cashiers and users with booking management rights can still cancel the booker via the tracker/report. Link users who cancel again release the block; link users themselves are never blocked. (2) An enrolment link whose booking has been cancelled is dead: enrollink.php and enrollink::enrol_user() answer with the new status MOD_BOOKING_AUTOENROL_STATUS_BUNDLE_CANCELLED ("This enrolment link is no longer valid because the booking it belongs to has been cancelled.") before any place is consumed - until now the link kept working with its remaining places after the booker had cancelled (and was maybe refunded), and users booking via it even received the regular booking confirmation. Users already booked via the link before the cancellation stay booked. The bundle is verified through the stored booking answer id; legacy bundles without one (created before 2024-11-26) cannot be verified and keep working. The "diagnose cancellation issue" agent skill reports the new blocker explicitly instead of "cancel flow available".
+* Bugfix: Availability conditions that count a user's existing bookings (max number of bookings per user, max options from category, overlapping options) returned wrong results when they were evaluated for ANOTHER user in a web session - eg. on the "book other users" page or by enrolment sync rules in "respect conditions" mode. The per-session MUC cache of a user's booking answers ('bookinganswers', key "myanswers&lt;bookingid&gt;") is keyed by the booking instance only, so such a check read the answers of the logged-in agent instead of the target user (typically: agent has no bookings > limit never reported as reached) - and afterwards even stored the target user's answers under that key, poisoning the agent's own subsequent checks in the same session. The cache is now bypassed in both directions whenever the answers of somebody else than the session user are requested; repeated lookups within one request stay cheap through the userid-keyed singleton in front of the cache.
+* Test: Phpunit for both enrolment link guards (enrollink_cancellation_guard_test): booker blocked while a link user is booked and released again after that user is cancelled (condition result, rendered button, bookit flow incl. stale confirm, shopping cart callback), dead link after the booker's cancellation incl. hard-deleted answer and legacy bundle without answer id.
+
+## Version 9.7.6 (2026081701)
+* Bugfix: Booking option settings no longer re-query the slot booking config from the DB on every instantiation for options WITHOUT a slot config: the cached NULL was defeated by an isset() check, so every settings build (each table row, web service call and cron run) paid one extra query per option despite a warm cache - on large instances a single view.php request issued one query per option of the instance. The perf regression tests now rebuild the settings from the MUC cache between the two measured passes and assert exactly zero reads, so any field missing from the cached payload fails the suite. (Wunderbyte-GmbH/Wunderbyte-GmbH#2207)
+* Improvement: The AI readiness panel no longer loads the full settings and answers of every single booking option of the instance just to display its two welcome-text counters (number of options / booked users): one aggregate query counts the booked users now, so view.php no longer scales linearly with the number of options when a wizard engine (agent) is installed. (Wunderbyte-GmbH/Wunderbyte-GmbH#2208)
+
+## Version 9.7.6 (2026081700)
+* New feature: The values a participant entered in the custom booking form (customform availability condition) can now be corrected afterwards in the Bookings Tracker (report2.php, option scope): the booked users and waiting list tables offer an "Edit form values" action for exactly one selected booking answer, loading the form fields of the option with the stored values and updating the answer json after validation (mandatory fields, mail/URL format, select values restricted to the configured options). PRO feature, gated by the new capability mod/booking:changecustomformofotherusers (module context, default: manager archetype only — existing sites have to assign it manually, as archetype defaults only apply on fresh installs); capability and PRO gate are enforced on the server side as well, and the answer id is validated against option and cmid. Element types with side effects stay read-only in the modal: "Enrol users action" (coupled to the booked places of the answer), the privacy consent checkbox of the user and static display texts. Saving is double-secured: a mandatory confirmation checkbox (red label "I am aware that saving will overwrite the form values entered by the user.", validation error otherwise) plus a save confirmation step — the first "Save" click only shows the question "Do you really want to overwrite the form values of this user?", and only confirming it with a second "Save" click actually writes the changes (cancelling aborts without saving). Every change is logged to the booking history of the answer with a per-field old/new diff (new history status "Form values edited"), and the timemodified of the answer stays untouched, so the waiting list order remains stable.
+* New feature: New read-only agent skill "diagnose_waitinglist" for the booking wizard, answering "why did the waiting list not move?" for a single booking option - most importantly why reducing the number of places moved nobody. It resolves the option, asks the new waiting list sync explainer (see improvement below) and translates its deterministic gate codes into localized, actionable reasons naming the exact setting to change (e.g. option already started while "Allow updates" of the instance is off, waiting list turned off globally, keepusersbookedonreducingmaxanswers still on). Auto-discovered like the other diagnose skills, en/de strings and a skill test included.
+* Improvement: While the global setting "Always book anyone" (booking/alwaysbookanyone) is active, the button "Do not allow booking of users who are not enrolled (recommended)" and the "Be careful: You can now book any users you want..." warning are not shown anymore on the page for booking other users — turning the toggle off had no effect anyway, as the setting forces it back on with every request. Site admins see an info alert instead, explaining that the plugin is configured to always allow booking any user of any course, with a direct link to the setting in the global plugin settings.
+* Improvement: The "Availability conditions settings" section of the plugin settings (PRO; from the section heading down to "Enrol multiple users") moved from the main settings page to its own settings page in the booking folder of the site administration (section modbookingconditions). The setting names (booking/...) are unchanged, so all stored values stay as they are and nothing has to be migrated. All links into the section now point to the new page: the "Settings" column of the availability conditions dashboard and the help button of the booking time condition in the option form. Sites without a PRO license see the PRO teaser of the section on the new page.
+* Improvement: The gate cascade of the waiting list synchronisation (sync_waiting_list: waiting list turned off globally, the "after start" switch, option already started while "Allow updates" of the instance is off, the paid-option skip and the capability gate on reduction) is now a single source of truth in the new class waitinglist_sync_status, whose explain() composes the pure predicates into a read-only report - so "I reduced the places but nobody moved" can be answered deterministically from the engine state. No behaviour change, the extraction is a 1:1 substitution at each call site. The waiting list documentation now names the two previously undocumented reasons a reduction moves nobody (the option-started/allowupdate gate and keepusersbookedonreducingmaxanswers being ON by default) plus a short troubleshooting checklist.
+* Improvement: mod_booking no longer ships its own copy of the wizard engine alias layer (classes/local/wizard/engine/, 19 vendored files including engine_resolver). Like any third-party plugin it now relies on the active engine (local_wizard if installed, otherwise the bundled agent) registering the component-local aliases at runtime; the paths of mod_booking that instantiate skills directly (test seams, Behat diagnosis step) bootstrap them via engine_component::ensure_engine_aliases().
+* Improvement: The "Type" select of the booking option form (option with dates, self-learning course, slot booking) only offers the non-default types when they are actually available on the site: self-learning courses now require the PRO license AND the global toggle booking/selflearningcourseactive (before, the type was always selectable, even without PRO), slot booking requires PRO and its toggle as before. If neither is available, the select is not rendered at all and the default type is stored via a hidden field. An option that already is a self-learning course or a slot option keeps its type in the list and is no longer silently reset to an option with dates when the license expired or the toggle was switched off afterwards - before, editing such a slot option turned it into an option with dates behind the scenes. Both checks are single sources of truth (selflearning_feature::is_enabled() mirroring slot_feature::is_enabled()).
+* Improvement: The hidden no-submit buttons of the option form (option type, slot type, change template) carry proper localized labels instead of the placeholder "xxx".
+* Improvement: The CSV import documentation now describes how booking custom fields are imported: the field shortname is accepted as CSV column name (mapped internally to customfield_<shortname>; a column already named customfield_<shortname> does NOT work), present-but-empty cells clear the stored value, omitted columns keep it.
+* Improvement: The "Hide booking option when condition not met" checkboxes of the availability conditions booking time, enrolled in course, enrolled in cohorts and custom user profile field are disabled (soft-frozen: rendered disabled, the stored value is still exported and posted, so nothing is wiped) with an explanatory note as long as the global setting booking/usesqlfilteravailability is off - before, they were offered but silently did nothing, because the whole SQL filter machinery is skipped with the setting off. Users with moodle/site:config additionally get a direct link to the setting on the booking admin page (#1516).
+* Bugfix: Security hardening of the slot picker webservices (loading the picker state, validating/caching a selection): acting on another user now requires the book for others (or cashier) rights, like in the other user-facing booking webservices — before, any logged-in user could read another user's picker state or write their cached slot selection by passing a foreign userid. Acting on yourself (and the existing trainer/cashier flows) is unchanged; phpunit covers both the rejection without and the acceptance with the book for others capability.
+* Bugfix: Rating a booking option through the webservice (the stars of the lists) now uses the same context validation as the booking chain: booked users are not necessarily enrolled in the course of the booking instance (e.g. booked via shortcode lists, option without connected course), so users holding mod/booking:choose there may rate without course access. The context is now resolved from the option itself instead of trusting the submitted course module id, can_rate() keeps gating who may rate, and users without the capability and without course access keep being rejected — both directions covered by phpunit.
+* Bugfix: The mobile customform submission webservice (get_submission_mobile, used by the Moodle app) now uses the same context validation as the booking chain: users holding mod/booking:choose on the booking instance may submit or reset the custom form data without access to the course of the booking instance (like on the website, where the same fix already covered load_pre_booking_page); the book for others gate for foreign users stays untouched. Phpunit coverage for both directions: the unenrolled user with the capability submits, without the capability the submission keeps being rejected.
+* Bugfix: The price of a booking option is not rendered twice anymore for users on the notification list while the option is bookable again (price above the notify-me bell AND above the add-to-cart button, cards, list and detail views alike). Root cause: the standalone bell template (wrapper plus price plus bell) was embedded as a mustache partial into the bookit button templates, and partials inherit the full parent context — so the bell rendered the price of the surrounding template a second time, including a nested duplicate of the button wrapper. The bell markup is now split into a bare bell partial (button_notifyme_bell) that the bookit templates embed, while the standalone template keeps composing wrapper, price and bell for the fully booked state (unchanged there). The bell also moved INSIDE the button wrapper that the JS replaces on booking actions, so re-renders cannot leave a stale bell behind anymore. The bell keeps following the booking answer state only: filled bell next to the add-to-cart button while the user is on the notification list, filled or empty standalone bell when fully booked, no bell for booked users or users in the shopping cart (their notification list entry is consumed by the transition). Phpunit pins the rendered button HTML for every one of these states.
+* Bugfix: The date columns of the Bookings Tracker (report2.php) now match report.php exactly: the creation date column (timecreated) shows date AND time in the localized full format of report.php (e.g. "Thursday, 13 August 2026, 10:29") instead of a bare "13.08.2026", the timebooked column shows the same localized full format and is labelled "Booking date" like on report.php (before: "Booking time" — the header of the sort dropdowns follows suit). In the tracker table downloads, all time columns now use the fixed sortable format "2026-08-13 10:29" (creation date, booking date, time modified, course start/end time, completed date, and slot start/end time of slotbooking options).
+* Bugfix: A CSV or webservice import row carrying the indexed date columns coursestarttime_<n>/courseendtime_<n> without the matching optiondateid_<n> silently lost the date twice over: the optiondates field class was skipped for the row (the indexed coursestarttime columns were not among its import identifiers) and the date parser only accepted indexed rows keyed by optiondateid_. The option was imported without any date and without an error - and as coursestarttime 0 reads as "not started" everywhere, the loss stayed invisible. Now the alternative import identifiers ending in "_" match any index and the parser injects the missing optiondateid_<n>=0 marker for import inputs (the interactive option form is untouched, as injecting there could resurrect a deleted date). The CSV import guide documents optiondateid_<n> as optional on import (0 assumed) and corrects the misleading "for updating" column description.
+* Bugfix: The expiry check of the "book for user" override (price::return_user_to_buy_for(), the 10 second window relied on by the bookit webservice and local_taskflow) was inverted: a still-valid override was discarded while an expired entry kept being applied for the rest of the session, so the session-global cache leaked the booking target across browser tabs (supervisors booked employees instead of themselves). A valid override now applies within its window; an expired entry is discarded AND deleted, so it can never poison later requests of the same session.
+* Bugfix: The booking option detail page (optionview.php) opened with a userid parameter (e.g. the assignment link for booking a foreign user) discarded the resolved user and re-read the session-global "book for user" cache - together with the inverted expiry check (see above) an unrelated browser tab booked whoever's assignment link was opened last. The buy-for target of a tab is now bound to the link it was opened with (an explicitly passed foreign user wins over the session-based resolution; the session override only applies where no explicit target exists), the userid parameter gate additionally accepts mod/booking:bookforothers (matching the enforcement of the booking chain), and the customform prefill follows the buy-for target.
+* Bugfix: The SQL filter relevance helper and the cache report service require mod_booking's lib.php explicitly, so the MOD_BOOKING_* constants are defined when they run inside a task where the plugin lib is not loaded yet.
+* Test: Characterization tests for the waiting list synchronisation gates that were still uncovered (global turnoffwaitinglist early exit, option started with instance "Allow updates" off, waitforconfirmation on the reduction path, unlimited places promoting all waiting users) plus unit tests for the new explainer and the diagnose skill; the perf guard of the waiting list promotion was recalibrated for the CI execution context (bound 22 instead of 16 reads per promoted user, still catching a full-magnitude relapse).
+* Test: Phpunit coverage for the visibility of the option types in the option form (PRO/toggle combinations for self-learning courses and slot booking, stored type kept for existing options).
+* Test: Importer regression test for indexed date columns without optiondateid_<n> (the test generator injects the marker for seeds the same way, so 17 test files whose seeds silently lost their dates now run against real dates), and unit tests for the SQL filter form support helper.
+* Test: Characterization tests for the "book for user" session cache (bookforuser_cache_test, bookforuser_optionview_test, bookforuser_listing_guard_test) pinning the fixed expiry contract, the link-bound target on optionview.php and the unchanged stateless "act for user" listing path used by cashier/USI.
+
+## Version 9.7.5 (2026081101)
+* Bugfix: Confirming the cancellation of a booking on the booking option detail page (optionview.php) gave no visual feedback at all for options with pre booking pages - the "Book now" button only came back after a manual page reload. While the option is booked, its button area is a plain bookit button without the wrapper which opens the pre booking pages (the prepage modal is suppressed for the booked state). Cancelling makes the option bookable again, so the webservice answers with the prepage modal (or inline) template - and the JS replaced the element carrying exactly that missing wrapper, found nothing and silently skipped the DOM update. It now falls back to the button area itself, so the new state is rendered right away. The same replacement was skipped in the list views as well, but went unnoticed there, as the table reload following a cancellation re-renders the row anyway; the detail page has no table to reload.
+* Improvement: Confirming a cancellation on the booking option detail page (optionview.php) reloads the page now. Replacing the booking button alone leaves the rest of the page showing the state of the booked user - above all the status text of the option or instance (beforebookedtext while the option is not booked, beforecompletedtext/aftercompletedtext while it is) and the remaining places, none of which the bookit webservice returns. A booking already reloads the detail page when the pre booking pages are closed, so cancelling now gets the same treatment; all other views keep updating just the button area plus the table.
+* Test: Behat coverage for the bugfix and the reload (see above): a student cancels a booking on the detail page and has to see both the "Book now" button and the status text of the unbooked state without reloading manually - once for an option without pre booking pages and once for an option with a booking policy, where booking has to open the policy in the prepage modal again afterwards.
+
+## Version 9.7.4 (2026081100)
+* Bugfix: Follow-up to the 9.7.3 context validation fix: further user-facing webservices still rejected users without access to the course of the booking instance (requireloginerror since the 9.7.0 hardening) even when they hold mod/booking:choose there — the "notify me when a place is free" toggle of the booking button, the option description modal of the lists, and the slot picker services of the slot booking chain (loading the slots, validating/caching a selection, releasing booked slots). They now use the same context validation as the booking chain: users holding mod/booking:choose on the booking instance are accepted via the system context (an active login and session is still enforced), all other users keep being rejected, and all further capability and ownership checks of the services stay untouched.
+* Test: Phpunit coverage for the follow-up (see bugfix): the unenrolled user holding mod/booking:choose via a system level role opens the option description modal and toggles the notification list through the webservices, and loads the slots and validates/caches a slot selection through the slot picker webservices; without the capability, the unenrolled user keeps being rejected by the slot picker (and, per existing coverage, by the notification toggle).
+
+## Version 9.7.3 (2026081000)
+* New feature: The group(s) of the connected course a user is enrolled in when booking an option can now be selected manually in the booking option (section "Moodle course", stored in the option json as addtogroupsofconnectedcourse). The selection is only offered while a course is connected (anything but "No connection to Moodle course") and while "Automatically enrol users in group of connected course" is NOT active in the booking instance - with the automatic mode active, the option form shows a notice (alert-light) that the group is generated automatically and cannot be selected manually. Only groups of the currently saved connected course are offered (after a course change, save first; groups not belonging to the final course are discarded on save). Booked users are added to newly selected groups on saving the option, and on cancellation users are removed from the selected groups, keeping the course enrolment while other group memberships exist - both like in the automatic mode.
+* New feature: New global setting "Sender of messages from the bookings tracker" (booking/bookingstrackermessagesender): messages sent from the bookings tracker (report2.php) — "Send message", "Send message to teacher(s)", "Send message to responsible contact(s)" — are sent either as the booking manager of the booking instance (default, behaviour as before; falls back to the logged-in user if no valid booking manager is set) or as the logged-in user actually sending the message, so recipients can reply directly to the right person. The resolved sender is shown (read-only) in the three message modals.
+* New feature: The markdown documentation shipped in the docs/ folder of the plugin can now be read directly in Moodle: the new page documentation.php renders the pages (index, user documentation, developer guides) and rewrites their links, so the existing cross-links and index tables of the docs work as click-through navigation; images and the CSV examples referenced by the pages are served as well. Access requires the new capability mod/booking:viewdocumentation (default: manager archetype only), and users with the capability get a "Booking documentation" entry in the settings navigation of every booking instance as well as a "Booking: Documentation" entry in the site administration next to the other booking pages (Booking: Semesters, Booking: Cache report etc.).
+* New feature: New read-only admin page "Booking: Cache report" (site administration) measuring the behaviour of the booking table caches, so production sites can answer the cache questions themselves: configuration and relevance state of the SQL availability filter, cache key sharing across a sample of recently active users (the distinct-stems metric of the cache fixes below), timing of the options query with and without the availability filter WHERE, store usage of the booking relevant cache definitions (core cache usage API) and a daily snapshot trend collected by a new scheduled task (new table booking_cachereport_snapshots — retention bound, aggregates only, no user data). The report never populates or purges any cache; an anchor test pins that the measured stem equals the WHERE plus params of the real general view. Requires an upgrade run (table, scheduled task, admin page). (#1508)
+* Improvement: The two instance settings for the enrolment into the connected course ("Automatically enrol users in connected course" and "Automatically enrol users in group of connected course") moved from "Advanced options" into a new dedicated section "Connected Moodle course" of the instance settings; the two settings concerning the course of the booking instance (the group multiselect and the unenrol checkbox) stay in "Advanced options". "Automatically enrol users in group of linked course" was renamed to "... of connected course" and is indented via styles.css, as it is only shown while the connected-course enrolment is active; the "current course" wordings now say "the course in which this booking instance is located" to make clear which Moodle course is meant.
+* Improvement: The favorites star toggle (PRO setting enablefavoritestoggle) is now shown on all tabs of view.php — e.g. "Active booking options", "My bookings", "What's new?", visible/invisible options, the single-option view and the "Field of study" tab (which receives the star via the favorites=1 argument of the [fieldofstudyoptions] shortcode) — and no longer only on "All booking options". The bulk operations tab intentionally stays without the star, as it is an administrative table. Technically the flag moved into the central table layout initialization, so every table rendered for view.php gets it under the same PRO/setting gate as before.
+* Improvement: The [recommendedin] shortcode supports the favorites=1 argument to show the favorites star toggle on every listed booking option (handled by the argument processing shared by the table shortcodes). The argument is now documented in the shortcode docs, including the shared parameter list of the shortcodes README.
+* Improvement: Saving the booking option with a manually selected group that does not (or no longer) exist in the connected course now shows a validation error at the group selection, naming the missing group(s), instead of silently discarding them - e.g. after the connected course was changed without adjusting the selected groups, or after a selected group was deleted in the course. While no course is connected, the hidden selection is still discarded without an error, as before.
+* Improvement: The "-related" suffix for customfield placeholders is now documented: {shortname-related} inserts the custom user profile field of the related user of the event triggering a booking rule (e.g. the user a booking was made for) instead of the recipient. The placeholder list in the booking rules editor ("Show placeholders") mentions the suffix now, and the placeholder documentation got a reworked customfields section ({shortname} for booking option custom fields and user profile fields incl. lookup order, {shortname-related} for the related user). Two errors in the docs were fixed along the way: custom fields are referenced by their bare shortname (not with a profile_field_ prefix), and the {firstnamerelated}/{lastnamerelated}/{emailrelated} placeholders resolve the related user of the triggering event, not the responsible contact.
+* Improvement: A booking instance referencing booking customfields that do not exist on this Moodle platform — e.g. after restoring a course backup from another site, where the instance settings "Customfields for filter" and "Customfields shown for each option in the overview" keep the shortnames of the source platform — now shows a clear message on view.php instead of just silently dropping the affected filters and columns. The message lists the missing fields by name and shortname (as stored on the source platform); users who can create the fields (site administration) additionally get a direct link to "Booking: Custom booking option fields", users who can manage the booking instance (mod/booking:updatebooking) see the message without the administration link, and all other users are not bothered with it. The message disappears as soon as all missing fields have been created.
+* Improvement: Availability conditions that no booking option on the site uses are now skipped entirely when the SQL of the availability filter (usesqlfilteravailability) is built. In particular, on sites not using the "booking time" filter its day-bucketed time params stay out of the SQL — they would otherwise rotate every table cache key at midnight. On sites that DO use the booking time filter the keys legitimately rotate at midnight, turning the previous day's table cache entries into an unreachable dead generation: the day rollover is now detected exactly once and an adhoc task (deduplicated for parallel requests) purges the affected caches.
+* Improvement: Fixed the customform layout, and checkbox labels as well as static text elements of the customform now support links.
+* Improvement: The names and links of booking items resolved for shopping cart coupons now come from the booking option settings API instead of raw SQL, so the displayed name respects the title prefix. (GH-176)
+* Improvement: The action columns of the reduced bookings tracker scopes (options to confirm, supervisor team) are not offered as sortable anymore, and the duplicated scope code moved into a commonly used function in scope_base.
+* Bugfix: "Unenrol from group when user is unenrolled from corresponding booking option?" now also removes the user from the fixed group(s) selected in the instance settings - not only from the group created for the booked option. As the fixed groups are shared between all options of an instance, the user is only removed once no active booking (booked, waiting list, reserved) within the instance is left.
+* Bugfix: Creating a booking instance stored the "unenrol from group" setting as active even when the checkbox was unchecked (isset check on an advcheckbox that always submits 0 or 1). Updating an instance was not affected.
+* Bugfix: The group of a booking option in the current course ("Enrol in specific group for each booked option" of the addtogroupofcurrentcourse instance setting) was silently never created when a group with the identical generated name "&lt;instance&gt; - &lt;option&gt; (&lt;optionid&gt;)" already existed in the course of the booking instance - in particular the automatically created group of the connected course, whenever the connected course is the very course the booking instance lives in: create_group deduplicated by group name before the idnumber lookup which actually identifies the option groups of the current course, so the booked users silently landed in the connected-course group instead. The option group of the current course is now identified by its idnumber only; in the other direction, the lookup of the connected-course group (including the repair lookup of the "wrong group?" reset checkbox) now ignores the option groups of the current course, so a same-named option group is never linked as the group of the connected course.
+* Bugfix: Downloading the sign-in sheet in HTML mode could fail with a TCPDF error "Unable to create output file: /tmp/...". Before streaming the download, the PDF was needlessly written to a file in the system temp directory named after the raw booking option title — a title containing e.g. a slash made that write fail, and since the file was never deleted, a leftover file owned by another system user blocked all further downloads of the same option. The useless temp file write is removed; the PDF is streamed directly (like in the classic mode, which was never affected). The Word export wrote its .docx to the system temp directory the same way (raw title, no cleanup, participant lists lingering in the world-readable /tmp): it now writes to a per-request directory of the Moodle File API and is sent via send_temp_file(), which deletes the file right after streaming. The download filename of both formats and of the classic PDF mode is now sanitized by one shared helper, which falls back to "signinsheet" for titles without any ASCII letters or digits.
+* Bugfix: Recipients of messages sent from the bookings tracker modals could not reply to the sender shown in the modal: Moodle core replaces the visible from address of outgoing mails with the noreply address (unless the sender's domain is listed in $CFG->allowedemaildomains), and as no explicit reply-to was set, replies went to the noreply address as well. The mails now carry a reply-to header pointing to the resolved sender (booking manager or, with booking/bookingstrackermessagesender set to "logged-in user", the user actually sending the message), so answering reaches the right person even while the visible from address stays the noreply address.
+* Bugfix: Creating, updating or deleting a booking customfield did not purge the cached customfield list (customfields cache): the observer fired the cache invalidation event with an empty key list, which is a no-op in the Moodle cache API. Until some other purge happened, the stale cache could keep offering deleted fields or ignore freshly created ones everywhere the list is used (instance form selects, overview columns, and the new missing-customfield message). The whole cache is now purged via the invalidation event.
+* Bugfix: Since the security hardening of the webservices in 9.7.0, clicking "Book now" did nothing or opened an empty modal for users without access to the course of the booking instance ("Course or activity not accessible" / requireloginerror in the AJAX response): the webservices of the booking chain (the pre booking check of the booking button, the loading of the prepage modal and the booking itself) validated the module context of the booking instance, which requires access to its course and activity (enrolment, visibility). Booking options are regularly presented outside of their course, e.g. via shortcode lists, where the booking users are not (or not yet) enrolled in that course. As before the hardening, users holding mod/booking:choose on the booking instance — the same capability the "Has the capability to book in this instance" condition checks — can now book without course access: for them, the system context is validated instead, which still enforces an active login and session; all other users keep being rejected.
+* Bugfix: The SQL availability filter (usesqlfilteravailability) no longer floods the table caches with per-user entries. The availability conditions embedded user specific data into the options WHERE clause through two channels: enrolledincourse/-cohorts inlined ALL course/cohort ids of the user as literals, and the profile field condition added ALL custom profile field values as params — including memberships and fields no filter condition references anywhere on the site. The table cache key is a hash over exactly this SQL, so every user produced their own application cache entries (mod_booking/bookingoptionstable) even when the visible result was identical, filling the cache until the site went down. The conditions now trim the embedded user data to the values actually referenced by sqlfilter conditions site-wide (tracked by a new, globally cached relevance service), and when no option uses the SQL filter at all, the user specific WHERE is skipped entirely. In a measured 102-user scenario the number of distinct cache keys drops from 102 to 10 (one per visibility class) with unchanged visibility results.
+* Bugfix: The booking option detail page (optionview.php) was always visible for logged-out users: the access check block was wrapped in isloggedin(), so for logged-out users and guests no check ran at all and the page rendered regardless of the "Show booking details to all" setting. The access rule is now centralized in booking_option::can_view_option_details() — details are visible to everyone with showbookingdetailstoall, otherwise only to logged-in users who are booked/on the waiting list/reserved, when bookonlyondetailspage is active, or with the mod/booking:view capability. optionview.php enforces the rule (login redirect for logged-out users, capability exception otherwise), and the booking options table renders the option title without a link for users who may not see the page.* Bugfix: view.php no longer trips over customfields referenced in the filter config of the instance that do not exist on this site (e.g. after restoring a course backup from another platform) — missing fields are skipped when the filters are built (see also the missing-customfield message improvement above).* Bugfix: Reducing the limit of a priced option no longer deletes paid users' bookings through the waiting list trim: the waiting list sync deliberately skips paid users when demoting booked answers (they keep their seat), but their answer still landed in the local waiting list array the trim loop pops from, so reducing maxanswers DELETED the newest paid user's booking through the back door while a real waiting user was spared. The answer is only added after the price gate now, so paid users keep their booking entirely.* Bugfix: Saving a booking option now fails loudly instead of corrupting data when the acting user has no option form profile at all (none of expertoptionform / reducedoptionform1-5, but e.g. mod/booking:updatebooking) or when the pipeline loses the id of an existing option (e.g. a misconfigured form profile without the id field): before, the empty field set made update() fall into the insert branch and create a junk booking_options row (or blow up with a confusing dml_write_exception on strict SQL modes) instead of updating the addressed option. Editing teachers and managers hold expertoptionform via archetype and are unaffected; deliberate copy flows (copy to template, duplication) clear the id on purpose and keep working.* Bugfix: The reduced bookings tracker scopes (options to confirm, supervisor team) now show the correct filter names.
+* Bugfix: Fixed the accordion of the booked users overview for Moodle 4.5.
+* Test: Behat feature for the reworked instance settings (new section, visibility dependency, saving/reloading the group multiselect); phpunit coverage for the instance settings storage and the removal from shared groups only after the last active booking. Fixed a latent bug in the group enrolment test which compared group names against group ids, so the membership assertions never ran.
+* Test: Behat scenario for the manual group selection in the booking option (selecting and saving a group, hidden without course connection, notice instead of selection while the automatic group mode is active) and phpunit coverage for the manual connected-course groups (enrolment into the selected groups, removal on cancellation incl. keeping the course enrolment while other memberships exist, selection ignored while addtogroup is active).
+* Test: Phpunit coverage for the favorites star on the view.php tables (star on all rendered tables with the setting on, on none with the setting off) and for the favorites=1 argument of [recommendedin] (star present with the argument, absent without it).
+* Test: Phpunit coverage for the validation of the manually selected connected-course groups: error naming the missing group(s) for a group of another course or a deleted group, no error for a valid selection, while the automatic group mode is active, without course connection or without selection.
+* Test: Phpunit coverage for the enrolment into group(s) of the current course (addtogroupofcurrentcourse) when OTHER users are booked ("Book other users", subscribeusers flow): the very first bookings of a fresh option create the option group in the current course and add the users to it and to the fixed group; with "enrol users only at coursestart" the whole group logic is deferred to the enrol_bookedusers_tocourse task, which processes the option only once its coursestarttime has passed. Both directions of the group name collision (see bugfix) are covered: the option group of the current course is created and filled although the same-named connected-course group exists in the course, and activating the automatic connected-course group only after the option group already exists creates a separate connected-course group instead of linking the same-named option group. Self-booking ("Book now", booking_bookit) with a separately connected course is covered as well: both same-named groups are created and filled for an enrolled participant, while a site admin who is not enrolled in the current course only fills the connected-course group - core groups_add_member silently skips users without an enrolment in the course of the group, and booking only enrols into the connected course, never into the current one.
+* Test: Phpunit coverage for the reply-to header of the mails sent from the bookings tracker modals: replies go to the booking manager by default and to the logged-in sender with the bookingstrackermessagesender setting active, while the visible from address stays the noreply address. A guard test pins down that the default send path without set_sender() — used by all other booking mails, in particular the booking rules — keeps the core noreply defaults for from and reply-to untouched.
+* Test: Phpunit coverage for the missing-customfield message after a restore on another platform: a course with a booking instance referencing customfields is backed up, the fields are deleted (simulating the target platform) and the backup is restored — the restore completes, view.php renders without a technical error, the detection lists the missing fields with the names of the source platform, site admins get the message with the link to the configuration page, instance managers without the link, students nothing, an instance without references stays without message, and the message disappears once the fields have been created again.
+* Test: Phpunit coverage for booking without access to the course of the booking instance (see bugfix): an authenticated user who is not enrolled but holds mod/booking:choose via a system level role passes the pre booking check and books through the bookit webservice; for an option with a customform condition, the customform prepage is offered to the unenrolled user and loads through the webservice, the submitted form data is stored, and loading the confirmation page books the user with the customform data carried in the booking answer. An unenrolled user without the capability keeps being rejected (existing coverage).
+
+## Version 9.7.2 (2026080400)
+* New feature: New setting "Location filter: only filter by top level" (booking/entitytreefiltertoplevelonly): the multilevel location filter then offers only the first (top) level of the entity tree — selecting an entry filters all booking options of the entire branch; sub-levels (e.g. single rooms) are no longer offered as separate filter options. (Wunderbyte-GmbH/Wunderbyte-GmbH#2011)
+* New feature: New setting "Show hover card for deep location hierarchies" (booking/entitytreefiltershowlocationhovercard, default on): when disabled, locations in hierarchies of three or more levels are shown as a plain "direct parent (entity)" link without the hover card with the superordinate levels. (Wunderbyte-GmbH/Wunderbyte-GmbH#2011)
+* Improvement: The three settings belonging to the multilevel location filter (top level only, hover card, hover card images) are now visually grouped under the entitytreefilter setting — indented with a "⤷ " label prefix — and are only shown while the multilevel location filter is enabled. The hover card image setting booking/showlocationimages was renamed to booking/entitytreefiltershowlocationimages accordingly (a stored value is migrated on upgrade). The whole settings block is only offered when the local_entities plugin is installed, as the filter has no effect without it. Changing any of the four settings automatically purges the cached booking options tables and filters, so the change takes effect immediately without a manual cache purge. (Wunderbyte-GmbH/Wunderbyte-GmbH#2011)
+* Improvement: Locations in a hierarchy of three or more levels are now displayed as "direct parent (entity)" — e.g. "level 2 (level 3)" for three levels, "level 3 (level 4)" for four — matching the familiar two-level format; the hover card and the screenreader text keep showing all superordinate levels (incl. the direct parent). Table exports keep the full path. (Wunderbyte-GmbH/Wunderbyte-GmbH#2011)
+* Improvement: The booking activity now declares the "Administration" purpose (FEATURE_MOD_PURPOSE), so the activity chooser lists it under the "Administration" tab (Moodle 4.4+) instead of only under "All".
+* Improvement: When an option that requires confirmation is full and a user books onto the real waiting list, the "waiting for confirmation" event now fires as well — such a user is waiting for confirmation just like a parked user, as the waiting list sync never promotes unconfirmed users. It only fires for new answers: confirming/unconfirming an existing answer does not retrigger it, and autoenrol keeps its own confirmation flow.
+* Improvement: New answers restriction interface for booking extensions: an extension can limit which users' booking answers the current user may see (e.g. a supervisor who may only see their own team); if several extensions restrict, every restriction narrows the result further. The restriction is applied directly in the SQL of the bookings tracker scopes (system, course, instance and options).
+* Improvement: The answers restriction of booking extensions (e.g. supervisors seeing only their subordinates) also applies to report.php, subscribeusers.php and to the booking history and sent messages of the booked users overview.
+* Bugfix: An over-full waiting list no longer causes overbooking of the option. When the waiting list limit was reduced (e.g. from unlimited "-1" to a fixed number) while more users were already waiting than the new limit allows — and the excess entries were kept, e.g. because of the site setting "keepusersbookedonreducingmaxanswers" — the number of free waiting list places became negative. The fullybooked availability condition misread that value as "places left" (empty() check), so check_if_limit fell through to its overbooking branch and booked every further user directly, although maxanswers was already reached; a computed value of exactly -1 (one user over the limit) was even mistaken for the "unlimited waiting list" sentinel. The free waiting list places are now clamped to 0, the fullybooked condition checks the value explicitly instead of via empty(), and -1 only counts as unlimited if the maxoverbooking setting itself is -1.
+* Bugfix: Fix HTML and links in ical event descriptions (also for Outlook). Fix placeholders and enable {mlang} (multi-language filters) for ical descriptions.
+* Bugfix: Trimming the waiting list no longer fires the cancellation event twice. When the waiting list sync removed excess waiting list entries after a limit reduction (with "keepusersbookedonreducingmaxanswers" off), the removed user got the bookinganswer_cancelled event twice with differing payloads, so the mail task dedup could not merge them and every rule listening to the event (e.g. cancellation notices) sent its mail twice.
+* Bugfix: The trigger button of the pre booking modal showed "No price set" instead of the price for already booked users. When a cancel button condition (e.g. "cancel myself" for users who already booked, with "book again" enabled) becomes the extra button condition on the details page, the merge preserving the price data only triggered on button-style data, so the price of price conditions (like priceisset) was discarded for users without the book-for-others capability. The merge now also triggers on a set price and carries the currency along.
+* Test: New behat feature covering the multilevel location filter UI: the tree panel offers all levels (or only the top level with entitytreefiltertoplevelonly), selecting the top node filters the whole branch, and the location hover card for deep hierarchies appears by default and disappears with entitytreefiltershowlocationhovercard off. The behat option generator ("mod_booking > options") accepts a new optional 'entity' column (entity name) that attaches a local_entities entity to the created option. (Wunderbyte-GmbH/Wunderbyte-GmbH#2011)
+* Test: Cover confirmation mode 2 on an over-full waiting list.
+
+## Version 9.7.1 (2026073000)
+* Improvement: Accessibility improvements for bookit button.
+* Improvement: Update vue to 3.5.40 for security reasons.
+* Improvement: Accessibility improvements (navigation in report2.php and checkout workflow).
+* Bugfix: Fix bug with ambiguous id in SQL of entities tree provider class.
+* Bugfix: The site setting "Turn off modals" (booking | turnoffmodals) now takes effect in EVERY list view (list, image left, image right, image left half) and in every list rendered by a shortcode - including [courselist] and shortcodes from external plugins. So far the decision was made from the view configured in the booking instance, so a shortcode list of an instance that is set to (or merely offers) the cards view kept opening modals; and the pre booking pages only ever loaded into rows carrying the mod_booking .mod-booking-row markup, which meant the inline area of other row templates (e.g. of external plugins) opened empty. The booking options table now reports the view it actually renders (respecting the runtime template switcher) and the inline area is placed into the option row of any table template. Only the cards view keeps its modals, as inline pre booking pages are not supported there yet. A booking action re-rendering the button no longer flips an inline area into a modal (or vice versa) either, and closing a pre booking page now closes the container it really lives in.
+* Bugfix: Inline pre booking pages stuck out over the left border of the booking option card, because their rows still carried the negative gutters they need inside a modal body. The gutters are neutralised now and the content is centered.
+
+## Version 9.7.0 (2026072401)
+* New feature: Bookings tracker, option scope - "Rate users" bulk modal (migrated and modernized from the report.php rating column + button): rate all checked booked users at once through the standard Moodle rating API (numeric or custom scales, "Rate..." entry removes a rating; raters cannot rate their own booking). Shown when the rating column is configured, ratings are enabled on the instance (assessed) and the user is a teacher of the option or has moodle/rating:rate; writing is enforced through mod/booking:rate as before.
+* New feature: Bookings tracker, option scope - "Enrol users in the course" bulk action (migrated from report.php subscribetocourse): manually enrols the checked users into the course connected to the option, also when auto-enrolment is disabled. Shown when the instance has autoenrol off and the option has a connected course. Gated by mod/booking:subscribeusers (re-checked server-side) - the plugin capability for putting other users into bookings/courses; the old report.php button was gated by the unrelated messaging capability mod/booking:communicate.
+* New feature: Booking agent can link a Moodle course when creating an option (linkedcoursequery); update_option advertises its course-linking capability for discovery.
+* Improvement: The Bookings Tracker (report2.php) now supports the same columns as report.php: responsesfields/reportfields and custom form columns are mapped onto the tracker tables. (MUSI-895 / GH-1801)
+* Improvement: report2.php also accepts the id parameter of old report.php URLs, so existing links keep working.
+* Improvement: Added missing de_gs language strings.
+* Improvement: Namespace collisions (moodle.org approval blocker): all global plugin functions now carry the frankenstyle prefix booking_ so they cannot clash with functions of other plugins or Moodle core. Renamed: is_json, get_list_of_booking_events and db_is_at_least_mariadb_106_or_mysql_8 (lib.php), get_rendered_customfields, get_rendered_eventdescription and optiondate_duplicatecustomfields (locallib.php), send_custom_message (sendmessage.php) as well as all upgrade step helpers in db/upgradelib.php - each with the booking_ prefix prepended and all callers updated. Class methods (like the availability conditions' is_json_compatible) are untouched, and the required Moodle callback names (booking_add_instance, xmldb_booking_upgrade etc.) already followed the convention.
+* Improvement: Licensing compliance (moodle.org approval blocker): the plugin root now contains a LICENSE file with the full GNU GPL v3 license text, matching the license declared in all file headers and the README (which now links to the file).
+* Improvement: All external service classes were migrated from the deprecated global externallib.php aliases (external_api & co.) to the core_external namespace, which also makes them unit-testable without process isolation. The MOODLE_INTERNAL checks of these classes were removed along with the require of externallib.php they used to guard, so the codechecker (moodle-cs) no longer flags them as unexpected.
+* Improvement: Bookings tracker - the "View all bookings separately" view of the system and course scopes now shows the booking instance of each booking too, as a sortable column with a filter and included in the fulltext search - like the aggregated options view of these scopes already does (the table download includes the new column as well). In instance scope the column stays hidden, as it would repeat the same value in every row.
+* Improvement: Bookings tracker - the option and optiondate scopes are now readable by the same audience as the old report.php: teachers of the option, mod/booking:viewreports and (fallback) mod/booking:readresponses, in addition to mod/booking:updatebooking which gated the tracker so far. Write actions strictly keep their own capability checks, and gaps were closed along the way: deleting checked answers now requires mod/booking:deleteresponses server-side (like on report.php and like the button gate - before, the server check was bookforothers); triggering certificates now rechecks tool/certificate:manage server-side (before, only the button was gated); the table download requires mod/booking:downloadresponses (the report.php export capability) instead of updatebooking. Buttons whose modals require more rights than reading (presence/notes need managebookedusers, rating needs mod/booking:rate) are hidden from read-only users instead of failing on submit.
+* Improvement: Bookings tracker - write actions are gated by their specific write capability alone: deleting checked answers by mod/booking:deleteresponses, transferring and enrolling users by mod/booking:subscribeusers. Toggling the completion status now requires mod/booking:managebookedusers (before, the read capability readresponses sufficed like on old report.php); presence/notes already required managebookedusers. Rating stays gated by mod/booking:rate (an assessment capability that deliberately includes teachers), messaging by mod/booking:communicate.
+* Improvement: The write capabilities mod/booking:deleteresponses and mod/booking:subscribeusers are no longer granted to the non-editing teacher archetype by default, so on NEW installations non-editing teachers are read-only in the reports (they keep readresponses/downloadresponses). Existing installations are not affected: archetype changes never touch existing role definitions on upgrade - non-editing teachers who already have these rights keep them (the defaults only apply to fresh installs and manual role resets).
+* Improvement: The bookings tracker (report2.php) is a regular feature now - no PRO license required anymore and always active: the on/off admin setting (booking/bookingstracker) was removed entirely (an upgrade step drops the stale config value), access is controlled purely by the capabilities. The remaining tracker settings (presence counter) moved out of the PRO section, the navigation nodes lost their PRO badge/disabled styling, and the report2 entry in the booking options table dropdown is always offered.
+* Improvement: New dedicated download endpoints download_signinsheet.php and download_checklist.php replace the report.php?action=... download flow. The sign-in sheet URL only carries cmid and optionid: the sheet settings are persisted in the option JSON by the configuration modal and resolved server-side, as is the mode (legacy PDF vs. HTML template with pdf/word output). The checklist endpoint now requires the mod/booking:downloadchecklist capability (the old report.php action relied on page access only); the checklist button in the option description points to the new endpoint. report.php itself is unchanged until its removal.
+* Improvement: Bookings tracker, option scope - the slot management header links (teacher unavailability, teacher assignments, slot calendar) were migrated from the old report.php header for slot booking options, with the same capability gating.
+* Improvement: report.php shows a deprecation warning (alert-warning) at the top, linking to the option scope of the bookings tracker (report2.php), so users can already try the new version.
+* Improvement: Deleting a booking option now runs through a delete/cancel confirmation modal plus the new webservice mod_booking_delete_booking_option instead of the old action=deletebookingoption URL flow on report.php (which stays unchanged until report.php is removed). Both entry points were moved to the modal: the "Delete this booking option" entry in the actions menu of the booking options table (after the deletion the current page is reloaded, so shortcode pages like [allbookingoptions] listing options of several instances stay open and show that the option is gone; a page scoped to the deleted option escapes to the instance view instead) and the entry in the booking option settings navigation (without JS it now falls back to the detail view of the option instead of report.php). As before, the confirmation shows the option title incl. the number of booked users, and deleting requires mod/booking:updatebooking in the instance the option belongs to - enforced by the webservice, also in tables mixing options of several instances.
+* Improvement: Bookings Tracker (report2.php, option scope): users with mod/booking:updatebooking see an info hint that the visible columns are configured in the instance settings, section "Configure fields and columns" > "Manage Responses Page & Bookings Tracker" - with a direct link to that section of the settings form.
+* Improvement: Bookings Tracker (report2.php, option scope): a compact info line below the title now shows the optiondates (a single date directly, multiple dates behind a "Show dates" link that expands them, incl. entities, if installed), a "Show description" link expanding the description, the teacher(s) and responsible contact(s) linked to their user profiles and - like on the old report.php - the associated course (if the option is connected to a Moodle course) as a link.
+* Improvement: Bookings Tracker (report2.php, option scope): new buttons "Send message to teacher(s)" and "Send message to responsible contact(s)" next to the sign-in sheet download button — both open the same e-mail modal as the "Send custom message" action button of the booked users table (recipient autocomplete with preselection, subject, message, attachment), but preselect the teachers resp. the responsible contacts of the option instead of the checked rows of the table; each button is only shown if the option has such recipients and the user has the mod/booking:communicate capability. The former "Send message to teacher(s)" action button of the booked users table was folded into the new header button, so the teacher e-mail action no longer appears twice in the option scope.
+* Improvement: The instance setting "Custom fields that are to be displayed as filter options" is now an autocomplete instead of a plain multi-select.
+* Improvement: Bookings Tracker (report2.php, option scope): the sign-in sheet can now be configured and downloaded there too — via a modern dynamic form modal instead of the old inline JS form on report.php (which stays unchanged); the download itself uses the identical endpoint, so the generated sheets are the same.
+* Improvement: Sign-in sheet settings made in the modal are persisted in the JSON of the booking option, and a "Download sign-in sheet" quick button downloads with them directly. Fallback chain when an option has no persisted settings yet: booking instance defaults (new fields in mod_form incl. "Use sign-in sheet settings from plugin configuration" with a link there) → global plugin presets (new settings.php section "Sign-in sheet download presets").
+* Improvement: Sign-in sheet settings that are not applied in HTML template mode are not offered there anymore (new UIs only): "Add empty rows" (PDF mode only), "Save as" (HTML mode only) and the "Add date manually" choice of "Display date(s) in the header", which behaves identically to "Hide dates" in HTML mode.
+* Improvement: German translation added for the {customfields} placeholder description (lang/de contained the English text).
+* Improvement: Bookings Tracker (report2.php): the scope navigation (site / course / instance / option / date) is now a standard Bootstrap breadcrumb (new template mod_booking/report/navigation_breadcrumbs) with the localized scope labels in small print above each crumb. Ancestor scopes link to their report2 view (plain text without the capability), the current scope links out to its own page (course page, instance view, detail view of the option) in a new tab. The optiondate switcher is now a Bootstrap dropdown crumb with plain links instead of a JS-driven select - in optiondate scope it is the active crumb, showing the current session as toggle text and marking it in the menu. Each crumb is styled as a rounded box (scope label above the name) with chevron arrows pointing to the next hierarchy level; the current scope is tinted with the theme primary, linked boxes lift on hover and keyboard focus. WCAG 2.2 AA: nav landmark with aria-label, aria-current on the active crumb and session, the sessions toggle is a real button (native Enter/Space, aria-expanded), the decorative arrows are hidden from screen readers, the icon-only page link names its target and meets the 24px minimum target size. Removed along the way: the bookingjslib AMD module and the navigation_dropdown template (incl. its broken inline onchange handler), the dynamically generated style block for the localized labels and the now unused public helper booking::generate_localized_css_for_navigation_labels().
+* Improvement: The e-mail modals in the Bookings Tracker (report2.php: send custom message, send message to teacher(s), send message to responsible contact(s)) now show the list of available e-mail {placeholders} in the same collapsible info box as the booking rules mail actions.
+* Improvement: The "Configure sign-in sheet" modal now starts with an info box explaining that the "Download sign-in sheet" button reuses the settings of the last download, how the settings cascade works (booking option → booking instance → global plugin presets) and which sign-in sheet mode (classic / HTML template) is currently active — all labels resolved from the live UI strings; admins (moodle/site:config) additionally get a link directly to the mode setting in the plugin configuration.
+* Bugfix: User-visible error text of the booking redirect page now comes from the lang string API (en, de, de_gs) instead of a hardcoded English string. (GH-2102)
+* Bugfix: The built AMD artifact of the Vue app (app-lazy.min.js) no longer appears invalid, unminified or out-of-sync with its source: the committed amd/src file is regenerated in sync with the build and the license comments stay in the file. (GH-2099)
+* Bugfix: thirdpartylibs.xml no longer declares third-party libraries that are not actually bundled in the package. (GH-2098)
+* Bugfix: The legacy AJAX rating endpoint (rating_rest.php) was replaced by the proper webservice mod_booking_rate_option. (GH-2097)
+* Bugfix: CI workflow workaround to fix the "Unable to launch a new process" error.
+* Bugfix: A course fullname created from a template can be a duplicate again. (GH-2074)
+* Bugfix: The de_gs generator (cli/generate_de_gs_lang.php) produced mixed gender spellings like "eine:n Entwickler/in": it converted "Entwickler:in" to the slash form but had no rule for accusative articles/pronouns like "eine:n". A generic rule now rewrites any "...e:n" form (eine:n, keine:n, jede:n - also with * or _ separator) to "...e/n", replacing the narrow jede:n-only rule; lang/de_gs/booking.php was regenerated (this also picked up six privacy metadata strings whose regeneration had been missed).
+* Bugfix: Privacy API (moodle.org approval blocker): the privacy provider now declares ALL user-related tables. Newly declared with all fields: booking_slot_moves (pending/committed slot rebookings of a user incl. price difference), booking_slot_student_teacher (teacher assigned per student for a slot option), booking_sync_attempts (per-user enrol/unenrol sync log) and booking_teacher_unavailability (teacher absence periods - flagged proactively: its user reference is called teacherid, so the reviewer's userid scan missed it). The four tables are also wired into the request handlers: get_users_in_context lists their users (incl. teacherid columns), delete_data_for_user and delete_data_for_users remove the rows, and delete_data_for_all_users_in_context clears them per instance via the option ids. Where a deleted user is only the ASSIGNED teacher of somebody else's slot booking, the student's row survives with the teacher reference blanked instead of destroying the student's data. Lang strings for every declared field in en and de.
+* Bugfix: Privacy API (moodle.org approval blocker): the privacy provider now declares the plugin's only transfer of personal data to an external system via add_external_location_link(). The booking action "Execute REST script" sends - depending on its configuration - the booking user's profile data (first name, last name, e-mail, username), their custom booking form answers and placeholder values of the configured JSON body to the admin-defined REST endpoint; the declaration and a code comment in the provider document this (metadata lang strings in en and de). The only other external call candidate, classes/GoogleUrlApi.php (the retired Google URL shortener), was dead code - the whole class body had been commented out for years and nothing referenced it - and has been removed entirely. The vestigial booking_options.shorturl DB column (only writable via the addbookingoption webservice, never read or displayed) stays untouched to keep the webservice signature and backups stable.
+* Bugfix: Security hardening (moodle.org approval blocker): sesskey (CSRF) validation on all state-changing action handlers of the page scripts. Deleting a tag template (tagtemplates.php), an option template (optiontemplatessettings.php) and a booking instance template (bookinginstancetemplatessettings.php as well as the equivalent admin page instancetemplatessettings.php) now requires a valid sesskey, which the delete buttons pass along. The e-mail unsubscribe link (unsubscribe.php) cannot carry a sesskey, so it now shows a confirmation page first and only removes the notification list entry on the sesskey-protected continue request (new lang string unsubscribe:confirmnotification). Two missing authorization checks were closed along the way: deleting an option template now requires mod/booking:manageoptiontemplates (the same capability that gates creating one), and bookinginstancetemplatessettings.php - which had no capability check at all, so any course participant could list and delete instance templates - now requires mod/booking:updatebooking or mod/booking:addeditownoption like the equivalent admin page. The remaining action handlers were audited: report.php (deletebookingoption) and slotrules.php already validate the sesskey, and the join action of link.php is a read-only redirect.
+* Bugfix: Security hardening (moodle.org approval blocker): the webservice signatures no longer declare PARAM_RAW where a strict type exists. Inputs: 16 lookup and plain-text parameters of mod_booking_addbookingoption (identifiers, idnumbers, shortnames, location/institution/address, username, responsible contact, comma-separated condition lists, opening/closing time strings) are PARAM_TEXT; the area parameter of mod_booking_bookit is PARAM_ALPHANUMEXT (values are "option", "subbooking" or "subbooking-<id>"); the sessionkey of get_submission_mobile is PARAM_ALPHANUM and the submitted custom form field names/values are PARAM_ALPHANUMEXT/PARAM_TEXT. Returns with a scalar meaning got scalar types too: toggle_notify_user error and get_submission_mobile message are PARAM_TEXT, bookings points is PARAM_FLOAT, get_parent_categories item name and load_pre_booking_page template name are PARAM_TEXT. The remaining PARAM_RAW declarations are genuine JSON payloads/returns or HTML content where no stricter type exists; every such input documents its server-side validation in the signature (slot selection/release keys and teacher maps are cast to int server-side, the bookit data payload is reduced to positive int override ids, the option form config payload is gated by mod/booking:editoptionformconfig), and HTML returns (intro, descriptions, before/after booked texts) follow the core convention of cleaning on display via format_text.
+* Bugfix: Security hardening (moodle.org approval blocker): page scripts no longer read request parameters as PARAM_RAW where a strict type exists. The encodedtable parameter of the three table download scripts is cleaned as PARAM_ALPHANUM (it is an md5 hash referencing the cached table definition), sendmessage.php now receives the selected user ids as a comma-separated PARAM_SEQUENCE list instead of raw JSON (report.php builds the link accordingly, the hidden form field is typed PARAM_SEQUENCE and every id is still cleaned to int server-side), report2.php cleans viewtype as PARAM_ALPHA, the sesskey of bulk_book_handler.php is PARAM_ALPHANUM, the switchfield no-submit button of managecustomfieldoptions.php is PARAM_TEXT, the cmid fallbacks of the dynamic optiondate/teacher forms are PARAM_INT and the customfield options form reads the submitted labels as PARAM_TEXT and the repeat counter as PARAM_INT. editoptions.php dropped two parameters it never used (mode, and a sesskey that was even cleaned with the wrong type). The only remaining PARAM_RAW read is the JSON list of the elective credits calculation, which is documented in the code and covered by tests: every element is cleaned to an int option id before it reaches the database (a flat PARAM_SEQUENCE list would merge the digits of injection payloads into wrong ids instead of discarding them).
+* Bugfix: Security hardening (moodle.org approval blocker): capability checks on page scripts. download_report2.php now re-checks mod/booking:downloadresponses server-side in the context of the requested scope (before, only the download BUTTON was gated and any logged-in user could call the endpoint and export the booked users incl. personal data); unknown scopes are rejected before any table is instantiated. viewconfirmation.php requires mod/booking:view like view.php (it only ever shows the current user's own confirmation). unsubscribe.php works on the module context of the booking instance instead of the system context; the notification unsubscribe stays deliberately capability-free as a self-service action which only ever removes the current user's own entry (documented in the code).
+* Bugfix: Upgrade hardening (moodle.org approval blocker): db/upgrade.php no longer contains operations that could time out on big production sites when the upgrade runs through the admin interface. The customfields deduplication of step 2017112101 re-scanned the whole booking_customfields table once per deleted duplicate row (an unbounded while loop); it now runs as one set-based pass with chunked bulk deletes (new testable helper booking_delete_duplicate_customfields_2017112101 in db/upgradelib.php, same result: the oldest row of each optionid/cfgname group is kept) and the step calls upgrade_set_timeout(). Step 2024121600 loaded every booking option with empty availability into memory and rewrote each row one by one; it now sets availability = '[]' in a single set_field_select statement.
+* Bugfix: Security hardening (moodle.org approval blocker): SQL queries no longer interpolate variables directly into the statement, all values are bound as parameter placeholders: coursecategories::return_course_categories (category id; also fixes an undefined $where notice when called without restriction), elective::return_credits_booked and return_credits_left (userid/bookingid) and booking::get_all_optionids_of_teacher (userid/bookingid). The dynamic query in booking_option_settings::set_values already bound all values via the $params of get_options_filter_sql - a comment now documents that the select/from/where fragments are internal SQL, not values.
+* Bugfix: Security hardening (moodle.org approval blocker): every external webservice function now validates its execution context (validate_context, which enforces login and course/module access) and the required capabilities before processing the request. In particular: the raw option record service (optiontemplate) now requires mod/booking:manageoptiontemplates instead of being readable by anyone; the bookings API only exposes the booked users (personal data incl. e-mails) with mod/booking:readresponses in the instance and requires access to the requested course; toggle_notify_user, bookit, allow_add_item_to_cart, load_pre_booking_page, get_booking_option_description and get_submission_mobile validate the module context of the option and gate acting for other users behind the book-for-others/cashier rights; all autocomplete search backends (users, teachers, courses, templates, booking options, EvaSys forms/periods, Respond parent keywords) require one of the option editing capabilities anywhere (new helper permissions::require_any_booking_editing_capability); the performance tool services require view/editperformance; the option form config read service requires mod/booking:editoptionformconfig like the save service.
+* Bugfix: Security hardening (moodle.org approval blocker): no more direct superglobal access ($_GET/$_POST/$_REQUEST) anywhere in the plugin - all user input now goes through Moodle's cleaning layer. report.php reads its submit buttons and form values via optional_param() and parses the nested user[][id] checkbox array through the new booking_get_selected_userids() helper, which cleans every user id (locallib.php); the elective credits calculation cleans the JSON list parameter per option id; dates_handler::add_values_from_post_to_form() cleans the dynamic coursetime-* values, semesterid and dayofweektime; the ajax request detection in modechecker uses optional_param() with PARAM_BOOL.
+* Bugfix: An expired/missing PRO license no longer wipes stored PRO configuration when options or instance settings are saved. The PRO-only form sections are not rendered without a license, and the save code interpreted the missing fields as "cleared by the user": saving a booking option deleted the shared places configuration (sharedplaceswithoptions/sharedplacespriority), the booking actions (boactions, also affected by showsubbookings-style toggle showboactions being off) and the certificate configuration incl. expiry settings (also affected by certificateon being off) from the option JSON; saving the instance settings switched off the template switcher (incl. its selection) and the elective mode. A missing form key now preserves the stored value, while submitting an empty value with an active license still clears it as before.
+* Bugfix: The elective checkboxes (iselective, enforceorder, consumeatonce) are now advcheckboxes: they always submit 0 or 1 when rendered, so a missing key unambiguously means "not part of the form" (see above). As plain checkboxes they submitted nothing when unchecked, which also meant that enforceorder and consumeatonce could never be switched off again through the instance form (the missing key never wrote a 0 to the DB).
+* Bugfix: Slot booking — booking an additional slot (while still below max_slots_per_user) through the booking modal silently created no answer although the confirmation page reported success; the booked-state gate in the prepage flow now honours remaining slot capacity. (GH-2053)
+* Bugfix: Slot booking — the "Booked slots" shown in the booking options table now aggregate the slots of all of a user's active answers instead of only the newest one. (GH-2053)
+* Bugfix: The placeholder help list (booking rules mail actions, e-mail modals, mod_form) silently swallowed entries whenever two placeholders share the same translation in the current language - e.g. in German {pollurl} was hidden by {evasyssurveylink} (both "Link zur Umfrage"). The list is now keyed by the unique placeholder classname instead of the localized description. Note: the format of the public placeholders_info::$localizedplaceholders array flipped accordingly (classname => localized description).
+* Bugfix: Sign-in sheet (HTML template mode) — the [[dates]] placeholder rendered multiple sessions directly next to each other without separation; the newline separators are now converted to line breaks, so each session gets its own line (as in classic mode). For the Word download this additionally needs the wunderbyte_table fix that wraps line breaks in a valid run (Word ignored the schema-invalid bare <w:br/> of the bundled PhpWord).
+* Bugfix: Sign-in sheet download (HTML template mode) failed with "Could not load image [[logourl]]" when no header logo was configured — the img tag is now removed in that case; a configured logo is embedded as a base64 data URI, so PDF/Word generation no longer depends on fetching a pluginfile URL without a login session.
+* Test: New tripwire test guards against exit()/die() in library code.
+* Test: Agent skill tests are skipped when the optional bookingextension_agent subplugin is absent, so a standalone installation can run the test suite.
+* Test: New PHPUnit tests (privacy/provider_test.php) guard the privacy provider: a tripwire test parses install.xml and fails when any table with a userid/teacherid column is not declared in the metadata (so no user-related table can ship undeclared again), a second test asserts every referenced metadata lang string exists (it immediately caught one missing string), and two deletion tests prove delete_data_for_user/delete_data_for_users clear the slot/sync tables for the right users only - including the teacher-reference blanking.
+* Test: The bookings tracker test suite covers the new server-side download gate: admins and non-editing teachers pass has_capability_in_scope for downloadresponses, students are rejected.
+* Test: New PHPUnit tests (upgradelib_test.php) prove the deduplication keeps exactly the oldest row per group, leaves unique rows untouched and is idempotent.
+* Test: New PHPUnit tests (sql_placeholders_test.php) pin down that the migrated queries still select exactly the intended rows (own user/instance scoping, parent category filter).
+* Test: New PHPUnit tests (external_context_capability_test.php) prove that unenrolled users, users without the respective capability and users acting for somebody else are rejected by the external services, while the intended audiences keep working.
+* Test: New PHPUnit tests (superglobal_input_cleaning_test.php) prove that SQL injection and XSS payloads in the report user selection, the elective list parameter and the dynamic optiondate form values are reduced to harmless cleaned values.
+* Test: New PHPUnit tests cover the download endpoint URL/mapping helpers (incl. the checklist button target), the slot header links per role, the bulk enrol action (enrolment despite disabled autoenrol, missing course, capability recheck) and the rating modal (writes/deletes ratings, skips the rater's own answer, out-of-scale values write nothing, plugin permission and assessed gates).
+* Test: The bookings tracker is now fully covered by PHPUnit tests: the presence and notes modals (option scope and per-session optiondate scope incl. their managebookedusers gate), the transfer modal (form layer incl. subscribeusers gate), the bulk table actions (completion toggle incl. gate, delete incl. deleteresponses gate, certificate trigger incl. tool/certificate:manage gate and disabled-config path), the info line data (incl. associated course - extracted into the testable helper report2_infobox), the action button visibility matrix of the option scope per role and responsesfields config, the download button gate and the per-status SQL of the side tables (waiting list, reserved, notify list, deleted). Writing these tests uncovered that the downloadresponses switch of the table export had only reached the scope base class - the ten scope-specific overrides still checked updatebooking; they are aligned now. A new behat feature (booking_report2_tracker.feature) covers the options/answers view switch of the system scope.
+* Test: New PHPUnit tests simulate the option form and instance form roundtrip with and without PRO license and assert that PRO configuration survives non-PRO saves and can still be changed and cleared as before with an active license.
+* Test: The behat delete scenario was switched to the new modal flow; new scenarios cover cancelling the modal and the "x users are booked" warning when deleting an option with booked users; new PHPUnit tests cover the delete_booking_option webservice (deletion incl. answers and event, required capability, refusing a foreign cmid).
+* Test: Slotbooking behats updated for the capacity behaviour (row offers booking again until max_slots_per_user is exhausted, then locks to the booked state) and now book a second slot in calendar and list view; new PHPUnit regression test for the prepage repeat-purchase flow.
+* Deprecation notice: report.php will be removed in a future release in favour of the bookings tracker (report2.php). The following report.php-only features will then be dropped without a tracker equivalent: sending the poll URL to users/teachers and the reminder e-mail (both replaced by custom e-mails with placeholders), booking users into a connected booking (booktootherbooking), record numbers (numrec column + generator incl. the numgenerator setting), the search form (booking date range/completed/waiting list) and the mailto link to all participants (replaced by the custom message modal).
+
+## Version 9.6.3 (2026071600)
+* Improvement: Slot booking — user-defined slot type with configurable duration granularity (slot_duration_step_minutes) and per-slot warmup/cooldown buffers with overlap or summed combination mode. (GH-2053)
+* Improvement: Added show-only link into component view. (GH-176)
+* Improvement: Booking agent create/update skills hardened — silently-coerced dates are refused with repair guidance, intuitive input keys (price alias, description) are accepted, and the constructor is grounded in the site's real price categories.
+* Improvement: If a booking option supports enrolling multiple users (customform "enrol multiple users" field), report.php and the Bookings Tracker (report2.php, option scope) always show two enrollink columns (in the tables and in the downloads, independent of responsesfields/reportfields): the enrolment link a user has created or used, and "Enrolment link received from" linking to the profile of the user who made the original booking.
+* Improvement: Bookings Tracker (report2.php): the separate answers view in the system, course and instance scopes now shows a fixed set of columns: prefix, booking option, first name, last name, email address, time booked and time modified.
+* Improvement: Bookings Tracker (report2.php): the optiondate scope now shows a fixed set of columns: user picture (only if configured in responsesfields), first name, last name, email address, presence and notes.
+* Improvement: Bookings Tracker (report2.php): the optiondate scope now shows a presence filter which is visible right away (including presence statuses no user has yet).
+* Improvement: Booking agent rule skills resolve via the rule's own context instead of asking for an activity; preflight error causes split into user and repair channels.
+* Bugfix: Booking option maxanswers defaults to unlimited (0); the agent never asks about capacity.
+* Bugfix: Non-string query fields are coerced safely (no "Array to string conversion").
+* Bugfix: A bulk update without a known change field no longer reports success.
+* Bugfix: Person resolution refuses anonymization placeholders and never resolves the guest account.
+
+## Version 9.6.3 (2026071500)
+* New feature: New global plugin setting "customfieldsforview" as fallback for the booking instance setting of the same name: if an instance does not define customfields to be shown for each booking option in the options overview (view.php), the globally selected customfields are shown; if the instance defines its own customfields, only those are shown.
+* Improvement: Trainer can now book again.
+* Improvement: Optiondates now accept dateparseformat on import.
+* Test: New unit tests making sure the plugin settings page loads without errors on a plain installation.
+
+## Version 9.6.2 (2026071001)
+* New feature: New bulk operations page in the Booking plugin settings.
+* New feature: AI wizard — new read-only skill list_instance_settings returns the configurable instance fields with current values; configure_booking_instance is write-only now.
+* Improvement: AI wizard — diagnose_user_booking resolves a named option from any context (like the other diagnose skills) and flags an unresolvable optionquery instead of silently degrading to the instance-wide overview; every reported option carries its host course and booking instance.
+* Improvement: AI wizard — the no-instance scope observation no longer reads as a site-wide "no booking activities" state in later turns and points to the target-parameter retry path.
+* Improvement: AI wizard — search_options, list_option_properties and the two diagnose skills resolve their booking activity from any context (optionid or activityquery), instead of dead-ending outside a booking module context.
+* Improvement: AI wizard — mutation previews always name the target activity and course, bulk previews list the affected options, and every changed field is shown.
+* Improvement: AI wizard — failed mutations report per-option postcondition failures and which fields were actually persisted.
+* Bugfix: booking_add_instance/booking_update_instance no longer crash on records loaded from the DB (count() on comma-separated string fields).
+* Bugfix: Fix enrolmultipleusers via cashier (wrong number of items). Wunderbyte-GmbH/Wunderbyte-GmbH#1974
+* Bugfix: Fix several enrollink bugs. Wunderbyte-GmbH/Wunderbyte-GmbH#1535, Wunderbyte-GmbH/Wunderbyte-GmbH#2057, Wunderbyte-GmbH/Wunderbyte-GmbH#2058, Wunderbyte-GmbH/Wunderbyte-GmbH#1558
+
+## Version 9.6.1 (2026070901)
+* New feature: Booking agent — an AI assistant (bookingextension_agent) that creates, updates and manages booking options and answers questions from natural language, reachable from a global navbar entry point.
+* New feature: Entities treefilter — the location filter now shows the entity parent/child hierarchy as a searchable tree (requires local_wunderbyte_table 2026070800 or newer).
+* New feature: The location cell shows deep entity hierarchies as an accessible hover card; its entries link to the entity view pages and hover-card images are opt-in.
+* New feature: Entity cross-option availability and capacity/equipment booking — an option can require and consume the capacity of an entity or equipment across options.
+* New feature: After-booking actions can trigger a REST call (executerestscript, with optional JSON body, custom HTTP headers, TLS verification and optional JWT signing of the outgoing request) and can now also run on cancellation, not only on booking.
+* New feature: Read-only CLI cli/audit_booking_invariants.php to audit booking-answer DB invariants (overbooking, waiting list, duplicate answers, orphans, enrolment).
+* Improvement: bookingextension settings are now available regardless of the Booking PRO license.
+* Improvement: Better colour contrast for improved accessibility.
+* Improvement: Performance — a per-option capacity lock closes the overbooking race; system-wide cache broadcasts are deferred and reduced during waiting-list sync, bulk operations and single bookings; category lookups are batched; the MariaDB/MySQL version check is cached; and slot booking hoists option-wide queries out of the per-slot loop.
+* Bugfix: Refresh the shopping cart display whenever the prepage booking modal is closed - also via ESC or a backdrop click, not only via the close button.
+* Bugfix: Cashiers without 'mod/booking:bookforothers' could not load the customform prepage when booking for another user, so multi-user bookings (enrolusersaction) were silently booked with quantity 1. The 'local/shopping_cart:cashier' capability is now accepted for acting on behalf of another user, and the prepage continue button stays blocked if the customform fails to load (fail closed).
+* Bugfix: Availability SQL filter — tolerate NULL availability and make the userprofilefield &lt; and &gt; operators numeric and DB-agnostic (MariaDB and PostgreSQL).
+* Bugfix: REST after-booking action JSON-body placeholders are resolved per token, with new {baid} and {userid} placeholders.
+* Bugfix: The "user affected by event" option is gated by the selected event.
+* Bugfix: The scheduled mails page resolves its context like edit_rules.php and lists scheduled mails context-specifically.
+* Bugfix: Read the entitytreefilter setting from the correct component.
+* Bugfix: Fix error on settings.php when no customfields exist yet.
+
+## Version 9.6.0 (2026070900)
+* New feature: New booking instance setting "customfieldsforview" to display booking option customfields for each booking option in the options overview (view.php) — in list view (footer area, right next to institution) and cards view (card list, one customfield per line, right above the dates), styled like the other info entries (e.g. institution). The icons configured in the plugin settings (customfieldicon_<shortname>) are shown in front of the values, just like on the option detail page; if no icon is configured, the default icon fa-puzzle-piece is used.
+* New feature: Add individual columns and customfields to fulltext search.
+* New feature: Add a new toggle filter with shortcode arg 'filterbookablenextdays' to filter for all bookable options within the next N days, e.g. [courselist filter=1 filterbookablenextdays=28].
+* Improvement: Shortcode argument includecustomfields: if no region is given (e.g. includecustomfields="shortname1,shortname2"), the customfields are now rendered in the standard region of the rendered template (footer in list view, card list in cards view) with the standard styling, instead of the cardbody region which is only visible in the cards view. Explicitly given regions are unchanged.
+* Improvement: customfields in cards and optiondescription can now be assigned icons.
+* Bugfix: Don't change time modified for waitinglist confirmation.
+* Bugfix: Display waitinglist column for unlimited waitinglist.
+* Bugfix: Display enrolledincourse condition independly to usesqlfilteravailability condition.
+
+## Version 9.5.1 (2026070301)
+* Bugfix: Make sure no classes from shopping cart are required in booking.
+
+## Version 9.5.0 (2026070300)
+* Improvement: The full text search on booking customfields (via shortcode argument or instance setting fulltextsearchcolumns) now also searches the display value resolved by the wbt_field_controller (e.g. select labels or the data returned by the SQL of a dynamicformat field), not only the stored key.
+* New feature: New booking instance setting "Columns to add to the full text search" to add columns of booking options or booking customfields to the full text search of the booking options table.
+* New feature: New shortcode argument fulltextsearchcolumns (e.g. [courselist cmid="123" fulltextsearchcolumns="description,customfieldshortname"]) to add columns of booking options or booking customfields (by shortname) to the full text search of the table. Setting the argument implicitly enables the search.
+* New feature: New "Bulk operations" tab on the booking instance view page. It is enabled via the "Views to show" instance setting, requires the 'mod/booking:executebulkoperations' capability in module context and only shows booking options of the current instance. Users without 'mod/booking:canseeinvisibleoptions' in the module context only see visible options there. Also, the "Send mail to teachers" functionality of bulk operations now needs the 'mod/booking:communicate' capability.
+* New feature: Add setting 'eventslogtimefilter' to limit recent changes in booking option and booking instance form for better performance.
+* New feature: Include Booking Rules on instance duplication.
+* New feature: New interface for improved feature to transfer any user(s) from one booking option to another.
+* Improvement: All tabs on the booking instance view now show a fitting icon.
+* Improvement: The capability 'mod/booking:executebulkoperations' is now assignable in module context (system-level assignments keep working).
+* Improvement: Bulk operation forms now check capabilities on submission ('mod/booking:executebulkoperations' for bulk editing, 'mod/booking:communicate' for sending mail to teachers).
+* Improvement: Bulk operations now run in adhoc task to avoid site crash.
+* Improvement: Supervisors can book and confirm their own subordinates to a booking option.
+* Improvement: Unify german gender notation
+* Improvement: Use regex to unify german gender slash
+* Improvement: Add genderslash lang package
+* Improvement: Add PRO badge for setting 'duplicationrestorerules'.
+* Improvement: Add new capability to allow duplication of courses without acces
+* Improvement: visibility is shown
+* Improvement: added instance to certificate condition and overwrite for multiple certificate issiuing
+* Improvement: checkbox for multiselect
+* Improvement: added customfield hierarchy_manager
+* Improvement: hierachical filters in booking
+* Improvement: first steps customfields in card
+* Improvement: openbookingdetailinsametab with additional option
+* Improvement: Possibility to place freeze warning underneath availability element
+* Improvement: Persist all option-form header collapse states across no-submit
+* Bugfix: The English and German 'bulkoperations' language strings were swapped.
+* Bugfix: Allow messaging for booking (e-mails and notifications) by default so Booking Rules will work on new Booking installations.
+* Bugfix: Add filter_multilang2 to CI workflow so test will work.
+* Bugfix: Another fix for wrong page context fix.
+* Bugfix: Fix page context for localized customfields and add unit test for mlang in customfields.
+* Bugfix: Fix coding exception on bookings tracker (report2.php).
+* Bugfix: Show countlabel of tables also when filters find records.
+* Bugfix: Fix behats for github action so they do not fail at first run.
+* Bugfix: Disable subscribeusers for slotbooking options
+* Bugfix: Fix unit test (removed unnecessary fallback to alloptionstable which also needs to be removed in unit test).
+* Bugfix: Moodle 4.5 accessibility fixes and revert to use phpunit's teardown() to ensure clean up of booking cache
+* Bugfix: Correctly use user & relateduser in message provider
+* Bugfix: only display header when option is of type slotbooking
+* New feature: Booking AI agent integration for mod_booking (agent skills, providers, diagnostics).
+* Improvement: Performance — memoise the DB-server version check; defer system-wide cache broadcasts during bulk booking, single-booking and waiting-list sync; batch category lookups.
+* Improvement: Slotbooking — hoist option-wide queries out of the per-slot loop.
+* Bugfix: Availability SQL filter — tolerate NULL availability; make user-profile-field </> operators numeric and DB-agnostic (MariaDB/PostgreSQL).
+* Bugfix: Add a per-option capacity lock to close an overbooking race.
+* Bugfix: Resolve REST after-booking action JSON-body placeholders per token; gate "user affected by event" by the selected event.
+* Improvement: After booking actions — REST (executerestscript, cancel trigger).
+* Improvement: Load bookingextension settings regardless of the Booking PRO license.
+* Improvement: Scheduled mails page — align context resolution with edit_rules.php.
+* Improvement: Entity cross-option availability and capacity/equipment booking (with behat coverage).
+* Tests: gated concurrency/overbooking benchmark for booking capacity; further test improvements.
+
+## Version 9.4.0 (2026062201)
+* New feature: Slot booking - book and manage time slots inside a booking option: slot calendar picker and report, self-service move/cancel of booked slots, a unified "update booking" editor (move + cancel + change in one dynamic form), optional move-with-payment via shopping_cart, and per-slot booking rules (Wunderbyte-GmbH/Wunderbyte-GmbH#1596).
+* New feature: Booking AI agent integration for mod_booking (skills, providers, diagnostics).
+
+## Version 9.3.8 (2026062200)
+* Improvement: Display specific countlabel for messages event table
+* Improvement: Implement strings for upload
+* Bugfix: Waitinglist confirmation task handle late joiners
+* Bugfix: Display customfields in correct language
+
+## Version 9.3.7 (2026061601)
+* Improvement: implement showpagination argument in booking shortcodes
+* Improvement: New capability 'booking:canseenumberofbookings'
+* Improvement: Display reload button in eventslist table (report)
+* Accessibility: fix - remove "settings" text (expected to be invisible but shown)
+* Bugfix: Teacher Overview Moodle 5
+* Bugfix: Signinsheet no logo if config empty
+## Version 9.3.6 (2026060900)
+* Improvement: Several accessibility improvements.
+* Bugfix: Certificate Condition form not loading correctly.
+* Bugfix: Pass module context to courselist shortcode to make invisible booking options work.
+* Bugfix: For placeholders inside URLs we need to re-decode curly brackets.
+
+## Version 9.3.5 (2026060100)
+* New feature: Add possibility to synchronize users from global groups into booking options.
+* Improvement: Link settings sections.
+* Improvement: Extendable availabilityconditionsettings.
+* Bugfix: Timebooked shows wrong timestamp.
+* Bugfix: Fix wrong campaign limits time field - use timebooked instead of timecreated.
+
+## Version 9.3.4 (2026051900)
+* Improvement: Booking option templates can now be edited via bulk operations.
+* Bugfix: Remove exception when legacymailremovalacknowledged is not checked.
+
+## Version 9.3.3 (2026051300)
+* New Feature: Booking time relative to coursestart.
+* Improvement: Add possibility to check auto-apply fields separately.
+* Improvement: Show warning on view.php instead of exception when uselegacymailtemplates is active but legacymailremovalacknowledged has not been set yet.
+* Improvement: New confirmation setting to confirm that legacy emails will soon be not supported anymore.
+* Improvement: Enable detailed changes for special classes like price.
+* Improvement: Setting if teachers see own invisible options in teachers.php
+* Bugfix: Create warning only once per condition.
+* Bugfix: Disable all possible elements of conditions with skippableconditions setting applied.
+* Bugfix: Setting skippableconditions also applies to select of nooverlappingcondition.
+* Bugfix: fix for: confirmcancel::is_available() hides the confirmation condition for priced options in most “booked” cases.
+* Bugfix: Allow cancelling with new price category.
+* Bugfix: Do not block view.php in behat tests.
+* Bugfix: Fix error on upgrade when plugin tool_certificate is missing.
+* Bugfix: Disable legacy mail templates directly to avoid JS timeout from TinyMCE editors (Bootstrap 5 / Moodle 5.1+).
+* Bugfix: Fix failing behats for Bootstrap 5 (Moodle 5+).
+* Bugfix: When a booking option can be booked again, notification list should not block (also add new unit test).
+* Bugfix: correctly retrieve and format values on bookingoption description via field controlle.
+* Bugfix: SQL error when user try to create a rule ("days before", "specific time") for installment data field.
+* Bugfix: Fix behat - previously booked warning now contains title of booking option.
+* Bugfix: Show booking option name in description of previouslybooked condition.
+* Bugfix: Correctly record price for changes.
+* Bugfix: Handling of price changes.
+* Bugfix: Catch error for 0 user when executing customfield placeholders.
+
+## Version 9.3.2 (2026043000)
+* New feature: Add direct messaging with attachments to bookings tracker.
+* Improvement: Show info texts on shortcode myfavorites if PRO license or setting not enabled.
+* Improvement: Add German certificate documentation (CERTIFICATES_DE.md)
+* Improvement: Check conditions for enrollinks and add possibility to skip them.
+* Improvement: When booking via enrollink always skip some conditions, improve defaults.
+* Improvement: Add bookingstracker URL to booking option settings.
+* Bugfix: Fix exception when waiting list was set to unlimited ("-1").
+* Bugfix: Fix some strings and wrong naming of bulk operations button.
+* Bugfix: Fix string in unit test.
+* Bugfix: Guests should not see "my booked options" in booking instance.
+* Bugfix: Make sure that enrolmultipleusers checks booking limits and improve validation and tests.
+* Bugfix: On enrolmultipleusers via form, make sure it's not possible to increase in shopping cart to a number higher than the available free places.
+
+## Version 9.3.1 (2026042400)
+* New feature: My favorites (added possibility to mark booking option as favorites)
+* New feature: Add setting to choose default behavior of enrolmultipleusers, improve strings and add tests
+* New feature: Show custom fields of related person (person affected by event) by adding "-related" to the placeholder, e.g. {myuserprofilefield-related}.
+* New feature: New {emailrelated} placeholder to show e-mail of the related user (person affected by event).
+* Improvement: Possibility to define default for nooverlapping availability condition
+* Improvement: Details about shoppingcart changes in booking option updated event
+* Improvement: Make sure that template name does not get lost when editing template and that it can be removed
+* Improvement: Add status check to new scheduledmails table
+* Improvement: Importer overhaul
+* Improvement: Major improvements for field customfield handling and custom field performance.
+* Improvement: Make sure we also add custom fields with empty value to customfieldsfortemplates array.
+* Bugfix: No reminder mails for selflearningcourse, also check on task execution
+* Bugfix: Nooverlapping not blocking when no dates given
+* Bugfix: When instance title changes, we also rebuild course cache
+* Bugfix: Service Period for selflearning courses depends on booking time
+* Bugfix: Possibility to use custom user profile field twice for availability condition.
+* Bugfix: Fix permission check in search_users web service.
+
+## Version 9.3.0 (2026040800)
+* New feature: Add possibility to save booking option templates without title and use template name instead.
+* New feature: Add possibility for users with addeditownoption capability to actually add and edit their own option. Add new usercreated and usermodified fields to booking options and display them.
+* New feature: Create new setting to issue certificates only manually.
+* Improvement: Treat elements that need special format directly in definition_after_data of template.php.
+* Improvement: Make sure copytotemplate uses set_data of field classes and creates new booking option correctly with the booking_option::update function.
+* Improvement: Move booking option template creation from report.php to optiontemplatesettings.php and add new entry to dropdown menu.
+* Improvement: Make sure addeditownoption is an edit-only capability (wrongly named for legacy reasons). To create booking options we introduce a new mod/booking:adoption capability.
+* Improvement: handle empty teachers.
+* Improvement: adapt certificate shortcode to requirements.
+* Improvement: make editsemesters a capability.
+* Improvement: Updated packages for vue.
+* Improvement: Show real form values instead of just keys for form field selects.
+* Improvement: Show name of booking instance when recreating option dates with change semesters form.
+* Improvement: Better icon in bookings tracker.
+* Improvement: Design improvements of Bookings tracker (report2.php).
+* Improvement: Improve dates placeholders and templates and remove redundancies.
+* Bugfix: Also set 0 value of selflearningcourse in duration class.
+* Bugfix: Fix date_time_selectors in booking option templates.
+* Bugfix: Make sure option dates can also be saved within template.
+* Bugfix: Fix form submission in mobile app.
+* Bugfix: fix empty temp values.
+* Bugfix: delete_conditions_by_context function was never called because of typo.
+* Bugfix: Fixed displaying empty booking option list.
+* Bugfix: Fix NULL useridfrom when booking manager account is missing.
+* Bugfix: Keep HTML in description placeholder by using format_text instead of format_string.
+* Bugfix: Admin & all persons who have alwayscanapprove capability can confirm answers regardless of any other conditions.
+
+## Version 9.2.1 (2026033000)
+* Improvement: Make sure freetobookagain event is also triggered at campaign start/end if there are free places again because of campaign limits. Do this within the purge_campaign_caches task.
+* Bugfix: Make sure specific time mails are not sent incorrectly.
+
+## Version 9.2.0 (2026032700)
+* New feature: Show custom fields of related person (person affected by event) by adding "-related" to the placeholder, e.g. {myuserprofilefield-related}.
+* New feature: New {emailrelated} placeholder to show e-mail of the related user (person affected by event).
+* New feature: Make all conditions skippable and hide or freeze them in form depending on capability.
+* Improvement: Major improvements for field customfield handling and custom field performance.
+* Improvement: Make sure we also add custom fields with empty value to customfieldsfortemplates array.
+* Improvement: Task to check campaign start and end and check if freetobookagain event should be triggered.
+* Improvement: Add certificate conditions.
+* Improvement: Do not show certain buttons in wrong contexts (or when capability is missing).
+* Improvement: Answers can be updated on import.
+* Improvement: Add customfieldshortname-not functionality to shortcodes to exclude customfields.
+* Improvement: Include Cohort and cohort selector into report.
+* Improvement: Add a fallback on optionid when a rule event actually references a different table id.
+* Improvement: When a user has completed a booking option, (s)he cannot cancel anymore.
+* Improvement: Fix hardcoded supervisor logic.
+* Improvement: Created years past filter.
+* Improvement: Created a filter that checks if the value of a profilefield is the current user.
+* Improvement: Divided datasource more broadly into answers and options.
+* Improvement: Remove legacy code with field sport that does not exist in booking.
+* Bugfix: Possibility to use custom user profile field twice for availability condition.
+* Bugfix: Fix permission check in search_users web service.
+* Bugfix: Selflearningcourse element is introduced in duration class, so move hidelf check for enrolmentstatus to duration class.
+* Bugfix: Fix call of get_instance_fields_data (use static function in api).
+* Bugfix: Fix reduced forms if elements depend on other non-present elements.
+* Bugfix: Make sure reduced forms can be saved even if custom fields are missing.
+* Bugfix: Only send reminder mails with correct runtime.
+* Bugfix: Fix unit tests bug when timezone switches to daylight saving time (DST).
+* Bugfix: Fix bug when 'fieldname' key in recurringoptions is not set.
+* Bugfix: Customfield shortnames are not unique.
+* Bugfix: Confirm not showing when user is booked.
+* Bugfix: fix capability check when no shopping cart is used.
+* Bugfix: When a field in a custom form must not be empty we also do not allow blanks.
+* Bugfix: add missing booking instance settings on cancellation to the backup.
+* Bugfix: Fix timezone bug that saved wrong dates when user had a different timezone than server timezone.
+* Bugfix: Do not load any deleted, suspended or unconfirmed users.
+
+## Version 9.1.6 (2026030900)
+* New feature: Show custom fields of related person (person affected by event) by adding "-related" to the placeholder, e.g. {myuserprofilefield-related}.
+* New feature: New {emailrelated} placeholder to show e-mail of the related user (person affected by event).
+* Improvement: Move customfields info array functionality from wunderbyte_table to bookingoptions_wbtable for better code quality.
+* Improvement: Allow restriction on specific instances when searching booking options via ajax.
+* Improvement: Show actual values of customfields when using includecustomfields with shortcodes.
+* Improvement: In booking_option_settings load all customfields using wbt_field_controllers to get actual values.
+* Improvement: Improve book cohort feature by improved error message and override via bookanyone capability.
+* Improvement: Major improvements for field customfield handling and custom field performance.
+* Improvement: Make sure we also add custom fields with empty value to customfieldsfortemplates array.
+* Bugfix: Possibility to use custom user profile field twice for availability condition.
+* Bugfix: Fix permission check in search_users web service.
+* Bugfix: Don't call shoppingcart js when it's not installed.
+* Bugfix: Refactor bookit.js to work correctly with buttons with tags.
+* Bugfix: Fix formatting (needed for mlang support) of customfields in details view (optionview.php).
+* Bugfix: not saving empty formtype in customform.
+
+## Version 9.1.5 (2026030200)
+* New feature: Show groupid in option forms and add possibility to recreate groupid if it's wrong.
+* Improvement: Do not delete SQL queries cache by campaign reset as it is not necessary.
+* Improvement: Append timezone info to displayed time when shown in a different timezone than expected.
+* Improvement: Use userdate instead of date to display the correct datetime.
+* Improvement: Include the timezone in the cache key when generating and caching datetimes to prevent incorrect display across different time zones.
+* Bugfix: Do not delete customfield values on shopping cart checkout for selflearning courses.
+* Bugfix: Add German performance strings and change shortcode name dynamically.
+* Bugfix: Only display certificate button when certificate config is enabled.
+* Bugfix: Add fallback for missing name in price category.
+* Bugfix: Apply format string to booking name in teachers list.
+* Bugfix: Prevent pollurl from defaulting to 0 on non-pro booking versions.
+* Bugfix: Only show previously booked button when records are found.
+* Bugfix: Load new values if old ones are not loaded.
+* Tests: Use set_config to set the timezone in importer tests to cover timezone information in displayed times.
+* Tests: Fix expectations regarding appended timezone information.
+* Tests: Create scenario to verify behavior when forcetimezone is set to a specific timezone.
+* Tests: Add steps to cover appending timezone abbreviation or city name when user is in a different timezone.
+* Tests: Extend unit and Behat tests to verify booking opening and closing times are rendered in the correct timezone.
+* Tests: Fix Behat test steps that check the time of a booking option.
+* Tests: Extend booking_time_zone_test scenario to verify sessions with same timezone and language use a single cache key.
+* Tests: Create Behat and unit tests to verify option dates across different time zones.
+
+## Version 9.1.4 (2026022400)
+* Improvement: Better strings for the “selectusers” booking rule condition.
+* Improvement: Add new shortcode to allow performance testing of webservices.
+* Improvement: Update description for booking time SQL filtering.
+* Improvement: Update booking time filter description in German.
+* Improvement: Add new setting to restrict booking time SQL condition to future options only.
+* Improvement: Allow manageusers table to translate custom field values.
+* Improvement: Make Bootstrap 5 ready and improve usability.
+* Improvement: Fix failing tests.
+* Improvement: Link settings in alert string.
+* Improvement: Slim down function implementation.
+* Improvement: Rename fields and add warning to mform.
+* Improvement: Add logic to freeze fields.
+* Improvement: Implement visibility manager.
+* Improvement: Add setting and refactor get_class method.
+* Improvement: Implement skippable boolean and get_name function for all conditions.
+* Improvement: Add German language strings.
+* Bugfix: Add missing language strings.
+* Bugfix: Do not show confirm button when there is no confirmation workflow.
+* Bugfix: Fix spelling mistakes.
+* Bugfix: Ensure ignored data on CVS import is handled correctly.
+* Bugfix: Fix permission issues.
+* Bugfix: Handle empty values in mustache template correctly.
+* Bugfix: Fix empty navigation element issue.
+* Tests: Add test case for each setting.
+
+## Version 9.1.3 (2026021600)
+* New feature: Add new description placeholder.
+* Improvement: Check capability of a user anywhere in the system.
+* Improvement: Add capabilities check for webservice.
+* Improvement: Validate the sessionkey sent in the service.
+* Improvement: Add capability check to update notes.
+* Improvement: Add more useful help strings to description field settings.
+* Improvement: Harden code for new description classes.
+* Improvement: {title} placeholder now uses same function as {bookingoptionname} placeholder.
+* Improvement: Also use class description_calendarevent in calendar constructor.
+* Improvement: New option booking settings for custom description of calendar events.
+* Improvement: Replace get_rendered_eventdescription with description_calendarevent.
+* Improvement: Apply the user-defined template to description_ical & description_calendarevent.
+* Improvement: Read the user-defined template from the custom field configured in the iCal settings.
+* Improvement: New description classes for each type of context (ical, calendar event, mail, etc.).
+* Improvement: New option in the iCal settings that allows the user to select a custom field as the description field for iCal.
+* Improvement: Get rid of unnecessary settings (iCals are sent by rules now).
+* Bugfix: Fix call of get_options_filter_sql in create_table_for_one_option in order to fix unit test.
+* Bugfix: Make sure we have param4.
+* Bugfix: Check capabilities properly.
+* Bugfix: Dont declare writing service as read.
+* Bugfix: Make sure to require capability for storing performance.
+* Bugfix: Make sure to user proper and secure way of fetching Data.
+* Bugfix: Don't render sql conditions when we only fetch one single option.
+* Bugfix: Make sure invisible options are correctly instantiated.
+* Bugfix: Add missing package tags.
+* Bugfix: Rename behat to validate.
+* Bugfix: Reverted deprecation fix as it is not yet supported by Moodle 4.5.
+* Bugfix: Fix warnings and deprecations in unit test.
+* Bugfix: Fix unit test and linting.
+* Bugfix: Put the descriptions on the same line as their property name in the iCal file, following the PropertyName:PropertyValue rule.
+* Bugfix: Set the correct name of option when reading config in description_calendarevent.
+* Bugfix: Make sure unit test for ical attachments works also with cancelled icals sent with Booking rules.
+* Tests: Improve previously booked test.
+* Tests: Fix test by requiring used constant.
+* Tests: Check access to invisible but previously booked options.
+* Tests: Add unit test for calendar visibility changes.
+* Tests: Clear the cache of the placeholder_info class during test initialization, as data from previous tests remains cached.
+* Tests: Update the PHPUnit tests to reflect the latest changes.
+* Tests: Add test coverage for both description_ical and description_calendarevent classes.
+* Tests: Verify that the rendered description matches the expected output in different scenarios.
+
+## Version 9.1.2 (2026021101)
+* Improvement: When cache for booking option is purged, also purge entities cache for that option.
+* Improvement: Put the interface names in alphabetical order.
+* Improvement: completeddate as new column in bookinganswers.
+* Improvement: Use user profile values directly instead of using queries.
+* Improvement: backup and restore completeddate.
+* Improvement: Use profile values only as sql params for security reason.
+* Bugfix: Fix availability change check by making sure '[]' is always used as default value.
+* Bugfix: Make sure users can instantiate connected options (eg previously booked) even when those are invisible.
+* Bugfix: Fix mariadb error regarding the return_sql function.
+* Tests: Update the Behat scenario to reflect the roundrefundamount setting.
+
+## Version 9.1.1 (2026020500)
+* New feature: Admin sees all options in listtoapprove.
+* New feature: Implemented a mode to switch between one or all other options are required for certificate.
+* New feature: Add new capability 'seealllisttoapprove'.
+* Improvement: Display notes on hover.
+* Improvement: Adding note, adding default hash, adding autocomplete.
+* Improvement: Measurement points equally distributed, Measurements in run order, Actions enable check.
+* Improvement: Add delete measurements for shortcodehash.
+* Improvement: Add multiple measurements during one cycle.
+* Improvement: Add Table for performance measuring.
+* Improvement: Use lines instead of bars.
+* Improvement: Move performance class to correct location.
+* Improvement: Add capabilities view and edit performance.
+* Improvement: Adding actions. Setup pipelines and singletons.
+* Improvement: Setup performance dashboard.
+* Improvement: Change seealllisttoapprove capability context & define new capability for confirmation.
+* Improvement: Let person with seealllisttoapprove to see the answers.
+* Improvement: Admin can see all the answers.
+* Bugfix: Increase wunderbyte table dependency (for sql injection hotfix).
+* Bugfix: Fix wrong parameters for check_for_changes in "easy" fields.
+* Bugfix: Fix JS in dynamicoptionform and selectors for Moodle 5.1 (Bootstrap 5).
+* Bugfix: Fix check_for_changes function to accept null as key.
+* Bugfix: Fix version in upgrade.php after rebase conflicts.
+* Tests: Added new testcase.
+
+## Version 9.1.0 (2026013000)
+* New feature: Demand more than one option completions for a certificate.
+* New feature: Add previously completed functionality.
+* Improvement: Better strings.
+* Improvement: Possibility to trigger certificate in manage users table.
+* Improvement: New certificate_issued event.
+* Improvement: Rebase certificate logic into proper class.
+* Improvement: New condition to select manager of booking to receive message.
+* Improvement: Add more sql conditions.
+* Improvement: General linting and codestyle updates.
+* Bugfix: Use output buffer to fix failing test because of mtrace.
+* Bugfix: Make sure mariadb dialect is correct.
+* Bugfix: We need to call mtrace in unit tests too!
+* Bugfix: use defined PHPUNIT_TEST instead of PHPUNIT_TEST.
+* Bugfix: add missing parameter $nextruntime.
+* Bugfix: Event not showing and certificates button triggering certificate although it is not passing checks.
+* Bugfix: Suche im Angebot geht nicht.
+* Bugfix: Update privacy functions to fix issue.
+* Tests: Add new test to make sure mails are sent in relation to courseenddate, also after course has ended.
+* Tests: extend shopping_cart_installment_test() to validate messages, sent by rule on installment.
+* Tests: Fix tests for event.
+* Tests: Extend test of mail.
+* Tests: adjust behat Scenario "Booking rules" to support update booking manager and rule on uncompletion event.
+* Tests: remove obsolete steps.
+* Tests: adjust phpunit scenario on option completion to support uncompletion and update booking manager.
+* Tests: new phpunit scenario 'Reminder to manager two hours before booking opening time'.
+
+## Version 9.0.9 (2026012700)
+* Improvement: Better handling of confirmation task if status has changed.
+* Improvement: supervisorteamreduced can now delete booking answers from users
+* Improvement: Templates are sorted alphabetically
+* Bugfix: Fallback for bookingrule condition doesn't exist anymore
+* Bugfix: String for name of task
+* Bugfix: Only issue certificate when setting is on
+* Bugfix: Fallback for empty mail message
+* Bugfix: template should have unique identifier
+* New behat Scenario: Booking option template: create one and use it to create new option
+* Tests: phpunit: new class rule_cancellation_test with 4 scenarios
+
+## Version 9.0.8 (2026012000)
+* Improvement: Better wording for visibility.
+* Improvement: added typefilter to mybookings.
+* Improvement: Setting to send messages for invisible options.
+* Improvement: Add placeholder optionid.
+* Improvement: Add placeholder type to get bo type 0 normal, 1 selflearning.
+* Improvement: Missing Placeholders do not send mails.
+* Bugfix: Reverted logic for sending messages of invisible option setting.
+* Bugfix: Allow external pollurls with placeholders.
+* Bugfix: Empty cmid does not lead blocking site.
+
+## Version 9.0.7 (2026011600)
+* Improvement: Implement field controllers for customfield placeholders to support more field types (e.g. multiselect dynamic dropdown).
+* Improvement: Optionstoconfirm reduced now show coursestarttime
+* Improvement: Add checklist setting
+* Improvement: Properly url encode everything
+* Bugfix: Remove can_issue check as it fails when called from observer.
+* Bugfix: Make sure optionstoconfirmreduced still work
+* Bugfix: fureonly not working
+* Bugfix: Correctly check for invisible options
+* Bugfix: Fix pollurl collapsible for Bootstrap 5 and improve usability.
+* Bugfix: With previouslybooked condition, if option isn't found block
+* Bugfix: Correctly check for selflearningcourse in answers
+* Bugfix: Make double sure that we could actually assign competency on completion
+
+## Version 9.0.6 (2026011400)
+* Bugfix: Make double sure that we could actually assign competency on completion
+* Bugfix: Correctly check for selflearningcourse in answers
+* Bugfix: With previouslybooked condition, if option isn't found block
+
+## Version 9.0.5 (2026010900)
+* Improvement: Don't wrap selflearningcourse information in placeholder in paragraph.
+* Improvement: For better usability, we hide the message button on teacher page if messaging is impossible.
+* Improvement: Backup shopping cart iteminfo if it exists.
+* Bugfix: Fixed default booking image fallback to use the captured default image record instead of the last iterated image.
+* Bugfix: Make sure rules are not executed for self-learning courses if the rule depends on option date(s).
+* Bugfix: Make sure no icals are sent for selflearningcourses.
+* Bugfix: Fix e-mails for self-learning courses.
+* Bugfix: Fix layout for teacher page (should be full width in boost).
+* Bugfix: Fix missing fields in backup stepslib for booking instance.
+
+## Version 9.0.4 (2026010700)
+* New feature: Introduce new booking option type and replace selflearningcourse flag from JSON.
+* New feature: New booking rule for a specific time before or after a chosen date field.
+* New feature: Scheduled emails page for debugging mode.
+* Improvement: Separate booking event for moving up from the waiting list.
+* Improvement: Get entity ID more efficiently.
+* Improvement: Load image URL more efficiently.
+* Improvement: Add placeholders to pollurl and pollurlteachers.
+* Improvement: Use capital letters for labels of German words.
+* Improvement: Define new identifier for actions on booking answer.
+* Improvement: Set title and aria-label for action buttons.
+* Improvement: Update actions column by adding text to buttons and increasing spacing.
+* Improvement: Change column title of actions button.
+* Improvement: Add search and filter functionality on my bookings page.
+* Improvement: My certificates page now shows linked course.
+* Improvement: Make mobile list more robust.
+* Improvement: Cache custom fields.
+* Improvement: Refactor options-to-confirm scope.
+* Improvement: Set localized language strings.
+* Bugfix: Fix image matching for arrays.
+* Bugfix: Fix broken Behat by reverting SQL and using booking_handler for get_value.
+* Bugfix: Remove unnecessary variable.
+* Bugfix: Fix non-deterministic ordering for tied timemodified values causing waiting-list selection to vary.
+* Bugfix: Do not assume that the last element in an array is the one needed.
+* Bugfix: Missing string error.
+* Bugfix: Custom fields of type textformat are supported for certificate creation.
+* Bugfix: Invalidate event log table cache after message was sent.
+* Bugfix: Fix error where cache definition requires simple keys.
+* Bugfix: Unset mobile active tab.
+* Bugfix: Fix wrong display of PRO license status.
+* Bugfix: Adhoc task failed due to missing cache_helper class.
+* Bugfix: Set correct string values for cached scheduled mails cache.
+* Tests: Verify booking rules on specific time for self-learning course.
+* Tests: Verify booking rules on specific time.
+* Tests: Test booking answer moved up from waiting list event with rules.
+* Tests: Modify expected values in Behat test due to refund value changes.
+* Tests: Manually confirm users after confirm_bookinganswer_by_rule adhoc task.
+* Tests: Modify expected values for user credits.
+* Tests: New PHPUnit test for refund value with different cancellation fees.
+* Tests: Reset static variables in PHPUnit tests.
+* Tests: Create methods to reset instances of static variables.
+
+## Version 9.0.3 (2025121200)
+* Bugfix: Don't send mails when CMID of option has changed.
+* Bugfix: Missing format_strings for booking rules.
+* Bugfix: Fix reliability bugs reported by Sonarqube with high severity.
+
+## Version 9.0.2 (2025121100)
+* Bugfix: Fix bugs in Bookings tracker.
+
+## Version 9.0.1 (2025121000)
+* New feature: Create shortcode for altering a wb_table column.
+* New feature: Add new 'includecustomfields' argument for shortcodes.
+* New feature: Allow selecting the responsible contact as receiver of mails from rules.
+* Improvement: Available places as a new class under filters directory.
+* Improvement: Use available places filter.
+* Improvement: Display the target user's name on the booking button.
+* Improvement: Use format_text in customform condition to support HTML.
+* Improvement: Better strings for course calendar.
+* Improvement: Make functions accessible.
+* Improvement: Add infinite scrolling to shortcodes in mod_booking.
+* Improvement: Improve SQL performance.
+* Improvement: Possibility to select responsible contact as mail receiver in rules.
+* Bugfix: Avoid change of sorting order on booking a booking option.
+* Bugfix: Check if class exists before checking for cashier capability.
+* Bugfix: Bugfix: Preserve id of exisisting optiondate in addoptiondateseries.
+* Bugfix: Bugfix: Compare optiondateids to check if rule still applies.
+* Bugfix: Correctly set new booking description param.
+* Bugfix: Correctly set progress via shortcodeparam progress.
+* Bugfix: Call get_cart_items after modal close to load cashier items correctly.
+* Bugfix: Ensure MySQL LATERAL queries work on MariaDB <10.6.
+* Bugfix: Fix 'bo.responsiblecontact' unknown column issue.
+* Bugfix: Fix concatenation operator issue in MySQL.
+* Bugfix: Remove unused clean_string() to avoid redeclaration fatal error.
+* Bugfix: Revert incorrect userid and relateduser handling in message event table.
+* Bugfix: Get correct user's answer in alreadybooked.
+* Bugfix: Send real buyforuserid in initFooterButtons payload.
+* Bugfix: Fix calendar string in Behat tests.
+* Bugfix: Fix linting issues.
+* Tests: Set optiondateid to trigger correct behaviour.
+* Tests: Make sure changing entity of an options doesn't trigger new task.
+* Tests: Add PHPUnit test for sorting in infinite scrolling.
+* Tests: Add PHPUnit test to cover available places filter.
+* Tests: Extend tests to accept multiple shortcodes.
+* Tests: Count booked and reserved answers to calculate available places.
+* Tests: Add PHPUnit test test_rule_on_email_responsiblecontact_on_booking().
+* Tests: Add scenario to verify correct items returned on second page with available places filter applied.
+
+## Version 9.0.0 (2025120101)
+* Improvement: Now supporting Moodle 4.5+ (skipped support for Moodle 4.1 - 4.4).
+
 ## Version 8.19.0 (2025120100)
 * New feature: Introduce new rule template for adding/removing teachers for option dates.
 * New feature: Add support for selecting custom fields as sortable/filterable fields in wunderbyte_table.
@@ -691,7 +1514,7 @@ legacy mail templates with booking rules by using the new templates.
 * Improvement: More efficient way to skip selflearningcourse rules.
 * Improvement: Move setting to configurefields section.
 * Improvement: Save localized names of customfields to json for better performance.
-* Improvement: Use site settings for teacher e-mail visibility also in mobile app Wunderbyte-GmbH.
+* Improvement: Use site settings for teacher e-mail visibility also in mobile app.
 * Improvement: Show options that are visible with direct link also in the mybooked options table.
 * Improvement: SQL-based filtering by conditions now allows is bypassed for booked options.
 * Improvement: Only output email key if email exists.

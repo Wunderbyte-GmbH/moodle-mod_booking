@@ -135,7 +135,9 @@ class canceluntil extends field_base {
         }
 
         $mform->addElement('advcheckbox', 'canceluntilcheckbox', get_string('canceluntil', 'mod_booking'));
-        $mform->disabledIf('canceluntilcheckbox', 'disablecancel', 'checked');
+        if ($mform->elementExists('disablecancel')) {
+            $mform->disabledIf('canceluntilcheckbox', 'disablecancel', 'checked');
+        }
         $mform->addElement('date_time_selector', 'canceluntil', '', time_handler::set_timeintervall());
         $mform->setDefault('canceluntil', time_handler::prettytime(time()));
         $mform->disabledIf('canceluntil', 'canceluntilcheckbox');
@@ -176,7 +178,7 @@ class canceluntil extends field_base {
      * @param stdClass $formdata
      * @param field_base $self
      * @param mixed $mockdata // Only needed if there the object needs params for the save_data function.
-     * @param string $key
+     * @param string|null $key
      * @param mixed $value
      *
      * @return array
@@ -186,7 +188,7 @@ class canceluntil extends field_base {
         stdClass $formdata,
         field_base $self,
         $mockdata = '',
-        string $key = '',
+        string|null $key = null,
         $value = ''
     ): array {
 

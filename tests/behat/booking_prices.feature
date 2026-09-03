@@ -37,8 +37,8 @@ Feature: As an admin - configure booking's prices feature and validate it as stu
       | student2 | C1     | student        |
       | student3 | C1     | student        |
     And the following "activities" exist:
-      | activity | course | name       | intro               | bookingmanager | eventtype | Default view for booking options |
-      | booking  | C1     | BookingCMP | Booking description | teacher1       | Webinar   | All bookings                     |
+      | activity | course | name       | intro               | bookingmanager | eventtype | Default view for booking options | cancancelbook |
+      | booking  | C1     | BookingCMP | Booking description | teacher1       | Webinar   | All bookings                     | 1             |
     And the following "mod_booking > options" exist:
       | booking     | text         | course | description | importing | useprice | maxanswers | datesmarker | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 |
       | BookingCMP  | Option-price | C1     | Price       | 1         | 1        | 6          | 1           | 0              | 0              | ## tomorrow ##    | ## +2 days ##   |
@@ -62,3 +62,30 @@ Feature: As an admin - configure booking's prices feature and validate it as stu
     And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Start" in the ".allbookingoptionstable_r1" "css_element"
     And I log out
+
+  @javascript
+  Scenario: Booking prices: setup zero price book it as student and cancel it without fee
+    Given the following config values are set as admin:
+      | config             | value        | plugin  |
+      | pricecategoryfield | userpricecat | booking |
+      | displayemptyprice  |              | booking |
+    When I am on the "BookingCMP" Activity page logged in as student2
+    And I should not see "0.00 EUR" in the ".allbookingoptionstable_r1 .booknow" "css_element"
+    And I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
+    And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "Start" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "Undo my booking" in the ".allbookingoptionstable_r1" "css_element"
+    And I follow "Profile" in the user menu
+    And I click on "Edit profile" "link" in the "region-main" "region"
+    And I set the following fields to these values:
+      | userpricecat | discount1 |
+    And I click on "Update profile" "button"
+    Then I log out
+    And the following config values are set as admin:
+      | config             | value        | plugin  |
+      | displayemptyprice  | 1            | booking |
+    And I clean booking cache
+    And I am on the "BookingCMP" Activity page logged in as student2
+    And I click on "Undo my booking" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
+    And I click on "Click again to confirm cancellation" "text" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "89.00 EUR" in the ".allbookingoptionstable_r1 .booknow" "css_element"

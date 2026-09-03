@@ -32,15 +32,41 @@ Feature: In a booking delete
     Given I am on the "My booking" Activity page logged in as teacher1
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Delete this booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
-    And I should see "Do you really want to delete this booking option New option?"
-    And I click on "Continue" "button"
-    And "//div[@id, 'allbookingoptionstable_r1']" "xpath_element" should not exist
+    And I should see "Do you really want to delete this booking option New option?" in the ".modal-dialog" "css_element"
+    And I click on "Delete" "button" in the ".modal-dialog" "css_element"
+    And I wait until the page is ready
+    And I should not see "New option"
     And I log out
     When I log in as "admin"
     And I trigger cron
     And I run all adhoc tasks
     And I visit "/report/loglive/index.php"
     Then I should see "Booking option deleted"
+    And I log out
+
+  @javascript
+  Scenario: Cancel the delete confirmation modal keeps the booking option
+    Given I am on the "My booking" Activity page logged in as teacher1
+    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Delete this booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "Do you really want to delete this booking option New option?" in the ".modal-dialog" "css_element"
+    When I click on "Cancel" "button" in the ".modal-dialog" "css_element"
+    Then I should see "New option" in the ".allbookingoptionstable_r1" "css_element"
+    And I log out
+
+  @javascript
+  Scenario: Delete booking option with booked users shows a warning in the confirmation modal
+    Given the following "mod_booking > answers" exist:
+      | booking    | option     | user     |
+      | My booking | New option | student1 |
+      | My booking | New option | student2 |
+    And I am on the "My booking" Activity page logged in as teacher1
+    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Delete this booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
+    Then I should see "Do you really want to delete this booking option New option (2 users are booked)?" in the ".modal-dialog" "css_element"
+    And I click on "Delete" "button" in the ".modal-dialog" "css_element"
+    And I wait until the page is ready
+    And I should not see "New option"
     And I log out
 
   @javascript

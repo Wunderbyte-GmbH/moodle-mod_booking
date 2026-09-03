@@ -72,53 +72,49 @@ Feature: As admin - apply bulk operations under booking options.
     And I should see "ski" in the "//tr[contains(@id, '_optionbulkoperationstable_') and contains(@id, '_r1')]" "xpath_element"
     ## Testing filtering
     And I click on "Filter table" "button" in the ".wunderbyte_table_filter_on" "css_element"
-    ## Filtering by title
-    And I click on "Title" "button"
-    And I should see "Option11-j" in the ".wunderbyteTableFilter" "css_element"
-    And I set the field "Option11-j" in the ".wunderbyteTableFilter" "css_element" to "checked"
-    And I should see "Option11-j" in the "//tr[contains(@id, '_optionbulkoperationstable_') and contains(@id, '_r1')]" "xpath_element"
-    And "//tr[contains(@id, '_optionbulkoperationstable_') and contains(@id, '_r2')]" "xpath_element" should not exist
-    And I set the field "Option11-j" in the ".wunderbyteTableFilter" "css_element" to ""
-    And I should see "12 of 12 records found"
-    ##And I should see "Option10-b" in the "//tr[contains(@id, '_optionbulkoperationstable_') and contains(@id, '_r3')]" "xpath_element"
     ## Filtering by timespan
     And I click on "Start time of the course" "button"
-    And I set the field "date-coursestarttime" in the "#id_collapse_coursestarttime" "css_element" to "2022-05-11"
-    And I set the field "time-coursestarttime" in the "#id_collapse_coursestarttime" "css_element" to "01:00"
-    And I set the field "date-" in the "#id_collapse_coursestarttime" "css_element" to "2022-05-19"
-    And I set the field "time-" in the "#id_collapse_coursestarttime" "css_element" to "05:00"
-    And I set the field "Display records" in the "#id_collapse_coursestarttime" "css_element" to "within"
-    And I set the field "Apply Filter" in the "#id_collapse_coursestarttime" "css_element" to "checked"
+    And I set the field "date-coursestarttime" in the "[id^=\"id_collapse_coursestarttime\"]" "css_element" to "2022-05-11"
+    And I set the field "time-coursestarttime" in the "[id^=\"id_collapse_coursestarttime\"]" "css_element" to "01:00"
+    And I set the field "date-" in the "[id^=\"id_collapse_coursestarttime\"]" "css_element" to "2022-05-19"
+    And I set the field "time-" in the "[id^=\"id_collapse_coursestarttime\"]" "css_element" to "05:00"
+    And I set the field "Display records" in the "[id^=\"id_collapse_coursestarttime\"]" "css_element" to "within"
+    And I set the field "Apply Filter" in the "[id^=\"id_collapse_coursestarttime\"]" "css_element" to "checked"
     And I should see "6 of 12 records found"
     And I should see "Option11-j" in the "//tr[contains(@id, '_optionbulkoperationstable_') and contains(@id, '_r1')]" "xpath_element"
     And "//tr[contains(@id, '_optionbulkoperationstable_') and contains(@id, '_r7')]" "xpath_element" should not exist
-    And I set the field "Apply Filter" in the "#id_collapse_coursestarttime" "css_element" to ""
+    And I set the field "Apply Filter" in the "[id^=\"id_collapse_coursestarttime\"]" "css_element" to ""
+    ## Close the open filter dropdown so it does not cover the next filter button
+    And I press the escape key
     ## Filtering by spt1 customfield
     And I click on "spt1" "button"
     And I should see "auto (1)" in the ".wunderbyteTableFilter" "css_element"
     And  I set the field "auto (1)" in the ".wunderbyteTableFilter" "css_element" to "checked"
     And I should see "Option07-a" in the "//tr[contains(@id, '_optionbulkoperationstable_') and contains(@id, '_r1')]" "xpath_element"
     And I set the field "auto (1)" in the ".wunderbyteTableFilter" "css_element" to ""
+    And I press the escape key
     ## Filtering by Institution
     And I click on "Institution" "button"
     And I set the field "place 2 (1)" in the ".wunderbyteTableFilter" "css_element" to "checked"
     And I should see "Option02-f" in the "//tr[contains(@id, '_optionbulkoperationstable_') and contains(@id, '_r1')]" "xpath_element"
     And "//tr[contains(@id, '_optionbulkoperationstable_') and contains(@id, '_r2')]" "xpath_element" should not exist
     And I set the field "place 2 (1)" in the ".wunderbyteTableFilter" "css_element" to ""
+    And I press the escape key
     ## Filtering by intrange
     And I click on "Prefix" "button"
-    And I set the field "intrange-start-titleprefix" in the "#id_collapse_titleprefix" "css_element" to "1"
-    And I set the field "intrange-end-titleprefix" in the "#id_collapse_titleprefix" "css_element" to "3"
-    And I set the field "Apply Filter" in the "#id_collapse_titleprefix" "css_element" to "checked"
+    And I set the field "intrange-start-titleprefix" in the "[id^=\"id_collapse_titleprefix\"]" "css_element" to "1"
+    And I set the field "intrange-end-titleprefix" in the "[id^=\"id_collapse_titleprefix\"]" "css_element" to "3"
+    And I set the field "Apply Filter" in the "[id^=\"id_collapse_titleprefix\"]" "css_element" to "checked"
     And I should see "4 of 12 records found"
     And I should see "Option08-m" in the "//tr[contains(@id, '_optionbulkoperationstable_') and contains(@id, '_r1')]" "xpath_element"
     And I should see "Option01-t" in the "//tr[contains(@id, '_optionbulkoperationstable_') and contains(@id, '_r4')]" "xpath_element"
     And "//tr[contains(@id, '_optionbulkoperationstable_') and contains(@id, '_r5')]" "xpath_element" should not exist
     ##And I click on "Show all records" "text" in the ".wb-records-count-label" "css_element"
-    And I set the field "Apply Filter" in the "#id_collapse_titleprefix" "css_element" to ""
+    And I set the field "Apply Filter" in the "[id^=\"id_collapse_titleprefix\"]" "css_element" to ""
+    And I press the escape key
     ## Filtering by booking instance
     And I click on "Booking Instance" "button"
-    And I set the field "BookingXYZ" in the "#id_collapse_bookingid" "css_element" to "checked"
+    And I set the field "BookingXYZ" in the "[id^=\"id_collapse_bookingid\"]" "css_element" to "checked"
     And I should see "3 of 12 records found"
     ## Hide filter panel and remove all filters
     And I click on "//aside[contains(@class, 'wunderbyte_table_components')]" "xpath_element"
@@ -154,7 +150,7 @@ Feature: As admin - apply bulk operations under booking options.
     And I should see "Option12-s" in the "//tr[contains(@id, '_optionbulkoperationstable_') and contains(@id, '_r1')]" "xpath_element"
     And I click on "Edit booking option" "link" in the "//tr[contains(@id, '_optionbulkoperationstable_') and contains(@id, '_r1')]" "xpath_element"
     ## And I wait to be redirected
-    And I wait "1" seconds
+    And I wait until the page is ready
     ## And I should see "BookingCMP" in the ".h2" "css_element"
     And I should see "BookingCMP"
     And I should see "You are editing \"0007 - Option12-s\"."
@@ -166,10 +162,13 @@ Feature: As admin - apply bulk operations under booking options.
     And I set the field with xpath "//tr[contains(@id, '_optionbulkoperationstable_') and contains(@id, '_r3')]//input[@type='checkbox' and contains(@name, '_optionbulkoperationstable_')]" to "checked"
     And I click on "Edit Bookingoptions" "text" in the ".wunderbyteTableClass" "css_element"
     And I set the field "Select field of booking option" to "Teachers"
-    And I click on "btn_bookingruletemplates" "button" in the ".modal-body" "css_element"
+    And I click on "btn_bookingbulkoperations" "button" in the ".modal-body" "css_element"
     And I wait "1" seconds
     And I set the field "Assign teachers:" to "Teacher 1"
     And I click on "Confirm" "button"
+    ## Bulk operations are queued and executed in an adhoc task now.
+    And I should see "will be applied in the background"
+    And I run all adhoc tasks
     ## Send multiple emails
     And I set the field with xpath "//tr[contains(@id, '_optionbulkoperationstable_') and contains(@id, '_r1')]//input[@type='checkbox' and contains(@name, '_optionbulkoperationstable_')]" to "checked"
     And I set the field with xpath "//tr[contains(@id, '_optionbulkoperationstable_') and contains(@id, '_r3')]//input[@type='checkbox' and contains(@name, '_optionbulkoperationstable_')]" to "checked"

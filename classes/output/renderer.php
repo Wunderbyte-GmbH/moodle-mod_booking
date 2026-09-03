@@ -398,6 +398,18 @@ class renderer extends plugin_renderer_base {
     }
 
     /**
+     * Function to render the scheduledmailstable.
+     * @param scheduledmails $data
+     * @return string
+     */
+    public function render_scheduledmails_list(scheduledmails $data) {
+        $o = '';
+        $data = $data->export_for_template($this);
+        $o .= $this->render_from_template('mod_booking/scheduledmails_list', $data);
+        return $o;
+    }
+
+    /**
      * Function to print booking option description for mail placeholder {bookingdetails}.
      * @param bookingoption_description $data
      * @return string
@@ -525,18 +537,6 @@ class renderer extends plugin_renderer_base {
         $o = '';
         $data = $data->export_for_template($this);
         $o .= $this->render_from_template('mod_booking/optiondates_only', $data);
-        return $o;
-    }
-
-    /**
-     * Render function to render a simple string of optiondates separated by ", ".
-     * @param object $data
-     * @return string
-     */
-    public function render_optiondates_for_placeholder($data) {
-        $o = '';
-        $data = $data->export_for_template($this);
-        $o .= $this->render_from_template('mod_booking/optiondates_for_placeholder', $data);
         return $o;
     }
 
@@ -683,6 +683,16 @@ class renderer extends plugin_renderer_base {
     }
 
     /**
+     * Render certificate conditions list
+     * @param object $data
+     * @return string
+     */
+    public function render_certificateconditionslist($data) {
+        $data = $data->export_for_template($this);
+        return $this->render_from_template('mod_booking/certificateconditionslist', $data);
+    }
+
+    /**
      * Render campaignslist
      * @param object $data
      * @return string
@@ -742,6 +752,16 @@ class renderer extends plugin_renderer_base {
     public function render_prepageinline($data) {
         $data = $data->export_for_template($this);
         return $this->render_from_template('mod_booking/bookingpage/prepageinline', $data);
+    }
+
+    /**
+     * Render the inline-start pre-page (condition rendered inline, remaining pages in modal/collapse).
+     * @param object $data
+     * @return string
+     */
+    public function render_prepageinlinestart($data) {
+        $data = $data->export_for_template($this);
+        return $this->render_from_template('mod_booking/bookingpage/prepageinlinestart', $data);
     }
 
     /**

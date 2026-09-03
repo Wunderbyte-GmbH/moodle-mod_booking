@@ -1,0 +1,4 @@
+text,identifier,description,location,coursestarttime,courseendtime,maxanswers
+Introduction to Python,PYTHON-2026-01,Learn the basics of Python programming.,Room 3B,2026-04-15 09:00:00,2026-04-15 11:00:00,20
+Advanced Excel,EXCEL-2026-01,Excel formulas and pivot tables for professionals.,Room 1A,2026-04-22 13:00:00,2026-04-22 17:00:00,15
+Project Management Basics,PM-2026-01,An introduction to agile project management.,Online,2026-05-06 09:00:00,2026-05-06 12:00:00,30

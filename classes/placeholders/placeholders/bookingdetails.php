@@ -38,7 +38,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @author Georg Maißer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class bookingdetails {
+class bookingdetails extends \mod_booking\placeholders\placeholder_base {
     /**
      * Function which takes a text, replaces the placeholders...
      * ... and returns the text with the correct values.
@@ -93,7 +93,7 @@ class bookingdetails {
             // Loop prevention.
             if (placeholders_info::$placeholders[$cachekey] === 1) {
                 placeholders_info::$placeholders[$cachekey]++;
-                $value = get_rendered_eventdescription($optionid, $cmid, $descriptionparam);
+                $value = booking_get_rendered_eventdescription($optionid, $cmid, $descriptionparam);
 
                 // Save the value to profit from singleton.
                 placeholders_info::$placeholders[$cachekey] = $value;

@@ -49,7 +49,6 @@
         "currency": "EUR",
         "pricecategoryname": "Price",
         "dayofweektime": "FR, 10:30 - 11:45",
-        "sport": "Aerial Yoga",
         "customfields": {
             "sport": [
             "AERIAL YOGA"
@@ -134,7 +133,7 @@
             <!-- Left Button -->
             <span class="spanhidemobile">
             {{#returnurl}}
-                <a href="{{returnurl}}" role="button" class="btn mr-auto d-flex justify-content-start align-items-center">
+                <a href="{{returnurl}}" role="button" class="btn me-auto d-flex justify-content-start align-items-center">
                     <i class="fa-solid fa-arrow-left smallericon" style="margin-right: 8px"></i>
                     {{#str}} back, mod_booking {{/str}}
                 </a>
@@ -142,7 +141,7 @@
             </span>
             <!-- Right Button -->
             {{#editurl}}
-                <a href="{{editurl}}" role="button" class="btn btn-light ml-auto">
+                <a href="{{editurl}}" role="button" class="btn btn-light ms-auto">
                     <i class="fa-solid fa-pen smallericon" style="margin-right: 8px"></i>
                     {{#str}} edit {{/str}}
                 </a>
@@ -156,9 +155,6 @@
                 <div class="booking-option-info-invisible">{{#str}} invisibleoption, mod_booking {{/str}}</div>
             {{/invisible}}
             {{#statusdescription}}<div class="bo_statusdescription"><p>{{{.}}}</p></div>{{/statusdescription}}
-            <h6 class="h6-category">
-                {{sport}}
-            </h6>
             {{#description}}<div class="content"><p>{{{.}}}</p></div>{{/description}}
             {{#optionviewcustomfields}}{{{.}}}{{/optionviewcustomfields}}
             {{#attachments}}{{{.}}}{{/attachments}}
@@ -187,6 +183,7 @@
                 {{/imageurl}}
                 {{{ bookitsection }}}
                 <div class="card-body">
+                    {{#cardoptionviewcustomfields}}{{{.}}}{{/cardoptionviewcustomfields}}
                     <ul class="infolist" style="list-style: none;">
                         {{#dayofweektime}}
                         <li>
@@ -300,12 +297,12 @@
                         {{/subpluginstemplatedata}}
                 </div>
             </div>
-            {{#showdownloadcheckbox}}
-            <a href="{{{showdownloadcheckbox}}}" 
-            class="btn btn-primary" role="button">
+            {{#showchecklistdownloadbutton}}
+            <a href="{{{showchecklistdownloadbutton}}}"
+            class="btn btn-primary mt-3" role="button">
             <i class="fa fa-download fa-fw" aria-hidden="true"></i>&nbsp;{{#str}}checklistdownload, mod_booking{{/str}}
             </a>
-            {{/showdownloadcheckbox}}
+            {{/showchecklistdownloadbutton}}
         </div>
         {{#competencyheader}}
             <details class="competency">
@@ -319,9 +316,3 @@
         {{/competencyheader}}
     </div>
 </div>
-
-{{#js}}
-    require(['local_shopping_cart/cart'], function(cart) {
-    cart.buttoninit({{modalcounter}}, "mod_booking");
-    });
-{{/js}}

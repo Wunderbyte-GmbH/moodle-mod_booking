@@ -29,7 +29,9 @@
 namespace mod_booking;
 
 use coding_exception;
+use core_date;
 use DateTime;
+use DateTimeZone;
 use local_entities\entitiesrelation_handler;
 use mod_booking\customfield\optiondate_cfields;
 use mod_booking\option\dates_handler;
@@ -75,20 +77,25 @@ class dates {
         // Here we take a look in all the transmitted information and sort out how many dates we will have.
         [$dates, $highestidx] = self::get_list_of_submitted_dates($defaultvalues);
 
-        // Datesection for Dynamic Load.
-        // By default, we collapse.
-        if (!$keys = preg_grep('/^mform_isexpanded_id_datesheader_/', array_keys($formdata))) {
-            $mform->setExpanded('datesheader', false);
-        } else {
-            $key = reset($keys);
-            $mform->setExpanded('datesheader', (bool)$formdata[$key]);
-        }
+        // The datesheader expand/collapse state is now restored centrally for all headers in
+        // fields_info::restore_header_collapse_state() (suffix-tolerant against data-random-ids).
 
         $bookingid = $formdata['bookingid'] ?? 0;
         $optionid = $formdata['id'] ?? $formdata['optionid'] ?? 0;
 
         $bookingsettings = singleton_service::get_instance_of_booking_settings_by_bookingid($bookingid);
         $bookingoptionsettings = singleton_service::get_instance_of_booking_option_settings($optionid);
+
+        $currentoptiontype = (int)($defaultvalues['optiontype']
+            ?? $bookingoptionsettings->type
+            ?? MOD_BOOKING_OPTIONTYPE_DEFAULT);
+        $currentslottype = $formdata['slot_type']
+            ?? (string)($defaultvalues['slot_type']
+            ?? $bookingoptionsettings->slotconfig->slot_type
+            ?? 'fixed');
+        $isselflearning = !empty($defaultvalues['selflearningcourse'] ?? $bookingoptionsettings->selflearningcourse ?? 0);
+        $allowoptiondates = !$isselflearning
+            && ($currentoptiontype !== MOD_BOOKING_OPTIONTYPE_SLOTBOOKING || $currentslottype === 'session');
 
         $semestersarray = semester::get_semesters_id_name_array();
 
@@ -124,6 +131,8 @@ class dates {
             $mform->setType('semesterid', PARAM_INT);
             $element->setValue($semesterid);
             $mform->hideIf('semesterid', 'selflearningcourse', 'eq', 1);
+            $mform->hideIf('semesterid', 'optiontype', 'eq', MOD_BOOKING_OPTIONTYPE_SLOTBOOKING);
+            $mform->hideIf('semesterid', 'slot_type', 'eq', 'session');
             $elements[] = $element;
 
             $element = $mform->addElement(
@@ -136,6 +145,8 @@ class dates {
             $mform->setType('dayofweektime', PARAM_TEXT);
             $element->setValue($dayofweektime);
             $mform->hideIf('dayofweektime', 'selflearningcourse', 'eq', 1);
+            $mform->hideIf('dayofweektime', 'optiontype', 'eq', MOD_BOOKING_OPTIONTYPE_SLOTBOOKING);
+            $mform->hideIf('dayofweektime', 'slot_type', 'eq', 'session');
             $elements[] = $element;
 
             $element = $mform->addElement(
@@ -146,6 +157,8 @@ class dates {
                 get_string('multipledayofweektimestringshint', 'mod_booking')
             );
             $mform->hideIf('multipledayofweektimestringshint', 'selflearningcourse', 'eq', 1);
+            $mform->hideIf('multipledayofweektimestringshint', 'optiontype', 'eq', MOD_BOOKING_OPTIONTYPE_SLOTBOOKING);
+            $mform->hideIf('multipledayofweektimestringshint', 'slot_type', 'eq', 'session');
             $elements[] = $element;
 
             // Button to attach JavaScript to reload the form.
@@ -157,6 +170,8 @@ class dates {
                 ['data-action' => 'addoptiondateseries']
             );
             $mform->hideIf('addoptiondateseries', 'selflearningcourse', 'eq', 1);
+            $mform->hideIf('addoptiondateseries', 'optiontype', 'eq', MOD_BOOKING_OPTIONTYPE_SLOTBOOKING);
+            $mform->hideIf('addoptiondateseries', 'slot_type', 'eq', 'session');
         }
 
         $datescounter = $defaultvalues["datescounter"] ?? 0;
@@ -170,6 +185,15 @@ class dates {
         $mform->setType('datescounter', PARAM_INT);
         /* $element->setValue($datescounter); */ // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
         $elements[] = $element;
+
+        $elements[] = $mform->addElement(
+            'static',
+            'slotbookingdateswarning',
+            '',
+            '<div class="alert alert-warning">' . get_string('slotbookingdateswarning', 'mod_booking') . '</div>'
+        );
+        $mform->hideIf('slotbookingdateswarning', 'optiontype', 'neq', MOD_BOOKING_OPTIONTYPE_SLOTBOOKING);
+        $mform->hideIf('slotbookingdateswarning', 'slot_type', 'eq', 'session');
 
         $now = time();
         $nextfullhour = strtotime(date('Y-m-d H:00:00', $now)) + 3600;
@@ -194,10 +218,10 @@ class dates {
             $mform->registerNoSubmitButton(MOD_BOOKING_FORM_DELETEDATE . $idx);
         }
 
-        if ($datescounter > 0) {
+        if ($datescounter > 0 && $allowoptiondates) {
             self::add_dates_to_form($mform, $elements, $dates, $formdata);
         } else {
-            self::add_no_dates_yet_to_form($mform, $elements, $dates, $formdata);
+            self::add_no_dates_yet_to_form($mform, $elements, $dates, $formdata, $allowoptiondates);
         }
 
         self::move_form_elements_to_the_right_place($mform, $elements);
@@ -234,16 +258,18 @@ class dates {
                     ?? $defaultvalues->enddate
                     ?? $defaultvalues->courseendtime
                     ?? $defaultvalues->courseenddate;
-
+                $dateparseformat = $defaultvalues->dateparseformat ?? '';
                 $defaultvalues->{MOD_BOOKING_FORM_OPTIONDATEID . 0} = 0;
-                $defaultvalues->{MOD_BOOKING_FORM_COURSESTARTTIME . 0} = strtotime($starttime, time());
-                $defaultvalues->{MOD_BOOKING_FORM_COURSEENDTIME . 0} = strtotime($endtime, time());
+                $defaultvalues->{MOD_BOOKING_FORM_COURSESTARTTIME . 0} = self::parse_date_with_format($starttime, $dateparseformat);
+                $defaultvalues->{MOD_BOOKING_FORM_COURSEENDTIME . 0} = self::parse_date_with_format($endtime, $dateparseformat);
                 $defaultvalues->{MOD_BOOKING_FORM_DAYSTONOTIFY . 0} = 0;
             }
         }
 
-        // If we have clicked on the create option date series, we recreate all option dates.
+        // If we have clicked on the create option date series, we match with existing option dates and recreate the new dates.
         if (isset($defaultvalues->addoptiondateseries)) {
+            $settings = singleton_service::get_instance_of_booking_option_settings($defaultvalues->id);
+
             // When creating new date series, we unset defaults for all customfields.
             $regexkey = '/^' . MOD_BOOKING_FORM_OPTIONDATEID . '/';
             $optiondates = preg_grep($regexkey, array_keys((array)$defaultvalues));
@@ -256,13 +282,25 @@ class dates {
             }
 
             if (!empty($newoptiondates)) {
-                $sessions = array_map(fn($a) =>
-                (object)[
-                    'optiondateid' => 0,
-                    'coursestarttime' => $a->starttimestamp,
-                    'courseendtime' => $a->endtimestamp,
-                    'daystonotify' => $a->daystonotify ?? 0,
-                ], $newoptiondates['dates']);
+                // Check here if the date already exists in the old settings object.
+                $sessions = array_map(function ($a) use ($settings) {
+                    // Try to find existing session with matching start/end times.
+                    $existing = array_filter(
+                        $settings->sessions ?? [],
+                        fn($s) => $s->coursestarttime == $a->starttimestamp
+                            && $s->courseendtime == $a->endtimestamp
+                    );
+
+                    // Return existing session (with id/optiondateid) or create new one.
+                    return $existing
+                        ? reset($existing)  // Get first matching session.
+                        : (object)[
+                            'optiondateid' => 0,
+                            'coursestarttime' => $a->starttimestamp,
+                            'courseendtime' => $a->endtimestamp,
+                            'daystonotify' => $a->daystonotify ?? 0,
+                        ];
+                }, $newoptiondates['dates']);
             }
 
             $defaultvalues->datescounter = count($sessions);
@@ -275,11 +313,11 @@ class dates {
             }
 
             // Also make sure, we delete all previous calendar events.
-            // Delete course events for the optiondate.
+            // Delete course and site events for the optiondate.
             // Optionid and optiondateid are stored in uuid column like this: optionid-optiondateid.
             $DB->delete_records_select(
                 'event',
-                "eventtype = 'course'
+                "eventtype IN ('course', 'site')
                 AND courseid <> 0
                 AND component = 'mod_booking'
                 AND uuid LIKE :pattern",
@@ -287,9 +325,15 @@ class dates {
             );
         } else if (!empty($defaultvalues->id)) {
             $settings = singleton_service::get_instance_of_booking_option_settings($defaultvalues->id);
-            // Make sure, no sessions are created for self-learning courses.
+            $currentoptiontype = (int)($defaultvalues->optiontype ?? $settings->type ?? MOD_BOOKING_OPTIONTYPE_DEFAULT);
+            $currentslottype = (string)($defaultvalues->slot_type ?? $settings->slotconfig->slot_type ?? 'fixed');
+            // Make sure, no sessions are created for self-learning courses and slot-booking options.
             if (
                 empty($settings->selflearningcourse)
+                && (
+                    $currentoptiontype !== MOD_BOOKING_OPTIONTYPE_SLOTBOOKING
+                    || $currentslottype === 'session'
+                )
                 && !isset($defaultvalues->coursestarttime_1)
             ) {
                 $sessions = $settings->sessions;
@@ -458,6 +502,20 @@ class dates {
         $dates = [];
         $highestindex = 1;
 
+        // CSV/webservice imports may deliver indexed date rows (coursestarttime_<n>) without
+        // the matching optiondateid_<n> marker the parser below is keyed on — the documented
+        // import columns would then be dropped silently. Inject the marker (0 = new date) for
+        // import inputs only: the interactive form always submits its own optiondateid keys,
+        // and injecting there could resurrect a date the user just deleted.
+        if (!empty($formvalues['importing'])) {
+            foreach (preg_grep('/^coursestarttime_\d+$/', array_keys($formvalues)) as $key) {
+                $idkey = MOD_BOOKING_FORM_OPTIONDATEID . substr($key, strlen(MOD_BOOKING_FORM_COURSESTARTTIME));
+                if (!isset($formvalues[$idkey])) {
+                    $formvalues[$idkey] = 0;
+                }
+            }
+        }
+
         if (!$optiondates = preg_grep('/^optiondateid_/', array_keys($formvalues))) {
             // For performance.
 
@@ -487,7 +545,7 @@ class dates {
                 if (is_array($formvalues[MOD_BOOKING_FORM_COURSESTARTTIME . $counter])) {
                     $coursestarttimearr = $formvalues[MOD_BOOKING_FORM_COURSESTARTTIME . $counter];
                     $courseendtimearr = $formvalues[MOD_BOOKING_FORM_COURSEENDTIME . $counter];
-                    // Splat opreaton does not work with associative arrays in php < 8.
+                    // Splat operation does not work with associative arrays in php < 8.
                     if (PHP_MAJOR_VERSION < 8) {
                         $coursestarttime = make_timestamp(
                             $coursestarttimearr['year'],
@@ -510,6 +568,16 @@ class dates {
                 } else {
                     $coursestarttime = $formvalues[MOD_BOOKING_FORM_COURSESTARTTIME . $counter];
                     $courseendtime = $formvalues[MOD_BOOKING_FORM_COURSEENDTIME . $counter];
+
+                    if (!empty($formvalues['importing'])) {
+                        // A date slot is either a datestring (importer format) or nothing - skip empties.
+                        if (empty($coursestarttime) && empty($courseendtime)) {
+                            continue;
+                        }
+                        $dateparseformat = $formvalues['dateparseformat'] ?? '';
+                        $coursestarttime = self::parse_date_with_format($coursestarttime, $dateparseformat);
+                        $courseendtime = self::parse_date_with_format($courseendtime, $dateparseformat);
+                    }
                 }
 
                 // We might have entitites added.
@@ -880,14 +948,23 @@ class dates {
      * @param array $elements
      * @param array $dates
      * @param array $formdata
+     * @param bool $allowoptiondates
      *
      * @return void
      *
      */
-    private static function add_no_dates_yet_to_form(MoodleQuickForm &$mform, array &$elements, array $dates, array $formdata) {
+    private static function add_no_dates_yet_to_form(
+        MoodleQuickForm &$mform,
+        array &$elements,
+        array $dates,
+        array $formdata,
+        bool $allowoptiondates = true
+    ) {
 
-        $elements[] = $mform->addElement('static', 'nodatesmessage', '', get_string('datenotset', 'mod_booking'));
-        $mform->hideIf('nodatesmessage', 'selflearningcourse', 'eq', 1);
+        if ($allowoptiondates) {
+            $elements[] = $mform->addElement('static', 'nodatesmessage', '', get_string('datenotset', 'mod_booking'));
+            $mform->hideIf('nodatesmessage', 'selflearningcourse', 'eq', 1);
+        }
 
         // After deleting, we still need to register the right no delete button.
         // The default values are those we have just set via set_data.
@@ -901,14 +978,16 @@ class dates {
         }
 
         // Button to attach JavaScript to reload the form.
-        $mform->registerNoSubmitButton('adddatebutton');
-        $elements[] = $mform->addElement(
-            'submit',
-            'adddatebutton',
-            get_string('adddatebutton', 'mod_booking'),
-            ['data-action' => 'adddatebutton']
-        );
-        $mform->hideIf('adddatebutton', 'selflearningcourse', 'eq', 1);
+        if ($allowoptiondates) {
+            $mform->registerNoSubmitButton('adddatebutton');
+            $elements[] = $mform->addElement(
+                'submit',
+                'adddatebutton',
+                get_string('adddatebutton', 'mod_booking'),
+                ['data-action' => 'adddatebutton']
+            );
+            $mform->hideIf('adddatebutton', 'selflearningcourse', 'eq', 1);
+        }
     }
 
     /**
@@ -917,13 +996,9 @@ class dates {
      * @return array
      * @throws coding_exception
      */
-    private static function timestamp_to_array(int $timestamp) {
-
-        $formatteddate = date('Y-m-d, H:i', $timestamp);
-        $time = new DateTime(
-            $formatteddate
-        );
-
+    public static function timestamp_to_array(int $timestamp) {
+        $time = new DateTime("@$timestamp");
+        $time->setTimezone(new DateTimeZone(core_date::get_user_timezone()));
         $datearray = [
             'day' => [$time->format('d')],
             'month' => [$time->format('m')],
@@ -931,7 +1006,6 @@ class dates {
             'hour' => [$time->format('H')],
             'minute' => [$time->format('i')],
         ];
-
         return $datearray;
     }
 
@@ -948,7 +1022,7 @@ class dates {
                    FROM {booking_rules} br
                    JOIN {context} ctx
                      ON ctx.id = br.contextid
-                  WHERE br.rulename = 'rule_daysbefore'
+                  WHERE br.rulename IN ('rule_daysbefore', 'rule_specifictime')
                     AND {$DB->sql_like('br.rulejson', ':optiondatestarttime', true)}
                     AND (
                         (ctx.contextlevel = :systemcontext AND ctx.instanceid = 0)
@@ -965,5 +1039,28 @@ class dates {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Parse date string using custom format if available, fallback to strtotime().
+     * @param string $datestring The date string to parse
+     * @param string $dateparseformat Optional custom date format (from CSV import)
+     * @return int Unix timestamp
+     */
+    private static function parse_date_with_format($datestring, $dateparseformat) {
+        // Numeric values are already unix timestamps and must be passed through unchanged.
+        if (is_numeric($datestring)) {
+            return (int) $datestring;
+        }
+        // If we have a custom date format from CSV import, use it.
+        if (!empty($dateparseformat)) {
+            $date = DateTime::createFromFormat($dateparseformat, $datestring);
+            if ($date !== false) {
+                return $date->getTimestamp();
+            }
+        }
+        // Fallback to strtotime.
+        $timestamp = strtotime($datestring, time());
+        return $timestamp !== false ? $timestamp : time();
     }
 }

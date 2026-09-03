@@ -22,6 +22,7 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use core\output\single_button;
 use mod_booking\booking_tags;
 
 require_once(__DIR__ . '/../../config.php');
@@ -51,6 +52,7 @@ if (!$context = context_module::instance($cm->id)) {
 require_capability('mod/booking:updatebooking', $context);
 
 if (($action === 'delete') && ($tagid > 0)) {
+    require_sesskey();
     $DB->delete_records('booking_tags', ['id' => $tagid]);
     redirect($url, get_string('tagdeleted', 'booking'), 5);
 }
@@ -72,13 +74,19 @@ $tagstable = [];
 
 foreach ($tags->get_all_tags() as $tag) {
     $edit = new moodle_url('/mod/booking/tagtemplatesadd.php', ['id' => $cm->id, 'tagid' => $tag->id]);
-    $delete = new moodle_url('/mod/booking/tagtemplates.php', ['id' => $id, 'tagid' => $tag->id, 'action' => 'delete']);
-    $button = $OUTPUT->single_button($edit, get_string('edittag', 'booking'), 'get') .
-        $OUTPUT->single_button($delete, get_string('delete'), 'get');
+    $delete = new moodle_url(
+        '/mod/booking/tagtemplates.php',
+        ['id' => $id, 'tagid' => $tag->id, 'action' => 'delete', 'sesskey' => sesskey()]
+    );
+    $buttons = $OUTPUT->render_from_template('mod_booking/button_row', [
+        'classes' => 'justify-content-end',
+        'buttons' => [
+            (new single_button($edit, get_string('edittag', 'booking'), 'get'))->export_for_template($OUTPUT),
+            (new single_button($delete, get_string('delete'), 'get'))->export_for_template($OUTPUT),
+        ],
+    ]);
 
-    $tagstable[] = ["[{$tag->tag}]", nl2br($tag->text),
-                    html_writer::tag('span', $button, ['style' => 'text-align: right; display:table-cell;']),
-                ];
+    $tagstable[] = ["[{$tag->tag}]", nl2br($tag->text), $buttons];
 }
 
 $table->data = $tagstable;
@@ -87,11 +95,12 @@ echo html_writer::table($table);
 $cancel = new moodle_url('/mod/booking/view.php', ['id' => $cm->id]);
 $addnew = new moodle_url('/mod/booking/tagtemplatesadd.php', ['id' => $cm->id]);
 
-echo '<div style="width: 100%; text-align: center; display:table;">';
-$button = $OUTPUT->single_button($cancel, get_string('cancel', 'core'), 'get');
-echo html_writer::tag('span', $button, ['style' => 'text-align: right; display:table-cell;']);
-$button = $OUTPUT->single_button($addnew, get_string('addnewtagtemplate', 'booking'), 'get');
-echo html_writer::tag('span', $button, ['style' => 'text-align: left; display:table-cell;']);
-echo '</div>';
+echo $OUTPUT->render_from_template('mod_booking/button_row', [
+    'classes' => 'justify-content-center mt-2',
+    'buttons' => [
+        (new single_button($cancel, get_string('cancel', 'core'), 'get'))->export_for_template($OUTPUT),
+        (new single_button($addnew, get_string('addnewtagtemplate', 'booking'), 'get'))->export_for_template($OUTPUT),
+    ],
+]);
 
 echo $OUTPUT->footer();

@@ -2513,17 +2513,9 @@ function xmldb_booking_upgrade($oldversion) {
     }
 
     if ($oldversion < 2017112101) {
-        $sql = 'SELECT MAX(id), cfgname, optionid, COUNT(*)
-                  FROM {booking_customfields}
-              GROUP BY optionid, cfgname
-                HAVING COUNT(*) > 1';
-        while ($records = $DB->get_records_sql($sql)) {
-            if (!empty($records)) {
-                foreach ($records as $id => $record) {
-                    $DB->delete_records('booking_customfields', ['id' => $id]);
-                }
-            }
-        }
+        // The deduplication can take a while on big tables, make sure the upgrade does not time out.
+        upgrade_set_timeout();
+        booking_delete_duplicate_customfields_2017112101();
 
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2017112101, 'booking');
@@ -3572,7 +3564,7 @@ function xmldb_booking_upgrade($oldversion) {
     if ($oldversion < 2022090802) {
         // Get rid of the old "unique option names" workaround.
         // We use a separate "identifier" field now.
-        migrate_booking_option_identifiers_2022090802();
+        booking_migrate_option_identifiers_2022090802();
 
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2022090802, 'booking');
@@ -3918,7 +3910,7 @@ function xmldb_booking_upgrade($oldversion) {
 
     if ($oldversion < 2022112901) {
         // We need to migrate optionids to itemids and set the area to 'option'.
-        migrate_optionids_for_prices_2022112901();
+        booking_migrate_optionids_for_prices_2022112901();
 
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2022112901, 'booking');
@@ -3996,7 +3988,7 @@ function xmldb_booking_upgrade($oldversion) {
             $dbman->drop_index($table, $index);
         }
 
-        fix_booking_templateid();
+        booking_fix_templateid();
 
         $table = new xmldb_table('booking');
         $field = new xmldb_field('templateid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'allowupdatedays');
@@ -4295,7 +4287,7 @@ function xmldb_booking_upgrade($oldversion) {
 
     if ($oldversion < 2023022800) {
         // We need to migrate optionsfields for the new view.php.
-        migrate_optionsfields_2023022800();
+        booking_migrate_optionsfields_2023022800();
 
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2023022800, 'booking');
@@ -4535,7 +4527,7 @@ function xmldb_booking_upgrade($oldversion) {
 
     if ($oldversion < 2024022700) {
         // Fix bugs with description format.
-        fix_bookingoption_descriptionformat_2024022700();
+        booking_fix_bookingoption_descriptionformat_2024022700();
 
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2024022700, 'booking');
@@ -4568,7 +4560,7 @@ function xmldb_booking_upgrade($oldversion) {
 
     if ($oldversion < 2024030801) {
         // Fix bugs with showlistoncoursepage field.
-        fix_showlistoncoursepage_2024030801();
+        booking_fix_showlistoncoursepage_2024030801();
 
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2024030801, 'booking');
@@ -4601,7 +4593,7 @@ function xmldb_booking_upgrade($oldversion) {
         $dbman->rename_field($table, $field, 'contextid');
 
         // We need to migrate optionsfields for the new view.php.
-        migrate_contextids_2024040901();
+        booking_migrate_contextids_2024040901();
 
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2024040901, 'booking');
@@ -4667,7 +4659,7 @@ function xmldb_booking_upgrade($oldversion) {
             $dbman->add_field($table, $field);
         }
 
-        fix_places_for_booking_answers();
+        booking_fix_places_for_booking_answers();
 
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2024082903, 'booking');
@@ -4780,13 +4772,9 @@ function xmldb_booking_upgrade($oldversion) {
     }
 
     if ($oldversion < 2024121600) {
-        // Fetch all booking options where availability is empty or null.
-        $records = $DB->get_records_select('booking_options', "availability = '' OR availability IS NULL");
-
-        foreach ($records as $record) {
-            $record->availability = '[]'; // Update the availability field.
-            $DB->update_record('booking_options', $record);
-        }
+        // Set empty or null availability to '[]' in one single statement instead of
+        // loading and rewriting every affected booking option row one by one.
+        $DB->set_field_select('booking_options', 'availability', '[]', "availability = '' OR availability IS NULL");
 
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2024121600, 'booking');
@@ -4808,7 +4796,7 @@ function xmldb_booking_upgrade($oldversion) {
 
     if ($oldversion < 2025010803) {
         // Remove values form completiongradeitemnumber and completionpassgrade to avoid #779 error after #629.
-        remove_completiongradeitemnumber_2025010803();
+        booking_remove_completiongradeitemnumber_2025010803();
 
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2025010803, 'booking');
@@ -4880,7 +4868,7 @@ function xmldb_booking_upgrade($oldversion) {
             $dbman->add_field($table, $field);
         }
 
-        fix_places_for_booking_answers();
+        booking_fix_places_for_booking_answers();
 
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2025022601, 'booking');
@@ -5121,6 +5109,715 @@ function xmldb_booking_upgrade($oldversion) {
 
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2025112500, 'booking'); // Update to your new version number.
+    }
+
+    if ($oldversion < 2025121900) {
+        // Define field type to be added to booking_options.
+        $table = new xmldb_table('booking_options');
+        $field = new xmldb_field('type', XMLDB_TYPE_INTEGER, '2', null, null, null, null, 'status');
+
+        // Conditionally launch add field type.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2025121900, 'booking');
+    }
+
+    if ($oldversion < 2025122201) {
+        // Migrate old selflearningcourse json flag to new type field.
+        booking_migrate_selflearningcourse_json_to_type_2025122201();
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2025122201, 'booking');
+    }
+
+    if ($oldversion < 2026013000) {
+        // Define table booking_performance_measurements to be created.
+        $table = new xmldb_table('booking_performance_measurements');
+
+        // Adding fields to table booking_performance_measurements.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('starttime', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('endtime', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('shortcodename', XMLDB_TYPE_CHAR, '1333', XMLDB_NOTNULL, null, null, null);
+        $table->add_field('shortcodehash', XMLDB_TYPE_CHAR, '255', XMLDB_NOTNULL, null, null, null);
+        $table->add_field('measurementname', XMLDB_TYPE_CHAR, '255', XMLDB_NOTNULL, null, null, null);
+        $table->add_field('actions', XMLDB_TYPE_CHAR, '1333', null, null, null, null);
+        $table->add_field('note', XMLDB_TYPE_TEXT, null, null, null, null, null);
+
+        // Adding keys to table booking_performance_measurements.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+
+        // Adding indexes to table booking_performance_measurements.
+        $table->add_index('hashx', XMLDB_INDEX_NOTUNIQUE, ['shortcodehash']);
+        $table->add_index('hashnameendx', XMLDB_INDEX_NOTUNIQUE, ['shortcodehash', 'endtime']);
+
+        // Conditionally launch create table for booking_performance_measurements.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2026013000, 'booking');
+    }
+
+    if ($oldversion < 2026021100) {
+        // Define field completeddate to be added to booking_answers.
+        $table = new xmldb_table('booking_answers');
+        $field = new xmldb_field('completeddate', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'pricecategory');
+
+        // Conditionally launch add field completeddate.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2026021100, 'booking');
+    }
+
+    if ($oldversion < 2026030500) {
+        // Run a script that deletes all custom fields within the tool_certificate component.
+        booking_delete_customfields_in_tool_certificate_2026030500();
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2026030500, 'booking');
+    }
+
+    // Add certificate conditions tables (pro feature).
+    if ($oldversion < 2026032700) {
+        // Define table booking_cert_cond to be created.
+        $table = new xmldb_table('booking_cert_cond');
+
+        // Adding fields to table booking_cert_cond.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('contextid', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
+        $table->add_field('name', XMLDB_TYPE_CHAR, '255', null, null, null, null);
+        $table->add_field('filterjson', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_field('logicjson', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_field('actionjson', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_field('isactive', XMLDB_TYPE_INTEGER, '2', null, null, null, '1');
+        $table->add_field('useastemplate', XMLDB_TYPE_INTEGER, '2', null, null, null, '0');
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
+        $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
+
+        // Adding keys to table booking_cert_cond.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+
+        // Adding indexes to table booking_cert_cond.
+        $table->add_index('contextid', XMLDB_INDEX_NOTUNIQUE, ['contextid']);
+
+        // Conditionally launch create table for booking_cert_cond.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Define table booking_cert_cond_item to be created.
+        $table = new xmldb_table('booking_cert_cond_item');
+
+        // Adding fields to table booking_cert_cond_item.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('conditionid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('component', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('area', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('itemid', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
+        $table->add_field('sortorder', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
+        $table->add_field('configjson', XMLDB_TYPE_TEXT, null, null, null, null, null);
+
+        // Adding keys to table booking_cert_cond_item.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+
+        // Adding indexes to table booking_cert_cond_item.
+        $table->add_index('conditionid-sort', XMLDB_INDEX_NOTUNIQUE, ['conditionid', 'sortorder']);
+        $table->add_index('component', XMLDB_INDEX_NOTUNIQUE, ['component']);
+        $table->add_index('area', XMLDB_INDEX_NOTUNIQUE, ['area']);
+
+        // Conditionally launch create table for booking_cert_cond_item.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        upgrade_mod_savepoint(true, 2026032700, 'booking');
+    }
+
+    if ($oldversion < 2026040800) {
+        $table = new xmldb_table('booking_options');
+
+        // Add field usercreated.
+        $field = new xmldb_field('usercreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'timemodified');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Add field usermodified.
+        $field = new xmldb_field('usermodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'usercreated');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        upgrade_mod_savepoint(true, 2026040800, 'booking');
+    }
+
+    if ($oldversion < 2026060100) {
+        // Create booking_sync_rules table.
+        $table = new xmldb_table('booking_sync_rules');
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('bookingoptionid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('sourcetype', XMLDB_TYPE_CHAR, '20', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('sourceid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('syncenrol', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '1');
+        $table->add_field('syncunenrol', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('conditionpolicy', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('isenabled', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '1');
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('usercreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('usermodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('bookingoptionid', XMLDB_KEY_FOREIGN, ['bookingoptionid'], 'booking_options', ['id']);
+        $table->add_index('sourcetype-sourceid', XMLDB_INDEX_NOTUNIQUE, ['sourcetype', 'sourceid']);
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Create booking_sync_attempts table.
+        $table = new xmldb_table('booking_sync_attempts');
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('syncruleid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('bookingoptionid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('userid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('action', XMLDB_TYPE_CHAR, '20', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('reasoncode', XMLDB_TYPE_CHAR, '50', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('reasonmessage', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_index('syncruleid', XMLDB_INDEX_NOTUNIQUE, ['syncruleid']);
+        $table->add_index('bookingoptionid', XMLDB_INDEX_NOTUNIQUE, ['bookingoptionid']);
+        $table->add_index('userid', XMLDB_INDEX_NOTUNIQUE, ['userid']);
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Add syncruleid to booking_answers.
+        $table = new xmldb_table('booking_answers');
+        $field = new xmldb_field('syncruleid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'completeddate');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+        // Add index on syncruleid.
+        $index = new xmldb_index('syncruleid', XMLDB_INDEX_NOTUNIQUE, ['syncruleid']);
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+
+        upgrade_mod_savepoint(true, 2026060100, 'booking');
+    }
+
+    if ($oldversion < 2026062302) {
+        // Slotbooking schema (9.4.0). The savepoint is re-versioned ABOVE the current plugin
+        // version (2026062301) so the upgrade re-triggers on sites where the previous run did
+        // not complete; every create_table is table_exists-guarded and every add_field is
+        // field_exists-guarded, so re-running on sites that already have the tables is a safe
+        // no-op (no double creation).
+        // Define table booking_slot_student_teacher to be created.
+        $table = new xmldb_table('booking_slot_student_teacher');
+
+        // Adding fields to table booking_slot_student_teacher.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('optionid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('userid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('teacherid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+
+        // Adding keys to table booking_slot_student_teacher.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('fk_optionid', XMLDB_KEY_FOREIGN, ['optionid'], 'booking_options', ['id']);
+
+        // Adding indexes to table booking_slot_student_teacher.
+        $table->add_index('optionid-userid', XMLDB_INDEX_NOTUNIQUE, ['optionid', 'userid']);
+        $table->add_index('optionid-teacherid', XMLDB_INDEX_NOTUNIQUE, ['optionid', 'teacherid']);
+        $table->add_index('optionid-userid-teacherid', XMLDB_INDEX_UNIQUE, ['optionid', 'userid', 'teacherid']);
+
+        // Conditionally launch create table for booking_slot_student_teacher.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Define table booking_slot_config to be created.
+        $table = new xmldb_table('booking_slot_config');
+
+        // Adding fields to table booking_slot_config.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('optionid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('slot_type', XMLDB_TYPE_CHAR, '20', null, XMLDB_NOTNULL, null, 'fixed');
+        $table->add_field('slot_duration_minutes', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('slot_interval_minutes', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('slot_start_interval_minutes', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '30');
+        $table->add_field('slot_max_days_per_slot', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '1');
+        $table->add_field('opening_time', XMLDB_TYPE_CHAR, '5', null, XMLDB_NOTNULL, null, '08:00');
+        $table->add_field('closing_time', XMLDB_TYPE_CHAR, '5', null, XMLDB_NOTNULL, null, '18:00');
+        $table->add_field('valid_from', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('valid_until', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('days_of_week', XMLDB_TYPE_CHAR, '20', null, XMLDB_NOTNULL, null, '1,2,3,4,5');
+        $table->add_field('max_participants_per_slot', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '1');
+        $table->add_field('max_slots_per_user', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '1');
+        $table->add_field('booking_interface', XMLDB_TYPE_CHAR, '20', null, XMLDB_NOTNULL, null, 'list');
+        $table->add_field('teacher_pool', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_field('teachers_required', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+
+        // Adding keys to table booking_slot_config.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('fk_optionid', XMLDB_KEY_FOREIGN, ['optionid'], 'booking_options', ['id']);
+
+        // Conditionally launch create table for booking_slot_config.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Define table booking_teacher_unavailability to be created.
+        $table = new xmldb_table('booking_teacher_unavailability');
+
+        // Adding fields to table booking_teacher_unavailability.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('optionid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('teacherid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('unavailable_from', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('unavailable_until', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('reason', XMLDB_TYPE_CHAR, '255', null, null, null, null);
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+
+        // Adding keys to table booking_teacher_unavailability.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+
+        // Adding indexes to table booking_teacher_unavailability.
+        $table->add_index('optionid-teacherid', XMLDB_INDEX_NOTUNIQUE, ['optionid', 'teacherid']);
+
+        // Conditionally launch create table for booking_teacher_unavailability.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Add startdate and enddate to booking_answers for slot overlap queries.
+        $table = new xmldb_table('booking_answers');
+        $startdate = new xmldb_field('startdate', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'completeddate');
+        $enddate = new xmldb_field('enddate', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'startdate');
+
+        if (!$dbman->field_exists($table, $startdate)) {
+            $dbman->add_field($table, $startdate);
+        }
+        if (!$dbman->field_exists($table, $enddate)) {
+            $dbman->add_field($table, $enddate);
+        }
+
+        // Define table booking_slot_rule to be created.
+        $table = new xmldb_table('booking_slot_rule');
+
+        // Adding fields to table booking_slot_rule.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('optionid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('ruletype', XMLDB_TYPE_CHAR, '20', null, XMLDB_NOTNULL, null, 'closed');
+        $table->add_field('priority', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '100');
+        $table->add_field('activefrom', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('activeuntil', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('weekdays', XMLDB_TYPE_CHAR, '20', null, null, null, null);
+        $table->add_field('timerangestart', XMLDB_TYPE_CHAR, '5', null, null, null, null);
+        $table->add_field('timerangeend', XMLDB_TYPE_CHAR, '5', null, null, null, null);
+        $table->add_field('valueint', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('payloadjson', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+
+        // Adding keys to table booking_slot_rule.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+
+        // Adding indexes to table booking_slot_rule.
+        $table->add_index('optionid-priority', XMLDB_INDEX_NOTUNIQUE, ['optionid', 'priority']);
+        $table->add_index('optionid-active', XMLDB_INDEX_NOTUNIQUE, ['optionid', 'activefrom', 'activeuntil']);
+        $table->add_index('optionid-ruletype', XMLDB_INDEX_NOTUNIQUE, ['optionid', 'ruletype']);
+
+        // Conditionally launch create table for booking_slot_rule.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Define table booking_slot_rule_price to be created.
+        $table = new xmldb_table('booking_slot_rule_price');
+
+        // Adding fields to table booking_slot_rule_price.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('ruleid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('pricecategoryidentifier', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, 'default');
+        $table->add_field('mode', XMLDB_TYPE_CHAR, '20', null, XMLDB_NOTNULL, null, 'absolute');
+        $table->add_field('value', XMLDB_TYPE_NUMBER, '10, 2', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('currency', XMLDB_TYPE_CHAR, '10', null, null, null, null);
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+
+        // Adding keys to table booking_slot_rule_price.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+
+        // Adding indexes to table booking_slot_rule_price.
+        $table->add_index('ruleid', XMLDB_INDEX_NOTUNIQUE, ['ruleid']);
+        $table->add_index('category', XMLDB_INDEX_NOTUNIQUE, ['pricecategoryidentifier']);
+        $table->add_index('ruleid-category', XMLDB_INDEX_NOTUNIQUE, ['ruleid', 'pricecategoryidentifier']);
+
+        // Conditionally launch create table for booking_slot_rule_price.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Add self-service rebooking fields to booking_slot_config.
+        $table = new xmldb_table('booking_slot_config');
+
+        $allowfield = new xmldb_field(
+            'allow_self_rebooking',
+            XMLDB_TYPE_INTEGER,
+            '1',
+            null,
+            XMLDB_NOTNULL,
+            null,
+            '0',
+            'teachers_required'
+        );
+        if (!$dbman->field_exists($table, $allowfield)) {
+            $dbman->add_field($table, $allowfield);
+        }
+
+        $untilfield = new xmldb_field(
+            'self_rebooking_until',
+            XMLDB_TYPE_INTEGER,
+            '10',
+            null,
+            XMLDB_NOTNULL,
+            null,
+            '0',
+            'allow_self_rebooking'
+        );
+        if (!$dbman->field_exists($table, $untilfield)) {
+            $dbman->add_field($table, $untilfield);
+        }
+
+        // Unify the slot move/cancel deadline on a relative-to-slot-start model.
+        // booking_slot_config: add nullable change_deadline_minutes (NULL = inherit), drop the
+        // absolute self_rebooking_until.
+        $table = new xmldb_table('booking_slot_config');
+
+        $deadlinefield = new xmldb_field(
+            'change_deadline_minutes',
+            XMLDB_TYPE_INTEGER,
+            '10',
+            null,
+            null,
+            null,
+            null,
+            'allow_self_rebooking'
+        );
+        if (!$dbman->field_exists($table, $deadlinefield)) {
+            $dbman->add_field($table, $deadlinefield);
+        }
+
+        $olduntilfield = new xmldb_field('self_rebooking_until');
+        if ($dbman->field_exists($table, $olduntilfield)) {
+            $dbman->drop_field($table, $olduntilfield);
+        }
+
+        // The instance default lives in the booking instance JSON (booking::add_data_to_json),
+        // consistent with the other instance cancellation settings — no extra column needed.
+
+        // Single source of truth for slot moves with a price difference: pending holds (upgrades)
+        // and committed/cancelled move records. See SLOTBOOKING_MOVE_PAYMENT_CONCEPT.md.
+        $table = new xmldb_table('booking_slot_moves');
+        if (!$dbman->table_exists($table)) {
+            $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+            $table->add_field('optionid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+            $table->add_field('baid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+            $table->add_field('userid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+            $table->add_field('newslots', XMLDB_TYPE_TEXT, null, null, null, null, null);
+            $table->add_field('oldslots', XMLDB_TYPE_TEXT, null, null, null, null, null);
+            $table->add_field('pricedelta', XMLDB_TYPE_NUMBER, '10, 2', null, null, null, null);
+            $table->add_field('status', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+            $table->add_field('expiry', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+            $table->add_field('identifier', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+            $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+            $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+            $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+            $table->add_index('optionid-status-expiry', XMLDB_INDEX_NOTUNIQUE, ['optionid', 'status', 'expiry']);
+            $table->add_index('baid-status', XMLDB_INDEX_NOTUNIQUE, ['baid', 'status']);
+            $dbman->create_table($table);
+        }
+
+        upgrade_mod_savepoint(true, 2026062302, 'booking');
+    }
+
+    if ($oldversion < 2026071501) {
+        // Warmup/cooldown buffer settings for slot booking (fixed slots).
+        $table = new xmldb_table('booking_slot_config');
+
+        $warmupfield = new xmldb_field(
+            'buffer_warmup_minutes',
+            XMLDB_TYPE_INTEGER,
+            '10',
+            null,
+            XMLDB_NOTNULL,
+            null,
+            '0',
+            'change_deadline_minutes'
+        );
+        if (!$dbman->field_exists($table, $warmupfield)) {
+            $dbman->add_field($table, $warmupfield);
+        }
+
+        $cooldownfield = new xmldb_field(
+            'buffer_cooldown_minutes',
+            XMLDB_TYPE_INTEGER,
+            '10',
+            null,
+            XMLDB_NOTNULL,
+            null,
+            '0',
+            'buffer_warmup_minutes'
+        );
+        if (!$dbman->field_exists($table, $cooldownfield)) {
+            $dbman->add_field($table, $cooldownfield);
+        }
+
+        $combinationmodefield = new xmldb_field(
+            'buffer_combination_mode',
+            XMLDB_TYPE_CHAR,
+            '20',
+            null,
+            XMLDB_NOTNULL,
+            null,
+            'summed',
+            'buffer_cooldown_minutes'
+        );
+        if (!$dbman->field_exists($table, $combinationmodefield)) {
+            $dbman->add_field($table, $combinationmodefield);
+        }
+
+        upgrade_mod_savepoint(true, 2026071501, 'booking');
+    }
+
+    if ($oldversion < 2026071502) {
+        // Configurable duration step (granularity) for userdefined slot type.
+        $table = new xmldb_table('booking_slot_config');
+
+        $stepfield = new xmldb_field(
+            'slot_duration_step_minutes',
+            XMLDB_TYPE_INTEGER,
+            '10',
+            null,
+            XMLDB_NOTNULL,
+            null,
+            '15',
+            'buffer_combination_mode'
+        );
+        if (!$dbman->field_exists($table, $stepfield)) {
+            $dbman->add_field($table, $stepfield);
+        }
+
+        upgrade_mod_savepoint(true, 2026071502, 'booking');
+    }
+
+    if ($oldversion < 2026072200) {
+        // The bookings tracker (report2.php) is always active now - its on/off
+        // setting was removed, so drop the stale config value.
+        unset_config('bookingstracker', 'booking');
+
+        upgrade_mod_savepoint(true, 2026072200, 'booking');
+    }
+
+    if ($oldversion < 2026073100) {
+        // The location hover card image setting was renamed to entitytreefiltershowlocationimages
+        // to group it under the multilevel location filter setting. Migrate a stored value.
+        $oldvalue = get_config('booking', 'showlocationimages');
+        if ($oldvalue !== false) {
+            set_config('entitytreefiltershowlocationimages', $oldvalue, 'booking');
+            unset_config('showlocationimages', 'booking');
+        }
+
+        upgrade_mod_savepoint(true, 2026073100, 'booking');
+    }
+
+    if ($oldversion < 2026080701) {
+        // Aggregated daily snapshots of the booking cache report metrics.
+        $table = new xmldb_table('booking_cachereport_snapshots');
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('samplesize', XMLDB_TYPE_INTEGER, '5', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('distinctstems', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('sqlfilteroptions', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('querytimefiltered', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+        $table->add_field('querytimeplain', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+        $table->add_field('extrasjson', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_index('timecreatedx', XMLDB_INDEX_NOTUNIQUE, ['timecreated']);
+
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        upgrade_mod_savepoint(true, 2026080701, 'booking');
+    }
+
+    if ($oldversion < 2026083106) {
+        // Stable element identity for the customform availability condition (issue #2195):
+        // every form element gets a persistent elementid, the condition a monotonic
+        // nextelementid counter. elementid := historical position, so every stored answer
+        // key customform_{formtype}_{position} in booking_answers stays valid - no answer
+        // data is rewritten. Idempotent: elements that already have an elementid are kept.
+        // Stored subbookingadditemformlink values reference elements by position; since
+        // elementid := position they remain valid as elementids without rewriting.
+        $lockfactory = \core\lock\lock_config::get_lock_factory('mod_booking');
+        $lock = $lockfactory->get_lock('customformelementidupgrade', 10, 600);
+
+        $select = $DB->sql_like('availability', ':customform');
+        $rs = $DB->get_recordset_select(
+            'booking_options',
+            $select,
+            ['customform' => '%customform%'],
+            'id',
+            'id, availability'
+        );
+        foreach ($rs as $record) {
+            $availability = json_decode($record->availability);
+            if (!is_array($availability)) {
+                continue;
+            }
+            $changed = false;
+            foreach ($availability as $condition) {
+                if (
+                    empty($condition->class)
+                    || strpos($condition->class, 'conditions\\customform') === false
+                    || empty($condition->formsarray)
+                ) {
+                    continue;
+                }
+                $maxid = 0;
+                foreach ($condition->formsarray as $form) {
+                    foreach ($form as $formelement) {
+                        if (isset($formelement->elementid)) {
+                            $maxid = max($maxid, (int)$formelement->elementid);
+                        }
+                    }
+                }
+                foreach ($condition->formsarray as $form) {
+                    foreach ($form as $key => $formelement) {
+                        if (!isset($formelement->elementid)) {
+                            $formelement->elementid = (int)$key;
+                            $maxid = max($maxid, (int)$key);
+                            $changed = true;
+                        }
+                    }
+                }
+                if (!isset($condition->nextelementid) || (int)$condition->nextelementid <= $maxid) {
+                    $condition->nextelementid = $maxid + 1;
+                    $changed = true;
+                }
+            }
+            if ($changed) {
+                $DB->set_field(
+                    'booking_options',
+                    'availability',
+                    json_encode($availability),
+                    ['id' => $record->id]
+                );
+            }
+        }
+        $rs->close();
+
+        if ($lock) {
+            $lock->release();
+        }
+
+        \cache_helper::purge_by_definition('mod_booking', 'bookingoptionsettings');
+
+        upgrade_mod_savepoint(true, 2026083106, 'booking');
+    }
+
+    if ($oldversion < 2026090201) {
+        // Waitlist-progression refactoring (Phase 2): single source of truth for the new
+        // reconciler's offer/decision state, and the permanent K7 decline lockout list.
+        $table = new xmldb_table('booking_waitlist_offers');
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('optionid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('userid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('baid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('roundid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('status', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('sortorder', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('offeredat', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('expiresat', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('ruleid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('version', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '1');
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('optionid', XMLDB_KEY_FOREIGN, ['optionid'], 'booking_options', ['id']);
+        $table->add_key('optionid-roundid-userid', XMLDB_KEY_UNIQUE, ['optionid', 'roundid', 'userid']);
+        $table->add_index('userid-optionid-status', XMLDB_INDEX_NOTUNIQUE, ['userid', 'optionid', 'status']);
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        $table = new xmldb_table('booking_waitlist_declines');
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('optionid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('userid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('optionid', XMLDB_KEY_FOREIGN, ['optionid'], 'booking_options', ['id']);
+        $table->add_key('optionid-userid', XMLDB_KEY_UNIQUE, ['optionid', 'userid']);
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        upgrade_mod_savepoint(true, 2026090201, 'booking');
+    }
+
+    if ($oldversion < 2026090202) {
+        // Waitlist-progression: per-option recycling (T-recycling). An expired offer keeps
+        // locking the user out permanently by default (reason=expired in booking_waitlist_declines,
+        // same table/mechanism as the K7 decline lock) - but if waitlistrecycling is enabled for
+        // the option, waitlist_heartbeat_task resets those expiry-locks (and only those, never
+        // declined-locks) once nobody on the waiting list can receive an offer anymore.
+        $table = new xmldb_table('booking_options');
+        $field = new xmldb_field('waitlistrecycling', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $table = new xmldb_table('booking_waitlist_declines');
+        $field = new xmldb_field('reason', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '3');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        upgrade_mod_savepoint(true, 2026090202, 'booking');
+    }
+
+    if ($oldversion < 2026090203) {
+        // Waitlist-progression refactoring (Phase 3): migrate any still-running legacy chains
+        // into the new booking_waitlist_offers model before the old chain code is removed.
+        // Idempotent (M4) - a plain no-op on a site with nothing currently running.
+        \mod_booking\local\waitlist\migration\upgrade_step::run();
+
+        upgrade_mod_savepoint(true, 2026090203, 'booking');
+    }
+
+    if ($oldversion < 2026090204) {
+        // Waitlist-progression: Typ 2 ("offen nach Durchlauf", waitlistrecycling=2) - runtime
+        // flag, set/cleared exclusively by waitlist_heartbeat_task, see
+        // db_waitlist_offer_repository::is_open_mode_active()/activate_open_mode()/
+        // deactivate_open_mode().
+        $table = new xmldb_table('booking_options');
+        $field = new xmldb_field('waitlistopenmode', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        upgrade_mod_savepoint(true, 2026090204, 'booking');
     }
 
     return true;

@@ -25,11 +25,14 @@
 namespace mod_booking\bo_availability\conditions;
 
 use local_shopping_cart\shopping_cart;
+use local_shopping_cart\shopping_cart_history;
 use mod_booking\bo_availability\bo_condition;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking;
 use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
+use mod_booking\enrollink;
+use mod_booking\local\slotbooking\slot_change_policy;
 use mod_booking\price;
 use mod_booking\singleton_service;
 use MoodleQuickForm;
@@ -82,6 +85,25 @@ class cancelmyself implements bo_condition {
     }
 
     /**
+     * Returns the name of the condition.
+     *
+     * @return string
+     *
+     */
+    public function get_name(): string {
+        return get_string('bocondcancelmyself', 'mod_booking');
+    }
+
+    /**
+     * Returns whether the condition is skippable or not.
+     *
+     * @return bool
+     */
+    public function is_skippable(): bool {
+        return false;
+    }
+
+    /**
      * Determines whether a particular item is currently available
      * according to this availability condition.
      * @param booking_option_settings $settings Item we're checking
@@ -115,11 +137,13 @@ class cancelmyself implements bo_condition {
 
         // Get the booking answers for this instance.
         $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
-
         $bookinginformation = $bookinganswer->return_all_booking_information($userid);
         $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($settings->cmid);
 
-        if (!empty($settings->jsonobject->useprice) && (!class_exists('local_shopping_cart\shopping_cart'))) {
+        if ($bookinganswer->is_activity_completed($userid)) {
+            // If the user has already completed the booking option, (s)he cannot cancel!
+            $isavailable = true; // True means, it won't be shown.
+        } else if (!empty($settings->jsonobject->useprice) && (!class_exists('local_shopping_cart\shopping_cart'))) {
             // If we have a price, this condition is not used.
             $isavailable = true; // True means, it won't be shown.
         } else {
@@ -130,6 +154,16 @@ class cancelmyself implements bo_condition {
                 $isavailable = true;
             } else if ($bookingsettings->cancancelbook != 1 || isset($bookinginformation['notbooked'])) {
                 $isavailable = true; // True means cancel button is not shown.
+            } else if (
+                (isset($bookinginformation['onwaitinglist']) || isset($bookinginformation['iambooked']))
+                && enrollink::cancellation_blocked_by_used_enrollink($userid, $optionid)
+            ) {
+                // The user booked places for other users and somebody already used the enrollink:
+                // cancelling is not possible anymore. The condition deliberately stays "blocking"
+                // (false) so the cancel slot is still rendered - render_button() shows the
+                // explanation instead of a cancel button there, and booking_bookit::bookit()
+                // refuses the cancellation on the server side.
+                $isavailable = false;
             } else if (isset($bookinginformation['onwaitinglist']) || isset($bookinginformation['iambooked'])) {
                 // If the user is allowed to cancel, we first check if the user is already booked or on the waiting list.
                 // We have to check if there's a limit until a certain date.
@@ -139,14 +173,18 @@ class cancelmyself implements bo_condition {
                     class_exists('local_shopping_cart\shopping_cart')
                     && (!empty($settings->jsonobject->useprice))
                 ) {
-                    $item = (object)[
-                        'itemid' => $settings->id,
-                        'componentname' => 'mod_booking',
-                        'canceluntil' => $canceluntil,
-                    ];
-                    // Shopping cart allows to cancel.
-                    if (!shopping_cart::allowed_to_cancel_for_item($item, 'option')) {
-                        $isavailable = true;
+                    /* Apply shopping cart specific cancel rules only for purchases that
+                    were actually processed via shopping cart. */
+                    if (self::has_shopping_cart_history_entry($settings->id, $userid)) {
+                        $item = (object)[
+                            'itemid' => $settings->id,
+                            'componentname' => 'mod_booking',
+                            'canceluntil' => $canceluntil,
+                        ];
+                        // Shopping cart allows to cancel.
+                        if (!shopping_cart::allowed_to_cancel_for_item($item, 'option')) {
+                            $isavailable = true;
+                        }
                     }
 
                     // If user is confirmed, we don't block.
@@ -181,6 +219,20 @@ class cancelmyself implements bo_condition {
             }
         }
 
+        // Slot booking: a full self-cancellation requires every booked slot to still be actionable
+        // per the relative per-slot deadline (slot_change_policy). Locked slots stay; releasing
+        // individual slots happens via the slot picker. This is AND-combined with cancancelbook and
+        // the absolute canceluntil handled above (all must allow cancellation).
+        if (
+            !$isavailable
+            && (int)($settings->type ?? MOD_BOOKING_OPTIONTYPE_DEFAULT) === MOD_BOOKING_OPTIONTYPE_SLOTBOOKING
+        ) {
+            $answer = $bookinganswer->get_usersonlist()[$userid] ?? null;
+            if ($answer === null || !slot_change_policy::answer_all_slots_actionable($answer)) {
+                $isavailable = true; // Not fully cancellable: at least one booked slot is locked.
+            }
+        }
+
         // If it's inversed, we inverse.
         if ($not) {
             $isavailable = !$isavailable;
@@ -194,9 +246,10 @@ class cancelmyself implements bo_condition {
      * This will be used if the conditions should not only block booking...
      * ... but actually hide the conditons alltogether.
      * @param int $userid
+     * @param array $params This is the array with parameters for the sql query.
      * @return array
      */
-    public function return_sql(int $userid = 0): array {
+    public function return_sql(int $userid = 0, &$params = []): array {
 
         return ['', '', '', [], ''];
     }
@@ -215,6 +268,9 @@ class cancelmyself implements bo_condition {
      * @return bool
      */
     public function hard_block(booking_option_settings $settings, $userid): bool {
+        // Only ever checked once is_available() has already returned false (see docblock above) -
+        // the book-again gate is now checked THERE (see is_available() above), so by the time this
+        // runs it has already had its say; nothing left to special-case here.
         return true;
     }
 
@@ -270,6 +326,15 @@ class cancelmyself implements bo_condition {
      * @return array
      */
     public function render_page(int $optionid, int $userid = 0) {
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $alreadybooked = new alreadybooked();
+
+        if (!$alreadybooked->is_available($settings, $userid)) {
+            // If the user is not booked, we do not show the page.
+            return [];
+        }
+
         return [];
     }
 
@@ -299,6 +364,22 @@ class cancelmyself implements bo_condition {
             $userid = $USER->id;
         }
 
+        // Somebody already booked via the enrollink of this booking: no cancel button anymore,
+        // just the explanation (no role, no JS - nothing to click).
+        if (enrollink::cancellation_blocked_by_used_enrollink($userid, $settings->id)) {
+            return bo_info::render_button(
+                $settings,
+                $userid,
+                get_string('bocondcancelmyselfenrollinkused', 'mod_booking'),
+                'alert alert-warning small',
+                false,
+                $fullwidth,
+                '',
+                'option',
+                true
+            );
+        }
+
         // At this point, we need some logic, because we have a different button for ...
         // ... purchases and just normal bookings.
         if (
@@ -319,6 +400,7 @@ class cancelmyself implements bo_condition {
                 if (
                     !isset($bookinginformation['onwaitinglist'])
                     && !isset($bookinginformation['iambooked']['paidwithcredits'])
+                    && self::has_shopping_cart_history_entry($settings->id, $userid)
                 ) {
                     $label = get_string('cancelsign', 'mod_booking')
                     . "&nbsp;" . get_string('cancelpurchase', 'local_shopping_cart');
@@ -327,7 +409,7 @@ class cancelmyself implements bo_condition {
                         $settings,
                         $userid,
                         $label,
-                        'btn btn-light btn-sm shopping-cart-cancel-button',
+                        'btn btn-light btn-sm shopping-cart-cancel-button bo-cancel-button',
                         false,
                         $fullwidth,
                         'button',
@@ -344,7 +426,7 @@ class cancelmyself implements bo_condition {
             $settings,
             $userid,
             $label,
-            'btn btn-light btn-sm',
+            'btn btn-light btn-sm bo-cancel-button',
             false,
             $fullwidth,
             'button',
@@ -358,11 +440,27 @@ class cancelmyself implements bo_condition {
      *
      * @return string
      */
-    private function get_description_string(): string {
+    public function get_description_string(): string {
 
         // Do not trigger billboard here.
         return get_string('cancelsign', 'mod_booking') . "&nbsp;" .
             get_string('cancelmyself', 'mod_booking');
+    }
+
+    /**
+     * Check whether this booking option was purchased via local shopping cart.
+     *
+     * @param int $optionid
+     * @param int $userid
+     * @return bool
+     */
+    private static function has_shopping_cart_history_entry(int $optionid, int $userid): bool {
+        if (!class_exists('local_shopping_cart\\shopping_cart_history')) {
+            return false;
+        }
+
+        $historyitem = shopping_cart_history::get_most_recent_historyitem('mod_booking', 'option', $optionid, $userid);
+        return !empty($historyitem->id);
     }
 
     /**

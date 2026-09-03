@@ -194,7 +194,7 @@ class bookitbutton implements bo_subcondition {
      *
      * @return string
      */
-    private function get_description_string() {
+    public function get_description_string() {
 
         // In this case, we dont differentiate between availability, because when it blocks...
         // ... it just means that it can be booked. Blocking has a different functionality here.

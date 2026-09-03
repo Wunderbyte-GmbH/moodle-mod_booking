@@ -49,7 +49,7 @@ Feature: Create custom availability form for booking options as admin and bookin
       | BookingCMP  | Option-form  | C1     | Price-form  | 1        | 6          | 1           | 0              | 0              | ## tomorrow ##    | ## +2 days ##   |
     And I change viewport size to "1366x10000"
 
-  @javascript
+  @javascript @accessibility
   Scenario: Booking option availability: custom form with selection of prices
     Given the following config values are set as admin:
        | config                      | value        | plugin  |
@@ -76,17 +76,29 @@ Feature: Create custom availability form for booking options as admin and bookin
     And I press "Save"
     And I log out
     When I am on the "BookingCMP" Activity page logged in as student1
+    ## Validate accessibility of booking options table before booking
+    And the page should meet accessibility standards
     Then I should see "99.00 EUR" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I click on "Add to cart" "text" in the ".allbookingoptionstable_r1" "css_element"
+    ## Validate accessibility of booking options table before booking
+    And the page should meet accessibility standards
     And I should see "Rooms" in the ".condition-customform" "css_element"
+    ## Validate accessibility of booking options table before booking
+    And the page should meet accessibility standards
     And I set the field "customform_select_1" to "doubleroom"
     And I should see "Double Room, 5 still available (+150.40 EUR)" in the ".condition-customform" "css_element"
+    ## Validate accessibility of booking options table before booking
+    And the page should meet accessibility standards
     And I follow "Continue"
     And I should see "Thank you! You have successfully put Option-form into the shopping cart." in the ".modal-dialog.modal-xl .modalMainContent" "css_element"
+    ## Validate accessibility of booking options table before booking (disabled due to violations in Moodle 4.5 core)
+    ## And the page should meet accessibility standards
     And I click on "Proceed to checkout" "text" in the ".modal-dialog.modal-xl .modalFooter" "css_element"
     And I wait to be redirected
     ## Verify prices and credits
     And I should see "Option-form" in the ".shopping-cart-checkout-items-container" "css_element"
+    ## Validate accessibility of booking options table before booking
+    And the page should meet accessibility standards
     And I should see "249.40 EUR" in the ".shopping-cart-checkout-items-container" "css_element"
     And I should see "249.40 EUR" in the ".sc_price_label .sc_initialtotal" "css_element"
     And I should see "Use credit: 300.00 EUR" in the ".sc_price_label .sc_credit" "css_element"
@@ -95,8 +107,12 @@ Feature: Create custom availability form for booking options as admin and bookin
     And I should see "0 EUR" in the ".sc_totalprice" "css_element"
     And I press "Checkout"
     And I wait "1" seconds
+    ## Validate accessibility of booking options table before booking
+    And the page should meet accessibility standards
     And I press "Confirm"
     And I should see "Payment successful!"
+    ## Validate accessibility of booking options table before booking
+    And the page should meet accessibility standards
     And I should see "Credits used" in the ".payment-success ul.list-group" "css_element"
     And I should see "-249.40 EUR" in the ".payment-success ul.list-group" "css_element"
     And I should see "Option-form" in the ".payment-success ul.list-group" "css_element"

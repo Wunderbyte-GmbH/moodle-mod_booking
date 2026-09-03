@@ -63,12 +63,24 @@ if (!empty($info)) {
     $courselink = $enrollink->get_courselink_url();
     $bodetailslink = $enrollink->get_bookingdetailslink_url();
     $title = $enrollink->get_bookingoptiontitle();
-    $infostring = $enrollink->get_readable_info($info);
+
+    if ($info == MOD_BOOKING_AUTOENROL_STATUS_BLOCKED_BY_CONDITION) {
+        $conditiondesc = $enrollink->get_condition_block_description($USER->id);
+        $infostring = get_string('enrollink:7', 'mod_booking', $conditiondesc);
+        $iserror = 0;
+        $iswarning = 1;
+    } else {
+        $infostring = $enrollink->get_readable_info($info);
+        $iserror = $info == "enrolmentexception" ? 1 : 0;
+        $iswarning = 0;
+    }
+
     echo $output->render_from_template(
         'mod_booking/enrollink',
         [
             'info' => $infostring,
-            'error' => $info == "enrolmentexception" ? 1 : 0,
+            'error' => $iserror,
+            'iswarning' => $iswarning,
             'courselink' => $courselink ?? false,
             'bodetailslink' => $bodetailslink ?? false,
             'namebookingoption' => $title,

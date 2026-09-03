@@ -26,7 +26,6 @@ defined('MOODLE_INTERNAL') || die();
 
 use mod_booking\booking_rules\rules_info;
 use mod_booking\booking_utils;
-use mod_booking\event\bookingoptiondate_created;
 use mod_booking\output\bookingoption_description;
 use mod_booking\singleton_service;
 
@@ -109,7 +108,7 @@ function booking_updatestartenddate($optionid) {
  * @param numeric $optiondateid the id of the option date for which the custom fields should be rendered
  * @return string the rendered HTML of the session's custom fields
  */
-function get_rendered_customfields($optiondateid) {
+function booking_get_rendered_customfields($optiondateid) {
     global $DB;
     $customfieldshtml = ''; // The rendered HTML.
     if ($customfields = $DB->get_records("booking_customfields", ["optiondateid" => $optiondateid])) {
@@ -122,14 +121,15 @@ function get_rendered_customfields($optiondateid) {
 }
 
 /**
- * Helper function to render the full description (including custom fields) of option events or optiondate events.
+ * Helper function to render the full description
+ * (including custom fields) of option events or optiondate events.
  * @param int $optionid
  * @param int $cmid the course module id
  * @param int $descriptionparam
  * @param bool $forbookeduser
  * @return string The rendered HTML of the full description.
  */
-function get_rendered_eventdescription(
+function booking_get_rendered_eventdescription(
     int $optionid,
     int $cmid,
     int $descriptionparam = MOD_BOOKING_DESCRIPTION_WEBSITE,
@@ -169,114 +169,13 @@ function get_rendered_eventdescription(
  * @return void
  *
  */
-function optiondate_duplicatecustomfields($oldoptiondateid, $newoptiondateid) {
+function booking_optiondate_duplicatecustomfields($oldoptiondateid, $newoptiondateid) {
     global $DB;
     // Duplicate all custom fields which belong to this optiondate.
     $customfields = $DB->get_records("booking_customfields", ['optiondateid' => $oldoptiondateid]);
     foreach ($customfields as $customfield) {
         $customfield->optiondateid = $newoptiondateid;
         $DB->insert_record("booking_customfields", $customfield);
-    }
-}
-
-/**
- * Helper function to update user calendar events after an option or optiondate (a session of a booking option) has been changed.
- *
- * @param int $optionid
- * @param int $cmid
- * @param ?stdClass $optiondate
- *
- */
-function option_optiondate_update_event(int $optionid, int $cmid, ?stdClass $optiondate = null) {
-    global $DB, $USER;
-
-    $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
-
-    // We either do this for option or optiondate
-    // different way to retrieve the right events.
-    if ($optiondate && !empty($settings->id)) {
-        // Check if we have already associated userevents.
-        if (!isset($optiondate->eventid) || (!$event = $DB->get_record('event', ['id' => $optiondate->eventid]))) {
-            // If we don't find the event here, we might still be just switching to multisession.
-            // Let's create the event anew.
-            $bocreatedevent = bookingoptiondate_created::create(['context' => context_module::instance($cmid),
-                                                                'objectid' => $optiondate->id,
-                                                                'userid' => $USER->id,
-                                                                'other' => ['optionid' => $settings->id],
-                                                            ]);
-            $bocreatedevent->trigger();
-
-            // We have to return false if we have switched from multisession to create the right events.
-            return false;
-        } else {
-            // Get all the userevents.
-            $sql = "SELECT e.* FROM {booking_userevents} ue
-              JOIN {event} e
-              ON ue.eventid = e.id
-              WHERE ue.optiondateid = :optiondateid";
-
-            $allevents = $DB->get_records_sql($sql, ['optiondateid' => $optiondate->id]);
-
-            // Use the optiondate as data object.
-            $data = $optiondate;
-
-            if ($event = $DB->get_record('event', ['id' => $optiondate->eventid])) {
-                if ($allevents && count($allevents) > 0) {
-                    if ($event && isset($event->description)) {
-                        $allevents[] = $event;
-                    }
-                } else {
-                    $allevents = [$event];
-                }
-            }
-        }
-    } else {
-        // Get all the userevents.
-        $sql = "SELECT e.* FROM {booking_userevents} ue
-                    JOIN {event} e
-                    ON ue.eventid = e.id
-                    WHERE ue.optionid = :optionid";
-
-        $allevents = $DB->get_records_sql($sql, ['optionid' => $settings->id]);
-
-        // Use the option as data object.
-        $data = $settings;
-
-        if ($event = $DB->get_record('event', ['id' => $settings->calendarid])) {
-            if ($allevents && count($allevents) > 0) {
-                if ($event && isset($event->description)) {
-                    $allevents[] = $event;
-                }
-            } else {
-                $allevents = [$event];
-            }
-        }
-    }
-
-    // We use $data here for $option and $optiondate, the necessary keys are the same.
-    foreach ($allevents as $eventrecord) {
-        if ($eventrecord->eventtype == 'user') {
-            $eventrecord->description = get_rendered_eventdescription(
-                $settings->id,
-                $cmid,
-                MOD_BOOKING_DESCRIPTION_CALENDAR,
-                true
-            );
-        } else {
-            $eventrecord->description = get_rendered_eventdescription(
-                $settings->id,
-                $cmid,
-                MOD_BOOKING_DESCRIPTION_CALENDAR,
-                false
-            );
-        }
-        $eventrecord->name = $settings->get_title_with_prefix();
-        $eventrecord->timestart = $data->coursestarttime;
-        $eventrecord->timeduration = $data->courseendtime - $data->coursestarttime;
-        $eventrecord->timesort = $data->coursestarttime;
-        if (!$DB->update_record('event', $eventrecord)) {
-            return false;
-        }
     }
 }
 
@@ -300,4 +199,33 @@ function booking_getoptionstatus($starttime = 0, $endtime = 0) {
     }
 
     return "";
+}
+
+/**
+ * Extract the ids of the selected users from submitted report form data.
+ *
+ * The user checkboxes of the report form are submitted as user[][<userid>],
+ * a nested array structure which optional_param_array() cannot process.
+ * So this function takes the raw submitted data (as returned by the
+ * data_submitted() API) and cleans every single user id with clean_param().
+ *
+ * @param stdClass|false|null $submitteddata the return value of data_submitted()
+ * @return int[] the cleaned ids of the selected users
+ */
+function booking_get_selected_userids($submitteddata): array {
+    $userids = [];
+    if (empty($submitteddata->user) || !is_array($submitteddata->user)) {
+        return $userids;
+    }
+    foreach ($submitteddata->user as $checkbox) {
+        $checkbox = (array) $checkbox;
+        if (empty($checkbox)) {
+            continue;
+        }
+        $userid = clean_param(array_key_first($checkbox), PARAM_INT);
+        if ($userid > 0) {
+            $userids[] = $userid;
+        }
+    }
+    return $userids;
 }

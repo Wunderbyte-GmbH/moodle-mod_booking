@@ -23,12 +23,15 @@
  */
 
 namespace mod_booking\table;
+use core_completion\progress;
+use mod_booking\bo_availability\conditions\alreadybooked;
 use mod_booking\booking_answers\booking_answers;
 use core_plugin_manager;
 use mod_booking\local\modechecker;
 use mod_booking\local\override_user_field;
 use mod_booking\output\col_responsiblecontacts;
 use mod_booking\output\renderer;
+use mod_booking\placeholders\placeholders_info;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -40,6 +43,7 @@ use context_system;
 use context_module;
 use dml_exception;
 use html_writer;
+use local_wunderbyte_table\output\table;
 use local_wunderbyte_table\wunderbyte_table;
 use moodle_exception;
 use moodle_url;
@@ -52,6 +56,7 @@ use mod_booking\output\col_availableplaces;
 use mod_booking\output\col_teacher;
 use mod_booking\price;
 use mod_booking\singleton_service;
+use mod_booking\local\slotbooking\slot_availability;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -59,10 +64,77 @@ defined('MOODLE_INTERNAL') || die();
  * Class to handle search results for managers are shown in a table.
  *
  * @package mod_booking
- * @copyright 2023 Wunderbyte GmbH
+ * @copyright 2026 Wunderbyte GmbH
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class bookingoptions_wbtable extends wunderbyte_table {
+    /** @var string component for customfields */
+    public $customfieldcomponent = 'mod_booking';
+
+    /** @var string area used for customfields */
+    public $customfieldarea = 'booking';
+
+    /**
+     * Condition shortname to render inline instead of behind the "Book" button.
+     * When set (e.g. 'slotbooking'), that condition's page is displayed directly on the page
+     * and a "Continue" button opens the remaining prepage modal/collapse.
+     * @var string
+     */
+    public $inlinestartpage = '';
+
+    /**
+     * The view this table renders (one of the MOD_BOOKING_VIEW_PARAM_* constants).
+     *
+     * This is the view which is ACTUALLY rendered - it can differ from the view configured in the
+     * booking instance, because shortcodes (e.g. [courselist] or shortcodes from external plugins)
+     * define their own view. It is used to decide whether pre booking pages can be shown inline.
+     *
+     * NOTE: The default is written as a literal on purpose. Property defaults are evaluated when
+     * the class is declared, and this table is also instantiated in contexts where mod/booking/lib.php
+     * (which defines the MOD_BOOKING_VIEW_PARAM_* constants) is not loaded - e.g. the
+     * local_wunderbyte_table load_data webservice used for search, filter and reload.
+     *
+     * @var int 0 = MOD_BOOKING_VIEW_PARAM_LIST
+     */
+    public int $viewparam = 0;
+
+    /**
+     * Customfield columns.
+     * @var array
+     */
+    public $customfieldsinfoarray = [];
+
+    /**
+     * Whether to show the favorites toggle button. Default false (hidden in shortcode context).
+     * @var bool
+     */
+    public bool $showfavoritestoggle = false;
+
+    /**
+     * Store additional columns information.
+     * Structure:
+     * keys => shortname of the column or customfield
+     * values => array of arrays with keys:
+     *    'colname' => shortname of the column or customfield,
+     *    'class' => classes for the column, e.g. "text-center",
+     *    'region' => region where the column should be displayed, e.g. "cardbody",
+     *    'iconclass' => iconclass of the icon, e.g. "far fa-wrench",
+     *
+     * @param array $customfieldsinfoarray array of customfield column information
+     */
+    public function set_customfields_info_array(array $customfieldsinfoarray = []): void {
+        $this->customfieldsinfoarray = $customfieldsinfoarray;
+    }
+
+    /**
+     * Get additional customfield columns information.
+     *
+     * @return array of customfield column information
+     */
+    public function get_customfields_info_array(): array {
+        return $this->customfieldsinfoarray ?? [];
+    }
+
     /**
      * This function is called for each data row to allow processing of the
      * invisible value. It's called 'invisibleoption' so it does not interfere with
@@ -260,7 +332,34 @@ class bookingoptions_wbtable extends wunderbyte_table {
             $buyforuser = $USER->id;
         }
 
-        return booking_bookit::render_bookit_button($settings, $buyforuser);
+        return booking_bookit::render_bookit_button(
+            $settings,
+            $buyforuser,
+            $this->inlinestartpage,
+            $this->return_current_viewparam()
+        );
+    }
+
+    /**
+     * Returns the view which is currently rendered by this table.
+     *
+     * When the template switcher is active, the user can change the view at runtime. The choice is
+     * stored in a user preference, so we have to read it here instead of relying on the viewparam
+     * that was set when the table was built (the table object itself is cached and reused for the
+     * ajax reloads).
+     *
+     * @return int one of the MOD_BOOKING_VIEW_PARAM_* constants
+     */
+    public function return_current_viewparam(): int {
+
+        if (!empty($this->switchtemplates['templates'])) {
+            $chosenviewparam = get_user_preferences('wbtable_chosen_template_viewparam_' . $this->uniqueid);
+            if (is_number($chosenviewparam)) {
+                return (int)$chosenviewparam;
+            }
+        }
+
+        return $this->viewparam;
     }
 
     /**
@@ -296,13 +395,13 @@ class bookingoptions_wbtable extends wunderbyte_table {
             return '';
         }
         switch ($values->invisible) {
-            case '0':
+            case MOD_BOOKING_OPTION_VISIBLE:
                 $status = get_string('optionvisible', 'mod_booking');
                 break;
-            case '1':
+            case MOD_BOOKING_OPTION_INVISIBLE:
                 $status = get_string('optioninvisible', 'mod_booking');
                 break;
-            case '2':
+            case MOD_BOOKING_OPTION_VISIBLEWITHLINK:
                 $status = get_string('optionvisibledirectlink', 'mod_booking');
                 break;
         }
@@ -319,7 +418,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
      */
     public function col_text($values) {
 
-        global $PAGE;
+        global $PAGE, $USER;
 
         // If $values->id is missing, we show the values object in debug mode, so we can investigate what happens.
         if (empty($values->id)) {
@@ -351,7 +450,10 @@ class bookingoptions_wbtable extends wunderbyte_table {
             return '';
         }
 
-        $buyforuser = price::return_user_to_buy_for();
+        // Use the same target user as col_booknow/col_action: the foruserid stored
+        // on the table instance (e.g. set on the cashier page), falling back to
+        // the logged-in user. This keeps all columns of a row consistent.
+        $buyforuserid = !empty($this->foruserid) ? (int)$this->foruserid : (int)$USER->id;
         $cmid = $settings->cmid;
         $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
 
@@ -366,7 +468,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
             $url = new moodle_url("/mod/booking/optionview.php", [
                 "optionid" => (int) $settings->id,
                 "cmid" => (int) $cmid,
-                "userid" => (int) $buyforuser->id,
+                "userid" => $buyforuserid,
                 'returnto' => 'url',
                 'returnurl' => $returnurl,
             ]);
@@ -379,11 +481,20 @@ class bookingoptions_wbtable extends wunderbyte_table {
             $title = $titleprefix . ' - ' . $title;
         }
 
-        if (!get_config('booking', 'openbookingdetailinsametab')) {
-            $title = "<div class='bookingoptions-wbtable-option-title'><a href='$url' target='_blank'>$title</a></div>";
-        } else {
-            $title = "<div class='bookingoptions-wbtable-option-title'><a href='$url'>$title</a></div>";
+        // Users who are not allowed to see the detail page (same rule as in optionview.php)
+        // don't get a link to it either. Checked for the viewing user, not the buy-for user.
+        if (!booking_option::can_view_option_details((int)$optionid)) {
+            return "<div class='bookingoptions-wbtable-option-title'>$title</div>";
         }
+
+        $title = match ((int) get_config('booking', 'openbookingdetailinsametab')) {
+            // 1 is with link in same window.
+            1 => "<div class='bookingoptions-wbtable-option-title'><a href='$url'>$title</a></div>",
+            // 2 is no link.
+            2 => "<div class='bookingoptions-wbtable-option-title'>$title</div>",
+            // Default is with link in new window.
+            default => "<div class='bookingoptions-wbtable-option-title'><a href='$url' target='_blank'>$title</a></div>",
+        };
 
         return $title;
     }
@@ -587,6 +698,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
      * @throws coding_exception
      */
     public function col_bookings($values) {
+        global $DB, $USER;
 
         // If $values->id is missing, we show the values object in debug mode, so we can investigate what happens.
         if (empty($values->id)) {
@@ -601,7 +713,86 @@ class bookingoptions_wbtable extends wunderbyte_table {
         $output = singleton_service::get_renderer('mod_booking');
 
         $settings = singleton_service::get_instance_of_booking_option_settings($values->id, $values);
-        $buyforuser = price::return_user_to_buy_for();
+
+        $targetuserid = (int)$this->foruserid;
+        if ($targetuserid <= 0) {
+            $targetuserid = (int)$USER->id;
+        }
+        $buyforuser = singleton_service::get_instance_of_user($targetuserid);
+
+        $isslotoption = (int)($settings->type ?? MOD_BOOKING_OPTIONTYPE_DEFAULT) === MOD_BOOKING_OPTIONTYPE_SLOTBOOKING;
+        if ($isslotoption) {
+            $displaymode = (string)get_config('booking', 'slot_bookings_display_mode');
+            if (!in_array($displaymode, ['availableforuser', 'bookedvscapacity'], true)) {
+                $displaymode = 'availableforuser';
+            }
+
+            $slots = slot_availability::get_slots_with_status((int)$values->id, $targetuserid);
+            $slottype = (string)($settings->slotconfig->slot_type ?? 'fixed');
+
+            $slotcounttext = '';
+            if ($displaymode === 'bookedvscapacity') {
+                if ($slottype === 'session') {
+                    // Session-based slots map 1:1 to option sessions, so we display slot counts (booked / total slots).
+                    $bookedslots = 0;
+                    $totalslots = count($slots);
+                    foreach ($slots as $slot) {
+                        if ((int)($slot['bookings'] ?? 0) > 0) {
+                            $bookedslots++;
+                        }
+                    }
+                    $slotcounttext = $bookedslots . ' / ' . $totalslots;
+                } else {
+                    // Keep legacy places-based display for generated fixed/rolling slots.
+                    $bookedslots = 0;
+                    $bookableslots = 0;
+                    foreach ($slots as $slot) {
+                        if (($slot['status'] ?? '') === 'unavailable') {
+                            continue;
+                        }
+                        $bookedslots += max(0, (int)($slot['bookings'] ?? 0));
+                        $bookableslots += max(0, (int)($slot['capacity'] ?? 0));
+                    }
+                    $slotcounttext = $bookedslots . ' / ' . $bookableslots;
+                }
+            } else {
+                $availableuserslots = 0;
+                foreach ($slots as $slot) {
+                    if (in_array((string)($slot['status'] ?? 'unavailable'), ['open', 'warning'], true)) {
+                        $availableuserslots++;
+                    }
+                }
+                $slotcounttext = (string)$availableuserslots;
+            }
+
+            if ($this->is_downloading()) {
+                return $slotcounttext;
+            }
+
+            $cmid = (int)($settings->cmid ?? 0);
+            if ($cmid > 0) {
+                $syscontext = context_system::instance();
+                $modcontext = context_module::instance($cmid);
+                $canviewreport = (
+                    has_capability('mod/booking:viewreports', $syscontext)
+                    || has_capability('mod/booking:updatebooking', $modcontext)
+                    || has_capability('mod/booking:updatebooking', $syscontext)
+                    || booking_check_if_teacher((int)$settings->id)
+                );
+
+                if ($canviewreport) {
+                    $reporturl = new moodle_url('/mod/booking/report.php', [
+                        'id' => $cmid,
+                        'optionid' => (int)$settings->id,
+                    ]);
+
+                    return html_writer::link($reporturl, $slotcounttext, ['style' => 'text-decoration: none;']);
+                }
+            }
+
+            return $slotcounttext;
+        }
+
         // Render col_bookings using a template.
         $data = new col_availableplaces($values, $settings, $buyforuser);
 
@@ -652,22 +843,12 @@ class bookingoptions_wbtable extends wunderbyte_table {
         $settings = singleton_service::get_instance_of_booking_option_settings($values->id, $values);
 
         if (isset($settings->entity) && (count($settings->entity) > 0)) {
-            $url = new moodle_url('/local/entities/view.php', ['id' => $settings->entity['id']]);
-            // Full name of the entity (NOT the shortname).
-
-            if (!empty($settings->entity['parentname'])) {
-                $nametobeshown = $settings->entity['parentname'] . " (" . $settings->entity['name'] . ")";
-            } else {
-                $nametobeshown = $settings->entity['name'];
-            }
-
-            if ($this->is_downloading()) {
-                // No hyperlink when downloading.
-                return $nametobeshown;
-            }
-
-            // Add link to entity.
-            return html_writer::tag('a', $nametobeshown, ['href' => $url->out(false)]);
+            // Shared renderer: byte-identical to the historical output for 1–2 levels; for 3+ levels
+            // "direct parent (name)", with the superordinate levels in an accessible hover card.
+            return \mod_booking\local\entities_tree_provider::render_location_cell(
+                $settings->entity,
+                $this->is_downloading()
+            );
         }
 
         // If no entity is set, we show the value stored in location.
@@ -735,12 +916,13 @@ class bookingoptions_wbtable extends wunderbyte_table {
         } else {
             $context = $this->get_context();
         }
-
+        $settings = singleton_service::get_instance_of_booking_option_settings($values->id);
         // When we have this seeting, we never show the link here.
         if (
             get_config('booking', 'linktomoodlecourseonbookedbutton')
             && (!has_capability('mod/booking:updatebooking', $context)
                 && !$isteacherofthisoption)
+            && empty($settings->jsonobject->multiplebookings)
         ) {
             return '';
         }
@@ -749,10 +931,23 @@ class bookingoptions_wbtable extends wunderbyte_table {
         $status = $answersobject->user_status($USER->id);
 
         $isteacherofthisoption = booking_check_if_teacher($values);
+        // We get the user ID from the table instance.
+        // It is 0 by default but can be set, for example,
+        // when rendering booking options for a specific user via the cashier page.
+        $buyforuser = $this->foruserid;
 
+        // We need to make sure that a user is set for the rendering of the button. When it is equal to 0,
+        // we use the logged-in user. Leaving it as 0 may cause problems in the booking process,
+        // for example when a pre-form is involved.
+        if ($buyforuser == 0) {
+            $buyforuser = $USER->id;
+        }
+        $alreadybooked = new alreadybooked();
+        $isavailable = $alreadybooked->is_available($settings, $buyforuser);
         if (
             $status == MOD_BOOKING_STATUSPARAM_BOOKED
             && get_config('booking', 'linktomoodlecourseonbookedbutton')
+            && !$isavailable
         ) {
             return '';
         }
@@ -852,6 +1047,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
      * @throws coding_exception
      */
     public function col_showdates($values) {
+        global $USER;
 
         // If $values->id is missing, we show the values object in debug mode, so we can investigate what happens.
         if (empty($values->id)) {
@@ -879,6 +1075,52 @@ class bookingoptions_wbtable extends wunderbyte_table {
         $cmid = $settings->cmid;
         $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
 
+        $isslotoption = (int)($settings->type ?? MOD_BOOKING_OPTIONTYPE_DEFAULT) === MOD_BOOKING_OPTIONTYPE_SLOTBOOKING;
+        if ($isslotoption) {
+            // A user can hold more than one active answer for a slot option (buying several slots
+            // up to max_slots_per_user), so aggregate the booked slots across ALL of their active
+            // answers - usersonlist would only expose the newest answer per user.
+            $slots = slot_availability::get_booked_slot_ranges_for_user($optionid, (int)$USER->id);
+
+            if (empty($slots)) {
+                return '';
+            }
+
+            $slotlines = [];
+            foreach ($slots as $slot) {
+                $start = (int)$slot['start'];
+                $end = (int)$slot['end'];
+                $slotlines[] = userdate($start, get_string('strftimedatetime', 'langconfig'))
+                    . ' - ' . userdate($end, get_string('strftimetime', 'langconfig'));
+            }
+
+            if (empty($slotlines)) {
+                return '';
+            }
+
+            $label = get_string('slot_report_numslots', 'mod_booking');
+
+            if ($this->is_downloading()) {
+                return $label . ': ' . implode(' | ', $slotlines);
+            }
+
+            $ret = html_writer::start_div('booking-showdates-area');
+            $ret .= html_writer::start_div('booking-showdates-title');
+            $ret .= html_writer::span(html_writer::tag('i', '', [
+                'class' => 'fa fa-calendar fa-fw',
+                'aria-hidden' => 'true',
+            ]));
+            $ret .= html_writer::span(html_writer::tag('b', s($label) . ':'));
+            $ret .= html_writer::end_div();
+
+            foreach ($slotlines as $line) {
+                $ret .= html_writer::div(s($line));
+            }
+
+            $ret .= html_writer::end_div();
+            return $ret;
+        }
+
         $ret = '';
         if ($this->is_downloading()) {
             $datestrings = dates_handler::return_array_of_sessions_datestrings($optionid);
@@ -886,8 +1128,10 @@ class bookingoptions_wbtable extends wunderbyte_table {
         } else {
             // Use the renderer to output this column.
             $lang = current_language();
+            $timezone = \core_date::get_user_timezone($USER);
+            $timezonetoken = str_replace('/', '_', $timezone);
 
-            $cachekey = "sessiondates$optionid$lang";
+            $cachekey = "sessiondates{$optionid}{$lang}{$timezonetoken}";
             $cache = cache::make($this->cachecomponent, $this->rawcachename);
 
             if (
@@ -1011,7 +1255,8 @@ class bookingoptions_wbtable extends wunderbyte_table {
             booking_check_if_teacher($values));
 
         $ddoptions = [];
-        $ret = '<div class="menubar pr-2" id="action-menu-' . $optionid . '-menubar" role="menubar">';
+        $ret = '<div class="menubar p-1" id="action-menu-' . $optionid . '-menubar" role="group" aria-label="' .
+            get_string('actions') . '">';
 
         if ($status == MOD_BOOKING_STATUSPARAM_BOOKED) {
             $ret .= html_writer::link(
@@ -1019,10 +1264,12 @@ class bookingoptions_wbtable extends wunderbyte_table {
                     '/mod/booking/viewconfirmation.php',
                     ['id' => $cmid, 'optionid' => $optionid]
                 ),
-                $OUTPUT->pix_icon('t/print', get_string('bookedtext', 'mod_booking')),
+                '<i class="icon fa fa-print fa-fw me-1" aria-hidden="true" title="' .
+                    get_string('bookedtext', 'mod_booking') .
+                '"></i>',
                 [
                     'target' => '_blank',
-                    'class' => 'text-primary pr-3',
+                    'class' => 'text-primary',
                     'aria-label' => get_string('bookedtext', 'mod_booking'),
                 ]
             );
@@ -1039,7 +1286,9 @@ class bookingoptions_wbtable extends wunderbyte_table {
                         'returnurl' => $returnurl,
                     ]
                 ),
-                $OUTPUT->pix_icon('i/edit', get_string('editbookingoption', 'mod_booking')),
+                '<i class="icon fa fa-pen fa-fw me-1" aria-hidden="true" title="' .
+                    get_string('editbookingoption', 'mod_booking') .
+                '"></i>',
                 [
                     'target' => '_self',
                     'class' => 'text-primary',
@@ -1078,25 +1327,39 @@ class bookingoptions_wbtable extends wunderbyte_table {
                 get_string('manageresponses', 'mod_booking')
             ) . '</div>';
 
-            if (get_config('booking', 'bookingstracker')) {
-                $ddoptions[] = '<div class="dropdown-item">' . html_writer::link(
-                    new moodle_url(
-                        '/mod/booking/report2.php',
-                        [
-                            'cmid' => $cmid,
-                            'optionid' => $optionid,
-                        ]
-                    ),
-                    '<i class="icon fa fa-sitemap fa-fw" aria-hidden="true"
-                        aria-label="' . get_string('bookingstracker', 'mod_booking') .
-                    '" title="' . get_string('bookingstracker', 'mod_booking') . '" >
-                    </i>' .
-                    get_string('bookingstracker', 'mod_booking')
+            $ddoptions[] = '<div class="dropdown-item">' . html_writer::link(
+                new moodle_url(
+                    '/mod/booking/report2.php',
+                    [
+                        'cmid' => $cmid,
+                        'optionid' => $optionid,
+                    ]
+                ),
+                '<i class="icon fa fa-sitemap fa-fw" aria-hidden="true"
+                    aria-label="' . get_string('bookingstracker', 'mod_booking') .
+                '" title="' . get_string('bookingstracker', 'mod_booking') . '" >
+                </i>' .
+                get_string('bookingstracker', 'mod_booking')
+            ) . '</div>';
+
+            if (isloggedin() && !isguestuser() && $this->showfavoritestoggle) {
+                $isfavorite = booking_option::user_has_favorite($USER->id, $optionid);
+                $ddoptions[] = '<div class="dropdown-item">' . $this->render_toggle_favorite_action_button(
+                    $optionid,
+                    $USER->id,
+                    $isfavorite,
+                    '',
+                    get_string($isfavorite ? 'removeoptionfromfavorites' : 'addoptiontofavorites', 'mod_booking')
                 ) . '</div>';
             }
 
             // Book other users.
+            // Slot booking options manage their participants per slot and cannot have users
+            // booked here directly, so the "book other users" action is hidden for them.
+            $isslotoption = (int)($settings->type ?? MOD_BOOKING_OPTIONTYPE_DEFAULT)
+                === MOD_BOOKING_OPTIONTYPE_SLOTBOOKING;
             if (
+                !$isslotoption &&
                 has_capability('mod/booking:bookforothers', $context) &&
                 (has_capability('mod/booking:subscribeusers', $context) ||
                     booking_check_if_teacher($values))
@@ -1118,6 +1381,30 @@ class bookingoptions_wbtable extends wunderbyte_table {
                             get_string('bookotherusers', 'mod_booking')
                         ) .
                         get_string('bookotherusers', 'mod_booking')
+                    ) . '</div>';
+            }
+
+            $bookallstudentscapability = 'mod/booking:bookallstudents';
+            if (
+                get_capability_info($bookallstudentscapability, false) &&
+                has_capability($bookallstudentscapability, $context)
+            ) {
+                $bookallstudentsurl = new moodle_url(
+                    '/mod/booking/bulk_book_handler.php',
+                    [
+                        'optionid' => $optionid,
+                        'sesskey' => sesskey(),
+                    ]
+                );
+
+                $ddoptions[] = '<div class="dropdown-item">' .
+                    html_writer::link(
+                        $bookallstudentsurl,
+                        $OUTPUT->pix_icon(
+                            'i/users',
+                            get_string('bookallstudents', 'mod_booking')
+                        ) .
+                        get_string('bookallstudents', 'mod_booking')
                     ) . '</div>';
             }
 
@@ -1272,6 +1559,27 @@ class bookingoptions_wbtable extends wunderbyte_table {
                     }
                 }
 
+                // Save booking option as template.
+                if (has_capability('mod/booking:manageoptiontemplates', $context)) {
+                    if (!empty($optionid)) {
+                        $ddoptions[] = '<div class="dropdown-item">
+                            <i class="icon fa fa-fw fa-clipboard" aria-hidden="true"></i>' .
+                            html_writer::link(
+                                new moodle_url('/mod/booking/optiontemplatessettings.php', [
+                                    'id' => $cmid,
+                                    'optionid' => $optionid,
+                                    'action' => 'copytotemplate',
+                                    'sesskey' => sesskey(),
+                                    'returnto' => 'url',
+                                    'returnurl' => $returnurl,
+                                ]),
+                                get_string('copytotemplate', 'mod_booking'),
+                                ['class' => 'd-inline']
+                            ) . '</div>';
+                    }
+                }
+
+                // Duplicate booking option.
                 $ddoptions[] = '<div class="dropdown-item">' . html_writer::link(new moodle_url(
                     '/mod/booking/editoptions.php',
                     [
@@ -1284,37 +1592,35 @@ class bookingoptions_wbtable extends wunderbyte_table {
                 ), $OUTPUT->pix_icon(
                     't/copy',
                     get_string('duplicatebookingoption', 'mod_booking')
-                ) .
-                    get_string('duplicatebookingoption', 'mod_booking')) . '</div>';
+                ) . get_string('duplicatebookingoption', 'mod_booking')) . '</div>';
 
+                // Delete booking option: confirmation modal plus webservice call.
+                // This replaced the old action=deletebookingoption URL flow on report.php.
+                // The empty returnurl makes the modal reload the current page after the
+                // deletion, so e.g. a shortcode page listing options of several booking
+                // instances stays open and shows the option is gone.
+                $deletetitle = $settings->get_title_with_prefix();
+                $deletebookedcount = booking_answers::count_places($answersobject->get_usersonlist());
+                if ($deletebookedcount > 0) {
+                    $deletetitle .= ' (' . get_string('xusersarebooked', 'mod_booking', $deletebookedcount) . ')';
+                }
                 $ddoptions[] = '<div class="dropdown-item">' . html_writer::link(
-                    new moodle_url('/mod/booking/report.php', [
-                        'id' => $cmid,
-                        'optionid' => $optionid,
-                        'action' => 'deletebookingoption',
-                        'sesskey' => sesskey(),
-                        'returnto' => 'url',
-                        'returnurl' => $returnurl,
-                    ]),
+                    '#',
                     $OUTPUT->pix_icon('t/delete', get_string('deletethisbookingoption', 'mod_booking')) .
-                    get_string('deletethisbookingoption', 'mod_booking')
+                    get_string('deletethisbookingoption', 'mod_booking'),
+                    [
+                        'onclick' =>
+                            "var deletetrigger = this;
+                            require(['mod_booking/deletebookingoptionmodal'], function(modal) {
+                                modal.deleteBookingOption(" .
+                                    $cmid . ", " .
+                                    $optionid . ", " .
+                                    json_encode($deletetitle) . ", '', deletetrigger);
+                            });
+                            return false;",
+                    ]
                 ) . '</div>';
             }
-            // phpcs:ignore moodle.Commenting.TodoComment.MissingInfoInline
-            // TODO: Move booking options to another option currently does not work correcly.
-            // We temporarily remove it from booking until we are sure, it works.
-            // We need to make sure it works for: teachers, optiondates, prices, answers customfields etc.
-            // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-            /* $modinfo = get_fast_modinfo($this->booking->course);
-            $bookinginstances = isset($modinfo->instances['booking']) ? count($modinfo->instances['booking']) : 0;
-            if (has_capability('mod/booking:updatebooking', context_course::instance($this->booking->course->id)) &&
-                $bookinginstances > 1) {
-                $ddoptions[] = '<div class="dropdown-item">' . html_writer::link(
-                        new moodle_url('/mod/booking/moveoption.php',
-                            array('id' => $cmid, 'optionid' => $optionid, 'sesskey' => sesskey())),
-                        $OUTPUT->pix_icon('t/move', get_string('moveoptionto', 'booking')) .
-                        get_string('moveoptionto', 'booking')) . '</div>';
-            } */
         }
         foreach (core_plugin_manager::instance()->get_plugins_of_type('bookingextension') as $plugin) {
             $class = "\\bookingextension_{$plugin->name}\\{$plugin->name}";
@@ -1326,20 +1632,33 @@ class bookingoptions_wbtable extends wunderbyte_table {
                 $ddoptions[] = $ddoptionsfromplugin;
             }
         }
+
+        // Add option to toggle favorite for users who are logged in and not guests.
+        // It must be shown for everyone who can see the booking option, so we put it outside of the capability check.
+        if (isloggedin() && !isguestuser() && $this->showfavoritestoggle) {
+            $isfavorite = booking_option::user_has_favorite($USER->id, $optionid);
+            $ret .= $this->render_toggle_favorite_action_button(
+                $optionid,
+                $USER->id,
+                $isfavorite,
+                'text-primary',
+            );
+        }
+
         if (!empty($ddoptions)) {
             $ret .= '<div class="dropdown d-inline">
-                    <button class="bookingoption-edit-button dropdown-toggle btn btn-light btn-sm" id="action-menu-toggle-' .
+                    <button class="bookingoption-edit-button dropdown-toggle btn btn-light btn-sm text-primary ms-1"
+                        id="action-menu-toggle-' .
                         $optionid .
-                        '" title="" role="button" data-toggle="dropdown" data-bs-toggle="dropdown"
-                        aria-haspopup="true" aria-expanded="false">
-                        <i class="icon fa fa-cog fa-fw" aria-hidden="true"
-                            aria-label="' . get_string('settings') . '" title="' . get_string('settings') . '" >
-                        </i>
+                        '" role="button" data-toggle="dropdown" data-bs-toggle="dropdown"
+                        aria-haspopup="true" aria-expanded="false" aria-label="' . get_string('settings') . '">
+                        <i class="icon fa fa-cog me-0" aria-hidden="true"
+                            aria-label="' . get_string('settings') . '" title="' . get_string('settings') . '"></i>
                     </button>
                     <div class="dropdown-menu dropdown-menu-right dropdown-menu-end menu align-tr-br" id="action-menu-' .
                 $optionid .
                 '-menu" data-rel="menu-content"
-                        aria-labelledby="action-menu-toggle-3" role="menu" data-align="tr-br">';
+                        aria-labelledby="action-menu-toggle-' . $optionid . '" role="menu" data-align="tr-br">';
             $ret .= implode($ddoptions);
             $ret .= '</div></div>';
         }
@@ -1347,6 +1666,54 @@ class bookingoptions_wbtable extends wunderbyte_table {
         $ret .= '</div>';
 
         return $ret;
+    }
+
+    /**
+     * Render a wunderbyte action button used to toggle favorites.
+     *
+     * @param int $optionid
+     * @param int $userid
+     * @param bool $isfavorite
+     * @param string $class
+     * @param string $label
+     * @return string
+     */
+    protected function render_toggle_favorite_action_button(
+        int $optionid,
+        int $userid,
+        bool $isfavorite,
+        string $class,
+        string $label = ''
+    ): string {
+        global $OUTPUT;
+
+        $titlestring = get_string($isfavorite ? 'removeoptionfromfavorites' : 'addoptiontofavorites', 'mod_booking');
+        $ontitlestring = get_string('removeoptionfromfavorites', 'mod_booking');
+        $offtitlestring = get_string('addoptiontofavorites', 'mod_booking');
+
+        $data[] = [
+            'label' => $label,
+            'class' => $class,
+            'iclass' => 'icon ' .  ($isfavorite ? 'fa-star' : 'fa-star-o'),
+            'arialabel' => $titlestring,
+            'title' => $titlestring,
+            'ontitle' => $ontitlestring,
+            'offtitle' => $offtitlestring,
+            'id' => $optionid,
+            'name' => 'toggle-favorite-' . $optionid,
+            'methodname' => 'toggle_favorite',
+            'nomodal' => true,
+            'selectionmandatory' => false,
+            'data' => [
+                'userid' => $userid,
+                'itemid' => $optionid,
+                'favorited' => $isfavorite ? 1 : 0,
+            ],
+        ];
+
+        table::transform_actionbuttons_array($data);
+
+        return $OUTPUT->render_from_template('mod_booking/actionbutton/bookingfavorite', ['showactionbuttons' => $data]);
     }
 
     /**
@@ -1422,6 +1789,10 @@ class bookingoptions_wbtable extends wunderbyte_table {
      * @throws coding_exception
      */
     public function col_description($values) {
+        $optionid = $values->id;
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $cmid = $settings->cmid;
+        $values->description = placeholders_info::render_text($values->description, $cmid, $optionid);
 
         // If $values->id is missing, we show the values object in debug mode, so we can investigate what happens.
         if (empty($values->id)) {
@@ -1435,8 +1806,6 @@ class bookingoptions_wbtable extends wunderbyte_table {
             $description = $values->description;
         } else {
             $customfieldshortname = get_config("booking", "changedescriptionfield");
-            $optionid = $values->id;
-            $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
             $description = $settings->customfields[$customfieldshortname] ?? "";
         }
         // If we download, we want to show text only without HTML tags.
@@ -1474,7 +1843,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
                         get_string('showdescription', 'mod_booking') . '...</a>
                         </div>
                         <div class="collapse" id="collapseDescription' . $values->id . '">
-                            <div class="card card-body border-1 mt-1 mb-1 mr-3">' . $ret . '</div>
+                            <div class="card card-body border-1 mt-1 mb-1 me-3">' . $ret . '</div>
                         </div>';
                 }
 
@@ -1500,7 +1869,10 @@ class bookingoptions_wbtable extends wunderbyte_table {
         }
 
         // Get userdate for the correct locale and language.
-        $renderedbookingopeningtime = userdate($bookingopeningtime, get_string('strftimedatetime', 'langconfig'));
+        $renderedbookingopeningtime = booking_format_userdate_with_timezone_abbr(
+            $bookingopeningtime,
+            get_string('strftimedatetime', 'langconfig')
+        );
         if ($this->is_downloading()) {
             $ret = $renderedbookingopeningtime;
         } else {
@@ -1524,7 +1896,10 @@ class bookingoptions_wbtable extends wunderbyte_table {
         }
 
         // Get userdate for the correct locale and language.
-        $renderedbookingclosingtime = userdate($bookingclosingtime, get_string('strftimedatetime', 'langconfig'));
+        $renderedbookingclosingtime = booking_format_userdate_with_timezone_abbr(
+            $bookingclosingtime,
+            get_string('strftimedatetime', 'langconfig')
+        );
         if ($this->is_downloading()) {
             $ret = $renderedbookingclosingtime;
         } else {
@@ -1579,5 +1954,180 @@ class bookingoptions_wbtable extends wunderbyte_table {
             ' . $label . '</button>
 
             <div> Competencies: ' . $values->competencies . '</div>';
+    }
+
+    /**
+     * Shows course progress if courseid is set.
+     *
+     * @param object $values Contains object with all the values of record.
+     * @return string $invisible Returns visibility of the booking option as string.
+     * @throws coding_exception
+     */
+    public function col_progress($values) {
+        global $USER;
+        if ($values->courseid) {
+            $completion = round(progress::get_course_progress_percentage(get_course($values->courseid), $USER->id), 2);
+            return ($completion === null) ? '' : '| ' . $completion . get_string('postprogressstring', 'mod_booking');
+        }
+        return '';
+    }
+
+    /**
+     * This function is called for each data row to allow processing of columns which do not have a *_cols function.
+     * @param mixed $colname
+     * @param mixed $values
+     * @return mixed
+     */
+    public function other_cols($colname, $values) {
+        // Show the values of customfields if they have been added as column.
+        $settings = singleton_service::get_instance_of_booking_option_settings($values->id);
+        if (isset($settings->customfieldsfortemplates[$colname]['value'])) {
+            if (
+                is_string($settings->customfieldsfortemplates[$colname]['value'])
+                || is_numeric($settings->customfieldsfortemplates[$colname]['value'])
+            ) {
+                return $settings->customfieldsfortemplates[$colname]['value'];
+            } else if (is_array($settings->customfieldsfortemplates[$colname]['value'])) {
+                return implode(', ', $settings->customfieldsfortemplates[$colname]['value']);
+            }
+        }
+        return $values->$colname ?? '';
+    }
+
+    /**
+     * Override recreateidstring to include display-only properties in the APPLICATION cache key.
+     *
+     * The wunderbyte_table encodedtables APPLICATION cache key is derived from the SQL hash only.
+     * Two shortcode invocations with identical SQL but different display settings would therefore
+     * collide in the APPLICATION cache (shared across all users/sessions). When the AJAX reload
+     * fires after an action (e.g. favorites toggle), it loads the cached table object — which
+     * might be the stale version without the correct display settings.
+     *
+     * By appending all display-only properties to the idstring, each unique display configuration
+     * gets its own APPLICATION cache entry, preventing stale AJAX reloads. This includes
+     * showdownloadbutton which is capability-based and must not leak between admin and regular users.
+     *
+     * tabletemplate and templatedata are included ONLY when the template switcher is NOT active.
+     * When the template switcher is active, these properties change at runtime via action_switchtemplates
+     * which calls return_encoded_table(true) → recreateidstring(). Including them would produce a new
+     * tablecachehash on every template change, making the old hash — still held by the JS
+     * queries[idstring].encodedtable — point to a deleted cache entry, so reloadAllTables would fail.
+     * When there is no switcher (e.g. [myfavorites type=imageright]), these properties are static
+     * configuration that must be in the hash to prevent collisions between differently-configured
+     * shortcode instances with identical SQL.
+     */
+    public function recreateidstring(): void {
+        parent::recreateidstring();
+
+        /* Append all display-only properties that can differ between shortcode invocations
+        with identical SQL but different args (favorites=1, etc.) or capabilities.
+        For myfavoritestable we include the full uniqueid rather than just a '1' flag.
+        Two myfavoritestable instances can have identical SQL/context/template but live in
+        different render contexts (shortcode vs view.php tab). Their uniqueids differ
+        (e.g. "{md5pageurl} myfavoritestable0" vs "cmid_N_userid_N myfavoritestable"), so
+        including the uniqueid gives each instance its own APPLICATION cache slot and its
+        own JS queries[idstring] entry.  Without this, a template-switcher action on one
+        table silently overwrites queries[idstring].encodedtable for the other, causing the
+        wrong template to be used on the next reloadAllTables call. */
+        $myfavoriteskey = strpos($this->uniqueid, 'myfavoritestable') !== false
+            ? 'myfavoritestable' : '0';
+
+        $realuniquestring =
+            ($this->showfavoritestoggle ? '1' : '0') . '|' .
+            ($this->showreloadbutton ? '1' : '0') . '|' .
+            ($this->showdownloadbutton ? '1' : '0') . '|' .
+            ($this->showcountlabel ? '1' : '0') . '|' .
+            ($this->showfilterontop ? '1' : '0') . '|' .
+            ($this->filteronloadinactive ? '1' : '0') . '|' .
+            $myfavoriteskey;
+
+        // Only include tabletemplate and templatedata when there is no active template switcher.
+        // With a switcher, these change dynamically and must not alter the cache key (see docblock).
+        if (empty($this->switchtemplates['templates'])) {
+            $realuniquestring .=
+                '|' . ($this->tabletemplate ?? '') .
+                '|' . json_encode($this->templatedata ?? []);
+        }
+
+        $this->idstring = md5($this->idstring . $realuniquestring);
+    }
+
+    /**
+     * Override query_db_cached to inject the favorites IN-clause from the current
+     * user preference just before each query. The myfavoritestable SQL stored in
+     * the APPLICATION cache contains no baked-in option IDs; this method supplies
+     * them dynamically so the result is always current without any cache patching.
+     *
+     * bypasscache = true ensures the rawdata SESSION cache is never used for the
+     * favorites table (user requirement: "should not be cached").
+     *
+     * @param int $pagesize
+     * @param bool $useinitialsbar
+     * @return void
+     */
+    public function query_db_cached($pagesize, $useinitialsbar = true) {
+        global $DB, $USER;
+
+        if (strpos($this->uniqueid, 'myfavoritestable') !== false) {
+            // Always query fresh — never serve stale cached results.
+            $this->bypasscache = true;
+
+            $favoriteoptionids = booking_option::get_user_favorite_optionids($USER->id);
+            if (empty($favoriteoptionids)) {
+                // Keep SQL valid for empty favorites.
+                $favoriteoptionids = [0];
+            }
+
+            [$inoptionids, $inparams] = $DB->get_in_or_equal(
+                $favoriteoptionids,
+                SQL_PARAMS_NAMED,
+                'favopt'
+            );
+
+            $this->sql->params = array_merge($this->sql->params, $inparams);
+
+            // Always append a fresh IN-clause for the current user's favorites.
+            $this->sql->where .= " AND id $inoptionids";
+        }
+
+        parent::query_db_cached($pagesize, $useinitialsbar);
+    }
+
+    /**
+     * Toggle star favorite state for the current user and option.
+     *
+     * @param int $optionid
+     * @param string $data
+     * @return array
+     */
+    public function action_toggle_favorite(int $optionid, string $data): array {
+        global $USER;
+
+        if (!isloggedin() || isguestuser()) {
+            return [
+                'success' => 0,
+                'message' => get_string('accessdenied', 'mod_booking'),
+            ];
+        }
+
+        $dataobject = json_decode($data);
+        $userid = (int)($dataobject->userid ?? 0);
+        if (empty($userid)) {
+            $userid = (int)$USER->id;
+        }
+
+        $result = booking_option::toggle_favorite_user($userid, $optionid);
+
+        if (!empty($result['error'])) {
+            return [
+                'success' => 0,
+                'message' => $result['error'],
+            ];
+        }
+
+        return [
+            'success' => 1,
+            'message' => '',
+        ];
     }
 }

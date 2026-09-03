@@ -24,7 +24,7 @@
 
 namespace mod_booking;
 
-use advanced_testcase;
+use mod_booking\tests\booking_advanced_testcase;
 use local_shopping_cart\local\cartstore;
 use local_shopping_cart\shopping_cart;
 use mod_booking\booking_rules\rules\templates\ruletemplate_bookingoption_booked;
@@ -51,26 +51,15 @@ use tool_mocktesttime\time_mock;
  * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-final class rules_template_test extends advanced_testcase {
+final class rules_template_test extends booking_advanced_testcase {
     /**
      * Tests set up.
      */
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest();
-        time_mock::init();
         time_mock::set_mock_time(strtotime('now'));
         singleton_service::destroy_instance();
-    }
-
-    /**
-     * Mandatory clean-up after each test.
-     */
-    public function tearDown(): void {
-        parent::tearDown();
-        /** @var mod_booking_generator $plugingenerator */
-        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
-        $plugingenerator->teardown();
     }
 
     /**
@@ -580,7 +569,14 @@ final class rules_template_test extends advanced_testcase {
                 $this->assertStringContainsString($ruledatanew['actiondata'], $customdata->rulejson);
                 $this->assertEquals($counter == 1 ? $student2->id : $student1->id, $message->get_userid());
                 $rulejson = json_decode($customdata->rulejson);
-                $this->assertContains($rulejson->datafromevent->relateduserid, [$student1->id, $student2->id]);
+                // Cast both sides to int: relateduserid comes back as int from the JSON, while
+                // $student->id can be a string (DB-driver dependent) - PHPUnit 11's assertContains
+                // compares strictly (===), so a bare int-vs-string mismatch fails even though the
+                // values are numerically identical.
+                $this->assertContains(
+                    (int) $rulejson->datafromevent->relateduserid,
+                    [(int) $student1->id, (int) $student2->id]
+                );
                 $counter++;
             }
         }
@@ -667,6 +663,7 @@ final class rules_template_test extends advanced_testcase {
         $record->coursestarttime_0 = strtotime('20 June 2050 15:00');
         $record->courseendtime_0 = strtotime('20 July 2050 14:00');
         $record->teachersforoption = $user1->username;
+        $record->pollurl = 'https://wunderbyte.at?courseid={courseid}';
         $option1 = $plugingenerator->create_option($record);
         singleton_service::destroy_booking_option_singleton($option1->id);
 
@@ -708,6 +705,13 @@ final class rules_template_test extends advanced_testcase {
         $rulejson = json_decode($customdata->rulejson);
         $this->assertEquals($user2->id, $rulejson->datafromevent->relateduserid);
         $this->assertEquals($user2->id, $message->get_userid());
+
+        ob_start();
+        $messagesink = $this->redirectMessages();
+        $this->runAdhocTasks();
+        $sentmessages = $messagesink->get_messages();
+        $res = ob_get_clean();
+        $this->assertStringContainsString('courseid=' . $course->id, $sentmessages[1]->fullmessagehtml);
     }
 
     /**

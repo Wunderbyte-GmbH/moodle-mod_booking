@@ -25,6 +25,11 @@ Feature: In a booking instance create booking options
     And the following "activities" exist:
       | activity | course | name       | intro                  | bookingmanager | eventtype |
       | booking  | C1     | My booking | My booking description | teacher1       | Webinar   |
+    ## Flush every log event to the DB immediately so the "Recent updates" table
+    ## (reads logstore_standard_log) never races the buffered writer's shutdown flush.
+    And the following config values are set as admin:
+      | config     | value | plugin            |
+      | buffersize | 1     | logstore_standard |
     And I change viewport size to "1366x10000"
 
   @javascript
@@ -66,14 +71,14 @@ Feature: In a booking instance create booking options
       | courseendtime_2[hour]     | 17                 |
       | courseendtime_2[minute]   | 00                 |
     And I press "applydate_2"
-    ## Verify on booking oprion form page
-    And I wait "1" seconds
+    ## Verify on booking option form page
+    And I wait until the page is ready
     And I should see "15 March 2050" in the "#booking_optiondate_1" "css_element"
     And I should see "1:00 PM - 4:00 PM" in the "#booking_optiondate_1" "css_element"
     And I should see "20 June 2050" in the "#booking_optiondate_2" "css_element"
     And I should see "2:00 PM - 5:00 PM" in the "#booking_optiondate_2" "css_element"
     And I press "Save"
-    ## Verify on booking oprions list page
+    ## Verify on booking options list page
     And I wait until the page is ready
     And I should see "15 March 2050" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "1:00 PM - 4:00 PM" in the ".allbookingoptionstable_r1" "css_element"
@@ -120,9 +125,12 @@ Feature: In a booking instance create booking options
       | courseendtime_1[minute]   | 00   |
     And I set the field "After saving..." to "Stay here"
     And I press "Save"
-    And I wait "1" seconds
+    And I wait until the page is ready
     And I click on "Show recent updates..." "button"
-    And I should see "1 of 1 records found" in the "#showEventList" "css_element"
+    And I wait until the page is ready
+    And I wait until "#showEventList.show" "css_element" exists
+    And I wait until "#showEventList .wb-records-count-label" "css_element" exists
+    And I should see "1 of 1 records found" in the "#showEventList .wb-records-count-label" "css_element"
     And I should see "Title:" in the "#showEventList" "css_element"
     And I should see "Option-created" in the "#showEventList" "css_element"
     And I should see "Option-updated" in the "#showEventList" "css_element"

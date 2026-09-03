@@ -43,7 +43,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @author Georg Maißer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class datesandentities {
+class datesandentities extends \mod_booking\placeholders\placeholder_base {
     /**
      * Function which takes a text, replaces the placeholders...
      * ... and returns the text with the correct values.
@@ -88,7 +88,7 @@ class datesandentities {
             if (isset(placeholders_info::$placeholders[$cachekey])) {
                 return placeholders_info::$placeholders[$cachekey];
             }
-            /** @var renderer $output*/
+            /** @var \mod_booking\output\renderer $output*/
             $output = $PAGE->get_renderer('mod_booking');
             if ($settings->selflearningcourse == 1) {
                 $ba = singleton_service::get_instance_of_booking_answers($settings);
@@ -115,7 +115,6 @@ class datesandentities {
 
                         $durationstring = format_time($timeremainingsec);
                         $value .= " " . get_string('selflearningcourseplaceholderduration', 'mod_booking', $durationstring);
-                        $value = html_writer::tag('p', $value);
                     }
                 }
             } else if (class_exists('local_entities\entitiesrelation_handler')) {

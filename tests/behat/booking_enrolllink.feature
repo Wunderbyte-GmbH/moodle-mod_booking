@@ -64,13 +64,14 @@ Feature: Create enrollink availability form for booking options with connected c
     And I am on the "BookingCMP" Activity page logged in as teacher1
     And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I expand all fieldsets
+    And I wait until ".collapsing" "css_element" does not exist
     ## And I follow "Availability conditions".
     And I set the field "Form needs to be filled out before booking" to "checked"
     And I wait "1" seconds
     And I set the following fields to these values:
     ## Buyer enrolled directly, users by enrollink - after confirmation.
       | bo_cond_customform_select_1_1               | enrolusersaction |
-      | bo_cond_customform_label_1_1                | Number of user   |
+      | bo_cond_customform_label_1_1                | Number of users   |
       | bo_cond_customform_value_1_1                | 2                |
       | bo_cond_customform_enroluserstowaitinglist1 | 1                |
       | waitforconfirmation                         |                  |
@@ -81,11 +82,11 @@ Feature: Create enrollink availability form for booking options with connected c
     And I press "Save"
     And I should see "25.00 EUR" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I click on "Add to cart" "text" in the ".allbookingoptionstable_r1" "css_element"
-    And I should see "Number of user" in the ".condition-customform" "css_element"
+    And I should see "Number of users" in the ".condition-customform" "css_element"
     And I set the field "customform_enrolusersaction_1" to "3"
     And I set the field "customform_enroluserwhobookedcheckbox_enrolusersaction_1" to "checked"
     And I follow "Continue"
-    And I wait "1" seconds
+    And I wait until the page is ready
     ##And I should see "75.00 EUR" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     ##And I should see "Thank you! You have successfully put Option-form into the shopping cart. Now click on \"Proceed to checkout\" to continue." in the ".modal-dialog.modal-xl .modalMainContent" "css_element"
     And I should see "Thank you! You have successfully put Option-form into the shopping cart. Now click" in the ".modal-dialog.modal-xl .modalMainContent" "css_element"
@@ -108,8 +109,8 @@ Feature: Create enrollink availability form for booking options with connected c
     And I should see "-75.00 EUR" in the ".payment-success ul.list-group" "css_element"
     And I should see "Option-form" in the ".payment-success ul.list-group" "css_element"
     And I am on the "BookingCMP" Activity page
-    And I should see "3" in the ".allbookingoptionstable_r1 .col-ap-availableplaces.text-success.avail .text-success" "css_element"
-    And I should see "/ 6" in the ".allbookingoptionstable_r1 .col-ap-availableplaces.text-success.avail" "css_element"
+    And I should see "3" in the ".allbookingoptionstable_r1 .col-ap-availableplaces.text-darkgreen.avail .text-darkgreen" "css_element"
+    And I should see "/ 6" in the ".allbookingoptionstable_r1 .col-ap-availableplaces.text-darkgreen.avail" "css_element"
     And I log out
     ## Send messages via cron and verify via events log
     ## Steps below disabled because fails at GithHub (works OK locally)
@@ -119,7 +120,7 @@ Feature: Create enrollink availability form for booking options with connected c
     ## And I should see "Custom message A message e-mail with subject \"Enrollinksubj\" has been sent to user: \"Teacher 1\" by the user \"Teacher 1\""
     ## And I follow "Custom message A message e-mail with subject \"Enrollinksubj\" has been sent to user: \"Teacher 1\" by the user \"Teacher 1\""
     ## And I should see "/mod/booking/enrollink.php?erlid="
-    ## And I should see "Number of user: 3"
+    ## And I should see "Number of users: 3"
     ## Logout is mandatory for admin pages to avoid error
     ## And I log out
 
@@ -130,14 +131,16 @@ Feature: Create enrollink availability form for booking options with connected c
       | select_student_in_bo | 1         | {"borole":"0"} | enrollink | send_mail  | {"subject":"Enrollinksubj","template":"<p>{enrollink}<\/p><p>{qrenrollink}<\/p><p>{#customform}<\/p><p>{customform}<\/p><p>{\/customform}<\/p>","templateformat":"1"} | rule_react_on_event | {"boevent":"\\\\mod_booking\\\\event\\\\enrollink_triggered","aftercompletion":"","condition":"0"} |             |
     And the following "mod_booking > options" exist:
       | booking    | text               | description | importing | course | chooseorcreatecourse | enrolmentstatus | useprice | maxanswers | teachersforoption | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 | waitforconfirmation | bo_cond_customform_restrict | bo_cond_customform_select_1_1 | bo_cond_customform_label_1_1 | bo_cond_customform_value_1_1 | bo_cond_customform_enroluserstowaitinglist1 |
-      | BookingCMP | Option-waitinglist | waitinglist | 1         | C2     | 1                    | 2               | 1        | 6          | teacher1          | 0              | 0              | ## tomorrow ##    | ## +2 days ##   | 1                   | 1                           | enrolusersaction              | Number of user               | 2                            | 1                                           |
+      | BookingCMP | Option-waitinglist | waitinglist | 1         | C2     | 1                    | 2               | 1        | 6          | teacher1          | 0              | 0              | ## tomorrow ##    | ## +2 days ##   | 1                   | 1                           | enrolusersaction              | Number of users               | 2                            | 1                                           |
     And I am on the "BookingCMP" Activity page logged in as teacher1
     And I should not see "25.00 EUR" in the ".allbookingoptionstable_r2 .booknow" "css_element"
     And I click on "Book it - on waitinglist" "text" in the ".allbookingoptionstable_r2" "css_element"
-    And I should see "Number of user" in the ".condition-customform" "css_element"
+    And I should see "Number of users" in the ".condition-customform" "css_element"
     And I set the field "customform_enrolusersaction_1" to "3"
     And I set the field "customform_enroluserwhobookedcheckbox_enrolusersaction_1" to "checked"
     And I follow "Continue"
+    And I wait until the page is ready
+    And I wait until "You were added to the waiting list for Option-waitinglist." "text" exists
     And I should see "You were added to the waiting list for Option-waitinglist." in the ".modal-dialog.modal-xl .modalMainContent" "css_element"
     And I follow "Close"
     And I should not see "75.00 EUR" in the ".allbookingoptionstable_r2 .booknow" "css_element"
@@ -147,11 +150,13 @@ Feature: Create enrollink availability form for booking options with connected c
     And I click on "Book other users" "link" in the ".allbookingoptionstable_r2" "css_element"
     And I click on "[data-bs-target='#accordion-item-waitinglist']" "css_element"
     And I click on ".confirmbooking-username-teacher1 i" "css_element"
-    And I wait "1" seconds
+    And I wait until the page is ready
     And I click on "Book" "button" in the ".modal-footer" "css_element"
     And I am on the "BookingCMP" Activity page
     And I should see "75.00 EUR" in the ".allbookingoptionstable_r2 .booknow" "css_element"
     And I click on "Add to cart" "text" in the ".allbookingoptionstable_r2" "css_element"
+    And I wait until the page is ready
+    And I follow "Continue"
     And I visit "/local/shopping_cart/checkout.php"
     ## Verify prices and credits
     And I should see "Option-waitinglist" in the ".shopping-cart-checkout-items-container" "css_element"
@@ -162,15 +167,15 @@ Feature: Create enrollink availability form for booking options with connected c
     And I should see "375.00 EUR" in the ".sc_price_label .sc_remainingcredit" "css_element"
     And I should see "0 EUR" in the ".sc_totalprice" "css_element"
     And I press "Checkout"
-    And I wait "1" seconds
+    And I wait until the page is ready
     And I press "Confirm"
     And I should see "Payment successful!"
     And I should see "Credits used" in the ".payment-success ul.list-group" "css_element"
     And I should see "-75.00 EUR" in the ".payment-success ul.list-group" "css_element"
     And I should see "Option-waitinglist" in the ".payment-success ul.list-group" "css_element"
     And I am on the "BookingCMP" Activity page
-    And I should see "3" in the ".allbookingoptionstable_r2 .col-ap-availableplaces.text-success.avail .text-success" "css_element"
-    And I should see "/ 6" in the ".allbookingoptionstable_r2 .col-ap-availableplaces.text-success.avail" "css_element"
+    And I should see "3" in the ".allbookingoptionstable_r2 .col-ap-availableplaces.text-darkgreen.avail .text-darkgreen" "css_element"
+    And I should see "/ 6" in the ".allbookingoptionstable_r2 .col-ap-availableplaces.text-darkgreen.avail" "css_element"
     And I log out
     ## Send messages via cron and verify via events log
     ## Steps below disabled because fails at GithHub (works OK locally)
@@ -180,6 +185,44 @@ Feature: Create enrollink availability form for booking options with connected c
     ## And I should see "Custom message A message e-mail with subject \"Enrollinksubj\" has been sent to user: \"Teacher 1\" by the user \"Teacher 1\""
     ## And I follow "Custom message A message e-mail with subject \"Enrollinksubj\" has been sent to user: \"Teacher 1\" by the user \"Teacher 1\""
     ## And I should see "/mod/booking/enrollink.php?erlid="
-    ## And I should see "Number of user: 3"
+    ## And I should see "Number of users: 3"
     ## Logout is mandatory for admin pages to avoid error
     ## And I log out
+
+  @javascript
+  Scenario: Booking option enrollink: mode ALSOBOOKMYSELF shows hint instead of checkbox
+    Given the following config values are set as admin:
+      | config                     | value | plugin  |
+      | enrolmultipleusersformmode | 1     | booking |
+    And the following "mod_booking > options" exist:
+      | booking    | text                  | description | importing | course | chooseorcreatecourse | useprice | maxanswers | teachersforoption | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 | bo_cond_customform_restrict | bo_cond_customform_select_1_1 | bo_cond_customform_label_1_1 | bo_cond_customform_value_1_1 |
+      | BookingCMP | Option-alsobookmyself | desc        | 1         | C2     | 1                    | 1        | 6          | teacher1          | 0              | 0              | ## tomorrow ##    | ## +2 days ##   | 1                           | enrolusersaction              | Number of users              | 2                            |
+    And I am on the "BookingCMP" Activity page logged in as teacher1
+    And I click on "Add to cart" "text" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "Number of users" in the ".condition-customform" "css_element"
+    And I should see "Note: One of the specified places will be consumed by yourself." in the ".condition-customform" "css_element"
+    And I should not see "Do you also want to book the option for yourself?" in the ".condition-customform" "css_element"
+    And I set the field "customform_enrolusersaction_1" to "3"
+    And I follow "Continue"
+    And I wait until the page is ready
+    And I wait until "Thank you! You have successfully put Option-alsobookmyself into the shopping cart." "text" exists
+    And I should see "Thank you! You have successfully put Option-alsobookmyself into the shopping cart." in the ".modal-dialog.modal-xl .modalMainContent" "css_element"
+
+  @javascript
+  Scenario: Booking option enrollink: mode DONOTBOOKMYSELF shows hint instead of checkbox
+    Given the following config values are set as admin:
+      | config                     | value | plugin  |
+      | enrolmultipleusersformmode | 2     | booking |
+    And the following "mod_booking > options" exist:
+      | booking    | text                   | description | importing | course | chooseorcreatecourse | useprice | maxanswers | teachersforoption | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 | bo_cond_customform_restrict | bo_cond_customform_select_1_1 | bo_cond_customform_label_1_1 | bo_cond_customform_value_1_1 |
+      | BookingCMP | Option-donotbookmyself | desc        | 1         | C2     | 1                    | 1        | 6          | teacher1          | 0              | 0              | ## tomorrow ##    | ## +2 days ##   | 1                           | enrolusersaction              | Number of users              | 2                            |
+    And I am on the "BookingCMP" Activity page logged in as teacher1
+    And I click on "Add to cart" "text" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "Number of users" in the ".condition-customform" "css_element"
+    And I should see "You are not participating in the booking yourself, but are only booking for other persons. You do not consume any of the specified places." in the ".condition-customform" "css_element"
+    And I should not see "Do you also want to book the option for yourself?" in the ".condition-customform" "css_element"
+    And I set the field "customform_enrolusersaction_1" to "3"
+    And I follow "Continue"
+    And I wait until the page is ready
+    And I wait until "Thank you! You have successfully put Option-donotbookmyself into the shopping cart." "text" exists
+    And I should see "Thank you! You have successfully put Option-donotbookmyself into the shopping cart." in the ".modal-dialog.modal-xl .modalMainContent" "css_element"

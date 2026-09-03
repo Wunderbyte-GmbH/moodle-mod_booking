@@ -29,29 +29,29 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
 use mod_booking\booking;
 use mod_booking\option\dates_handler;
 use mod_booking\output\booked_users;
+use mod_booking\local\bookingstracker\report2_access;
+use mod_booking\local\bookingstracker\report2_header_links;
+use mod_booking\local\bookingstracker\report2_infobox;
+use mod_booking\signinsheet\signinsheet_config;
 use mod_booking\singleton_service;
-use mod_booking\utils\wb_payment;
 use mod_booking\output\renderer;
 
 global $PAGE, $SITE;
-
-if (!get_config('booking', 'bookingstracker') || !wb_payment::pro_version_is_activated()) {
-    require_login(1, false);
-    $PAGE->set_url(new moodle_url('/mod/booking/report2.php'));
-    echo "<div class='alert alert-warning'>" . get_string('error:bookingstrackernotactivated', 'mod_booking') . "</div>";
-}
-
-$PAGE->requires->js_call_amd('mod_booking/bookingjslib', 'init');
 
 $optiondateid = optional_param('optiondateid', 0, PARAM_INT);
 $optionid = optional_param('optionid', 0, PARAM_INT);
 $cmid = optional_param('cmid', 0, PARAM_INT);
 $courseid = optional_param('courseid', 0, PARAM_INT);
-$viewtype = optional_param('viewtype', 'options', PARAM_RAW); // Can be 'options' or 'answers'.
+$viewtype = optional_param('viewtype', 'options', PARAM_ALPHA); // Can be 'options' or 'answers'.
+$id = optional_param('id', 0, PARAM_INT); // Only kept for compatibility to old report.php.
+if (empty($cmid) && !empty($id)) {
+    // In case we have no cmid, we use value of 'id' as cmid.
+    // The only reason for this is to keep capability with old links to report.php.
+    // So we can simply replace report.php?id=X&optionid=Y with report2.php?id=X&optionid=Y.
+    $cmid = $id;
+}
 
 $ticketicon = '<i class="fa fa-fw fa-sm fa-ticket" aria-hidden="true"></i>&nbsp;';
-$linkicon = '<i class="fa fa-fw fa-xs fa-external-link" aria-hidden="true"></i>&nbsp;';
-$divider = "<span class='report2-nav-divider'>▸</span>";
 
 $r2syscontext = context_system::instance();
 $r2syscap = has_capability('mod/booking:managebookedusers', $r2syscontext);
@@ -66,28 +66,26 @@ if (!empty($optiondateid)) {
     if (empty($optionid)) {
         $optionid = $DB->get_field('booking_optiondates', 'optionid', ['id' => $optiondateid]);
     }
-    $optionsettings = singleton_service::get_instance_of_booking_option_settings($optionid);
-    $cmid = $optionsettings->cmid;
-    $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
-    [$course, $cm] = get_course_and_cm_from_cmid($cmid);
+    // Resolve course and cm cheaply and log in BEFORE building the option settings.
+    // Constructing booking_option_settings runs format_text() on customfields, which
+    // initialises the page theme; if that happens before require_course_login() the
+    // subsequent set_course()/set_cm() throws a coding_exception (theme already set).
+    $bookingid = $DB->get_field('booking_options', 'bookingid', ['id' => $optionid], MUST_EXIST);
+    [$course, $cm] = get_course_and_cm_from_instance($bookingid, 'booking');
+    $cmid = $cm->id;
     $courseid = $course->id;
     require_course_login($course, false, $cm);
+    $optionsettings = singleton_service::get_instance_of_booking_option_settings($optionid);
+    $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
     $urlparams = ["optionid" => $optionid, "optiondateid" => $optiondateid]; // For PAGE url.
 
     // Define scope contexts.
     $r2coursecontext = context_course::instance($courseid);
     $r2instancecontext = context_module::instance($cmid);
 
-    // Check capabilities.
-    if (
-        (
-            has_capability('mod/booking:updatebooking', $r2instancecontext)
-            || (
-                has_capability('mod/booking:addeditownoption', $r2instancecontext)
-                && booking_check_if_teacher($optionid)
-            )
-        ) == false
-    ) {
+    // Check capabilities: same read access as the old report.php. All write
+    // actions keep their own capability checks.
+    if (!report2_access::has_option_scope_access($cmid, $optionid)) {
         echo $OUTPUT->header();
         echo $OUTPUT->heading(get_string('accessdenied', 'mod_booking'), 4);
         echo get_string('nopermissiontoaccesspage', 'mod_booking');
@@ -117,63 +115,21 @@ if (!empty($optiondateid)) {
     $a->scopestring = get_string('report2labeloptiondate', 'mod_booking');
     $a->title = $optionsettings->get_title_with_prefix() . " - " . $prettydatestring;
     $heading = get_string('managebookedusers_heading', 'mod_booking', $a);
-
-    $navhtml = "<div class='report2-nav mb-3 flex-wrap-container'>" .
-        ($r2syscap ? "<a href='{$r2systemurl}' class='report2-system-border'>" :
-            "<span class='report2-system-border'>") .
-        $ticketicon . booking::shorten_text($SITE->fullname) .
-        ($r2syscap ? "</a>" : "</span>") .
-        $divider .
-        ($r2coursecap ? "<a href='{$r2courseurl}' class='report2-course-border'>" :
-            "<span class='report2-course-border'>") .
-        $ticketicon . booking::shorten_text($course->fullname) .
-        ($r2coursecap ? "</a>" : "</span>") .
-        $divider .
-        ($r2instancecap ? "<a href='{$r2instanceurl}' class='report2-instance-border'>" :
-            "<span class='report2-instance-border'>") .
-        $ticketicon . booking::shorten_text($bookingsettings->name) .
-        ($r2instancecap ? "</a>" : "</span>") .
-        $divider .
-        "<a href='{$r2optionurl}' class='report2-option-border'>" .
-        $ticketicon . booking::shorten_text($optionsettings->get_title_with_prefix()) .
-        "</a>";
-
-    // Create a navigation dropdown for all optiondates (sessions) of the booking option.
-    $optiondates = $optionsettings->sessions;
-    if (!empty($optiondates) && count($optiondates) > 0) {
-        $data['optiondatesexist'] = true;
-        foreach ($optiondates as &$optiondate) {
-            $optiondate = (array) $optiondate;
-            $optiondate['prettydate'] = dates_handler::prettify_optiondates_start_end(
-                $optiondate['coursestarttime'],
-                $optiondate['courseendtime'],
-                current_language(),
-                true
-            );
-            $dateurl = new moodle_url('/mod/booking/report2.php', [
-                'optionid' => $optionid,
-                'optiondateid' => $optiondate['id'],
-            ]);
-            $optiondate['dateurl'] = $dateurl->out(false);
-        }
-        $firstentry['prettydate'] = get_string('choosesession', 'mod_booking');
-        $firstentry['dateurl'] = $PAGE->url; // The current page.
-        array_unshift($optiondates, $firstentry);
-        $data['optiondates'] = array_values((array) $optiondates);
-        // Now we just append the dropdown to the navigation HTML.
-        $navhtml .= $divider . $OUTPUT->render_from_template('mod_booking/report/navigation_dropdown', $data);
-    }
-    $navhtml .= "</div>";
 } else if (!empty($optionid)) {
     // We are in option scope.
     $PAGE->set_url(new moodle_url('/mod/booking/report2.php', ['optionid' => $optionid]));
     $scopes = ['system', 'course', 'instance', 'option'];
-    $optionsettings = singleton_service::get_instance_of_booking_option_settings($optionid);
-    $cmid = $optionsettings->cmid;
-    $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
-    [$course, $cm] = get_course_and_cm_from_cmid($cmid);
+    // Resolve course and cm cheaply and log in BEFORE building the option settings.
+    // Constructing booking_option_settings runs format_text() on customfields, which
+    // initialises the page theme; if that happens before require_course_login() the
+    // subsequent set_course()/set_cm() throws a coding_exception (theme already set).
+    $bookingid = $DB->get_field('booking_options', 'bookingid', ['id' => $optionid], MUST_EXIST);
+    [$course, $cm] = get_course_and_cm_from_instance($bookingid, 'booking');
+    $cmid = $cm->id;
     $courseid = $course->id;
     require_course_login($course, false, $cm);
+    $optionsettings = singleton_service::get_instance_of_booking_option_settings($optionid);
+    $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
     $scope = 'option'; // If we have an optionid, we want the report for this booking option.
     $scopeid = $optionid;
     $urlparams = ["optionid" => $optionid]; // For PAGE url.
@@ -190,16 +146,9 @@ if (!empty($optiondateid)) {
     $r2coursecontext = context_course::instance($courseid);
     $r2instancecontext = context_module::instance($cmid);
 
-    // Check capabilities.
-    if (
-        (
-            has_capability('mod/booking:updatebooking', $r2instancecontext)
-            || (
-                has_capability('mod/booking:addeditownoption', $r2instancecontext)
-                && booking_check_if_teacher($optionid)
-            )
-        ) == false
-    ) {
+    // Check capabilities: same read access as the old report.php. All write
+    // actions keep their own capability checks.
+    if (!report2_access::has_option_scope_access($cmid, $optionid)) {
         echo $OUTPUT->header();
         echo $OUTPUT->heading(get_string('accessdenied', 'mod_booking'), 4);
         echo get_string('nopermissiontoaccesspage', 'mod_booking');
@@ -216,53 +165,6 @@ if (!empty($optiondateid)) {
     $a->scopestring = get_string('report2labeloption', 'mod_booking');
     $a->title = $optionsettings->get_title_with_prefix();
     $heading = get_string('managebookedusers_heading', 'mod_booking', $a);
-
-    $navhtml = "<div class='report2-nav mb-3 flex-wrap-container'>" .
-        ($r2syscap ? "<a href='{$r2systemurl}' class='report2-system-border'>" :
-            "<span class='report2-system-border'>") .
-        $ticketicon . booking::shorten_text($SITE->fullname) .
-        ($r2syscap ? "</a>" : "</span>") .
-        $divider .
-        ($r2coursecap ? "<a href='{$r2courseurl}' class='report2-course-border'>" :
-            "<span class='report2-course-border'>") .
-        $ticketicon . booking::shorten_text($course->fullname) .
-        ($r2coursecap ? "</a>" : "</span>") .
-        $divider .
-        ($r2instancecap ? "<a href='{$r2instanceurl}' class='report2-instance-border'>" :
-            "<span class='report2-instance-border'>") .
-        $ticketicon . booking::shorten_text($bookingsettings->name) .
-        ($r2instancecap ? "</a>" : "</span>") .
-        $divider .
-        "<a href='{$r2optionurl}' target='_blank' class='report2-option-border'>" .
-        $linkicon . booking::shorten_text($optionsettings->get_title_with_prefix()) .
-        "</a>";
-
-    // Create a navigation dropdown for all optiondates (sessions) of the booking option.
-    $optiondates = $optionsettings->sessions;
-    if (!empty($optiondates) && count($optiondates) > 0) {
-        $data['optiondatesexist'] = true;
-        foreach ($optiondates as &$optiondate) {
-            $optiondate = (array) $optiondate;
-            $optiondate['prettydate'] = dates_handler::prettify_optiondates_start_end(
-                $optiondate['coursestarttime'],
-                $optiondate['courseendtime'],
-                current_language(),
-                true
-            );
-            $dateurl = new moodle_url('/mod/booking/report2.php', [
-                'optionid' => $optionid,
-                'optiondateid' => $optiondate['id'],
-            ]);
-            $optiondate['dateurl'] = $dateurl->out(false);
-        }
-        $firstentry['prettydate'] = get_string('choosesession', 'mod_booking');
-        $firstentry['dateurl'] = $PAGE->url; // The current page.
-        array_unshift($optiondates, $firstentry);
-        $data['optiondates'] = array_values((array) $optiondates);
-        // Now we just append the dropdown to the navigation HTML.
-        $navhtml .= $divider . $OUTPUT->render_from_template('mod_booking/report/navigation_dropdown', $data);
-    }
-    $navhtml .= "</div>";
 } else if (!empty($cmid)) {
     // We are in instance scope.
     $PAGE->set_url(new moodle_url('/mod/booking/report2.php', ['cmid' => $cmid]));
@@ -289,28 +191,16 @@ if (!empty($optiondateid)) {
     $r2coursecap = has_capability('mod/booking:managebookedusers', $r2coursecontext);
     $r2instancecap = has_capability('mod/booking:managebookedusers', $r2instancecontext);
 
-    require_capability('mod/booking:managebookedusers', $r2instancecontext);
+    // Managebookedusers checked in the MODULE context of this instance.
+    if (!report2_access::has_instance_scope_access($cmid)) {
+        throw new required_capability_exception($r2instancecontext, 'mod/booking:managebookedusers', 'nopermissions', '');
+    }
 
     // We only show links, if we have the matching capabilities.
     $a = new stdClass();
     $a->scopestring = get_string('report2labelinstance', 'mod_booking');
     $a->title = $bookingsettings->name;
     $heading = get_string('managebookedusers_heading', 'mod_booking', $a);
-
-    $navhtml =
-        ($r2syscap ? "<a href='{$r2systemurl}' class='report2-system-border'>" :
-            "<span class='report2-system-border'>") .
-        $ticketicon . booking::shorten_text($SITE->fullname) .
-        ($r2syscap ? "</a>" : "</span>") .
-        $divider .
-        ($r2coursecap ? "<a href='{$r2courseurl}' class='report2-course-border'>" :
-            "<span class='report2-course-border'>") .
-        $ticketicon . booking::shorten_text($course->fullname) .
-        ($r2coursecap ? "</a>" : "</span>") .
-        $divider .
-        "<a href='{$r2instanceurl}' target='_blank' class='report2-instance-border'>" .
-        $linkicon . booking::shorten_text($bookingsettings->name) .
-        "</a>";
 } else if (!empty($courseid)) {
     // We are in course scope.
     $PAGE->set_url(new moodle_url('/mod/booking/report2.php', ['courseid' => $courseid]));
@@ -332,23 +222,17 @@ if (!empty($optiondateid)) {
     // To create the correct links.
     $r2coursecap = has_capability('mod/booking:managebookedusers', $r2coursecontext);
 
-    require_capability('mod/booking:managebookedusers', $r2coursecontext);
+    // Managebookedusers checked in the COURSE context: a module-level
+    // assignment inside the course does not open the course scope.
+    if (!report2_access::has_course_scope_access($courseid)) {
+        throw new required_capability_exception($r2coursecontext, 'mod/booking:managebookedusers', 'nopermissions', '');
+    }
 
     // We only show links, if we have the matching capabilities.
     $a = new stdClass();
     $a->scopestring = get_string('report2labelcourse', 'mod_booking');
     $a->title = $course->fullname;
     $heading = get_string('managebookedusers_heading', 'mod_booking', $a);
-
-    $navhtml =
-        ($r2syscap ? "<a href='{$r2systemurl}' class='report2-system-border'>" :
-            "<span class='report2-system-border'>") .
-        $ticketicon . booking::shorten_text($SITE->fullname) .
-        ($r2syscap ? "</a>" : "</span>") .
-        $divider .
-        "<a href='$r2courseurl' target='_blank' class='report2-course-border'>" .
-        $linkicon . booking::shorten_text($course->fullname) .
-        "</a>";
 } else {
     // We are in system scope.
     $PAGE->set_url(new moodle_url('/mod/booking/report2.php'));
@@ -363,33 +247,117 @@ if (!empty($optiondateid)) {
 
     $r2systemurl = new moodle_url('/');
 
-    require_capability('mod/booking:managebookedusers', $r2syscontext);
+    // Managebookedusers checked in the SYSTEM context: only a global role
+    // assignment opens the system scope (course/module assignments do not).
+    if (!report2_access::has_system_scope_access()) {
+        throw new required_capability_exception($r2syscontext, 'mod/booking:managebookedusers', 'nopermissions', '');
+    }
 
     // We only show links, if we have the matching capabilities.
     $a = new stdClass();
     $a->scopestring = get_string('report2labelsystem', 'mod_booking');
     $a->title = $SITE->fullname;
     $heading = get_string('managebookedusers_heading', 'mod_booking', $a);
-
-    $navhtml =
-        "<a href='$r2systemurl' target='_blank' class='report2-system-border'>" .
-        $linkicon . booking::shorten_text($SITE->fullname) .
-        "</a>";
 }
 
 $url = new moodle_url('/mod/booking/report2.php', $urlparams);
 $PAGE->set_url($url);
+$pagetitle = trim(strip_tags($heading));
+$PAGE->set_title($pagetitle);
+$PAGE->set_heading($pagetitle);
+
+// Build the Bootstrap breadcrumb navigation between the scopes.
+// Each scope block above has set the name, the URL and the capability of its
+// crumb: ancestors point to their report2.php view, the current (= last)
+// scope points out to its own page (course page, instance view, detail view
+// of the booking option ...), which is opened in a new tab.
+$basescope = str_replace('answers', '', $scope);
+$scopelabels = [
+    'system' => get_string('report2labelsystem', 'mod_booking'),
+    'course' => get_string('report2labelcourse', 'mod_booking'),
+    'instance' => get_string('report2labelinstance', 'mod_booking'),
+    'option' => get_string('report2labeloption', 'mod_booking'),
+    'optiondate' => get_string('report2labeloptiondate', 'mod_booking'),
+];
+$scopenames = [
+    'system' => booking::shorten_text(format_string($SITE->fullname)),
+    'course' => isset($course) ? booking::shorten_text(format_string($course->fullname)) : '',
+    'instance' => isset($bookingsettings) ? booking::shorten_text(format_string($bookingsettings->name)) : '',
+    'option' => isset($optionsettings) ? booking::shorten_text($optionsettings->get_title_with_prefix()) : '',
+];
+$scopeurls = [
+    'system' => $r2systemurl,
+    'course' => $r2courseurl ?? null,
+    'instance' => $r2instanceurl ?? null,
+    'option' => $r2optionurl ?? null,
+];
+$scopecaps = [
+    'system' => $r2syscap,
+    'course' => $r2coursecap ?? false,
+    'instance' => $r2instancecap ?? false,
+    'option' => true,
+];
+$navdata = ['items' => []];
+foreach ($scopes as $navscope) {
+    if ($navscope === 'optiondate') {
+        continue; // The optiondate crumb is the sessions dropdown, see below.
+    }
+    $isactive = ($navscope === $basescope);
+    $item = [
+        'label' => $scopelabels[$navscope],
+        'name' => $scopenames[$navscope],
+        'active' => $isactive,
+    ];
+    if ($isactive) {
+        $item['pageurl'] = $scopeurls[$navscope]->out(false);
+        $item['pagelinktitle'] = get_string('report2gotoscopepage', 'mod_booking', $scopenames[$navscope]);
+    } else if ($scopecaps[$navscope]) {
+        $item['url'] = $scopeurls[$navscope]->out(false);
+    }
+    $navdata['items'][] = $item;
+}
+
+// In option and optiondate scope, a dropdown crumb lists all optiondates
+// (sessions) of the booking option. In optiondate scope it is the active
+// crumb, labelled with the current session and marking it in the menu.
+if (in_array($basescope, ['option', 'optiondate']) && !empty($optionsettings->sessions)) {
+    $sessionsdata = [];
+    foreach ($optionsettings->sessions as $session) {
+        $sessionurl = new moodle_url('/mod/booking/report2.php', [
+            'optionid' => $optionid,
+            'optiondateid' => $session->id,
+        ]);
+        $sessionsdata[] = [
+            'prettydate' => dates_handler::prettify_optiondates_start_end(
+                $session->coursestarttime,
+                $session->courseendtime,
+                current_language(),
+                true
+            ),
+            'url' => $sessionurl->out(false),
+            'current' => ((int) $session->id === $optiondateid),
+        ];
+    }
+    $navdata['sessionsdropdown'] = [
+        'label' => $scopelabels['optiondate'],
+        'active' => ($basescope === 'optiondate'),
+        'toggletext' => $basescope === 'optiondate'
+            ? $prettydatestring
+            : get_string('choosesession', 'mod_booking'),
+        'sessions' => $sessionsdata,
+    ];
+}
 
 echo $OUTPUT->header();
 
 // Add the navigation here.
-echo "<div class='mt-3 mb-5'>$navhtml</div>";
+echo html_writer::div(
+    $OUTPUT->render_from_template('mod_booking/report/navigation_breadcrumbs', $navdata),
+    'mt-3 mb-4'
+);
 
 // Title of the page for the current scope.
-echo $OUTPUT->heading("<div class='mb-5'>$ticketicon $heading</div>");
-
-// Navigation stylings cannot be done in styles.css because of string localization.
-echo booking::generate_localized_css_for_navigation_labels('report2', $scopes);
+echo $OUTPUT->heading("<div class='report2-title'>$ticketicon $heading</div>");
 
 // For option scope and optiondate scope, there is no switch.
 if (empty($optionid) && empty($optiondateid)) {
@@ -408,7 +376,7 @@ if (empty($optionid) && empty($optiondateid)) {
             ]
         );
         echo '<a class="btn btn-sm btn-primary" href="' . $url . '">' .
-            '<i class="fa fa-object-group" aria-hidden="true"></i>&nbsp;' .
+            '<i class="fa fa-object-group fa-fw" aria-hidden="true"></i>&nbsp;' .
             get_string('bookingstrackerswitchviewtypetooptions', 'mod_booking') . '</a>';
     } else {
         set_user_preference('bookingstrackerviewtype', 'options');
@@ -424,7 +392,7 @@ if (empty($optionid) && empty($optiondateid)) {
             ]
         );
         echo '<a class="btn btn-sm btn-primary" href="' . $url . '">' .
-            '<i class="fa fa-object-ungroup" aria-hidden="true"></i>&nbsp;' .
+            '<i class="fa fa-object-ungroup fa-fw" aria-hidden="true"></i>&nbsp;' .
             get_string('bookingstrackerswitchviewtypetoanswers', 'mod_booking') . '</a>';
     }
 }
@@ -434,8 +402,23 @@ if (!empty($optionid) && empty($optiondateid)) {
     $optionsettings = singleton_service::get_instance_of_booking_option_settings($optionid);
     $cmid = $optionsettings->cmid;
     $context = context_module::instance($cmid);
+
+    // Compact info line below the title: dates, description, teachers,
+    // responsible contacts and the associated course. Dates (if more than
+    // one) and description expand as collapsibles below the line.
+    $infoboxdata = report2_infobox::export_for_option($optionid);
+    if (report2_infobox::has_content($infoboxdata)) {
+        echo $OUTPUT->render_from_template('mod_booking/report/infobox', $infoboxdata);
+    }
+
+    // Slot booking options manage their participants per slot, so users cannot be
+    // booked here directly. The "book other users" button is therefore hidden.
+    $isslotoption = (int)($optionsettings->type ?? MOD_BOOKING_OPTIONTYPE_DEFAULT)
+        === MOD_BOOKING_OPTIONTYPE_SLOTBOOKING;
+
     if (
-        has_capability('mod/booking:bookforothers', $context)
+        !$isslotoption
+        && has_capability('mod/booking:bookforothers', $context)
         && (
             has_capability('mod/booking:subscribeusers', $context)
             || booking_check_if_teacher($optionsettings)
@@ -446,11 +429,122 @@ if (!empty($optionid) && empty($optiondateid)) {
             ['id' => $cmid, 'optionid' => $optionid]
         );
         echo html_writer::link($url, '<i class="fa fa-users fa-fw" aria-hidden="true"></i>&nbsp;' .
-                get_string('bookotherusers', 'booking'), ['class' => 'btn btn-primary btn-sm']);
+                get_string('bookotherusers', 'booking'), ['class' => 'btn btn-primary btn-sm me-2']);
+    }
+
+    // Button to configure and download the sign-in sheet via dynamic form modal.
+    // Same functionality as on report.php, the actual download runs through the
+    // existing endpoint there (see mod_booking\form\modal_signinsheet_download).
+    $signinsavebuttonstr = signinsheet_config::is_htmlmode()
+        ? 'signinformatbutton'
+        : 'signinsheetdownload';
+    echo html_writer::tag(
+        'button',
+        '<i class="fa fa-list fa-fw" aria-hidden="true"></i>&nbsp;' .
+            get_string('signinsheetconfigure', 'mod_booking'),
+        [
+            'type' => 'button',
+            'class' => 'btn btn-primary btn-sm me-2',
+            'data-action' => 'booking-report2-signinsheet-modal',
+            'data-cmid' => $cmid,
+            'data-optionid' => $optionid,
+            'data-savebuttonstr' => $signinsavebuttonstr,
+        ]
+    );
+    $PAGE->requires->js_call_amd('mod_booking/signinsheetmodal', 'init');
+
+    // Quick download of the sign-in sheet. The endpoint resolves the persisted
+    // settings of this option (falling back to instance / plugin settings)
+    // server-side, so the URL only carries cmid and optionid.
+    $quickdownloadurl = signinsheet_config::download_url($cmid, $optionid);
+    echo html_writer::link(
+        $quickdownloadurl,
+        '<i class="fa fa-download fa-fw" aria-hidden="true"></i>&nbsp;' .
+            get_string('signinsheetdownload', 'mod_booking'),
+        [
+            'class' => 'btn btn-primary btn-sm me-2',
+            'data-id' => 'booking-report2-signinsheet-quickdownload',
+        ]
+    );
+
+    // Button to send a message to the teachers of this option. Opens the same
+    // dynamic form as the "Send message to teacher(s)" action button of the
+    // booked users table (teacher autocomplete with preselection, subject,
+    // message, attachment). Only shown if the option has teachers.
+    if (
+        !empty($optionsettings->teachers)
+        && has_capability('mod/booking:communicate', $context)
+    ) {
+        echo html_writer::tag(
+            'button',
+            '<i class="fa fa-envelope fa-fw" aria-hidden="true"></i>&nbsp;' .
+                get_string('sendmessagetoteachers', 'mod_booking'),
+            [
+                'type' => 'button',
+                'class' => 'btn btn-primary btn-sm me-2',
+                'data-action' => 'booking-report2-sendmessagetoteachers-modal',
+                'data-cmid' => $cmid,
+                'data-optionid' => $optionid,
+            ]
+        );
+        $PAGE->requires->js_call_amd('mod_booking/sendmessagetoteachersmodal', 'init');
+    }
+
+    // Analogous button to send a message to the responsible contact(s) of this
+    // option: same modal, but with the responsible contacts preselected instead
+    // of the teachers. Only shown if the option has responsible contacts.
+    if (
+        !empty(array_filter($optionsettings->responsiblecontactuser))
+        && has_capability('mod/booking:communicate', $context)
+    ) {
+        echo html_writer::tag(
+            'button',
+            '<i class="fa fa-envelope fa-fw" aria-hidden="true"></i>&nbsp;' .
+                get_string('sendmessagetoresponsiblecontacts', 'mod_booking'),
+            [
+                'type' => 'button',
+                'class' => 'btn btn-primary btn-sm me-2',
+                'data-action' => 'booking-report2-sendmessagetocontacts-modal',
+                'data-cmid' => $cmid,
+                'data-optionid' => $optionid,
+            ]
+        );
+        $PAGE->requires->js_call_amd('mod_booking/sendmessagetocontactsmodal', 'init');
+    }
+
+    // Slot management pages (teacher unavailability, teacher assignments,
+    // slot calendar) for slot booking options - migrated from the old
+    // report.php header. Gating happens in the helper.
+    foreach (report2_header_links::slot_management_links($cmid, $optionid) as $slotlink) {
+        echo html_writer::link(
+            $slotlink['url'],
+            '<i class="' . $slotlink['iconclass'] . '" aria-hidden="true"></i>&nbsp;' . $slotlink['label'],
+            ['class' => 'btn btn-primary btn-sm me-2']
+        );
+    }
+
+    // Hint for users who may edit the booking instance: which columns the
+    // tables below show is configured in the instance settings. Labels and
+    // link target are resolved at runtime, so they always match the real
+    // settings form.
+    if (has_capability('mod/booking:updatebooking', $context)) {
+        $modediturl = new moodle_url(
+            '/course/modedit.php',
+            ['update' => $cmid, 'return' => 1],
+            'id_configurefields'
+        );
+        $a = new stdClass();
+        $a->url = $modediturl->out(false);
+        $a->section = get_string('configurefields', 'mod_booking');
+        $a->field = get_string('manageresponsespagefields', 'mod_booking');
+        echo '<div class="alert alert-secondary mt-3 mb-2">' .
+            get_string('report2columnsconfighint', 'mod_booking', $a) . '</div>';
     }
 }
 
 // Now we render the booked users for the provided scope.
+// In optiondate scope only the booked users table is shown (the scope class
+// returns null tables for all other status params).
 $data = new booked_users(
     $scope,
     $scopeid,
@@ -460,7 +554,14 @@ $data = new booked_users(
     true, // Users on notify list.
     true, // Deleted users.
     true, // Booking history.
-    $cmid
+    // Options to confirm are not shown in the tracker: they would just duplicate the waiting
+    // list here. The real confirm workflow uses its own scope (optionstoconfirm shortcode).
+    false, // Options to confirm.
+    true, // Previously booked users.
+    $cmid,
+    false, // Reduced buttons.
+    [], // Customfields.
+    true // Sent messages.
 );
 /** @var renderer $renderer */
 $renderer = $PAGE->get_renderer('mod_booking');

@@ -65,6 +65,15 @@ class restore_booking_activity_structure_step extends restore_activity_structure
             '/activity/booking/customfields/customfield'
         );
 
+        // Only restore booking rules, if config setting is set. Rules are scoped to the
+        // instance context, so they are independent of the booking options setting below.
+        if (get_config('booking', 'duplicationrestorerules')) {
+            $paths[] = new restore_path_element(
+                'booking_rule',
+                '/activity/booking/bookingrules/bookingrule'
+            );
+        }
+
         // If we don't have booking options, of course we don't have any of the below settings.
         if (get_config('booking', 'duplicationrestorebookings')) {
             $paths[] = new restore_path_element(
@@ -111,6 +120,13 @@ class restore_booking_activity_structure_step extends restore_activity_structure
                 $paths[] = new restore_path_element(
                     'booking_subbookingoption',
                     '/activity/booking/options/option/subbookingoptions/subbookingoption'
+                );
+            }
+
+            if (class_exists('local_shopping_cart\shopping_cart')) {
+                $paths[] = new restore_path_element(
+                    'booking_option_shoppingcartiteminfo',
+                    '/activity/booking/options/option/shoppingcartiteminfoforoptions/shoppingcartiteminfoforoption'
                 );
             }
         }
@@ -229,6 +245,14 @@ class restore_booking_activity_structure_step extends restore_activity_structure
         $data->bookingid = $this->get_new_parentid('booking');
         $data->timemodified = $this->apply_date_offset($data->timemodified);
 
+        // Map user IDs for usercreated and usermodified.
+        if (!empty($data->usercreated)) {
+            $data->usercreated = $this->get_mappingid('user', $data->usercreated) ?: 0;
+        }
+        if (!empty($data->usermodified)) {
+            $data->usermodified = $this->get_mappingid('user', $data->usermodified) ?: 0;
+        }
+
         $cmid = null;
         $cmidsql = "SELECT cm.id AS cmid
                     FROM {course_modules} cm
@@ -262,6 +286,7 @@ class restore_booking_activity_structure_step extends restore_activity_structure
             LEFT JOIN {customfield_category} cfc
             ON cfc.id = cff.categoryid
             WHERE cfc.component = 'mod_booking'
+            AND cfc.area = 'booking'
             AND cfd.instanceid = :oldid";
 
         $params = [
@@ -347,6 +372,7 @@ class restore_booking_activity_structure_step extends restore_activity_structure
         $data->optionid = $this->get_mappingid('booking_option', $data->optionid);
         $data->userid = $this->get_mappingid('user', $data->userid);
         $data->timemodified = $this->apply_date_offset($data->timemodified);
+        $data->completeddate = $this->apply_date_offset($data->completeddate);
 
         $DB->insert_record('booking_answers', $data);
         // No need to save this mapping as far as nothing depend on it.
@@ -482,6 +508,46 @@ class restore_booking_activity_structure_step extends restore_activity_structure
         $DB->insert_record('booking_history', $data);
     }
 
+    /**
+     * Processes booking rule data.
+     *
+     * Rules are linked to an instance solely by contextid (the module context). We map the old
+     * context to the newly restored instance's module context and insert a fresh rule record.
+     *
+     * Note: rulejson->ruledata->cancelrules may reference other rule IDs; those references are
+     * not remapped to the duplicated rules, so cross-rule cancellation links between two
+     * instance rules will not survive duplication. This is a known limitation.
+     *
+     * @param array $data The instance data from the backup file.
+     * @throws dml_exception
+     */
+    protected function process_booking_rule($data) {
+        global $DB;
+
+        $data = (object) $data;
+
+        $newbookingid = $this->get_new_parentid('booking');
+
+        // Resolve the course module id of the newly restored instance (same lookup as process_booking()).
+        $cmidsql = "SELECT cm.id AS cmid
+                    FROM {course_modules} cm
+                    LEFT JOIN {modules} m
+                    ON m.id = cm.module
+                    WHERE m.name = 'booking' AND cm.instance = :newbookingid";
+
+        if (!$cmidrecord = $DB->get_record_sql($cmidsql, ['newbookingid' => $newbookingid])) {
+            // Without a target context we cannot attach the rule, so skip it.
+            debugging('process_booking_rule - could not find cmid for bookingid: ' . $newbookingid);
+            return;
+        }
+
+        // Attach the rule to the new instance's module context.
+        unset($data->id);
+        $data->contextid = context_module::instance($cmidrecord->cmid)->id;
+
+        $DB->insert_record('booking_rules', $data);
+        // No need to save this mapping as far as nothing depends on it.
+    }
 
     /**
      * Processes booking entity data for booking options.
@@ -589,6 +655,29 @@ class restore_booking_activity_structure_step extends restore_activity_structure
             // No need to save this mapping as far as nothing depends on it.
         }
         // NOTE: In the future we might want to support additional price areas!
+    }
+
+    /**
+     * Processes shopping cart iteminfo data for booking options.
+     *
+     * @param array $data The instance data from the backup file.
+     * @throws dml_exception
+     */
+    protected function process_booking_option_shoppingcartiteminfo($data) {
+        global $DB;
+
+        // Make sure, we have shopping cart installed.
+        if (class_exists('local_shopping_cart\shopping_cart')) {
+            $data = (object) $data;
+            if ($data->area != 'option') {
+                return;
+            }
+            $data->itemid = $this->get_mappingid('booking_option', $data->itemid);
+            $data->timecreated = time();
+            $data->timemodified = time();
+            $DB->insert_record('local_shopping_cart_iteminfo', $data);
+            // No need to save this mapping as far as nothing depends on it.
+        }
     }
 
     /**

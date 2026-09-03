@@ -22,8 +22,8 @@
  * @since 3.1
  */
 
-define(['jquery', 'core/config', 'mod_booking/jquery.barrating'],
-    function($, mdlconfig) {
+define(['jquery', 'core/ajax', 'mod_booking/jquery.barrating'],
+    function($, Ajax) {
         return {
             setup: function() {
                 const queryString = window.location.search;
@@ -47,17 +47,27 @@ define(['jquery', 'core/config', 'mod_booking/jquery.barrating'],
                         theme: 'css-stars',
                         onSelect: function(value, text, event) {
                             if (typeof (event) !== 'undefined') {
-                                $.ajax({
-                                    url: mdlconfig.wwwroot + "/mod/booking/rating_rest.php?id=" + id,
-                                    method: "POST",
-                                    data: {optionid: itemid, value: value}
-                                }).done(function(data) {
+                                Ajax.call([{
+                                    methodname: 'mod_booking_rate_option',
+                                    args: {cmid: id, optionid: itemid, rate: value}
+                                }])[0].done(function(data) {
                                     $(thisid).barrating('readonly', true);
                                     $(thisid).barrating('set', data.rate);
                                 });
                             }
                         }
                     });
+                });
+
+                // Remove invalid aria-controls references that point to missing IDs.
+                $('[aria-controls]').each(function() {
+                    const controls = ($(this).attr('aria-controls') || '').trim();
+                    if (!controls) {
+                        return;
+                    }
+                    if (document.getElementById(controls) === null) {
+                        $(this).removeAttr('aria-controls');
+                    }
                 });
 
                 $('#page-mod-booking-report #buttonclear')

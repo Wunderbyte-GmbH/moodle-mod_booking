@@ -117,8 +117,12 @@ class rule_react_on_event implements booking_rule {
         $allowedeventkeys = [
             'bookingoption_freetobookagain',
             'bookinganswer_cancelled',
+            'bookinganswer_slotbooked',
+            'bookinganswer_slotmoved',
+            'bookinganswer_slotcancelled',
             'bookingoption_booked',
             'bookingoptionwaitinglist_booked',
+            'bookinganswer_movedupfromwaitinglist',
             'bookingoption_completed',
             'bookingoption_uncompleted',
             'bookinganswer_confirmed',
@@ -133,10 +137,11 @@ class rule_react_on_event implements booking_rule {
             'rest_script_success',
             'enrollink_triggered',
             'bookingoption_bookedviaautoenrol',
+            'certificate_issued',
         ];
 
         // Get a list of all booking events.
-        $allevents = get_list_of_booking_events();
+        $allevents = booking_get_list_of_booking_events();
         foreach (core_plugin_manager::instance()->get_plugins_of_type('bookingextension') as $plugin) {
             $class = "\\bookingextension_{$plugin->name}\\{$plugin->name}";
             if (!class_exists($class)) {
@@ -341,7 +346,7 @@ class rule_react_on_event implements booking_rule {
         $ruledata = $jsonobject->ruledata;
 
         $data->rule_name = $jsonobject->name;
-        $data->ruleisactive = $record->isactive;
+        $data->ruleisactive = (int)($record->isactive ?? 0);
         $data->rule_react_on_event_event = $ruledata->boevent;
         $data->rule_react_on_event_condition = $ruledata->condition;
         $data->rule_react_on_event_after_completion = $ruledata->aftercompletion;
@@ -438,9 +443,10 @@ class rule_react_on_event implements booking_rule {
      * @param int $optionid
      * @param int $userid
      * @param int $nextruntime
+     * @param int $optiondateid
      * @return bool true if the rule still applies, false if not
      */
-    public function check_if_rule_still_applies(int $optionid, int $userid, int $nextruntime): bool {
+    public function check_if_rule_still_applies(int $optionid, int $userid, int $nextruntime, int $optiondateid = 0): bool {
 
         if (empty($this->ruleisactive)) {
             return false;
@@ -451,7 +457,11 @@ class rule_react_on_event implements booking_rule {
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
         $ba = singleton_service::get_instance_of_booking_answers($settings);
 
-        if (!$this->rule_still_in_time($jsonobject, $settings)) {
+        if (
+            // Self-learning courses only use sorting date, so we cannot do this check.
+            empty($settings->selflearningcourse)
+            && !$this->rule_still_in_time($jsonobject, $settings)
+        ) {
             return false;
         }
 
@@ -553,6 +563,9 @@ class rule_react_on_event implements booking_rule {
 
         $condition = conditions_info::get_condition($jsonobject->conditionname);
 
+        if (empty($condition)) {
+            return [];
+        }
         $condition->set_conditiondata_from_json($this->rulejson);
 
         $condition->execute($sql, $params);
