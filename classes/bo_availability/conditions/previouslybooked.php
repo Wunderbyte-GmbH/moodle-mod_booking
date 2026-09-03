@@ -585,7 +585,14 @@ class previouslybooked implements bo_condition, freezable_condition {
 
             $a = new stdClass();
             $a->url = $url->out(false);
-            $a->title = $settings->get_title_with_prefix();
+            /* Nothing formats the button label downstream, so without format_string() a title with
+            multilang tags like {mlang de}...{mlang} reaches the user as literal tags. The context is
+            passed explicitly for callers without a $PAGE->context (cron, tasks, web services). */
+            $a->title = format_string(
+                $settings->get_title_with_prefix(),
+                true,
+                ['context' => context_module::instance($settings->cmid)]
+            );
             $description = $full ?
                 get_string('bocondpreviouslybookedfullnotavailable', 'mod_booking', $a) :
                 get_string('bocondpreviouslybookednotavailable', 'mod_booking', $a);
