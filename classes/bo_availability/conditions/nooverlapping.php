@@ -24,6 +24,7 @@
 
 namespace mod_booking\bo_availability\conditions;
 
+use context_module;
 use mod_booking\bo_availability\bo_condition;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\bo_availability\freezable_condition;
@@ -467,7 +468,14 @@ class nooverlapping implements bo_condition, freezable_condition {
                 $userid = $USER->id;
             }
 
-            $title = $bookinoption->get_title_with_prefix();
+            /* Nothing formats the button label downstream, so without format_string() a title with
+            multilang tags like {mlang de}...{mlang} reaches the user as literal tags. The context is
+            passed explicitly for callers without a $PAGE->context (cron, tasks, web services). */
+            $title = format_string(
+                $bookinoption->get_title_with_prefix(),
+                true,
+                ['context' => context_module::instance($booking->cmid)]
+            );
             $url = new moodle_url($CFG->wwwroot . '/mod/booking/optionview.php', [
                 'cmid' => $booking->cmid,
                 'optionid' => $optionid,
