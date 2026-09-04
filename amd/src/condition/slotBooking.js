@@ -1757,18 +1757,6 @@ export async function init(callsiteoptionid) {
                 event.preventDefault();
                 event.stopPropagation();
                 event.stopImmediatePropagation();
-                // Flush the visible custom start time into its hidden field before submitting.
-                // The sync normally rides on the time input's own input/change events, but not
-                // every way of setting the field fires those reliably (WebDriver's setValue in
-                // behat does not) - without this, the submit serializes whatever start the hidden
-                // field last saw (the day's default), silently booking a different time than the
-                // one visible in the field.
-                const customtimeinput = container.querySelector(
-                    '[data-region="slot-custom-editor"] input[type=time]'
-                );
-                if (customtimeinput) {
-                    customtimeinput.dispatchEvent(new Event('change', {bubbles: true}));
-                }
                 dynamicForm.submitFormAjax();
             }
         });

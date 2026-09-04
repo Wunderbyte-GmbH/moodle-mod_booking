@@ -25,6 +25,7 @@
 
 require_once(__DIR__ . '/../../../../lib/behat/behat_base.php');
 
+use Behat\Mink\Exception\ExpectationException;
 use Behat\Mink\Exception\UnsupportedDriverActionException;
 use Behat\Mink\Exception\DriverException;
 use mod_booking\booking;
@@ -46,12 +47,12 @@ class behat_mod_booking extends behat_base {
     /**
      * Set the userdefined slot editor's start time field to an HH:MM value, deterministically.
      *
-     * Typing into an <input type="time"> via WebDriver's setValue interprets the keystrokes
-     * through the browser locale's 12h/24h segment UI - on the en 12h locale the CI (and a local
-     * behat site) runs under, sending "09:15" ends up as "01:15" in the field. The visible value
-     * then never reaches the form's hidden start field, and the submit silently books the day's
-     * default start instead of the time the scenario asked for. Setting the value property
-     * directly and dispatching the input/change events sidesteps the segment UI entirely.
+     * The field is a <select> whose option VALUES are unix timestamps and whose labels are 24h
+     * "HH:MM" (the renderer formats them with hour12: false, so they never depend on the site
+     * locale). Selecting therefore means finding the option carrying the wanted label and writing
+     * its timestamp - setting the visible time as the value would match no option at all.
+     * The events are dispatched explicitly because a programmatic value assignment fires none,
+     * and the editor only syncs its hidden start field on 'change'.
      *
      * @When /^I set the slot start time field to "(?P<timevalue_string>\d{2}:\d{2})"$/
      * @param string $timevalue HH:MM, 24h
@@ -60,16 +61,56 @@ class behat_mod_booking extends behat_base {
     public function i_set_the_slot_start_time_field_to(string $timevalue): void {
         $js = <<<EOF
             (function() {
-                const field = document.querySelector('[data-region="slot-custom-editor"] input[type="time"]');
+                const field = document.querySelector(
+                    '[data-region="slot-custom-editor"] select.booking-slot-time-input'
+                );
                 if (!field) {
                     throw new Error('slot start time field not found');
                 }
-                field.value = '{$timevalue}';
+                const wanted = Array.from(field.options)
+                    .find(option => option.textContent.trim() === '{$timevalue}');
+                if (!wanted) {
+                    const offered = Array.from(field.options).map(option => option.textContent.trim()).join(', ');
+                    throw new Error('start time {$timevalue} is not selectable; offered: ' + offered);
+                }
+                field.value = wanted.value;
                 field.dispatchEvent(new Event('input', {bubbles: true}));
                 field.dispatchEvent(new Event('change', {bubbles: true}));
             })();
         EOF;
         $this->execute_script($js);
+    }
+
+    /**
+     * Assert the userdefined slot editor's start time field shows the given HH:MM.
+     *
+     * Reads the selected option's label rather than the field value: the value is a unix
+     * timestamp, so a plain "the field ... matches value" step could only compare against a
+     * timestamp that changes with every run.
+     *
+     * @Then /^the slot start time field should be "(?P<timevalue_string>\d{2}:\d{2})"$/
+     * @param string $timevalue HH:MM, 24h
+     * @return void
+     */
+    public function the_slot_start_time_field_should_be(string $timevalue): void {
+        $js = <<<EOF
+            (function() {
+                const field = document.querySelector(
+                    '[data-region="slot-custom-editor"] select.booking-slot-time-input'
+                );
+                if (!field) {
+                    throw new Error('slot start time field not found');
+                }
+                return field.options[field.selectedIndex] ? field.options[field.selectedIndex].textContent.trim() : '';
+            })();
+        EOF;
+        $actual = (string)$this->evaluate_script($js);
+        if ($actual !== $timevalue) {
+            throw new ExpectationException(
+                'The slot start time field shows "' . $actual . '" instead of "' . $timevalue . '".',
+                $this->getSession()
+            );
+        }
     }
 
     /**
