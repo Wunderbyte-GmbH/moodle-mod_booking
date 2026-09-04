@@ -202,15 +202,6 @@ const getFormTimeZone = (container) => {
     }
 };
 
-const toTimestampForDay = (dayTimestamp, timeValue) => {
-    if (!timeValue || !/^\d{2}:\d{2}$/.test(timeValue)) {
-        return 0;
-    }
-
-    const [hours, minutes] = timeValue.split(':').map(Number);
-    return Number(dayTimestamp) + (hours * 3600) + (minutes * 60);
-};
-
 const toDayKey = (timestamp, timezone) => {
     try {
         const formatter = new Intl.DateTimeFormat('en-CA', {
@@ -291,15 +282,27 @@ const renderCustomDayEditor = (
     label.textContent = 'Start';
     controls.appendChild(label);
 
-    const timeInput = document.createElement('input');
-    timeInput.type = 'time';
+    const timeInput = document.createElement('select');
     timeInput.className = 'form-control form-control-sm booking-slot-time-input';
-    timeInput.step = String(startIntervalSeconds);
-    timeInput.min = toTimeValue(openFrom, timeFormatter);
-    timeInput.max = toTimeValue(openUntil, timeFormatter);
-    timeInput.value = toTimeValue(defaultStart, timeFormatter);
-    controls.appendChild(timeInput);
+    // Only genuinely bookable starts: from the opening time up to closing time minus the
+    // chosen duration, on the configured start interval. A <select> also ends at its last
+    // entry, unlike the native time input whose hour/minute wheels wrap around endlessly.
+    const rebuildStartOptions = (duration) => {
+        const maxStart = Math.max(openFrom, openUntil - Math.max(1, duration));
+        const previous = timeInput.value;
+        timeInput.innerHTML = '';
+        for (let ts = openFrom; ts <= maxStart; ts += startIntervalSeconds) {
+            const option = document.createElement('option');
+            option.value = String(ts);
+            option.textContent = toTimeValue(ts, timeFormatter);
+            timeInput.appendChild(option);
+        }
+        if (previous && timeInput.querySelector(`option[value="${previous}"]`)) {
+            timeInput.value = previous;
+        }
+    };
 
+    controls.appendChild(timeInput);
     container.appendChild(controls);
 
     const legend = document.createElement('div');
@@ -457,8 +460,9 @@ const renderCustomDayEditor = (
             duration,
             startIntervalSeconds
         );
+        rebuildStartOptions(duration);
         hiddenStartInput.value = String(clamped);
-        timeInput.value = toTimeValue(clamped, timeFormatter);
+        timeInput.value = String(clamped);
 
         const span = openUntil - openFrom;
         const top = span > 0 ? ((clamped - openFrom) / span) * 100 : 0;
@@ -479,10 +483,9 @@ const renderCustomDayEditor = (
     // of what is visibly in the field. 'input' fires on every keystroke/programmatic set, so the
     // hidden field is always current by the time anything reads it.
     const synctimefield = () => {
-        syncStart(toTimestampForDay(daySlot.start, timeInput.value));
+        syncStart(Number(timeInput.value || openFrom));
     };
     timeInput.addEventListener('change', synctimefield);
-    timeInput.addEventListener('input', synctimefield);
 
     // durationSelect (unlike timeInput/timeline, which are recreated fresh inside `container` on
     // every render) is a PERSISTENT element passed in from outside - renderCustomDayEditor runs
