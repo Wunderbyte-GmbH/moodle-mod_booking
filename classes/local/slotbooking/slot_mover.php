@@ -30,6 +30,8 @@ namespace mod_booking\local\slotbooking;
 
 use context_module;
 use core_user;
+use local_shopping_cart\shopping_cart;
+use local_shopping_cart\shopping_cart_history;
 use mod_booking\bo_availability\conditions\cancelmyself;
 use mod_booking\booking;
 use mod_booking\booking_option;
@@ -369,6 +371,25 @@ class slot_mover {
     }
 
     /**
+     * Whether this booking option was actually purchased through the shopping cart by this user.
+     *
+     * Mirrors cancelmyself::has_shopping_cart_history_entry(). Only a real purchase has a
+     * refundable counterpart, so only a real purchase has to be sent to the cart's cancel flow
+     * instead of being given up slot by slot.
+     *
+     * @param int $optionid booking option id
+     * @param int $userid user id
+     * @return bool
+     */
+    public static function purchased_via_cart(int $optionid, int $userid): bool {
+        if (!class_exists('local_shopping_cart\\shopping_cart_history')) {
+            return false;
+        }
+        $historyitem = shopping_cart_history::get_most_recent_historyitem('mod_booking', 'option', $optionid, $userid);
+        return !empty($historyitem->id);
+    }
+
+    /**
      * Whether the general cancellation policy blocks a self-service slot release for this user.
      *
      * release_self()'s own gates (opt-in, ownership, per-slot deadline) deliberately say nothing
@@ -409,6 +430,23 @@ class slot_mover {
         // that could pay it back, so the money would silently be gone.
         if (!empty($settings->jsonobject->useprice) && !class_exists('local_shopping_cart\\shopping_cart')) {
             return true;
+        }
+
+        // Purchased through the cart: its own cancellation window applies too - the same check
+        // cancelmyself runs before offering the cancel button. Without it an expired cart deadline
+        // would refuse the full cancellation while the per-slot release still handed out credit.
+        if (!empty($settings->jsonobject->useprice) && class_exists('local_shopping_cart\\shopping_cart')) {
+            $historyitem = shopping_cart_history::get_most_recent_historyitem('mod_booking', 'option', $optionid, $userid);
+            if (!empty($historyitem->id)) {
+                $item = (object)[
+                    'itemid' => $optionid,
+                    'componentname' => 'mod_booking',
+                    'canceluntil' => booking_option::return_cancel_until_date($optionid),
+                ];
+                if (!shopping_cart::allowed_to_cancel_for_item($item, 'option')) {
+                    return true;
+                }
+            }
         }
 
         $answers = singleton_service::get_instance_of_booking_answers($settings);
@@ -456,12 +494,17 @@ class slot_mover {
     }
 
     /**
-     * Self-service partial cancellation: release individual booked slots (Phase 2, no price).
+     * Self-service partial cancellation: release individual booked slots (mechanics only).
      *
      * Only still-actionable slots (before their relative deadline) may be released. Locked slots
      * must stay. When every booked slot is released the whole booking answer is cancelled through
      * the standard deletion path; otherwise the remaining slots are persisted and a slot-cancelled
-     * event is fired for the released ones. Price/refund handling is intentionally out of scope.
+     * event is fired for the released ones.
+     *
+     * The money is NOT handled here, and deliberately so: this method has two callers (the
+     * release_slots webservice and slot_update_service::apply_reduction()), so a refund booked in
+     * here would be issued twice for the same release. Both callers route through
+     * slot_update_service, which prices the given-up slots and refunds them as cart credit.
      *
      * @param int $optionid booking option id
      * @param int $baid booking answer id
