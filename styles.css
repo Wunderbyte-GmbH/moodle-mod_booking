@@ -441,8 +441,31 @@ if there only was one booking option. */
     margin-bottom: 30px;
 }
 
+/* Close button of the prepage modal. Positioned against .modal-content, which Bootstrap
+   already gives position: relative, so it sits in the top right corner above the step bar. */
+.prepage-modal-close {
+    position: absolute;
+    top: 0.25rem;
+    right: 0.5rem;
+    z-index: 2;
+    padding: 0.25rem 0.5rem;
+    line-height: 1;
+    font-size: 1.25rem;
+    color: #767676;
+    text-decoration: none;
+}
+
+.prepage-modal-close:hover,
+.prepage-modal-close:focus {
+    color: #000;
+    text-decoration: none;
+}
+
 #prepage-booking-tabs {
     counter-reset: section;
+    display: flex;
+    /* Reset the browser/Bootstrap list indent so the first step starts at the left edge. */
+    padding-left: 0;
 }
 
 #prepage-booking-tabs li {
@@ -450,8 +473,11 @@ if there only was one booking option. */
     color: #767676;
     list-style-type: none;
     font-size: 15px;
-    width: 25%;
-    float: left;
+    /* Share the full width evenly, whatever the number of steps. A fixed width (was 25%)
+       only filled the bar for exactly four steps and left the rest empty for two or three. */
+    flex: 1 1 0;
+    min-width: 0;
+    text-align: center;
     position: relative;
     font-weight: bold;
 }
@@ -479,7 +505,7 @@ if there only was one booking option. */
 
 /* Prepage progress tabs connectors */
 #prepage-booking-tabs li:after {
-    content: 'asdf';
+    content: '';
     width: 100%;
     height: 2px;
     background: lightgray;
