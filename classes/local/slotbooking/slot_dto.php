@@ -30,6 +30,7 @@ namespace mod_booking\local\slotbooking;
 
 use core_date;
 use mod_booking\bo_availability\conditions\cancelmyself;
+use mod_booking\local\slotbooking\slot_mover;
 use mod_booking\singleton_service;
 use moodle_url;
 
@@ -202,12 +203,27 @@ class slot_dto {
         $offset = slot_change_policy::resolve_deadline_minutes($optionid);
         $now = time();
 
-        foreach (slot_availability::get_booked_slot_ranges_for_user($optionid, $userid) as $range) {
+        $ranges = slot_availability::get_booked_slot_ranges_for_user($optionid, $userid);
+
+        // Giving up an answer's LAST slot is a full cancellation, and for a purchased booking that
+        // belongs to the shopping cart's cancel flow (consumed quota, cancellation fee, cancelled
+        // purchase) - the release webservice refuses it. Count the slots per answer up front so
+        // the button is not offered for a call that would only come back as an error.
+        $slotsperanswer = [];
+        foreach ($ranges as $range) {
+            $baid = (int)($range['baid'] ?? 0);
+            $slotsperanswer[$baid] = ($slotsperanswer[$baid] ?? 0) + 1;
+        }
+        $purchased = slot_mover::purchased_via_cart($optionid, $userid);
+
+        foreach ($ranges as $range) {
             $start = (int)($range['start'] ?? 0);
             $end = (int)($range['end'] ?? 0);
             if ($start <= 0 || $end <= $start) {
                 continue;
             }
+            $baid = (int)($range['baid'] ?? 0);
+            $islastofanswer = ($slotsperanswer[$baid] ?? 0) <= 1;
 
             $rows[] = [
                 'start' => $start,
@@ -221,11 +237,11 @@ class slot_dto {
                     . ' - ' . userdate($end, get_string('strftimetime', 'langconfig')),
                 'key' => $start . ':' . $end,
                 'optionid' => $optionid,
-                'baid' => (int)($range['baid'] ?? 0),
-                'cancelable' => slot_change_policy::slot_actionable($start, $offset, $now),
+                'baid' => $baid,
+                'cancelable' => slot_change_policy::slot_actionable($start, $offset, $now)
+                    && !($islastofanswer && $purchased),
             ];
         }
-
         return $rows;
     }
 

@@ -19,10 +19,9 @@
  * Each cancelable row of the booked-slots list (option detail page and options table, see
  * bookingoption_description_bookedslots.mustache and col_showdates) carries a delete button
  * addressing exactly one slot in one booking answer. On confirm the slot is released through the
- * mod_booking_release_slots webservice (slot_mover::release_self(): releasing the last slot of an
- * answer cancels the whole answer through the standard deletion path), then the page reloads -
- * the booked list, availability counter, booking button state and overview all change with it,
- * so a targeted DOM update would just re-implement half the page.
+ * mod_booking_release_slots webservice (which routes through slot_update_service: the released
+ * slots are refunded as cart credit, and releasing the last slot of an unpurchased answer cancels
+ * the whole answer through the standard deletion path), then the page reloads -
  *
  * Whether the buttons exist at all is decided server-side
  * (slot_mover::per_slot_release_available()); this module only wires the ones that were rendered.
@@ -63,7 +62,14 @@ const releaseSlot = async(trigger) => {
         window.location.reload();
     } catch (error) {
         trigger.disabled = false;
-        Notification.exception(error);
+        // Every failure this webservice raises is a user-facing policy sentence: the change
+        // deadline has passed, cancelling is switched off, or this is the last slot of a purchased
+        // booking. Notification.exception presents those as a developer dialog - error code as the
+        // title, stack trace below. An alert shows just the sentence the user has to act on.
+        // The buttons for the known cases are already withheld server-side (slot_dto), so this
+        // path only remains for a stale page or a direct call.
+        const errortitle = await getString('slot_release_error_title', 'mod_booking');
+        Notification.alert(errortitle, error.message || String(error));
     }
 };
 
