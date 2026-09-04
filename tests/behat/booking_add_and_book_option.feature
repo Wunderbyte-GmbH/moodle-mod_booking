@@ -56,7 +56,7 @@ Feature: In a booking instance create booking options
       | courseendtime_1[minute]   | 00                 |
     And I press "applydate_1"
     ## Add 2nd date
-    And I follow "Dates"
+    And I expand all fieldsets
     And I press "Add date"
     And I wait "1" seconds
     And I set the following fields to these values:
@@ -73,6 +73,7 @@ Feature: In a booking instance create booking options
     And I press "applydate_2"
     ## Verify on booking option form page
     And I wait until the page is ready
+    And I expand all fieldsets
     And I should see "15 March 2050" in the "#booking_optiondate_1" "css_element"
     And I should see "1:00 PM - 4:00 PM" in the "#booking_optiondate_1" "css_element"
     And I should see "20 June 2050" in the "#booking_optiondate_2" "css_element"
