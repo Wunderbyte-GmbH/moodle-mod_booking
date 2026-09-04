@@ -29,6 +29,7 @@ use mod_booking\tests\booking_advanced_testcase;
 use mod_booking\external\get_slots;
 use mod_booking\external\get_booked_slots;
 use mod_booking\external\save_slot_selection;
+use cache;
 use mod_booking\external\release_slots;
 use mod_booking\local\mobile\slotbookingstore;
 use mod_booking\local\slotbooking\slot_answer;
@@ -365,6 +366,13 @@ final class slotbooking_external_test extends booking_advanced_testcase {
     private function enable_self_rebooking(int $optionid): void {
         global $DB;
         $DB->set_field('booking_slot_config', 'allow_self_rebooking', 1, ['optionid' => $optionid]);
+
+        // Releasing slots is a partial cancellation, so the instance has to allow cancelling at all
+        // (slot_mover::self_release_policy_blocked()). cancancelbook defaults to 0, and the instance
+        // settings are cached, so the cache entry has to go with the field.
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $DB->set_field('booking', 'cancancelbook', 1, ['id' => (int)$settings->bookingid]);
+        cache::make('mod_booking', 'cachedbookinginstances')->delete((int)$settings->cmid);
     }
 
     /**
