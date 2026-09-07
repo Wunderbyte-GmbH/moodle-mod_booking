@@ -67,6 +67,20 @@ class modal_confirmcancel extends dynamic_form {
     protected function check_access_for_dynamic_submission(): void {
 
         $context = $this->get_context_for_dynamic_submission();
+
+        if (has_capability('mod/booking:updatebooking', $context)) {
+            return;
+        }
+
+        $ajaxformdata = $this->_ajaxformdata;
+        $optionid = $ajaxformdata['optionid'] ?? null;
+        if (
+            has_capability('mod/booking:cancelownoption', $context) &&
+            booking_check_if_teacher($optionid)
+        ) {
+            return;
+        }
+
         require_capability('mod/booking:updatebooking', $context);
     }
 
@@ -108,7 +122,9 @@ class modal_confirmcancel extends dynamic_form {
         $ajaxformdata = $this->_ajaxformdata;
 
         $mform->addElement('hidden', 'optionid', $ajaxformdata['optionid']);
+        $mform->setType('optionid', PARAM_INT);
         $mform->addElement('hidden', 'status', $ajaxformdata['status']);
+        $mform->setType('status', PARAM_INT);
 
         if ($ajaxformdata['status'] != 1) {
             $mform->addElement(
@@ -117,6 +133,7 @@ class modal_confirmcancel extends dynamic_form {
                 get_string("cancelreason", "mod_booking"),
                 ['size' => '40']
             );
+            $mform->setType('cancelreason', PARAM_TEXT);
         } else {
             $mform->addElement(
                 'static',
