@@ -32,7 +32,7 @@ use mod_booking\output\booked_users;
 use mod_booking\output\eventslist;
 use mod_booking\singleton_service;
 
-require_once(__DIR__ . '/../../config.php');
+require_once(__DIR__ . '/../../config.php'); // phpcs:ignore moodle.Files.RequireLogin.Missing
 require_once($CFG->dirroot . '/mod/booking/locallib.php');
 require_once("{$CFG->libdir}/tablelib.php");
 require_once("{$CFG->dirroot}/mod/booking/classes/all_userbookings.php");
@@ -169,7 +169,9 @@ $PAGE->requires->js_call_amd('mod_booking/signinsheetdownload', 'init');
 
 [$course, $cm] = get_course_and_cm_from_cmid($id);
 
-require_course_login($course, false, $cm);
+// Course login (enrolment or guest access) by default; a site login is enough if the
+// setting "reportrequirecourselogin" is disabled. The capability checks below still apply.
+booking_require_report_login($course, $cm);
 
 // In Moodle 4.0+ we want to turn the instance description off on every page except view.php.
 $PAGE->activityheader->disable();
