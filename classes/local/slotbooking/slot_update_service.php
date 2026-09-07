@@ -414,6 +414,35 @@ class slot_update_service {
         usort($newslots, static fn(array $a, array $b): int => $a['start'] <=> $b['start']);
 
         $delta = target_price_policy::calculate_move_delta($optionid, $userid, $currentslots, $newslots);
+        // The booking runs empty: that is a full cancellation, not a partial refund. When the
+        // answer knows which purchase paid for it, hand exactly that purchase to the payment
+        // component - it applies its own cancellation rules (remaining value after earlier partial
+        // refunds, cancellation fee, consumed quota) and deletes this one booking through the
+        // cancel callback. Without a payment component, or for a booking that was never purchased,
+        // the plain release below still cancels it.
+        if (empty($newkeys)) {
+            $identifier = (int)($ctx['answer']->purchaseidentifier ?? 0);
+            if (!empty($identifier) && method_exists(shopping_cart::class, 'cancel_purchase_by_identifier')) {
+                $cancelled = shopping_cart::cancel_purchase_by_identifier(
+                    'mod_booking',
+                    'option',
+                    $optionid,
+                    $userid,
+                    $identifier
+                );
+                if (empty($cancelled['success'])) {
+                    // Refused by the cart (cancellation switched off, deadline passed, fee rules):
+                    // the booking stays untouched and the reason is passed on to the user.
+                    throw new moodle_exception(
+                        'slot_release_cart_refused',
+                        'mod_booking',
+                        '',
+                        (string)($cancelled['error'] ?? '')
+                    );
+                }
+                return self::outcome('cancel', 0.0, 0, ['newstart' => 0, 'newend' => 0, 'slotcount' => 0]);
+            }
+        }
 
         slot_mover::release_self($optionid, $baid, $released, $reason);
 
