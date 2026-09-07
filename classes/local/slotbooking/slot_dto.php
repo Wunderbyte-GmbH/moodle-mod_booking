@@ -192,11 +192,11 @@ class slot_dto {
      *
      * @param int $optionid booking option id
      * @param int $userid user id
-     * @return array<int, array<string, mixed>> rows of ['start', 'end', 'daylabel', 'timelabel', 'label']
+     * @return array<int, array<string, mixed>> rows of ['start', 'end', 'daylabel', 'timelabel',
+     *  'label', 'key', 'optionid', 'baid', 'cancelable', 'teachers', 'teacherlabel', 'hasteachers']
      */
     public static function build_booked_slot_rows(int $optionid, int $userid): array {
         $rows = [];
-
         // Per-row release metadata: which answer row the slot lives in and whether the relative
         // per-slot deadline still allows giving it up (slot_change_policy is the single source of
         // truth, same rule release_self() enforces server-side).
@@ -228,6 +228,78 @@ class slot_dto {
                 // through the payment component's cancellation instead of a partial refund.
                 'cancelable' => slot_change_policy::slot_actionable($start, $offset, $now),
             ];
+        }
+
+        return self::attach_booked_slot_teachers($rows);
+    }
+
+        /**
+     * Fill in the examiners a user picked per slot on already-built booked slot rows.
+     *
+     * The examiner is part of what was booked, but the range data answers only WHICH slots are
+     * held - so the names are resolved here, from the very answer rows those ranges came from.
+     * Addressed by baid, deliberately: a user can hold several answers on one option ("book
+     * again"), and matching on the slot key alone would let one answer's examiner show up on
+     * another answer's slot. Going through the baids the ranges already carry also means a
+     * cancelled answer's stale payload is never consulted at all.
+     *
+     * @param array<int, array<string, mixed>> $rows rows built by build_booked_slot_rows()
+     * @return array<int, array<string, mixed>> the same rows, each with 'teachers' (names),
+     *  'teacherlabel' (comma separated) and 'hasteachers' added
+     */
+    private static function attach_booked_slot_teachers(array $rows): array {
+        global $CFG, $DB;
+        require_once($CFG->dirroot . '/user/lib.php');
+
+        $baids = array_values(array_unique(array_filter(
+            array_map(static fn(array $row): int => (int)($row['baid'] ?? 0), $rows),
+            static fn(int $baid): bool => $baid > 0
+        )));
+
+        $teacheridsbyrow = [];
+        $allteacherids = [];
+        if (!empty($baids)) {
+            $answers = $DB->get_records_list('booking_answers', 'id', $baids, '', 'id, json');
+            foreach ($answers as $answer) {
+                $slotdata = slot_answer::get_slot_data($answer);
+                if (empty($slotdata) || !is_array($slotdata)) {
+                    continue;
+                }
+
+                // Same resolver the slot report uses, so the option page, the options table and
+                // the teacher's overview can never disagree about who was assigned where -
+                // including the legacy fallback for answers written before teachers_per_slot.
+                foreach (self::resolve_teachers_per_slot($slotdata) as $entry) {
+                    $start = (int)($entry['start'] ?? 0);
+                    $end = (int)($entry['end'] ?? 0);
+                    if ($start <= 0 || $end <= $start || empty($entry['teachers'])) {
+                        continue;
+                    }
+
+                    $teacheridsbyrow[(int)$answer->id][$start . ':' . $end] = $entry['teachers'];
+                    $allteacherids = array_merge($allteacherids, $entry['teachers']);
+                }
+            }
+        }
+
+        $users = !empty($allteacherids)
+            ? user_get_users_by_id(array_values(array_unique($allteacherids)))
+            : [];
+
+        foreach ($rows as $index => $row) {
+            $ids = $teacheridsbyrow[(int)($row['baid'] ?? 0)][(string)($row['key'] ?? '')] ?? [];
+
+            $names = [];
+            foreach ($ids as $id) {
+                if (!empty($users[(int)$id])) {
+                    $names[] = fullname($users[(int)$id]);
+                }
+            }
+            sort($names, SORT_NATURAL | SORT_FLAG_CASE);
+
+            $rows[$index]['teachers'] = $names;
+            $rows[$index]['teacherlabel'] = implode(', ', $names);
+            $rows[$index]['hasteachers'] = !empty($names);
         }
 
         return $rows;

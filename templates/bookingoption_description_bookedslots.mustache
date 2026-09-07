@@ -43,16 +43,19 @@
         * timelabel - Localised time range, e.g. "9:20 AM - 10:00 AM".
         * optionid, baid, key - Address of this slot for the release webservice.
         * cancelable - Whether this slot is still before its release deadline.
-
+        * hasteachers - Whether an examiner was assigned to this slot.
+        * teacherlabel - The assigned examiners, comma separated.
     Example context (json):
     {
         "bookedslotsexist": true,
         "slotreleaseenabled": true,
         "bookedslots": [
             {"daylabel": "Friday, 4 September 2026", "timelabel": "9:20 AM - 10:00 AM",
-             "optionid": 5140, "baid": 2229, "key": "1788852000:1788854400", "cancelable": true},
+             "optionid": 5140, "baid": 2229, "key": "1788852000:1788854400", "cancelable": true,
+             "hasteachers": true, "teacherlabel": "Petra Pruefer"},
             {"daylabel": "Wednesday, 9 September 2026", "timelabel": "10:00 AM - 10:40 AM",
-             "optionid": 5140, "baid": 2229, "key": "1789286400:1789288800", "cancelable": false}
+             "optionid": 5140, "baid": 2229, "key": "1789286400:1789288800", "cancelable": false,
+             "hasteachers": false, "teacherlabel": ""}
         ]
     }
 }}
@@ -66,6 +69,12 @@
                 <div class="list-group-item bo_bookedslot d-flex align-items-center flex-wrap gap-2">
                     <b class="bo_bookedslot_day">{{daylabel}}</b>
                     <span class="bo_bookedslot_time">{{timelabel}}</span>
+                        {{#hasteachers}}
+                        <span class="bo_bookedslot_teachers text-muted"
+                              title="{{#str}}slot_booked_examiners, mod_booking{{/str}}">
+                            <i class="fa fa-user-o fa-fw" aria-hidden="true"></i>&nbsp;{{teacherlabel}}
+                        </span>
+                    {{/hasteachers}}
                     {{#slotreleaseenabled}}
                         {{#cancelable}}
                             <button type="button"
