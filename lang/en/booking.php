@@ -3656,6 +3656,7 @@ $string['slot_allow_self_rebooking'] = 'Allow rebooking';
 $string['slot_allow_self_rebooking_help'] = 'If enabled, participants can move their own booked slots to another free slot themselves. Only slots that have not yet started can be given up, and only future slots can be chosen as a target. In this first version, rebooking is limited to slots with the same price.';
 $string['slot_booked_event_description'] = 'User with id {$a->adminid} created slot booking answer {$a->baid} (option {$a->optionid}) for user {$a->userid} with {$a->slotcount} slot(s).';
 $string['slot_booked_event_name'] = 'Booking slot booked';
+$string['slot_booked_examiners'] = 'Examiners';
 $string['slot_booking_view_calendar'] = 'Calendar view';
 $string['slot_booking_view_list'] = 'List view';
 $string['slot_booking_view_mode'] = 'Slot booking interface';

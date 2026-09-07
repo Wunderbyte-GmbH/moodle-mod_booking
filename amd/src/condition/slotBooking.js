@@ -607,13 +607,22 @@ const renderTeacherSelection = async(
     slotsMap,
     requiredCount,
     hiddenInput,
-    examinersLabel
+    examinersLabel,
+    memory = null,
+    onSelectionChange = null
 ) => {
     const currentSelection = parseTeacherSelection(hiddenInput);
 
     const selectedSet = new Set(selectedSlotKeys);
     Object.keys(currentSelection).forEach(slotKey => {
         if (!selectedSet.has(slotKey)) {
+            // Switching the day/slot changes the slot KEY, so a pruned entry used to mean the
+            // examiner the user had already picked was silently forgotten. Remember the choice
+            // instead and re-apply it below to the newly selected slot - but only where that
+            // examiner is actually offered there, so someone unavailable on the new day drops out.
+            if (memory && Array.isArray(currentSelection[slotKey]) && currentSelection[slotKey].length > 0) {
+                memory.ids = currentSelection[slotKey].map(id => Number(id) || 0).filter(id => id > 0);
+            }
             delete currentSelection[slotKey];
         }
     });
@@ -636,10 +645,25 @@ const renderTeacherSelection = async(
             .map(teacher => Number(teacher.id || 0))
             .filter(id => id > 0);
 
-        const existing = Array.isArray(currentSelection[slotKey]) ? currentSelection[slotKey] : [];
+        // Fall back to the remembered choice (see the pruning loop above) for a slot the user has
+        // not explicitly picked an examiner for yet. availableIds does the availability check:
+        // a carried-over examiner who is not offered for THIS slot never survives the filter.
+        let existing = Array.isArray(currentSelection[slotKey]) ? currentSelection[slotKey] : [];
+        if (existing.length === 0 && memory && Array.isArray(memory.ids)) {
+            existing = memory.ids;
+        }
         const preselected = existing
             .map(id => Number(id || 0))
             .filter(id => id > 0 && availableIds.includes(id));
+
+        // Write the carry-over back, so the hidden field (and with it the live validation and the
+        // form submit) actually carries the examiner the box is showing as selected.
+        if (preselected.length > 0) {
+            currentSelection[slotKey] = preselected;
+            if (memory) {
+                memory.ids = preselected;
+            }
+        }
 
         const options = [];
         teachers.forEach(teacher => {
@@ -684,11 +708,26 @@ const renderTeacherSelection = async(
 
             if (normalized.length === 0) {
                 delete currentSelection[slotKey];
+                if (memory) {
+                    // Actively clearing the examiner must not be undone by the carry-over on the
+                    // next day change.
+                    memory.ids = [];
+                }
             } else {
                 currentSelection[slotKey] = normalized;
+                if (memory) {
+                    memory.ids = normalized.slice();
+                }
             }
 
             serializeTeacherSelection(hiddenInput, currentSelection);
+
+            // Picking an examiner is what turns an otherwise-complete selection valid, so the live
+            // pre-validation has to run again. Without this the error stayed on screen forever, no
+            // matter what the user chose - it was only ever re-run on a slot_selection change.
+            if (onSelectionChange) {
+                onSelectionChange();
+            }
         };
 
         select.addEventListener('change', persistSelection);
@@ -1319,7 +1358,13 @@ export async function init(callsiteoptionid) {
         // row (not just fixedEditorRoot, which is only one flex item inside that row) so they land
         // on their own line below both columns instead of squeezing in as a third flex item.
         const calendarWrapper = container.querySelector('[data-region="slot-calendar-wrapper"]');
-        const summaryAnchor = listPickerRoot || calendarWrapper || fixedEditorRoot || calendarRoot || selectionInput;
+        // The single-select (selectgroups) mode has no picker region at all, and selectionInput IS
+        // the visible <select>. Anchoring on it dropped the examiner box and the live feedback
+        // INSIDE the mform element's own flex row, where they lined up to the right of the dropdown
+        // instead of below it. Anchor on the whole form row instead. The other modes never reach
+        // this fallback - they anchor on their picker region.
+        const summaryAnchor = listPickerRoot || calendarWrapper || fixedEditorRoot || calendarRoot
+            || selectionInput.closest('.form-group, .fitem') || selectionInput;
 
         // Selected-slots summary. Both MULTI-select interfaces need it: the calendar grid draws
         // exactly one day at a time, and the list now collapses its days (see
@@ -1338,6 +1383,10 @@ export async function init(callsiteoptionid) {
         const teacherContainer = ensureTeacherContainer(container, teacherAnchor);
         const teachersRequired = Math.max(0, Number(teachersRequiredInput?.value || 0));
 
+        // The examiner the user last picked, kept across slot/day changes (which change the slot
+        // key) - see renderTeacherSelection.
+        const teacherMemory = {ids: []};
+
         const refreshTeacherSelection = () => {
             const selectedSlotKeys = getSelectedSlotKeys(selectionInput);
             return renderTeacherSelection(
@@ -1346,7 +1395,9 @@ export async function init(callsiteoptionid) {
                 slotsMap,
                 teachersRequired,
                 teacherSelectionInput,
-                examinersLabel
+                examinersLabel,
+                teacherMemory,
+                () => liveValidate()
             );
         };
 

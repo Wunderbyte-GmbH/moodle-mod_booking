@@ -457,6 +457,7 @@ $string['showteachersmailinglist'] = 'E-Mail-Liste für alle Trainer/innen anzei
 $string['slot_add_examiners_to_slots'] = 'Pruefer/innen zu Slots hinzufuegen';
 $string['slot_allow_self_rebooking_help'] = 'Wenn aktiviert, können Teilnehmer/innen ihre eigenen gebuchten Slots selbst auf einen anderen freien Slot umbuchen. Es können nur Slots abgegeben werden, die noch nicht begonnen haben, und es können nur Slots in der Zukunft als Ziel gewählt werden. In dieser ersten Version ist das Umbuchen auf preisgleiche Slots beschränkt.';
 $string['slot_booked_event_description'] = 'Benutzer/in mit ID {$a->adminid} hat die Slot-Buchungsantwort {$a->baid} (Option {$a->optionid}) für Benutzer/in {$a->userid} mit {$a->slotcount} Slot(s) erstellt.';
+$string['slot_booked_examiners'] = 'Prüfer/innen';
 $string['slot_calendar_teachers'] = 'Gebuchte Pruefer/innen';
 $string['slot_cancelled_event_description'] = 'Benutzer/in mit ID {$a->adminid} hat die Slot-Buchungsantwort {$a->baid} (Option {$a->optionid}) für Benutzer/in {$a->userid} mit {$a->slotcount} Slot(s) storniert.';
 $string['slot_change_deadline_minutes_help'] = 'Bis wann Teilnehmer/innen einen gebuchten Slot umbuchen oder stornieren dürfen, relativ zum Start des jeweiligen Slots. Jeder Slot wird einzeln geprüft. „Standard verwenden" erbt den Wert der Buchungsinstanz bzw. der Website.';

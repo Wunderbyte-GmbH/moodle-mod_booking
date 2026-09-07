@@ -1120,6 +1120,16 @@ class bookingoptions_wbtable extends wunderbyte_table {
 
             $slotlines = array_column($slotrows, 'label');
             $label = get_string('slot_report_numslots', 'mod_booking');
+            $examinerlabel = get_string('slot_booked_examiners', 'mod_booking');
+
+            // The examiner is part of what was booked, so a download that names the slot but not
+            // the person the user is meeting is missing half the booking.
+            $slotlines = [];
+            foreach ($slotrows as $slotrow) {
+                $slotlines[] = empty($slotrow['hasteachers'])
+                    ? $slotrow['label']
+                    : $slotrow['label'] . ' (' . $examinerlabel . ': ' . $slotrow['teacherlabel'] . ')';
+            }
 
             if ($this->is_downloading()) {
                 return $label . ': ' . implode(' | ', $slotlines);
@@ -1142,6 +1152,16 @@ class bookingoptions_wbtable extends wunderbyte_table {
 
             foreach ($slotrows as $slotrow) {
                 $line = s($slotrow['label']);
+                if (!empty($slotrow['hasteachers'])) {
+                    $line .= html_writer::span(
+                        html_writer::tag('i', '', [
+                            'class' => 'fa fa-user-o fa-fw',
+                            'aria-hidden' => 'true',
+                        ]) . '&nbsp;' . s($slotrow['teacherlabel']),
+                        'bo_bookedslot_teachers text-muted ms-2',
+                        ['title' => $examinerlabel]
+                    );
+                }
                 if ($releaseavailable && !empty($slotrow['cancelable'])) {
                     $releaselabel = get_string('slot_release_action', 'mod_booking');
                     $line .= html_writer::tag(

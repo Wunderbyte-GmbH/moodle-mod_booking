@@ -176,7 +176,13 @@ class save_slot_selection extends external_api {
                     static fn(int $id): bool => $id > 0
                 )));
                 if (count($selectedteachers) !== $teachersrequired) {
-                    $errors['slot_selection'] = get_string('slot_error_selection_required', 'mod_booking');
+                    // The SLOT is fine here - only the examiner is missing (or too many were
+                    // picked). Reporting slot_error_selection_required ("Please select a valid
+                    // slot.") sent the user hunting for a different slot instead, and no slot they
+                    // could possibly pick ever cleared it. slotbooking_form::validation() already
+                    // names the real reason; the live preview this webservice powers must say the
+                    // same thing.
+                    $errors['slot_selection'] = get_string('slot_error_teacher_required', 'mod_booking');
                     continue;
                 }
                 $normalizedteachers[$key] = $selectedteachers;
