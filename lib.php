@@ -1936,6 +1936,35 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
 }
 
 /**
+ * Login check for the booked users reports (report.php and report2.php).
+ *
+ * By default (setting "reportrequirecourselogin" enabled), the user has to be enrolled in the course
+ * (or the course must allow guest access), like require_course_login() does.
+ * If the setting is disabled, a site login is enough. The page course/cm/context are still set,
+ * so the capability checks of the reports keep working in the right context.
+ *
+ * @param stdClass $course the course record
+ * @param cm_info|stdClass|null $cm the course module (null for course scope)
+ * @return void
+ */
+function booking_require_report_login(stdClass $course, $cm = null): void {
+    global $PAGE;
+
+    if (get_config('booking', 'reportrequirecourselogin') !== '0') {
+        require_course_login($course, false, $cm);
+        return;
+    }
+
+    require_login(0, false);
+    if ($cm) {
+        $PAGE->set_cm($cm, $course);
+        $PAGE->set_pagelayout('incourse');
+    } else {
+        $PAGE->set_course($course);
+    }
+}
+
+/**
  * Check if logged in user is a teacher, responsible contact, or the creator of the passed option.
  * @param mixed|int $optionoroptionid optional option class or optionid
  * @param int $userid optional userid, if none is provided, we use the logged-in $USER->id

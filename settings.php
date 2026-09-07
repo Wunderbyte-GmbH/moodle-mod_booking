@@ -1342,6 +1342,14 @@ if ($ADMIN->fulltree) {
                 0
             )
         );
+        $settings->add(
+            new admin_setting_configcheckbox(
+                'booking/reportrequirecourselogin',
+                get_string('reportrequirecourselogin', 'mod_booking'),
+                get_string('reportrequirecourselogin_desc', 'mod_booking'),
+                1
+            )
+        );
         $records = $DB->get_records_sql("SELECT b.id, b.name FROM {booking} b ORDER BY b.name");
         if (empty($records)) {
             $bookinginstances[0] = get_string('nobookinginstancesexist', 'mod_booking');

@@ -68,13 +68,13 @@ if (!empty($optiondateid)) {
     }
     // Resolve course and cm cheaply and log in BEFORE building the option settings.
     // Constructing booking_option_settings runs format_text() on customfields, which
-    // initialises the page theme; if that happens before require_course_login() the
+    // initialises the page theme; if that happens before booking_require_report_login() the
     // subsequent set_course()/set_cm() throws a coding_exception (theme already set).
     $bookingid = $DB->get_field('booking_options', 'bookingid', ['id' => $optionid], MUST_EXIST);
     [$course, $cm] = get_course_and_cm_from_instance($bookingid, 'booking');
     $cmid = $cm->id;
     $courseid = $course->id;
-    require_course_login($course, false, $cm);
+    booking_require_report_login($course, $cm);
     $optionsettings = singleton_service::get_instance_of_booking_option_settings($optionid);
     $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
     $urlparams = ["optionid" => $optionid, "optiondateid" => $optiondateid]; // For PAGE url.
@@ -121,13 +121,13 @@ if (!empty($optiondateid)) {
     $scopes = ['system', 'course', 'instance', 'option'];
     // Resolve course and cm cheaply and log in BEFORE building the option settings.
     // Constructing booking_option_settings runs format_text() on customfields, which
-    // initialises the page theme; if that happens before require_course_login() the
+    // initialises the page theme; if that happens before booking_require_report_login() the
     // subsequent set_course()/set_cm() throws a coding_exception (theme already set).
     $bookingid = $DB->get_field('booking_options', 'bookingid', ['id' => $optionid], MUST_EXIST);
     [$course, $cm] = get_course_and_cm_from_instance($bookingid, 'booking');
     $cmid = $cm->id;
     $courseid = $course->id;
-    require_course_login($course, false, $cm);
+    booking_require_report_login($course, $cm);
     $optionsettings = singleton_service::get_instance_of_booking_option_settings($optionid);
     $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
     $scope = 'option'; // If we have an optionid, we want the report for this booking option.
@@ -177,7 +177,7 @@ if (!empty($optiondateid)) {
     $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
     [$course, $cm] = get_course_and_cm_from_cmid($cmid);
     $courseid = $course->id;
-    require_course_login($course, false, $cm);
+    booking_require_report_login($course, $cm);
     $urlparams = ["cmid" => $cmid]; // For PAGE url.
 
     $r2courseurl = new moodle_url('/mod/booking/report2.php', ['courseid' => $courseid]);
@@ -211,7 +211,7 @@ if (!empty($optiondateid)) {
     }
     $scopeid = $courseid;
     $course = get_course($courseid);
-    require_course_login($course, false);
+    booking_require_report_login($course);
     $urlparams = ["courseid" => $courseid]; // For PAGE url.
 
     $r2courseurl = new moodle_url('/course/view.php', ['id' => $courseid]);
