@@ -825,6 +825,8 @@ $string['booking:bookanyone'] = 'Allowed to book anyone';
 $string['booking:bookforothers'] = "Book for others";
 $string['booking:bookmyteam'] = 'Book my team';
 $string['booking:calculateprices'] = "Can recalculate prices";
+$string['booking:cancelownoption'] = 'Cancel own booking options (own booking options are those
+that you either created yourself or are assigned to as a teacher)';
 $string['booking:canoverbook'] = "Has permission to overbook";
 $string['booking:canreviewsubstitutions'] = "Allowed to review teacher substitutions (control checkbox)";
 $string['booking:canseeinvisibleoptions'] = 'View invisible options.';

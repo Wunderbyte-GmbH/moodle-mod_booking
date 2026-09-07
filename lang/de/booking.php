@@ -813,6 +813,8 @@ $string['booking:bookallstudents'] = 'Alle eingeschriebenen Teilnehmer:innen in 
 $string['booking:bookanyone'] = 'Darf alle Nutzer:innen buchen';
 $string['booking:bookforothers'] = "Für andere buchen";
 $string['booking:calculateprices'] = "Darf Preise neu berechnen";
+$string['booking:cancelownoption'] = 'Eigene Buchungsoptionen stornieren (eigene Buchungsoptionen sind solche,
+die man entweder selbst angelegt hat oder bei denen man als Trainer:in zugewiesen ist)';
 $string['booking:canoverbook'] = "Darf überbuchen";
 $string['booking:canreviewsubstitutions'] = "Kann Vertretungen als kontrolliert markieren";
 $string['booking:canseeinvisibleoptions'] = 'Unsichtbare Buchungsoptionen sehen.';

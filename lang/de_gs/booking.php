@@ -122,6 +122,8 @@ $string['booking:addeditownoption'] = 'Eigene Buchungsoptionen bearbeiten (eigen
 die man entweder selbst angelegt hat oder bei denen man als Trainer/in zugewiesen ist)';
 $string['booking:bookallstudents'] = 'Alle eingeschriebenen Teilnehmer/innen in eine Option buchen';
 $string['booking:bookanyone'] = 'Darf alle Nutzer/innen buchen';
+$string['booking:cancelownoption'] = 'Eigene Buchungsoptionen stornieren (eigene Buchungsoptionen sind solche,
+die man entweder selbst angelegt hat oder bei denen man als Trainer/in zugewiesen ist)';
 $string['booking:changecustomformofotherusers'] = 'Formularwerte (Customform), die andere Nutzer/innen beim Buchen eingegeben haben, bearbeiten (PRO)';
 $string['booking:communicate'] = 'Kann kommunizieren (z.B. Nachrichten an gebuchte Nutzer/innen schicken)';
 $string['booking:createcalendarsiteevents'] = 'Website-Termine für Buchungsoptionen im Kalender anlegen (für alle Nutzer/innen der Website sichtbar, keine Einschreibung nötig)';
