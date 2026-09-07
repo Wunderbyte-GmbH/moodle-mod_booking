@@ -131,6 +131,76 @@ final class slot_release_refund_test extends booking_advanced_testcase {
     }
 
     /**
+     * Giving up the LAST slot cancels the purchase through the cart, not as a partial refund.
+     *
+     * The remaining value is what the cart still owes after the earlier partial refunds, so the
+     * user ends up with exactly the price they paid - never more. The booking itself is gone and
+     * the purchase is marked cancelled.
+     *
+     * @return void
+     */
+    public function test_releasing_the_last_slot_cancels_the_purchase(): void {
+        global $DB;
+
+        if (!class_exists('local_shopping_cart\shopping_cart')) {
+            $this->markTestSkipped('local_shopping_cart is not installed.');
+        }
+
+        [$optionid, $userid] = $this->create_priced_slot_option();
+        $slots = array_slice(slot_dto::build_picker_slots($optionid, $userid), 0, 3);
+        $keys = array_map(static fn(array $s): string => $s['key'], $slots);
+
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        save_slot_selection::execute($optionid, $userid, json_encode($keys));
+        $plugingenerator->create_user_purchase(['optionid' => $optionid, 'userid' => $userid]);
+        $baid = $this->booked_answer_id($optionid, $userid);
+        $paid = $this->purchased_price($optionid, $userid);
+
+        // The purchase must be linked to the answer - that link is what lets the cancellation
+        // below address this one purchase instead of the user's most recent one.
+        $identifier = (int)$DB->get_field('booking_answers', 'purchaseidentifier', ['id' => $baid]);
+        $this->assertNotEmpty($identifier, 'The checkout must have stamped its purchase onto the answer.');
+
+        $this->setUser($userid);
+
+        // Two of three slots: a partial refund, the booking survives.
+        release_slots::execute($optionid, $baid, json_encode([$keys[0], $keys[1]]), '');
+        $this->assertEqualsWithDelta(2 * self::SLOT_PRICE, $this->current_credit($userid), 0.001);
+
+        // The last one: a full cancellation, routed through the cart.
+        $result = release_slots::execute($optionid, $baid, json_encode([$keys[2]]), '');
+        $this->assertTrue((bool)$result['cancelled'], 'Giving up the last slot cancels the booking.');
+        $this->assertSame(0, (int)$result['remaining']);
+
+        // The booking is gone ...
+        $this->assertFalse(
+            $DB->record_exists('booking_answers', ['id' => $baid, 'waitinglist' => MOD_BOOKING_STATUSPARAM_BOOKED]),
+            'The booking must not be active any more.'
+        );
+
+        // ... the purchase is marked cancelled ...
+        $history = $DB->get_record('local_shopping_cart_history', [
+            'itemid' => $optionid,
+            'userid' => $userid,
+            'identifier' => $identifier,
+        ], '*', MUST_EXIST);
+        $this->assertEquals(
+            LOCAL_SHOPPING_CART_PAYMENT_CANCELED,
+            (int)$history->paymentstatus,
+            'The purchase must be cancelled, not left successful.'
+        );
+
+        // ... and the total credit equals the price paid: the cancellation only handed back what
+        // was left after the two partial refunds.
+        $this->assertEqualsWithDelta(
+            $paid,
+            $this->current_credit($userid),
+            0.011,
+            'Partial refunds plus cancellation must never exceed the price paid.'
+        );
+    }
+
+    /**
      * Current shopping cart credit balance of a user.
      *
      * @param int $userid

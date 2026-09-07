@@ -819,6 +819,8 @@ class booking_bookit {
      * @param int $status
      * @param int $userid
      * @param bool $openruleexecution
+     * @param int $onlybaid restrict a deletion to this one booking answer (0 = every active answer
+     *            of this user on the option, the previous behaviour)
      * @return array
      */
     public static function answer_booking_option(
@@ -826,7 +828,8 @@ class booking_bookit {
         int $itemid,
         int $status,
         int $userid = 0,
-        bool $openruleexecution = false
+        bool $openruleexecution = false,
+        int $onlybaid = 0
     ): array {
         global $PAGE, $USER;
 
@@ -865,7 +868,17 @@ class booking_bookit {
                 }
                 break;
             case MOD_BOOKING_STATUSPARAM_DELETED:
-                if (!$bookingoption->user_delete_response($user->id, false, false, true, false, $openruleexecution)) {
+                if (
+                    !$bookingoption->user_delete_response(
+                        $user->id,
+                        false,
+                        false,
+                        true,
+                        false,
+                        $openruleexecution,
+                        onlybaid: $onlybaid
+                    )
+                ) {
                     return [];
                 }
                 break;
