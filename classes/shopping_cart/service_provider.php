@@ -651,9 +651,16 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
      * @param int $itemid
      * @param int $paymentid
      * @param int $userid
+     * @param int $identifier
      * @return bool
      */
-    public static function successful_checkout(string $area, int $itemid, int $paymentid, int $userid): bool {
+    public static function successful_checkout(
+        string $area,
+        int $itemid,
+        int $paymentid,
+        int $userid,
+        int $identifier = 0
+    ): bool {
         global $USER, $CFG;
 
         require_once($CFG->dirroot . '/mod/booking/lib.php');
@@ -688,6 +695,13 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
                     return false;
                 }
             }
+            // Remember which purchase paid for this booking. A user may hold several separately
+            // purchased bookings on the same option, and the cancel callback below only learns the
+            // option - without this link it would have to drop all of them. The value comes from
+            // the payment component and is never interpreted here; it stays 0 without one.
+            if (!empty($identifier)) {
+                self::stamp_purchase_identifier($itemid, $userid, (int)$identifier);
+            }
             return true;
         } else if (strpos($area, 'subbooking') === 0) {
             // As a subbooking can have different slots, we use the area to provide the subbooking id.
@@ -719,23 +733,46 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
 
     /**
      * This cancels an already booked course.
+     *
      * @param string $area
      * @param int $itemid
      * @param int $userid
+     * @param int $identifier the purchase being cancelled, as stamped on the answer at checkout
+     *                        (0 = unknown, e.g. a booking made before this link existed)
      * @return bool
      */
-    public static function cancel_purchase(string $area, int $itemid, int $userid = 0): bool {
-        global $CFG, $USER;
+    public static function cancel_purchase(string $area, int $itemid, int $userid = 0, int $identifier = 0): bool {
+        global $CFG, $DB, $USER;
 
         require_once($CFG->dirroot . '/mod/booking/lib.php');
 
         if ($area === 'option') {
+            // A user may hold several separately purchased bookings on the same option, and this
+            // callback only learns the option - so without the purchase link it would cancel every
+            // one of them and refund a single purchase. Resolve the booking that was actually paid
+            // for by this purchase and scope the deletion to it. Falls back to the previous,
+            // unscoped behaviour when there is no link (bookings from before this column existed,
+            // or bookings made without a payment component).
+            $baid = 0;
+            if (!empty($identifier)) {
+                $baid = (int)$DB->get_field(
+                    'booking_answers',
+                    'id',
+                    [
+                        'optionid' => $itemid,
+                        'userid' => empty($userid) ? (int)$USER->id : $userid,
+                        'purchaseidentifier' => $identifier,
+                    ],
+                    IGNORE_MULTIPLE
+                );
+            }
             booking_bookit::answer_booking_option(
                 $area,
                 $itemid,
                 MOD_BOOKING_STATUSPARAM_DELETED,
                 $userid,
-                true
+                true,
+                $baid
             );
             return true;
         } else if (strpos($area, 'subbooking') === 0) {
@@ -1084,5 +1121,49 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
         }
 
         return $links;
+    }
+
+    /**
+     * Record which purchase paid for a freshly booked answer.
+     *
+     * Written once, right after the checkout booked the answer, and read only by cancel_purchase()
+     * to tell this booking apart from the user's other bookings on the same option. The value is
+     * opaque to mod_booking - it comes from the payment component and is handed straight back.
+     *
+     * The newest booked answer without a purchase link is the one this checkout just created: an
+     * older booking either carries its own identifier already, or predates the column and keeps 0.
+     *
+     * @param int $optionid booking option id
+     * @param int $userid booking owner
+     * @param int $identifier the payment component's purchase reference
+     * @return void
+     */
+    private static function stamp_purchase_identifier(int $optionid, int $userid, int $identifier): void {
+        global $DB, $USER;
+
+        $effectiveuserid = empty($userid) ? (int)$USER->id : $userid;
+        $answers = $DB->get_records_select(
+            'booking_answers',
+            'optionid = :optionid
+             AND userid = :userid
+             AND waitinglist = :booked
+             AND (purchaseidentifier IS NULL OR purchaseidentifier = 0)',
+            [
+                'optionid' => $optionid,
+                'userid' => $effectiveuserid,
+                'booked' => MOD_BOOKING_STATUSPARAM_BOOKED,
+            ],
+            'timemodified DESC, id DESC',
+            'id',
+            0,
+            1
+        );
+
+        if (empty($answers)) {
+            return;
+        }
+
+        $answer = reset($answers);
+        $DB->set_field('booking_answers', 'purchaseidentifier', $identifier, ['id' => (int)$answer->id]);
     }
 }

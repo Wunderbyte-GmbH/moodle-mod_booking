@@ -5827,5 +5827,21 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2026090205, 'booking');
     }
 
+    if ($oldversion < 2026090206) {
+        // A user can hold several separately purchased bookings on the same option, and the
+        // payment component's cancel callback only knows the option - so cancelling one purchase
+        // used to delete all of that user's bookings on it. This column links an answer to the
+        // purchase that paid for it, so the cancellation can be scoped to that one booking.
+        // Opaque to mod_booking and empty without a payment component; existing rows keep 0 and
+        // fall back to the previous behaviour.
+        $table = new xmldb_table('booking_answers');
+        $field = new xmldb_field('purchaseidentifier', XMLDB_TYPE_INTEGER, '10', null, null, null, '0', 'enddate');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        upgrade_mod_savepoint(true, 2026090206, 'booking');
+    }
+
     return true;
 }

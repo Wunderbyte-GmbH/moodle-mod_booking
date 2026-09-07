@@ -203,27 +203,12 @@ class slot_dto {
         $offset = slot_change_policy::resolve_deadline_minutes($optionid);
         $now = time();
 
-        $ranges = slot_availability::get_booked_slot_ranges_for_user($optionid, $userid);
-
-        // Giving up an answer's LAST slot is a full cancellation, and for a purchased booking that
-        // belongs to the shopping cart's cancel flow (consumed quota, cancellation fee, cancelled
-        // purchase) - the release webservice refuses it. Count the slots per answer up front so
-        // the button is not offered for a call that would only come back as an error.
-        $slotsperanswer = [];
-        foreach ($ranges as $range) {
-            $baid = (int)($range['baid'] ?? 0);
-            $slotsperanswer[$baid] = ($slotsperanswer[$baid] ?? 0) + 1;
-        }
-        $purchased = slot_mover::purchased_via_cart($optionid, $userid);
-
-        foreach ($ranges as $range) {
+        foreach (slot_availability::get_booked_slot_ranges_for_user($optionid, $userid) as $range) {
             $start = (int)($range['start'] ?? 0);
             $end = (int)($range['end'] ?? 0);
             if ($start <= 0 || $end <= $start) {
                 continue;
             }
-            $baid = (int)($range['baid'] ?? 0);
-            $islastofanswer = ($slotsperanswer[$baid] ?? 0) <= 1;
 
             $rows[] = [
                 'start' => $start,
@@ -237,11 +222,14 @@ class slot_dto {
                     . ' - ' . userdate($end, get_string('strftimetime', 'langconfig')),
                 'key' => $start . ':' . $end,
                 'optionid' => $optionid,
-                'baid' => $baid,
-                'cancelable' => slot_change_policy::slot_actionable($start, $offset, $now)
-                    && !($islastofanswer && $purchased),
+                'baid' => (int)($range['baid'] ?? 0),
+                // Every still-actionable slot can be given up, the last one of a booking included:
+                // slot_update_service recognises that the booking runs empty and routes that case
+                // through the payment component's cancellation instead of a partial refund.
+                'cancelable' => slot_change_policy::slot_actionable($start, $offset, $now),
             ];
         }
+
         return $rows;
     }
 
