@@ -109,14 +109,6 @@ class release_slots extends external_api {
             throw new moodle_exception('slot_rebook_not_allowed', 'mod_booking');
         }
 
-        // Giving up the LAST slot of a purchased booking is a full cancellation: that belongs to the
-        // shopping cart's cancel flow (consumed quota, cancellation fee, cancelled purchase), which
-        // the regular cancel button offers. A partial refund here would return the full price and
-        // skip those rules. Unpurchased bookings (free, or booked without the cart) still cancel here.
-        if (empty($remaining) && slot_mover::purchased_via_cart($params['optionid'], (int)$USER->id)) {
-            throw new moodle_exception('slot_release_use_cancel', 'mod_booking');
-        }
-
         // Releasing slots is a partial cancellation: route it through the same service the update
         // editor uses, so the given-up slots are refunded as cart credit instead of being dropped
         // for free. slot_mover::release_self() stays the mechanic underneath and keeps enforcing
