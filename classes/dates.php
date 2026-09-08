@@ -183,7 +183,6 @@ class dates {
             $datescounter,
         );
         $mform->setType('datescounter', PARAM_INT);
-        /* $element->setValue($datescounter); */ // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
         $elements[] = $element;
 
         $elements[] = $mform->addElement(
@@ -217,6 +216,10 @@ class dates {
             [$name, $idx] = explode('_', $name);
             $mform->registerNoSubmitButton(MOD_BOOKING_FORM_DELETEDATE . $idx);
         }
+
+        // Keep the counter in sync with the dates we are about to render. The submitted value is
+        // stale whenever set_data() rebuilt the list, e.g. after regenerating the date series.
+        $mform->setConstant('datescounter', count($dates));
 
         if ($datescounter > 0 && $allowoptiondates) {
             self::add_dates_to_form($mform, $elements, $dates, $formdata);
@@ -301,6 +304,32 @@ class dates {
                             'daystonotify' => $a->daystonotify ?? 0,
                         ];
                 }, $newoptiondates['dates']);
+
+                // Every existing date that no new date matched by time is reused for one of the
+                // remaining new dates, in order. That keeps the ids - and everything hanging off
+                // them, like attendance or entities - alive when the whole series moved, e.g.
+                // after a semester change, while making sure no id is handed out twice.
+                $usedids = [];
+                foreach ($sessions as $session) {
+                    if (!empty($session->optiondateid)) {
+                        $usedids[$session->optiondateid] = true;
+                    }
+                }
+                $spareids = [];
+                foreach ($settings->sessions ?? [] as $existing) {
+                    $existingid = $existing->optiondateid ?? $existing->id ?? 0;
+                    if (!empty($existingid) && empty($usedids[$existingid])) {
+                        $spareids[] = $existingid;
+                    }
+                }
+                foreach ($sessions as $key => $session) {
+                    if (!empty($session->optiondateid) || empty($spareids)) {
+                        continue;
+                    }
+                    $session = clone $session;
+                    $session->optiondateid = array_shift($spareids);
+                    $sessions[$key] = $session;
+                }
             }
 
             $defaultvalues->datescounter = count($sessions);
@@ -915,8 +944,15 @@ class dates {
         foreach ($dates as $key => $date) {
             $idx = $date['index'];
 
-            $elements[] = $mform->addElement('hidden', MOD_BOOKING_FORM_OPTIONDATEID . $idx, 0);
+            $optiondateid = (int)($date['optiondateid'] ?? 0);
+
+            $elements[] = $mform->addElement('hidden', MOD_BOOKING_FORM_OPTIONDATEID . $idx, $optiondateid);
             $mform->setType(MOD_BOOKING_FORM_OPTIONDATEID . $idx, PARAM_INT);
+            // The id belongs to the date at this index, not to the index itself. Without this,
+            // an already submitted optiondateid would win over the value set_data has just
+            // calculated, so a regenerated date series would keep the old ids in their old
+            // positions and hand out the same id twice - which makes saving fail.
+            $mform->setConstant(MOD_BOOKING_FORM_OPTIONDATEID . $idx, $optiondateid);
 
             // If we are on the last element and we just clicked "add", we print the form.
             if (
