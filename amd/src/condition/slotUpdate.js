@@ -31,6 +31,7 @@ import DynamicForm from 'core_form/dynamicform';
 import {init as initSlotCalendarPicker} from 'mod_booking/slotCalendarPicker';
 import {createHiddenInputSelection, renderSlotList} from 'mod_booking/slotbooking/slot_day_renderers';
 import {closeModal, closeInline} from 'mod_booking/bookingpage/prepageFooter';
+import Templates from 'core/templates';
 import {getString} from 'core/str';
 import Notification from 'core/notification';
 import Config from 'core/config';
@@ -289,6 +290,43 @@ const closePrepage = (optionid) => {
 };
 
 /**
+ * Replace the update editor with this flow's own final page.
+ *
+ * The prepage's shared "Booking complete" page cannot serve here for two reasons: its wording only
+ * ever says "booked", and bo_info::load_pre_booking_page() books a user in whenever a non-"pre"
+ * page is loaded while they are not in a booked state - so reaching it right after a cancellation
+ * would undo that cancellation on the spot.
+ *
+ * @param {HTMLElement} container the update container
+ * @param {number} optionid
+ * @param {string} messagekey lang string describing what happened
+ * @param {string} messagearg argument for that string (the new slot label), empty when unused
+ * @return {Promise<void>}
+ */
+const renderSuccess = async(container, optionid, messagekey, messagearg) => {
+    const [message, closelabel] = await Promise.all([
+        getString(messagekey, 'mod_booking', messagearg || undefined),
+        getString('close', 'mod_booking'),
+    ]);
+
+    const {html, js} = await Templates.renderForPromise('mod_booking/slotbooking/slot_update_success', {
+        message,
+        closelabel,
+    });
+    Templates.replaceNodeContents(container, html, js);
+
+    // Walk the step bar to its end so the header agrees with what the body now shows. Flows without
+    // one (the standalone move dialog - see bo_info::return_data_for_steps) have nothing to mark.
+    document.querySelectorAll('#prepage-booking-tabs .prepage-booking-tab')
+        .forEach(step => step.classList.add('active'));
+
+    const closebutton = container.querySelector('[data-action="slotupdate-close"]');
+    if (closebutton) {
+        closebutton.addEventListener('click', () => closePrepage(optionid));
+    }
+};
+
+/**
  * Initialise the update prepage for one option.
  *
  * @param {string} containerId DOM id of the update container (carries optionid/userid/baid/selfservice)
@@ -325,11 +363,21 @@ export const init = async(containerId) => {
     // Standalone pages (moveslot.php / rebookslot.php) carry a return URL and redirect after a
     // committed change; inside a prepage modal there is no return URL and we close the modal instead.
     const returnurl = container.dataset.returnurl || '';
-    const finish = () => {
+    // The plan of the pass that asked for confirmation, kept so the final page can name the slot
+    // the booking was moved to - the committed response itself carries only counts, no labels.
+    let lastplan = null;
+
+    const finish = (successkey = '', successarg = '') => {
         if (returnurl) {
             window.location.href = returnurl;
             return;
         }
+
+        if (successkey) {
+            renderSuccess(container, optionid, successkey, successarg).catch(Notification.exception);
+            return;
+        }
+
         closePrepage(optionid);
     };
 
@@ -346,6 +394,7 @@ export const init = async(containerId) => {
         }
 
         if (response.status === 'needsconfirm') {
+            lastplan = response;
             const {label, currency} = labelLookup();
             let body = '';
             try {
@@ -392,7 +441,19 @@ export const init = async(containerId) => {
                     window.console.log(err);
                 }
             }
-            finish();
+            // What actually happened decides the wording: a move names the slot it went to, an
+            // emptied booking says it was cancelled, anything else just reports the update.
+            const remaining = Number(response.slotcount || 0);
+            let successkey = 'slot_update_success_updated';
+            let successarg = '';
+            if (remaining === 0) {
+                successkey = 'slot_update_success_cancelled';
+            } else if (lastplan && lastplan.ismove && Array.isArray(lastplan.added) && lastplan.added.length) {
+                const {label} = labelLookup();
+                successkey = 'slot_update_success_moved';
+                successarg = lastplan.added.map(key => label.get(key) || key).join(', ');
+            }
+            finish(successkey, successarg);
         }
     });
 
