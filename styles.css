@@ -462,6 +462,20 @@ if there only was one booking option. */
     text-decoration: none;
 }
 
+/* Add-to-cart button and the move/cancel hint below it are rendered as one control: the
+   adjoining corners are squared and a thin line separates the two halves, so the pair does not
+   read as a button with a stray caption underneath. */
+.bookit-addtocartbtn-area.has-slot-hint .wb_shopping_cart {
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.bookit-addtocartbtn-area.has-slot-hint .booking-slot-move-hint {
+    border-top-right-radius: 0;
+    border-top-left-radius: 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.35);
+}
+
 /* Keeps the top right close button clear of the content in prepage flows that render no step bar
    (see header.mustache): roughly the height the button occupies, top offset included. */
 .prepage-booking-header-spacer {
