@@ -118,4 +118,15 @@ class profile_field_current_user extends base {
 
         return [$sql, $params];
     }
+
+    /**
+     * Return sample filter values.
+     *
+     * @return array
+     */
+    public function get_sample_values(): array {
+        return [
+            "{$this->name}_operator" => self::CURRENT_USER,
+        ];
+    }
 }

@@ -21,7 +21,10 @@ use core_course\reportbuilder\local\entities\course_category;
 use core_reportbuilder\datasource;
 use core_reportbuilder\local\entities\course;
 use core_reportbuilder\local\entities\user;
+use core_reportbuilder\local\filters\boolean_select;
 use core_reportbuilder\local\helpers\database;
+use core_reportbuilder\local\helpers\format;
+use core_reportbuilder\local\report\column;
 use core_reportbuilder\local\report\filter;
 use lang_string;
 use mod_booking\reportbuilder\local\entities\booking_answers;
@@ -44,6 +47,9 @@ use mod_booking\reportbuilder\local\filters\profile_field_current_user;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class booking_answers_datasource extends datasource {
+    /** @var string Entity name of the supervisor user entity. */
+    public const SUPERVISOR_ENTITY = 'supervisor';
+
     /**
      * Return user-friendly datasource name.
      *
@@ -119,8 +125,6 @@ class booking_answers_datasource extends datasource {
             ->add_join("JOIN {course_categories} {$cc}
                           ON {$cc}.id = {$c}.category"));
 
-        // Expose all columns, filters and conditions from every entity.
-        $this->add_all_from_entities();
         $confirmationsupervisor = core_component::get_component_directory('bookingextension_confirmation_supervisor');
         if (!empty($confirmationsupervisor)) {
             $shortname = get_config('bookingextension_confirmation_supervisor', 'supervisor');
@@ -142,8 +146,55 @@ class booking_answers_datasource extends datasource {
                     ->add_joins($userentity->get_joins())
                     ->add_join($supervisorjoin)
                 );
+
+                // Supervisor of the participant, resolved through the supervisor profile field.
+                $supervisorentity = (new user())
+                    ->set_entity_name(self::SUPERVISOR_ENTITY)
+                    ->set_entity_title(new lang_string('entity:supervisor', 'mod_booking'));
+                $sv = $supervisorentity->get_table_alias('user');
+                $svid = $DB->sql_cast_to_char("{$sv}.id");
+                $this->add_entity($supervisorentity
+                    ->add_joins($userentity->get_joins())
+                    ->add_join($supervisorjoin)
+                    ->add_join("LEFT JOIN {user} {$sv}
+                                       ON {$svid} = {$supervisorfieldalias}.data
+                                      AND {$sv}.deleted = 0"));
+
+                // Whether the participant is the supervisor of at least one user.
+                $sx = database::generate_alias();
+                $uid = $DB->sql_cast_to_char("{$u}.id");
+                $issupervisorsql = "CASE WHEN EXISTS (SELECT 1
+                                                        FROM {user_info_data} {$sx}
+                                                       WHERE {$sx}.fieldid = {$supervisorfieldid}
+                                                         AND {$sx}.data = {$uid})
+                                         THEN 1 ELSE 0 END";
+                $this->add_column(
+                    (new column(
+                        'issupervisor',
+                        new lang_string('issupervisor', 'mod_booking'),
+                        $userentity->get_entity_name()
+                    ))
+                    ->add_joins($userentity->get_joins())
+                    ->set_type(column::TYPE_BOOLEAN)
+                    ->add_field($issupervisorsql, 'issupervisor')
+                    ->set_is_sortable(false)
+                    ->add_callback([format::class, 'boolean_as_text'])
+                );
+                $issupervisorfilter = (new filter(
+                    boolean_select::class,
+                    'issupervisor',
+                    new lang_string('issupervisor', 'mod_booking'),
+                    $userentity->get_entity_name(),
+                    $issupervisorsql
+                ))
+                    ->add_joins($userentity->get_joins());
+                $this->add_filter($issupervisorfilter);
+                $this->add_condition($issupervisorfilter);
             }
         }
+
+        // Expose all columns, filters and conditions from every entity.
+        $this->add_all_from_entities();
     }
 
     /**

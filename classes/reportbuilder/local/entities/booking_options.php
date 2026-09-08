@@ -24,6 +24,7 @@ use core_reportbuilder\local\helpers\custom_fields;
 use core_reportbuilder\local\helpers\format;
 use core_reportbuilder\local\report\column;
 use core_reportbuilder\local\report\filter;
+use mod_booking\local\competencies\competencies_handler;
 
 /**
  * Booking option entity for Report Builder.
@@ -44,6 +45,7 @@ class booking_options extends base {
     protected function get_default_tables(): array {
         return [
             'booking_options',
+            'booking',
         ];
     }
 
@@ -176,6 +178,44 @@ class booking_options extends base {
             ->add_field("{$tablealias}.identifier")
             ->set_is_sortable(true);
 
+        // ID of the booking instance the option belongs to.
+        $columns[] = (new column(
+            'bookingid',
+            new lang_string('bookingid', 'mod_booking'),
+            $this->get_entity_name()
+        ))
+            ->add_joins($this->get_joins())
+            ->set_type(column::TYPE_INTEGER)
+            ->add_field("{$tablealias}.bookingid")
+            ->set_is_sortable(true);
+
+        // Name of the booking instance the option belongs to.
+        $bookingalias = $this->get_table_alias('booking');
+        $columns[] = (new column(
+            'bookinginstance',
+            new lang_string('bookinginstance', 'mod_booking'),
+            $this->get_entity_name()
+        ))
+            ->add_joins($this->get_joins())
+            ->add_join("LEFT JOIN {booking} {$bookingalias} ON {$bookingalias}.id = {$tablealias}.bookingid")
+            ->set_type(column::TYPE_TEXT)
+            ->add_field("{$bookingalias}.name")
+            ->set_is_sortable(true);
+
+        // Competencies acquired by completing the option, stored as comma separated competency IDs.
+        $columns[] = (new column(
+            'competencies',
+            new lang_string('competencies', 'mod_booking'),
+            $this->get_entity_name()
+        ))
+            ->add_joins($this->get_joins())
+            ->set_type(column::TYPE_TEXT)
+            ->add_field("{$tablealias}.competencies")
+            ->set_is_sortable(false)
+            ->add_callback(static function ($value): string {
+                return implode(', ', self::get_competency_shortnames($value));
+            });
+
         // Description.
         $columns[] = (new column(
             'description',
@@ -240,5 +280,31 @@ class booking_options extends base {
             ->add_joins($this->get_joins());
 
         return $filters;
+    }
+
+    /**
+     * Resolve a stored comma separated list of competency IDs to competency shortnames.
+     *
+     * Unknown competencies are skipped.
+     *
+     * @param mixed $value Raw field value
+     * @return string[]
+     */
+    public static function get_competency_shortnames($value): array {
+        if (!is_string($value) || trim($value) === '') {
+            return [];
+        }
+        $shortnames = [];
+        foreach (explode(',', $value) as $competencyid) {
+            $competencyid = (int) trim($competencyid);
+            if ($competencyid <= 0) {
+                continue;
+            }
+            $shortname = competencies_handler::get_competency_shortname_by_id($competencyid);
+            if ($shortname !== '') {
+                $shortnames[] = $shortname;
+            }
+        }
+        return $shortnames;
     }
 }
