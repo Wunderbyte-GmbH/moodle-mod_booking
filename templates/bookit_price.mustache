@@ -76,20 +76,34 @@
         </span>
         {{#shoppingcartisavailable}}
             {{#link}}<a href="{{link}}" target="_blank" data-action='bookondetails'>{{/link}}
-            <div class="bookit-addtocartbtn-area">
+            {{!
+                The hint lives INSIDE this container, styled with the same button classes: the
+                add-to-cart button and the line telling what else the dialog offers are one
+                control, and clicking either half opens the same modal.
+            }}
+            <div class="bookit-addtocartbtn-area{{#sub}} has-slot-hint{{/sub}}">
                 {{> local_shopping_cart/addtocartdb }}
+                {{#sub}}
+                    <div class="booking-button-subarea booking-slot-move-hint btn btn-secondary w-100 p-1 small text-center {{class}}"
+                        role="{{role}}">
+                        {{{label}}}
+                    </div>
+                {{/sub}}
             </div>
             {{#link}}</a>{{/link}}
         {{/shoppingcartisavailable}}
+        {{^shoppingcartisavailable}}
+            {{#sub}}
+                <div class="booking-button-subarea mb-2 h6 {{class}}" role="{{role}}">
+                    {{{label}}}
+                </div>
+            {{/sub}}
+        {{/shoppingcartisavailable}}
+
         {{#priceitems}}
             <p><i>{{pricecategoryname}}</i></p>
         {{/priceitems}}
     </div>
-    {{#sub}}
-        <div class="booking-button-subarea mb-2 h6 {{class}}" role="{{role}}">
-            {{{label}}}
-        </div>
-    {{/sub}}
 </div>
 {{/price}}
 {{^price}}
