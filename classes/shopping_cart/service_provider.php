@@ -145,6 +145,8 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
             $multipliable = empty($nritems) ? 0 : 1;
 
             $item = self::apply_reserved_slotbooking_price($settings, $item, $answer);
+            $item = self::append_slot_dates_to_title($settings, $item, $answer);
+
             $description = self::build_cartitem_description(
                 $settings,
                 $item,
@@ -345,6 +347,51 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
         }
 
         $item['price'] = round((float)$slotdata['price'], 2);
+        return $item;
+    }
+
+    /**
+     * Name the reserved slots in the cart item's title, for slot booking options.
+     *
+     * The title is what reaches the cart, the checkout page, the purchase history and the receipt -
+     * local_shopping_cart stores it as the history item name, and the cancellation confirmation
+     * reads it back from there. Carrying only the option name left neither the buyer nor the
+     * cashier able to tell WHICH slot was paid for or refunded, which matters most for exactly the
+     * options that are sold per slot. Formatted like the {slot_dates} description placeholder, so
+     * receipt and description cannot name the same booking differently.
+     *
+     * @param object $settings booking option settings
+     * @param array $item cart item data
+     * @param mixed $answer the user's reserved booking answer
+     * @return array the item, its title naming the slots where the answer holds any
+     */
+    private static function append_slot_dates_to_title(object $settings, array $item, $answer): array {
+        if ((int)($settings->type ?? 0) !== MOD_BOOKING_OPTIONTYPE_SLOTBOOKING || empty($answer)) {
+            return $item;
+        }
+
+        $slotdata = slot_answer::get_slot_data((object)$answer);
+        $slots = is_array($slotdata['slots'] ?? null) ? $slotdata['slots'] : [];
+
+        $slotlines = [];
+        foreach ($slots as $slot) {
+            if (empty($slot['start']) || empty($slot['end'])) {
+                continue;
+            }
+
+            $slotlines[] = dates_handler::prettify_optiondates_start_end(
+                (int)$slot['start'],
+                (int)$slot['end'],
+                current_language()
+            );
+        }
+
+        if (empty($slotlines)) {
+            return $item;
+        }
+
+        $item['title'] = (string)($item['title'] ?? '') . ' (' . implode(', ', $slotlines) . ')';
+
         return $item;
     }
 

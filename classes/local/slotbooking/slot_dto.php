@@ -209,6 +209,16 @@ class slot_dto {
             if ($start <= 0 || $end <= $start) {
                 continue;
             }
+            // Only reserved: the slot still hangs in the shopping cart and is not paid for. The
+            // cart lists it already, so showing it here would claim a booking the user has not
+            // made yet - and would offer a release button for a booking that does not exist.
+            // Capacity is untouched: the reservation keeps blocking the slot for everybody else.
+            if (
+                (int)($range['bookingstate'] ?? MOD_BOOKING_STATUSPARAM_BOOKED)
+                === MOD_BOOKING_STATUSPARAM_RESERVED
+            ) {
+                continue;
+            }
 
             $rows[] = [
                 'start' => $start,

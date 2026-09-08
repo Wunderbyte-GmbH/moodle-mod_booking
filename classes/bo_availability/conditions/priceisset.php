@@ -31,6 +31,7 @@ use mod_booking\bo_availability\bo_condition;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_option_settings;
 use mod_booking\local\modechecker;
+use mod_booking\local\slotbooking\slot_mover;
 use mod_booking\price;
 use mod_booking\singleton_service;
 use moodle_url;
@@ -305,6 +306,28 @@ class priceisset implements bo_condition {
             $data['link'] = $url->out(false);
             $data['nojs'] = true;
             $data['role'] = '';
+        }
+
+        // A booked user who may also move their slot reaches that editor through this very button
+        // (the prepage carries it as a second tab - see slotbooking::get_description()), but nothing
+        // here said so: for a priced option this condition owns the button, so the hint added to
+        // bookitbutton::render_button() never appears. Same wording and the same dependency on the
+        // cancellation policy as the other two buttons, so all three describe the dialog alike.
+        // get_self_rebookable_answer() is null for anything that is not a slot option with
+        // self-rebooking enabled, so no other option type is affected.
+        $moveanswer = slot_mover::get_self_rebookable_answer((int)$settings->id, $userid);
+        if (
+            empty($data['sub'])
+            && $moveanswer !== null
+            && slot_mover::book_again_active((int)$settings->id, $moveanswer)
+        ) {
+            $data['sub'] = [
+                'label' => slot_mover::self_release_policy_blocked((int)$settings->id, $userid)
+                    ? get_string('slot_move_action', 'mod_booking')
+                    : get_string('slot_move_or_cancel_action', 'mod_booking'),
+                'class' => ' text-center small ',
+                'role' => '',
+            ];
         }
 
         return ['mod_booking/bookit_price', $data];

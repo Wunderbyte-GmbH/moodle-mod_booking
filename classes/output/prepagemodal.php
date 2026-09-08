@@ -123,6 +123,13 @@ class prepagemodal implements renderable, templatable {
                 $extradata['price'] = $data['price'] ?? [];
                 $extradata['currency'] = $data['currency'] ?? $extradata['currency'] ?? '';
                 $extradata['component'] = $data['component'] ?? 'mod_booking';
+                // The button condition's own sub line describes the dialog THIS button opens
+                // ("Move or cancel slot" for a booked slot option). The extra condition only
+                // contributes the cancel area above it, so the hint has to survive the swap -
+                // without this it is dropped exactly in the booked state that produces it.
+                if (!empty($data['sub'])) {
+                    $extradata['sub'] = $data['sub'];
+                }
             }
             $data = $extradata;
         }
