@@ -27,9 +27,11 @@
 namespace mod_booking;
 
 use mod_booking\form\modal_confirmcancel;
+use mod_booking\table\bookingoptions_wbtable;
 use mod_booking\tests\booking_advanced_testcase;
 use mod_booking\teachers_handler;
 use mod_booking_generator;
+use context_course;
 use context_module;
 use required_capability_exception;
 use stdClass;
@@ -174,7 +176,7 @@ final class modal_confirmcancel_test extends booking_advanced_testcase {
             $this->build_form($option->id);
             $this->fail('Cancelling must fail before the user is assigned as teacher.');
         } catch (required_capability_exception $e) {
-            // Expected.
+            $this->assertInstanceOf(required_capability_exception::class, $e);
         }
 
         // Now assign the user as teacher of this specific option.
@@ -261,5 +263,176 @@ final class modal_confirmcancel_test extends booking_advanced_testcase {
 
         $form = $this->build_form($option->id, 0);
         $this->assertTrue($form->is_validated());
+    }
+
+    /**
+     * The realistic minimal-role scenario: a role holding nothing but
+     * moodle/course:view, mod/booking:view and mod/booking:cancelownoption -
+     * in particular NEITHER mod/booking:updatebooking NOR
+     * mod/booking:addeditownoption - is enough to cancel an option, both for
+     * the user assigned as teacher and for the user assigned as responsible
+     * contact of that option.
+     *
+     * @covers \mod_booking\form\modal_confirmcancel::check_access_for_dynamic_submission
+     * @covers \mod_booking\form\modal_confirmcancel::process_dynamic_submission
+     */
+    public function test_teacher_and_responsiblecontact_with_minimal_role_can_cancel(): void {
+        global $DB;
+
+        // Responsible contacts only count as "own option" when this setting is on.
+        set_config('responsiblecontactcanedit', 1, 'booking');
+
+        $course = $this->getDataGenerator()->create_course();
+        $coursecontext = context_course::instance($course->id);
+        $bookingmanager = $this->getDataGenerator()->create_user();
+
+        $booking = $this->getDataGenerator()->create_module('booking', [
+            'name' => 'Minimal role cancel test booking',
+            'eventtype' => 'Test event',
+            'bookedtext' => ['text' => 'text'],
+            'waitingtext' => ['text' => 'text'],
+            'notifyemail' => ['text' => 'text'],
+            'statuschangetext' => ['text' => 'text'],
+            'deletedtext' => ['text' => 'text'],
+            'pollurltext' => ['text' => 'text'],
+            'pollurlteacherstext' => ['text' => 'text'],
+            'notificationtext' => ['text' => 'text'],
+            'userleave' => ['text' => 'text'],
+            'course' => $course->id,
+            'bookingmanager' => $bookingmanager->username,
+        ]);
+        $context = context_module::instance($booking->cmid);
+
+        // The role holds exactly these three capabilities and nothing else.
+        $roleid = create_role('teacher or responsible', 'teacherorresponsible', 'May cancel own booking options');
+        assign_capability('moodle/course:view', CAP_ALLOW, $roleid, $coursecontext->id, true);
+        assign_capability('mod/booking:view', CAP_ALLOW, $roleid, $coursecontext->id, true);
+        assign_capability('mod/booking:cancelownoption', CAP_ALLOW, $roleid, $coursecontext->id, true);
+
+        // Two separate users holding that role. They are deliberately NOT enrolled,
+        // moodle/course:view is what lets them see the course.
+        $teacher = $this->getDataGenerator()->create_user();
+        $responsible = $this->getDataGenerator()->create_user();
+        role_assign($roleid, $teacher->id, $coursecontext->id);
+        role_assign($roleid, $responsible->id, $coursecontext->id);
+        accesslib_clear_all_caches_for_unit_testing();
+
+        $option = $this->create_option($booking->id);
+
+        // One user is teacher of the option, the other its responsible contact.
+        $cm = get_coursemodule_from_instance('booking', $booking->id);
+        $group = $this->getDataGenerator()->create_group(['courseid' => $course->id]);
+        $teacherhandler = new teachers_handler($option->id);
+        $teacherhandler->subscribe_teacher_to_booking_option($teacher->id, $option->id, $cm->id, $group->id);
+        $DB->set_field('booking_options', 'responsiblecontact', (string)$responsible->id, ['id' => $option->id]);
+        booking_option::purge_cache_for_option($option->id);
+        singleton_service::destroy_instance();
+
+        // The teacher cancels the option with nothing but the minimal role.
+        $this->setUser($teacher);
+        $this->assertTrue(has_capability('mod/booking:cancelownoption', $context));
+        $this->assertFalse(has_capability('mod/booking:updatebooking', $context));
+        $this->assertFalse(has_capability('mod/booking:addeditownoption', $context));
+        $this->assertTrue(booking_check_if_teacher($option->id, $teacher->id));
+
+        $form = $this->build_form($option->id, 0);
+        $this->assertTrue($form->is_validated());
+        $form->process_dynamic_submission();
+        $this->assertEquals(1, $DB->get_field('booking_options', 'status', ['id' => $option->id]));
+
+        // Undo the cancellation, so the responsible contact can cancel it as well.
+        $DB->set_field('booking_options', 'status', 0, ['id' => $option->id]);
+        booking_option::purge_cache_for_option($option->id);
+        singleton_service::destroy_instance();
+
+        // The responsible contact cancels the same option with the same role.
+        $this->setUser($responsible);
+        $this->assertTrue(has_capability('mod/booking:cancelownoption', $context));
+        $this->assertFalse(has_capability('mod/booking:updatebooking', $context));
+        $this->assertFalse(has_capability('mod/booking:addeditownoption', $context));
+        $this->assertTrue(booking_check_if_teacher($option->id, $responsible->id));
+
+        $form = $this->build_form($option->id, 0);
+        $this->assertTrue($form->is_validated());
+        $form->process_dynamic_submission();
+        $this->assertEquals(1, $DB->get_field('booking_options', 'status', ['id' => $option->id]));
+    }
+
+    /**
+     * The context menu entry itself: mod/booking:cancelownoption is independent
+     * of mod/booking:addeditownoption, so a teacher of the option holding only
+     * cancelownoption gets the "cancel this booking option" entry rendered -
+     * while the edit entry and the destructive delete entry stay hidden.
+     *
+     * @covers \mod_booking\table\bookingoptions_wbtable::col_action
+     */
+    public function test_cancel_menu_entry_is_independent_of_addeditownoption(): void {
+        global $PAGE;
+
+        $PAGE->set_url('/mod/booking/view.php');
+
+        $teacher = $this->getDataGenerator()->create_user();
+        [$course, $booking, $context] = $this->create_setup_with_cancelownoption($teacher);
+
+        $option = $this->create_option($booking->id);
+
+        $cm = get_coursemodule_from_instance('booking', $booking->id);
+        $group = $this->getDataGenerator()->create_group(['courseid' => $course->id]);
+        $teacherhandler = new teachers_handler($option->id);
+        $teacherhandler->subscribe_teacher_to_booking_option($teacher->id, $option->id, $cm->id, $group->id);
+        booking_option::purge_cache_for_option($option->id);
+        singleton_service::destroy_instance();
+
+        $this->setUser($teacher);
+        $this->assertFalse(has_capability('mod/booking:addeditownoption', $context));
+        $this->assertFalse(has_capability('mod/booking:updatebooking', $context));
+
+        $table = new bookingoptions_wbtable('cancelownoption_menu');
+        $result = $table->col_action((object)['id' => $option->id, 'status' => 0]);
+
+        $this->assertStringContainsString(
+            get_string('cancelthisbookingoption', 'mod_booking'),
+            $result,
+            'The cancel entry must be shown even without addeditownoption.'
+        );
+        $this->assertStringNotContainsString(
+            get_string('deletethisbookingoption', 'mod_booking'),
+            $result,
+            'The destructive delete entry stays reserved for updatebooking.'
+        );
+        $this->assertStringNotContainsString(
+            get_string('editbookingoption', 'mod_booking'),
+            $result,
+            'Without addeditownoption there must be no edit entry.'
+        );
+    }
+
+    /**
+     * Counter-check for the menu entry: holding cancelownoption without being
+     * teacher, responsible contact or creator of the option shows no cancel entry.
+     *
+     * @covers \mod_booking\table\bookingoptions_wbtable::col_action
+     */
+    public function test_cancel_menu_entry_hidden_for_non_teacher(): void {
+        global $PAGE;
+
+        $PAGE->set_url('/mod/booking/view.php');
+
+        $user = $this->getDataGenerator()->create_user();
+        [, $booking] = $this->create_setup_with_cancelownoption($user);
+
+        $option = $this->create_option($booking->id);
+
+        $this->setUser($user);
+        $this->assertFalse(booking_check_if_teacher($option->id, $user->id));
+
+        $table = new bookingoptions_wbtable('cancelownoption_menu_negative');
+        $result = $table->col_action((object)['id' => $option->id, 'status' => 0]);
+
+        $this->assertStringNotContainsString(
+            get_string('cancelthisbookingoption', 'mod_booking'),
+            $result,
+            'Without being assigned to the option there must be no cancel entry.'
+        );
     }
 }
