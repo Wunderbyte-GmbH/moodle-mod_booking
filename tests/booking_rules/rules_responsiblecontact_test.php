@@ -215,6 +215,115 @@ final class rules_responsiblecontact_test extends booking_advanced_testcase {
     }
 
     /**
+     * The condition "select_responsible_contact_in_bo" must only address the responsible
+     * contacts of the booking option affected by the rule, never the contacts of other options.
+     *
+     * Regression test for Wunderbyte-GmbH/moodle-mod_booking#1547 (MySQL/MariaDB branch of the
+     * condition joined the split responsiblecontact rows of ALL options).
+     *
+     * @covers \mod_booking\booking_rules\rules\rule_react_on_event
+     * @covers \mod_booking\booking_rules\conditions\select_responsible_contact_in_bo
+     *
+     * @throws \coding_exception
+     * @throws \dml_exception
+     */
+    public function test_rule_on_email_responsiblecontact_only_affected_option(): void {
+        $bdata = self::booking_common_settings_provider();
+        $bdata['cancancelbook'] = 1;
+
+        $course1 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+
+        $student1 = $this->getDataGenerator()->create_user();
+        $teacher1 = $this->getDataGenerator()->create_user();
+        $rcp1 = $this->getDataGenerator()->create_user(['username' => 'rcp1', 'email' => 'rcp1@example.com']);
+        $rcp2 = $this->getDataGenerator()->create_user(['username' => 'rcp2', 'email' => 'rcp2@example.com']);
+        $rcp3 = $this->getDataGenerator()->create_user(['username' => 'rcp3', 'email' => 'rcp3@example.com']);
+
+        $bdata['course'] = $course1->id;
+        $bdata['bookingmanager'] = $teacher1->username;
+        $booking1 = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        $this->setAdminUser();
+        $this->getDataGenerator()->enrol_user($student1->id, $course1->id, 'student');
+        $this->getDataGenerator()->enrol_user($teacher1->id, $course1->id, 'editingteacher');
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+
+        $boevent1 = '"boevent":"\\\\mod_booking\\\\event\\\\bookingoption_booked"';
+        $actstr = '{"sendical":0,"sendicalcreateorcancel":"",';
+        $actstr .= '"subject":"rcp-booked-subj","template":"rcp-booked-msg","templateformat":"1"}';
+        $plugingenerator->create_rule([
+            'name' => 'email_rcp_on_booking',
+            'conditionname' => 'select_responsible_contact_in_bo',
+            'contextid' => 1,
+            'conditiondata' => '{"borole":"1"}',
+            'actionname' => 'send_mail',
+            'actiondata' => $actstr,
+            'rulename' => 'rule_react_on_event',
+            'ruledata' => '{' . $boevent1 . ',"aftercompletion":1,"cancelrules":[],"condition":"0"}',
+        ]);
+
+        // Option 1 has rcp1 as responsible contact, option 2 has rcp2 and rcp3.
+        $record = new stdClass();
+        $record->bookingid = $booking1->id;
+        $record->text = 'football';
+        $record->maxanswers = 5;
+        $record->maxoverbooking = 10;
+        $record->description = 'Will start in a future';
+        $record->optiondateid_0 = "0";
+        $record->daystonotify_0 = "0";
+        $record->useprice = 0;
+        $record->importing = 1;
+        $record->coursestarttime_0 = strtotime('20 June 2050 15:00', time());
+        $record->courseendtime_0 = strtotime('20 July 2050 14:00', time());
+        $record->teachersforoption = $teacher1->username;
+        $record->responsiblecontact = $rcp1->username;
+        $option1 = $plugingenerator->create_option($record);
+        singleton_service::destroy_booking_option_singleton($option1->id);
+
+        $record2 = clone $record;
+        $record2->text = 'handball';
+        $record2->responsiblecontact = implode(',', [$rcp2->username, $rcp3->username]);
+        $option2 = $plugingenerator->create_option($record2);
+        singleton_service::destroy_booking_option_singleton($option2->id);
+
+        $settings2 = singleton_service::get_instance_of_booking_option_settings($option2->id);
+        $this->assertEqualsCanonicalizing([$rcp2->id, $rcp3->id], array_map('intval', $settings2->responsiblecontact));
+
+        // Book student1 into option 1 only.
+        $settings1 = singleton_service::get_instance_of_booking_option_settings($option1->id);
+        $boinfo1 = new bo_info($settings1);
+        $this->setUser($student1);
+        singleton_service::destroy_user($student1->id);
+        booking_bookit::bookit('option', $settings1->id, $student1->id);
+        booking_bookit::bookit('option', $settings1->id, $student1->id);
+        [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student1->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+
+        $this->setAdminUser();
+        $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
+        $recipients = [];
+        foreach ($tasks as $task) {
+            $taskdata = $task->get_custom_data();
+            $recipients[] = (int) $taskdata->userid;
+            $this->assertEquals($option1->id, (int) $taskdata->optionid);
+        }
+        // Only the responsible contact of option 1 may be addressed.
+        $this->assertEqualsCanonicalizing([$rcp1->id], $recipients);
+        $this->assertCount(1, $tasks);
+
+        $sink = $this->redirectMessages();
+        ob_start();
+        $this->runAdhocTasks();
+        $messages = $sink->get_messages();
+        ob_get_clean();
+        $sink->close();
+        $this->assertCount(1, $messages);
+        $this->assertEquals($rcp1->id, (int) reset($messages)->useridto);
+    }
+
+    /**
      * Data Provider for different rule conditions.
      *
      * @return array
