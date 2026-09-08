@@ -1520,8 +1520,6 @@ class bookingoptions_wbtable extends wunderbyte_table {
                     get_string('onlythisbookingoption', 'mod_booking')
                 ) . '</div>';
 
-
-
             if ($canupdate) {
                 // Save booking option as template.
                 if (has_capability('mod/booking:manageoptiontemplates', $context)) {
