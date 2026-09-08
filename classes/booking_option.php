@@ -294,7 +294,7 @@ class booking_option {
         }
         $event = \mod_booking\event\bookingoption_updated::create($data);
         $event->trigger();
-        cache_helper::purge_by_event('setbackeventlogtable');
+        booking::purge_eventlog_cache();
     }
 
     /**

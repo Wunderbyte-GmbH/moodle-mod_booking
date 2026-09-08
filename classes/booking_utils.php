@@ -27,7 +27,6 @@ namespace mod_booking;
 
 defined('MOODLE_INTERNAL') || die();
 
-use cache_helper;
 use html_writer;
 use mod_booking\event\bookingoption_updated;
 use moodle_url;
@@ -302,7 +301,7 @@ class booking_utils {
             );
             $event->trigger();
 
-            cache_helper::purge_by_event('setbackeventlogtable');
+            booking::purge_eventlog_cache();
         }
     }
 

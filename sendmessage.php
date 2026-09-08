@@ -136,7 +136,7 @@ function booking_send_custom_message(int $optionid, string $subject, string $mes
             ],
         ]);
         $event->trigger();
-        cache_helper::purge_by_event('setbackeventlogtable');
+        \mod_booking\booking::purge_eventlog_cache();
     }
 
     // Check, if a bulk message has been sent.
@@ -162,7 +162,7 @@ function booking_send_custom_message(int $optionid, string $subject, string $mes
                 ],
             ]);
             $event->trigger();
-            cache_helper::purge_by_event('setbackeventlogtable');
+            \mod_booking\booking::purge_eventlog_cache();
         }
     }
 }

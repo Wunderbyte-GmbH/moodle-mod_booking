@@ -2056,6 +2056,28 @@ class booking {
     }
 
     /**
+     * Purge the cached event log tables (cache mod_booking/eventlogtable) after events were triggered.
+     *
+     * The standard log store buffers the events it writes (setting logstore_standard | buffersize) and
+     * commits them to the database only when the buffer is full or at process shutdown. A purge issued
+     * directly after $event->trigger() therefore runs before the log row exists: a request that loads
+     * an event log table in between re-fills the cache without the new row, and nothing purges it again
+     * (in cron the window lasts until the whole run ends). So the log stores are flushed first, and the
+     * cache is purged only once the rows are committed.
+     *
+     * @return void
+     */
+    public static function purge_eventlog_cache(): void {
+        foreach (get_log_manager()->get_readers() as $store) {
+            // The reader instances are the very store objects that buffer the writes.
+            if (method_exists($store, 'flush')) {
+                $store->flush();
+            }
+        }
+        cache_helper::purge_by_event('setbackeventlogtable');
+    }
+
+    /**
      * Helper function to purge all caches for a booking instance.
      * @param int $cmid
      * @param bool $withsemesters
@@ -2071,7 +2093,7 @@ class booking {
         cache_helper::invalidate_by_event('setbackbookinginstances', [$cmid]);
         cache_helper::purge_by_event('setbackoptionsettings');
         cache_helper::purge_by_event('setbackoptionstable');
-        cache_helper::purge_by_event('setbackeventlogtable');
+        self::purge_eventlog_cache();
         if ($withsemesters) {
             cache_helper::purge_by_event('setbacksemesters');
         }
