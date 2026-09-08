@@ -3,12 +3,65 @@ name: Moodle Plugin CI
 on: [push, pull_request]
 
 jobs:
+  # Determines how big the test matrix should be.
+  # Full matrix (all Moodle branches x all databases) only for the integration
+  # branches listed in FULL_BRANCHES and for pull requests targeting them.
+  # Every other branch/commit gets a reduced matrix (3 combinations).
+  matrix_scope:
+    name: determine CI scope
+    runs-on: ubuntu-latest
+    outputs:
+      # One entry per call of the reusable workflow for Moodle 5.x. An empty
+      # database means "run every database the matrix offers for that branch".
+      matrix_5x: ${{ steps.scope.outputs.matrix_5x }}
+      # Database filter for the Moodle 4.5 call, empty = all databases.
+      database_405: ${{ steps.scope.outputs.database_405 }}
+    steps:
+      - id: scope
+        env:
+          # Branches that always get the complete matrix.
+          FULL_BRANCHES: "main MOODLE_405_DEV"
+          # On pull_request this is the target branch, on push the pushed branch.
+          TARGET_BRANCH: ${{ github.base_ref || github.ref_name }}
+        run: |
+          full=false
+          for branch in $FULL_BRANCHES; do
+            if [ "$TARGET_BRANCH" = "$branch" ]; then
+              full=true
+            fi
+          done
+
+          if [ "$full" = "true" ]; then
+            # Full matrix: 5.0/5.1/5.2 on every database (7 jobs) plus 4.5 on
+            # every database (3 jobs).
+            matrix_5x='[{"moodle_branches":"MOODLE_500_STABLE MOODLE_501_STABLE MOODLE_502_STABLE","database":""}]'
+            database_405=""
+          else
+            # Reduced matrix, 3 combinations in total:
+            #   MOODLE_502_STABLE - pgsql   - php 8.3
+            #   MOODLE_501_STABLE - mariadb - php 8.4  (matrix has no mysqli for 5.1)
+            #   MOODLE_405_STABLE - mysqli  - php 8.1
+            matrix_5x='[{"moodle_branches":"MOODLE_502_STABLE","database":"pgsql"},{"moodle_branches":"MOODLE_501_STABLE","database":"mariadb"}]'
+            database_405="mysqli"
+          fi
+
+          echo "Target branch: $TARGET_BRANCH -> full matrix: $full"
+          echo "matrix_5x=$matrix_5x" >> "$GITHUB_OUTPUT"
+          echo "database_405=$database_405" >> "$GITHUB_OUTPUT"
+
   moodle500to502:
+    needs: matrix_scope
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(needs.matrix_scope.outputs.matrix_5x) }}
     uses: Wunderbyte-GmbH/catalyst-moodle-workflows/.github/workflows/ci.yml@main
     with:
       # Change these based on your plugin's requirements
       disable_release: true  # Use true if using the tag-based release workflow
-      moodle_branches: "MOODLE_500_STABLE MOODLE_501_STABLE MOODLE_502_STABLE"  # Optional: Only test specific Moodle versions
+      # Branches and database come from the matrix_scope job above.
+      moodle_branches: ${{ matrix.moodle_branches }}
+      database: ${{ matrix.database }}
       min_php: '8.2'  # Optional: Set minimum PHP version
 
       # Command to install more dependencies
@@ -111,11 +164,14 @@ jobs:
         cd ..
         # END OF WORKAROUND
   moodle405:
+    needs: matrix_scope
     uses: Wunderbyte-GmbH/catalyst-moodle-workflows/.github/workflows/ci.yml@main
     with:
       # Change these based on your plugin's requirements
       disable_release: true  # Use true if using the tag-based release workflow
       moodle_branches: "MOODLE_405_STABLE"  # Optional: Only test specific Moodle versions
+      # Empty = all databases of the matrix, see the matrix_scope job above.
+      database: ${{ needs.matrix_scope.outputs.database_405 }}
       min_php: '8.1'  # Optional: Set minimum PHP version
 
       # Command to install more dependencies
