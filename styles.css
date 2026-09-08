@@ -442,7 +442,8 @@ if there only was one booking option. */
 }
 
 /* Close button of the prepage modal. Positioned against .modal-content, which Bootstrap
-   already gives position: relative, so it sits in the top right corner above the step bar. */
+   already gives position: relative, so it sits in the top right corner above the step bar -
+   or above the spacer that stands in for it when a flow renders no step bar. */
 .prepage-modal-close {
     position: absolute;
     top: 0.25rem;
@@ -459,6 +460,12 @@ if there only was one booking option. */
 .prepage-modal-close:focus {
     color: #000;
     text-decoration: none;
+}
+
+/* Keeps the top right close button clear of the content in prepage flows that render no step bar
+   (see header.mustache): roughly the height the button occupies, top offset included. */
+.prepage-booking-header-spacer {
+    height: 2rem;
 }
 
 #prepage-booking-tabs {
