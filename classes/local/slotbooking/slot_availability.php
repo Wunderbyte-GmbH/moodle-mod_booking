@@ -569,6 +569,10 @@ class slot_availability {
                     // the row the slot actually lives in. NOTE: in the booking_answers singleton's
                     // answer shape 'id' is the USER id; the booking_answers row id is 'baid'.
                     'baid' => (int)($answer->baid ?? 0),
+                    // The state that answer is in. Occupancy deliberately counts a slot that only
+                    // sits in somebody's shopping cart, but the user's own booked slots list must
+                    // not present it as booked - that distinction needs the state here.
+                    'bookingstate' => $bookingstate,
                 ];
             }
         }

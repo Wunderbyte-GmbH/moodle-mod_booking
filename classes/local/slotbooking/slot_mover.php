@@ -687,17 +687,29 @@ class slot_mover {
             return null;
         }
 
-        $answer = $DB->get_record('booking_answers', [
-            'optionid' => $optionid,
-            'userid' => $userid,
-            'waitinglist' => MOD_BOOKING_STATUSPARAM_BOOKED,
-        ], '*', IGNORE_MULTIPLE);
+        // A user can hold several active answers on one option ("book again"), and only some of
+        // them may still be movable - one whose slots have all started, or a leftover without any
+        // slot at all, is not. get_record(..., IGNORE_MULTIPLE) picked an arbitrary one and gave up
+        // when that one failed, which made the move button and the move tab disappear even though
+        // a perfectly movable booking was sitting right next to it. Walk them in booking order
+        // instead and answer with the first one that really can be moved.
+        $answers = $DB->get_records(
+            'booking_answers',
+            [
+                'optionid' => $optionid,
+                'userid' => $userid,
+                'waitinglist' => MOD_BOOKING_STATUSPARAM_BOOKED,
+            ],
+            'id ASC'
+        );
 
-        if (empty($answer) || !self::self_rebooking_allowed($optionid, $answer)) {
-            return null;
+        foreach ($answers as $answer) {
+            if (self::self_rebooking_allowed($optionid, $answer)) {
+                return $answer;
+            }
         }
 
-        return $answer;
+        return null;
     }
 
     /**
