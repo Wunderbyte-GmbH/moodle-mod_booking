@@ -31,7 +31,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
 
 use mod_booking\message_controller;
 use context_system;
-use cache_helper;
+use mod_booking\booking;
 use Exception;
 
 global $CFG;
@@ -127,7 +127,7 @@ class send_confirmation_mails extends \core\task\adhoc_task {
                                     ],
                                 ]);
                                 $event->trigger();
-                                cache_helper::purge_by_event('setbackeventlogtable');
+                                booking::purge_eventlog_cache();
                             }
                         } catch (Exception $e) {
                             mtrace('Confirmation could not be sent because of the following exception: ' . $e->getMessage());

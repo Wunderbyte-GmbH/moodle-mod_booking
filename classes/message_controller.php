@@ -728,7 +728,7 @@ class message_controller {
                         ],
                     ]);
                     $event->trigger();
-                    cache_helper::purge_by_event('setbackeventlogtable');
+                    booking::purge_eventlog_cache();
                     return true;
                 } else {
                     return false;

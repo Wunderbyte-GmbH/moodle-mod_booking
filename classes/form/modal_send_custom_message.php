@@ -24,7 +24,7 @@
 
 namespace mod_booking\form;
 
-use cache_helper;
+use mod_booking\booking;
 use coding_exception;
 use context;
 use context_module;
@@ -322,7 +322,7 @@ class modal_send_custom_message extends dynamic_form {
                 ],
             ]);
             $event->trigger();
-            cache_helper::purge_by_event('setbackeventlogtable');
+            booking::purge_eventlog_cache();
         }
 
         // Fire bulk event if at least 75% of booked users and at least 3 users.
@@ -347,7 +347,7 @@ class modal_send_custom_message extends dynamic_form {
                     ],
                 ]);
                 $event->trigger();
-                cache_helper::purge_by_event('setbackeventlogtable');
+                booking::purge_eventlog_cache();
             }
         }
 
