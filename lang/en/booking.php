@@ -791,6 +791,7 @@ $string['bookanyoneswitchon'] = '<i class="fa fa-user-plus" aria-hidden="true"><
 $string['bookanyonewarning'] = 'Be careful: You can now book any users you want. Only use this setting if you know what you are doing.
  To book users who are not enrolled into the course might cause problems.';
 $string['booked'] = 'Booked';
+$string['bookedcount'] = 'Booked places';
 $string['bookeddeleted'] = 'Booking removed';
 $string['bookedpast'] = 'Booked (course finished)';
 $string['bookedplaces'] = 'Number of booked places of the booking option';
@@ -4011,6 +4012,9 @@ $string['tagtag'] = 'Tag';
 $string['tagtemplates'] = 'Tag templates';
 $string['tagtext'] = 'Text';
 $string['taken'] = 'Taken';
+$string['takesplace'] = 'Takes place';
+$string['takesplaceno'] = 'Does not take place';
+$string['takesplaceyes'] = 'Takes place';
 $string['taskadhocresetoptiondatesforsemester'] = 'Adhoc task: Reset and generate new optiondates for semester';
 $string['taskcheckanswers'] = 'Booking: Check answers';
 $string['taskcleanbookingdb'] = 'Booking: Clean database';
@@ -4235,6 +4239,7 @@ $string['userstonotify'] = 'Notification list';
 $string['userwhotriggeredevent'] = 'User who triggered the event';
 $string['usesqlfilteravailability'] = "Use SQL for availability conditions";
 $string['usesqlfilteravailability_desc'] = "This setting enables SQL-based filters for availability conditions. When enabled, booking options that don't meet availability conditions are filtered out at the database level, improving performance. However, with very large tables, JSON parsing may cause overhead. Disable this setting if you notice performance issues or if you don't need SQL filters.";
+$string['utilisation'] = 'Utilisation';
 $string['viewallresponses'] = 'Manage {$a} responses';
 $string['viewconfirmationbooked'] = 'Your booking has been registered:
 {bookingdetails}

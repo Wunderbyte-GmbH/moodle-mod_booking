@@ -780,6 +780,7 @@ $string['bookanyoneswitchon'] = '<i class="fa fa-user-plus" aria-hidden="true"><
 $string['bookanyonewarning'] = 'Achtung: Sie können nun beliebige Nutzer:innen buchen. Verwenden Sie diese Einstellung nur, wenn Sie genau wissen, was Sie tun.
  Das Buchen von Nutzer:innen, die nicht in den Kurs eingeschrieben sind, kann möglicherweise zu Problemen führen.';
 $string['booked'] = 'Gebucht';
+$string['bookedcount'] = 'Gebuchte Plätze';
 $string['bookeddeleted'] = 'Buchung gelöscht';
 $string['bookedpast'] = 'Gebucht (Kurs wurde bereits beendet)';
 $string['bookedplaces'] = 'Anzahl an gebuchten Plätzen der Buchungsoption';
@@ -3726,6 +3727,9 @@ $string['tagtag'] = 'Schlagwort';
 $string['tagtemplates'] = 'Schlagwort Vorlagen';
 $string['tagtext'] = 'Schlagwort-Text';
 $string['taken'] = 'gebucht';
+$string['takesplace'] = 'Findet statt';
+$string['takesplaceno'] = 'Findet nicht statt';
+$string['takesplaceyes'] = 'Findet statt';
 $string['taskadhocresetoptiondatesforsemester'] = 'Adhoc task: Termine zurücksetzen und neu erstellen';
 $string['taskcheckanswers'] = 'Booking: Antworten prüfen';
 $string['taskcleanbookingdb'] = 'Booking: Datenbank aufräumen';
@@ -3944,6 +3948,7 @@ $string['userstonotify'] = 'Benachrichtigungsliste';
 $string['userwhotriggeredevent'] = 'Nutzer:in, die das Ereignis ausgelöst hat';
 $string['usesqlfilteravailability'] = "Verwende SQL bei Einschränkungen der Verfügbarkeit";
 $string['usesqlfilteravailability_desc'] = "Diese Einstellung aktiviert SQL-basierte Filter für Verfügbarkeitsbedingungen. Wenn aktiviert, werden Buchungsoptionen, die Verfügbarkeitsbedingungen nicht erfüllen, bereits auf Datenbankebene herausgefiltert, was die Performance verbessert. Bei sehr großen Tabellen kann das JSON-Parsen jedoch Overhead verursachen. Deaktivieren Sie diese Einstellung, wenn Sie Performance-Probleme bemerken oder wenn Sie die SQL-Filter nicht benötigen.";
+$string['utilisation'] = 'Auslastung';
 $string['viewallresponses'] = '{$a} Buchungen verwalten';
 $string['viewconfirmationbooked'] = 'Ihre Buchung wurde registriert:
 {bookingdetails}

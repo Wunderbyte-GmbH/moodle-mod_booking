@@ -157,7 +157,7 @@ class booking_answers extends base {
             $this->get_entity_name()
         ))
             ->add_joins($this->get_joins())
-            ->set_type(column::TYPE_BOOLEAN)
+            ->set_type(column::TYPE_INTEGER)
             ->add_field("{$ba}.waitinglist")
             ->set_is_sortable(true)
             ->add_callback(static function ($value): string {

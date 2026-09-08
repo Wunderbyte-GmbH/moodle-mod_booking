@@ -22,6 +22,7 @@ use core_reportbuilder\local\filters\date;
 use core_reportbuilder\local\filters\text;
 use core_reportbuilder\local\helpers\custom_fields;
 use core_reportbuilder\local\helpers\format;
+use core_reportbuilder\local\helpers\database;
 use core_reportbuilder\local\report\column;
 use core_reportbuilder\local\report\filter;
 use mod_booking\local\competencies\competencies_handler;
@@ -96,6 +97,9 @@ class booking_options extends base {
      * @return column[]
      */
     protected function get_all_columns(): array {
+        global $CFG;
+        require_once($CFG->dirroot . '/mod/booking/lib.php');
+
         $tablealias = $this->get_table_alias('booking_options');
         $columns = [];
 
@@ -214,6 +218,71 @@ class booking_options extends base {
             ->set_is_sortable(false)
             ->add_callback(static function ($value): string {
                 return implode(', ', self::get_competency_shortnames($value));
+            });
+
+        // Booked places: sum of the places of all booked answers (waitinglist = booked).
+        $bookedparam = database::generate_param_name();
+        $bookedsql = "(SELECT COALESCE(SUM(COALESCE(ba.places, 1)), 0)
+                         FROM {booking_answers} ba
+                        WHERE ba.optionid = {$tablealias}.id
+                          AND ba.waitinglist = :{$bookedparam})";
+        $columns[] = (new column(
+            'bookedcount',
+            new lang_string('bookedcount', 'mod_booking'),
+            $this->get_entity_name()
+        ))
+            ->add_joins($this->get_joins())
+            ->set_type(column::TYPE_INTEGER)
+            ->add_field($bookedsql, 'bookedcount', [$bookedparam => MOD_BOOKING_STATUSPARAM_BOOKED])
+            ->set_is_sortable(true);
+
+        // Max. number of participants (0 = unlimited).
+        $columns[] = (new column(
+            'maxanswers',
+            new lang_string('maxparticipantsnumber', 'mod_booking'),
+            $this->get_entity_name()
+        ))
+            ->add_joins($this->get_joins())
+            ->set_type(column::TYPE_INTEGER)
+            ->add_field("{$tablealias}.maxanswers")
+            ->set_is_sortable(true);
+
+        // Utilisation: booked places in percent of max. participants (empty if unlimited).
+        $utilisationparam = database::generate_param_name();
+        $utilisationsql = "CASE WHEN {$tablealias}.maxanswers > 0
+                                THEN " . str_replace(":{$bookedparam}", ":{$utilisationparam}", $bookedsql) . "
+                                     * 100.0 / {$tablealias}.maxanswers
+                                ELSE NULL END";
+        $columns[] = (new column(
+            'utilisation',
+            new lang_string('utilisation', 'mod_booking'),
+            $this->get_entity_name()
+        ))
+            ->add_joins($this->get_joins())
+            ->set_type(column::TYPE_FLOAT)
+            ->add_field($utilisationsql, 'utilisation', [$utilisationparam => MOD_BOOKING_STATUSPARAM_BOOKED])
+            ->set_is_sortable(true)
+            ->add_callback(static function ($value): string {
+                if ($value === null || $value === '') {
+                    return '';
+                }
+                return round((float) $value) . ' %';
+            });
+
+        // Takes place / cancelled (booking_options.status: 0 = takes place, 1 = cancelled).
+        $columns[] = (new column(
+            'takesplace',
+            new lang_string('takesplace', 'mod_booking'),
+            $this->get_entity_name()
+        ))
+            ->add_joins($this->get_joins())
+            ->set_type(column::TYPE_INTEGER)
+            ->add_field("{$tablealias}.status")
+            ->set_is_sortable(true)
+            ->add_callback(static function ($value): string {
+                return (int) $value === 1
+                    ? get_string('takesplaceno', 'mod_booking')
+                    : get_string('takesplaceyes', 'mod_booking');
             });
 
         // Description.
