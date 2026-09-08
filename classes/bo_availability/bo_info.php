@@ -1375,6 +1375,19 @@ class bo_info {
     private static function return_data_for_steps(array $conditionsarray, int $pagenumber): array {
 
         $data['tabs'] = [];
+        $data['hidetabs'] = false;
+
+        // The self-service move is not a booking wizard. slotmove::hard_block() stops the booking
+        // flow for good, and the move commits through its own webservice and then closes the dialog
+        // (see amd/src/condition/slotUpdate.js), so every step the header would list after it is
+        // unreachable by design. Advertising "Booking complete" as step 2 only makes the dialog
+        // look broken - the user waits for a page that never comes. The move page keeps its own
+        // heading, so nothing is lost by dropping the stepper here.
+        $firstclass = (string)($conditionsarray[0]['classname'] ?? '');
+        if (substr($firstclass, -strlen('\\slotmove')) === '\\slotmove') {
+            $data['hidetabs'] = true;
+            return ['data' => $data];
+        }
 
         foreach ($conditionsarray as $key => $value) {
             if (isset($value['showcheckout']) && $value['showcheckout'] == true) {

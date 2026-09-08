@@ -468,6 +468,7 @@ $string['slot_max_participants_per_slot'] = 'Max. Teilnehmer/innen pro Slot';
 $string['slot_max_slots_per_user'] = 'Max. Slots pro Nutzer/in';
 $string['slot_move_event_description_multi'] = 'Benutzer/in mit ID {$a->adminid} hat die Buchungsantwort {$a->baid} (Option {$a->optionid}) für Benutzer/in {$a->userid} verschoben. Verschobene Slots von {$a->oldslots} auf {$a->newslots}. Grund: {$a->reason}';
 $string['slot_move_event_description_single'] = 'Benutzer/in mit ID {$a->adminid} hat die Buchungsantwort {$a->baid} (Option {$a->optionid}) für Benutzer/in {$a->userid} verschoben. Verschobener Slot von {$a->oldslots} auf {$a->newslots}. Grund: {$a->reason}';
+$string['slot_move_or_cancel_action'] = 'Slot verschieben oder stornieren';
 $string['slot_nosubscribe'] = 'Da für diese Option die Slot-Buchung aktiviert ist, können hier keine Nutzer/innen gebucht werden.';
 $string['slot_nosubscribe_unenrol'] = 'Nutzer/innen können in der Liste auf der Buchungen-Seite von dieser Option abgemeldet werden.';
 $string['slot_rebook_notification_teacher_body'] = 'Teilnehmer/in {$a->participant} hat von {$a->oldtime} auf {$a->newtime} umgebucht.';

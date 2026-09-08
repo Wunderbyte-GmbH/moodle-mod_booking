@@ -143,6 +143,16 @@ class slot_update_service {
                     break;
                 }
             }
+            // Giving up more slots than are picked in return is a (partial or full) cancellation,
+            // so the cancellation policy applies - the very same gate the per-slot cancel buttons
+            // are shown under (slot_mover::per_slot_release_available()). Without it the move tab
+            // offered a cancellation route that the trash buttons correctly refuse to show, and the
+            // user only found out after confirming. A pure move/swap gives up nothing on balance
+            // and stays possible regardless, which is why this counts instead of merely looking for
+            // removed slots.
+            if (count($removed) > count($added) && slot_mover::self_release_policy_blocked($optionid, $userid)) {
+                $errors[] = 'slot_release_policy_blocked';
+            }
         }
         $newslots = [];
         foreach ($newkeys as $key) {
@@ -395,6 +405,16 @@ class slot_update_service {
         string $reason,
         booking_option_settings $settings
     ): array {
+        // Same gate as plan() above and as the per-slot cancel buttons: reaching this method means
+        // slots are being given up, which is a cancellation. Checked here and not only inside
+        // release_self(), because the branch below that hands a fully cancelled booking to the
+        // payment component returns BEFORE release_self() is ever reached - a paid booking would
+        // otherwise be cancelled past mod_booking's own "Allow users to cancel" / "Disable
+        // cancellation" / "Cancel until" settings, none of which the shopping cart knows about.
+        if (slot_mover::self_release_policy_blocked($optionid, $userid)) {
+            throw new moodle_exception('slot_release_policy_blocked', 'mod_booking');
+        }
+
         $currentslots = $ctx['currentslots'];
         $newset = array_fill_keys($newkeys, true);
 
