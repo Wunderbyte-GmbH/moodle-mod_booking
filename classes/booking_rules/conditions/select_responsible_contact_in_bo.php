@@ -176,7 +176,7 @@ class select_responsible_contact_in_bo implements booking_rule_condition {
                     WHERE bo2.responsiblecontact IS NOT NULL
                     AND bo2.responsiblecontact <> ''
                     AND n.n <= 1 + (LENGTH(bo2.responsiblecontact) - LENGTH(REPLACE(bo2.responsiblecontact, ',', '')))
-                ) rc ON rc.userid <> ''";
+                ) rc ON rc.optionid = bo.id AND rc.userid <> ''";
                 $unique = $usesoptiondate
                     ? $DB->sql_concat("bo.id", "'-'", "bod.id", "'-'", "rc.userid")
                     : $DB->sql_concat("bo.id", "'-'", "rc.userid");
