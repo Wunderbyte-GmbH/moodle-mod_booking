@@ -27,6 +27,7 @@ use mod_booking\bo_availability\conditions\customform;
 use mod_booking\booking_answers\booking_answers;
 use mod_booking\booking_option;
 use mod_booking\local\certificate_conditions\certificate_conditions;
+use mod_booking\local\report_access;
 use mod_booking\option\fields\sharedplaces;
 use mod_booking\output\booked_users;
 use mod_booking\output\eventslist;
@@ -187,11 +188,10 @@ $optionteachers = $bookingoption->get_teachers();
 // Paging.
 $paging = 100; // Currently hardcoded. We might need a new setting for this in a future release.
 
-// Capability checks.
+// Capability checks. The entry rule lives in \mod_booking\local\report_access
+// so it can be unit-tested; $isteacher is still needed by the actions below.
 $isteacher = booking_check_if_teacher($bookingoption->option);
-if (!($isteacher || has_capability('mod/booking:viewreports', $context))) {
-    require_capability('mod/booking:readresponses', $context);
-}
+report_access::require_report_access((int)$cm->id, (int)$optionid);
 
 // A booking extension can limit the answers the current user may see (e.g. a supervisor who
 // only sees their own team). Both the displayed table and its download use $addsqlwhere and

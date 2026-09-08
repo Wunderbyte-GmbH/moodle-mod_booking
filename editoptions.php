@@ -26,6 +26,7 @@ require_once(__DIR__ . '/../../config.php');
 require_once($CFG->dirroot . '/mod/booking/locallib.php');
 require_once($CFG->libdir . '/formslib.php');
 
+use mod_booking\local\option_edit_access;
 use mod_booking\singleton_service;
 use mod_booking\utils\wb_payment;
 
@@ -66,24 +67,8 @@ if (!$context = context_module::instance($cmid)) {
     throw new moodle_exception('badcontext');
 }
 
-if (
-    (
-        // Either the user has the general capability to update booking options...
-        has_capability('mod/booking:updatebooking', $context)
-        || (
-            // ... or they have the capability to edit their own options and are actually editing their own option.
-            has_capability('mod/booking:addeditownoption', $context)
-            && booking_check_if_teacher($optionid)
-        )
-        || (
-            // ... or they have the capability to add options and are creating a new option (optionid is 0).
-            has_capability('mod/booking:addoption', $context)
-            && empty($optionid)
-        )
-    ) == false
-) {
-    throw new moodle_exception('nopermissions');
-}
+// The three editing layers live in \mod_booking\local\option_edit_access so they can be unit-tested.
+option_edit_access::require_edit_option((int)$cmid, (int)$optionid);
 
 // We don't need this anymore.
 $optionid = $optionid < 0 ? 0 : $optionid;
