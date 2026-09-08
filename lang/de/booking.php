@@ -3469,6 +3469,7 @@ $string['slot_move_locked_label'] = 'Gesperrt (Frist abgelaufen)';
 $string['slot_move_notification_body'] = 'Ihr gebuchter Slot wurde verschoben.\nNeue Zeit: {$a->newtime}\nGrund: {$a->reason}';
 $string['slot_move_notification_subject'] = 'Ihr Buchungsslot wurde verschoben';
 $string['slot_move_notpending'] = 'Diese Umbuchung ist nicht mehr offen und kann nicht abgeschlossen werden.';
+$string['slot_move_or_cancel_action'] = 'Slot verschieben oder stornieren';
 $string['slot_move_reason'] = 'Grund der Verschiebung';
 $string['slot_move_select'] = 'Neuen Slot auswählen';
 $string['slot_move_success'] = 'Slot wurde erfolgreich verschoben.';

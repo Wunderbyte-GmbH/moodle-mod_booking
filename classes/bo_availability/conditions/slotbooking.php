@@ -236,7 +236,20 @@ class slotbooking implements bo_condition {
         $isavailable = $this->is_available($settings, (int)$userid, $not);
         $description = $isavailable ? '' : get_string('slot_select_required', 'mod_booking');
 
-        return [$isavailable, $description, MOD_BOOKING_BO_PREPAGE_PREBOOK, MOD_BOOKING_BO_BUTTON_INDIFFERENT];
+        // While the move condition owns the flow, this one must not advertise a prepage. slotmove
+        // takes over whenever the user holds a self-rebookable answer and "book again" is not due
+        // (see slotmove::is_available()); its hard_block() then stops the booking flow for good, so
+        // a "Select slot" step would appear in the stepper that no click can ever reach. Blocking
+        // itself is unchanged - only the unreachable page is dropped.
+        $answer = slot_mover::get_self_rebookable_answer((int)$settings->id, (int)$userid);
+        $moveownsflow = $answer !== null && !slot_mover::book_again_active((int)$settings->id, $answer);
+
+        return [
+            $isavailable,
+            $description,
+            $moveownsflow ? MOD_BOOKING_BO_PREPAGE_NONE : MOD_BOOKING_BO_PREPAGE_PREBOOK,
+            MOD_BOOKING_BO_BUTTON_INDIFFERENT,
+        ];
     }
 
     /**

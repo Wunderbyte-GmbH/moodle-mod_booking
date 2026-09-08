@@ -214,9 +214,18 @@ class slotmove implements bo_condition {
         bool $not = false,
         bool $fullwidth = true
     ): array {
+        // The dialog behind this button offers cancelling as well, but only while the cancellation
+        // policy allows it (the same gate slot_update_service::plan() enforces). Naming just the
+        // move made the button understate what it opens; naming both when cancelling is barred
+        // would promise something the dialog then refuses.
+        $hint = slot_mover::self_release_policy_blocked((int)$settings->id, $userid)
+            ? get_string('slot_move_action', 'mod_booking')
+            : get_string('slot_move_or_cancel_action', 'mod_booking');
+
         $label = get_string('slot_move_booked_label', 'mod_booking')
             . '<div class="booking-slot-move-hint small mt-1">'
-            . get_string('slot_move_action', 'mod_booking') . '</div>';
+            . $hint . '</div>';
+
 
         return bo_info::render_button(
             $settings,

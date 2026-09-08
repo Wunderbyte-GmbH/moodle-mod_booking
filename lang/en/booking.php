@@ -3750,6 +3750,7 @@ $string['slot_move_locked_label'] = 'Locked (deadline passed)';
 $string['slot_move_notification_body'] = 'Your booking slot has been moved.\nNew time: {$a->newtime}\nReason: {$a->reason}';
 $string['slot_move_notification_subject'] = 'Your booking slot has been moved';
 $string['slot_move_notpending'] = 'This slot move is no longer pending and cannot be completed.';
+$string['slot_move_or_cancel_action'] = 'Move or cancel slot';
 $string['slot_move_reason'] = 'Move reason';
 $string['slot_move_select'] = 'Select new slot';
 $string['slot_move_success'] = 'Slot successfully moved.';

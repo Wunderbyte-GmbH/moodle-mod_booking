@@ -40,6 +40,28 @@ import {get_string as getString} from 'core/str';
 
 const SLOTBOOKING_REFRESH_EVENT = 'mod_booking:slotbooking-refresh';
 
+/**
+ * Which tab of the book/move prepage the user last chose, per option id.
+ *
+ * Deliberately NOT stored on the DOM: bookit.js observes the prepage modal with
+ * {attributes: true} and reloads the whole prepage on ANY attribute change (see
+ * respondToVisibility()), so remembering the tab in a data attribute there sends the dialog into
+ * an endless reload loop. Module scope survives the prepage being re-rendered just as well,
+ * because the AMD module is only evaluated once.
+ *
+ * @type {Map<number, string>}
+ */
+const lastActiveSlotTab = new Map();
+
+/**
+ * Prepage modals whose hidden.bs.modal reset listener is already attached.
+ *
+ * A WeakSet rather than a data attribute, for the same reason as lastActiveSlotTab above.
+ *
+ * @type {WeakSet<HTMLElement>}
+ */
+const modalsWithTabReset = new WeakSet();
+
 // A small, distinct palette so each merged option gets a stable, recognizable color across the
 // sidebar and the timesheet - cycles if there are more options than colors.
 const OPTION_COLOR_PALETTE = ['#0d6efd', '#d63384', '#fd7e14', '#20c997', '#6f42c1', '#dc3545', '#0dcaf0', '#adb5bd'];
@@ -1791,6 +1813,85 @@ export async function init(callsiteoptionid) {
         await setupInteractiveUi();
     };
 
+    // Fall 2: when a self-service move tab is present, wire the Book/Move switcher. The move tab
+    // lazy-loads the slotUpdate DynamicForm controller; switching to it hides
+    // the footer continue button (the book action) so only the move's own submit commits the move.
+    const setupMoveTab = () => {
+        const tabs = container.querySelector('.booking-slotbooking-tabs');
+        const bookPane = container.querySelector('[data-slotpane="book"]');
+        const movePane = container.querySelector('[data-slotpane="move"]');
+        if (!tabs || !bookPane || !movePane || tabs.dataset.slotMoveTabBound === '1') {
+            return;
+        }
+        tabs.dataset.slotMoveTabBound = '1';
+
+        // The prepage reloads itself from the server every time the modal is shown
+        // (bookit.js registerPrepageModalDelegatedListener -> loadPreBookingPage), and when that
+        // round trip lands, renderTemplatesOnPage() replaces the whole modal body - including a tab
+        // the user already switched to while it was still in flight. lastActiveSlotTab (module
+        // scope, see its declaration) outlives that replacement, so the choice is re-applied below
+        // once the rebuilt markup is wired. Without this the click was simply overwritten and the
+        // user had to click a second time.
+        const tabkey = Number(optionid) || 0;
+
+        const links = Array.from(tabs.querySelectorAll('[data-slottab]'));
+
+        // Build the "Update booking" editor right away (not lazily on first tab open) so it is ready
+        // the moment the user switches tabs. A window resize on activation lets the picker recompute
+        // its layout, which it could not while the move pane was still display:none.
+        import('mod_booking/condition/slotUpdate')
+            .then(module => module.init('booking-slotupdate-' + (Number(optionid) || 0)))
+            .catch(Notification.exception);
+
+        const activate = (target) => {
+            lastActiveSlotTab.set(tabkey, target);
+            links.forEach(link => link.classList.toggle('active', link.dataset.slottab === target));
+            bookPane.classList.toggle('d-none', target !== 'book');
+            movePane.classList.toggle('d-none', target !== 'move');
+
+            // The footer continue button is the book action; hide it on the move tab so it is
+            // neither visible nor clickable (the footer handler also honours the 'hidden' class).
+            const footerContinue = getValidationTriggerButton(container);
+            if (footerContinue) {
+                footerContinue.classList.toggle('hidden', target === 'move');
+            }
+
+            if (target === 'move') {
+                window.dispatchEvent(new Event('resize'));
+            }
+        };
+
+        links.forEach(link => {
+            link.addEventListener('click', event => {
+                event.preventDefault();
+                activate(link.dataset.slottab);
+            });
+        });
+
+        // Re-apply a tab chosen before the reload replaced this markup. Only 'move' needs it -
+        // 'book' is what the fresh markup already shows.
+        if (lastActiveSlotTab.get(tabkey) === 'move') {
+            activate('move');
+        }
+
+        // Reopening the dialog starts on the booking tab again, so the memory only lives as long as
+        // this modal session. addEventListener does not touch any attribute, so it cannot trip
+        // bookit.js's attribute observer the way a data attribute would.
+        const modal = container.closest('[id^="sbPrePageModal_"]');
+        if (modal && !modalsWithTabReset.has(modal)) {
+            modalsWithTabReset.add(modal);
+            modal.addEventListener('hidden.bs.modal', () => {
+                lastActiveSlotTab.delete(tabkey);
+            });
+        }
+    };
+    // Wired BEFORE the first form load, deliberately. The tab markup comes from the prepage
+    // template and does not depend on the form region at all, whereas reloadForm() below is a full
+    // AJAX round trip. Called after it, the tabs stayed bare <a href="#"> links for that whole
+    // window - the first click then jumped to the top of the page instead of switching panes,
+    // which looks exactly like "it reloaded and did nothing".
+    setupMoveTab();
+
     await reloadForm(currentLoadArgs);
 
     let continuebutton = getValidationTriggerButton(container);
@@ -1814,54 +1915,6 @@ export async function init(callsiteoptionid) {
     };
 
     bindValidationToContinueButton(continuebutton);
-
-    // Fall 2: when a self-service move tab is present, wire the Book/Move switcher. The move tab
-    // lazy-loads the slotUpdate DynamicForm controller; switching to it hides
-    // the footer continue button (the book action) so only the move's own submit commits the move.
-    const setupMoveTab = () => {
-        const tabs = container.querySelector('.booking-slotbooking-tabs');
-        const bookPane = container.querySelector('[data-slotpane="book"]');
-        const movePane = container.querySelector('[data-slotpane="move"]');
-        if (!tabs || !bookPane || !movePane || tabs.dataset.slotMoveTabBound === '1') {
-            return;
-        }
-        tabs.dataset.slotMoveTabBound = '1';
-
-        const links = Array.from(tabs.querySelectorAll('[data-slottab]'));
-
-        // Build the "Update booking" editor right away (not lazily on first tab open) so it is ready
-        // the moment the user switches tabs. A window resize on activation lets the picker recompute
-        // its layout, which it could not while the move pane was still display:none.
-        import('mod_booking/condition/slotUpdate')
-            .then(module => module.init('booking-slotupdate-' + (Number(optionid) || 0)))
-            .catch(Notification.exception);
-
-        const activate = (target) => {
-            links.forEach(link => link.classList.toggle('active', link.dataset.slottab === target));
-            bookPane.classList.toggle('d-none', target !== 'book');
-            movePane.classList.toggle('d-none', target !== 'move');
-
-            // The footer continue button is the book action; hide it on the move tab so it is
-            // neither visible nor clickable (the footer handler also honours the 'hidden' class).
-            const footerContinue = getValidationTriggerButton(container);
-            if (footerContinue) {
-                footerContinue.classList.toggle('hidden', target === 'move');
-            }
-
-            if (target === 'move') {
-                window.dispatchEvent(new Event('resize'));
-            }
-        };
-
-        links.forEach(link => {
-            link.addEventListener('click', event => {
-                event.preventDefault();
-                activate(link.dataset.slottab);
-            });
-        });
-    };
-
-    setupMoveTab();
 
     dynamicForm.addEventListener(dynamicForm.events.FORM_SUBMITTED, async(e) => {
         e.preventDefault();
