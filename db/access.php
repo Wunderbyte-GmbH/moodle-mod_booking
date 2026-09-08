@@ -93,6 +93,16 @@ $capabilities = [
             'manager' => CAP_ALLOW,
         ],
     ],
+    // Allows duplicating own booking options, i.e. options where the user is
+    // teacher, responsible contact, or creator. See booking_check_if_teacher().
+    'mod/booking:duplicateownoption' => [
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => [
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW,
+        ],
+    ],
     // This is the capability to ADD new booking options. It is separate from the editing capability.
     'mod/booking:addoption' => [
         'captype' => 'write',

@@ -128,6 +128,8 @@ $string['booking:changecustomformofotherusers'] = 'Formularwerte (Customform), d
 $string['booking:communicate'] = 'Kann kommunizieren (z.B. Nachrichten an gebuchte Nutzer/innen schicken)';
 $string['booking:createcalendarsiteevents'] = 'Website-Termine für Buchungsoptionen im Kalender anlegen (für alle Nutzer/innen der Website sichtbar, keine Einschreibung nötig)';
 $string['booking:duplicateanycourse'] = 'Beliebigen Kurs als Duplizierungsvorlage auswählen (auch Kurse, auf die der/die Nutzer/in keinen Zugriff hat)';
+$string['booking:duplicateownoption'] = 'Eigene Buchungsoptionen duplizieren (eigene Buchungsoptionen sind solche,
+die man entweder selbst angelegt hat oder bei denen man als Trainer/in zugewiesen ist)';
 $string['booking:managebookedusers'] = 'Buchungen von Nutzer/innen verwalten';
 $string['booking:overrideboconditions'] = 'Nutzer/in darf buchen auch wenn Verfügbarkeit false zurückliefert.';
 $string['booking:sendpollurltoteachers'] = 'Umfragelink and Trainer/innen senden';

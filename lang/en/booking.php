@@ -844,6 +844,8 @@ $string['booking:documentation'] = 'Booking: Documentation';
 $string['booking:downloadchecklist'] = 'Download checklist';
 $string['booking:downloadresponses'] = 'Download responses';
 $string['booking:duplicateanycourse'] = 'Select any course as a duplication source (incl. courses the user cannot access)';
+$string['booking:duplicateownoption'] = 'Duplicate own booking options (own booking options are those
+that you either created yourself or are assigned to as a teacher)';
 $string['booking:editbookingrules'] = "Edit rules (Pro)";
 $string['booking:editcertificateconditions'] = "Edit certificate conditions";
 $string['booking:editoptionformconfig'] = 'Edit option config form';

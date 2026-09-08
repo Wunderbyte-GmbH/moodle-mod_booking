@@ -1255,6 +1255,8 @@ class bookingoptions_wbtable extends wunderbyte_table {
             booking_check_if_teacher($values));
         $isteacherandcancancel = (has_capability('mod/booking:cancelownoption', $context) &&
             booking_check_if_teacher($values));
+        $isteacherandcanduplicate = (has_capability('mod/booking:duplicateownoption', $context) &&
+            booking_check_if_teacher($values));
 
         $ddoptions = [];
         $ret = '<div class="menubar p-1" id="action-menu-' . $optionid . '-menubar" role="group" aria-label="' .
@@ -1507,21 +1509,6 @@ class bookingoptions_wbtable extends wunderbyte_table {
                     }
                 }
 
-                // Duplicate booking option.
-                $ddoptions[] = '<div class="dropdown-item">' . html_writer::link(new moodle_url(
-                    '/mod/booking/editoptions.php',
-                    [
-                        'id' => $cmid,
-                        'optionid' => -1,
-                        'copyoptionid' => $optionid,
-                        'returnto' => 'url',
-                        'returnurl' => $returnurl,
-                    ]
-                ), $OUTPUT->pix_icon(
-                    't/copy',
-                    get_string('duplicatebookingoption', 'mod_booking')
-                ) . get_string('duplicatebookingoption', 'mod_booking')) . '</div>';
-
                 // Delete booking option: confirmation modal plus webservice call.
                 // This replaced the old action=deletebookingoption URL flow on report.php.
                 // The empty returnurl makes the modal reload the current page after the
@@ -1550,6 +1537,23 @@ class bookingoptions_wbtable extends wunderbyte_table {
                 ) . '</div>';
             }
         }
+
+        if ($canupdate || $isteacherandcanduplicate) {
+            // Duplicate booking option.
+            $ddoptions[] = '<div class="dropdown-item">' . html_writer::link(new moodle_url(
+                '/mod/booking/editoptions.php',
+                [
+                    'id' => $cmid,
+                    'optionid' => -1,
+                    'copyoptionid' => $optionid,
+                    'returnto' => 'url',
+                    'returnurl' => $returnurl,
+                ]
+            ), $OUTPUT->pix_icon(
+                't/copy',
+                get_string('duplicatebookingoption', 'mod_booking')
+            ) . get_string('duplicatebookingoption', 'mod_booking')) . '</div>';
+        } // End - Duplicate booking option.
 
         if ($canupdate || $isteacherandcancancel) {
             // Cancel booking options.

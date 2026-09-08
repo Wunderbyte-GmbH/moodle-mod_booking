@@ -183,16 +183,23 @@ class option_form extends dynamic_form {
         $context = $this->get_context_for_dynamic_submission();
 
         if (
-            !has_capability('mod/booking:addeditownoption', $context)
-            && !has_capability('mod/booking:updatebooking', $context)
+            has_capability('mod/booking:addeditownoption', $context)
+            || has_capability('mod/booking:updatebooking', $context)
         ) {
-            throw new required_capability_exception(
-                $context,
-                'mod/booking:addeditownoption',
-                'nopermissions',
-                ''
-            );
+            return;
         }
+
+        // Duplicating an own option ends in saving a NEW option: the copyoptionid is
+        // consumed when the form is loaded and is not submitted again, so the only
+        // thing that can be checked here is that no existing option is addressed.
+        // Ownership of the copied option is checked when the form is opened,
+        // see \mod_booking\local\option_edit_access::can_edit_option().
+        $optionid = (int)($this->_ajaxformdata['optionid'] ?? 0);
+        if (has_capability('mod/booking:duplicateownoption', $context) && $optionid <= 0) {
+            return;
+        }
+
+		throw new required_capability_exception($context, 'mod/booking:addeditownoption', 'nopermissions', '');
     }
 
 

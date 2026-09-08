@@ -1757,7 +1757,11 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
                 'nav_manageresponses'
             );
         }
-        if (has_capability('mod/booking:updatebooking', $context)) {
+        if (
+            has_capability('mod/booking:updatebooking', $context)
+            || (has_capability('mod/booking:duplicateownoption', $context)
+                && booking_check_if_teacher($optionid))
+        ) {
             $navref->add(
                 get_string('duplicatebookingoption', 'booking'),
                 new moodle_url(

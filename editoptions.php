@@ -68,7 +68,7 @@ if (!$context = context_module::instance($cmid)) {
 }
 
 // The three editing layers live in \mod_booking\local\option_edit_access so they can be unit-tested.
-option_edit_access::require_edit_option((int)$cmid, (int)$optionid);
+option_edit_access::require_edit_option((int)$cmid, (int)$optionid, (int)$copyoptionid);
 
 // We don't need this anymore.
 $optionid = $optionid < 0 ? 0 : $optionid;

@@ -47,9 +47,10 @@ class option_edit_access {
      *
      * @param int $cmid
      * @param int $optionid 0 when a new option is created
+     * @param int $copyoptionid the option that is duplicated, 0 when nothing is duplicated
      * @return bool
      */
-    public static function can_edit_option(int $cmid, int $optionid): bool {
+    public static function can_edit_option(int $cmid, int $optionid, int $copyoptionid = 0): bool {
         $context = context_module::instance($cmid);
 
         // Either the user has the general capability to update booking options...
@@ -58,6 +59,17 @@ class option_edit_access {
         }
         // ... or they have the capability to edit their own options and are actually editing their own option.
         if (has_capability('mod/booking:addeditownoption', $context) && booking_check_if_teacher($optionid)) {
+            return true;
+        }
+        // ... or they duplicate one of their own options into a new one.
+        // The form opens on a new option ($optionid is empty or the -1 the duplicate links use),
+        // so ownership has to be checked on the option that is copied.
+        if (
+            !empty($copyoptionid)
+            && $optionid <= 0
+            && has_capability('mod/booking:duplicateownoption', $context)
+            && booking_check_if_teacher($copyoptionid)
+        ) {
             return true;
         }
         // ... or they have the capability to add options and are creating a new option (optionid is 0).
@@ -70,11 +82,12 @@ class option_edit_access {
      *
      * @param int $cmid
      * @param int $optionid
+     * @param int $copyoptionid the option that is duplicated, 0 when nothing is duplicated
      * @return void
      * @throws moodle_exception
      */
-    public static function require_edit_option(int $cmid, int $optionid): void {
-        if (!self::can_edit_option($cmid, $optionid)) {
+    public static function require_edit_option(int $cmid, int $optionid, int $copyoptionid = 0): void {
+        if (!self::can_edit_option($cmid, $optionid, $copyoptionid)) {
             throw new moodle_exception('nopermissions');
         }
     }
