@@ -407,6 +407,8 @@ $string['profeatures:unenroluserswithoutaccess'] = '<ul>
 </ul>';
 $string['recreategroup'] = 'Gruppe erneut anlegen und Nutzer/innen der Gruppe zuordnen';
 $string['reminderteachersent'] = 'Benachrichtigung an Trainer/in versendet';
+$string['reportrequirecourselogin'] = 'Kurs-Login für die Liste der gebuchten Nutzer/innen erforderlich';
+$string['reportrequirecourselogin_desc'] = 'Wenn aktiviert (Standard), müssen Nutzer/innen im Kurs eingeschrieben sein (oder der Kurs muss Gastzugang erlauben), um die Liste der gebuchten Nutzer/innen (report.php) zu öffnen. Wenn deaktiviert, reicht ein Login auf der Seite; die Rechteprüfungen der Liste gelten weiterhin, es sehen sie also nur Trainer/innen der Buchungsoption oder Nutzer/innen mit den nötigen Rechten.';
 $string['reserveddeleted'] = 'Reservierte Nutzer/in gelöscht';
 $string['responsesfields'] = 'Felder in der Teilnehmer/innen-Liste';
 $string['responsiblecontactcanedit_desc'] = 'Aktivieren Sie diese Einstellung, um es Kontaktpersonen zu erlauben,
