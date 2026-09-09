@@ -109,9 +109,7 @@ Feature: In a course add a booking instance and manage it
     And I am on "Course 1" course homepage with editing mode on
     ##And I add a "Booking" to section "0"
     And I add a "Booking" to section 0 using the activity chooser
-    And I wait "1" seconds
     And I set the field "Populate from template" to "InstanceTemplate"
-    And I wait "1" seconds
     ## Verify fields populated from template
     And the following fields match these values:
       | Booking instance name                       | My booking              |

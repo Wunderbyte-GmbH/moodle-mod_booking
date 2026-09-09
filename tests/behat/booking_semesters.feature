@@ -39,7 +39,6 @@ Feature: As a teacher - configure and use booking's semesters feature.
     And I follow "Dates"
     And I should see "NextSummer (nextsummer)" in the "//div[contains(@id, 'id_datesheader_') and contains(@class, 'fcontainer')]" "xpath_element"
     And I open the autocomplete suggestions list in the "//div[contains(@id, 'id_datesheader_')]//div[contains(@id, 'fitem_id_semesterid_')]" "xpath_element"
-    And I wait "1" seconds
     And I should see "NextMay (nextmay)" in the "//div[contains(@id, 'id_datesheader_')]//ul[contains(@class, 'form-autocomplete-suggestions')]" "xpath_element"
     And I click on "NextMay (nextmay)" "text" in the "//div[contains(@id, 'id_datesheader_')]//ul[contains(@class, 'form-autocomplete-suggestions')]" "xpath_element"
     And I should see "NextMay (nextmay)" in the "//div[contains(@id, 'id_datesheader_')]//div[contains(@id, 'form_autocomplete_selection')]" "xpath_element"

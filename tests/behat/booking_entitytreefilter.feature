@@ -54,7 +54,6 @@ Feature: Multilevel location filter and location hover card in the booking optio
     ## (plain label matching would hit the filter search input "Search in filter Location" instead)
     ## and clicked for real, so the change event fires and triggers the table reload.
     And I click on "//div[contains(@class, 'allbookingoptionstable')]//input[contains(@class, 'wbt-treenode-checkbox') and @data-key='Location']" "xpath_element"
-    And I wait "1" seconds
     And I should see "Option Floor" in the ".allbookingoptionstable_r1" "css_element"
     And "//div[contains(@class, 'allbookingoptionstable_r2')]" "xpath_element" should not exist
 
@@ -76,7 +75,6 @@ Feature: Multilevel location filter and location hover card in the booking optio
     ## its data-key (plain label matching would hit the filter search input instead) and clicked
     ## for real, so the change event fires and triggers the table reload.
     And I click on "//div[contains(@class, 'allbookingoptionstable')]//input[contains(@class, 'wbt-treenode-checkbox') and @data-key='Location']" "xpath_element"
-    And I wait "1" seconds
     And I should see "Option Floor" in the ".allbookingoptionstable_r1" "css_element"
     And "//div[contains(@class, 'allbookingoptionstable_r2')]" "xpath_element" should not exist
 

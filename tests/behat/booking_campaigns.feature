@@ -51,13 +51,11 @@ Feature: Create booking campaigns for booking options as admin and booking it as
       | Booking limit factor         | 2                  |
     ## Mandatory workaround for autocomplete field
     And I set the field "Booking option field" to "Sport1"
-    And I wait "1" seconds
     And I set the field "Value" to "tenis"
     And I click on "Save changes" "button"
     And I wait until the page is ready
     And I should see "campaign1"
     And I click on "Edit" "text" in the ".booking-campaigns-list" "css_element"
-    And I wait "1" seconds
     And I set the field "Custom name for the campaign" to "campaign1"
     And I click on "Save changes" "button"
     And I wait until the page is ready
@@ -77,13 +75,11 @@ Feature: Create booking campaigns for booking options as admin and booking it as
       | Message when blocking          | BlockAbove30       |
     ## Mandatory workaround for autocomplete field
     And I set the field "Booking option field" to "Sport1"
-    And I wait "1" seconds
     And I set the field "Value" to "tenis"
     And I click on "Save changes" "button"
     And I wait until the page is ready
     And I should see "blogcampaign1"
     And I click on "Edit" "text" in the ".booking-campaigns-list" "css_element"
-    And I wait "1" seconds
     And I set the field "Custom name for the campaign" to "blockingcampaign1"
     And I click on "Save changes" "button"
     And I wait until the page is ready
@@ -124,12 +120,8 @@ Feature: Create booking campaigns for booking options as admin and booking it as
     ## Validate accessibility of booking options table before booking
     And the page should meet accessibility standards
     And I should see "Click again to confirm booking" in the ".allbookingoptionstable_r3" "css_element"
-    ## Validate accessibility of booking options table before booking
-    And the page should meet accessibility standards
     And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r3" "css_element"
     And I should see "Start" in the ".allbookingoptionstable_r3" "css_element"
-    ## Validate accessibility of booking options table before booking
-    And the page should meet accessibility standards
     And I log out
     ## Verify "above" blocking campaign - student2 can NOT book
     And I am on the "BookingCMP" Activity page logged in as student2

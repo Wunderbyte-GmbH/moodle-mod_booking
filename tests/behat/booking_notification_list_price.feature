@@ -77,7 +77,6 @@ Feature: Notification-list users can buy a priced option after a cancellation
     ## Notification bell still exists because the user is still on the notification list, but the priced option is now bookable.
     And ".allbookingoptionstable_r1 .booking-button-notify-me" "css_element" should exist
     And I click on "Add to cart" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
-    And I wait "1" seconds
     And I should see "In cart" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     ## Notification bell should disappear by now but being async task the exact timing is not guaranteed.
     ## Therefore, we check for its absence after the checkout navigation below.

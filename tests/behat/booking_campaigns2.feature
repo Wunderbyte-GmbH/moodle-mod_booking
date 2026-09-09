@@ -84,14 +84,12 @@ Feature: Create booking campaigns2 for booking options as admin and booking it a
     And I should see "Below50" in the ".allbookingoptionstable_r3 .booknow" "css_element"
     And I should see "Add to cart" in the ".allbookingoptionstable_r4 .booknow" "css_element"
     And I should see "Below50" in the ".allbookingoptionstable_r5 .booknow" "css_element"
-    And I log out
     And I am on the "BookingCMP" Activity page logged in as student2
     And I should see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I should see "Book now" in the ".allbookingoptionstable_r2 .booknow" "css_element"
     And I should see "Book now" in the ".allbookingoptionstable_r3 .booknow" "css_element"
     And I should see "Add to cart" in the ".allbookingoptionstable_r4 .booknow" "css_element"
     And I should see "Add to cart" in the ".allbookingoptionstable_r5 .booknow" "css_element"
-    And I log out
     And I am on the "BookingCMP" Activity page logged in as student3
     And I should see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I should see "Book now" in the ".allbookingoptionstable_r2 .booknow" "css_element"
@@ -112,14 +110,12 @@ Feature: Create booking campaigns2 for booking options as admin and booking it a
     And I should see "Book now" in the ".allbookingoptionstable_r3 .booknow" "css_element"
     And I should see "Add to cart" in the ".allbookingoptionstable_r4 .booknow" "css_element"
     And I should see "Add to cart" in the ".allbookingoptionstable_r5 .booknow" "css_element"
-    And I log out
     And I am on the "BookingCMP" Activity page logged in as student2
     And I should see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I should see "Below50" in the ".allbookingoptionstable_r2 .booknow" "css_element"
     And I should see "Book now" in the ".allbookingoptionstable_r3 .booknow" "css_element"
     And I should see "Add to cart" in the ".allbookingoptionstable_r4 .booknow" "css_element"
     And I should see "Below50" in the ".allbookingoptionstable_r5 .booknow" "css_element"
-    And I log out
     And I am on the "BookingCMP" Activity page logged in as student3
     And I should see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I should see "Below50" in the ".allbookingoptionstable_r2 .booknow" "css_element"

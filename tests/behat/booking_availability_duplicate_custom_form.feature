@@ -40,7 +40,6 @@ Feature: Test booking options avaialbility custom form conditions with duplicate
     And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I follow "Availability conditions"
     And I set the field "Form needs to be filled out before booking" to "checked"
-    And I wait "1" seconds
     And I set the following fields to these values:
       | bo_cond_customform_select_1_1   | static                |
       | bo_cond_customform_label_1_1    | Static lavel          |

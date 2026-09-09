@@ -49,7 +49,6 @@ Feature: Configure and validate self-learning course feature for booking option
     And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I follow "Moodle course"
     And I set the field "optiontype" to "Self-learning course"
-    And I wait "1" seconds
     And I expand all fieldsets
     And I wait until ".collapsing" "css_element" does not exist
     And I set the field "duration[number]" to "3"
