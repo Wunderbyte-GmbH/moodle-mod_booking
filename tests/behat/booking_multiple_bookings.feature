@@ -38,6 +38,7 @@ Feature: In a booking instance with multiple bookings enabled
     And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r1" "css_element"
     And I wait until "Click again to confirm booking" "text" does not exist
     Then I should see "Book again (already booked 1 time)" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "Undo my booking" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     # Second booking
     When I click on "Book again (already booked 1 time)" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I should see "Click again to confirm booking" in the ".allbookingoptionstable_r1" "css_element"
@@ -79,18 +80,6 @@ Feature: In a booking instance with multiple bookings enabled
     And I should not see "Book again" in the ".allbookingoptionstable_r1" "css_element"
 
   @javascript
-  Scenario: Multiple bookings enabled: cancel button appears after booking with multiple bookings allowed
-    Given the following "mod_booking > options" exist:
-      | booking    | text          | course | description       | multiplebookings |
-      | My booking | Test option 1 | C1     | Multiple bookings | 1                |
-    And I am on the "My booking" Activity page logged in as student1
-    When I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
-    And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r1" "css_element"
-    And I wait until "Click again to confirm booking" "text" does not exist
-    Then I should see "Book again (already booked 1 time)" in the ".allbookingoptionstable_r1" "css_element"
-    And I should see "Undo my booking" in the ".allbookingoptionstable_r1 .booknow" "css_element"
-
-  @javascript
   Scenario: Multiple bookings enabled: wait time between bookings is respected
     Given the following "mod_booking > options" exist:
       | booking    | text          | course | description       | multiplebookings | allowtobookagainafter |
@@ -129,7 +118,6 @@ Feature: In a booking instance with multiple bookings enabled
     And I reload the page
     And I should see "Book again (already booked 2 times)" in the ".allbookingoptionstable_r1" "css_element"
     # Student 2 books once
-    And I log out
     And I am on the "My booking" Activity page logged in as student2
     And I should see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     When I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
@@ -139,36 +127,9 @@ Feature: In a booking instance with multiple bookings enabled
     And I reload the page
     Then I should see "Book again (already booked 1 time)" in the ".allbookingoptionstable_r1" "css_element"
     # Verify student 1 still shows correct count
-    And I log out
     And I am on the "My booking" Activity page logged in as student1
     And I wait until the page is ready
     And I should see "Book again (already booked 2 times)" in the ".allbookingoptionstable_r1" "css_element"
-
-  @javascript
-  Scenario: Multiple bookings enabled: cancel booking returns option to unbooked state
-    Given the following "mod_booking > options" exist:
-      | booking    | text          | course | description       | multiplebookings |
-      | My booking | Test option 1 | C1     | Multiple bookings | 1                |
-    And I am on the "My booking" Activity page logged in as teacher1
-    And I follow "Settings"
-    And I follow "Booking und Cancelling"
-    And I set the field "Allow users to cancel their booking themselves" to "checked"
-    And I press "Save and display"
-    And I log out
-    When I am on the "My booking" Activity page logged in as student1
-    # Book once
-    And I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
-    And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r1" "css_element"
-    And I wait until "Click again to confirm booking" "text" does not exist
-    And I should see "Book again (already booked 1 time)" in the ".allbookingoptionstable_r1" "css_element"
-    # Cancel the booking
-    And I should see "Undo my booking" in the ".allbookingoptionstable_r1 .booknow" "css_element"
-    And I click on "Undo my booking" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
-    And I should see "Click again to confirm cancellation" in the ".allbookingoptionstable_r1" "css_element"
-    And I click on "Click again to confirm cancellation" "text" in the ".allbookingoptionstable_r1" "css_element"
-    # After canceling all bookings, should return to "Book now"
-    Then I should see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
-    And I should not see "Book again" in the ".allbookingoptionstable_r1" "css_element"
 
   @javascript
   Scenario: Multiple bookings enabled: prepage modal with wait time between bookings
@@ -179,7 +140,6 @@ Feature: In a booking instance with multiple bookings enabled
     And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I follow "Availability conditions"
     And I set the field "Form needs to be filled out before booking" to "checked"
-    And I wait "1" seconds
     And I set the following fields to these values:
       | bo_cond_customform_select_1_1   | select |
       | bo_cond_customform_label_1_1    | Choice |

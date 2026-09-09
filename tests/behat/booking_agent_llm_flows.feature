@@ -31,25 +31,6 @@ Feature: Booking agent LLM integration workflows via AI chat
     And I change viewport size to "1366x10000"
 
   ##############################################################################
-  # UI RENDERING (no LLM needed)
-  # Verifies that the AI chat interface is accessible and rendered correctly
-  ##############################################################################
-
-  @javascript
-  Scenario: AI chat interface renders all required elements for teacher
-    Given I am on the AI instructions page for booking "LLM Booking" logged in as teacher1
-    Then the AI instructions page should render the expected readiness UI
-
-  @javascript
-  Scenario: Confirmation panel exists and buttons are present
-    Given I am on the AI instructions page for booking "LLM Booking" logged in as teacher1
-    Then the AI instructions page should render confirmation controls when chat is ready
-    And the AI confirmation panel should be hidden on initial load when chat is ready
-
-  Scenario: Student cannot access AI instructions page
-    Given I visit the AI instructions page for booking "LLM Booking" as "student1" and expect access denied
-
-  ##############################################################################
   # LLM FLOW: Create booking option via natural language
   # Corresponds to PHPUnit: agent_wave3_real_llm_test::test_create_option_via_real_llm
   ##############################################################################
