@@ -55,6 +55,7 @@ Feature: Multilevel location filter and location hover card in the booking optio
     ## and clicked for real, so the change event fires and triggers the table reload.
     And I click on "//div[contains(@class, 'allbookingoptionstable')]//input[contains(@class, 'wbt-treenode-checkbox') and @data-key='Location']" "xpath_element"
     And I should see "Option Floor" in the ".allbookingoptionstable_r1" "css_element"
+    And I wait until "//div[contains(@class, 'allbookingoptionstable_r2')]" "xpath_element" does not exist
     And "//div[contains(@class, 'allbookingoptionstable_r2')]" "xpath_element" should not exist
 
   @javascript
@@ -76,6 +77,7 @@ Feature: Multilevel location filter and location hover card in the booking optio
     ## for real, so the change event fires and triggers the table reload.
     And I click on "//div[contains(@class, 'allbookingoptionstable')]//input[contains(@class, 'wbt-treenode-checkbox') and @data-key='Location']" "xpath_element"
     And I should see "Option Floor" in the ".allbookingoptionstable_r1" "css_element"
+    And I wait until "//div[contains(@class, 'allbookingoptionstable_r2')]" "xpath_element" does not exist
     And "//div[contains(@class, 'allbookingoptionstable_r2')]" "xpath_element" should not exist
 
   @javascript
