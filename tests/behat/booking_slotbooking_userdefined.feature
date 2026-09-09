@@ -31,6 +31,7 @@ Feature: Slot booking option of type "userdefined" lets a student pick a free st
       | BookingUserdefBasic | Userdefined basic option | C1    | Basic test  | 2          | 1            | userdefined | 09:00              | 17:00              | ## tomorrow ##   | ## tomorrow ##    | 1          | 1          | 1          | 1          | 1          | 1          | 1          | 2700                     | 2700                      | 15                                  | 5                               | 1                        |
     Given I am on the "BookingUserdefBasic" Activity page logged in as student1
     When I click on "Book now" "text" in the ".allbookingoptionstable_r1" "css_element"
+    And I wait until the page is ready
     And I set the slot start time field to "10:30"
     And I follow "Continue"
     Then I should see "Thank you! You have successfully booked" in the ".modal-dialog.modal-xl .condition-confirmation" "css_element"
@@ -46,6 +47,7 @@ Feature: Slot booking option of type "userdefined" lets a student pick a free st
     Given I am on the "BookingUserdefOverlap" Activity page logged in as student1
     ## First booking: 09:00 - 09:45.
     When I click on "Book now" "text" in the ".allbookingoptionstable_r1" "css_element"
+    And I wait until the page is ready
     And I set the slot start time field to "09:00"
     And I follow "Continue"
     Then I should see "Thank you! You have successfully booked" in the ".modal-dialog.modal-xl .condition-confirmation" "css_element"
@@ -53,6 +55,7 @@ Feature: Slot booking option of type "userdefined" lets a student pick a free st
     ## Second attempt: 09:15 - 10:00 overlaps the 09:00 - 09:45 booking just made - must be rejected,
     ## and (regression guard) the calendar must stay on this same day/option instead of resetting.
     When I click on "Book now" "text" in the ".allbookingoptionstable_r1" "css_element"
+    And I wait until the page is ready
     And I set the slot start time field to "09:15"
     And I follow "Continue"
     Then I should see "The selected slot is no longer available. Please choose another one."
@@ -69,6 +72,7 @@ Feature: Slot booking option of type "userdefined" lets a student pick a free st
     Given I am on the "BookingUserdefMax" Activity page logged in as student1
     ## First (and, per max_slots_per_user=1, only allowed) booking: 09:00 - 09:45.
     When I click on "Book now" "text" in the ".allbookingoptionstable_r1" "css_element"
+    And I wait until the page is ready
     And I set the slot start time field to "09:00"
     And I follow "Continue"
     Then I should see "Thank you! You have successfully booked" in the ".modal-dialog.modal-xl .condition-confirmation" "css_element"
@@ -103,6 +107,7 @@ Feature: Slot booking option of type "userdefined" lets a student pick a free st
       | BookingUserdefPrice | Userdefined priced option | C1    | Price test  | 2          | 1        | 1            | userdefined | 09:00              | 17:00              | ## tomorrow ##   | ## tomorrow ##    | 1          | 1          | 1          | 1          | 1          | 1          | 1          | 2700                     | 2700                      | 15                                  | 5                               | 1                        |
     Given I am on the "BookingUserdefPrice" Activity page logged in as student1
     When I click on "Add to cart" "text" in the ".allbookingoptionstable_r1" "css_element"
+    And I wait until the page is ready
     And I set the slot start time field to "10:00"
     And I follow "Continue"
     Then I should see "Thank you! You have successfully put Userdefined priced option into the shopping cart." in the ".modal-dialog.modal-xl .modalMainContent" "css_element"
