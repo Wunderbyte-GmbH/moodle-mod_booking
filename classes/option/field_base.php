@@ -264,9 +264,10 @@ abstract class field_base implements fields {
             if (
                 property_exists($mockdata, $key)
                 && is_array($mockdata->{$key})
-                && isset($mockdata->{$key}['text'])
+                && array_key_exists('text', $mockdata->{$key})
             ) {
-                    $oldvalue = $mockdata->{$key}['text'];
+                // Editor values: a null text (field never filled) is the same as an empty one.
+                $oldvalue = $mockdata->{$key}['text'] ?? '';
             } else if (
                 property_exists($mockdata, $key)
                 && is_object($mockdata->{$key})
@@ -285,9 +286,9 @@ abstract class field_base implements fields {
 
             if (
                 is_array($value)
-                && isset($value['text'])
+                && array_key_exists('text', $value)
             ) {
-                $newvalue = $value['text'];
+                $newvalue = $value['text'] ?? '';
             } else if (
                 is_object($value)
                 && property_exists($value, 'text')
@@ -304,6 +305,7 @@ abstract class field_base implements fields {
             if (
                 $oldvalue != $newvalue
                 && !(empty($oldvalue) && empty($newvalue))
+                && !self::differs_only_by_editor_markup($oldvalue, $newvalue)
             ) {
                 $changes = [
                     'changes' => [
@@ -316,6 +318,34 @@ abstract class field_base implements fields {
             }
         }
         return $changes;
+    }
+
+    /**
+     * Whether two values are the same text and differ only in the HTML wrapping the editor adds.
+     *
+     * A plain text stored by an import, a web service or a generator comes back from the editor as
+     * "<p>text</p>". That is not a change the user made, so it must neither be tracked nor announced
+     * to booked users (Wunderbyte-GmbH/moodle-mod_booking#1556). Only applies when one of the two
+     * values is plain text - a formatting change of an existing HTML value is still a change.
+     *
+     * @param mixed $oldvalue
+     * @param mixed $newvalue
+     * @return bool
+     */
+    protected static function differs_only_by_editor_markup($oldvalue, $newvalue): bool {
+        if (!is_string($oldvalue) || !is_string($newvalue)) {
+            return false;
+        }
+        $oldplain = strip_tags($oldvalue) === $oldvalue;
+        $newplain = strip_tags($newvalue) === $newvalue;
+        if (!$oldplain && !$newplain) {
+            return false;
+        }
+        $normalize = function (string $value): string {
+            $text = html_entity_decode(strip_tags($value), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+            return trim(preg_replace('/\s+/u', ' ', $text));
+        };
+        return $normalize($oldvalue) === $normalize($newvalue);
     }
 
     /**
