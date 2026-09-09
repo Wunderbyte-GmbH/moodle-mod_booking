@@ -48,7 +48,6 @@ Feature: Turn off modals - pre booking pages have to be shown inline
 
   @javascript
   Scenario Outline: Turn off modals: pre booking pages are inline in every list view of a shortcode
-    Given I am logged in as admin
     And I create a page "shortcode_<type>" in course "C1" that refers booking "My booking" with shortcode "[courselist cmid=My booking type=<type>]"
     And I am on the "shortcode_<type>" Activity page logged in as student1
     And I wait until the page is ready
@@ -65,12 +64,14 @@ Feature: Turn off modals - pre booking pages have to be shown inline
 
   @javascript
   Scenario: Turn off modals: a list shortcode of a cards instance still shows the pages inline
-    Given I am on the "My booking" Activity page logged in as teacher1
-    And I follow "Settings"
-    And I set the field "View type" to "Cards view"
-    And I press "Save and display"
-    And I am logged in as admin
-    And I create a page "shortcode_listofcards" in course "C1" that refers booking "My booking" with shortcode "[courselist cmid=My booking type=list]"
+    ## A second instance configured for the cards view (viewparam 1); the list shortcode of it must stay inline.
+    Given the following "activities" exist:
+      | activity | course | name          | intro | bookingmanager | eventtype | Default view for booking options | bookingpolicy | json             |
+      | booking  | C1     | Cards booking | Descr | teacher1       | Webinar   | All bookings                     | Are you sure? | {"viewparam":"1"} |
+    And the following "mod_booking > options" exist:
+      | booking       | text          | course | description  | maxanswers | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 |
+      | Cards booking | Test option 1 | C1     | Inline pages | 5          | 0              | 0              | ## tomorrow ##    | ## +2 days ##   |
+    And I create a page "shortcode_listofcards" in course "C1" that refers booking "Cards booking" with shortcode "[courselist cmid=Cards booking type=list]"
     And I am on the "shortcode_listofcards" Activity page logged in as student1
     And I wait until the page is ready
     When I click on "Book now" "text"
@@ -79,7 +80,6 @@ Feature: Turn off modals - pre booking pages have to be shown inline
 
   @javascript
   Scenario: Turn off modals: the cards view still uses a modal, because inline is not supported there
-    Given I am logged in as admin
     And I create a page "shortcode_cards" in course "C1" that refers booking "My booking" with shortcode "[courselist cmid=My booking type=cards]"
     And I am on the "shortcode_cards" Activity page logged in as student1
     And I wait until the page is ready

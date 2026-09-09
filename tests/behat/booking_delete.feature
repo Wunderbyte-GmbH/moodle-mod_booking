@@ -67,13 +67,13 @@ Feature: In a booking delete
 
   @javascript
   Scenario: Delete user from booking option as teacher
-    Given I am on the "My booking" Activity page logged in as teacher1
+    Given the following "mod_booking > answers" exist:
+      | booking    | option     | user     |
+      | My booking | New option | student1 |
+      | My booking | New option | student2 |
+    And I am on the "My booking" Activity page logged in as teacher1
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
-    And I click on "Book other users" "link" in the ".allbookingoptionstable_r1" "css_element"
-    And I click on "Student 1 (student1@example.com)" "text"
-    And I click on "Student 2 (student2@example.com)" "text"
-    And I click on "Add" "button"
-    And I follow "<< Back to responses"
+    And I click on "Manage bookings" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Student 1"
     And I should see "Student 2"
     And I click on "selectall" "checkbox"

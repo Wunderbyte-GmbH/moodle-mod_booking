@@ -71,13 +71,16 @@ Feature: Configure and use booking's pagination and perform filtering - as a tea
     And I should see "Booking Option 4" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "1 of 5 records found" in the ".allbookingoptionstable .wb-records-count-label" "css_element"
     And I set the field "Search" in the ".allbookingoptionstable" "css_element" to ""
-    ## Set pagination witout filter
-    And I am on the "My booking" Activity page logged in as teacher1
-    When I follow "Settings"
-    And I follow "Advanced options"
-    And I set the field "paginationnum" to "3"
-    And I press "Save and display"
-    And I am on the "My booking" Activity page logged in as student1
+    ## Pagination without filter: a second instance seeded with paginationnum 3 (the form path is covered above)
+    And the following "activities" exist:
+      | activity | course | name          | intro | bookingmanager | eventtype | Default view for booking options | paginationnum |
+      | booking  | C1     | Paged booking | Descr | teacher1       | Webinar   | All bookings                     | 3             |
+    And I create booking option "Booking Option 1" in "Paged booking"
+    And I create booking option "Booking Option 2" in "Paged booking"
+    And I create booking option "Booking Option 3" in "Paged booking"
+    And I create booking option "Booking Option 4" in "Paged booking"
+    And I create booking option "Booking Option 5" in "Paged booking"
+    And I am on the "Paged booking" Activity page
     And "//div[contains(@class, 'allbookingoptionstable')]//ul[@class='pagination']" "xpath_element" should exist
     Then I should see "1" in the ".allbookingoptionstable .pagination" "css_element"
     And I should see "2" in the ".allbookingoptionstable .pagination" "css_element"
