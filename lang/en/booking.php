@@ -1361,6 +1361,7 @@ $string['certificaterequiresall'] = 'All selected options must be completed';
 $string['certificaterequiresone'] = 'Check this box if only one option needs to be completed';
 $string['certificaterequiresotheroptions'] = 'Requires completion of these other booking options:';
 $string['certificaterequiresotheroptions_help'] = 'Select booking options that must be completed before a certificate can be issued for this booking option.';
+$string['certificatesissued'] = 'Issued certificates';
 $string['certificatestriggered'] = 'Creation of certificates triggered';
 $string['certificateurl'] = 'Certificate URL';
 $string['certificatewithexpiration'] = 'Expires: {$a}';

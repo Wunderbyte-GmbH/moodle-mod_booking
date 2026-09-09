@@ -27,6 +27,8 @@ use core_reportbuilder\local\helpers\database;
 use core_reportbuilder\local\report\column;
 use core_reportbuilder\local\report\filter;
 use mod_booking\local\competencies\competencies_handler;
+use mod_booking\reportbuilder\local\helpers\certificate_helper;
+use stdClass;
 
 /**
  * Booking option entity for Report Builder.
@@ -312,6 +314,57 @@ class booking_options extends base {
                 return $options[(int) $value] ?? '';
             });
 
+        // Certificate template(s) the option grants: legacy template from the option JSON plus the templates
+        // of all active certificate conditions targeting the option or its booking instance.
+        $columns[] = (new column(
+            'certificate',
+            new lang_string('certificate', 'mod_booking'),
+            $this->get_entity_name()
+        ))
+            ->add_joins($this->get_joins())
+            ->set_type(column::TYPE_TEXT)
+            ->add_fields("{$tablealias}.id, {$tablealias}.json, {$tablealias}.bookingid")
+            ->set_is_sortable(false)
+            ->add_callback(static function ($value, stdClass $row): string {
+                return implode(', ', certificate_helper::get_template_names_for_option(
+                    (int) $row->id,
+                    $row->json,
+                    (int) $row->bookingid
+                ));
+            });
+
+        // Names of the active certificate conditions applying to the option.
+        $columns[] = (new column(
+            'certificateconditions',
+            new lang_string('certificateconditions', 'mod_booking'),
+            $this->get_entity_name()
+        ))
+            ->add_joins($this->get_joins())
+            ->set_type(column::TYPE_TEXT)
+            ->add_fields("{$tablealias}.id, {$tablealias}.bookingid")
+            ->set_is_sortable(false)
+            ->add_callback(static function ($value, stdClass $row): string {
+                return implode(', ', certificate_helper::get_condition_names_for_option(
+                    (int) $row->id,
+                    (int) $row->bookingid
+                ));
+            });
+
+        // Number of certificates issued for the option. The link between an issue and the option is the
+        // "bookingoptionid" key of the issue's JSON data, so this needs tool_certificate and JSON SQL support.
+        $issuedsql = self::get_issued_certificates_sql($tablealias);
+        if ($issuedsql !== null) {
+            $columns[] = (new column(
+                'certificatesissued',
+                new lang_string('certificatesissued', 'mod_booking'),
+                $this->get_entity_name()
+            ))
+                ->add_joins($this->get_joins())
+                ->set_type(column::TYPE_INTEGER)
+                ->add_field($issuedsql, 'certificatesissued')
+                ->set_is_sortable(true);
+        }
+
         // Description.
         $columns[] = (new column(
             'description',
@@ -387,6 +440,38 @@ class booking_options extends base {
             ->set_options_callback([self::class, 'get_visibility_options']);
 
         return $filters;
+    }
+
+    /**
+     * SQL subselect counting the certificates issued for a booking option, or null when unsupported.
+     *
+     * Mirrors the JSON extraction used in {@see \mod_booking\local\certificateclass::get_certificates_for_user_option()}.
+     *
+     * @param string $tablealias Alias of the booking_options table
+     * @return string|null
+     */
+    private static function get_issued_certificates_sql(string $tablealias): ?string {
+        global $DB;
+
+        if (!class_exists('tool_certificate\certificate')) {
+            return null;
+        }
+
+        $issues = database::generate_alias();
+        switch ($DB->get_dbfamily()) {
+            case 'postgres':
+                return "(SELECT COUNT(*)
+                           FROM {tool_certificate_issues} {$issues}
+                          WHERE ({$issues}.data::jsonb ->> 'bookingoptionid') ~ '^[0-9]+$'
+                            AND ({$issues}.data::jsonb ->> 'bookingoptionid')::int = {$tablealias}.id)";
+            case 'mysql':
+                return "(SELECT COUNT(*)
+                           FROM {tool_certificate_issues} {$issues}
+                          WHERE CAST(JSON_UNQUOTE(JSON_EXTRACT({$issues}.data, '$.bookingoptionid')) AS UNSIGNED)
+                                = {$tablealias}.id)";
+            default:
+                return null;
+        }
     }
 
     /**
