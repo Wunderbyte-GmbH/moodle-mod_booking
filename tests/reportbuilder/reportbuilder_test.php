@@ -165,7 +165,7 @@ final class reportbuilder_test extends core_reportbuilder_testcase {
     }
 
     /**
-     * Supervisor, "is supervisor", booking instance and competency columns of the booking answers datasource.
+     * Supervisor, booking instance, competency, option ID and visibility columns of the booking answers datasource.
      *
      * @covers \mod_booking\reportbuilder\datasource\booking_answers_datasource
      * @covers \mod_booking\reportbuilder\local\entities\booking_options
@@ -191,6 +191,8 @@ final class reportbuilder_test extends core_reportbuilder_testcase {
             'shortname' => 'First aid',
         ]);
         $DB->set_field('booking_options', 'competencies', (string) $competency->get('id'), ['id' => $this->option1->id]);
+        // Option 2 is only reachable via direct link.
+        $DB->set_field('booking_options', 'invisible', MOD_BOOKING_OPTION_VISIBLEWITHLINK, ['id' => $this->option2->id]);
 
         $this->setUser($this->user1);
         booking_bookit::bookit('option', $this->option1->id, $this->user1->id);
@@ -215,6 +217,8 @@ final class reportbuilder_test extends core_reportbuilder_testcase {
             'booking_options:bookingid',
             'booking_options:bookinginstance',
             'booking_options:competencies',
+            'booking_options:id',
+            'booking_options:invisible',
         ];
         foreach ($columns as $column) {
             $generator->create_column(['reportid' => $report->get('id'), 'uniqueidentifier' => $column]);
@@ -223,8 +227,14 @@ final class reportbuilder_test extends core_reportbuilder_testcase {
         usort($content, fn($a, $b) => strcmp($a[0], $b[0]));
 
         $this->assertEquals([
-            ['User 1', 'No', 'User 3', 'user3@sample.com', $this->booking->id, $this->booking->name, 'First aid'],
-            ['User 3', 'Yes', '', '', $this->booking->id, $this->booking->name, ''],
+            [
+                'User 1', 'No', 'User 3', 'user3@sample.com', $this->booking->id, $this->booking->name, 'First aid',
+                $this->option1->id, get_string('optionvisible', 'mod_booking'),
+            ],
+            [
+                'User 3', 'Yes', '', '', $this->booking->id, $this->booking->name, '',
+                $this->option2->id, get_string('optionvisibledirectlink', 'mod_booking'),
+            ],
         ], $content);
     }
 
