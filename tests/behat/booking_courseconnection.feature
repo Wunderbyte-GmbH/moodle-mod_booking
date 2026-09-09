@@ -51,9 +51,10 @@ Feature: Configure and validate different course connection settings for booking
     And I am on the "My courses" page logged in as student1
     And I should see "Course 1" in the "#region-main" "css_element"
     And I should not see "Enroll_later" in the "#region-main" "css_element"
+    And the following "mod_booking > answers" exist:
+      | booking    | option     | user     |
+      | My booking | Enroll_now | student2 |
     And I am on the "My booking" Activity page logged in as student2
-    When I click on "Book now" "text" in the ".allbookingoptionstable_r2 .booknow" "css_element"
-    And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r2" "css_element"
     Then I should see "Start" in the ".allbookingoptionstable_r2" "css_element"
     ## Verify enrolled immediately
     And I click on "Start" "link" in the ".allbookingoptionstable_r2" "css_element"
@@ -78,9 +79,10 @@ Feature: Configure and validate different course connection settings for booking
     And I am on the "My courses" page logged in as student1
     And I should see "Course 1" in the "#region-main" "css_element"
     And I should not see "Enroll_later" in the "#region-main" "css_element"
+    And the following "mod_booking > answers" exist:
+      | booking    | option     | user     |
+      | My booking | Enroll_now | student2 |
     And I am on the "My booking" Activity page logged in as student2
-    When I click on "Book now" "text" in the ".allbookingoptionstable_r2 .booknow" "css_element"
-    And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r2" "css_element"
     Then I should see "Booked" in the ".allbookingoptionstable_r2" "css_element"
     ## Verify enrolled immediately
     And I click on "Go to Moodle course" "link" in the ".allbookingoptionstable_r2" "css_element"
@@ -124,15 +126,15 @@ Feature: Configure and validate different course connection settings for booking
       | booking    | text            | description | importing | course | chooseorcreatecourse | coursecat  | enrolmentstatus | limitanswers | maxanswers | teachersforoption | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 |
       | My booking | Enroll_existcat | existcat    | 1         | C1     | 2                    | BookCat1   | 2               | 0            | 0          | teacher1          | 0              | 0              | ## +1 days ##     | ## +3 days ##   |
       | My booking | Enroll_newcat   | newcat      | 1         | C1     | 2                    | NewBookCat | 2               | 0            | 0          | teacher1          | 0              | 0              | ## +2 days ##     | ## +4 days ##   |
+    And the following "mod_booking > answers" exist:
+      | booking    | option          | user     |
+      | My booking | Enroll_existcat | student1 |
+      | My booking | Enroll_newcat   | student2 |
     And I am on the "My booking" Activity page logged in as student1
-    When I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
-    And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r1" "css_element"
     Then I should see "Booked" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Go to Moodle course" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Enroll_existcat" in the "#page-header" "css_element"
     And I am on the "My booking" Activity page logged in as student2
-    When I click on "Book now" "text" in the ".allbookingoptionstable_r2 .booknow" "css_element"
-    And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r2" "css_element"
     Then I should see "Booked" in the ".allbookingoptionstable_r2" "css_element"
     And I click on "Go to Moodle course" "link" in the ".allbookingoptionstable_r2" "css_element"
     And I should see "Enroll_newcat" in the "#page-header" "css_element"
