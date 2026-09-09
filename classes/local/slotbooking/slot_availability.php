@@ -542,8 +542,8 @@ class slot_availability {
                 continue;
             }
 
-            // max_slots_per_user caps ONE booking, not everything a user may ever hold. Once
-            // "Allow to book again" permits a new booking, the previous booking's slots stop
+            // The max_slots_per_user setting caps ONE booking, not everything a user may ever hold.
+            // Once "Allow to book again" permits a new booking, the previous booking's slots stop
             // consuming the allowance and the new booking starts from zero again. Those slots stay
             // booked and keep their time ranges reserved through the normal per-slot capacity and
             // overlap checks - they simply no longer occupy part of the allowance.

@@ -97,6 +97,7 @@ final class slot_cancel_confirmation_button_test extends booking_advanced_testca
      *
      * @param int $optionid
      * @param int $userid
+     * @param int $index index of the picker slot to buy
      * @return void
      */
     private function buy_slot(int $optionid, int $userid, int $index = 0): void {

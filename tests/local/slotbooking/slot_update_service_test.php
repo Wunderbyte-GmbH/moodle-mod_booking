@@ -105,11 +105,6 @@ final class slot_update_service_test extends booking_advanced_testcase {
         global $DB;
 
         [$optionid, $bookingid, $userid] = $this->create_priced_move_option(5.0);
-        // A reduction is a partial cancellation, so the instance must allow cancelling at all
-        // (release_self enforces slot_mover::self_release_policy_blocked()).
-        $DB->set_field('booking', 'cancancelbook', 1, ['id' => $bookingid]);
-        $settings = \mod_booking\singleton_service::get_instance_of_booking_option_settings($optionid);
-        cache::make('mod_booking', 'cachedbookinginstances')->delete((int)$settings->cmid);
         [$nine, $ten] = $this->three_slots($optionid, $userid);
 
         // Partial reduction: drop the +5 slot, keep the free one -> refund, answer shrinks to 1.
@@ -338,6 +333,14 @@ final class slot_update_service_test extends booking_advanced_testcase {
         $optionid = (int) $option->id;
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
         $bookingid = (int) $settings->bookingid;
+
+        /* Every route that gives slots up - the reduction, the mixed shrink and the full
+        cancellation - runs through slot_mover::self_release_policy_blocked(), which refuses when
+        the instance does not allow cancelling at all. The column defaults to 0, so without this
+        the fixture would describe an option nobody can release a slot from. The blocked case has
+        its own coverage in slot_cancel_policy_gate_test. */
+        $DB->set_field('booking', 'cancancelbook', 1, ['id' => $bookingid]);
+        cache::make('mod_booking', 'cachedbookinginstances')->delete((int) $settings->cmid);
 
         $ruleid = (int) $DB->insert_record('booking_slot_rule', (object) [
             'optionid' => $optionid,
