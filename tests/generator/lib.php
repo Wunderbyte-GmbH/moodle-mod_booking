@@ -331,6 +331,14 @@ class mod_booking_generator extends testing_module_generator {
             $record->teachersforoption = [];
         }
 
+        // Override conditions of availability conditions are multi-selects (arrays of condition ids);
+        // a seed passes them as a comma separated list of ids.
+        foreach (preg_grep('/^bo_cond_.*_overridecondition$/', array_keys((array) $record)) as $key) {
+            if (is_string($record->{$key})) {
+                $record->{$key} = array_map('intval', array_filter(array_map('trim', explode(',', $record->{$key}))));
+            }
+        }
+
         // Process option responsible contact persons.
         if (!empty($record->responsiblecontact)) {
             $rcparr = explode(',', $record->responsiblecontact);
