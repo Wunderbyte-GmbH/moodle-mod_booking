@@ -199,7 +199,7 @@ class option_form extends dynamic_form {
             return;
         }
 
-		throw new required_capability_exception($context, 'mod/booking:addeditownoption', 'nopermissions', '');
+        throw new required_capability_exception($context, 'mod/booking:addeditownoption', 'nopermissions', '');
     }
 
 
