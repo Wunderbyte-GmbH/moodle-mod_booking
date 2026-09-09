@@ -226,7 +226,6 @@ class slotmove implements bo_condition {
             . '<div class="booking-slot-move-hint small mt-1">'
             . $hint . '</div>';
 
-
         return bo_info::render_button(
             $settings,
             $userid,
