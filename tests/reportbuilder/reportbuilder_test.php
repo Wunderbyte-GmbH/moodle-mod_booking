@@ -25,12 +25,17 @@
 
 namespace mod_booking;
 
+use context_system;
 use core_reportbuilder\manager;
 use core_reportbuilder\tests\core_reportbuilder_testcase;
 use core_reportbuilder_generator;
+use mod_booking\event\custom_message_sent;
+use mod_booking\event\message_sent;
 use mod_booking\reportbuilder\datasource\booking_answers_datasource;
+use mod_booking\reportbuilder\datasource\booking_messages_datasource;
 use mod_booking\local\certificate_conditions\certificate_conditions;
 use mod_booking\reportbuilder\datasource\booking_options_datasource;
+use mod_booking\reportbuilder\local\entities\booking_messages;
 use mod_booking\reportbuilder\local\helpers\certificate_helper;
 use mod_booking_generator;
 use stdClass;
@@ -308,6 +313,119 @@ final class reportbuilder_test extends core_reportbuilder_testcase {
         usort($content, fn($a, $b) => strcmp($a[0], $b[0]));
 
         $this->assertEquals($expected, $content);
+    }
+
+    /**
+     * Booking messages datasource: sent messages from the standard log with recipient, sender, option and rule.
+     *
+     * @covers \mod_booking\reportbuilder\datasource\booking_messages_datasource
+     * @covers \mod_booking\reportbuilder\local\entities\booking_messages
+     */
+    public function test_messages_datasource(): void {
+        global $DB, $USER;
+        $this->set_up_scenario();
+
+        // Sent messages are only recorded as events, so the standard log store must be on and unbuffered.
+        set_config('enabled_stores', 'logstore_standard', 'tool_log');
+        set_config('buffersize', 0, 'logstore_standard');
+        set_config('logguests', 1, 'logstore_standard');
+        get_log_manager(true);
+
+        $ruleid = $DB->insert_record('booking_rules', (object) [
+            'contextid' => 1,
+            'rulename' => 'rule_react_on_event',
+            'rulejson' => json_encode(['name' => 'Welcome mail']),
+            'isactive' => 1,
+            'useastemplate' => 0,
+        ]);
+        booking_messages::reset_caches();
+        $this->setAdminUser();
+
+        // A rule mail to user 1 and an automatic confirmation to user 2.
+        $this->trigger_message_sent($this->user1->id, $this->option1->id, [
+            'messageparam' => MOD_BOOKING_MSGPARAM_CUSTOM_MESSAGE,
+            'subject' => 'Welcome',
+            'message' => 'Hello',
+            'messagehtml' => '<p>Hello</p>',
+            'bookingruleid' => $ruleid,
+        ]);
+        $this->trigger_message_sent($this->user2->id, $this->option2->id, [
+            'messageparam' => MOD_BOOKING_MSGPARAM_CONFIRMATION,
+            'subject' => 'Booked',
+            'message' => 'You are booked',
+            'messagehtml' => '',
+            'bookingruleid' => null,
+        ]);
+        // A manually sent custom message is a different event and must not show up.
+        custom_message_sent::create([
+            'context' => context_system::instance(),
+            'userid' => $USER->id,
+            'relateduserid' => $this->user3->id,
+            'objectid' => $this->option3->id,
+            'other' => ['messageparam' => MOD_BOOKING_MSGPARAM_CUSTOM_MESSAGE, 'subject' => 'Manual', 'message' => 'x'],
+        ])->trigger();
+
+        /** @var core_reportbuilder_generator $generator */
+        $generator = $this->getDataGenerator()->get_plugin_generator('core_reportbuilder');
+        $report = $generator->create_report([
+            'name' => 'Messages',
+            'source' => booking_messages_datasource::class,
+            'default' => 0,
+        ]);
+        $columns = [
+            'user:fullname',
+            'booking_options:text',
+            'booking_messages:messagetype',
+            'booking_messages:subject',
+            'booking_messages:bookingrule',
+            'booking_messages:message',
+            'sender:fullname',
+        ];
+        foreach ($columns as $column) {
+            $generator->create_column(['reportid' => $report->get('id'), 'uniqueidentifier' => $column]);
+        }
+        $content = array_map('array_values', $this->get_custom_report_content($report->get('id')));
+        usort($content, fn($a, $b) => strcmp($a[0], $b[0]));
+
+        $this->assertEquals([
+            [
+                'User 1', 'Option1', get_string('messagetype:custommessage', 'mod_booking'), 'Welcome', 'Welcome mail',
+                '<p>Hello</p>', fullname($USER),
+            ],
+            [
+                'User 2', 'Option2', get_string('messagetype:confirmation', 'mod_booking'), 'Booked', '',
+                format_text('You are booked', FORMAT_PLAIN), fullname($USER),
+            ],
+        ], $content);
+
+        // Default report and every column / condition must render without errors.
+        $defaultreport = $generator->create_report([
+            'name' => 'Messages default',
+            'source' => booking_messages_datasource::class,
+            'default' => 1,
+        ]);
+        $this->assertCount(2, $this->get_custom_report_content($defaultreport->get('id')));
+        $this->datasource_stress_test_columns(booking_messages_datasource::class);
+        $this->datasource_stress_test_conditions(booking_messages_datasource::class, 'booking_messages:timecreated');
+    }
+
+    /**
+     * Trigger a message_sent event as the current user, the way message_controller does.
+     *
+     * @param int $recipientid
+     * @param int $optionid
+     * @param array $other Event data (messageparam, subject, message, messagehtml, bookingruleid)
+     * @return void
+     */
+    private function trigger_message_sent(int $recipientid, int $optionid, array $other): void {
+        global $USER;
+        message_sent::create([
+            'context' => context_system::instance(),
+            'userid' => $USER->id,
+            'relateduserid' => $recipientid,
+            'objectid' => $optionid,
+            'other' => $other + ['objectid' => $optionid],
+        ])->trigger();
     }
 
     /**
