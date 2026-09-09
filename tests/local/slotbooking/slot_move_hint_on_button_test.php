@@ -102,6 +102,7 @@ final class slot_move_hint_on_button_test extends booking_advanced_testcase {
      *
      * @param int $optionid
      * @param int $userid
+     * @param int $index index of the picker slot to buy
      * @return void
      */
     private function buy_slot(int $optionid, int $userid, int $index = 0): void {

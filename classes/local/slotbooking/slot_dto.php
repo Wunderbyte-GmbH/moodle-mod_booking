@@ -243,7 +243,7 @@ class slot_dto {
         return self::attach_booked_slot_teachers($rows);
     }
 
-        /**
+    /**
      * Fill in the examiners a user picked per slot on already-built booked slot rows.
      *
      * The examiner is part of what was booked, but the range data answers only WHICH slots are
@@ -253,9 +253,9 @@ class slot_dto {
      * another answer's slot. Going through the baids the ranges already carry also means a
      * cancelled answer's stale payload is never consulted at all.
      *
-     * @param array<int, array<string, mixed>> $rows rows built by build_booked_slot_rows()
-     * @return array<int, array<string, mixed>> the same rows, each with 'teachers' (names),
-     *  'teacherlabel' (comma separated) and 'hasteachers' added
+     * @param array $rows rows built by build_booked_slot_rows()
+     * @return array the same rows, each with 'teachers' (names), 'teacherlabel' (comma separated)
+     *  and 'hasteachers' added
      */
     private static function attach_booked_slot_teachers(array $rows): array {
         global $CFG, $DB;
