@@ -25,10 +25,13 @@
 
 namespace mod_booking;
 
+use core_reportbuilder\manager;
 use core_reportbuilder\tests\core_reportbuilder_testcase;
 use core_reportbuilder_generator;
 use mod_booking\reportbuilder\datasource\booking_answers_datasource;
+use mod_booking\local\certificate_conditions\certificate_conditions;
 use mod_booking\reportbuilder\datasource\booking_options_datasource;
+use mod_booking\reportbuilder\local\helpers\certificate_helper;
 use mod_booking_generator;
 use stdClass;
 use tool_mocktesttime\time_mock;
@@ -236,6 +239,125 @@ final class reportbuilder_test extends core_reportbuilder_testcase {
                 $this->option2->id, get_string('optionvisibledirectlink', 'mod_booking'),
             ],
         ], $content);
+    }
+
+    /**
+     * Certificate columns of the booking options datasource: templates, applying conditions and issued count.
+     *
+     * @covers \mod_booking\reportbuilder\local\entities\booking_options
+     * @covers \mod_booking\reportbuilder\local\helpers\certificate_helper
+     */
+    public function test_certificate_columns(): void {
+        global $DB;
+        $this->set_up_scenario();
+
+        // Condition A targets option 1 directly (bookingoption logic), template 5.
+        $conditiona = $this->create_certificate_condition('Condition A', 'bookingoption', 5, 1);
+        $this->add_certificate_condition_item($conditiona, 'bookingoption', $this->option1->id);
+
+        // Condition B covers the whole booking instance (instance logic), template 6.
+        $conditionb = $this->create_certificate_condition('Condition B', 'instance', 6, 1);
+        $this->add_certificate_condition_item($conditionb, 'bookinginstance', $this->booking->id);
+
+        // Condition C targets option 2 but is inactive, so it must not show up.
+        $conditionc = $this->create_certificate_condition('Condition C', 'bookingoption', 8, 0);
+        $this->add_certificate_condition_item($conditionc, 'bookingoption', $this->option2->id);
+
+        // Option 3 has a legacy certificate template configured in its JSON.
+        $DB->set_field('booking_options', 'json', json_encode(['certificate' => 7]), ['id' => $this->option3->id]);
+
+        certificate_helper::reset_caches();
+        $this->setAdminUser();
+
+        /** @var core_reportbuilder_generator $generator */
+        $generator = $this->getDataGenerator()->get_plugin_generator('core_reportbuilder');
+        $report = $generator->create_report([
+            'name' => 'Certificates',
+            'source' => booking_options_datasource::class,
+            'default' => 0,
+        ]);
+        $columns = [
+            'booking_options:text',
+            'booking_options:certificateconditions',
+            'booking_options:certificate',
+        ];
+        // No templates exist in the test DB, so template ids are rendered as "#<id>".
+        $expected = [
+            ['Option1', 'Condition A, Condition B', '#5, #6'],
+            ['Option2', 'Condition B', '#6'],
+            ['Option3', 'Condition B', '#7, #6'],
+        ];
+
+        // The issued-certificates column needs tool_certificate (installed in CI) and a DB with JSON support.
+        $issuedcolumn = manager::get_report_from_persistent($report)->get_column('booking_options:certificatesissued');
+        if (class_exists('tool_certificate\certificate') && in_array($DB->get_dbfamily(), ['postgres', 'mysql'])) {
+            $this->assertNotNull($issuedcolumn);
+            $columns[] = 'booking_options:certificatesissued';
+            foreach ($expected as &$row) {
+                $row[] = 0;
+            }
+            unset($row);
+        } else {
+            $this->assertNull($issuedcolumn);
+        }
+
+        foreach ($columns as $column) {
+            $generator->create_column(['reportid' => $report->get('id'), 'uniqueidentifier' => $column]);
+        }
+        $content = array_map('array_values', $this->get_custom_report_content($report->get('id')));
+        usort($content, fn($a, $b) => strcmp($a[0], $b[0]));
+
+        $this->assertEquals($expected, $content);
+    }
+
+    /**
+     * Create a certificate condition with a createcertificate action.
+     *
+     * @param string $name
+     * @param string $logic Condition logic name (bookingoption, taggedoptions, instance)
+     * @param int $certid Certificate template id of the action
+     * @param int $isactive
+     * @return int Condition id
+     */
+    private function create_certificate_condition(string $name, string $logic, int $certid, int $isactive): int {
+        global $DB;
+        $data = new stdClass();
+        $data->name = $name;
+        $data->contextid = 1;
+        $data->isactive = $isactive;
+        $data->logicjson = json_encode(['conditionname' => $logic, 'requiredcount' => 1]);
+        $data->actionjson = json_encode([
+            'actionname' => 'createcertificate',
+            'certid' => $certid,
+            'expirydatetype' => 0,
+            'expirydateabsolute' => 0,
+            'expirydaterelative' => 0,
+        ]);
+        $conditionid = certificate_conditions::save_certificate_condition($data);
+
+        // Save_certificate_condition() only stores the JSON when a form type is given, so set it directly.
+        $DB->set_field('booking_cert_cond', 'logicjson', $data->logicjson, ['id' => $conditionid]);
+        $DB->set_field('booking_cert_cond', 'actionjson', $data->actionjson, ['id' => $conditionid]);
+        return $conditionid;
+    }
+
+    /**
+     * Link a certificate condition to a booking option or booking instance.
+     *
+     * @param int $conditionid
+     * @param string $area bookingoption or bookinginstance
+     * @param int $itemid Option id or booking instance id
+     * @return void
+     */
+    private function add_certificate_condition_item(int $conditionid, string $area, int $itemid): void {
+        global $DB;
+        $DB->insert_record('booking_cert_cond_item', [
+            'conditionid' => $conditionid,
+            'component' => 'mod_booking',
+            'area' => $area,
+            'itemid' => $itemid,
+            'sortorder' => 0,
+        ]);
     }
 
     /**
