@@ -1317,9 +1317,14 @@ export async function init(callsiteoptionid) {
         }
 
         const slotsMap = new Map();
+        const slotsByUid = new Map();
         slots.forEach(slot => {
             const key = String(slot.key || `${slot.start}:${slot.end}`);
             slotsMap.set(key, slot);
+            // In a merged calendar three options share one "start:end" key, so slotsMap keeps only
+            // the last one merged. Anything that must tell two merged slots apart goes through the
+            // option-scoped uid instead.
+            slotsByUid.set(String(slot.uid || key), slot);
         });
 
         // Each merged option can allow a different number of simultaneous slots
@@ -1335,10 +1340,22 @@ export async function init(callsiteoptionid) {
         });
 
         let lastKnownSelectionKeys = [];
+        // Accepts a uid (exact, the calendar picker's own identity) or a bare "start:end" key
+        // (the hidden-input path in the fixedEditor mode, which cannot be resolved exactly in a
+        // merged calendar - that path prefers selectionInput.dataset.activeOptionId anyway).
         const resolveSlotOptionId = (key) => {
-            const slot = slotsMap.get(key);
+            const slot = slotsByUid.get(String(key)) || slotsMap.get(String(key));
             return slot ? Number(slot.optionid || optionid) : Number(optionid);
         };
+
+        // The slot_selection field is what gets submitted, and save_slot_selection takes the
+        // optionid as its own parameter - so the field stays in the time-only wire format while
+        // the picker works in uids. These two convert at that boundary.
+        const selectionKeysToUids = (keys) => keys.map(key => {
+            const uid = `${activeOptionId}:${key}`;
+            return slotsByUid.has(uid) ? uid : String(key);
+        });
+        const uidsToSelectionKeys = (uids) => uids.map(uid => String(slotsByUid.get(uid)?.key || uid));
 
         // (setActiveOptionId now lives further up, before the userdefined custom-day branch, so
         // both branches share the same definition.)
@@ -1411,10 +1428,26 @@ export async function init(callsiteoptionid) {
 
         const refreshTeacherSelection = () => {
             const selectedSlotKeys = getSelectedSlotKeys(selectionInput);
+            // slotsMap is keyed by the time-only wire key, so in a merged calendar it only holds
+            // the LAST option merged under any given time. Handing it over made the examiner
+            // picker offer that option's examiners for a slot picked in a different one - and
+            // submitting them fails validation(), because evaluate_slot_for_user() checks them
+            // against the option actually being booked ("slot no longer available"). Resolve each
+            // selected key through the active option's uid instead and hand on a map holding only
+            // those slots; it stays keyed by the wire key, which is what the teacherselection
+            // payload and this function's own pruning are keyed by.
+            const uids = selectionKeysToUids(selectedSlotKeys);
+            const activeSlots = new Map();
+            selectedSlotKeys.forEach((key, index) => {
+                const slot = slotsByUid.get(uids[index]) || slotsMap.get(key);
+                if (slot) {
+                    activeSlots.set(key, slot);
+                }
+            });
             return renderTeacherSelection(
                 teacherContainer,
                 selectedSlotKeys,
-                slotsMap,
+                activeSlots,
                 teachersRequired,
                 teacherSelectionInput,
                 examinersLabel,
@@ -1498,8 +1531,14 @@ export async function init(callsiteoptionid) {
 
             let currency = '';
             const rows = [];
-            keys.forEach(key => {
-                const slot = slotsMap.get(key);
+            // Look each slot up by its option-scoped uid: slotsMap is keyed by the time-only wire
+            // key, so in a merged calendar it only holds the LAST option merged under that time -
+            // the summary would show that option's labels and price for a slot picked in another
+            // one. The row itself keeps the wire key: it goes into data-slot-key, which both the
+            // remove button and resolveDayKeyForSlot() read back.
+            const uids = selectionKeysToUids(keys);
+            keys.forEach((key, index) => {
+                const slot = slotsByUid.get(uids[index]) || slotsMap.get(key);
                 if (!slot) {
                     return;
                 }
@@ -1560,7 +1599,8 @@ export async function init(callsiteoptionid) {
                     // Routed through the same adapter the timeline uses, so this persists to the
                     // hidden input and dispatches 'change' - which re-renders the summary, the day
                     // timeline and the calendar day badges together, from one source of truth.
-                    fixedSelection.toggle(key);
+                    // The summary rows carry wire keys, the adapter works in uids.
+                    fixedSelection.toggle(selectionKeysToUids([key])[0]);
                     // See refreshFixedEditor above: the timeline does not listen for selection
                     // changes, so the removed slot would stay highlighted on the visible day.
                     refreshActivePicker();
@@ -1610,7 +1650,11 @@ export async function init(callsiteoptionid) {
 
             if (usePrices && price > 0) {
                 const selectedKeys = getSelectedSlotKeys(selectionInput);
-                const currency = String(slotsMap.get(selectedKeys[0])?.currency || '').trim();
+                const currency = String(
+                    slotsByUid.get(selectionKeysToUids(selectedKeys)[0])?.currency
+                        || slotsMap.get(selectedKeys[0])?.currency
+                        || ''
+                ).trim();
                 feedbackRegion.classList.add('text-success');
                 feedbackRegion.textContent = `${price.toFixed(2)}${currency ? ' ' + currency : ''}`;
             } else {
@@ -1655,6 +1699,8 @@ export async function init(callsiteoptionid) {
             if (fixedEditorRoot) {
                 fixedSelection = createHiddenInputSelection(selectionInput, resolveMaxSlots, {
                     resolveOptionId: resolveSlotOptionId,
+                    toUids: selectionKeysToUids,
+                    toWireKeys: uidsToSelectionKeys,
                     onOptionSwitch: () => Notification.addNotification({
                         message: slotbookingSwitchedOptionMessage,
                         type: 'info',
@@ -1679,14 +1725,14 @@ export async function init(callsiteoptionid) {
                 initialActiveDay: persistedActiveDayKey,
                 initialSelection: fixedEditorRoot
                     ? []
-                    : (selectionInput.value
+                    : selectionKeysToUids(selectionInput.value
                         ? selectionInput.value.split(',').map(v => v.trim()).filter(Boolean)
                         : []),
                 onChange: fixedEditorRoot
                     ? () => {}
                     : (selection) => {
                         const resolved = enforceSingleOptionSelection(selection);
-                        selectionInput.value = resolved.join(',');
+                        selectionInput.value = uidsToSelectionKeys(resolved).join(',');
                         selectionInput.dispatchEvent(new Event('change', {bubbles: true}));
                     },
             };
@@ -1742,6 +1788,8 @@ export async function init(callsiteoptionid) {
             // one built from the input behind its back.
             fixedSelection = createHiddenInputSelection(selectionInput, resolveListMaxSlots, {
                 resolveOptionId: resolveSlotOptionId,
+                toUids: selectionKeysToUids,
+                toWireKeys: uidsToSelectionKeys,
                 onOptionSwitch: () => Notification.addNotification({
                     message: slotbookingSwitchedOptionMessage,
                     type: 'info',
@@ -1749,7 +1797,6 @@ export async function init(callsiteoptionid) {
             });
             listController = await renderSlotList(listPickerRoot, slots, fixedSelection);
         }
-
 
         if (!selectionInput.dataset.slotSelectionBound) {
             selectionInput.addEventListener('change', refreshTeacherSelection);
@@ -1776,7 +1823,9 @@ export async function init(callsiteoptionid) {
             // counter always read "0/N selected" no matter what had actually been picked.
             selectionInput.addEventListener('change', () => {
                 if (calendarPickerInstance) {
-                    calendarPickerInstance.setSelectedKeys(getSelectedSlotKeys(selectionInput));
+                    calendarPickerInstance.setSelectedKeys(
+                        selectionKeysToUids(getSelectedSlotKeys(selectionInput))
+                    );
                 }
             });
             selectionInput.addEventListener('change', renderSelectionSummary);
@@ -1787,7 +1836,9 @@ export async function init(callsiteoptionid) {
         // mform brings the previous slot_selection back, and the badges/summary must come back with
         // it rather than looking like nothing was ever selected.
         if (calendarPickerInstance) {
-            calendarPickerInstance.setSelectedKeys(getSelectedSlotKeys(selectionInput));
+            calendarPickerInstance.setSelectedKeys(
+                selectionKeysToUids(getSelectedSlotKeys(selectionInput))
+            );
         }
         await renderSelectionSummary();
         await refreshTeacherSelection();
