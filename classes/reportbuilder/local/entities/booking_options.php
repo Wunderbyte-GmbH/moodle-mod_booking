@@ -19,6 +19,7 @@ namespace mod_booking\reportbuilder\local\entities;
 use core\lang_string;
 use core_reportbuilder\local\entities\base;
 use core_reportbuilder\local\filters\date;
+use core_reportbuilder\local\filters\select;
 use core_reportbuilder\local\filters\text;
 use core_reportbuilder\local\helpers\custom_fields;
 use core_reportbuilder\local\helpers\format;
@@ -171,6 +172,17 @@ class booking_options extends base {
             ->set_is_sortable(true)
             ->add_callback([format::class, 'userdate']);
 
+        // Option ID.
+        $columns[] = (new column(
+            'id',
+            new lang_string('optionid', 'mod_booking'),
+            $this->get_entity_name()
+        ))
+            ->add_joins($this->get_joins())
+            ->set_type(column::TYPE_INTEGER)
+            ->add_field("{$tablealias}.id")
+            ->set_is_sortable(true);
+
         // Identifier (unique external identifier).
         $columns[] = (new column(
             'identifier',
@@ -285,6 +297,21 @@ class booking_options extends base {
                     : get_string('takesplaceyes', 'mod_booking');
             });
 
+        // Visibility (booking_options.invisible: 0 = visible, 1 = invisible, 2 = visible with direct link only).
+        $columns[] = (new column(
+            'invisible',
+            new lang_string('optionvisibility', 'mod_booking'),
+            $this->get_entity_name()
+        ))
+            ->add_joins($this->get_joins())
+            ->set_type(column::TYPE_INTEGER)
+            ->add_field("{$tablealias}.invisible")
+            ->set_is_sortable(true)
+            ->add_callback(static function ($value): string {
+                $options = self::get_visibility_options();
+                return $options[(int) $value] ?? '';
+            });
+
         // Description.
         $columns[] = (new column(
             'description',
@@ -348,7 +375,34 @@ class booking_options extends base {
         ))
             ->add_joins($this->get_joins());
 
+        // Visibility select filter.
+        $filters[] = (new filter(
+            select::class,
+            'invisible',
+            new lang_string('optionvisibility', 'mod_booking'),
+            $this->get_entity_name(),
+            "{$tablealias}.invisible"
+        ))
+            ->add_joins($this->get_joins())
+            ->set_options_callback([self::class, 'get_visibility_options']);
+
         return $filters;
+    }
+
+    /**
+     * Visibility values of a booking option mapped to their readable labels.
+     *
+     * @return string[] indexed by the value of {booking_options}.invisible
+     */
+    public static function get_visibility_options(): array {
+        global $CFG;
+        require_once($CFG->dirroot . '/mod/booking/lib.php');
+
+        return [
+            MOD_BOOKING_OPTION_VISIBLE => get_string('optionvisible', 'mod_booking'),
+            MOD_BOOKING_OPTION_INVISIBLE => get_string('optioninvisible', 'mod_booking'),
+            MOD_BOOKING_OPTION_VISIBLEWITHLINK => get_string('optionvisibledirectlink', 'mod_booking'),
+        ];
     }
 
     /**
