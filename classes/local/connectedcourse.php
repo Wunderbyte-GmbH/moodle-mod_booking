@@ -354,6 +354,54 @@ class connectedcourse {
     }
 
     /**
+     * The configured naming templates, keyed by the course field they apply to.
+     *
+     * @return array [fullname => template, shortname => template, idnumber => template]
+     */
+    public static function return_naming_templates(): array {
+        return [
+            'fullname' => trim((string) get_config('booking', 'connectedcoursefullname')),
+            'shortname' => trim((string) get_config('booking', 'connectedcourseshortname')),
+            'idnumber' => trim((string) get_config('booking', 'connectedcourseidnumber')),
+        ];
+    }
+
+    /**
+     * Whether this site names its connected courses by a template at all.
+     *
+     * @return bool
+     */
+    public static function has_naming_scheme(): bool {
+        return !empty(array_filter(self::return_naming_templates()));
+    }
+
+    /**
+     * Queue the task which re-applies the naming scheme once an async course copy has settled.
+     *
+     * Copying a course is always asynchronous and \core\task\asynchronous_copy_task rewrites
+     * fullname, shortname and idnumber from the copy data when cron runs, undoing everything
+     * apply_naming_scheme() just did. Callers which name a freshly copied course therefore have
+     * to queue this as well - naming it only once would look right until the next cron run.
+     *
+     * @param int $courseid the copied course
+     * @param int $optionid the booking option the course belongs to
+     * @return void
+     */
+    public static function queue_naming_finalizer(int $courseid, int $optionid) {
+
+        if (empty($courseid) || empty($optionid) || !self::has_naming_scheme()) {
+            return;
+        }
+
+        $task = new \mod_booking\task\finalize_connected_course_naming();
+        $task->set_custom_data([
+            'courseid' => $courseid,
+            'optionid' => $optionid,
+        ]);
+        \core\task\manager::queue_adhoc_task($task);
+    }
+
+    /**
      * Apply the configured naming scheme to the Moodle course connected to a booking option.
      *
      * The three settings connectedcoursefullname, connectedcourseshortname and
@@ -378,11 +426,7 @@ class connectedcourse {
             return;
         }
 
-        $templates = [
-            'fullname' => trim((string) get_config('booking', 'connectedcoursefullname')),
-            'shortname' => trim((string) get_config('booking', 'connectedcourseshortname')),
-            'idnumber' => trim((string) get_config('booking', 'connectedcourseidnumber')),
-        ];
+        $templates = self::return_naming_templates();
 
         // No template configured at all: nothing to do, the legacy naming stays untouched.
         if (empty(array_filter($templates))) {

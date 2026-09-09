@@ -505,5 +505,9 @@ class courseid extends field_base {
         }
 
         connectedcourse::apply_naming_scheme($courseid, $optionid);
+
+        /* A copied course is renamed again by cron: the async copy task feeds the provisional
+        names back in when it finishes. Queue the finalizer so the naming survives that. */
+        connectedcourse::queue_naming_finalizer($courseid, $optionid);
     }
 }

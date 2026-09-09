@@ -26,6 +26,7 @@ namespace mod_booking\task;
 
 use core_tag_tag;
 use mod_booking\booking_option;
+use mod_booking\local\connectedcourse;
 use mod_booking\singleton_service;
 use mod_booking\teachers_handler;
 use moodle_exception;
@@ -107,7 +108,11 @@ class finalize_template_course extends \core\task\adhoc_task {
         // restore_dbops::calculate_course_names(), appending a " copy N" suffix when another course
         // already shares the name. Reset it to the intended value (duplicate fullnames are allowed in
         // Moodle - only the restore copy path enforces uniqueness).
-        $desiredfullname = $taskdata->fullname ?? '';
+        /* When the site names its connected courses by a template, that scheme owns the fullname
+        and wants it WITHOUT the title prefix, while $taskdata->fullname carries "prefix - title".
+        Both would be written after the copy, so whichever task ran last would win. Stand down and
+        leave the field to finalize_connected_course_naming. */
+        $desiredfullname = connectedcourse::has_naming_scheme() ? '' : ($taskdata->fullname ?? '');
         if (!empty($desiredfullname)) {
             $current = get_course($newcourseid);
             if ($current->fullname !== $desiredfullname) {
