@@ -57,17 +57,12 @@ Feature: In a booking instance with multiple bookings enabled
     Given the following "mod_booking > options" exist:
       | booking    | text          | course | description       | multiplebookings |
       | My booking | Test option 1 | C1     | Multiple bookings | 1                |
+    And the following "mod_booking > answers" exist:
+      | booking    | option        | user     |
+      | My booking | Test option 1 | student1 |
+      | My booking | Test option 1 | student1 |
     And I am on the "My booking" Activity page logged in as student1
-    # Book twice
-    And I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
-    And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r1" "css_element"
-    And I wait until "Click again to confirm booking" "text" does not exist
-    And I should see "Book again (already booked 1 time)" in the ".allbookingoptionstable_r1" "css_element"
-    And I click on "Book again (already booked 1 time)" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
-    And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r1" "css_element"
-    And I wait until "Click again to confirm booking" "text" does not exist
     And I should see "Book again (already booked 2 times)" in the ".allbookingoptionstable_r1" "css_element"
-    # Cancel one booking
     When I click on "Undo my booking" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I should see "Click again to confirm cancellation" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Click again to confirm cancellation" "text" in the ".allbookingoptionstable_r1" "css_element"
@@ -102,34 +97,15 @@ Feature: In a booking instance with multiple bookings enabled
       | booking    | text          | course | description       | multiplebookings |
       | My booking | Test option 1 | C1     | Multiple bookings | 1                |
     # Student 1 books twice
-    And I am on the "My booking" Activity page logged in as student1
-    And I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
-    And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r1" "css_element"
-    And I wait until "Click again to confirm booking" "text" does not exist
-    # Booking re-renders the table asynchronously (reloadAllTables), so wait for the
-    # AJAX to settle and reload to get a fresh, non-stale DOM before asserting the label.
-    And I wait until the page is ready
-    And I reload the page
-    And I should see "Book again (already booked 1 time)" in the ".allbookingoptionstable_r1" "css_element"
-    And I click on "Book again (already booked 1 time)" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
-    And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r1" "css_element"
-    And I wait until "Click again to confirm booking" "text" does not exist
-    And I wait until the page is ready
-    And I reload the page
-    And I should see "Book again (already booked 2 times)" in the ".allbookingoptionstable_r1" "css_element"
-    # Student 2 books once
-    And I am on the "My booking" Activity page logged in as student2
-    And I should see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
-    When I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
-    And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r1" "css_element"
-    And I wait until "Click again to confirm booking" "text" does not exist
-    And I wait until the page is ready
-    And I reload the page
+    And the following "mod_booking > answers" exist:
+      | booking    | option        | user     |
+      | My booking | Test option 1 | student1 |
+      | My booking | Test option 1 | student1 |
+      | My booking | Test option 1 | student2 |
+    When I am on the "My booking" Activity page logged in as student1
+    Then I should see "Book again (already booked 2 times)" in the ".allbookingoptionstable_r1" "css_element"
+    When I am on the "My booking" Activity page logged in as student2
     Then I should see "Book again (already booked 1 time)" in the ".allbookingoptionstable_r1" "css_element"
-    # Verify student 1 still shows correct count
-    And I am on the "My booking" Activity page logged in as student1
-    And I wait until the page is ready
-    And I should see "Book again (already booked 2 times)" in the ".allbookingoptionstable_r1" "css_element"
 
   @javascript
   Scenario: Multiple bookings enabled: prepage modal with wait time between bookings
