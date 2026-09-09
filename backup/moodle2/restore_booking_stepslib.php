@@ -466,6 +466,10 @@ class restore_booking_activity_structure_step extends restore_activity_structure
         the copy does this - for a shared course, renaming it again for every further option
         would just leave it named after whichever option happened to come last. */
         connectedcourse::apply_naming_scheme($newcourseid, $newoptionid);
+
+        /* The copy is asynchronous and cron rewrites the names from the copy data when it runs,
+        so the naming has to be applied again afterwards. */
+        connectedcourse::queue_naming_finalizer($newcourseid, $newoptionid);
     }
 
     /**

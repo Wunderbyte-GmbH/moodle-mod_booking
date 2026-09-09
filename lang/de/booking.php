@@ -1450,6 +1450,7 @@ Die hier nützlichsten Platzhalter sind <code>{titlewithoutprefix}</code> (der T
 <b>Hinweis:</b> Verwenden Sie hier nicht <code>{title}</code> oder <code>{bookingoptionname}</code>. Beide benötigen eine angemeldete Person und ergeben daher eine leere Zeichenkette, wenn ein Kurs im Hintergrund erstellt oder dupliziert wird, z.B. durch einen geplanten Task. Verwenden Sie stattdessen <code>{titlewithoutprefix}</code>.';
 $string['connectedcourseshortname'] = 'Kurzer Kursname';
 $string['connectedcourseshortname_desc'] = 'Vorlage für den kurzen Namen des verbundenen Moodle-Kurses. Leer lassen, um das bisherige Verhalten beizubehalten. Kurze Kursnamen müssen eindeutig sein: Mit <code>{optionid}</code> wird die Eindeutigkeit automatisch erreicht. Ist der erzeugte Wert bereits vergeben, wird eine Zahl angehängt.';
+$string['connectedcoursestillduplicating'] = 'Der verbundene Moodle-Kurs wird noch kopiert. Der Task wird automatisch wiederholt.';
 $string['connectedmoodlecourse'] = 'Verbundener Moodle-Kurs';
 $string['connectedmoodlecourse_help'] = 'Wählen Sie "Neuen Kurs erstellen...", wenn Sie wollen, dass ein neuer Moodle-Kurs für diese Buchungsoption angelegt werden soll.';
 $string['consumeatonce'] = 'Alle Credits müssen in einer Buchung verbraucht werden';
@@ -3745,6 +3746,7 @@ $string['taskcleanupinvalidscheduledmails'] = 'Booking: Ungültige geplante E-Ma
 $string['taskconfirmbookinganswerbymailbyruleadhoc'] = 'Booking: Freischalten von Warteliste via Regel erteilen (Adhoc-Task)';
 $string['taskenrolbookeduserstocourse'] = 'Booking: Gebuchte User in Kurs einschreiben';
 $string['taskexecutebulkoperationsadhoc'] = 'Booking: Bulk-Operationen auf Buchungsoptionen ausführen (Adhoc-Task)';
+$string['taskfinalizeconnectedcoursenaming'] = 'Booking: Benennung des verbundenen Kurses nach dem Kopieren erneut anwenden (Adhoc-Task)';
 $string['taskfinalizetemplatecourse'] = 'Booking: Aus Vorlage erstellten Kurs finalisieren (Adhoc-Task)';
 $string['taskprocesssourcemembershipsyncadhoc'] = 'Booking: Quellenmitgliedschafts-Sync verarbeiten (Adhoc-Task)';
 $string['taskpurgecampaigncaches'] = 'Booking: Caches für Buchungskampagne leeren';

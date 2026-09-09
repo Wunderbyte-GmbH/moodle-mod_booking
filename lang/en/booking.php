@@ -1532,6 +1532,7 @@ The most useful placeholders here are <code>{titlewithoutprefix}</code> (the boo
 <b>Note:</b> Do not use <code>{title}</code> or <code>{bookingoptionname}</code> here. Both of them need a logged in user and therefore render as an empty string when a course is created or duplicated in the background, e.g. by a scheduled task. Use <code>{titlewithoutprefix}</code> instead.';
 $string['connectedcourseshortname'] = 'Short course name';
 $string['connectedcourseshortname_desc'] = 'Template for the short name of the connected Moodle course. Leave empty to keep the current behaviour. Short course names have to be unique: adding <code>{optionid}</code> makes them unique automatically. If the rendered value is already taken, a number is appended.';
+$string['connectedcoursestillduplicating'] = 'The connected Moodle course is still being copied. The task will retry automatically.';
 $string['connectedmoodlecourse'] = 'Connected Moodle course';
 $string['connectedmoodlecourse_help'] = 'Choose "Create new course..." if you want a new Moodle course to be created for this booking option.';
 $string['consumeatonce'] = 'All credits have to be consumed at once';
@@ -4031,6 +4032,7 @@ $string['taskconfirmbookinganswerbymailbyruleadhoc'] = 'Booking: Confirm booking
 $string['taskcreatecachereportsnapshot'] = 'Booking: Create cache report snapshot';
 $string['taskenrolbookeduserstocourse'] = 'Booking: Enrol booked users to course';
 $string['taskexecutebulkoperationsadhoc'] = 'Booking: Execute bulk operations on booking options (adhoc task)';
+$string['taskfinalizeconnectedcoursenaming'] = 'Booking: Re-apply the connected course naming after a course copy (adhoc task)';
 $string['taskfinalizetemplatecourse'] = 'Booking: Finalize course created from a template (adhoc task)';
 $string['taskprocesssourcemembershipsyncadhoc'] = 'Booking: Process source membership sync (adhoc task)';
 $string['taskpurgecampaigncaches'] = 'Booking: Clean caches for booking campaigns';
