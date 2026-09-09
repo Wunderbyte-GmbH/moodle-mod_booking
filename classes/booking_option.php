@@ -1611,8 +1611,14 @@ class booking_option {
                             // When the multiple booking option is enabled, we need to update the waitinglist column value
                             // of previously booked records from MOD_BOOKING_STATUSPARAM_BOOKED
                             // to MOD_BOOKING_STATUSPARAM_PREVIOUSLYBOOKED, and then insert a new record.
+                            // A live booking (no explicit $timebooked) is always the newest one, even when it
+                            // lands in the same second as the previous booking. Only an explicitly passed
+                            // OLDER timestamp (import of historic data) is stored as PREVIOUSLYBOOKED itself.
+                            // Comparing against time() with a strict "<" lost bookings on slow servers
+                            // (GH-1550): the new answer was written as PREVIOUSLYBOOKED and the next booking
+                            // then updated that row in place instead of inserting a new one.
                             $comparingtime = empty($timebooked) ? time() : $timebooked;
-                            if ($currentanswer->timebooked < $comparingtime) {
+                            if (empty($timebooked) || $currentanswer->timebooked <= $comparingtime) {
                                 $timecreated = $comparingtime;
                                 self::change_booking_answer_waitinglist_status(
                                     MOD_BOOKING_STATUSPARAM_BOOKED,
@@ -1628,6 +1634,12 @@ class booking_option {
                             // So to prevent any record update in booking_answerts table, we need to set record id to null.
                             $currentanswerid = null;
                         }
+                        break;
+                    case MOD_BOOKING_STATUSPARAM_PREVIOUSLYBOOKED:
+                        // A previously booked answer is history and must never be updated in place.
+                        // Always insert a fresh answer (GH-1550).
+                        $currentanswerid = null;
+                        $timecreated = null;
                         break;
                     case MOD_BOOKING_STATUSPARAM_RESERVED:
                         // If the old and the new value is reserved, we just return true, we don't need to do anything.

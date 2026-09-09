@@ -396,6 +396,56 @@ final class booking_test extends booking_advanced_testcase {
     }
 
     /**
+     * Re-bookings of the same user within the same second must still produce separate answers,
+     * and the next booking must not overwrite any of them (GH-1550).
+     *
+     * @covers \mod_booking\booking_option::user_submit_response
+     * @return void
+     */
+    public function test_rebooking_within_the_same_second(): void {
+        global $DB;
+        $this->resetAfterTest(true);
+
+        $env = $this->setup_booking_environment();
+        $course = $env['course'];
+        $bookingmodule = $env['bookingmodule'];
+        $student1 = $env['users']['student1'];
+
+        /** @var mod_booking_generator $generator */
+        $generator = $this->getDataGenerator()->get_plugin_generator('mod_booking');
+        $option = $generator->create_option((object)[
+            'bookingid' => $bookingmodule->id,
+            'courseid' => $course->id,
+            'text' => 'Option same second',
+            'chooseorcreatecourse' => 1,
+            'waitforconfirmation' => 0,
+            'multiplebookings' => 1,
+            'allowtobookagainafter' => 0,
+        ]);
+        $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
+        $boinfo = new bo_info($settings);
+
+        // The mocked clock is frozen, so all bookings share the same timestamp.
+        for ($i = 1; $i <= 3; $i++) {
+            $this->student_books_without_price($boinfo, $settings, $student1);
+
+            $answers = array_values($DB->get_records('booking_answers', ['userid' => $student1->id], 'id ASC'));
+            $this->assertCount($i, $answers, "Booking $i must insert a new answer");
+            for ($ai = 0; $ai < $i - 1; $ai++) {
+                $this->assertSame(MOD_BOOKING_STATUSPARAM_PREVIOUSLYBOOKED, (int)$answers[$ai]->waitinglist);
+            }
+            $this->assertSame(MOD_BOOKING_STATUSPARAM_BOOKED, (int)$answers[$i - 1]->waitinglist);
+
+            $bookinganswers = singleton_service::get_instance_of_booking_answers($settings);
+            $this->assertSame($i, $bookinganswers->count_previous_bookings($student1->id));
+            $this->assertSame(
+                MOD_BOOKING_STATUSPARAM_BOOKED,
+                (int)($bookinganswers->get_users()[$student1->id]->waitinglist)
+            );
+        }
+    }
+
+    /**
      * Intantiates a manageusers_table.
      * @return manageusers_table
      */

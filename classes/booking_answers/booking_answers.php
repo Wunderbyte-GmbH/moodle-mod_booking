@@ -157,7 +157,16 @@ class booking_answers {
             foreach ($answers as $answer) {
                 $answer = customform::append_customform_elements($answer);
                 // A user might have one or more 'deleted' entries, but else, there should be only one.
-                if ($answer->waitinglist != MOD_BOOKING_STATUSPARAM_DELETED) {
+                // Answers are ordered by timemodified, so the newest one wins - except that a
+                // previously booked (historic) answer must never shadow an active one (GH-1550).
+                if (
+                    $answer->waitinglist != MOD_BOOKING_STATUSPARAM_DELETED
+                    && (
+                        $answer->waitinglist != MOD_BOOKING_STATUSPARAM_PREVIOUSLYBOOKED
+                        || !isset($this->users[$answer->userid])
+                        || $this->users[$answer->userid]->waitinglist == MOD_BOOKING_STATUSPARAM_PREVIOUSLYBOOKED
+                    )
+                ) {
                     $this->users[$answer->userid] = $answer;
                 }
 
