@@ -352,16 +352,20 @@ class booking_options extends base {
 
         // Number of certificates issued for the option. The link between an issue and the option is the
         // "bookingoptionid" key of the issue's JSON data, so this needs tool_certificate and JSON SQL support.
-        $issuedsql = self::get_issued_certificates_sql($tablealias);
-        if ($issuedsql !== null) {
+        // The issues table is aggregated once in a derived table instead of a correlated subquery per row,
+        // because the JSON extraction cannot use an index.
+        $issuedjoin = self::get_issued_certificates_join($tablealias);
+        if ($issuedjoin !== null) {
+            [$issuedalias, $joinsql] = $issuedjoin;
             $columns[] = (new column(
                 'certificatesissued',
                 new lang_string('certificatesissued', 'mod_booking'),
                 $this->get_entity_name()
             ))
                 ->add_joins($this->get_joins())
+                ->add_join($joinsql)
                 ->set_type(column::TYPE_INTEGER)
-                ->add_field($issuedsql, 'certificatesissued')
+                ->add_field("COALESCE({$issuedalias}.issuedcount, 0)", 'certificatesissued')
                 ->set_is_sortable(true);
         }
 
@@ -443,35 +447,43 @@ class booking_options extends base {
     }
 
     /**
-     * SQL subselect counting the certificates issued for a booking option, or null when unsupported.
+     * LEFT JOIN of a derived table with the number of issued certificates per booking option.
      *
-     * Mirrors the JSON extraction used in {@see \mod_booking\local\certificateclass::get_certificates_for_user_option()}.
+     * Returns [alias, join SQL]; the derived table exposes optionid and issuedcount. Null when tool_certificate
+     * is not installed or the DB family has no JSON support (same restriction as
+     * {@see \mod_booking\local\certificateclass::get_certificates_for_user_option()}).
      *
      * @param string $tablealias Alias of the booking_options table
-     * @return string|null
+     * @return array|null
      */
-    private static function get_issued_certificates_sql(string $tablealias): ?string {
+    private static function get_issued_certificates_join(string $tablealias): ?array {
         global $DB;
 
         if (!class_exists('tool_certificate\certificate')) {
             return null;
         }
 
-        $issues = database::generate_alias();
         switch ($DB->get_dbfamily()) {
             case 'postgres':
-                return "(SELECT COUNT(*)
-                           FROM {tool_certificate_issues} {$issues}
-                          WHERE ({$issues}.data::jsonb ->> 'bookingoptionid') ~ '^[0-9]+$'
-                            AND ({$issues}.data::jsonb ->> 'bookingoptionid')::int = {$tablealias}.id)";
+                $optionidsql = "(data::jsonb ->> 'bookingoptionid')::int";
+                $where = "(data::jsonb ->> 'bookingoptionid') ~ '^[0-9]+$'";
+                break;
             case 'mysql':
-                return "(SELECT COUNT(*)
-                           FROM {tool_certificate_issues} {$issues}
-                          WHERE CAST(JSON_UNQUOTE(JSON_EXTRACT({$issues}.data, '$.bookingoptionid')) AS UNSIGNED)
-                                = {$tablealias}.id)";
+                $optionidsql = "CAST(JSON_UNQUOTE(JSON_EXTRACT(data, '$.bookingoptionid')) AS UNSIGNED)";
+                $where = "JSON_EXTRACT(data, '$.bookingoptionid') IS NOT NULL";
+                break;
             default:
                 return null;
         }
+
+        $alias = database::generate_alias();
+        $join = "LEFT JOIN (SELECT {$optionidsql} AS optionid, COUNT(*) AS issuedcount
+                              FROM {tool_certificate_issues}
+                             WHERE {$where}
+                          GROUP BY {$optionidsql}) {$alias}
+                       ON {$alias}.optionid = {$tablealias}.id";
+
+        return [$alias, $join];
     }
 
     /**
