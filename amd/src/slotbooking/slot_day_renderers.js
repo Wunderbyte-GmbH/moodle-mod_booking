@@ -90,8 +90,14 @@ export const toTimeValue = (timestamp, formatter) => {
  * @return {object} selection interface
  */
 export const createHiddenInputSelection = (selectionInput, max, options = {}) => {
+    // The hidden input stays in the time-only "start:end" wire format the server parses, while the
+    // working set below is keyed by the option-scoped uid: in a merged multi-option calendar the
+    // same time exists once per option, so a wire key cannot say which lane was picked - and every
+    // lane sharing that time would paint itself as selected.
+    const toUids = typeof options.toUids === 'function' ? options.toUids : (keys => keys);
+    const toWireKeys = typeof options.toWireKeys === 'function' ? options.toWireKeys : (uids => uids);
     const selected = new Set(
-        String(selectionInput.value || '').split(',').map(v => v.trim()).filter(Boolean)
+        toUids(String(selectionInput.value || '').split(',').map(v => v.trim()).filter(Boolean))
     );
     // max may be a plain number, or a function(optionId) -> number for a merged multi-option
     // calendar where different options allow different numbers of simultaneous slots (see
@@ -108,7 +114,7 @@ export const createHiddenInputSelection = (selectionInput, max, options = {}) =>
         ? resolveOptionId(Array.from(selected)[0])
         : null;
     const persist = () => {
-        selectionInput.value = Array.from(selected).join(',');
+        selectionInput.value = toWireKeys(Array.from(selected)).join(',');
         selectionInput.dataset.activeOptionId = selectedOptionId !== null ? String(selectedOptionId) : '';
         selectionInput.dispatchEvent(new Event('change', {bubbles: true}));
     };
@@ -293,7 +299,9 @@ export const renderFixedSlotsEditor = async(container, daySlots, selection, time
         const slotStart = Number(slot.start || 0);
         const slotEnd = Number(slot.end || 0);
         const isBooked = String(slot.status || '') === 'booked' || slot.selectable === false;
-        const key = String(slot.key || `${slotStart}:${slotEnd}`);
+        // Rendered into data-slot-key and used for every selection call below, so this must be the
+        // option-scoped uid - otherwise the three lanes sharing a time read as one single slot.
+        const key = String(slot.uid || slot.key || `${slotStart}:${slotEnd}`);
         if (isBooked) {
             selection.deselect(key);
         }
@@ -416,7 +424,7 @@ const groupSlotsByDay = (slots, selection) => {
             return;
         }
 
-        const key = String(slot.key || `${slotStart}:${slotEnd}`);
+        const key = String(slot.uid || slot.key || `${slotStart}:${slotEnd}`);
         const isBooked = String(slot.status || '') === 'booked' || slot.selectable === false;
         if (isBooked) {
             selection.deselect(key);
@@ -442,7 +450,7 @@ const groupSlotsByDay = (slots, selection) => {
             key,
             start: slotStart,
             optionid: Number(slot.optionid || 0),
-            timelabel: String(slot.timelabel || key),
+            timelabel: String(slot.timelabel || `${slotStart}:${slotEnd}`),
             priceformatted: (slotPrice > 0 && slot.priceformatted) ? String(slot.priceformatted) : '',
             selected: !isBooked && selection.isSelected(key),
             booked: isBooked,
@@ -519,7 +527,12 @@ export const renderSlotList = async(container, slots, selection) => {
     // summary) can ask which day to open for it.
     const slotKeyToDayKey = new Map();
     dayGroups.forEach(group => {
-        group.items.forEach(item => slotKeyToDayKey.set(item.key, group.daykey));
+        group.items.forEach(item => {
+            // item.key is the option-scoped uid; the selected-slots summary asks with the
+            // time-only wire key it reads back from slot_selection, so register both.
+            slotKeyToDayKey.set(item.key, group.daykey);
+            slotKeyToDayKey.set(String(item.key).split(':').slice(-2).join(':'), group.daykey);
+        });
     });
 
     const groupElements = new Map();

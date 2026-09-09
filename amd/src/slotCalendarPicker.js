@@ -180,6 +180,11 @@ export class SlotCalendarPicker {
         this.currentDayKeys = new Set();
         this.slots.forEach(slot => {
             const key = slot.key || `${slot.start}:${slot.end}`;
+            // Identity used for selection. In a merged multi-option calendar 'key' is time-only
+            // and therefore identical across every merged option, so selecting one slot would
+            // select that time in all of them; slot_dto supplies an option-scoped 'uid' there.
+            // Callers with a single option (move, report) send no uid and keep using the key.
+            const uid = slot.uid || key;
             const dayKey = toDateKey(Number(slot.start), this.dayKeyFormatter);
 
             if (this.currentKeys.has(key)) {
@@ -188,6 +193,7 @@ export class SlotCalendarPicker {
             const entry = {
                 ...slot,
                 key,
+                uid,
                 start: Number(slot.start),
                 end: Number(slot.end),
                 daylabel: slot.daylabel || dayKey,
@@ -671,7 +677,7 @@ export class SlotCalendarPicker {
             // above 1 the selection spans days, but the day timeline only ever draws the active one.
             // Uses the same accent as the dayHasCurrent ring above rather than a Bootstrap badge
             // class, so both markers stay visually consistent under any theme.
-            const daySelectedCount = daySlots.filter(slot => this.selected.has(slot.key)).length;
+            const daySelectedCount = daySlots.filter(slot => this.selected.has(slot.uid)).length;
             if (daySelectedCount > 0) {
                 const selectedBadge = document.createElement('span');
                 selectedBadge.className = 'small fw-bold text-white px-1 rounded';
@@ -701,7 +707,7 @@ export class SlotCalendarPicker {
                     dayPriceDots.style.gap = '0.2rem';
 
                     const daySelected = new Set(daySlots
-                        .filter(slot => this.selected.has(slot.key))
+                        .filter(slot => this.selected.has(slot.uid))
                         .map(slot => Number(slot.price || 0)));
                     const dayPrices = Array.from(new Set(daySlots.map(slot => Number(slot.price || 0))))
                         .sort((a, b) => a - b);
@@ -822,7 +828,7 @@ export class SlotCalendarPicker {
                 btn.appendChild(priceLine);
             }
 
-            const selected = this.selected.has(slot.key);
+            const selected = this.selected.has(slot.uid);
             // Color choice depending on mode: Unavailability = red, Availability = green.
             let markmode = 'unavailability';
             if (typeof this.root.closest === 'function') {
@@ -876,8 +882,8 @@ export class SlotCalendarPicker {
                     // Past its deadline — cannot be moved or cancelled.
                     return;
                 }
-                if (this.selected.has(slot.key)) {
-                    this.selected.delete(slot.key);
+                if (this.selected.has(slot.uid)) {
+                    this.selected.delete(slot.uid);
                     this.render();
                     this.emitChange();
                     return;
@@ -895,7 +901,7 @@ export class SlotCalendarPicker {
                     return;
                 }
 
-                this.selected.add(slot.key);
+                this.selected.add(slot.uid);
                 this.render();
                 this.emitChange();
             });

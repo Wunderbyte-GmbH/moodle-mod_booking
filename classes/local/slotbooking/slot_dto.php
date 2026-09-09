@@ -101,7 +101,9 @@ class slot_dto {
      * @param bool $ignoreuserslotcap skip the per-user max_slots_per_user gate, so the result
      *  describes what the OPTION still has rather than what this user may book. Used by the
      *  read-only availability overview shown to a user who has used up their allowance.
-     * @return array<int, array<string, mixed>>
+     * @return array<int, array<string, mixed>> every slot carrying both 'key' (time-only, the
+     *  format the selection is submitted in) and 'uid' (option-scoped, unique across a merged
+     *  multi-option calendar)
      */
     public static function build_picker_slots(
         int $optionid,
@@ -151,6 +153,7 @@ class slot_dto {
 
             $result[] = [
                 'key' => $start . ':' . $end,
+                'uid' => $optionid . ':' . $start . ':' . $end,
                 'optionid' => $optionid,
                 'start' => $start,
                 'end' => $end,
