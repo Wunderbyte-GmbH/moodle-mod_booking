@@ -372,11 +372,11 @@ class slotbooking_form extends dynamic_form {
             return;
         }
 
-        // to_open_slots() maps every picker slot through unchanged - including 'booked' ones, and
-        // the 'unavailable' ones a user gets once they have used up max_slots_per_user - so neither
-        // guard above can ever be empty for somebody who already holds a slot. Without this the
-        // form renders a picker in which every single entry is unselectable, together with a
-        // Continue button that can only fail validation, and says nothing about why.
+        // The to_open_slots() call maps every picker slot through unchanged - including 'booked'
+        // ones, and the 'unavailable' ones a user gets once they have used up max_slots_per_user -
+        // so neither guard above can ever be empty for somebody who already holds a slot. Without
+        // this the form renders a picker in which every single entry is unselectable, together with
+        // a Continue button that can only fail validation, and says nothing about why.
         $hasbookableslots = false;
         foreach ($calendarslots as $calendarslot) {
             if (!empty($calendarslot['bookable'])) {
