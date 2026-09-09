@@ -749,6 +749,33 @@ class behat_mod_booking extends behat_base {
     }
 
     /**
+     * Set a booking plugin setting that stores tag ids (e.g. templatetags) from tag names.
+     *
+     * The admin form offers the tags by name, but the config value is the list of tag ids, which a
+     * feature file cannot know. Replaces the admin login and the administration settings form round trip.
+     *
+     * @Given /^the booking setting "(?P<name_string>[^"]*)" is set to the tags "(?P<tags_string>[^"]*)"$/
+     * @param string $name config name inside the booking plugin
+     * @param string $tags comma separated tag names
+     * @return void
+     */
+    public function the_booking_setting_is_set_to_the_tags(string $name, string $tags): void {
+        global $DB;
+        $ids = [];
+        foreach (array_filter(array_map('trim', explode(',', $tags))) as $tagname) {
+            $id = $DB->get_field('tag', 'id', ['name' => core_text::strtolower($tagname)]);
+            if (!$id) {
+                throw new \Behat\Mink\Exception\ExpectationException(
+                    'The tag "' . $tagname . '" does not exist.',
+                    $this->getSession()
+                );
+            }
+            $ids[] = (int) $id;
+        }
+        set_config($name, implode(',', $ids), 'booking');
+    }
+
+    /**
      * Run all queued adhoc tasks in the behat process with fresh booking singletons.
      *
      * Adhoc tasks queued by the web requests of a scenario (rule mails, confirmation mails, ...) run inside
@@ -760,8 +787,20 @@ class behat_mod_booking extends behat_base {
      * @return void
      */
     public function i_run_all_booking_adhoc_tasks(): void {
+        global $DB;
         $this->i_clean_booking_cache();
-        $this->execute('behat_general::i_run_all_adhoc_tasks');
+        // The core step stops its loop as soon as a task cleared the static caches (which every mail task
+        // does), leaving further queued tasks behind. Repeat until nothing due is left, as cron would.
+        for ($i = 0; $i < 20; $i++) {
+            $this->execute('behat_general::i_run_all_adhoc_tasks');
+            if (!$DB->record_exists_select('task_adhoc', 'nextruntime <= :now', ['now' => time()])) {
+                return;
+            }
+        }
+        throw new \Behat\Mink\Exception\ExpectationException(
+            'Adhoc tasks are still due after 20 rounds, giving up.',
+            $this->getSession()
+        );
     }
 
     /**

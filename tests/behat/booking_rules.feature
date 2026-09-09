@@ -173,12 +173,12 @@ Feature: Create global booking rules as admin and insure they are working.
       | aftercompletion |                                                                                                                           |
       | condition       | 0                                                                                                                         |
       | cancelrules     |                                                                                                                           |
+    And the following "mod_booking > answers" exist:
+      | booking    | option          | user     |
+      | BookingCMP | Option-football | student1 |
     When I am on the "BookingCMP" Activity page logged in as admin
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
-    And I click on "Book other users" "link" in the ".allbookingoptionstable_r1" "css_element"
-    And I click on "Student 1 (student1@example.com)" "text"
-    And I click on "Add" "button"
-    And I follow "<< Back to responses"
+    And I click on "Manage bookings" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "selectall" "checkbox"
     And I click on "Delete responses" "button"
     And I should see "You deleted 1 of 1 users. Users, that have completed activity, can't be deleted!"
@@ -252,12 +252,12 @@ Feature: Create global booking rules as admin and insure they are working.
       | aftercompletion |                                                                                                                                        |
       | condition       | 0                                                                                                                                      |
       | cancelrules     |                                                                                                                                        |
+    And the following "mod_booking > answers" exist:
+      | booking    | option          | user     |
+      | BookingCMP | Option-football | student1 |
     When I am on the "BookingCMP" Activity page logged in as admin
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
-    And I click on "Book other users" "link" in the ".allbookingoptionstable_r1" "css_element"
-    And I click on "Student 1 (student1@example.com)" "text"
-    And I click on "Add" "button"
-    And I follow "<< Back to responses"
+    And I click on "Manage bookings" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "selectall" "checkbox"
     And I click on "Toggle completion status" "button"
     And I should see "All selected users have been marked for activity completion"
@@ -328,12 +328,12 @@ Feature: Create global booking rules as admin and insure they are working.
       | aftercompletion |                                                                                                                             |
       | condition       | 0                                                                                                                           |
       | cancelrules     |                                                                                                                             |
+    And the following "mod_booking > answers" exist:
+      | booking    | option   | user     |
+      | BookingCMP | football | student1 |
     When I am on the "BookingCMP" Activity page logged in as admin
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
-    And I click on "Book other users" "link" in the ".allbookingoptionstable_r1" "css_element"
-    And I click on "Student 1 (student1@example.com)" "text"
-    And I click on "Add" "button"
-    And I follow "<< Back to responses"
+    And I click on "Manage bookings" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "selectall" "checkbox"
     And I click on "Toggle completion status" "button"
     And I should see "All selected users have been marked for activity completion"
@@ -358,12 +358,12 @@ Feature: Create global booking rules as admin and insure they are working.
       | aftercompletion |                                                                                                      |
       | condition       | 0                                                                                                    |
       | cancelrules     |                                                                                                      |
+    And the following "mod_booking > answers" exist:
+      | booking    | option          | user     |
+      | BookingCMP | Option-football | student1 |
     When I am on the "BookingCMP" Activity page logged in as admin
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
-    And I click on "Book other users" "link" in the ".allbookingoptionstable_r1" "css_element"
-    And I click on "Student 1 (student1@example.com)" "text"
-    And I click on "Add" "button"
-    And I follow "<< Back to responses"
+    And I click on "Manage bookings" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "selectall" "checkbox"
     And I click on "Send custom email" "button"
     And I set the following fields to these values:
@@ -394,14 +394,14 @@ Feature: Create global booking rules as admin and insure they are working.
       | aftercompletion |                                                                                                           |
       | condition       | 0                                                                                                         |
       | cancelrules     |                                                                                                           |
+    And the following "mod_booking > answers" exist:
+      | booking    | option          | user     |
+      | BookingCMP | Option-football | student1 |
+      | BookingCMP | Option-football | student2 |
+      | BookingCMP | Option-football | student3 |
     When I am on the "BookingCMP" Activity page logged in as admin
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
-    And I click on "Book other users" "link" in the ".allbookingoptionstable_r1" "css_element"
-    And I click on "Student 1 (student1@example.com)" "text"
-    And I click on "Student 2 (student2@example.com)" "text"
-    And I click on "Student 3 (student3@example.com)" "text"
-    And I click on "Add" "button"
-    And I follow "<< Back to responses"
+    And I click on "Manage bookings" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "selectall" "checkbox"
     And I click on "Send custom email" "button"
     And I set the following fields to these values:
