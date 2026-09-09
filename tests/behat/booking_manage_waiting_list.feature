@@ -71,11 +71,9 @@ Feature: In a course add a booking option and manage its waiting list
     ## Book 2 students
     And I click on "[data-bs-target='#accordion-item-waitinglist']" "css_element"
     And I click on ".confirmbooking-username-student1 i" "css_element"
-    And I wait "1" seconds
     And I click on "Book" "button" in the ".modal-footer" "css_element"
     And I click on "[data-bs-target='#accordion-item-waitinglist']" "css_element"
     And I click on ".confirmbooking-username-student2 i" "css_element"
-    And I wait "1" seconds
     And I click on "Book" "button" in the ".modal-footer" "css_element"
     Then I should see "Student 1 (student1@example.com)" in the ".userselector #removeselect" "css_element"
     And I should see "Student 2 (student2@example.com)" in the ".userselector #removeselect" "css_element"
@@ -97,7 +95,6 @@ Feature: In a course add a booking option and manage its waiting list
     And I reload the page
     And I click on "[data-bs-target='#accordion-item-waitinglist']" "css_element"
     And I drag "tr[id^='waitinglist'][id$='r2'] span[data-drag-type='move']" "css_element" and I drop it in "tr[id^='waitinglist'][id$='r1'] span[data-drag-type='move']" "css_element"
-    And I wait "1" seconds
     And I should see "student4@example.com" in the "tr[id^='waitinglist'][id$='r1'] td.columnclass.email" "css_element"
 
   @javascript @accessibility
@@ -118,19 +115,15 @@ Feature: In a course add a booking option and manage its waiting list
     ## Validate accessibility of booking options table before booking
     And the page should meet accessibility standards
     And I click on "Book it - on waitinglist" "text" in the ".allbookingoptionstable_r1" "css_element"
-    ## Validate accessibility of booking options table before booking
-    And the page should meet accessibility standards
     And I click on "Click again to confirm booking on waitinglist" "text" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Wait for confirmation" in the ".allbookingoptionstable_r1" "css_element"
     ## Validate accessibility of booking options table before booking
     And the page should meet accessibility standards
-    And I log out
     And I am on the "My booking" Activity page logged in as student4
     And I should see "55.00 EUR" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Book it - on waitinglist" "text" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Click again to confirm booking on waitinglist" "text" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Wait for confirmation" in the ".allbookingoptionstable_r1" "css_element"
-    And I log out
     When I am on the "My booking" Activity page logged in as teacher1
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Book other users" "link" in the ".allbookingoptionstable_r1" "css_element"
@@ -167,7 +160,6 @@ Feature: In a course add a booking option and manage its waiting list
     And I click on "Add to cart" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     ## Validate accessibility of booking options table before booking (disabled due to violations in Moodle 4.5 core)
     ## And the page should meet accessibility standards
-    And I log out
     And I am on the "My booking" Activity page logged in as student2
     And I click on "Add to cart" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I log out
@@ -204,7 +196,6 @@ Feature: In a course add a booking option and manage its waiting list
     And I should see "student3@example.com" in the "tr[id^='waitinglist'][id$='r1'] td.columnclass.email" "css_element"
     And I should see "student4@example.com" in the "tr[id^='waitinglist'][id$='r2'] td.columnclass.email" "css_element"
     And I click on "tr[id^='waitinglist'][id$='r2'] [data-methodname='unconfirmbooking']" "css_element"
-    And I wait "1" seconds
     And I click on "Delete" "button" in the ".modal-footer" "css_element"
     And I log out
     ## Validate availability and buy option as student 3
@@ -223,7 +214,6 @@ Feature: In a course add a booking option and manage its waiting list
     And I should see "156.00 EUR" in the ".sc_price_label .sc_remainingcredit" "css_element"
     And I should see "0 EUR" in the ".sc_totalprice" "css_element"
     And I press "Checkout"
-    And I wait "1" seconds
     ## Validate accessibility of booking options table before booking
     And the page should meet accessibility standards
     And I press "Confirm"
@@ -236,8 +226,6 @@ Feature: In a course add a booking option and manage its waiting list
     And I should see "Wait for confirmation" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Undo my booking" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "(Waiting list: 1/3)" in the ".allbookingoptionstable_r1" "css_element"
-    ## Validate accessibility of booking options table before booking
-    And the page should meet accessibility standards
 
   @javascript @accessibility
   Scenario: Booking option: reconfiguration of waiting list
@@ -267,8 +255,6 @@ Feature: In a course add a booking option and manage its waiting list
     ## Validate that student5 could book on waiting list
     And I am on the "My booking" Activity page logged in as student5
     And I should see "Book it - on waitinglist" in the ".allbookingoptionstable_r1" "css_element"
-    ## Validate accessibility of booking options table before booking
-    And the page should meet accessibility standards
     And I log out
     ## Unlimited waitinglist with free place available now
     ## Check for https://github.com/Wunderbyte-GmbH/moodle-mod_booking/commit/ce9b9fc96bb094a4ff248437bd3914da31499e1e
@@ -283,8 +269,6 @@ Feature: In a course add a booking option and manage its waiting list
     And I am on the "My booking" Activity page logged in as student5
     And I should see "Book now" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "(Waiting list: 0/Unlimited)" in the ".allbookingoptionstable_r1" "css_element"
-    ## Validate accessibility of booking options table before booking
-    And the page should meet accessibility standards
     And I log out
 
   @javascript

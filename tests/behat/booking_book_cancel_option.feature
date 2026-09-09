@@ -64,16 +64,12 @@ Feature: In a booking instance
     And the page should meet accessibility standards
     And I should see "Click again to confirm booking" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r1" "css_element"
-    ## Validate accessibility of booking options table before booking
-    And the page should meet accessibility standards
     And I should see "Start" in the ".allbookingoptionstable_r1" "css_element"
     And I should not see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     ## Validate accessibility of booking options table before booking
     And the page should meet accessibility standards
     And I should see "Undo my booking" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I click on "Undo my booking" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
-    ## Validate accessibility of booking options table before booking
-    And the page should meet accessibility standards
     Then I should see "Click again to confirm cancellation" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Click again to confirm cancellation" "text" in the ".allbookingoptionstable_r1" "css_element"
     ## Validate accessibility of booking options table before booking
@@ -126,7 +122,6 @@ Feature: In a booking instance
     ## name for "Disallow users to cancel their booking n days before start..."
     And I set the field "allowupdatedays" to "2"
     And I press "Save and display"
-    And I log out
     When I am on the "My booking" Activity page logged in as student1
     And I should see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
@@ -134,23 +129,19 @@ Feature: In a booking instance
     And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r1" "css_element"
     Then I should see "Start" in the ".allbookingoptionstable_r1" "css_element"
     And I should not see "Undo my booking" in the ".allbookingoptionstable_r1 .booknow" "css_element"
-    And I log out
     And I am on the "My booking" Activity page logged in as teacher1
     And I follow "Settings"
     And I follow "Booking und Cancelling"
     And I set the field "allowupdatedays" to "0"
     And I press "Save and display"
-    And I log out
     And I am on the "My booking" Activity page logged in as student1
     And I should see "Start" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Undo my booking" in the ".allbookingoptionstable_r1 .booknow" "css_element"
-    And I log out
     And I am on the "My booking" Activity page logged in as teacher1
     And I follow "Settings"
     And I follow "Booking und Cancelling"
     And I set the field "allowupdatedays" to "1"
     And I press "Save and display"
-    And I log out
     And I am on the "My booking" Activity page logged in as student1
     And I should see "Start" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Undo my booking" in the ".allbookingoptionstable_r1 .booknow" "css_element"
@@ -169,7 +160,6 @@ Feature: In a booking instance
     And I set the field "Allow booking after course start" to "checked"
     And I set the field "allowupdatedays" to "0"
     And I press "Save and display"
-    And I log out
     When I am on the "My booking" Activity page logged in as student1
     And I should see "Book now" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
@@ -177,13 +167,11 @@ Feature: In a booking instance
     And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r1" "css_element"
     Then I should see "Start" in the ".allbookingoptionstable_r1" "css_element"
     And I should not see "Undo my booking" in the ".allbookingoptionstable_r1 .booknow" "css_element"
-    And I log out
     And I am on the "My booking" Activity page logged in as teacher1
     And I follow "Settings"
     And I follow "Booking und Cancelling"
     And I set the field "allowupdatedays" to "-1"
     And I press "Save and display"
-    And I log out
     When I am on the "My booking" Activity page logged in as student1
     Then I should see "Start" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Undo my booking" in the ".allbookingoptionstable_r1 .booknow" "css_element"
@@ -215,7 +203,6 @@ Feature: In a booking instance
       | Select time period                               | NextMonth (nextmomth) |
       | Weekday, start and end time (Day, HH:MM - HH:MM) | Friday, 13:00-14:00   |
     And I press "Create date series"
-    And I wait "1" seconds
     And I press "Save"
     And I log out
     ## Student - book and cancel
@@ -226,14 +213,12 @@ Feature: In a booking instance
     And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r1" "css_element"
     Then I should see "Start" in the ".allbookingoptionstable_r1" "css_element"
     And I should not see "Undo my booking" in the ".allbookingoptionstable_r1 .booknow" "css_element"
-    And I log out
     And I am on the "My booking" Activity page logged in as teacher1
     And I follow "Settings"
     And I follow "Booking und Cancelling"
     ## 0 has been used to pass test OK for any day until "next month" comes
     And I set the field "allowupdatedays" to "0"
     And I press "Save and display"
-    And I log out
     When I am on the "My booking" Activity page logged in as student1
     Then I should see "Start" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Undo my booking" in the ".allbookingoptionstable_r1 .booknow" "css_element"
@@ -272,7 +257,6 @@ Feature: In a booking instance
     And I follow "Booking und Cancelling"
     And I set the field "allowupdatedays" to "-2"
     And I press "Save and display"
-    And I log out
     When I am on the "My booking" Activity page logged in as student1
     Then I should see "Start" in the ".allbookingoptionstable_r1" "css_element"
     ## Verify - self-cancellation IS possible
@@ -312,7 +296,6 @@ Feature: In a booking instance
     And I follow "Booking und Cancelling"
     And I set the field "allowupdatedays" to "0"
     And I press "Save and display"
-    And I log out
     When I am on the "My booking" Activity page logged in as student1
     Then I should see "Start" in the ".allbookingoptionstable_r1" "css_element"
     ## Verify - self-cancellation IS possible

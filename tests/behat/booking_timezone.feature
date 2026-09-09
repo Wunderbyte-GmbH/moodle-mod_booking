@@ -43,7 +43,6 @@ Feature: Booking options show times in each user's timezone
     And I should see "3:00 PM (CET)" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Bookable from: 13 March 2045, 11:00 AM (CET)" in the ".allbookingoptionstable_r1 .bookingopeningtime" "css_element"
     And I should see "Bookable until: 13 March 2045, 5:00 PM (CET)" in the ".allbookingoptionstable_r1 .bookingclosingtime" "css_element"
-    And I log out
     When I am on the "BookingTZ" Activity page logged in as student2
     Then I should see "13 March 2045, 3:30 PM (Tehran)" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "5:30 PM (Tehran)" in the ".allbookingoptionstable_r1" "css_element"
@@ -107,14 +106,12 @@ Feature: Booking options show times in each user's timezone
     And I should see "Bookable from: 13 March 2045, 11:00 AM (CET)" in the ".allbookingoptionstable_r1 .bookingopeningtime" "css_element"
     And I should see "Bookable until: 13 March 2045, 5:00 PM (CET)" in the ".allbookingoptionstable_r1 .bookingclosingtime" "css_element"
     And I should not see "(Tehran)" in the ".allbookingoptionstable_r1" "css_element"
-    And I log out
     When I am on the "BookingTZ" Activity page logged in as student3
     Then I should see "13 March 2045, 1:00 PM (CET)" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "3:00 PM (CET)" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Bookable from: 13 March 2045, 11:00 AM (CET)" in the ".allbookingoptionstable_r1 .bookingopeningtime" "css_element"
     And I should see "Bookable until: 13 March 2045, 5:00 PM (CET)" in the ".allbookingoptionstable_r1 .bookingclosingtime" "css_element"
     And I should not see "(CDT)" in the ".allbookingoptionstable_r1" "css_element"
-    And I log out
     When I am on the "BookingTZ" Activity page logged in as student4
     And I should see "13 March 2045, 1:00 PM" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "3:00 PM" in the ".allbookingoptionstable_r1" "css_element"

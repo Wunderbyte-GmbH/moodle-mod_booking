@@ -52,10 +52,8 @@ Feature: As an admin - configure booking's prices feature and validate it as stu
       | displayemptyprice  |              | booking |
     When I am on the "BookingCMP" Activity page logged in as student3
     And I should see "99.00 EUR" in the ".allbookingoptionstable_r1 .booknow" "css_element"
-    And I log out
     And I am on the "BookingCMP" Activity page logged in as student1
     And I should see "89.00 EUR" in the ".allbookingoptionstable_r1 .booknow" "css_element"
-    And I log out
     Then I am on the "BookingCMP" Activity page logged in as student2
     And I should not see "0.00 EUR" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"

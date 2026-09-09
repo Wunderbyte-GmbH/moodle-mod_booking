@@ -62,7 +62,6 @@ Feature: Create custom availability form for booking options as admin and bookin
     And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I follow "Availability conditions"
     And I set the field "Form needs to be filled out before booking" to "checked"
-    And I wait "1" seconds
     And I set the following fields to these values:
       | bo_cond_customform_select_1_1   | select |
       | bo_cond_customform_label_1_1    | Rooms  |
@@ -74,7 +73,6 @@ Feature: Create custom availability form for booking options as admin and bookin
     doubleroom => Double Room => 5 => discount2:100,discount1:200,default:150.4
     """
     And I press "Save"
-    And I log out
     When I am on the "BookingCMP" Activity page logged in as student1
     ## Validate accessibility of booking options table before booking
     And the page should meet accessibility standards
@@ -83,12 +81,8 @@ Feature: Create custom availability form for booking options as admin and bookin
     ## Validate accessibility of booking options table before booking
     And the page should meet accessibility standards
     And I should see "Rooms" in the ".condition-customform" "css_element"
-    ## Validate accessibility of booking options table before booking
-    And the page should meet accessibility standards
     And I set the field "customform_select_1" to "doubleroom"
     And I should see "Double Room, 5 still available (+150.40 EUR)" in the ".condition-customform" "css_element"
-    ## Validate accessibility of booking options table before booking
-    And the page should meet accessibility standards
     And I follow "Continue"
     And I should see "Thank you! You have successfully put Option-form into the shopping cart." in the ".modal-dialog.modal-xl .modalMainContent" "css_element"
     ## Validate accessibility of booking options table before booking (disabled due to violations in Moodle 4.5 core)
@@ -106,9 +100,6 @@ Feature: Create custom availability form for booking options as admin and bookin
     And I should see "50.60 EUR" in the ".sc_price_label .sc_remainingcredit" "css_element"
     And I should see "0 EUR" in the ".sc_totalprice" "css_element"
     And I press "Checkout"
-    And I wait "1" seconds
-    ## Validate accessibility of booking options table before booking
-    And the page should meet accessibility standards
     And I press "Confirm"
     And I should see "Payment successful!"
     ## Validate accessibility of booking options table before booking

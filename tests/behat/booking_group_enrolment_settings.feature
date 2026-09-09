@@ -30,7 +30,6 @@ Feature: Configure automatic course and group enrolment settings of a booking in
     Given I am on the "My booking" Activity page logged in as teacher1
     And I follow "Settings"
     When I follow "Connected Moodle course"
-    And I wait "1" seconds
     Then I should see "Automatically enrol users in connected course"
     ## The group setting of the connected course is only shown when autoenrol is active.
     And I set the field "Automatically enrol users in connected course" to ""
@@ -39,14 +38,12 @@ Feature: Configure automatic course and group enrolment settings of a booking in
     And I should see "Automatically enrol users in group of connected course"
     ## The source course settings stay in the advanced options.
     And I follow "Advanced options"
-    And I wait "1" seconds
     And I should see "Unenrol from group when user is unenrolled from corresponding booking option?"
     ## The multiselect offers the specific group per booked option together with the course groups.
     And I set the field "Automatically enrol users in group(s) of the course in which this booking instance is located" to "Enrol in specific group for each booked option,Group A,Group B"
     And I press "Save and display"
     And I follow "Settings"
     And I follow "Advanced options"
-    And I wait "1" seconds
     Then the field "Automatically enrol users in group(s) of the course in which this booking instance is located" matches value "Enrol in specific group for each booked option,Group A,Group B"
 
   @javascript
@@ -64,14 +61,11 @@ Feature: Configure automatic course and group enrolment settings of a booking in
     And I am on the "My booking" Activity page logged in as teacher1
     ## Manual selection is possible while the instance does not create groups automatically.
     When I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
-    And I wait "1" seconds
     And I follow "Moodle course"
     Then I should see "Enrol users in group(s) of the connected course"
     And I set the field "Enrol users in group(s) of the connected course" to "CGroup A"
     And I press "Save"
-    And I wait "1" seconds
     When I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
-    And I wait "1" seconds
     And I follow "Moodle course"
     Then I should see "CGroup A" in the "//div[contains(@id, 'fitem_id_addtogroupsofconnectedcourse')]" "xpath_element"
     ## Without a connected course, the manual selection is not offered.
@@ -81,11 +75,9 @@ Feature: Configure automatic course and group enrolment settings of a booking in
     ## With the automatic group of the connected course active, only the notice is shown.
     And I follow "Settings"
     And I follow "Connected Moodle course"
-    And I wait "1" seconds
     And I set the field "Automatically enrol users in group of connected course" to "1"
     And I press "Save and display"
     When I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
-    And I wait "1" seconds
     And I follow "Moodle course"
     Then I should see "The group in the connected course is created automatically for this booking option"
     And I should not see "Enrol users in group(s) of the connected course"

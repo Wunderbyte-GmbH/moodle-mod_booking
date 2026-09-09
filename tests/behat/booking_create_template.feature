@@ -41,7 +41,6 @@ Feature: In a booking create a template
     And I follow "Dates"
     And I set the field "Add to Moodle calendar" to "Add to calendar (visible only to participants of moodle course)"
     And I press "Add date"
-    And I wait "1" seconds
     And I set the following fields to these values:
       | coursestarttime_1[day]   | 15   |
       | coursestarttime_1[month] | May  |
@@ -50,10 +49,8 @@ Feature: In a booking create a template
       | courseendtime_1[month]   | May  |
       | courseendtime_1[year]    | 2050 |
     And I press "applydate_1"
-    And I wait "1" seconds
     And I set the following fields to these values:
       | chooseorcreatecourse | Connected Moodle course |
-    And I wait "1" seconds
     And I set the field with xpath "//*[contains(@id, 'fitem_id_courseid_')]//*[contains(@id, 'form_autocomplete_input-')]" to "Course 1"
     And I set the field "Assign teachers:" to "Teacher 1"
     ## Set as template
@@ -61,7 +58,6 @@ Feature: In a booking create a template
     And I set the field "addastemplate" to "Use as global template"
     And I press "Save"
     ## Required to avoid erros like "invalid session id" on the step next to "New option"
-    And I wait "1" seconds
     ## Edit template
     And I click on "More" "text" in the ".secondary-navigation .moremenu.navigation" "css_element"
     And I follow "Manage booking option templates"
@@ -75,7 +71,6 @@ Feature: In a booking create a template
     ## Use template
     And I follow "New booking option"
     And I set the field "optiontemplateid" to "Option template"
-    And I wait "1" seconds
     And I set the field "Booking option name" to "New option - by template"
     And I press "Save"
     And I wait until the page is ready
@@ -118,7 +113,6 @@ Feature: In a booking create a template
     And I am on the "My booking" Activity page
     And I follow "New booking option"
     And I set the field "Populate from template" to "SelfLearning"
-    And I wait "1" seconds
     ## Validate self-learning options
     And I expand all fieldsets
     And I wait until ".collapsing" "css_element" does not exist

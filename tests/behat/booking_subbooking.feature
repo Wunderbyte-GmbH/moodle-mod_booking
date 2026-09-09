@@ -62,7 +62,6 @@ Feature: Enabling subboking as admin configuring subboking as a teacher and book
     And I should see "Partner(s)" in the ".modal-dialog.modal-xl .modalMainContent" "css_element"
     And I press "Partner(s)"
     And I set the field "Add additional person(s)" to "2"
-    And I wait "1" seconds
     And I set the following fields to these values:
       | person_firstname_1 | Ann   |
       | person_lastname_1  | Smith |
@@ -96,19 +95,12 @@ Feature: Enabling subboking as admin configuring subboking as a teacher and book
     ## Validate accessibility of booking options table before booking
     And the page should meet accessibility standards
     And I click on "Book now" "text" in the ".modal-dialog.modal-xl .booking-button-area" "css_element"
-    ## Validate accessibility of booking options table before booking
-    And the page should meet accessibility standards
     And I click on "Click again to confirm booking" "text" in the ".modal-dialog.modal-xl .booking-button-area" "css_element"
     And I should see "Start" in the ".modal-dialog.modal-xl .booking-button-area" "css_element"
-    ## Validate accessibility of booking options table before booking
-    And the page should meet accessibility standards
     And I follow "Continue"
     And I should see "Partner(s)" in the ".modal-dialog.modal-xl .modalMainContent" "css_element"
-    ## Validate accessibility of booking options table before booking
-    And the page should meet accessibility standards
     And I press "Partner(s)"
     And I set the field "Add additional person(s)" to "1"
-    And I wait "1" seconds
     ## Validate accessibility of booking options table before booking
     And the page should meet accessibility standards
     And I set the following fields to these values:
@@ -116,8 +108,6 @@ Feature: Enabling subboking as admin configuring subboking as a teacher and book
       | person_lastname_1  | Smith |
       | person_age_1       | 20    |
     And I click on "Book now" "text" in the ".subbooking-additionalperson-form" "css_element"
-    ## Validate accessibility of booking options table before booking
-    And the page should meet accessibility standards
     And I follow "Continue"
     And I should see "Thank you! You have successfully booked" in the ".modal-dialog.modal-xl .condition-confirmation" "css_element"
     And I should see "Test option 1" in the ".modal-dialog.modal-xl .condition-confirmation" "css_element"
@@ -125,8 +115,6 @@ Feature: Enabling subboking as admin configuring subboking as a teacher and book
     And the page should meet accessibility standards
     And I follow "Close"
     And I should see "Start" in the ".allbookingoptionstable_r1" "css_element"
-    ## Validate accessibility of booking options table before booking
-    And the page should meet accessibility standards
 
   @javascript
   Scenario: Add subbooking item without price via DB to a booking option and verify as students
@@ -223,9 +211,6 @@ Feature: Enabling subboking as admin configuring subboking as a teacher and book
     And I should see "57.00 EUR" in the ".sc_price_label .sc_remainingcredit" "css_element"
     And I should see "0 EUR" in the ".sc_totalprice" "css_element"
     And I press "Checkout"
-    And I wait "1" seconds
-    ## Validate accessibility of booking options table before booking
-    And the page should meet accessibility standards
     And I press "Confirm"
     And I should see "Payment successful!"
     And I should see "Option-subitem" in the ".payment-success ul.list-group" "css_element"

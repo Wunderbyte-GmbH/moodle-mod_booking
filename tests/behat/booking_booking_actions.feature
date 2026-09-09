@@ -51,23 +51,19 @@ Feature: Create booking action as admin and ensure they are working as student a
     And I expand all fieldsets
     And I wait until ".collapsing" "css_element" does not exist
     And I click on "Add action" "text"
-    And I wait "1" seconds
     And I set the following fields to these values:
       | action_type                             | Book options                             |
       | boactionname                            | Book more options                        |
       | Book into other booking options as well |B1-Option2 (Booking1,B2-Option2 (Booking2 |
       | Handle restrictions of these options    | Only book if seats are available         |
     And I click on "Save changes" "button"
-    And I wait "2" seconds
     ##And I follow "Actions after booking [EXPERIMENTAL]"
     And I expand all fieldsets
     And I wait until ".collapsing" "css_element" does not exist
     And I should see "Book more options" in the ".booking-actions-list" "css_element"
     And I click on "Edit" "text" in the ".booking-actions-list" "css_element"
-    And I wait "1" seconds
     And I set the field "Name of action" to "Book other options"
     And I click on "Save changes" "button"
-    And I wait "2" seconds
     ##And I follow "Actions after booking [EXPERIMENTAL]"
     And I expand all fieldsets
     And I wait until ".collapsing" "css_element" does not exist

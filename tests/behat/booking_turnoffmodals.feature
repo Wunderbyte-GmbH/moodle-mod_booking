@@ -50,7 +50,6 @@ Feature: Turn off modals - pre booking pages have to be shown inline
   Scenario Outline: Turn off modals: pre booking pages are inline in every list view of a shortcode
     Given I am logged in as admin
     And I create a page "shortcode_<type>" in course "C1" that refers booking "My booking" with shortcode "[courselist cmid=My booking type=<type>]"
-    And I log out
     And I am on the "shortcode_<type>" Activity page logged in as student1
     And I wait until the page is ready
     When I click on "Book now" "text"
@@ -70,10 +69,8 @@ Feature: Turn off modals - pre booking pages have to be shown inline
     And I follow "Settings"
     And I set the field "View type" to "Cards view"
     And I press "Save and display"
-    And I log out
     And I am logged in as admin
     And I create a page "shortcode_listofcards" in course "C1" that refers booking "My booking" with shortcode "[courselist cmid=My booking type=list]"
-    And I log out
     And I am on the "shortcode_listofcards" Activity page logged in as student1
     And I wait until the page is ready
     When I click on "Book now" "text"
@@ -84,7 +81,6 @@ Feature: Turn off modals - pre booking pages have to be shown inline
   Scenario: Turn off modals: the cards view still uses a modal, because inline is not supported there
     Given I am logged in as admin
     And I create a page "shortcode_cards" in course "C1" that refers booking "My booking" with shortcode "[courselist cmid=My booking type=cards]"
-    And I log out
     And I am on the "shortcode_cards" Activity page logged in as student1
     And I wait until the page is ready
     When I click on "Book now" "text"

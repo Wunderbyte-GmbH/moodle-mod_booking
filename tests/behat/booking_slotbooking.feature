@@ -35,7 +35,6 @@ Feature: Slot booking option renders fixed calendar slots in student timezone
     Given I am on the "BookingSlots" Activity page logged in as student1
     And I should see "12" in the ".allbookingoptionstable_r1 .bookings " "css_element"
     When I click on "Book now" "text" in the ".allbookingoptionstable_r1" "css_element"
-    And I wait "1" seconds
     ##Validate no illegal slots
     Then I click on "6" "button" in the ".booking-slot-calendar-grid" "css_element"
     And ".booking-slot-fixed-editor" "css_element" should not be visible
@@ -70,7 +69,6 @@ Feature: Slot booking option renders fixed calendar slots in student timezone
     And I should see "9 May 2046, 4:20 PM - 4:40 PM" in the ".allbookingoptionstable_r1 " "css_element"
     ## Book a second slot (up to slot_max_slots_per_user); the already booked one is marked as booked.
     When I click on "Book now" "text" in the ".allbookingoptionstable_r1" "css_element"
-    And I wait "1" seconds
     And I click on "9" "button" in the ".booking-slot-calendar-grid" "css_element"
     And I should see "Booked" in the ".booking-slot-fixed-editor .booking-slot--booked" "css_element"
     And I click on "16:00 - 16:20" "text" in the ".booking-slot-fixed-editor" "css_element"
@@ -112,7 +110,6 @@ Feature: Slot booking option renders fixed calendar slots in student timezone
     ## "Save" is intercepted by a section header's stretched-link. The JS click bypasses
     ## hit-testing and cannot be intercepted.
     And I click on "Save" "button" skipping visibility check
-    And I log out
     And I am on the "BookingSlots" Activity page logged in as student1
     And I should see "10" in the ".allbookingoptionstable_r1 .bookings " "css_element"
     When I click on "Book now" "text" in the ".allbookingoptionstable_r1" "css_element"
@@ -184,7 +181,6 @@ Feature: Slot booking option renders fixed calendar slots in student timezone
       | BookingRebookOnly | Rebook option | C1     | Rebook test | 2          | 1            | fixed     | calendar               | 20                    | 09:00             | 11:00             | 2409195600      | 2409627000       | 1          | 0          | 1          | 0          | 0          | 0          | 0          | 2                              | 2                       | 1                         |
     And I am on the "BookingRebookOnly" Activity page logged in as student1
     When I click on "Book now" "text" in the ".allbookingoptionstable_r1" "css_element"
-    And I wait "1" seconds
     And I click on "7" "button" in the ".booking-slot-calendar-grid" "css_element"
     And I click on "16:20 - 16:40" "text" in the ".booking-slot-fixed-editor" "css_element"
     And I follow "Continue"
@@ -204,7 +200,6 @@ Feature: Slot booking option renders fixed calendar slots in student timezone
     And I am on the "BookingRebook" Activity page logged in as student1
     # Book a first slot through the UI so a proper slot answer exists.
     When I click on "Book now" "text" in the ".allbookingoptionstable_r1" "css_element"
-    And I wait "1" seconds
     And I click on "7" "button" in the ".booking-slot-calendar-grid" "css_element"
     And I click on "16:20 - 16:40" "text" in the ".booking-slot-fixed-editor" "css_element"
     And I follow "Continue"
@@ -225,5 +220,4 @@ Feature: Slot booking option renders fixed calendar slots in student timezone
     And I should see "Move/Cancel your slot(s)" in the ".booking-slotbooking-prepage" "css_element"
     # Switching to the move tab reveals the "Update booking" editor (slotupdate_form DynamicForm).
     And I click on "Move/Cancel your slot(s)" "text" in the ".booking-slotbooking-prepage" "css_element"
-    And I wait "2" seconds
     And ".booking-slotupdate-prepage .booking-slot-calendar-ui" "css_element" should be visible

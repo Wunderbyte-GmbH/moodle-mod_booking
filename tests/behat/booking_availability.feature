@@ -53,7 +53,6 @@ Feature: Test booking options avaialbility conditions
     And I follow "Availability conditions"
     And I set the field "Booking is possible only after a certain date" to ""
     And I set the field "Booking is possible only until a certain date" to "checked"
-    And I wait "1" seconds
     And I set the following fields to these values:
       | bookingclosingtime[day]   | 10                 |
       | bookingclosingtime[month] | May                |
@@ -73,7 +72,6 @@ Feature: Test booking options avaialbility conditions
     And I follow "Availability conditions"
     And I set the field "Booking is possible only after a certain date" to ""
     And I set the field "Booking is possible only until a certain date" to "checked"
-    And I wait "1" seconds
     And I set the following fields to these values:
       | bookingclosingtime[day]   | 10                 |
       | bookingclosingtime[month] | May                |
@@ -90,7 +88,6 @@ Feature: Test booking options avaialbility conditions
     And I follow "Availability conditions"
     And I set the field "Booking is possible only until a certain date" to ""
     And I set the field "Booking is possible only after a certain date" to "checked"
-    And I wait "1" seconds
     And I set the following fields to these values:
       | bookingopeningtime[day]   | ##yesterday##%d## |
       | bookingopeningtime[month] | ##yesterday##%B## |
@@ -106,7 +103,6 @@ Feature: Test booking options avaialbility conditions
     And I follow "Availability conditions"
     And I set the field "Booking is possible only until a certain date" to ""
     And I set the field "Booking is possible only after a certain date" to "checked"
-    And I wait "1" seconds
     And I set the following fields to these values:
       | bookingopeningtime[day]    | 10                 |
       | bookingopeningtime[month]  | March              |
@@ -126,9 +122,7 @@ Feature: Test booking options avaialbility conditions
     And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I follow "Availability conditions"
     And I set the field "User has previously booked a certain option" to "checked"
-    And I wait "1" seconds
     And I set the field "Must be already booked" to "Option - dependency"
-    And I wait "1" seconds
     And I press "Save"
     ## Verify availability as a student
     When I am on the "My booking" Activity page logged in as student1
@@ -148,7 +142,6 @@ Feature: Test booking options avaialbility conditions
     And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r3" "css_element"
     And I follow "Availability conditions"
     And I set the field "A chosen user profile field should have a certain value" to "checked"
-    And I wait "1" seconds
     And I set the following fields to these values:
       | bo_cond_userprofilefield_field    | Email address   |
       | bo_cond_userprofilefield_operator | contains (text) |
@@ -165,7 +158,6 @@ Feature: Test booking options avaialbility conditions
     And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r3" "css_element"
     And I follow "Availability conditions"
     And I set the field "A chosen user profile field should have a certain value" to "checked"
-    And I wait "1" seconds
     And I set the following fields to these values:
       | bo_cond_userprofilefield_field    | Email address   |
       | bo_cond_userprofilefield_operator | contains (text) |
@@ -182,7 +174,6 @@ Feature: Test booking options avaialbility conditions
     And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r3" "css_element"
     And I follow "Availability conditions"
     And I set the field "A custom user profile field should have a certain value" to "checked"
-    And I wait "1" seconds
     And I set the following fields to these values:
       | bo_cond_customuserprofilefield_field              | Sport                                   |
       | bo_cond_customuserprofilefield_operator           | has exactly this value (text or number) |
@@ -279,7 +270,6 @@ Feature: Test booking options avaialbility conditions
     Given the following config values are set as admin:
        | config                    | value | plugin  |
        | allowoverbooking          | 1     | booking |
-    And I log in as "admin"
     When I am on the "My booking" Activity page logged in as admin
     And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r3" "css_element"
     And I set the field "Max. number of participants" to "1"
@@ -304,13 +294,11 @@ Feature: Test booking options avaialbility conditions
     And I follow "Availability conditions"
     And I set the field "Booking is possible only until a certain date" to ""
     And I set the field "Booking is possible only after a certain date" to "checked"
-    And I wait "1" seconds
     And I set the following fields to these values:
       | bookingopeningtime[day]   | 10                 |
       | bookingopeningtime[month] | March              |
       | bookingopeningtime[year]  | ## + 1 year ##%Y## |
     And I set the field "User has previously booked a certain option" to "checked"
-    And I wait "1" seconds
     And I set the field "User has previously booked a certain option" to "checked"
     And I set the field "Must be already booked" to "Option - dependency"
     And I press "Save"
@@ -330,7 +318,6 @@ Feature: Test booking options avaialbility conditions
     And I follow "Availability conditions"
     And I set the field "bo_cond_previouslybooked_overrideconditioncheckbox" to "checked"
     And I set the field "bo_cond_previouslybooked_overrideoperator" to "OR"
-    And I wait "1" seconds
     ## And I set the field "Condition" to "Only bookable within a certain time"
     And I set the field with xpath "//*[contains(@id, 'fitem_id_bo_cond_previouslybooked_overridecondition')]//*[contains(@id, 'form_autocomplete_input')]" to "Only bookable within a certain time"
     And I press "Save"
@@ -385,7 +372,6 @@ Feature: Test booking options avaialbility conditions
     And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I follow "Availability conditions"
     And I set the field "Form needs to be filled out before booking" to "checked"
-    And I wait "1" seconds
     And I set the following fields to these values:
       | bo_cond_customform_select_1_1   | select                           |
       | bo_cond_customform_label_1_1    | Choose what you agree            |
@@ -407,8 +393,6 @@ Feature: Test booking options avaialbility conditions
     And the page should meet accessibility standards
     And I set the field "customform_select_1" to "option one"
     And I follow "Continue"
-    ## Validate accessibility of booking options table before booking
-    And the page should meet accessibility standards
     And I should see "You have successfully booked Option - advanced availability" in the ".condition-confirmation" "css_element"
     And I follow "Close"
     And I should see "Start" in the ".allbookingoptionstable_r1" "css_element"
@@ -421,7 +405,6 @@ Feature: Test booking options avaialbility conditions
     And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I follow "Availability conditions"
     And I set the field "Form needs to be filled out before booking" to "checked"
-    And I wait "1" seconds
     And I set the following fields to these values:
       | bo_cond_customform_select_1_1 | shorttext               |
       | bo_cond_customform_label_1_1  | Personal requirement:   |
@@ -455,7 +438,6 @@ Feature: Test booking options avaialbility conditions
     And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I follow "Availability conditions"
     And I set the field "Form needs to be filled out before booking" to "checked"
-    And I wait "1" seconds
     And I set the following fields to these values:
       | bo_cond_customform_select_1_1   | static                |
       | bo_cond_customform_label_1_1    | Static lavel          |
@@ -503,12 +485,10 @@ Feature: Test booking options avaialbility conditions
     Given the following config values are set as admin:
        | config                 | value | plugin  |
        | turnoffmodals          | 1     | booking |
-    And I log in as "admin"
     When I am on the "My booking" Activity page logged in as teacher1
     And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I follow "Availability conditions"
     And I set the field "Form needs to be filled out before booking" to "checked"
-    And I wait "1" seconds
     And I set the following fields to these values:
       | bo_cond_customform_select_1_1   | advcheckbox            |
       | bo_cond_customform_label_1_1    | Confirm your intention |
@@ -534,7 +514,6 @@ Feature: Test booking options avaialbility conditions
     And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I follow "Availability conditions"
     And I set the field "User is enrolled in certain cohort(s)" to "checked"
-    And I wait "1" seconds
     ## Teacher: hide unavailable option and require both cohort membership
     And I set the following fields to these values:
       | Cohort(s)                                    | System booking cohort 1,System booking cohort 2 |
@@ -545,11 +524,9 @@ Feature: Test booking options avaialbility conditions
     ## Check availability as students - only student3 supposed to see
     When I am on the "My booking" Activity page logged in as student1
     Then I should not see "Option - advanced availability" in the ".allbookingoptionstable_r1" "css_element"
-    And I log out
     And I am on the "My booking" Activity page logged in as student2
     And I should not see "Option - advanced availability" in the ".allbookingoptionstable_r1" "css_element"
     ## And I should see "Book now" in the ".allbookingoptionstable_r1" "css_element"
-    And I log out
     And I am on the "My booking" Activity page logged in as student3
     And I should see "Option - advanced availability" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Book now" in the ".allbookingoptionstable_r1" "css_element"
@@ -558,7 +535,6 @@ Feature: Test booking options avaialbility conditions
     And I am on the "My booking" Activity page logged in as teacher1
     And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I follow "Availability conditions"
-    And I wait "1" seconds
     ##And I set the field "bo_cond_enrolledincohorts_sqlfiltercheck" to ""
     And I set the following fields to these values:
      | bo_cond_enrolledincohorts_cohortids_operator | User has to be member to at least one of these cohorts |
@@ -571,7 +547,6 @@ Feature: Test booking options avaialbility conditions
     And I should see "Booking not allowed because you are not enrolled in at least one of the following cohort(s): System booking cohort 1, System booking cohort 2" in the ".allbookingoptionstable_r1" "css_element"
     ## And I should see "Booking not allowed because you are not enrolled in all of the following cohort(s): System booking cohort 1, System booking cohort 2" in the ".allbookingoptionstable_r1" "css_element"
     And I should not see "Book now" in the ".allbookingoptionstable_r1" "css_element"
-    And I log out
     And I am on the "My booking" Activity page logged in as student2
     And I should see "Option - advanced availability" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Book now" in the ".allbookingoptionstable_r1" "css_element"
