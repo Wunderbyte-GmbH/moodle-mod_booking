@@ -186,7 +186,12 @@ class option_form extends dynamic_form {
             !has_capability('mod/booking:addeditownoption', $context)
             && !has_capability('mod/booking:updatebooking', $context)
         ) {
-                throw new required_capability_exception($context, '', 'cant access edit form', '');
+            throw new required_capability_exception(
+                $context,
+                'mod/booking:addeditownoption',
+                'nopermissions',
+                ''
+            );
         }
     }
 
