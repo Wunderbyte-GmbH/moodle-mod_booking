@@ -456,7 +456,23 @@ class mod_booking_generator extends testing_module_generator {
         $boinfo = new bo_info($settings);
         $option = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
         $user = $DB->get_record('user', ['id' => (int)$record->userid], '*', MUST_EXIST);
-        $option->user_submit_response($user, 0, 0, 0, MOD_BOOKING_VERIFIED);
+        // Optional 'status' column: which submit status the answer is created with. Booked / waiting list
+        // is derived from the option's limits as in the UI; 'confirmation' confirms a waiting list answer
+        // that waits for confirmation, 'addedtocart' reserves the place like a shopping cart item.
+        $statusmap = [
+            'default' => MOD_BOOKING_BO_SUBMIT_STATUS_DEFAULT,
+            'addedtocart' => MOD_BOOKING_BO_SUBMIT_STATUS_ADDED_TO_CART,
+            'confirmation' => MOD_BOOKING_BO_SUBMIT_STATUS_CONFIRMATION,
+            'unconfirm' => MOD_BOOKING_BO_SUBMIT_STATUS_UN_CONFIRM,
+            'autoenrol' => MOD_BOOKING_BO_SUBMIT_STATUS_AUTOENROL,
+            'force' => MOD_BOOKING_BO_SUBMIT_STATUS_BOOKOTHEROPTION_FORCE,
+        ];
+        $statuskey = strtolower(trim((string)($record->status ?? 'default')));
+        if (!isset($statusmap[$statuskey])) {
+            throw new coding_exception('Unknown answer status "' . $statuskey . '", expected one of: '
+                . implode(', ', array_keys($statusmap)));
+        }
+        $option->user_submit_response($user, 0, 0, $statusmap[$statuskey], MOD_BOOKING_VERIFIED);
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $record->userid, true);
         // Value of $id expected to be MOD_BOOKING_BO_COND_ALREADYBOOKED.
 
