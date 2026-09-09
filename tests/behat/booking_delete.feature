@@ -36,12 +36,8 @@ Feature: In a booking delete
     And I click on "Delete" "button" in the ".modal-dialog" "css_element"
     And I wait until the page is ready
     And I should not see "New option"
-    And I log out
-    When I log in as "admin"
-    And I trigger cron
-    And I run all adhoc tasks
-    And I visit "/report/loglive/index.php"
-    Then I should see "Booking option deleted"
+    And I run all booking adhoc tasks
+    Then the events log should contain "Booking option deleted"
     And I log out
 
   @javascript
@@ -84,12 +80,9 @@ Feature: In a booking delete
     And I click on "Delete responses" "button"
     And I should not see "Student 1"
     And I should not see "Student 2"
-    When I log in as "admin"
-    And I trigger cron
-    And I run all adhoc tasks
-    And I visit "/report/loglive/index.php"
-    Then I should see "The user \"Teacher 1 (ID:"
-    And I should see "cancelled \"Student 1 (ID:"
-    And I should see "cancelled \"Student 2 (ID:"
-    And I should see "from \"New option (ID:"
+    And I run all booking adhoc tasks
+    Then the events log should contain "The user \"Teacher 1 (ID:"
+    And the events log should contain "cancelled \"Student 1 (ID:"
+    And the events log should contain "cancelled \"Student 2 (ID:"
+    And the events log should contain "from \"New option (ID:"
     And I log out

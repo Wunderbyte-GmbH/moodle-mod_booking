@@ -47,19 +47,11 @@ Feature: Test messaging features in a booking
       | Message | Dear, Firstly, I would like to thank you for booking my Course |
     And I press "Send message"
     And I should see "Your message has been sent."
-    And I log out
-    ## Send messages via cron and verify via events log
-    And I log in as "admin"
-    When I trigger cron
-    And I wait "1" seconds
-    And I run all adhoc tasks
-    And I visit "/report/loglive/index.php"
-    Then I should see "Booking option booked"
-    And I should see "Unknown message type A message e-mail with subject \"Behat test\" has been sent to user with id:"
-    And I should see "Custom message A message e-mail with subject \"Behat test\" has been sent to user: \"Student 2\" by the user \"Teacher 1\""
-    And I should see "Custom message A message e-mail with subject \"Behat test\" has been sent to user: \"Student 1\" by the user \"Teacher 1\""
-    ## Logout is mandatory for admin pages to avoid error
-    And I log out
+    And I run all booking adhoc tasks
+    Then the events log should contain "Booking option booked"
+    And the events log should contain "Unknown message type A message e-mail with subject \"Behat test\" has been sent to user with id:"
+    And the events log should contain "Custom message A message e-mail with subject \"Behat test\" has been sent to user: \"Student 2\" by the user \"Teacher 1\""
+    And the events log should contain "Custom message A message e-mail with subject \"Behat test\" has been sent to user: \"Student 1\" by the user \"Teacher 1\""
 
   @javascript
   Scenario: Admin book students into booking option and sends mails to them
@@ -77,15 +69,9 @@ Feature: Test messaging features in a booking
     And I click on "selectall" "checkbox"
     And I click on "Send reminder e-mail" "button"
     And I should see "Notification e-mail has been sent!"
-    ## Send messages via cron and verify via events log
-    When I trigger cron
-    And I wait "1" seconds
-    And I run all adhoc tasks
-    And I visit "/report/loglive/index.php"
-    Then I should see "Booking option booked"
-    And I should see "Reminder sent from report A message e-mail with subject \"Reminder: Your booked course\" has been sent to user: \"Student 2\" by the user \"Teacher 1\""
-    And I should see "Reminder sent from report A message e-mail with subject \"Reminder: Your booked course\" has been sent to user: \"Student 1\" by the user \"Teacher 1\""
-    And I should see "Booking confirmation A message e-mail with subject \"Booking confirmation for Option: mail to participant\" has been sent to user: \"Student 2\" by the user \"Teacher 1\""
-    And I should see "Booking confirmation A message e-mail with subject \"Booking confirmation for Option: mail to participant\" has been sent to user: \"Student 1\" by the user \"Teacher 1\""
-    ## Logout is mandatory for admin pages to avoid error
-    And I log out
+    And I run all booking adhoc tasks
+    Then the events log should contain "Booking option booked"
+    And the events log should contain "Reminder sent from report A message e-mail with subject \"Reminder: Your booked course\" has been sent to user: \"Student 2\" by the user \"Teacher 1\""
+    And the events log should contain "Reminder sent from report A message e-mail with subject \"Reminder: Your booked course\" has been sent to user: \"Student 1\" by the user \"Teacher 1\""
+    And the events log should contain "Booking confirmation A message e-mail with subject \"Booking confirmation for Option: mail to participant\" has been sent to user: \"Student 2\" by the user \"Teacher 1\""
+    And the events log should contain "Booking confirmation A message e-mail with subject \"Booking confirmation for Option: mail to participant\" has been sent to user: \"Student 1\" by the user \"Teacher 1\""
