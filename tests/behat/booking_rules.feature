@@ -40,24 +40,19 @@ Feature: Create global booking rules as admin and insure they are working.
     And I set the following fields to these values:
       | Custom name for the rule | notifyadmin    |
       | Rule                     | React on event |
-    And I wait "2" seconds
     And I set the field "Event" to "Teacher was added to specific option date (optiondates_teacher_added)"
-    And I wait "2" seconds
     And I set the field "Condition of the rule" to "Select specific user(s)"
     ##And I set the following fields to these values:
     ##  | Event                 | Substitution teacher was added (optiondates_teacher_added)     |
     ##  | Condition of the rule | Select specific user(s) |
-    And I wait "1" seconds
     ## Mandatory workaround for autocomplete field
     And I set the field "Select the users you want to target" to "admin"
-    And I wait "1" seconds
     And I set the following fields to these values:
       | Subject | Teacher was substituted              |
       | Message | Teacher was substituted successfully |
     And I click on "Save changes" "button"
     And I should see "notifyadmin"
     And I click on "Edit" "text" in the ".booking-rules-list" "css_element"
-    And I wait "1" seconds
     And I set the field "Custom name for the rule" to "rule1-notifyadmin"
     And I click on "Save changes" "button"
     And I should see "rule1-notifyadmin"
@@ -113,13 +108,9 @@ Feature: Create global booking rules as admin and insure they are working.
       | Teachers | teacher1   |
       | Reason   | Assign one |
     And I press "Save changes"
-    ## Send messages via cron and verify via events log
-    And I trigger cron
-    And I visit "/report/loglive/index.php"
-    And I should see "Teacher was added to specific option date"
-    And I should see "Custom message A message e-mail with subject \"teacher subst\" has been sent to user: \"Admin User\" by the user \"Teacher 1\""
-    ## Logout is mandatory for admin pages to avoid error
-    And I log out
+    And I run all booking adhoc tasks
+    Then the events log should contain "Teacher was added to specific option date"
+    And the events log should contain "Custom message A message e-mail with subject \"teacher subst\" has been sent to user: \"Admin User\" by the user \"Teacher 1\""
 
   @javascript
   Scenario: Booking rules: create booking rule for answer cancellation event and notify students
@@ -159,15 +150,11 @@ Feature: Create global booking rules as admin and insure they are working.
     And I click on "Book other users" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Student 2 (student2@example.com)" "text"
     And I click on "Remove" "button"
-    ## Send messages via cron and verify via events log
-    And I trigger cron
-    And I visit "/report/loglive/index.php"
+    And I run all booking adhoc tasks
     ## Legacy mail templates (uselegacymailtemplates=1) must be used to have next item in the events log
     ## And I should see "Option cancelled by teacher or system A message e-mail with subject \"Deleted booking: Option-football by Student 2\" has been sent to user: \"Student 2\" by the user \"Teacher 1\""
-    And I should see "Custom message A message e-mail with subject \"answer cancellation0\" has been sent to user: \"Student 1\" by the user \"Teacher 1\""
-    And I should see "Custom message A message e-mail with subject \"answer cancellation5\" has been sent to user: \"Student 2\" by the user \"Teacher 1\""
-    ## Logout is mandatory for admin pages to avoid error
-    And I log out
+    Then the events log should contain "Custom message A message e-mail with subject \"answer cancellation0\" has been sent to user: \"Student 1\" by the user \"Teacher 1\""
+    And the events log should contain "Custom message A message e-mail with subject \"answer cancellation5\" has been sent to user: \"Student 2\" by the user \"Teacher 1\""
 
   @javascript
   Scenario: Booking rules: create booking rule for option cancellation for user event and notify admin
@@ -195,15 +182,11 @@ Feature: Create global booking rules as admin and insure they are working.
     And I click on "selectall" "checkbox"
     And I click on "Delete responses" "button"
     And I should see "You deleted 1 of 1 users. Users, that have completed activity, can't be deleted!"
-    ## Send messages via cron and verify via events log
-    And I trigger cron
-    And I visit "/report/loglive/index.php"
-    And I should see "Booking option cancelled for/by user"
+    And I run all booking adhoc tasks
+    Then the events log should contain "Booking option cancelled for/by user"
     ## Legacy mail templates (uselegacymailtemplates=1) must be used to have next item in the events log
     ## And I should see "Option cancelled by teacher or system A message e-mail with subject \"Deleted booking: Option-football by Student 1\" has been sent to user: \"Student 1\" by the user \"Teacher 1\""
-    And I should see "Custom message A message e-mail with subject \"answer cancellation\" has been sent to user: \"Admin User\" by the user \"Teacher 1\""
-    ## Logout is mandatory for admin pages to avoid error
-    And I log out
+    And the events log should contain "Custom message A message e-mail with subject \"answer cancellation\" has been sent to user: \"Admin User\" by the user \"Teacher 1\""
 
   @javascript
   Scenario: Booking rules: create booking rule for teacher removal event and notify other teachers
@@ -227,20 +210,15 @@ Feature: Create global booking rules as admin and insure they are working.
     And I click on "Substitutions / Cancelled dates" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Option-teacher" in the "#region-main" "css_element"
     And I click on "Edit" "link" in the "[id^=optiondates_teachers_table] td.edit" "css_element"
-    And I wait "1" seconds
     And I click on "Teacher 2" "text" in the ".form-autocomplete-selection.form-autocomplete-multiple" "css_element"
     And I set the field "Reason" to "Remove teacher"
     And I press "Save changes"
     And I should see "Admin" in the "[id^=optiondates_teachers_table] td.teacher" "css_element"
-    ## Send messages via cron and verify via events log
-    And I trigger cron
-    And I visit "/report/loglive/index.php"
-    Then I should see "Teacher was deleted from specific option date"
-    And I should see "Custom message A message e-mail with subject \"teacher removed\" has been sent to user: \"Teacher 2\" by the user \"Teacher 1\""
-    And I should see "Custom message A message e-mail with subject \"teacher removed\" has been sent to user: \"Teacher 1\" by the user \"Teacher 1\""
-    And I should see "Custom message A message e-mail with subject \"teacher removed\" has been sent to user: \"Admin User\" by the user \"Teacher 1\""
-    ## Logout is mandatory for admin pages to avoid error
-    And I log out
+    And I run all booking adhoc tasks
+    Then the events log should contain "Teacher was deleted from specific option date"
+    And the events log should contain "Custom message A message e-mail with subject \"teacher removed\" has been sent to user: \"Teacher 2\" by the user \"Teacher 1\""
+    And the events log should contain "Custom message A message e-mail with subject \"teacher removed\" has been sent to user: \"Teacher 1\" by the user \"Teacher 1\""
+    And the events log should contain "Custom message A message e-mail with subject \"teacher removed\" has been sent to user: \"Admin User\" by the user \"Teacher 1\""
 
   @javascript
   Scenario: Booking rules: create booking rule for option completion event and notify by user from event
@@ -284,11 +262,9 @@ Feature: Create global booking rules as admin and insure they are working.
     And I click on "Toggle completion status" "button"
     And I should see "All selected users have been marked for activity completion"
     ## Verify custom completion message
-    And I trigger cron
-    And I visit "/report/loglive/index.php"
-    And I wait until the page is ready
-    Then I should see "Booking option completed"
-    And I should see "Custom message A message e-mail with subject \"completion\" has been sent to user: \"Admin User\" by the user \"Teacher 1\""
+    And I run all booking adhoc tasks
+    Then the events log should contain "Booking option completed"
+    And the events log should contain "Custom message A message e-mail with subject \"completion\" has been sent to user: \"Admin User\" by the user \"Teacher 1\""
     ## Update booking settings - changes booking manager
     ##And I am on the "BookingCMP" "booking activity editing" page logged in as admin
     And I am on the "BookingCMP" Activity page
@@ -302,13 +278,9 @@ Feature: Create global booking rules as admin and insure they are working.
     And I click on "Toggle completion status" "button"
     And I should see "All selected users have been marked for activity completion"
     ## Verify custom uncompletion message
-    And I trigger cron
-    And I visit "/report/loglive/index.php"
-    And I wait until the page is ready
-    And I should see "Completion of booking option undone"
-    And I should see "Custom message A message e-mail with subject \"manager-uncompletion\" has been sent to user: \"Teacher 1\""
-    ## Logout is mandatory for admin pages to avoid error
-    And I log out
+    And I run all booking adhoc tasks
+    Then the events log should contain "Completion of booking option undone"
+    And the events log should contain "Custom message A message e-mail with subject \"manager-uncompletion\" has been sent to user: \"Teacher 1\""
 
   @javascript
   Scenario: Booking rules: create booking rule for option cancellation event and notify user matching profile field value
@@ -330,17 +302,14 @@ Feature: Create global booking rules as admin and insure they are working.
     When I am on the "BookingCMP" Activity page logged in as admin
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Cancel this booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "Reason for cancellation" in the ".modal-dialog" "css_element"
     And I set the field "Reason for cancellation of this booking option" to "rule testing"
     And I click on "Save changes" "button"
     And I should see "Option-football" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Cancelled" in the ".allbookingoptionstable_r1" "css_element"
-    ## Send messages via cron and verify via events log
-    And I trigger cron
-    And I visit "/report/loglive/index.php"
-    And I should see "Booking option cancelled"
-    And I should see "Custom message A message e-mail with subject \"cancellation football\" has been sent to user: \"Teacher 2\" by the user \"Teacher 1\""
-    ## Logout is mandatory for admin pages to avoid error
-    And I log out
+    And I run all booking adhoc tasks
+    Then the events log should contain "Booking option cancelled"
+    And the events log should contain "Custom message A message e-mail with subject \"cancellation football\" has been sent to user: \"Teacher 2\" by the user \"Teacher 1\""
 
   @javascript
   Scenario: Booking rules: create booking rule for event of completion and notify user matching profile field with option name
@@ -368,13 +337,9 @@ Feature: Create global booking rules as admin and insure they are working.
     And I click on "selectall" "checkbox"
     And I click on "Toggle completion status" "button"
     And I should see "All selected users have been marked for activity completion"
-    ## Send messages via cron and verify via events log
-    And I trigger cron
-    And I visit "/report/loglive/index.php"
-    Then I should see "Booking option completed"
-    And I should see "Custom message A message e-mail with subject \"completion football\" has been sent to user: \"Teacher 2\" by the user \"Teacher 1\""
-    ## Logout is mandatory for admin pages to avoid error
-    And I log out
+    And I run all booking adhoc tasks
+    Then the events log should contain "Booking option completed"
+    And the events log should contain "Custom message A message e-mail with subject \"completion football\" has been sent to user: \"Teacher 2\" by the user \"Teacher 1\""
 
   @javascript
   Scenario: Booking rule for: copy to teacher a custom message sent to users who booked option
@@ -406,15 +371,11 @@ Feature: Create global booking rules as admin and insure they are working.
       | Message | Test bookig Rule send_copy_of_mail test |
     And I press "Send message"
     And I should see "Your message has been sent."
-    ## Send messages via cron and verify via events log
-    And I trigger cron
-    And I visit "/report/loglive/index.php"
-    Then I should see "Custom email sent"
-    And I should see "Custom message A message e-mail with subject \"Rule send_copy_of_mail test\" has been sent to user: \"Student 1\" by the user \"Teacher 1\""
-    And I should see "Unknown message type A message e-mail with subject \"Rule send_copy_of_mail test\" has been sent to user with id:"
-    And I should see "Custom message A message e-mail with subject \"Custom msg copy: Rule send_copy_of_mail test\" has been sent to user: \"Admin User\" by the user \"Teacher 1\""
-    ## Logout is mandatory for admin pages to avoid error
-    And I log out
+    And I run all booking adhoc tasks
+    Then the events log should contain "Custom email sent"
+    And the events log should contain "Custom message A message e-mail with subject \"Rule send_copy_of_mail test\" has been sent to user: \"Student 1\" by the user \"Teacher 1\""
+    And the events log should contain "Unknown message type A message e-mail with subject \"Rule send_copy_of_mail test\" has been sent to user with id:"
+    And the events log should contain "Custom message A message e-mail with subject \"Custom msg copy: Rule send_copy_of_mail test\" has been sent to user: \"Admin User\" by the user \"Teacher 1\""
 
   @javascript
   Scenario: Booking rule for: copy to admin a bulk custom message sent to 3 users who booked option
@@ -448,15 +409,11 @@ Feature: Create global booking rules as admin and insure they are working.
       | Message | Test bookig Rule send_copy_of_bulk_mail test |
     And I press "Send message"
     And I should see "Your message has been sent."
-    ## Send messages via cron and verify via events log
-    And I trigger cron
-    And I visit "/report/loglive/index.php"
-    Then I should see "Custom email sent"
-    And I should see "Custom message A message e-mail with subject \"Rule send_copy_of_bulk_mail test\" has been sent to user: \"Student 3\" by the user \"Teacher 1\""
-    And I should see "A custom bulk message e-mail with subject 'Rule send_copy_of_bulk_mail test' has been sent to all users of booking option with id:"
-    And I should see "Custom message A message e-mail with subject \"Custom bulk msg copy: Rule send_copy_of_bulk_mail test\" has been sent to user: \"Admin User\" by the user \"Teacher 1\""
-    ## Logout is mandatory for admin pages to avoid error
-    And I log out
+    And I run all booking adhoc tasks
+    Then the events log should contain "Custom email sent"
+    And the events log should contain "Custom message A message e-mail with subject \"Rule send_copy_of_bulk_mail test\" has been sent to user: \"Student 3\" by the user \"Teacher 1\""
+    And the events log should contain "A custom bulk message e-mail with subject 'Rule send_copy_of_bulk_mail test' has been sent to all users of booking option with id:"
+    And the events log should contain "Custom message A message e-mail with subject \"Custom bulk msg copy: Rule send_copy_of_bulk_mail test\" has been sent to user: \"Admin User\" by the user \"Teacher 1\""
 
   @javascript
   Scenario: Booking rules: create booking rule for option update and notify teachers about it
@@ -486,13 +443,9 @@ Feature: Create global booking rules as admin and insure they are working.
       | Max. number of participants | 5              |
       | Assign teachers             | teacher1,admin |
     And I press "Save"
-    ## Send messages via cron and verify via events log
-    And I trigger cron
-    And I visit "/report/loglive/index.php"
-    Then I should see "Booking option updated"
-    And I should see "Custom message A message e-mail with subject \"OptionChanged\" has been sent to user: \"Admin User\" by the user \"Teacher 1\""
-    ## Logout is mandatory for admin pages to avoid error
-    And I log out
+    And I run all booking adhoc tasks
+    Then the events log should contain "Booking option updated"
+    And the events log should contain "Custom message A message e-mail with subject \"OptionChanged\" has been sent to user: \"Admin User\" by the user \"Teacher 1\""
 
   @javascript
   Scenario: Booking rules: create booking rule for rule overriding
@@ -529,16 +482,15 @@ Feature: Create global booking rules as admin and insure they are working.
     When I am on the "BookingCMP" Activity page logged in as admin
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Cancel this booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "Reason for cancellation" in the ".modal-dialog" "css_element"
     And I set the field "Reason for cancellation of this booking option" to "rule testing"
     And I click on "Save changes" "button"
     And I should see "Option-football" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Cancelled" in the ".allbookingoptionstable_r1" "css_element"
-    ## Send messages via cron and verify via events log
-    And I trigger cron
-    And I visit "/report/loglive/index.php"
-    And I should see "Booking option cancelled for all"
-    And I should see "Custom message A message e-mail with subject \"overridesubj\" has been sent to user: \"Teacher 2\" by the user \"Teacher 1\""
-    And I should see "Custom message A message e-mail with subject \"overridesubj\" has been sent to user: \"Teacher 1\" by the user \"Teacher 1\""
+    And I run all booking adhoc tasks
+    Then the events log should contain "Booking option cancelled for all"
+    And the events log should contain "Custom message A message e-mail with subject \"overridesubj\" has been sent to user: \"Teacher 2\" by the user \"Teacher 1\""
+    And the events log should contain "Custom message A message e-mail with subject \"overridesubj\" has been sent to user: \"Teacher 1\" by the user \"Teacher 1\""
     And I should not see "Custom message A message e-mail with subject \"answcancsubj\" has been sent to user"
     ## Logout is mandatory for admin pages to avoid error
     And I log out

@@ -128,11 +128,9 @@ Feature: As admin - apply bulk operations under booking options.
     And "//tr[contains(@id, '_optionbulkoperationstable_') and contains(@id, '_r10')]" "xpath_element" should not exist
     And I set the field with xpath "//input[contains(@name, 'search-') and contains(@name, '_optionbulkoperationstable_')]" to ""
     ## And I wait until the page is ready
-    And I wait "1" seconds
     ## Testing sorting
     And I click on "th.id.wb-table-column.desc" "css_element"
     ## And I wait until the page is ready
-    And I wait "1" seconds
     And I should see "Option01-t" in the "//tr[contains(@id, '_optionbulkoperationstable_') and contains(@id, '_r1')]" "xpath_element"
     And I should see "Option12-s" in the "//tr[contains(@id, '_optionbulkoperationstable_') and contains(@id, '_r12')]" "xpath_element"
     ## Testing pagination
@@ -163,7 +161,6 @@ Feature: As admin - apply bulk operations under booking options.
     And I click on "Edit Bookingoptions" "text" in the ".wunderbyteTableClass" "css_element"
     And I set the field "Select field of booking option" to "Teachers"
     And I click on "btn_bookingbulkoperations" "button" in the ".modal-body" "css_element"
-    And I wait "1" seconds
     And I set the field "Assign teachers:" to "Teacher 1"
     And I click on "Confirm" "button"
     ## Bulk operations are queued and executed in an adhoc task now.
@@ -173,13 +170,8 @@ Feature: As admin - apply bulk operations under booking options.
     And I set the field with xpath "//tr[contains(@id, '_optionbulkoperationstable_') and contains(@id, '_r1')]//input[@type='checkbox' and contains(@name, '_optionbulkoperationstable_')]" to "checked"
     And I set the field with xpath "//tr[contains(@id, '_optionbulkoperationstable_') and contains(@id, '_r3')]//input[@type='checkbox' and contains(@name, '_optionbulkoperationstable_')]" to "checked"
     And I click on "Send mail to teacher(s)" "text" in the ".wunderbyteTableClass" "css_element"
-    And I wait "1" seconds
     And I set the field "Subject" to "Bulkoperations-subj"
     And I set the field "Email body" to "Bulkoperations-message_body"
     And I click on "Send" "button" in the ".modal-footer" "css_element"
-    ## Send messages via cron and verify via events log
-    And I trigger cron
-    And I visit "/report/loglive/index.php"
-    And I should see "Custom message A message e-mail with subject \"Bulkoperations-subj\" has been sent to user: \"Teacher 1\" by the user \"Teacher 1\""
-    ## Logout is mandatory for admin pages to avoid error
-    And I log out
+    And I run all booking adhoc tasks
+    Then the events log should contain "Custom message A message e-mail with subject \"Bulkoperations-subj\" has been sent to user: \"Teacher 1\" by the user \"Teacher 1\""

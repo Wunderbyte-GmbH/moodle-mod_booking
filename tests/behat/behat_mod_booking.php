@@ -747,4 +747,69 @@ class behat_mod_booking extends behat_base {
             );
         }
     }
+
+    /**
+     * Run all queued adhoc tasks in the behat process with fresh booking singletons.
+     *
+     * Adhoc tasks queued by the web requests of a scenario (rule mails, confirmation mails, ...) run inside
+     * the behat CLI process, whose booking singletons may be stale from an earlier step of the same scenario.
+     * Reset them first, then delegate to the core step. Much cheaper than "I trigger cron", which loads
+     * admin/cron.php in the browser and runs every scheduled task.
+     *
+     * @Given /^I run all booking adhoc tasks$/
+     * @return void
+     */
+    public function i_run_all_booking_adhoc_tasks(): void {
+        $this->i_clean_booking_cache();
+        $this->execute('behat_general::i_run_all_adhoc_tasks');
+    }
+
+    /**
+     * Assert that the standard log store contains an event whose name and description contain the text.
+     *
+     * Deterministic replacement for visiting report/loglive as admin: reads the same event name and
+     * description that loglive renders, directly from the log reader. Buffered writes of the standard
+     * store in this process (e.g. events triggered by "I run all booking adhoc tasks") are flushed first.
+     *
+     * @Then /^the events log should contain "(?P<text_string>(?:[^"]|\\")*)"$/
+     * @param string $text expected text; quotes may be escaped as in Gherkin
+     * @return void
+     */
+    public function the_events_log_should_contain(string $text): void {
+        $expected = $this->normalise_log_text(str_replace('\"', '"', $text));
+
+        // Force-reload the log manager: disposing the old one flushes the standard store buffer.
+        $manager = get_log_manager(true);
+        $readers = $manager->get_readers('\core\log\sql_reader');
+        if (empty($readers)) {
+            throw new \Behat\Mink\Exception\ExpectationException(
+                'No SQL log reader is enabled, cannot inspect the events log.',
+                $this->getSession()
+            );
+        }
+        /** @var \core\log\sql_reader $reader */
+        $reader = reset($readers);
+        $events = $reader->get_events_select('id > :minid', ['minid' => 0], 'id DESC', 0, 1000);
+        foreach ($events as $event) {
+            $line = $this->normalise_log_text($event->get_name() . ' ' . $event->get_description());
+            if (strpos($line, $expected) !== false) {
+                return;
+            }
+        }
+        throw new \Behat\Mink\Exception\ExpectationException(
+            'The events log does not contain "' . $text . '"',
+            $this->getSession()
+        );
+    }
+
+    /**
+     * Collapse whitespace and decode entities so log text compares like rendered loglive text.
+     *
+     * @param string $text
+     * @return string
+     */
+    private function normalise_log_text(string $text): string {
+        $text = html_entity_decode(strip_tags($text), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        return trim(preg_replace('/\s+/u', ' ', $text));
+    }
 }
