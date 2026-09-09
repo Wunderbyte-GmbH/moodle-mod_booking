@@ -209,6 +209,7 @@ class option_form extends dynamic_form {
 
         $context = $this->get_option_context();
 
+        $context = $this->get_context_for_dynamic_submission();
         $formdata = $this->_ajaxformdata ?? [];
         $id = max(0, (int) ($formdata['id'] ?? $formdata['optionid'] ?? 0));
         $optionid = max(0, (int) ($formdata['optionid'] ?? $formdata['id'] ?? 0));
