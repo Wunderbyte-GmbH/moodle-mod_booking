@@ -366,8 +366,12 @@ class entities extends field_base {
      *
      */
     public function get_changes_description(array $changes): array {
-        $oldentity = $changes['oldvalue'] ?? [];
-        $newentity = $changes['newvalue'] ?? [];
+        /* The values can reach us as arrays or objects: the old value comes from
+        booking_option_settings::$entity (array), the new one from singleton_service (object) and
+        both are turned into arrays again whenever the change travels through the event payload
+        (json_decode with assoc = true). So we normalize to objects before reading the properties. */
+        $oldentity = (object)($changes['oldvalue'] ?? []);
+        $newentity = (object)($changes['newvalue'] ?? []);
 
         $fieldnamestring = get_string($changes['fieldname'], 'booking');
         $infotext = get_string('changeinfochanged', 'booking', $fieldnamestring);
