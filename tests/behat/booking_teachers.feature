@@ -38,30 +38,7 @@ Feature: In a booking - create options and assign or substituing teachers
     And I change viewport size to "1366x10000"
 
   @javascript
-  Scenario: Booking option: add and remove single teacher via substitutions
-    Given I am on the "My booking" Activity page logged in as teacher1
-    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
-    And I click on "Substitutions / Cancelled dates" "link" in the ".allbookingoptionstable_r1" "css_element"
-    And I should see "Booking option - Teachers" in the "#region-main" "css_element"
-    And I should see "No teacher" in the "[id^=optiondates_teachers_table] td.teacher" "css_element"
-    And I click on "Edit" "link" in the "[id^=optiondates_teachers_table] td.edit" "css_element"
-    And I wait until the page is ready
-    And I should see "Teachers" in the ".modal-header" "css_element"
-    When I set the following fields to these values:
-      | Teachers | teacher1   |
-      | Reason   | Assign one |
-    And I press "Save changes"
-    Then I should see "Teacher 1" in the "[id^=optiondates_teachers_table] td.teacher" "css_element"
-    And I should see "Assign one" in the "[id^=optiondates_teachers_table] td.reason" "css_element"
-    And I click on "Edit" "link" in the "[id^=optiondates_teachers_table] td.edit" "css_element"
-    And I click on "Teacher 1" "text" in the ".form-autocomplete-selection.form-autocomplete-multiple" "css_element"
-    And I set the field "Reason" to "Remove one"
-    And I press "Save changes"
-    And I should see "No teacher" in the "[id^=optiondates_teachers_table] td.teacher" "css_element"
-    And I should see "Remove one" in the "[id^=optiondates_teachers_table] td.reason" "css_element"
-
-  @javascript
-  Scenario: Booking option: add three and remove two teachers via substitutions
+  Scenario: Booking option: add three teachers via substitutions, then remove two and the last one
     Given I am on the "My booking" Activity page logged in as teacher1
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Substitutions / Cancelled dates" "link" in the ".allbookingoptionstable_r1" "css_element"
@@ -78,29 +55,33 @@ Feature: In a booking - create options and assign or substituing teachers
     And I should see "Teacher 2" in the "[id^=optiondates_teachers_table] td.teacher" "css_element"
     And I should see "Teacher 3" in the "[id^=optiondates_teachers_table] td.teacher" "css_element"
     And I should see "Assign three" in the "[id^=optiondates_teachers_table] td.reason" "css_element"
+    ## Remove two of three teachers
     And I click on "Edit" "link" in the "[id^=optiondates_teachers_table] td.edit" "css_element"
     And I click on "Teacher 2" "text" in the ".form-autocomplete-selection.form-autocomplete-multiple" "css_element"
-    And I wait "1" seconds
     And I click on "Teacher 3" "text" in the ".form-autocomplete-selection.form-autocomplete-multiple" "css_element"
     And I set the field "Reason" to "Remove two"
     And I press "Save changes"
     And I should see "Teacher 1" in the "[id^=optiondates_teachers_table] td.teacher" "css_element"
+    And I should not see "Teacher 2" in the "[id^=optiondates_teachers_table] td.teacher" "css_element"
     And I should see "Remove two" in the "[id^=optiondates_teachers_table] td.reason" "css_element"
+    ## Remove the last teacher
+    And I click on "Edit" "link" in the "[id^=optiondates_teachers_table] td.edit" "css_element"
+    And I click on "Teacher 1" "text" in the ".form-autocomplete-selection.form-autocomplete-multiple" "css_element"
+    And I set the field "Reason" to "Remove one"
+    And I press "Save changes"
+    And I should see "No teacher" in the "[id^=optiondates_teachers_table] td.teacher" "css_element"
+    And I should see "Remove one" in the "[id^=optiondates_teachers_table] td.reason" "css_element"
 
   @javascript
   Scenario: Booking option: set teachers availability by custom profilefield value
     Given the following config values are set as admin:
       | config                             | value | plugin  |
       | selectteacherswithprofilefieldonly | 1     | booking |
-    And I log in as "admin"
-    And I set the following administration settings values:
-      | selectteacherswithprofilefieldonlyfield | teacherforoption |
-      | selectteacherswithprofilefieldonlyvalue | yes              |
-    ## Given the following config values are set as admin:
-    ##   | config                                  | value            | plugin  |
-    ##   | selectteacherswithprofilefieldonlyfield | teacherforoption | booking |
-    ##   | selectteacherswithprofilefieldonlyvalue | yes              | booking |
-    And I am on the "My booking" Activity page
+    And the following config values are set as admin:
+      | config                                  | value            | plugin  |
+      | selectteacherswithprofilefieldonlyfield | teacherforoption | booking |
+      | selectteacherswithprofilefieldonlyvalue | yes              | booking |
+    And I am on the "My booking" Activity page logged in as admin
     And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I expand all fieldsets
     And I wait until ".collapsing" "css_element" does not exist

@@ -90,7 +90,7 @@ Feature: Upload booking images for booking options as admin and view it.
     ## Validate option with default image and with price
     And I should see "Option-tenis" in the ".allbookingoptionstable_r3" "css_element"
     And I should see "88.00 EUR" in the ".allbookingoptionstable_r3 .pricecurrency" "css_element"
-    And "//img[contains(@src, '/default.png')]" "xpath_element" should exist in the ".allbookingoptionstable_r2" "css_element"
+    And "//img[contains(@src, '/default.png')]" "xpath_element" should exist in the ".allbookingoptionstable_r3" "css_element"
     ## Validate option with image by customfield and without price
     And I should see "Option-yoga" in the ".allbookingoptionstable_r4" "css_element"
     And ".pricecurrency" "css_element" should not exist in the ".allbookingoptionstable_r4" "css_element"
