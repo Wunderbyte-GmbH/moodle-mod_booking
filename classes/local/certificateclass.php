@@ -188,6 +188,7 @@ class certificateclass {
             'duration' => self::return_duration_for_certificate($settings),
             'timeawarded' => self::return_timeawarded_for_certificate($settings, $userid, $completeddate),
             'competencies' => self::return_competencies_for_certificate($settings->competencies ?? ''),
+            'bookingnotes' => self::return_notes_for_certificate($settings->id, $userid),
         ];
         if (!empty($condition)) {
             $conditionfields = [
@@ -368,6 +369,43 @@ class certificateclass {
             ) . "<br />";
         }
         return $dates;
+    }
+
+    /**
+     * Helper function to return the notes ("Anmerkungen") of the booking answer of a user.
+     *
+     * The notes can be edited on report.php for every booked user. They are not part of the
+     * cached booking answers, so we read them directly from the database.
+     *
+     * @param int $optionid
+     * @param int $userid
+     *
+     * @return string
+     *
+     */
+    private static function return_notes_for_certificate(int $optionid, int $userid): string {
+        global $DB;
+
+        if (empty($optionid) || empty($userid)) {
+            return '';
+        }
+
+        $sql = "SELECT notes
+                  FROM {booking_answers}
+                 WHERE optionid = :optionid
+                       AND userid = :userid
+                       AND waitinglist <> :deleted
+              ORDER BY id DESC";
+
+        $params = [
+            'optionid' => $optionid,
+            'userid' => $userid,
+            'deleted' => MOD_BOOKING_STATUSPARAM_DELETED,
+        ];
+
+        $notes = $DB->get_field_sql($sql, $params, IGNORE_MULTIPLE);
+
+        return (string) ($notes ?? '');
     }
 
     /**
