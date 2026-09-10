@@ -3315,7 +3315,22 @@ $string['ruleoptionfieldbookingclosingtime'] = 'End of allowed booking period (b
 $string['ruleoptionfieldbookingopeningtime'] = 'Start of allowed booking period (bookingopeningtime)';
 $string['ruleoptionfieldcourseendtime'] = 'End (courseendtime)';
 $string['ruleoptionfieldcoursestarttime'] = 'Begin (coursestarttime)';
+$string['ruleoptionfieldfilter'] = 'Only for booking options with this field';
+$string['ruleoptionfieldfilter_help'] = 'Optionally restrict this rule to booking options which have a certain value in one of their fields.
+Standard fields as well as custom fields of booking options can be used.
+Choose "No filter" if the rule should be applied to all booking options, as before.
+The value is checked a second time right before the action (e.g. sending the mail) is executed.';
+$string['ruleoptionfieldfilternofilter'] = 'No filter (rule applies to all booking options)';
+$string['ruleoptionfieldfiltervalue'] = 'Value of the field';
+$string['ruleoptionfieldfiltervalue_help'] = 'The comparison is not case sensitive. For custom fields which can hold several values, use the operator "contains".';
+$string['ruleoptionfieldidentifier'] = 'Unique identifier (identifier)';
 $string['ruleoptionfieldlocation'] = 'Location (location)';
+$string['ruleoptionfieldoperatorcontains'] = 'contains';
+$string['ruleoptionfieldoperatorempty'] = 'field is empty';
+$string['ruleoptionfieldoperatorequals'] = 'has exactly this value';
+$string['ruleoptionfieldoperatornotcontains'] = 'does not contain';
+$string['ruleoptionfieldoperatornotempty'] = 'field is not empty';
+$string['ruleoptionfieldoperatornotequals'] = 'does not have exactly this value';
 $string['ruleoptionfieldoptiondatestarttime'] = 'Start of every session (date)';
 $string['ruleoptionfieldselflearningcourseenddate'] = 'End date of self-learning course';
 $string['ruleoptionfieldtext'] = 'Name of the booking option (text)';

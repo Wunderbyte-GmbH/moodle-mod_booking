@@ -26,6 +26,7 @@ global $CFG;
 use context;
 use context_system;
 use core_form\dynamic_form;
+use mod_booking\booking_rules\optionfield_filter;
 use mod_booking\booking_rules\rules_info;
 use moodle_url;
 
@@ -117,6 +118,9 @@ class rulesform extends dynamic_form {
         if (empty($data['rule_name'])) {
             $errors['rule_name'] = get_string('error:entervalue', 'mod_booking');
         }
+
+        // The optional filter on booking option fields is available for all rule types.
+        optionfield_filter::validation($data, $errors);
 
         switch ($data['bookingruletype']) {
             case '0':

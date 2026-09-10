@@ -3041,7 +3041,22 @@ $string['ruleoptionfieldbookingclosingtime'] = 'Ende der erlaubten Buchungsperio
 $string['ruleoptionfieldbookingopeningtime'] = 'Beginn der erlaubten Buchungsperiode (bookingopeningtime)';
 $string['ruleoptionfieldcourseendtime'] = 'Ende (courseendtime)';
 $string['ruleoptionfieldcoursestarttime'] = 'Beginn (coursestarttime)';
+$string['ruleoptionfieldfilter'] = 'Nur für Buchungsoptionen mit diesem Feld';
+$string['ruleoptionfieldfilter_help'] = 'Optional kann diese Regel auf Buchungsoptionen eingeschränkt werden, die in einem bestimmten Feld einen bestimmten Wert haben.
+Es können sowohl Standardfelder als auch benutzerdefinierte Felder (Buchungsoptionsfelder) verwendet werden.
+Wählen Sie "Kein Filter", wenn die Regel wie bisher für alle Buchungsoptionen gelten soll.
+Der Wert wird ein zweites Mal direkt vor der Ausführung der Aktion (z.B. dem Versand der E-Mail) überprüft.';
+$string['ruleoptionfieldfilternofilter'] = 'Kein Filter (Regel gilt für alle Buchungsoptionen)';
+$string['ruleoptionfieldfiltervalue'] = 'Wert des Feldes';
+$string['ruleoptionfieldfiltervalue_help'] = 'Bei der Überprüfung wird nicht zwischen Groß- und Kleinschreibung unterschieden. Bei benutzerdefinierten Feldern, die mehrere Werte enthalten können, verwenden Sie bitte den Operator "beinhaltet".';
+$string['ruleoptionfieldidentifier'] = 'Eindeutiger Bezeichner (identifier)';
 $string['ruleoptionfieldlocation'] = 'Ort (location)';
+$string['ruleoptionfieldoperatorcontains'] = 'beinhaltet';
+$string['ruleoptionfieldoperatorempty'] = 'Feld ist leer';
+$string['ruleoptionfieldoperatorequals'] = 'hat genau diesen Wert';
+$string['ruleoptionfieldoperatornotcontains'] = 'beinhaltet nicht';
+$string['ruleoptionfieldoperatornotempty'] = 'Feld ist nicht leer';
+$string['ruleoptionfieldoperatornotequals'] = 'hat nicht genau diesen Wert';
 $string['ruleoptionfieldoptiondatestarttime'] = 'Beginn eines jeden Termins';
 $string['ruleoptionfieldselflearningcourseenddate'] = 'Enddatum eines Selbstlernkurses';
 $string['ruleoptionfieldtext'] = 'Name der Buchungsoption (text)';

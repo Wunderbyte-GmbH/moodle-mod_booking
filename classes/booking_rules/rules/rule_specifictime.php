@@ -21,6 +21,7 @@ use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_rules\actions_info;
 use mod_booking\booking_rules\booking_rule;
 use mod_booking\booking_rules\conditions_info;
+use mod_booking\booking_rules\optionfield_filter;
 use mod_booking\option\fields\applybookingrules;
 use mod_booking\singleton_service;
 use MoodleQuickForm;
@@ -161,6 +162,9 @@ class rule_specifictime implements booking_rule {
             $datefields
         );
         $mform->setType('rulespecifictimedatefield', PARAM_TEXT);
+
+        // Optional filter on a (custom) field of the booking option.
+        optionfield_filter::add_filter_to_mform($mform, $repeateloptions);
     }
 
     /**
@@ -198,6 +202,7 @@ class rule_specifictime implements booking_rule {
         );
 
         $jsonobject->ruledata->datefield = $data->rulespecifictimedatefield ?? '';
+        optionfield_filter::save_filter($data, $jsonobject);
         if (isset($data->useastemplate)) {
             $jsonobject->useastemplate = $data->useastemplate;
             $record->useastemplate = $data->useastemplate;
@@ -246,6 +251,7 @@ class rule_specifictime implements booking_rule {
             $data->rulespecifictimeduration = 0;
         }
         $data->rulespecifictimedatefield = $ruledata->datefield;
+        optionfield_filter::set_defaults($data, $ruledata);
         $data->ruleisactive = $record->isactive;
     }
 
@@ -508,6 +514,9 @@ class rule_specifictime implements booking_rule {
         }
         // Make sure, cancelled options aren't fetched.
         $sql->where .= " AND bo.status < 1 ";
+
+        // If the rule is restricted to booking options with a certain field value, we add it here.
+        optionfield_filter::apply_to_sql($sql, $params, $ruledata);
 
         $sql->from = "{booking_options} bo
                     JOIN {course_modules} cm
