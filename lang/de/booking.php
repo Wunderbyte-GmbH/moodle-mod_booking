@@ -2484,6 +2484,7 @@ $string['notificationlist'] = 'Benachrichtigungsliste';
 $string['notificationlistdesc'] = 'Wenn es bei einer Buchungsoption keine verfügbaren Plätze mehr gibt,
  können sich Teilnehmer:innnen registrieren lassen, um eine Benachrichtung zu erhalten, sobald wieder
  Plätze verfügbar sind.';
+$string['notificationlistshort'] = 'Benach.';
 $string['notificationtext'] = 'Benachrichtigungstext';
 $string['notifyemail'] = 'Teilnehmer:innen-Benachrichtigung vor dem Beginn';
 $string['notifyemailmessage'] = 'Ihre Buchung startet demnächst:
@@ -3289,6 +3290,8 @@ $string['showmessages'] = 'Zeige Nachrichten';
 $string['showmybookingsonly'] = 'Meine Buchungen';
 $string['showmyfavoritesonly'] = 'Meine Favoriten';
 $string['showmyfieldofstudyonly'] = "Mein Studiengang";
+$string['shownotificationlistplaces'] = 'Anzahl der Plätze auf der Benachrichtigungsliste anzeigen';
+$string['shownotificationlistplaces_desc'] = 'Wenn aktiviert, wird die Anzahl der Plätze auf der Benachrichtigungsliste in der Spalte mit den verfügbaren Plätzen angezeigt (z.B. "20 / 20 (Benach. 4)"). Kann für einen einzelnen Shortcode mit dem Argument <b>shownotificationlist=1</b> bzw. <b>shownotificationlist=0</b> überschrieben werden.';
 $string['showoptiondatesextrainfo'] = 'Extra-Infos zu Terminen anzeigen';
 $string['showoptiondatesextrainfo_desc'] = 'Kommentare und Extra-Infos zu Terminen in der Liste der Buchungsoptionen anzeigen
 (auf der Buchungsoptionsdetailseite werden die zusätzlichen Informationen immer angezeigt, unabhängig von dieser Einstellung).

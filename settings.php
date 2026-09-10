@@ -1953,6 +1953,18 @@ if ($ADMIN->fulltree) {
             0
         )
     );
+    $shownotificationlistplaces = new admin_setting_configcheckbox(
+        'booking/shownotificationlistplaces',
+        get_string('shownotificationlistplaces', 'mod_booking'),
+        get_string('shownotificationlistplaces_desc', 'mod_booking'),
+        0
+    );
+    $shownotificationlistplaces->set_updatedcallback(function () {
+        cache_helper::purge_by_event('setbackencodedtables');
+        cache_helper::purge_by_event('changesinwunderbytetable');
+        cache_helper::purge_by_event('setbackoptionsanswers');
+    });
+    $settings->add($shownotificationlistplaces);
 
     // Rules settings.
     $url = new moodle_url('/mod/booking/edit_rules.php');

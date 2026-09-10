@@ -78,6 +78,13 @@
     {{/freeonwaitinglist}}
 {{/maxoverbooking}}
 
+{{! Notification list places }}
+{{#shownotificationlist}}
+    <span class="col-ap-notificationlistplaces">
+        ({{#str}} notificationlistshort, mod_booking {{/str}} {{notificationlistplaces}})
+    </span>
+{{/shownotificationlist}}
+
 {{#showmanageresponses}}
 </a>
 {{/showmanageresponses}}

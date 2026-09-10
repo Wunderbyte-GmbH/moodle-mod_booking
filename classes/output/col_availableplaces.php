@@ -64,6 +64,14 @@ class col_availableplaces implements renderable, templatable {
     public $showmaxanswers = true;
 
     /**
+     * Show the number of places on the notification list.
+     * Null means: not set explicitly, so the global setting decides.
+     *
+     * @var bool|null $shownotificationlist
+     */
+    public $shownotificationlist = null;
+
+    /**
      * The constructor takes the values from db.
      *
      * @param mixed $values
@@ -147,6 +155,55 @@ class col_availableplaces implements renderable, templatable {
     }
 
     /**
+     * Apply display options (e.g. coming from shortcode arguments) to this column.
+     *
+     * Every table which renders this column should call this function,
+     * so all shortcodes support the same arguments.
+     *
+     * @param array $displayoptions
+     * @return void
+     */
+    public function apply_display_options(array $displayoptions) {
+
+        if (isset($displayoptions['showmaxanwers'])) {
+            $this->showmaxanswers = (bool) $displayoptions['showmaxanwers'];
+        }
+
+        $shownotificationlist = self::normalize_bool_option($displayoptions['shownotificationlist'] ?? null);
+        if (isset($shownotificationlist)) {
+            $this->shownotificationlist = $shownotificationlist;
+        }
+    }
+
+    /**
+     * Turn a shortcode argument into a bool.
+     *
+     * Shortcode arguments are strings, so a simple cast is not enough:
+     * (bool) "false" and (bool) "0" would both be true.
+     *
+     * @param mixed $value
+     * @return bool|null null if the argument was not set at all
+     */
+    public static function normalize_bool_option($value) {
+
+        if (!isset($value) || $value === '') {
+            return null;
+        }
+
+        if (is_string($value)) {
+            $value = strtolower(trim($value));
+            if (in_array($value, ['false', '0', 'no', 'off'], true)) {
+                return false;
+            }
+            if (in_array($value, ['true', '1', 'yes', 'on'], true)) {
+                return true;
+            }
+        }
+
+        return (bool) $value;
+    }
+
+    /**
      * Get booking information.
      * @return array
      */
@@ -161,6 +218,28 @@ class col_availableplaces implements renderable, templatable {
      */
     public function export_for_template(renderer_base $output) {
 
-        return $this->bookinginformation;
+        $data = $this->bookinginformation;
+
+        if (!is_array($data)) {
+            return $data;
+        }
+
+        // The shortcode (or whoever instantiates this class) can overrule the global setting.
+        if (isset($this->shownotificationlist)) {
+            $shownotificationlist = (bool) $this->shownotificationlist;
+        } else {
+            $shownotificationlist = !empty(get_config('booking', 'shownotificationlistplaces'));
+        }
+
+        // Only show it if the notification list is used at all and there is at least one entry on it.
+        if (
+            $shownotificationlist
+            && !empty(get_config('booking', 'usenotificationlist'))
+            && !empty($data['notificationlistplaces'])
+        ) {
+            $data['shownotificationlist'] = true;
+        }
+
+        return $data;
     }
 }
