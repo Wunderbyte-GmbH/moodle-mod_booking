@@ -625,6 +625,10 @@ class booking_answers {
         $returnarray['reserved'] = self::count_places($this->usersreserved);
         $returnarray['onnotifylist'] = $this->user_on_notificationlist($userid);
 
+        // Number of places (not users!) currently taken on the notification list.
+        // We always calculate it, if it is shown is decided in the renderable col_availableplaces.
+        $returnarray['notificationlistplaces'] = self::count_places($this->userstonotify);
+
         // We can't set the value if it's not true, because of the way mustache templates work.
         if ($this->bookingoptionsettings->maxanswers != 0) {
             $returnarray['maxanswers'] = $this->bookingoptionsettings->maxanswers;

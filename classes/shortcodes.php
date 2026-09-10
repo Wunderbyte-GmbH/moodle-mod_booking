@@ -1864,6 +1864,12 @@ class shortcodes {
      * @return void
      */
     public static function set_common_table_options_from_arguments(&$table, $args): void {
+
+        // Display options for the columns, e.g. "shownotificationlist".
+        if (method_exists($table, 'set_display_options')) {
+            $table->set_display_options($args);
+        }
+
         $defaultorder = SORT_ASC; // Default.
         $sortby = null;
         if (!empty($args['sortorder'])) {

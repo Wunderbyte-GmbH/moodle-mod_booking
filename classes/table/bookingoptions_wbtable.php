@@ -106,10 +106,34 @@ class bookingoptions_wbtable extends wunderbyte_table {
     public $customfieldsinfoarray = [];
 
     /**
+     * Display options coming from shortcode arguments.
+     * @var array
+     */
+    public $displayoptions = [];
+
+    /**
      * Whether to show the favorites toggle button. Default false (hidden in shortcode context).
      * @var bool
      */
     public bool $showfavoritestoggle = false;
+
+    /**
+     * Set display options for the table.
+     *
+     * Arguments which are not set at all are left out on purpose,
+     * so the global settings stay in charge for them.
+     *
+     * @param array $displayoptions
+     * @return void
+     */
+    public function set_display_options(array $displayoptions) {
+
+        // Number of places on the notification list, e.g. "(Benach. 4)".
+        $shownotificationlist = col_availableplaces::normalize_bool_option($displayoptions['shownotificationlist'] ?? null);
+        if (isset($shownotificationlist)) {
+            $this->displayoptions['shownotificationlist'] = $shownotificationlist;
+        }
+    }
 
     /**
      * Store additional columns information.
@@ -796,6 +820,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
 
         // Render col_bookings using a template.
         $data = new col_availableplaces($values, $settings, $buyforuser);
+        $data->apply_display_options($this->displayoptions);
 
         $ret = '';
         if ($this->is_downloading()) {
