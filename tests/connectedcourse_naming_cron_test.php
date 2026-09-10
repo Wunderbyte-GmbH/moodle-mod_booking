@@ -155,6 +155,10 @@ final class connectedcourse_naming_cron_test extends advanced_testcase {
 
         // The finalizer is queued, because otherwise cron would undo all of this.
         $this->assertCount(1, \core\task\manager::get_adhoc_tasks(finalize_connected_course_naming::class));
+        // And exactly one course copy, nothing else queued a copy along the way.
+        $this->assertCount(1, \core\task\manager::get_adhoc_tasks(\core\task\asynchronous_copy_task::class));
+        global $DB;
+        $coursecountbefore = $DB->count_records('course');
 
         // Cron runs: the async copy completes and the finalizer re-applies the naming.
         // The backup, the restore and the tasks themselves all mtrace, which PHPUnit would
@@ -162,6 +166,10 @@ final class connectedcourse_naming_cron_test extends advanced_testcase {
         ob_start();
         $this->run_all_adhoc_tasks();
         ob_end_clean();
+
+        // The copy did not queue a further copy, and no further course appeared.
+        $this->assertCount(0, \core\task\manager::get_adhoc_tasks(\core\task\asynchronous_copy_task::class));
+        $this->assertSame($coursecountbefore, $DB->count_records('course'));
 
         $course = $this->reload_course($copiedcourseid);
         $this->assertSame('Algebra', $course->fullname);

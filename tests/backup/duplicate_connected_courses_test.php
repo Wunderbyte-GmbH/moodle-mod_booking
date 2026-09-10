@@ -122,6 +122,87 @@ final class duplicate_connected_courses_test extends booking_advanced_testcase {
     }
 
     /**
+     * Run the queued adhoc tasks, at most $cap of them, and return the class names of those run.
+     *
+     * A capped loop instead of run_all_adhoc_tasks(), so that a chain of copies which keeps
+     * queueing itself fails an assertion instead of hanging the test. get_next_adhoc_task() only
+     * hands out tasks queued strictly before the given time and the mocked clock stands still,
+     * so it looks a minute ahead.
+     *
+     * @param int $cap
+     * @return string[] the class names of the tasks executed, in order
+     */
+    private function run_adhoc_tasks_capped(int $cap): array {
+        $executed = [];
+        while (count($executed) < $cap && ($task = \core\task\manager::get_next_adhoc_task(time() + MINSECS))) {
+            $executed[] = get_class($task);
+            ob_start();
+            try {
+                $task->execute();
+                \core\task\manager::adhoc_task_complete($task);
+            } catch (\Throwable $e) {
+                \core\task\manager::adhoc_task_failed($task);
+                throw $e;
+            } finally {
+                ob_end_clean();
+            }
+        }
+        return $executed;
+    }
+
+    /**
+     * How many of the given executed tasks were course copies.
+     *
+     * @param string[] $executed class names as returned by run_adhoc_tasks_capped()
+     * @return int
+     */
+    private function count_copy_tasks(array $executed): int {
+        return count(array_filter($executed, fn($classname) => $classname === \core\task\asynchronous_copy_task::class));
+    }
+
+    /**
+     * Assert that exactly $expectedcopies course copies were queued, that running the queue
+     * performs exactly those and nothing more, and that the course table grew by exactly that
+     * number.
+     *
+     * Every duplication and restore test ends with this, so that a copy queued anywhere along
+     * the way - by a step nobody expected to run - shows up, instead of silently piling up
+     * courses on the next cron run.
+     *
+     * @param int $expectedcopies
+     * @param int $coursecountbefore the number of courses before the duplication or restore
+     * @return void
+     */
+    private function assert_copies_settle(int $expectedcopies, int $coursecountbefore): void {
+        global $DB;
+
+        $queued = \core\task\manager::get_adhoc_tasks(\core\task\asynchronous_copy_task::class);
+        $this->assertCount($expectedcopies, $queued, 'Unexpected number of course copy tasks queued.');
+
+        // The course shells exist right away, the content follows in the tasks.
+        $this->assertSame($coursecountbefore + $expectedcopies, $DB->count_records('course'));
+
+        $executed = $this->run_adhoc_tasks_capped($expectedcopies + 5);
+        $this->assertSame(
+            $expectedcopies,
+            $this->count_copy_tasks($executed),
+            'Unexpected number of course copies performed. Tasks run: ' . implode(', ', $executed)
+        );
+
+        // Nothing queued anything further: no copy task left over and no additional course.
+        $this->assertCount(
+            0,
+            \core\task\manager::get_adhoc_tasks(\core\task\asynchronous_copy_task::class),
+            'A course copy task was queued by running the queue itself.'
+        );
+        $this->assertSame(
+            $coursecountbefore + $expectedcopies,
+            $DB->count_records('course'),
+            'Running the queue created further courses.'
+        );
+    }
+
+    /**
      * Duplicate a booking instance and return the connected courseids of the resulting options,
      * keyed by the option title.
      *
@@ -222,6 +303,9 @@ final class duplicate_connected_courses_test extends booking_advanced_testcase {
         $this->create_connected_option($plugingenerator, $booking->id, 'Option one', $connected1->id);
         $this->create_connected_option($plugingenerator, $booking->id, 'Option two', $connected2->id);
 
+        global $DB;
+        $coursecountbefore = $DB->count_records('course');
+
         $newcourseids = $this->duplicate_and_return_connected_courses($course, $booking->cmid);
 
         $this->assertCount(2, $newcourseids);
@@ -232,7 +316,6 @@ final class duplicate_connected_courses_test extends booking_advanced_testcase {
         $this->assertNotEquals($newcourseids['Option one'], $newcourseids['Option two']);
 
         // The copies really exist.
-        global $DB;
         $this->assertTrue($DB->record_exists('course', ['id' => $newcourseids['Option one']]));
         $this->assertTrue($DB->record_exists('course', ['id' => $newcourseids['Option two']]));
 
@@ -240,6 +323,9 @@ final class duplicate_connected_courses_test extends booking_advanced_testcase {
         $originals = $DB->get_records_menu('booking_options', ['bookingid' => $booking->id], '', 'text, courseid');
         $this->assertEquals($connected1->id, (int) $originals['Option one']);
         $this->assertEquals($connected2->id, (int) $originals['Option two']);
+
+        // Exactly two copies, and running them copies nothing further.
+        $this->assert_copies_settle(2, $coursecountbefore);
     }
 
     /**
@@ -261,9 +347,15 @@ final class duplicate_connected_courses_test extends booking_advanced_testcase {
         $booking = $this->create_booking_instance($course, 'Booking instance 1');
         $this->create_connected_option($plugingenerator, $booking->id, 'Option one', $connected->id);
 
+        global $DB;
+        $coursecountbefore = $DB->count_records('course');
+
         $newcourseids = $this->duplicate_and_return_connected_courses($course, $booking->cmid);
 
         $this->assertSame((int) $connected->id, $newcourseids['Option one']);
+
+        // No copy was queued anywhere.
+        $this->assert_copies_settle(0, $coursecountbefore);
     }
 
     /**
@@ -298,6 +390,9 @@ final class duplicate_connected_courses_test extends booking_advanced_testcase {
         $this->assertSame($newcourseids['Option one'], $newcourseids['Option two']);
         // Exactly one new course was created, not two.
         $this->assertSame($coursecountbefore + 1, $DB->count_records('course'));
+
+        // One copy, and running it copies nothing further.
+        $this->assert_copies_settle(1, $coursecountbefore);
     }
 
     /**
@@ -324,6 +419,8 @@ final class duplicate_connected_courses_test extends booking_advanced_testcase {
         $booking = $this->create_booking_instance($course, 'Booking instance 1');
         $this->create_connected_option($plugingenerator, $booking->id, 'Aerial Yoga', $connected->id);
 
+        $coursecountbefore = $DB->count_records('course');
+
         $cm = get_fast_modinfo($course)->get_cm($booking->cmid);
         $newcm = duplicate_module($course, $cm);
         $this->reset_after_duplication($course);
@@ -334,6 +431,9 @@ final class duplicate_connected_courses_test extends booking_advanced_testcase {
         $this->assertSame('Aerial Yoga', $newcourse->fullname);
         $this->assertSame('Aerial Yoga_' . $newoption->id, $newcourse->shortname);
         $this->assertSame((string) $newoption->id, $newcourse->idnumber);
+
+        // One copy, and running it copies nothing further.
+        $this->assert_copies_settle(1, $coursecountbefore);
     }
 
     /**
@@ -369,6 +469,9 @@ final class duplicate_connected_courses_test extends booking_advanced_testcase {
         // remap_connected_course() and is covered by its own test below.
         $this->assertSame($coursecountbefore, $DB->count_records('course'));
         $this->assertNotEmpty($restoredoption->id);
+
+        // No copy was queued anywhere.
+        $this->assert_copies_settle(0, $coursecountbefore);
     }
 
     /**
@@ -394,12 +497,17 @@ final class duplicate_connected_courses_test extends booking_advanced_testcase {
         $booking = $this->create_booking_instance($course1, 'Booking instance 1');
         $this->create_connected_option($plugingenerator, $booking->id, 'Option one', $connected->id);
 
+        $coursecountbefore = $DB->count_records('course');
+
         $restoredoption = $this->restore_to_other_site($course1, $course2);
 
         $this->assertEquals(0, (int) $restoredoption->courseid);
 
         // The course it used to point at is of course still there, just no longer connected.
         $this->assertTrue($DB->record_exists('course', ['id' => $connected->id]));
+
+        // No copy was queued anywhere.
+        $this->assert_copies_settle(0, $coursecountbefore);
     }
 
     /**
@@ -436,6 +544,9 @@ final class duplicate_connected_courses_test extends booking_advanced_testcase {
         $this->assertEquals($course2->id, (int) $restoredoption->courseid);
         // Nothing was copied: on another site there is nothing to duplicate.
         $this->assertSame($coursecountbefore, $DB->count_records('course'));
+
+        // No copy was queued anywhere.
+        $this->assert_copies_settle(0, $coursecountbefore);
     }
 
     /**
@@ -456,8 +567,108 @@ final class duplicate_connected_courses_test extends booking_advanced_testcase {
         $booking = $this->create_booking_instance($course, 'Booking instance 1');
         $this->create_connected_option($plugingenerator, $booking->id, 'Option one', $connected->id);
 
+        global $DB;
+        $coursecountbefore = $DB->count_records('course');
+
         $newcourseids = $this->duplicate_and_return_connected_courses($course, $booking->cmid);
 
         $this->assertSame((int) $connected->id, $newcourseids['Option one']);
+
+        // No copy was queued anywhere.
+        $this->assert_copies_settle(0, $coursecountbefore);
+    }
+
+    /**
+     * An option may enrol into the very course its booking instance lives in. Duplicating that
+     * instance leaves this connection alone: the course would by then also hold the freshly
+     * duplicated instance, so a copy of it would be no self contained duplicate of anything.
+     * The duplicated option keeps enrolling into the course it lives in, and nothing is queued.
+     *
+     * Before this guard existed, the copy chained without end: the core copy task restored the
+     * copy, that restore ran this very step again and copied the course once more.
+     *
+     * @return void
+     */
+    public function test_option_connected_to_its_own_course_is_not_copied(): void {
+        global $DB;
+
+        $this->setAdminUser();
+        set_config('duplicatemoodlecourses', 1, 'booking');
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+
+        $course = $this->getDataGenerator()->create_course(['shortname' => 'selfcourse']);
+
+        $booking = $this->create_booking_instance($course, 'Booking instance 1');
+        $this->create_connected_option($plugingenerator, $booking->id, 'Self option', $course->id);
+
+        $coursecountbefore = $DB->count_records('course');
+        $this->assertCount(0, \core\task\manager::get_adhoc_tasks(\core\task\asynchronous_copy_task::class));
+
+        $newcourseids = $this->duplicate_and_return_connected_courses($course, $booking->cmid);
+
+        // The duplicated option keeps enrolling into the course it lives in.
+        $this->assertCount(1, $newcourseids);
+        $this->assertSame((int) $course->id, $newcourseids['Self option']);
+
+        // No course was copied and no copy task queued.
+        $this->assertSame($coursecountbefore, $DB->count_records('course'));
+        $this->assertCount(0, \core\task\manager::get_adhoc_tasks(\core\task\asynchronous_copy_task::class));
+
+        // The original option is untouched.
+        $this->assertEquals(
+            $course->id,
+            (int) $DB->get_field('booking_options', 'courseid', ['bookingid' => $booking->id])
+        );
+
+        // Running whatever adhoc tasks exist must not change that.
+        $this->assert_copies_settle(0, $coursecountbefore);
+    }
+
+    /**
+     * Two courses may reference each other: an option in course A enrols into course B, while an
+     * option in course B enrols into course A. Duplicating the instance in A copies B, and the
+     * restore of that copy meets the option pointing back at A. That must not turn into an
+     * endless ping-pong of copies either.
+     *
+     * @return void
+     */
+    public function test_mutually_referencing_courses_do_not_copy_endlessly(): void {
+        global $DB;
+
+        $this->setAdminUser();
+        set_config('duplicatemoodlecourses', 1, 'booking');
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+
+        $coursea = $this->getDataGenerator()->create_course(['shortname' => 'coursea']);
+        $courseb = $this->getDataGenerator()->create_course(['shortname' => 'courseb']);
+
+        $bookinga = $this->create_booking_instance($coursea, 'Booking in A');
+        $this->create_connected_option($plugingenerator, $bookinga->id, 'A to B', $courseb->id);
+        $bookingb = $this->create_booking_instance($courseb, 'Booking in B');
+        $this->create_connected_option($plugingenerator, $bookingb->id, 'B to A', $coursea->id);
+
+        $coursecountbefore = $DB->count_records('course');
+        $this->assertCount(0, \core\task\manager::get_adhoc_tasks(\core\task\asynchronous_copy_task::class));
+
+        $newcourseids = $this->duplicate_and_return_connected_courses($coursea, $bookinga->cmid);
+
+        // The duplicated option enrols into a fresh copy of B.
+        $this->assertCount(1, $newcourseids);
+        $copyofb = $newcourseids['A to B'];
+        $this->assertNotEquals($courseb->id, $copyofb);
+        $this->assertNotEquals($coursea->id, $copyofb);
+        $this->assertSame($coursecountbefore + 1, $DB->count_records('course'));
+        $this->assertCount(1, \core\task\manager::get_adhoc_tasks(\core\task\asynchronous_copy_task::class));
+
+        // Exactly the one copy of B runs, and restoring it must not queue a copy of A.
+        $this->assert_copies_settle(1, $coursecountbefore);
+
+        // The originals are untouched.
+        $this->assertEquals($courseb->id, (int) $DB->get_field('booking_options', 'courseid', ['bookingid' => $bookinga->id]));
+        $this->assertEquals($coursea->id, (int) $DB->get_field('booking_options', 'courseid', ['bookingid' => $bookingb->id]));
     }
 }

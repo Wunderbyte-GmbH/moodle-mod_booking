@@ -196,6 +196,8 @@ final class connectedcourse_copy_test extends advanced_testcase {
      * @return void
      */
     public function test_duplication_is_refused_without_course_copy_capabilities(): void {
+        global $DB;
+
         set_config('duplicatemoodlecourses', 1, 'booking');
 
         [$option] = $this->create_option_with_connected_course();
@@ -209,8 +211,14 @@ final class connectedcourse_copy_test extends advanced_testcase {
         $data = new stdClass();
         $data->oldcopyoptionid = $option->id;
 
-        $this->expectException(required_capability_exception::class);
-        courseid::set_data($data, $settings);
+        try {
+            courseid::set_data($data, $settings);
+            $this->fail('Duplicating without the course copy capabilities must be refused.');
+        } catch (required_capability_exception $e) {
+            // Refused, as it should be. Nothing was queued or created along the way.
+            $this->assertCount(0, \core\task\manager::get_adhoc_tasks(\core\task\asynchronous_copy_task::class));
+            $this->assertFalse($DB->record_exists_select('course', 'shortname LIKE :s', ['s' => 'connectedsource_%']));
+        }
     }
 
     /**
@@ -236,5 +244,49 @@ final class connectedcourse_copy_test extends advanced_testcase {
         $this->assertNotEquals($connectedcourse->id, $data->courseid);
         // The copy is marked as one we made, which is what allows it to be renamed later.
         $this->assertEquals($data->courseid, $data->connectedcoursecopied);
+        // Exactly one copy task, for exactly this course.
+        $copytasks = \core\task\manager::get_adhoc_tasks(\core\task\asynchronous_copy_task::class);
+        $this->assertCount(1, $copytasks);
+    }
+
+    /**
+     * An option enrolling into the very course its booking instance lives in is not copied when
+     * the option is duplicated: the duplicate keeps that connection and no copy is queued.
+     *
+     * @covers \mod_booking\option\fields\courseid::set_data
+     * @return void
+     */
+    public function test_duplication_keeps_connection_to_own_course(): void {
+        global $DB;
+
+        set_config('duplicatemoodlecourses', 1, 'booking');
+        $this->setAdminUser();
+
+        $course = $this->getDataGenerator()->create_course(['shortname' => 'owncourse']);
+        $booking = $this->getDataGenerator()->create_module('booking', ['course' => $course->id]);
+
+        $record = new stdClass();
+        $record->bookingid = $booking->id;
+        $record->text = 'Option in its own course';
+        $record->chooseorcreatecourse = 1;
+        $record->courseid = $course->id;
+        $record->importing = 1;
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $option = $plugingenerator->create_option($record);
+        $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
+
+        $coursecountbefore = $DB->count_records('course');
+
+        $data = new stdClass();
+        $data->oldcopyoptionid = $option->id;
+
+        courseid::set_data($data, $settings);
+
+        $this->assertEquals($course->id, $data->courseid);
+        $this->assertObjectNotHasProperty('connectedcoursecopied', $data);
+        $this->assertSame($coursecountbefore, $DB->count_records('course'));
+        $this->assertCount(0, \core\task\manager::get_adhoc_tasks(\core\task\asynchronous_copy_task::class));
     }
 }
