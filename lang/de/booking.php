@@ -1250,6 +1250,7 @@ $string['cdo:coursestarttime'] = 'Beginn der Buchungsoption (coursestarttime)';
 $string['cdo:semesterstart'] = 'Semesterstart';
 $string['certificate'] = 'Zertifikat';
 $string['certificateaction'] = 'Aktion';
+$string['certificatebookingnotes'] = 'Anmerkung zur Buchung';
 $string['certificatecode'] = 'Zertifikatscode';
 $string['certificatecolheader'] = 'Aktuellstes Zertifikat';
 $string['certificatecondition'] = 'Bedingung';

@@ -3076,6 +3076,13 @@ function mod_booking_tool_certificate_fields() {
         true,
         get_string('competencies', 'mod_booking'),
     );
+    $handler->ensure_field_exists(
+        'bookingnotes',
+        'text',
+        get_string('certificatebookingnotes', 'mod_booking'),
+        true,
+        get_string('certificatebookingnotes', 'mod_booking'),
+    );
     $customfields = booking_handler::get_customfields();
     foreach ($customfields as $customfield) {
         if (!in_array($customfield->type, ['text', 'textarea'])) {
