@@ -85,6 +85,26 @@ class all_userbookings extends \table_sql {
     }
 
     /**
+     * Sort order of the table, made deterministic.
+     *
+     * The table is sorted by a single column, by default the first name. Rows which are equal in
+     * that column - users sharing a first name are the everyday case - have no defined order:
+     * PostgreSQL returns them in arbitrary order, MySQL usually in insertion order, and the order
+     * may change between two page loads, which also breaks paging. The last name and the id of
+     * the booking answer are therefore always appended as tie-breakers.
+     *
+     * Both aliases exist in every query this table is used with: {booking_answers} is always
+     * joined as ba and {user} as u.
+     *
+     * @return string
+     */
+    public function get_sql_sort() {
+        $sort = parent::get_sql_sort();
+        $tiebreakers = 'u.lastname ASC, ba.id ASC';
+        return empty($sort) ? $tiebreakers : $sort . ', ' . $tiebreakers;
+    }
+
+    /**
      * This function is called for each data row to allow processing of the username value.
      * @param object $values
      * @return string
