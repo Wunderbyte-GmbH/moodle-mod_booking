@@ -44,6 +44,21 @@ class behat_mod_booking extends behat_base {
     private array $lastdiagnosecancellationresult = [];
 
     /**
+     * Disable the TinyMCE autosave for every booking scenario.
+     *
+     * The autosave plugin fires AJAX requests (resumeAutosaveSession, autosave) whenever the option or
+     * instance form with an editor is opened. Moodle's pending-JS guard waits for them before every step,
+     * which is wasted time and, on slow CI runners, a known source of "Javascript code and/or AJAX
+     * requests are not ready after 10 seconds" failures. Runs after the core reset of each scenario.
+     *
+     * @BeforeScenario @mod_booking
+     * @return void
+     */
+    public function disable_tiny_autosave_before_scenario(): void {
+        set_config('disabled', 1, 'tiny_autosave');
+    }
+
+    /**
      * Set the userdefined slot editor's start time field to an HH:MM value, deterministically.
      *
      * Typing into an <input type="time"> via WebDriver's setValue interprets the keystrokes
