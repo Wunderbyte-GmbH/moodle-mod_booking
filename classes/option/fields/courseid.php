@@ -450,6 +450,7 @@ class courseid extends field_base {
                 get_config('booking', 'duplicatemoodlecourses')
                 && !empty($data->oldcopyoptionid)
                 && !empty($settings->courseid)
+                && !self::is_own_course($settings)
             ) {
                 /* This is an interactive form load, so we have a real acting user and check
                 their capabilities here. connectedcourse::copy_course() itself is the bare
@@ -472,6 +473,23 @@ class courseid extends field_base {
 
             $data->{$key} = $value;
         }
+    }
+
+    /**
+     * Whether the option enrols into the very course its booking instance lives in.
+     *
+     * Such an option keeps its connection when duplicated: copying that course would copy the
+     * booking instance along with it, so the copy would be no self contained duplicate.
+     *
+     * @param booking_option_settings $settings
+     * @return bool
+     */
+    private static function is_own_course(booking_option_settings $settings): bool {
+        if (empty($settings->cmid)) {
+            return false;
+        }
+        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid((int) $settings->cmid);
+        return (int) $settings->courseid === (int) $bookingsettings->course;
     }
 
     /**

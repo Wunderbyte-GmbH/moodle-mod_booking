@@ -442,6 +442,22 @@ class restore_booking_activity_structure_step extends restore_activity_structure
             return;
         }
 
+        /* Only the duplication of a single booking instance copies connected courses. A course
+        copy, a course restore or a course import brings the connected course along by itself, or
+        is not asked to. Above all, the course copy started here restores its own booking
+        instances later - with this very step - and copying their connected courses again would
+        chain one copy to the next without end. */
+        if (!$this->is_activity_duplication()) {
+            return;
+        }
+
+        /* An option enrolling into the very course its booking instance lives in keeps doing so.
+        Copying that course would copy the booking instance along with it, and a course which
+        contains its own copy is not a self contained duplicate of anything. */
+        if ($oldcourseid === (int) $this->get_courseid()) {
+            return;
+        }
+
         if (!$DB->record_exists('course', ['id' => $oldcourseid])) {
             return;
         }
@@ -470,6 +486,22 @@ class restore_booking_activity_structure_step extends restore_activity_structure
         /* The copy is asynchronous and cron rewrites the names from the copy data when it runs,
         so the naming has to be applied again afterwards. */
         connectedcourse::queue_naming_finalizer($newcourseid, $newoptionid);
+    }
+
+    /**
+     * Whether this restore duplicates a single booking instance, as opposed to restoring, copying
+     * or importing a whole course.
+     *
+     * duplicate_module() backs up one activity in import mode; a course copy, a course restore
+     * or a course import backs up a whole course. Both facts are recorded in the backup itself,
+     * so this is decided from the backup information and not from anything the data says.
+     *
+     * @return bool
+     */
+    protected function is_activity_duplication(): bool {
+        $info = $this->get_task()->get_info();
+        return ($info->type ?? '') === backup::TYPE_1ACTIVITY
+            && (int) ($info->mode ?? 0) === backup::MODE_IMPORT;
     }
 
     /**
