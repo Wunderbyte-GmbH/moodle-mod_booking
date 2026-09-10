@@ -477,6 +477,10 @@ class ical {
         // whenever the line breaks.
         $attendee = $this->fold_line($attendee);
 
+        /* Every content line is limited to 75 octets (RFC 5545, section 3.1), so the properties
+        carrying free text - the title, the organizer's name and the location - are folded like
+        the description and the attendee. A name in a multibyte script exceeds the limit with far
+        fewer characters than a latin one. */
         $veventparts = [
             "BEGIN:VEVENT",
             "CLASS:PUBLIC",
@@ -486,9 +490,9 @@ class ical {
             "DTSTAMP:{$this->dtstamp}",
             "DTSTART:{$dtstart}",
             "PRIORITY:5",
-            "SUMMARY:{$this->summary}",
+            $this->fold_line("SUMMARY:{$this->summary}"),
             "TRANSP:OPAQUE{$this->status}",
-            "ORGANIZER;CN={$fromusername}:MAILTO:{$fromuseremail}",
+            $this->fold_line("ORGANIZER;CN={$fromusername}:MAILTO:{$fromuseremail}"),
         ];
 
         // A published event has no attendees, RFC 5546 (section 3.2.1) does not allow the ATTENDEE
@@ -500,7 +504,7 @@ class ical {
         $veventparts[] = "UID:{$uid}";
 
         if (!empty($this->location)) {
-            $veventparts[] = "LOCATION:{$this->location}";
+            $veventparts[] = $this->fold_line("LOCATION:{$this->location}");
         }
 
         // If the event has been updated then add the sequence value before END:VEVENT.

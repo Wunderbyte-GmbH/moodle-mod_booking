@@ -61,7 +61,14 @@ final class ical_test extends booking_advanced_testcase {
             'email'  => 'Maximiliana.Hieronymopolous-Cavendish-Montenegresco@example.com',
         ]);
         $student2 = $this->getDataGenerator()->create_user();
-        $teacher1 = $this->getDataGenerator()->create_user();
+        // The booking manager becomes the ORGANIZER of the ical. A long name in a multibyte
+        // script pushes that line well over the 75 octets a physical line may have, so the line
+        // folding is exercised on every run instead of depending on the random name the
+        // generator would pick.
+        $teacher1 = $this->getDataGenerator()->create_user([
+            'firstname' => 'Анастасия-Александра',
+            'lastname'  => 'Новикова-Пономарёва',
+        ]);
 
         $bdata['course'] = $course1->id;
         $bdata['bookingmanager'] = $teacher1->username;
