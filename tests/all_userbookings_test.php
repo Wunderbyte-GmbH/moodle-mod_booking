@@ -324,4 +324,72 @@ final class all_userbookings_test extends booking_advanced_testcase {
             'timebooked empty' => ['timebooked', 0],
         ];
     }
+
+    /**
+     * Users sharing the sort column value are returned in a defined order.
+     *
+     * The report sorts by first name only. Two users with the same first name were returned in
+     * whatever order the database chose - arbitrary on PostgreSQL, insertion order on MySQL - so
+     * the same page could list them differently on every load. The bookings are made in reverse
+     * order of the last names on purpose: without the tie-breakers, insertion order would return
+     * "Student 2" first on MySQL/MariaDB.
+     *
+     * @covers \mod_booking\all_userbookings::get_sql_sort
+     * @return void
+     */
+    public function test_equal_first_names_are_sorted_by_last_name_and_answer_id(): void {
+        $this->setAdminUser();
+
+        $course = $this->getDataGenerator()->create_course();
+        $bookinginstance = $this->getDataGenerator()->create_module('booking', [
+            'name' => 'Booking for all_userbookings::get_sql_sort',
+            'course' => $course->id,
+        ]);
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+
+        $record = new stdClass();
+        $record->bookingid = $bookinginstance->id;
+        $record->text = 'Option for get_sql_sort';
+        $record->courseid = $course->id;
+        $record->coursestarttime_0 = strtotime('now + 1 day');
+        $record->courseendtime_0 = strtotime('now + 2 day');
+        $record->maxanswers = 5;
+        $record->maxoverbooking = 0;
+
+        $option = $plugingenerator->create_option($record);
+        $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
+        $bookingoptioninstance = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
+        $cm = get_coursemodule_from_id('booking', $settings->cmid, 0, false, MUST_EXIST);
+
+        $student2 = $this->getDataGenerator()->create_user(['firstname' => 'Student', 'lastname' => '2']);
+        $student1 = $this->getDataGenerator()->create_user(['firstname' => 'Student', 'lastname' => '1']);
+        $this->getDataGenerator()->enrol_user($student2->id, $course->id);
+        $this->getDataGenerator()->enrol_user($student1->id, $course->id);
+
+        // Book in reverse order of the last names.
+        $bookingoptioninstance->user_submit_response($student2, 0, 0, 0, MOD_BOOKING_VERIFIED);
+        $bookingoptioninstance->user_submit_response($student1, 0, 0, 0, MOD_BOOKING_VERIFIED);
+
+        $table = new all_userbookings('test-get-sql-sort', $bookingoptioninstance, $cm, $settings->id);
+        $table->define_columns(['fullname']);
+        $table->define_headers(['fullname']);
+        $table->define_baseurl(new \moodle_url('/mod/booking/report.php', ['id' => $settings->cmid]));
+        $table->sortable(true, 'firstname');
+        $table->set_sql(
+            'ba.id, u.firstname, u.lastname',
+            '{booking_answers} ba JOIN {user} u ON u.id = ba.userid',
+            'ba.optionid = :optionid',
+            ['optionid' => $settings->id]
+        );
+
+        $table->setup();
+
+        $this->assertStringEndsWith('u.lastname ASC, ba.id ASC', $table->get_sql_sort());
+
+        $table->query_db(10, false);
+        $lastnames = array_values(array_map(fn($row) => $row->lastname, $table->rawdata));
+        $this->assertSame(['1', '2'], $lastnames);
+    }
 }
