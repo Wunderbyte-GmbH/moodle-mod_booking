@@ -46,6 +46,7 @@ use mod_booking\local\slotbooking\slot_availability;
 use mod_booking\event\booking_debug;
 use mod_booking\event\booking_rulesexecutionfailed;
 use mod_booking\event\bookinganswer_movedupfromwaitinglist;
+use mod_booking\event\bookinganswer_removedfromwaitinglist;
 use mod_booking\event\bookinganswer_presencechanged;
 use mod_booking\event\bookinganswer_notesedited;
 use mod_booking\event\bookinganswer_waitingforconfirmation;
@@ -977,6 +978,76 @@ class booking_option {
         }
 
         self::check_if_free_to_book_again($optionsettings, $user->id, $fullybooked);
+
+        return true;
+    }
+
+    /**
+     * Type 4 (waitlistrecycling=3): removes a user from the waiting list after their waiting list
+     * offer expired.
+     *
+     * Deliberately not user_delete_response(): that treats the removal as a cancellation - it fires
+     * bookinganswer_cancelled, queues the legacy cancellation mails, runs the "cancel" after-actions
+     * and touches enrolment and completion, none of which applies to someone who never got a seat.
+     * bookinganswer_removedfromwaitinglist is fired instead, so booking rules can notify the user.
+     *
+     * An item already reserved in the user's shopping cart is removed as well (hard expiry, K4):
+     * unloading it deletes the reserved answer via service_provider::unload_cartitem(), which keeps
+     * the cart and the booking answers in sync.
+     *
+     * @param int $userid
+     * @return bool true if the user was on the waiting list or had a reservation, false otherwise
+     */
+    public function remove_from_waitinglist_after_offer_expiry(int $userid): bool {
+        global $DB, $USER;
+
+        $removed = false;
+
+        if (
+            class_exists('local_shopping_cart\shopping_cart')
+            && $DB->record_exists('booking_answers', [
+                'optionid' => $this->optionid,
+                'userid' => $userid,
+                'waitinglist' => MOD_BOOKING_STATUSPARAM_RESERVED,
+            ])
+        ) {
+            \local_shopping_cart\shopping_cart::delete_item_from_cart('mod_booking', 'option', $this->optionid, $userid);
+            $removed = true;
+        }
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
+        $ba = singleton_service::get_instance_of_booking_answers($settings);
+        $answers = $DB->get_records('booking_answers', [
+            'optionid' => $this->optionid,
+            'userid' => $userid,
+            'waitinglist' => MOD_BOOKING_STATUSPARAM_WAITINGLIST,
+        ]);
+        foreach ($answers as $answer) {
+            if ($ba->delete_answer_record($answer)) {
+                self::booking_history_insert(
+                    MOD_BOOKING_STATUSPARAM_WAITINGLIST_DELETED,
+                    $answer->id,
+                    $answer->optionid,
+                    $answer->bookingid,
+                    $userid
+                );
+                $removed = true;
+            }
+        }
+
+        if (!$removed) {
+            return false;
+        }
+
+        self::purge_cache_for_answers($this->optionid);
+
+        $event = bookinganswer_removedfromwaitinglist::create([
+            'objectid' => $this->optionid,
+            'context' => context_module::instance($this->cmid),
+            'userid' => $USER->id,
+            'relateduserid' => $userid,
+        ]);
+        $event->trigger();
 
         return true;
     }
