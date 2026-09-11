@@ -1090,6 +1090,150 @@ final class ical_test extends booking_advanced_testcase {
     }
 
     /**
+     * Every content line of the ical is folded exactly once (RFC 5545, section 3.1). A title which
+     * is longer than a line must neither break the file into invalid lines nor lose characters, and
+     * names containing characters which end a parameter have to be quoted (section 3.2).
+     *
+     * @covers \mod_booking\ical::get_attachments
+     * @covers \mod_booking\ical::fold_line
+     * @return void
+     */
+    public function test_ical_long_title_and_special_names_keep_the_file_valid(): void {
+        global $CFG, $DB;
+
+        // Longer than one line, with commas and semicolons and a long word with umlauts, which has
+        // no space to wrap at and must not be cut within a character.
+        $title = 'Einführung in die Arbeitssicherheit für Führungskräfte, Teil 2: '
+            . 'Arbeitnehmerinnenschutzgesetzänderungsübungsveranstaltungsdokumentationsübersicht; Übungen';
+        $env = $this->setup_environment(1, ['text' => $title]);
+        $option = $env['option'];
+        $student1 = $env['users']['student1'];
+        // A semicolon, a comma or a colon would end the CN parameter of the ATTENDEE if it was not quoted.
+        $DB->update_record('user', (object)[
+            'id' => $student1->id,
+            'firstname' => 'Hans; Dr.',
+            'lastname' => 'Müller, MSc: "Senior"',
+        ]);
+
+        $optionsettings = singleton_service::get_instance_of_booking_option_settings($option->id);
+        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($optionsettings->cmid);
+        $manager = $bookingsettings->bookingmanageruser;
+
+        // Without a booking manager the url of the site becomes the name of the ORGANIZER.
+        $cases = ['request' => [$manager, false], 'nomanager' => [null, false], 'cancel' => [$manager, true]];
+        $files = [];
+        foreach ($cases as $key => [$fromuser, $cancel]) {
+            $ical = new ical($bookingsettings, $optionsettings, $student1, $fromuser, false);
+            $attachments = $ical->get_attachments($cancel);
+            $files[$key] = file_get_contents($attachments['booking.ics']);
+        }
+
+        foreach ($files as $key => $file) {
+            // Every line break is a CRLF, there are no empty lines and no line exceeds 75 octets.
+            $this->assertDoesNotMatchRegularExpression("/(?<!\r)\n|\r(?!\n)/", $file, $key);
+            foreach (explode("\r\n", $file) as $line) {
+                $this->assertNotEmpty($line, $key);
+                $this->assertLessThanOrEqual(75, strlen($line), $key . ': ' . $line);
+            }
+
+            // Unfolded, the title is complete: neither a space nor a character got lost.
+            $this->assertEquals(
+                str_replace([',', ';'], ['\,', '\;'], $title),
+                $this->get_ics_property($file, 'SUMMARY'),
+                $key
+            );
+
+            // Double quotes are not allowed within the quoted name, so they are removed.
+            $unfolded = preg_replace("/\r\n[ \t]/", '', $file);
+            $this->assertStringContainsString(
+                ';CN="Hans; Dr. Müller, MSc: Senior";LANGUAGE=en:MAILTO:' . $student1->email,
+                $unfolded,
+                $key
+            );
+        }
+
+        $this->assertStringContainsString(
+            'ORGANIZER;CN="' . $manager->firstname . ' ' . $manager->lastname . '":MAILTO:' . $manager->email,
+            preg_replace("/\r\n[ \t]/", '', $files['request'])
+        );
+        $this->assertStringContainsString(
+            'ORGANIZER;CN="' . $CFG->wwwroot . '":MAILTO:',
+            preg_replace("/\r\n[ \t]/", '', $files['nomanager'])
+        );
+        $this->assertStringContainsString("\r\nSTATUS:CANCELLED\r\n", $files['cancel']);
+    }
+
+    /**
+     * Write the icals of some tricky booking options to files, so they can be checked with an
+     * external validator (e.g. https://icalendar.org/validator.html).
+     *
+     * Only runs if the environment variable BOOKING_ICAL_OUTPUT_DIR names the directory to write to:
+     * BOOKING_ICAL_OUTPUT_DIR=/tmp/icals vendor/bin/phpunit --filter test_write_icals_for_manual_validation \
+     *     public/mod/booking/tests/ical/ical_test.php
+     *
+     * @covers \mod_booking\ical
+     * @return void
+     */
+    public function test_write_icals_for_manual_validation(): void {
+        global $DB;
+
+        $outputdir = getenv('BOOKING_ICAL_OUTPUT_DIR');
+        if (empty($outputdir)) {
+            $this->markTestSkipped('Set BOOKING_ICAL_OUTPUT_DIR to write the icals for a manual validation.');
+        }
+        check_dir_exists($outputdir);
+
+        // Take the location of the option itself for the LOCATION property.
+        set_config('icalfieldlocation', 2, 'booking');
+
+        $title = 'Einführung in die Arbeitssicherheit für Führungskräfte, Teil 2: '
+            . 'Arbeitnehmerinnenschutzgesetzänderungsübungsveranstaltungsdokumentationsübersicht; Übungen';
+        $description = '<p>Bitte bringt Laptop, Ladekabel; und gute Laune mit.</p>'
+            . '<p>Infos: https://example.com/info?a=1&b=2 – Straße, Größe: 10 €</p>';
+
+        $cases = [
+            // Name of the file => [number of dates, booking manager as organizer, cancel].
+            'request' => [1, true, false],
+            'request_without_bookingmanager' => [1, false, false],
+            'cancel' => [1, true, true],
+            'publish_three_dates' => [3, true, false],
+        ];
+        foreach ($cases as $name => [$numberofdates, $withmanager, $cancel]) {
+            $env = $this->setup_environment($numberofdates, ['text' => $title, 'description' => $description]);
+            $option = $env['option'];
+            $student1 = $env['users']['student1'];
+            $DB->update_record('user', (object)[
+                'id' => $student1->id,
+                'firstname' => 'Hans; Dr.',
+                'lastname' => 'Müller, MSc: "Senior"',
+            ]);
+            $DB->set_field('booking_options', 'location', 'Hauptstraße 1, 1010 Wien; Raum 2', ['id' => $option->id]);
+
+            booking_option::purge_cache_for_option($option->id);
+            singleton_service::destroy_instance();
+            $optionsettings = singleton_service::get_instance_of_booking_option_settings($option->id);
+            $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($optionsettings->cmid);
+            $fromuser = $withmanager ? $bookingsettings->bookingmanageruser : null;
+
+            $ical = new ical($bookingsettings, $optionsettings, $student1, $fromuser, false);
+            $file = file_get_contents($ical->get_attachments($cancel)['booking.ics']);
+
+            $filename = "{$outputdir}/{$name}.ics";
+            file_put_contents($filename, $file);
+            // STDERR is not caught by the output buffering of PHPUnit.
+            fwrite(STDERR, "\nWritten: {$filename}\n");
+
+            // Every line break is a CRLF, there are no empty lines and no line exceeds 75 octets.
+            $this->assertDoesNotMatchRegularExpression("/(?<!\r)\n|\r(?!\n)/", $file, $name);
+            foreach (explode("\r\n", $file) as $line) {
+                $this->assertNotEmpty($line, $name);
+                $this->assertLessThanOrEqual(75, strlen($line), $name . ': ' . $line);
+            }
+            $this->assertEquals($numberofdates, substr_count($file, "\r\nBEGIN:VEVENT\r\n"), $name);
+        }
+    }
+
+    /**
      * Render the ical description of one and the same booking option for a user using english and
      * for a user using german, both within the same request.
      *
