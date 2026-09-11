@@ -144,6 +144,7 @@ $string['booking:skill_mod_booking_update_option_trainer'] = 'KI-Skill: Trainer/
 $string['booking:subscribeusers'] = 'Für andere Teilnehmer/innen Buchungen durchführen';
 $string['booking:viewteacherreports'] = 'Trainer/innen-Berichte von Buchungsinstanzen ansehen';
 $string['bookinganswercancelled'] = 'Buchungsoption von/für Nutzer/in storniert';
+$string['bookinganswerremovedfromwaitinglistdesc'] = 'Nutzer/in mit ID {$a->relateduserid} wurde von der Warteliste der Buchungsoption mit ID {$a->objectid} entfernt, weil das Angebot abgelaufen ist.';
 $string['bookinganswerwaitingforconfirmationdesc'] = 'Nutzer/in mit id {$a->relateduserid} hat sich für die Buchungsoption mit ID {$a->objectid} vorangemeldet.';
 $string['bookingdebugmode_desc'] = 'Der Booking-Debug-Modus sollte nur von Entwickler/innen aktiviert werden.';
 $string['bookingfulldidntregister'] = 'Es wurden nicht alle Nutzer/innen übertragen, da die Option bereits ausgebucht ist!';
