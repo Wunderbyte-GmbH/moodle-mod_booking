@@ -128,7 +128,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
      */
     public function set_display_options(array $displayoptions) {
 
-        // Number of places on the notification list, e.g. "(Benach. 4)".
+        // Number of places on the notification list, shown as bell icon + number, e.g. "(bell 4)".
         $shownotificationlist = col_availableplaces::normalize_bool_option($displayoptions['shownotificationlist'] ?? null);
         if (isset($shownotificationlist)) {
             $this->displayoptions['shownotificationlist'] = $shownotificationlist;
