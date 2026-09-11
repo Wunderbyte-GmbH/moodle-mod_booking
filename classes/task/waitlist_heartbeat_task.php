@@ -27,6 +27,10 @@
  * K4 expiry-locks (only those, never a K7 decline-lock) are reset and the option is reconciled
  * again - see db_waitlist_offer_repository::find_recyclable_options()/reset_expired_locks().
  *
+ * And cleans up the type 4 backlog (waitlistrecycling=3, "remove on offer expiry"): users whose
+ * offer expired before their option was switched to that mode are removed from the waiting list
+ * and their K4 lock is cleared - see db_waitlist_offer_repository::find_expired_waiters_to_remove().
+ *
  * @package mod_booking
  * @copyright 2026 Wunderbyte GmbH <info@wunderbyte.at>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -34,6 +38,7 @@
 
 namespace mod_booking\task;
 
+use mod_booking\booking_option;
 use mod_booking\local\waitlist\db_waitlist_offer_repository;
 use mod_booking\local\waitlist\progression_factory;
 
@@ -88,6 +93,19 @@ class waitlist_heartbeat_task extends \core\task\scheduled_task {
         foreach ($repository->find_recyclable_options() as $optionid) {
             $repository->reset_expired_locks((int) $optionid);
             progression_factory::get()->reconcile((int) $optionid, 'waitlist:recycled');
+        }
+
+        // Type 4 (waitlistrecycling=3) backlog: people whose offer expired before their option was
+        // switched to "remove on offer expiry" are still waiting behind a K4 lock - remove them now,
+        // in the same order expire_waitlist_offer_adhoc uses (remove first, then clear the lock). No
+        // reconcile() needed: as locked-out users they were never candidates, so no seat is freed.
+        foreach ($repository->find_expired_waiters_to_remove() as $waiter) {
+            $option = booking_option::create_option_from_optionid((int) $waiter->optionid);
+            if ($option === null) {
+                continue;
+            }
+            $option->remove_from_waitinglist_after_offer_expiry((int) $waiter->userid);
+            $repository->remove_expired_lock((int) $waiter->optionid, (int) $waiter->userid);
         }
 
         // Type 2 ("open after full pass"): list has been fully processed once, spot still
