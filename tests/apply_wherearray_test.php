@@ -138,7 +138,11 @@ final class apply_wherearray_test extends advanced_testcase {
     }
 
     /**
-     * Numeric and text values may appear in the same array.
+     * Numeric values may be given as integers and as numeric strings in the same array.
+     *
+     * Numeric values are written into the query as numbers, so they are only valid on numeric columns.
+     * A number on a text column fails on PostgreSQL ("character varying = integer") and no caller
+     * builds such an array.
      *
      * @return void
      */
@@ -147,9 +151,11 @@ final class apply_wherearray_test extends advanced_testcase {
 
         $where = 'invisible = 0 ';
         $params = [];
-        $wherearray = ['text' => ['Tennis', 42]];
+        $wherearray = ['bookingid' => [11, '12']];
         booking::apply_wherearray($where, $wherearray, $params, 1);
 
+        $this->assertSame(1, substr_count($where, ' OR '));
+        $this->assertSame([], $params);
         $this->assert_sql_runs($where, $params);
     }
 
