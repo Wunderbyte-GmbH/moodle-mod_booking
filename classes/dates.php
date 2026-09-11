@@ -655,7 +655,11 @@ class dates {
 
         $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
         [$newoptiondates, $highestindex] = self::get_list_of_submitted_dates((array)$formdata);
-        $olddates = $settings->sessions;
+        // Only dates stored in booking_optiondates can be updated or deleted. As long as an option has no
+        // optiondate yet (e.g. while it is being created), booking_option_settings reports the option's own
+        // coursestarttime and courseendtime as a session with id 0. Tracking it as an old date logged a
+        // phantom change of the dates ("deleted" and "new" with the same values) for every new option.
+        $olddates = array_filter($settings->sessions, fn($session) => !empty($session->id));
         // For the moment we don't save entities in old (to be deleted) dates since it's not considered as an important information.
         $memory = $olddates;
 
