@@ -22,7 +22,7 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once(__DIR__ . '/../../config.php');
+require_once(__DIR__ . '/../../config.php'); // phpcs:ignore moodle.Files.RequireLogin.Missing
 require_once($CFG->dirroot . '/mod/booking/locallib.php');
 require_once($CFG->libdir . '/formslib.php');
 
@@ -43,7 +43,9 @@ $returnurl = optional_param('returnurl', $returnurl->out(), PARAM_LOCALURL);
 
 [$course, $cm] = get_course_and_cm_from_cmid($cmid);
 
-require_course_login($course, false, $cm);
+// Course login (enrolment or guest access) by default; a site login is enough if the
+// setting "editoptionsrequirecourselogin" is disabled. The capability checks below still apply.
+booking_require_editoptions_login($course, $cm);
 
 $url = new moodle_url('/mod/booking/editoptions.php', ['id' => $cmid, 'optionid' => $optionid]);
 $PAGE->set_url($url);
