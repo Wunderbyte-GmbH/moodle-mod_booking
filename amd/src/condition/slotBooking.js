@@ -685,8 +685,14 @@ const renderTeacherSelection = async(
             if (memory) {
                 memory.ids = preselected;
             }
+        } else {
+            // Nothing chosen for this slot key is offered here. That happens whenever a merged
+            // calendar switches option at the SAME time: the wire key stays identical, so the
+            // pruning loop above keeps the previous option's examiner. Left in place it would be
+            // serialized below and submitted with the new option - the box shows no examiner,
+            // yet validation rejects the booking with "slot no longer available".
+            delete currentSelection[slotKey];
         }
-
         const options = [];
         teachers.forEach(teacher => {
             const id = Number(teacher.id || 0);
@@ -1799,12 +1805,14 @@ export async function init(callsiteoptionid) {
         }
 
         if (!selectionInput.dataset.slotSelectionBound) {
-            selectionInput.addEventListener('change', refreshTeacherSelection);
-            selectionInput.addEventListener('change', liveValidate);
             // Keep activeOptionId (and the hidden "id" field) in sync no matter which selection
             // mechanism fired the change - the calendar picker's onChange already calls
             // setActiveOptionId itself, but the fixedEditorRoot/listPickerRoot pickers only go
             // through createHiddenInputSelection, which doesn't know about booking options at all.
+            // Registered FIRST on purpose: listeners run in registration order, and
+            // refreshTeacherSelection below resolves the selected slots through activeOptionId.
+            // Registered after it, switching to another merged option left the examiner picker
+            // offering the PREVIOUS option's examiners for the newly picked slot.
             selectionInput.addEventListener('change', () => {
                 const keys = getSelectedSlotKeys(selectionInput);
                 if (keys.length > 0) {
@@ -1816,6 +1824,8 @@ export async function init(callsiteoptionid) {
                     setActiveOptionId(activeFromDataset || resolveSlotOptionId(keys[0]));
                 }
             });
+            selectionInput.addEventListener('change', refreshTeacherSelection);
+            selectionInput.addEventListener('change', liveValidate);
             // Mirror the hidden input's selection into the calendar picker. The picker does not own
             // the selection in this mode (initialSelection is [] and onChange a no-op - see the
             // fixedEditorRoot branch above), so without this its this.selected stayed permanently

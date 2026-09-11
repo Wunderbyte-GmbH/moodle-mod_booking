@@ -19,9 +19,15 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+import {getStrings} from 'core/str';
 import {createTimeFormatter, renderFixedSlotsEditor} from 'mod_booking/slotbooking/slot_day_renderers';
 
 const WEEK_DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+// Selection ring around a price dot: white inside so it stays visible on the active day's blue
+// (btn-primary) cell, blue outside so it stays visible on the light cells. A box-shadow rather than
+// a border: it is drawn outside the dot, so the dot keeps its full size.
+const SELECTED_DOT_RING = '0 0 0 1.5px #ffffff, 0 0 0 3px #0d6efd';
 
 const createDayKeyFormatter = (timezone) => {
     try {
@@ -159,6 +165,10 @@ export class SlotCalendarPicker {
         this.priceLevels = [];
         this.priceScaleMin = 0;
         this.priceScaleMax = 0;
+
+        // The legend's labels come from the language pack - see loadLegendStrings().
+        this.legendStrings = null;
+        this.loadLegendStrings();
 
         this.prepareData();
         this.buildLayout();
@@ -704,7 +714,7 @@ export class SlotCalendarPicker {
                 if (this.showPriceLegend && this.priceLevels.length > 0) {
                     const dayPriceDots = document.createElement('div');
                     dayPriceDots.className = 'mt-1 d-flex flex-wrap align-items-center';
-                    dayPriceDots.style.gap = '0.2rem';
+                    dayPriceDots.style.gap = '0.3rem';
 
                     const daySelected = new Set(daySlots
                         .filter(slot => this.selected.has(slot.uid))
@@ -719,9 +729,13 @@ export class SlotCalendarPicker {
                         dot.style.borderRadius = '999px';
                         dot.style.display = 'inline-block';
                         dot.style.backgroundColor = this.getPriceColor(price);
-                        dot.style.border = daySelected.has(price)
-                            ? '2px solid #0d6efd'
-                            : '1px solid rgba(0,0,0,0.15)';
+                        // Same thin outline for every dot, so a selected one keeps its full size -
+                        // under Bootstrap's border-box sizing the old 2px ring was drawn INTO the
+                        // 0.5rem dot and shrank its colour to a speck. The ring is a box-shadow.
+                        dot.style.border = '1px solid rgba(0,0,0,0.15)';
+                        if (daySelected.has(price)) {
+                            dot.style.boxShadow = SELECTED_DOT_RING;
+                        }
                         dot.title = this.getPriceLabel(price);
                         dayPriceDots.appendChild(dot);
                     });
@@ -1024,10 +1038,33 @@ export class SlotCalendarPicker {
         return String(numericPrice);
     }
 
+    /**
+     * Load the price legend's labels from the language pack.
+     *
+     * Asynchronous, so the first (synchronous) render leaves the legend out and it is drawn once
+     * the strings arrive. The promise settles only after the constructor has finished, so the
+     * legend element built in buildLayout() exists by then. Kept out of the constructor, which is
+     * already at the complexity limit.
+     */
+    loadLegendStrings() {
+        if (!this.showPriceLegend) {
+            return;
+        }
+        getStrings([
+            {key: 'slot_price_legend', component: 'mod_booking'},
+            {key: 'slot_price_legend_free', component: 'mod_booking'},
+            {key: 'selected', component: 'mod_booking'},
+        ]).then(([title, free, selected]) => {
+            this.legendStrings = {title, free, selected};
+            this.renderPriceLegend();
+            return null;
+        }).catch(() => null);
+    }
+
     renderPriceLegend() {
         this.priceLegend.innerHTML = '';
 
-        if (!this.showPriceLegend || this.priceLevels.length === 0) {
+        if (!this.showPriceLegend || this.priceLevels.length === 0 || !this.legendStrings) {
             return;
         }
 
@@ -1037,7 +1074,7 @@ export class SlotCalendarPicker {
 
         const title = document.createElement('span');
         title.className = 'fw-bold';
-        title.textContent = 'Preis-Legende:';
+        title.textContent = `${this.legendStrings.title}:`;
         row.appendChild(title);
 
         const addLegendItem = (color, label, selected = false) => {
@@ -1051,7 +1088,10 @@ export class SlotCalendarPicker {
             dot.style.borderRadius = '999px';
             dot.style.display = 'inline-block';
             dot.style.backgroundColor = color;
-            dot.style.border = selected ? '2px solid #0d6efd' : '1px solid rgba(0,0,0,0.2)';
+            dot.style.border = '1px solid rgba(0,0,0,0.2)';
+            if (selected) {
+                dot.style.boxShadow = SELECTED_DOT_RING;
+            }
 
             const text = document.createElement('span');
             text.textContent = label;
@@ -1061,11 +1101,15 @@ export class SlotCalendarPicker {
             row.appendChild(item);
         };
 
-        addLegendItem('#198754', 'Kostenlos');
+        // Only list "free" when a loaded slot actually costs nothing - a legend entry for a price
+        // nobody can pick is simply wrong.
+        if (this.priceLevels.some(price => price <= 0)) {
+            addLegendItem('#198754', this.legendStrings.free);
+        }
         this.priceLevels.filter(price => price > 0).forEach(price => {
             addLegendItem(this.getPriceColor(price), this.getPriceLabel(price));
         });
-        addLegendItem('#ffffff', 'Ausgewaehlt', true);
+        addLegendItem('#ffffff', this.legendStrings.selected, true);
 
         this.priceLegend.appendChild(row);
     }
