@@ -3563,8 +3563,6 @@ $string['showdetaildotsnextbookedalert'] = 'Show link to details for booked opti
 $string['showdetaildotsnextbookedalert_desc'] = 'If this option is activated, a small button with three dots is displayed next to the information that a booking option has been booked.
 This button linkes to the detailview of that option.';
 $string['showinapi'] = 'Show in API?';
-$string['shownotificationlistplaces'] = 'Show number of places on the notification list';
-$string['shownotificationlistplaces_desc'] = 'If activated, the number of places on the notification list is shown with a bell icon in the column with the available places (e.g. "20 / 20 (bell icon 4)"). It can be overruled for a single shortcode with the argument <b>shownotificationlist=1</b> or <b>shownotificationlist=0</b>.';
 $string['showlistoncoursepage'] = 'Show extra information on course page';
 $string['showlistoncoursepage_help'] = 'If you activate this setting, the course name, a short info and a button
                                             redirecting to the available booking options will be shown.';
@@ -3572,6 +3570,8 @@ $string['showmessages'] = 'Show messages';
 $string['showmybookingsonly'] = 'My booked options';
 $string['showmyfavoritesonly'] = 'My favorites';
 $string['showmyfieldofstudyonly'] = "My field of study";
+$string['shownotificationlistplaces'] = 'Show number of places on the notification list';
+$string['shownotificationlistplaces_desc'] = 'If activated, the number of places on the notification list is shown with a bell icon in the column with the available places (e.g. "20 / 20 (bell icon 4)"). It can be overruled for a single shortcode with the argument <b>shownotificationlist=1</b> or <b>shownotificationlist=0</b>.';
 $string['showoptiondatesextrainfo'] = 'Show additional information for dates';
 $string['showoptiondatesextrainfo_desc'] = 'Show comments and extra infos of sessions (dates) in the list of booking options
 (on the booking option detail page the extra infos will always be shown regardless of this setting).
