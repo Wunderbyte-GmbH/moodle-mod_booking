@@ -32,6 +32,8 @@ use mod_booking\option\optiondate;
 use stdClass;
 use mod_booking\teachers_handler;
 use mod_booking\booking_rules\booking_rules;
+use mod_booking\booking_rules\conditions\select_user_from_event;
+use mod_booking\booking_rules\rules\rule_react_on_event;
 use mod_booking\booking_rules\rules_info;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\bo_availability\conditions\customform;
@@ -41,7 +43,9 @@ use mod_booking_generator;
 use function PHPUnit\Framework\assertSame;
 
 defined('MOODLE_INTERNAL') || die();
+global $CFG;
 require_once(__DIR__ . '/../classes/booking_advanced_testcase.php');
+require_once($CFG->libdir . '/formslib.php');
 
 /**
  * Tests for booking rules.
@@ -515,6 +519,168 @@ final class rules_test extends booking_advanced_testcase {
         $this->assertEquals($user2->id, $customdata->userid);
         $rulejson = json_decode($customdata->rulejson);
         $this->assertEquals($user1->id, $rulejson->datafromevent->relateduserid);
+    }
+
+    /**
+     * Test rules on option's teacher added and removed, sent to the affected user (the teacher).
+     *
+     * @covers \mod_booking\event\teacher_added
+     * @covers \mod_booking\event\teacher_removed
+     * @covers \mod_booking\teachers_handler::subscribe_teacher_to_booking_option
+     * @covers \mod_booking\teachers_handler::unsubscribe_teacher_from_booking_option
+     * @covers \mod_booking\booking_rules\rules\rule_react_on_event::execute
+     * @covers \mod_booking\booking_rules\actions\send_mail::execute
+     * @covers \mod_booking\booking_rules\conditions\select_user_from_event::execute
+     *
+     * @param array $bdata
+     * @throws \coding_exception
+     *
+     * @dataProvider booking_common_settings_provider
+     */
+    public function test_rule_on_teacher_added_and_removed_to_affected_user(array $bdata): void {
+
+        singleton_service::destroy_instance();
+
+        // Setup test data.
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $teacher = $this->getDataGenerator()->create_user();
+        $manager = $this->getDataGenerator()->create_user();
+
+        $bdata['course'] = $course->id;
+        $bdata['bookingmanager'] = $manager->username;
+
+        $booking = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        // The admin triggers the events, so the teacher is only the affected user (relateduserid).
+        $this->setAdminUser();
+
+        $this->getDataGenerator()->enrol_user($teacher->id, $course->id, 'editingteacher');
+        $this->getDataGenerator()->enrol_user($manager->id, $course->id, 'editingteacher');
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+
+        // Create booking rule 1 - "teacher_added" - mail to the affected user.
+        $boevent1 = '"boevent":"\\\\mod_booking\\\\event\\\\teacher_added"';
+        $actstr1 = '{"sendical":0,"sendicalcreateorcancel":"",';
+        $actstr1 .= '"subject":"teacher added","template":"teacher added msg","templateformat":"1"}';
+        $ruledata1 = [
+            'name' => 'teacher_added_affecteduser',
+            'conditionname' => 'select_user_from_event',
+            'contextid' => 1,
+            'conditiondata' => '{"userfromeventtype":"relateduserid"}',
+            'actionname' => 'send_mail',
+            'actiondata' => $actstr1,
+            'rulename' => 'rule_react_on_event',
+            'ruledata' => '{' . $boevent1 . ',"aftercompletion":"","condition":"0"}',
+        ];
+        $plugingenerator->create_rule($ruledata1);
+
+        // Create booking rule 2 - "teacher_removed" - mail to the affected user.
+        $boevent2 = '"boevent":"\\\\mod_booking\\\\event\\\\teacher_removed"';
+        $actstr2 = '{"sendical":0,"sendicalcreateorcancel":"",';
+        $actstr2 .= '"subject":"teacher removed","template":"teacher removed msg","templateformat":"1"}';
+        $ruledata2 = [
+            'name' => 'teacher_removed_affecteduser',
+            'conditionname' => 'select_user_from_event',
+            'contextid' => 1,
+            'conditiondata' => '{"userfromeventtype":"relateduserid"}',
+            'actionname' => 'send_mail',
+            'actiondata' => $actstr2,
+            'rulename' => 'rule_react_on_event',
+            'ruledata' => '{' . $boevent2 . ',"aftercompletion":"","condition":"0"}',
+        ];
+        $plugingenerator->create_rule($ruledata2);
+
+        // Create booking option 1 without teachers.
+        $record = new stdClass();
+        $record->bookingid = $booking->id;
+        $record->text = 'Option-2050';
+        $record->chooseorcreatecourse = 1; // Reqiured.
+        $record->courseid = $course->id;
+        $record->description = 'Will start 2050';
+        $record->optiondateid_0 = "0";
+        $record->daystonotify_0 = "0";
+        $record->coursestarttime_0 = strtotime('20 June 2050 15:00');
+        $record->courseendtime_0 = strtotime('20 July 2050 14:00');
+        $record->importing = 1;
+        $option1 = $plugingenerator->create_option($record);
+        singleton_service::destroy_booking_option_singleton($option1->id);
+
+        // Add the teacher to the booking option.
+        $settings1 = singleton_service::get_instance_of_booking_option_settings($option1->id);
+        $th = new teachers_handler($option1->id);
+        $res = $th->subscribe_teacher_to_booking_option($teacher->id, $option1->id, $settings1->cmid);
+        $this->assertEquals(true, (bool) $res);
+
+        // Only rule 1 fires and the mail goes to the teacher, not to the admin who triggered the event.
+        $messages = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
+        $this->assertCount(1, $messages);
+        $message = reset($messages);
+        $this->assertEquals($teacher->id, $message->get_userid());
+        $customdata = $message->get_custom_data();
+        $this->assertEquals("teacher added", $customdata->customsubject);
+        $this->assertEquals($teacher->id, $customdata->userid);
+        $this->assertEquals($option1->id, $customdata->optionid);
+        $rulejson = json_decode($customdata->rulejson);
+        $this->assertEquals($teacher->id, $rulejson->datafromevent->relateduserid);
+
+        // Remove the teacher from the booking option.
+        $res = $th->unsubscribe_teacher_from_booking_option($teacher->id, $option1->id, $settings1->cmid);
+        $this->assertEquals(true, (bool) $res);
+
+        // Now rule 2 fires too and the mail goes to the removed teacher.
+        $messages = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
+        $this->assertCount(2, $messages);
+        $removedmessages = array_filter(
+            $messages,
+            fn($m) => $m->get_custom_data()->customsubject === "teacher removed"
+        );
+        $this->assertCount(1, $removedmessages);
+        $message = reset($removedmessages);
+        $this->assertEquals($teacher->id, $message->get_userid());
+        $customdata = $message->get_custom_data();
+        $this->assertEquals($teacher->id, $customdata->userid);
+        $this->assertEquals($option1->id, $customdata->optionid);
+    }
+
+    /**
+     * Test that the rule form offers the teacher events and the affected user (the teacher) for them.
+     *
+     * @covers \mod_booking\booking_rules\rules\rule_react_on_event::add_rule_to_mform
+     * @covers \mod_booking\booking_rules\conditions\select_user_from_event::add_userselect_to_mform
+     */
+    public function test_rule_form_offers_teacher_events(): void {
+
+        $this->setAdminUser();
+
+        // The event select of the "React on event" rule lists both teacher events.
+        $mform = new \MoodleQuickForm('ruleformtest' . uniqid(), 'post', '');
+        $repeateloptions = [];
+        $rule = new rule_react_on_event();
+        $rule->add_rule_to_mform($mform, $repeateloptions, ['contextid' => 1]);
+        $events = $this->get_select_values($mform, 'rule_react_on_event_event');
+        $this->assertContains('\mod_booking\event\teacher_added', $events);
+        $this->assertContains('\mod_booking\event\teacher_removed', $events);
+
+        // The condition "user from event" offers the affected user for both events.
+        foreach (['teacher_added', 'teacher_removed'] as $eventnameonly) {
+            $mform = new \MoodleQuickForm('conditionformtest' . uniqid(), 'post', '');
+            select_user_from_event::add_userselect_to_mform($mform, $eventnameonly);
+            $types = $this->get_select_values($mform, 'condition_select_user_from_event_type');
+            $this->assertContains('relateduserid', $types);
+        }
+    }
+
+    /**
+     * Returns the option values of a select element of a form.
+     *
+     * @param \MoodleQuickForm $mform
+     * @param string $elementname
+     * @return array
+     */
+    private function get_select_values(\MoodleQuickForm $mform, string $elementname): array {
+        return array_column(array_column($mform->getElement($elementname)->_options, 'attr'), 'value');
     }
 
     /**
