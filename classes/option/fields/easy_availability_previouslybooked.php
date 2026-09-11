@@ -104,16 +104,17 @@ class easy_availability_previouslybooked extends field_base {
         if ($formdata->bo_cond_previouslybooked_restrict == 1 && !empty(($formdata->bo_cond_previouslybooked_optionid))) {
             $formdata->bo_cond_previouslybooked_overrideconditioncheckbox = true; // Can be hardcoded here.
             $formdata->bo_cond_previouslybooked_overrideoperator = 'OR'; // Can be hardcoded here.
-            // We always override these 2 conditions, so users are always allowed to book outside time restrictions.
+            // We always override these conditions, so users are always allowed to book outside time restrictions.
+            // The notification list is always overridden too, otherwise it blocks these users from booking.
             $formdata->bo_cond_previouslybooked_overridecondition = [
                 MOD_BOOKING_BO_COND_BOOKING_TIME,
                 MOD_BOOKING_BO_COND_OPTIONHASSTARTED,
+                MOD_BOOKING_BO_COND_NOTIFYMELIST,
             ];
 
-            // If the overbook checkbox has been checked, we also add the conditions so the user(s) can overbook.
+            // If the overbook checkbox has been checked, we also add the condition so the user(s) can overbook.
             if (!empty($formdata->previouslybookedoverbookcheckbox)) {
                 $formdata->bo_cond_previouslybooked_overridecondition[] = MOD_BOOKING_BO_COND_FULLYBOOKED;
-                $formdata->bo_cond_previouslybooked_overridecondition[] = MOD_BOOKING_BO_COND_NOTIFYMELIST;
             }
         } else {
             $formdata->bo_cond_previouslybooked_restrict = 0;
@@ -253,10 +254,7 @@ class easy_availability_previouslybooked extends field_base {
                             $formdata->bo_cond_previouslybooked_restrict = true;
                             $formdata->bo_cond_previouslybooked_optionid = (int)$av->optionid;
                         }
-                        if (
-                            in_array(MOD_BOOKING_BO_COND_FULLYBOOKED, $av->overrides ?? []) &&
-                            in_array(MOD_BOOKING_BO_COND_NOTIFYMELIST, $av->overrides ?? [])
-                        ) {
+                        if (in_array(MOD_BOOKING_BO_COND_FULLYBOOKED, $av->overrides ?? [])) {
                             $formdata->previouslybookedoverbookcheckbox = true;
                         } else {
                             $formdata->previouslybookedoverbookcheckbox = false;
