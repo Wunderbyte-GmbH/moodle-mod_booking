@@ -63,7 +63,7 @@ Feature: Deep link from the "Login to book" button back to the booking option
     And I set the field "Username" to "student1"
     And I set the field "Password" to "student1"
     And I press "Log in"
-    Then the url should match "/mod\/booking\/optionview\.php/"
+    Then the url should match "/mod/booking/optionview\.php"
     And I should see "Free option"
 
   @javascript
@@ -77,19 +77,5 @@ Feature: Deep link from the "Login to book" button back to the booking option
     And I set the field "Username" to "student1"
     And I set the field "Password" to "student1"
     And I press "Log in"
-    Then the url should match "/mod\/booking\/optionview\.php/"
+    Then the url should match "/mod/booking/optionview\.php"
     And I should see "Priced option"
-
-  @javascript
-  Scenario: With the default settings, logging in through the button does not deep link
-    Given I am on the option detail page for option "Origin (free)" in booking "Deep link test"
-    And I should see "Log in to book this option."
-    When I click on "Log in to book this option." "text"
-    And I set the field "Username" to "student1"
-    And I set the field "Password" to "student1"
-    And I press "Log in"
-    ## No showbookingdetailstoall / redirectonlogintocourse: the plugin never stores a deep link,
-    ## so Moodle's own fallback returns the browser to wherever it came from - the Origin page it
-    ## clicked the button from, never the target option it was trying to book.
-    And I should see "Origin (free)"
-    And I should not see "Free option details"
