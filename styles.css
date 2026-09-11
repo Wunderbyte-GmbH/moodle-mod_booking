@@ -1480,9 +1480,22 @@ div.checkbox:has(label[for^="id_bo_cond_allowedtobookininstance_capabilitynotnee
     background-color: rgba(0, 0, 0, 0.03);
 }
 
+/* Boost's `[role="button"]:focus:hover { text-decoration: none; }` (theme/boost/scss/moodle/core.scss)
+   outranks the rule above while the item is focused - which it is right after being clicked, as it
+   carries tabindex="0" - and still hovered, so the line-through only appeared once the pointer left.
+   Two classes plus both pseudo-classes outrank it. */
+.booking-slotbooking-sidebar-item.booking-slotbooking-sidebar-item-filtered:focus:hover {
+    text-decoration: line-through;
+}
+
 @media (max-width: 767.98px) {
     .booking-slotbooking-layout {
         flex-direction: column;
+        /* The desktop rule keeps align-items: flex-start so the sticky sidebar does not stretch to
+           full height. In a column that same value stops the main area from filling the width: it
+           shrinks to its content's minimum instead - three timeline lanes at min-width 10rem each -
+           and drags the month calendar past the screen edge with it. */
+        align-items: stretch;
     }
 
     .booking-slotbooking-sidebar {
