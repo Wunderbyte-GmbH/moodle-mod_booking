@@ -129,7 +129,10 @@ Feature: In a booking instance create booking options
     And I wait until the page is ready
     And I wait until "#showEventList.show" "css_element" exists
     And I wait until "#showEventList .wb-records-count-label" "css_element" exists
-    And I should see "1 of 1 records found" in the "#showEventList .wb-records-count-label" "css_element"
+    ## Two entries: creating the option logs its dates (that event also creates the calendar entries),
+    ## then the teacher's update. The creation entry used to stay invisible only because the generator
+    ## runs in the long-lived behat process, which kept it in the log store buffer until the run ended.
+    And I should see "2 of 2 records found" in the "#showEventList .wb-records-count-label" "css_element"
     And I should see "Title:" in the "#showEventList" "css_element"
     And I should see "Option-created" in the "#showEventList" "css_element"
     And I should see "Option-updated" in the "#showEventList" "css_element"
