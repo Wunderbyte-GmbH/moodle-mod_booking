@@ -410,6 +410,50 @@ final class db_waitlist_offer_repository implements waitlist_offer_repository {
     }
 
     /**
+     * Type 4 (waitlistrecycling=3): removes the K4 (expired) lock of a single user on this option.
+     * Never touches a reason=declined (K7) row - that lock is permanent regardless.
+     *
+     * @param int $optionid
+     * @param int $userid
+     * @return void
+     */
+    public function remove_expired_lock(int $optionid, int $userid): void {
+        global $DB;
+        $DB->delete_records('booking_waitlist_declines', [
+            'optionid' => $optionid,
+            'userid' => $userid,
+            'reason' => (new expired())->get_code(),
+        ]);
+    }
+
+    /**
+     * Type 4 backlog: users on options with waitlistrecycling=3 who are still on the waiting list
+     * despite a K4 (expired) lock. EXISTS instead of a join: a user with several waiting-list rows
+     * must still come back exactly once (bwd.id is unique per option and user, see lock_permanently()).
+     *
+     * @return \stdClass[] each with ->optionid and ->userid
+     */
+    public function find_expired_waiters_to_remove(): array {
+        global $DB;
+        $sql = "SELECT bwd.id, bwd.optionid, bwd.userid
+                  FROM {booking_waitlist_declines} bwd
+                  JOIN {booking_options} bo ON bo.id = bwd.optionid
+                 WHERE bo.waitlistrecycling = 3
+                   AND bwd.reason = :reason
+                   AND EXISTS (
+                         SELECT 1
+                           FROM {booking_answers} ba
+                          WHERE ba.optionid = bwd.optionid
+                            AND ba.userid = bwd.userid
+                            AND ba.waitinglist = :waitinglist
+                       )";
+        return array_values($DB->get_records_sql($sql, [
+            'reason' => (new expired())->get_code(),
+            'waitinglist' => MOD_BOOKING_STATUSPARAM_WAITINGLIST,
+        ]));
+    }
+
+    /**
      * Typ 2 ("offen nach Durchlauf"): whether this option's freed seat is currently open for
      * direct booking by anyone except K7-permanently-declined.
      *
