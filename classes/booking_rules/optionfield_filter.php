@@ -16,6 +16,7 @@
 
 namespace mod_booking\booking_rules;
 
+use context_system;
 use local_wunderbyte_table\local\customfield\wbt_field_controller_info;
 use mod_booking\customfield\booking_handler;
 use mod_booking\singleton_service;
@@ -111,7 +112,8 @@ class optionfield_filter {
                 continue;
             }
             $key = self::CUSTOMFIELDPREFIX . $customfield->shortname;
-            $fields[$key] = format_string($customfield->name) . " ($customfield->shortname)";
+            $fields[$key] = format_string($customfield->name, true, ['context' => context_system::instance()])
+                . " ($customfield->shortname)";
         }
 
         return $fields;
@@ -416,7 +418,9 @@ class optionfield_filter {
         foreach ($mapping as $storedvalue => $resolvedvalue) {
             $label = self::value_to_string($resolvedvalue);
             // The labels are language neutral, so they can still contain multilang tags.
-            $labels = [$label, format_string($label)];
+            // Rules run at the end of the request (shutdown), where $PAGE has no context anymore.
+            // So we always have to pass the context explicitly.
+            $labels = [$label, format_string($label, true, ['context' => context_system::instance()])];
             foreach ($labels as $comparelabel) {
                 if (\core_text::strtolower(trim($comparelabel)) === $needle) {
                     $storedvalues[] = (string) $storedvalue;
@@ -481,23 +485,34 @@ class optionfield_filter {
     }
 
     /**
-     * Returns the default values of all booking option customfields, keyed by shortname.
+     * Returns the default value of one booking option customfield.
      *
      * A booking option without an own value for a customfield still has the default value of this field.
      * The booking option settings return this default value as well, so the sql has to know about it too.
      *
-     * @return array
+     * @param string $shortname
+     * @return string
      */
-    private static function get_default_customfield_values(): array {
+    private static function get_default_value_of_customfield(string $shortname): string {
+        global $PAGE;
 
-        $defaults = [];
+        foreach (booking_handler::create()->get_fields() as $field) {
+            if ($field->get('shortname') !== $shortname) {
+                continue;
+            }
 
-        // Instance 0 does not exist, so every field returns its default value.
-        foreach (booking_handler::create()->get_instance_data(0, true) as $data) {
-            $defaults[$data->get_field()->get('shortname')] = self::value_to_string($data->get_value());
+            // Rules are executed at the very end of the request (see register_shutdown_function in lib.php).
+            // In AJAX requests, $PAGE has no context anymore at this point...
+            // ...but some field types format their default value, which needs a context.
+            // Passing null only sets the system context if there is no context yet, so a real context is never changed.
+            $PAGE->set_context(null);
+
+            // This is exactly how core builds the data of a field which has no value stored for an instance.
+            $data = \core_customfield\data_controller::create(0, (object) ['instanceid' => 0], $field);
+            return self::value_to_string($data->get_value());
         }
 
-        return $defaults;
+        return '';
     }
 
     /**
@@ -537,8 +552,8 @@ class optionfield_filter {
                 ) ";
 
         // If the default value of the field matches, booking options without an own value match as well.
-        $defaults = self::get_default_customfield_values();
-        if (self::value_matches($defaults[$shortname] ?? '', $positiveoperator, $values)) {
+        $default = self::get_default_value_of_customfield($shortname);
+        if (self::value_matches($default, $positiveoperator, $values)) {
             $params['optionfieldfiltershortname2'] = $shortname;
             $sql .= " OR NOT EXISTS (
                     SELECT 1
