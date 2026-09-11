@@ -78,11 +78,9 @@
     {{/freeonwaitinglist}}
 {{/maxoverbooking}}
 
-{{! Notification list places }}
+{{! Notification list places: bell icon + number. Kept on one line, so no extra spaces are rendered. }}
 {{#shownotificationlist}}
-    <span class="col-ap-notificationlistplaces">
-        ({{#str}} notificationlistshort, mod_booking {{/str}} {{notificationlistplaces}})
-    </span>
+    <span class="col-ap-notificationlistplaces" title="{{#str}} notificationlist, mod_booking {{/str}}">(<i class="fa fa-bell-o" aria-hidden="true"></i><span class="sr-only visually-hidden">{{#str}} notificationlist, mod_booking {{/str}}:</span>&nbsp;{{notificationlistplaces}})</span>
 {{/shownotificationlist}}
 
 {{#showmanageresponses}}

@@ -2591,7 +2591,6 @@ $string['notfullwaitinglist'] = 'Not full waitinglist';
 $string['notfullybooked'] = 'Not fully booked';
 $string['notificationlist'] = 'Notification list';
 $string['notificationlistdesc'] = 'When no place is available anymore, users can still register to be notified when there is an opening';
-$string['notificationlistshort'] = 'Notif.';
 $string['notificationtext'] = 'Notification message';
 $string['notifyemail'] = 'Participant notification before start';
 $string['notifyemailmessage'] = 'Your booking will start soon:
@@ -3565,7 +3564,7 @@ $string['showdetaildotsnextbookedalert_desc'] = 'If this option is activated, a 
 This button linkes to the detailview of that option.';
 $string['showinapi'] = 'Show in API?';
 $string['shownotificationlistplaces'] = 'Show number of places on the notification list';
-$string['shownotificationlistplaces_desc'] = 'If activated, the number of places on the notification list is shown in the column with the available places (e.g. "20 / 20 (Notif. 4)"). It can be overruled for a single shortcode with the argument <b>shownotificationlist=1</b> or <b>shownotificationlist=0</b>.';
+$string['shownotificationlistplaces_desc'] = 'If activated, the number of places on the notification list is shown with a bell icon in the column with the available places (e.g. "20 / 20 (bell icon 4)"). It can be overruled for a single shortcode with the argument <b>shownotificationlist=1</b> or <b>shownotificationlist=0</b>.';
 $string['showlistoncoursepage'] = 'Show extra information on course page';
 $string['showlistoncoursepage_help'] = 'If you activate this setting, the course name, a short info and a button
                                             redirecting to the available booking options will be shown.';
