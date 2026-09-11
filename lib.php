@@ -1965,6 +1965,30 @@ function booking_require_report_login(stdClass $course, $cm = null): void {
 }
 
 /**
+ * Login check for the booking option form (editoptions.php).
+ *
+ * By default (setting "editoptionsrequirecourselogin" enabled), the user has to be enrolled in the course
+ * (or the course must allow guest access), like require_course_login() does.
+ * If the setting is disabled, a site login is enough. The page course/cm/context are still set,
+ * so the capability checks of the form keep working in the right context.
+ *
+ * @param stdClass $course the course record
+ * @param cm_info|stdClass $cm the course module
+ * @return void
+ */
+function booking_require_editoptions_login(stdClass $course, $cm): void {
+    global $PAGE;
+
+    if (get_config('booking', 'editoptionsrequirecourselogin') !== '0') {
+        require_course_login($course, false, $cm);
+        return;
+    }
+
+    require_login(0, false);
+    $PAGE->set_cm($cm, $course);
+}
+
+/**
  * Check if logged in user is a teacher, responsible contact, or the creator of the passed option.
  * @param mixed|int $optionoroptionid optional option class or optionid
  * @param int $userid optional userid, if none is provided, we use the logged-in $USER->id

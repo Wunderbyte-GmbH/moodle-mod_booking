@@ -1350,6 +1350,14 @@ if ($ADMIN->fulltree) {
                 1
             )
         );
+        $settings->add(
+            new admin_setting_configcheckbox(
+                'booking/editoptionsrequirecourselogin',
+                get_string('editoptionsrequirecourselogin', 'mod_booking'),
+                get_string('editoptionsrequirecourselogin_desc', 'mod_booking'),
+                1
+            )
+        );
         $records = $DB->get_records_sql("SELECT b.id, b.name FROM {booking} b ORDER BY b.name");
         if (empty($records)) {
             $bookinginstances[0] = get_string('nobookinginstancesexist', 'mod_booking');
