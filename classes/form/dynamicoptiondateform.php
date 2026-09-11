@@ -148,7 +148,7 @@ class dynamicoptiondateform extends dynamic_form {
     protected function get_context_for_dynamic_submission(): context {
         $cmid = $this->_ajaxformdata['cmid'];
         if (!$cmid) {
-            $cmid = $this->optional_param('cmid', '', PARAM_RAW);
+            $cmid = $this->optional_param('cmid', 0, PARAM_INT);
         }
         return context_module::instance($cmid);
     }
@@ -166,7 +166,7 @@ class dynamicoptiondateform extends dynamic_form {
     protected function get_page_url_for_dynamic_submission(): moodle_url {
         $cmid = $this->_ajaxformdata['cmid'];
         if (!$cmid) {
-            $cmid = $this->optional_param('cmid', '', PARAM_RAW);
+            $cmid = $this->optional_param('cmid', 0, PARAM_INT);
         }
         return new moodle_url('/mod/booking/editoptions.php', ['id' => $cmid]);
     }

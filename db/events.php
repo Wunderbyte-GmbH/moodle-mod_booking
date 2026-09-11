@@ -103,6 +103,14 @@ $observers = [
         'callback' => 'mod_booking_observer::group_membership_changed',
     ],
     [
+        'eventname' => '\core\event\cohort_member_added',
+        'callback' => 'mod_booking_observer::cohort_membership_changed',
+    ],
+    [
+        'eventname' => '\core\event\cohort_member_removed',
+        'callback' => 'mod_booking_observer::cohort_membership_changed',
+    ],
+    [
         'eventname' => '*',
         'callback' => 'mod_booking_observer::execute_rule',
     ],
@@ -137,6 +145,18 @@ $observers = [
     [
         'eventname' => '\core\event\competency_user_competency_rated_in_course',
         'callback' => 'mod_booking_observer::competency_user_competency_rated_in_course',
+    ],
+    [
+        'eventname' => '\core_customfield\event\field_created',
+        'callback' => 'mod_booking_observer::customfield_created_updated_deleted',
+    ],
+    [
+        'eventname' => '\core_customfield\event\field_updated',
+        'callback' => 'mod_booking_observer::customfield_created_updated_deleted',
+    ],
+    [
+        'eventname' => '\core_customfield\event\field_deleted',
+        'callback' => 'mod_booking_observer::customfield_created_updated_deleted',
     ],
 ];
 

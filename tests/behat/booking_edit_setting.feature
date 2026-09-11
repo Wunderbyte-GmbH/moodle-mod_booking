@@ -42,7 +42,6 @@ Feature: Edit booking's organizer, info and semester settings as a teacher or ad
     And I expand the "Organizer name" autocomplete
     And I should see "Teacher 1" in the "#fitem_id_organizatorname .form-autocomplete-suggestions" "css_element"
     And I click on "Teacher 1" "text" in the "#fitem_id_organizatorname .form-autocomplete-suggestions" "css_element"
-    And I wait "1" seconds
     And I press "Save and display"
     Then I should see "Organizer name" in the "#booking-business-card" "css_element"
     And I should see "Teacher 1" in the "#booking-business-card" "css_element"
@@ -102,17 +101,15 @@ Feature: Edit booking's organizer, info and semester settings as a teacher or ad
     Given the following "mod_booking > options" exist:
       | booking    | text                      | course | description  | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 | teachersforoption |
       | My booking | Booking option - Teachers | C1     | Option deskr | 0              | 0              | ## tomorrow ##    | ## +2 days ##   | teacher1          |
-    And I log in as "admin"
-    And I set the following administration settings values:
-      | Login for teacher pages not necessary | |
-    And I log out
+    And the following config values are set as admin:
+      | config                  | value | plugin  |
+      | teachersnologinrequired | 0     | booking |
     And I visit "/mod/booking/teachers.php"
     And I wait to be redirected
     And I should see "Log in to" in the "#region-main" "css_element"
-    And I log in as "admin"
-    And I set the following administration settings values:
-      | Login for teacher pages not necessary | 1 |
-    And I log out
+    And the following config values are set as admin:
+      | config                  | value | plugin  |
+      | teachersnologinrequired | 1     | booking |
     And I visit "/mod/booking/teachers.php"
     And I wait until the page is ready
     Then I should see "1 Teacher" in the ".page-allteachers-card" "css_element"
@@ -124,21 +121,19 @@ Feature: Edit booking's organizer, info and semester settings as a teacher or ad
     Given the following "mod_booking > options" exist:
       | booking    | text                      | course | description  | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 | teachersforoption |
       | My booking | Booking option - Teachers | C1     | Option deskr | 0              | 0              | ## tomorrow ##    | ## +2 days ##   | teacher1          |
-    And I log in as "admin"
-    And I set the following administration settings values:
-      | Login for teacher pages not necessary             | 1 |
-      | Always show teacher's email addresses to everyone |   |
-    And I log out
+    And the following config values are set as admin:
+      | config                  | value | plugin  |
+      | teachersnologinrequired | 1     | booking |
+      | teachersshowemails      | 0     | booking |
     When I visit "/mod/booking/teachers.php"
     Then I should see "1 Teacher" in the ".page-allteachers-card" "css_element"
     And I should not see "Mail" in the ".page-allteachers-card" "css_element"
     And I follow "Teacher"
     And I should see "1 Teacher" in the ".card-title" "css_element"
     And I should not see "teacher1@example.com" in the ".card-title" "css_element"
-    And I log in as "admin"
-    And I set the following administration settings values:
-      | Always show teacher's email addresses to everyone | 1 |
-    And I log out
+    And the following config values are set as admin:
+      | config             | value | plugin  |
+      | teachersshowemails | 1     | booking |
     And I visit "/mod/booking/teachers.php"
     And I should see "1 Teacher" in the ".page-allteachers-card" "css_element"
     And I should see "Mail" in the ".page-allteachers-card" "css_element"
@@ -148,14 +143,15 @@ Feature: Edit booking's organizer, info and semester settings as a teacher or ad
 
   @javascript
   Scenario: Booking settings - hide branding info
-    Given I log in as "admin"
-    When I set the following administration settings values:
-      | Do not show Wunderbyte logo and link | |
-    And I am on the "My booking" Activity page
+    Given the following config values are set as admin:
+      | config                | value | plugin  |
+      | turnoffwunderbytelogo | 0     | booking |
+    When I am on the "My booking" Activity page logged in as admin
     And I should see "Booking module created by Wunderbyte GmbH" in the "#region-main" "css_element"
-    And I set the following administration settings values:
-      | Do not show Wunderbyte logo and link | 1 |
-    And I am on the "My booking" Activity page
+    And the following config values are set as admin:
+      | config                | value | plugin  |
+      | turnoffwunderbytelogo | 1     | booking |
+    And I reload the page
     Then I should not see "Booking module created by Wunderbyte GmbH" in the "#region-main" "css_element"
 
   @javascript
@@ -192,27 +188,17 @@ Feature: Edit booking's organizer, info and semester settings as a teacher or ad
   Scenario: Booking settings: control presence of strings on all settings pages
     Given I log in as "admin"
     And I visit "/admin/search.php#linkmodules"
-    And I wait "1" seconds
     And I visit "/mod/booking/optionformconfig.php?cmid=0"
-    And I wait "1" seconds
     And I visit "/mod/booking/customfield.php"
-    And I wait "1" seconds
     ## Recommended from G.M.
     And I visit "/admin/roles/manage.php"
-    And I wait "1" seconds
     ## Edit Teacher role to check missing strings on capabilities.
     And I visit "/admin/roles/define.php?action=view&roleid=3"
-    And I wait "1" seconds
-    And I visit "/admin/webservice/testclient.php"
-    And I wait "1" seconds
     And I visit "/admin/webservice/documentation.php"
-    And I wait "1" seconds
-    And I visit "/cache/admin.php"
-    And I wait "1" seconds
     And I visit "/admin/tool/behat/index.php"
     And I set the field "component" to "behat_mod_booking"
     And I press "Filter"
-    And I should see "Create booking option in booking instance" in the ".steps-definitions .step" "css_element"
+    And I should see "I create booking option" in the ".steps-definitions" "css_element"
     ## Already tested in other feature/
     ##And I visit "/mod/booking/instancetemplatessettings.php"
     ##And I visit "/mod/booking/semesters.php"
@@ -234,13 +220,13 @@ Feature: Edit booking's organizer, info and semester settings as a teacher or ad
     And I should see "E-mail settings" in the "#id_emailsettings" "css_element"
     And I should see "Deprecated" in the "#id_emailsettings" "css_element"
     And I expand all fieldsets
+    And I wait until ".collapsing" "css_element" does not exist
     And I should see "Booking confirmation" in the "#id_emailsettings" "css_element"
     And I should see "Teacher notification before start" in the "#id_emailsettings" "css_element"
     And I should see "Status change message" in the "#id_emailsettings" "css_element"
-    ## The only way to remove setting for some reason
-    And I visit "/admin/category.php?category=modbookingfolder"
-    And I set the field "Still use legacy mail templates" to ""
-    And I press "Save"
+    And the following config values are set as admin:
+      | config                 | value | plugin  |
+      | uselegacymailtemplates | 0     | booking |
     And I am on the "My booking" Activity page
     And I follow "Settings"
     And I wait until the page is ready
@@ -256,10 +242,8 @@ Feature: Edit booking's organizer, info and semester settings as a teacher or ad
       | My booking | LinkOnBooked | student1 |
     And I am on the "My booking" Activity page logged in as student1
     And I should see "Start" in the ".allbookingoptionstable_r1" "css_element"
-    And I log out
-    And I log in as "admin"
-    And I set the following administration settings values:
-      | Show Link to Moodle course directly on booked button |  |
-    And I log out
+    And the following config values are set as admin:
+      | config                           | value | plugin  |
+      | linktomoodlecourseonbookedbutton | 0     | booking |
     And I am on the "My booking" Activity page logged in as student1
     And I should see "Booked" in the ".allbookingoptionstable_r1" "css_element"

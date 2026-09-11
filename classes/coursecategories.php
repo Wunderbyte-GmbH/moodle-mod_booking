@@ -40,14 +40,17 @@ class coursecategories {
         global $DB;
 
         $wherearray = [];
+        $params = ['contextcoursecat' => CONTEXT_COURSECAT];
 
         if (!empty($categoryid)) {
-            $wherearray[] = 'coca.id = ' . $categoryid;
+            $wherearray[] = 'coca.id = :categoryid';
+            $params['categoryid'] = $categoryid;
         }
 
         if ($onlyparents) {
             $wherearray[] = 'coca.parent = 0';
         }
+        $where = '';
         if (!empty($wherearray)) {
             $where = 'WHERE ' . implode(' AND ', $wherearray);
         }
@@ -59,10 +62,10 @@ class coursecategories {
                        coca.coursecount,
                        c.id as contextid
                 FROM {course_categories} coca
-                JOIN {context} c ON c.instanceid=coca.id AND c.contextlevel = 40
+                JOIN {context} c ON c.instanceid=coca.id AND c.contextlevel = :contextcoursecat
                 $where";
 
-        return $DB->get_records_sql($sql);
+        return $DB->get_records_sql($sql, $params);
     }
 
     /**
@@ -100,7 +103,10 @@ class coursecategories {
                 FROM {customfield_field} cff
                 JOIN {customfield_data} cfd ON cff.id = cfd.fieldid
                 JOIN {customfield_category} cfc ON cff.categoryid = cfc.id
-                WHERE cff.shortname =:firstadditionalcount AND cfc.component='mod_booking' AND cfd.charvalue <> ''
+                WHERE cff.shortname =:firstadditionalcount
+                AND cfc.component='mod_booking'
+                AND cfc.area = 'booking'
+                AND cfd.charvalue <> ''
                 GROUP BY optionid
                 ) s4 ON s4.optionid = bo.id
             ";
@@ -118,7 +124,10 @@ class coursecategories {
                 FROM {customfield_field} cff
                 JOIN {customfield_data} cfd ON cff.id = cfd.fieldid
                 JOIN {customfield_category} cfc ON cff.categoryid = cfc.id
-                WHERE cff.shortname =:secondadditionalcount AND cfc.component='mod_booking' AND cfd.charvalue <> ''
+                WHERE cff.shortname =:secondadditionalcount
+                AND cfc.component='mod_booking'
+                AND cfc.area = 'booking'
+                AND cfd.charvalue <> ''
                 GROUP BY optionid
                 ) s6 ON s6.optionid = bo.id
             ";

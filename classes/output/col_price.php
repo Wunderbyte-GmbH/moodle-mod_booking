@@ -106,7 +106,10 @@ class col_price implements renderable, templatable {
                 case MOD_BOOKING_STATUSPARAM_NOTBOOKED:
                 case MOD_BOOKING_STATUSPARAM_DELETED:
                 case MOD_BOOKING_STATUSPARAM_NOTIFYMELIST:
-                    if ($this->priceitem = price::get_price('option', $values->id, $buyforuser)) {
+                    if (
+                        ($this->priceitem = price::get_price('option', $values->id, $buyforuser))
+                        && class_exists('local_shopping_cart\local\entities\cartitem')
+                    ) {
                         $cartitem = new cartitem(
                             $values->id,
                             $settings->get_title_with_prefix(),

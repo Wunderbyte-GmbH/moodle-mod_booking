@@ -96,4 +96,16 @@ interface bookingextension_interface {
      *
      */
     public static function get_allowedruleeventkeys(): array;
+
+    /**
+     * Return a booking history description for this extension, if applicable.
+     *
+     * Return an empty string when the history entry does not belong to this
+     * extension or when no custom description should be rendered.
+     *
+     * @param \stdClass $values booking history row values
+     * @param array $info decoded json payload from booking_history.json
+     * @return string
+     */
+    public static function get_booking_history_description(\stdClass $values, array $info): string;
 }

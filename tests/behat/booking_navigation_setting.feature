@@ -29,18 +29,24 @@ Feature: Configure and use booking's pagination and perform filtering - as a tea
     And I create booking option "Booking Option 5" in "My booking"
     And I change viewport size to "1366x10000"
 
-  @javascript
+  @javascript @accessibility
   Scenario: Configure pagination and navigate pages with list of booking options
     Given I am on the "My booking" Activity page logged in as teacher1
     And I should see "Booking Option 1" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Booking Option 5" in the ".allbookingoptionstable_r5" "css_element"
     And "//div[contains(@class, 'allbookingoptionstable')]//ul[@class='pagination']" "xpath_element" should not exist
-    When I follow "Settings"
+    ## Validate accessibility of booking options table before booking
+    ##And the page should meet accessibility standards (disabled due to 1 violation in Moodle core)
+    And I follow "Settings"
     And I follow "Advanced options"
-    And I wait "1" seconds
+    ## Validate accessibility of booking options table before booking
+    ##And the page should meet accessibility standards (disabled due to 4 violations in Moodle core)
     And I set the field "paginationnum" to "3"
     And I press "Save and display"
+    When I am on the "My booking" Activity page logged in as student1
     And "//div[contains(@class, 'allbookingoptionstable')]//ul[@class='pagination']" "xpath_element" should exist
+    ## Validate accessibility of booking options table before booking
+    And the page should meet accessibility standards
     Then I should see "1" in the ".allbookingoptionstable .pagination" "css_element"
     And I should see "2" in the ".allbookingoptionstable .pagination" "css_element"
     And I should see "Booking Option 1" in the ".allbookingoptionstable_r1" "css_element"
@@ -52,25 +58,29 @@ Feature: Configure and use booking's pagination and perform filtering - as a tea
     And I should see "Booking Option 4" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Booking Option 5" in the ".allbookingoptionstable_r2" "css_element"
 
-  @javascript
+  @javascript @accessibility
   Scenario: Filter of list of booking options including if pagination
-    Given I am on the "My booking" Activity page logged in as teacher1
+    Given I am on the "My booking" Activity page logged in as student1
     And I should see "Booking Option 1" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Booking Option 5" in the ".allbookingoptionstable_r5" "css_element"
     And "//div[contains(@class, 'allbookingoptionstable')]//ul[@class='pagination']" "xpath_element" should not exist
     ## Set filter without pagination
     And I set the field "Search" in the ".allbookingoptionstable" "css_element" to "Option 4"
-    And I wait "1" seconds
+    ## Validate accessibility of booking options table before booking
+    And the page should meet accessibility standards
     And I should see "Booking Option 4" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "1 of 5 records found" in the ".allbookingoptionstable .wb-records-count-label" "css_element"
     And I set the field "Search" in the ".allbookingoptionstable" "css_element" to ""
-    ## Set pagination witout filter
-    When I follow "Settings"
-    And I follow "Advanced options"
-    And I wait "1" seconds
-    And I set the field "paginationnum" to "3"
-    And I press "Save and display"
-    And I wait until the page is ready
+    ## Pagination without filter: a second instance seeded with paginationnum 3 (the form path is covered above)
+    And the following "activities" exist:
+      | activity | course | name          | intro | bookingmanager | eventtype | Default view for booking options | paginationnum |
+      | booking  | C1     | Paged booking | Descr | teacher1       | Webinar   | All bookings                     | 3             |
+    And I create booking option "Booking Option 1" in "Paged booking"
+    And I create booking option "Booking Option 2" in "Paged booking"
+    And I create booking option "Booking Option 3" in "Paged booking"
+    And I create booking option "Booking Option 4" in "Paged booking"
+    And I create booking option "Booking Option 5" in "Paged booking"
+    And I am on the "Paged booking" Activity page
     And "//div[contains(@class, 'allbookingoptionstable')]//ul[@class='pagination']" "xpath_element" should exist
     Then I should see "1" in the ".allbookingoptionstable .pagination" "css_element"
     And I should see "2" in the ".allbookingoptionstable .pagination" "css_element"

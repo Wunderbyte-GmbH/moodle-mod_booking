@@ -15,14 +15,10 @@
 // along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 namespace mod_booking\external;
-use external_api;
-use external_function_parameters;
-use external_value;
+use core_external\external_api;
+use core_external\external_function_parameters;
+use core_external\external_value;
 use mod_booking\booking_option;
-
-defined('MOODLE_INTERNAL') || die();
-
-require_once($CFG->libdir . '/externallib.php');
 
 /**
  * Provides the mod_booking_search_booking_options external function.
@@ -43,6 +39,8 @@ class search_booking_options extends external_api {
 
         return new external_function_parameters([
             'query' => new external_value(PARAM_TEXT, 'The search query', VALUE_REQUIRED),
+            'bookingid' => new external_value(PARAM_INT, 'Optional booking instance id filter', VALUE_DEFAULT, 0),
+            'cmid' => new external_value(PARAM_INT, 'Optional course module id filter', VALUE_DEFAULT, 0),
         ]);
     }
 
@@ -50,15 +48,28 @@ class search_booking_options extends external_api {
      * Finds booking options matching the given query.
      *
      * @param string $query The search request.
+     * @param int $bookingid Optional booking instance id filter.
+     * @param int $cmid Optional course module id filter.
      * @return array
      */
-    public static function execute(string $query): array {
+    public static function execute(string $query, int $bookingid = 0, int $cmid = 0): array {
 
         $params = self::validate_parameters(self::execute_parameters(), [
             'query' => $query,
+            'bookingid' => $bookingid,
+            'cmid' => $cmid,
         ]);
 
-        return booking_option::load_booking_options($params['query']);
+        // This autocomplete backend searches across all booking options,
+        // so it is restricted to users who may edit booking options anywhere.
+        self::validate_context(\context_system::instance());
+        \mod_booking\permissions::require_any_booking_editing_capability();
+
+        return booking_option::load_booking_options_filtered(
+            $params['query'],
+            (int)$params['bookingid'],
+            (int)$params['cmid']
+        );
     }
 
     /**
@@ -66,18 +77,18 @@ class search_booking_options extends external_api {
      *
      * @return external_single_structure
      */
-    public static function execute_returns(): \external_single_structure {
+    public static function execute_returns(): \core_external\external_single_structure {
 
-        return new \external_single_structure([
-            'list' => new \external_multiple_structure(
-                new \external_single_structure([
-                    'id' => new \external_value(\core_user::get_property_type('id'), 'ID of the booking option'),
-                    'titleprefix' => new \external_value(PARAM_TEXT, 'Prefix of the booking option name'),
-                    'text' => new \external_value(PARAM_TEXT, 'Name of the booking option'),
-                    'instancename' => new \external_value(PARAM_TEXT, 'Name of the booking instance'),
+        return new \core_external\external_single_structure([
+            'list' => new \core_external\external_multiple_structure(
+                new \core_external\external_single_structure([
+                    'id' => new \core_external\external_value(\core_user::get_property_type('id'), 'ID of the booking option'),
+                    'titleprefix' => new \core_external\external_value(PARAM_TEXT, 'Prefix of the booking option name'),
+                    'text' => new \core_external\external_value(PARAM_TEXT, 'Name of the booking option'),
+                    'instancename' => new \core_external\external_value(PARAM_TEXT, 'Name of the booking instance'),
                 ])
             ),
-            'warnings' => new \external_value(PARAM_TEXT, 'Warnings'),
+            'warnings' => new \core_external\external_value(PARAM_TEXT, 'Warnings'),
         ]);
     }
 }

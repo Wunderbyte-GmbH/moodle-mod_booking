@@ -34,7 +34,6 @@
 .loading-animation {
   display: inline-block;
   height: 1.25rem; /* Adjust height as per your design */
-  background-color: #252222; /* Placeholder color */
   border-radius: 0.5rem;
   background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(143, 139, 139, 0.5) 50%, rgba(255, 255, 255, 0) 100%);
   background-size: 200% 100%;

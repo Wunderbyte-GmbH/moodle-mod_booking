@@ -36,11 +36,13 @@ require_login();
 $action = required_param('action', PARAM_ALPHA);
 $optionid = required_param('optionid', PARAM_INT);
 $userid = required_param('userid', PARAM_INT);
+$confirm = optional_param('confirm', 0, PARAM_BOOL);
 
 $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 $cmid = $settings->cmid;
 [$course, $cm] = get_course_and_cm_from_cmid($cmid, 'booking');
-$context = context_system::instance();
+// Use the module context of the booking instance the option belongs to.
+$context = context_module::instance($cmid);
 
 $url = new moodle_url('/mod/booking/unsubscribe.php', [
     'action' => $action,
@@ -50,10 +52,29 @@ $url = new moodle_url('/mod/booking/unsubscribe.php', [
 $PAGE->set_url($url);
 $PAGE->set_context($context);
 
+// The link usually comes from an e-mail and therefore cannot carry a sesskey,
+// so we ask for confirmation first and only perform the action on the
+// sesskey-protected continue request (CSRF protection).
+if (empty($confirm) || !confirm_sesskey()) {
+    $continueurl = new moodle_url($url, ['confirm' => 1, 'sesskey' => sesskey()]);
+    $cancelurl = new moodle_url('/mod/booking/view.php', ['id' => $cmid]);
+    echo $OUTPUT->header();
+    echo $OUTPUT->confirm(
+        get_string('unsubscribe:confirmnotification', 'mod_booking', $settings->get_title_with_prefix()),
+        $continueurl,
+        $cancelurl
+    );
+    echo $OUTPUT->footer();
+    die();
+}
+
 $messagetoshow = "<div class='alert alert-danger'>unknown error</div>";
 
 switch ($action) {
     case 'notification':
+        // No capability is required here on purpose: this is a self-service action
+        // (e.g. from an unsubscribe link in a notification e-mail) which only ever
+        // removes the CURRENT user's own entry from the notification list.
         // Unsubscribing is currently only possible for oneself.
         // So we prevent misuse (a user with bad intentions could unsubscribe another user).
         if ($userid != $USER->id) {

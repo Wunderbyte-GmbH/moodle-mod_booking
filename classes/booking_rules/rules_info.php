@@ -284,7 +284,7 @@ class rules_info {
     /**
      * Save all booking rules.
      * @param stdClass $data reference to the form data
-     * @return void
+     * @return int
      */
     public static function save_booking_rule(stdClass &$data) {
 
@@ -300,10 +300,11 @@ class rules_info {
 
         // Rule has to be saved last, because it actually writes to DB.
         $ruleid = $rule->save_rule($data);
+        $data->id = $ruleid;
 
         self::execute_booking_rules($ruleid);
 
-        return;
+        return $ruleid;
     }
 
     /**
@@ -380,7 +381,7 @@ class rules_info {
         global $DB;
         // Only fetch rules which need to be reapplied. At the moment, it's just one.
         // Eventbased rules don't have to be reapplied.
-        if ($records = $DB->get_records('booking_rules', ['rulename' => 'rule_daysbefore'])) {
+        if ($records = $DB->get_records_list('booking_rules', 'rulename', ['rule_daysbefore', 'rule_specifictime'])) {
             foreach ($records as $record) {
                 if (!$rule = self::get_rule($record->rulename)) {
                     continue;
@@ -423,15 +424,40 @@ class rules_info {
                 return;
             };
         }
-        // Triggered again with optionid 1 ??
-        $optionid = $event->objectid ?? $data['other']['itemid'] ?? 0;
+        // Resolve booking option id from event payload.
+        // For some events (e.g. bookingextension_todolist item events) objectid is not the option id.
+        $optionid = (int)($data['other']['optionid'] ?? 0);
+        if (empty($optionid)) {
+            $optionid = (int)($event->objectid ?? 0);
+        }
+        if (empty($optionid) && !empty($data['other']['itemid'])) {
+            $optionid = (int)$data['other']['itemid'];
+        }
         $eventname = "\\" . get_class($event);
 
         $contextid = $event->contextid;
         $records = booking_rules::get_list_of_saved_rules_by_context($contextid, $eventname);
-
         // There are cases where an event is triggered twice in a very narrow timespan.
         $data['timecreated'] = strtotime(date('Y-m-d H:00:00', ($data['timecreated'] ?? time()) + 3600));
+
+        // Normalize loosely-typed event scalars before embedding them into rulejson: two
+        // independent triggers of the same underlying event (e.g. two call sites both
+        // reacting to the same cancellation) must serialize identically, or
+        // \core\task\manager::reschedule_or_queue_adhoc_task()'s exact-string customdata
+        // comparison silently fails to deduplicate and both triggers get their own task/mail
+        // (K5 in WAITLIST_REFACTOR_REQUIREMENTS_2026-08-04.md). userid in particular can reach
+        // here as either int or string depending on whether the caller went through a
+        // type-hinted function (e.g. booking_option::check_if_free_to_book_again(int $userid))
+        // or passed a raw value (e.g. straight from a DB record) to the event's create().
+        if (isset($data['userid'])) {
+            $data['userid'] = (int) $data['userid'];
+        }
+        if (isset($data['objectid'])) {
+            $data['objectid'] = (int) $data['objectid'];
+        }
+        if (isset($data['relateduserid'])) {
+            $data['relateduserid'] = (int) $data['relateduserid'];
+        }
 
         // Now we check all the existing rules from booking.
         foreach ($records as $record) {
@@ -447,14 +473,13 @@ class rules_info {
             $rule->set_ruledata($record);
 
             // We only execute if the rule in question listens to the right event.
-            if (!empty($rule->boevent)) {
-                if ($data['eventname'] == $rule->boevent) {
-                    self::$rulestoexecute[] = [
-                        'optionid' => $optionid,
-                        'rule' => $rule,
-                        'ruleid' => $rule->ruleid,
-                    ];
-                }
+            if (!empty($rule->boevent) && $data['eventname'] == $rule->boevent) {
+                self::$rulestoexecute[] = [
+                    'optionid' => $optionid,
+                    'userid' => 0,
+                    'rule' => $rule,
+                    'ruleid' => $rule->ruleid,
+                ];
             }
         }
     }
@@ -515,7 +540,7 @@ class rules_info {
             // Make sure we don't execute this multiple times.
             unset($rulestoexecute[$key]);
             unset(self::$rulestoexecute[$key]);
-            $rule->execute($rulearray['optionid'], 0);
+            $rule->execute($rulearray['optionid'], $rulearray['userid'] ?? 0);
         }
     }
 
@@ -573,6 +598,7 @@ class rules_info {
      */
     public static function destroy_singletons() {
         self::$rulestoexecute = [];
+        self::$rulestocancel = [];
         self::$eventstoexecute = [];
     }
 }

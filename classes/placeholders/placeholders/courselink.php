@@ -41,7 +41,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @author Georg Maißer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class courselink {
+class courselink extends \mod_booking\placeholders\placeholder_base {
     /**
      * Function which takes a text, replaces the placeholders...
      * ... and returns the text with the correct values.
@@ -105,6 +105,16 @@ class courselink {
      *
      */
     public static function is_applicable(): bool {
+        return true;
+    }
+
+    /**
+     * This placeholder is supported in the sign-in sheet HTML template.
+     *
+     * @return bool
+     *
+     */
+    public static function for_signinsheet(): bool {
         return true;
     }
 }

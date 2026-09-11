@@ -73,6 +73,15 @@ class availability extends field_base {
     public static $alternativeimportidentifiers = [
         'boavenrolledincourse',
         'boavenrolledincohorts',
+        'bo_cond_enrolledincourse_restrict',
+        'bo_cond_enrolledincohorts_restrict',
+        'bo_cond_hascompetency_restrict',
+        'bo_cond_previouslybooked_restrict',
+        'bo_cond_selectusers_restrict',
+        'bo_cond_nooverlapping_restrict',
+        'bo_cond_allowedtobookininstance_restrict',
+        'bo_cond_userprofilefield_1_default_restrict',
+        'bo_cond_userprofilefield_2_custom_restrict',
         'bo_cond_customform_restrict',
     ];
 
@@ -109,7 +118,7 @@ class availability extends field_base {
         bookingopeningtime::prepare_save_field($formdata, $newoption, $updateparam);
         bookingclosingtime::prepare_save_field($formdata, $newoption, $updateparam);
 
-        $newoption->availability = $formdata->availability;
+        $newoption->availability = $formdata->availability ?? '[]';
         if (empty($newoption->sqlfilter)) {
             $newoption->sqlfilter = $formdata->sqlfilter;
         }
@@ -158,7 +167,10 @@ class availability extends field_base {
             if (!empty($data->availability)) {
                 $availability = $data->availability;
             } else {
-                $availability = $settings->availability ?? "{}";
+                $availability = $settings->availability ?? "[]";
+                if (empty($availability)) {
+                    $availability = "[]";
+                }
                 $data->availability = $availability;
             }
 
@@ -197,14 +209,27 @@ class availability extends field_base {
                 unset($data->boavenrolledincohortsoperator);
             }
         } else {
-            $availability = $settings->availability ?? "{}";
+            $availability = $settings->availability ?? "[]";
             bookingopeningtime::set_data($data, $settings);
             bookingclosingtime::set_data($data, $settings);
         }
 
         if (!empty($availability)) {
             $jsonobject = json_decode($availability);
-            bo_info::set_defaults($data, $jsonobject);
+
+            if (!empty($data->importing)) {
+                // Preserve explicitly imported condition values and only backfill missing fields
+                // from the existing availability JSON.
+                $defaultvalues = new stdClass();
+                bo_info::set_defaults($defaultvalues, $jsonobject);
+                foreach ($defaultvalues as $key => $value) {
+                    if (!isset($data->{$key})) {
+                        $data->{$key} = $value;
+                    }
+                }
+            } else {
+                bo_info::set_defaults($data, $jsonobject);
+            }
         }
     }
 
@@ -214,7 +239,7 @@ class availability extends field_base {
      * @param stdClass $formdata
      * @param field_base $self
      * @param mixed $mockdata // Only needed if there the object needs params for the save_data function.
-     * @param string $key
+     * @param string|null $key
      * @param mixed $value
      *
      * @return array
@@ -224,7 +249,7 @@ class availability extends field_base {
         stdClass $formdata,
         field_base $self,
         $mockdata = '',
-        string $key = '',
+        string|null $key = null,
         $value = ''
     ): array {
 

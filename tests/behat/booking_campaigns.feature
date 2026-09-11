@@ -51,13 +51,11 @@ Feature: Create booking campaigns for booking options as admin and booking it as
       | Booking limit factor         | 2                  |
     ## Mandatory workaround for autocomplete field
     And I set the field "Booking option field" to "Sport1"
-    And I wait "1" seconds
     And I set the field "Value" to "tenis"
     And I click on "Save changes" "button"
     And I wait until the page is ready
     And I should see "campaign1"
     And I click on "Edit" "text" in the ".booking-campaigns-list" "css_element"
-    And I wait "1" seconds
     And I set the field "Custom name for the campaign" to "campaign1"
     And I click on "Save changes" "button"
     And I wait until the page is ready
@@ -77,13 +75,11 @@ Feature: Create booking campaigns for booking options as admin and booking it as
       | Message when blocking          | BlockAbove30       |
     ## Mandatory workaround for autocomplete field
     And I set the field "Booking option field" to "Sport1"
-    And I wait "1" seconds
     And I set the field "Value" to "tenis"
     And I click on "Save changes" "button"
     And I wait until the page is ready
     And I should see "blogcampaign1"
     And I click on "Edit" "text" in the ".booking-campaigns-list" "css_element"
-    And I wait "1" seconds
     And I set the field "Custom name for the campaign" to "blockingcampaign1"
     And I click on "Save changes" "button"
     And I wait until the page is ready
@@ -102,13 +98,15 @@ Feature: Create booking campaigns for booking options as admin and booking it as
     And I should see "44.00 EUR" in the ".allbookingoptionstable_r2 .pricecurrency" "css_element"
     And I should see "/ 2" in the ".allbookingoptionstable_r2 .col-ap-availableplaces" "css_element"
 
-  @javascript
+  @javascript @accessibility
   Scenario: Booking campaigns: create bloking booking campaign via DB view and book as students
     Given the following "mod_booking > campaigns" exist:
       | name      | type | json                                                                                                                                                                                                                                        | starttime   | endtime        | pricefactor | limitfactor |
       | campaign3 | 1    | {"bofieldname":"spt1","fieldvalue":"yoga","blockoperator":"blockabove","blockinglabel":"Above30","hascapability":null,"percentageavailableplaces":30, "campaignfieldnameoperator" : "=", "cpfield" : "", "cpoperator" : "", "cpvalue" : ""} | ## today ## | ## + 1 year ## | 1           | 1           |
     ## Verify "above" blocking campaign - student1 can book
     When I am on the "BookingCMP" Activity page logged in as student1
+    ## Validate accessibility of booking options table before booking
+    And the page should meet accessibility standards
     And I should see "Option-football" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "88.00 EUR" in the ".allbookingoptionstable_r1 .pricecurrency" "css_element"
     And I should see "/ 2" in the ".allbookingoptionstable_r1 .col-ap-availableplaces" "css_element"
@@ -119,6 +117,8 @@ Feature: Create booking campaigns for booking options as admin and booking it as
     And I should see "Book now" in the ".allbookingoptionstable_r3 .booknow" "css_element"
     And I should see "/ 3" in the ".allbookingoptionstable_r3 .col-ap-availableplaces" "css_element"
     And I click on "Book now" "text" in the ".allbookingoptionstable_r3 .booknow" "css_element"
+    ## Validate accessibility of booking options table before booking
+    And the page should meet accessibility standards
     And I should see "Click again to confirm booking" in the ".allbookingoptionstable_r3" "css_element"
     And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r3" "css_element"
     And I should see "Start" in the ".allbookingoptionstable_r3" "css_element"
@@ -132,11 +132,17 @@ Feature: Create booking campaigns for booking options as admin and booking it as
     And I am on the "BookingCMP" Activity page logged in as admin
     And I should see "Above30" in the ".allbookingoptionstable_r3 .booknow" "css_element"
     And I should see "Book now" in the ".allbookingoptionstable_r3 .booknow" "css_element"
+    ## Validate accessibility of booking options table before booking (disabled - 1 issue in Moodle core)
+    ##And the page should meet accessibility standards
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r3" "css_element"
     And I click on "Book other users" "link" in the ".allbookingoptionstable_r3" "css_element"
+    ## Validate accessibility of booking options table before booking (disabled - 6 issues in Moodle core)
+    ##And the page should meet accessibility standards
     And I click on "Student 2 (student2@example.com)" "text"
     And I click on "Add" "button"
     And I follow "<< Back to responses"
     And I should see "Student 1 (student1)" in the "#mod_booking_all_users_sort_new_r0" "css_element"
     And I should see "Student 2 (student2)" in the "#mod_booking_all_users_sort_new_r1" "css_element"
+    ## Validate accessibility of booking options table before booking
+    ##And the page should meet accessibility standards (disabled - 4 issues in Moodle core)
     And I log out

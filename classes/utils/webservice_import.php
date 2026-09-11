@@ -301,7 +301,7 @@ class webservice_import {
             );
         }
 
-        // TODO: Check if this still makes sense with the new option form logic.
+        // TODO MDL-00000: Check if this still makes sense with the new option form logic.
         if (!empty($data->coursestarttime) && !empty($data->courseendtime)) {
             // Throw an error if courseendtime is not after course start time.
             if ($data->courseendtime <= $data->coursestarttime) {

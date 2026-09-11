@@ -31,8 +31,7 @@
             {
                 "key" : [
                     {
-                        "starttime" : "3 March 2023, 10:30 AM",
-                        "endtime" : "3 March 2023, 11:45 AM"
+                        "datestring" : "3 March 2023, 10:30 AM - 3 March 2023, 11:45 AM"
                     }
                 ]
             }
@@ -41,15 +40,15 @@
 }}
 {{#showsessions}}
 {{#onesession}}
-{{#sessions}}
-<b>{{{starttime}}} - {{{endtime}}}</b>
-{{/sessions}}
+{{#dates}}
+    <b>{{{datestring}}}</b>
+{{/dates}}
 {{/onesession}}
 {{^onesession}}
 <ul>
-{{#sessions}}
-    <li>{{{starttime}}} - {{{endtime}}}</li>
-{{/sessions}}
+{{#dates}}
+    <li>{{{datestring}}}</li>
+{{/dates}}
 </ul>
 {{/onesession}}
 {{/showsessions}}

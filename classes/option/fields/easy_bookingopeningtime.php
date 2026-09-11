@@ -116,7 +116,7 @@ class easy_bookingopeningtime extends field_base {
         return $availabilityclass->check_for_changes(
             $formdata,
             $availabilityclass,
-            $mockdata,
+            '', // Mockdata - currently not implemented here.
             $key,
             $value
         );

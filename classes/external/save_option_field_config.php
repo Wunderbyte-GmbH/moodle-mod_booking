@@ -26,16 +26,15 @@ declare(strict_types=1);
 
 namespace mod_booking\external;
 
+use context_system;
+use core\exception\moodle_exception;
 use dml_exception;
-use external_api;
-use external_function_parameters;
-use external_single_structure;
-use external_value;
+use core_external\external_api;
+use core_external\external_function_parameters;
+use core_external\external_single_structure;
+use core_external\external_value;
+use mod_booking\permissions;
 use mod_booking\settings\optionformconfig\optionformconfig_info;
-
-defined('MOODLE_INTERNAL') || die();
-
-require_once($CFG->libdir . '/externallib.php');
 
 /**
  * External Service to create a booking option.
@@ -56,7 +55,7 @@ class save_option_field_config extends external_api {
             [
                 'capability' => new external_value(PARAM_TEXT, 'Capability'),
                 'id' => new external_value(PARAM_INT, 'Context Id'),
-                'json' => new external_value(PARAM_RAW, 'Payload as json'),
+                'json' => new external_value(PARAM_RAW, 'Form config payload as json; requires mod/booking:editoptionformconfig'),
             ]
         );
     }
@@ -75,6 +74,11 @@ class save_option_field_config extends external_api {
         int $id,
         string $json
     ): array {
+        // Check access for dynamic submission.
+        self::validate_context(context_system::instance());
+        if (!has_capability('mod/booking:editoptionformconfig', context_system::instance())) {
+            throw new moodle_exception('nopermissions', 'error');
+        }
 
         $params = external_api::validate_parameters(
             self::execute_parameters(),

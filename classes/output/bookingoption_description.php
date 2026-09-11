@@ -34,9 +34,11 @@ use mod_booking\booking_answers\booking_answers;
 use mod_booking\booking_bookit;
 use mod_booking\booking_context_helper;
 use mod_booking\booking_option;
+use mod_booking\customfield\booking_handler;
 use mod_booking\local\modechecker;
 use mod_booking\option\dates_handler;
 use mod_booking\option\fields\competencies;
+use mod_booking\placeholders\placeholders_info;
 use mod_booking\price;
 use mod_booking\singleton_service;
 use moodle_url;
@@ -194,8 +196,8 @@ class bookingoption_description implements renderable, templatable {
     /** @var array $subpluginstemplatedata */
     private $subpluginstemplatedata = [];
 
-    /** @var bool $showdownloadcheckbox */
-    private $showdownloadcheckbox = false;
+    /** @var bool $showchecklistdownloadbutton */
+    private $showchecklistdownloadbutton = false;
 
     /**
      * Constructor.
@@ -366,23 +368,15 @@ class bookingoption_description implements renderable, templatable {
                 'id' => $cmid,
                 'optionid' => $optionid,
             ]);
-            // Use html_entity_decode to convert "&amp;" to a simple "&" character.
-            if ($CFG->version >= 2023042400) {
-                // Moodle 4.2 needs second param.
-                $this->manageresponsesurl = html_entity_decode($link->out(), ENT_QUOTES);
-            } else {
-                // Moodle 4.1 and older.
-                $this->manageresponsesurl = html_entity_decode($link->out(), ENT_COMPAT);
-            }
+            $this->manageresponsesurl = html_entity_decode($link->out(), ENT_QUOTES);
         }
 
-        if (has_capability('mod/booking:downloadchecklist', $modcontext)) {
-            $checkboxurl = $link = new moodle_url($CFG->wwwroot . '/mod/booking/report.php', [
-                'id' => $cmid,
+        if (has_capability('mod/booking:downloadchecklist', $modcontext) && get_config('booking', 'showchecklistdownloadbutton')) {
+            $checkboxurl = new moodle_url($CFG->wwwroot . '/mod/booking/download_checklist.php', [
+                'cmid' => $cmid,
                 'optionid' => $optionid,
-                'action' => 'downloadchecklist',
             ]);
-            $this->showdownloadcheckbox = $checkboxurl;
+            $this->showchecklistdownloadbutton = $checkboxurl;
         }
 
         // We need this to render a link to manage bookings in the template.
@@ -403,11 +397,40 @@ class bookingoption_description implements renderable, templatable {
             $customfieldshortname = get_config('booking', 'changedescriptionfield');
             $this->description = $settings->customfields[$customfieldshortname] ?? "";
         }
+
+        // In any case, we replace placeholders in the description.
+        $this->description = placeholders_info::render_text(
+            $this->description,
+            $settings->cmid,
+            $settings->id,
+            $user->id,
+            0,
+            0,
+            0,
+            MOD_BOOKING_DESCRIPTION_OPTIONVIEW,
+            null,
+            false
+        );
+
         // Do the same for internal annotation.
         $this->annotation = $settings->annotation;
 
         // Currently, this will only get the description for the current user.
         $this->statusdescription = $bookingoption->get_text_depending_on_status($bookinganswers);
+
+        // We also replace placeholders in the status description.
+        $this->statusdescription = placeholders_info::render_text(
+            $this->statusdescription,
+            $settings->cmid,
+            $settings->id,
+            $user->id,
+            0,
+            0,
+            0,
+            MOD_BOOKING_DESCRIPTION_OPTIONVIEW,
+            null,
+            false
+        );
 
         // Attachments.
         $this->attachments = booking_option::render_attachments($optionid, 'optionview-bookingoption-attachments mb-3');
@@ -479,6 +502,7 @@ class bookingoption_description implements renderable, templatable {
                     ['id' => $responsiblecontact->id]
                 );
             }
+            unset($responsiblecontact); // Important: Break the reference after the loop!
         } else {
             $responsibles = [];
         }
@@ -489,13 +513,19 @@ class bookingoption_description implements renderable, templatable {
         if (empty($settings->bookingopeningtime)) {
             $this->bookingopeningtime = null;
         } else {
-            $this->bookingopeningtime = userdate($settings->bookingopeningtime, get_string('strftimedatetime', 'langconfig'));
+            $this->bookingopeningtime = booking_format_userdate_with_timezone_abbr(
+                $settings->bookingopeningtime,
+                get_string('strftimedatetime', 'langconfig')
+            );
         }
 
         if (empty($settings->bookingclosingtime)) {
             $this->bookingclosingtime = null;
         } else {
-            $this->bookingclosingtime = userdate($settings->bookingclosingtime, get_string('strftimedatetime', 'langconfig'));
+            $this->bookingclosingtime = booking_format_userdate_with_timezone_abbr(
+                $settings->bookingclosingtime,
+                get_string('strftimedatetime', 'langconfig')
+            );
         }
 
         if (isset($settings->customfields)) {
@@ -576,6 +606,17 @@ class bookingoption_description implements renderable, templatable {
                 );
                 break;
 
+            case MOD_BOOKING_DESCRIPTION_CARTITEM:
+                if ($forbookeduser) {
+                    // If it is for booked user, we show a short info text that the option is already booked.
+                    $this->booknowbutton = get_string('infoalreadybooked', 'booking');
+                } else if ($bookinganswers->user_status($user->id) == MOD_BOOKING_STATUSPARAM_WAITINGLIST) {
+                    // If onwaitinglist is 1, we show a short info text that the user is on the waiting list.
+                    // Currently this is only working for the current USER.
+                    $this->booknowbutton = get_string('infowaitinglist', 'booking');
+                }
+                break;
+
             case MOD_BOOKING_DESCRIPTION_CALENDAR:
                 $encodedlink = booking::encode_moodle_url($moodleurl);
                 $this->booknowbutton = "<a href=$encodedlink class='btn btn-primary'>"
@@ -606,7 +647,11 @@ class bookingoption_description implements renderable, templatable {
                 booking_answers::add_availability_info_texts_to_booking_information($this->bookinginformation);
 
                 // We set usertobuyfor here for better performance.
-                $this->usertobuyfor = price::return_user_to_buy_for();
+                // An explicitly passed foreign user (capability-checked by optionview.php)
+                // wins. For the own user (or none), the request-bound resolution
+                // (shopping cart cashier param, else the logged-in user) applies.
+                $buyforuserid = ((int)$this->userid === (int)$USER->id) ? 0 : (int)$this->userid;
+                $this->usertobuyfor = price::return_user_to_buy_for($buyforuserid);
 
                 $this->bookitsection = booking_bookit::render_bookit_button($settings, $this->usertobuyfor->id);
 
@@ -660,7 +705,7 @@ class bookingoption_description implements renderable, templatable {
             'userid' => $this->userid,
             'description' => format_text($this->description),
             'attachments' => $this->attachments,
-            'statusdescription' => $this->statusdescription,
+            'statusdescription' => format_text($this->statusdescription),
             'imageurl' => $this->imageurl,
             'location' => $this->location,
             'address' => $this->address,
@@ -691,7 +736,7 @@ class bookingoption_description implements renderable, templatable {
             'competencies' => $this->competencies,
             'competencyheader' => $this->competencyheader,
             'subpluginstemplatedata' => $this->subpluginstemplatedata,
-            'showdownloadcheckbox' => $this->showdownloadcheckbox,
+            'showchecklistdownloadbutton' => $this->showchecklistdownloadbutton,
         ];
 
         if (!empty($this->timeremaining)) {
@@ -705,16 +750,24 @@ class bookingoption_description implements renderable, templatable {
         // We return all the customfields of the option.
         // But we make sure, the shortname of a customfield does not conflict with an existing key.
         if ($this->customfields) {
+            $settings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
             foreach ($this->customfields as $key => $value) {
+                if (
+                    $value === null
+                    || is_string($value) && trim($value) === ''
+                ) {
+                    continue;
+                }
                 if (!isset($returnarray[$key])) {
-                    // Make sure, print value for arrays will be converted to string.
-                    $printvalue = is_array($value) ? implode(',', $value) : $value;
+                    // Use the corresponding field controller to get the real value of the custom field.
+                    $fieldcontroller = wbt_field_controller_info::get_instance_by_shortname(
+                        $key,
+                        'mod_booking',
+                        'booking'
+                    );
+                    $value = $fieldcontroller->get_option_value_by_key($value);
 
-                    // Get the correct field controller from Wunderbyte table.
-                    $fieldcontroller = wbt_field_controller_info::get_instance_by_shortname($key);
-
-                    // Get the option value from field controller.
-                    $returnarray[$key] = $fieldcontroller->get_option_value_by_key($printvalue);
+                    $returnarray[$key] = $value;
                 }
             }
         }
@@ -729,19 +782,53 @@ class bookingoption_description implements renderable, templatable {
         }
 
         // In plugin settings, we can choose customfields we want to have rendered together.
-        $returnarray['optionviewcustomfields'] = '';
-        if (!empty($cfstoshowstring = get_config('booking', 'optionviewcustomfields'))) {
-            $cfstoshow = explode(',', $cfstoshowstring);
-            foreach ($cfstoshow as $cftoshow) {
+        $returnarray['optionviewcustomfields'] =
+            $this->build_configcustomfields_html($returnarray, 'optionviewcustomfields', 'optionview-customfield');
+        $returnarray['cardoptionviewcustomfields'] =
+            $this->build_configcustomfields_html($returnarray, 'cardoptionviewcustomfields', 'cardview-customfield');
+        return $returnarray;
+    }
+
+    /**
+     * Build HTML for custom fields selected via an admin config setting.
+     * @param array $returnarray the current return array containing processed customfield values
+     * @param string $configkey the plugin config key (e.g. 'optionviewcustomfields')
+     * @param string $cssprefix CSS class prefix for each field wrapper div
+     * @return string concatenated HTML for all matching selected custom fields
+     */
+    private function build_configcustomfields_html(array $returnarray, string $configkey, string $cssprefix): string {
+        $html = '';
+        if (!empty($cfstoshowstring = get_config('booking', $configkey))) {
+            foreach (explode(',', $cfstoshowstring) as $cftoshow) {
                 if (!empty($returnarray[$cftoshow])) {
-                    $returnarray['optionviewcustomfields'] .=
-                        "<div class='optionview-customfield-$cftoshow'>" .
-                            $returnarray[$cftoshow] .
-                        "</div>";
+                    $icon = $this->build_customfield_icon_html($cftoshow);
+                    $html .= "<div class='{$cssprefix}-{$cftoshow}'>" . $icon . $returnarray[$cftoshow] . "</div>";
                 }
             }
         }
-        return $returnarray;
+        return $html;
+    }
+
+    /**
+     * Build the Font Awesome icon tag configured for a custom field, or '' if none is set.
+     * The icon is shared across all views (detail page and card).
+     * @param string $shortname the custom field shortname
+     * @return string the <i> tag with a trailing space, or an empty string
+     */
+    private function build_customfield_icon_html(string $shortname): string {
+        $icon = trim((string) get_config('booking', 'customfieldicon_' . $shortname));
+        if (empty($icon)) {
+            return '';
+        }
+        // The admin enters the Font Awesome icon class.
+        // Only accept a valid CSS-class string (letters, digits, dashes, underscores, spaces).
+        if (!preg_match('/^[a-z0-9 _-]+$/i', $icon)) {
+            return '';
+        }
+        return html_writer::tag('i', '', [
+            'class' => 'fa fa-fw ' . $icon,
+            'aria-hidden' => 'true',
+        ]) . ' ';
     }
 
     /**
@@ -749,7 +836,7 @@ class bookingoption_description implements renderable, templatable {
      * @return bool true if invisible, else false
      */
     public function is_invisible(): bool {
-        if (isset($this->invisible) && $this->invisible == 1) {
+        if (isset($this->invisible) && $this->invisible == MOD_BOOKING_OPTION_INVISIBLE) {
             $ret = true;
         } else {
             $ret = false;

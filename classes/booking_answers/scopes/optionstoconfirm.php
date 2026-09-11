@@ -44,6 +44,12 @@ use moodle_url;
  */
 class optionstoconfirm extends option {
     /**
+     * Scope name.
+     * @var string
+     */
+    public $scope = 'optionstoconfirm';
+
+    /**
      * Render users table based on status param
      *
      * @param string $scope
@@ -164,7 +170,7 @@ class optionstoconfirm extends option {
         ) {
             $table->actionbuttons[] = booked_users::create_action_button(
                 'presence',
-                'fa fa-user-o',
+                'fa fa-user-o fa-fw',
                 'mod_booking\\form\\optiondates\\modal_change_status',
                 [
                     'scope' => 'option',
@@ -174,12 +180,12 @@ class optionstoconfirm extends option {
                     'cmid' => $cmid,
                     'optionid' => $optionid ?? 0,
                 ],
-                'btn btn-primary btn-sm ml-2'
+                'btn btn-primary btn-sm me-2'
             );
 
             $table->actionbuttons[] = booked_users::create_action_button(
                 'notes',
-                'fa fa-pencil',
+                'fa fa-pencil fa-fw',
                 'mod_booking\\form\\optiondates\\modal_change_notes',
                 [
                     'scope' => 'option',
@@ -188,13 +194,18 @@ class optionstoconfirm extends option {
                     'component' => 'mod_booking',
                     'cmid' => $cmid,
                     'optionid' => $optionid ?? 0,
-                ]
+                ],
+                'btn btn-primary btn-sm me-2'
             );
         }
 
         if ($statusparam != MOD_BOOKING_STATUSPARAM_DELETED) {
             $table->addcheckboxes = true;
-            $table->actionbuttons[] = booked_users::create_delete_button();
+
+            // Only show delete button if user has capability to delete responses.
+            if ($this->has_capability_in_scope($scopeid, 'mod/booking:deleteresponses')) {
+                $table->actionbuttons[] = booked_users::create_delete_button();
+            }
         }
 
         return $table;
@@ -204,11 +215,12 @@ class optionstoconfirm extends option {
      * This functions defines the columns for each scope.
      *
      * @param int $statusparam
+     * @param int $scopeid
      *
      * @return array
      *
      */
-    public function return_cols_for_tables(int $statusparam): array {
+    public function return_cols_for_tables(int $statusparam, int $scopeid = 0): array {
 
         $columns = [
             'text' => get_string('bookingoptionname', 'mod_booking'),
@@ -236,21 +248,26 @@ class optionstoconfirm extends option {
         // The where restriction.
         $concat = $DB->sql_concat("ctx_ra.path", "'/%'");
 
-        // We only show the options if the user has the correct capability 'mod/booking:readresponses'in the course module.
-        $where = " EXISTS (
-                        SELECT 1
-                        FROM {booking_options} bo
-                        JOIN {modules} m ON m.name = 'booking'
-                        JOIN {course_modules} cm ON cm.instance = bo.bookingid AND cm.module = m.id
-                        JOIN {context} ctx_cm ON ctx_cm.instanceid = cm.id AND ctx_cm.contextlevel = :contextlevel
-                        JOIN {role_assignments} ra ON ra.userid = :userid
-                        JOIN {context} ctx_ra ON ctx_ra.id = ra.contextid
-                        JOIN {role_capabilities} rc ON rc.roleid = ra.roleid
-                        WHERE bo.id = optionid
-                        AND (ctx_cm.path LIKE $concat OR ctx_cm.id = ctx_ra.id)
-                        AND rc.capability = :capability
-                        AND rc.permission = 1
-                ) ";
+        if (has_capability('mod/booking:seealllisttoapprove', context_system::instance())) {
+            // Admin & all persons who have seealllisttoapprove capability can see all answers.
+            $where = " 1=1 ";
+        } else {
+            // We only show the options if the user has the correct capability 'mod/booking:readresponses'in the course module.
+            $where = " EXISTS (
+                    SELECT 1
+                    FROM {booking_options} bo
+                    JOIN {modules} m ON m.name = 'booking'
+                    JOIN {course_modules} cm ON cm.instance = bo.bookingid AND cm.module = m.id
+                    JOIN {context} ctx_cm ON ctx_cm.instanceid = cm.id AND ctx_cm.contextlevel = :contextlevel
+                    JOIN {role_assignments} ra ON ra.userid = :userid
+                    JOIN {context} ctx_ra ON ctx_ra.id = ra.contextid
+                    JOIN {role_capabilities} rc ON rc.roleid = ra.roleid
+                    WHERE bo.id = optionid
+                    AND (ctx_cm.path LIKE $concat OR ctx_cm.id = ctx_ra.id)
+                    AND rc.capability = :capability
+                    AND rc.permission = 1
+            ) ";
+        }
 
         $params['statusparam'] = $statusparam;
         $params['userid'] = $USER->id;
@@ -423,7 +440,7 @@ class optionstoconfirm extends option {
      *
      */
     public function show_download_button(wunderbyte_table &$table, string $scope, int $scopeid, int $statusparam) {
-        if ($this->has_capability_in_scope($scopeid, 'mod/booking:updatebooking')) {
+        if ($this->has_capability_in_scope($scopeid, 'mod/booking:downloadresponses')) {
             $baseurl = new moodle_url(
                 '/mod/booking/download_report2.php',
                 [

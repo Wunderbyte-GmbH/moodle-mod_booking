@@ -32,6 +32,7 @@ use Exception;
 use mod_booking\booking_rules\rules_info;
 use mod_booking\event\booking_debug;
 use mod_booking\message_controller;
+use mod_booking\singleton_service;
 
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 
@@ -81,13 +82,14 @@ class send_mail_by_rule_adhoc extends \core\task\adhoc_task {
             if (empty($ruleinstance)) {
                 return;
             }
-
+            $option = singleton_service::get_instance_of_booking_option_settings($taskdata->optionid);
             // The first check needs to be if the rule has changed at all, eg. in any of the set values.
             if (
                 $taskdata->rulejson !== $ruleinstance->rulejson
+                || $option->cmid !== $taskdata->cmid
             ) {
                 $abort = false;
-                if ($ruleinstance->rulename === 'rule_daysbefore') {
+                if (in_array($ruleinstance->rulename, ['rule_daysbefore', 'rule_specifictime'])) {
                     $abort = true;
                 } else {
                     $td = json_decode($taskdata->rulejson);
@@ -101,12 +103,12 @@ class send_mail_by_rule_adhoc extends \core\task\adhoc_task {
                 }
                 if ($abort) {
                     mtrace(
-                        'send_mail_by_rule_adhoc task: Rule has changed. Mail was NOT SENT for option.'
+                        'send_mail_by_rule_adhoc task: Rule or Option has changed. Mail was NOT SENT for option.'
                         . $taskdata->optionid
                         . ' and user '
                         . $taskdata->userid
                         .  PHP_EOL
-                        . 'This message is expected and not signn of malfunction.'
+                        . 'This message is expected and not sign of malfunction.'
                     );
                     return;
                 }
@@ -121,18 +123,16 @@ class send_mail_by_rule_adhoc extends \core\task\adhoc_task {
             $rule->set_ruledata($ruleinstance);
 
             // We run the call again to see if something has changed (field in bo, in user profile etc.).
-            if (!$rule->check_if_rule_still_applies($taskdata->optionid, $taskdata->userid, $nextruntime)) {
+            if (
+                !$rule->check_if_rule_still_applies(
+                    $taskdata->optionid,
+                    $taskdata->userid,
+                    $nextruntime,
+                    $taskdata->optiondateid ?? 0
+                )
+            ) {
                 mtrace('send_mail_by_rule_adhoc task: Rule does not apply anymore. Mail was NOT SENT for option ' .
                     $taskdata->optionid . ' and user ' . $taskdata->userid);
-                return;
-            }
-
-            // We add the option that this task can actually rerun the rule which created it.
-            // This will be currently done only by the action "send_mail_interval".
-            // The important thing: We will not send the mail, because recipients might have changed.
-            // We just reexecute the event, which will then determine the right recipients and take over.
-            if (!empty($taskdata->repeat)) {
-                $rule->execute($taskdata->optionid);
                 return;
             }
 

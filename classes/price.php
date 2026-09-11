@@ -26,6 +26,7 @@ namespace mod_booking;
 
 use cache;
 use cache_helper;
+use context;
 use context_module;
 use context_system;
 use dml_exception;
@@ -62,8 +63,15 @@ class price {
     /** @var int $itemid if area is 'option' then itemid will be the optionid */
     public $itemid;
 
-    /** @var int $bookforuserid A static value which can be set in one request. */
-    private static $bookforuserid;
+    /**
+     * Reset method to clear the singleton state.
+     *
+     * @return void
+     *
+     */
+    public static function destroy_singletons(): void {
+        // Nothing to reset anymore, kept for API stability (used by the test generator).
+    }
 
     /**
      * Constructor.
@@ -146,7 +154,7 @@ class price {
 
         // Only when there is an actual price formula, we do apply it.
         $priceformula = get_config('booking', 'defaultpriceformula');
-        if (!$noformula && !empty($priceformula) && is_json($priceformula)) {
+        if (!$noformula && !empty($priceformula) && booking_is_json($priceformula)) {
             $mform->addElement(
                 'advcheckbox',
                 'priceformulaisactive',
@@ -233,7 +241,7 @@ class price {
 
         // Only when there is an actual price formula, we do apply it.
         $priceformula = get_config('booking', 'defaultpriceformula');
-        if (!empty($priceformula) && is_json($priceformula)) {
+        if (!empty($priceformula) && booking_is_json($priceformula)) {
             // Get Settings.
             if (!empty($data->id) && ($data->id > 0)) {
                 $optionid = $data->id;
@@ -595,11 +603,12 @@ class price {
      * Save from form
      *
      * @param stdClass $fromform
+     * @param bool $triggerevent
      *
      * @return void
      *
      */
-    public function save_from_form(stdClass $fromform) {
+    public function save_from_form(stdClass $fromform, bool $triggerevent = true): array {
 
         global $DB;
 
@@ -610,11 +619,45 @@ class price {
         $optionid = $fromform->optionid ?? $fromform->id;
 
         // If we don't want to use prices, we can delete all the prices at once.
+        $changes = [];
+
         if (empty($fromform->useprice)) {
             $price = '';
+
+            // Collect detailed changes before deleting all prices.
+            $existingprices = $DB->get_records('booking_prices', ['itemid' => $optionid, 'area' => $this->area]);
+            foreach ($existingprices as $existingprice) {
+                $categoryname = self::get_active_pricecategory_from_cache_or_db($existingprice->pricecategoryidentifier)->name
+                    ?? $existingprice->pricecategoryidentifier;
+                $changes[$existingprice->pricecategoryidentifier] = [
+                    'changes' => [
+                        'fieldname' => 'price',
+                        'oldvalue' => $categoryname . ' : ' . $existingprice->price,
+                        'newvalue' => $categoryname . ' : ',
+                        'formkey' => 'price_' . $existingprice->pricecategoryidentifier,
+                    ],
+                ];
+            }
+
             // There might be old, prices lingering, so we make sure we delete everything at once.
             $DB->delete_records('booking_prices', ['itemid' => $optionid, 'area' => $this->area]);
-            return;
+            if (!empty($changes) && $triggerevent) {
+                global $USER;
+                if ($this->area == 'subbooking') {
+                    $eventoptionid = $DB->get_field('booking_subbooking_options', 'optionid', ['id' => $optionid], MUST_EXIST);
+                } else {
+                    $eventoptionid = $optionid;
+                }
+                $bosettings = singleton_service::get_instance_of_booking_option_settings($eventoptionid);
+                if (empty($bosettings->cmid)) {
+                    $context = context_system::instance();
+                } else {
+                    $context = context_module::instance($bosettings->cmid);
+                }
+                $flatchanges = array_values(array_map(fn($c) => (object)$c['changes'], $changes));
+                booking_option::trigger_updated_event($context, $eventoptionid, $USER->id, $USER->id, 'price', $flatchanges);
+            }
+            return !empty($changes) ? ['changes' => $changes] : [];
         }
 
         foreach ($this->pricecategories as $pricecategory) {
@@ -643,8 +686,38 @@ class price {
                 $price = '';
             }
 
-            self::add_price($this->area, $this->itemid, $pricecategory->identifier, $price ?? "", $currency);
+            $change = self::add_price(
+                $this->area,
+                $this->itemid,
+                $pricecategory->identifier,
+                $price ?? "",
+                $currency,
+                false
+            );
+            if (!empty($change)) {
+                $changes[$pricecategory->identifier] = $change;
+            }
         }
+
+        if (!empty($changes) && $triggerevent) {
+            global $USER;
+            if ($this->area == 'subbooking') {
+                $eventoptionid = $DB->get_field('booking_subbooking_options', 'optionid', ['id' => $this->itemid], MUST_EXIST);
+            } else {
+                $eventoptionid = $this->itemid;
+            }
+            $bosettings = singleton_service::get_instance_of_booking_option_settings($eventoptionid);
+            if (empty($bosettings->cmid)) {
+                $context = context_system::instance();
+            } else {
+                $context = context_module::instance($bosettings->cmid);
+            }
+            // Trigger one consolidated event with detailed info for all changed price identifiers.
+            $flatchanges = array_values(array_map(fn($c) => (object)$c['changes'], $changes));
+            booking_option::trigger_updated_event($context, $eventoptionid, $USER->id, $USER->id, 'price', $flatchanges);
+        }
+
+        return !empty($changes) ? ['changes' => $changes] : [];
     }
 
     /**
@@ -696,6 +769,7 @@ class price {
      * @param string $categoryidentifier
      * @param string $price
      * @param ?string $currency
+     * @param bool $triggerevent
      * @return void
      */
     public static function add_price(
@@ -703,8 +777,9 @@ class price {
         int $itemid,
         string $categoryidentifier,
         string $price,
-        ?string $currency = null
-    ) {
+        ?string $currency = null,
+        bool $triggerevent = true
+    ): array {
 
         global $DB;
 
@@ -724,7 +799,8 @@ class price {
                 || $data->pricecategoryidentifier != $categoryidentifier
                 || $data->currency != $currency
             ) {
-                $oldprice = $data;
+                // Clone before mutation to keep the original value for event oldvalue.
+                $oldprice = clone $data;
                 // If there is a change and the new price is "", we delete the entry.
                 if ($price === "") {
                     $DB->delete_records('booking_prices', ['id' => $data->id, 'area' => $area]);
@@ -748,7 +824,22 @@ class price {
             $priceupdated = true;
         }
 
+        $change = [];
         if ($priceupdated) {
+            $categoryname = self::get_active_pricecategory_from_cache_or_db($categoryidentifier)->name ?? $categoryidentifier;
+            $oldpricevalue = isset($oldprice->price) ? (string)$oldprice->price : '';
+            $newpricevalue = $price === '' ? '' : (string)$price;
+            $change = [
+                'changes' => [
+                    'fieldname' => 'price',
+                    'oldvalue' => $categoryname . ' : ' . $oldpricevalue,
+                    'newvalue' => $categoryname . ' : ' . $newpricevalue,
+                    'formkey' => 'price_' . $categoryidentifier,
+                ],
+            ];
+        }
+
+        if ($priceupdated && $triggerevent) {
             global $USER;
 
             // Get option id for subbooking.
@@ -760,16 +851,27 @@ class price {
             // Get option settings and trigger event.
             $bosettings = singleton_service::get_instance_of_booking_option_settings($optionid);
             if (empty($bosettings->cmid)) {
+                /** @var context $context */
                 $context = context_system::instance();
             } else {
+                /** @var context $context */
                 $context = context_module::instance($bosettings->cmid);
             }
-            booking_option::trigger_updated_event($context, $optionid, $USER->id, $USER->id, 'price');
+            booking_option::trigger_updated_event(
+                $context,
+                $optionid,
+                $USER->id,
+                $USER->id,
+                'price',
+                !empty($change) ? [(object)$change['changes']] : []
+            );
         }
         // In any case, invalidate the cache after updating the booking option.
         // If performance is an issue, one could update only the cache of a this single option by key.
         // But right now, it seems reasonable to invalidate the cache from time to time.
         cache_helper::purge_by_event('setbackprices');
+
+        return $change;
     }
 
     /**
@@ -827,7 +929,9 @@ class price {
                         "currency" => $pricerecord->currency,
                         "pricecategoryidentifier" => $pricerecord->pricecategoryidentifier,
                         "pricecategoryname" =>
-                            self::get_active_pricecategory_from_cache_or_db($pricerecord->pricecategoryidentifier)->name,
+                            self::get_active_pricecategory_from_cache_or_db(
+                                $pricerecord->pricecategoryidentifier
+                            )->name ?? $pricerecord->pricecategoryidentifier,
                     ];
                 }
             }
@@ -882,8 +986,10 @@ class price {
 
     /**
      * Return right user from userid.
-     * If there is no userid provided, we look in shopping cart cache, there might be a userid stored.
-     * If not, we use USER.
+     * If there is no userid provided, we check the request-bound shopping cart
+     * cashier mechanism ($_GET['_buyforuser_'], capability-gated), there might be a userid stored.
+     * If not, we use USER. The resolution is strictly request-bound: no session
+     * state may ever influence which user we act for.
      * @param int $userid
      * @return stdClass
      */
@@ -896,22 +1002,10 @@ class price {
             $userid === 0
         ) {
             if (class_exists('local_shopping_cart\shopping_cart')) {
+                /** @var context $context */
                 $context = context_system::instance();
                 if (has_capability('local/shopping_cart:cashier', $context)) {
                     $userid = shopping_cart::return_buy_for_userid();
-                }
-            }
-        }
-
-        if (empty($userid) || $USER->id == $userid) {
-            // We can implement an override via singleton.
-
-            $cache = cache::make('mod_booking', 'bookforuser');
-            $result = $cache->get('bookforuser');
-            if ($result) {
-                [$userid, $expirationtime] = $result;
-                if ($expirationtime > time()) {
-                    $userid = $USER->id;
                 }
             }
         }
@@ -925,25 +1019,21 @@ class price {
     }
 
     /**
-     * Sets the userid to singleton and cache.
-     * Validity is only 30 seconds.
-     * This is only meant to render correctly in one request and in following webservices.
+     * Formerly stored the userid in a session cache to influence user resolution
+     * in subsequent requests. The session cache allowed one request to leak its
+     * acting user into unrelated requests (and tabs) of the same session, so it
+     * was removed. User resolution is now strictly request-bound: pass the userid
+     * explicitly instead (see return_user_to_buy_for()).
      *
      * @param int $userid
      *
-     * @return [type]
+     * @return void
      *
+     * @deprecated since Wunderbyte-GmbH/Wunderbyte-GmbH#2214 - no-op, will be removed.
      */
     public static function set_bookforuser(int $userid) {
-        self::$bookforuserid = $userid;
-        $cache = cache::make('mod_booking', 'bookforuser');
-        $cache->set(
-            'bookforuser',
-            [
-                $userid,
-                time() + 10,
-            ]
-        );
+        // Intentional no-op. Kept so that older versions of local_shopping_cart
+        // and local_taskflow which still call this method do not fatal.
     }
 
     /**
@@ -1118,7 +1208,7 @@ class price {
     /**
      * Returns the list of currencies that the payment subsystem supports and therefore we can work with.
      *
-     * @return array[currencycode => currencyname]
+     * @return array [currencycode => currencylangstringobject]
      */
     public static function get_possible_currencies(): array {
         // Fix bug with Moodle versions older than 3.11.
@@ -1130,12 +1220,12 @@ class price {
                 $currencies[$c] = new lang_string($c, 'core_currencies');
             }
 
-            uasort($currencies, function ($a, $b) {
-                return strcmp($a, $b);
+            uasort($currencies, function (lang_string $a, lang_string $b): int {
+                return strcmp($a->get_identifier(), $b->get_identifier());
             });
         } else {
-            $currencies['EUR'] = 'Euro';
-            $currencies['USD'] = 'US Dollar';
+            $currencies['EUR'] = new lang_string('EUR', 'core_currencies');
+            $currencies['USD'] = new lang_string('USD', 'core_currencies');
         }
 
         return $currencies;
@@ -1150,7 +1240,7 @@ class price {
     public static function is_in_time_scope(array $dayinfo, object $rangeinfo) {
 
         // Get the localized day name.
-        $dayname = new lang_string($dayinfo['day'], 'mod_booking', null, current_language());
+        $dayname = get_string($dayinfo['day'], 'mod_booking');
 
         // For German, we have two letter abbreviations (Mo, Di, Mi...).
         // For English, we have three letter abbrevitions (Mon, Tue, Wed,...).
@@ -1226,6 +1316,7 @@ class price {
                     $price->price = round((float)$price->price, 2);
                     // Campaign price factor has been applied.
                 }
+                unset($price); // Important: Break the reference after the loop!
             }
         }
     }

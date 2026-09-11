@@ -145,8 +145,10 @@ class bookingoptionimage extends field_base {
             if ($oldhashes != $newhashes) {
                 $changes = [ 'changes' => [
                     'fieldname' => 'bookingoptionimage',
-                    'oldvalue' => array_keys($oldhashes)[0], // There is only one bookingoptionimage accepted, so no need for array.
-                    'newvalue' => array_keys($newhashes)[0],
+                    // There is only one bookingoptionimage accepted, so no need for array.
+                    // Either side can be empty (adding the first image, or removing the last one).
+                    'oldvalue' => array_keys($oldhashes)[0] ?? null,
+                    'newvalue' => array_keys($newhashes)[0] ?? null,
                     ],
                 ];
             }
@@ -205,10 +207,28 @@ class bookingoptionimage extends field_base {
      */
     public static function set_data(stdClass &$data, booking_option_settings $settings) {
 
-        global $CFG, $COURSE;
+        global $CFG, $COURSE, $USER;
 
         // Get an unused draft itemid which will be used for this form.
         $draftitemid = file_get_submitted_draft_itemid('bookingoptionimage');
+
+        // Alternative, form-independent path for server-side callers (CSV/WS/agent import).
+        // When there is no submitted form value but $data already carries a populated draft
+        // area, the caller has staged the image itself. Respect that draft instead of
+        // rebuilding an empty one from the stored files (which would discard the new image).
+        // This branch can never trigger from the interactive option_form, because there
+        // $data->bookingoptionimage is unset until set_data builds it (there is no DB column),
+        // and a real submission always yields a non-empty $draftitemid above.
+        if (empty($draftitemid) && !empty($data->bookingoptionimage)) {
+            $stageddraftid = (int)$data->bookingoptionimage;
+            $usercontext = context_user::instance($USER->id);
+            $fs = get_file_storage();
+            $stagedfiles = $fs->get_area_files($usercontext->id, 'user', 'draft', $stageddraftid, 'id', false);
+            if (!empty($stagedfiles)) {
+                // Keep the caller-staged draft untouched; save_data() will persist it.
+                return;
+            }
+        }
 
         if (!empty($data->id)) {
             $context = context_module::instance($data->cmid);

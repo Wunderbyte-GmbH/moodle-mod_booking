@@ -45,11 +45,20 @@ class confirmbooking implements confirmbooking_interface {
      * @param int $approverid
      * @param int $userid
      *
-     * @return array // Returns [false, 'Reason why you are not allowed to book', false] // where last value is reload.
+     * @return array // Returns [$approved, $message, $reload].
      *
      */
     public static function has_capability_to_confirm_booking(int $optionid, int $approverid, int $userid): array {
-        global $USER, $DB;
+        global $DB;
+
+        // Admin & all persons who have alwayscanapprove capability can confirm answers regardless of any other conditions.
+        if (has_capability('mod/booking:alwayscanapprove', context_system::instance())) {
+            $approved = true;
+            $message = '';
+            $reload = false;
+            return [$approved, $message, $reload]; // Can approve regardless of any other conditions.
+        }
+
         $approved = false;
         $message = get_string('notallowedtoconfirm', 'bookingextension_confirmation_trainer');
         $reload = false;

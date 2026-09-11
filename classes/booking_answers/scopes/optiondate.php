@@ -28,6 +28,7 @@ use local_wunderbyte_table\filters\types\standardfilter;
 use local_wunderbyte_table\wunderbyte_table;
 use mod_booking\booking;
 use mod_booking\booking_answers\scope_base;
+use mod_booking\local\bookingstracker\columns_helper;
 use mod_booking\singleton_service;
 use context_module;
 use mod_booking\table\manageusers_table;
@@ -41,6 +42,12 @@ use moodle_url;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class optiondate extends scope_base {
+    /**
+     * Scope name.
+     * @var string
+     */
+    public $scope = 'optiondate';
+
     /**
      * Render users table based on status param
      *
@@ -99,70 +106,100 @@ class optiondate extends scope_base {
         $optionid = $DB->get_field('booking_optiondates', 'optionid', ['id' => $scopeid]);
         $cmid = singleton_service::get_instance_of_booking_option_settings($optionid)->cmid;
         if (!empty($cmid)) {
+            // The presence/notes workflow follows the instance setting responsesfields
+            // ("Manage Responses Page & Bookings Tracker"), like the columns do (see return_cols_for_tables).
+            $responsesfields = columns_helper::responsesfields($cmid);
+            if (empty($responsesfields)) {
+                $responsesfields = ['email', 'status', 'notes'];
+            }
+
             // Add checkboxes, so we can perform actions for more than one selected user.
             $table->addcheckboxes = true;
 
-            // Add fulltext search.
-            $table->define_fulltextsearchcolumns(['firstname', 'lastname', 'email', 'notes']);
+            // Add fulltext search. Notes are only searchable when their column is shown -
+            // otherwise the search would match content that is not visible in the table.
+            $fulltextsearchcolumns = ['firstname', 'lastname', 'email'];
+            if (in_array('notes', $responsesfields)) {
+                $fulltextsearchcolumns[] = 'notes';
+            }
+            $table->define_fulltextsearchcolumns($fulltextsearchcolumns);
 
-            // Add sorting.
+            // Add sorting for the visible columns.
             $sortablecolumns = [
                 'firstname' => get_string('firstname'),
                 'lastname' => get_string('lastname'),
-                'email' => get_string('email'),
-                'status' => get_string('presence', 'mod_booking'),
             ];
+            if (in_array('email', $responsesfields)) {
+                $sortablecolumns['email'] = get_string('email');
+            }
+            if (in_array('status', $responsesfields)) {
+                $sortablecolumns['status'] = get_string('presence', 'mod_booking');
+            }
             $table->define_sortablecolumns($sortablecolumns);
 
-            // Add filter for presence status.
-            $presencestatusfilter = new standardfilter('status', get_string('presence', 'mod_booking'));
-            $presencestatusfilter->add_options(booking::get_array_of_possible_presence_statuses());
-            $table->add_filter($presencestatusfilter);
+            if (in_array('status', $responsesfields)) {
+                // Add filter for presence status, visible right away on load.
+                $presencestatusfilter = new standardfilter('status', get_string('presence', 'mod_booking'));
+                $presencestatusfilter->add_options(booking::get_array_of_possible_presence_statuses());
+                // Show all presence statuses, even those no user has yet - otherwise the whole
+                // filter would be hidden until the first presence status is stored.
+                $presencestatusfilter->show_all_options();
+                $table->add_filter($presencestatusfilter);
 
-            $table->filteronloadinactive = true;
-            $table->showfilterontop = true;
+                $table->filteronloadinactive = false;
+                $table->showfilterontop = true;
+            }
 
-            $table->actionbuttons[] = [
-                'label' => get_string('presence', 'mod_booking'), // Name of your action button.
-                'class' => 'btn btn-primary btn-sm ml-2',
-                'href' => '#', // You can either use the link, or JS, or both.
-                'iclass' => 'fa fa-user-o', // Add an icon before the label.
-                'formname' => 'mod_booking\\form\\optiondates\\modal_change_status',
-                'nomodal' => false,
-                'id' => -1,
-                'selectionmandatory' => true,
-                'data' => [ // Will be added eg as data-id = $values->id, so values can be transmitted to the method above.
-                    'scope' => 'optiondate',
-                    'titlestring' => 'changepresencestatus',
-                    'submitbuttonstring' => 'save',
-                    'component' => 'mod_booking',
-                    'cmid' => $cmid,
-                    'optionid' => $optionid ?? 0,
-                    'optiondateid' => $scopeid ?? 0,
-                ],
-            ];
+            // Presence and notes modals require managebookedusers on submit, so
+            // the buttons are hidden from users who may only read the report.
+            $canmanagebookedusers = has_capability(
+                'mod/booking:managebookedusers',
+                context_module::instance($cmid)
+            );
 
-            $table->actionbuttons[] = [
-                'label' => get_string('notes', 'mod_booking'), // Name of your action button.
-                'class' => 'btn btn-primary btn-sm ml-1',
-                'href' => '#', // You can either use the link, or JS, or both.
-                'iclass' => 'fa fa-pencil', // Add an icon before the label.
-                // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-                /* 'methodname' => 'mymethod', // The method needs to be added to your child of wunderbyte_table class. */
-                'formname' => 'mod_booking\\form\\optiondates\\modal_change_notes',
-                'nomodal' => false,
-                'id' => -1,
-                'selectionmandatory' => true,
-                'data' => [ // Will be added eg as data-id = $values->id, so values can be transmitted to the method above.
-                    'scope' => 'optiondate',
-                    'titlestring' => 'notes',
-                    'submitbuttonstring' => 'save',
-                    'component' => 'mod_booking',
-                    'cmid' => $cmid,
-                    'optionid' => $optionid ?? 0,
-                    'optiondateid' => $scopeid ?? 0,
-                ],
-            ];
+            if (in_array('status', $responsesfields) && $canmanagebookedusers) {
+                $table->actionbuttons[] = [
+                    'label' => get_string('presence', 'mod_booking'), // Name of your action button.
+                    'class' => 'btn btn-primary btn-sm me-2',
+                    'href' => '#', // You can either use the link, or JS, or both.
+                    'iclass' => 'fa fa-user-o fa-fw', // Add an icon before the label.
+                    'formname' => 'mod_booking\\form\\optiondates\\modal_change_status',
+                    'nomodal' => false,
+                    'id' => -1,
+                    'selectionmandatory' => true,
+                    'data' => [ // Will be added eg as data-id = $values->id, so values can be transmitted.
+                        'scope' => 'optiondate',
+                        'titlestring' => 'changepresencestatus',
+                        'submitbuttonstring' => 'save',
+                        'component' => 'mod_booking',
+                        'cmid' => $cmid,
+                        'optionid' => $optionid ?? 0,
+                        'optiondateid' => $scopeid ?? 0,
+                    ],
+                ];
+            }
+
+            if (in_array('notes', $responsesfields) && $canmanagebookedusers) {
+                $table->actionbuttons[] = [
+                    'label' => get_string('notes', 'mod_booking'), // Name of your action button.
+                    'class' => 'btn btn-primary btn-sm me-2',
+                    'href' => '#', // You can either use the link, or JS, or both.
+                    'iclass' => 'fa fa-pencil fa-fw', // Add an icon before the label.
+                    'formname' => 'mod_booking\\form\\optiondates\\modal_change_notes',
+                    'nomodal' => false,
+                    'id' => -1,
+                    'selectionmandatory' => true,
+                    'data' => [ // Will be added eg as data-id = $values->id, so values can be transmitted.
+                        'scope' => 'optiondate',
+                        'titlestring' => 'notes',
+                        'submitbuttonstring' => 'save',
+                        'component' => 'mod_booking',
+                        'cmid' => $cmid,
+                        'optionid' => $optionid ?? 0,
+                        'optiondateid' => $scopeid ?? 0,
+                    ],
+                ];
+            }
         }
 
         // Add checkboxes for multi-selection.
@@ -185,27 +222,53 @@ class optiondate extends scope_base {
         $optiondateid = $scopeid;
         $where = " 1 = 1 ";
 
+        // Subselects for the custom user profile fields configured in the instance settings.
+        [$profilefieldselect, $profilefieldparams] = columns_helper::profilefield_sql(
+            $this->get_cmid_for_scopeid($scopeid)
+        );
+
+        // Additional selects/joins for configured columns (price/currency, rating).
+        [$extraselect, $extrajoin, $extraparams] = columns_helper::extra_fields_sql(
+            $this->get_cmid_for_scopeid($scopeid),
+            $this->get_optionid_for_scopeid($scopeid)
+        );
+
         // We need to set a limit for the query in mysqlfamily.
         $fields = 's1.*';
         $from = " (
             SELECT " .
                 $DB->sql_concat("bo.id", "'-'", "bod.id", "'-'", "u.id") .
                 " id,
+                ba.id baid,
                 bod.id optiondateid,
                 bod.coursestarttime,
                 bod.courseendtime,
                 ba.userid,
                 ba.waitinglist,
+                ba.timecreated,
+                ba.timebooked,
+                ba.completed,
+                ba.completeddate,
+                ba.places,
+                ba.json bajson,
                 boda.status,
                 boda.json,
                 boda.notes,
                 bo.id optionid,
                 bo.titleprefix,
                 bo.text,
+                bo.location,
+                u.username,
                 u.firstname,
                 u.lastname,
                 u.email,
+                u.institution,
+                u.city,
+                u.department,
+                u.idnumber,
                 '" . $scope . "' AS scope
+                $profilefieldselect
+                $extraselect
             FROM {booking_optiondates} bod
             JOIN {booking_options} bo
             ON bo.id = bod.optionid
@@ -215,14 +278,18 @@ class optiondate extends scope_base {
             ON u.id = ba.userid
             LEFT JOIN {booking_optiondates_answers} boda
             ON bod.id = boda.optiondateid AND bo.id = boda.optionid AND ba.userid = boda.userid
+            $extrajoin
             WHERE bod.id = :optiondateid AND ba.waitinglist = :statusparam
             ORDER BY u.lastname, u.firstname, bod.coursestarttime ASC
             LIMIT 10000000000
         ) s1";
-        $params = [
+        $params = array_merge([
             'optiondateid' => $optiondateid,
             'statusparam' => MOD_BOOKING_STATUSPARAM_BOOKED,
-        ];
+        ], $profilefieldparams, $extraparams);
+
+        // A booking extension can limit the answers the current user may see (e.g. their team).
+        $where .= $this->get_answers_restriction_sql('userid', $scopeid, $params);
 
         return [$fields, $from, $where, $params];
     }
@@ -231,36 +298,74 @@ class optiondate extends scope_base {
      * This functions defines the columns for each scope.
      *
      * @param int $statusparam
+     * @param int $scopeid
      *
      * @return array
      *
      */
-    public function return_cols_for_tables(int $statusparam): array {
+    public function return_cols_for_tables(int $statusparam, int $scopeid = 0): array {
 
-        $columns = [
-            'firstname' => get_string('firstname', 'core'),
-            'lastname'  => get_string('lastname', 'core'),
-            'email'     => get_string('email', 'core'),
-        ];
+        $columns = [];
 
-        switch ($statusparam) {
-            case MOD_BOOKING_STATUSPARAM_BOOKED:
-                $columns['status'] = get_string('presence', 'mod_booking');
-                $columns['notes'] = get_string('notes', 'mod_booking');
-                break;
-            case MOD_BOOKING_STATUSPARAM_WAITINGLIST:
-                break;
-            case MOD_BOOKING_STATUSPARAM_RESERVED:
-                break;
-            case MOD_BOOKING_STATUSPARAM_NOTIFYMELIST:
-                break;
-            case MOD_BOOKING_STATUSPARAM_NOTBOOKED:
-                break;
-            case MOD_BOOKING_STATUSPARAM_BOOKED_DELETED:
-                break;
+        // The columns follow the instance setting responsesfields ("Manage Responses Page & Bookings Tracker").
+        // Without configured fields we fall back to the default set (email, status, notes).
+        $responsesfields = columns_helper::responsesfields($this->get_cmid_for_scopeid($scopeid));
+        if (empty($responsesfields)) {
+            $responsesfields = ['email', 'status', 'notes'];
+        }
+
+        if (in_array('userpic', $responsesfields)) {
+            $columns['userpic'] = get_string('userpic');
+        }
+
+        $columns['firstname'] = get_string('firstname', 'core');
+        $columns['lastname'] = get_string('lastname', 'core');
+        if (in_array('email', $responsesfields)) {
+            $columns['email'] = get_string('email', 'core');
+        }
+        // In optiondate scope, status and notes hold the per-session presence and notes.
+        if (in_array('status', $responsesfields)) {
+            $columns['status'] = get_string('presence', 'mod_booking');
+        }
+        if (in_array('notes', $responsesfields)) {
+            $columns['notes'] = get_string('notes', 'mod_booking');
         }
 
         return $columns;
+    }
+
+    /**
+     * Resolves the optionid for the given scopeid (optiondateid).
+     *
+     * @param int $scopeid
+     * @return int
+     */
+    public function get_optionid_for_scopeid(int $scopeid): int {
+        global $DB;
+
+        if (empty($scopeid)) {
+            return 0;
+        }
+        return (int)$DB->get_field('booking_optiondates', 'optionid', ['id' => $scopeid]);
+    }
+
+    /**
+     * Resolves the cmid of the booking instance for the given scopeid (optiondateid).
+     *
+     * @param int $scopeid
+     * @return int
+     */
+    public function get_cmid_for_scopeid(int $scopeid): int {
+        global $DB;
+
+        if (empty($scopeid)) {
+            return 0;
+        }
+        $optionid = $DB->get_field('booking_optiondates', 'optionid', ['id' => $scopeid]);
+        if (empty($optionid)) {
+            return 0;
+        }
+        return singleton_service::get_instance_of_booking_option_settings($optionid)->cmid ?? 0;
     }
 
     /**
@@ -287,12 +392,13 @@ class optiondate extends scope_base {
      *
      */
     public function show_download_button(wunderbyte_table &$table, string $scope, int $scopeid, int $statusparam) {
-        if ($this->has_capability_in_scope($scopeid, 'mod/booking:updatebooking')) {
+        if ($this->has_capability_in_scope($scopeid, 'mod/booking:downloadresponses')) {
             $baseurl = new moodle_url(
                 '/mod/booking/download_report2.php',
                 [
                     'scope' => self::return_classname(),
                     'statusparam' => $statusparam,
+                    'scopeid' => $scopeid,
                 ]
             );
             $table->define_baseurl($baseurl);

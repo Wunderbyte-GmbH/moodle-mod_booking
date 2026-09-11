@@ -35,7 +35,32 @@ class behat_mod_booking_generator extends behat_generator_base {
                 'singular' => 'option',
                 'datagenerator' => 'option',
                 'required' => ['booking', 'text', 'description'],
-                'switchids' => ['booking' => 'bookingid', 'course' => 'courseid', 'semester' => 'semesterid'],
+                'switchids' => [
+                    'booking' => 'bookingid',
+                    'course' => 'courseid',
+                    'semester' => 'semesterid',
+                    // Optional 'entity' column: a local_entities entity name; the resolved id lands
+                    // in the option-level entity form field, so the created option gets the entity
+                    // relation and location exactly like a form submission.
+                    'entity' => 'local_entities_entityid_0',
+                    // Availability conditions that reference other records by id: the columns take
+                    // names (option text, usernames, cohort idnumbers) and land in the form fields.
+                    'previouslybookedoption' => 'bo_cond_previouslybooked_optionid',
+                    'selectusers' => 'bo_cond_selectusers_userids',
+                    'cohorts' => 'bo_cond_enrolledincohorts_cohortids',
+                ],
+            ],
+            'templates' => [
+                'singular' => 'template',
+                'datagenerator' => 'template',
+                'required' => ['booking', 'templatename'],
+                'switchids' => ['booking' => 'bookingid', 'course' => 'courseid'],
+            ],
+            'bookingimages' => [
+                'singular' => 'bookingimage',
+                'datagenerator' => 'bookingimage',
+                'required' => ['filepath', 'filename', 'booking'],
+                'switchids' => ['booking' => 'bookingid'],
             ],
             'answers' => [
                 'singular' => 'answer',
@@ -99,10 +124,27 @@ class behat_mod_booking_generator extends behat_generator_base {
     protected function get_booking_id(string $bookingname): int {
         global $DB;
 
-        if (!$id = $DB->get_field('booking', 'id', ['name' => $bookingname])) {
-            throw new Exception('The specified booking activity with name "' . $bookingname . '" does not exist');
+        // Support explicit disambiguation for duplicate booking names:
+        // "Booking name::COURSESHORTNAME", e.g. "My booking::C2".
+        if (strpos($bookingname, '::') !== false) {
+            [$name, $courseshortname] = array_map('trim', explode('::', $bookingname, 2));
+            $courseid = $DB->get_field('course', 'id', ['shortname' => $courseshortname]);
+            if (!$courseid) {
+                throw new Exception('The specified course shortname "' . $courseshortname . '" does not exist');
+            } else {
+                $id = $DB->get_field('booking', 'id', ['name' => $name, 'course' => $courseid]);
+                if (!$id) {
+                    throw new Exception('The specified booking activity with name "'
+                        . $name . '" and course shortname "' . $courseshortname . '" does not exist');
+                }
+                return $id;
+            }
+        } else {
+            if (!$id = $DB->get_field('booking', 'id', ['name' => $bookingname])) {
+                throw new Exception('The specified booking activity with name "' . $bookingname . '" does not exist');
+            }
+            return $id;
         }
-        return $id;
     }
 
     /**
@@ -131,6 +173,67 @@ class behat_mod_booking_generator extends behat_generator_base {
 
         if (!$id = $DB->get_field('booking_options', 'id', ['text' => $identifier])) {
             throw new Exception('The specified booking option with name text "' . $identifier . '" does not exist');
+        }
+        return $id;
+    }
+
+    /**
+     * Resolve the option referenced by the 'previouslybookedoption' column to its id.
+     *
+     * @param string $optiontext
+     * @return int
+     */
+    protected function get_previouslybookedoption_id(string $optiontext): int {
+        return $this->get_option_id($optiontext);
+    }
+
+    /**
+     * Resolve the comma separated usernames of the 'selectusers' column to user ids.
+     *
+     * @param string $usernames
+     * @return int[]
+     */
+    protected function get_selectusers_id(string $usernames): array {
+        global $DB;
+        $ids = [];
+        foreach (array_filter(array_map('trim', explode(',', $usernames))) as $username) {
+            if (!$id = $DB->get_field('user', 'id', ['username' => $username])) {
+                throw new Exception('The specified user with username "' . $username . '" does not exist');
+            }
+            $ids[] = (int) $id;
+        }
+        return $ids;
+    }
+
+    /**
+     * Resolve the comma separated cohort idnumbers of the 'cohorts' column to cohort ids.
+     *
+     * @param string $idnumbers
+     * @return int[]
+     */
+    protected function get_cohorts_id(string $idnumbers): array {
+        global $DB;
+        $ids = [];
+        foreach (array_filter(array_map('trim', explode(',', $idnumbers))) as $idnumber) {
+            if (!$id = $DB->get_field('cohort', 'id', ['idnumber' => $idnumber])) {
+                throw new Exception('The specified cohort with idnumber "' . $idnumber . '" does not exist');
+            }
+            $ids[] = (int) $id;
+        }
+        return $ids;
+    }
+
+    /**
+     * Get the id of a local_entities entity by its name (for the optional 'entity' option column).
+     *
+     * @param string $name the entity name
+     * @return int The entity id
+     */
+    protected function get_entity_id(string $name): int {
+        global $DB;
+
+        if (!$id = $DB->get_field('local_entities', 'id', ['name' => $name])) {
+            throw new Exception('The specified entity with name "' . $name . '" does not exist (is local_entities installed?)');
         }
         return $id;
     }

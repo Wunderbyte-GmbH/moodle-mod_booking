@@ -111,6 +111,7 @@ class send_mail_to_teachers extends dynamic_form {
      * @return void
      */
     protected function check_access_for_dynamic_submission(): void {
+        require_capability('mod/booking:communicate', $this->get_context_for_dynamic_submission());
     }
 
 

@@ -26,8 +26,10 @@
 
 namespace mod_booking;
 
-use advanced_testcase;
+use mod_booking\tests\booking_advanced_testcase;
 use coding_exception;
+use mod_booking\booking_option;
+use mod_booking\booking_answers\booking_answers;
 use mod_booking\price;
 use mod_booking_generator;
 use mod_booking\bo_availability\bo_info;
@@ -35,6 +37,7 @@ use local_shopping_cart\shopping_cart;
 use mod_booking\local\mobile\customformstore;
 use local_shopping_cart\local\cartstore;
 use local_shopping_cart_generator;
+use mod_booking\shopping_cart\service_provider;
 use stdClass;
 use tool_mocktesttime\time_mock;
 use mod_booking\booking_rules\booking_rules;
@@ -53,26 +56,15 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  *
  */
-final class shopping_cart_test extends advanced_testcase {
+final class shopping_cart_test extends booking_advanced_testcase {
     /**
      * Tests set up.
      */
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest(true);
-        time_mock::init();
         time_mock::set_mock_time(strtotime('now'));
         singleton_service::destroy_instance();
-    }
-
-    /**
-     * Mandatory clean-up after each test.
-     */
-    public function tearDown(): void {
-        parent::tearDown();
-        /** @var mod_booking_generator $plugingenerator */
-        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
-        $plugingenerator->teardown();
     }
 
     /**
@@ -196,11 +188,7 @@ final class shopping_cart_test extends advanced_testcase {
         $boinfo1 = new bo_info($settings1);
 
         // Validate subbooking presence.
-        if ((float)\PHPUnit\Runner\Version::series() < 9.6) {
-            $this->assertObjectHasAttribute('subbookings', $settings1);
-        } else {
-            $this->assertObjectHasProperty('subbookings', $settings1);
-        }
+        $this->assertTrue(property_exists($settings1, 'subbookings'));
         $this->assertIsArray($settings1->subbookings);
         $this->assertCount(1, $settings1->subbookings);
         $subbookingobj = $settings1->subbookings[0];
@@ -421,6 +409,241 @@ final class shopping_cart_test extends advanced_testcase {
         // Validate that already booked.
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student2->id);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+    }
+
+    /**
+     * Test that adjust_number_of_items enforces capacity and respects currently held places.
+     *
+     * Scenario: maxanswers=5, 2 users booked (1 place each), 1 user reserved with 2 places.
+     * usersonlist = 2+2 = 4, freeonlist = 5-4 = 1.
+     * The reserved user currently holds 2 places, so they may adjust up to 1+2=3.
+     * - nritems=3 → allowed (exactly at limit)
+     * - nritems=4 → blocked (exceeds limit)
+     * Also: maxanswers=0 (unlimited) → any value allowed.
+     *
+     * @covers \mod_booking\shopping_cart\service_provider::adjust_number_of_items
+     *
+     * @param array $bdata
+     * @dataProvider booking_common_settings_provider
+     */
+    public function test_adjust_number_of_items_capacity_enforcement(array $bdata): void {
+        global $DB;
+
+        $this->setAdminUser();
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $bdata['booking']['course'] = $course->id;
+        $booking = $this->getDataGenerator()->create_module('booking', $bdata['booking']);
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+
+        $record = new stdClass();
+        $record->bookingid = $booking->id;
+        $record->text = 'Option adjust_number_of_items test';
+        $record->maxanswers = 5;
+        $record->bo_cond_customform_restrict = 1;
+        $record->bo_cond_customform_select_1_1 = 'enrolusersaction';
+        $record->bo_cond_customform_label_1_1 = 'Number of users';
+        $record->bo_cond_customform_value_1_1 = 1;
+        $option = $plugingenerator->create_option($record);
+
+        // Two booked users (1 place each).
+        $bookeduser1 = $this->getDataGenerator()->create_user();
+        $bookeduser2 = $this->getDataGenerator()->create_user();
+        $DB->insert_record('booking_answers', (object)[
+            'bookingid' => $booking->id, 'optionid' => $option->id,
+            'userid' => $bookeduser1->id, 'waitinglist' => MOD_BOOKING_STATUSPARAM_BOOKED,
+            'places' => 1, 'timemodified' => time(), 'timecreated' => time(),
+            'completed' => 0, 'frombookingid' => 0, 'numrec' => 0, 'status' => 0,
+        ]);
+        $DB->insert_record('booking_answers', (object)[
+            'bookingid' => $booking->id, 'optionid' => $option->id,
+            'userid' => $bookeduser2->id, 'waitinglist' => MOD_BOOKING_STATUSPARAM_BOOKED,
+            'places' => 1, 'timemodified' => time(), 'timecreated' => time(),
+            'completed' => 0, 'frombookingid' => 0, 'numrec' => 0, 'status' => 0,
+        ]);
+
+        // Reserved user holds 2 places (already counted in usersonlist).
+        $reserveduser = $this->getDataGenerator()->create_user();
+        $reservedjson = json_encode(['condition_customform' => ['customform_enrolusersaction_1' => '2']]);
+        $DB->insert_record('booking_answers', (object)[
+            'bookingid' => $booking->id, 'optionid' => $option->id,
+            'userid' => $reserveduser->id, 'waitinglist' => MOD_BOOKING_STATUSPARAM_RESERVED,
+            'places' => 2, 'json' => $reservedjson,
+            'timemodified' => time(), 'timecreated' => time(),
+            'completed' => 0, 'frombookingid' => 0, 'numrec' => 0, 'status' => 0,
+        ]);
+
+        // Purge cache so adjust_number_of_items reads fresh DB data.
+        booking_option::purge_cache_for_answers($option->id);
+        singleton_service::destroy_instance();
+
+        // Usersonlist=4 (2 booked + reserved user with 2 places), freeonlist=1, currentlybooked=2. Max allowed = 1+2 = 3.
+        $result = service_provider::adjust_number_of_items('option', $option->id, 3, $reserveduser->id);
+        $this->assertTrue($result, 'nritems=3 should be within limit (freeonlist=1, currently holds 2, max 3).');
+
+        booking_option::purge_cache_for_answers($option->id);
+        singleton_service::destroy_booking_answers($option->id);
+
+        $result = service_provider::adjust_number_of_items('option', $option->id, 4, $reserveduser->id);
+        $this->assertFalse($result, 'nritems=4 should exceed limit (max allowed is 3).');
+    }
+
+    /**
+     * Test that adjust_number_of_items allows any value when maxanswers is unlimited (0).
+     *
+     * @covers \mod_booking\shopping_cart\service_provider::adjust_number_of_items
+     *
+     * @param array $bdata
+     * @dataProvider booking_common_settings_provider
+     */
+    public function test_adjust_number_of_items_unlimited_capacity(array $bdata): void {
+        global $DB;
+
+        $this->setAdminUser();
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $bdata['booking']['course'] = $course->id;
+        $booking = $this->getDataGenerator()->create_module('booking', $bdata['booking']);
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+
+        $record = new stdClass();
+        $record->bookingid = $booking->id;
+        $record->text = 'Option unlimited capacity test';
+        // Maxanswers not set, defaults to 0 (unlimited).
+        $record->bo_cond_customform_restrict = 1;
+        $record->bo_cond_customform_select_1_1 = 'enrolusersaction';
+        $record->bo_cond_customform_label_1_1 = 'Number of users';
+        $record->bo_cond_customform_value_1_1 = 1;
+        $option = $plugingenerator->create_option($record);
+
+        $reserveduser = $this->getDataGenerator()->create_user();
+        $reservedjson = json_encode(['condition_customform' => ['customform_enrolusersaction_1' => '1']]);
+        $DB->insert_record('booking_answers', (object)[
+            'bookingid' => $booking->id, 'optionid' => $option->id,
+            'userid' => $reserveduser->id, 'waitinglist' => MOD_BOOKING_STATUSPARAM_RESERVED,
+            'places' => 1, 'json' => $reservedjson,
+            'timemodified' => time(), 'timecreated' => time(),
+            'completed' => 0, 'frombookingid' => 0, 'numrec' => 0, 'status' => 0,
+        ]);
+
+        booking_option::purge_cache_for_answers($option->id);
+        singleton_service::destroy_instance();
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
+        $this->assertEquals(0, $settings->maxanswers, 'maxanswers should be 0 (unlimited).');
+
+        foreach ([1, 50, 999] as $value) {
+            booking_option::purge_cache_for_answers($option->id);
+            singleton_service::destroy_booking_answers($option->id);
+            $result = service_provider::adjust_number_of_items('option', $option->id, $value, $reserveduser->id);
+            $this->assertTrue($result, "nritems=$value should always be allowed when maxanswers is unlimited.");
+        }
+    }
+
+    /**
+     * Characterisation test for the reserved -> booked conversion at paid checkout.
+     *
+     * Scenario probed: a user holds the LAST seat of an option as a cart reservation
+     * (waitinglist = MOD_BOOKING_STATUSPARAM_RESERVED), so the option already counts as fully
+     * booked - a reserved place is categorised into BOTH usersonlist and usersreserved by the
+     * booking_answers constructor and therefore consumes a place in freeonlist/fullybooked.
+     *
+     * When payment succeeds, service_provider::successful_checkout() converts the reservation in
+     * place via booking_option::user_confirm_response() -> write_user_answer_to_db() using the
+     * EXISTING baid (an UPDATE 2 -> 0), NOT a fresh user_submit_response() insert. The conversion is
+     * capacity-neutral: it must not create a second answer, must not add a second place, and must
+     * not be blocked by the option being "fully booked" (the seat is the user's own, already
+     * counted at reservation time).
+     *
+     * This pins that behaviour so the per-option capacity lock work - which only touches the
+     * user_submit_response() path - provably does not affect the regular checkout conversion.
+     *
+     * @covers \mod_booking\shopping_cart\service_provider::successful_checkout
+     * @covers \mod_booking\booking_option::user_confirm_response
+     *
+     * @param array $bdata
+     * @dataProvider booking_common_settings_provider
+     */
+    public function test_reserved_user_checkout_converts_last_seat_in_place(array $bdata): void {
+        global $DB;
+
+        $this->setAdminUser();
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $bdata['booking']['course'] = $course->id;
+        $booking = $this->getDataGenerator()->create_module('booking', $bdata['booking']);
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+
+        // Single-seat option, so the reserved user fills the ONLY place.
+        $record = new stdClass();
+        $record->bookingid = $booking->id;
+        $record->text = 'Reserved checkout conversion option';
+        $record->maxanswers = 1;
+        $option = $plugingenerator->create_option($record);
+
+        // The user holds the single seat as a cart reservation (waitinglist = 2, 1 place).
+        $reserveduser = $this->getDataGenerator()->create_user();
+        $DB->insert_record('booking_answers', (object)[
+            'bookingid' => $booking->id, 'optionid' => $option->id,
+            'userid' => $reserveduser->id, 'waitinglist' => MOD_BOOKING_STATUSPARAM_RESERVED,
+            'places' => 1, 'timemodified' => time(), 'timecreated' => time(),
+            'completed' => 0, 'frombookingid' => 0, 'numrec' => 0, 'status' => 0,
+        ]);
+
+        booking_option::purge_cache_for_answers($option->id);
+        singleton_service::destroy_instance();
+
+        // Precondition: the reservation already consumes the only place -> option is fully booked.
+        $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
+        $ba = singleton_service::get_instance_of_booking_answers($settings);
+        $this->assertEquals(
+            1,
+            booking_answers::count_places($ba->get_usersonlist()),
+            'Reserved place must be counted in usersonlist (it consumes the seat).'
+        );
+        $this->assertArrayHasKey($reserveduser->id, $ba->get_usersreserved(), 'User must start on the reserved list.');
+        $this->assertTrue($ba->is_fully_booked(), 'Option must be fully booked by the reservation.');
+
+        // Act: payment succeeds -> the real checkout callback converts the reservation.
+        $result = service_provider::successful_checkout('option', (int) $option->id, 0, (int) $reserveduser->id);
+        $this->assertTrue($result, 'Checkout of an own reservation on a full option must succeed.');
+
+        // Assert exactly ONE non-deleted answer survives, and it is BOOKED (no duplicate, no second seat).
+        $answers = $DB->get_records_select(
+            'booking_answers',
+            'optionid = :optionid AND userid = :userid AND waitinglist <> :deleted',
+            [
+                'optionid' => $option->id,
+                'userid' => $reserveduser->id,
+                'deleted' => MOD_BOOKING_STATUSPARAM_DELETED,
+            ]
+        );
+        $this->assertCount(1, $answers, 'Conversion must UPDATE in place, not insert a duplicate answer.');
+        $answer = reset($answers);
+        $this->assertEquals(
+            MOD_BOOKING_STATUSPARAM_BOOKED,
+            (int) $answer->waitinglist,
+            'The surviving answer must be BOOKED (waitinglist 0).'
+        );
+
+        // Assert capacity is unchanged: still exactly one place, user moved reserved -> booked.
+        booking_option::purge_cache_for_answers($option->id);
+        singleton_service::destroy_booking_answers($option->id);
+        $ba = singleton_service::get_instance_of_booking_answers($settings);
+        $this->assertEquals(
+            1,
+            booking_answers::count_places($ba->get_usersonlist()),
+            'Conversion must be capacity-neutral: still exactly one place taken.'
+        );
+        $this->assertArrayHasKey($reserveduser->id, $ba->get_usersonlist(), 'User must now be on the booked list.');
+        $this->assertArrayNotHasKey(
+            $reserveduser->id,
+            $ba->get_usersreserved(),
+            'User must no longer be on the reserved list.'
+        );
     }
 
     /**

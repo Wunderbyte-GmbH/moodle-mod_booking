@@ -30,7 +30,6 @@ use mod_booking\local\connectedcourse;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
 use mod_booking\singleton_service;
-use coding_exception;
 use dml_exception;
 use moodle_exception;
 use MoodleQuickForm;
@@ -54,9 +53,11 @@ class courseid extends field_base {
      * Some fields are saved with the booking option...
      * This is normal behaviour.
      * Some can be saved only post save (when they need the option id).
+     * The connected course is created during prepare_save_field, but naming it needs the
+     * option id, so the naming scheme is applied post save.
      * @var int
      */
-    public static $save = MOD_BOOKING_EXECUTION_NORMAL;
+    public static $save = MOD_BOOKING_EXECUTION_POSTSAVE;
 
     /**
      * This identifies the header under which this particular field should be displayed.
@@ -109,6 +110,17 @@ class courseid extends field_base {
             $formdata->courseid = reset($formdata->courseid);
         }
 
+        // Capture what was actually submitted BEFORE handle_user_choice() and the fallback below
+        // can rewrite it. None of these three keys is persisted anywhere - they only exist on the
+        // form - so without logging them here there is no way to reconstruct afterwards which
+        // template was used and whether its users were meant to come along.
+        $submitted = [
+            'chooseorcreatecourse' => $formdata->chooseorcreatecourse ?? null,
+            'coursetemplateid' => $formdata->coursetemplateid ?? null,
+            'createnewmoodlecoursefromtemplatewithusers' =>
+                $formdata->createnewmoodlecoursefromtemplatewithusers ?? null,
+        ];
+
         /* Create a new course and put it either in a new course category
         or in an already existing one. */
         connectedcourse::handle_user_choice($newoption, $formdata);
@@ -124,8 +136,131 @@ class courseid extends field_base {
         parent::prepare_save_field($formdata, $newoption, $updateparam, 0);
 
         $instance = new courseid();
-        $changes = $instance->check_for_changes($formdata, $instance);
-        return $changes;
+        $changes = [];
+
+        $courseidchanges = $instance->check_for_changes($formdata, $instance);
+        if (!empty($courseidchanges)) {
+            $changes['courseid'] = $courseidchanges;
+        }
+
+        // A course created from a template is a one-way operation that cannot be inspected later:
+        // the copy runs asynchronously as the admin user, and the three parameters that steer it
+        // are gone as soon as the form is submitted. So whenever a template copy is requested,
+        // record all three unconditionally. check_for_changes() cannot be used for this - it drops
+        // any value whose old and new state are both empty, which would silently swallow exactly
+        // the case worth logging: "transfer the users" left unticked.
+        if ((int) ($submitted['chooseorcreatecourse'] ?? 0) === 3) {
+            foreach ($submitted as $formkey => $value) {
+                $changes[$formkey] = [
+                    'changes' => [
+                        'fieldname' => 'courseid',
+                        'formkey' => $formkey,
+                        'oldvalue' => '',
+                        'newvalue' => (string) ($value ?? ''),
+                    ],
+                ];
+            }
+        }
+
+        // Returning a non-empty array unconditionally would make booking_utils::react_on_changes()
+        // treat every single save as a change and mail all booked users, so stay silent when
+        // there is nothing to report.
+        return empty($changes) ? [] : ['changes' => $changes];
+    }
+
+    /**
+     * Render the recorded changes for the event description.
+     *
+     * All entries of this field share the fieldname 'courseid' (the renderer resolves the field
+     * class from it), so the individual form key decides the label and how the value is displayed.
+     *
+     * @param array $changes
+     * @return array
+     */
+    public function get_changes_description(array $changes): array {
+
+        $formkey = $changes['formkey'] ?? 'courseid';
+        $oldvalue = $changes['oldvalue'] ?? '';
+        $newvalue = $changes['newvalue'] ?? '';
+
+        switch ($formkey) {
+            case 'chooseorcreatecourse':
+                $fieldnamestring = get_string('connectedmoodlecourse', 'mod_booking');
+                $oldvalue = self::describe_course_choice($oldvalue);
+                $newvalue = self::describe_course_choice($newvalue);
+                break;
+            case 'coursetemplateid':
+                $fieldnamestring = get_string('createnewmoodlecoursefromtemplate', 'mod_booking');
+                $oldvalue = self::describe_course($oldvalue);
+                $newvalue = self::describe_course($newvalue);
+                break;
+            case 'createnewmoodlecoursefromtemplatewithusers':
+                $fieldnamestring = get_string('createnewmoodlecoursefromtemplatewithusers', 'mod_booking');
+                // An unticked box is the value we most need on record, so both states are spelled out.
+                $oldvalue = '';
+                $newvalue = empty($newvalue) ? get_string('off', 'mod_booking') : get_string('on', 'mod_booking');
+                break;
+            default:
+                // The connected course itself is handled by the generic implementation.
+                return parent::get_changes_description($changes);
+        }
+
+        if ((empty($oldvalue) && empty($newvalue)) || $oldvalue == $newvalue) {
+            return [
+                'info' => get_string('changeinfochanged', 'mod_booking', $fieldnamestring) . ".",
+            ];
+        }
+
+        return [
+            'fieldname' => $fieldnamestring,
+            'oldvalue' => $oldvalue,
+            'newvalue' => $newvalue,
+        ];
+    }
+
+    /**
+     * Turn a chooseorcreatecourse value into the label the form shows for it.
+     *
+     * @param mixed $value
+     * @return string
+     */
+    private static function describe_course_choice($value): string {
+
+        if ($value === '' || $value === null) {
+            return '';
+        }
+
+        $labels = [
+            0 => 'nomoodlecourseconnection',
+            1 => 'connectedmoodlecourse',
+            2 => 'createnewmoodlecourse',
+            3 => 'createnewmoodlecoursefromtemplate',
+        ];
+
+        $key = $labels[(int) $value] ?? null;
+        return empty($key) ? (string) $value : get_string($key, 'mod_booking');
+    }
+
+    /**
+     * Turn a course id into a readable "name (ID: x)" string.
+     *
+     * @param mixed $value
+     * @return string
+     */
+    private static function describe_course($value): string {
+
+        global $DB;
+
+        if (empty($value)) {
+            return '';
+        }
+
+        $fullname = $DB->get_field('course', 'fullname', ['id' => (int) $value]);
+        return get_string(
+            'changesinentity',
+            'mod_booking',
+            (object) ['id' => (int) $value, 'name' => ($fullname ?: '')]
+        );
     }
 
     /**
@@ -139,7 +274,9 @@ class courseid extends field_base {
 
         global $DB;
 
-        if (is_array($data['courseid'])) {
+        // The key is absent when no course is selected at all, e.g. when importing an option
+        // which lets mod_booking create the connected course (chooseorcreatecourse = 2).
+        if (isset($data['courseid']) && is_array($data['courseid'])) {
             $data['courseid'] = reset($data['courseid']);
         }
 
@@ -185,7 +322,7 @@ class courseid extends field_base {
             'valuehtmlcallback' => function ($value) {
                 global $DB, $OUTPUT;
                 // Check if the course is currently being duplicated.
-                $sql = "SELECT c.id, c.fullname, c.shortname
+                $sql = "SELECT c.id, c.fullname, c.shortname, c.visible
                         FROM {course} c
                         JOIN {backup_controllers} bc
                         ON c.id = bc.itemid
@@ -197,7 +334,7 @@ class courseid extends field_base {
 
                 if (empty($duplicatingcourse)) {
                     // Check if the course exists.
-                    $sql = "SELECT c.id, c.fullname, c.shortname
+                    $sql = "SELECT c.id, c.fullname, c.shortname, c.visible
                             FROM {course} c
                             WHERE c.id = :courseid";
                     $params = ['courseid' => $value];
@@ -242,6 +379,15 @@ class courseid extends field_base {
         $mform->hideIf('coursetemplateid', 'chooseorcreatecourse', 'neq', 3);
         $mform->addHelpButton('coursetemplateid', 'createnewmoodlecoursefromtemplate', 'mod_booking');
 
+        // Inform that the course is created immediately but its content is copied in the background.
+        $mform->addElement(
+            'static',
+            'coursetemplateinfo',
+            '',
+            get_string('createnewmoodlecoursefromtemplateinfo', 'mod_booking')
+        );
+        $mform->hideIf('coursetemplateinfo', 'chooseorcreatecourse', 'neq', 3);
+
         $mform->addElement(
             'advcheckbox',
             'createnewmoodlecoursefromtemplatewithusers',
@@ -249,6 +395,14 @@ class courseid extends field_base {
             0
         );
         $mform->hideIf('createnewmoodlecoursefromtemplatewithusers', 'chooseorcreatecourse', 'neq', 3);
+
+        /* When a booking option is duplicated, the connected Moodle course is copied while the
+        form is being loaded - see set_data(). The copy is a course we own and may rename, but by
+        the time the form is submitted it looks exactly like a course the user picked by hand.
+        This hidden field carries the id of that copy through the form, so that save_data() can
+        tell the two apart and never renames a course the user merely selected. */
+        $mform->addElement('hidden', 'connectedcoursecopied', 0);
+        $mform->setType('connectedcoursecopied', PARAM_INT);
     }
 
     /**
@@ -296,8 +450,18 @@ class courseid extends field_base {
                 get_config('booking', 'duplicatemoodlecourses')
                 && !empty($data->oldcopyoptionid)
                 && !empty($settings->courseid)
+                && !self::is_own_course($settings)
             ) {
-                $newcourseid = self::copy_moodle_course($data->oldcopyoptionid);
+                /* This is an interactive form load, so we have a real acting user and check
+                their capabilities here. connectedcourse::copy_course() itself is the bare
+                mechanism and does not check anything - see its phpdoc. */
+                $oldsettings = singleton_service::get_instance_of_booking_option_settings($data->oldcopyoptionid);
+                $context = context_course::instance($oldsettings->courseid);
+                require_all_capabilities(\core_course\management\helper::get_course_copy_capabilities(), $context);
+
+                $newcourseid = connectedcourse::copy_course((int) $oldsettings->courseid);
+                // Remember that this course is our own copy, so that save_data() may rename it.
+                $data->connectedcoursecopied = $newcourseid;
             }
 
             // If there is no $newcourseid, then the old courseid ($settings->{$key}) will be taken.
@@ -312,103 +476,56 @@ class courseid extends field_base {
     }
 
     /**
-     * Helper function to copy a Moodle course.
-     * @param int $oldcopyoptionid the id of the duplicated booking option
-     *                             containing the course to copy
-     * @return int $newcourseid the id of the new Moodle course
-     * @throws coding_exception
+     * Whether the option enrols into the very course its booking instance lives in.
+     *
+     * Such an option keeps its connection when duplicated: copying that course would copy the
+     * booking instance along with it, so the copy would be no self contained duplicate.
+     *
+     * @param booking_option_settings $settings
+     * @return bool
      */
-    private static function copy_moodle_course(int $oldcopyoptionid) {
-
-        $oldsettings = singleton_service::get_instance_of_booking_option_settings($oldcopyoptionid);
-        $oldcourseid = $oldsettings->courseid;
-
-        // At first, we check the capabilities.
-        $context = context_course::instance($oldcourseid);
-        $copycaps = \core_course\management\helper::get_course_copy_capabilities();
-        require_all_capabilities($copycaps, $context);
-
-        // Get an object with the old course data.
-        $oldcourse = get_course($oldcourseid);
-
-        // Gather copy data.
-        $copydata = new stdClass();
-        $copydata->courseid = $oldcourseid;
-        $copydata->fullname = $oldcourse->fullname . " (" . get_string('copy', 'mod_booking') . ")";
-        $copydata->shortname = $oldcourse->shortname . "_" . strtolower(get_string('copy', 'mod_booking'));
-        $copydata->category = $oldcourse->category;
-        $copydata->visible = $oldcourse->visible;
-        $copydata->startdate = $oldcourse->startdate;
-        $copydata->enddate = $oldcourse->enddate;
-        $copydata->idnumber = '';
-        $copydata->userdata = "0"; // This might be a feature in a future version.
-        $copydata->keptroles = [];
-        // Roles ($copydata->keptroles = [roleid1, roleid2,...]) are also not yet included.
-
-        // Now, we create an adhoc task to copy the course.
-        $newcourseid = self::create_copy($copydata);
-
-        // We return the ID of the new course copy.
-        return (int) $newcourseid ?? null;
+    private static function is_own_course(booking_option_settings $settings): bool {
+        if (empty($settings->cmid)) {
+            return false;
+        }
+        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid((int) $settings->cmid);
+        return (int) $settings->courseid === (int) $bookingsettings->course;
     }
 
     /**
-     * Creates a course copy.
+     * Apply the configured naming scheme to the connected Moodle course.
      *
-     * @param \stdClass $copydata Course copy data from process_formdata
-     * @return int $newcourseid the id of the new course
+     * This runs post save because the naming templates may contain {optionid}, which only
+     * exists once the booking option has been written to the database.
+     *
+     * @param stdClass $formdata
+     * @param stdClass $option
+     * @return void
      */
-    private static function create_copy(stdClass $copydata): int {
-        global $CFG, $USER;
-        $copyids = [];
+    public static function save_data(stdClass &$formdata, stdClass &$option) {
 
-        require_once($CFG->dirroot . '/backup/util/includes/backup_includes.php');
-        require_once($CFG->dirroot . '/backup/util/includes/restore_includes.php');
+        $courseid = (int) ($option->courseid ?? 0);
+        $optionid = (int) ($option->id ?? 0);
 
-        // Create the initial backupcontoller.
-        $bc = new \backup_controller(
-            \backup::TYPE_1COURSE,
-            $copydata->courseid,
-            \backup::FORMAT_MOODLE,
-            \backup::INTERACTIVE_NO,
-            \backup::MODE_COPY,
-            $USER->id,
-            \backup::RELEASESESSION_YES
-        );
-        $copyids['backupid'] = $bc->get_backupid();
+        if (empty($courseid) || empty($optionid)) {
+            return;
+        }
 
-        // Create the initial restore contoller.
-        [$fullname, $shortname] = \restore_dbops::calculate_course_names(
-            0,
-            get_string('copyingcourse', 'backup'),
-            get_string('copyingcourseshortname', 'backup')
-        );
-        $newcourseid = \restore_dbops::create_new_course($fullname, $shortname, $copydata->category);
-        $rc = new \restore_controller(
-            $copyids['backupid'],
-            $newcourseid,
-            \backup::INTERACTIVE_NO,
-            \backup::MODE_COPY,
-            $USER->id,
-            \backup::TARGET_NEW_COURSE,
-            null,
-            \backup::RELEASESESSION_NO,
-            $copydata
-        );
-        $copyids['restoreid'] = $rc->get_restoreid();
+        /* Only rename courses which mod_booking created itself. A course the user picked from
+        the list belongs to somebody else and may well be shared by many booking options -
+        renaming it would be destructive and is never what the naming scheme is meant to do. */
+        $created = in_array((int) ($formdata->chooseorcreatecourse ?? 1), [2, 3], true);
+        $copied = !empty($formdata->connectedcoursecopied)
+            && (int) $formdata->connectedcoursecopied === $courseid;
 
-        $bc->set_status(\backup::STATUS_AWAITING);
-        $bc->get_status();
-        $rc->save_controller();
+        if (!$created && !$copied) {
+            return;
+        }
 
-        // Create the ad-hoc task to perform the course copy.
-        $asynctask = new \core\task\asynchronous_copy_task();
-        $asynctask->set_custom_data($copyids);
-        \core\task\manager::queue_adhoc_task($asynctask);
+        connectedcourse::apply_naming_scheme($courseid, $optionid);
 
-        // Clean up the controller.
-        $bc->destroy();
-
-        return $newcourseid;
+        /* A copied course is renamed again by cron: the async copy task feeds the provisional
+        names back in when it finishes. Queue the finalizer so the naming survives that. */
+        connectedcourse::queue_naming_finalizer($courseid, $optionid);
     }
 }

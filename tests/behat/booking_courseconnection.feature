@@ -51,26 +51,26 @@ Feature: Configure and validate different course connection settings for booking
     And I am on the "My courses" page logged in as student1
     And I should see "Course 1" in the "#region-main" "css_element"
     And I should not see "Enroll_later" in the "#region-main" "css_element"
-    And I log out
+    And the following "mod_booking > answers" exist:
+      | booking    | option     | user     |
+      | My booking | Enroll_now | student2 |
     And I am on the "My booking" Activity page logged in as student2
-    When I click on "Book now" "text" in the ".allbookingoptionstable_r2 .booknow" "css_element"
-    And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r2" "css_element"
     Then I should see "Start" in the ".allbookingoptionstable_r2" "css_element"
     ## Verify enrolled immediately
     And I click on "Start" "link" in the ".allbookingoptionstable_r2" "css_element"
     And I should see "Course 3" in the "#page-header" "css_element"
     And I should see "General" in the ".course-content" "css_element"
 
-  @javascript
+  @javascript @booking_report2_tracker
   Scenario: Booking courseconnection: create default empty course and enroll users
     Given the following config values are set as admin:
       | config                           | value | plugin  |
       | linktomoodlecourseonbookedbutton | 0     | booking |
     ## OLD behavior - "Booked" label and "Go to course" link to the connected course
     And the following "mod_booking > options" exist:
-      | booking    | text         | description  | importing | course | chooseorcreatecourse | enrolmentstatus | limitanswers | maxanswers | teachersforoption | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 |
-      | My booking | Enroll_later | Enroll_later | 1         | C1     | 2                    | 0               | 0            | 0          | teacher1          | 0              | 0              | ## tomorrow ##    | ## +2 days ##   |
-      | My booking | Enroll_now   | Enroll_now   | 1         | C1     | 2                    | 2               | 0            | 0          | teacher1          | 0              | 0              | ## +2 days ##     | ## +4 days ##   |
+      | booking    | text         | description   | importing | course | chooseorcreatecourse | enrolmentstatus | limitanswers | maxanswers | teachersforoption | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 |
+      | My booking | Enroll_later | Enroll_later  | 1         | C1     | 2                    | 0               | 0            | 0          | teacher1          | 0              | 0              | ## tomorrow ##    | ## +2 days ##   |
+      | My booking | Enroll_now   | Enroll_now_ds | 1         | C1     | 2                    | 2               | 0            | 0          | teacher1          | 0              | 0              | ## +2 days ##     | ## +4 days ##   |
     ## enrolmentstatus: 0 enrol at coursestart; 1 enrolment done; 2 immediately enrol
     ## Verify enroll later (at course start)
     And the following "mod_booking > answers" exist:
@@ -79,15 +79,35 @@ Feature: Configure and validate different course connection settings for booking
     And I am on the "My courses" page logged in as student1
     And I should see "Course 1" in the "#region-main" "css_element"
     And I should not see "Enroll_later" in the "#region-main" "css_element"
-    And I log out
+    And the following "mod_booking > answers" exist:
+      | booking    | option     | user     |
+      | My booking | Enroll_now | student2 |
     And I am on the "My booking" Activity page logged in as student2
-    When I click on "Book now" "text" in the ".allbookingoptionstable_r2 .booknow" "css_element"
-    And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r2" "css_element"
     Then I should see "Booked" in the ".allbookingoptionstable_r2" "css_element"
     ## Verify enrolled immediately
     And I click on "Go to Moodle course" "link" in the ".allbookingoptionstable_r2" "css_element"
     And I should see "Enroll_now" in the "#page-header" "css_element"
     And I should see "General" in the ".course-content" "css_element"
+    And I log out
+    ## ==================================================
+    ## Validate report2_tracker page for waiting list bookings
+    And I log in as "admin"
+    And I visit "/mod/booking/report2.php"
+    And I should see "Bookings" in the "#accordion-heading-bookedusers" "css_element"
+    And I should see "2 of 2 records found" in the ".wunderbyteTableClass.booked_system_0" "css_element"
+    ## Rows are matched by content because rows created within the same second
+    ## have no deterministic order across the supported databases.
+    And I should see "1/Unlimited" in the "//tr[starts-with(@id, 'booked_system_0_r') and contains(., 'Enroll_later')]" "xpath_element"
+    And I should see "1/Unlimited" in the "//tr[starts-with(@id, 'booked_system_0_r') and contains(., 'Enroll_now')]" "xpath_element"
+    And I follow "Enroll_now"
+    And I switch to a second window
+    And I should see "Manage bookings for Booking option: \"Enroll_now\""
+    And I should see "Teachers:" in the ".mod-booking-report2-infobox" "css_element"
+    And I should see "Teacher 1" in the ".mod-booking-report2-infobox" "css_element"
+    And I should see "Associated course:" in the ".mod-booking-report2-infobox" "css_element"
+    And I should see "Enroll_now" in the ".mod-booking-report2-infobox" "css_element"
+    And I click on "Show description" "text" in the ".mod-booking-report2-infobox" "css_element"
+    And I should see "Enroll_now_ds"
 
   @javascript
   Scenario: Booking courseconnection: create empty course under category and enroll users immediately
@@ -106,23 +126,27 @@ Feature: Configure and validate different course connection settings for booking
       | booking    | text            | description | importing | course | chooseorcreatecourse | coursecat  | enrolmentstatus | limitanswers | maxanswers | teachersforoption | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 |
       | My booking | Enroll_existcat | existcat    | 1         | C1     | 2                    | BookCat1   | 2               | 0            | 0          | teacher1          | 0              | 0              | ## +1 days ##     | ## +3 days ##   |
       | My booking | Enroll_newcat   | newcat      | 1         | C1     | 2                    | NewBookCat | 2               | 0            | 0          | teacher1          | 0              | 0              | ## +2 days ##     | ## +4 days ##   |
+    And the following "mod_booking > answers" exist:
+      | booking    | option          | user     |
+      | My booking | Enroll_existcat | student1 |
+      | My booking | Enroll_newcat   | student2 |
     And I am on the "My booking" Activity page logged in as student1
-    When I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
-    And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r1" "css_element"
     Then I should see "Booked" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Go to Moodle course" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Enroll_existcat" in the "#page-header" "css_element"
-    And I log out
     And I am on the "My booking" Activity page logged in as student2
-    When I click on "Book now" "text" in the ".allbookingoptionstable_r2 .booknow" "css_element"
-    And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r2" "css_element"
     Then I should see "Booked" in the ".allbookingoptionstable_r2" "css_element"
     And I click on "Go to Moodle course" "link" in the ".allbookingoptionstable_r2" "css_element"
     And I should see "Enroll_newcat" in the "#page-header" "css_element"
     And I log out
     ## Verify is course categories are correct
+    ## Navigation to the course settings via course homepage is required
+    ## To avoid occasional failure under Moodle 5.1
+    ## with message"Javascript code and/or AJAX requests are not ready after 10 seconds..."
+    ## caused by some Moodle 5.1 session's issues.
     And I am logged in as admin
-    And I am on the "Enroll_existcat" "course editing" page
+    And I am on the "Enroll_existcat" "course" page
+    And I follow "Settings"
     And I should see "BookCat1"
     And I am on the "Enroll_newcat" "course editing" page
     And I should see "NewBookCat"
@@ -147,8 +171,8 @@ Feature: Configure and validate different course connection settings for booking
     And the following config values are set as admin:
       | config                           | value     | plugin  |
       | linktomoodlecourseonbookedbutton | 0         | booking |
-    ## OLD behavior - "Booked" label and "Go to course" link to the connected course
       | newcoursecategorycfield          | coursecat | booking |
+    ## OLD behavior - "Booked" label and "Go to course" link to the connected course
     ## The "templatetags" value must be set only visually OR customstep required (name to id conversion).
     And I log in as "admin"
     And I set the following administration settings values:
@@ -163,7 +187,7 @@ Feature: Configure and validate different course connection settings for booking
     And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I set the following fields to these values:
       | Connected Moodle course                | Create new Moodle course from template |
-      | Create new Moodle course from template | Course 4  |
+      | Create new Moodle course from template | Course 4                               |
     And I press "Save"
     And I log out
     # Book as student and verify course content.
@@ -171,7 +195,11 @@ Feature: Configure and validate different course connection settings for booking
     When I click on "Book now" "text" in the ".allbookingoptionstable_r1 .booknow" "css_element"
     And I click on "Click again to confirm booking" "text" in the ".allbookingoptionstable_r1" "css_element"
     Then I should see "Booked" in the ".allbookingoptionstable_r1" "css_element"
-    And I wait "1" seconds
+    ## The course is created immediately as an empty shell; its content is copied from the template
+    ## in the background (\core\task\asynchronous_copy_task), then finalize_template_course strips the
+    ## inherited tags and re-enrols the booked users whose shell enrolment the restore dropped.
+    And I trigger cron
+    And I am on the "My booking" Activity page logged in as student1
     And I click on "Go to Moodle course" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Enroll_newcat" in the "#page-header" "css_element"
     And I should see "TempPage1" in the ".course-content" "css_element"

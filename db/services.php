@@ -36,6 +36,36 @@ $functions = [
         'ajax' => true,
         'services' => [MOODLE_OFFICIAL_MOBILE_SERVICE, 'moodle_mobile_app'],
     ],
+    'mod_booking_get_slots' => [
+        'classname' => 'mod_booking\external\get_slots',
+        'description' => 'Return the selectable slots and picker meta for a slot booking option.',
+        'type' => 'read',
+        'capabilities' => 'mod/booking:conditionforms',
+        'ajax' => true,
+        'services' => [MOODLE_OFFICIAL_MOBILE_SERVICE, 'moodle_mobile_app'],
+    ],
+    'mod_booking_get_booked_slots' => [
+        'classname' => 'mod_booking\external\get_booked_slots',
+        'description' => 'Return the booked-slot report data for a slot booking option.',
+        'type' => 'read',
+        'capabilities' => 'mod/booking:view',
+        'ajax' => true,
+        'services' => [MOODLE_OFFICIAL_MOBILE_SERVICE, 'moodle_mobile_app'],
+    ],
+    'mod_booking_save_slot_selection' => [
+        'classname' => 'mod_booking\external\save_slot_selection',
+        'description' => 'Validate and cache a user slot selection before booking.',
+        'type' => 'write',
+        'capabilities' => 'mod/booking:conditionforms',
+        'ajax' => true,
+    ],
+    'mod_booking_release_slots' => [
+        'classname' => 'mod_booking\external\release_slots',
+        'description' => 'Self-service partial cancellation: release individual booked slots.',
+        'type' => 'write',
+        'capabilities' => 'mod/booking:moveslotsself',
+        'ajax' => true,
+    ],
     'mod_booking_get_submission_mobile' => [
       'classname' => 'mod_booking\external\get_submission_mobile',
       'description' => 'Checks the submission form',
@@ -48,7 +78,7 @@ $functions = [
         'classname' => 'mod_booking\external\addbookingoption',
         'description' => 'Add Booking option',
         'type' => 'write',
-        'capabilities' => '',
+        'capabilities' => 'mod/booking:updatebooking',
         'ajax' => false,
     ],
     'mod_booking_categories' => [
@@ -107,6 +137,13 @@ $functions = [
         'capabilities' => '',
         'ajax' => true,
     ],
+    'mod_booking_search_booking_instances' => [
+        'classname' => 'mod_booking\external\search_booking_instances',
+        'description' => 'Search a list of all booking instances',
+        'type' => 'read',
+        'capabilities' => '',
+        'ajax' => 1,
+    ],
     'mod_booking_search_booking_options' => [
         'classname' => 'mod_booking\external\search_booking_options',
         'description' => 'Search a list of all booking options',
@@ -142,6 +179,13 @@ $functions = [
         'capabilities' => '',
         'ajax' => 1,
     ],
+    'mod_booking_search_sync_sources' => [
+        'classname' => 'mod_booking\external\search_sync_sources',
+        'description' => 'Search cohorts or groups for sync rule creation',
+        'type' => 'read',
+        'capabilities' => 'mod/booking:bookforothers',
+        'ajax' => 1,
+    ],
     'mod_booking_allow_add_item_to_cart' => [
         'classname' => 'mod_booking\external\allow_add_item_to_cart',
         'description' => 'Check if item can be added to cart',
@@ -166,8 +210,8 @@ $functions = [
     'mod_booking_set_parent_content' => [
         'classname' => 'mod_booking\external\save_option_field_config',
         'description' => 'Returns all possible configurable fields of option form',
-        'type' => 'read',
-        'capabilities' => '',
+        'type' => 'write',
+        'capabilities' => 'mod/booking:editoptionformconfig',
         'ajax' => 1,
     ],
     'mod_booking_set_checked_booking_instance' => [
@@ -183,6 +227,48 @@ $functions = [
         'type'          => 'write',
         'capabilities'  => 'mod/booking:readresponses',
         'ajax'          => 1,
+    ],
+    'mod_booking_submit_performance' => [
+        'classname'     => 'mod_booking\external\performance',
+        'description' => 'Handle performance submit',
+        'type'        => 'write',
+        'ajax'        => 1,
+    ],
+    'mod_booking_get_performance_chart' => [
+        'classname'   => 'mod_booking\external\get_performance_chart',
+        'methodname'  => 'execute',
+        'description' => 'Get performance chart data by hash',
+        'type'        => 'read',
+        'ajax'        => 1,
+    ],
+    'mod_booking_save_measurement' => [
+        'classname'   => 'mod_booking\\external\\save_measurement',
+        'methodname'  => 'execute',
+        'description' => 'Save performance measurement',
+        'type'        => 'write',
+        'ajax'        => 1,
+    ],
+    'mod_booking_delete_measurement' => [
+        'classname'   => 'mod_booking\\external\\delete_measurement',
+        'methodname'  => 'execute',
+        'description' => 'Delete performance measurement',
+        'type'        => 'write',
+        'ajax'        => 1,
+    ],
+    'mod_booking_delete_booking_option' => [
+        'classname'    => 'mod_booking\\external\\delete_booking_option',
+        'methodname'   => 'execute',
+        'description'  => 'Delete a booking option including answers, optiondates etc.',
+        'type'         => 'write',
+        'capabilities' => 'mod/booking:updatebooking',
+        'ajax'         => 1,
+    ],
+    'mod_booking_rate_option' => [
+        'classname'   => 'mod_booking\\external\\rate_option',
+        'methodname'  => 'execute',
+        'description' => 'Rate a booking option and return the new average rating',
+        'type'        => 'write',
+        'ajax'        => 1,
     ],
 ];
 

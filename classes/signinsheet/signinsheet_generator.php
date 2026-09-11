@@ -15,15 +15,19 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace mod_booking\signinsheet;
-
 use mod_booking\booking_option_settings;
 use mod_booking\option\fields\sharedplaces;
+use core_text;
+use mod_booking\placeholders\placeholders_info;
 use mod_booking\singleton_service;
-use Exception;
+use local_wunderbyte_table\local\pdf\pdfa_pdf;
 use user_picture;
 use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
+require_once($CFG->dirroot . '/mod/booking/lib.php');
+\core_php_time_limit::raise();
+raise_memory_limit(MEMORY_HUGE);
 require_once($CFG->dirroot . '/local/wunderbyte_table/lib/phpwordinit.php');
 /**
  * Class for generating the signin sheet as PDF using TCPDF
@@ -237,6 +241,25 @@ class signinsheet_generator {
     public $customuserfields = [];
 
     /**
+     * Placeholders outside of [[users]] which render_html() resolves itself. They are kept away
+     * from the placeholder engine (see render_rule_placeholders()) because their values differ
+     * from the booking rules placeholders of the same name: [[dates]] follows the "sessions"
+     * download setting, [[teachers]] is a plain comma separated list of names, [[location]]
+     * includes the entity, [[tablename]] follows the "title" download setting.
+     */
+    private const TEMPLATE_PLACEHOLDERS = ['location', 'dayofweektime', 'teachers', 'dates', 'logourl', 'tablename'];
+
+    /**
+     * Marks the position of the [[users]] section until the generated user rows are inserted.
+     */
+    private const USERROWS_MARKER = '@@signinsheet_userrows@@';
+
+    /**
+     * Protect the curly braces of the template itself (e.g. css rules) from the placeholder engine.
+     */
+    private const BRACE_MARKERS = ['@@signinsheet_lbrace@@', '@@signinsheet_rbrace@@'];
+
+    /**
      * Define basic variable values for signinsheet pdf
      *
      * @param \stdClass $pdfoptions
@@ -279,7 +302,13 @@ class signinsheet_generator {
             $this->cfgcustfields = explode(',', $cfgcustfields);
         }
 
-        $this->allfields = explode(',', $this->bookingoption->booking->settings->signinsheetfields);
+        // The instance setting is null as long as it was never configured (e.g. a
+        // freshly created instance): explode(null) would raise a deprecation, and an
+        // empty entry would end up as "u. " in the user SQL.
+        $this->allfields = array_values(array_filter(
+            explode(',', $this->bookingoption->booking->settings->signinsheetfields ?? ''),
+            'strlen'
+        ));
         if (get_config('booking', 'numberrows') == 1) {
             $this->showrownumbers = true;
             $this->rownumber = 0;
@@ -337,6 +366,35 @@ class signinsheet_generator {
      * @return void
      */
     public function prepare_html() {
+        $settings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
+        $htmloutput = $this->render_html();
+
+        // Output the document in the specified format.
+        switch ($this->saveasformat) {
+            case 'word':
+                $this->download_word_from_html($htmloutput, $settings);
+                break;
+            case 'pdf':
+            default:
+                $this->download_pdf_from_html($htmloutput, $settings);
+                break;
+        }
+    }
+
+    /**
+     * Renders the sign-in sheet HTML from the configured template (setting signinsheethtml,
+     * default template as fallback): user rows, session columns, logo and title.
+     *
+     * Outside of the [[users]] section every placeholder the template mode does not resolve
+     * itself (TEMPLATE_PLACEHOLDERS) is handed to the placeholder engine of the booking rules,
+     * so custom booking option fields ([[myshortname]]) and the rule placeholders supported there
+     * (for_signinsheet(): [[bookingoptionname]], [[startdate]], ...) can be used - written with double
+     * square brackets instead of the curly braces of the rules. Custom user profile fields are
+     * available inside of [[users]] only, rendered per booked user.
+     *
+     * @return string the HTML the PDF / Word document is generated from
+     */
+    public function render_html(): string {
         global $DB, $PAGE;
         $addsqlwhere = '';
         $groupparams = [];
@@ -398,6 +456,7 @@ class signinsheet_generator {
             $sql,
             array_merge(
                 $groupparams,
+                $params1,
                 ['optionid' => $this->optionid]
             )
         );
@@ -431,26 +490,13 @@ class signinsheet_generator {
         }
 
         // Extract user template from the configuration HTML.
-        preg_match('/\[\[users\]\](.*?)\[\[\/users\]\]/s', $confightml, $matches);
+        // All [[...]] placeholders of the template are case-insensitive ([[USERS]], [[FullName]], ...).
+        preg_match('/\[\[users\]\](.*?)\[\[\/users\]\]/si', $confightml, $matches);
         $usertemplate = isset($matches[1]) ? $matches[1] : '';
-
-        if ($this->pdfsessions == -1) {
-                $dates = get_string('signinsheetdatetofillin', 'booking') . ": ________________________";
-        }
 
         $extrasessioncols = $this->get_extra_session_columns();
         if (!empty($extrasessioncols)) {
             $this->allfields = array_unique(array_merge($this->allfields, $extrasessioncols));
-        }
-
-        // Session handling logic.
-        if ($this->pdfsessions == 0) {
-            // Logic to integrate based on existing session data.
-            $val = [];
-            foreach ($this->sessions as $session) {
-                $val[] = userdate($session->coursestarttime) . " - " . userdate($session->courseendtime);
-            }
-            $dates = implode(", ", $val);
         }
 
         // Generate session header columns with vertical text.
@@ -470,6 +516,8 @@ class signinsheet_generator {
 
         // Generate user rows with session columns.
         $userrows = '';
+        // Get all custom user profile fields and add them as placeholders.
+        $customuserfields = $DB->get_records('user_info_field');
         foreach ($users as $user) {
             $row = $usertemplate;
             $replacements = [
@@ -489,40 +537,44 @@ class signinsheet_generator {
                 '[[places]]' => $user->places ?? '',
             ];
 
-            // Get all custom user profile fields and add them as placeholders.
-            $customuserfields = $DB->get_records('user_info_field');
+            // The value of each custom user profile field is selected by the sql above under an alias
+            // derived from the field id (see booking_option_settings::custom_profile_field_alias()).
             foreach ($customuserfields as $customuserfield) {
                 $fieldtype = $customuserfield->datatype;
                 $shortname = $customuserfield->shortname;
+                $alias = booking_option_settings::custom_profile_field_alias((int) $customuserfield->id);
                 if ($fieldtype == 'datetime') {
-                    $cleanvalue = $user->$shortname ?? 0;
-                    $value = $cleanvalue != 0 ? userdate($user->$shortname, get_string('strftimedate', 'langconfig')) : '';
+                    $cleanvalue = $user->$alias ?? 0;
+                    $value = $cleanvalue != 0 ? userdate($user->$alias, get_string('strftimedate', 'langconfig')) : '';
                 } else {
-                    $value = $user->$shortname ?? '';
+                    $value = $user->$alias ?? '';
                 }
                 $replacements['[[' . $shortname . ']]'] = $value ?? '';
             }
 
             $userobj = singleton_service::get_instance_of_user($user->id);
-            $userpic = new user_picture($userobj);
-            if (empty($userpic)) {
+            $imagedata = $this->get_user_picture_data($user->id);
+            if ($imagedata === null) {
                 $replacements['[[userpic]]'] = '';
             } else {
-                $userpictureurl = $userpic->get_url($PAGE);
-                $out = $userpictureurl->out();
-                $replacements['[[userpic]]'] = '<img src="' . $out . '"/>';
+                $replacements['[[userpic]]'] = '<img src="data:image/jpeg;base64,' .
+                    base64_encode($imagedata) . '" width="56" height="56"/>';
             }
-
             $sessioncols = str_repeat('<td></td>', count($extrasessioncols));
             foreach ($replacements as $placeholder => $realvalue) {
-                $row = str_replace($placeholder, $realvalue, $row);
+                $row = str_ireplace($placeholder, $realvalue, $row);
             }
             $row = str_replace('</tr>', $sessioncols . '</tr>', $row);
             $userrows .= $row;
         }
 
-        // Replace the [[users]] section with generated user rows.
-        $htmloutput = preg_replace('/\[\[users\]\].*?\[\[\/users\]\]/s', $userrows, $confightml);
+        // The generated user rows are inserted as the very last step (see below), so neither the
+        // placeholder engine nor the replacements of the template placeholders ever parse user data.
+        $htmloutput = preg_replace('/\[\[users\]\].*?\[\[\/users\]\]/si', self::USERROWS_MARKER, $confightml);
+
+        // Custom booking option fields and all other placeholders of the booking rules. Runs before
+        // the template placeholders are replaced, so their values are never parsed for placeholders.
+        $htmloutput = $this->render_rule_placeholders($htmloutput, $settings);
 
         // Determine the header title.
         if ($this->title == 2) {
@@ -547,60 +599,149 @@ class signinsheet_generator {
 
         $dayofweektime = !empty($settings->dayofweektime) ? $settings->dayofweektime : '';
         $teachers = !empty($this->teachers) ? implode(', ', $this->teachers) : '';
-        $dates = $this->pdfsessions != -1 && $this->pdfsessions != -2 ? $this->sessionsstring : '';
+        // The sessionsstring separates multiple sessions with "\n" (for the
+        // classic PDF MultiCell); in HTML they need to become <br> tags.
+        $dates = $this->pdfsessions != -1 && $this->pdfsessions != -2 ? nl2br($this->sessionsstring) : '';
 
-        $htmloutput = str_replace('[[location]]', $location, $htmloutput);
-        $htmloutput = str_replace('[[dayofweektime]]', $dayofweektime, $htmloutput);
-        $htmloutput = str_replace('[[teachers]]', $teachers, $htmloutput);
-        $htmloutput = str_replace('[[dates]]', $dates, $htmloutput);
-        // Add the logo URL to HTML.
+        $htmloutput = str_ireplace('[[location]]', $location, $htmloutput);
+        $htmloutput = str_ireplace('[[dayofweektime]]', $dayofweektime, $htmloutput);
+        $htmloutput = str_ireplace('[[teachers]]', $teachers, $htmloutput);
+        $htmloutput = str_ireplace('[[dates]]', $dates, $htmloutput);
+        // Add the logo to the HTML as a data URI, so TCPDF and PhpWord can render
+        // it without fetching a pluginfile URL (which would require a login session).
         if ($this->get_signinsheet_logo()) {
-            $url = \moodle_url::make_pluginfile_url(
-                $this->signinsheetlogo->get_contextid(),
-                $this->signinsheetlogo->get_component(),
-                $this->signinsheetlogo->get_filearea(),
-                $this->signinsheetlogo->get_itemid(),
-                $this->signinsheetlogo->get_filepath(),
-                $this->signinsheetlogo->get_filename()
-            );
-            $src = $url->out();
-            $htmloutput = str_replace('[[logourl]]', $src, $htmloutput);
+            $src = 'data:' . $this->signinsheetlogo->get_mimetype() . ';base64,' .
+                base64_encode($this->signinsheetlogo->get_content());
+            $htmloutput = str_ireplace('[[logourl]]', $src, $htmloutput);
+        } else {
+            // No logo configured: drop the img tag, an unresolved placeholder would make PhpWord throw.
+            $htmloutput = preg_replace('/<img[^>]*\[\[logourl\]\][^>]*>/i', '', $htmloutput);
+            $htmloutput = str_ireplace('[[logourl]]', '', $htmloutput);
         }
 
         // Replace table name placeholder.
-        $htmloutput = str_replace('[[tablename]]', $headertitle, $htmloutput);
+        $htmloutput = str_ireplace('[[tablename]]', $headertitle, $htmloutput);
 
-        // Output the document in the specified format.
-        switch ($this->saveasformat) {
-            case 'pdf':
-                $this->download_pdf_from_html($htmloutput, $settings);
-                break;
-            case 'word':
-                $this->download_word_from_html($htmloutput, $settings);
-                break;
-            default:
-                $this->download_pdf_from_html($htmloutput, $settings);
-                break;
-        }
+        // Finally the user rows (str_replace: user data must not be treated as a regex replacement).
+        $htmloutput = str_replace(self::USERROWS_MARKER, $userrows, $htmloutput);
+
+        return $htmloutput;
     }
 
+    /**
+     * Resolves the [[...]] placeholders outside of [[users]] which the template mode does not
+     * handle itself (TEMPLATE_PLACEHOLDERS) with the placeholder engine of the booking rules
+     * (placeholders_info::render_text()): custom booking option fields by their shortname,
+     * [[bookingoptionname]], [[startdate]], [[numberparticipants]], ...
+     *
+     * The engine works with the {...} notation, the templates use [[...]] - case-insensitively:
+     * [[BookingOptionName]] is bridged to {bookingoptionname}. Only the placeholders themselves are
+     * bridged: curly braces that are part of the template (css rules in a style
+     * block, inline styles) are protected, so the engine never sees them, and placeholders the
+     * engine cannot resolve are handed back in the [[...]] notation - they stay visible in the
+     * document, as before. Only placeholders supported in sign-in sheets are handed to the engine
+     * (for_signinsheet() of the placeholder class, custom booking option fields via the customfields
+     * class), all others stay unresolved as well - e.g. [[firstname]] outside of [[users]]. Custom
+     * user profile fields are rendered per booked user inside of the [[users]] section only.
+     *
+     * @param string $html the template with the [[users]] section already replaced by USERROWS_MARKER
+     * @param booking_option_settings $settings
+     * @return string
+     */
+    private function render_rule_placeholders(string $html, booking_option_settings $settings): string {
+        global $USER;
 
+        if (!preg_match_all('/\[\[([^\[\]{}]+)\]\]/', $html, $matches)) {
+            return $html;
+        }
+        // Custom user profile fields are rendered per booked user inside of [[users]] only (see the
+        // user rows above): outside they stay unresolved - unless a custom booking option field has
+        // the same shortname, which takes precedence in the engine as well.
+        $profilefields = [];
+        foreach ($this->customuserfields as $field) {
+            $profilefields[] = core_text::strtolower($field->shortname);
+            $profilefields[] = core_text::strtolower($field->shortname) . '-related';
+        }
+        // Placeholder as written in the template => tag of the engine (placeholder tags are lowercase:
+        // class names, custom field shortnames). Only placeholders supported in sign-in sheets are
+        // handed to the engine (for_signinsheet()).
+        $placeholders = [];
+        foreach (array_unique($matches[1]) as $placeholder) {
+            $tag = core_text::strtolower($placeholder);
+            if (
+                in_array($tag, self::TEMPLATE_PLACEHOLDERS, true)
+                || !placeholders_info::placeholder_belongs_to_list($tag, MOD_BOOKING_PLACEHOLDERS_SIGNINSHEET)
+                || (in_array($tag, $profilefields, true) && !isset($settings->customfieldsfortemplates[$tag]))
+            ) {
+                continue;
+            }
+            $placeholders[$placeholder] = $tag;
+        }
+        if (empty($placeholders)) {
+            return $html;
+        }
+
+        $html = str_replace(['{', '}'], self::BRACE_MARKERS, $html);
+        foreach ($placeholders as $placeholder => $tag) {
+            $html = str_replace("[[$placeholder]]", '{' . $tag . '}', $html);
+        }
+
+        $html = placeholders_info::render_text(
+            $html,
+            (int) $settings->cmid,
+            (int) $this->optionid,
+            (int) $USER->id,
+            0,
+            0,
+            0,
+            MOD_BOOKING_DESCRIPTION_MAIL
+        );
+
+        // Unresolved placeholders (e.g. a typo) stay visible in the template notation, as written.
+        foreach ($placeholders as $placeholder => $tag) {
+            $html = str_replace('{' . $tag . '}', "[[$placeholder]]", $html);
+        }
+        return str_replace(self::BRACE_MARKERS, ['{', '}'], $html);
+    }
 
     /**
-     * Converts HTML content to a Word document and downloads it
+     * Get user profile picture raw binary data directly from Moodle file storage.
+     * Returns null if the user has no custom profile picture (avoids any HTTP call).
+     *
+     * @param int $userid
+     * @return string|null Raw binary image data, or null if no custom picture.
+     */
+    private function get_user_picture_data(int $userid): ?string {
+        if ($userid <= 0) {
+            return null;
+        }
+        $usercontext = \context_user::instance($userid, IGNORE_MISSING);
+        if (!$usercontext) {
+            return null;
+        }
+        $fs = get_file_storage();
+        $files = $fs->get_area_files($usercontext->id, 'user', 'icon', false, 'filesize DESC', false);
+        foreach ($files as $file) {
+            // Note: f1 is the standard-size profile picture stored by Moodle.
+            if (strpos($file->get_filename(), 'f1') === 0 && $file->get_filesize() > 0) {
+                return $file->get_content();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Converts HTML content to a Word document and sends it as forced download.
+     *
+     * The document is built with the PHPWord library; the download filename is
+     * based on the booking option title. Does not return.
      *
      * @param string $htmloutput The HTML content to convert to Word format
      * @param object $settings The booking option settings object containing title information
      *
-     * Takes HTML content, converts it to a Word document using PHPWord library,
-     * saves it to a temporary file and forces download of the resulting .docx file.
-     * The filename is based on the booking option title.
-     *
-     * @throws Exception If file cannot be read or downloaded
      * @return void
      */
     private function download_word_from_html($htmloutput, $settings) {
-        global $DB, $PAGE;
         $worddoc = new \PhpOffice\PhpWord\PhpWord();
         \PhpOffice\PhpWord\Settings::setOutputEscapingEnabled(true);
         $pageorientation = ($this->orientation === 'L') ? 'landscape' : 'portrait';
@@ -610,44 +751,40 @@ class signinsheet_generator {
         $section = $worddoc->addSection($sectionstyle);
 
         \PhpOffice\PhpWord\Shared\Html::addHtml($section, $htmloutput, false, false);
-        $extrasessioncols = $this->get_extra_session_columns();
 
-        // Write the document to a temporary file.
-        $filename = $settings->get_title_with_prefix() . '.docx';
-        $temppath = sys_get_temp_dir() . DIRECTORY_SEPARATOR . $filename;
-        try {
-            // Save the document.
-            $worddoc->save($temppath, 'Word2007');
-            // Make sure any output buffers are clean.
-            if (ob_get_contents()) {
-                ob_end_clean();
-            }
-            // Check file exists and is readable.
-            if (file_exists($temppath) && is_readable($temppath)) {
-                // Set headers for download.
-                header("Content-Description: File Transfer");
-                header("Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document");
-                header('Content-Disposition: attachment; filename="' . basename($filename) . '"');
-                header("Cache-Control: must-revalidate");
-                header("Expires: 0");
-                header("Pragma: public");
-                header("Content-Length: " . filesize($temppath));
-                // Clear output buffer and stream the file.
-                ob_clean();
-                flush();
-                readfile($temppath);
-                // Proper exit.
-                exit;
-            } else {
-                throw new Exception("File could not be read.");
-            }
-        } catch (Exception $e) {
-            // Handle and log exceptions.
-            echo "An error occurred while downloading the document: " . $e->getMessage();
-        }
+        // PhpWord can only write the docx (a zip archive) to a real file, so use a
+        // per-request directory: Moodle removes it automatically after the request,
+        // and send_temp_file() unlinks the file right after streaming it.
+        $downloadfilename = self::get_clean_filename($settings->get_title_with_prefix()) . '.docx';
+        $temppath = make_request_directory() . '/' . $downloadfilename;
+        $worddoc->save($temppath, 'Word2007');
+        send_temp_file($temppath, $downloadfilename);
     }
 
 
+
+    /**
+     * Builds the sign-in sheet PDF document from the given HTML.
+     *
+     * With the setting local_wunderbyte_table/pdfaenabled the document is PDF/A-2b (see {@see pdfa_pdf}:
+     * all fonts embedded, core font names in the template mapped to the embeddable
+     * FreeFonts); otherwise it is generated exactly as before.
+     *
+     * @param string $htmloutput HTML as returned by render_html()
+     * @return \pdf the finished document, ready for Output()
+     */
+    public function create_pdf_from_html(string $htmloutput): \pdf {
+        if (pdfa_pdf::enabled()) {
+            $pdf = new pdfa_pdf($this->orientation, PDF_UNIT, PDF_PAGE_FORMAT);
+        } else {
+            $pdf = new signin_pdf($this->orientation, PDF_UNIT, PDF_PAGE_FORMAT);
+        }
+        $pdf->setPrintHeader(false);
+        $pdf->setPrintFooter(false);
+        $pdf->AddPage();
+        $pdf->writeHTML($htmloutput, true, false, true, false, '');
+        return $pdf;
+    }
 
     /**
      * Download PDF File from given html
@@ -659,20 +796,25 @@ class signinsheet_generator {
      *
      */
     private function download_pdf_from_html($htmloutput, $settings) {
-        $pdf = new signin_pdf($this->orientation, PDF_UNIT, PDF_PAGE_FORMAT);
-        $pdf->setPrintHeader(false);
-        $pdf->setPrintFooter(false);
-        $pdf->AddPage();
-        $pdf->writeHTML($htmloutput, true, false, true, false, '');
-        $filenamepdf = $settings->get_title_with_prefix() . '.pdf';
-        $pdf->Output(sys_get_temp_dir() . DIRECTORY_SEPARATOR . $filenamepdf, 'F');
-        $downloadfilename = $settings->get_title_with_prefix();
-        // Replace special characters to prevent errors.
-        $downloadfilename = str_replace(' ', '_', $downloadfilename); // Replaces all spaces with underscores.
-        $downloadfilename = preg_replace('/[^A-Za-z0-9\_]/', '', $downloadfilename); // Removes special chars.
-        $downloadfilename = preg_replace('/\_+/', '_', $downloadfilename); // Replace multiple underscores with exactly one.
-        $downloadfilename = format_string($downloadfilename);
+        $pdf = $this->create_pdf_from_html((string)$htmloutput);
+        $downloadfilename = self::get_clean_filename($settings->get_title_with_prefix());
         $pdf->Output($downloadfilename . '.pdf', 'D');
+    }
+
+    /**
+     * Reduce the booking option title to a filename-safe ASCII string.
+     * Raw titles can contain slashes, quotes etc., which break file paths
+     * and the Content-Disposition header.
+     *
+     * @param string $title
+     * @return string filename without extension, never empty
+     */
+    private static function get_clean_filename(string $title): string {
+        $filename = str_replace(' ', '_', $title);
+        $filename = preg_replace('/[^A-Za-z0-9\_]/', '', $filename); // Removes special chars.
+        $filename = preg_replace('/\_+/', '_', $filename); // Replace multiple underscores with exactly one.
+        $filename = trim($filename, '_');
+        return $filename !== '' ? $filename : 'signinsheet';
     }
 
 
@@ -747,6 +889,7 @@ class signinsheet_generator {
             $sql,
             array_merge(
                 $groupparams,
+                $params1,
                 ['optionid' => $this->optionid]
             )
         );
@@ -806,7 +949,7 @@ class signinsheet_generator {
         $this->pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
         $this->pdf->setFontSubsetting(false);
         $this->pdf->AddPage();
-        $this->pdf->setJPEGQuality(80);
+        $this->pdf->setJPEGQuality(100);
         $this->pdf->setCellPadding(1);
 
         $this->get_signinsheet_logo_footer();
@@ -925,42 +1068,39 @@ class signinsheet_generator {
                         break;
                     case 'userpic':
                         $name = "";
-                        $userobj = singleton_service::get_instance_of_user($user->id);
-                        if (empty($user->id) || empty($userobj)) {
-                            // In case row is empty. No user given.
-                            // Make sure column with is respected.
+                        if (empty($user->id)) {
                             $w = 20;
                             break;
                         }
-                        $userpic = new user_picture($userobj);
-                        if (empty($userpic)) {
-                            break;
+                        $imagedata = $this->get_user_picture_data($user->id);
+                        if ($imagedata !== null) {
+                            try {
+                                $this->pdf->Image(
+                                    '@' . $imagedata,
+                                    null,
+                                    null,
+                                    0,
+                                    $h,
+                                    '',
+                                    '',
+                                    'T',
+                                    true,
+                                    400,
+                                    '',
+                                    false,
+                                    false,
+                                    1,
+                                    false,
+                                    false,
+                                    false,
+                                );
+                            } catch (\Exception $e) {
+                                debugging(
+                                    'signinsheet: userpic error for user ' . $user->id . ': ' . $e->getMessage(),
+                                    DEBUG_DEVELOPER
+                                );
+                            }
                         }
-                        $userpic->size = 200;
-                        $userpictureurl = $userpic->get_url($PAGE);
-                        $out = $userpictureurl->out();
-                        if (@getimagesize($out)) {
-                            $this->pdf->Image(
-                                $out,
-                                null,
-                                null,
-                                0,
-                                $h,
-                                '',
-                                '',
-                                'T',
-                                true,
-                                400,
-                                '',
-                                false,
-                                false,
-                                1,
-                                false,
-                                false,
-                                false
-                            );
-                        }
-
                         $escape = true;
                         break;
                     case 'timecreated':
@@ -982,8 +1122,8 @@ class signinsheet_generator {
 
                         foreach ($this->customuserfields as $customuserfield) {
                             if ($value == $customuserfield->shortname) {
-                                $name = $user->{$value} ?? $user->{strtolower($value)};
-                                $name = format_string($name);
+                                $alias = booking_option_settings::custom_profile_field_alias((int) $customuserfield->id);
+                                $name = format_string($user->{$alias} ?? '');
                                 $w = 25;
                                 $rotate = false;
                                 break;
@@ -1015,13 +1155,7 @@ class signinsheet_generator {
             $this->pdf->SetY($this->pdf->GetY() + 5);
         }
 
-        $downloadfilename = $settings->get_title_with_prefix();
-        // Replace special characters to prevent errors.
-        $downloadfilename = str_replace(' ', '_', $downloadfilename); // Replaces all spaces with underscores.
-        $downloadfilename = preg_replace('/[^A-Za-z0-9\_]/', '', $downloadfilename); // Removes special chars.
-        $downloadfilename = preg_replace('/\_+/', '_', $downloadfilename); // Replace multiple underscores with exactly one.
-        $downloadfilename = format_string($downloadfilename);
-
+        $downloadfilename = self::get_clean_filename($settings->get_title_with_prefix());
         $this->pdf->Output($downloadfilename . '.pdf', 'D');
     }
 
@@ -1137,8 +1271,7 @@ class signinsheet_generator {
             'sortorder,filepath,filename',
             false
         );
-
-        if (!$files) {
+        if (!$files && !empty(get_config('booking', 'signinlogo'))) {
             $files = $fs->get_area_files(
                 \context_system::instance()->id,
                 'mod_booking',
@@ -1148,7 +1281,6 @@ class signinsheet_generator {
                 false
             );
         }
-
         if ($files) {
             $file = reset($files);
             $filepath = $file->get_filepath() . $file->get_filename();
@@ -1226,8 +1358,8 @@ class signinsheet_generator {
                 '',
                 '',
                 'T',
-                true,
-                150,
+                false,
+                300,
                 'R',
                 false,
                 false,

@@ -26,17 +26,15 @@ declare(strict_types=1);
 
 namespace mod_booking\external;
 
-use external_api;
-use external_function_parameters;
-use external_single_structure;
-use external_value;
-use external_warnings;
+use core_external\external_api;
+use core_external\external_function_parameters;
+use core_external\external_single_structure;
+use core_external\external_value;
+use core_external\external_warnings;
 use mod_booking\booking_option;
+use mod_booking\permissions;
+use mod_booking\singleton_service;
 use stdClass;
-
-defined('MOODLE_INTERNAL') || die();
-
-require_once($CFG->libdir . '/externallib.php');
 
 /**
  * External Service for toggle notify user.
@@ -74,6 +72,17 @@ class toggle_notify_user extends external_api {
             ['userid' => $userid, 'optionid' => $optionid]
         );
 
+        // The user needs access to the booking instance the option belongs to; users
+        // with mod/booking:choose may use the notification list without course access
+        // (e.g. via shortcode lists). No further capability is needed here:
+        // toggle_notify_user() itself requires mod/booking:subscribeusers when
+        // toggling the list for somebody else.
+        $settings = singleton_service::get_instance_of_booking_option_settings($params['optionid']);
+        if (empty($settings->cmid)) {
+            throw new \moodle_exception('invalidparameter', 'error');
+        }
+        permissions::validate_context_for_booking((int)$settings->cmid);
+
         $result = booking_option::toggle_notify_user($params['userid'], $params['optionid']);
 
         return $result;
@@ -91,7 +100,7 @@ class toggle_notify_user extends external_api {
                 'Status 1 for user is now on list, 0 for not on list.'
             ),
             'optionid' => new external_value(PARAM_INT, 'option id'),
-            'error' => new external_value(PARAM_RAW, 'error'),
+            'error' => new external_value(PARAM_TEXT, 'Error message, if any.'),
             ]);
     }
 }

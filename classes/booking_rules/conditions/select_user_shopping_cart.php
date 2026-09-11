@@ -60,11 +60,11 @@ class select_user_shopping_cart implements booking_rule_condition {
 
     /**
      * Function to tell if a condition can be combined with a certain booking rule type.
-     * @param string $bookingruletype e.g. "rule_daysbefore" or "rule_react_on_event"
+     * @param string $bookingruletype e.g. "rule_specifictime" or "rule_react_on_event"
      * @return bool true if it can be combined
      */
     public function can_be_combined_with_bookingruletype(string $bookingruletype): bool {
-        // This rule cannot be combined with the "days before" rule as it has no event.
+        // This rule cannot be combined with the "days before" or "specific time" rule as it has no event.
         global $DB;
 
         // This condition needs support for json access to db.
@@ -83,12 +83,12 @@ class select_user_shopping_cart implements booking_rule_condition {
         // JSON_TABLE is only available in MariaDB 10.6+ and MySQL 8.0+.
         if (
             $dbfamily == 'mysql'
-            && !db_is_at_least_mariadb_106_or_mysql_8()
+            && !booking_db_is_at_least_mariadb_106_or_mysql_8()
         ) {
             return false;
         }
 
-        if ($bookingruletype == 'rule_daysbefore') {
+        if (in_array($bookingruletype, ['rule_daysbefore', 'rule_specifictime'])) {
             return true;
         } else {
             return false;
@@ -193,6 +193,12 @@ class select_user_shopping_cart implements booking_rule_condition {
 
         $params = array_merge($params, $newparams);
 
+        // Normalize offset to seconds so sub-day precision from rule_specifictime is preserved.
+        // Rule_daysbefore passes 'numberofdays'; rule_specifictime passes 'numberofseconds'.
+        if (!isset($params['numberofseconds']) && isset($params['numberofdays'])) {
+            $params['numberofseconds'] = (int) $params['numberofdays'] * DAYSECS;
+        }
+
         $dbfamily = $DB->get_dbfamily();
 
         switch ($dbfamily) {
@@ -246,14 +252,14 @@ class select_user_shopping_cart implements booking_rule_condition {
                     $sql->where .= " AND sch.userid = :userid ";
 
                     // And we know exactly when the payment was due.
-                    $nextruntime = $nextruntime + $params['numberofdays'] * 86400;
+                    $nextruntime = (int) $nextruntime + (int) $params['numberofseconds'];
 
                     $sql->where .= " AND (payments_info.payment_data->>'timestamp')::int = :nextruntime ";
                     $params['nextruntime'] = $nextruntime;
                 } else {
                     // If we are not in testmode, we want to get all future payments.
                     $sql->where .= " AND (payments_info.payment_data->>'timestamp')::int
-                                        >= ( :nowparam + (86400 * :numberofdays ))";
+                                        >= (( :nowparam )::int + ( :numberofseconds )::int)";
                 }
                 break;
             case 'mysql':
@@ -290,7 +296,7 @@ class select_user_shopping_cart implements booking_rule_condition {
                     $sql->where .= " AND sch.userid = :userid ";
 
                     // And we know exactly when the payment was due.
-                    $nextruntime = $nextruntime + $params['numberofdays'] * 86400;
+                    $nextruntime = (int) $nextruntime + (int) $params['numberofseconds'];
 
                     $sql->where .= " AND CAST(JSON_UNQUOTE(JSON_EXTRACT(payments_info.payment_data, '$.timestamp')) AS UNSIGNED)
                                         = :nextruntime ";
@@ -298,7 +304,7 @@ class select_user_shopping_cart implements booking_rule_condition {
                 } else {
                     // If we are not in testmode, we want to get all future payments.
                     $sql->where .= " AND CAST(JSON_UNQUOTE(JSON_EXTRACT(payments_info.payment_data, '$.timestamp')) AS UNSIGNED)
-                                        >= ( :nowparam + (86400 * :numberofdays ))";
+                                        >= (CAST( :nowparam AS UNSIGNED ) + CAST( :numberofseconds AS UNSIGNED ))";
                 }
 
                 break;

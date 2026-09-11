@@ -26,7 +26,7 @@
 
 namespace mod_booking;
 
-use advanced_testcase;
+use mod_booking\tests\booking_advanced_testcase;
 use coding_exception;
 use context_system;
 use local_wunderbyte_table\wunderbyte_table;
@@ -38,6 +38,7 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 require_once($CFG->dirroot . '/mod/booking/classes/price.php');
+require_once(__DIR__ . '/../classes/booking_advanced_testcase.php');
 
 /**
  * Class handling tests for courselist.
@@ -48,26 +49,15 @@ require_once($CFG->dirroot . '/mod/booking/classes/price.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  *
  */
-final class courselist_test extends advanced_testcase {
+final class courselist_test extends booking_advanced_testcase {
     /**
      * Tests set up.
      */
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest(true);
-        time_mock::init();
         time_mock::set_mock_time(strtotime('now'));
         singleton_service::destroy_instance();
-    }
-
-    /**
-     * Mandatory clean-up after each test.
-     */
-    public function tearDown(): void {
-        parent::tearDown();
-        /** @var mod_booking_generator $plugingenerator */
-        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
-        $plugingenerator->teardown();
     }
 
     /**
@@ -192,6 +182,9 @@ final class courselist_test extends advanced_testcase {
         };
 
         $shortcode = shortcodes::courselist('courselist', $args, null, $env, $next);
+        if (!empty($expected['debuggingcalled'])) {
+            $this->assertDebuggingCalled();
+        }
         $this->assertNotEmpty($shortcode);
         $this->assertStringContainsString($expected['tablestringcontains'], $shortcode);
         if (isset($expected['tablestringnotcontains'])) {
@@ -205,6 +198,22 @@ final class courselist_test extends advanced_testcase {
         $table = wunderbyte_table::instantiate_from_tablecache_hash($matches[1]);
         $tableobject = $table->printtable($table->pagesize, $table->useinitialsbar, $table->downloadhelpbutton);
         $this->assertEquals($expected['numberofrecords'], $table->totalrows);
+        if (isset($expected['fulltextsearchcolumns'])) {
+            $this->assertEqualsCanonicalizing($expected['fulltextsearchcolumns'], $table->fulltextsearchcolumns);
+        }
+        // Check the number of records returned when searching over the fulltextsearch columns.
+        if (isset($expected['searchresults'])) {
+            foreach ($expected['searchresults'] as $searchtext => $numberofrecords) {
+                $searchtable = wunderbyte_table::instantiate_from_tablecache_hash($matches[1]);
+                $searchtable->apply_searchtext($searchtext);
+                $searchtable->printtable($searchtable->pagesize, $searchtable->useinitialsbar, $searchtable->downloadhelpbutton);
+                $this->assertEquals(
+                    $numberofrecords,
+                    $searchtable->totalrows,
+                    "Unexpected number of records when searching for '$searchtext'"
+                );
+            }
+        }
     }
 
     /**
@@ -295,6 +304,62 @@ final class courselist_test extends advanced_testcase {
                     'tablestringcontains' => "wunderbyte_table_container",
                     'displaytable' => true,
                     'numberofrecords' => 3,
+                ],
+            ],
+            'fulltextsearchcolumns_customfield' => [
+                [
+                    'args' => [
+                        'cmidsetting' => 'first',
+                        'all' => 1, // Set this to avoid filtering on coursestarttime.
+                        // No search arg: fulltextsearchcolumns should enable search implicitly.
+                        // The invalid column "doesnotexist" should be ignored (with a debugging message).
+                        'fulltextsearchcolumns' => 'customcat,doesnotexist',
+                    ],
+                ],
+                [
+                    'tablestringcontains' => "wunderbyte_table_container",
+                    'displaytable' => true,
+                    'numberofrecords' => 8,
+                    'debuggingcalled' => true,
+                    'fulltextsearchcolumns' => [
+                        'titleprefix',
+                        'text',
+                        'description',
+                        'location',
+                        'institution',
+                        'teacherobjects',
+                        'customcat',
+                    ],
+                    // Only three options have the customfield value "Text 2".
+                    'searchresults' => [
+                        'Text 2' => 3,
+                    ],
+                ],
+            ],
+            'search_without_fulltextsearchcolumns' => [
+                [
+                    'args' => [
+                        'cmidsetting' => 'first',
+                        'all' => 1, // Set this to avoid filtering on coursestarttime.
+                        'search' => 1,
+                    ],
+                ],
+                [
+                    'tablestringcontains' => "wunderbyte_table_container",
+                    'displaytable' => true,
+                    'numberofrecords' => 8,
+                    'fulltextsearchcolumns' => [
+                        'titleprefix',
+                        'text',
+                        'description',
+                        'location',
+                        'institution',
+                        'teacherobjects',
+                    ],
+                    // Without the customfield in the search columns, "Text 2" matches nothing.
+                    'searchresults' => [
+                        'Text 2' => 0,
+                    ],
                 ],
             ],
             'filter_on_customfield_multi' => [

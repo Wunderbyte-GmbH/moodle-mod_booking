@@ -26,16 +26,13 @@ declare(strict_types=1);
 
 namespace mod_booking\external;
 
-use external_api;
-use external_function_parameters;
-use external_single_structure;
-use external_value;
-use external_warnings;
+use core_external\external_api;
+use core_external\external_function_parameters;
+use core_external\external_single_structure;
+use core_external\external_value;
+use core_external\external_warnings;
+use mod_booking\singleton_service;
 use stdClass;
-
-defined('MOODLE_INTERNAL') || die();
-
-require_once($CFG->libdir . '/externallib.php');
 
 /**
  * External Service for getting instance template.
@@ -67,7 +64,7 @@ class update_bookingnotes extends external_api {
      * @return array
      */
     public static function execute(int $baid, string $note = ''): array {
-        global $DB;
+        global $DB, $USER;
 
         $params = external_api::validate_parameters(self::execute_parameters(), ['baid' => $baid, 'note' => $note]);
 
@@ -76,11 +73,24 @@ class update_bookingnotes extends external_api {
         $dataobject->notes = $note;
         $warnings = [];
         // Check if entry exists in DB.
-        if (!$DB->record_exists('booking_answers', ['id' => $dataobject->id])) {
+        if (
+            !$record = $DB->get_record('booking_answers', ['id' => $dataobject->id])
+        ) {
             $warnings[] = 'Invalid booking';
+            $success = false;
+        } else {
+            $optionid = $record->optionid;
+            $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+            $context = \context_module::instance($settings->cmid);
+            self::validate_context($context);
+            if (has_capability('mod/booking:updatenotes', $context)) {
+                $dataobject->usermodified = $USER->id;
+                $success = $DB->update_record('booking_answers', $dataobject);
+            } else {
+                $warnings[] = 'No permission to update booking notes';
+                $success = false;
+            }
         }
-
-        $success = $DB->update_record('booking_answers', $dataobject);
 
         return [
             'note' => $note,

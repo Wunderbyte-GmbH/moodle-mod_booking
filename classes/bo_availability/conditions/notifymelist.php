@@ -85,6 +85,25 @@ class notifymelist implements bo_condition {
     }
 
     /**
+     * Returns the name of the condition.
+     *
+     * @return string
+     *
+     */
+    public function get_name(): string {
+        return get_string('bocondnotifymelist', 'mod_booking');
+    }
+
+    /**
+     * Returns whether the condition is skippable or not.
+     *
+     * @return bool
+     */
+    public function is_skippable(): bool {
+        return false;
+    }
+
+    /**
      * Determines whether a particular item is currently available
      * according to this availability condition.
      * @param booking_option_settings $settings Item we're checking
@@ -125,6 +144,9 @@ class notifymelist implements bo_condition {
             $waitinglistoff = get_config('booking', 'turnoffwaitinglist');
             // If the user is not yet booked, and option is not fully booked, we return true.
             $freeonwaitinglist = $bookinginformation['notbooked']['freeonwaitinglist'] ?? 0;
+            if (isset($bookinginformation['iambooked'])) {
+                return true;
+            }
             if (isset($bookinginformation['notbooked'])) {
                 if ($bookinginformation['notbooked']['fullybooked'] === false) {
                     $isavailable = true;
@@ -138,6 +160,9 @@ class notifymelist implements bo_condition {
                 }
             } else if (isset($usersonwaitinglist[$userid])) {
                 // If the user is already booked on waitinglist, this is also true.
+                $isavailable = true;
+            } else if (isset($bookinginformation['iamreserved'])) {
+                // User already holds a reservation for this option; the notify-me button is irrelevant.
                 $isavailable = true;
             }
         }
@@ -155,9 +180,10 @@ class notifymelist implements bo_condition {
      * This will be used if the conditions should not only block booking...
      * ... but actually hide the conditons alltogether.
      * @param int $userid
+     * @param array $params This is the array with parameters for the sql query.
      * @return array
      */
-    public function return_sql(int $userid = 0): array {
+    public function return_sql(int $userid = 0, &$params = []): array {
 
         return ['', '', '', [], ''];
     }
@@ -282,7 +308,7 @@ class notifymelist implements bo_condition {
      * @param booking_option_settings $settings
      * @return string
      */
-    private function get_description_string(bool $isavailable, bool $full, booking_option_settings $settings) {
+    public function get_description_string(bool $isavailable, bool $full, booking_option_settings $settings) {
 
         if (
             !$isavailable

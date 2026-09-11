@@ -25,7 +25,6 @@
 
 namespace mod_booking\local;
 use Exception;
-use mod_booking\price;
 
 
 /**
@@ -54,7 +53,7 @@ class modechecker {
         }
 
         // Check for Moodle AJAX-related parameters or constants.
-        if (!empty($_REQUEST['ajax']) || (defined('AJAX_SCRIPT') && AJAX_SCRIPT)) {
+        if (optional_param('ajax', false, PARAM_BOOL) || (defined('AJAX_SCRIPT') && AJAX_SCRIPT)) {
             return true;
         }
 
@@ -66,14 +65,26 @@ class modechecker {
      * This function determines if we should show the link to the details page or render the buttons right away.
      * It returns true when there should not be any special treatment.
      *
+     * @param int $userid the user we are acting for (0 means the logged-in user)
      * @return bool
      *
      */
-    public static function use_special_details_page_treatment() {
+    public static function use_special_details_page_treatment(int $userid = 0) {
         global $PAGE, $USER;
+
+        // In CLI/Cron context (e.g., adhoc tasks), page URL is not set and not relevant.
+        // Always return true to skip special details page treatment in these contexts.
+        if (defined('CLI_SCRIPT') && CLI_SCRIPT && !PHPUNIT_TEST) {
+            return true;
+        }
 
         // Get the current URL without the query string.
         if (!self::is_ajax_or_webservice_request()) {
+            // Defensive check: only access PAGE->url if it has been set to avoid debugging warnings in cron.
+            if (!method_exists($PAGE, 'has_set_url') || !$PAGE->has_set_url()) {
+                // If PAGE URL is not set (e.g., in some background contexts), assume no special treatment needed.
+                return true;
+            }
             $currenturl = $PAGE->url->out_omit_querystring();
         } else {
             $currenturl = ''; // Usually should happens during unittests.
@@ -102,8 +113,10 @@ class modechecker {
                     )
                 )
             ) {
-                $buyforuser = price::return_user_to_buy_for();
-                if ($buyforuser->id !== $USER->id) {
+                // When we act for another user (cashier, book for others), the button
+                // may be rendered right away. Only the explicitly passed userid counts
+                // here - resolution must be request-bound, never session state.
+                if (!empty($userid) && (int)$userid !== (int)$USER->id) {
                     return true;
                 }
                 return false;

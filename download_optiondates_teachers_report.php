@@ -34,7 +34,7 @@ require_login();
 require_once($CFG->dirroot . '/local/wunderbyte_table/classes/wunderbyte_table.php');
 
 $download = optional_param('download', '', PARAM_ALPHA);
-$encodedtable = optional_param('encodedtable', '', PARAM_RAW);
+$encodedtable = optional_param('encodedtable', '', PARAM_ALPHANUM); // Md5 hash referencing the cached table definition.
 
 $context = context_system::instance();
 $PAGE->set_context($context);

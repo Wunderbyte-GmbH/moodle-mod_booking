@@ -27,19 +27,15 @@ declare(strict_types=1);
 namespace mod_booking\external;
 
 use cache;
-use external_multiple_structure;
+use core_external\external_multiple_structure;
 use core_form\external\dynamic_form;
-use external_api;
-use external_function_parameters;
-use external_single_structure;
-use external_value;
-use external_warnings;
+use core_external\external_api;
+use core_external\external_function_parameters;
+use core_external\external_single_structure;
+use core_external\external_value;
+use core_external\external_warnings;
 use mod_booking\output\mobile;
 use stdClass;
-
-defined('MOODLE_INTERNAL') || die();
-
-require_once($CFG->libdir . '/externallib.php');
 
 /**
  * External Service for getting instance template.
@@ -51,24 +47,24 @@ require_once($CFG->libdir . '/externallib.php');
  */
 class get_submission_mobile extends external_api {
     /**
-     * Describes the parameters for update_bookingnotes.
+     * Describes the parameters for get_submission_mobile.
      *
      * @return external_function_parameters
      */
     public static function execute_parameters(): external_function_parameters {
         return new external_function_parameters([
-          'itemid'  => new external_value(PARAM_INT, 'coursecategoryid', VALUE_DEFAULT, 0),
-          'userid'  => new external_value(PARAM_INT, 'coursecategoryid', VALUE_DEFAULT, 0),
-          'sessionkey'  => new external_value(PARAM_RAW, 'coursecategoryid', VALUE_DEFAULT, ''),
-          'reset'  => new external_value(PARAM_BOOL, 'reset flag', VALUE_DEFAULT, 'false'),
+          'itemid'  => new external_value(PARAM_INT, 'The booking option id to submit form data for', VALUE_DEFAULT, 0),
+          'userid'  => new external_value(PARAM_INT, 'The user id submitting the form data', VALUE_DEFAULT, 0),
+          'sessionkey'  => new external_value(PARAM_ALPHANUM, 'Session key for security verification', VALUE_DEFAULT, ''),
+          'reset'  => new external_value(PARAM_BOOL, 'Whether to reset cached form data', VALUE_DEFAULT, false),
           'data' => new external_multiple_structure(
               new external_single_structure(
                   [
-                      'name' => new external_value(PARAM_RAW, 'data name'),
-                      'value' => new external_value(PARAM_RAW, 'data value'),
+                      'name' => new external_value(PARAM_ALPHANUMEXT, 'Field name of the custom form, e.g. customform_shorttext_1'),
+                      'value' => new external_value(PARAM_TEXT, 'Field value (plain text)'),
                   ]
               ),
-              'The data to be saved',
+              'The form field data to be saved',
               VALUE_DEFAULT,
               []
           ),
@@ -88,22 +84,63 @@ class get_submission_mobile extends external_api {
      */
     public static function execute($itemid, $userid, $sessionkey, $reset, $data): array {
         global $DB;
-        $params = external_api::validate_parameters(self::execute_parameters(), [
-          'itemid' => $itemid,
-          'userid' => $userid,
-          'sessionkey' => $sessionkey,
-          'reset' => $reset,
-          'data' => $data,
-        ]);
-        $cache = cache::make('mod_booking', 'customformuserdata');
-        $cachekey = $userid . "_" . $itemid . '_customform';
-        if ($reset) {
-            $cache->delete($cachekey);
-        } else {
-            $data = self::merge_data($cache->get($cachekey), $data, $itemid, $userid);
-            $cache->set($cachekey, (object)$data);
+
+        try {
+            $params = external_api::validate_parameters(self::execute_parameters(), [
+              'itemid' => $itemid,
+              'userid' => $userid,
+              'sessionkey' => $sessionkey,
+              'reset' => $reset,
+              'data' => $data,
+            ]);
+        } catch (\Exception $e) {
+            return [
+                'submitted' => 0,
+                'message' => 'Invalid parameters: ' . $e->getMessage(),
+                'template' => '',
+                'json' => '',
+            ];
         }
-        return $data;
+
+        // The user needs access to the booking instance the option belongs to.
+        // Users with mod/booking:choose may submit the custom form without course
+        // access (e.g. options presented outside their course in the mobile app).
+        $settings = \mod_booking\singleton_service::get_instance_of_booking_option_settings($params['itemid']);
+        \mod_booking\permissions::validate_context_for_booking((int)($settings->cmid ?? 0));
+        // Submitting form data for another user needs the book for others (or cashier) rights.
+        \mod_booking\form\condition\customform_form::require_userid_access((int)$params['userid'], (int)$params['itemid']);
+
+        try {
+            $cache = cache::make('mod_booking', 'customformuserdata');
+            $cachekey = $userid . "_" . $itemid . '_customform';
+
+            if ($reset) {
+                $cache->delete($cachekey);
+                return [
+                    'submitted' => 1,
+                    'message' => 'Form data cleared for user ' . $userid . ' option ' . $itemid,
+                    'template' => '',
+                    'json' => json_encode([]),
+                ];
+            } else {
+                $cacheddata = $cache->get($cachekey);
+                $mergeddata = self::merge_data($cacheddata, $data, $itemid, $userid);
+                $cache->set($cachekey, (object)$mergeddata);
+                return [
+                    'submitted' => 1,
+                    'message' => 'Form data saved: ' . count($mergeddata) . ' fields merged for user ' . $userid,
+                    'template' => '',
+                    'json' => json_encode($mergeddata),
+                ];
+            }
+        } catch (\Exception $e) {
+            return [
+                'submitted' => 0,
+                'message' => 'Error saving form data: ' . $e->getMessage() . ' (itemid: ' . $itemid . ', userid: ' . $userid . ')',
+                'template' => '',
+                'json' => '',
+            ];
+        }
     }
 
     /**
@@ -114,7 +151,7 @@ class get_submission_mobile extends external_api {
     public static function execute_returns(): external_single_structure {
         return new external_single_structure([
             'submitted' => new external_value(PARAM_INT, '1 for success', VALUE_DEFAULT, 0),
-            'message' => new external_value(PARAM_RAW, 'Message if any', VALUE_DEFAULT, ''),
+            'message' => new external_value(PARAM_TEXT, 'Message if any', VALUE_DEFAULT, ''),
             'template' => new external_value(PARAM_TEXT, 'Button template', VALUE_DEFAULT, ''),
             'json' => new external_value(PARAM_RAW, 'Data as json', VALUE_DEFAULT, ''),
             ]);
@@ -133,19 +170,40 @@ class get_submission_mobile extends external_api {
           'id' => $itemid,
           'userid' => $userid,
         ];
+
+        // Ensure $data is an array.
+        if (!is_array($data)) {
+            $data = [];
+        }
+
         foreach ($data as $newvalues) {
+            if (!isset($newvalues['name']) || !isset($newvalues['value'])) {
+                continue;
+            }
             $datacache[$newvalues['name']] = $newvalues['value'];
         }
-        foreach ($cacheddata as $key => $olddata) {
-            if ($key != 'id' && $key != 'userid' && !isset($datacache[$key])) {
-                $datacache[$key] = $olddata;
+
+        // Ensure $cacheddata is iterable before using foreach.
+        if (is_array($cacheddata)) {
+            foreach ($cacheddata as $key => $olddata) {
+                if ($key != 'id' && $key != 'userid' && !isset($datacache[$key])) {
+                    $datacache[$key] = $olddata;
+                }
+            }
+        } else if (is_object($cacheddata)) {
+            foreach ((array)$cacheddata as $key => $olddata) {
+                if ($key != 'id' && $key != 'userid' && !isset($datacache[$key])) {
+                    $datacache[$key] = $olddata;
+                }
             }
         }
+
         return $datacache;
     }
 
     /**
-     * Returns description of method result value.
+     * Build form data string for submission.
+     *
      * @param string $itemid
      * @param string $userid
      * @param string $sesskey

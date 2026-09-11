@@ -65,6 +65,14 @@ class csvimport extends dynamic_form {
             $mform->addElement('hidden', 'settingscallback', $data->settingscallback);
             $mform->setType('settingscallback', PARAM_TEXT); // Check which type applies here!
         }
+
+        if (isset($data->previewcallback)) {
+            $mform->addElement('hidden', 'previewcallback', $data->previewcallback);
+            $mform->setType('previewcallback', PARAM_TEXT);
+        }
+
+        $mform->addElement('hidden', 'previewmode', '0');
+        $mform->setType('previewmode', PARAM_INT);
         $mform->addElement(
             'filepicker',
             'csvfile',
@@ -97,7 +105,17 @@ class csvimport extends dynamic_form {
         $mform->addHelpButton('dateparseformat', 'dateparseformat', 'mod_booking');
 
         $buttonarray = [];
-        $buttonarray[] = $mform->createElement('submit', 'submitbutton', get_string('submit'));
+        if (isset($data->previewcallback)) {
+            $buttonarray[] = $mform->createElement(
+                'submit',
+                'submitbutton',
+                get_string('importuploaddatabase', 'mod_booking'),
+                ['class' => 'd-none']
+            );
+            $buttonarray[] = $mform->createElement('submit', 'previewbutton', get_string('importpreview', 'mod_booking'));
+        } else {
+            $buttonarray[] = $mform->createElement('submit', 'submitbutton', get_string('submit'));
+        }
         $buttonarray[] = $mform->createElement('cancel');
         $mform->addGroup($buttonarray, 'buttonar', '', ' ', false);
     }
@@ -140,11 +158,18 @@ class csvimport extends dynamic_form {
         $data = $this->get_data();
         $content = $this->get_file_content('csvfile');
 
-        $callback = $data->settingscallback;
+        if (!empty($data->previewmode) && !empty($data->previewcallback)) {
+            $callback = $data->previewcallback;
+        } else {
+            $callback = $data->settingscallback;
+        }
         $returndata = $callback($data, $content);
         $returndata['id'] = $data->id;
         $returndata['cmid'] = $data->cmid;
         $returndata['settingscallback'] = $data->settingscallback;
+        if (!empty($data->previewcallback)) {
+            $returndata['previewcallback'] = $data->previewcallback;
+        }
 
         // Should return array with ['success'] == 1 in case of success.
         return $returndata;

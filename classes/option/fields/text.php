@@ -131,13 +131,27 @@ class text extends field_base {
 
         // Booking option name.
         $mform->addElement('text', 'text', get_string('bookingoptionname', 'mod_booking'), ['size' => '64']);
-        $mform->addRule('text', get_string('required'), 'required', null, 'client');
+        // Note: 'text' is validated server-side in validation() to allow templates without text.
         $mform->addRule('text', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
         if (!empty($CFG->formatstringstriptags)) {
             $mform->setType('text', PARAM_TEXT);
         } else {
             $mform->setType('text', PARAM_CLEANHTML);
         }
+    }
+
+    /**
+     * Validate the text field — required unless saving as template.
+     * @param array $data
+     * @param array $files
+     * @param array $errors
+     * @return array
+     */
+    public static function validation(array $data, array $files, array &$errors) {
+        if (empty($data['addastemplate']) && empty(trim($data['text'] ?? ''))) {
+            $errors['text'] = get_string('required');
+        }
+        return $errors;
     }
 
     /**

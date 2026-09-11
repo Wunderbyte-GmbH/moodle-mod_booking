@@ -218,20 +218,51 @@ class campaign_customfield implements booking_campaign {
         $record->extendlimitforoverbooked = $data->extendlimitforoverbooked;
 
         // We need to create two adhoc tasks to purge caches - one at start time and one at end time.
-        $purgetaskstart = new purge_campaign_caches();
-        $purgetaskstart->set_next_run_time($data->starttime);
-        \core\task\manager::queue_adhoc_task($purgetaskstart);
+        // If the campaign changes available places, the task also checks for freetobookagain events.
+        if ((float)$data->limitfactor != 1.0) {
+            // Save the record first to get the campaign ID.
+            if (isset($data->id)) {
+                $record->id = $data->id;
+                $DB->update_record('booking_campaigns', $record);
+                $campaignid = $record->id;
+            } else {
+                $campaignid = $DB->insert_record('booking_campaigns', $record);
+                $this->id = $campaignid;
+            }
 
-        $purgetaskend = new purge_campaign_caches();
-        $purgetaskend->set_next_run_time($data->endtime);
-        \core\task\manager::queue_adhoc_task($purgetaskend);
+            $purgetaskstart = new purge_campaign_caches();
+            $purgetaskstart->set_custom_data((object)[
+                'campaignid' => $campaignid,
+                'limitfactor' => $data->limitfactor,
+                'campaignstart' => true,
+            ]);
+            $purgetaskstart->set_next_run_time($data->starttime);
+            \core\task\manager::queue_adhoc_task($purgetaskstart);
 
-        // If we can update, we add the id here.
-        if (isset($data->id)) {
-            $record->id = $data->id;
-            $DB->update_record('booking_campaigns', $record);
+            $purgetaskend = new purge_campaign_caches();
+            $purgetaskend->set_custom_data((object)[
+                'campaignid' => $campaignid,
+                'limitfactor' => $data->limitfactor,
+                'campaignstart' => false,
+            ]);
+            $purgetaskend->set_next_run_time($data->endtime);
+            \core\task\manager::queue_adhoc_task($purgetaskend);
         } else {
-            $this->id = $DB->insert_record('booking_campaigns', $record);
+            $purgetaskstart = new purge_campaign_caches();
+            $purgetaskstart->set_next_run_time($data->starttime);
+            \core\task\manager::queue_adhoc_task($purgetaskstart);
+
+            $purgetaskend = new purge_campaign_caches();
+            $purgetaskend->set_next_run_time($data->endtime);
+            \core\task\manager::queue_adhoc_task($purgetaskend);
+
+            // If we can update, we add the id here.
+            if (isset($data->id)) {
+                $record->id = $data->id;
+                $DB->update_record('booking_campaigns', $record);
+            } else {
+                $this->id = $DB->insert_record('booking_campaigns', $record);
+            }
         }
     }
 
@@ -332,10 +363,10 @@ class campaign_customfield implements booking_campaign {
         // Retrieve all the bookings.
         $ba = singleton_service::get_instance_of_booking_answers($settings);
 
-        // Filter for the booking answers created before campaign started.
+        // Filter for the booking answers booked before campaign started.
         $nrofbookedusers = 0;
         foreach ($ba->get_usersonlist() as $answer) {
-            if ($answer->timecreated < $this->starttime) {
+            if ($answer->timebooked < $this->starttime) {
                 $nrofbookedusers++;
             }
         }

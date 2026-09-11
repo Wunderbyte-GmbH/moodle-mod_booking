@@ -25,10 +25,13 @@
 namespace mod_booking\option\fields;
 
 use local_entities\entitiesrelation_handler;
+use local_entities\local\entities\entitydate;
 use mod_booking\booking_option_settings;
+use mod_booking\dates;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
 use mod_booking\singleton_service;
+use moodle_url;
 use MoodleQuickForm;
 use stdClass;
 
@@ -195,9 +198,64 @@ class entities extends field_base {
             $fromform = (object)$data;
 
             $erhandler = new entitiesrelation_handler('mod_booking', 'option', $data['id']);
-            /* self::order_all_dates_to_book_in_form($fromform); */ // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+            self::order_all_dates_to_book_in_form($fromform);
             $erhandler->instance_form_validation((array)$fromform, $errors);
         }
+    }
+
+    /**
+     * Builds entitydate objects from the dates submitted in the option form and stores them
+     * as $fromform->datestobook. The entitiesrelation_handler / local_entities then compares
+     * these candidate dates against every booking (across all options and components) that
+     * shares the same entity, so an occupied entity blocks an overlapping option.
+     *
+     * @param stdClass $fromform
+     * @return void
+     */
+    public static function order_all_dates_to_book_in_form(stdClass &$fromform) {
+
+        // Without local_entities there is nothing to compare against.
+        if (!class_exists('local_entities\local\entities\entitydate')) {
+            return;
+        }
+
+        [$submitteddates] = dates::get_list_of_submitted_dates((array)$fromform);
+
+        if (empty($submitteddates)) {
+            $fromform->datestobook = [];
+            return;
+        }
+
+        $optionid = (int)($fromform->id ?? $fromform->optionid ?? 0);
+        $cmid = (int)($fromform->cmid ?? 0);
+        $name = $fromform->text ?? '';
+
+        // A stable link per option lets return_conflicts() recognise (and skip) an option's own dates.
+        $link = new moodle_url('/mod/booking/optionview.php', [
+            'optionid' => $optionid,
+            'cmid' => $cmid,
+        ]);
+
+        $datestobook = [];
+        foreach ($submitteddates as $date) {
+            if (empty($date['coursestarttime']) || empty($date['courseendtime'])) {
+                continue;
+            }
+            $itemid = (int)($date['optiondateid'] ?? 0);
+            $area = !empty($itemid) ? 'optiondate' : 'option';
+            $datestobook[] = new entitydate(
+                $itemid,
+                'mod_booking',
+                $area,
+                $name,
+                (int)$date['coursestarttime'],
+                (int)$date['courseendtime'],
+                0,
+                $link
+            );
+        }
+
+        $fromform->datestobook = $datestobook;
     }
 
     /**

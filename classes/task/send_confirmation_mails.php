@@ -31,6 +31,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
 
 use mod_booking\message_controller;
 use context_system;
+use cache_helper;
 use Exception;
 
 global $CFG;
@@ -113,8 +114,10 @@ class send_confirmation_mails extends \core\task\adhoc_task {
                                 // Use an event to log that a message has been sent.
                                 $event = \mod_booking\event\message_sent::create([
                                     'context' => context_system::instance(),
-                                    'userid' => $taskdata->userto->id,
-                                    'relateduserid' => $taskdata->userfrom->id,
+                                    // Userid is the user who triggered/sent the message (actor),
+                                    // relateduserid is the user the message is sent to (receiver).
+                                    'userid' => $taskdata->userfrom->id,
+                                    'relateduserid' => $taskdata->userto->id,
                                     'objectid' => $taskdata->optionid ?? 0,
                                     'other' => [
                                         'messageparam' => $taskdata->messageparam,
@@ -124,6 +127,7 @@ class send_confirmation_mails extends \core\task\adhoc_task {
                                     ],
                                 ]);
                                 $event->trigger();
+                                cache_helper::purge_by_event('setbackeventlogtable');
                             }
                         } catch (Exception $e) {
                             mtrace('Confirmation could not be sent because of the following exception: ' . $e->getMessage());

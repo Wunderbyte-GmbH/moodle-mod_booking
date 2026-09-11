@@ -33,7 +33,6 @@
 {{/norecords}}
 {{^norecords}}
      {{#table}}
-
      {{#infinitescroll}}
           <div>
           {{> local_wunderbyte_table/component_actionbutton }}
@@ -46,10 +45,10 @@
           <br>
           <div>
                {{> local_wunderbyte_table/component_pagination }}
-               <div class="float-right float-end">{{> local_wunderbyte_table/component_selectrows }}</div>
+               <div class="float-end">{{> local_wunderbyte_table/component_selectrows }}</div>
           </div>
      {{/displayelementsontop}}
-     <div class="wunderbyte-table-table {{moodleversionminfourtwo}}">
+     <div class="wunderbyte-table-table">
           {{> local_wunderbyte_table/component_countlabel }}
           <div {{#stickyheader}} class="scroll-y" {{/stickyheader}} {{#tableheight}}
           style="height: {{tableheight}};" {{/tableheight}}>
@@ -78,6 +77,9 @@
           </div>
      </div>
      {{/table}}
+     {{^table}}
+        {{> local_wunderbyte_table/component_countlabel }}
+     {{/table}}
 {{#js}}
     require(['local_wunderbyte_table/init'], function(fn) {
         fn.init('{{idstring}}', '{{encodedtable}}');
@@ -90,7 +92,7 @@
 
 {{^infinitescroll}}
 {{^displayelementsontop}}
-<div class="float-right float-end">{{> local_wunderbyte_table/component_selectrows }}</div>
+<div class="float-end">{{> local_wunderbyte_table/component_selectrows }}</div>
           {{> local_wunderbyte_table/component_pagination }}
           {{> local_wunderbyte_table/component_actionbutton }}
 {{/displayelementsontop}}

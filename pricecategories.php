@@ -32,12 +32,12 @@
 
  global $OUTPUT, $PAGE, $USER;
 
- // Sicherstellen, dass der Nutzer angemeldet ist.
+ // Make sure the user is logged in.
 // No guest autologin.
 require_login(0, false);
 admin_externalpage_setup('modbookingpricecategories');
 
-// URLs definieren.
+// Define URLs.
 $pageurl = new moodle_url('/mod/booking/pricecategories.php');
 $settingsurl = new moodle_url('/admin/category.php', ['category' => 'modbookingfolder']);
 

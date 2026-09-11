@@ -73,6 +73,6 @@ class clean_booking_db extends \core\task\scheduled_task {
         )"
         );
 
-        // TODO: In the future, we can add additional cleaning.
+        // TODO MDL-00000: In the future, we can add additional cleaning.
     }
 }

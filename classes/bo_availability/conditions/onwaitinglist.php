@@ -32,6 +32,7 @@ use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_answers\booking_answers;
 use mod_booking\booking_option_settings;
 use mod_booking\local\confirmationworkflow\confirmation;
+use mod_booking\local\waitlist\db_waitlist_offer_repository;
 use mod_booking\singleton_service;
 use MoodleQuickForm;
 
@@ -83,6 +84,25 @@ class onwaitinglist implements bo_condition {
     }
 
     /**
+     * Returns the name of the condition.
+     *
+     * @return string
+     *
+     */
+    public function get_name(): string {
+        return get_string('bocondonwaitinglist', 'mod_booking');
+    }
+
+    /**
+     * Returns whether the condition is skippable or not.
+     *
+     * @return bool
+     */
+    public function is_skippable(): bool {
+        return false;
+    }
+
+    /**
      * Determines whether a particular item is currently available
      * according to this availability condition.
      * @param booking_option_settings $settings Item we're checking
@@ -117,6 +137,15 @@ class onwaitinglist implements bo_condition {
                 // Either when we don't need confirmation.
                 if (empty($settings->waitforconfirmation)) {
                     $isavailable = true;
+                } else if (
+                    (new db_waitlist_offer_repository())->is_open_mode_active($bookinganswer->optionid)
+                    && !(new db_waitlist_offer_repository())->is_actively_declined($bookinganswer->optionid, $userid)
+                ) {
+                    // Type 2 ("open after full pass", waitlistrecycling=2): the waiting list has
+                    // been fully processed once without the freed-up spot being claimed - from
+                    // now on anyone (except permanently K7-blocked users) may book directly,
+                    // regardless of a still-missing approval/confirmation.
+                    $isavailable = true;
                 } else if (!empty($ba->json)) {
                     // Or when confirmation is already given. Get number of current confirmations then compare it
                     // with the required number of confirmations. If number of required confirmations is equal to
@@ -146,9 +175,10 @@ class onwaitinglist implements bo_condition {
      * This will be used if the conditions should not only block booking...
      * ... but actually hide the conditons alltogether.
      * @param int $userid
+     * @param array $params This is the array with parameters for the sql query.
      * @return array
      */
-    public function return_sql(int $userid = 0): array {
+    public function return_sql(int $userid = 0, &$params = []): array {
 
         return ['', '', '', [], ''];
     }
@@ -268,7 +298,7 @@ class onwaitinglist implements bo_condition {
      * @param booking_option_settings $settings
      * @return string
      */
-    private function get_description_string($isavailable, $full, $userid, $settings) {
+    public function get_description_string($isavailable, $full, $userid, $settings) {
 
         if (
             !$isavailable

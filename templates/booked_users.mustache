@@ -29,7 +29,8 @@
         "waitinglist" : "<div></div>",
         "reservedusers" : "<div></div>",
         "userstonotify" : "<div></div>",
-        "deletedusers" : "<div></div>"
+        "deletedusers" : "<div></div>",
+        "sentmessages" : "<div></div>"
     }
 }}
 {{^reduced}}
@@ -41,7 +42,7 @@
                         <i class="fa fa-fw fa-ticket" aria-hidden="true"></i>&nbsp;{{#str}} bookings, mod_booking {{/str}}
                     </div>
                 </div>
-                <div id="accordion-item-bookedusers" class="collapse show" aria-labelledby="accordion-heading-bookedusers" data-parent="#accordion-usertables">
+                <div id="accordion-item-bookedusers" class="collapse show" aria-labelledby="accordion-heading-bookedusers">
                 <div class="card-body p-0">
                     {{{bookedusers}}}
                 </div>
@@ -55,7 +56,7 @@
                         <i class="fa fa-fw fa-hourglass" aria-hidden="true"></i>&nbsp;{{#str}} waitinglist, mod_booking {{/str}}
                     </div>
                 </div>
-                <div id="accordion-item-waitinglist" class="collapse" aria-labelledby="accordion-heading-waitinglist" data-parent="#accordion-usertables">
+                <div id="accordion-item-waitinglist" class="collapse" aria-labelledby="accordion-heading-waitinglist">
                 <div class="card-body p-0">
                     {{{waitinglist}}}
                 </div>
@@ -69,7 +70,7 @@
                         <i class="fa fa-fw fa-shopping-cart" aria-hidden="true"></i>&nbsp;{{#str}} reservedusers, mod_booking {{/str}}
                     </div>
                 </div>
-                <div id="accordion-item-reservedusers" class="collapse" aria-labelledby="accordion-heading-reservedusers" data-parent="#accordion-usertables">
+                <div id="accordion-item-reservedusers" class="collapse" aria-labelledby="accordion-heading-reservedusers">
                 <div class="card-body p-0">
                     {{{reservedusers}}}
                 </div>
@@ -83,7 +84,7 @@
                         <i class="fa fa-fw fa-bell-o" aria-hidden="true"></i>&nbsp;{{#str}} userstonotify, mod_booking {{/str}}
                     </div>
                 </div>
-                <div id="accordion-item-userstonotify" class="collapse" aria-labelledby="accordion-heading-userstonotify" data-parent="#accordion-usertables">
+                <div id="accordion-item-userstonotify" class="collapse" aria-labelledby="accordion-heading-userstonotify">
                 <div class="card-body p-0">
                     {{{userstonotify}}}
                 </div>
@@ -97,27 +98,13 @@
                         <i class="fa fa-fw fa-ban" aria-hidden="true"></i>&nbsp;{{#str}} deletedbookings, mod_booking {{/str}}
                     </div>
                 </div>
-                <div id="accordion-item-deletedusers" class="collapse" aria-labelledby="accordion-heading-deletedusers" data-parent="#accordion-usertables">
+                <div id="accordion-item-deletedusers" class="collapse" aria-labelledby="accordion-heading-deletedusers">
                 <div class="card-body p-0">
                     {{{deletedusers}}}
                 </div>
                 </div>
             </div>
         {{/deletedusers}}
-        {{#bookinghistory}}
-            <div class="card">
-                <div class="card-header bg-transparent" id="accordion-heading-bookinghistory">
-                    <div class="bookingstracker-header" role="button" data-toggle="collapse" data-bs-toggle="collapse" data-target="#accordion-item-bookinghistory" data-bs-target="#accordion-item-bookinghistory" aria-expanded="false" aria-controls="accordion-item-bookinghistory">
-                        <i class="fa fa-history" aria-hidden="true"></i>&nbsp;{{#str}} bookinghistory, mod_booking {{/str}}
-                    </div>
-                </div>
-                <div id="accordion-item-bookinghistory" class="collapse" aria-labelledby="accordion-heading-bookinghistory" data-parent="#accordion-usertables">
-                    <div class="card-body p-0">
-                        {{{bookinghistory}}}
-                    </div>
-                </div>
-            </div>
-        {{/bookinghistory}}
         {{#optionstoconfirm}}
             <div class="card">
                 {{#deputyselect}}
@@ -128,10 +115,10 @@
                 {{/deputydisplay}}
                 <div class="card-header bg-transparent" id="accordion-heading-optionstoconfirm">
                     <div class="bookingstracker-header" role="button" data-toggle="collapse" data-bs-toggle="collapse" data-target="#accordion-item-optionstoconfirm" data-bs-target="#accordion-item-optionstoconfirm" aria-expanded="false" aria-controls="accordion-item-optionstoconfirm">
-                        <i class="fa fa-fw fa-hourglass" aria-hidden="true"></i>&nbsp;{{#labels.6}}{{.}}{{/labels.6}}
+                        <i class="fa fa-fw fa-thumbs-up" aria-hidden="true"></i>&nbsp;{{#labels.6}}{{.}}{{/labels.6}}
                     </div>
                 </div>
-                <div id="accordion-item-optionstoconfirm" class="collapse" aria-labelledby="accordion-heading-optionstoconfirm" data-parent="#accordion-usertables">
+                <div id="accordion-item-optionstoconfirm" class="collapse" aria-labelledby="accordion-heading-optionstoconfirm">
                 <div class="card-body p-0">
                     {{{optionstoconfirm}}}
                 </div>
@@ -141,72 +128,107 @@
         {{#previouslybooked}}
             <div class="card">
                 <div class="card-header bg-transparent" id="accordion-heading-previouslybooked">
-                    <div class="bookingstracker-header" role="button" data-toggle="collapse" data-target="#accordion-item-previouslybooked" aria-expanded="false" aria-controls="accordion-item-optionstoconfirm">
-                        <i class="fa fa-fw fa-hourglass" aria-hidden="true"></i>&nbsp;{{#labels.7}}{{.}}{{/labels.7}}
+                    <div class="bookingstracker-header" role="button" data-toggle="collapse" data-bs-toggle="collapse" data-target="#accordion-item-previouslybooked" data-bs-target="#accordion-item-previouslybooked" aria-expanded="false" aria-controls="accordion-item-previouslybooked">
+                        <i class="fa fa-fw fa-hand-o-left" aria-hidden="true"></i>&nbsp;{{#labels.7}}{{.}}{{/labels.7}}
                     </div>
                 </div>
-                <div id="accordion-item-previouslybooked" class="collapse" aria-labelledby="accordion-heading-previouslybooked" data-parent="#accordion-usertables">
+                <div id="accordion-item-previouslybooked" class="collapse" aria-labelledby="accordion-heading-previouslybooked">
                 <div class="card-body p-0">
                     {{{previouslybooked}}}
                 </div>
                 </div>
             </div>
         {{/previouslybooked}}
+        {{#sentmessages}}
+            <div class="card">
+                <div class="card-header bg-transparent" id="accordion-heading-sentmessages">
+                    <div class="bookingstracker-header" role="button" data-toggle="collapse" data-bs-toggle="collapse" data-target="#accordion-item-sentmessages" data-bs-target="#accordion-item-sentmessages" aria-expanded="false" aria-controls="accordion-item-sentmessages">
+                        <i class="fa fa-envelope-o fa-fw" aria-hidden="true"></i>&nbsp;{{#str}} showmessages, mod_booking {{/str}}
+                    </div>
+                </div>
+                <div id="accordion-item-sentmessages" class="collapse" aria-labelledby="accordion-heading-sentmessages">
+                    <div class="card-body p-0">
+                        {{{sentmessages}}}
+                    </div>
+                </div>
+            </div>
+        {{/sentmessages}}
+        {{#bookinghistory}}
+            <div class="card">
+                <div class="card-header bg-transparent" id="accordion-heading-bookinghistory">
+                    <div class="bookingstracker-header" role="button" data-toggle="collapse" data-bs-toggle="collapse" data-target="#accordion-item-bookinghistory" data-bs-target="#accordion-item-bookinghistory" aria-expanded="false" aria-controls="accordion-item-bookinghistory">
+                        <i class="fa fa-history fa-fw" aria-hidden="true"></i>&nbsp;{{#str}} bookinghistory, mod_booking {{/str}}
+                    </div>
+                </div>
+                <div id="accordion-item-bookinghistory" class="collapse" aria-labelledby="accordion-heading-bookinghistory">
+                    <div class="card-body p-0">
+                        {{{bookinghistory}}}
+                    </div>
+                </div>
+            </div>
+        {{/bookinghistory}}
     </div>
 {{/reduced}}
 {{#reduced}}
     {{#bookedusers}}
-            <div id="bookedusers">
-                    {{{bookedusers}}}
-            </div>
+        <div id="bookedusers">
+            {{{bookedusers}}}
+        </div>
     {{/bookedusers}}
     {{#waitinglist}}
-            <div id="waitinglist">
-                    {{{waitinglist}}}
+        <div id="waitinglist">
+            {{{waitinglist}}}
+        </div>
+    {{/waitinglist}}
+    {{#reservedusers}}
+        <div id="reservedusers">
+            {{{reservedusers}}}
+        </div>
+    {{/reservedusers}}
+    {{#userstonotify}}
+        <div id="userstonotify">
+            {{{userstonotify}}}
+        </div>
+    {{/userstonotify}}
+    {{#deletedusers}}
+        <div class="card" id="deletedusers">
+            <div class="card-body p-0">
+                {{{deletedusers}}}
             </div>
-        {{/waitinglist}}
-        {{#reservedusers}}
-             <div id="reservedusers">
-                    {{{reservedusers}}}
+        </div>
+    {{/deletedusers}}
+    {{#optionstoconfirm}}
+        <div class="card">
+            {{#deputydisplay}}
+                {{> mod_booking/deputydisplay }}
+            {{/deputydisplay}}
+            {{#deputyselect}}
+                {{> mod_booking/deputyselect }}
+            {{/deputyselect}}
+            <div>
+                {{{optionstoconfirm}}}
             </div>
-        {{/reservedusers}}
-        {{#userstonotify}}
-            <div id="userstonotify">
-                   {{{userstonotify}}}
+        </div>
+    {{/optionstoconfirm}}
+    {{#previouslybooked}}
+        <div class="card" id="previouslybooked">
+            <div class="card-body p-0">
+                {{{previouslybooked}}}
             </div>
-        {{/userstonotify}}
-        {{#deletedusers}}
-            <div class="card" id="deletedusers">
-                <div class="card-body p-0">
-                   {{{deletedusers}}}
-                </div>
+        </div>
+    {{/previouslybooked}}
+    {{#sentmessages}}
+        <div class="card" id="sentmessages">
+            <div class="card-body p-0">
+                {{{sentmessages}}}
             </div>
-        {{/deletedusers}}
-        {{#bookinghistory}}
-            <div class="card" id="bookinghistory">
-                <div class="card-body p-0">
-                   {{{bookinghistory}}}
-                </div>
+        </div>
+    {{/sentmessages}}
+    {{#bookinghistory}}
+        <div class="card" id="bookinghistory">
+            <div class="card-body p-0">
+                {{{bookinghistory}}}
             </div>
-        {{/bookinghistory}}
-        {{#optionstoconfirm}}
-            <div class="card">
-             {{#deputydisplay}}
-                    {{> mod_booking/deputydisplay }}
-                {{/deputydisplay}}
-                {{#deputyselect}}
-                    {{> mod_booking/deputyselect }}
-                {{/deputyselect}}
-                <div>
-                   {{{optionstoconfirm}}}
-                </div>
-            </div>
-        {{/optionstoconfirm}}
-        {{#previouslybooked}}
-            <div class="card" id="previouslybooked">
-                <div class="card-body p-0">
-                   {{{previouslybooked}}}
-                </div>
-            </div>
-        {{/previouslybooked}}
+        </div>
+    {{/bookinghistory}}
 {{/reduced}}
