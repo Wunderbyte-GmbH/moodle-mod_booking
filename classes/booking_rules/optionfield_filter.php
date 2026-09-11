@@ -173,7 +173,7 @@ class optionfield_filter {
         $mform->setType(self::FORMVALUE, PARAM_TEXT);
         $repeateloptions[self::FORMVALUE]['type'] = PARAM_TEXT;
         $mform->hideIf(self::FORMVALUE, self::FORMFIELD, 'eq', '0');
-        // "Is empty" and "is not empty" do not need a value.
+        // The "Is empty" and "is not empty" operators do not need a value.
         $mform->hideIf(self::FORMVALUE, self::FORMOPERATOR, 'eq', self::OPERATOR_EMPTY);
         $mform->hideIf(self::FORMVALUE, self::FORMOPERATOR, 'eq', self::OPERATOR_NOTEMPTY);
     }
