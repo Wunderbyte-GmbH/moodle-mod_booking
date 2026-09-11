@@ -345,4 +345,94 @@ final class waitlist_heartbeat_task_test extends \advanced_testcase {
             'K7: a declined candidate must never be re-offered, regardless of waitlistrecycling.'
         );
     }
+
+    /**
+     * Produces the type 4 backlog situation: the candidate's offer expired while the option was
+     * still on "Stop", so they are locked out (K4) but still on the waiting list.
+     *
+     * @param int $optionid
+     * @param \stdClass $candidate
+     * @return void
+     */
+    private function expire_first_offer(int $optionid, \stdClass $candidate): void {
+        $repository = new db_waitlist_offer_repository();
+        progression_factory::get()->reconcile($optionid, 'test-setup');
+        $offers = $repository->get_open_offers($optionid);
+        $this->assertCount(1, $offers, 'Precondition: the candidate must have an open offer.');
+        $repository->transition($offers[0], new expired());
+        $this->assertTrue(
+            $repository->is_permanently_declined($optionid, (int) $candidate->id),
+            'Precondition: the expired offer must lock the candidate out (K4).'
+        );
+    }
+
+    /**
+     * Whether the user is still on the waiting list of the option.
+     *
+     * @param int $optionid
+     * @param int $userid
+     * @return bool
+     */
+    private function is_on_waitinglist(int $optionid, int $userid): bool {
+        global $DB;
+        return $DB->record_exists('booking_answers', [
+            'optionid' => $optionid,
+            'userid' => $userid,
+            'waitinglist' => MOD_BOOKING_STATUSPARAM_WAITINGLIST,
+        ]);
+    }
+
+    /**
+     * Type 4 backlog: once an option is switched to "remove on offer expiry" (waitlistrecycling=3),
+     * the next heartbeat must take a candidate whose offer had already expired off the waiting list
+     * and clear their K4 lock.
+     */
+    public function test_execute_removes_the_type4_backlog(): void {
+        global $DB;
+
+        $clock = $this->mock_clock_with_frozen(4300000000);
+        [$optionid, $candidate] = $this->create_stalled_option('heartbeat-type4-backlog', 0);
+        $this->setAdminUser();
+        $this->expire_first_offer($optionid, $candidate);
+
+        // Only now is the option switched to type 4 - the expiry above happened under "Stop".
+        $DB->set_field('booking_options', 'waitlistrecycling', 3, ['id' => $optionid]);
+        \cache::make('mod_booking', 'bookingoptionsettings')->delete($optionid);
+        singleton_service::destroy_booking_option_singleton($optionid);
+
+        $clock->bump(1000);
+        (new waitlist_heartbeat_task())->execute();
+
+        $this->assertFalse(
+            $this->is_on_waitinglist($optionid, (int) $candidate->id),
+            'Type 4 backlog: the heartbeat must take the expired, locked candidate off the waiting list.'
+        );
+        $this->assertFalse(
+            (new db_waitlist_offer_repository())->is_permanently_declined($optionid, (int) $candidate->id),
+            'Type 4 backlog: the K4 lock must be cleared as well, so a later re-join starts fresh.'
+        );
+    }
+
+    /**
+     * Counter-check: the same expired, locked candidate on an option that is NOT on type 4 must be
+     * left exactly as it is by the heartbeat - still on the waiting list, still locked.
+     */
+    public function test_execute_leaves_an_expired_waiter_alone_when_not_type4(): void {
+        $clock = $this->mock_clock_with_frozen(4400000000);
+        [$optionid, $candidate] = $this->create_stalled_option('heartbeat-type4-counter', 0);
+        $this->setAdminUser();
+        $this->expire_first_offer($optionid, $candidate);
+
+        $clock->bump(1000);
+        (new waitlist_heartbeat_task())->execute();
+
+        $this->assertTrue(
+            $this->is_on_waitinglist($optionid, (int) $candidate->id),
+            'Not type 4: the expired candidate must stay on the waiting list.'
+        );
+        $this->assertTrue(
+            (new db_waitlist_offer_repository())->is_permanently_declined($optionid, (int) $candidate->id),
+            'Not type 4: the K4 lock must stay in place.'
+        );
+    }
 }

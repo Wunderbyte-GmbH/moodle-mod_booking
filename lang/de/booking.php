@@ -894,6 +894,8 @@ $string['bookingactionadd'] = "Füge Aktion hinzu";
 $string['bookingafteractionsfailed'] = 'Actions nach der Buchung gescheitert';
 $string['bookingandcancelling'] = 'Buchen und Stornieren';
 $string['bookinganswercancelled'] = 'Buchungsoption von/für Nutzer:in storniert';
+$string['bookinganswerremovedfromwaitinglist'] = 'Nach Ablauf des Angebots von der Warteliste entfernt';
+$string['bookinganswerremovedfromwaitinglistdesc'] = 'Nutzer:in mit ID {$a->relateduserid} wurde von der Warteliste der Buchungsoption mit ID {$a->objectid} entfernt, weil das Angebot abgelaufen ist.';
 $string['bookinganswerupdated'] = 'Buchungsantwort aktualisiert';
 $string['bookinganswerwaitingforconfirmation'] = 'Voranmeldung für Buchungsoption eingetroffen';
 $string['bookinganswerwaitingforconfirmationdesc'] = 'Nutzer:in mit id {$a->relateduserid} hat sich für die Buchungsoption mit ID {$a->objectid} vorangemeldet.';
@@ -4064,7 +4066,12 @@ Hier geht\'s zum dazugehörigen Kurs: {$a->courselink}
 ';
 $string['waitingtextsubject'] = 'Buchung auf Warteliste für {$a->title}';
 $string['waitingtextsubjectbookingmanager'] = 'Wartelistenbuchung für {$a->title} von {$a->participant}';
+$string['waitlistrecycling'] = 'Warteliste nach vollständigem Durchlauf';
+$string['waitlistrecycling_help'] = 'Wer ein Angebot verstreichen lässt, wird für weitere Angebote dieser Buchungsoption gesperrt. Diese Einstellung legt fest, was passiert, sobald alle, die noch auf der Warteliste stehen, auf diese Weise gesperrt sind: "Stopp" lässt sie dauerhaft gesperrt. "Erneut durchgehen" hebt diese Sperren auf und bietet ihnen erneut Plätze an (in ihrer ursprünglichen Reihenfolge), sobald dies das nächste Mal vom Wartelisten-Heartbeat-Task geprüft wird. "Nach vollständigem Durchlauf öffnen" lässt den frei gewordenen Platz für die direkte Buchung durch alle offen (ob auf der Warteliste oder nicht), außer für Personen, die ihr Angebot aktiv abgelehnt haben, bis jemand ihn tatsächlich bucht - danach funktioniert die Warteliste für alle, die sich später eintragen, wieder normal. "Bei Ablauf des Angebots von der Warteliste entfernen" wartet nicht auf einen vollständigen Durchlauf: Sobald das Angebot einer Person abläuft, wird sie von der Warteliste entfernt (einschließlich eines bereits in ihrem Warenkorb reservierten Artikels), ohne Stornobenachrichtigungen. Sie kann sich jederzeit erneut eintragen und reiht sich dann am Ende der Warteliste ein. Wer ein Angebot aktiv ablehnt, bleibt unabhängig von dieser Einstellung immer dauerhaft gesperrt.';
+$string['waitlistrecyclingend'] = 'Stopp';
 $string['waitlistrecyclingopen'] = 'Nach vollständigem Durchlauf öffnen';
+$string['waitlistrecyclingrecycle'] = 'Erneut durchgehen';
+$string['waitlistrecyclingremove'] = 'Bei Ablauf des Angebots von der Warteliste entfernen';
 $string['waitspaceavailable'] = 'Wartelistenplätze verfügbar';
 $string['warningcustomfieldsforbiddenshortname'] = 'Sie können die folgenden Kurzbezeichnungen für benutzerdefinierte Felder nicht verwenden: <b>{$a}</b>.
 Bitte wählen Sie eine andere Kurzbezeichnung.';

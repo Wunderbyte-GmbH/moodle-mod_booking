@@ -31,6 +31,7 @@ use mod_booking\local\waitlist\db_waitlist_offer_repository;
 use mod_booking\local\waitlist\offer_statuses\expired;
 use mod_booking\local\waitlist\offer_statuses\offered;
 use mod_booking\local\waitlist\progression_factory;
+use mod_booking\singleton_service;
 
 /**
  * Expires one waitlist offer and immediately re-reconciles its option.
@@ -70,6 +71,19 @@ class expire_waitlist_offer_adhoc extends \core\task\adhoc_task {
         }
 
         $repository->transition($offer, new expired());
+
+        // Type 4 (waitlistrecycling=3, "remove on offer expiry"): take the person off the waiting
+        // list right away. Order matters: the K4 lock written by transition() stays in place until
+        // the removal is done - unloading a cart reservation syncs the waiting list and may already
+        // reconcile(), and the removed person must not be offered again at that moment. Only then is
+        // the lock cleared, so a later re-join is a normal fresh start.
+        $settings = singleton_service::get_instance_of_booking_option_settings($offer->optionid);
+        if (!empty($settings->id) && (int) $settings->waitlistrecycling === 3) {
+            $option = singleton_service::get_instance_of_booking_option((int) $settings->cmid, $offer->optionid);
+            $option->remove_from_waitinglist_after_offer_expiry($offer->userid);
+            $repository->remove_expired_lock($offer->optionid, $offer->userid);
+        }
+
         progression_factory::get()->reconcile($offer->optionid, 'offer:expired');
     }
 }

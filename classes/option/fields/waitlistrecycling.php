@@ -128,6 +128,7 @@ class waitlistrecycling extends field_base {
                 0 => get_string('waitlistrecyclingend', 'mod_booking'),
                 1 => get_string('waitlistrecyclingrecycle', 'mod_booking'),
                 2 => get_string('waitlistrecyclingopen', 'mod_booking'),
+                3 => get_string('waitlistrecyclingremove', 'mod_booking'),
             ];
 
             $mform->addElement(

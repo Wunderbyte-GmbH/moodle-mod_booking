@@ -170,6 +170,27 @@ interface waitlist_offer_repository {
     public function find_recyclable_options(): array;
 
     /**
+     * Type 4 (waitlistrecycling=3, "remove on offer expiry"): removes the K4 (expired) lock of a
+     * single user on this option once that user has been removed from the waiting list, so a later
+     * re-join is a normal fresh start at the end of the list. A K7 lock (reason=declined) is never
+     * touched - that lock is permanent regardless of waitlistrecycling.
+     *
+     * @param int $optionid
+     * @param int $userid
+     * @return void
+     */
+    public function remove_expired_lock(int $optionid, int $userid): void;
+
+    /**
+     * Type 4 backlog: users on options with waitlistrecycling=3 who are still on the waiting list
+     * despite a K4 (expired) lock - e.g. their offer expired before the option was switched to this
+     * mode. waitlist_heartbeat_task removes each of them from the waiting list.
+     *
+     * @return \stdClass[] each with ->optionid and ->userid
+     */
+    public function find_expired_waiters_to_remove(): array;
+
+    /**
      * Typ 2 ("offen nach Durchlauf", waitlistrecycling=2): whether this option's freed seat is
      * currently open for direct booking by anyone (except K7-permanently-declined) - see
      * bo_availability/conditions/onwaitinglist.php. Set by activate_open_mode() once the waiting

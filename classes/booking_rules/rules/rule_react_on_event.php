@@ -123,6 +123,7 @@ class rule_react_on_event implements booking_rule {
             'bookingoption_booked',
             'bookingoptionwaitinglist_booked',
             'bookinganswer_movedupfromwaitinglist',
+            'bookinganswer_removedfromwaitinglist',
             'bookingoption_completed',
             'bookingoption_uncompleted',
             'bookinganswer_confirmed',

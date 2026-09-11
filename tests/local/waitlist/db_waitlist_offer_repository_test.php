@@ -573,4 +573,84 @@ final class db_waitlist_offer_repository_test extends \advanced_testcase {
 
         $this->assertContains($optionid, $repository->find_recyclable_options());
     }
+
+    /**
+     * Type 4: remove_expired_lock() removes exactly one user's K4 (expired) lock - never a K7
+     * (declined) lock, and never another user's lock on the same option.
+     */
+    public function test_remove_expired_lock_removes_only_that_users_expired_lock(): void {
+        $repository = new db_waitlist_offer_repository();
+        $optionid = 5300;
+        $userexpired = (int) $this->getDataGenerator()->create_user()->id;
+        $userdeclined = (int) $this->getDataGenerator()->create_user()->id;
+        $otheruserexpired = (int) $this->getDataGenerator()->create_user()->id;
+
+        $offer = $repository->create_offer($optionid, $userexpired, 1, 1, new offered());
+        $repository->transition($offer, new expired());
+        $offer = $repository->create_offer($optionid, $userdeclined, 1, 2, new offered());
+        $repository->transition($offer, new declined());
+        $offer = $repository->create_offer($optionid, $otheruserexpired, 1, 3, new offered());
+        $repository->transition($offer, new expired());
+
+        $repository->remove_expired_lock($optionid, $userexpired);
+        $repository->remove_expired_lock($optionid, $userdeclined);
+
+        $this->assertFalse(
+            $repository->is_permanently_declined($optionid, $userexpired),
+            'The K4 (expired) lock of the given user must be gone.'
+        );
+        $this->assertTrue(
+            $repository->is_permanently_declined($optionid, $userdeclined),
+            'A K7 (declined) lock must never be removed by remove_expired_lock().'
+        );
+        $this->assertTrue(
+            $repository->is_permanently_declined($optionid, $otheruserexpired),
+            'Another user\'s K4 lock on the same option must stay untouched.'
+        );
+    }
+
+    /**
+     * Type 4 backlog query: only options with waitlistrecycling=3, only K4 (expired) locks, only
+     * users still on the waiting list - and each such user exactly once, even with several
+     * waiting-list rows.
+     */
+    public function test_find_expired_waiters_to_remove_scoping(): void {
+        $repository = new db_waitlist_offer_repository();
+        $type4 = $this->insert_option(3);
+        $stop = $this->insert_option(0);
+        $expired = (int) $this->getDataGenerator()->create_user()->id;
+        $twice = (int) $this->getDataGenerator()->create_user()->id;
+        $declined = (int) $this->getDataGenerator()->create_user()->id;
+        $notwaiting = (int) $this->getDataGenerator()->create_user()->id;
+        $othermode = (int) $this->getDataGenerator()->create_user()->id;
+
+        $this->insert_waitinglist_answer($type4, $expired, 100);
+        $this->insert_waitinglist_answer($type4, $twice, 101);
+        $this->insert_waitinglist_answer($type4, $twice, 102);
+        $this->insert_waitinglist_answer($type4, $declined, 103);
+        $this->insert_waitinglist_answer($stop, $othermode, 104);
+        // The $notwaiting user gets a lock below but has no waiting-list answer at all.
+
+        $expiredlocks = [[$type4, $expired], [$type4, $twice], [$type4, $notwaiting], [$stop, $othermode]];
+        foreach ($expiredlocks as $index => [$optionid, $userid]) {
+            $offer = $repository->create_offer($optionid, $userid, 1, $index + 1, new offered());
+            $repository->transition($offer, new expired());
+        }
+        $offer = $repository->create_offer($type4, $declined, 1, 9, new offered());
+        $repository->transition($offer, new declined());
+
+        $found = array_map(
+            fn($row) => $row->optionid . '-' . $row->userid,
+            $repository->find_expired_waiters_to_remove()
+        );
+        sort($found);
+        $expected = [$type4 . '-' . $expired, $type4 . '-' . $twice];
+        sort($expected);
+
+        $this->assertSame(
+            $expected,
+            $found,
+            'Only still-waiting users with a K4 lock on a type 4 option may be returned, each once.'
+        );
+    }
 }
