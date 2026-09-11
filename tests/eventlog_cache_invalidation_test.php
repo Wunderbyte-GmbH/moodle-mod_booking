@@ -45,6 +45,10 @@ final class eventlog_cache_invalidation_test extends advanced_testcase {
 
         parent::setUp();
         $this->resetAfterTest();
+        // The log store observer is not internal, so events inside a transaction only reach it on commit.
+        // On PostgreSQL the test would otherwise run inside the reset-by-rollback transaction and never see
+        // a log row (same as core logstore_standard tests).
+        $this->preventResetByRollback();
         $this->setAdminUser();
         $PAGE->set_context(context_system::instance());
 
