@@ -301,7 +301,8 @@ class ical {
         if ($cancel) {
             $this->role = 'NON-PARTICIPANT';
             $this->partstat = 'DECLINED';
-            $this->status = "\nSTATUS:CANCELLED";
+            // The lines of an ical are separated by CRLF, a single LF would make the file invalid.
+            $this->status = "\r\nSTATUS:CANCELLED";
         }
         // Determine the correct iCal method.
         $icalmethod = $this->get_method($cancel);
@@ -472,7 +473,7 @@ class ical {
         hyphen. */
         $language = str_replace('_', '-', current_language());
         $attendee = "ATTENDEE;CUTYPE=INDIVIDUAL;ROLE={$this->role};PARTSTAT={$this->partstat};RSVP=TRUE;" .
-                "CN={$this->userfullname};LANGUAGE={$language}:MAILTO:{$this->user->email}";
+                "CN=" . $this->quote_param($this->userfullname) . ";LANGUAGE={$language}:MAILTO:{$this->user->email}";
         // The fold_line function keeps the ATTENDEE line valid by adding a space at the start of the next line
         // whenever the line breaks.
         $attendee = $this->fold_line($attendee);
@@ -492,7 +493,7 @@ class ical {
             "PRIORITY:5",
             $this->fold_line("SUMMARY:{$this->summary}"),
             "TRANSP:OPAQUE{$this->status}",
-            $this->fold_line("ORGANIZER;CN={$fromusername}:MAILTO:{$fromuseremail}"),
+            $this->fold_line("ORGANIZER;CN=" . $this->quote_param($fromusername) . ":MAILTO:{$fromuseremail}"),
         ];
 
         // A published event has no attendees, RFC 5546 (section 3.2.1) does not allow the ATTENDEE
@@ -635,14 +636,28 @@ class ical {
             $text = html_to_text($text);
         }
 
+        // A single CR would end the content line, so every line break becomes the literal \n.
+        $text = str_replace(["\r\n", "\r"], "\n", $text);
         $text = str_replace(['\\', "\n", ';', ','], ['\\\\', '\n', '\;', '\,'], $text);
 
-        /* Text should be wordwrapped at 75 octets, and there should be one whitespace after the
-        newline that does the wrapping. The lines of an ical are separated by CRLF, a single LF
-        would make the file invalid. */
-        $text = wordwrap($text, 75, "\r\n ", true);
-
+        /* The text is not wrapped here: the whole content line (e.g. "SUMMARY:...") is folded to
+        75 octets by fold_line(). Wrapping it here as well would fold it twice, which breaks CRLF
+        pairs, drops the spaces at the wrap points and cuts multibyte characters. */
         return $text;
+    }
+
+    /**
+     * Quote a parameter value, like the CN (common name) of the ORGANIZER and the ATTENDEE.
+     *
+     * A name may contain a comma, a semicolon or a colon, which would end the parameter
+     * (RFC 5545, section 3.2), so the value is always put in double quotes. Double quotes and
+     * control characters are not allowed within a quoted value, so they are removed.
+     *
+     * @param string $value
+     * @return string
+     */
+    protected function quote_param(string $value): string {
+        return '"' . preg_replace('/["\x00-\x1F\x7F]/', '', $value) . '"';
     }
 
     /**
