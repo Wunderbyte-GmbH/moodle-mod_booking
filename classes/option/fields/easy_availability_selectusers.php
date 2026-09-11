@@ -105,15 +105,16 @@ class easy_availability_selectusers extends field_base {
             $formdata->bo_cond_selectusers_overrideoperator = 'OR'; // Can be hardcoded here.
 
             // We always override these conditions, so users are always allowed to book outside time restrictions.
+            // The notification list is always overridden too, otherwise it blocks these users from booking.
             $formdata->bo_cond_selectusers_overridecondition = [
                 MOD_BOOKING_BO_COND_BOOKING_TIME,
                 MOD_BOOKING_BO_COND_OPTIONHASSTARTED,
+                MOD_BOOKING_BO_COND_NOTIFYMELIST,
             ];
 
-            // If the overbook checkbox has been checked, we also add the conditions so the user(s) can overbook.
+            // If the overbook checkbox has been checked, we also add the condition so the user(s) can overbook.
             if (!empty($formdata->selectusersoverbookcheckbox)) {
                 $formdata->bo_cond_selectusers_overridecondition[] = MOD_BOOKING_BO_COND_FULLYBOOKED;
-                $formdata->bo_cond_selectusers_overridecondition[] = MOD_BOOKING_BO_COND_NOTIFYMELIST;
             }
         } else {
             $formdata->bo_cond_selectusers_restrict = 0;
@@ -244,10 +245,7 @@ class easy_availability_selectusers extends field_base {
                             $formdata->bo_cond_selectusers_restrict = true;
                             $formdata->bo_cond_selectusers_userids = $av->userids;
                         }
-                        if (
-                            in_array(MOD_BOOKING_BO_COND_FULLYBOOKED, $av->overrides ?? []) &&
-                            in_array(MOD_BOOKING_BO_COND_NOTIFYMELIST, $av->overrides ?? [])
-                        ) {
+                        if (in_array(MOD_BOOKING_BO_COND_FULLYBOOKED, $av->overrides ?? [])) {
                             $formdata->selectusersoverbookcheckbox = true;
                         } else {
                             $formdata->selectusersoverbookcheckbox = false;
