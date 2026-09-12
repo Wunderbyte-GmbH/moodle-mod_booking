@@ -254,6 +254,7 @@ auch der verbundene Moodle-Kurs dupliziert (Achtung: Nutzer/innen-Daten des Mood
 Da das Duplizieren asynchron über einen Adhoc-Task gemacht wird, stellen Sie bitte sicher, dass der CRON-Task regelmäßig läuft.';
 $string['duplicationrestoreteachers'] = 'Trainer/innen inkludieren';
 $string['easyavailabilityselectusers'] = 'Einfache Nutzer/innen Voraussetzung';
+$string['editoptionsrequirecourselogin_desc'] = 'Wenn aktiviert (Standard), müssen Nutzer/innen im Kurs eingeschrieben sein (oder der Kurs muss Gastzugang erlauben), um das Formular für Buchungsoptionen (editoptions.php) zu öffnen. Wenn deaktiviert, reicht ein Login auf der Seite; die Rechteprüfungen des Formulars gelten weiterhin, bearbeiten können also nur Trainer/innen der Buchungsoption oder Nutzer/innen mit den nötigen Rechten.';
 $string['editteacherslink'] = 'Lehrer/innen bearbeiten';
 $string['enablecompletionmincompleted'] = 'Mindestanzahl an Buchungsoptionen, in denen der/die Nutzer/in auf "Abgeschlossen" gesetzt werden muss';
 $string['enablecompletionmincompleted_help'] = 'Ein/e Nutzer/in muss in mindestens so vielen Buchungsoptionen auf "Abgeschlossen" gesetzt werden, wie Sie hier angeben,
