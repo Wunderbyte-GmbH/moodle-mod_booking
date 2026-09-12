@@ -1422,7 +1422,11 @@ class booking {
             }
 
             if (gettype($value) == 'array') {
-                $where .= " AND ( ";
+                // An empty array yields no condition at all. Opening the bracket here would
+                // produce "AND (  )", which is a syntax error in every supported database.
+                if (empty($value)) {
+                    continue;
+                }
                 $orstring = [];
                 // phpcs:ignore moodle.Commenting.TodoComment.MissingInfoInline
                 // TODO: This could be replaced with in or equal, but not sure of if its worth it.
@@ -1441,6 +1445,11 @@ class booking {
                         $params[$paramsvaluekey] = $arrayvalue;
                     }
                 }
+                // Defensive: if every value was filtered out, we must not emit an empty bracket.
+                if (empty($orstring)) {
+                    continue;
+                }
+                $where .= " AND ( ";
                 $where .= implode(' OR ', $orstring);
                 $where .= " ) ";
             } else if (gettype($value) == 'integer') {
