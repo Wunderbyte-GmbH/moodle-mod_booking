@@ -271,8 +271,10 @@ final class waitlist_target_b5_heartbeat_test extends booking_advanced_testcase 
         // must not appear (free <= 0).
         $optionc = $this->build_option($course, $teacher, $booking, $plugingenerator, 'b5-full', 1, 1, false);
 
-        // Option D - free capacity and a waiting candidate, but reconcile() was ALREADY run
-        // (an open offer already exists) - must not appear ("ohne offene Offers").
+        // Option D - a waiting candidate and one seat, but reconcile() was ALREADY run: the only
+        // seat is on offer, so no seat is left - must not appear. (Since 2026-09-14 an open offer no
+        // longer excludes an option by itself, only when the offers occupy all seats - see
+        // freed_seat_while_offer_open_test.php for an option with an open offer AND a free seat.)
         $optiond = $this->build_option($course, $teacher, $booking, $plugingenerator, 'b5-already-offered', 1, 1, true);
         $factoryclass = '\mod_booking\local\waitlist\progression_factory';
         $repositoryclass = '\mod_booking\local\waitlist\db_waitlist_offer_repository';
@@ -309,9 +311,9 @@ final class waitlist_target_b5_heartbeat_test extends booking_advanced_testcase 
         $this->assertNotContains(
             (int) $optiond->option->id,
             $stalledoptionids,
-            'B5/§4.2: an option that already has an open offer must not be considered stalled ' .
-            'again - the narrow scope must exclude options with open offers, exactly the USI ' .
-            'load-test lesson behind keeping this query tight.'
+            'B5/§4.2: an option whose only seat is already on offer must not be considered stalled ' .
+            'again - the narrow scope must exclude options where open offers occupy all seats, ' .
+            'exactly the USI load-test lesson behind keeping this query tight.'
         );
 
         // Part 2 (T7 self-healing): running the actual scheduled task must reconcile option A's

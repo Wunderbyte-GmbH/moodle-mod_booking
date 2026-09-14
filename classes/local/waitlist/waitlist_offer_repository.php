@@ -140,9 +140,11 @@ interface waitlist_offer_repository {
 
     /**
      * Finds options that are genuinely "stalled" (T7, WAITLIST_REFACTOR_ARCHITECTURE_2026-08-12.md
-     * §4.2): have at least one waiting-list answer, no open offer yet, AND real free capacity -
-     * a narrowly-scoped query on purpose (a lesson from an earlier load-test experience), not
-     * "every option with any waiting list at all".
+     * §4.2): have at least one waiting-list answer AND real free capacity - a seat that is neither
+     * booked nor on offer. An open offer only occupies its own seat, so an option with an open offer
+     * is still stalled if another seat is free (changed 2026-09-14, it used to require "no open
+     * offer yet"). A narrowly-scoped query on purpose (a lesson from an earlier load-test
+     * experience), not "every option with any waiting list at all".
      *
      * @return int[] option ids
      */
@@ -189,6 +191,18 @@ interface waitlist_offer_repository {
      * @return \stdClass[] each with ->optionid and ->userid
      */
     public function find_expired_waiters_to_remove(): array;
+
+    /**
+     * K7 "permanent until re-registration": removes every lock of a single user on this option -
+     * K7 (declined) as well as K4 (expired). Called once the user has left the waiting list, so a
+     * later re-join is a normal fresh start. Must never be called while the user is still waiting,
+     * otherwise a declined user would become offerable again.
+     *
+     * @param int $optionid
+     * @param int $userid
+     * @return void
+     */
+    public function lift_locks(int $optionid, int $userid): void;
 
     /**
      * Typ 2 ("offen nach Durchlauf", waitlistrecycling=2): whether this option's freed seat is

@@ -3780,6 +3780,7 @@ $string['taskcleanupinvalidscheduledmails'] = 'Booking: Ungültige geplante E-Ma
 $string['taskconfirmbookinganswerbymailbyruleadhoc'] = 'Booking: Freischalten von Warteliste via Regel erteilen (Adhoc-Task)';
 $string['taskenrolbookeduserstocourse'] = 'Booking: Gebuchte User in Kurs einschreiben';
 $string['taskexecutebulkoperationsadhoc'] = 'Booking: Bulk-Operationen auf Buchungsoptionen ausführen (Adhoc-Task)';
+$string['taskexpirewaitlistofferadhoc'] = 'Booking: Wartelisten-Angebot ablaufen lassen (Adhoc-Task)';
 $string['taskfinalizeconnectedcoursenaming'] = 'Booking: Benennung des verbundenen Kurses nach dem Kopieren erneut anwenden (Adhoc-Task)';
 $string['taskfinalizetemplatecourse'] = 'Booking: Aus Vorlage erstellten Kurs finalisieren (Adhoc-Task)';
 $string['taskprocesssourcemembershipsyncadhoc'] = 'Booking: Quellenmitgliedschafts-Sync verarbeiten (Adhoc-Task)';
@@ -3791,6 +3792,7 @@ $string['tasksendconfirmationmails'] = 'Booking: Bestätigungs-Mails versenden';
 $string['tasksendmailbyruleadhoc'] = 'Booking: Mail via Regel versenden (Adhoc-Task)';
 $string['tasksendnotificationmails'] = 'Booking: Benachrichtigungs-Mails versenden';
 $string['tasksendremindermails'] = 'Booking: Erinnerungs-Mails versenden';
+$string['taskwaitlistheartbeat'] = 'Booking: Wartelisten-Heartbeat (Selbstreparatur)';
 $string['teacher'] = 'Trainer:in';
 $string['teacherdescription'] = 'Beschreibung';
 $string['teacherhourslabel'] = 'Stunden';
@@ -4084,6 +4086,10 @@ Hier geht\'s zum dazugehörigen Kurs: {$a->courselink}
 ';
 $string['waitingtextsubject'] = 'Buchung auf Warteliste für {$a->title}';
 $string['waitingtextsubjectbookingmanager'] = 'Wartelistenbuchung für {$a->title} von {$a->participant}';
+$string['waitlistheartbeatheading'] = 'Wartelisten-Heartbeat';
+$string['waitlistheartbeatheading_desc'] = 'Prüft Wartelisten regelmäßig erneut auf einen verlorenen Auslöser (z. B. einen abgestürzten Cron-Lauf) und repariert sie selbstständig.';
+$string['waitlistheartbeatinterval'] = 'Intervall des Wartelisten-Heartbeats';
+$string['waitlistheartbeatinterval_desc'] = 'Wie oft ins Stocken geratene Wartelisten erneut geprüft und selbstständig repariert werden. Läuft unabhängig von dieser Einstellung nie öfter als alle 5 Minuten.';
 $string['waitlistrecycling'] = 'Warteliste nach vollständigem Durchlauf';
 $string['waitlistrecycling_help'] = 'Wer ein Angebot verstreichen lässt, wird für weitere Angebote dieser Buchungsoption gesperrt. Diese Einstellung legt fest, was passiert, sobald alle, die noch auf der Warteliste stehen, auf diese Weise gesperrt sind: "Stopp" lässt sie dauerhaft gesperrt. "Erneut durchgehen" hebt diese Sperren auf und bietet ihnen erneut Plätze an (in ihrer ursprünglichen Reihenfolge), sobald dies das nächste Mal vom Wartelisten-Heartbeat-Task geprüft wird. "Nach vollständigem Durchlauf öffnen" lässt den frei gewordenen Platz für die direkte Buchung durch alle offen (ob auf der Warteliste oder nicht), außer für Personen, die ihr Angebot aktiv abgelehnt haben, bis jemand ihn tatsächlich bucht - danach funktioniert die Warteliste für alle, die sich später eintragen, wieder normal. "Bei Ablauf des Angebots von der Warteliste entfernen" wartet nicht auf einen vollständigen Durchlauf: Sobald das Angebot einer Person abläuft, wird sie von der Warteliste entfernt (einschließlich eines bereits in ihrem Warenkorb reservierten Artikels), ohne Stornobenachrichtigungen. Sie kann sich jederzeit erneut eintragen und reiht sich dann am Ende der Warteliste ein. Wer ein Angebot aktiv ablehnt, bleibt unabhängig von dieser Einstellung immer dauerhaft gesperrt.';
 $string['waitlistrecyclingend'] = 'Stopp';

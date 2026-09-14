@@ -201,6 +201,17 @@ final class a4_leaves_mid_round_repository implements waitlist_offer_repository 
     /**
      * Delegates unchanged.
      *
+     * @param int $optionid
+     * @param int $userid
+     * @return void
+     */
+    public function lift_locks(int $optionid, int $userid): void {
+        $this->inner->lift_locks($optionid, $userid);
+    }
+
+    /**
+     * Delegates unchanged.
+     *
      * @return \stdClass[]
      */
     public function find_expired_waiters_to_remove(): array {

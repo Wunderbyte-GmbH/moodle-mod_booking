@@ -42,6 +42,7 @@ use mod_booking\local\entities_compat;
 use mod_booking\bo_availability\conditions\customform;
 use mod_booking\bo_availability\conditions\slotbooking;
 use mod_booking\local\waitinglist\waitinglist_sync_status;
+use mod_booking\local\waitlist\db_waitlist_offer_repository;
 use mod_booking\local\slotbooking\slot_availability;
 use mod_booking\event\booking_debug;
 use mod_booking\event\booking_rulesexecutionfailed;
@@ -879,6 +880,26 @@ class booking_option {
                     self::booking_history_insert($status, $result->id, $result->optionid, $result->bookingid, $userid);
                 }
             }
+        }
+
+        // K7 "permanent until re-registration": once the person no longer waits on this option (no
+        // waiting-list or reserved answer left), their waitlist locks - declined and expired alike -
+        // have no function any more. Lift them, so a later re-join is a normal fresh start. Checked
+        // against the DB because the answers singleton is stale here. A person who is still on the
+        // list, e.g. when only a cart reservation was unloaded, keeps the lock.
+        if (
+            !$DB->record_exists_select(
+                'booking_answers',
+                'optionid = :optionid AND userid = :userid AND waitinglist IN (:waitinglist, :reserved)',
+                [
+                    'optionid' => $this->optionid,
+                    'userid' => $userid,
+                    'waitinglist' => MOD_BOOKING_STATUSPARAM_WAITINGLIST,
+                    'reserved' => MOD_BOOKING_STATUSPARAM_RESERVED,
+                ]
+            )
+        ) {
+            (new db_waitlist_offer_repository())->lift_locks((int) $this->optionid, (int) $userid);
         }
 
         // Purge caches BEFORE sync_waiting_list.
@@ -5619,13 +5640,18 @@ class booking_option {
                     'userid' => $userid, // The user who did cancel.
                 ]);
                 $event->trigger();
-
-                // Waitlist-progression refactoring (Phase 3): drive the new reconciler directly -
-                // the event above stays for backward compatibility, it is no longer the transport.
-                \mod_booking\event\observer\freetobookagain_waitlist_adapter::reconcile($optionid);
             }
         }
+        // Waitlist-progression: reconcile on every freed seat, not only when the option was fully
+        // booked before. An open offer is not a booked place, so a seat freed while another seat is
+        // still on offer never passed the "was fully booked" check above and stayed empty until that
+        // offer was resolved. reconcile() is a no-op without free capacity or an applicable rule; the
+        // event above keeps its old condition, so rules listening to it behave as before.
+        if (!empty(singleton_service::get_instance_of_booking_answers($settings)->get_usersonwaitinglist())) {
+            \mod_booking\event\observer\freetobookagain_waitlist_adapter::reconcile($optionid);
+        }
     }
+
 
     /**
      * Create a new moodle url for bookingoptionview.
