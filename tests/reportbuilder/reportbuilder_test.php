@@ -26,6 +26,7 @@
 namespace mod_booking;
 
 use context_system;
+use core_component;
 use core_reportbuilder\manager;
 use core_reportbuilder\tests\core_reportbuilder_testcase;
 use core_reportbuilder_generator;
@@ -218,32 +219,44 @@ final class reportbuilder_test extends core_reportbuilder_testcase {
             'default' => 0,
         ]);
         $columns = [
-            'user:fullname',
-            'user:issupervisor',
-            'supervisor:fullname',
-            'supervisor:email',
             'booking_options:bookingid',
             'booking_options:bookinginstance',
             'booking_options:competencies',
             'booking_options:id',
             'booking_options:invisible',
         ];
+        $expected = [
+            [
+                $this->booking->id, $this->booking->name, 'First aid',
+                $this->option1->id, get_string('optionvisible', 'mod_booking'),
+            ],
+            [
+                $this->booking->id, $this->booking->name, '',
+                $this->option2->id, get_string('optionvisibledirectlink', 'mod_booking'),
+            ],
+        ];
+
+        // The supervisor columns need bookingextension_confirmation_supervisor, which is a separate repository.
+        $issupervisorcolumn = manager::get_report_from_persistent($report)->get_column('user:issupervisor');
+        if (!empty(core_component::get_component_directory('bookingextension_confirmation_supervisor'))) {
+            $this->assertNotNull($issupervisorcolumn);
+            $columns = array_merge(['user:issupervisor', 'supervisor:fullname', 'supervisor:email'], $columns);
+            array_unshift($expected[0], 'No', 'User 3', 'user3@sample.com');
+            array_unshift($expected[1], 'Yes', '', '');
+        } else {
+            $this->assertNull($issupervisorcolumn);
+        }
+        array_unshift($columns, 'user:fullname');
+        array_unshift($expected[0], 'User 1');
+        array_unshift($expected[1], 'User 3');
+
         foreach ($columns as $column) {
             $generator->create_column(['reportid' => $report->get('id'), 'uniqueidentifier' => $column]);
         }
         $content = array_map('array_values', $this->get_custom_report_content($report->get('id')));
         usort($content, fn($a, $b) => strcmp($a[0], $b[0]));
 
-        $this->assertEquals([
-            [
-                'User 1', 'No', 'User 3', 'user3@sample.com', $this->booking->id, $this->booking->name, 'First aid',
-                $this->option1->id, get_string('optionvisible', 'mod_booking'),
-            ],
-            [
-                'User 3', 'Yes', '', '', $this->booking->id, $this->booking->name, '',
-                $this->option2->id, get_string('optionvisibledirectlink', 'mod_booking'),
-            ],
-        ], $content);
+        $this->assertEquals($expected, $content);
     }
 
     /**
@@ -323,6 +336,8 @@ final class reportbuilder_test extends core_reportbuilder_testcase {
      */
     public function test_messages_datasource(): void {
         global $DB, $USER;
+        // Logging waits till the transaction gets committed (postgres wraps each test in a transaction).
+        $this->preventResetByRollback();
         $this->set_up_scenario();
 
         // Sent messages are only recorded as events, so the standard log store must be on and unbuffered.
