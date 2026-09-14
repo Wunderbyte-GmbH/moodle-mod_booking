@@ -127,13 +127,15 @@ function booking_get_rendered_customfields($optiondateid) {
  * @param int $cmid the course module id
  * @param int $descriptionparam
  * @param bool $forbookeduser
+ * @param int $userid the user the description is rendered for (e.g. the mail recipient), 0 for the current user
  * @return string The rendered HTML of the full description.
  */
 function booking_get_rendered_eventdescription(
     int $optionid,
     int $cmid,
     int $descriptionparam = MOD_BOOKING_DESCRIPTION_WEBSITE,
-    bool $forbookeduser = false
+    bool $forbookeduser = false,
+    int $userid = 0
 ): string {
 
     global $PAGE;
@@ -143,7 +145,9 @@ function booking_get_rendered_eventdescription(
     // - Rendered in calendar event -> use link.php? link.
     // - Rendered in ical file for mail -> use link.php? link.
 
-    $data = new bookingoption_description($optionid, null, $descriptionparam, true, $forbookeduser);
+    // Mails are sent by tasks, so the recipient is not the current user (e.g. for their booked slots).
+    $user = empty($userid) ? null : singleton_service::get_instance_of_user($userid);
+    $data = new bookingoption_description($optionid, null, $descriptionparam, true, $forbookeduser, $user);
     $output = $PAGE->get_renderer('mod_booking');
 
     if ($descriptionparam == MOD_BOOKING_DESCRIPTION_ICAL) {
