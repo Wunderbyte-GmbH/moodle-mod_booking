@@ -78,7 +78,7 @@ final class option_form_courselogin_test extends booking_advanced_testcase {
         // Like core_form\external\dynamic_form::execute(): the no submit buttons are registered in definition_after_data().
         $form->set_data_for_dynamic_submission();
         $this->assertFalse($form->is_validated());
-        $this->assertTrue($form->no_submit_button_pressed());
+        // Do not assert no_submit_button_pressed(): core caches its result in a static for the whole process.
         $this->assertEquals(context_module::instance($settings->cmid)->id, $PAGE->context->id);
 
         // Save.
