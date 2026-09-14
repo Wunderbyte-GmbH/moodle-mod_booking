@@ -68,32 +68,15 @@ if (!$context = context_module::instance($cmid)) {
     throw new moodle_exception('badcontext');
 }
 
-if (
-    (
-        // Either the user has the general capability to update booking options...
-        has_capability('mod/booking:updatebooking', $context)
-        || (
-            // ... or they have the capability to edit their own options and are actually editing their own option.
-            has_capability('mod/booking:addeditownoption', $context)
-            && booking_check_if_teacher($optionid)
-        )
-        || (
-            // ... or they have the capability to add options and are creating a new option (optionid is 0).
-            has_capability('mod/booking:addoption', $context)
-            && empty($optionid)
-        )
-    ) == false
-) {
+if (!booking_can_edit_option($context, $optionid)) {
     throw new moodle_exception('nopermissions');
 }
 
 // We don't need this anymore.
 $optionid = $optionid < 0 ? 0 : $optionid;
 
-$settings = singleton_service::get_instance_of_booking_option_settings($optionid);
-
-if (!empty($settings->cmid) && $settings->cmid != $cmid) {
-    throw new moodle_exception('badcontext');
+if (!booking_option_form_ids_match_cm($cm, $optionid, $bookingid, $copyoptionid)) {
+    throw new moodle_exception('invalidcontext', 'error');
 }
 
 // New code.

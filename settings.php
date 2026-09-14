@@ -37,6 +37,7 @@ use mod_booking\booking;
 use mod_booking\plugininfo\bookingextension_interface;
 use mod_booking\local\checkanswers\checkanswers;
 use mod_booking\price;
+use mod_booking\settings\optionformconfig\optionformconfig_info;
 use mod_booking\signinsheet\signinsheet_config;
 use mod_booking\utils\wb_payment;
 
@@ -1356,6 +1357,19 @@ if ($ADMIN->fulltree) {
                 get_string('editoptionsrequirecourselogin', 'mod_booking'),
                 get_string('editoptionsrequirecourselogin_desc', 'mod_booking'),
                 1
+            )
+        );
+        $optionformfallbackchoices = ['' => get_string('none')];
+        foreach (optionformconfig_info::CAPABILITIES as $capability) {
+            $optionformfallbackchoices[$capability] = get_string($capability, 'mod_booking');
+        }
+        $settings->add(
+            new admin_setting_configselect(
+                'booking/optionformfallbackcapability',
+                get_string('optionformfallbackcapability', 'mod_booking'),
+                get_string('optionformfallbackcapability_desc', 'mod_booking'),
+                '',
+                $optionformfallbackchoices
             )
         );
         $records = $DB->get_records_sql("SELECT b.id, b.name FROM {booking} b ORDER BY b.name");

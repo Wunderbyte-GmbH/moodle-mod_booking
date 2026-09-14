@@ -177,9 +177,24 @@ class optionformconfig_info {
         $context = context::instance_by_id($contextid);
 
         foreach (self::CAPABILITIES as $capability) {
-            if (has_capability($capability, $context)) {
+            if (has_capability($capability, $context, $userid)) {
                 return $capability;
             }
+        }
+
+        // Users who may edit or add booking options but hold none of the option form capabilities
+        // (e.g. teachers of an option who are not enrolled in the course) get the fallback form, if configured.
+        // This only defines the fields of the form, the permission to edit is checked separately.
+        $fallback = (string) get_config('booking', 'optionformfallbackcapability');
+        if (
+            in_array($fallback, self::CAPABILITIES, true)
+            && has_any_capability(
+                ['mod/booking:updatebooking', 'mod/booking:addeditownoption', 'mod/booking:addoption'],
+                $context,
+                $userid
+            )
+        ) {
+            return $fallback;
         }
         return '';
     }
