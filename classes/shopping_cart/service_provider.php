@@ -39,6 +39,7 @@ use mod_booking\local\slotbooking\slot_answer;
 use mod_booking\local\slotbooking\slot_move_store;
 use mod_booking\local\slotbooking\slot_mover;
 use mod_booking\local\slotbooking\slot_price;
+use mod_booking\local\slotbooking\slot_availability;
 use mod_booking\option\dates_handler;
 use mod_booking\semester;
 use mod_booking\singleton_service;
@@ -143,6 +144,14 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
 
             $numberofitems = empty($nritems) ? 1 : $nritems;
             $multipliable = empty($nritems) ? 0 : 1;
+
+            // Slot options have no course dates, so the service period spans the reserved slots.
+            [$serviceperiodstart, $serviceperiodend] = self::apply_slotbooking_service_period(
+                $settings,
+                $answer,
+                (int)$serviceperiodstart,
+                (int)$serviceperiodend
+            );
 
             $item = self::apply_reserved_slotbooking_price($settings, $item, $answer);
             $item = self::append_slot_dates_to_title($settings, $item, $answer);
@@ -325,6 +334,38 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
     }
 
     /**
+     * Fill an empty service period of a slot booking option with the reserved slots.
+     *
+     * Slot options have no course dates, so the service period would be 0. A service period set by
+     * other rules (e.g. semester or booking opening time) is kept.
+     *
+     * @param object $settings
+     * @param mixed $answer reserved booking answer of the buyer
+     * @param int $start service period start
+     * @param int $end service period end
+     * @return array [start, end]
+     */
+    private static function apply_slotbooking_service_period(object $settings, $answer, int $start, int $end): array {
+        if ((int)($settings->type ?? 0) !== MOD_BOOKING_OPTIONTYPE_SLOTBOOKING || empty($answer)) {
+            return [$start, $end];
+        }
+
+        $ranges = slot_availability::extract_booked_ranges_from_answer((object)$answer);
+        if (empty($ranges)) {
+            return [$start, $end];
+        }
+
+        if (empty($start)) {
+            $start = min(array_column($ranges, 'start'));
+        }
+        if (empty($end)) {
+            $end = max(array_column($ranges, 'end'));
+        }
+
+        return [$start, $end];
+    }
+
+    /**
      * Override cart item price from reserved slotbooking answer data when available.
      *
      * @param object $settings
@@ -430,12 +471,13 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
             preg_match_all('/\{(.*?)\}/', $modifieddescription, $matches);
             foreach ($matches[1] as $match) {
                 if (array_key_exists($match, $placeholdervalues)) {
+                    // Slot and booking placeholder values are already formatted (counts, prices, dates).
                     $value = $placeholdervalues[$match];
                 } else {
                     $value = $settings->$match ?? get_string('invalidplaceholder', 'mod_booking');
-                }
-                if (is_numeric($value)) {
-                    $value = userdate(time(), get_string('strftimedaydate', 'core_langconfig'));
+                    if (is_numeric($value)) {
+                        $value = userdate(time(), get_string('strftimedaydate', 'core_langconfig'));
+                    }
                 }
                 $replacements['{' . $match . '}'] = (string)$value;
             }
@@ -606,7 +648,7 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
         $slotcount = (int)($slotdata['num_slots'] ?? count($slotlines));
         $visiblecontext = [];
         if ($slotcount > 1) {
-            $visiblecontext[] = 'Anzahl der Slots: ' . $slotcount;
+            $visiblecontext[] = get_string('slot_cart_numslots', 'mod_booking', $slotcount);
         }
 
         $contextpayload = [

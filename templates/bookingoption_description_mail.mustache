@@ -35,6 +35,7 @@
             "Maxima Yoga",
             "Teacher 1"
         ],
+        "datesexist": true,
         "dates": [
             {
                 "datestring": "datestring",
@@ -45,6 +46,11 @@
                     }
                 ]
             }
+        ],
+        "bookedslotsexist": true,
+        "bookedslots": [
+            {"daylabel": "Friday, 4 September 2026", "timelabel": "9:20 AM - 10:00 AM",
+             "hasteachers": true, "teacherlabel": "Petra Pruefer"}
         ]
     }
 }}
@@ -55,7 +61,19 @@
 {{#address}}{{#str}} address, mod_booking {{/str}}:  {{.}}<br>{{/address}}
 {{#statusdescription}}<p>{{{.}}}</p>{{/statusdescription}}
 {{#description}}<p>{{{.}}}</p>{{/description}}
-{{> mod_booking/bookingoption_description_teachers }}
-{{> mod_booking/bookingoption_description_optiondates }}
+{{! Mails ignore style="display:none" of the partials, so empty blocks are left out here. }}
+{{#teachers.0}}{{> mod_booking/bookingoption_description_teachers }}{{/teachers.0}}
+{{#datesexist}}{{> mod_booking/bookingoption_description_optiondates }}{{/datesexist}}
+{{! Slot booking options have no sessions: list the slots of the recipient instead (no cancel buttons in mails). }}
+{{#bookedslotsexist}}
+<div>
+    <b>{{#str}} slot_report_numslots, mod_booking {{/str}}:</b>
+    <ul>
+        {{#bookedslots}}
+            <li>{{daylabel}}, {{timelabel}}{{#hasteachers}} ({{#str}} slot_booked_examiners, mod_booking {{/str}}: {{teacherlabel}}){{/hasteachers}}</li>
+        {{/bookedslots}}
+    </ul>
+</div>
+{{/bookedslotsexist}}
 <br>
 {{#booknowbutton}}{{{.}}}{{/booknowbutton}}
