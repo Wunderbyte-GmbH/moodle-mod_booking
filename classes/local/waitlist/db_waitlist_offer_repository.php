@@ -328,15 +328,19 @@ final class db_waitlist_offer_repository implements waitlist_offer_repository {
     public function find_stalled_options(): array {
         global $DB;
 
+        // An open offer only occupies its own seat: an option whose other seats are free must still be
+        // healed. Pre-filter in SQL on "fewer open offers than seats" to keep the query narrow; the
+        // exact decision stays with capacity_calculator::free_capacity() below.
         $sql = "SELECT DISTINCT ba.optionid
                   FROM {booking_answers} ba
+                  JOIN {booking_options} bo ON bo.id = ba.optionid
                  WHERE ba.waitinglist = :waitinglist
-                   AND NOT EXISTS (
-                         SELECT 1
+                   AND (
+                         SELECT COUNT(1)
                            FROM {booking_waitlist_offers} bwo
                           WHERE bwo.optionid = ba.optionid
                             AND bwo.status IN (:pendingcode, :offeredcode)
-                       )";
+                       ) < bo.maxanswers";
         $candidateoptionids = $DB->get_fieldset_sql($sql, [
             'waitinglist' => MOD_BOOKING_STATUSPARAM_WAITINGLIST,
             'pendingcode' => (new pending())->get_code(),
@@ -451,6 +455,22 @@ final class db_waitlist_offer_repository implements waitlist_offer_repository {
             'reason' => (new expired())->get_code(),
             'waitinglist' => MOD_BOOKING_STATUSPARAM_WAITINGLIST,
         ]));
+    }
+
+    /**
+     * K7 "permanent until re-registration": removes every lock of this user on this option, K7
+     * (declined) and K4 (expired) alike - see the interface docblock.
+     *
+     * @param int $optionid
+     * @param int $userid
+     * @return void
+     */
+    public function lift_locks(int $optionid, int $userid): void {
+        global $DB;
+        $DB->delete_records('booking_waitlist_declines', [
+            'optionid' => $optionid,
+            'userid' => $userid,
+        ]);
     }
 
     /**
