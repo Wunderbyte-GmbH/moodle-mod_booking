@@ -1128,7 +1128,9 @@ class bookingoptions_wbtable extends wunderbyte_table {
             // aggregates across all of them, where usersonlist would only expose the newest answer
             // per user. Shared with the booking option detail page (see
             // output\bookingoption_description) so the two views can never name different slots.
-            $slotrows = slot_dto::build_booked_slot_rows($optionid, (int)$USER->id);
+            // At the cashier the list is rendered for the selected buyer, so we show the buyer's slots.
+            $buyforuser = price::return_user_to_buy_for();
+            $slotrows = slot_dto::build_booked_slot_rows($optionid, (int)$buyforuser->id);
 
             if (!$this->is_downloading()) {
                 // Load the per-slot cancel module for EVERY slot option row - even rows without
@@ -1173,7 +1175,9 @@ class bookingoptions_wbtable extends wunderbyte_table {
             // (bookingoption_description_bookedslots.mustache): self-service only, option opted
             // into self-rebooking, cancellation policy allows it; per row the relative deadline
             // decides. Read-only rows stay plain text.
-            $releaseavailable = slot_mover::per_slot_release_available($optionid, (int)$USER->id);
+            // Not at the cashier: the rows belong to the selected buyer, the release is self-service only.
+            $releaseavailable = (int)$buyforuser->id === (int)$USER->id
+                && slot_mover::per_slot_release_available($optionid, (int)$USER->id);
 
             foreach ($slotrows as $slotrow) {
                 $line = s($slotrow['label']);

@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Placeholder for the booked slot(s) carried by a slot-booked event.
+ * Placeholder for the booked slot(s) of a slot booking option.
  *
  * @package mod_booking
  * @copyright 2026 Wunderbyte GmbH
@@ -31,11 +31,12 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 
 /**
- * Renders the booked slot(s) from a slot-booked event payload.
+ * Renders the booked slot(s): from a slot-booked event payload, the booking answer of the
+ * triggering event, or all currently booked slots of the user (e.g. in booking confirmations).
  */
 class slotsbooked extends \mod_booking\placeholders\placeholder_base {
     /**
-     * Return the formatted booked slot list of the triggering event.
+     * Return the formatted booked slot list.
      *
      * @param int $cmid course module id
      * @param int $optionid option id
@@ -61,7 +62,7 @@ class slotsbooked extends \mod_booking\placeholders\placeholder_base {
         int $descriptionparam = MOD_BOOKING_DESCRIPTION_WEBSITE,
         string $rulejson = ''
     ) {
-        return slot_event_placeholders::render($rulejson, ['bookedslots', 'newslots']);
+        return slot_event_placeholders::render_booked($rulejson, $optionid, $userid);
     }
 
     /**
