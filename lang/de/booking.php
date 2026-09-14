@@ -1894,7 +1894,7 @@ Gebuchte Buchungsoption: {$a->title}
 Kurstermin: {$a->date}
 Link: {$a->bookinglink}
 ';
-$string['error:formcapabilitymissing'] = 'Ihnen fehlt die Berechtigung, um dieses Formular zu bearbeiten. Bitte wenden Sie sich an einen Administrator.';
+$string['error:formcapabilitymissing'] = 'Ihnen fehlt die Berechtigung, um dieses Formular zu bearbeiten. Benötigt wird eine der Berechtigungen mod/booking:expertoptionform oder mod/booking:reducedoptionform1-5, oder in den Booking-Einstellungen muss ein Ersatzformular festgelegt werden ("Ersatzformular für Nutzer:innen ohne Berechtigung für ein Buchungsoptionsformular"). Bitte wenden Sie sich an einen Administrator.';
 $string['error:identifierexists'] = 'Wählen Sie einen anderen Identifikator. Dieser existiert bereits.';
 $string['error:installmentdatefieldcondition'] = 'Das Datumsfeld "Ratenzahlung" kann nur in Kombination mit der Bedingung "Wähle Nutzer:in, die Ratenzahlung zu leisten hat" gewählt werden.';
 $string['error:invalidcmid'] = 'Der Bericht kann nicht geöffnet werden, weil keine gültige Kursmodul-ID (cmid) übergeben wurde. Die cmid muss auf eine Buchungsinstanz verweisen!';
@@ -2576,6 +2576,8 @@ $string['optionformconfigsavedother'] = 'Ihre Formular-Definition wurde auf Kont
 $string['optionformconfigsavedsystem'] = 'Ihre Formular-Definition wurde auf dem Kontextlevel System gespeichert';
 $string['optionformconfigsubtitle'] = '<p>Hier können Sie nicht benötigte Funktionalitäten entfernen, um das Formular für die Erstellung von Buchungsoptionen übersichtlicher zu gestalten.</p>
 <p><strong>ACHTUNG:</strong> Deaktivieren Sie nur Felder, von denen Sie sicher sind, dass Sie sie nicht benötigen!</p>';
+$string['optionformfallbackcapability'] = 'Ersatzformular für Nutzer:innen ohne Berechtigung für ein Buchungsoptionsformular';
+$string['optionformfallbackcapability_desc'] = 'Nutzer:innen, die Buchungsoptionen bearbeiten oder anlegen dürfen, aber keine der Berechtigungen für ein Buchungsoptionsformular haben (mod/booking:expertoptionform oder mod/booking:reducedoptionform1-5), sehen ein leeres Formular. Das betrifft z.B. Trainer:innen einer Buchungsoption, die nicht im Kurs eingeschrieben sind (siehe "Kurs-Login für das Bearbeiten von Buchungsoptionen erforderlich"). Wählen Sie die Formular-Definition, die für diese Nutzer:innen verwendet werden soll. Die Berechtigung zum Bearbeiten einer Buchungsoption wird durch diese Einstellung nicht verändert.';
 $string['optionid'] = 'Option ID';
 $string['optionidentifier'] = 'Identifikator';
 $string['optionidentifier_help'] = 'Geben Sie einen eindeutigen Identifikator für diese Buchungsoption an.';

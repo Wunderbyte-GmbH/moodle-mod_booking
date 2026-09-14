@@ -1989,6 +1989,61 @@ function booking_require_editoptions_login(stdClass $course, $cm): void {
 }
 
 /**
+ * Checks if the current user may edit (or create) a booking option in the booking option form.
+ *
+ * Used by editoptions.php and by the dynamic submission of the option form, so both apply the same rules.
+ *
+ * @param context $context the module context of the booking instance
+ * @param int $optionid the id of the option, 0 for a new option
+ * @return bool
+ */
+function booking_can_edit_option(context $context, int $optionid): bool {
+    return has_capability('mod/booking:updatebooking', $context)
+        // The user may edit their own options and is actually editing their own option.
+        || (
+            has_capability('mod/booking:addeditownoption', $context)
+            && booking_check_if_teacher($optionid)
+        )
+        // The user may add options and is creating a new option.
+        || (
+            has_capability('mod/booking:addoption', $context)
+            && empty($optionid)
+        );
+}
+
+/**
+ * Checks that the ids passed to the booking option form belong to the given booking instance.
+ *
+ * The ids of the ajax calls of the option form are sent by the client, so we must not trust them:
+ * the capabilities are checked in the context of the course module, so the edited option, the booking instance
+ * and the copied option have to belong to it (copying templates, which belong to no instance, is allowed).
+ *
+ * @param cm_info|stdClass $cm the course module of the booking instance
+ * @param int $optionid the id of the edited option, 0 for a new option
+ * @param int $bookingid the id of the booking instance sent with the form, 0 if none
+ * @param int $copyoptionid the id of the option (or template) to copy, 0 if none
+ * @return bool
+ */
+function booking_option_form_ids_match_cm($cm, int $optionid, int $bookingid, int $copyoptionid): bool {
+    if (!empty($bookingid) && $bookingid != $cm->instance) {
+        return false;
+    }
+    if (!empty($optionid)) {
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        if (!empty($settings->cmid) && $settings->cmid != $cm->id) {
+            return false;
+        }
+    }
+    if (!empty($copyoptionid)) {
+        $settings = singleton_service::get_instance_of_booking_option_settings($copyoptionid);
+        if (!empty($settings->bookingid) && $settings->cmid != $cm->id) {
+            return false;
+        }
+    }
+    return true;
+}
+
+/**
  * Check if logged in user is a teacher, responsible contact, or the creator of the passed option.
  * @param mixed|int $optionoroptionid optional option class or optionid
  * @param int $userid optional userid, if none is provided, we use the logged-in $USER->id

@@ -282,6 +282,7 @@ Diese Funktion bezieht sich auch auf den ausgewählten Kurs im Bereich Moodle Ku
 </div>';
 $string['enroluserstowaitinglist'] = 'Buchende Nutzer/innen auf die Warteliste setzen und erst nach Bestätigung einschreiben?';
 $string['enteruserprofilefield'] = 'Wähle Nutzer/innen nach eingegebenem Wert für Profilfeld. Achtung! Das betrifft ALLE Nutzer/innen auf der Plattform.';
+$string['error:formcapabilitymissing'] = 'Ihnen fehlt die Berechtigung, um dieses Formular zu bearbeiten. Benötigt wird eine der Berechtigungen mod/booking:expertoptionform oder mod/booking:reducedoptionform1-5, oder in den Booking-Einstellungen muss ein Ersatzformular festgelegt werden ("Ersatzformular für Nutzer/innen ohne Berechtigung für ein Buchungsoptionsformular"). Bitte wenden Sie sich an einen Administrator.';
 $string['error:installmentdatefieldcondition'] = 'Das Datumsfeld "Ratenzahlung" kann nur in Kombination mit der Bedingung "Wähle Nutzer/in, die Ratenzahlung zu leisten hat" gewählt werden.';
 $string['error:invalidredirecturl'] = 'Die URL scheint ungültig zu sein. Bitte kontaktieren Sie eine/n Entwickler/in.';
 $string['error:reasonfornoteacher'] = 'Geben Sie einen Grund an, warum an diesem Termin kein/e Trainer/in anwesend war.';
@@ -364,6 +365,8 @@ $string['optionformconfiggetpro'] = 'Mit Booking <span class="badge bg-success t
 $string['optionformconfiginfotext'] = 'Mit diesem PRO-Feature können Sie sich mit Drag & Drop und den Checkboxen beliebige Buchungsoptionsformulare zusammenstellen.
 Die einzelnen Formulare werden auf bestimmten Kontext-Ebenen (z.B. pro Buchungsinstanz, Systemweit...) definiert. Den jeweiligen Nutzer/innen sind die Formulare nur zugänglich,
 wenn Sie die jeweils entsprechende Berechtigung haben.';
+$string['optionformfallbackcapability'] = 'Ersatzformular für Nutzer/innen ohne Berechtigung für ein Buchungsoptionsformular';
+$string['optionformfallbackcapability_desc'] = 'Nutzer/innen, die Buchungsoptionen bearbeiten oder anlegen dürfen, aber keine der Berechtigungen für ein Buchungsoptionsformular haben (mod/booking:expertoptionform oder mod/booking:reducedoptionform1-5), sehen ein leeres Formular. Das betrifft z.B. Trainer/innen einer Buchungsoption, die nicht im Kurs eingeschrieben sind (siehe "Kurs-Login für das Bearbeiten von Buchungsoptionen erforderlich"). Wählen Sie die Formular-Definition, die für diese Nutzer/innen verwendet werden soll. Die Berechtigung zum Bearbeiten einer Buchungsoption wird durch diese Einstellung nicht verändert.';
 $string['optionvisibility_help'] = 'Stellen Sie ein, ob die Buchungsoption für jede/n sichtbar sein soll oder nur für berechtigte Nutzer/innen.';
 $string['organizatorname_help'] = 'Sie können den Namen des Organisators/der Organisatorin manuell eingeben oder aus einer Liste von
 früheren Organisator/innen auswählen. Sie können nur eine/n Organisator/in angeben. Sobald

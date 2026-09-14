@@ -1990,7 +1990,7 @@ Date: {$a->startdate} {$a->starttime} - {$a->enddate} {$a->endtime}
 Link: {$a->bookinglink}
 Associated course: {$a->courselink}
 ';
-$string['error:formcapabilitymissing'] = 'You do not have the necessary permission to edit this form. Please contact an administrator.';
+$string['error:formcapabilitymissing'] = 'You do not have the necessary permission to edit this form. One of the capabilities mod/booking:expertoptionform or mod/booking:reducedoptionform1-5 is required, or a fallback form has to be set in the booking settings ("Fallback form for users without an option form capability"). Please contact an administrator.';
 $string['error:identifierexists'] = 'Choose another identifier. This one already exists.';
 $string['error:installmentdatefieldcondition'] = 'Installment date can only be selected in combination with the "Choose user who has to pay installments" condition.';
 $string['error:invalidcmid'] = 'The report cannot be opened because no valid course module ID (cmid) was provided. It needs to be the cmid of a booking instance!';
@@ -2686,6 +2686,8 @@ $string['optionformconfigsavedother'] = 'Your form definition was saved on conte
 $string['optionformconfigsavedsystem'] = 'Your form definition was saved on context level system';
 $string['optionformconfigsubtitle'] = '<p>Turn off features you do not need, in order to make the booking option form more compact for your administrators.</p>
 <p><strong>BE CAREFUL:</strong> Only deactivate fields if you are completely sure that you won\'t need them!</p>';
+$string['optionformfallbackcapability'] = 'Fallback form for users without an option form capability';
+$string['optionformfallbackcapability_desc'] = 'Users who may edit or create booking options but have none of the option form capabilities (mod/booking:expertoptionform or mod/booking:reducedoptionform1-5) see an empty form. This happens e.g. for teachers of a booking option who are not enrolled in the course (see "Course login required to edit booking options"). Choose the form definition that should be used for these users. The permission to edit a booking option is not affected by this setting.';
 $string['optionid'] = 'Option ID';
 $string['optionidentifier'] = 'Unique identifier';
 $string['optionidentifier_help'] = 'Add a unique identifier for this booking option.';
