@@ -307,6 +307,13 @@ class booked_users implements renderable, templatable {
         $table->showreloadbutton = true;
         $table->showrowcountselect = true;
 
+        // The waiting list (drag handle, actions and rank in front of the configured columns) and the
+        // deleted bookings are the widest tables. A wide and long table scrolls inside its own box with
+        // a sticky header, so the horizontal scrollbar stays reachable instead of sitting below the last row.
+        if (in_array($statusparam, [MOD_BOOKING_STATUSPARAM_WAITINGLIST, MOD_BOOKING_STATUSPARAM_DELETED])) {
+            $table->stickyheader = true;
+        }
+
         $html = $table->outhtml(100, false);
         return count($table->rawdata) > 0 ? $html : null;
     }
