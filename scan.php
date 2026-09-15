@@ -27,6 +27,8 @@
 
 require_once(__DIR__ . '/../../config.php');
 
+use mod_booking\local\ticket\ticket_manager;
+
 $cmid = required_param('id', PARAM_INT);
 
 [$course, $cm] = get_course_and_cm_from_cmid($cmid, 'booking');
@@ -67,6 +69,7 @@ $PAGE->requires->js_call_amd('mod_booking/scanner', 'init', [[
     'cmid' => $cmid,
     'serialscan' => (bool) get_config('booking', 'bookingticketserialscan'),
     'duplicatewindow' => (int) get_config('booking', 'bookingticketduplicatewindow'),
+    'showpicture' => in_array('picture', ticket_manager::get_configured_identity_fields(), true),
 ]]);
 
 echo $output->footer();

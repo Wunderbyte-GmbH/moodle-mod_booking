@@ -143,7 +143,10 @@ class ticket extends field_base {
         foreach (self::$ticketkeys as $ticketkey) {
             $value = $formdata->{$ticketkey} ?? null;
 
-            if (!empty($templateid) && !empty($value)) {
+            // Personalised defaults to true when the key is absent, so an explicit 0 (transferable
+            // ticket) has to be stored as such; the other flags are simply dropped when off.
+            $store = $ticketkey === ticket_manager::JSON_PERSONALIZED ? $value !== null : !empty($value);
+            if (!empty($templateid) && $store) {
                 booking_option::add_data_to_json($newoption, $ticketkey, $value);
             } else {
                 booking_option::remove_key_from_json($newoption, $ticketkey);
@@ -278,8 +281,9 @@ class ticket extends field_base {
 
         $keys = array_merge([fields_info::get_class_name(static::class)], self::$ticketkeys);
         foreach ($keys as $key) {
-            // The free text field defaults to an empty string, the others to 0.
-            $default = $key === ticket_manager::JSON_EXTRAINFO ? '' : 0;
+            // The free text field defaults to an empty string, "personalised" to 1 (see
+            // ticket_manager::is_personalized()), the other flags to 0.
+            $default = $key === ticket_manager::JSON_EXTRAINFO ? '' : ($key === ticket_manager::JSON_PERSONALIZED ? 1 : 0);
             // On import the value coming from the file wins, otherwise we always load from json.
             if (!empty($data->importing)) {
                 $data->{$key} = $data->{$key} ?? booking_option::get_value_of_json_by_key((int) $data->id, $key) ?? $default;

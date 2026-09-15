@@ -15,10 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * The ticket_scanned event.
+ * The ticket_rejected event: entry staff refused a scanned ticket at the door.
  *
  * @package mod_booking
- * @copyright 2025 Wunderbyte GmbH <info@wunderbyte.at>
+ * @copyright 2026 Wunderbyte GmbH <info@wunderbyte.at>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -28,25 +28,22 @@ use mod_booking\singleton_service;
 use stdClass;
 
 /**
- * The ticket_scanned event class (SofaTicket entry control).
+ * Fired when entry staff rejects a scanned ticket (e.g. the person at the door is not the holder).
  *
- * Fired when an entry ticket is successfully scanned and the participant is checked in.
- * `relateduserid` is the scanned (admitted) participant; `userid` is the scanning staff member;
- * `objectid` is the id of the scanned ticket (table booking_tickets); the booking option id
- * travels in `other['optionid']`. Traceability of check-ins runs via this event + presence status.
+ * No presence status is written for a rejection; the event is the audit trail.
  *
- * @since Moodle 4.5
- * @copyright 2025 Wunderbyte GmbH <info@wunderbyte.at>
+ * @package mod_booking
+ * @copyright 2026 Wunderbyte GmbH <info@wunderbyte.at>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class ticket_scanned extends \core\event\base {
+class ticket_rejected extends \core\event\base {
     /**
      * Init
      *
      * @return void
      */
     protected function init() {
-        $this->data['crud'] = 'u';
+        $this->data['crud'] = 'r';
         $this->data['edulevel'] = self::LEVEL_PARTICIPATING;
         $this->data['objecttable'] = 'booking_tickets';
     }
@@ -57,7 +54,7 @@ class ticket_scanned extends \core\event\base {
      * @return string
      */
     public static function get_name() {
-        return get_string('ticketscanned', 'mod_booking');
+        return get_string('ticketrejected', 'mod_booking');
     }
 
     /**
@@ -68,14 +65,12 @@ class ticket_scanned extends \core\event\base {
     public function get_description() {
         $relateduserid = (int) $this->data['relateduserid'];
         $ruser = singleton_service::get_instance_of_user($relateduserid);
-
         $a = new stdClass();
         $a->relateduser = $ruser->firstname . " " . $ruser->lastname . " (ID: " . $relateduserid . ")";
         $a->scanner = $this->userid;
         $a->optionid = (int) ($this->other['optionid'] ?? 0);
         $a->optiondateid = (int) ($this->other['optiondateid'] ?? 0);
-
-        return get_string('ticketscannedinfo', 'mod_booking', $a);
+        return get_string('ticketrejectedinfo', 'mod_booking', $a);
     }
 
     /**
