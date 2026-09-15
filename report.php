@@ -329,6 +329,7 @@ $tableallbookings->no_sorting('rating');
 $tableallbookings->no_sorting('indexnumber');
 $tableallbookings->no_sorting('certificate');
 $tableallbookings->no_sorting('allusercertificates');
+$tableallbookings->no_sorting('ticket');
 
 if (!$tableallbookings->is_downloading()) {
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && confirm_sesskey()) {
@@ -742,6 +743,12 @@ if (!$tableallbookings->is_downloading()) {
                 if ($showcertificatecolumns) {
                     $headers[] = get_string('allusercertificates', 'mod_booking');
                     $columns[] = 'allusercertificates';
+                }
+                break;
+            case 'ticket':
+                if (\mod_booking\local\ticket\ticket_manager::is_enabled()) {
+                    $headers[] = get_string('ticketbutton', 'mod_booking');
+                    $columns[] = 'ticket';
                 }
                 break;
             case 'completeddate':

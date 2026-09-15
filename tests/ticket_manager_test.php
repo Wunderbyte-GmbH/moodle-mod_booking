@@ -30,6 +30,8 @@ use mod_booking\external\verify_ticket;
 use mod_booking\local\ticket\ticket_manager;
 use mod_booking\local\ticket\ticket_template_installer;
 use mod_booking\table\bookingoptions_wbtable;
+use mod_booking\table\manageusers_table;
+use mod_booking\local\bookingstracker\columns_helper;
 use mod_booking\event\bookinganswer_presencechanged;
 use mod_booking\event\ticket_created;
 use mod_booking\event\ticket_rejected;
@@ -846,8 +848,49 @@ final class ticket_manager_test extends booking_advanced_testcase {
         $this->setUser($this->teacher);
         $this->assertSame('', (new bookingoptions_wbtable('ticketcolumntest2'))->col_ticket($row));
 
+        // A booking made before the ticket design was chosen: the column creates the ticket on first sight.
+        global $DB;
+        $DB->delete_records('booking_tickets', ['optionid' => $this->settings->id]);
+        $this->setUser($this->student);
+        $html = (new bookingoptions_wbtable('ticketcolumntest4'))->col_ticket($row);
+        $this->assertStringContainsString('fa-ticket', $html);
+        $this->assertCount(1, $this->all_tickets());
+
         set_config('bookingticketon', 0, 'booking');
         $this->setUser($this->student);
         $this->assertSame('', (new bookingoptions_wbtable('ticketcolumntest3'))->col_ticket($row));
+    }
+
+    /**
+     * The bookings tracker and the manage responses page offer the ticket column and render the
+     * button for participants holding a ticket.
+     *
+     * @covers \mod_booking\table\manageusers_table::col_ticket
+     * @covers \mod_booking\local\bookingstracker\columns_helper::display_columns
+     */
+    public function test_tracker_ticket_column(): void {
+        global $DB;
+        $this->build_environment();
+        $this->book_student();
+        $DB->set_field('booking', 'responsesfields', 'fullname,ticket,status', ['id' => $this->booking->id]);
+        booking::purge_cache_for_booking_instance_by_cmid((int) $this->settings->cmid);
+
+        $columns = columns_helper::display_columns((int) $this->settings->cmid, $this->settings->id);
+        $this->assertArrayHasKey('ticket', $columns);
+
+        $this->setUser($this->teacher);
+        $table = new manageusers_table('trackertickettest');
+        $row = (object) ['userid' => $this->student->id, 'optionid' => $this->settings->id];
+        $html = $table->col_ticket($row);
+        $this->assertStringContainsString('fa-ticket', $html);
+        $this->assertStringContainsString('/mod_booking/tickets/', $html);
+
+        // No ticket for a user who is not booked, and no lazy creation in participant lists.
+        $this->assertSame('', $table->col_ticket((object) ['userid' => $this->teacher->id, 'optionid' => $this->settings->id]));
+        $this->assertCount(1, $DB->get_records('booking_tickets'));
+
+        set_config('bookingticketon', 0, 'booking');
+        $this->assertArrayNotHasKey('ticket', columns_helper::display_columns((int) $this->settings->cmid, $this->settings->id));
+        $this->assertSame('', $table->col_ticket($row));
     }
 }

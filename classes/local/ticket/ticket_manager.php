@@ -626,6 +626,57 @@ class ticket_manager {
     }
 
     /**
+     * The valid ticket of a booked user, created on the spot if the booking predates the ticket design.
+     *
+     * Only users with an active booking (not on the waiting list) get a ticket. Creating a ticket
+     * renders its PDF, so callers should use this for a single user (e.g. the current one), never
+     * for every row of a participant list.
+     *
+     * @param int $optionid
+     * @param int $userid
+     *
+     * @return stdClass|null
+     */
+    public static function find_or_create_for_booked_user(int $optionid, int $userid): ?stdClass {
+        if ($ticket = self::find_valid_ticket($optionid, $userid)) {
+            return $ticket;
+        }
+        if (!self::is_enabled_for_option($optionid) || empty(self::find_answerid($optionid, $userid))) {
+            return null;
+        }
+        return self::create_ticket($optionid, $userid);
+    }
+
+    /**
+     * The download button (ticket icon + "Ticket") for a ticket, or an empty string without a PDF URL.
+     *
+     * @param stdClass|null $ticket
+     *
+     * @return string
+     */
+    public static function render_download_button(?stdClass $ticket): string {
+        if (empty($ticket) || self::is_cancelled($ticket)) {
+            return '';
+        }
+        $url = self::get_file_url($ticket);
+        if (empty($url)) {
+            return '';
+        }
+        return \html_writer::link(
+            $url,
+            \html_writer::tag('i', '', ['class' => 'fa fa-fw fa-ticket', 'aria-hidden' => 'true'])
+                . ' ' . get_string('ticketbutton', 'mod_booking'),
+            [
+                'target' => '_blank',
+                'class' => 'btn btn-outline-secondary btn-sm mod-booking-ticket-link',
+                'role' => 'button',
+                'title' => get_string('ticketdownload', 'mod_booking'),
+                'aria-label' => get_string('ticketdownload', 'mod_booking'),
+            ]
+        );
+    }
+
+    /**
      * Look up a ticket by its verification code.
      *
      * @param string $code
