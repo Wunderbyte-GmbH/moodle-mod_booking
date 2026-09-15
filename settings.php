@@ -1035,6 +1035,28 @@ if ($ADMIN->fulltree) {
                     booking::get_array_of_possible_presence_statuses()
                 )
             );
+            // Presence status the tracker counts per date: scanned dates only show up in the
+            // "presence count" column when it equals the check-in status.
+            $checkinstatus = \mod_booking\local\ticket\ticket_manager::get_checkin_status();
+            $countedstatus = (int) get_config('booking', 'bookingstrackerpresencecountervaluetocount');
+            if (get_config('booking', 'bookingstrackerpresencecounter') && $countedstatus !== $checkinstatus) {
+                $settings->add(
+                    new admin_setting_description(
+                        'booking/bookingticketcounterhint',
+                        '',
+                        html_writer::div(get_string('bookingticketcounterhint', 'mod_booking'), 'alert alert-warning')
+                    )
+                );
+            }
+            $settings->add(
+                new admin_setting_configmultiselect(
+                    'booking/bookingticketidentityfields',
+                    get_string('bookingticketidentityfields', 'mod_booking'),
+                    get_string('bookingticketidentityfields_desc', 'mod_booking'),
+                    ['picture', 'fullname'],
+                    \mod_booking\local\ticket\ticket_manager::get_identity_field_choices()
+                )
+            );
             $settings->add(
                 new admin_setting_configcheckbox(
                     'booking/bookingticketserialscan',

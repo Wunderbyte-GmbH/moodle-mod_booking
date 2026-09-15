@@ -236,6 +236,14 @@ $functions = [
         'ajax'          => 1,
         'services'      => [MOODLE_OFFICIAL_MOBILE_SERVICE, 'moodle_mobile_app'],
     ],
+    'mod_booking_reject_ticket' => [
+        'classname'     => 'mod_booking\external\reject_ticket',
+        'description'   => 'Record that entry staff rejected a scanned entry ticket (SofaTicket)',
+        'type'          => 'write',
+        'capabilities'  => 'mod/booking:scanticket',
+        'ajax'          => 1,
+        'services'      => [MOODLE_OFFICIAL_MOBILE_SERVICE, 'moodle_mobile_app'],
+    ],
     'mod_booking_get_my_tickets' => [
         'classname'     => 'mod_booking\external\get_my_tickets',
         'description'   => 'List the entry tickets of a user (SofaTicket)',
