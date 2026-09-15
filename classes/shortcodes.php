@@ -666,6 +666,22 @@ class shortcodes {
     }
 
     /**
+     * Returns the id of the current user, e.g. to build links like
+     * <a href="/mod/booking/teacher.php?teacherid=[userid]">.
+     *
+     * @param string $shortcode
+     * @param array $args
+     * @param string|null $content
+     * @param object $env
+     * @param Closure $next
+     * @return string
+     */
+    public static function userid($shortcode, $args, $content, $env, $next) {
+        global $USER;
+        return (string) (int) $USER->id;
+    }
+
+    /**
      * A small shortcode to add links to the booking options which link to this course.
      *
      * @param string $shortcode
@@ -1178,6 +1194,168 @@ class shortcodes {
         $table->set_filter_sql($fields, $from, $where, $filter, $params);
 
         $table->define_cache('mod_booking', 'mybookingoptionstable');
+
+        try {
+            $out = $table->outhtml($perpage, true);
+        } catch (Throwable $e) {
+            $out = get_string('shortcode:error', 'mod_booking');
+            /** @var \context $syscontext */
+            $syscontext = context_system::instance();
+            if ($CFG->debug > 0 && has_capability('moodle/site:config', $syscontext)) {
+                $out .= $e->getMessage();
+            }
+        }
+
+        return $out;
+    }
+
+    /**
+     * Shortcode to show the booking options the current (or a specified) user teaches.
+     *
+     * @param string $shortcode
+     * @param array $args
+     * @param string|null $content
+     * @param object $env
+     * @param Closure $next
+     * @return string
+     */
+    public static function mytaughtcourselist($shortcode, $args, $content, $env, $next) {
+        global $USER, $PAGE, $CFG;
+
+        // Get rid of quotation marks.
+        self::fix_args($args);
+
+        $requiredargs = [];
+        $error = shortcodes_handler::validatecondition($shortcode, $args, true, $requiredargs);
+        if ($error['error'] === 1) {
+            return $error['message'];
+        }
+
+        if (!empty($args['userid'])) {
+            $teacherid = (int) $args['userid'];
+        } else {
+            $teacherid = (int) $USER->id;
+        }
+
+        // Only booking options where the given user is assigned as teacher.
+        $wherearray = [
+            'teacherobjects' => '%"id":' . $teacherid . ',%',
+        ];
+        $context = null;
+        $course = $PAGE->course;
+        $pageurl = $course->shortname . $PAGE->url->out();
+        $perpage = self::check_perpage($args);
+
+        if (!empty($args['cmid'])) {
+            $booking = singleton_service::get_instance_of_booking_settings_by_cmid((int)$args['cmid']);
+            $wherearray['bookingid'] = (int)$booking->id;
+            // With the instance context, mod/booking:canseeinvisibleoptions is respected.
+            $context = context_module::instance((int)$args['cmid']);
+        }
+
+        $viewparam = self::get_viewparam($args);
+        $table = self::init_table_for_courses(null, md5($pageurl), $args);
+
+        // Additional where condition for both card and list views.
+        $additionalwhere = self::set_customfield_wherearray($args, $wherearray) ?? '';
+
+        [$fields, $from, $where, $params, $filter] =
+                booking::get_options_filter_sql(
+                    0,
+                    0,
+                    '',
+                    null,
+                    $context,
+                    [],
+                    $wherearray,
+                    null,
+                    [],
+                    $additionalwhere
+                );
+        $table->set_filter_sql($fields, $from, $where, $filter, $params);
+        $possibleoptions = [
+            "description",
+            "statusdescription",
+            "attachment",
+            "teacher",
+            "responsiblecontact",
+            "showdates",
+            "dayofweektime",
+            "location",
+            "institution",
+            "minanswers",
+            "bookingopeningtime",
+            "bookingclosingtime",
+            "coursestarttime",
+            "booknow",
+        ];
+
+        if (!empty($args['exclude'])) {
+            $exclude = explode(',', $args['exclude']);
+            $optionsfields = array_diff($possibleoptions, $exclude);
+        } else {
+            $optionsfields = $possibleoptions;
+        }
+
+        $showfilter = !empty($args['filter']) ? true : false;
+        $showsort = !empty($args['sort']) ? true : false;
+        $showsearch = !empty($args['search']) ? true : false;
+
+        view::apply_standard_params_for_bookingtable(
+            $table,
+            $optionsfields,
+            $showfilter,
+            $showsearch,
+            $showsort,
+            false,
+            true,
+            $viewparam,
+            0,
+            $args
+        );
+
+        // Possibility to add customfieldfilter.
+        $customfieldfilter = explode(',', ($args['customfieldfilter'] ?? ''));
+        if (!empty($customfieldfilter)) {
+            self::apply_customfieldfilter($table, $customfieldfilter);
+        }
+
+        $table->showcountlabel = $showfilter ? true : false;
+
+        if (
+            isset($args['filterontop'])
+            && (
+                $args['filterontop'] == '1'
+                || $args['filterontop'] == 'true'
+            )
+        ) {
+            $table->showfilterontop = true;
+        } else {
+            $table->showfilterontop = false;
+        }
+
+        // Set common table options requirelogin, sortorder, sortby.
+        self::set_common_table_options_from_arguments($table, $args);
+        [$fields, $from, $where, $params, $filter] =
+                booking::get_options_filter_sql(
+                    0,
+                    0,
+                    '',
+                    null,
+                    $context,
+                    [],
+                    $wherearray,
+                    null,
+                    [],
+                    $additionalwhere,
+                    '',
+                    $table
+                );
+        if (!empty($args['futureonly'])) {
+            $now = time();
+            $where .= " AND courseendtime > $now ";
+        }
+        $table->set_filter_sql($fields, $from, $where, $filter, $params);
 
         try {
             $out = $table->outhtml($perpage, true);
