@@ -901,28 +901,9 @@ class bookingoptions_wbtable extends wunderbyte_table {
         if ($userid <= 0) {
             $userid = (int) $USER->id;
         }
-        $ticket = \mod_booking\local\ticket\ticket_manager::find_valid_ticket((int) $values->id, $userid);
-        if (empty($ticket)) {
-            return '';
-        }
-
-        $url = \mod_booking\local\ticket\ticket_manager::get_file_url($ticket);
-        if (empty($url)) {
-            return '';
-        }
-
-        return html_writer::link(
-            $url,
-            html_writer::tag('i', '', ['class' => 'fa fa-fw fa-ticket', 'aria-hidden' => 'true'])
-                . ' ' . get_string('ticketbutton', 'mod_booking'),
-            [
-                'target' => '_blank',
-                'class' => 'btn btn-outline-secondary btn-sm mod-booking-ticket-link',
-                'role' => 'button',
-                'title' => get_string('ticketdownload', 'mod_booking'),
-                'aria-label' => get_string('ticketdownload', 'mod_booking'),
-            ]
-        );
+        // A booking made before the ticket design was chosen has no ticket yet: create it on first sight.
+        $ticket = \mod_booking\local\ticket\ticket_manager::find_or_create_for_booked_user((int) $values->id, $userid);
+        return \mod_booking\local\ticket\ticket_manager::render_download_button($ticket);
     }
 
     /**
