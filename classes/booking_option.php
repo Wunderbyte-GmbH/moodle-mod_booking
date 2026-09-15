@@ -41,11 +41,13 @@ use local_entities\entitiesrelation_handler;
 use mod_booking\local\entities_compat;
 use mod_booking\bo_availability\conditions\customform;
 use mod_booking\bo_availability\conditions\slotbooking;
-use mod_booking\local\slotbooking\slot_availability;
 use mod_booking\local\waitinglist\waitinglist_sync_status;
+use mod_booking\local\waitlist\db_waitlist_offer_repository;
+use mod_booking\local\slotbooking\slot_availability;
 use mod_booking\event\booking_debug;
 use mod_booking\event\booking_rulesexecutionfailed;
 use mod_booking\event\bookinganswer_movedupfromwaitinglist;
+use mod_booking\event\bookinganswer_removedfromwaitinglist;
 use mod_booking\event\bookinganswer_presencechanged;
 use mod_booking\event\bookinganswer_notesedited;
 use mod_booking\event\bookinganswer_waitingforconfirmation;
@@ -880,6 +882,26 @@ class booking_option {
             }
         }
 
+        // K7 "permanent until re-registration": once the person no longer waits on this option (no
+        // waiting-list or reserved answer left), their waitlist locks - declined and expired alike -
+        // have no function any more. Lift them, so a later re-join is a normal fresh start. Checked
+        // against the DB because the answers singleton is stale here. A person who is still on the
+        // list, e.g. when only a cart reservation was unloaded, keeps the lock.
+        if (
+            !$DB->record_exists_select(
+                'booking_answers',
+                'optionid = :optionid AND userid = :userid AND waitinglist IN (:waitinglist, :reserved)',
+                [
+                    'optionid' => $this->optionid,
+                    'userid' => $userid,
+                    'waitinglist' => MOD_BOOKING_STATUSPARAM_WAITINGLIST,
+                    'reserved' => MOD_BOOKING_STATUSPARAM_RESERVED,
+                ]
+            )
+        ) {
+            (new db_waitlist_offer_repository())->lift_locks((int) $this->optionid, (int) $userid);
+        }
+
         // Purge caches BEFORE sync_waiting_list.
         self::purge_cache_for_answers($this->optionid);
 
@@ -977,6 +999,76 @@ class booking_option {
         }
 
         self::check_if_free_to_book_again($optionsettings, $user->id, $fullybooked);
+
+        return true;
+    }
+
+    /**
+     * Type 4 (waitlistrecycling=3): removes a user from the waiting list after their waiting list
+     * offer expired.
+     *
+     * Deliberately not user_delete_response(): that treats the removal as a cancellation - it fires
+     * bookinganswer_cancelled, queues the legacy cancellation mails, runs the "cancel" after-actions
+     * and touches enrolment and completion, none of which applies to someone who never got a seat.
+     * bookinganswer_removedfromwaitinglist is fired instead, so booking rules can notify the user.
+     *
+     * An item already reserved in the user's shopping cart is removed as well (hard expiry, K4):
+     * unloading it deletes the reserved answer via service_provider::unload_cartitem(), which keeps
+     * the cart and the booking answers in sync.
+     *
+     * @param int $userid
+     * @return bool true if the user was on the waiting list or had a reservation, false otherwise
+     */
+    public function remove_from_waitinglist_after_offer_expiry(int $userid): bool {
+        global $DB, $USER;
+
+        $removed = false;
+
+        if (
+            class_exists('local_shopping_cart\shopping_cart')
+            && $DB->record_exists('booking_answers', [
+                'optionid' => $this->optionid,
+                'userid' => $userid,
+                'waitinglist' => MOD_BOOKING_STATUSPARAM_RESERVED,
+            ])
+        ) {
+            \local_shopping_cart\shopping_cart::delete_item_from_cart('mod_booking', 'option', $this->optionid, $userid);
+            $removed = true;
+        }
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
+        $ba = singleton_service::get_instance_of_booking_answers($settings);
+        $answers = $DB->get_records('booking_answers', [
+            'optionid' => $this->optionid,
+            'userid' => $userid,
+            'waitinglist' => MOD_BOOKING_STATUSPARAM_WAITINGLIST,
+        ]);
+        foreach ($answers as $answer) {
+            if ($ba->delete_answer_record($answer)) {
+                self::booking_history_insert(
+                    MOD_BOOKING_STATUSPARAM_WAITINGLIST_DELETED,
+                    $answer->id,
+                    $answer->optionid,
+                    $answer->bookingid,
+                    $userid
+                );
+                $removed = true;
+            }
+        }
+
+        if (!$removed) {
+            return false;
+        }
+
+        self::purge_cache_for_answers($this->optionid);
+
+        $event = bookinganswer_removedfromwaitinglist::create([
+            'objectid' => $this->optionid,
+            'context' => context_module::instance($this->cmid),
+            'userid' => $USER->id,
+            'relateduserid' => $userid,
+        ]);
+        $event->trigger();
 
         return true;
     }
@@ -1190,8 +1282,15 @@ class booking_option {
                 - booking_answers::count_places($ba->get_usersonlist())
                 - booking_answers::count_places($ba->get_usersreserved());
 
-            // We want to enrol people who have been waiting longer first.
-            usort($usersonwaitinglist, fn($a, $b) => $a->timemodified < $b->timemodified ? -1 : 1);
+            // We want to enrol people who have been waiting longer first. Tie-break on the
+            // answer id (ascending), mirroring select_student_in_bo.php's SQL sort - a bare
+            // "< ? -1 : 1" comparator lies about equal elements (returns 1 instead of 0),
+            // which can reorder genuinely tied waiting-list entries (see O2 in
+            // WAITLIST_REFACTOR_REQUIREMENTS_2026-08-04.md).
+            usort(
+                $usersonwaitinglist,
+                fn($a, $b) => ($a->timemodified <=> $b->timemodified) ?: ($a->baid <=> $b->baid)
+            );
             if ($noofuserstobook > 0 && !empty($ba->get_usersonwaitinglist())) {
                 // We delete the booking answers cache - because settings (limits, etc.) could be changed!
                 self::purge_cache_for_answers($this->optionid);
@@ -1274,7 +1373,12 @@ class booking_option {
             if (waitinglist_sync_status::reduction_gate_open($optionupdated, $context)) {
                 // 2. Update and inform users who have been put on the waiting list because of changed limits.
                 $usersonlist = array_merge($ba->get_usersonlist(), $ba->get_usersreserved());
-                usort($usersonlist, fn($a, $b) => $a->timemodified < $b->timemodified ? -1 : 1);
+                // Same tie-break fix as phase 1 above (O2): compare by baid when tied instead
+                // of silently reordering equal-timemodified entries.
+                usort(
+                    $usersonlist,
+                    fn($a, $b) => ($a->timemodified <=> $b->timemodified) ?: ($a->baid <=> $b->baid)
+                );
                 // We delete the booking answers cache - because settings (limits, etc.) could be changed!
                 self::purge_cache_for_answers($this->optionid);
 
@@ -1745,6 +1849,26 @@ class booking_option {
                 $event->trigger();
             }
 
+            if (
+                $waitinglist == MOD_BOOKING_STATUSPARAM_BOOKED
+                && (
+                    !empty($answersonwaitinglist[$user->id])
+                    || !empty($bookinganswers->get_usersreserved()[$user->id])
+                )
+            ) {
+                // Waitlist-progression refactoring (Phase 3): the person just completed their
+                // booking from the waiting list - accept their open offer, if the new mechanism
+                // has one for them. Must also cover the standard shopping_cart 2-step flow
+                // (WAITINGLIST -> RESERVED -> BOOKED): by the time this final BOOKED write
+                // happens, the candidate has already left the "usersonwaitinglist" bucket for
+                // "usersreserved" - checking only the former silently left their
+                // booking_waitlist_offers row stuck at "offered" forever, permanently
+                // undercounting capacity_calculator::free_capacity() for this option (found
+                // 2026-08-26 while rewriting booking_waitinglist_confirmation_test.php for the
+                // new architecture).
+                \mod_booking\event\observer\booking_accepted_waitlist_adapter::accept($this->optionid, $user->id);
+            }
+
             $baid = self::write_user_answer_to_db(
                 $this->booking->id,
                 $frombookingid,
@@ -1805,6 +1929,11 @@ class booking_option {
         We keep this here (not in write_user_answer_to_db) to avoid retrigger loops
         from automatic UN_CONFIRM updates during task processing. */
         if ($status === MOD_BOOKING_BO_SUBMIT_STATUS_UN_CONFIRM) {
+            // Waitlist-progression refactoring (Phase 3): decline BEFORE check_if_free_to_book_again()
+            // below triggers reconcile() (via freetobookagain_waitlist_adapter) - K7 must lock this
+            // user out before the reconciler looks for the next candidate.
+            \mod_booking\event\observer\unconfirm_waitlist_adapter::decline($this->optionid, $user->id);
+
             self::check_if_free_to_book_again($this->settings, $user->id, true);
         }
 
@@ -2130,6 +2259,21 @@ class booking_option {
                     $currentanswer->timecreated
                 );
 
+                // Waitlist-progression refactoring (Phase 3): this is the RESERVED -> BOOKED
+                // transition used by the standard shopping_cart checkout flow (reserve on
+                // add-to-cart, confirm here on payment) - it never goes through
+                // user_submit_response(), so the equivalent accept-adapter call has to live here
+                // too. A no-op if the user has no open offer under the new mechanism. Without
+                // this, a real, paid waitlist booking completed via the cart left its
+                // booking_waitlist_offers row stuck at "offered" forever, permanently
+                // undercounting capacity_calculator::free_capacity() for this option (found
+                // 2026-08-26 while rewriting booking_waitinglist_confirmation_test.php for the
+                // new architecture).
+                \mod_booking\event\observer\booking_accepted_waitlist_adapter::accept(
+                    $currentanswer->optionid,
+                    $currentanswer->userid
+                );
+
                 $counter++;
             }
         }
@@ -2237,6 +2381,10 @@ class booking_option {
                 ]
             );
             $event->trigger();
+            // T5: reconcile immediately in case capacity happens to already be free right now
+            // (waitforconfirmation routes everyone onto the waitinglist unconditionally). Without
+            // this, only waitlist_heartbeat_task (T7, up to ~15 min delay) would pick it up.
+            \mod_booking\event\observer\latejoiner_waitlist_adapter::reconcile($this->optionid);
         } else {
             $event = event\bookingoption_booked::create(
                 ['objectid' => $this->optionid,
@@ -5494,7 +5642,16 @@ class booking_option {
                 $event->trigger();
             }
         }
+        // Waitlist-progression: reconcile on every freed seat, not only when the option was fully
+        // booked before. An open offer is not a booked place, so a seat freed while another seat is
+        // still on offer never passed the "was fully booked" check above and stayed empty until that
+        // offer was resolved. reconcile() is a no-op without free capacity or an applicable rule; the
+        // event above keeps its old condition, so rules listening to it behave as before.
+        if (!empty(singleton_service::get_instance_of_booking_answers($settings)->get_usersonwaitinglist())) {
+            \mod_booking\event\observer\freetobookagain_waitlist_adapter::reconcile($optionid);
+        }
     }
+
 
     /**
      * Create a new moodle url for bookingoptionview.
