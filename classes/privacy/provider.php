@@ -357,6 +357,7 @@ class provider implements
 
         $sql = "SELECT  ans.id,
                         cm.id AS cmid,
+                        boo.id AS bookingid,
                         boo.name AS bookingname,
                         cm.course AS courseid,
                         ans.optionid AS bookedoption,
@@ -368,20 +369,17 @@ class provider implements
                         opt.text AS bookedoptiontext,
                         opt.coursestarttime AS coursestart,
                         opt.courseendtime AS courseend,
-                        rat.rate AS rating,
-                        hist.status AS historystatus,
-                        hist.json AS historydetails
+                        rat.rate AS rating
                   FROM {context} c
             INNER JOIN {course_modules} cm ON cm.id = c.instanceid AND c.contextlevel = :contextlevel
             INNER JOIN {modules} m ON m.id = cm.module AND m.name = :modname
             INNER JOIN {booking} boo ON boo.id = cm.instance
             INNER JOIN {booking_answers} ans ON ans.bookingid = boo.id
-            INNER JOIN {booking_options} opt ON boo.id = opt.bookingid
-            LEFT JOIN {booking_ratings} rat ON opt.id = rat.optionid
-            LEFT JOIN {booking_history} hist ON ans.id = hist.answerid
+            INNER JOIN {booking_options} opt ON opt.id = ans.optionid
+             LEFT JOIN {booking_ratings} rat ON rat.optionid = opt.id AND rat.userid = ans.userid
                  WHERE c.id {$contextsql}
                        AND ans.userid = :userid
-              ORDER BY cm.id";
+              ORDER BY cm.id, ans.id";
 
         $params = ['modname' => 'booking', 'contextlevel' => CONTEXT_MODULE, 'userid' => $user->id] + $contextparams;
 
@@ -389,6 +387,8 @@ class provider implements
         // because we know the results are ordered, we know when we've moved to the subscription for a new instance and therefore
         // when we can export the complete data for the last instance. Used this idea from mod_choice, thank you.
         $lastcmid = null;
+        $bookingdata = [];
+        $possiblehistorystatuses = booking::get_array_of_possible_booking_history_statuses();
 
         $bookinganswers = $DB->get_recordset_sql($sql, $params);
         foreach ($bookinganswers as $bookinganswer) {
@@ -398,26 +398,33 @@ class provider implements
                     $context = context_module::instance($lastcmid);
                     self::export_booking($bookingdata, $context, $user);
                 }
-                $historydata = $DB->get_records('booking_history', ['userid' => $user->id, 'answerid' => $bookinganswer->id]);
-                $possiblehistorystatuses = booking::get_array_of_possible_booking_history_statuses();
+                // The complete booking history of the user in this instance, not only the history of one answer.
+                $historydata = $DB->get_records(
+                    'booking_history',
+                    ['userid' => $user->id, 'bookingid' => $bookinganswer->bookingid],
+                    'id'
+                );
                 foreach ($historydata as $history) {
                     $history->status = $possiblehistorystatuses[$history->status] ?? $history->status;
                 }
                 $bookingdata = [
                     'bookingname' => $bookinganswer->bookingname,
-                    'timebooked' => \core_privacy\local\request\transform::datetime($bookinganswer->bookingcreated),
-                    'timelastmodified' => \core_privacy\local\request\transform::datetime($bookinganswer->bookingmodified),
-                    'waitinglist' => $bookinganswer->waitinglist,
-                    'status' => $bookinganswer->status,
-                    'notes' => $bookinganswer->notes,
+                    'bookedoptions' => [],
                     'historydata' => $historydata,
                 ];
             }
-            // Important, can be more than one option. Export in one nice line.
-            $bookingdata['bookedoptions'][] = $bookinganswer->bookedoptiontext . " (from " .
-                \core_privacy\local\request\transform::datetime($bookinganswer->coursestart) . " to " .
-                \core_privacy\local\request\transform::datetime($bookinganswer->courseend) . ") with rating " .
-                $bookinganswer->rating;
+            // One entry per answer of the user, only for the options the user actually booked.
+            $bookingdata['bookedoptions'][] = [
+                'option' => $bookinganswer->bookedoptiontext,
+                'coursestart' => \core_privacy\local\request\transform::datetime($bookinganswer->coursestart),
+                'courseend' => \core_privacy\local\request\transform::datetime($bookinganswer->courseend),
+                'timebooked' => \core_privacy\local\request\transform::datetime($bookinganswer->bookingcreated),
+                'timelastmodified' => \core_privacy\local\request\transform::datetime($bookinganswer->bookingmodified),
+                'waitinglist' => $bookinganswer->waitinglist,
+                'status' => $bookinganswer->status,
+                'notes' => $bookinganswer->notes,
+                'rating' => $bookinganswer->rating,
+            ];
             $lastcmid = $bookinganswer->cmid;
         }
         $bookinganswers->close();

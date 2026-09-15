@@ -272,4 +272,88 @@ final class provider_test extends \core_privacy\tests\provider_testcase {
             $this->assertNotSame($raw->status, $history->status, 'Status was not translated to its label.');
         }
     }
+
+    /**
+     * export_user_data() must export exactly the options the user booked, one entry per answer,
+     * with the user's own rating, and the complete booking history of the user in the instance.
+     *
+     * Regression test for GH-1583: the answers query joined booking_options by bookingid instead of
+     * by the answer's optionid (cross product of all options of the instance), joined ratings without
+     * the userid, and loaded booking_history only for the first answer of the instance.
+     */
+    public function test_export_user_data_exports_only_booked_options_and_full_history(): void {
+        global $DB;
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        $course = $this->getDataGenerator()->create_course();
+        $booking = $this->getDataGenerator()->create_module('booking', ['course' => $course->id]);
+        $context = context_module::instance($booking->cmid);
+
+        $student = $this->getDataGenerator()->create_user();
+        $otherstudent = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->enrol_user($student->id, $course->id, 'student');
+        $this->getDataGenerator()->enrol_user($otherstudent->id, $course->id, 'student');
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = $this->getDataGenerator()->get_plugin_generator('mod_booking');
+        $options = [];
+        foreach (['Booked option A', 'Booked option B', 'Never booked option C'] as $text) {
+            $options[$text] = $plugingenerator->create_option([
+                'bookingid' => $booking->id,
+                'text' => $text,
+                'description' => $text,
+            ]);
+        }
+        $plugingenerator->create_answer(['optionid' => $options['Booked option A']->id, 'userid' => $student->id]);
+        $plugingenerator->create_answer(['optionid' => $options['Booked option B']->id, 'userid' => $student->id]);
+        // Another user books option A too, and only that user rates it: their data must not leak into the export.
+        $plugingenerator->create_answer(['optionid' => $options['Booked option A']->id, 'userid' => $otherstudent->id]);
+        $DB->insert_record('booking_ratings', [
+            'userid' => $otherstudent->id,
+            'optionid' => $options['Booked option A']->id,
+            'rate' => 5,
+        ]);
+        $DB->insert_record('booking_ratings', [
+            'userid' => $student->id,
+            'optionid' => $options['Booked option B']->id,
+            'rate' => 3,
+        ]);
+
+        $answers = $DB->get_records('booking_answers', ['userid' => $student->id, 'bookingid' => $booking->id]);
+        $this->assertCount(2, $answers);
+        $rawhistory = $DB->get_records('booking_history', ['userid' => $student->id, 'bookingid' => $booking->id]);
+        $historyanswerids = array_values(array_unique(array_map(fn($h) => (int)$h->answerid, $rawhistory)));
+        $this->assertCount(2, $historyanswerids, 'Fixture must produce history rows for both answers.');
+
+        $this->export_context_data_for_user($student->id, $context, 'mod_booking');
+        $data = writer::with_context($context)->get_data([]);
+        $this->assertNotEmpty($data);
+
+        // Exactly one entry per answer, only for the options the user booked.
+        $this->assertCount(2, $data->bookedoptions);
+        $exportedoptions = array_map(fn($entry) => $entry['option'], $data->bookedoptions);
+        sort($exportedoptions);
+        $this->assertSame(['Booked option A', 'Booked option B'], $exportedoptions);
+
+        // The rating is the user's own rating of that option, never another user's.
+        $ratingbyoption = [];
+        foreach ($data->bookedoptions as $entry) {
+            $ratingbyoption[$entry['option']] = $entry['rating'];
+        }
+        $this->assertNull($ratingbyoption['Booked option A']);
+        $this->assertSame(3, (int)$ratingbyoption['Booked option B']);
+
+        // The complete history of the user in this instance is exported, for every answer.
+        $this->assertCount(count($rawhistory), $data->historydata);
+        $exportedhistoryanswerids = array_values(array_unique(
+            array_map(fn($h) => (int)$h->answerid, (array)$data->historydata)
+        ));
+        sort($exportedhistoryanswerids);
+        sort($historyanswerids);
+        $this->assertSame($historyanswerids, $exportedhistoryanswerids);
+        foreach ($data->historydata as $history) {
+            $this->assertSame((int)$student->id, (int)$history->userid);
+        }
+    }
 }
