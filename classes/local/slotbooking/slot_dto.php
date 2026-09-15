@@ -30,6 +30,7 @@ namespace mod_booking\local\slotbooking;
 
 use core_date;
 use mod_booking\bo_availability\conditions\cancelmyself;
+use mod_booking\local\slotbooking\slot_mover;
 use mod_booking\singleton_service;
 use moodle_url;
 
@@ -97,10 +98,19 @@ class slot_dto {
      *
      * @param int $optionid booking option id
      * @param int $userid user id
-     * @return array<int, array<string, mixed>>
+     * @param bool $ignoreuserslotcap skip the per-user max_slots_per_user gate, so the result
+     *  describes what the OPTION still has rather than what this user may book. Used by the
+     *  read-only availability overview shown to a user who has used up their allowance.
+     * @return array<int, array<string, mixed>> every slot carrying both 'key' (time-only, the
+     *  format the selection is submitted in) and 'uid' (option-scoped, unique across a merged
+     *  multi-option calendar)
      */
-    public static function build_picker_slots(int $optionid, int $userid): array {
-        $slots = slot_availability::get_slots_with_status($optionid, $userid);
+    public static function build_picker_slots(
+        int $optionid,
+        int $userid,
+        bool $ignoreuserslotcap = false
+    ): array {
+        $slots = slot_availability::get_slots_with_status($optionid, $userid, $ignoreuserslotcap);
         $result = [];
 
         // Buffer settings are per-option, so every slot DTO carries the same values; the day
@@ -143,6 +153,7 @@ class slot_dto {
 
             $result[] = [
                 'key' => $start . ':' . $end,
+                'uid' => $optionid . ':' . $start . ':' . $end,
                 'optionid' => $optionid,
                 'start' => $start,
                 'end' => $end,
@@ -169,6 +180,142 @@ class slot_dto {
         }
 
         return $result;
+    }
+
+    /**
+     * Booked slot ranges of one user on one option, formatted for display.
+     *
+     * A user's slots are stored as ranges INSIDE their booking answer(s), not as one answer per
+     * slot, so aggregating them like this is the only way to name what somebody actually holds.
+     * It is the same data the picker paints as "booked".
+     *
+     * Shared deliberately: the options table's showdates column and the booking option detail page
+     * both render it, and before this existed only the table did - which is how a fully booked
+     * option could end up showing "Booked" without saying anywhere WHICH slots that meant.
+     *
+     * @param int $optionid booking option id
+     * @param int $userid user id
+     * @return array<int, array<string, mixed>> rows of ['start', 'end', 'daylabel', 'timelabel',
+     *  'label', 'key', 'optionid', 'baid', 'cancelable', 'teachers', 'teacherlabel', 'hasteachers']
+     */
+    public static function build_booked_slot_rows(int $optionid, int $userid): array {
+        $rows = [];
+        // Per-row release metadata: which answer row the slot lives in and whether the relative
+        // per-slot deadline still allows giving it up (slot_change_policy is the single source of
+        // truth, same rule release_self() enforces server-side).
+        $offset = slot_change_policy::resolve_deadline_minutes($optionid);
+        $now = time();
+
+        foreach (slot_availability::get_booked_slot_ranges_for_user($optionid, $userid) as $range) {
+            $start = (int)($range['start'] ?? 0);
+            $end = (int)($range['end'] ?? 0);
+            if ($start <= 0 || $end <= $start) {
+                continue;
+            }
+            // Only reserved: the slot still hangs in the shopping cart and is not paid for. The
+            // cart lists it already, so showing it here would claim a booking the user has not
+            // made yet - and would offer a release button for a booking that does not exist.
+            // Capacity is untouched: the reservation keeps blocking the slot for everybody else.
+            if (
+                (int)($range['bookingstate'] ?? MOD_BOOKING_STATUSPARAM_BOOKED)
+                === MOD_BOOKING_STATUSPARAM_RESERVED
+            ) {
+                continue;
+            }
+
+            $rows[] = [
+                'start' => $start,
+                'end' => $end,
+                'daylabel' => self::day_label($start),
+                'timelabel' => self::time_range_label($start, $end),
+                // Kept byte-identical to what bookingoptions_wbtable::col_showdates rendered before
+                // this was extracted out of it, so moving that caller onto this helper cannot change
+                // any existing output.
+                'label' => userdate($start, get_string('strftimedatetime', 'langconfig'))
+                    . ' - ' . userdate($end, get_string('strftimetime', 'langconfig')),
+                'key' => $start . ':' . $end,
+                'optionid' => $optionid,
+                'baid' => (int)($range['baid'] ?? 0),
+                // Every still-actionable slot can be given up, the last one of a booking included:
+                // slot_update_service recognises that the booking runs empty and routes that case
+                // through the payment component's cancellation instead of a partial refund.
+                'cancelable' => slot_change_policy::slot_actionable($start, $offset, $now),
+            ];
+        }
+
+        return self::attach_booked_slot_teachers($rows);
+    }
+
+    /**
+     * Fill in the examiners a user picked per slot on already-built booked slot rows.
+     *
+     * The examiner is part of what was booked, but the range data answers only WHICH slots are
+     * held - so the names are resolved here, from the very answer rows those ranges came from.
+     * Addressed by baid, deliberately: a user can hold several answers on one option ("book
+     * again"), and matching on the slot key alone would let one answer's examiner show up on
+     * another answer's slot. Going through the baids the ranges already carry also means a
+     * cancelled answer's stale payload is never consulted at all.
+     *
+     * @param array $rows rows built by build_booked_slot_rows()
+     * @return array the same rows, each with 'teachers' (names), 'teacherlabel' (comma separated)
+     *  and 'hasteachers' added
+     */
+    private static function attach_booked_slot_teachers(array $rows): array {
+        global $CFG, $DB;
+        require_once($CFG->dirroot . '/user/lib.php');
+
+        $baids = array_values(array_unique(array_filter(
+            array_map(static fn(array $row): int => (int)($row['baid'] ?? 0), $rows),
+            static fn(int $baid): bool => $baid > 0
+        )));
+
+        $teacheridsbyrow = [];
+        $allteacherids = [];
+        if (!empty($baids)) {
+            $answers = $DB->get_records_list('booking_answers', 'id', $baids, '', 'id, json');
+            foreach ($answers as $answer) {
+                $slotdata = slot_answer::get_slot_data($answer);
+                if (empty($slotdata) || !is_array($slotdata)) {
+                    continue;
+                }
+
+                // Same resolver the slot report uses, so the option page, the options table and
+                // the teacher's overview can never disagree about who was assigned where -
+                // including the legacy fallback for answers written before teachers_per_slot.
+                foreach (self::resolve_teachers_per_slot($slotdata) as $entry) {
+                    $start = (int)($entry['start'] ?? 0);
+                    $end = (int)($entry['end'] ?? 0);
+                    if ($start <= 0 || $end <= $start || empty($entry['teachers'])) {
+                        continue;
+                    }
+
+                    $teacheridsbyrow[(int)$answer->id][$start . ':' . $end] = $entry['teachers'];
+                    $allteacherids = array_merge($allteacherids, $entry['teachers']);
+                }
+            }
+        }
+
+        $users = !empty($allteacherids)
+            ? user_get_users_by_id(array_values(array_unique($allteacherids)))
+            : [];
+
+        foreach ($rows as $index => $row) {
+            $ids = $teacheridsbyrow[(int)($row['baid'] ?? 0)][(string)($row['key'] ?? '')] ?? [];
+
+            $names = [];
+            foreach ($ids as $id) {
+                if (!empty($users[(int)$id])) {
+                    $names[] = fullname($users[(int)$id]);
+                }
+            }
+            sort($names, SORT_NATURAL | SORT_FLAG_CASE);
+
+            $rows[$index]['teachers'] = $names;
+            $rows[$index]['teacherlabel'] = implode(', ', $names);
+            $rows[$index]['hasteachers'] = !empty($names);
+        }
+
+        return $rows;
     }
 
     /**

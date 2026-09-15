@@ -441,8 +441,52 @@ if there only was one booking option. */
     margin-bottom: 30px;
 }
 
+/* Close button of the prepage modal. Positioned against .modal-content, which Bootstrap
+   already gives position: relative, so it sits in the top right corner above the step bar -
+   or above the spacer that stands in for it when a flow renders no step bar. */
+.prepage-modal-close {
+    position: absolute;
+    top: 0.25rem;
+    right: 0.5rem;
+    z-index: 2;
+    padding: 0.25rem 0.5rem;
+    line-height: 1;
+    font-size: 1.25rem;
+    color: #767676;
+    text-decoration: none;
+}
+
+.prepage-modal-close:hover,
+.prepage-modal-close:focus {
+    color: #000;
+    text-decoration: none;
+}
+
+/* Add-to-cart button and the move/cancel hint below it are rendered as one control: the
+   adjoining corners are squared and a thin line separates the two halves, so the pair does not
+   read as a button with a stray caption underneath. */
+.bookit-addtocartbtn-area.has-slot-hint .wb_shopping_cart {
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.bookit-addtocartbtn-area.has-slot-hint .booking-slot-move-hint {
+    border-top-right-radius: 0;
+    border-top-left-radius: 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.35);
+}
+
+/* Keeps the top right close button clear of the content in prepage flows that render no step bar
+   (see header.mustache): roughly the height the button occupies, top offset included. */
+.prepage-booking-header-spacer {
+    height: 2rem;
+}
+
 #prepage-booking-tabs {
     counter-reset: section;
+    display: flex;
+    /* Reset the browser/Bootstrap list indent so the first step starts at the left edge. */
+    padding-left: 0;
 }
 
 #prepage-booking-tabs li {
@@ -450,8 +494,11 @@ if there only was one booking option. */
     color: #767676;
     list-style-type: none;
     font-size: 15px;
-    width: 25%;
-    float: left;
+    /* Share the full width evenly, whatever the number of steps. A fixed width (was 25%)
+       only filled the bar for exactly four steps and left the rest empty for two or three. */
+    flex: 1 1 0;
+    min-width: 0;
+    text-align: center;
     position: relative;
     font-weight: bold;
 }
@@ -479,7 +526,7 @@ if there only was one booking option. */
 
 /* Prepage progress tabs connectors */
 #prepage-booking-tabs li:after {
-    content: 'asdf';
+    content: '';
     width: 100%;
     height: 2px;
     background: lightgray;
@@ -1126,10 +1173,21 @@ div.checkbox:has(label[for^="id_bo_cond_allowedtobookininstance_capabilitynotnee
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
+    /* A rolling-type option over a few weeks produces several hundred slots. Without a bound the
+       list pushes the wizard's "Continue" button hundreds of rows below the fold; scrolling inside
+       its own box keeps that button reachable no matter how many days there are. Same approach the
+       calendar's day timeline already takes (.booking-slot-timeline-wrapper--scroll below). */
+    max-height: 60vh;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .booking-slot-list-item {
     display: flex;
+    /* Both this element's parents (.booking-slot-list and .booking-slot-day-items) are flex
+       columns with a bounded height, and flex items shrink to fit by default - which squashed
+       every row to a few unreadable pixels instead of letting the parent scroll. */
+    flex: 0 0 auto;
     gap: 0.5rem;
     align-items: center;
     justify-content: space-between;
@@ -1147,11 +1205,20 @@ div.checkbox:has(label[for^="id_bo_cond_allowedtobookininstance_capabilitynotnee
     border-color: rgba(13, 110, 253, 0.75);
 }
 
+/* "booked" always means booked BY THIS USER - slots taken by others are dropped upstream by
+   build_picker_slots() - so it gets the same blue "your booking" treatment in every list rather
+   than reading as a generic disabled row. */
 .booking-slot-list-item--booked {
-    color: rgb(73, 80, 87);
-    background: rgba(108, 117, 125, 0.18);
-    border-color: rgba(108, 117, 125, 0.6);
+    color: rgb(13, 70, 170);
+    background: rgba(13, 110, 253, 0.18);
+    border-color: rgba(13, 110, 253, 0.75);
     cursor: default;
+}
+
+.booking-slot-list-status {
+    margin-left: auto;
+    font-size: 0.8rem;
+    white-space: nowrap;
 }
 
 .booking-slot-list-price {
@@ -1165,6 +1232,104 @@ div.checkbox:has(label[for^="id_bo_cond_allowedtobookininstance_capabilitynotnee
     margin-left: 0.5rem;
     font-size: 0.75rem;
     white-space: nowrap;
+}
+
+.booking-button-mainarea--clickable {
+    cursor: pointer;
+}
+
+.booking-button-mainarea--clickable:hover,
+.booking-button-mainarea--clickable:focus-visible {
+    filter: brightness(0.96);
+}
+
+/* ----------------------------------------------------------------------------
+ * Collapsible day groups inside the slot list (slot_day_list.mustache).
+ * ------------------------------------------------------------------------- */
+.booking-slot-day-group {
+    /* Never shrink: .booking-slot-list is a bounded flex column, so without this all the day
+       headers compress together rather than overflowing into that container's scrollbar. */
+    flex: 0 0 auto;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    border-radius: 0.25rem;
+    /* Deliberately NOT overflow:hidden. position:sticky on the day header below resolves against
+       the nearest scrolling ancestor, and any element in between with overflow:hidden disables it
+       outright - the corners are rounded on the toggle itself instead. */
+}
+
+.booking-slot-day-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    min-height: 2.25rem;
+    padding: 0.4rem 0.6rem;
+    background: rgba(0, 0, 0, 0.03);
+    border: 0;
+    border-radius: calc(0.25rem - 1px) calc(0.25rem - 1px) 0 0;
+    text-align: left;
+    cursor: pointer;
+    /* Keeps the day visible while scrolling through its own expanded slots inside the bounded
+       list box above - without it a long day scrolls its own heading out of view. */
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+.booking-slot-day-toggle[aria-expanded="false"] {
+    border-radius: calc(0.25rem - 1px);
+}
+
+.booking-slot-day-toggle:hover,
+.booking-slot-day-toggle:focus-visible {
+    background: rgba(0, 0, 0, 0.07);
+}
+
+.booking-slot-day-caret {
+    flex: 0 0 auto;
+    font-size: 0.75rem;
+    line-height: 1;
+    transition: transform 0.15s ease;
+}
+
+.booking-slot-day-toggle[aria-expanded="true"] .booking-slot-day-caret {
+    transform: rotate(90deg);
+}
+
+.booking-slot-day-label {
+    font-weight: 600;
+}
+
+.booking-slot-day-count {
+    margin-left: auto;
+    font-size: 0.85rem;
+    color: rgb(108, 117, 125);
+    white-space: nowrap;
+}
+
+.booking-slot-day-selected {
+    flex: 0 0 auto;
+    min-width: 1.25rem;
+    padding: 0 0.35rem;
+    border-radius: 999px;
+    background: #0d6efd;
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-align: center;
+}
+
+.booking-slot-day-items {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.4rem;
+    /* An expanded day gets a comfortable amount of room and then scrolls on its own, so a day with
+       very many slots (rolling options generate one every few minutes) cannot push every other day
+       out of the bounded list above. Around 20rem shows ~8 slots without any inner scrollbar,
+       which covers the common case. */
+    max-height: 20rem;
+    overflow-y: auto;
 }
 
 /* ----------------------------------------------------------------------------
@@ -1315,9 +1480,22 @@ div.checkbox:has(label[for^="id_bo_cond_allowedtobookininstance_capabilitynotnee
     background-color: rgba(0, 0, 0, 0.03);
 }
 
+/* Boost's `[role="button"]:focus:hover { text-decoration: none; }` (theme/boost/scss/moodle/core.scss)
+   outranks the rule above while the item is focused - which it is right after being clicked, as it
+   carries tabindex="0" - and still hovered, so the line-through only appeared once the pointer left.
+   Two classes plus both pseudo-classes outrank it. */
+.booking-slotbooking-sidebar-item.booking-slotbooking-sidebar-item-filtered:focus:hover {
+    text-decoration: line-through;
+}
+
 @media (max-width: 767.98px) {
     .booking-slotbooking-layout {
         flex-direction: column;
+        /* The desktop rule keeps align-items: flex-start so the sticky sidebar does not stretch to
+           full height. In a column that same value stops the main area from filling the width: it
+           shrinks to its content's minimum instead - three timeline lanes at min-width 10rem each -
+           and drags the month calendar past the screen edge with it. */
+        align-items: stretch;
     }
 
     .booking-slotbooking-sidebar {

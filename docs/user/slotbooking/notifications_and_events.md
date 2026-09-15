@@ -38,13 +38,13 @@ Inside a rule mail, these placeholders insert the slots carried by the triggerin
 
 | Placeholder | Contains |
 |-------------|----------|
-| `{slotsbooked}` | The booked slots of a *Booking slot booked* event |
+| `{slotsbooked}` | The booked slots of a *Booking slot booked* event. Outside of this event (e.g. in the regular booking confirmation) it shows the slots of the booking that triggered the mail, or all slots the participant currently holds for the option. |
 | `{slotscancelled}` | The cancelled slots of a *Booking slot cancelled* event |
 | `{slotsmovedfrom}` | The original slots of a *Booking slot moved* event |
 | `{slotsmovedto}` | The new slots of a *Booking slot moved* event |
 | `{bookedslotsfromevent}` | The slots of whichever of the three events triggered the rule |
 
-Several slots are listed one after another, separated by semicolons, and formatted like option dates (e.g. *"Wed, 24 June 2026, 10:00 AM - 11:00 AM"*). If the event carries no slots, the placeholder resolves to nothing.
+Several slots are listed one after another, separated by semicolons, and formatted like option dates (e.g. *"Wed, 24 June 2026, 10:00 AM - 11:00 AM"*). If the event carries no slots, the placeholder resolves to nothing — except `{slotsbooked}`, which then falls back to the booked slots of the booking (see table).
 
 All other [placeholders](../placeholders/README.md) — participant name, option title, links and so on — work as usual.
 
@@ -57,6 +57,12 @@ All other [placeholders](../placeholders/README.md) — participant name, option
 - Rule: *React on event*
 - Event: **Booking slot booked**
 - Body: `Hello {firstname}, your appointment is confirmed: {slotsbooked}`
+
+**Show the slots in the booking confirmation**
+
+The regular booking confirmation (rule on *Booking option booked* or the confirmation mail template) can use `{slotsbooked}` as well. It lists the slots of the new booking:
+
+- Body: `Hello {firstname}, you booked {title}. Your slots: {slotsbooked}`
 
 **Inform about a move**
 
@@ -72,7 +78,7 @@ All other [placeholders](../placeholders/README.md) — participant name, option
 
 **Remind participants the day before**
 
-Use a normal time-based booking rule on the option. Slot times are stored on the booking, so the usual date placeholders resolve to the participant's own slot.
+Use a normal time-based booking rule on the option. Use `{slotsbooked}` to list the participant's own slots — the usual date placeholders (`{dates}`, `{startdate}` …) only show the dates of the option, not the booked slots.
 
 ---
 

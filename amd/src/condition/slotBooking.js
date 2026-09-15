@@ -40,6 +40,28 @@ import {get_string as getString} from 'core/str';
 
 const SLOTBOOKING_REFRESH_EVENT = 'mod_booking:slotbooking-refresh';
 
+/**
+ * Which tab of the book/move prepage the user last chose, per option id.
+ *
+ * Deliberately NOT stored on the DOM: bookit.js observes the prepage modal with
+ * {attributes: true} and reloads the whole prepage on ANY attribute change (see
+ * respondToVisibility()), so remembering the tab in a data attribute there sends the dialog into
+ * an endless reload loop. Module scope survives the prepage being re-rendered just as well,
+ * because the AMD module is only evaluated once.
+ *
+ * @type {Map<number, string>}
+ */
+const lastActiveSlotTab = new Map();
+
+/**
+ * Prepage modals whose hidden.bs.modal reset listener is already attached.
+ *
+ * A WeakSet rather than a data attribute, for the same reason as lastActiveSlotTab above.
+ *
+ * @type {WeakSet<HTMLElement>}
+ */
+const modalsWithTabReset = new WeakSet();
+
 // A small, distinct palette so each merged option gets a stable, recognizable color across the
 // sidebar and the timesheet - cycles if there are more options than colors.
 const OPTION_COLOR_PALETTE = ['#0d6efd', '#d63384', '#fd7e14', '#20c997', '#6f42c1', '#dc3545', '#0dcaf0', '#adb5bd'];
@@ -202,15 +224,6 @@ const getFormTimeZone = (container) => {
     }
 };
 
-const toTimestampForDay = (dayTimestamp, timeValue) => {
-    if (!timeValue || !/^\d{2}:\d{2}$/.test(timeValue)) {
-        return 0;
-    }
-
-    const [hours, minutes] = timeValue.split(':').map(Number);
-    return Number(dayTimestamp) + (hours * 3600) + (minutes * 60);
-};
-
 const toDayKey = (timestamp, timezone) => {
     try {
         const formatter = new Intl.DateTimeFormat('en-CA', {
@@ -291,15 +304,27 @@ const renderCustomDayEditor = (
     label.textContent = 'Start';
     controls.appendChild(label);
 
-    const timeInput = document.createElement('input');
-    timeInput.type = 'time';
+    const timeInput = document.createElement('select');
     timeInput.className = 'form-control form-control-sm booking-slot-time-input';
-    timeInput.step = String(startIntervalSeconds);
-    timeInput.min = toTimeValue(openFrom, timeFormatter);
-    timeInput.max = toTimeValue(openUntil, timeFormatter);
-    timeInput.value = toTimeValue(defaultStart, timeFormatter);
-    controls.appendChild(timeInput);
+    // Only genuinely bookable starts: from the opening time up to closing time minus the
+    // chosen duration, on the configured start interval. A <select> also ends at its last
+    // entry, unlike the native time input whose hour/minute wheels wrap around endlessly.
+    const rebuildStartOptions = (duration) => {
+        const maxStart = Math.max(openFrom, openUntil - Math.max(1, duration));
+        const previous = timeInput.value;
+        timeInput.innerHTML = '';
+        for (let ts = openFrom; ts <= maxStart; ts += startIntervalSeconds) {
+            const option = document.createElement('option');
+            option.value = String(ts);
+            option.textContent = toTimeValue(ts, timeFormatter);
+            timeInput.appendChild(option);
+        }
+        if (previous && timeInput.querySelector(`option[value="${previous}"]`)) {
+            timeInput.value = previous;
+        }
+    };
 
+    controls.appendChild(timeInput);
     container.appendChild(controls);
 
     const legend = document.createElement('div');
@@ -457,8 +482,9 @@ const renderCustomDayEditor = (
             duration,
             startIntervalSeconds
         );
+        rebuildStartOptions(duration);
         hiddenStartInput.value = String(clamped);
-        timeInput.value = toTimeValue(clamped, timeFormatter);
+        timeInput.value = String(clamped);
 
         const span = openUntil - openFrom;
         const top = span > 0 ? ((clamped - openFrom) / span) * 100 : 0;
@@ -479,10 +505,9 @@ const renderCustomDayEditor = (
     // of what is visibly in the field. 'input' fires on every keystroke/programmatic set, so the
     // hidden field is always current by the time anything reads it.
     const synctimefield = () => {
-        syncStart(toTimestampForDay(daySlot.start, timeInput.value));
+        syncStart(Number(timeInput.value || openFrom));
     };
     timeInput.addEventListener('change', synctimefield);
-    timeInput.addEventListener('input', synctimefield);
 
     // durationSelect (unlike timeInput/timeline, which are recreated fresh inside `container` on
     // every render) is a PERSISTENT element passed in from outside - renderCustomDayEditor runs
@@ -569,19 +594,57 @@ const ensureFeedbackRegion = (container, anchor) => {
     return feedbackRegion;
 };
 
+/**
+ * Container for the selected-slots summary, inserted right below the calendar+timeline row.
+ *
+ * Same lazy pattern as ensureTeacherContainer/ensureFeedbackRegion above: the region is created
+ * client-side rather than by the mform, and lives INSIDE the reloadable form region, so a
+ * dynamicForm.load() disposes of it and the next setupInteractiveUi() run recreates it.
+ *
+ * @param {HTMLElement} container
+ * @param {HTMLElement} anchor element to insert after
+ * @returns {HTMLElement}
+ */
+const ensureSelectionSummary = (container, anchor) => {
+    let summaryRegion = container.querySelector('[data-region="slot-selection-summary"]');
+    if (summaryRegion) {
+        return summaryRegion;
+    }
+
+    summaryRegion = document.createElement('div');
+    summaryRegion.dataset.region = 'slot-selection-summary';
+
+    if (anchor && anchor.parentNode) {
+        anchor.parentNode.insertBefore(summaryRegion, anchor.nextSibling);
+    } else {
+        container.appendChild(summaryRegion);
+    }
+
+    return summaryRegion;
+};
+
 const renderTeacherSelection = async(
     teacherContainer,
     selectedSlotKeys,
     slotsMap,
     requiredCount,
     hiddenInput,
-    examinersLabel
+    examinersLabel,
+    memory = null,
+    onSelectionChange = null
 ) => {
     const currentSelection = parseTeacherSelection(hiddenInput);
 
     const selectedSet = new Set(selectedSlotKeys);
     Object.keys(currentSelection).forEach(slotKey => {
         if (!selectedSet.has(slotKey)) {
+            // Switching the day/slot changes the slot KEY, so a pruned entry used to mean the
+            // examiner the user had already picked was silently forgotten. Remember the choice
+            // instead and re-apply it below to the newly selected slot - but only where that
+            // examiner is actually offered there, so someone unavailable on the new day drops out.
+            if (memory && Array.isArray(currentSelection[slotKey]) && currentSelection[slotKey].length > 0) {
+                memory.ids = currentSelection[slotKey].map(id => Number(id) || 0).filter(id => id > 0);
+            }
             delete currentSelection[slotKey];
         }
     });
@@ -604,11 +667,32 @@ const renderTeacherSelection = async(
             .map(teacher => Number(teacher.id || 0))
             .filter(id => id > 0);
 
-        const existing = Array.isArray(currentSelection[slotKey]) ? currentSelection[slotKey] : [];
+        // Fall back to the remembered choice (see the pruning loop above) for a slot the user has
+        // not explicitly picked an examiner for yet. availableIds does the availability check:
+        // a carried-over examiner who is not offered for THIS slot never survives the filter.
+        let existing = Array.isArray(currentSelection[slotKey]) ? currentSelection[slotKey] : [];
+        if (existing.length === 0 && memory && Array.isArray(memory.ids)) {
+            existing = memory.ids;
+        }
         const preselected = existing
             .map(id => Number(id || 0))
             .filter(id => id > 0 && availableIds.includes(id));
 
+        // Write the carry-over back, so the hidden field (and with it the live validation and the
+        // form submit) actually carries the examiner the box is showing as selected.
+        if (preselected.length > 0) {
+            currentSelection[slotKey] = preselected;
+            if (memory) {
+                memory.ids = preselected;
+            }
+        } else {
+            // Nothing chosen for this slot key is offered here. That happens whenever a merged
+            // calendar switches option at the SAME time: the wire key stays identical, so the
+            // pruning loop above keeps the previous option's examiner. Left in place it would be
+            // serialized below and submitted with the new option - the box shows no examiner,
+            // yet validation rejects the booking with "slot no longer available".
+            delete currentSelection[slotKey];
+        }
         const options = [];
         teachers.forEach(teacher => {
             const id = Number(teacher.id || 0);
@@ -652,11 +736,26 @@ const renderTeacherSelection = async(
 
             if (normalized.length === 0) {
                 delete currentSelection[slotKey];
+                if (memory) {
+                    // Actively clearing the examiner must not be undone by the carry-over on the
+                    // next day change.
+                    memory.ids = [];
+                }
             } else {
                 currentSelection[slotKey] = normalized;
+                if (memory) {
+                    memory.ids = normalized.slice();
+                }
             }
 
             serializeTeacherSelection(hiddenInput, currentSelection);
+
+            // Picking an examiner is what turns an otherwise-complete selection valid, so the live
+            // pre-validation has to run again. Without this the error stayed on screen forever, no
+            // matter what the user chose - it was only ever re-run on a slot_selection change.
+            if (onSelectionChange) {
+                onSelectionChange();
+            }
         };
 
         select.addEventListener('change', persistSelection);
@@ -1224,9 +1323,14 @@ export async function init(callsiteoptionid) {
         }
 
         const slotsMap = new Map();
+        const slotsByUid = new Map();
         slots.forEach(slot => {
             const key = String(slot.key || `${slot.start}:${slot.end}`);
             slotsMap.set(key, slot);
+            // In a merged calendar three options share one "start:end" key, so slotsMap keeps only
+            // the last one merged. Anything that must tell two merged slots apart goes through the
+            // option-scoped uid instead.
+            slotsByUid.set(String(slot.uid || key), slot);
         });
 
         // Each merged option can allow a different number of simultaneous slots
@@ -1242,10 +1346,22 @@ export async function init(callsiteoptionid) {
         });
 
         let lastKnownSelectionKeys = [];
+        // Accepts a uid (exact, the calendar picker's own identity) or a bare "start:end" key
+        // (the hidden-input path in the fixedEditor mode, which cannot be resolved exactly in a
+        // merged calendar - that path prefers selectionInput.dataset.activeOptionId anyway).
         const resolveSlotOptionId = (key) => {
-            const slot = slotsMap.get(key);
+            const slot = slotsByUid.get(String(key)) || slotsMap.get(String(key));
             return slot ? Number(slot.optionid || optionid) : Number(optionid);
         };
+
+        // The slot_selection field is what gets submitted, and save_slot_selection takes the
+        // optionid as its own parameter - so the field stays in the time-only wire format while
+        // the picker works in uids. These two convert at that boundary.
+        const selectionKeysToUids = (keys) => keys.map(key => {
+            const uid = `${activeOptionId}:${key}`;
+            return slotsByUid.has(uid) ? uid : String(key);
+        });
+        const uidsToSelectionKeys = (uids) => uids.map(uid => String(slotsByUid.get(uid)?.key || uid));
 
         // (setActiveOptionId now lives further up, before the userdefined custom-day branch, so
         // both branches share the same definition.)
@@ -1287,20 +1403,215 @@ export async function init(callsiteoptionid) {
         // row (not just fixedEditorRoot, which is only one flex item inside that row) so they land
         // on their own line below both columns instead of squeezing in as a third flex item.
         const calendarWrapper = container.querySelector('[data-region="slot-calendar-wrapper"]');
-        const teacherAnchor = listPickerRoot || calendarWrapper || fixedEditorRoot || calendarRoot || selectionInput;
+        // The single-select (selectgroups) mode has no picker region at all, and selectionInput IS
+        // the visible <select>. Anchoring on it dropped the examiner box and the live feedback
+        // INSIDE the mform element's own flex row, where they lined up to the right of the dropdown
+        // instead of below it. Anchor on the whole form row instead. The other modes never reach
+        // this fallback - they anchor on their picker region.
+        const summaryAnchor = listPickerRoot || calendarWrapper || fixedEditorRoot || calendarRoot
+            || selectionInput.closest('.form-group, .fitem') || selectionInput;
+
+        // Selected-slots summary. Both MULTI-select interfaces need it: the calendar grid draws
+        // exactly one day at a time, and the list now collapses its days (see
+        // slot_day_list.mustache) - either way a slot picked elsewhere is out of sight, and can be
+        // neither reviewed nor removed without hunting for the right day by hand. The single-select
+        // variants never hide a selection, so they do not get one.
+        const maxSelectionInput = container.querySelector('input[name="slot_max_selection"]');
+        const summaryEnabled = Boolean(listPickerRoot || (fixedEditorRoot && calendarRoot))
+            && Number(maxSelectionInput?.value || 1) > 1;
+        const summaryRegion = summaryEnabled ? ensureSelectionSummary(container, summaryAnchor) : null;
+
+        // Since summaryAnchor now leads with listPickerRoot, this keeps the previous ordering in both
+        // modes: the summary sits right under whichever picker is rendered, teachers below it.
+        const teacherAnchor = summaryRegion || summaryAnchor;
+
         const teacherContainer = ensureTeacherContainer(container, teacherAnchor);
         const teachersRequired = Math.max(0, Number(teachersRequiredInput?.value || 0));
 
+        // The examiner the user last picked, kept across slot/day changes (which change the slot
+        // key) - see renderTeacherSelection.
+        const teacherMemory = {ids: []};
+
         const refreshTeacherSelection = () => {
             const selectedSlotKeys = getSelectedSlotKeys(selectionInput);
+            // slotsMap is keyed by the time-only wire key, so in a merged calendar it only holds
+            // the LAST option merged under any given time. Handing it over made the examiner
+            // picker offer that option's examiners for a slot picked in a different one - and
+            // submitting them fails validation(), because evaluate_slot_for_user() checks them
+            // against the option actually being booked ("slot no longer available"). Resolve each
+            // selected key through the active option's uid instead and hand on a map holding only
+            // those slots; it stays keyed by the wire key, which is what the teacherselection
+            // payload and this function's own pruning are keyed by.
+            const uids = selectionKeysToUids(selectedSlotKeys);
+            const activeSlots = new Map();
+            selectedSlotKeys.forEach((key, index) => {
+                const slot = slotsByUid.get(uids[index]) || slotsMap.get(key);
+                if (slot) {
+                    activeSlots.set(key, slot);
+                }
+            });
             return renderTeacherSelection(
                 teacherContainer,
                 selectedSlotKeys,
-                slotsMap,
+                activeSlots,
                 teachersRequired,
                 teacherSelectionInput,
-                examinersLabel
+                examinersLabel,
+                teacherMemory,
+                () => liveValidate()
             );
+        };
+
+        // The selection adapter shared by the day timeline and the summary's remove buttons.
+        // Assigned once in the calendar-init block below (it needs resolveMaxSlots), and used from
+        // both, so removing a slot in the summary is indistinguishable from clicking it off in the
+        // timeline. This used to be built FRESH inside renderFixedEditorForDay on every single day
+        // switch, which is precisely why nothing outside the currently drawn day could read or
+        // touch the selection.
+        let fixedSelection = null;
+
+        // The list picker's controller (see renderSlotList's return value), when the list interface
+        // is the one rendered. The counterpart to calendarPickerInstance: it answers which day a
+        // slot key belongs to, opens that day, and re-applies selected state plus day badges after
+        // an external change.
+        let listController = null;
+
+        // Re-renders the day timeline currently on screen. The timeline only repaints on a day
+        // change or from its own click handler, so an external change to the selection - the
+        // summary's remove button - would otherwise leave a just-removed slot still painted as
+        // selected until the user navigates to another day and back.
+        let refreshFixedEditor = null;
+
+        // Server-validated total for the current selection (see renderLiveFeedback below). Kept so
+        // the summary can show the price that will ACTUALLY be charged, rather than a client-side
+        // sum which knows nothing about rules or the user's own price category.
+        let lastValidatedTotal = null;
+
+        const summaryHeading = summaryRegion
+            ? await getString('slot_selection_summary_heading', 'mod_booking')
+            : '';
+
+        // Which day a selected slot sits on, and how to reveal it - answered by whichever picker is
+        // actually rendered. The calendar knows its own day keys; the list knows its day groups.
+        // Neither uses the DTO's own "daykey" field, which slot_dto builds with
+        // userdate('%Y-%m-%d') and therefore does not zero-pad ("2026-10-9").
+        const resolveDayKeyForSlot = (key) => {
+            if (calendarPickerInstance) {
+                return calendarPickerInstance.findDayKeyForSlotKey(key) || '';
+            }
+            if (listController) {
+                return listController.getDayKeyForSlot(key) || '';
+            }
+            return '';
+        };
+
+        const goToDayKey = (dayKey) => {
+            if (calendarPickerInstance) {
+                calendarPickerInstance.goToDay(dayKey);
+            } else if (listController) {
+                listController.expandDay(dayKey);
+            }
+        };
+
+        // Neither picker listens for selection changes, so an external removal has to tell the one
+        // on screen to repaint - otherwise the just-removed slot stays highlighted.
+        const refreshActivePicker = () => {
+            if (refreshFixedEditor) {
+                refreshFixedEditor();
+            }
+            if (listController) {
+                listController.refresh();
+            }
+        };
+
+        const renderSelectionSummary = async() => {
+            if (!summaryRegion) {
+                return;
+            }
+
+            const keys = getSelectedSlotKeys(selectionInput);
+            if (keys.length === 0) {
+                summaryRegion.innerHTML = '';
+                return;
+            }
+
+            let currency = '';
+            const rows = [];
+            // Look each slot up by its option-scoped uid: slotsMap is keyed by the time-only wire
+            // key, so in a merged calendar it only holds the LAST option merged under that time -
+            // the summary would show that option's labels and price for a slot picked in another
+            // one. The row itself keeps the wire key: it goes into data-slot-key, which both the
+            // remove button and resolveDayKeyForSlot() read back.
+            const uids = selectionKeysToUids(keys);
+            keys.forEach((key, index) => {
+                const slot = slotsByUid.get(uids[index]) || slotsMap.get(key);
+                if (!slot) {
+                    return;
+                }
+                if (!currency) {
+                    currency = String(slot.currency || '').trim();
+                }
+                rows.push({
+                    key,
+                    // The PICKER's own day key - deliberately not slot.daykey, which slot_dto
+                    // builds with userdate('%Y-%m-%d') and therefore does NOT zero-pad
+                    // ("2026-10-9"), so it would never match a picker day key on a single-digit
+                    // date and every such row's "jump to day" would silently do nothing.
+                    daykey: resolveDayKeyForSlot(key),
+                    daylabel: String(slot.daylabel || ''),
+                    timelabel: String(slot.timelabel || key),
+                    priceformatted: (usePrices && Number(slot.price || 0) > 0 && slot.priceformatted)
+                        ? String(slot.priceformatted)
+                        : '',
+                });
+            });
+
+            if (rows.length === 0) {
+                summaryRegion.innerHTML = '';
+                return;
+            }
+
+            const maxSlots = Math.max(1, Number(maxSelectionInput?.value || 1));
+            const showtotal = usePrices && lastValidatedTotal !== null && lastValidatedTotal > 0;
+            const {html, js} = await Templates.renderForPromise('mod_booking/slotbooking/slot_selection_summary', {
+                heading: summaryHeading,
+                countlabel: await getString('slot_selection_count', 'mod_booking', {
+                    count: rows.length,
+                    max: maxSlots,
+                }),
+                showtotal,
+                totalformatted: showtotal
+                    ? `${lastValidatedTotal.toFixed(2)}${currency ? ' ' + currency : ''}`
+                    : '',
+                rows,
+            });
+            Templates.replaceNodeContents(summaryRegion, html, js);
+
+            summaryRegion.querySelectorAll('[data-action="goto-day"]').forEach(button => {
+                button.addEventListener('click', () => {
+                    const dayKey = button.closest('[data-day-key]')?.dataset.dayKey || '';
+                    if (dayKey) {
+                        goToDayKey(dayKey);
+                    }
+                });
+            });
+
+            summaryRegion.querySelectorAll('[data-action="remove-slot"]').forEach(button => {
+                button.addEventListener('click', () => {
+                    const key = button.closest('[data-slot-key]')?.dataset.slotKey || '';
+                    if (!key || !fixedSelection) {
+                        return;
+                    }
+                    // Routed through the same adapter the timeline uses, so this persists to the
+                    // hidden input and dispatches 'change' - which re-renders the summary, the day
+                    // timeline and the calendar day badges together, from one source of truth.
+                    // The summary rows carry wire keys, the adapter works in uids.
+                    fixedSelection.toggle(selectionKeysToUids([key])[0]);
+                    // See refreshFixedEditor above: the timeline does not listen for selection
+                    // changes, so the removed slot would stay highlighted on the visible day.
+                    refreshActivePicker();
+                });
+            });
         };
 
         // Live server-side pre-validation: on every selection change we ask the save_slot_selection
@@ -1311,6 +1622,8 @@ export async function init(callsiteoptionid) {
             feedbackRegion.classList.remove('text-danger', 'text-success');
             if (!result) {
                 feedbackRegion.textContent = '';
+                lastValidatedTotal = null;
+                renderSelectionSummary();
                 return;
             }
 
@@ -1324,13 +1637,30 @@ export async function init(callsiteoptionid) {
                 } else {
                     feedbackRegion.textContent = '';
                 }
+                lastValidatedTotal = null;
+                renderSelectionSummary();
                 return;
             }
 
             const price = Number(result.price || 0);
+            lastValidatedTotal = price;
+
+            // With the summary present the total belongs in ITS total row, directly under the
+            // per-slot prices it adds up - printing it here as well would show the same number
+            // twice in two places. This region then carries validation errors only.
+            if (summaryRegion) {
+                feedbackRegion.textContent = '';
+                renderSelectionSummary();
+                return;
+            }
+
             if (usePrices && price > 0) {
                 const selectedKeys = getSelectedSlotKeys(selectionInput);
-                const currency = String(slotsMap.get(selectedKeys[0])?.currency || '').trim();
+                const currency = String(
+                    slotsByUid.get(selectionKeysToUids(selectedKeys)[0])?.currency
+                        || slotsMap.get(selectedKeys[0])?.currency
+                        || ''
+                ).trim();
                 feedbackRegion.classList.add('text-success');
                 feedbackRegion.textContent = `${price.toFixed(2)}${currency ? ' ' + currency : ''}`;
             } else {
@@ -1368,8 +1698,30 @@ export async function init(callsiteoptionid) {
             // option's maxSlots when nothing is selected yet.
             const resolveMaxSlots = (optId) => optionMaxMap.get(Number(optId)) || maxSlots;
 
+            // ONE adapter for the whole setupInteractiveUi() run (see the declaration above),
+            // instead of a new one per day render. Must exist before initSlotCalendarPicker below:
+            // the picker fires onDayChange from inside its own constructor, which lands in
+            // renderFixedEditorForDay and needs it immediately.
+            if (fixedEditorRoot) {
+                fixedSelection = createHiddenInputSelection(selectionInput, resolveMaxSlots, {
+                    resolveOptionId: resolveSlotOptionId,
+                    toUids: selectionKeysToUids,
+                    toWireKeys: uidsToSelectionKeys,
+                    onOptionSwitch: () => Notification.addNotification({
+                        message: slotbookingSwitchedOptionMessage,
+                        type: 'info',
+                    }),
+                });
+            }
+
+            const selectedDayLabel = await getString('slot_selection_selectedday', 'mod_booking');
+
             const calendarOptions = {
                 slots,
+                selectedLabel: selectedDayLabel,
+                // The summary owns the count when it is present, as a real translated string -
+                // the picker's built-in counter would otherwise print the same thing twice.
+                showSelectionInfo: !summaryEnabled,
                 timezone,
                 maxSelection: maxSlots,
                 // Reopen on whichever day the user was last looking at (see persistedActiveDayKey
@@ -1379,14 +1731,14 @@ export async function init(callsiteoptionid) {
                 initialActiveDay: persistedActiveDayKey,
                 initialSelection: fixedEditorRoot
                     ? []
-                    : (selectionInput.value
+                    : selectionKeysToUids(selectionInput.value
                         ? selectionInput.value.split(',').map(v => v.trim()).filter(Boolean)
                         : []),
                 onChange: fixedEditorRoot
                     ? () => {}
                     : (selection) => {
                         const resolved = enforceSingleOptionSelection(selection);
-                        selectionInput.value = resolved.join(',');
+                        selectionInput.value = uidsToSelectionKeys(resolved).join(',');
                         selectionInput.dispatchEvent(new Event('change', {bubbles: true}));
                     },
             };
@@ -1394,8 +1746,10 @@ export async function init(callsiteoptionid) {
             if (fixedEditorRoot) {
                 calendarOptions.showSlotList = false;
                 calendarOptions.showPriceLegend = usePrices;
+                let lastRenderedDaySlots = [];
                 const renderFixedEditorForDay = async(daySlots) => {
                     const normalizedDaySlots = Array.isArray(daySlots) ? daySlots : [];
+                    lastRenderedDaySlots = normalizedDaySlots;
                     if (normalizedDaySlots.length === 0) {
                         fixedEditorRoot.innerHTML = '';
                         fixedEditorRoot.style.display = 'none';
@@ -1406,13 +1760,7 @@ export async function init(callsiteoptionid) {
                     await renderFixedSlotsEditor(
                         fixedEditorRoot,
                         normalizedDaySlots,
-                        createHiddenInputSelection(selectionInput, resolveMaxSlots, {
-                            resolveOptionId: resolveSlotOptionId,
-                            onOptionSwitch: () => Notification.addNotification({
-                                message: slotbookingSwitchedOptionMessage,
-                                type: 'info',
-                            }),
-                        }),
+                        fixedSelection,
                         timeFormatter,
                         optionColors
                     );
@@ -1421,6 +1769,7 @@ export async function init(callsiteoptionid) {
                         fixedEditorRoot.style.display = 'none';
                     }
                 };
+                refreshFixedEditor = () => renderFixedEditorForDay(lastRenderedDaySlots);
                 calendarOptions.onDayChange = (dayKey, daySlots) => {
                     persistedActiveDayKey = dayKey;
                     renderFixedEditorForDay(daySlots);
@@ -1440,22 +1789,30 @@ export async function init(callsiteoptionid) {
             const listMaxInput = container.querySelector('input[name="slot_max_selection"]');
             const listMaxSlots = Number(listMaxInput?.value || 1);
             const resolveListMaxSlots = (optId) => optionMaxMap.get(Number(optId)) || listMaxSlots;
-            await renderSlotList(listPickerRoot, slots, createHiddenInputSelection(selectionInput, resolveListMaxSlots, {
+            // Hoisted into fixedSelection for the same reason as the calendar branch: the summary's
+            // remove buttons must act on the SAME adapter the list's own clicks use, not a second
+            // one built from the input behind its back.
+            fixedSelection = createHiddenInputSelection(selectionInput, resolveListMaxSlots, {
                 resolveOptionId: resolveSlotOptionId,
+                toUids: selectionKeysToUids,
+                toWireKeys: uidsToSelectionKeys,
                 onOptionSwitch: () => Notification.addNotification({
                     message: slotbookingSwitchedOptionMessage,
                     type: 'info',
                 }),
-            }));
+            });
+            listController = await renderSlotList(listPickerRoot, slots, fixedSelection);
         }
 
         if (!selectionInput.dataset.slotSelectionBound) {
-            selectionInput.addEventListener('change', refreshTeacherSelection);
-            selectionInput.addEventListener('change', liveValidate);
             // Keep activeOptionId (and the hidden "id" field) in sync no matter which selection
             // mechanism fired the change - the calendar picker's onChange already calls
             // setActiveOptionId itself, but the fixedEditorRoot/listPickerRoot pickers only go
             // through createHiddenInputSelection, which doesn't know about booking options at all.
+            // Registered FIRST on purpose: listeners run in registration order, and
+            // refreshTeacherSelection below resolves the selected slots through activeOptionId.
+            // Registered after it, switching to another merged option left the examiner picker
+            // offering the PREVIOUS option's examiners for the newly picked slot.
             selectionInput.addEventListener('change', () => {
                 const keys = getSelectedSlotKeys(selectionInput);
                 if (keys.length > 0) {
@@ -1467,11 +1824,36 @@ export async function init(callsiteoptionid) {
                     setActiveOptionId(activeFromDataset || resolveSlotOptionId(keys[0]));
                 }
             });
+            selectionInput.addEventListener('change', refreshTeacherSelection);
+            selectionInput.addEventListener('change', liveValidate);
+            // Mirror the hidden input's selection into the calendar picker. The picker does not own
+            // the selection in this mode (initialSelection is [] and onChange a no-op - see the
+            // fixedEditorRoot branch above), so without this its this.selected stayed permanently
+            // empty: the day cells could not badge days holding a selection, and the built-in
+            // counter always read "0/N selected" no matter what had actually been picked.
+            selectionInput.addEventListener('change', () => {
+                if (calendarPickerInstance) {
+                    calendarPickerInstance.setSelectedKeys(
+                        selectionKeysToUids(getSelectedSlotKeys(selectionInput))
+                    );
+                }
+            });
+            selectionInput.addEventListener('change', renderSelectionSummary);
             selectionInput.dataset.slotSelectionBound = '1';
         }
 
+        // Seed both from whatever the input already carries: after a server validation error the
+        // mform brings the previous slot_selection back, and the badges/summary must come back with
+        // it rather than looking like nothing was ever selected.
+        if (calendarPickerInstance) {
+            calendarPickerInstance.setSelectedKeys(
+                selectionKeysToUids(getSelectedSlotKeys(selectionInput))
+            );
+        }
+        await renderSelectionSummary();
         await refreshTeacherSelection();
         liveValidate();
+
     };
 
     const reloadForm = async(reloadArgs = null) => {
@@ -1492,42 +1874,6 @@ export async function init(callsiteoptionid) {
         await setupInteractiveUi();
     };
 
-    await reloadForm(currentLoadArgs);
-
-    let continuebutton = getValidationTriggerButton(container);
-
-    const bindValidationToContinueButton = (button) => {
-        if (!button || button.dataset.slotValidationBound === '1') {
-            return;
-        }
-
-        button.dataset.blocked = 'true';
-        button.dataset.slotValidationBound = '1';
-
-        button.addEventListener('click', (event) => {
-            if (button.dataset.blocked === 'true') {
-                event.preventDefault();
-                event.stopPropagation();
-                event.stopImmediatePropagation();
-                // Flush the visible custom start time into its hidden field before submitting.
-                // The sync normally rides on the time input's own input/change events, but not
-                // every way of setting the field fires those reliably (WebDriver's setValue in
-                // behat does not) - without this, the submit serializes whatever start the hidden
-                // field last saw (the day's default), silently booking a different time than the
-                // one visible in the field.
-                const customtimeinput = container.querySelector(
-                    '[data-region="slot-custom-editor"] input[type=time]'
-                );
-                if (customtimeinput) {
-                    customtimeinput.dispatchEvent(new Event('change', {bubbles: true}));
-                }
-                dynamicForm.submitFormAjax();
-            }
-        });
-    };
-
-    bindValidationToContinueButton(continuebutton);
-
     // Fall 2: when a self-service move tab is present, wire the Book/Move switcher. The move tab
     // lazy-loads the slotUpdate DynamicForm controller; switching to it hides
     // the footer continue button (the book action) so only the move's own submit commits the move.
@@ -1540,6 +1886,15 @@ export async function init(callsiteoptionid) {
         }
         tabs.dataset.slotMoveTabBound = '1';
 
+        // The prepage reloads itself from the server every time the modal is shown
+        // (bookit.js registerPrepageModalDelegatedListener -> loadPreBookingPage), and when that
+        // round trip lands, renderTemplatesOnPage() replaces the whole modal body - including a tab
+        // the user already switched to while it was still in flight. lastActiveSlotTab (module
+        // scope, see its declaration) outlives that replacement, so the choice is re-applied below
+        // once the rebuilt markup is wired. Without this the click was simply overwritten and the
+        // user had to click a second time.
+        const tabkey = Number(optionid) || 0;
+
         const links = Array.from(tabs.querySelectorAll('[data-slottab]'));
 
         // Build the "Update booking" editor right away (not lazily on first tab open) so it is ready
@@ -1550,6 +1905,7 @@ export async function init(callsiteoptionid) {
             .catch(Notification.exception);
 
         const activate = (target) => {
+            lastActiveSlotTab.set(tabkey, target);
             links.forEach(link => link.classList.toggle('active', link.dataset.slottab === target));
             bookPane.classList.toggle('d-none', target !== 'book');
             movePane.classList.toggle('d-none', target !== 'move');
@@ -1572,9 +1928,54 @@ export async function init(callsiteoptionid) {
                 activate(link.dataset.slottab);
             });
         });
+
+        // Re-apply a tab chosen before the reload replaced this markup. Only 'move' needs it -
+        // 'book' is what the fresh markup already shows.
+        if (lastActiveSlotTab.get(tabkey) === 'move') {
+            activate('move');
+        }
+
+        // Reopening the dialog starts on the booking tab again, so the memory only lives as long as
+        // this modal session. addEventListener does not touch any attribute, so it cannot trip
+        // bookit.js's attribute observer the way a data attribute would.
+        const modal = container.closest('[id^="sbPrePageModal_"]');
+        if (modal && !modalsWithTabReset.has(modal)) {
+            modalsWithTabReset.add(modal);
+            modal.addEventListener('hidden.bs.modal', () => {
+                lastActiveSlotTab.delete(tabkey);
+            });
+        }
+    };
+    // Wired BEFORE the first form load, deliberately. The tab markup comes from the prepage
+    // template and does not depend on the form region at all, whereas reloadForm() below is a full
+    // AJAX round trip. Called after it, the tabs stayed bare <a href="#"> links for that whole
+    // window - the first click then jumped to the top of the page instead of switching panes,
+    // which looks exactly like "it reloaded and did nothing".
+    setupMoveTab();
+
+    await reloadForm(currentLoadArgs);
+
+    let continuebutton = getValidationTriggerButton(container);
+
+    const bindValidationToContinueButton = (button) => {
+        if (!button || button.dataset.slotValidationBound === '1') {
+            return;
+        }
+
+        button.dataset.blocked = 'true';
+        button.dataset.slotValidationBound = '1';
+
+        button.addEventListener('click', (event) => {
+            if (button.dataset.blocked === 'true') {
+                event.preventDefault();
+                event.stopPropagation();
+                event.stopImmediatePropagation();
+                dynamicForm.submitFormAjax();
+            }
+        });
     };
 
-    setupMoveTab();
+    bindValidationToContinueButton(continuebutton);
 
     dynamicForm.addEventListener(dynamicForm.events.FORM_SUBMITTED, async(e) => {
         e.preventDefault();

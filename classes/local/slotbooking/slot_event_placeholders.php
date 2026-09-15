@@ -31,7 +31,13 @@ namespace mod_booking\local\slotbooking;
 use mod_booking\option\dates_handler;
 
 /**
- * Renders a slot list from a booking rule's triggering-event payload.
+ * Shared renderer for slot-event booking-rule placeholders.
+ *
+ * The slot booking events (bookinganswer_slotbooked / _slotcancelled / _slotmoved) carry slot
+ * fragments in their "other" payload under different keys (bookedslots, oldslots, newslots).
+ * The individual placeholders delegate here so the parsing and formatting live in one place.
+ * render_booked() additionally resolves booked slots outside of slot events (booking confirmations).
+ *
  */
 class slot_event_placeholders {
     /**
@@ -59,6 +65,47 @@ class slot_event_placeholders {
             return '';
         }
 
+        return self::format_ranges($slots);
+    }
+
+    /**
+     * Render the booked slots for a booking confirmation.
+     *
+     * Sources, in this order:
+     * 1. the slot lists of a slot event payload (bookedslots, newslots),
+     * 2. the booking answer json of the payload (e.g. bookingoption_booked, the booking confirmation rule),
+     * 3. all currently booked slots of the user for the option (e.g. legacy confirmation mail without rule data).
+     *
+     * @param string $rulejson the rule JSON (may be empty)
+     * @param int $optionid booking option id
+     * @param int $userid user id
+     * @return string formatted "start - end; start - end" list, or '' when none
+     */
+    public static function render_booked(string $rulejson, int $optionid, int $userid): string {
+        $fromevent = self::render($rulejson, ['bookedslots', 'newslots']);
+        if ($fromevent !== '') {
+            return $fromevent;
+        }
+
+        $decoded = json_decode($rulejson);
+        $answerjson = $decoded->datafromevent->other->json ?? null;
+        if (!empty($answerjson) && is_string($answerjson)) {
+            $ranges = slot_availability::extract_booked_ranges_from_answer((object)['json' => $answerjson]);
+            if (!empty($ranges)) {
+                return self::format_ranges($ranges);
+            }
+        }
+
+        return self::format_ranges(slot_availability::get_booked_slot_ranges_for_user($optionid, $userid));
+    }
+
+    /**
+     * Format a list of slot ranges.
+     *
+     * @param array $slots list of slots, each an array or object with start and end
+     * @return string formatted "start - end; start - end" list, or '' when none
+     */
+    private static function format_ranges(array $slots): string {
         $rows = [];
         foreach ($slots as $slot) {
             $start = (int)(is_object($slot) ? ($slot->start ?? 0) : ($slot['start'] ?? 0));
