@@ -62,11 +62,21 @@ class ticket_manager {
     /** @var string Booking option JSON key: 1 if the ticket is bound to its holder. */
     public const JSON_PERSONALIZED = 'ticketpersonalized';
 
-    /** @var string Booking option JSON key: 1 if the door scanner must confirm the holder's identity. */
+    /**
+     * @var string Booking option JSON key: 1 if entry staff must explicitly confirm the holder's identity.
+     * The scanner then shows the identity data even for non-personalised tickets, and the webservice
+     * refuses to check in unless the caller passes confirmed=true.
+     */
     public const JSON_CONFIRMIDENTITY = 'ticketconfirmidentity';
 
     /** @var string Booking option JSON key holding additional free text printed on the ticket. */
     public const JSON_EXTRAINFO = 'ticketextrainfo';
+
+    /** @var int Seconds before a session's start from which it counts as "running" for the nearest-date pick. */
+    public const NEAREST_DATE_LEAD = 2 * HOURSECS;
+
+    /** @var string Prefix of custom profile field keys in the "bookingticketidentityfields" setting. */
+    public const IDENTITY_PROFILE_PREFIX = 'profile_';
 
     /**
      * Whether the entry-ticket feature is globally enabled.
@@ -155,6 +165,216 @@ class ticket_manager {
             return MOD_BOOKING_PRESENCE_STATUS_CHECKEDIN;
         }
         return (int) $status;
+    }
+
+    /**
+     * Pick the option date (session) an entry scan most likely refers to.
+     *
+     * Order of preference: a session that is running right now (from two hours before its start
+     * until its end), then the next upcoming session, then the most recent past session.
+     * Sessions without a real id (the legacy synthetic session built from the option's own
+     * start/end time) are ignored because no per-date presence can be stored for them.
+     *
+     * @param array $sessions Session records as found in booking_option_settings::$sessions.
+     * @param int|null $now Reference time, defaults to time().
+     *
+     * @return int The optiondate id, or 0 if the option has no dates.
+     */
+    public static function pick_nearest_optiondate(array $sessions, ?int $now = null): int {
+        $now = $now ?? time();
+        $upcoming = null;
+        $past = null;
+
+        foreach ($sessions as $session) {
+            if (empty($session->id)) {
+                continue;
+            }
+            $start = (int) ($session->coursestarttime ?? 0);
+            $end = (int) ($session->courseendtime ?? 0);
+            if ($end < $start) {
+                $end = $start;
+            }
+            if ($start - self::NEAREST_DATE_LEAD <= $now && $now <= $end) {
+                return (int) $session->id;
+            }
+            if ($start > $now) {
+                if ($upcoming === null || $start < (int) $upcoming->coursestarttime) {
+                    $upcoming = $session;
+                }
+            } else if ($past === null || $start > (int) $past->coursestarttime) {
+                $past = $session;
+            }
+        }
+
+        if ($upcoming !== null) {
+            return (int) $upcoming->id;
+        }
+        if ($past !== null) {
+            return (int) $past->id;
+        }
+        return 0;
+    }
+
+    /**
+     * Time of the check-in of a user on one option date, or null if not (yet) checked in.
+     *
+     * @param int $optionid
+     * @param int $optiondateid
+     * @param int $userid
+     *
+     * @return int|null
+     */
+    public static function is_present_on_date(int $optionid, int $optiondateid, int $userid): ?int {
+        global $DB;
+
+        if (empty($optionid) || empty($optiondateid) || empty($userid)) {
+            return null;
+        }
+        $record = $DB->get_record('booking_optiondates_answers', [
+            'optionid' => $optionid,
+            'optiondateid' => $optiondateid,
+            'userid' => $userid,
+        ], 'id, status, timemodified', IGNORE_MULTIPLE);
+        if (!$record || (int) $record->status !== self::get_checkin_status()) {
+            return null;
+        }
+        return (int) $record->timemodified;
+    }
+
+    /**
+     * Number of participants checked in on one option date.
+     *
+     * @param int $optionid
+     * @param int $optiondateid
+     *
+     * @return int
+     */
+    public static function count_present_on_date(int $optionid, int $optiondateid): int {
+        global $DB;
+
+        if (empty($optionid) || empty($optiondateid)) {
+            return 0;
+        }
+        return $DB->count_records('booking_optiondates_answers', [
+            'optionid' => $optionid,
+            'optiondateid' => $optiondateid,
+            'status' => self::get_checkin_status(),
+        ]);
+    }
+
+    /**
+     * The identity fields the scanner may show, as setting choices (key => label).
+     *
+     * Core fields use fixed keys; custom profile fields are prefixed with "profile_" so a custom
+     * shortname can never shadow a core key.
+     *
+     * @return array
+     */
+    public static function get_identity_field_choices(): array {
+        global $CFG;
+        require_once("{$CFG->dirroot}/user/profile/lib.php");
+
+        $choices = [
+            'picture' => get_string('ticketidentitypicture', 'mod_booking'),
+            'fullname' => get_string('ticketidentityfullname', 'mod_booking'),
+            'email' => get_string('email'),
+            'idnumber' => get_string('idnumber'),
+            'phone1' => get_string('phone1'),
+            'city' => get_string('city'),
+            'country' => get_string('country'),
+        ];
+        foreach (profile_get_custom_fields() as $field) {
+            $choices[self::IDENTITY_PROFILE_PREFIX . $field->shortname] = format_string($field->name) .
+                " ({$field->shortname})";
+        }
+        return $choices;
+    }
+
+    /**
+     * The identity field keys configured in the "bookingticketidentityfields" setting.
+     *
+     * @return string[]
+     */
+    public static function get_configured_identity_fields(): array {
+        $configured = (string) get_config('booking', 'bookingticketidentityfields');
+        if ($configured === '') {
+            return [];
+        }
+        return array_values(array_filter(array_map('trim', explode(',', $configured))));
+    }
+
+    /**
+     * Identity data of a ticket holder for the entry check, as configured in the site settings.
+     *
+     * Returns a list of ['shortname' => ..., 'name' => ..., 'value' => ...] in the configured order.
+     * The "picture" choice is not part of the list: the picture URL is delivered separately.
+     * Values are plain text (custom profile fields are rendered through their display_data()).
+     *
+     * @param int $userid
+     *
+     * @return array
+     */
+    public static function get_identity_fields(int $userid): array {
+        global $CFG;
+
+        $keys = self::get_configured_identity_fields();
+        if (empty($keys) || empty($userid)) {
+            return [];
+        }
+        $user = core_user::get_user($userid);
+        if (!$user) {
+            return [];
+        }
+
+        $custom = [];
+        $wantscustom = array_filter($keys, fn($key) => strpos($key, self::IDENTITY_PROFILE_PREFIX) === 0);
+        if (!empty($wantscustom)) {
+            require_once("{$CFG->dirroot}/user/profile/lib.php");
+            foreach (profile_get_user_fields_with_data($userid) as $formfield) {
+                $custom[$formfield->get_shortname()] = $formfield;
+            }
+        }
+
+        $labels = null;
+        $fields = [];
+        foreach ($keys as $key) {
+            if ($key === 'picture') {
+                continue;
+            }
+            $value = '';
+            $name = '';
+            if (strpos($key, self::IDENTITY_PROFILE_PREFIX) === 0) {
+                $shortname = substr($key, strlen(self::IDENTITY_PROFILE_PREFIX));
+                if (empty($custom[$shortname])) {
+                    continue;
+                }
+                $name = format_string($custom[$shortname]->field->name);
+                $value = trim(html_entity_decode(
+                    strip_tags((string) $custom[$shortname]->display_data()),
+                    ENT_QUOTES | ENT_HTML5,
+                    'UTF-8'
+                ));
+            } else {
+                $labels = $labels ?? self::get_identity_field_choices();
+                if (!isset($labels[$key])) {
+                    continue;
+                }
+                $name = $labels[$key];
+                switch ($key) {
+                    case 'fullname':
+                        $value = fullname($user);
+                        break;
+                    case 'country':
+                        $countries = get_string_manager()->get_list_of_countries();
+                        $value = $countries[$user->country] ?? (string) $user->country;
+                        break;
+                    default:
+                        $value = (string) ($user->{$key} ?? '');
+                }
+            }
+            $fields[] = ['shortname' => $key, 'name' => $name, 'value' => $value];
+        }
+        return $fields;
     }
 
     /**

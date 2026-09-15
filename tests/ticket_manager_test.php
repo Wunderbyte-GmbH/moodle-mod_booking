@@ -25,10 +25,13 @@
 namespace mod_booking;
 
 use mod_booking\tests\booking_advanced_testcase;
+use mod_booking\external\reject_ticket;
 use mod_booking\external\verify_ticket;
 use mod_booking\local\ticket\ticket_manager;
 use mod_booking\local\ticket\ticket_template_installer;
+use mod_booking\event\bookinganswer_presencechanged;
 use mod_booking\event\ticket_created;
+use mod_booking\event\ticket_rejected;
 use mod_booking\event\ticket_scanned;
 use stdClass;
 
@@ -45,6 +48,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @covers \mod_booking\local\ticket\ticket_manager
  * @covers \mod_booking\external\verify_ticket
+ * @covers \mod_booking\external\reject_ticket
  */
 final class ticket_manager_test extends booking_advanced_testcase {
     /** @var stdClass Course. */
@@ -526,5 +530,296 @@ final class ticket_manager_test extends booking_advanced_testcase {
         $this->assertEquals(0, $DB->count_records('booking_tickets', ['userid' => $this->student->id]));
         $files = get_file_storage()->get_area_files($context->id, 'mod_booking', ticket_manager::FILEAREA, $ticket->id);
         $this->assertEmpty($files, 'The ticket PDF must be deleted with the user data.');
+    }
+
+    /**
+     * Build the environment with a booked student on an option that has three dates:
+     * one two days ago, one running right now and one in two days.
+     *
+     * @param array $optionextra Additional fields for the booking option record.
+     *
+     * @return stdClass[] The three sessions in chronological order.
+     */
+    protected function build_dated_environment(array $optionextra = []): array {
+        $now = time();
+        $dates = [
+            1 => [$now - 2 * DAYSECS, $now - 2 * DAYSECS + HOURSECS],
+            2 => [$now - 10 * MINSECS, $now + HOURSECS],
+            3 => [$now + 2 * DAYSECS, $now + 2 * DAYSECS + HOURSECS],
+        ];
+        $extra = [];
+        foreach ($dates as $i => [$start, $end]) {
+            $extra["optiondateid_$i"] = "0";
+            $extra["daystonotify_$i"] = "0";
+            $extra["coursestarttime_$i"] = $start;
+            $extra["courseendtime_$i"] = $end;
+        }
+        $this->build_environment(true, true, array_merge($extra, $optionextra));
+        $this->book_student();
+
+        $sessions = array_values(array_filter($this->settings->sessions, fn($s) => !empty($s->id)));
+        $this->assertCount(3, $sessions, 'Precondition: the option has three real dates.');
+        return $sessions;
+    }
+
+    /**
+     * Per-date presence rows of the student on the option, keyed by optiondate id.
+     *
+     * @return array
+     */
+    protected function date_presence(): array {
+        global $DB;
+        $rows = $DB->get_records('booking_optiondates_answers', [
+            'optionid' => $this->settings->id,
+            'userid' => $this->student->id,
+        ]);
+        $bydate = [];
+        foreach ($rows as $row) {
+            $bydate[(int) $row->optiondateid] = (int) $row->status;
+        }
+        return $bydate;
+    }
+
+    /**
+     * A lookup (checkin=false) reports the dates and the nearest date and writes nothing.
+     */
+    public function test_verify_lookup_does_not_write(): void {
+        [$past, $running, $future] = $this->build_dated_environment();
+        $ticket = ticket_manager::find_valid_ticket($this->settings->id, $this->student->id);
+
+        $this->setUser($this->teacher);
+        $result = verify_ticket::execute($ticket->code, false);
+
+        $this->assertEquals('valid', $result['status']);
+        $this->assertEquals((int) $running->id, $result['optiondateid'], 'The running date is the nearest one.');
+        $this->assertEquals($this->settings->id, $result['optionid']);
+        $this->assertCount(3, $result['dates']);
+        $this->assertEquals(
+            [(int) $past->id, (int) $running->id, (int) $future->id],
+            array_column($result['dates'], 'optiondateid')
+        );
+        $this->assertNotEmpty($result['eventdatelabel']);
+        $this->assertFalse($result['alreadypresent']);
+        $this->assertFalse($result['pendingconfirmation']);
+        $this->assertEquals(0, $result['presentcount']);
+        $this->assertEquals(1, $result['bookedcount']);
+        $this->assertSame([], $this->date_presence());
+        $this->assertEquals(MOD_BOOKING_PRESENCE_STATUS_NOTSET, $this->current_presence());
+
+        // An explicit date that belongs to the option is respected, a foreign one falls back to nearest.
+        $explicit = verify_ticket::execute($ticket->code, false, false, (int) $future->id);
+        $this->assertEquals((int) $future->id, $explicit['optiondateid']);
+        $foreign = verify_ticket::execute($ticket->code, false, false, 999999);
+        $this->assertEquals((int) $running->id, $foreign['optiondateid']);
+    }
+
+    /**
+     * A confirmed check-in writes the per-date presence for the selected date, sets the answer
+     * status on the first admission only, and reports "already present" per date.
+     */
+    public function test_verify_checkin_writes_per_date_row(): void {
+        [$past, $running, $future] = $this->build_dated_environment();
+        $ticket = ticket_manager::find_valid_ticket($this->settings->id, $this->student->id);
+        $code = $ticket->code;
+
+        $this->setUser($this->teacher);
+        $sink = $this->redirectEvents();
+
+        // Confirm on the future date explicitly.
+        $written = verify_ticket::execute($code, true, true, (int) $future->id);
+        $this->assertEquals('valid', $written['status']);
+        $this->assertEquals((int) $future->id, $written['optiondateid']);
+        $this->assertFalse($written['alreadypresent']);
+        $this->assertGreaterThan(0, $written['presenttime']);
+        $this->assertEquals(1, $written['presentcount'], 'Present count is per date.');
+        $this->assertEquals(
+            [(int) $future->id => MOD_BOOKING_PRESENCE_STATUS_CHECKEDIN],
+            $this->date_presence()
+        );
+        $this->assertEquals(MOD_BOOKING_PRESENCE_STATUS_CHECKEDIN, $this->current_presence());
+        $present = array_column($written['dates'], 'present', 'optiondateid');
+        $this->assertTrue($present[(int) $future->id]);
+        $this->assertFalse($present[(int) $running->id]);
+
+        $scanned = array_values(array_filter($sink->get_events(), fn($e) => $e instanceof ticket_scanned));
+        $this->assertCount(1, $scanned);
+        $this->assertEquals((int) $future->id, $scanned[0]->other['optiondateid']);
+
+        // Same date again: already present, nothing written.
+        $again = verify_ticket::execute($code, true, true, (int) $future->id);
+        $this->assertTrue($again['alreadypresent']);
+        $this->assertGreaterThan(0, $again['presenttime']);
+        $this->assertCount(1, $this->date_presence());
+
+        // The nearest (running) date without an explicit id: a second row, answer status untouched.
+        $second = verify_ticket::execute($code, true, true);
+        $this->assertEquals((int) $running->id, $second['optiondateid']);
+        $this->assertFalse($second['alreadypresent']);
+        $this->assertEquals(1, $second['presentcount']);
+        $this->assertEquals(
+            [
+                (int) $future->id => MOD_BOOKING_PRESENCE_STATUS_CHECKEDIN,
+                (int) $running->id => MOD_BOOKING_PRESENCE_STATUS_CHECKEDIN,
+            ],
+            $this->date_presence()
+        );
+        $presencechanged = array_filter($sink->get_events(), fn($e) => $e instanceof bookinganswer_presencechanged);
+        $this->assertCount(1, $presencechanged, 'The answer-level presence is changed only once.');
+        $scanned = array_filter($sink->get_events(), fn($e) => $e instanceof ticket_scanned);
+        $this->assertCount(2, $scanned);
+        $sink->close();
+
+        // The past date is still open.
+        $past = verify_ticket::execute($code, false, false, (int) $past->id);
+        $this->assertFalse($past['alreadypresent']);
+        $this->assertEquals(0, $past['presentcount']);
+    }
+
+    /**
+     * The nearest date: running first, then the next upcoming, then the most recent past one.
+     *
+     * @covers \mod_booking\local\ticket\ticket_manager::pick_nearest_optiondate
+     */
+    public function test_pick_nearest_optiondate(): void {
+        $now = 1_800_000_000;
+        $session = function (int $id, int $start, int $end): stdClass {
+            return (object) ['id' => $id, 'coursestarttime' => $start, 'courseendtime' => $end];
+        };
+        $past = $session(1, $now - 3 * DAYSECS, $now - 3 * DAYSECS + HOURSECS);
+        $recentpast = $session(2, $now - DAYSECS, $now - DAYSECS + HOURSECS);
+        $soon = $session(3, $now + HOURSECS, $now + 2 * HOURSECS);
+        $later = $session(4, $now + 5 * DAYSECS, $now + 5 * DAYSECS + HOURSECS);
+        $running = $session(5, $now - 10 * MINSECS, $now + HOURSECS);
+        $legacy = $session(0, $now - 10 * MINSECS, $now + HOURSECS);
+
+        $this->assertEquals(5, ticket_manager::pick_nearest_optiondate([$past, $later, $running, $soon], $now));
+        // A session starting within the lead time counts as running.
+        $this->assertEquals(3, ticket_manager::pick_nearest_optiondate([$later, $recentpast, $soon], $now));
+        $this->assertEquals(4, ticket_manager::pick_nearest_optiondate([$past, $recentpast, $later], $now));
+        $this->assertEquals(2, ticket_manager::pick_nearest_optiondate([$past, $recentpast], $now));
+        $this->assertEquals(0, ticket_manager::pick_nearest_optiondate([$legacy], $now));
+        $this->assertEquals(0, ticket_manager::pick_nearest_optiondate([], $now));
+    }
+
+    /**
+     * The identity data follows the site setting, including custom profile fields, and is only
+     * returned for personalised tickets or options requiring an identity confirmation.
+     *
+     * @covers \mod_booking\local\ticket\ticket_manager::get_identity_fields
+     */
+    public function test_identity_fields_follow_setting(): void {
+        global $DB;
+        $this->build_environment();
+        $this->book_student();
+
+        $field = $this->getDataGenerator()->create_custom_profile_field([
+            'shortname' => 'birthdate',
+            'name' => 'Birth date',
+            'datatype' => 'datetime',
+            'param1' => 1950,
+            'param2' => 2030,
+            'param3' => 0,
+        ]);
+        $birthdate = make_timestamp(1990, 6, 15);
+        $DB->insert_record('user_info_data', [
+            'userid' => $this->student->id,
+            'fieldid' => $field->id,
+            'data' => $birthdate,
+            'dataformat' => 0,
+        ]);
+        set_config('bookingticketidentityfields', 'picture,fullname,profile_birthdate,email,profile_missing', 'booking');
+
+        $fields = ticket_manager::get_identity_fields($this->student->id);
+        $this->assertEquals(['fullname', 'profile_birthdate', 'email'], array_column($fields, 'shortname'));
+        $bykey = array_column($fields, 'value', 'shortname');
+        $this->assertEquals(fullname($this->student), $bykey['fullname']);
+        $this->assertEquals($this->student->email, $bykey['email']);
+        $this->assertStringContainsString('1990', $bykey['profile_birthdate']);
+        $this->assertEquals('Birth date', array_column($fields, 'name', 'shortname')['profile_birthdate']);
+
+        $choices = ticket_manager::get_identity_field_choices();
+        $this->assertArrayHasKey('picture', $choices);
+        $this->assertArrayHasKey('profile_birthdate', $choices);
+
+        // Personalised ticket (default): the webservice delivers the identity data.
+        $ticket = ticket_manager::find_valid_ticket($this->settings->id, $this->student->id);
+        $this->setUser($this->teacher);
+        $result = verify_ticket::execute($ticket->code, false);
+        $this->assertTrue($result['personalized']);
+        $this->assertEquals(['fullname', 'profile_birthdate', 'email'], array_column($result['identityfields'], 'shortname'));
+        $this->assertNotEmpty($result['userpictureurl']);
+    }
+
+    /**
+     * A transferable ticket without identity confirmation carries no identity data;
+     * the option flag brings it back.
+     */
+    public function test_identity_fields_hidden_for_transferable_tickets(): void {
+        $this->build_environment(true, true, ['ticketpersonalized' => 0]);
+        $this->book_student();
+        set_config('bookingticketidentityfields', 'fullname,email', 'booking');
+
+        $this->assertFalse(ticket_manager::is_personalized($this->settings->id));
+        $ticket = ticket_manager::find_valid_ticket($this->settings->id, $this->student->id);
+        $this->assertEquals(0, (int) $ticket->personalized);
+
+        $this->setUser($this->teacher);
+        $result = verify_ticket::execute($ticket->code, false);
+        $this->assertFalse($result['personalized']);
+        $this->assertSame([], $result['identityfields']);
+    }
+
+    /**
+     * Rejecting a ticket fires the ticket_rejected event and writes no presence.
+     */
+    public function test_reject_ticket_fires_event_only(): void {
+        [, $running] = $this->build_dated_environment();
+        $ticket = ticket_manager::find_valid_ticket($this->settings->id, $this->student->id);
+
+        $this->setUser($this->teacher);
+        $sink = $this->redirectEvents();
+        $result = reject_ticket::execute($ticket->code, (int) $running->id);
+        $this->assertEquals('rejected', $result['status']);
+
+        $rejected = array_values(array_filter($sink->get_events(), fn($e) => $e instanceof ticket_rejected));
+        $this->assertCount(1, $rejected);
+        $this->assertEquals($this->student->id, $rejected[0]->relateduserid);
+        $this->assertEquals((int) $running->id, $rejected[0]->other['optiondateid']);
+        $this->assertStringContainsString((string) $this->settings->id, $rejected[0]->get_description());
+        $sink->close();
+
+        $this->assertSame([], $this->date_presence());
+        $this->assertEquals(MOD_BOOKING_PRESENCE_STATUS_NOTSET, $this->current_presence());
+
+        $this->assertEquals('notfound', reject_ticket::execute('NOTAREALCODE1')['status']);
+
+        $this->setUser($this->student);
+        $this->expectException(\required_capability_exception::class);
+        reject_ticket::execute($ticket->code);
+    }
+
+    /**
+     * A scanned date shows up in the bookings tracker presence counter when the counted
+     * status equals the check-in status.
+     */
+    public function test_presence_counter_counts_scanned_date(): void {
+        global $DB;
+        [, $running] = $this->build_dated_environment();
+        set_config('bookingstrackerpresencecounter', 1, 'booking');
+        set_config('bookingstrackerpresencecountervaluetocount', MOD_BOOKING_PRESENCE_STATUS_CHECKEDIN, 'booking');
+        $ticket = ticket_manager::find_valid_ticket($this->settings->id, $this->student->id);
+
+        $this->setUser($this->teacher);
+        verify_ticket::execute($ticket->code, true, true, (int) $running->id);
+
+        $scope = new \mod_booking\booking_answers\scopes\option();
+        [$fields, $from, $where, $params] = $scope->return_sql_for_booked_users(
+            'option',
+            $this->settings->id,
+            MOD_BOOKING_STATUSPARAM_BOOKED
+        );
+        $rows = $DB->get_records_sql("SELECT $fields FROM $from WHERE $where", $params);
+        $this->assertCount(1, $rows);
+        $this->assertEquals(1, (int) reset($rows)->presencecount);
     }
 }
