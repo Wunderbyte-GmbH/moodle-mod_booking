@@ -914,8 +914,14 @@ class bookingoptions_wbtable extends wunderbyte_table {
         return html_writer::link(
             $url,
             html_writer::tag('i', '', ['class' => 'fa fa-fw fa-ticket', 'aria-hidden' => 'true'])
-                . ' ' . get_string('ticketdownload', 'mod_booking'),
-            ['target' => '_blank', 'class' => 'mod-booking-ticket-link']
+                . ' ' . get_string('ticketbutton', 'mod_booking'),
+            [
+                'target' => '_blank',
+                'class' => 'btn btn-outline-secondary btn-sm mod-booking-ticket-link',
+                'role' => 'button',
+                'title' => get_string('ticketdownload', 'mod_booking'),
+                'aria-label' => get_string('ticketdownload', 'mod_booking'),
+            ]
         );
     }
 
