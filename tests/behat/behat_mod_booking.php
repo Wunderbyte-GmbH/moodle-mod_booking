@@ -328,6 +328,35 @@ class behat_mod_booking extends behat_base {
         $this->getSession()->visit($this->locate_path($url->out_as_local_url(false)));
     }
 
+     /**
+     * Visit a page of mod_booking with the ids of a booking option filled in.
+     *
+     * Placeholders in the url: {cmid} and {optionid} of the option in the booking
+     * instance, {userid} of the logged in user.
+     *
+     * @Given /^I visit the booking page "(?P<url_string>[^"]*)" for option "(?P<option_string>[^"]*)" in booking "(?P<booking_string>[^"]*)"$/
+     * @param string $url local url with placeholders
+     * @param string $optiontext
+     * @param string $bookingname
+     * @return void
+     */
+    public function i_visit_the_booking_page_for_option_in_booking(string $url, string $optiontext, string $bookingname): void {
+        global $DB;
+
+        $cm = $this->get_cm_by_booking_name($bookingname);
+        $option = $DB->get_record('booking_options', [
+            'bookingid' => (int)$cm->instance,
+            'text' => $optiontext,
+        ], '*', MUST_EXIST);
+
+        $url = str_replace(
+            ['{cmid}', '{optionid}', '{userid}'],
+            [(int)$cm->id, (int)$option->id, (int)$this->get_session_user()->id],
+            $url
+        );
+        $this->getSession()->visit($this->locate_path($url));
+    }
+
     /**
      * Fill specified HTMLQuickForm element by its number under given xpath with a value.
      * @When /^I click on the element with the number "([^"]*)" with the dynamic identifier "([^"]*)" and action "([^"]*)"$/
