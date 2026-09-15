@@ -168,7 +168,7 @@ final class pdfa_documents_test extends booking_advanced_testcase {
         $fs = get_file_storage();
         $fs->create_file_from_string([
             'contextid' => \context_system::instance()->id,
-            'component' => 'mod_booking',
+            'component' => 'booking',
             'filearea' => 'mod_booking_signinlogo',
             'itemid' => 0,
             'filepath' => '/',
