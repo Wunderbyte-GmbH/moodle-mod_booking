@@ -276,7 +276,17 @@ class onwaitinglist implements bo_condition {
 
         $label = $this->get_description_string(false, $full, $userid, $settings);
 
-        return bo_info::render_button($settings, $userid, $label, 'alert alert-warning', true, $fullwidth, 'alert', 'option');
+        return bo_info::render_button(
+            $settings,
+            $userid,
+            $label,
+            'alert alert-warning',
+            true,
+            $fullwidth,
+            'alert',
+            'option',
+            priceinlabel: true
+        );
     }
 
     /**

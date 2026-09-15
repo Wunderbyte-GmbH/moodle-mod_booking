@@ -263,7 +263,8 @@ class confirmaskforconfirmation implements bo_condition {
             $fullwidth,
             'button',
             'option',
-            false
+            false,
+            priceinlabel: true
         );
     }
 

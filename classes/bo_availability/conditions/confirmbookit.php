@@ -263,7 +263,8 @@ class confirmbookit implements bo_condition {
             $fullwidth,
             'button',
             'option',
-            false
+            false,
+            priceinlabel: true
         );
 
         if (!empty($settings->jsonobject->multiplebookings ?? 0)) {

@@ -1162,6 +1162,7 @@ $string['bulkoperationsheader'] = 'Update data for selected bookingoption(s)';
 $string['bulkoperationspro'] = 'Bulk Operations (PRO)';
 $string['bulkoperationsqueued'] = 'The changes to {$a} booking option(s) will be applied in the background. This may take a while.';
 $string['bulkoperationstab'] = 'Bulk operations';
+$string['buttonlabelwithprice'] = '{$a->label} (Price: {$a->price})';
 $string['cachedef_bookedusertable'] = 'Booked users table (cache)';
 $string['cachedef_bookinganswers'] = 'Bookinganswers (Cache)';
 $string['cachedef_bookinghistorytable'] = 'Booking history table (Cache)';
