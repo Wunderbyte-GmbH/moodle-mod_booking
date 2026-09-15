@@ -66,8 +66,8 @@ require_once("$CFG->libdir/formslib.php");
  *
  * Page scripts without a class to call (report.php mailto button,
  * optiondates_teachers_report.php, teachers_instance_report.php,
- * teacher_performed_units_report.php, instancetemplatessettings.php,
- * bookinginstancetemplatessettings.php, edit_optiontemplates.php) are covered
+ * teacher_performed_units_report.php,
+ * bookinginstancetemplatessettings.php) are covered
  * by the Behat feature tests/behat/booking_own_option_role.feature.
  *
  * @package    mod_booking

@@ -7,6 +7,8 @@ Feature: Pages a role with the own option capability can open
   # Baseline for the split of mod/booking:addeditownoption: after the split, only
   # the "permission overrides" table changes to the new capabilities.
   # trainer1 holds the role, trainer2 is teacher of the same option without the role.
+  # instancetemplatessettings.php is not tested: it is an admin settings page that needs
+  # moodle/site:config first, so addeditownoption alone never opens it.
 
   Background:
     Given the following "users" exist:
@@ -35,8 +37,8 @@ Feature: Pages a role with the own option capability can open
       | activity | course | name       | intro              | bookingmanager | eventtype |
       | booking  | C1     | My booking | My booking details | admin          | Webinar   |
     And the following "mod_booking > options" exist:
-      | booking    | text       | course | description | teachersforoption | importing | maxanswers |
-      | My booking | Own option | C1     | Own option  | trainer1,trainer2 | 1         | 5          |
+      | booking    | text       | course | description | teachersforoption | maxanswers |
+      | My booking | Own option | C1     | Own option  | trainer1,trainer2 | 5          |
 
   Scenario: Own option role: open the teacher reports and the templates of the booking activity
     Given I log in as "trainer1"
@@ -45,8 +47,6 @@ Feature: Pages a role with the own option capability can open
     When I visit the booking page "/mod/booking/optiondates_teachers_report.php?cmid={cmid}&optionid={optionid}" for option "Own option" in booking "My booking"
     Then I should not see "Access denied"
     When I visit the booking page "/mod/booking/teacher_performed_units_report.php?teacherid={userid}" for option "Own option" in booking "My booking"
-    Then I should not see "Access denied"
-    When I visit the booking page "/mod/booking/instancetemplatessettings.php" for option "Own option" in booking "My booking"
     Then I should not see "Access denied"
     When I visit the booking page "/mod/booking/bookinginstancetemplatessettings.php?id={cmid}" for option "Own option" in booking "My booking"
     Then I should not see "you do not currently have permissions"
@@ -58,8 +58,6 @@ Feature: Pages a role with the own option capability can open
     When I visit the booking page "/mod/booking/optiondates_teachers_report.php?cmid={cmid}&optionid={optionid}" for option "Own option" in booking "My booking"
     Then I should see "Access denied"
     When I visit the booking page "/mod/booking/teacher_performed_units_report.php?teacherid={userid}" for option "Own option" in booking "My booking"
-    Then I should see "Access denied"
-    When I visit the booking page "/mod/booking/instancetemplatessettings.php" for option "Own option" in booking "My booking"
     Then I should see "Access denied"
 
   Scenario: Own option role: send mail to the booked users from the report page of an own option
