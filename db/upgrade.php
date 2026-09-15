@@ -5780,5 +5780,22 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2026091801, 'booking');
     }
 
+    if ($oldversion < 2026091802) {
+        // The booking confirmation button of the options overview became configurable
+        // ("Bookings overview - page"). Keep it visible on every existing instance.
+        $rs = $DB->get_recordset('booking', null, '', 'id, optionsfields');
+        foreach ($rs as $record) {
+            $fields = array_filter(array_map('trim', explode(',', (string) $record->optionsfields)));
+            if (in_array('bookingconfirmation', $fields, true)) {
+                continue;
+            }
+            $fields[] = 'bookingconfirmation';
+            $DB->set_field('booking', 'optionsfields', implode(',', $fields), ['id' => $record->id]);
+        }
+        $rs->close();
+
+        upgrade_mod_savepoint(true, 2026091802, 'booking');
+    }
+
     return true;
 }

@@ -957,6 +957,7 @@ $string['bookingclosingtime'] = 'Bookable until';
 $string['bookingclosingtimerelativeautoapply'] = '⤷ Apply relative booking closing time automatically to new booking options';
 $string['bookingclosingtimerelativeautoapply_desc'] = 'If enabled, the relative booking closing time checkbox is pre-checked when creating a new booking option.';
 $string['bookingcondition'] = 'Condition';
+$string['bookingconfirmationbutton'] = 'Booking confirmation (button)';
 $string['bookingconfirmationlink'] = 'Link to booking receipt';
 $string['bookingcustomfield'] = 'Booking customfields for booking options';
 $string['bookingdate'] = 'Booking date';

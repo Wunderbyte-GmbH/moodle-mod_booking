@@ -938,6 +938,7 @@ $string['bookingclosingtime'] = 'Buchbar bis';
 $string['bookingclosingtimerelativeautoapply'] = '⤷ Relativen Buchungsschluss bei neuen Buchungsoptionen automatisch anwenden';
 $string['bookingclosingtimerelativeautoapply_desc'] = 'Wenn aktiviert, ist das Kontrollkästchen für den relativen Buchungsschluss beim Erstellen einer neuen Buchungsoption bereits vorausgewählt.';
 $string['bookingcondition'] = "Bedingung";
+$string['bookingconfirmationbutton'] = 'Buchungsbestätigung (Button)';
 $string['bookingconfirmationlink'] = 'Link zur Buchungsbestätigung';
 $string['bookingcustomfield'] = 'Benutzerdefinierte Felder für Buchungsoptionen';
 $string['bookingdate'] = 'Buchungsdatum';

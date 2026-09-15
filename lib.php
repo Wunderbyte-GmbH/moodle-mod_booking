@@ -48,7 +48,7 @@ use mod_booking\customfield\booking_handler;
 // Default fields for bookingoptions in view.php and for download.
 define('MOD_BOOKING_BOOKINGOPTION_DEFAULTFIELDS', "identifier,titleprefix,text,description,teacher,responsiblecontact," .
 "showdates,dayofweektime,location,institution,course,courseshortname," .
-"minanswers,bookings,bookingopeningtime,bookingclosingtime,coursestarttime");
+"minanswers,bookings,bookingopeningtime,bookingclosingtime,coursestarttime,bookingconfirmation");
 
 // Default fields (columns) for the manage responses page (report.php).
 define('MOD_BOOKING_RESPONSES_DEFAULTFIELDS', "completed,status,rating,numrec,places,fullname," .

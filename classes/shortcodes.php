@@ -178,6 +178,7 @@ class shortcodes {
             "bookingopeningtime",
             "bookingclosingtime",
             "coursestarttime",
+            "bookingconfirmation",
             "booknow",
         ];
         // When calling recommendedin in the frontend we can define exclude params to set options, we don't want to display.
@@ -331,6 +332,7 @@ class shortcodes {
             "bookingclosingtime",
             "competencies",
             "coursestarttime",
+            "bookingconfirmation",
             "booknow",
         ];
         // When calling recommendedin in the frontend we can define exclude params to set options, we don't want to display.
@@ -611,6 +613,7 @@ class shortcodes {
             "bookingopeningtime",
             "bookingclosingtime",
             "coursestarttime",
+            "bookingconfirmation",
             "booknow",
         ];
         // When calling recommendedin in the frontend we can define exclude params to set options, we don't want to display.
@@ -937,6 +940,7 @@ class shortcodes {
             "bookingopeningtime",
             "bookingclosingtime",
             "coursestarttime",
+            "bookingconfirmation",
             "booknow",
         ];
         // When calling recommendedin in the frontend we can define exclude params to set options, we don't want to display.
@@ -1123,6 +1127,7 @@ class shortcodes {
             "bookingclosingtime",
             "coursestarttime",
             "ticket",
+            "bookingconfirmation",
             "booknow",
         ];
         // When calling recommendedin in the frontend we can define exclude params to set options, we don't want to display.
@@ -1448,6 +1453,7 @@ class shortcodes {
             "bookingopeningtime",
             "bookingclosingtime",
             "coursestarttime",
+            "bookingconfirmation",
             "booknow",
         ];
 
@@ -1621,6 +1627,7 @@ class shortcodes {
         "minanswers",
         "bookingopeningtime",
         "bookingclosingtime",
+        "bookingconfirmation",
         "booknow",
         ];
         // When calling recommendedin in the frontend we can define exclude params to set options, we don't want to display.
