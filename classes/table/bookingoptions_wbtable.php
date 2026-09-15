@@ -117,6 +117,12 @@ class bookingoptions_wbtable extends wunderbyte_table {
      */
     public bool $showfavoritestoggle = false;
 
+    /** @var bool Show the entry ticket download button in the action column (instance setting "ticket"). */
+    public bool $showticketbutton = false;
+
+    /** @var bool Show the booking confirmation button in the action column (instance setting "bookingconfirmation"). */
+    public bool $showbookingconfirmation = true;
+
     /**
      * Set display options for the table.
      *
@@ -1322,24 +1328,36 @@ class bookingoptions_wbtable extends wunderbyte_table {
         $isteacherandcanduplicate = has_capability('mod/booking:duplicateownoption', $context) && $isteacher;
 
         $ddoptions = [];
-        $ret = '<div class="menubar p-1" id="action-menu-' . $optionid . '-menubar" role="group" aria-label="' .
+        $ret = '<div class="menubar p-1 d-inline-flex flex-wrap align-items-center justify-content-end gap-1 ' .
+            'mod-booking-option-actions" id="action-menu-' . $optionid . '-menubar" role="group" aria-label="' .
             get_string('actions') . '">';
 
         if ($status == MOD_BOOKING_STATUSPARAM_BOOKED) {
-            $ret .= html_writer::link(
-                new moodle_url(
-                    '/mod/booking/viewconfirmation.php',
-                    ['id' => $cmid, 'optionid' => $optionid]
-                ),
-                '<i class="icon fa fa-print fa-fw me-1" aria-hidden="true" title="' .
-                    get_string('bookedtext', 'mod_booking') .
-                '"></i>',
-                [
-                    'target' => '_blank',
-                    'class' => 'text-primary',
-                    'aria-label' => get_string('bookedtext', 'mod_booking'),
-                ]
-            );
+            // Entry ticket first, then the booking confirmation - both belong to the booked user.
+            if ($this->showticketbutton) {
+                $ticket = \mod_booking\local\ticket\ticket_manager::find_or_create_for_booked_user(
+                    (int) $optionid,
+                    (int) $USER->id
+                );
+                $ret .= \mod_booking\local\ticket\ticket_manager::render_download_button($ticket);
+            }
+            if ($this->showbookingconfirmation) {
+                $ret .= html_writer::link(
+                    new moodle_url(
+                        '/mod/booking/viewconfirmation.php',
+                        ['id' => $cmid, 'optionid' => $optionid]
+                    ),
+                    '<i class="icon fa fa-print fa-fw" aria-hidden="true" title="' .
+                        get_string('bookedtext', 'mod_booking') . '"></i>' . get_string('bookedtext', 'mod_booking'),
+                    [
+                        'target' => '_blank',
+                        'class' => 'btn btn-outline-secondary btn-sm mod-booking-confirmation-link',
+                        'role' => 'button',
+                        'title' => get_string('bookedtext', 'mod_booking'),
+                        'aria-label' => get_string('bookedtext', 'mod_booking'),
+                    ]
+                );
+            }
         }
 
         if ($canupdate || $isteacherandcanedit) {
@@ -1353,12 +1371,13 @@ class bookingoptions_wbtable extends wunderbyte_table {
                         'returnurl' => $returnurl,
                     ]
                 ),
-                '<i class="icon fa fa-pen fa-fw me-1" aria-hidden="true" title="' .
-                    get_string('editbookingoption', 'mod_booking') .
-                '"></i>',
+                '<i class="icon fa fa-pen fa-fw" aria-hidden="true" title="' .
+                    get_string('editbookingoption', 'mod_booking') . '"></i>' . get_string('edit'),
                 [
                     'target' => '_self',
-                    'class' => 'text-primary',
+                    'class' => 'btn btn-outline-primary btn-sm mod-booking-editoption-link',
+                    'role' => 'button',
+                    'title' => get_string('editbookingoption', 'mod_booking'),
                     'aria-label' => get_string('editbookingoption', 'mod_booking'),
                 ]
             );
@@ -2116,6 +2135,8 @@ class bookingoptions_wbtable extends wunderbyte_table {
 
         $realuniquestring =
             ($this->showfavoritestoggle ? '1' : '0') . '|' .
+            ($this->showticketbutton ? '1' : '0') . '|' .
+            ($this->showbookingconfirmation ? '1' : '0') . '|' .
             ($this->showreloadbutton ? '1' : '0') . '|' .
             ($this->showdownloadbutton ? '1' : '0') . '|' .
             ($this->showcountlabel ? '1' : '0') . '|' .

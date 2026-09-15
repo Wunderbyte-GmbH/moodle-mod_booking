@@ -893,4 +893,46 @@ final class ticket_manager_test extends booking_advanced_testcase {
         $this->assertArrayNotHasKey('ticket', columns_helper::display_columns((int) $this->settings->cmid, $this->settings->id));
         $this->assertSame('', $table->col_ticket($row));
     }
+
+    /**
+     * The action column of the options overview shows the ticket button left of the booking
+     * confirmation button for the booked user, and the confirmation only when configured.
+     *
+     * @covers \mod_booking\table\bookingoptions_wbtable::col_action
+     */
+    public function test_action_column_buttons(): void {
+        $this->build_environment();
+        $this->book_student();
+        // The real table rows carry the option status (0 = active), which the action menu reads.
+        $row = (object) ['id' => $this->settings->id, 'status' => 0];
+
+        $this->setUser($this->student);
+        $table = new bookingoptions_wbtable('actioncolumntest');
+        $table->showticketbutton = true;
+        $table->showbookingconfirmation = true;
+        $html = $table->col_action($row);
+        $ticketpos = strpos($html, 'mod-booking-ticket-link');
+        $confirmationpos = strpos($html, 'viewconfirmation.php');
+        $this->assertNotFalse($ticketpos);
+        $this->assertNotFalse($confirmationpos);
+        $this->assertLessThan($confirmationpos, $ticketpos, 'The ticket button comes before the confirmation.');
+        $this->assertStringContainsString('mod-booking-confirmation-link', $html);
+        $this->assertStringNotContainsString('editoptions.php', $html, 'Students cannot edit the option.');
+
+        $table = new bookingoptions_wbtable('actioncolumntest2');
+        $table->showticketbutton = false;
+        $table->showbookingconfirmation = false;
+        $html = $table->col_action($row);
+        $this->assertStringNotContainsString('mod-booking-ticket-link', $html);
+        $this->assertStringNotContainsString('viewconfirmation.php', $html);
+
+        // Editors get the edit button; a user who is not booked gets no ticket / confirmation.
+        $this->setAdminUser();
+        $table = new bookingoptions_wbtable('actioncolumntest3');
+        $table->showticketbutton = true;
+        $html = $table->col_action($row);
+        $this->assertStringContainsString('mod-booking-editoption-link', $html);
+        $this->assertStringNotContainsString('mod-booking-ticket-link', $html);
+        $this->assertStringNotContainsString('viewconfirmation.php', $html);
+    }
 }

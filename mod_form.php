@@ -562,6 +562,7 @@ class mod_booking_mod_form extends moodleform_mod {
         ];
 
         $optionsfields = [
+            'bookingconfirmation' => get_string('bookingconfirmationbutton', 'mod_booking'),
             'description' => get_string('description', 'mod_booking'),
             'statusdescription' => get_string('textdependingonstatus', 'mod_booking'),
             'teacher' => get_string('teachers', 'mod_booking'),

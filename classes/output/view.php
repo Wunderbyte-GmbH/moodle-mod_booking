@@ -1350,6 +1350,11 @@ class view implements renderable, templatable {
         // Activate sorting.
         $bowbtable->cardsort = true;
 
+        // Buttons of the action column, configured in the instance setting "Bookings overview - page".
+        $bowbtable->showbookingconfirmation = in_array('bookingconfirmation', $optionsfields);
+        $bowbtable->showticketbutton = in_array('ticket', $optionsfields)
+            && \mod_booking\local\ticket\ticket_manager::is_enabled();
+
         // Without defining sorting won't work!
         $bowbtable->define_columns(['titleprefix', 'coursestarttime', 'courseendtime']);
 
@@ -1687,20 +1692,10 @@ class view implements renderable, templatable {
         if (in_array('showdates', $optionsfields)) {
             $cardlist[] = 'showdates';
         }
-        if (in_array('ticket', $optionsfields)) {
-            $cardlist[] = 'ticket';
-        }
         $cardlist[] = 'comments';
 
         $bowbtable->add_subcolumns('cardlist', $cardlist);
         $bowbtable->add_classes_to_subcolumns('cardlist', ['columnkeyclass' => 'd-none']);
-        if (in_array('ticket', $optionsfields)) {
-            $bowbtable->add_classes_to_subcolumns(
-                'cardlist',
-                ['columnclass' => 'text-start pe-2 mt-1 mod-booking-ticket-column'],
-                ['ticket']
-            );
-        }
 
         if (in_array('dayofweektime', $optionsfields)) {
             $bowbtable->add_classes_to_subcolumns(
@@ -1987,9 +1982,6 @@ class view implements renderable, templatable {
         if (in_array('competencies', $optionsfields)) {
             $columnsfooter[] = 'competencies';
         }
-        if (in_array('ticket', $optionsfields)) {
-            $columnsfooter[] = 'ticket';
-        }
         $columnsfooter[] = 'comments';
 
         $bowbtable->add_subcolumns('footer', $columnsfooter);
@@ -2021,13 +2013,6 @@ class view implements renderable, templatable {
             $bowbtable->add_classes_to_subcolumns('leftside', ['columnclass' => 'text-start font-size-sm'], ['teacher']);
         }
         $bowbtable->add_classes_to_subcolumns('footer', ['columnkeyclass' => 'd-none']);
-        if (in_array('ticket', $optionsfields)) {
-            $bowbtable->add_classes_to_subcolumns(
-                'footer',
-                ['columnclass' => 'text-start pe-2 mt-1 mod-booking-ticket-column'],
-                ['ticket']
-            );
-        }
         if (in_array('dayofweektime', $optionsfields)) {
             $bowbtable->add_classes_to_subcolumns(
                 'footer',
