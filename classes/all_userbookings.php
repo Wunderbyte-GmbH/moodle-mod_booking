@@ -26,6 +26,7 @@ namespace mod_booking;
 
 use coding_exception;
 use mod_booking\local\slotbooking\slot_answer;
+use mod_booking\local\ticket\ticket_manager;
 use mod_booking\bo_availability\conditions\customform;
 use mod_booking\output\report_edit_bookingnotes;
 use html_writer;
@@ -904,6 +905,22 @@ class all_userbookings extends \table_sql {
         }
 
         return array_values($DB->get_records_sql($sql, $params));
+    }
+
+    /**
+     * Column for the entry ticket download button of the participant (SofaTicket).
+     *
+     * @param stdClass $values
+     *
+     * @return string
+     */
+    public function col_ticket(stdClass $values): string {
+        if (empty(get_config('booking', 'bookingticketon')) || empty($values->userid)) {
+            return '';
+        }
+        $optionid = (int) ($values->optionid ?? $this->optionid ?? 0);
+        $ticket = ticket_manager::find_valid_ticket($optionid, (int) $values->userid);
+        return ticket_manager::render_download_button($ticket);
     }
 
     /**
