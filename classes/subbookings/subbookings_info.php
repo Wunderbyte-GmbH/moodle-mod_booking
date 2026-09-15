@@ -523,8 +523,10 @@ class subbookings_info {
             }
         } else if (
             $newstatus !== MOD_BOOKING_STATUSPARAM_DELETED
-            || $newstatus !== MOD_BOOKING_STATUSPARAM_NOTBOOKED
+            && $newstatus !== MOD_BOOKING_STATUSPARAM_NOTBOOKED
         ) {
+            // Only states that represent an answer (booked, waiting list, reserved) create a new row.
+            // Deleting or unloading a subbooking that has no matching row leaves the table untouched.
             $data = $subbooking->return_subbooking_information($itemid, $userid);
             $record = (object)[
                 'itemid' => $itemid,
