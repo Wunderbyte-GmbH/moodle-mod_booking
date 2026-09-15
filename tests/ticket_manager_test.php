@@ -29,6 +29,7 @@ use mod_booking\external\reject_ticket;
 use mod_booking\external\verify_ticket;
 use mod_booking\local\ticket\ticket_manager;
 use mod_booking\local\ticket\ticket_template_installer;
+use mod_booking\table\bookingoptions_wbtable;
 use mod_booking\event\bookinganswer_presencechanged;
 use mod_booking\event\ticket_created;
 use mod_booking\event\ticket_rejected;
@@ -821,5 +822,32 @@ final class ticket_manager_test extends booking_advanced_testcase {
         $rows = $DB->get_records_sql("SELECT $fields FROM $from WHERE $where", $params);
         $this->assertCount(1, $rows);
         $this->assertEquals(1, (int) reset($rows)->presencecount);
+    }
+
+    /**
+     * The "ticket" column of the options overview renders a download button with the ticket icon
+     * for the ticket holder, and nothing for users without a ticket.
+     *
+     * @covers \mod_booking\table\bookingoptions_wbtable::col_ticket
+     */
+    public function test_ticket_column_renders_button(): void {
+        $this->build_environment();
+        $this->book_student();
+        $row = (object) ['id' => $this->settings->id];
+
+        $this->setUser($this->student);
+        $table = new bookingoptions_wbtable('ticketcolumntest');
+        $html = $table->col_ticket($row);
+        $this->assertStringContainsString('fa-ticket', $html);
+        $this->assertStringContainsString('btn', $html);
+        $this->assertStringContainsString(get_string('ticketbutton', 'mod_booking'), $html);
+        $this->assertStringContainsString('/mod_booking/tickets/', $html);
+
+        $this->setUser($this->teacher);
+        $this->assertSame('', (new bookingoptions_wbtable('ticketcolumntest2'))->col_ticket($row));
+
+        set_config('bookingticketon', 0, 'booking');
+        $this->setUser($this->student);
+        $this->assertSame('', (new bookingoptions_wbtable('ticketcolumntest3'))->col_ticket($row));
     }
 }

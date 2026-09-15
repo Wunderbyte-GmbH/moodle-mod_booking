@@ -1694,6 +1694,13 @@ class view implements renderable, templatable {
 
         $bowbtable->add_subcolumns('cardlist', $cardlist);
         $bowbtable->add_classes_to_subcolumns('cardlist', ['columnkeyclass' => 'd-none']);
+        if (in_array('ticket', $optionsfields)) {
+            $bowbtable->add_classes_to_subcolumns(
+                'cardlist',
+                ['columnclass' => 'text-start pe-2 mt-1 mod-booking-ticket-column'],
+                ['ticket']
+            );
+        }
 
         if (in_array('dayofweektime', $optionsfields)) {
             $bowbtable->add_classes_to_subcolumns(
@@ -2014,6 +2021,13 @@ class view implements renderable, templatable {
             $bowbtable->add_classes_to_subcolumns('leftside', ['columnclass' => 'text-start font-size-sm'], ['teacher']);
         }
         $bowbtable->add_classes_to_subcolumns('footer', ['columnkeyclass' => 'd-none']);
+        if (in_array('ticket', $optionsfields)) {
+            $bowbtable->add_classes_to_subcolumns(
+                'footer',
+                ['columnclass' => 'text-start pe-2 mt-1 mod-booking-ticket-column'],
+                ['ticket']
+            );
+        }
         if (in_array('dayofweektime', $optionsfields)) {
             $bowbtable->add_classes_to_subcolumns(
                 'footer',
