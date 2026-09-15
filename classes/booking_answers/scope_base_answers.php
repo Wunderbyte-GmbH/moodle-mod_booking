@@ -92,10 +92,10 @@ class scope_base_answers extends scope_base {
                 $extraselect
             FROM {booking_answers} ba
             JOIN {booking_options} bo ON ba.optionid = bo.id
-            JOIN {course_modules} cm ON bo.bookingid = cm.instance
             JOIN {booking} b ON b.id = bo.bookingid
             JOIN {course} c ON c.id = b.course
-            JOIN {modules} m ON m.id = cm.module
+            JOIN {modules} m ON m.name = 'booking'
+            JOIN {course_modules} cm ON cm.instance = bo.bookingid AND cm.module = m.id
             JOIN {user} u ON ba.userid = u.id
             $presencecountsqlpart";
     }

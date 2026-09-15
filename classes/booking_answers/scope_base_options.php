@@ -60,10 +60,10 @@ class scope_base_options extends scope_base {
             FROM {booking_options} bo
             LEFT JOIN {booking_answers} ba ON bo.id = ba.optionid
             LEFT JOIN {user} u ON ba.userid = u.id
-            JOIN {course_modules} cm ON bo.bookingid = cm.instance
             JOIN {booking} b ON b.id = bo.bookingid
             JOIN {course} c ON c.id = b.course
-            JOIN {modules} m ON m.id = cm.module
+            JOIN {modules} m ON m.name = 'booking'
+            JOIN {course_modules} cm ON cm.instance = bo.bookingid AND cm.module = m.id
             LEFT JOIN (
                 SELECT boda.optionid, boda.userid, COUNT(*) AS presencecount
                 FROM {booking_optiondates_answers} boda
