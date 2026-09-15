@@ -576,6 +576,10 @@ class mod_booking_mod_form extends moodleform_mod {
         if (get_config('booking', 'usecompetencies')) {
             $optionsfields['competencies'] = get_string('competencies', 'mod_booking');
         }
+        if (\mod_booking\local\ticket\ticket_manager::is_enabled()) {
+            // Download button for the entry ticket of the current user (SofaTicket).
+            $optionsfields['ticket'] = get_string('ticketbuttoncolumn', 'mod_booking');
+        }
         $optionsdownloadfields = [
             'identifier' => get_string('optionidentifier', 'mod_booking'),
             'titleprefix' => get_string('titleprefix', 'mod_booking'),
