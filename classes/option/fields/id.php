@@ -102,14 +102,15 @@ class id extends field_base {
         } else {
             $newoption->id = 0;
         }
-        if (empty($formdata->bookingid) && !empty($formdata->cmid)) {
+        // When copying to template, bookingid is explicitly set to 0 and must not be overridden.
+        if (empty($formdata->bookingid) && !empty($formdata->cmid) && empty($formdata->copytotemplate)) {
             $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($formdata->cmid);
             $formdata->bookingid = $bookingsettings->id;
         }
 
         $newoption->bookingid = $formdata->bookingid;
 
-        // We can return an warning message here.
+        // We can return a warning message here.
         return [];
     }
 

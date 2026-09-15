@@ -39,7 +39,6 @@ Feature: As a teacher - configure and use booking's semesters feature.
     And I follow "Dates"
     And I should see "NextSummer (nextsummer)" in the "//div[contains(@id, 'id_datesheader_') and contains(@class, 'fcontainer')]" "xpath_element"
     And I open the autocomplete suggestions list in the "//div[contains(@id, 'id_datesheader_')]//div[contains(@id, 'fitem_id_semesterid_')]" "xpath_element"
-    And I wait "1" seconds
     And I should see "NextMay (nextmay)" in the "//div[contains(@id, 'id_datesheader_')]//ul[contains(@class, 'form-autocomplete-suggestions')]" "xpath_element"
     And I click on "NextMay (nextmay)" "text" in the "//div[contains(@id, 'id_datesheader_')]//ul[contains(@class, 'form-autocomplete-suggestions')]" "xpath_element"
     And I should see "NextMay (nextmay)" in the "//div[contains(@id, 'id_datesheader_')]//div[contains(@id, 'form_autocomplete_selection')]" "xpath_element"
@@ -56,7 +55,7 @@ Feature: As a teacher - configure and use booking's semesters feature.
       | Select time period                               | NextSummer (nextsummer) |
       | Weekday, start and end time (Day, HH:MM - HH:MM) | Friday, 13:00-14:00     |
     And I press "Create date series"
-    And I wait "1" seconds
+    And I wait until the page is ready
     And I should see "## + 1 year ##%Y##" in the "#booking_optiondate_1" "css_element"
     And I should see "1:00 PM - 2:00 PM" in the "#booking_optiondate_1" "css_element"
     And I should see "Friday" in the "#booking_optiondate_1" "css_element"
@@ -66,7 +65,7 @@ Feature: As a teacher - configure and use booking's semesters feature.
     Then I should see "Option - Test Semester" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Friday, 13:00 - 14:00" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Show dates" "link" in the ".allbookingoptionstable_r1" "css_element"
-    And I wait "1" seconds
+    And I wait until the page is ready
     And I should see "## + 1 year ##%Y##" in the ".allbookingoptionstable_r1 .showdates" "css_element"
     And I should see "1:00 PM - 2:00 PM" in the ".allbookingoptionstable_r1 .showdates" "css_element"
     And I should see "June" in the ".allbookingoptionstable_r1 .showdates" "css_element"

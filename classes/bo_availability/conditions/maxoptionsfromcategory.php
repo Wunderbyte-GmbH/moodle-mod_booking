@@ -24,6 +24,7 @@
 
 namespace mod_booking\bo_availability\conditions;
 
+use context_module;
 use mod_booking\bo_availability\bo_condition;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking;
@@ -147,6 +148,25 @@ class maxoptionsfromcategory implements bo_condition {
     }
 
     /**
+     * Returns the name of the condition.
+     *
+     * @return string
+     *
+     */
+    public function get_name(): string {
+        return get_string('bocondmaxoptionsfromcategory', 'mod_booking');
+    }
+
+    /**
+     * Returns whether the condition is skippable or not.
+     *
+     * @return bool
+     */
+    public function is_skippable(): bool {
+        return false;
+    }
+
+    /**
      * Determines whether a particular item is currently available
      * according to this availability condition.
      * @param booking_option_settings $settings Item we're checking
@@ -194,10 +214,11 @@ class maxoptionsfromcategory implements bo_condition {
      * Each function can return additional sql.
      * This will be used if the conditions should not only block booking...
      * ... but actually hide the conditons alltogether.
-     *
+     * @param int $userid
+     * @param array $params This is the array with parameters for the sql query.
      * @return array
      */
-    public function return_sql(): array {
+    public function return_sql(int $userid = 0, &$params = []): array {
 
         return ['', '', '', [], ''];
     }
@@ -317,7 +338,7 @@ class maxoptionsfromcategory implements bo_condition {
      * @param int $userid
      * @return string
      */
-    private function get_description_string(
+    public function get_description_string(
         bool $isavailable,
         bool $full,
         booking_option_settings $settings,
@@ -359,7 +380,14 @@ class maxoptionsfromcategory implements bo_condition {
             $booking = singleton_service::get_instance_of_booking_by_optionid($optionid);
             $bookingoption = singleton_service::get_instance_of_booking_option_settings($optionid);
 
-            $title = $bookingoption->get_title_with_prefix();
+            /* Nothing formats the button label downstream, so without format_string() a title with
+            multilang tags like {mlang de}...{mlang} reaches the user as literal tags. The context is
+            passed explicitly for callers without a $PAGE->context (cron, tasks, web services). */
+            $title = format_string(
+                $bookingoption->get_title_with_prefix(),
+                true,
+                ['context' => context_module::instance($booking->cmid)]
+            );
             $url = new moodle_url($CFG->wwwroot . '/mod/booking/optionview.php', [
                 'cmid' => $booking->cmid,
                 'optionid' => $optionid,

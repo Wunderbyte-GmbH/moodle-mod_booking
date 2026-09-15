@@ -15,15 +15,20 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This file contains the version information for the bookingextension_confirmation_trainer plugin
+ * This file contains the version information for the
+ * bookingextension_confirmation_trainer plugin.
  *
  * @package     bookingextension_confirmation_trainer
- * @copyright   2025 Wunderbyte GmbH <info@wunderbyte.at>
- * @author      Georg Maißer
+ * @copyright   2026 Wunderbyte GmbH <info@wunderbyte.at>
+ * @author      Georg Maißer, Mahdi Poustini
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2025061700;
-$plugin->requires  = 2022112800; // Requires this Moodle version. Current: Moodle 4.1.
+$plugin->version   = 2026020300;
+$plugin->requires = 2024100700; // Requires this Moodle version. Current: Moodle 4.5.
 $plugin->component = 'bookingextension_confirmation_trainer';
+$plugin->supported = [405, 501];
+$plugin->dependencies = [
+    'mod_booking' => 2026020300,
+];

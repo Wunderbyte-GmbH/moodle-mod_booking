@@ -129,14 +129,6 @@ export const datelistinit = () => {
             e.target.closest('li').remove();
             document.getElementById(targetid).remove();
         }
-
-        if (action === 'add') {
-            let targetElement = e.target.closest('li');
-            let date = document.querySelector("#meeting-time");
-            let element = '<li><span class="badge bg-primary">' + date.value +
-                '</span> <i class="fa fa-trash ml-2 icon-red" data-action="delete"></i></li>';
-            targetElement.insertAdjacentHTML('afterend', element);
-        }
     });
 
     // Add an event listener to the chooseperiod autocomplete to store semesterid in a hidden input field.

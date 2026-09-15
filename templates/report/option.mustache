@@ -26,6 +26,7 @@
     Example context (json):
     {
 		"text" : "Scuba Diving",
+		"detailstitle": "Show report details for Scuba Diving",
 		"id": "191",
 		"optionlink" : "http://127.0.0.1/mod/booking/view.php?id=12&id=187&whichview=showonlyone",
 		"instancename" : "Winter semester 2024",
@@ -33,7 +34,7 @@
     }
 }}
 <!-- TODO: New "mini navigation" in collapsible for all report2 links! -->
-<div class="mod-booking-report-option ml-3">
+<div class="mod-booking-report-option ms-3">
 	<div>
 		<div class="h6 mb-1">
 			<a href="{{report2option}}" title="Report for {{text}}" target="_blank">
@@ -43,9 +44,10 @@
 			<a href="{{optionlink}}" title="{{text}}" target="_blank">
 				<i class="fa fa-external-link" aria-hidden="true"></i>
 			</a>
-			<span class="ml-1">
+			<span class="ms-1">
 				<a class="btn btn-link btn-sm" data-toggle="collapse" data-bs-toggle="collapse" href="#collapseoptionshortinfo-{{id}}"
-				role="button" aria-expanded="false" aria-controls="collapseoptionshortinfo-{{id}}">
+				role="button" aria-expanded="false" aria-controls="collapseoptionshortinfo-{{id}}"
+				aria-label="{{detailstitle}}">
 				<i class="fa fa-chevron-down" aria-hidden="true"></i>
 				</a>
 			</span>

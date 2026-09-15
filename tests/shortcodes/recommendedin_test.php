@@ -26,7 +26,7 @@
 
 namespace mod_booking;
 
-use advanced_testcase;
+use mod_booking\tests\booking_advanced_testcase;
 use coding_exception;
 use context_course;
 use context_system;
@@ -49,26 +49,15 @@ require_once($CFG->dirroot . '/mod/booking/classes/price.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  *
  */
-final class recommendedin_test extends advanced_testcase {
+final class recommendedin_test extends booking_advanced_testcase {
     /**
      * Tests set up.
      */
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest(true);
-        time_mock::init();
         time_mock::set_mock_time(strtotime('now'));
         singleton_service::destroy_instance();
-    }
-
-    /**
-     * Mandatory clean-up after each test.
-     */
-    public function tearDown(): void {
-        parent::tearDown();
-        /** @var mod_booking_generator $plugingenerator */
-        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
-        $plugingenerator->teardown();
     }
 
     /**
@@ -177,6 +166,9 @@ final class recommendedin_test extends advanced_testcase {
         $shortcode = shortcodes::recommendedin('recommendedin', $args, null, $env, $next);
         $this->assertNotEmpty($shortcode);
         $this->assertStringContainsString($expected['tablestringcontains'], $shortcode);
+        if (!empty($expected['tablestringnotcontains'])) {
+            $this->assertStringNotContainsString($expected['tablestringnotcontains'], $shortcode);
+        }
         $pregmatch = preg_match('/<div[^>]*\sdata-encodedtable=["\']?([^"\'>\s]+)["\']?/i', $shortcode, $matches);
         $this->assertEquals($expected['displaytable'], $pregmatch);
         if (!$expected['displaytable']) {
@@ -218,6 +210,22 @@ final class recommendedin_test extends advanced_testcase {
                 ],
                 [
                     'tablestringcontains' => "wunderbyte_table_container",
+                    // Without the favorites arg, no favorites star toggle is rendered.
+                    'tablestringnotcontains' => 'data-methodname="toggle_favorite"',
+                    'numberofrecords' => 8,
+                    'displaytable' => true,
+                ],
+            ],
+            'favoritesarg' => [
+                [
+                    'args' => [
+                        'all' => 1, // Set this to avoid filtering on coursestarttime.
+                        'favorites' => '1',
+                    ],
+                ],
+                [
+                    // With favorites=1, every option row renders the favorites star toggle.
+                    'tablestringcontains' => 'data-methodname="toggle_favorite"',
                     'numberofrecords' => 8,
                     'displaytable' => true,
                 ],

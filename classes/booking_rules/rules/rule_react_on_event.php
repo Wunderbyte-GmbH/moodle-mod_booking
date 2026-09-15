@@ -22,6 +22,7 @@ use mod_booking\booking_rules\actions_info;
 use mod_booking\booking_rules\booking_rule;
 use mod_booking\booking_rules\booking_rules;
 use mod_booking\booking_rules\conditions_info;
+use mod_booking\booking_rules\optionfield_filter;
 use mod_booking\booking_rules\rules_info;
 use mod_booking\option\fields\applybookingrules;
 use mod_booking\singleton_service;
@@ -117,8 +118,13 @@ class rule_react_on_event implements booking_rule {
         $allowedeventkeys = [
             'bookingoption_freetobookagain',
             'bookinganswer_cancelled',
+            'bookinganswer_slotbooked',
+            'bookinganswer_slotmoved',
+            'bookinganswer_slotcancelled',
             'bookingoption_booked',
             'bookingoptionwaitinglist_booked',
+            'bookinganswer_movedupfromwaitinglist',
+            'bookinganswer_removedfromwaitinglist',
             'bookingoption_completed',
             'bookingoption_uncompleted',
             'bookinganswer_confirmed',
@@ -130,13 +136,16 @@ class rule_react_on_event implements booking_rule {
             'custom_bulk_message_sent',
             'optiondates_teacher_added',
             'optiondates_teacher_deleted',
+            'teacher_added',
+            'teacher_removed',
             'rest_script_success',
             'enrollink_triggered',
             'bookingoption_bookedviaautoenrol',
+            'certificate_issued',
         ];
 
         // Get a list of all booking events.
-        $allevents = get_list_of_booking_events();
+        $allevents = booking_get_list_of_booking_events();
         foreach (core_plugin_manager::instance()->get_plugins_of_type('bookingextension') as $plugin) {
             $class = "\\bookingextension_{$plugin->name}\\{$plugin->name}";
             if (!class_exists($class)) {
@@ -271,6 +280,9 @@ class rule_react_on_event implements booking_rule {
             $rulesselect,
             $options
         );
+
+        // Optional filter on a (custom) field of the booking option.
+        optionfield_filter::add_filter_to_mform($mform, $repeateloptions);
     }
 
     /**
@@ -305,6 +317,7 @@ class rule_react_on_event implements booking_rule {
         $jsonobject->ruledata->condition = $data->rule_react_on_event_condition ?? '';
         $jsonobject->ruledata->aftercompletion = $data->rule_react_on_event_after_completion ?? '';
         $jsonobject->ruledata->cancelrules = $data->rule_react_on_event_cancelrules ?? [];
+        optionfield_filter::save_filter($data, $jsonobject);
 
         $record->rulejson = json_encode($jsonobject);
         $record->rulename = $this->rulename;
@@ -341,11 +354,12 @@ class rule_react_on_event implements booking_rule {
         $ruledata = $jsonobject->ruledata;
 
         $data->rule_name = $jsonobject->name;
-        $data->ruleisactive = $record->isactive;
+        $data->ruleisactive = (int)($record->isactive ?? 0);
         $data->rule_react_on_event_event = $ruledata->boevent;
         $data->rule_react_on_event_condition = $ruledata->condition;
         $data->rule_react_on_event_after_completion = $ruledata->aftercompletion;
         $data->rule_react_on_event_cancelrules = $ruledata->cancelrules;
+        optionfield_filter::set_defaults($data, $ruledata);
     }
 
     /**
@@ -438,9 +452,10 @@ class rule_react_on_event implements booking_rule {
      * @param int $optionid
      * @param int $userid
      * @param int $nextruntime
+     * @param int $optiondateid
      * @return bool true if the rule still applies, false if not
      */
-    public function check_if_rule_still_applies(int $optionid, int $userid, int $nextruntime): bool {
+    public function check_if_rule_still_applies(int $optionid, int $userid, int $nextruntime, int $optiondateid = 0): bool {
 
         if (empty($this->ruleisactive)) {
             return false;
@@ -451,7 +466,17 @@ class rule_react_on_event implements booking_rule {
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
         $ba = singleton_service::get_instance_of_booking_answers($settings);
 
-        if (!$this->rule_still_in_time($jsonobject, $settings)) {
+        // The rule might be restricted to booking options with a certain field value.
+        // In contrast to the other rules, we do not rebuild the sql here, so we have to check it explicitly.
+        if (!optionfield_filter::option_matches($optionid, $ruledata)) {
+            return false;
+        }
+
+        if (
+            // Self-learning courses only use sorting date, so we cannot do this check.
+            empty($settings->selflearningcourse)
+            && !$this->rule_still_in_time($jsonobject, $settings)
+        ) {
             return false;
         }
 
@@ -548,11 +573,17 @@ class rule_react_on_event implements booking_rule {
                     ON m.name = 'booking' AND m.id = cm.module";
         $sql->where = " bo.id = :optionid";
 
+        // If the rule is restricted to booking options with a certain field value, we add it here.
+        optionfield_filter::apply_to_sql($sql, $params, $jsonobject->ruledata ?? null);
+
         // Now that we know the ids of the booking options concerend, we will determine the users concerned.
         // The condition execution will add their own code to the sql.
 
         $condition = conditions_info::get_condition($jsonobject->conditionname);
 
+        if (empty($condition)) {
+            return [];
+        }
         $condition->set_conditiondata_from_json($this->rulejson);
 
         $condition->execute($sql, $params);

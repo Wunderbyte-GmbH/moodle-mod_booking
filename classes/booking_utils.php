@@ -27,7 +27,6 @@ namespace mod_booking;
 
 defined('MOODLE_INTERNAL') || die();
 
-use cache_helper;
 use html_writer;
 use mod_booking\event\bookingoption_updated;
 use moodle_url;
@@ -134,7 +133,7 @@ class booking_utils {
                     )
                 ) {
                          // The user might not actually exist.
-                        // This can be the case when das was backup restored or the user was deleted.
+                        // This can be the case when this was backup restored or the user was deleted.
                         $params->{"teacher" . $i} = $user->firstname . ' ' . $user->lastname;
                         $i++;
                 }
@@ -302,7 +301,7 @@ class booking_utils {
             );
             $event->trigger();
 
-            cache_helper::purge_by_event('setbackeventlogtable');
+            booking::purge_eventlog_cache();
         }
     }
 
@@ -501,8 +500,12 @@ class booking_utils {
                 (booking_check_if_teacher($bookingoption->option))
             ) {
                 foreach ($cohortmembers as $user) {
-                    // First, we only book users which are already subscribed to this course.
-                    if (!is_enrolled($context, $user, null, true)) {
+                    // If we have the bookanyone capability, we book all users, even if they are not enrolled in the course.
+                    // Otherwise, we only book users which are already subscribed to this course.
+                    if (
+                        !is_enrolled($context, $user, null, true)
+                        && !has_capability('mod/booking:bookanyone', $context)
+                    ) {
                         // Track users who were not subscribed because they were not enrolled in the course.
                         $notenrolledusersarray[] = $user;
                         continue;

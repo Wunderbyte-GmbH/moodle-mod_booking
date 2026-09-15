@@ -26,7 +26,7 @@
 
 namespace mod_booking;
 
-use advanced_testcase;
+use mod_booking\tests\booking_advanced_testcase;
 use coding_exception;
 use mod_booking_generator;
 use mod_booking\bo_availability\bo_info;
@@ -45,7 +45,7 @@ require_once($CFG->dirroot . '/mod/booking/classes/price.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  *
  */
-final class certificate_presence_test extends advanced_testcase {
+final class certificate_presence_test extends booking_advanced_testcase {
     /**
      * Tests set up.
      */
@@ -55,20 +55,10 @@ final class certificate_presence_test extends advanced_testcase {
     }
 
     /**
-     * Mandatory clean-up after each test.
-     */
-    public function tearDown(): void {
-        parent::tearDown();
-        /** @var mod_booking_generator $plugingenerator */
-        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
-        $plugingenerator->teardown();
-    }
-
-    /**
      * Test issue of certificates when presence changed.
      *
      * @covers \mod_booking\booking_bookit::bookit
-     * @covers \mod_booking\option\fields\certificate::issue_certificate
+     * @covers \mod_booking\local\certificateclass::issue_certificate
      *
      * @param array $data
      * @param array $expected

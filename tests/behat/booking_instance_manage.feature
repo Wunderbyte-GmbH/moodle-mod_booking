@@ -40,6 +40,7 @@ Feature: In a course add a booking instance and manage it
     ##  | cancancelbook                    | 1                     |
     ##  | switchtemplates                  | 1                     |
     And I expand all fieldsets
+    And I wait until ".collapsing" "css_element" does not exist
     And I set the field "Booking instance name" to "Test booking"
     And I set the field "Event type" to "Webinar"
     And I set the field "Booking text" to "Booking description"
@@ -58,6 +59,7 @@ Feature: In a course add a booking instance and manage it
     Then I should see "Test booking"
     And I follow "Settings"
     And I expand all fieldsets
+    And I wait until ".collapsing" "css_element" does not exist
     And the field "Booking instance name" matches value "Test booking"
     And I should see "Webinar" in the "#fitem_id_eventtype" "css_element"
     And the field "Booking text" matches value "Booking description"
@@ -107,9 +109,7 @@ Feature: In a course add a booking instance and manage it
     And I am on "Course 1" course homepage with editing mode on
     ##And I add a "Booking" to section "0"
     And I add a "Booking" to section 0 using the activity chooser
-    And I wait "1" seconds
     And I set the field "Populate from template" to "InstanceTemplate"
-    And I wait "1" seconds
     ## Verify fields populated from template
     And the following fields match these values:
       | Booking instance name                       | My booking              |

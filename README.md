@@ -98,6 +98,27 @@ session)
 [Visit Moodle docs wiki](https://docs.moodle.org/311/en/Booking_module) for documentation.
 For installation documentation see [installation](https://docs.moodle.org/35/en/Installing_plugins)
 
+## Optional language variant: "Deutsch mit Genderslash" (de_gs)
+
+`de_gs` is a child language of `de` that overrides only the gender-fair strings with slash
+spelling (e.g. `Nutzer:innen` → `Nutzer/innen`). The overrides ship in `lang/de_gs/booking.php`;
+everything else is inherited from `de`. Activation is **manual / opt-in** — nothing changes unless
+an admin enables it. Works on Moodle 4.5 and 5.x.
+
+To enable it on a site:
+
+1. Copy the language registration into moodledata (Moodle only lists languages found under
+   `<dataroot>/lang`, not plugin folders):
+   ```bash
+   mkdir -p "$CFG_dataroot/lang/de_gs"
+   cp mod/booking/lang/de_gs/langconfig.php "$CFG_dataroot/lang/de_gs/langconfig.php"
+   ```
+2. Purge caches: `php admin/cli/purge_caches.php`.
+3. Add it under *Site administration → Language → Language settings*, then select it per user,
+   per course, or site-wide.
+
+To remove it again, delete `<dataroot>/lang/de_gs/` and purge caches.
+
 ## Communication
 + [Twitter: @wunderbyte8](https://twitter.com/wunderbyte8)
 + [Github: @dasistwas](https://github.com/dasistwas)
@@ -111,7 +132,7 @@ Contact me on Github (see above)
 + To provide feedback, please use the [GitHub Issues](https://github.com/Wunderbyte-GmbH/moodle-mod_booking/issues).
 
 ## License
-<a href="https://docs.moodle.org/dev/License" target="_blank"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/GPLv3_Logo.svg/220px-GPLv3_Logo.svg.png" alt="GPL Logo" align="right"></a>  The Moodle booking module is licensed under the [GNU General Public License, Version 3](http://www.gnu.org/licenses/gpl-3.0.html).
+<a href="https://docs.moodle.org/dev/License" target="_blank"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/GPLv3_Logo.svg/220px-GPLv3_Logo.svg.png" alt="GPL Logo" align="right"></a>  The Moodle booking module is licensed under the [GNU General Public License, Version 3](http://www.gnu.org/licenses/gpl-3.0.html). The full license text is included in the [LICENSE](LICENSE) file in the plugin root.
 
 ## Contributors
 Main contributers are David Bogner, Georg Maißer, Bernhard Fischer, Andraž Prinčič and many others.

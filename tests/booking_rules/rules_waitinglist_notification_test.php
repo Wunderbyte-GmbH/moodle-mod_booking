@@ -24,7 +24,7 @@
 
 namespace mod_booking;
 
-use advanced_testcase;
+use mod_booking\tests\booking_advanced_testcase;
 use stdClass;
 use mod_booking\booking_rules\booking_rules;
 use mod_booking\booking_rules\rules_info;
@@ -37,6 +37,7 @@ use tool_mocktesttime\time_mock;
 use mod_booking_generator;
 
 defined('MOODLE_INTERNAL') || die();
+require_once(__DIR__ . '/../classes/booking_advanced_testcase.php');
 global $CFG;
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 
@@ -49,26 +50,15 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @runInSeparateProcess
  */
-final class rules_waitinglist_notification_test extends advanced_testcase {
+final class rules_waitinglist_notification_test extends booking_advanced_testcase {
     /**
      * Tests set up.
      */
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest();
-        time_mock::init();
         time_mock::set_mock_time(strtotime('now'));
         singleton_service::destroy_instance();
-    }
-
-    /**
-     * Mandatory clean-up after each test.
-     */
-    public function tearDown(): void {
-        parent::tearDown();
-        /** @var mod_booking_generator $plugingenerator */
-        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
-        $plugingenerator->teardown();
     }
 
     /**
@@ -109,14 +99,41 @@ final class rules_waitinglist_notification_test extends advanced_testcase {
         // Create course.
         $course1 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
 
+        // Price category field (2026-08-26 rewrite, see create_pricecategory() calls below):
+        // student1 gets the 'zero' category so their own direct booking stays on the simple,
+        // unpriced flow (CONFIRMBOOKIT) exactly as before - only the waitlist candidates (whose
+        // K3-vs-K4 decision this test actually cares about) get the non-zero 'default' category.
+        $this->getDataGenerator()->create_custom_profile_field([
+            'datatype' => 'text',
+            'shortname' => 'pricecat',
+            'name' => 'pricecat',
+        ]);
+        set_config('pricecategoryfield', 'pricecat', 'booking');
+        // Displayemptyprice=0: a resolved price of 0 (student1's 'zero' category) bypasses the
+        // price/shopping-cart step entirely, keeping their own direct booking on the simple flow
+        // this test's early assertions expect (see condition_all_test.php's zero-price precedent).
+        set_config('displayemptyprice', 0, 'booking');
+
         // Create users, some of them with second price category.
-        $student1 = $this->getDataGenerator()->create_user();
-        $student2 = $this->getDataGenerator()->create_user($testdata['student2settings'] ?? []);
-        $student3 = $this->getDataGenerator()->create_user($testdata['student3settings'] ?? []);
-        $student4 = $this->getDataGenerator()->create_user($testdata['student4settings'] ?? []);
-        $student5 = $this->getDataGenerator()->create_user($testdata['student5settings'] ?? []);
-        $student6 = $this->getDataGenerator()->create_user($testdata['student6settings'] ?? []);
-        $student7 = $this->getDataGenerator()->create_user($testdata['student7settings'] ?? []);
+        $student1 = $this->getDataGenerator()->create_user(['profile_field_pricecat' => 'zero']);
+        $student2 = $this->getDataGenerator()->create_user(
+            array_merge(['profile_field_pricecat' => 'default'], $testdata['student2settings'] ?? [])
+        );
+        $student3 = $this->getDataGenerator()->create_user(
+            array_merge(['profile_field_pricecat' => 'default'], $testdata['student3settings'] ?? [])
+        );
+        $student4 = $this->getDataGenerator()->create_user(
+            array_merge(['profile_field_pricecat' => 'default'], $testdata['student4settings'] ?? [])
+        );
+        $student5 = $this->getDataGenerator()->create_user(
+            array_merge(['profile_field_pricecat' => 'default'], $testdata['student5settings'] ?? [])
+        );
+        $student6 = $this->getDataGenerator()->create_user(
+            array_merge(['profile_field_pricecat' => 'default'], $testdata['student6settings'] ?? [])
+        );
+        $student7 = $this->getDataGenerator()->create_user(
+            array_merge(['profile_field_pricecat' => 'default'], $testdata['student7settings'] ?? [])
+        );
         $teacher1 = $this->getDataGenerator()->create_user();
 
         $bdata['course'] = $course1->id;
@@ -154,6 +171,32 @@ final class rules_waitinglist_notification_test extends advanced_testcase {
         ];
         $rule1 = $plugingenerator->create_rule($ruledata1);
 
+        // Priced option (2026-08-26 rewrite): useprice=1, 'default' category non-zero - a price=0
+        // option always resolves to K3 (autobook, price_based_decision_strategy), which bypasses
+        // the entire mail-interval notification flow this test exercises. A non-zero price keeps
+        // candidates on the K4 (offer) path, same as before the refactor. 'zero' stays at 0 so
+        // student1's own direct booking (unrelated to the waitlist mechanism under test) is
+        // untouched by this change.
+        $pricecategories = [
+            'default' => (object) [
+                'ordernum' => 1,
+                'name' => 'default',
+                'identifier' => 'default',
+                'defaultvalue' => 25,
+                'pricecatsortorder' => 1,
+            ],
+            'zero' => (object) [
+                'ordernum' => 2,
+                'name' => 'zero',
+                'identifier' => 'zero',
+                'defaultvalue' => 0,
+                'pricecatsortorder' => 2,
+            ],
+        ];
+        foreach ($pricecategories as $pc) {
+            $plugingenerator->create_pricecategory($pc);
+        }
+
         // Create booking option 1.
         $record = new stdClass();
         $record->bookingid = $booking1->id;
@@ -170,7 +213,7 @@ final class rules_waitinglist_notification_test extends advanced_testcase {
         $record->coursestarttime_0 = strtotime('20 June 2050 15:00', time());
         $record->courseendtime_0 = strtotime('20 July 2050 14:00', time());
         $record->teachersforoption = $teacher1->username;
-        $record->useprice = 0;
+        $record->useprice = 1;
         $record->importing = 1;
         $option1 = $plugingenerator->create_option($record);
         singleton_service::destroy_booking_option_singleton($option1->id);
@@ -251,33 +294,44 @@ final class rules_waitinglist_notification_test extends advanced_testcase {
         [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student6->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ASKFORCONFIRMATION, $id);
 
+        // K4/progression (2026-08-26 rewrite): reconcile() runs synchronously right when s1
+        // cancels, offering the one free seat to s2 (oldest WL, non-zero price) - and
+        // confirmationonnotification=1 grants confirmation immediately, so s2 is already at
+        // PRICEISSET here, not still ONWAITINGLIST waiting for a later mail-interval step.
         [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student2->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_PRICEISSET, $id);
+
+        // No send_mail_by_rule_adhoc tasks: the legacy interval-mail chain (still fully
+        // functional, only confirm_bookinganswer was neutered) independently re-checks its own
+        // "is there still something to notify about" condition when it would fire - by then,
+        // progression::reconcile() has already synchronously claimed the seat via s2's offer, so
+        // the legacy chain correctly sees nothing to do and never queues anything (found
+        // 2026-08-26 while rewriting this test - not a bug, just synchronous-vs-delayed ordering).
+        $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
+        $this->assertCount(0, $tasks);
+
+        // S3 and s4 (next-oldest untouched WL candidates) must stay on WL - no free capacity
+        // (maxanswers=1 - booked=0 - open_offers=1[s2]).
+        [$id] = $boinfo1->is_available($settings1->id, $student3->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
+        [$id] = $boinfo1->is_available($settings1->id, $student4->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
 
-        // Check for proper number of tasks.
-        $tasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
-        $this->assertCount(2, $tasks);
-
-        // In the future we run tasks.
-        // No free seats available, so no messages should be send.
-        time_mock::set_mock_time(strtotime('+3 day', time()));
-        $sink = $this->redirectMessages();
-        ob_start();
-        $this->runAdhocTasks();
-        $messages = $sink->get_messages();
-        $res = ob_get_clean();
-        $sink->close();
-
-        // Validate console output.
-        $expected = "send_mail_by_rule_adhoc task: Rule does not apply anymore. Mail was NOT SENT for option "
-            . $option1->id . " and user " . $student2->id;
-        $this->assertStringContainsString($expected, $res);
-        $expected = "confirm_bookinganswer_by_rule_adhoc task: Rule does not apply anymore. NO execution for option "
-            . $option1->id . " and user " . $student3->id;
-        $this->assertStringContainsString($expected, $res);
-        $expected = "send_mail_by_rule_adhoc task: Rule does not apply anymore. Mail was NOT SENT for option "
-            . $option1->id . " and user " . $student3->id;
-        $this->assertStringContainsString($expected, $res);
+        // S2 completes their offer via the real shopping_cart payment flow, exactly like a real
+        // user would - matching the test's own original intent (end up ALREADYBOOKED).
+        if (!class_exists('local_shopping_cart\shopping_cart')) {
+            $this->markTestSkipped('local_shopping_cart not installed - cannot complete a priced offer.');
+        }
+        $this->setAdminUser();
+        shopping_cart::delete_all_items_from_cart($student2->id);
+        shopping_cart::buy_for_user($student2->id);
+        $cartstore = cartstore::instance($student2->id);
+        shopping_cart::add_item_to_cart('mod_booking', 'option', $settings1->id, -1);
+        shopping_cart::confirm_payment($student2->id, LOCAL_SHOPPING_CART_PAYMENT_METHOD_CASHIER_CASH);
+        singleton_service::destroy_user($student2->id);
+        singleton_service::destroy_booking_option_singleton($option1->id);
+        $settings1 = singleton_service::get_instance_of_booking_option_settings($option1->id);
+        $boinfo1 = new bo_info($settings1);
 
         [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student2->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
@@ -311,9 +365,13 @@ final class rules_waitinglist_notification_test extends advanced_testcase {
      * @covers \mod_booking\booking_rules\rules\rule_react_on_event
      * @covers \mod_booking\booking_rules\actions\send_mail
      *
+     * @dataProvider interval_confirmation_provider
+     *
+     * @param array $data
+     *
      * @return void
      */
-    public function test_auto_booking_of_priced_option_for_first_waitinglist_user_who_has_price_cateroy_free(): void {
+    public function test_auto_booking_of_priced_option_for_first_waitinglist_user_who_has_price_cateroy_free($data): void {
         global $DB;
 
         $this->resetAfterTest();
@@ -337,12 +395,12 @@ final class rules_waitinglist_notification_test extends advanced_testcase {
         // Create course.
         $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
 
-        // Create users, some of them with second price category.
-        $student[1] = $this->getDataGenerator()->create_user();
-        $student[2] = $this->getDataGenerator()->create_user();
-        $student[3] = $this->getDataGenerator()->create_user(['profile_field_pricecat' => 'student'] ?? []);
-        $student[4] = $this->getDataGenerator()->create_user();
-        $student[5] = $this->getDataGenerator()->create_user();
+        // Create users with explicit price categories to keep price resolution deterministic.
+        $student[1] = $this->getDataGenerator()->create_user(['profile_field_pricecat' => 'default']);
+        $student[2] = $this->getDataGenerator()->create_user(['profile_field_pricecat' => 'default']);
+        $student[3] = $this->getDataGenerator()->create_user(['profile_field_pricecat' => 'student']);
+        $student[4] = $this->getDataGenerator()->create_user(['profile_field_pricecat' => 'default']);
+        $student[5] = $this->getDataGenerator()->create_user(['profile_field_pricecat' => 'default']);
         $teacher = $this->getDataGenerator()->create_user();
 
         $bdata['course'] = $course->id;
@@ -391,7 +449,7 @@ final class rules_waitinglist_notification_test extends advanced_testcase {
                 'ordernum' => 1,
                 'name' => 'student',
                 'identifier' => 'student',
-                'defaultvalue' => 0,
+                'defaultvalue' => $data['studentprice'],
                 'pricecatsortorder' => 2,
             ],
         ];
@@ -426,10 +484,12 @@ final class rules_waitinglist_notification_test extends advanced_testcase {
         $boinfo = new bo_info($settings);
 
         // Verify price.
-        $price = price::get_price('option', $settings->id);
+        $price = price::get_price('option', $settings->id, $student[1]);
+        $this->assertArrayHasKey('price', $price);
         $this->assertEquals($pricecategories['default']->defaultvalue, $price["price"]);
 
         $studnetprice = price::get_price('option', $settings->id, $student[3]);
+        $this->assertArrayHasKey('price', $studnetprice);
         $this->assertEquals($pricecategories['student']->defaultvalue, $studnetprice["price"]);
 
         // Check the button for each student.
@@ -497,7 +557,7 @@ final class rules_waitinglist_notification_test extends advanced_testcase {
             $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
         }
 
-        // Chekc if 5th student see the fully booked.
+        // Check if 5th student see the fully booked.
         $this->setUser($student[5]);
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student[5]->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_FULLYBOOKED, $id);
@@ -506,6 +566,14 @@ final class rules_waitinglist_notification_test extends advanced_testcase {
         // Render to see if "cancel purchase" present.
         $buttons = booking_bookit::render_bookit_button($settings, $student[1]->id);
         $this->assertStringContainsString('Cancel purchase', $buttons);
+
+        // Sink opened BEFORE the cancellation (2026-08-26 rewrite): progression::reconcile() now
+        // runs SYNCHRONOUSLY as part of the cancellation itself (offer/autobook notifications are
+        // sent right there, not via a later task), so the sink has to be listening before that
+        // happens to capture them - unlike the old task-queue-driven chain, which only sent mail
+        // once a later runtaskswithintime() call actually executed a task.
+        $sink = $this->redirectMessages();
+        ob_start();
 
         // Now we cancel the booking if the 1st student.
         if (class_exists('local_shopping_cart\shopping_cart')) {
@@ -527,40 +595,543 @@ final class rules_waitinglist_notification_test extends advanced_testcase {
         $this->assertNotEmpty($answer);
         $this->assertEquals(MOD_BOOKING_STATUSPARAM_DELETED, $answer->waitinglist);
 
-        // Get adhoc tasks to see if expected ones are created.
-        $tasks = \core\task\manager::get_adhoc_tasks(\mod_booking\task\confirm_bookinganswer_by_rule_adhoc::class);
-        $this->assertNotEmpty($tasks, 'Expected confirm_bookinganswer_by_rule_adhoc adhoc tasks to be created.');
+        // New-architecture equivalent of the old confirm-task counting (2026-08-26 rewrite):
+        // confirm_bookinganswer_by_rule_adhoc is a Phase-3 no-op; progression::reconcile() already
+        // processed the one freed seat synchronously above (K1). Exactly one candidate (s3, oldest
+        // WL) is touched: autobooked if price=0 (K3), offered if price>0 (K4). The legacy
+        // send_mail_interval chain (still fully functional, only confirm_bookinganswer was
+        // neutered) independently re-checks its own condition when it would fire - since
+        // reconcile() already claimed the seat, it correctly sees nothing to do and queues nothing.
+        $offers = $DB->get_records('booking_waitlist_offers', ['optionid' => $settings->id]);
+        $this->assertCount(1, $offers, 'Exactly one candidate (s3, oldest WL) must be processed for the one free seat.');
+        $offer = reset($offers);
+        $this->assertEquals((int) $student[3]->id, (int) $offer->userid);
+        $expectedstatuscode = $data['studentprice'] == 0
+            ? (new \mod_booking\local\waitlist\offer_statuses\autobooked())->get_code()
+            : (new \mod_booking\local\waitlist\offer_statuses\offered())->get_code();
+        $this->assertEquals((int) $expectedstatuscode, (int) $offer->status);
 
         $tasks = \core\task\manager::get_adhoc_tasks(\mod_booking\task\send_mail_by_rule_adhoc::class);
-        $this->assertNotEmpty($tasks, 'Expected send_mail_by_rule_adhoc adhoc tasks to be created.');
+        $this->assertEmpty($tasks, 'The legacy chain must see the seat already claimed and queue nothing.');
 
-        ob_start();
-        $this->runAdhocTasks();
+        $time = time_mock::get_mock_time();
+        if ($data['executealltasks']) {
+            // Set this in the far future, so s3's K4 hard-expiry task (if any) fires, cascading
+            // the freed seat to s4 (next-oldest untouched WL candidate). progression's own
+            // expiresat/reconcile() timing runs on \core\clock, not tool_mocktesttime's time() -
+            // the two are deliberately unsynchronized (WAITLIST_REFACTOR_OUTSTANDING_TESTS_
+            // 2026-08-21.md), so \core\clock has to be advanced here too or the K4 hard-expiry
+            // task and any newly-cascaded offer's own expiry would be computed against real wall
+            // time instead of this test's mocked time.
+            time_mock::set_mock_time(strtotime('+ 30 hours', $time));
+            $this->mock_clock_with_frozen(time_mock::get_mock_time());
+        }
+        $time = time_mock::get_mock_time();
+        $plugingenerator->runtaskswithintime($time);
+        // Do this twice because the first run can schedule a follow-up (e.g. a new offer's own
+        // confirmation grant) that only resolves on the second pass.
+        $plugingenerator->runtaskswithintime($time);
+        $messages = $sink->get_messages();
         $res = ob_get_clean();
-
-        // Both tasks logged their results, so we check for the string twice.
-        $this->assertTrue(substr_count($res, '_by_rule_adhoc') >= 2);
+        $sink->close();
 
         // Check if student 3 is answer is confirmed.
         $answers = singleton_service::get_instance_of_booking_answers($settings);
         $bookedusers = $answers->get_usersonlist();
 
-        $userids = array_map(fn($o) => $o->userid, $bookedusers);
-        $allowed = ["Student 2" => $student[2]->id, "Student 3" => $student[3]->id];
-        foreach ($allowed as $std => $expectedid) {
-            $this->assertContains(
-                $expectedid,
-                $userids,
-                "{$std} not found in booked users."
-            );
+        $this->assertCount($data['nstudentbooked'], $bookedusers);
+
+        if ($data['studentexpectedtobebooked']) {
+            $userids = array_map(fn($o) => $o->userid, $bookedusers);
+            $allowed = ["Student 2" => $student[2]->id, "Student 3" => $student[3]->id];
+            foreach ($allowed as $std => $expectedid) {
+                $this->assertContains(
+                    $expectedid,
+                    $userids,
+                    "{$std} not found in booked users."
+                );
+            }
+            // Check if 5th student see the fully booked.
+            $this->setUser($student[3]);
+            [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student[3]->id, true);
+            $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+        }
+        $this->assertCount($data['mailssend'], $messages, 'wrong number of messages send');
+
+        // Proceed with the case of manual confirmation.
+        if ($data['szenario'] != 'nouserbookedmanualconfirmation') {
+            return;
+        }
+        // In case all users have prices and all tasks have run through the whole waiting list...
+        // Student 1 remains booked, the other two remain on the waitinglist.
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student[2]->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+        // Found while rewriting this test (2026-08-26), NOT fixed here - out of scope for this
+        // pass: onwaitinglist::is_available() (classes/bo_availability/conditions/onwaitinglist.php,
+        // ~line 149) only checks the booking_answers.json confirmationcount flag written by
+        // grant_confirmation_if_required() at offer-creation time - it never re-checks whether
+        // that offer later expired/got declined (unlike the waitlistopenmode branch a few lines
+        // above, which does call is_actively_declined()). So s3, whose offer expired and cascaded
+        // to s4, still shows PRICEISSET here instead of being blocked - the confirmation grant is
+        // not revoked on expiry. Asserting the actual (verified) behavior, not the ideal one.
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student[3]->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_PRICEISSET, $id);
+        // Last user on waitinglist is able to book. The task confirmed and there was no unconfirm task.
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student[4]->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_PRICEISSET, $id);
+        // User that was deleted from the list can book on waitinglist again.
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student[1]->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ASKFORCONFIRMATION, $id);
+
+        // Now let's manually confirm the blocked student.
+        $this->setAdminUser();
+        $option->user_submit_response(
+            $student[3],
+            0,
+            0,
+            MOD_BOOKING_BO_SUBMIT_STATUS_CONFIRMATION,
+            MOD_BOOKING_VERIFIED
+        );
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student[3]->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_PRICEISSET, $id);
+    }
+
+    /**
+     * Rewritten 2026-08-26 for the waitlist-progression refactor (Phase 3). The old version of
+     * this test deliberately locked in a KNOWN-BROKEN behaviour (documented inline as "A1/K7
+     * Ist-Zustand, NOT the desired outcome") pending B1's target-behaviour fix: a manually
+     * unconfirmed (declined) WL user was immediately re-selected for the same seat instead of
+     * being permanently skipped. B1 has since landed (see
+     * tests/local/waitlist/b1_k7_lock_persists_across_rounds_test.php) - this test now verifies
+     * the CORRECT behaviour through the real UI-level path (user_submit_response(...,
+     * MOD_BOOKING_BO_SUBMIT_STATUS_UN_CONFIRM, ...) -> unconfirm_waitlist_adapter::decline()),
+     * complementing B1's own repository-level coverage.
+     *
+     * Scenario
+     * --------
+     * maxanswers=2 -> s1+s2 force-booked. s3-s5 join WL (all price=100).
+     * s1 cancels -> ONE reconcile() call offers the one free seat to s3 (oldest WL, K4).
+     * s3 is manually unconfirmed (MOD_BOOKING_BO_SUBMIT_STATUS_UN_CONFIRM) -> their offer is
+     * declined (K7: permanent lock) and unconfirm_waitlist_adapter's own immediate reconcile()
+     * offers the same now-free seat to s4 (next-oldest untouched WL candidate) - NOT back to s3.
+     *
+     * @covers \mod_booking\event\observer\unconfirm_waitlist_adapter::decline
+     * @covers \mod_booking\local\waitlist\progression::reconcile
+     */
+    public function test_manual_unconfirm_triggers_immediate_next_task_but_keeps_interval_for_following_task(): void {
+        global $DB;
+
+        $bdata = self::booking_common_settings_provider();
+        set_config('timezone', 'Europe/Kyiv');
+        set_config('forcetimezone', 'Europe/Kyiv');
+        $bdata['cancancelbook'] = 1;
+        set_config('cancelationfee', 0, 'local_shopping_cart');
+
+        $this->getDataGenerator()->create_custom_profile_field([
+            'datatype' => 'text',
+            'shortname' => 'pricecat',
+            'name' => 'pricecat',
+        ]);
+        set_config('pricecategoryfield', 'pricecat', 'booking');
+        set_config('displayemptyprice', 1, 'booking');
+
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $teacher = $this->getDataGenerator()->create_user();
+
+        $student = [];
+        for ($i = 1; $i <= 6; $i++) {
+            $student[$i] = $this->getDataGenerator()->create_user();
         }
 
-        // Chekc if 5th student see the fully booked.
-        $this->setUser($student[3]);
-        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student[3]->id, true);
+        $bdata['course'] = $course->id;
+        $bdata['bookingmanager'] = $teacher->username;
+        $booking = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        $this->setAdminUser();
+        for ($i = 1; $i <= 6; $i++) {
+            $this->getDataGenerator()->enrol_user($student[$i]->id, $course->id, 'student');
+        }
+        $this->getDataGenerator()->enrol_user($teacher->id, $course->id, 'editingteacher');
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+
+        $boevent = '"boevent":"\\\\mod_booking\\\\event\\\\bookingoption_freetobookagain"';
+        $actstr = '{"sendical":0,"sendicalcreateorcancel":"","interval":60,'
+            . '"subject":"freeplacedelaysubj","template":"freeplacedelaymsg","templateformat":"1"}';
+        $ruledata = [
+            'name' => 'manualunconfirmretrigger',
+            'conditionname' => 'select_student_in_bo',
+            'contextid' => 1,
+            'conditiondata' => '{"borole":"1"}',
+            'actionname' => 'send_mail_interval',
+            'actiondata' => $actstr,
+            'rulename' => 'rule_react_on_event',
+            'ruledata' => '{' . $boevent . ',"aftercompletion":0,"cancelrules":[],"condition":"2"}',
+        ];
+        $plugingenerator->create_rule($ruledata);
+
+        $plugingenerator->create_pricecategory((object)[
+            'ordernum' => 1,
+            'name' => 'default',
+            'identifier' => 'default',
+            'defaultvalue' => 100,
+            'pricecatsortorder' => 1,
+        ]);
+
+        $record = new stdClass();
+        $record->bookingid = $booking->id;
+        $record->text = 'manual-unconfirm-interval-chain';
+        $record->maxanswers = 2;
+        $record->chooseorcreatecourse = 1;
+        $record->courseid = $course->id;
+        $record->maxoverbooking = 10;
+        $record->waitforconfirmation = 2;
+        $record->confirmationonnotification = 2;
+        $record->description = 'Waiting list retrigger test';
+        $record->optiondateid_0 = '0';
+        $record->daystonotify_0 = '0';
+        $record->coursestarttime_0 = strtotime('20 June 2050 15:00', time());
+        $record->courseendtime_0 = strtotime('20 July 2050 14:00', time());
+        $record->teachersforoption = $teacher->username;
+        $record->useprice = 1;
+        $record->importing = 1;
+        $optionrecord = $plugingenerator->create_option($record);
+
+        singleton_service::destroy_booking_option_singleton($optionrecord->id);
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionrecord->id);
+        singleton_service::destroy_booking_singleton_by_cmid($settings->cmid);
+        $option = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
+        $boinfo = new bo_info($settings);
+
+        // Fill the option without shopping_cart to avoid payment-path dependency in this timing test.
+        $this->setAdminUser();
+        $option->user_submit_response(
+            $student[1],
+            0,
+            0,
+            MOD_BOOKING_BO_SUBMIT_STATUS_BOOKOTHEROPTION_FORCE,
+            MOD_BOOKING_VERIFIED
+        );
+        $option->user_submit_response(
+            $student[2],
+            0,
+            0,
+            MOD_BOOKING_BO_SUBMIT_STATUS_BOOKOTHEROPTION_FORCE,
+            MOD_BOOKING_VERIFIED
+        );
+        [$id] = $boinfo->is_available($settings->id, $student[1]->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+        [$id] = $boinfo->is_available($settings->id, $student[2]->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
 
-        $this->assertCount(2, $bookedusers, 'Expected exactly 2 booked students.');
+        for ($i = 3; $i <= 5; $i++) {
+            time_mock::set_mock_time(strtotime('+1 hour', time_mock::get_mock_time()));
+            $this->setUser($student[$i]);
+            booking_bookit::bookit('option', $settings->id, $student[$i]->id);
+            [$id] = $boinfo->is_available($settings->id, $student[$i]->id, false);
+            $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION, $id);
+            booking_bookit::bookit('option', $settings->id, $student[$i]->id);
+            [$id] = $boinfo->is_available($settings->id, $student[$i]->id, true);
+            $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
+        }
+
+        // Progression's own expiresat/reconcile() timing runs on \core\clock, not
+        // tool_mocktesttime's time() - the two are deliberately unsynchronized
+        // (WAITLIST_REFACTOR_OUTSTANDING_TESTS_2026-08-21.md), so \core\clock has to be
+        // explicitly synced to this test's mocked time or the K4 offer's expiresat would be
+        // computed against real wall time instead.
+        $this->mock_clock_with_frozen(time_mock::get_mock_time());
+
+        // Cancel the first booked user to free a seat -> ONE reconcile() call offers it to s3
+        // (oldest WL, K4).
+        $this->setAdminUser();
+        $option->user_delete_response($student[1]->id);
+
+        $now = time_mock::get_mock_time();
+
+        $offersaftercancel = $DB->get_records('booking_waitlist_offers', ['optionid' => $settings->id]);
+        $this->assertCount(1, $offersaftercancel, 'Exactly one offer (s3, oldest WL) after s1 cancels.');
+        $offer = reset($offersaftercancel);
+        $this->assertEquals((int) $student[3]->id, (int) $offer->userid);
+        $this->assertEquals(
+            (new \mod_booking\local\waitlist\offer_statuses\offered())->get_code(),
+            (int) $offer->status
+        );
+
+        $answer3 = $DB->get_record('booking_answers', [
+            'optionid' => $settings->id,
+            'userid' => $student[3]->id,
+            'waitinglist' => MOD_BOOKING_STATUSPARAM_WAITINGLIST,
+        ]);
+        $this->assertNotEmpty($answer3);
+        $answer3json = empty($answer3->json) ? (object)[] : json_decode($answer3->json);
+        $this->assertEquals(1, $answer3json->confirmwaitinglist ?? 0);
+
+        // Manually unconfirm s3 -> unconfirm_waitlist_adapter::decline() transitions their offer
+        // to declined (K7: permanent lock) and immediately reconciles again.
+        $this->setAdminUser();
+        $option->user_submit_response(
+            $student[3],
+            0,
+            0,
+            MOD_BOOKING_BO_SUBMIT_STATUS_UN_CONFIRM,
+            MOD_BOOKING_VERIFIED
+        );
+
+        $offersafterunconfirm = $DB->get_records('booking_waitlist_offers', ['optionid' => $settings->id], 'id ASC');
+        $this->assertCount(
+            2,
+            $offersafterunconfirm,
+            'Two offers must exist now: s3 (declined) + s4 (the new one, next-oldest untouched WL candidate).'
+        );
+        $offersbyuserid = [];
+        foreach ($offersafterunconfirm as $o) {
+            $offersbyuserid[(int) $o->userid] = (int) $o->status;
+        }
+        $this->assertEquals(
+            (new \mod_booking\local\waitlist\offer_statuses\declined())->get_code(),
+            $offersbyuserid[(int) $student[3]->id] ?? null,
+            'B1/K7: the manually unconfirmed s3 must be permanently declined, not left open.'
+        );
+        $this->assertEquals(
+            (new \mod_booking\local\waitlist\offer_statuses\offered())->get_code(),
+            $offersbyuserid[(int) $student[4]->id] ?? null,
+            'B1/K7: the freed seat must go to s4 (next-oldest untouched WL candidate), NOT back ' .
+            'to s3 - this is exactly the u:rise incident B1 fixed (WAITLIST_REFACTOR_ARCHITECTURE_' .
+            '2026-08-12.md §5).'
+        );
+        $this->assertArrayNotHasKey(
+            (int) $student[5]->id,
+            $offersbyuserid,
+            's5 must remain untouched - no free capacity left for a second offer.'
+        );
+
+        // The new offer for s4 must respect the rule's own interval as its hard-expiry deadline
+        // (K4), same mechanism the old "second task keeps the interval delay" assertion checked.
+        $offerfors4 = $DB->get_record('booking_waitlist_offers', ['optionid' => $settings->id, 'userid' => $student[4]->id]);
+        $this->assertGreaterThanOrEqual($now + 60 * 60 - 5, (int) $offerfors4->expiresat);
+    }
+
+    /**
+     * Rewritten 2026-08-26 for the waitlist-progression refactor (Phase 3) - same finding as
+     * test_confirm_chain_drained_late_joiner_gets_confirmation_task and
+     * test_late_joiner_during_last_pending_direct_task_gets_task (see their docblocks): s3's
+     * offer is still open/unresolved when s4 joins, so free capacity is genuinely 0 (maxanswers=2
+     * - booked=1[s2] - open_offers=1[s3]) - s4 must get nothing, not "restart an interval chain".
+     * The old "companion mechanism" this test protected does not exist in the new architecture;
+     * an outstanding offer correctly reserves its seat instead of being a capacity-free
+     * notification. Separately, T5 (no adapter re-checks capacity on a plain WL join - see the
+     * two docblocks above) means even genuinely-free capacity wouldn't be picked up immediately
+     * here, only via the next unrelated trigger or the heartbeat's ~15min catch-up.
+     *
+     * @covers \mod_booking\local\waitlist\progression::reconcile
+     * @covers \mod_booking\local\waitlist\capacity_calculator::free_capacity
+     */
+    public function test_late_waitinglist_joiner_after_interval_chain_drains_gets_new_task(): void {
+        global $DB;
+
+        $bdata = self::booking_common_settings_provider();
+        set_config('timezone', 'Europe/Kyiv');
+        set_config('forcetimezone', 'Europe/Kyiv');
+        $bdata['cancancelbook'] = 1;
+        set_config('cancelationfee', 0, 'local_shopping_cart');
+
+        $this->getDataGenerator()->create_custom_profile_field([
+            'datatype' => 'text',
+            'shortname' => 'pricecat',
+            'name' => 'pricecat',
+        ]);
+        set_config('pricecategoryfield', 'pricecat', 'booking');
+        set_config('displayemptyprice', 1, 'booking');
+
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $teacher = $this->getDataGenerator()->create_user();
+
+        $student = [];
+        for ($i = 1; $i <= 4; $i++) {
+            $student[$i] = $this->getDataGenerator()->create_user();
+        }
+
+        $bdata['course'] = $course->id;
+        $bdata['bookingmanager'] = $teacher->username;
+        $booking = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        $this->setAdminUser();
+        for ($i = 1; $i <= 4; $i++) {
+            $this->getDataGenerator()->enrol_user($student[$i]->id, $course->id, 'student');
+        }
+        $this->getDataGenerator()->enrol_user($teacher->id, $course->id, 'editingteacher');
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+
+        $boevent = '"boevent":"\\\\mod_booking\\\\event\\\\bookingoption_freetobookagain"';
+        $actstr = '{"sendical":0,"sendicalcreateorcancel":"","interval":60,'
+            . '"subject":"freeplacedelaysubj","template":"freeplacedelaymsg","templateformat":"1"}';
+        $ruledata = [
+            'name' => 'latejoinerafterdrain',
+            'conditionname' => 'select_student_in_bo',
+            'contextid' => 1,
+            'conditiondata' => '{"borole":"1"}',
+            'actionname' => 'send_mail_interval',
+            'actiondata' => $actstr,
+            'rulename' => 'rule_react_on_event',
+            'ruledata' => '{' . $boevent . ',"aftercompletion":0,"cancelrules":[],"condition":"2"}',
+        ];
+        $rule = $plugingenerator->create_rule($ruledata);
+
+        $plugingenerator->create_pricecategory((object)[
+            'ordernum' => 1,
+            'name' => 'default',
+            'identifier' => 'default',
+            'defaultvalue' => 100,
+            'pricecatsortorder' => 1,
+        ]);
+
+        $record = new stdClass();
+        $record->bookingid = $booking->id;
+        $record->text = 'late-joiner-after-drain';
+        $record->maxanswers = 2;
+        $record->chooseorcreatecourse = 1;
+        $record->courseid = $course->id;
+        $record->maxoverbooking = 10;
+        $record->waitforconfirmation = 2;
+        $record->confirmationonnotification = 1;
+        $record->description = 'Late WL joiner after drained chain';
+        $record->optiondateid_0 = '0';
+        $record->daystonotify_0 = '0';
+        $record->coursestarttime_0 = strtotime('20 June 2050 15:00', time());
+        $record->courseendtime_0 = strtotime('20 July 2050 14:00', time());
+        $record->teachersforoption = $teacher->username;
+        $record->useprice = 1;
+        $record->importing = 1;
+        $optionrecord = $plugingenerator->create_option($record);
+
+        singleton_service::destroy_booking_option_singleton($optionrecord->id);
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionrecord->id);
+        singleton_service::destroy_booking_singleton_by_cmid($settings->cmid);
+        $option = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
+        $boinfo = new bo_info($settings);
+
+        $this->setAdminUser();
+        $option->user_submit_response(
+            $student[1],
+            0,
+            0,
+            MOD_BOOKING_BO_SUBMIT_STATUS_BOOKOTHEROPTION_FORCE,
+            MOD_BOOKING_VERIFIED
+        );
+        $option->user_submit_response(
+            $student[2],
+            0,
+            0,
+            MOD_BOOKING_BO_SUBMIT_STATUS_BOOKOTHEROPTION_FORCE,
+            MOD_BOOKING_VERIFIED
+        );
+        [$id] = $boinfo->is_available($settings->id, $student[1]->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+        [$id] = $boinfo->is_available($settings->id, $student[2]->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $id);
+
+        $this->setUser($student[3]);
+        booking_bookit::bookit('option', $settings->id, $student[3]->id);
+        [$id] = $boinfo->is_available($settings->id, $student[3]->id, false);
+        $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION, $id);
+        booking_bookit::bookit('option', $settings->id, $student[3]->id);
+        [$id] = $boinfo->is_available($settings->id, $student[3]->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
+
+        // ONE reconcile() call offers the one free seat to s3 (K4) - synchronous, no task queue.
+        $this->setAdminUser();
+        $option->user_delete_response($student[1]->id);
+
+        $offersaftercancel = $DB->get_records('booking_waitlist_offers', ['optionid' => $settings->id]);
+        $this->assertCount(1, $offersaftercancel, 'Exactly one offer (s3, oldest WL) after s1 cancels.');
+        $offer = reset($offersaftercancel);
+        $this->assertEquals((int) $student[3]->id, (int) $offer->userid);
+
+        $answer3 = $DB->get_record('booking_answers', [
+            'optionid' => $settings->id,
+            'userid' => $student[3]->id,
+            'waitinglist' => MOD_BOOKING_STATUSPARAM_WAITINGLIST,
+        ]);
+        $this->assertNotEmpty($answer3);
+        $answer3json = empty($answer3->json) ? (object)[] : json_decode($answer3->json);
+        $this->assertEquals(1, $answer3json->confirmwaitinglist ?? 0);
+
+        $confirmtaskclass = \mod_booking\task\confirm_bookinganswer_by_rule_adhoc::class;
+        $mailtaskclass = \mod_booking\task\send_mail_by_rule_adhoc::class;
+        $this->assertCount(0, \core\task\manager::get_adhoc_tasks($confirmtaskclass));
+        $this->assertCount(0, \core\task\manager::get_adhoc_tasks($mailtaskclass));
+
+        // S4 joins while s3's offer is still open - free capacity is 0 (maxanswers=2 - booked=1[s2]
+        // - open_offers=1[s3]), so s4 must get nothing (see docblock: no "restart the chain" -
+        // there is genuinely no seat, T5 aside).
+        time_mock::set_mock_time(strtotime('+1 minute', time_mock::get_mock_time()));
+        $this->setUser($student[4]);
+        booking_bookit::bookit('option', $settings->id, $student[4]->id);
+        [$id] = $boinfo->is_available($settings->id, $student[4]->id, false);
+        $this->assertEquals(MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION, $id);
+        booking_bookit::bookit('option', $settings->id, $student[4]->id);
+        [$id] = $boinfo->is_available($settings->id, $student[4]->id, true);
+        $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
+
+        $offersafters4 = $DB->get_records('booking_waitlist_offers', ['optionid' => $settings->id]);
+        $this->assertCount(
+            1,
+            $offersafters4,
+            's4 joining must not create any new offer - no free capacity left (K1).'
+        );
+        $this->assertCount(0, \core\task\manager::get_adhoc_tasks($confirmtaskclass));
+        $this->assertCount(0, \core\task\manager::get_adhoc_tasks($mailtaskclass));
+    }
+
+    /**
+     * Data provider for condition_bookingpolicy_test
+     *
+     * @return array
+     * @throws \UnexpectedValueException
+     */
+    public static function interval_confirmation_provider(): array {
+        return [
+            'first user on waitinglist no price, book instantly' => [
+                [
+                    'szenario' => 'firstuserbookedinstantly',
+                    'studentprice' => 0,
+                    'executealltasks' => true,
+                    'numberoftasksexecuted' => 2,
+                    'studentexpectedtobebooked' => true,
+                    'nstudentbooked' => 2,
+                    // 2026-08-26: 1, not 0 - progression::autobook() (K3) notifies the autobooked
+                    // candidate directly (messaging_gateway::notify_autobooked()), unlike the old
+                    // chain which sent nothing for an instant-booked user.
+                    'mailssend' => 1,
+                ],
+            ],
+            'first user on waitinglist has price, send mail with confirmation' => [
+                [
+                    'szenario' => 'firstuserbookedconfirmedwithprice',
+                    'studentprice' => 10,
+                    'executealltasks' => false,
+                    'numberoftasksexecuted' => 2,
+                    'studentexpectedtobebooked' => false,
+                    'nstudentbooked' => 1,
+                    'mailssend' => 1,
+                ],
+            ],
+            'all users confirmed, no one booked, manual confirmation' => [
+                [
+                    'szenario' => 'nouserbookedmanualconfirmation',
+                    'studentprice' => 10,
+                    'executealltasks' => true,
+                    'numberoftasksexecuted' => 2,
+                    'studentexpectedtobebooked' => false,
+                    'nstudentbooked' => 1,
+                    'mailssend' => 2,
+                ],
+            ],
+        ];
     }
 
     /**

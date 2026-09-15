@@ -32,38 +32,57 @@ Feature: In a booking delete
     Given I am on the "My booking" Activity page logged in as teacher1
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Delete this booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
-    And I should see "Do you really want to delete this booking option New option?"
-    And I click on "Continue" "button"
-    And "//div[@id, 'allbookingoptionstable_r1']" "xpath_element" should not exist
+    And I should see "Do you really want to delete this booking option New option?" in the ".modal-dialog" "css_element"
+    And I click on "Delete" "button" in the ".modal-dialog" "css_element"
+    And I wait until the page is ready
+    And I should not see "New option"
+    And I run all booking adhoc tasks
+    Then the events log should contain "Booking option deleted"
     And I log out
-    When I log in as "admin"
-    And I trigger cron
-    And I run all adhoc tasks
-    And I visit "/report/loglive/index.php"
-    Then I should see "Booking option deleted"
+
+  @javascript
+  Scenario: Cancel the delete confirmation modal keeps the booking option
+    Given I am on the "My booking" Activity page logged in as teacher1
+    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Delete this booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
+    And I should see "Do you really want to delete this booking option New option?" in the ".modal-dialog" "css_element"
+    When I click on "Cancel" "button" in the ".modal-dialog" "css_element"
+    Then I should see "New option" in the ".allbookingoptionstable_r1" "css_element"
+    And I log out
+
+  @javascript
+  Scenario: Delete booking option with booked users shows a warning in the confirmation modal
+    Given the following "mod_booking > answers" exist:
+      | booking    | option     | user     |
+      | My booking | New option | student1 |
+      | My booking | New option | student2 |
+    And I am on the "My booking" Activity page logged in as teacher1
+    And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "Delete this booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
+    Then I should see "Do you really want to delete this booking option New option (2 users are booked)?" in the ".modal-dialog" "css_element"
+    And I click on "Delete" "button" in the ".modal-dialog" "css_element"
+    And I wait until the page is ready
+    And I should not see "New option"
     And I log out
 
   @javascript
   Scenario: Delete user from booking option as teacher
-    Given I am on the "My booking" Activity page logged in as teacher1
+    Given the following "mod_booking > answers" exist:
+      | booking    | option     | user     |
+      | My booking | New option | student1 |
+      | My booking | New option | student2 |
+    And I am on the "My booking" Activity page logged in as teacher1
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
-    And I click on "Book other users" "link" in the ".allbookingoptionstable_r1" "css_element"
-    And I click on "Student 1 (student1@example.com)" "text"
-    And I click on "Student 2 (student2@example.com)" "text"
-    And I click on "Add" "button"
-    And I follow "<< Back to responses"
+    And I click on "Manage bookings" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Student 1"
     And I should see "Student 2"
     And I click on "selectall" "checkbox"
     And I click on "Delete responses" "button"
     And I should not see "Student 1"
     And I should not see "Student 2"
-    When I log in as "admin"
-    And I trigger cron
-    And I run all adhoc tasks
-    And I visit "/report/loglive/index.php"
-    Then I should see "The user \"Teacher 1 (ID:"
-    And I should see "cancelled \"Student 1 (ID:"
-    And I should see "cancelled \"Student 2 (ID:"
-    And I should see "from \"New option (ID:"
+    And I run all booking adhoc tasks
+    Then the events log should contain "The user \"Teacher 1 (ID:"
+    And the events log should contain "cancelled \"Student 1 (ID:"
+    And the events log should contain "cancelled \"Student 2 (ID:"
+    And the events log should contain "from \"New option (ID:"
     And I log out

@@ -102,18 +102,25 @@ class sharedplaces extends field_base {
 
         // We store the information until when a booking option can be cancelled in the JSON.
         // So this has to happen BEFORE JSON is saved!
-        if (empty($formdata->sharedplaceswithoptions)) {
-            // This will store the correct JSON to $optionvalues->json.
-            booking_option::remove_key_from_json($newoption, "sharedplaceswithoptions");
-        } else {
-            booking_option::add_data_to_json($newoption, "sharedplaceswithoptions", $formdata->sharedplaceswithoptions);
+        // A missing key means the field was not part of the submitted form at all
+        // (e.g. no PRO license, import): keep the stored value then, only an empty
+        // submitted value counts as "cleared by the user".
+        if (isset($formdata->sharedplaceswithoptions)) {
+            if (empty($formdata->sharedplaceswithoptions)) {
+                // This will store the correct JSON to $optionvalues->json.
+                booking_option::remove_key_from_json($newoption, "sharedplaceswithoptions");
+            } else {
+                booking_option::add_data_to_json($newoption, "sharedplaceswithoptions", $formdata->sharedplaceswithoptions);
+            }
         }
 
-        if (empty($formdata->sharedplacespriority)) {
-            // This will store the correct JSON to $optionvalues->json.
-            booking_option::remove_key_from_json($newoption, "sharedplacespriority");
-        } else {
-            booking_option::add_data_to_json($newoption, "sharedplacespriority", $formdata->sharedplacespriority);
+        if (isset($formdata->sharedplacespriority)) {
+            if (empty($formdata->sharedplacespriority)) {
+                // This will store the correct JSON to $optionvalues->json.
+                booking_option::remove_key_from_json($newoption, "sharedplacespriority");
+            } else {
+                booking_option::add_data_to_json($newoption, "sharedplacespriority", $formdata->sharedplacespriority);
+            }
         }
 
         $instance = new sharedplaces();
@@ -262,7 +269,7 @@ class sharedplaces extends field_base {
      * @param stdClass $formdata
      * @param field_base $self
      * @param mixed $mockdata // Only needed if there the object needs params for the save_data function.
-     * @param string $key
+     * @param string|null $key
      * @param mixed $value
      *
      * @return array
@@ -272,7 +279,7 @@ class sharedplaces extends field_base {
         stdClass $formdata,
         field_base $self,
         $mockdata = '',
-        string $key = '',
+        string|null $key = null,
         $value = ''
     ): array {
 

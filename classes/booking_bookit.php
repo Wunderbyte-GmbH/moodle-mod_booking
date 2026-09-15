@@ -30,10 +30,12 @@ use context_module;
 use context_system;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\bo_availability\conditions\cancelmyself;
+use mod_booking\enrollink;
 use mod_booking\local\modechecker;
 use mod_booking\output\bookingoption_description;
 use mod_booking\output\bookit_button;
 use mod_booking\output\prepagemodal;
+use mod_booking\output\prepageinlinestart;
 use mod_booking\output\renderer;
 use mod_booking\subbookings\subbookings_info;
 use moodle_exception;
@@ -64,15 +66,34 @@ class booking_bookit {
      *
      * @param booking_option_settings $settings
      * @param int $userid
+     * @param string $inlinestartpage optional condition shortname to render inline (e.g. 'slotbooking')
+     * @param int|null $viewparam the view currently being rendered (MOD_BOOKING_VIEW_PARAM_*), null if unknown
+     * @param array $additionaloptionids additional option ids to be passed to the button (e.g. for elective booking)
+     * @param bool $hidesidebar if true, the sidebar is hidden
      * @return string
      */
-    public static function render_bookit_button(booking_option_settings $settings, int $userid = 0) {
+    public static function render_bookit_button(
+        booking_option_settings $settings,
+        int $userid = 0,
+        string $inlinestartpage = '',
+        ?int $viewparam = null,
+        array $additionaloptionids = [],
+        bool $hidesidebar = false
+    ) {
 
         global $PAGE;
 
         /** @var renderer $output */
         $output = $PAGE->get_renderer('mod_booking');
-        [$templates, $datas] = self::render_bookit_template_data($settings, $userid);
+        [$templates, $datas] = self::render_bookit_template_data(
+            $settings,
+            $userid,
+            true,
+            $inlinestartpage,
+            $viewparam,
+            $additionaloptionids,
+            $hidesidebar
+        );
 
         $html = '';
 
@@ -82,6 +103,8 @@ class booking_bookit {
                 $html .= $output->render_prepagemodal($data);
             } else if ($template == 'mod_booking/bookingpage/prepageinline') {
                 $html .= $output->render_prepageinline($data);
+            } else if ($template == 'mod_booking/bookingpage/prepageinlinestart') {
+                $html .= $output->render_prepageinlinestart($data);
             } else {
                 $html .= $output->render_bookit_button($data, $template);
             }
@@ -96,14 +119,22 @@ class booking_bookit {
      * @param booking_option_settings $settings
      * @param int $userid
      * @param bool $renderprepagemodal
+     * @param string $inlinestartpage optional condition shortname to render inline (e.g. 'slotbooking')
+     * @param int|null $viewparam the view currently being rendered (MOD_BOOKING_VIEW_PARAM_*), null if unknown
+     * @param array $additionaloptionids additional option ids to be passed to the button (e.g. for elective booking)
+     * @param bool $hidesidebar if true, the sidebar is hidden
      * @return array
      */
     public static function render_bookit_template_data(
         booking_option_settings $settings,
         int $userid = 0,
-        bool $renderprepagemodal = true
+        bool $renderprepagemodal = true,
+        string $inlinestartpage = '',
+        ?int $viewparam = null,
+        array $additionaloptionids = [],
+        bool $hidesidebar = false
     ) {
-        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($settings->cmid);
+        global $PAGE;
 
         // Get blocking conditions, including prepages$prepages etc.
         $results = bo_info::get_condition_results($settings->id, $userid);
@@ -139,14 +170,31 @@ class booking_bookit {
                     // The JUST MY ALERT prevents other buttons to be displayed.
                     if ($justmyalert === null) {
                         $justmyalert = true;
+                        $renderprepagemodal = false;
+                    } else if ($justmyalert === false) {
+                        // If we already have an other alert, we just override it with the new one.
+                        $renderprepagemodal = false;
                     }
                     $buttoncondition = $result['classname'];
                     break;
                 case MOD_BOOKING_BO_BUTTON_CANCEL:
-                    if (modechecker::use_special_details_page_treatment()) {
+                    // Slot-booking options suppress this generic cancel button only in the
+                    // persistent-calendar context (inlinestartpage='slotbooking') - there,
+                    // cancelling happens via the link inside the user's booked slot instead (per
+                    // Georg, 2026-08-25, see slot_persistent_calendar_test.php). Everywhere else
+                    // (e.g. the plain option list row, which never shows a calendar) a slot option
+                    // must surface "Undo my booking" exactly like any other option - the guard used
+                    // to suppress it unconditionally for every slot option in every context, which
+                    // meant it could never appear anywhere for a slot option, including the list
+                    // view (booking_slotbooking_fixed.feature scenario "cancelling a booked slot
+                    // frees it up for booking again").
+                    if (
+                        modechecker::use_special_details_page_treatment()
+                        && (empty($settings->slotconfig) || strcasecmp($inlinestartpage, 'slotbooking') !== 0)
+                    ) {
+                        // When we show the cancel button, we can't have "just my alert", it would suppress this.
                         $justmyalert = false;
                         $extrabuttoncondition = $result['classname'];
-                        $renderprepagemodal = false;
                     }
                     break;
             }
@@ -164,6 +212,131 @@ class booking_bookit {
         // Do we really want to render a modal?
         $showprepagemodal = (!$justmyalert && (count($prepages) > 0) && $renderprepagemodal);
 
+        // Inline-start rendering.
+        // When $inlinestartpage is set and there is a matching condition in the prepage list,
+        // render that condition server-side and display it inline.  Remaining pages open via
+        // the normal modal/inline collapse when the user clicks "Continue".
+        if ($showprepagemodal && !empty($inlinestartpage)) {
+            $skipconditionclass = null;
+            foreach ($prepages as $page) {
+                $classparts = explode('\\', $page['classname']);
+                $conditionshortname = array_pop($classparts);
+                if (strcasecmp($conditionshortname, $inlinestartpage) === 0) {
+                    $skipconditionclass = $page['classname'];
+                    break;
+                }
+            }
+
+            if ($skipconditionclass !== null && class_exists($skipconditionclass)) {
+                // Instantiate the condition and render its page data.
+                if (method_exists($skipconditionclass, 'instance')) {
+                    $skipcondition = $skipconditionclass::instance();
+                } else {
+                    $skipcondition = new $skipconditionclass();
+                }
+                // The slotbooking condition is usually still "blocking" (no selection made yet) on
+                // a user's first visit, so it gets picked up here rather than by the persistent-
+                // calendar branch further down - thread the multi-option sidebar params through
+                // here too, or a merged calendar would silently fall back to single-option
+                // rendering for every not-yet-booked user.
+                if (strcasecmp($inlinestartpage, 'slotbooking') === 0) {
+                    $conditionrenderdata = $skipcondition->render_page(
+                        $settings->id,
+                        $userid,
+                        $additionaloptionids,
+                        $hidesidebar
+                    );
+                } else {
+                    $conditionrenderdata = $skipcondition->render_page($settings->id, $userid);
+                }
+
+                // Render the condition HTML via the Moodle template engine (server-side).
+                /** @var renderer $output */
+                $output = $PAGE->get_renderer('mod_booking');
+                $conditiontmpldata = $conditionrenderdata['data'][0]['data'] ?? [];
+                $conditionhtml = $output->render_from_template($conditionrenderdata['template'], $conditiontmpldata);
+
+                // Remaining pages = all prepage pages minus the one shown inline.
+                $remainingpages = count($prepages) - 1;
+
+                // Determine inline vs modal for the remaining pages container.
+                $turnoffmodals = self::use_inline_prepages($settings, $viewparam);
+
+                $data = new prepageinlinestart(
+                    $settings->id,
+                    $userid,
+                    $conditionhtml,
+                    $inlinestartpage,
+                    $remainingpages,
+                    $turnoffmodals
+                );
+
+                $datas[] = $data;
+                $templates[] = 'mod_booking/bookingpage/prepageinlinestart';
+
+                // Surface the "Cancel purchase" button (if applicable) alongside the inline
+                // calendar. Without this, this early return skips it entirely: the standard
+                // prepagemodal cancel-button merge (see the $showprepagemodal branch below) is
+                // never reached from here, since this branch returns before it.
+                if (!$justmyalert && !empty($extrabuttoncondition)) {
+                    if (method_exists($extrabuttoncondition, 'instance')) {
+                        $cancelcondition = $extrabuttoncondition::instance();
+                    } else {
+                        $cancelcondition = new $extrabuttoncondition();
+                    }
+                    [$canceltemplate, $canceldata] = $cancelcondition->render_button(
+                        $settings,
+                        $userid,
+                        $full,
+                        false,
+                        true
+                    );
+                    $datas[] = new bookit_button($canceldata);
+                    $templates[] = $canceltemplate;
+                }
+
+                return [$templates, $datas];
+            }
+        }
+        // End inline-start rendering.
+
+        // Persistent slot calendar: slot booking is designed to stay visible/stable throughout
+        // the whole flow (see bo_availability\conditions\slotbooking::is_available()), including
+        // after the option is booked - unlike a normal prepage, which stops being offered once it
+        // is no longer blocking. The inline-start block above already covers the still-bookable
+        // case (and returns early); this covers everything after that, so users keep an overview
+        // of the calendar (with their own booked slots) instead of just a bare Book/Cancel button.
+        //
+        // Kept out of $templates/$datas until the very end (see the two `return` statements
+        // below): the else-branch below reads $datas to detect and merge an "extra button"
+        // condition, and seeding it here would make that logic pick up this calendar entry
+        // instead of the intended button entry.
+        $persistentcalendartemplate = null;
+        $persistentcalendardata = null;
+        if (
+            !empty($inlinestartpage)
+            && strcasecmp($inlinestartpage, 'slotbooking') === 0
+            && !empty($settings->slotconfig)
+        ) {
+            $slotbookingcondition = new \mod_booking\bo_availability\conditions\slotbooking();
+            $conditionrenderdata = $slotbookingcondition->render_page(
+                $settings->id,
+                $userid,
+                $additionaloptionids,
+                $hidesidebar
+            );
+
+            /** @var renderer $output */
+            $output = $PAGE->get_renderer('mod_booking');
+            $conditiontmpldata = $conditionrenderdata['data'][0]['data'] ?? [];
+            $conditionhtml = $output->render_from_template($conditionrenderdata['template'], $conditiontmpldata);
+
+            // No remaining pages to collapse into a "Continue" button - just the calendar.
+            $persistentcalendardata = new prepageinlinestart($settings->id, $userid, $conditionhtml, $inlinestartpage, 0);
+            $persistentcalendartemplate = 'mod_booking/bookingpage/prepageinlinestart';
+        }
+        // End persistent slot calendar.
+
         // Big decision: can we render the button right away, or do we need to introduce a modal.
         if ($showprepagemodal) {
             // We render the button only from the highest relevant blocking condition.
@@ -174,33 +347,20 @@ class booking_bookit {
                 $buttoncondition, // This is the button we need to render twice.
                 !$justmyalert ? $extrabuttoncondition : '', // There might be a second button to render.
                 $userid, // The userid for which all this will be rendered.
+                json_encode(array_keys($results)), // Keep button condition metadata parity with non-modal rendering.
             );
-
-            $data->results = json_encode(array_keys($results));
 
             $datas[] = $data;
 
-            $viewparam = booking::get_value_of_json_by_key($settings->bookingid, 'viewparam');
-            $turnoffmodals = 0; // By default, we use modals.
-            // NOTE: If either cards view is set as viewparam or we have a template switcher containing the cards view...
-            // ...we cannot use inline modals as they are only supported by the list views currently!
-            // Todo: Implement inline modals for cards view.
-            if (
-                ($viewparam != MOD_BOOKING_VIEW_PARAM_CARDS)
-                && !(
-                    $bookingsettings->switchtemplates
-                    && in_array(MOD_BOOKING_VIEW_PARAM_CARDS, $bookingsettings->switchtemplatesselection)
-                )
-            ) {
-                // Only if we use list view, we can use inline modals.
-                // So only in this case, we need to check the config setting.
-                $turnoffmodals = get_config('booking', 'turnoffmodals');
+            if (self::use_inline_prepages($settings, $viewparam)) {
+                $templates[] = 'mod_booking/bookingpage/prepageinline';
+            } else {
+                $templates[] = 'mod_booking/bookingpage/prepagemodal';
             }
 
-            if (empty($turnoffmodals)) {
-                $templates[] = 'mod_booking/bookingpage/prepagemodal';
-            } else {
-                $templates[] = 'mod_booking/bookingpage/prepageinline';
+            if ($persistentcalendartemplate !== null) {
+                array_unshift($templates, $persistentcalendartemplate);
+                array_unshift($datas, $persistentcalendardata);
             }
 
             return [$templates, $datas];
@@ -238,6 +398,8 @@ class booking_bookit {
                 $extrabutton->data['main'] = $data['main'];
                 // Make sure that JS is turned on.
                 $extrabutton->data['nojs'] = false;
+                $extrabutton->data['overrideids'] = $data['overrideids'] ?? '';
+                $extrabutton->data['results'] = $data['results'] ?? '';
                 $datas = [$extrabutton];
                 $templates = [$template];
             } else {
@@ -246,8 +408,75 @@ class booking_bookit {
                 $templates[] = $template;
             }
 
+            if ($persistentcalendartemplate !== null) {
+                array_unshift($templates, $persistentcalendartemplate);
+                array_unshift($datas, $persistentcalendardata);
+            }
+
             return [$templates, $datas];
         }
+    }
+
+    /**
+     * Decides if the pre booking pages are shown inline instead of in a modal.
+     *
+     * This is controlled by the site setting booking/turnoffmodals. Inline pre booking pages are
+     * currently only supported by the list views, so the cards view keeps using modals.
+     *
+     * IMPORTANT: The decision has to be made for the view which is ACTUALLY rendered right now.
+     * The same booking instance can be rendered as a list by a shortcode (e.g. [courselist] or
+     * shortcodes of external plugins) even if the instance itself is configured to use the cards
+     * view - and the other way round. Callers which know the rendered view therefore pass it in
+     * via $viewparam. Only when the rendered view is unknown (e.g. the bookit webservice which
+     * re-renders the button, or the booking option detail page) we fall back to the configuration
+     * of the booking instance.
+     *
+     * @param booking_option_settings $settings
+     * @param int|null $viewparam the view currently being rendered (MOD_BOOKING_VIEW_PARAM_*), null if unknown
+     * @return bool true if the pre booking pages have to be rendered inline
+     */
+    public static function use_inline_prepages(booking_option_settings $settings, ?int $viewparam = null): bool {
+
+        if (empty(get_config('booking', 'turnoffmodals'))) {
+            return false;
+        }
+
+        if ($viewparam === null) {
+            return self::instance_supports_inline_prepages($settings);
+        }
+
+        // Todo: Implement inline pre booking pages for the cards view.
+        return $viewparam !== MOD_BOOKING_VIEW_PARAM_CARDS;
+    }
+
+    /**
+     * Fallback for use_inline_prepages when the currently rendered view is not known.
+     *
+     * We look at the booking instance itself: if it is configured to show the cards view - or if
+     * the template switcher offers the cards view - we cannot be sure that we are not in a cards
+     * view right now, so we stay with modals.
+     *
+     * @param booking_option_settings $settings
+     * @return bool
+     */
+    private static function instance_supports_inline_prepages(booking_option_settings $settings): bool {
+
+        $viewparam = booking::get_value_of_json_by_key($settings->bookingid, 'viewparam');
+
+        if (is_numeric($viewparam) && (int)$viewparam === MOD_BOOKING_VIEW_PARAM_CARDS) {
+            return false;
+        }
+
+        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($settings->cmid);
+
+        if (
+            !empty($bookingsettings->switchtemplates)
+            && in_array(MOD_BOOKING_VIEW_PARAM_CARDS, (array)$bookingsettings->switchtemplatesselection)
+        ) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -263,6 +492,8 @@ class booking_bookit {
 
         global $USER, $CFG;
 
+        $requestoverrides = bookit_request_overrides::from_data($data);
+
         // Make sure the user has the right to book in principle.
         if ($area === 'option') {
             $settings = singleton_service::get_instance_of_booking_option_settings($itemid);
@@ -271,12 +502,20 @@ class booking_bookit {
             $context = context_system::instance();
         }
 
-        if (
-            !empty($userid)
-            && $userid != $USER->id
-            && !has_capability('mod/booking:bookforothers', $context)
-        ) {
-            throw new moodle_exception('norighttoaccess', 'mod_booking');
+        if (!empty($userid) && $userid != $USER->id) {
+            if ($area === 'option') {
+                [$allowedtobook, ] = \mod_booking\local\bookingworkflow\bookforothers::check_booking_capability(
+                    $itemid,
+                    $USER->id,
+                    $userid
+                );
+            } else {
+                $allowedtobook = has_capability('mod/booking:bookforothers', $context);
+            }
+
+            if (!$allowedtobook) {
+                throw new moodle_exception('norighttoaccess', 'mod_booking');
+            }
         } else if (empty($userid)) {
             $userid = $USER->id;
         }
@@ -284,11 +523,18 @@ class booking_bookit {
         if ($area === 'option') {
             $settings = singleton_service::get_instance_of_booking_option_settings($itemid);
             $boinfo = new bo_info($settings);
+            $ignoredconditionids = $requestoverrides->consume_option_ignored_condition_ids($settings);
 
             // There are two cases where we can actually book.
             // We call thefunction with hadblock set to true.
             // This means that we only get those blocks that actually should prevent booking.
-            [$id, $isavailable, $description] = $boinfo->is_available($itemid, $userid, true);
+            [$id, $isavailable, $description] = $boinfo->is_available(
+                $itemid,
+                $userid,
+                true,
+                false,
+                $ignoredconditionids
+            );
 
             // If isavailable is true, there is actually no blocking condition at all.
             // This might never be the case, as we use this to introduce prepages and buttons (add to cart or bookit).
@@ -298,6 +544,7 @@ class booking_bookit {
             /* TODO: Refactor this.
              First, we need a switch.
              Second the reaction code should be included in the condition classes themselves, to improve maintainability. */
+            $confirmationarmed = false;
             if ($id < MOD_BOOKING_BO_COND_BOOKITBUTTON) {
                 $isavailable = true;
             } else if ($id === MOD_BOOKING_BO_COND_BOOKITBUTTON) {
@@ -306,6 +553,9 @@ class booking_bookit {
                 $now = time();
                 $cache->set($userid, [$cachekey => $now]);
 
+                // The click DID change something - it armed the two-step confirmation, so the
+                // button has to be re-rendered (Wunderbyte-GmbH/Wunderbyte-GmbH#2306).
+                $confirmationarmed = true;
                 $isavailable = false;
             } else if ($id === MOD_BOOKING_BO_COND_BOOKWITHCREDITS) {
                 $cache = cache::make('mod_booking', 'confirmbooking');
@@ -313,6 +563,9 @@ class booking_bookit {
                 $now = time();
                 $cache->set($userid, [$cachekey => $now]);
 
+                // The click DID change something - it armed the two-step confirmation, so the
+                // button has to be re-rendered (Wunderbyte-GmbH/Wunderbyte-GmbH#2306).
+                $confirmationarmed = true;
                 $isavailable = false;
             } else if ($id === MOD_BOOKING_BO_COND_BOOKWITHSUBSCRIPTION) {
                 $cache = cache::make('mod_booking', 'confirmbooking');
@@ -320,6 +573,9 @@ class booking_bookit {
                 $now = time();
                 $cache->set($userid, [$cachekey => $now]);
 
+                // The click DID change something - it armed the two-step confirmation, so the
+                // button has to be re-rendered (Wunderbyte-GmbH/Wunderbyte-GmbH#2306).
+                $confirmationarmed = true;
                 $isavailable = false;
             } else if ($id === MOD_BOOKING_BO_COND_CONFIRMBOOKIT) {
                 // Make sure cache is not blocking anymore.
@@ -367,6 +623,9 @@ class booking_bookit {
                 $now = time();
                 $cache->set($userid, [$cachekey => $now]);
 
+                // The click DID change something - it armed the two-step confirmation, so the
+                // button has to be re-rendered (Wunderbyte-GmbH/Wunderbyte-GmbH#2306).
+                $confirmationarmed = true;
                 $isavailable = false;
             } else if ($id === MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION) {
                 // Make sure cache is not blocking anymore.
@@ -376,27 +635,51 @@ class booking_bookit {
 
                 // This means we can actuall book on waitinglist.
                 $isavailable = true;
-            } else if ($id === MOD_BOOKING_BO_COND_ALREADYBOOKED || $id === MOD_BOOKING_BO_COND_ONWAITINGLIST) {
+            } else if (
+                in_array($id, MOD_BOOKING_BO_COND_BOOKED_STATES, true)
+                || $id === MOD_BOOKING_BO_COND_ONWAITINGLIST
+                || $id === MOD_BOOKING_BO_COND_CANCELMYSELF
+            ) {
+                // BOOKED_STATES includes SLOTMOVE: when a booked, self-rebookable user is the top
+                // hard-blocker it must still be able to cancel (otherwise the cancel button is dead).
                 $cancelmyself = new cancelmyself();
                 // Add a layer of security to not cancel just because of unintentional double click.
+                // A booking via whose enrollink somebody else is booked cannot be cancelled at all
+                // (cancelmyself renders the explanation instead of the cancel button), so it is
+                // never marked for cancellation either.
                 if (
                     !cancelmyself::apply_coolingoff_period($settings, $userid) &&
-                    !$cancelmyself->is_available($settings, $userid)
+                    !$cancelmyself->is_available($settings, $userid) &&
+                    !enrollink::cancellation_blocked_by_used_enrollink($userid, $settings->id)
                 ) {
                      // If the cancel condition is blocking here, we can actually mark the option for cancelation.
                     $cache = cache::make('mod_booking', 'confirmbooking');
                     $cachekey = $userid . "_" . $settings->id . "_cancel";
                     $now = time();
                     $cache->set($userid, [$cachekey => $now]);
+
+                    // Same as for booking: the click armed the confirmation, so the button has to
+                    // be re-rendered to say "click again" (Wunderbyte-GmbH/Wunderbyte-GmbH#2306).
+                    $confirmationarmed = true;
                 }
             } else if ($id === MOD_BOOKING_BO_COND_CONFIRMCANCEL) {
-                // Here we are already one step further and only confirm the cancelation.
-                self::answer_booking_option($area, $itemid, MOD_BOOKING_STATUSPARAM_DELETED, $userid);
-
                 // Make sure cache is not blocking anymore.
                 $cache = cache::make('mod_booking', 'confirmbooking');
                 $cachekey = $userid . "_" . $settings->id . '_cancel';
                 $cache->delete($userid);
+
+                // Last line of defence (stale button, direct webservice call): somebody is booked
+                // via the enrollink of this booking, so it cannot be cancelled anymore. The
+                // re-rendered button shows the explanation.
+                if (enrollink::cancellation_blocked_by_used_enrollink($userid, $settings->id)) {
+                    return [
+                        'status' => 0,
+                        'message' => 'cancellationblockedbyenrollink',
+                    ];
+                }
+
+                // Here we are already one step further and only confirm the cancelation.
+                self::answer_booking_option($area, $itemid, MOD_BOOKING_STATUSPARAM_DELETED, $userid);
 
                 return [
                     'status' => 1,
@@ -465,9 +748,12 @@ class booking_bookit {
             }
 
             if (!$isavailable) {
+                // Two situations share this branch and the client has to tell them apart: nothing
+                // changed at all (the button must stay as it is, see #2277), or the two-step
+                // confirmation was just armed (the button must switch to "click again").
                 return [
                     'status' => 0,
-                    'message' => 'notallowedtobook',
+                    'message' => $confirmationarmed ? 'confirmationarmed' : 'notallowedtobook',
                 ];
             }
             return array_merge(
@@ -600,7 +886,7 @@ class booking_bookit {
 
         /** @var renderer $output */
         $output = $PAGE->get_renderer('mod_booking');
-        $data = new bookingoption_description($itemid, null, MOD_BOOKING_DESCRIPTION_WEBSITE, false, null, $user);
+        $data = new bookingoption_description($itemid, null, MOD_BOOKING_DESCRIPTION_CARTITEM, false, null, $user);
         $description = $output->render_bookingoption_description_cartitem($data);
 
         $optiontitle = $bookingoption->option->text;

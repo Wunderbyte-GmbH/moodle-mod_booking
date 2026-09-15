@@ -87,6 +87,16 @@ class optionformconfig_info {
     ];
 
     /**
+     * Reset method to clear the singleton state.
+     *
+     * @return void
+     *
+     */
+    public static function destroy_singletons(): void {
+        self::$arrayoffieldsets = [];
+    }
+
+    /**
      * Function to be called from webservice to return the available field ids & settings from db.
      * @param int $contextid
      * @return array
@@ -184,7 +194,6 @@ class optionformconfig_info {
      *
      */
     public static function return_configured_fields_for_capability(int $contextid, string $capability) {
-
         if (empty($capability)) {
             $json = '[]';
         } else if (isset(self::$arrayoffieldsets[$contextid][$capability])) {
@@ -241,8 +250,24 @@ class optionformconfig_info {
                     $filteredarray = array_filter($storedfields, fn($a) => $a->id == $value->id);
                     if (!empty($filteredarray)) {
                         $storefield = reset($filteredarray);
-                        if (!property_exists($storefield, 'fullclassname') && property_exists($value, 'fullclassname')) {
-                            $storefield->fullclassname = $value->fullclassname;
+                        // Ensure some properties which might be missing in older stored records
+                        // are filled from the current class definition.
+                        $propstoensure = [
+                            'fullclassname',
+                            'name',
+                            'classname',
+                            'incompatible',
+                            'subfields',
+                            'checked',
+                            'necessary',
+                        ];
+                        foreach ($propstoensure as $prop) {
+                            if (
+                                !property_exists($storefield, $prop) &&
+                                property_exists($value, $prop)
+                            ) {
+                                $storefield->{$prop} = $value->{$prop};
+                            }
                         }
                         $newfields[] = $storefield;
                     } else {

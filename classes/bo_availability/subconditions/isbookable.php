@@ -221,7 +221,7 @@ class isbookable implements bo_subcondition {
      * @param bool $full
      * @return string
      */
-    private function get_description_string($isavailable, $full) {
+    public function get_description_string($isavailable, $full) {
         if ($isavailable) {
             $description = $full ? get_string('bocondsubisbookablefullavailable', 'mod_booking') :
                 get_string('bocondsubisbookableavailable', 'mod_booking');

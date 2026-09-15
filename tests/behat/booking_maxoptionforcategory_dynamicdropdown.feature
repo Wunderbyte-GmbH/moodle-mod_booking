@@ -63,6 +63,7 @@ Feature: As admin - configure max option for category with dynamic dropdown cust
   Scenario: Booking: configure max option for category via dynamic dropdown customfield with multiselect and validate it as student
     Given I am on the "Booking0" "booking activity editing" page logged in as admin
     And I expand all fieldsets
+    And I wait until ".collapsing" "css_element" does not exist
     And I set the following fields to these values:
       | maxoptionsfromcategorycount                          | 2                 |
       | id_maxoptionsfromcategoryvalue                       | teacher1,student1 |

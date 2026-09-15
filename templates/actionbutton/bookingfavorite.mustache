@@ -1,0 +1,79 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_booking/actionbutton/bookingfavorite
+    Template which defines a mooduell view page.
+    Classes required for JS:
+    * none
+    Data attributes required for JS:
+    * none
+    Context variables required for this template:
+
+    Example context (json):
+    {
+        "showactionbuttons": [
+            {
+                "href": "#",
+                "class": "favorite-action text-warning",
+                "methodname": "toggle_favorite",
+                "name": "toggle-favorite",
+                "id": 42,
+                "formname": "",
+                "nomodal": true,
+                "selectionmandatory": false,
+                "data": [
+                    {
+                        "key": "optionid",
+                        "value": 42
+                    }
+                ],
+                "iclass": "fa fa-star-o",
+                "arialabel": "Add to favorites",
+                "title": "Add to favorites",
+                "label": ""
+            }
+        ]
+    }
+}}
+{{#showactionbuttons}}
+    <a
+        href="#"
+        class="{{class}} {{^label}}text-decoration-none{{/label}}"
+        data-type="wb_action_button"
+        title="{{title}}"
+        {{^label}}
+        data-bs-toggle="tooltip"
+        data-bs-placement="top"
+        data-toggle="tooltip"
+        data-placement="top"
+        {{/label}}
+        data-id="{{id}}"
+        data-methodname="{{methodname}}"
+        data-formname="{{formname}}"
+        data-nomodal="{{nomodal}}"
+        data-selectionmandatory="{{selectionmandatory}}"
+        data-ontitle="{{ontitle}}"
+        data-offtitle="{{offtitle}}"
+        {{#data}}
+            data-{{key}}="{{value}}"
+        {{/data}}>
+        <i class="{{iclass}} fa {{#label}}fa-fw{{/label}}{{^label}}me-0{{/label}}" aria-label="{{arialabel}}">
+        </i>{{#label}}{{.}}{{/label}}
+    </a>
+{{/showactionbuttons}}
+{{#js}}
+require(['mod_booking/bookingfavorite'], function(m) {
+    m.init();
+});
+{{/js}}

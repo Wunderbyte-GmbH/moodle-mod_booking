@@ -34,12 +34,14 @@ use context_system;
 use mod_booking\customfield\booking_handler;
 use mod_booking\option\fields\customfields;
 use mod_booking\option\fields\price;
+use mod_booking\task\execute_bulkoperations_adhoc;
 use mod_booking\price as Mod_bookingPrice;
 
 defined('MOODLE_INTERNAL') || die();
 require_once("$CFG->libdir/formslib.php");
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 
+use mod_booking\booking;
 use mod_booking\booking_option;
 use mod_booking\option\fields_info;
 use mod_booking\singleton_service;
@@ -75,6 +77,7 @@ class option_form_bulk extends dynamic_form {
         // Array of things to include.
         $includedclasses = [
             'moveoption',
+            'description',
             'addtocalendar',
             'availability',
             'canceluntil',
@@ -82,27 +85,30 @@ class option_form_bulk extends dynamic_form {
             'disablebookingusers',
             'disablecancel',
             'easy_availability_previouslybooked',
-            "easy_bookingclosingtime",
-            "easy_bookingopeningtime",
-            "elective",
-            "enrolmentstatus",
-            "entities",
-            "howmanyusers",
-            "institution",
-            "invisible",
-            "maxanswers",
-            "maxoverbooking",
-            "minanswers",
-            "notificationtext",
-            "pollurl",
-            "price",
-            "removeafterminutes",
-            "responsiblecontact",
-            "shoppingcart",
-            "teachers",
-            "titleprefix",
-            "waitforconfirmation",
-            "bookingoptionimage",
+            'easy_bookingclosingtime',
+            'easy_bookingopeningtime',
+            'elective',
+            'enrolmentstatus',
+            'entities',
+            'howmanyusers',
+            'beforebookedtext',
+            'beforecompletedtext',
+            'aftercompletedtext',
+            'institution',
+            'invisible',
+            'maxanswers',
+            'maxoverbooking',
+            'minanswers',
+            'notificationtext',
+            'pollurl',
+            'price',
+            'removeafterminutes',
+            'responsiblecontact',
+            'shoppingcart',
+            'teachers',
+            'titleprefix',
+            'waitforconfirmation',
+            'bookingoptionimage',
         ];
 
         foreach (array_keys($fields) as $field) {
@@ -124,11 +130,11 @@ class option_form_bulk extends dynamic_form {
         }
 
         $mform->addElement('select', 'choosefields', get_string('selectfieldofbookingoption', 'mod_booking'), $options);
-        $mform->registerNoSubmitButton('btn_bookingruletemplates');
+        $mform->registerNoSubmitButton('btn_bookingbulkoperations');
         $mform->addElement(
             'submit',
-            'btn_bookingruletemplates',
-            get_string('bookingruletemplates', 'mod_booking')
+            'btn_bookingbulkoperations',
+            get_string('bulkoperationsbutton', 'mod_booking')
         );
 
         if (isset($submitdata['checkedids'])) {
@@ -247,6 +253,7 @@ class option_form_bulk extends dynamic_form {
      * @return void
      */
     protected function check_access_for_dynamic_submission(): void {
+        require_capability('mod/booking:executebulkoperations', $this->get_context_for_dynamic_submission());
     }
 
 
@@ -263,28 +270,85 @@ class option_form_bulk extends dynamic_form {
 
     /**
      * Process dynamic submission.
+     *
+     * Applying the changes to many booking options takes too long for a web request,
+     * so we only queue an adhoc task here (same pattern as recalculate_prices).
+     *
      * @return stdClass|null
      */
     public function process_dynamic_submission() {
+        global $USER;
 
-        // Get data from form.
         $data = $this->get_data();
-        $checkedids = explode(",", $data->checkedids);
-        // Apply values to each of the bookingoptions.
+        $checkedids = array_map('intval', explode(",", $data->checkedids));
 
-        foreach ($checkedids as $bookingoptionid) {
+        $task = new execute_bulkoperations_adhoc();
+        $task->set_custom_data([
+            'formdata' => (array) $data,
+            'optionids' => $checkedids,
+        ]);
+        $task->set_userid($USER->id);
+        \core\task\manager::queue_adhoc_task($task);
+
+        // Picked up by the wunderbyte_table actionbutton JS and shown as a toast.
+        $data->message = get_string('bulkoperationsqueued', 'mod_booking', count($checkedids));
+        $data->success = 1;
+        return $data;
+    }
+
+    /**
+     * Save the given field data to each of the supplied booking option IDs.
+     *
+     * Called by the execute_bulkoperations_adhoc task (queued in
+     * process_dynamic_submission()) and directly in unit tests without
+     * having to bootstrap the dynamic-form AJAX stack.
+     *
+     * For regular options the cmid is read from the option settings.
+     * For option templates (bookingid = 0, cmid = 0) a cmid is borrowed from
+     * the booking instance with the highest ID so that context_module::instance()
+     * succeeds inside fields_info::set_data(). addastemplate = 1 is forced so
+     * that addastemplate.php (sort 600) keeps bookingid = 0 after id.php
+     * (sort 10) has set it.
+     *
+     * @param stdClass $data     Field data to apply (will be mutated per iteration).
+     * @param int[]    $optionids IDs of the booking options to update.
+     */
+    public static function save_options(stdClass $data, array $optionids): void {
+        /* Fallback cmid for option templates (bookingid=0, cmid=0): borrow the cmid of the
+        booking instance with the highest id so that context_module::instance() succeeds.
+        Fetched lazily and reused for all templates in this submission. */
+        $fallbackcmid = null;
+
+        foreach ($optionids as $bookingoptionid) {
             $settings = singleton_service::get_instance_of_booking_option_settings($bookingoptionid);
-            $data->cmid = $settings->cmid ?? $data->cmid;
+            $istemplate = empty($settings->cmid);
+
+            if ($istemplate) {
+                if ($fallbackcmid === null) {
+                    $allcmids = booking::get_all_cmids();
+                    $fallbackcmid = reset($allcmids) ?: 0;
+                }
+                $data->cmid = $fallbackcmid;
+            } else {
+                $data->cmid = $settings->cmid ?? $data->cmid;
+            }
+
             $data->id = $bookingoptionid;
             $copy = clone($data);
             fields_info::set_data($copy);
             foreach ($data as $key => $value) {
                 $copy->{$key} = $value;
             }
+
+            if ($istemplate) {
+                /* Force addastemplate=1 so addastemplate.php overrides the
+                bookingid set by id.php back to 0, preserving template status. */
+                $copy->cmid = $fallbackcmid;
+                $copy->addastemplate = 1;
+            }
+
             booking_option::update($copy);
         }
-
-        return $data;
     }
 
     /**

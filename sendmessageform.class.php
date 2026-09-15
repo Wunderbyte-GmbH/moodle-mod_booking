@@ -78,7 +78,7 @@ class mod_booking_sendmessage_form extends moodleform {
         $mform->setType('id', PARAM_INT);
 
         $mform->addElement('hidden', 'uids');
-        $mform->setType('uids', PARAM_RAW);
+        $mform->setType('uids', PARAM_SEQUENCE);
 
         $this->add_action_buttons(true, get_string('sendmessage', 'mod_booking'));
     }

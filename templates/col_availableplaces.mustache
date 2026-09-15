@@ -40,7 +40,7 @@
                 <span class="text-danger font-weight-bold">{{booked}}</span>
             {{/fullybooked}}
             {{^fullybooked}}
-                <span class="text-success font-weight-bold">{{booked}}</span>
+                <span class="text-darkgreen font-weight-bold">{{booked}}</span>
             {{/fullybooked}}
                 / {{maxanswers}}
         {{/showbookingplacesinfotext}}
@@ -50,7 +50,7 @@
     </span>
 {{/maxanswers}}
 {{^maxanswers}}
-    <span class="text-success font-weight-bold">{{booked}}</span>
+    <span class="text-darkgreen font-weight-bold">{{booked}}</span>
             / {{#str}} unlimitedplaces, mod_booking {{/str}}
 {{/maxanswers}}
 
@@ -77,6 +77,11 @@
         </span>
     {{/freeonwaitinglist}}
 {{/maxoverbooking}}
+
+{{! Notification list places: bell icon + number. Kept on one line, so no extra spaces are rendered. }}
+{{#shownotificationlist}}
+    <span class="col-ap-notificationlistplaces" title="{{#str}} notificationlist, mod_booking {{/str}}">(<i class="fa fa-bell-o" aria-hidden="true"></i><span class="sr-only visually-hidden">{{#str}} notificationlist, mod_booking {{/str}}:</span>&nbsp;{{notificationlistplaces}})</span>
+{{/shownotificationlist}}
 
 {{#showmanageresponses}}
 </a>

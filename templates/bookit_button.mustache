@@ -50,18 +50,36 @@
 }}
 <div class="d-flex align-items-start w-100">
     <!-- Main booking button area -->
-    <div class="booking-button-area noprice flex-grow-1"
-        tabindex="0"
+    {{!
+        No tabindex on this container: it is a wrapper around the notify-me area, the message areas,
+        the main control and the details link. It used to carry tabindex="0", which put a focus stop
+        on an element that cannot be operated at all (a div has no keyboard activation). The
+        interactive part is the main area below, which is a real <button> whenever the condition
+        actually offers an action.
+    }}
+    {{!
+        d-flex flex-column: the areas (bell, warning of an availability condition in "top", the
+        main button, the price label in "sub", the details dots) are stacked vertically. Plugin css
+        loaded in every theme (e.g. local_urise) sets display:flex on .booking-button-area; without
+        an explicit direction that laid the warning out LEFT of the book button.
+    }}
+    <div class="booking-button-area noprice flex-grow-1 d-flex flex-column"
         data-itemid="{{itemid}}"
         data-componentname="mod_booking"
         data-area="{{area}}"
         data-userid="{{userid}}"
         data-results="{{results}}"
+        {{#overrideids}}data-overrideids="{{overrideids}}"{{/overrideids}}
         {{#dataaction}}data-action="{{dataaction}}"{{/dataaction}}
         {{#nojs}}data-nojs="1"{{/nojs}}>
         {{#onlist}}
+            {{!
+                Only the bare bell partial: the standalone button_notifyme
+                template would inherit this context (mustache partials get the
+                full parent context) and render its own wrapper and price.
+            }}
             <div class="booking-button-notifyarea mb-3">
-                {{> mod_booking/button_notifyme }}
+                {{> mod_booking/button_notifyme_bell }}
             </div>
         {{/onlist}}
         {{#top}}
@@ -74,13 +92,27 @@
         {{#main}}
             {{#link}}
                 <a class="booking-button-mainarea mb-1 mt-1 p-1 {{class}}" href="{{link}}" data-action="bookondetail">
-                    {{{label}}}
+                    {{{label}}} {{#foruser}}<br><span>{{{foruser}}}</span>{{/foruser}}
                 </a>
             {{/link}}
             {{^link}}
-                <div class="booking-button-mainarea mb-1 mt-1 p-1 {{class}}" >
-                    {{{label}}}
-                </div>
+                {{! "isbutton" is set by bo_info::render_button for the conditions that offer an
+                    action. Those become a real button (ENTER and SPACE work, announced as a
+                    button); the message states stay a plain container with their role. }}
+                {{#isbutton}}
+                    <button type="button" class="booking-button-mainarea mb-1 mt-1 p-1 {{class}}">
+                        {{{label}}} {{#foruser}}<br><span>{{{foruser}}}</span>{{/foruser}}
+                    </button>
+                {{/isbutton}}
+                {{! The role of the condition is deliberately not written out here: these states are
+                    plain text in the reading order. Turning them into role="alert" live regions
+                    would make a screen reader announce every "fully booked" message on every page
+                    load. }}
+                {{^isbutton}}
+                    <div class="booking-button-mainarea mb-1 mt-1 p-1 {{class}}">
+                        {{{label}}} {{#foruser}}<br><span>{{{foruser}}}</span>{{/foruser}}
+                    </div>
+                {{/isbutton}}
             {{/link}}
         {{/main}}
         {{#sub}}

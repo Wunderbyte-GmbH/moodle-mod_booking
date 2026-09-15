@@ -26,6 +26,7 @@ global $CFG;
 use context;
 use context_system;
 use core_form\dynamic_form;
+use mod_booking\booking_rules\optionfield_filter;
 use mod_booking\booking_rules\rules_info;
 use moodle_url;
 
@@ -51,6 +52,7 @@ class rulesform extends dynamic_form {
         // If we open an existing rule, we need to save the id right away.
         if (!empty($ajaxformdata['id'])) {
             $mform->addElement('hidden', 'id', $ajaxformdata['id']);
+            $mform->setType('id', PARAM_INT); // Fix: setType for id, so no debugging warning appears in Moodle 4.5.
             $this->prepare_ajaxformdata($ajaxformdata);
         } else if (!empty($ajaxformdata['btn_bookingruletemplates'])) {
             $this->prepare_ajaxformdata($ajaxformdata);
@@ -117,6 +119,9 @@ class rulesform extends dynamic_form {
             $errors['rule_name'] = get_string('error:entervalue', 'mod_booking');
         }
 
+        // The optional filter on booking option fields is available for all rule types.
+        optionfield_filter::validation($data, $errors);
+
         switch ($data['bookingruletype']) {
             case '0':
                 $errors['bookingruletype'] = get_string('error:choosevalue', 'mod_booking');
@@ -135,6 +140,34 @@ class rulesform extends dynamic_form {
                     );
                     $errors['rule_daysbefore_datefield'] =
                         get_string('error:deactivatelegacymailtemplates', 'mod_booking', $linktosetting);
+                } else if (
+                    $data['rule_daysbefore_datefield'] == 'installmentpayment'
+                    && ($data['bookingruleconditiontype'] ?? '') !== 'select_user_shopping_cart'
+                ) {
+                    $errors['rule_daysbefore_datefield'] =
+                        get_string('error:installmentdatefieldcondition', 'mod_booking');
+                }
+                break;
+            case 'rule_specifictime':
+                if ($data['rulespecifictimedatefield'] == '0') {
+                    $errors['rulespecifictimedatefield'] = get_string('error:choosevalue', 'mod_booking');
+                } else if (
+                    get_config('booking', 'uselegacymailtemplates')
+                    && $data['rulespecifictimedatefield'] == 'optiondatestarttime'
+                ) {
+                    $linktosetting = new moodle_url(
+                        '/admin/settings.php',
+                        ['section' => 'modsettingbooking'],
+                        'admin-uselegacymailtemplates'
+                    );
+                    $errors['rulespecifictimedatefield'] =
+                        get_string('error:deactivatelegacymailtemplates', 'mod_booking', $linktosetting);
+                } else if (
+                    $data['rulespecifictimedatefield'] == 'installmentpayment'
+                    && ($data['bookingruleconditiontype'] ?? '') !== 'select_user_shopping_cart'
+                ) {
+                    $errors['rulespecifictimedatefield'] =
+                        get_string('error:installmentdatefieldcondition', 'mod_booking');
                 }
                 break;
             case 'rule_react_on_event':

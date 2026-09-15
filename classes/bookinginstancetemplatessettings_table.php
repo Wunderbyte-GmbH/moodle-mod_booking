@@ -85,7 +85,7 @@ class bookinginstancetemplatessettings_table extends table_sql {
         $delete = get_string('delete');
         $url = new moodle_url(
             '/mod/booking/bookinginstancetemplatessettings.php',
-            ['templateid' => $values->id, 'action' => 'delete', 'id' => $this->cmid]
+            ['templateid' => $values->id, 'action' => 'delete', 'id' => $this->cmid, 'sesskey' => sesskey()]
         );
         $output .= $OUTPUT->single_button($url, $delete, 'get');
         return $output;

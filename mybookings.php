@@ -34,8 +34,21 @@ use mod_booking\singleton_service;
 $url = new moodle_url('/mod/booking/mybookings.php');
 $userid = optional_param('userid', 0, PARAM_INT);
 $completed = optional_param('completed', 0, PARAM_INT);
+$search = optional_param('search', 0, PARAM_INT);
+$filter = optional_param('filter', 0, PARAM_INT);
+$typefilter = optional_param('typefilter', 0, PARAM_INT);
 
-if (!empty($userid) && has_capability('local/shopping_cart:cashier', context_system::instance())) {
+$shoppingcartexists = core_component::get_plugin_directory('local', 'shopping_cart');
+$hascapability = false;
+
+if (has_capability('mod/booking:bookforothers', context_system::instance())) {
+    $hascapability = true;
+}
+
+if ($shoppingcartexists) {
+    $hascapability = has_capability('local/shopping_cart:cashier', context_system::instance());
+}
+if (!empty($userid) && $hascapability) {
     $user = singleton_service::get_instance_of_user($userid);
 } else {
     $user = $USER;
@@ -66,6 +79,9 @@ $arguments['sort'] = 1;
 $arguments['sortby'] = 'coursestarttime';
 $arguments['sortorder'] = 'desc';
 $arguments['foruserid'] = $userid;
+$arguments['search'] = $search;
+$arguments['filter'] = $filter;
+$arguments['typefilter'] = $typefilter;
 
 echo shortcodes::mycourselist('', $arguments, '', (object)[], fn($a) => $a);
 

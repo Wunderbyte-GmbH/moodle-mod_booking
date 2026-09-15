@@ -102,10 +102,7 @@ class bookingoption_updated extends \core\event\base {
 
         try {
             $data = $this->get_data();
-            $jsonstring = isset($data['other']) ? $data['other'] : '[]';
-            if (gettype($jsonstring) == 'string') {
-                $changes = (array) json_decode($jsonstring);
-            }
+            $changes = $this->extract_changes_from_event_other($data['other'] ?? []);
 
             if (!empty($changes) && !empty($data['objectid'])) {
                 $settings = singleton_service::get_instance_of_booking_option_settings($data['objectid']);
@@ -130,5 +127,31 @@ class bookingoption_updated extends \core\event\base {
         } catch (Throwable $e) {
             return get_string('bookingoptionupdated', 'mod_booking');
         }
+    }
+
+    /**
+     * Extract the normalized changes payload from event "other" data.
+     *
+     * The payload can be provided as array, stdClass, or JSON string depending
+     * on the event lifecycle stage.
+     *
+     * @param mixed $other
+     * @return array
+     */
+    private function extract_changes_from_event_other($other): array {
+        if (is_string($other)) {
+            $decoded = json_decode($other, true);
+            return is_array($decoded) ? $decoded : [];
+        }
+
+        if (is_object($other)) {
+            return (array)$other;
+        }
+
+        if (is_array($other)) {
+            return $other;
+        }
+
+        return [];
     }
 }

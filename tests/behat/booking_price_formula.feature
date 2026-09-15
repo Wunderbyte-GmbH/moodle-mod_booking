@@ -44,7 +44,6 @@ Feature: As a teacher - configure and use booking's price formula feature.
     And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r2" "css_element"
     And I follow "Dates"
     And I press "Create date series"
-    And I wait "1" seconds
     And I follow "Price"
     And I set the field "Only book with price" to "checked"
     And I set the field "On saving, calculate prices with price formula" to "checked"
@@ -62,7 +61,6 @@ Feature: As a teacher - configure and use booking's price formula feature.
     And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I follow "Dates"
     And I press "Create date series"
-    And I wait "1" seconds
     And I follow "Price"
     And I set the field "Only book with price" to "checked"
     And I set the field "On saving, calculate prices with price formula" to "checked"
@@ -73,17 +71,16 @@ Feature: As a teacher - configure and use booking's price formula feature.
 
   @javascript
   Scenario: Booking price formula - no unit factor and option dates not in timeslot of the price formula
-    Given I log in as "admin"
-    And I set the following administration settings values:
-      | Apply unit factor | |
-      | Round prices (price formula) | 1 |
-      | Price formula | [{"timeslot":[{"starttime":"17:00","endtime":"23:00","weekdays":"Mon,Fri","multiplier":"0.5"}]}] |
+    Given the following config values are set as admin:
+      | config                  | value                                                                                            | plugin  |
+      | applyunitfactor         | 0                                                                                                | booking |
+      | roundpricesafterformula | 1                                                                                                | booking |
+      | defaultpriceformula     | [{"timeslot":[{"starttime":"17:00","endtime":"23:00","weekdays":"Mon,Fri","multiplier":"0.5"}]}] | booking |
     When I am on the "My booking" Activity page logged in as teacher1
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r2" "css_element"
     And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r2" "css_element"
     And I follow "Dates"
     And I press "Create date series"
-    And I wait "1" seconds
     And I follow "Price"
     And I set the field "Only book with price" to "checked"
     And I set the field "On saving, calculate prices with price formula" to "checked"
@@ -94,17 +91,16 @@ Feature: As a teacher - configure and use booking's price formula feature.
 
   @javascript
   Scenario: Booking price formula - no price rounding and option dates not in timeslot of the price formula
-    Given I log in as "admin"
-    And I set the following administration settings values:
-      | Apply unit factor | 1 |
-      | Round prices (price formula) | |
-      | Price formula | [{"timeslot":[{"starttime":"17:00","endtime":"23:00","weekdays":"Mon,Fri","multiplier":"0.5"}]}] |
+    Given the following config values are set as admin:
+      | config                  | value                                                                                            | plugin  |
+      | applyunitfactor         | 1                                                                                                | booking |
+      | roundpricesafterformula | 0                                                                                                | booking |
+      | defaultpriceformula     | [{"timeslot":[{"starttime":"17:00","endtime":"23:00","weekdays":"Mon,Fri","multiplier":"0.5"}]}] | booking |
     When I am on the "My booking" Activity page logged in as teacher1
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r2" "css_element"
     And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r2" "css_element"
     And I follow "Dates"
     And I press "Create date series"
-    And I wait "1" seconds
     And I follow "Price"
     And I set the field "Only book with price" to "checked"
     And I set the field "On saving, calculate prices with price formula" to "checked"
@@ -116,9 +112,9 @@ Feature: As a teacher - configure and use booking's price formula feature.
 
   @javascript
   Scenario: Booking price formula - empty price formula not being applied
-    Given I log in as "admin"
-    And I set the following administration settings values:
-      | Price formula | |
+    Given the following config values are set as admin:
+      | config              | value | plugin  |
+      | defaultpriceformula |       | booking |
     When I am on the "My booking" Activity page logged in as teacher1
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Edit booking option" "link" in the ".allbookingoptionstable_r1" "css_element"

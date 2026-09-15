@@ -81,7 +81,10 @@ class instancetemplatessettings_table extends table_sql {
         $output = '';
 
         $deletelabel = get_string('delete');
-        $deleteurl = new moodle_url('/mod/booking/instancetemplatessettings.php', ['delete' => $values->id]);
+        $deleteurl = new moodle_url(
+            '/mod/booking/instancetemplatessettings.php',
+            ['delete' => $values->id, 'sesskey' => sesskey()]
+        );
         $output .= $OUTPUT->single_button($deleteurl, $deletelabel, 'get');
 
         // Todo: Editor for instance templates is not yet implemented.

@@ -28,6 +28,7 @@ namespace mod_booking\bo_availability\conditions;
 
 use context_system;
 use mod_booking\bo_availability\bo_condition;
+use mod_booking\bo_availability\freezable_condition;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking;
 use mod_booking\booking_option_settings;
@@ -50,7 +51,7 @@ require_once($CFG->dirroot . '/user/profile/lib.php');
  * @copyright 2022 Wunderbyte GmbH
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class userprofilefield_1_default implements bo_condition {
+class userprofilefield_1_default implements bo_condition, freezable_condition {
     /** @var int $id Id is set via json during construction but we still need a default ID */
     public $id = MOD_BOOKING_BO_COND_JSON_USERPROFILEFIELD;
 
@@ -82,6 +83,16 @@ class userprofilefield_1_default implements bo_condition {
             self::$instance = new self($id);
         }
         return self::$instance;
+    }
+
+    /**
+     * Reset method to clear the singleton state.
+     *
+     * @return void
+     *
+     */
+    public static function reset_instance(): void {
+        self::$instance = null;
     }
 
     /**
@@ -119,6 +130,25 @@ class userprofilefield_1_default implements bo_condition {
      * @return bool
      */
     public function is_shown_in_mform(): bool {
+        return true;
+    }
+
+    /**
+     * Returns the name of the condition.
+     *
+     * @return string
+     *
+     */
+    public function get_name(): string {
+        return get_string('boconduserprofilefield1default', 'mod_booking');
+    }
+
+    /**
+     * Returns whether the condition is skippable or not.
+     *
+     * @return bool
+     */
+    public function is_skippable(): bool {
         return true;
     }
 
@@ -280,9 +310,10 @@ class userprofilefield_1_default implements bo_condition {
      * This will be used if the conditions should not only block booking...
      * ... but actually hide the conditons alltogether.
      * @param int $userid
+     * @param array $params This is the array with parameters for the sql query.
      * @return array
      */
-    public function return_sql(int $userid = 0): array {
+    public function return_sql(int $userid = 0, &$params = []): array {
 
         return ['', '', '', [], ''];
     }
@@ -342,6 +373,31 @@ class userprofilefield_1_default implements bo_condition {
      *
      * @param MoodleQuickForm $mform
      * @param int $optionid
+     * @return void
+     */
+    /**
+     * Returns the ordered list of form element names this condition adds to the option form.
+     * The first element is used as the warning insertion anchor.
+     *
+     * @return string[]
+     */
+    public function get_condition_form_elements(): array {
+        return [
+            'bo_cond_userprofilefield_1_default_restrict',
+            'bo_cond_userprofilefield_field',
+            'bo_cond_userprofilefield_operator',
+            'bo_cond_userprofilefield_value',
+            'bo_cond_userprofilefield_overrideconditioncheckbox',
+            'bo_cond_userprofilefield_overrideoperator',
+            'bo_cond_userprofilefield_overridecondition',
+        ];
+    }
+
+    /**
+     * Add condition-specific form elements to the booking option form.
+     *
+     * @param MoodleQuickForm $mform Booking option form instance.
+     * @param int $optionid Booking option id.
      * @return void
      */
     public function add_condition_to_mform(MoodleQuickForm &$mform, int $optionid = 0) {
@@ -511,7 +567,10 @@ class userprofilefield_1_default implements bo_condition {
             );
         }
 
-        $mform->addElement('html', '<hr class="w-50"/>');
+        $mform->addElement(
+            'html',
+            '<div id="bo_cond_userprofilefield_1_default_restrict_hr" class="d-flex justify-content-end"><hr class="w-75"/></div>'
+        );
     }
 
     /**
@@ -616,7 +675,7 @@ class userprofilefield_1_default implements bo_condition {
      * @param booking_option_settings $settings
      * @return string
      */
-    private function get_description_string(bool $isavailable, bool $full, booking_option_settings $settings) {
+    public function get_description_string(bool $isavailable, bool $full, booking_option_settings $settings) {
 
         if (
             !$isavailable

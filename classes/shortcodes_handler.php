@@ -26,6 +26,7 @@
 
 namespace mod_booking;
 
+use mod_booking\customfield\booking_handler;
 use mod_booking\utils\wb_payment;
 
 defined('MOODLE_INTERNAL') || die();
@@ -191,5 +192,77 @@ class shortcodes_handler {
         self::fix_arg($arg);
         $truthyvalues = ['1', 'true', 'yes', 'on', 'active'];
         return in_array(strtolower(trim((string)$arg)), $truthyvalues, true);
+    }
+
+    /**
+     * Helper function to get an array of valid additional customfields to be included.
+     *
+     * Structure:
+     * keys => shortname of the column or customfield
+     * values => array of arrays with keys:
+     *    'colname' => shortname of the column or customfield,
+     *    'class' => classes for the column, e.g. "text-center",
+     *    'region' => region where the column should be displayed, e.g. "cardbody",
+     *    'iconclass' => iconclass of the icon, e.g. "far fa-wrench",
+     *
+     * @param array $args the shortcode arguments
+     *
+     * @return array an array of valid customfield shortnames to be included
+     */
+    public static function get_includecustomfields_info_array($args) {
+        /*
+        Custom fields can be passed as args like this:
+        includecustomfields="cfshortname1,cfshortname2"
+        It is also possible to include regions, class, icons and iconclass like this:
+        includecustomfields="<customfieldshortname>|<region>|<iconclass1>|<iconclass2>|<classes>,..."
+        example: includecustomfields="cfshortname1|cardbody|far|fa-wrench,cfshortname2|cardheader|fas|fa-user|text-center"
+        The region has to match a region of the rendered template (regions may also come from
+        templates of other plugins). If no region is given, the customfield is rendered in the
+        standard region of the rendered template (footer in list view, cardlist in cards view)
+        with the standard styling.
+        */
+        if (empty($args['includecustomfields'])) {
+            return [];
+        }
+        // With the argument 'includecustomfields' we can define booking option customfields to be included as columns.
+        $customfieldstoinclude = explode(',', $args['includecustomfields']);
+        if (empty($customfieldstoinclude)) {
+            return [];
+        }
+
+        // We check which customfields are valid.
+        $validcustomfields = array_map(fn($cf) => $cf->shortname, booking_handler::get_customfields());
+        if (empty($validcustomfields)) {
+            return [];
+        }
+
+        $cfinfoarray = [];
+        foreach ($customfieldstoinclude as $cf) {
+            $cfparts = explode('|', $cf);
+            $colname = trim($cfparts[0]); // First part is the shortname.
+
+            // We ignore invalid customfields.
+            if (!in_array($colname, $validcustomfields)) {
+                continue;
+            }
+
+            // If no region is given, the customfield is rendered in the standard region
+            // of the rendered template (footer in list view, cardlist in cards view).
+            $region = $cfparts[1] ?? null;
+            if (!empty($cfparts[3])) {
+                $iconclass = trim($cfparts[2] ?? 'far') . ' ' . trim($cfparts[3]);
+            } else {
+                $iconclass = null;
+            }
+            $classes = $cfparts[4] ?? null;
+            $cfsubarray = [
+                'colname' => $colname,
+                'region' => $region,
+                'iconclass' => $iconclass,
+                'class' => $classes,
+            ];
+            $cfinfoarray[$colname] = $cfsubarray;
+        }
+        return $cfinfoarray;
     }
 }

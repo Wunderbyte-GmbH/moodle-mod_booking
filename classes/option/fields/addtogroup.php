@@ -140,6 +140,25 @@ class addtogroup extends field_base {
                         $bo->enrol_user($bookinganswer->userid);
                     }
                 }
+            } else if (empty($bookingsettings->addtogroup) && !empty($option->courseid)) {
+                // Group(s) of the connected course selected manually in the booking option:
+                // make sure already booked users become members of the selected groups too.
+                // The json of $option is already saved, so read the selection from there to
+                // avoid stale singleton caches.
+                $json = empty($option->json) ? null : json_decode($option->json);
+                $selectedgroups = (array) ($json->addtogroupsofconnectedcourse ?? []);
+                if (!empty($selectedgroups) && $bookingsettings->autoenrol) {
+                    $bo = singleton_service::get_instance_of_booking_option($cmid, $optionid);
+                    $booked = $bo->get_all_users_booked();
+                    $coursegroups = groups_get_all_groups($option->courseid);
+                    foreach ($booked as $bookinganswer) {
+                        foreach ($selectedgroups as $groupid) {
+                            if (isset($coursegroups[$groupid])) {
+                                groups_add_member($groupid, $bookinganswer->userid);
+                            }
+                        }
+                    }
+                }
             }
         }
     }

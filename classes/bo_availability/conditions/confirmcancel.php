@@ -28,8 +28,10 @@ use cache;
 use mod_booking\bo_availability\bo_condition;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_option_settings;
+use mod_booking\enrollink;
 use mod_booking\price;
 use mod_booking\singleton_service;
+use local_shopping_cart\shopping_cart_history;
 use MoodleQuickForm;
 
 defined('MOODLE_INTERNAL') || die();
@@ -80,6 +82,25 @@ class confirmcancel implements bo_condition {
     }
 
     /**
+     * Returns the name of the condition.
+     *
+     * @return string
+     *
+     */
+    public function get_name(): string {
+        return get_string('bocondconfirmcancel', 'mod_booking');
+    }
+
+    /**
+     * Returns whether the condition is skippable or not.
+     *
+     * @return bool
+     */
+    public function is_skippable(): bool {
+        return false;
+    }
+
+    /**
      * Determines whether a particular item is currently available
      * according to this availability condition.
      * @param booking_option_settings $settings Item we're checking
@@ -111,10 +132,15 @@ class confirmcancel implements bo_condition {
             if (
                 $isavailable
                 && empty((float)($price['price'] ?? 0))
-                && empty(get_config('booking', 'displayemptyprice'))
             ) {
-                // We might want to override this, if there is a zero price.
-                $isavailable = false;
+                if (empty(get_config('booking', 'displayemptyprice'))) {
+                    // We might want to override this, if there is a zero price.
+                    $isavailable = false;
+                } else {
+                    if (isset($bookinginformation['iambooked']) && !self::has_shopping_cart_history_entry($settings->id, $userid)) {
+                        $isavailable = false;
+                    }
+                }
             }
         }
 
@@ -142,6 +168,17 @@ class confirmcancel implements bo_condition {
                     $isavailable = true;
                 }
             }
+
+            // The cancellation was marked, but somebody already booked via the enrollink of this
+            // booking in the meantime: there is nothing to confirm anymore, the booking cannot be
+            // cancelled (see cancelmyself and booking_bookit::bookit()). Checked only for a marked
+            // cancellation, so list views do not pay for the query.
+            if (
+                $isavailable === false
+                && enrollink::cancellation_blocked_by_used_enrollink($userid, $settings->id)
+            ) {
+                $isavailable = true;
+            }
         }
 
         // If it's inversed, we inverse.
@@ -153,13 +190,30 @@ class confirmcancel implements bo_condition {
     }
 
     /**
+     * Check whether this booking option was purchased via local shopping cart.
+     *
+     * @param int $optionid
+     * @param int $userid
+     * @return bool
+     */
+    private static function has_shopping_cart_history_entry(int $optionid, int $userid): bool {
+        if (!class_exists('local_shopping_cart\\shopping_cart_history')) {
+            return false;
+        }
+
+        $historyitem = shopping_cart_history::get_most_recent_historyitem('mod_booking', 'option', $optionid, $userid);
+        return !empty($historyitem->id);
+    }
+
+    /**
      * Each function can return additional sql.
      * This will be used if the conditions should not only block booking...
      * ... but actually hide the conditons alltogether.
      * @param int $userid
+     * @param array $params This is the array with parameters for the sql query.
      * @return array
      */
-    public function return_sql(int $userid = 0): array {
+    public function return_sql(int $userid = 0, &$params = []): array {
 
         return ['', '', '', [], ''];
     }
@@ -265,7 +319,7 @@ class confirmcancel implements bo_condition {
             $settings,
             $userid,
             $label,
-            'btn btn-danger ml-1',
+            'btn btn-danger ms-1 bo-cancel-button',
             false,
             $fullwidth,
             'button',
@@ -279,7 +333,7 @@ class confirmcancel implements bo_condition {
      *
      * @return string
      */
-    private function get_description_string() {
+    public function get_description_string() {
 
         // Don't trigger billboard here.
 

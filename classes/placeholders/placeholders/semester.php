@@ -40,7 +40,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @author Magdalena Holczik
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class semester {
+class semester extends \mod_booking\placeholders\placeholder_base {
     /**
      * Function which takes a text, replaces the placeholders...
      * ... and returns the text with the correct values.
@@ -99,6 +99,16 @@ class semester {
      *
      */
     public static function is_applicable(): bool {
+        return true;
+    }
+
+    /**
+     * This placeholder is supported in the sign-in sheet HTML template.
+     *
+     * @return bool
+     *
+     */
+    public static function for_signinsheet(): bool {
         return true;
     }
 }

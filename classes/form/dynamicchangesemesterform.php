@@ -130,15 +130,21 @@ class dynamicchangesemesterform extends dynamic_form {
 
         $cmid = optional_param('id', 0, PARAM_INT);
 
+        // When the form is reloaded, we only have cmid in ajaxformdata.
+        if (empty($cmid) && !empty($this->_ajaxformdata['cmid'])) {
+            $cmid = $this->_ajaxformdata['cmid'];
+        }
+
         $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
 
         $mform = $this->_form;
 
-        $mform->addElement('html', '<div class="alert alert-danger mt-3">' .
-                get_string('changesemester:warning', 'mod_booking') . '</div>');
-
-        $mform->addElement('hidden', 'cmid', 0);
+        $mform->addElement('hidden', 'cmid', $cmid ?? 0);
         $mform->settype('cmid', PARAM_INT);
+
+        $mform->addElement('html', '<div class="alert alert-danger mt-3">' .
+            get_string('changesemester:warning', 'mod_booking', $bookingsettings->name)
+            . '</div>');
 
         $selectarray = semester::get_semesters_id_name_array();
         $mform->addElement('select', 'choosesemester', get_string('choosesemester', 'mod_booking'), $selectarray);
@@ -147,7 +153,11 @@ class dynamicchangesemesterform extends dynamic_form {
             $mform->setDefault('choosesemester', $bookingsettings->semesterid);
         }
 
-        $mform->addElement('advcheckbox', 'confirmchangesemester', get_string('confirmchangesemester', 'mod_booking'));
+        $mform->addElement(
+            'advcheckbox',
+            'confirmchangesemester',
+            get_string('confirmchangesemester', 'mod_booking', $bookingsettings->name)
+        );
 
         // Buttons.
         $this->add_action_buttons(false, get_string('changesemester', 'mod_booking'));

@@ -26,6 +26,8 @@ namespace mod_booking\bo_actions\action_types;
 
 use mod_booking\bo_actions\booking_action;
 use mod_booking\event\rest_script_success;
+use mod_booking\placeholders\placeholders\baid;
+use mod_booking\placeholders\placeholders_info;
 use mod_booking\singleton_service;
 use context_module;
 use mod_booking\event\rest_script_failed;
@@ -54,17 +56,28 @@ class executerestscript extends booking_action {
      */
     public function apply_action(stdClass $actiondata, int $userid = 0) {
 
-        global $USER;
+        global $USER, $DB;
 
         $settings = singleton_service::get_instance_of_booking_option_settings($actiondata->optionid);
-        $ba = singleton_service::get_instance_of_booking_answers($settings);
         if (empty($userid)) {
             $userid = $USER->id;
         }
 
-        $usersonlist = $ba->get_usersonlist();
-        if (isset($usersonlist[$userid])) {
-            $bajson = $usersonlist[$userid];
+        // Prefer the specific booking answer addressed by its baid. This works on
+        // cancellation too, where the answer is soft-deleted and would no longer
+        // appear in get_usersonlist() (which only returns active answers).
+        $bajson = null;
+        if (!empty($actiondata->baid)) {
+            $bajson = $DB->get_record('booking_answers', ['id' => $actiondata->baid]) ?: null;
+        }
+        if (empty($bajson)) {
+            // Legacy fallback: the active answer currently on the list.
+            $ba = singleton_service::get_instance_of_booking_answers($settings);
+            $usersonlist = $ba->get_usersonlist();
+            $bajson = $usersonlist[$userid] ?? null;
+        }
+
+        if (!empty($bajson)) {
             $restscriptresponse = self::get_script_response($bajson, $actiondata);
             if ($restscriptresponse) {
                 $event = rest_script_success::create([
@@ -101,6 +114,8 @@ class executerestscript extends booking_action {
      * @return string
      */
     public static function get_script_response($bookinganswer, $actiondata) {
+        global $CFG;
+
         $params = json_decode($bookinganswer->json);
         $params = (array)$params->condition_customform;
 
@@ -121,6 +136,129 @@ class executerestscript extends booking_action {
         $params['token'] = $actiondata->secrettoken ?? '';
         $params['submit'] = true;
 
+        // Headers: keep the legacy cookie, then append any configured "Key: Value" lines.
+        $headers = ['Cookie: XDEBUG_SESSION=VSCODE'];
+        $customheaders = trim((string)($actiondata->customheaders ?? ''));
+        if ($customheaders !== '') {
+            foreach (preg_split('/\R/', $customheaders) as $line) {
+                $line = trim($line);
+                if ($line !== '' && strpos($line, ':') !== false) {
+                    $headers[] = $line;
+                }
+            }
+        }
+
+        // Body: when a JSON template is configured, substitute {placeholders} and send
+        // JSON; otherwise keep the legacy form-field POST (backward compatible).
+        $jsonbody = trim((string)($actiondata->jsonbody ?? ''));
+        $usejson = ($jsonbody !== '');
+        if ($usejson) {
+            // Make the booking-answer id available to the {baid} placeholder for this
+            // render pass. baid is the only per-purchase-unique id ("book again" lets
+            // the same user buy the same option more than once).
+            baid::$baid = (int)($actiondata->baid ?? 0);
+
+            $phcmid = (int)($actiondata->cmid ?? 0);
+            $phoptionid = (int)($actiondata->optionid ?? 0);
+            $phuserid = (int)($bookinganswer->userid ?? 0);
+
+            // Resolve each {placeholder} token INDIVIDUALLY. We must NOT hand the whole
+            // JSON body to render_text: its matcher ( /{(.*?)}/ ) is not JSON-aware, so the
+            // object's own opening "{" pairs with the first inner "}" and swallows the first
+            // placeholder. The pattern below matches ONLY real placeholder tokens ({word});
+            // the JSON structural braces are followed by a quote, not a word char, so they
+            // are never touched. Each value is JSON-escaped so quotes/backslashes are safe.
+            $jsonbody = preg_replace_callback(
+                '/\{(\w+)\}/',
+                function (array $m) use ($params, $phcmid, $phoptionid, $phuserid): string {
+                    $token = $m[1];
+                    // Custom-form field values are action-specific, not framework placeholders.
+                    if (array_key_exists($token, $params) && is_scalar($params[$token])) {
+                        $value = (string)$params[$token];
+                    } else {
+                        $value = placeholders_info::render_text(
+                            '{' . $token . '}',
+                            $phcmid,
+                            $phoptionid,
+                            $phuserid
+                        );
+                        // Unknown placeholder: render_text returns the token unchanged.
+                        // Emit empty rather than leaving a stray brace inside the JSON.
+                        if ($value === '{' . $token . '}') {
+                            $value = '';
+                        }
+                    }
+                    return trim(json_encode($value), '"');
+                },
+                $jsonbody
+            );
+
+            $hascontenttype = false;
+            foreach ($headers as $hline) {
+                if (stripos($hline, 'content-type:') === 0) {
+                    $hascontenttype = true;
+                    break;
+                }
+            }
+            if (!$hascontenttype) {
+                $headers[] = 'Content-Type: application/json';
+            }
+        }
+
+        // Optional: sign the request with a JSON Web Token (RFC 7519). Standards-based and
+        // receiver-agnostic — any JWT-aware endpoint (or API gateway) can verify it, unlike an
+        // ad-hoc HMAC scheme. HS256 uses a shared secret; RS256 uses a PEM private key so the
+        // receiver only needs the public key (no shared secret). The token binds the exact body
+        // via a body_sha256 claim (JSON path only) and is replay-limited by a short exp + jti.
+        if (
+            !empty($actiondata->jwtenable)
+            && trim((string)($actiondata->jwtkey ?? '')) !== ''
+            && class_exists('\\Firebase\\JWT\\JWT')
+        ) {
+            $alg = (($actiondata->jwtalg ?? 'HS256') === 'RS256') ? 'RS256' : 'HS256';
+            $ttl = (int)($actiondata->jwtttl ?? 300);
+            if ($ttl <= 0) {
+                $ttl = 300;
+            }
+            $now = time();
+            $payload = [
+                'iss' => $CFG->wwwroot,
+                'iat' => $now,
+                'nbf' => $now,
+                'exp' => $now + $ttl,
+                'jti' => random_string(32),
+            ];
+            $aud = trim((string)($actiondata->jwtaudience ?? ''));
+            if ($aud !== '') {
+                $payload['aud'] = $aud;
+            }
+            // Bind the body for integrity, but only on the JSON path where we hold the exact
+            // bytes being sent (curl serialises the form-field array itself).
+            if ($usejson) {
+                $payload['body_sha256'] = hash('sha256', (string)$jsonbody);
+            }
+            $kid = trim((string)($actiondata->jwtkid ?? ''));
+            $token = \Firebase\JWT\JWT::encode(
+                $payload,
+                (string)$actiondata->jwtkey,
+                $alg,
+                $kid !== '' ? $kid : null
+            );
+
+            // Place the token, replacing any pre-existing header of the same name (e.g. a static
+            // Authorization line configured under "Additional HTTP headers").
+            $headername = trim((string)($actiondata->jwtheader ?? '')) ?: 'Authorization';
+            $headers = array_values(array_filter(
+                $headers,
+                static fn($hline): bool => stripos((string)$hline, $headername . ':') !== 0
+            ));
+            $headers[] = (strcasecmp($headername, 'Authorization') === 0)
+                ? 'Authorization: Bearer ' . $token
+                : $headername . ': ' . $token;
+        }
+
+        $verify = !empty($actiondata->sslverify);
+
         $curl = curl_init();
 
         curl_setopt_array($curl, [
@@ -132,12 +270,10 @@ class executerestscript extends booking_action {
           CURLOPT_FOLLOWLOCATION => true,
           CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
           CURLOPT_CUSTOMREQUEST => 'POST',
-          CURLOPT_POSTFIELDS => $params,
-          CURLOPT_SSL_VERIFYPEER => false,
-          CURLOPT_SSL_VERIFYHOST => false,
-          CURLOPT_HTTPHEADER => [
-            'Cookie: XDEBUG_SESSION=VSCODE',
-          ],
+          CURLOPT_POSTFIELDS => $usejson ? $jsonbody : $params,
+          CURLOPT_SSL_VERIFYPEER => $verify,
+          CURLOPT_SSL_VERIFYHOST => $verify ? 2 : 0,
+          CURLOPT_HTTPHEADER => $headers,
         ]);
         $response = curl_exec($curl);
 
@@ -191,6 +327,83 @@ class executerestscript extends booking_action {
             get_string('userparametervalue', 'mod_booking'),
             get_string('userparameter_desc', 'mod_booking')
         );
+
+        // Optional: additional HTTP headers, one "Key: Value" per line (e.g. an
+        // Authorization bearer). Empty = current behaviour (only the cookie header).
+        $mform->addElement('textarea', 'customheaders', get_string('bocustomheaders', 'mod_booking'), ['rows' => 3]);
+        $mform->setType('customheaders', PARAM_TEXT);
+        $mform->addElement('static', 'customheaders_desc', '', get_string('bocustomheaders_desc', 'mod_booking'));
+
+        // Optional: a JSON body template. When set, the request is sent as JSON
+        // (instead of form fields), with mod_booking {placeholders} substituted via
+        // the placeholder framework - {baid} (per-purchase order id), {email},
+        // {firstname}, {lastname}, {username}, {userid}, {optionid}, ... Empty = form POST.
+        $mform->addElement('textarea', 'jsonbody', get_string('bojsonbody', 'mod_booking'), ['rows' => 4]);
+        $mform->setType('jsonbody', PARAM_RAW);
+        $mform->addElement('static', 'jsonbody_desc', '', get_string('bojsonbody_desc', 'mod_booking'));
+
+        // Optional: verify the TLS certificate of the target. Off by default to keep
+        // the existing behaviour; turn on for real external HTTPS endpoints.
+        $mform->addElement(
+            'advcheckbox',
+            'sslverify',
+            get_string('bosslverify', 'mod_booking'),
+            get_string('bosslverify_desc', 'mod_booking')
+        );
+        $mform->setType('sslverify', PARAM_INT);
+
+        // Optional: sign the outgoing request with a JWT (RFC 7519), so any JWT-aware
+        // receiver can verify origin and integrity without a bespoke scheme.
+        $mform->addElement(
+            'advcheckbox',
+            'jwtenable',
+            get_string('bojwtenable', 'mod_booking'),
+            get_string('bojwtenable_desc', 'mod_booking')
+        );
+        $mform->setType('jwtenable', PARAM_INT);
+
+        $mform->addElement(
+            'select',
+            'jwtalg',
+            get_string('bojwtalg', 'mod_booking'),
+            ['HS256' => 'HS256 (shared secret)', 'RS256' => 'RS256 (RSA private key)']
+        );
+        $mform->setDefault('jwtalg', 'HS256');
+        $mform->hideIf('jwtalg', 'jwtenable', 'notchecked');
+        $mform->addElement('static', 'jwtalg_desc', '', get_string('bojwtalg_desc', 'mod_booking'));
+        $mform->hideIf('jwtalg_desc', 'jwtenable', 'notchecked');
+
+        $mform->addElement('textarea', 'jwtkey', get_string('bojwtkey', 'mod_booking'), ['rows' => 3]);
+        $mform->setType('jwtkey', PARAM_RAW);
+        $mform->hideIf('jwtkey', 'jwtenable', 'notchecked');
+        $mform->addElement('static', 'jwtkey_desc', '', get_string('bojwtkey_desc', 'mod_booking'));
+        $mform->hideIf('jwtkey_desc', 'jwtenable', 'notchecked');
+
+        $mform->addElement('text', 'jwtkid', get_string('bojwtkid', 'mod_booking'));
+        $mform->setType('jwtkid', PARAM_TEXT);
+        $mform->hideIf('jwtkid', 'jwtenable', 'notchecked');
+        $mform->addElement('static', 'jwtkid_desc', '', get_string('bojwtkid_desc', 'mod_booking'));
+        $mform->hideIf('jwtkid_desc', 'jwtenable', 'notchecked');
+
+        $mform->addElement('text', 'jwtaudience', get_string('bojwtaudience', 'mod_booking'));
+        $mform->setType('jwtaudience', PARAM_TEXT);
+        $mform->hideIf('jwtaudience', 'jwtenable', 'notchecked');
+        $mform->addElement('static', 'jwtaudience_desc', '', get_string('bojwtaudience_desc', 'mod_booking'));
+        $mform->hideIf('jwtaudience_desc', 'jwtenable', 'notchecked');
+
+        $mform->addElement('text', 'jwtheader', get_string('bojwtheader', 'mod_booking'));
+        $mform->setType('jwtheader', PARAM_TEXT);
+        $mform->setDefault('jwtheader', 'Authorization');
+        $mform->hideIf('jwtheader', 'jwtenable', 'notchecked');
+        $mform->addElement('static', 'jwtheader_desc', '', get_string('bojwtheader_desc', 'mod_booking'));
+        $mform->hideIf('jwtheader_desc', 'jwtenable', 'notchecked');
+
+        $mform->addElement('text', 'jwtttl', get_string('bojwtttl', 'mod_booking'));
+        $mform->setType('jwtttl', PARAM_INT);
+        $mform->setDefault('jwtttl', 300);
+        $mform->hideIf('jwtttl', 'jwtenable', 'notchecked');
+        $mform->addElement('static', 'jwtttl_desc', '', get_string('bojwtttl_desc', 'mod_booking'));
+        $mform->hideIf('jwtttl_desc', 'jwtenable', 'notchecked');
     }
 
     /**
@@ -211,6 +424,10 @@ class executerestscript extends booking_action {
             ) {
                 $errors[$key] = get_string('bocondcustomformnumberserror', 'mod_booking');
             }
+        }
+        // A signed request needs a key to sign with.
+        if (!empty($data['jwtenable']) && trim((string)($data['jwtkey'] ?? '')) === '') {
+            $errors['jwtkey'] = get_string('bojwtkey', 'mod_booking');
         }
         return $errors;
     }
