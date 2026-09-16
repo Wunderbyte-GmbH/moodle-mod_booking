@@ -38,7 +38,7 @@ require_once("$CFG->dirroot/mod/booking/lib.php");
 
 /**
  * MUSI-897: teachers and responsible contacts may duplicate the options they
- * are assigned to. Modelled on mod/booking:addeditownoption - the capability
+ * are assigned to. Modelled on mod/booking:editownoption - the capability
  * only takes effect together with booking_check_if_teacher() on the option
  * that is copied.
  *
@@ -50,11 +50,11 @@ require_once("$CFG->dirroot/mod/booking/lib.php");
 final class duplicateownoption_test extends capability_testcase {
     /**
      * The capability is defined on the module level and allowed for the same
-     * archetypes as addeditownoption.
+     * archetypes as editownoption.
      *
      * @covers \mod_booking\local\option_edit_access::can_edit_option
      */
-    public function test_capability_is_defined_like_addeditownoption(): void {
+    public function test_capability_is_defined_like_editownoption(): void {
         $this->create_option();
 
         $this->assert_capability_default(
@@ -160,7 +160,7 @@ final class duplicateownoption_test extends capability_testcase {
                 option_form::class,
                 ['cmid' => $cmid, 'optionid' => (int)$own->id]
             ),
-            'mod/booking:addeditownoption'
+            'mod/booking:editownoption'
         );
     }
 
@@ -199,7 +199,7 @@ final class duplicateownoption_test extends capability_testcase {
         $this->assertStringNotContainsString(
             get_string('editbookingoption', 'mod_booking'),
             $ownaction,
-            'Without addeditownoption there must be no edit entry.'
+            'Without editownoption there must be no edit entry.'
         );
 
         $otheraction = $table->col_action((object)['id' => (int)$other->id, 'status' => 0]);

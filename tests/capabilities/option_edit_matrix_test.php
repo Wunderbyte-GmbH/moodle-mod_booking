@@ -40,7 +40,7 @@ require_once("$CFG->dirroot/mod/booking/lib.php");
  *
  * |                      | create | edit own | edit other people's |
  * | addoption            | yes    | no       | no                  |
- * | addeditownoption     | no     | yes      | no                  |
+ * | editownoption     | no     | yes      | no                  |
  * | updatebooking        | yes    | yes      | yes                 |
  *
  * "own" means: the user is a teacher of the option (booking_check_if_teacher),
@@ -61,7 +61,7 @@ final class option_edit_matrix_test extends capability_testcase {
         return [
             // Capability, may create, may edit own, may edit other people's.
             'addoption' => ['mod/booking:addoption', true, false, false],
-            'addeditownoption' => ['mod/booking:addeditownoption', false, true, false],
+            'editownoption' => ['mod/booking:editownoption', false, true, false],
             'updatebooking' => ['mod/booking:updatebooking', true, true, true],
         ];
     }

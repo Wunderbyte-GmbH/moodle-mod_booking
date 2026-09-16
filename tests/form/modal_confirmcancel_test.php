@@ -44,7 +44,7 @@ require_once("$CFG->dirroot/mod/booking/lib.php");
 /**
  * MUSI-898: mod/booking:cancelownoption lets a teacher, responsible contact, or
  * creator cancel a booking option they are assigned to, following the same
- * pattern as mod/booking:addeditownoption (has_capability + booking_check_if_teacher()).
+ * pattern as mod/booking:editownoption (has_capability + booking_check_if_teacher()).
  *
  * @covers \mod_booking\form\modal_confirmcancel::check_access_for_dynamic_submission
  */
@@ -199,7 +199,7 @@ final class modal_confirmcancel_test extends booking_advanced_testcase {
 
     /**
      * The option's creator (usercreated) counts as "own option" too, same as
-     * for mod/booking:addeditownoption.
+     * for mod/booking:editownoption.
      *
      * @covers \mod_booking\form\modal_confirmcancel::check_access_for_dynamic_submission
      */
@@ -269,7 +269,7 @@ final class modal_confirmcancel_test extends booking_advanced_testcase {
      * The realistic minimal-role scenario: a role holding nothing but
      * moodle/course:view, mod/booking:view and mod/booking:cancelownoption -
      * in particular NEITHER mod/booking:updatebooking NOR
-     * mod/booking:addeditownoption - is enough to cancel an option, both for
+     * mod/booking:editownoption - is enough to cancel an option, both for
      * the user assigned as teacher and for the user assigned as responsible
      * contact of that option.
      *
@@ -332,7 +332,7 @@ final class modal_confirmcancel_test extends booking_advanced_testcase {
         $this->setUser($teacher);
         $this->assertTrue(has_capability('mod/booking:cancelownoption', $context));
         $this->assertFalse(has_capability('mod/booking:updatebooking', $context));
-        $this->assertFalse(has_capability('mod/booking:addeditownoption', $context));
+        $this->assertFalse(has_capability('mod/booking:editownoption', $context));
         $this->assertTrue(booking_check_if_teacher($option->id, $teacher->id));
 
         $form = $this->build_form($option->id, 0);
@@ -349,7 +349,7 @@ final class modal_confirmcancel_test extends booking_advanced_testcase {
         $this->setUser($responsible);
         $this->assertTrue(has_capability('mod/booking:cancelownoption', $context));
         $this->assertFalse(has_capability('mod/booking:updatebooking', $context));
-        $this->assertFalse(has_capability('mod/booking:addeditownoption', $context));
+        $this->assertFalse(has_capability('mod/booking:editownoption', $context));
         $this->assertTrue(booking_check_if_teacher($option->id, $responsible->id));
 
         $form = $this->build_form($option->id, 0);
@@ -360,13 +360,13 @@ final class modal_confirmcancel_test extends booking_advanced_testcase {
 
     /**
      * The context menu entry itself: mod/booking:cancelownoption is independent
-     * of mod/booking:addeditownoption, so a teacher of the option holding only
+     * of mod/booking:editownoption, so a teacher of the option holding only
      * cancelownoption gets the "cancel this booking option" entry rendered -
      * while the edit entry and the destructive delete entry stay hidden.
      *
      * @covers \mod_booking\table\bookingoptions_wbtable::col_action
      */
-    public function test_cancel_menu_entry_is_independent_of_addeditownoption(): void {
+    public function test_cancel_menu_entry_is_independent_of_editownoption(): void {
         global $PAGE;
 
         $PAGE->set_url('/mod/booking/view.php');
@@ -384,7 +384,7 @@ final class modal_confirmcancel_test extends booking_advanced_testcase {
         singleton_service::destroy_instance();
 
         $this->setUser($teacher);
-        $this->assertFalse(has_capability('mod/booking:addeditownoption', $context));
+        $this->assertFalse(has_capability('mod/booking:editownoption', $context));
         $this->assertFalse(has_capability('mod/booking:updatebooking', $context));
 
         $table = new bookingoptions_wbtable('cancelownoption_menu');
@@ -393,7 +393,7 @@ final class modal_confirmcancel_test extends booking_advanced_testcase {
         $this->assertStringContainsString(
             get_string('cancelthisbookingoption', 'mod_booking'),
             $result,
-            'The cancel entry must be shown even without addeditownoption.'
+            'The cancel entry must be shown even without editownoption.'
         );
         $this->assertStringNotContainsString(
             get_string('deletethisbookingoption', 'mod_booking'),
@@ -403,7 +403,7 @@ final class modal_confirmcancel_test extends booking_advanced_testcase {
         $this->assertStringNotContainsString(
             get_string('editbookingoption', 'mod_booking'),
             $result,
-            'Without addeditownoption there must be no edit entry.'
+            'Without editownoption there must be no edit entry.'
         );
     }
 

@@ -53,7 +53,7 @@ require_once("$CFG->dirroot/mod/booking/lib.php");
  * level + archetypes) and, where the gate is reachable from a class, that the
  * capability really unlocks what the table claims.
  *
- * The three editing layers themselves (addoption / addeditownoption /
+ * The three editing layers themselves (addoption / editownoption /
  * updatebooking and limitededitownoption) are only enforced inline in
  * editoptions.php and in the dynamic forms - they get their own test files.
  * manageoptiondates has no call site in the code at all at the moment; it is
@@ -73,7 +73,13 @@ final class option_editing_capabilities_test extends capability_testcase {
     public static function capability_default_provider(): array {
         return [
             'addoption' => ['mod/booking:addoption', CONTEXT_MODULE, ['editingteacher', 'manager']],
-            'addeditownoption' => ['mod/booking:addeditownoption', CONTEXT_MODULE, ['editingteacher', 'manager']],
+            'editownoption' => ['mod/booking:editownoption', CONTEXT_MODULE, ['editingteacher', 'manager']],
+            'cancelownoption' => ['mod/booking:cancelownoption', CONTEXT_MODULE, ['editingteacher', 'manager']],
+            'duplicateownoption' => ['mod/booking:duplicateownoption', CONTEXT_MODULE, ['editingteacher', 'manager']],
+            'managebookingsownoption' => ['mod/booking:managebookingsownoption', CONTEXT_MODULE, ['editingteacher', 'manager']],
+            'sendmailownoption' => ['mod/booking:sendmailownoption', CONTEXT_MODULE, ['editingteacher', 'manager']],
+            'editteachersownoption' => ['mod/booking:editteachersownoption', CONTEXT_MODULE, ['editingteacher', 'manager']],
+            'viewteacherreports' => ['mod/booking:viewteacherreports', CONTEXT_MODULE, ['editingteacher', 'manager']],
             'limitededitownoption' => [
                 'mod/booking:limitededitownoption',
                 CONTEXT_MODULE,
