@@ -25,23 +25,45 @@
 
     Context variables required for this template:
     * cmid int The booking course module id.
+    * optionid int The booking option the scanner is started for (0 = any option of the instance).
+    * optionname string Title of that option (option mode only).
+    * hasdates bool Whether the option has dates to choose from (option mode only).
+    * dates array Dates of the option: optiondateid, label, present, selected (option mode only).
 
     Example context (json):
     {
-        "cmid": 42
+        "cmid": 42,
+        "optionid": 7,
+        "optionname": "Concert",
+        "hasdates": true,
+        "dates": [
+            {
+                "optiondateid": 3,
+                "label": "1 May 2026, 20:00 - 22:00",
+                "present": false,
+                "selected": true
+            }
+        ]
     }
 }}
-<div class="booking-scanner" data-region="scanner" data-cmid="{{cmid}}">
+<div class="booking-scanner" data-region="scanner" data-cmid="{{cmid}}" data-optionid="{{optionid}}">
+    {{#optionid}}
+    <p class="lead mb-2" data-region="scanner-option">{{#str}} ticketscannerforoption, mod_booking, {{optionname}} {{/str}}</p>
+    {{/optionid}}
     <div class="d-flex justify-content-between align-items-center mb-2">
         <span class="badge badge-secondary p-2" data-region="scanner-counter">{{#str}} ticketscannercounter, mod_booking, {"present": "0", "booked": "0"} {{/str}}</span>
         <button type="button" class="btn btn-primary" data-action="scanner-start">{{#str}} ticketscannerstart, mod_booking {{/str}}</button>
     </div>
 
-    <div class="booking-scanner-datebar card mb-2 d-none" data-region="scanner-datebar">
+    <div class="booking-scanner-datebar card mb-2 {{^hasdates}}d-none{{/hasdates}}" data-region="scanner-datebar">
         <div class="card-body p-2">
-            <div class="font-weight-bold fw-bold small text-truncate" data-region="scanner-datebar-option"></div>
+            <div class="font-weight-bold fw-bold small text-truncate" data-region="scanner-datebar-option">{{optionname}}</div>
             <label class="sr-only visually-hidden" for="booking-scanner-dateselect-{{cmid}}">{{#str}} ticketscannerdate, mod_booking {{/str}}</label>
-            <select class="custom-select form-select" id="booking-scanner-dateselect-{{cmid}}" data-region="scanner-dateselect"></select>
+            <select class="custom-select form-select" id="booking-scanner-dateselect-{{cmid}}" data-region="scanner-dateselect">
+                {{#dates}}
+                <option value="{{optiondateid}}" {{#selected}}selected{{/selected}}>{{label}}</option>
+                {{/dates}}
+            </select>
         </div>
     </div>
 

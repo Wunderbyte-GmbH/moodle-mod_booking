@@ -158,6 +158,13 @@ $functions = [
             'capabilities' => '',
             'ajax' => 1,
     ],
+    'mod_booking_search_ticketscanners' => [
+        'classname'     => 'mod_booking\\external\\search_ticketscanners',
+        'description'   => 'Search users who may be picked as entry staff of a booking option (SofaTicket)',
+        'type'          => 'read',
+        'capabilities'  => '',
+        'ajax'          => 1,
+    ],
     'mod_booking_search_teachers' => [
         'classname' => 'mod_booking\external\search_teachers',
         'description' => 'Search a list of booking teachers',

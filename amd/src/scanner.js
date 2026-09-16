@@ -78,6 +78,8 @@ const PLACEHOLDER_PICTURE = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5B
  *
  * @param {object} config
  * @param {number} config.cmid Booking course module id.
+ * @param {number} config.optionid Option the scanner was started for (0 = any option of the instance).
+ * @param {number} config.optiondateid Preselected date of that option (0 = none).
  * @param {boolean} config.serialscan Return to the camera automatically after each decision.
  * @param {number} config.duplicatewindow Seconds within which a repeat of a confirmed code is ignored.
  * @param {boolean} config.showpicture Whether the profile picture is part of the configured identity data.
@@ -97,14 +99,18 @@ export const init = async(config) => {
     const [
         sValid, sNotfound, sScanning, sStart, sStop, sStopped, sNocamera,
         sNodetector, sPermission, sInvalid, sDuplicate, sError, sConfirmidentity, sRejected,
-        sConfirmprompt, sCheckedin,
+        sConfirmprompt, sCheckedin, sClosed,
     ] = await getStrings([
         'ticketvalid', 'ticketnotfound', 'ticketscannerscanning', 'ticketscannerstart',
         'ticketscannerstop', 'ticketscannerstopped', 'ticketscannernocamera',
         'ticketscannernodetector', 'ticketscannerpermissiondenied', 'ticketscannerinvalid',
         'ticketscannerduplicate', 'ticketscannererror', 'ticketverifyidentityprompt',
         'ticketentryrejected', 'ticketscannerconfirmprompt', 'ticketscannercheckedin',
+        'ticketscannerclosed',
     ].map((key) => ({key, component: 'mod_booking'})));
+
+    // Option mode: every request carries the option the scanner was started for.
+    const expectedoptionid = parseInt(config.optionid, 10) || 0;
 
     const state = {
         running: false,
@@ -123,6 +129,10 @@ export const init = async(config) => {
         datebyoption: {},
         baroptionid: 0,
     };
+    if (expectedoptionid) {
+        state.baroptionid = expectedoptionid;
+        state.datebyoption[expectedoptionid] = parseInt(config.optiondateid, 10) || 0;
+    }
 
     const setStatus = (text) => {
         if (els.status) {
@@ -202,6 +212,10 @@ export const init = async(config) => {
         if (!els.datebar) {
             return;
         }
+        if (expectedoptionid && response.optionid !== expectedoptionid) {
+            // A foreign ticket never changes the bar pinned to the scanner's option.
+            return;
+        }
         if (!response.optionid || !response.dates || !response.dates.length) {
             els.datebar.classList.add('d-none');
             state.baroptionid = 0;
@@ -216,7 +230,8 @@ export const init = async(config) => {
 
     /**
      * The date to request for a scan: the sticky selection of the option shown in the date bar.
-     * The server ignores it when the ticket belongs to another option and picks that option's nearest date.
+     * In instance mode the server ignores it when the ticket belongs to another option and picks that
+     * option's nearest date; in option mode a foreign ticket is refused anyway.
      *
      * @return {number}
      */
@@ -336,11 +351,20 @@ export const init = async(config) => {
         if (hasdates) {
             await fillDateSelect(els.overlaydateselect, response.dates, response.optiondateid);
         }
-        const showidentity = response.status !== 'notfound'
+        const showidentity = ['valid', 'revoked'].includes(response.status)
             && (response.personalized || response.requiresconfirmation);
         renderIdentity(response, showidentity);
 
-        if (response.status === 'valid' && response.alreadypresent) {
+        if (response.status === 'wrongoption') {
+            const headline = await getString('ticketscannerwrongoption', 'mod_booking', response.eventname);
+            showOverlay('danger', headline, {}, response.expectedeventname, 'next');
+        } else if (response.status === 'closed') {
+            const detail = response.nextopen
+                ? await getString('ticketscannerclosednextopen', 'mod_booking',
+                    new Date(response.nextopen * 1000).toLocaleString())
+                : '';
+            showOverlay('danger', sClosed, response, detail, 'next');
+        } else if (response.status === 'valid' && response.alreadypresent) {
             const headline = await getString('ticketalreadypresent', 'mod_booking', formatTime(response.presenttime));
             showOverlay('warning', headline, response, response.eventdatelabel, 'next');
         } else if (response.status === 'valid') {
@@ -366,7 +390,7 @@ export const init = async(config) => {
         state.busy = true;
         const request = Ajax.call([{
             methodname: 'mod_booking_verify_ticket',
-            args: {code, checkin: false, confirmed: false, optiondateid: optiondateid || 0},
+            args: {code, checkin: false, confirmed: false, optiondateid: optiondateid || 0, expectedoptionid},
         }]);
         return request[0]
             .then((response) => renderLookup(response, code))
@@ -393,7 +417,7 @@ export const init = async(config) => {
         els.rejectbutton.disabled = true;
         const request = Ajax.call([{
             methodname: 'mod_booking_verify_ticket',
-            args: {code, checkin: true, confirmed: true, optiondateid: response.optiondateid || 0},
+            args: {code, checkin: true, confirmed: true, optiondateid: response.optiondateid || 0, expectedoptionid},
         }]);
         request[0]
             .then(async(written) => {
@@ -440,7 +464,7 @@ export const init = async(config) => {
         els.rejectbutton.disabled = true;
         const request = Ajax.call([{
             methodname: 'mod_booking_reject_ticket',
-            args: {code, optiondateid: response.optiondateid || 0},
+            args: {code, optiondateid: response.optiondateid || 0, expectedoptionid},
         }]);
         request[0]
             .catch((error) => {

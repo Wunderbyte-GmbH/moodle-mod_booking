@@ -61,7 +61,7 @@ if (empty($ticket) || empty($settings->id)) {
 }
 
 $context = context_module::instance($settings->cmid);
-$isstaff = isloggedin() && !isguestuser() && has_capability('mod/booking:scanticket', $context);
+$isstaff = isloggedin() && !isguestuser() && ticket_manager::can_scan((int) $settings->cmid, (int) $settings->id);
 $isholder = isloggedin() && !isguestuser() && (int) $USER->id === (int) $ticket->userid;
 
 // 1. Validity.
@@ -112,7 +112,7 @@ if ($isstaff) {
     }
     echo html_writer::div(
         html_writer::link(
-            new moodle_url('/mod/booking/scan.php', ['id' => $settings->cmid]),
+            new moodle_url('/mod/booking/scan.php', ['optionid' => $settings->id]),
             get_string('ticketscanner', 'mod_booking'),
             ['class' => 'btn btn-primary']
         ),

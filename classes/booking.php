@@ -182,9 +182,12 @@ class booking {
      * Function to lazyload userlist for autocomplete.
      *
      * @param string $query
+     * @param string $restrictsql Optional SQL restricting the user ids, e.g. from get_enrolled_sql(),
+     *                            applied as "u.id IN ($restrictsql)" so the 100 rows limit only counts matches.
+     * @param array $restrictparams Params of $restrictsql.
      * @return array
      */
-    public static function load_users(string $query) {
+    public static function load_users(string $query, string $restrictsql = '', array $restrictparams = []) {
         global $DB;
 
         $values = explode(' ', $query);
@@ -202,15 +205,17 @@ class booking {
         );
 
         // We do not load any deleted, suspended or unconfirmed users.
+        $restrict = $restrictsql !== '' ? " AND u.id IN ($restrictsql)" : '';
         $sql = "SELECT * FROM (
                     SELECT u.id, u.firstname, u.lastname, u.email, $fullsql AS fulltextstring
                       FROM {user} u
                      WHERE u.deleted = 0
                        AND u.suspended = 0
                        AND u.confirmed = 1
+                       $restrict
                 ) AS fulltexttable";
 
-        $params = [];
+        $params = $restrictparams;
         if (!empty($query)) {
             // We search for every word extra to get better results.
             $firstrun = true;

@@ -1360,6 +1360,22 @@ class bookingoptions_wbtable extends wunderbyte_table {
             }
         }
 
+        $canscan = \mod_booking\local\ticket\ticket_manager::is_enabled_for_option((int) $optionid)
+            && \mod_booking\local\ticket\ticket_manager::can_scan((int) $cmid, (int) $optionid);
+        if ($canscan && !($canupdate || $isteacherandcanedit)) {
+            // Entry staff without editing rights get no dropdown, so the scanner is a button for them.
+            $ret .= html_writer::link(
+                new moodle_url('/mod/booking/scan.php', ['optionid' => $optionid]),
+                '<i class="icon fa fa-qrcode fa-fw" aria-hidden="true" title="' .
+                    get_string('ticketscanner', 'mod_booking') . '"></i>' . get_string('ticketscanner', 'mod_booking'),
+                [
+                    'class' => 'btn btn-outline-secondary btn-sm mod-booking-scanner-link',
+                    'role' => 'button',
+                    'aria-label' => get_string('ticketscanner', 'mod_booking'),
+                ]
+            );
+        }
+
         if ($canupdate || $isteacherandcanedit) {
             $ret .= html_writer::link(
                 new moodle_url(
@@ -1429,6 +1445,17 @@ class bookingoptions_wbtable extends wunderbyte_table {
                     '" title="' . get_string('bookingstracker', 'mod_booking') . '" >
                     </i>' .
                     get_string('bookingstracker', 'mod_booking')
+                ) . '</div>';
+            }
+
+            if ($canscan) {
+                $ddoptions[] = '<div class="dropdown-item">' . html_writer::link(
+                    new moodle_url('/mod/booking/scan.php', ['optionid' => $optionid]),
+                    '<i class="icon fa fa-qrcode fa-fw" aria-hidden="true"
+                        aria-label="' . get_string('ticketscanner', 'mod_booking') .
+                    '" title="' . get_string('ticketscanner', 'mod_booking') . '" >
+                    </i>' .
+                    get_string('ticketscanner', 'mod_booking')
                 ) . '</div>';
             }
 

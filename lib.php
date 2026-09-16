@@ -572,7 +572,7 @@ function booking_pluginfile($course, $cm, $context, $filearea, $args, $forcedown
         if (
             (int) $ticket->userid !== (int) $USER->id
             && !has_capability('mod/booking:viewticketreport', $context)
-            && !has_capability('mod/booking:scanticket', $context)
+            && !\mod_booking\local\ticket\ticket_manager::can_scan((int) $cm->id, (int) $ticket->optionid)
         ) {
             return false;
         }
@@ -1569,19 +1569,24 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
     $viewphpurl = new moodle_url('/mod/booking/view.php', ['id' => $cmid]);
     $returnurl = $viewphpurl->out();
 
-    // Entry scanner for staff at the door.
+    // Entry scanner for staff at the door: for the option on the page, else instance-wide.
+    // Lives in the "More" menu of the secondary navigation, it is no everyday tab.
     if (
         get_config('booking', 'bookingticketon')
-        && has_capability('mod/booking:scanticket', $context)
+        && \mod_booking\local\ticket\ticket_manager::can_scan((int) $cmid, (int) $optionid)
     ) {
-        $navref->add(
+        $scannerurl = !empty($optionid)
+            ? new moodle_url('/mod/booking/scan.php', ['optionid' => $optionid])
+            : new moodle_url('/mod/booking/scan.php', ['id' => $cmid]);
+        $scannernode = $navref->add(
             get_string('ticketscanner', 'mod_booking'),
-            new moodle_url('/mod/booking/scan.php', ['id' => $cmid]),
+            $scannerurl,
             navigation_node::TYPE_CUSTOM,
             null,
             'bookingticketscanner',
             new pix_icon('i/scheduled', '')
         );
+        $scannernode->set_force_into_more_menu(true);
     }
 
     if (

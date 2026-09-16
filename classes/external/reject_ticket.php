@@ -60,6 +60,12 @@ class reject_ticket extends external_api {
                 VALUE_DEFAULT,
                 0
             ),
+            'expectedoptionid' => new external_value(
+                PARAM_INT,
+                'Scanner started for this option (permission is checked there). 0 = instance-wide scanner.',
+                VALUE_DEFAULT,
+                0
+            ),
         ]);
     }
 
@@ -68,16 +74,29 @@ class reject_ticket extends external_api {
      *
      * @param string $code
      * @param int $optiondateid
+     * @param int $expectedoptionid
      *
      * @return array
      */
-    public static function execute(string $code, int $optiondateid = 0): array {
+    public static function execute(string $code, int $optiondateid = 0, int $expectedoptionid = 0): array {
         $params = external_api::validate_parameters(
             self::execute_parameters(),
-            ['code' => $code, 'optiondateid' => $optiondateid]
+            ['code' => $code, 'optiondateid' => $optiondateid, 'expectedoptionid' => $expectedoptionid]
         );
         $code = $params['code'];
         $optiondateid = $params['optiondateid'];
+        $expectedoptionid = $params['expectedoptionid'];
+
+        // Same permission model as verify_ticket: option mode checks the option the scanner was
+        // started for, instance mode the ticket's booking instance (capability only).
+        if ($expectedoptionid) {
+            $expected = singleton_service::get_instance_of_booking_option_settings($expectedoptionid);
+            if (empty($expected->id)) {
+                throw new \moodle_exception('invalidrecord', 'error', '', 'booking_options');
+            }
+            self::validate_context(context_module::instance($expected->cmid));
+            ticket_manager::require_can_scan((int) $expected->cmid, $expectedoptionid);
+        }
 
         $ticket = ticket_manager::find_by_code($code);
         if (empty($ticket)) {
@@ -90,8 +109,15 @@ class reject_ticket extends external_api {
         }
 
         $context = context_module::instance($settings->cmid);
-        self::validate_context($context);
-        require_capability('mod/booking:scanticket', $context);
+        if (empty($expectedoptionid)) {
+            self::validate_context($context);
+            ticket_manager::require_can_scan((int) $settings->cmid, 0);
+        }
+
+        // Outside the availability window of the ticket's option nothing is recorded.
+        if (!ticket_manager::get_scan_window($optionid)['open']) {
+            return ['status' => 'closed'];
+        }
 
         $event = ticket_rejected::create([
             'context' => $context,
@@ -115,7 +141,7 @@ class reject_ticket extends external_api {
      */
     public static function execute_returns(): external_single_structure {
         return new external_single_structure([
-            'status' => new external_value(PARAM_ALPHA, 'One of: rejected, notfound'),
+            'status' => new external_value(PARAM_ALPHA, 'One of: rejected, notfound, closed (outside the scan window)'),
         ]);
     }
 }

@@ -167,4 +167,33 @@ final class option_field_ticket_test extends booking_advanced_testcase {
 
         $this->assertTrue(ticket_manager::is_personalized($optionid));
     }
+
+    /**
+     * Entry staff and the availability thresholds are stored in the option json; 0 / empty removes them.
+     */
+    public function test_scanners_and_window_saved(): void {
+        $staff = $this->getDataGenerator()->create_user();
+        $optionid = $this->create_option([
+            'ticket' => $this->templateid,
+            'ticketscanners' => [$staff->id],
+            'ticketscanbefore' => 2 * HOURSECS,
+            'ticketscanafter' => 0,
+        ]);
+        $this->assertEquals([(int) $staff->id], ticket_manager::get_scanner_userids($optionid));
+        $this->assertEquals(2 * HOURSECS, (int) booking_option::get_value_of_json_by_key($optionid, 'ticketscanbefore'));
+        $this->assertNull(booking_option::get_value_of_json_by_key($optionid, 'ticketscanafter'));
+
+        // Import style: a comma separated string.
+        $second = $this->getDataGenerator()->create_user();
+        $optionid2 = $this->create_option(['ticket' => $this->templateid, 'ticketscanners' => "{$staff->id},{$second->id}"]);
+        $this->assertEqualsCanonicalizing(
+            [(int) $staff->id, (int) $second->id],
+            ticket_manager::get_scanner_userids($optionid2)
+        );
+
+        // Without a design nothing is stored.
+        $optionid3 = $this->create_option(['ticket' => 0, 'ticketscanners' => [$staff->id], 'ticketscanbefore' => 60]);
+        $this->assertSame([], ticket_manager::get_scanner_userids($optionid3));
+        $this->assertNull(booking_option::get_value_of_json_by_key($optionid3, 'ticketscanbefore'));
+    }
 }
