@@ -203,7 +203,7 @@ ticket list via `mytickets.php?userid=<id>`.
 ## 6. Checking tickets at the door
 
 Open the booking activity and choose **Ticket scanner** from the activity navigation, or go to
-`/mod/booking/scan.php?id=<cmid>` directly. It requires the `mod/booking:scanticket` capability.
+`/mod/booking/scan.php?optionid=<optionid>` (scanner for one option: tickets of other options are refused) or `/mod/booking/scan.php?id=<cmid>` (any option of the instance) directly. Scanning requires the `mod/booking:scanticket` capability, or - for one option - being picked as entry staff in the option's "Ticketing" section. The option's "Ticketing" section can also limit when the scanner is available (a threshold before and after each date; unlimited by default).
 
 1. Press **Start scanner** and allow camera access.
 2. Point the camera at the QR code on a ticket.

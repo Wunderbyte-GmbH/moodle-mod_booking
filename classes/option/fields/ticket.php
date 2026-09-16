@@ -26,6 +26,7 @@ namespace mod_booking\option\fields;
 
 use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
+use mod_booking\singleton_service;
 use mod_booking\local\ticket\ticket_manager;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
@@ -74,7 +75,7 @@ class ticket extends field_base {
      * Additionally to the classname, there might be others keys which should instantiate this class.
      * @var array
      */
-    public static $alternativeimportidentifiers = ['tickettemplate'];
+    public static $alternativeimportidentifiers = ['tickettemplate', 'ticketscanners', 'ticketscanbefore', 'ticketscanafter'];
 
     /**
      * This is an array of incompatible field ids.
@@ -93,6 +94,9 @@ class ticket extends field_base {
         ticket_manager::JSON_PERSONALIZED,
         ticket_manager::JSON_CONFIRMIDENTITY,
         ticket_manager::JSON_EXTRAINFO,
+        ticket_manager::JSON_SCANNERS,
+        ticket_manager::JSON_SCANBEFORE,
+        ticket_manager::JSON_SCANAFTER,
     ];
 
     /**
@@ -143,6 +147,17 @@ class ticket extends field_base {
         foreach (self::$ticketkeys as $ticketkey) {
             $value = $formdata->{$ticketkey} ?? null;
 
+            if ($ticketkey === ticket_manager::JSON_SCANNERS) {
+                $value = self::merge_scanners($formdata, $value);
+                // Keep the form value in sync so the change tracking compares like with like.
+                $formdata->{$ticketkey} = $value;
+            } else if (
+                in_array($ticketkey, [ticket_manager::JSON_SCANBEFORE, ticket_manager::JSON_SCANAFTER], true)
+                && $value !== null
+            ) {
+                $value = (int) $value;
+            }
+
             // Personalised defaults to true when the key is absent, so an explicit 0 (transferable
             // ticket) has to be stored as such; the other flags are simply dropped when off.
             $store = $ticketkey === ticket_manager::JSON_PERSONALIZED ? $value !== null : !empty($value);
@@ -159,6 +174,70 @@ class ticket extends field_base {
         }
 
         return ['changes' => $changes];
+    }
+
+    /**
+     * The entry staff list to store: the submitted users the saver may see, plus the stored users
+     * the saver may NOT see (so a teacher never silently drops staff a manager picked).
+     *
+     * Accepts an array of ids (form) or a comma separated string (import).
+     *
+     * @param stdClass $formdata
+     * @param mixed $submitted
+     *
+     * @return int[] Sorted, unique user ids.
+     */
+    private static function merge_scanners(stdClass $formdata, $submitted): array {
+        if ($submitted === null) {
+            $submitted = [];
+        } else if (is_string($submitted)) {
+            $submitted = explode(',', $submitted);
+        }
+        $submitted = array_values(array_unique(array_filter(array_map('intval', (array) $submitted))));
+
+        $optionid = (int) ($formdata->id ?? 0);
+        $stored = $optionid ? ticket_manager::get_scanner_userids($optionid) : [];
+        if (empty($stored)) {
+            sort($submitted);
+            return $submitted;
+        }
+
+        $course = self::get_course_for_formdata($formdata);
+        $final = $submitted;
+        foreach ($stored as $userid) {
+            $user = singleton_service::get_instance_of_user($userid);
+            if (
+                $course !== null
+                && !empty($user->id)
+                && !ticket_manager::user_may_pick_scanner($user, $course)
+                && !in_array($userid, $final, true)
+            ) {
+                $final[] = $userid;
+            }
+        }
+        $final = array_values(array_unique($final));
+        sort($final);
+        return $final;
+    }
+
+    /**
+     * The course record of the booking instance the option form belongs to, or null.
+     *
+     * @param stdClass $formdata
+     *
+     * @return stdClass|null
+     */
+    private static function get_course_for_formdata(stdClass $formdata): ?stdClass {
+        $cmid = (int) ($formdata->cmid ?? 0);
+        if (empty($cmid)) {
+            return null;
+        }
+        try {
+            $context = \context_module::instance($cmid);
+            return get_course($context->get_course_context()->instanceid);
+        } catch (\Throwable $e) {
+            return null;
+        }
     }
 
     /**
@@ -235,6 +314,53 @@ class ticket extends field_base {
         $mform->setType(ticket_manager::JSON_EXTRAINFO, PARAM_TEXT);
         $mform->hideIf(ticket_manager::JSON_EXTRAINFO, 'ticket', 'eq', 0);
 
+        // Entry staff without the scan capability, picked among the users the editor may see.
+        $scanneroptions = [
+            'ajax' => 'mod_booking/form_ticketscanners_selector',
+            'multiple' => true,
+            'noselectionstring' => get_string('choose...', 'mod_booking'),
+            'valuehtmlcallback' => function ($value) use ($formdata) {
+                global $OUTPUT;
+                if (empty($value)) {
+                    return get_string('choose...', 'mod_booking');
+                }
+                $user = singleton_service::get_instance_of_user((int) $value);
+                $course = self::get_course_for_formdata((object) $formdata);
+                if (empty($user->id) || $course === null || !ticket_manager::user_may_pick_scanner($user, $course)) {
+                    return false;
+                }
+                return $OUTPUT->render_from_template('mod_booking/form-user-selector-suggestion', [
+                    'id' => $user->id,
+                    'email' => $user->email,
+                    'firstname' => $user->firstname,
+                    'lastname' => $user->lastname,
+                ]);
+            },
+        ];
+        $mform->addElement(
+            'autocomplete',
+            ticket_manager::JSON_SCANNERS,
+            get_string('ticketscanners', 'mod_booking'),
+            [],
+            $scanneroptions
+        );
+        $mform->addHelpButton(ticket_manager::JSON_SCANNERS, 'ticketscanners', 'mod_booking');
+        $mform->hideIf(ticket_manager::JSON_SCANNERS, 'ticket', 'eq', 0);
+
+        // Availability window of the scanner around every date of the option; 0 = unlimited.
+        foreach ([ticket_manager::JSON_SCANBEFORE, ticket_manager::JSON_SCANAFTER] as $windowkey) {
+            $mform->addElement(
+                'duration',
+                $windowkey,
+                get_string($windowkey, 'mod_booking'),
+                ['optional' => false, 'defaultunit' => HOURSECS]
+            );
+            $mform->addHelpButton($windowkey, $windowkey, 'mod_booking');
+            $mform->setType($windowkey, PARAM_INT);
+            $mform->setDefault($windowkey, 0);
+            $mform->hideIf($windowkey, 'ticket', 'eq', 0);
+        }
+
         // Tickets are delivered by a booking rule, not by this form.
         $mform->addElement(
             'static',
@@ -282,13 +408,26 @@ class ticket extends field_base {
         $keys = array_merge([fields_info::get_class_name(static::class)], self::$ticketkeys);
         foreach ($keys as $key) {
             // The free text field defaults to an empty string, "personalised" to 1 (see
-            // ticket_manager::is_personalized()), the other flags to 0.
-            $default = $key === ticket_manager::JSON_EXTRAINFO ? '' : ($key === ticket_manager::JSON_PERSONALIZED ? 1 : 0);
+            // ticket_manager::is_personalized()), the staff list to [], the other values to 0.
+            $default = 0;
+            if ($key === ticket_manager::JSON_EXTRAINFO) {
+                $default = '';
+            } else if ($key === ticket_manager::JSON_PERSONALIZED) {
+                $default = 1;
+            } else if ($key === ticket_manager::JSON_SCANNERS) {
+                $default = [];
+            }
             // On import the value coming from the file wins, otherwise we always load from json.
             if (!empty($data->importing)) {
                 $data->{$key} = $data->{$key} ?? booking_option::get_value_of_json_by_key((int) $data->id, $key) ?? $default;
             } else {
                 $data->{$key} = booking_option::get_value_of_json_by_key((int) $data->id, $key) ?? $default;
+            }
+            if ($key === ticket_manager::JSON_SCANNERS && !is_string($data->{$key})) {
+                // The autocomplete preselects string values only.
+                $ids = array_filter(array_map('intval', (array) $data->{$key}));
+                sort($ids);
+                $data->{$key} = array_map(fn($id) => "$id", $ids);
             }
         }
     }

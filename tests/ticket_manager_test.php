@@ -25,7 +25,9 @@
 namespace mod_booking;
 
 use mod_booking\tests\booking_advanced_testcase;
+use mod_booking\booking_option;
 use mod_booking\external\reject_ticket;
+use mod_booking\external\search_ticketscanners;
 use mod_booking\external\verify_ticket;
 use mod_booking\local\ticket\ticket_manager;
 use mod_booking\local\ticket\ticket_template_installer;
@@ -52,6 +54,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @covers \mod_booking\local\ticket\ticket_manager
  * @covers \mod_booking\external\verify_ticket
  * @covers \mod_booking\external\reject_ticket
+ * @covers \mod_booking\external\search_ticketscanners
  */
 final class ticket_manager_test extends booking_advanced_testcase {
     /** @var stdClass Course. */
@@ -934,5 +937,252 @@ final class ticket_manager_test extends booking_advanced_testcase {
         $this->assertStringContainsString('mod-booking-editoption-link', $html);
         $this->assertStringNotContainsString('mod-booking-ticket-link', $html);
         $this->assertStringNotContainsString('viewconfirmation.php', $html);
+    }
+
+    /**
+     * Store a scanner user list / thresholds directly and drop the cached option settings.
+     *
+     * @param array $json Keys to merge into the option json.
+     *
+     * @return void
+     */
+    protected function set_option_json(array $json): void {
+        global $DB;
+        $record = $DB->get_record('booking_options', ['id' => $this->settings->id], 'id, json');
+        $data = json_decode($record->json ?: '{}', true) ?: [];
+        foreach ($json as $key => $value) {
+            if ($value === null) {
+                unset($data[$key]);
+            } else {
+                $data[$key] = $value;
+            }
+        }
+        $DB->set_field('booking_options', 'json', json_encode($data), ['id' => $this->settings->id]);
+        // The settings live in a MUC cache and the singleton: purge both, like a real save does.
+        booking_option::purge_cache_for_option($this->settings->id);
+        $this->settings = singleton_service::get_instance_of_booking_option_settings($this->settings->id);
+    }
+
+    /**
+     * can_scan(): the capability, or the option's staff list - and nothing else.
+     *
+     * @covers \mod_booking\local\ticket\ticket_manager::can_scan
+     */
+    public function test_can_scan(): void {
+        $this->build_environment();
+        $cmid = (int) $this->settings->cmid;
+        $optionid = $this->settings->id;
+        $staff = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->enrol_user($staff->id, $this->course->id, 'student');
+
+        // Capability holder (editingteacher): instance and option.
+        $this->assertTrue(ticket_manager::can_scan($cmid, 0, $this->teacher->id));
+        $this->assertTrue(ticket_manager::can_scan($cmid, $optionid, $this->teacher->id));
+        // Plain student: nothing.
+        $this->assertFalse(ticket_manager::can_scan($cmid, 0, $staff->id));
+        $this->assertFalse(ticket_manager::can_scan($cmid, $optionid, $staff->id));
+
+        // Picked as entry staff: this option only, never the instance-wide scanner.
+        $this->set_option_json([ticket_manager::JSON_SCANNERS => [(string) $staff->id]]);
+        $this->assertEquals([(int) $staff->id], ticket_manager::get_scanner_userids($optionid));
+        $this->assertTrue(ticket_manager::can_scan($cmid, $optionid, $staff->id));
+        $this->assertFalse(ticket_manager::can_scan($cmid, 0, $staff->id));
+        $this->assertFalse(ticket_manager::can_scan($cmid, $optionid + 1000, $staff->id));
+        $this->assertFalse(ticket_manager::can_scan($cmid, $optionid, (int) guest_user()->id));
+        $this->setUser(null);
+        $this->assertFalse(ticket_manager::can_scan($cmid, $optionid), 'Nobody logged in.');
+
+        // Current user default.
+        $this->setUser($staff);
+        $this->assertTrue(ticket_manager::can_scan($cmid, $optionid));
+        $this->expectException(\required_capability_exception::class);
+        ticket_manager::require_can_scan($cmid, 0);
+    }
+
+    /**
+     * The availability window around each date.
+     *
+     * @covers \mod_booking\local\ticket\ticket_manager::get_scan_window
+     */
+    public function test_get_scan_window(): void {
+        [$past, $running, $future] = $this->build_dated_environment();
+        $optionid = $this->settings->id;
+        $now = time();
+
+        // No thresholds: always open.
+        $this->assertTrue(ticket_manager::get_scan_window($optionid, $now)['open']);
+
+        // One hour before / after each date: open during the running date.
+        $this->set_option_json([ticket_manager::JSON_SCANBEFORE => HOURSECS, ticket_manager::JSON_SCANAFTER => HOURSECS]);
+        $window = ticket_manager::get_scan_window($optionid, $now);
+        $this->assertTrue($window['open']);
+        $this->assertEquals((int) $running->courseendtime + HOURSECS, $window['closesat']);
+
+        // Between the dates: closed, next opening one hour before the future date.
+        $between = (int) $running->courseendtime + 2 * HOURSECS;
+        $window = ticket_manager::get_scan_window($optionid, $between);
+        $this->assertFalse($window['open']);
+        $this->assertEquals((int) $future->coursestarttime - HOURSECS, $window['nextopen']);
+
+        // Only "after" set: open from the beginning of time until the last date's end + after.
+        $this->set_option_json([ticket_manager::JSON_SCANBEFORE => null]);
+        $this->assertTrue(ticket_manager::get_scan_window($optionid, $between)['open']);
+        $this->assertTrue(ticket_manager::get_scan_window($optionid, (int) $past->coursestarttime - 10 * DAYSECS)['open']);
+        $this->assertFalse(ticket_manager::get_scan_window($optionid, (int) $future->courseendtime + 2 * HOURSECS)['open']);
+
+        // Only "before" set: closed until one hour before the first date, open ever after.
+        $this->set_option_json([ticket_manager::JSON_SCANBEFORE => HOURSECS, ticket_manager::JSON_SCANAFTER => null]);
+        $this->assertFalse(ticket_manager::get_scan_window($optionid, (int) $past->coursestarttime - 2 * HOURSECS)['open']);
+        $this->assertTrue(ticket_manager::get_scan_window($optionid, (int) $future->courseendtime + 10 * DAYSECS)['open']);
+
+        // All dates in the past with both thresholds: closed, no next opening.
+        $this->set_option_json([ticket_manager::JSON_SCANAFTER => HOURSECS]);
+        $window = ticket_manager::get_scan_window($optionid, (int) $future->courseendtime + 2 * HOURSECS);
+        $this->assertFalse($window['open']);
+        $this->assertEquals(0, $window['nextopen']);
+    }
+
+    /**
+     * Options without dates are always open, whatever the thresholds say.
+     */
+    public function test_get_scan_window_without_dates(): void {
+        $this->build_environment();
+        $this->set_option_json([ticket_manager::JSON_SCANBEFORE => 60, ticket_manager::JSON_SCANAFTER => 60]);
+        $this->assertTrue(ticket_manager::get_scan_window($this->settings->id)['open']);
+    }
+
+    /**
+     * Option mode: a ticket of another option is refused with "wrongoption" and no holder data,
+     * the permission is checked on the option the scanner was started for.
+     */
+    public function test_verify_wrong_option(): void {
+        $this->build_environment();
+        $this->book_student();
+        $ticket = ticket_manager::find_valid_ticket($this->settings->id, $this->student->id);
+
+        // A second option in the same instance the scanner is started for.
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $other = $plugingenerator->create_option((object) [
+            'bookingid' => $this->booking->id,
+            'text' => 'Other option',
+            'chooseorcreatecourse' => 1,
+            'courseid' => $this->course->id,
+            'description' => 'Other',
+            'ticket' => $this->templateid,
+        ]);
+
+        $this->setUser($this->teacher);
+        $result = verify_ticket::execute($ticket->code, true, true, 0, (int) $other->id);
+        $this->assertEquals('wrongoption', $result['status']);
+        $this->assertEquals($this->settings->id, $result['optionid']);
+        $this->assertStringContainsString('Test option', $result['eventname']);
+        $this->assertStringContainsString('Other option', $result['expectedeventname']);
+        $this->assertSame('', $result['fullname']);
+        $this->assertEquals(0, $result['userid']);
+        $this->assertSame([], $result['identityfields']);
+        $this->assertEquals(MOD_BOOKING_PRESENCE_STATUS_NOTSET, $this->current_presence());
+
+        // Rejecting a foreign ticket in option mode works for the same staff.
+        $this->assertEquals('rejected', reject_ticket::execute($ticket->code, 0, (int) $other->id)['status']);
+
+        // The right option checks in as usual.
+        $result = verify_ticket::execute($ticket->code, true, true, 0, $this->settings->id);
+        $this->assertEquals('valid', $result['status']);
+        $this->assertEquals(MOD_BOOKING_PRESENCE_STATUS_CHECKEDIN, $this->current_presence());
+    }
+
+    /**
+     * Outside the availability window the webservices answer "closed" and write nothing.
+     */
+    public function test_verify_closed(): void {
+        global $DB;
+        [, $running] = $this->build_dated_environment();
+        $ticket = ticket_manager::find_valid_ticket($this->settings->id, $this->student->id);
+
+        // Move the running date into the future so "now" lies between two dates, then one minute thresholds.
+        $DB->set_field('booking_optiondates', 'coursestarttime', time() + 3 * HOURSECS, ['id' => $running->id]);
+        $DB->set_field('booking_optiondates', 'courseendtime', time() + 4 * HOURSECS, ['id' => $running->id]);
+        booking_option::purge_cache_for_option($this->settings->id);
+        $this->set_option_json([ticket_manager::JSON_SCANBEFORE => 60, ticket_manager::JSON_SCANAFTER => 60]);
+
+        $this->setUser($this->teacher);
+        $result = verify_ticket::execute($ticket->code, true, true);
+        $this->assertEquals('closed', $result['status']);
+        $this->assertGreaterThan(time(), $result['nextopen']);
+        $this->assertEquals(MOD_BOOKING_PRESENCE_STATUS_NOTSET, $this->current_presence());
+        $this->assertSame([], $this->date_presence());
+        $this->assertEquals('closed', reject_ticket::execute($ticket->code)['status']);
+    }
+
+    /**
+     * Picked entry staff without the capability may verify and reject in option mode only.
+     */
+    public function test_listed_scanner_without_capability(): void {
+        $this->build_environment();
+        $this->book_student();
+        $ticket = ticket_manager::find_valid_ticket($this->settings->id, $this->student->id);
+        $staff = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->enrol_user($staff->id, $this->course->id, 'student');
+        $this->set_option_json([ticket_manager::JSON_SCANNERS => [$staff->id]]);
+
+        $this->setUser($staff);
+        $result = verify_ticket::execute($ticket->code, false, false, 0, $this->settings->id);
+        $this->assertEquals('valid', $result['status']);
+        $this->assertEquals('rejected', reject_ticket::execute($ticket->code, 0, $this->settings->id)['status']);
+        $written = verify_ticket::execute($ticket->code, true, true, 0, $this->settings->id);
+        $this->assertEquals('valid', $written['status']);
+        $this->assertEquals(MOD_BOOKING_PRESENCE_STATUS_CHECKEDIN, $this->current_presence());
+
+        // Instance mode stays capability-only.
+        $this->expectException(\required_capability_exception::class);
+        verify_ticket::execute($ticket->code, false);
+    }
+
+    /**
+     * The entry staff search: a teacher only gets users of the course they may view, a manager everyone.
+     */
+    public function test_search_ticketscanners(): void {
+        $this->build_environment();
+        $cmid = (int) $this->settings->cmid;
+        $incourse = $this->getDataGenerator()->create_user(['firstname' => 'Zelda', 'lastname' => 'Incourse']);
+        $outside = $this->getDataGenerator()->create_user(['firstname' => 'Zelda', 'lastname' => 'Outside']);
+        $this->getDataGenerator()->enrol_user($incourse->id, $this->course->id, 'student');
+
+        $this->setUser($this->teacher);
+        $result = search_ticketscanners::execute('Zelda', $cmid);
+        $ids = array_map('intval', array_keys($result['list']));
+        $this->assertContains((int) $incourse->id, $ids);
+        $this->assertNotContains((int) $outside->id, $ids);
+
+        $this->setAdminUser();
+        $result = search_ticketscanners::execute('Zelda', $cmid);
+        $ids = array_map('intval', array_keys($result['list']));
+        $this->assertContains((int) $incourse->id, $ids);
+        $this->assertContains((int) $outside->id, $ids);
+
+        $this->setUser($this->student);
+        $this->expectException(\required_capability_exception::class);
+        search_ticketscanners::execute('Zelda', $cmid);
+    }
+
+    /**
+     * The scanner template in option mode renders the option title and its dates.
+     */
+    public function test_scanner_template_renders_option_mode(): void {
+        global $OUTPUT, $PAGE;
+        $this->resetAfterTest(true);
+        $this->setAdminUser();
+        $PAGE->set_url('/mod/booking/scan.php');
+
+        $html = $OUTPUT->render_from_template('mod_booking/scanner', [
+            'cmid' => 42,
+            'optionid' => 7,
+            'optionname' => 'Concert',
+            'hasdates' => true,
+            'dates' => [['optiondateid' => 3, 'label' => 'Tonight', 'present' => false, 'selected' => true]],
+        ]);
+        $this->assertStringContainsString('data-optionid="7"', $html);
+        $this->assertStringContainsString('Concert', $html);
+        $this->assertStringContainsString('<option value="3" selected>Tonight</option>', $html);
     }
 }

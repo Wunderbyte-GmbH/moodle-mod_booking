@@ -17,6 +17,7 @@
 namespace mod_booking\local\ticket;
 
 use context_module;
+use context_system;
 use core_user;
 use mod_booking\booking_option;
 use mod_booking\local\certificateclass;
@@ -71,6 +72,15 @@ class ticket_manager {
 
     /** @var string Booking option JSON key holding additional free text printed on the ticket. */
     public const JSON_EXTRAINFO = 'ticketextrainfo';
+
+    /** @var string Booking option JSON key: user ids allowed to scan tickets of this option without the capability. */
+    public const JSON_SCANNERS = 'ticketscanners';
+
+    /** @var string Booking option JSON key: seconds before a date's start from which the scanner is available. */
+    public const JSON_SCANBEFORE = 'ticketscanbefore';
+
+    /** @var string Booking option JSON key: seconds after a date's end until which the scanner is available. */
+    public const JSON_SCANAFTER = 'ticketscanafter';
 
     /** @var int Seconds before a session's start from which it counts as "running" for the nearest-date pick. */
     public const NEAREST_DATE_LEAD = 2 * HOURSECS;
@@ -165,6 +175,238 @@ class ticket_manager {
             return MOD_BOOKING_PRESENCE_STATUS_CHECKEDIN;
         }
         return (int) $status;
+    }
+
+    /**
+     * The one place deciding whether a user may scan entry tickets.
+     *
+     * A user may scan when they hold mod/booking:scanticket in the booking instance, or - for a
+     * specific option - when they were picked as entry staff in the option's "Ticketing" section.
+     * Without an option (instance-wide scanner) only the capability counts. Guests never may.
+     *
+     * @param int $cmid Course module id of the booking instance.
+     * @param int $optionid Booking option, 0 for the instance-wide scanner.
+     * @param int $userid Defaults to the current user.
+     *
+     * @return bool
+     */
+    public static function can_scan(int $cmid, int $optionid = 0, int $userid = 0): bool {
+        global $USER;
+
+        if (empty($userid)) {
+            $userid = (int) ($USER->id ?? 0);
+        }
+        if (empty($cmid) || empty($userid) || isguestuser($userid)) {
+            return false;
+        }
+        $context = context_module::instance($cmid, IGNORE_MISSING);
+        if (!$context) {
+            return false;
+        }
+        if (has_capability('mod/booking:scanticket', $context, $userid)) {
+            return true;
+        }
+        if (empty($optionid)) {
+            return false;
+        }
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        if (empty($settings->id) || (int) $settings->cmid !== $cmid) {
+            return false;
+        }
+        return in_array($userid, self::get_scanner_userids($optionid), true);
+    }
+
+    /**
+     * Throw the capability exception unless the user may scan (see can_scan()).
+     *
+     * @param int $cmid
+     * @param int $optionid
+     * @param int $userid
+     *
+     * @return void
+     * @throws \required_capability_exception
+     */
+    public static function require_can_scan(int $cmid, int $optionid = 0, int $userid = 0): void {
+        if (!self::can_scan($cmid, $optionid, $userid)) {
+            throw new \required_capability_exception(
+                context_module::instance($cmid),
+                'mod/booking:scanticket',
+                'nopermissions',
+                ''
+            );
+        }
+    }
+
+    /**
+     * The users picked as entry staff of an option (in addition to capability holders).
+     *
+     * @param int $optionid
+     *
+     * @return int[]
+     */
+    public static function get_scanner_userids(int $optionid): array {
+        if (empty($optionid)) {
+            return [];
+        }
+        $value = booking_option::get_value_of_json_by_key($optionid, self::JSON_SCANNERS);
+        if (is_string($value)) {
+            $value = explode(',', $value);
+        }
+        if (!is_array($value)) {
+            return [];
+        }
+        return array_values(array_unique(array_filter(array_map('intval', $value))));
+    }
+
+    /**
+     * Whether the current user may pick (and see) a given user as entry staff.
+     *
+     * Users allowed to view every profile on the site (managers) may pick anyone; everybody else
+     * only users whose profile they may view in the option's course (core user_can_view_profile()).
+     *
+     * @param stdClass $user At least id, and deleted (set to 0 for lightweight search rows).
+     * @param stdClass $course Full course record of the booking instance.
+     *
+     * @return bool
+     */
+    public static function user_may_pick_scanner(stdClass $user, stdClass $course): bool {
+        global $CFG;
+        require_once("{$CFG->dirroot}/user/lib.php");
+
+        if (has_capability('moodle/user:viewdetails', context_system::instance())) {
+            return true;
+        }
+        if (!isset($user->deleted)) {
+            $user->deleted = 0;
+        }
+        return user_can_view_profile($user, $course);
+    }
+
+    /**
+     * The availability window of the scanner for an option.
+     *
+     * Thresholds (JSON_SCANBEFORE / JSON_SCANAFTER, seconds) open the scanner around every date of the
+     * option: from start - before until end + after. A missing threshold is unbounded on that side,
+     * so without any threshold - or for options without dates - the scanner is always available.
+     *
+     * @param int $optionid
+     * @param int|null $now
+     *
+     * @return array ['open' => bool, 'nextopen' => int (0 if none), 'closesat' => int (0 if open-ended)]
+     */
+    public static function get_scan_window(int $optionid, ?int $now = null): array {
+        $now = $now ?? time();
+        $always = ['open' => true, 'nextopen' => 0, 'closesat' => 0];
+
+        $before = booking_option::get_value_of_json_by_key($optionid, self::JSON_SCANBEFORE);
+        $after = booking_option::get_value_of_json_by_key($optionid, self::JSON_SCANAFTER);
+        $before = ($before === null || $before === '') ? null : (int) $before;
+        $after = ($after === null || $after === '') ? null : (int) $after;
+        if ($before === null && $after === null) {
+            return $always;
+        }
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $sessions = self::real_sessions($settings->sessions ?? []);
+        if (empty($sessions)) {
+            return $always;
+        }
+
+        $nextopen = 0;
+        foreach ($sessions as $session) {
+            $start = (int) $session->coursestarttime;
+            $end = max((int) ($session->courseendtime ?? 0), $start);
+            $opens = $before === null ? PHP_INT_MIN : $start - $before;
+            $closes = $after === null ? PHP_INT_MAX : $end + $after;
+            if ($opens <= $now && $now <= $closes) {
+                return ['open' => true, 'nextopen' => 0, 'closesat' => $after === null ? 0 : $closes];
+            }
+            if ($opens > $now && ($nextopen === 0 || $opens < $nextopen)) {
+                $nextopen = $opens;
+            }
+        }
+        return ['open' => false, 'nextopen' => $nextopen, 'closesat' => 0];
+    }
+
+    /**
+     * The sessions of an option that exist as booking_optiondates rows, keyed by optiondate id.
+     *
+     * The legacy synthetic session (id 0, built from the option's own start/end) is dropped: no
+     * per-date presence can be stored for it.
+     *
+     * @param array $sessions As found in booking_option_settings::$sessions.
+     *
+     * @return array
+     */
+    public static function real_sessions(array $sessions): array {
+        $real = [];
+        foreach ($sessions as $session) {
+            if (!empty($session->id)) {
+                $real[(int) $session->id] = $session;
+            }
+        }
+        return $real;
+    }
+
+    /**
+     * Human readable label of a session (localized date range).
+     *
+     * @param stdClass $session
+     *
+     * @return string
+     */
+    public static function date_label(stdClass $session): string {
+        $start = (int) $session->coursestarttime;
+        $end = (int) ($session->courseendtime ?? 0);
+        $label = userdate($start, get_string('strftimedatetimeshort', 'langconfig'));
+        if ($end > $start) {
+            $sameday = userdate($start, '%Y%m%d') === userdate($end, '%Y%m%d');
+            $label .= ' - ' . userdate(
+                $end,
+                get_string($sameday ? 'strftimetime' : 'strftimedatetimeshort', 'langconfig')
+            );
+        }
+        return $label;
+    }
+
+    /**
+     * The dates of an option for the scanner's date selection, with a holder's check-in per date.
+     *
+     * @param int $optionid
+     * @param int $userid Ticket holder whose presence is reported per date (0 = nobody).
+     *
+     * @return array List of ['optiondateid', 'starttime', 'endtime', 'label', 'present'].
+     */
+    public static function get_scan_dates(int $optionid, int $userid = 0): array {
+        global $DB;
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $sessions = self::real_sessions($settings->sessions ?? []);
+        if (empty($sessions)) {
+            return [];
+        }
+        $present = [];
+        if ($userid) {
+            $rows = $DB->get_records('booking_optiondates_answers', [
+                'optionid' => $optionid,
+                'userid' => $userid,
+                'status' => self::get_checkin_status(),
+            ], '', 'id, optiondateid');
+            foreach ($rows as $row) {
+                $present[(int) $row->optiondateid] = true;
+            }
+        }
+        $dates = [];
+        foreach ($sessions as $id => $session) {
+            $dates[] = [
+                'optiondateid' => $id,
+                'starttime' => (int) $session->coursestarttime,
+                'endtime' => (int) ($session->courseendtime ?? 0),
+                'label' => self::date_label($session),
+                'present' => !empty($present[$id]),
+            ];
+        }
+        return $dates;
     }
 
     /**

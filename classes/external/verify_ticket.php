@@ -79,6 +79,12 @@ class verify_ticket extends external_api {
                 VALUE_DEFAULT,
                 0
             ),
+            'expectedoptionid' => new external_value(
+                PARAM_INT,
+                'Scanner started for this option: tickets of other options are refused (wrongoption). 0 = any option.',
+                VALUE_DEFAULT,
+                0
+            ),
         ]);
     }
 
@@ -89,6 +95,7 @@ class verify_ticket extends external_api {
      * @param bool $checkin
      * @param bool $confirmed
      * @param int $optiondateid
+     * @param int $expectedoptionid
      *
      * @return array
      */
@@ -96,20 +103,40 @@ class verify_ticket extends external_api {
         string $code,
         bool $checkin = true,
         bool $confirmed = false,
-        int $optiondateid = 0
+        int $optiondateid = 0,
+        int $expectedoptionid = 0
     ): array {
         global $DB, $PAGE;
 
         $params = external_api::validate_parameters(
             self::execute_parameters(),
-            ['code' => $code, 'checkin' => $checkin, 'confirmed' => $confirmed, 'optiondateid' => $optiondateid]
+            [
+                'code' => $code,
+                'checkin' => $checkin,
+                'confirmed' => $confirmed,
+                'optiondateid' => $optiondateid,
+                'expectedoptionid' => $expectedoptionid,
+            ]
         );
         $code = $params['code'];
         $checkin = $params['checkin'];
         $confirmed = $params['confirmed'];
         $optiondateid = $params['optiondateid'];
+        $expectedoptionid = $params['expectedoptionid'];
 
         $result = self::empty_result();
+
+        // Scanner started for one option: the staff must be allowed to scan THAT option, and the
+        // permission is settled before anything about the ticket is revealed.
+        $expected = null;
+        if ($expectedoptionid) {
+            $expected = singleton_service::get_instance_of_booking_option_settings($expectedoptionid);
+            if (empty($expected->id)) {
+                throw new \moodle_exception('invalidrecord', 'error', '', 'booking_options');
+            }
+            self::validate_context(context_module::instance($expected->cmid));
+            ticket_manager::require_can_scan((int) $expected->cmid, $expectedoptionid);
+        }
 
         $ticket = ticket_manager::find_by_code($code);
         if (empty($ticket)) {
@@ -125,15 +152,37 @@ class verify_ticket extends external_api {
             return $result;
         }
 
-        // Capability gate: only entry staff may resolve tickets. validate_context sets up the page context.
+        if ($expected !== null && $optionid !== $expectedoptionid) {
+            // A ticket of another event: say which one, but nothing about its holder.
+            $result['status'] = 'wrongoption';
+            $result['optionid'] = $optionid;
+            $result['eventname'] = (string) $settings->get_title_with_prefix();
+            $result['expectedeventname'] = (string) $expected->get_title_with_prefix();
+            return $result;
+        }
+
+        // Instance-wide scanner: the permission is decided on the ticket's booking instance
+        // (capability only, see ticket_manager::can_scan()). validate_context sets up the page context.
         $context = context_module::instance($settings->cmid);
-        self::validate_context($context);
-        require_capability('mod/booking:scanticket', $context);
+        if ($expected === null) {
+            self::validate_context($context);
+            ticket_manager::require_can_scan((int) $settings->cmid, 0);
+        }
+
+        // Availability window of the ticket's option (thresholds around its dates).
+        $window = ticket_manager::get_scan_window($optionid);
+        if (!$window['open']) {
+            $result['status'] = 'closed';
+            $result['optionid'] = $optionid;
+            $result['eventname'] = (string) $settings->get_title_with_prefix();
+            $result['nextopen'] = (int) $window['nextopen'];
+            return $result;
+        }
 
         $target = ticket_manager::get_checkin_status();
 
         // Dates of the option and the date this scan refers to.
-        $sessions = self::real_sessions($settings->sessions ?? []);
+        $sessions = ticket_manager::real_sessions($settings->sessions ?? []);
         if (!empty($sessions) && !isset($sessions[$optiondateid])) {
             $optiondateid = ticket_manager::pick_nearest_optiondate($sessions);
         } else if (empty($sessions)) {
@@ -141,9 +190,9 @@ class verify_ticket extends external_api {
         }
         $result['optionid'] = $optionid;
         $result['optiondateid'] = $optiondateid;
-        $result['dates'] = self::describe_dates($sessions, $optionid, $userid, $target);
+        $result['dates'] = ticket_manager::get_scan_dates($optionid, $userid);
         $result['eventdatelabel'] = $optiondateid
-            ? self::date_label($sessions[$optiondateid])
+            ? ticket_manager::date_label($sessions[$optiondateid])
             : '';
 
         // Descriptive fields (always returned for display, valid or not).
@@ -245,7 +294,7 @@ class verify_ticket extends external_api {
         $result['presentcount'] = self::count_present($optionid, $optiondateid);
         if ($optiondateid) {
             // Refresh the per-date presence flags after a write.
-            $result['dates'] = self::describe_dates($sessions, $optionid, $userid, $target);
+            $result['dates'] = ticket_manager::get_scan_dates($optionid, $userid);
         }
         return $result;
     }
@@ -266,8 +315,10 @@ class verify_ticket extends external_api {
             'optiondateid' => 0,
             'dates' => [],
             'eventname' => '',
+            'expectedeventname' => '',
             'eventdate' => 0,
             'eventdatelabel' => '',
+            'nextopen' => 0,
             'issuedate' => 0,
             'revokedtime' => 0,
             'personalized' => false,
@@ -278,87 +329,6 @@ class verify_ticket extends external_api {
             'presentcount' => 0,
             'bookedcount' => 0,
         ];
-    }
-
-    /**
-     * The sessions of an option that exist as booking_optiondates rows, keyed by optiondate id.
-     *
-     * The legacy synthetic session (id 0, built from the option's own start/end) is dropped: no per-date
-     * presence can be stored for it.
-     *
-     * @param array $sessions
-     *
-     * @return array
-     */
-    private static function real_sessions(array $sessions): array {
-        $real = [];
-        foreach ($sessions as $session) {
-            if (!empty($session->id)) {
-                $real[(int) $session->id] = $session;
-            }
-        }
-        return $real;
-    }
-
-    /**
-     * Human readable label of a session (localized date range).
-     *
-     * @param \stdClass $session
-     *
-     * @return string
-     */
-    private static function date_label(\stdClass $session): string {
-        $start = (int) $session->coursestarttime;
-        $end = (int) ($session->courseendtime ?? 0);
-        $label = userdate($start, get_string('strftimedatetimeshort', 'langconfig'));
-        if ($end > $start) {
-            $sameday = userdate($start, '%Y%m%d') === userdate($end, '%Y%m%d');
-            $label .= ' - ' . userdate(
-                $end,
-                get_string($sameday ? 'strftimetime' : 'strftimedatetimeshort', 'langconfig')
-            );
-        }
-        return $label;
-    }
-
-    /**
-     * The dates of an option for the scanner's date selection, with the holder's presence per date.
-     *
-     * @param array $sessions Real sessions keyed by optiondate id.
-     * @param int $optionid
-     * @param int $userid
-     * @param int $target The check-in presence status.
-     *
-     * @return array
-     */
-    private static function describe_dates(array $sessions, int $optionid, int $userid, int $target): array {
-        global $DB;
-
-        if (empty($sessions)) {
-            return [];
-        }
-        $present = [];
-        if ($userid) {
-            $rows = $DB->get_records('booking_optiondates_answers', [
-                'optionid' => $optionid,
-                'userid' => $userid,
-                'status' => $target,
-            ], '', 'id, optiondateid');
-            foreach ($rows as $row) {
-                $present[(int) $row->optiondateid] = true;
-            }
-        }
-        $dates = [];
-        foreach ($sessions as $id => $session) {
-            $dates[] = [
-                'optiondateid' => $id,
-                'starttime' => (int) $session->coursestarttime,
-                'endtime' => (int) ($session->courseendtime ?? 0),
-                'label' => self::date_label($session),
-                'present' => !empty($present[$id]),
-            ];
-        }
-        return $dates;
     }
 
     /**
@@ -449,7 +419,10 @@ class verify_ticket extends external_api {
      */
     public static function execute_returns(): external_single_structure {
         return new external_single_structure([
-            'status' => new external_value(PARAM_ALPHA, 'One of: valid, revoked, notfound'),
+            'status' => new external_value(
+                PARAM_ALPHA,
+                'One of: valid, revoked, notfound, wrongoption (ticket of another option), closed (outside the scan window)'
+            ),
             'userid' => new external_value(PARAM_INT, 'Id of the ticket holder (0 if the ticket was not found)'),
             'fullname' => new external_value(PARAM_TEXT, 'Full name of the ticket holder'),
             'userpictureurl' => new external_value(PARAM_URL, 'Profile picture of the ticket holder for identity checks'),
@@ -474,6 +447,8 @@ class verify_ticket extends external_api {
                 'All dates of the option, for the date selection'
             ),
             'eventname' => new external_value(PARAM_TEXT, 'Name of the booked option/event'),
+            'expectedeventname' => new external_value(PARAM_TEXT, 'Name of the option the scanner was started for (wrongoption)'),
+            'nextopen' => new external_value(PARAM_INT, 'Timestamp the scanner opens next (closed), 0 if unknown'),
             'eventdate' => new external_value(PARAM_INT, 'Start timestamp of the selected date, or of the event (0 if none)'),
             'eventdatelabel' => new external_value(PARAM_TEXT, 'Localized label of the selected date (empty if none)'),
             'issuedate' => new external_value(PARAM_INT, 'Timestamp the ticket was issued'),
