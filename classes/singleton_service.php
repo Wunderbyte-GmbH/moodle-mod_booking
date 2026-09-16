@@ -421,12 +421,17 @@ class singleton_service {
             return $instance->bookingsettingsbybookingid[$bookingid];
         } else {
             try {
-                $cm = get_coursemodule_from_instance('booking', $bookingid);
+                $cm = get_coursemodule_from_instance('booking', $bookingid, 0, false, IGNORE_MISSING);
+
+                if (empty($cm)) {
+                    // Orphaned rows, for example from a deleted instance, have no course module left.
+                    return null;
+                }
 
                 $settings = new booking_settings($cm->id);
                 $instance->bookingsettingsbybookingid[$bookingid] = $settings;
                 return $settings;
-            } catch (Exception $e) {
+            } catch (\Throwable $e) {
                 return null;
             }
         }
