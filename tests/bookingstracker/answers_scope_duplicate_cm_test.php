@@ -74,10 +74,16 @@ final class answers_scope_duplicate_cm_test extends advanced_testcase {
         $student = $this->getDataGenerator()->create_user();
         $this->getDataGenerator()->enrol_user($student->id, $course->id, 'student');
 
-        // The forum is created first, so it gets the same instance id (1) as the booking instance below.
-        $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id]);
         $booking = $this->getDataGenerator()->create_module('booking', ['course' => $course->id]);
+        $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id]);
         singleton_service::destroy_instance();
+
+        // Force the collision: PHPUnit starts every table's id sequence at a different value, so the forum
+        // and the booking instance never share an id by chance. Move the forum to the booking's instance id.
+        $DB->execute("UPDATE {forum} SET id = :newid WHERE id = :oldid", ['newid' => $booking->id, 'oldid' => $forum->id]);
+        $DB->set_field('course_modules', 'instance', $booking->id, ['id' => $forum->cmid]);
+        rebuild_course_cache($course->id, true);
+        $forum->id = $booking->id;
         $this->assertSame((int)$forum->id, (int)$booking->id, 'Test precondition: forum and booking share the instance id.');
 
         // Precondition: two course modules with the same instance id, in different modules.
