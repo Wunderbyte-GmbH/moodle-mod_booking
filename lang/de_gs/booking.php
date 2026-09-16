@@ -452,6 +452,7 @@ $string['sendmailtobooker_help'] = 'Diese Option aktivieren, um Buchungsbestäti
 $string['sendmailtoteachers'] = 'E-Mail an Trainer/innen senden';
 $string['sendmessagesforinvisibleoptions_desc'] = 'Aktivieren Sie diese Einstellung, um Nachrichten auch bei unsichtbaren Buchungsoptionen zu versenden (Vorsicht: Dies könnte dazu führen, dass Benutzer/innen unerwünschte E-Mails erhalten.)';
 $string['sendmessagetoteachers'] = 'E-Mail an Trainer/innen';
+$string['shortcode:userid'] = 'Zeigt die ID der/des aktuellen Nutzer/in.';
 $string['showallteachers'] = '&gt;&gt; Alle Trainer/innen anzeigen';
 $string['showbookingdetailstoall_desc'] = 'Auch Gäste und ausgeloggte Nutzer/innen können Buchungsdetails sehen.';
 $string['showpriceifnotloggedin'] = 'Preis(e) anzeigen, wenn Nutzer/innen nicht eingeloggt sind';
