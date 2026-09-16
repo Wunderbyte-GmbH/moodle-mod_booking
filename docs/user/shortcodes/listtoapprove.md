@@ -23,6 +23,7 @@ This shortcode renders the booking approval UI based on the `booked_users` rende
 |-----------|---------|
 | `reduced="1"` | Use the reduced approval view (`optionstoconfirmreduced`). |
 | `cfinclude="shortname1,shortname2"` | Include these custom fields in the approval list. |
+| `perpage="10"` | Number of rows per page (default: 100). The table is loaded via AJAX after the page is displayed. |
 | `deputyselect="1"` | Enable deputy selection if the booking extension configuration supports it and the current user has the required capability. |
 
 ---
