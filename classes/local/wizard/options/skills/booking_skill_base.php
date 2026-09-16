@@ -499,7 +499,7 @@ abstract class booking_skill_base extends base_skill {
      * @param bool $readonly
      * @param string $riskclass
      * @param string[] $nativecapabilities Native Moodle capability(ies) of the core action this skill
-     *        performs (e.g. mod/booking:addeditownoption). The engine enforces these centrally at the
+     *        performs (e.g. mod/booking:editownoption). The engine enforces these centrally at the
      *        operating context via native_capability_guard (Gate 2) — every mutating booking skill
      *        MUST declare them so the central guard, not just the skill's own preflight, protects it.
      */

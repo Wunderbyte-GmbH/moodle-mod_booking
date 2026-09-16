@@ -358,8 +358,8 @@ class bookingoption_description implements renderable, templatable {
             has_capability('mod/booking:updatebooking', $modcontext)
             || has_capability('mod/booking:updatebooking', $syscontext)
             || has_capability('mod/booking:viewreports', $syscontext)
-            || (has_capability('mod/booking:addeditownoption', $modcontext) && $isteacher)
-            || (has_capability('mod/booking:addeditownoption', $syscontext) && $isteacher)
+            || (has_capability('mod/booking:managebookingsownoption', $modcontext) && $isteacher)
+            || (has_capability('mod/booking:managebookingsownoption', $syscontext) && $isteacher)
         ) {
             $this->showmanageresponses = true;
 
@@ -575,8 +575,8 @@ class bookingoption_description implements renderable, templatable {
 
         if (
             has_capability('mod/booking:updatebooking', $modcontext)
-            || (has_capability('mod/booking:addeditownoption', $modcontext) && $isteacher)
-            || (has_capability('mod/booking:addeditownoption', $syscontext) && $isteacher)
+            || (has_capability('mod/booking:editownoption', $modcontext) && $isteacher)
+            || (has_capability('mod/booking:editownoption', $syscontext) && $isteacher)
         ) {
             // The current page is not /mod/booking/optionview.php.
             $editurl = new moodle_url("/mod/booking/editoptions.php", [

@@ -62,7 +62,7 @@ class editteachersforoptiondate_form extends \core_form\dynamic_form {
 
         if (
             (has_capability('mod/booking:updatebooking', $context)
-            || has_capability('mod/booking:addeditownoption', $context)
+            || has_capability('mod/booking:editteachersownoption', $context)
             || has_capability('mod/booking:viewreports', $context)
             || has_capability('mod/booking:limitededitownoption', $context)) == false
         ) {

@@ -1285,12 +1285,16 @@ class bookingoptions_wbtable extends wunderbyte_table {
 
         // Capabilities.
         $canupdate = has_capability('mod/booking:updatebooking', $context);
-        $isteacherandcanedit = (has_capability('mod/booking:addeditownoption', $context) &&
-            booking_check_if_teacher($values));
-        $isteacherandcancancel = (has_capability('mod/booking:cancelownoption', $context) &&
-            booking_check_if_teacher($values));
-        $isteacherandcanduplicate = (has_capability('mod/booking:duplicateownoption', $context) &&
-            booking_check_if_teacher($values));
+        $isteacher = booking_check_if_teacher($values);
+        $isteacherandcanedit = has_capability('mod/booking:editownoption', $context) && $isteacher;
+        $isteacherandcanmanagebookings = has_capability('mod/booking:managebookingsownoption', $context) && $isteacher;
+        $isteacherandcansendmail = has_capability('mod/booking:sendmailownoption', $context) && $isteacher;
+        $isteacherandcaneditteachers = has_capability('mod/booking:editteachersownoption', $context) && $isteacher;
+        // The menu itself opens with any of the capabilities for own options.
+        $isteacherwithmenu = $isteacherandcanedit || $isteacherandcanmanagebookings
+            || $isteacherandcansendmail || $isteacherandcaneditteachers;
+        $isteacherandcancancel = has_capability('mod/booking:cancelownoption', $context) && $isteacher;
+        $isteacherandcanduplicate = has_capability('mod/booking:duplicateownoption', $context) && $isteacher;
 
         $ddoptions = [];
         $ret = '<div class="menubar p-1" id="action-menu-' . $optionid . '-menubar" role="group" aria-label="' .
@@ -1335,50 +1339,54 @@ class bookingoptions_wbtable extends wunderbyte_table {
             );
         }
 
-        if ($canupdate || $isteacherandcanedit) {
-            $ddoptions[] = '<div class="dropdown-item">' . html_writer::link(
-                new moodle_url(
-                    '/mod/booking/editoptions.php',
-                    [
-                        'id' => $cmid,
-                        'optionid' => $optionid,
-                        'returnto' => 'url',
-                        'returnurl' => $returnurl,
-                    ]
-                ),
-                $OUTPUT->pix_icon('t/editstring', get_string('editbookingoption', 'mod_booking')) .
-                get_string('editbookingoption', 'mod_booking')
-            ) . '</div>';
+        if ($canupdate || $isteacherwithmenu) {
+            if ($canupdate || $isteacherandcanedit) {
+                $ddoptions[] = '<div class="dropdown-item">' . html_writer::link(
+                    new moodle_url(
+                        '/mod/booking/editoptions.php',
+                        [
+                            'id' => $cmid,
+                            'optionid' => $optionid,
+                            'returnto' => 'url',
+                            'returnurl' => $returnurl,
+                        ]
+                    ),
+                    $OUTPUT->pix_icon('t/editstring', get_string('editbookingoption', 'mod_booking')) .
+                    get_string('editbookingoption', 'mod_booking')
+                ) . '</div>';
+            }
 
-            $ddoptions[] = '<div class="dropdown-item">' . html_writer::link(
-                new moodle_url(
-                    '/mod/booking/report.php',
-                    [
-                        'id' => $cmid,
-                        'optionid' => $optionid,
-                    ]
-                ),
-                '<i class="icon fa fa-ticket fa-fw" aria-hidden="true"
-                    aria-label="' . get_string('manageresponses', 'mod_booking') .
-                '" title="' . get_string('manageresponses', 'mod_booking') . '" >
-                </i>' .
-                get_string('manageresponses', 'mod_booking')
-            ) . '</div>';
+            if ($canupdate || $isteacherandcanmanagebookings) {
+                $ddoptions[] = '<div class="dropdown-item">' . html_writer::link(
+                    new moodle_url(
+                        '/mod/booking/report.php',
+                        [
+                            'id' => $cmid,
+                            'optionid' => $optionid,
+                        ]
+                    ),
+                    '<i class="icon fa fa-ticket fa-fw" aria-hidden="true"
+                        aria-label="' . get_string('manageresponses', 'mod_booking') .
+                    '" title="' . get_string('manageresponses', 'mod_booking') . '" >
+                    </i>' .
+                    get_string('manageresponses', 'mod_booking')
+                ) . '</div>';
 
-            $ddoptions[] = '<div class="dropdown-item">' . html_writer::link(
-                new moodle_url(
-                    '/mod/booking/report2.php',
-                    [
-                        'cmid' => $cmid,
-                        'optionid' => $optionid,
-                    ]
-                ),
-                '<i class="icon fa fa-sitemap fa-fw" aria-hidden="true"
-                    aria-label="' . get_string('bookingstracker', 'mod_booking') .
-                '" title="' . get_string('bookingstracker', 'mod_booking') . '" >
-                </i>' .
-                get_string('bookingstracker', 'mod_booking')
-            ) . '</div>';
+                $ddoptions[] = '<div class="dropdown-item">' . html_writer::link(
+                    new moodle_url(
+                        '/mod/booking/report2.php',
+                        [
+                            'cmid' => $cmid,
+                            'optionid' => $optionid,
+                        ]
+                    ),
+                    '<i class="icon fa fa-sitemap fa-fw" aria-hidden="true"
+                        aria-label="' . get_string('bookingstracker', 'mod_booking') .
+                    '" title="' . get_string('bookingstracker', 'mod_booking') . '" >
+                    </i>' .
+                    get_string('bookingstracker', 'mod_booking')
+                ) . '</div>';
+            }
 
             if (isloggedin() && !isguestuser() && $this->showfavoritestoggle) {
                 $isfavorite = booking_option::user_has_favorite($USER->id, $optionid);
@@ -1451,35 +1459,39 @@ class bookingoptions_wbtable extends wunderbyte_table {
                 '/mod/booking/editoptions.php',
                 ['id' => $cmid, 'optionid' => $optionid, 'createfromoptiondates' => 1]
             );
-            $override = new override_user_field($cmid);
-            $link = $override->get_circumvent_link($optionid);
-            if (!empty($link)) {
+            if ($canupdate || $isteacherandcanmanagebookings) {
+                $override = new override_user_field($cmid);
+                $link = $override->get_circumvent_link($optionid);
+                if (!empty($link)) {
+                    $ddoptions[] = '<div class="dropdown-item">' .
+                        html_writer::link(
+                            '#',
+                            $OUTPUT->pix_icon(
+                                'i/link',
+                                get_string('copycircumventlink', 'mod_booking')
+                            ) .
+                            get_string('copycircumventlink', 'mod_booking'),
+                            [
+                                'class' => 'copy_to_clipboard',
+                                'onclick' => "navigator.clipboard.writeText('$link'); return false;",
+                            ]
+                        ) . '</div>';
+                }
+            }
+
+            if ($canupdate || $isteacherandcanedit) {
                 $ddoptions[] = '<div class="dropdown-item">' .
                     html_writer::link(
-                        '#',
+                        $createfromoptiondateurl,
                         $OUTPUT->pix_icon(
-                            'i/link',
-                            get_string('copycircumventlink', 'mod_booking')
+                            'i/withsubcat',
+                            get_string('createoptionsfromoptiondate', 'mod_booking')
                         ) .
-                        get_string('copycircumventlink', 'mod_booking'),
-                        [
-                            'class' => 'copy_to_clipboard',
-                            'onclick' => "navigator.clipboard.writeText('$link'); return false;",
-                        ]
+                        get_string('createoptionsfromoptiondate', 'mod_booking')
                     ) . '</div>';
             }
 
-            $ddoptions[] = '<div class="dropdown-item">' .
-                html_writer::link(
-                    $createfromoptiondateurl,
-                    $OUTPUT->pix_icon(
-                        'i/withsubcat',
-                        get_string('createoptionsfromoptiondate', 'mod_booking')
-                    ) .
-                    get_string('createoptionsfromoptiondate', 'mod_booking')
-                ) . '</div>';
-
-            if (get_config('booking', 'teachersallowmailtobookedusers')) {
+            if (($canupdate || $isteacherandcansendmail) && get_config('booking', 'teachersallowmailtobookedusers')) {
                 $mailtolink = booking_option::get_mailto_link_for_partipants($optionid);
                 if (!empty($mailtolink)) {
                     $ddoptions[] = '<div class="dropdown-item">' .
@@ -1493,19 +1505,21 @@ class bookingoptions_wbtable extends wunderbyte_table {
             }
 
             // Show link to optiondates-teachers-report (teacher substitutions).
-            $optiondatesteachersmoodleurl = new moodle_url(
-                '/mod/booking/optiondates_teachers_report.php',
-                ['cmid' => $cmid, 'optionid' => $optionid, 'returnto' => 'url', 'returnurl' => $returnurl]
-            );
-            $ddoptions[] = '<div class="dropdown-item">' .
-                html_writer::link(
-                    $optiondatesteachersmoodleurl,
-                    $OUTPUT->pix_icon(
-                        'i/grades',
+            if ($canupdate || $isteacherandcaneditteachers) {
+                $optiondatesteachersmoodleurl = new moodle_url(
+                    '/mod/booking/optiondates_teachers_report.php',
+                    ['cmid' => $cmid, 'optionid' => $optionid, 'returnto' => 'url', 'returnurl' => $returnurl]
+                );
+                $ddoptions[] = '<div class="dropdown-item">' .
+                    html_writer::link(
+                        $optiondatesteachersmoodleurl,
+                        $OUTPUT->pix_icon(
+                            'i/grades',
+                            get_string('optiondatesteachersreport', 'mod_booking')
+                        ) .
                         get_string('optiondatesteachersreport', 'mod_booking')
-                    ) .
-                    get_string('optiondatesteachersreport', 'mod_booking')
-                ) . '</div>';
+                    ) . '</div>';
+            }
 
             // Show only one option.
             $onlyoneurl = new moodle_url(

@@ -40,7 +40,7 @@ class update_option_trainer_skill extends booking_skill_base implements
      * Constructor.
      */
     public function __construct() {
-        parent::__construct(false, \mod_booking\local\wizard\engine\skill_risk_class::R2, ['mod/booking:addeditownoption']);
+        parent::__construct(false, \mod_booking\local\wizard\engine\skill_risk_class::R2, ['mod/booking:editteachersownoption']);
     }
 
     /**
@@ -245,7 +245,7 @@ class update_option_trainer_skill extends booking_skill_base implements
         // option, so $cmid here is the correct booking activity (from an activity page, the dashboard,
         // or MCP alike). This enforces Gate 2 there and surfaces an option-aware clarification when
         // the option reference is genuinely ambiguous.
-        $resolved = $this->resolve_option_operating_context($input, $cmid, 'mod/booking:addeditownoption', $userid, $lang);
+        $resolved = $this->resolve_option_operating_context($input, $cmid, 'mod/booking:editteachersownoption', $userid, $lang);
         if (isset($resolved['clarification'])) {
             return $resolved['clarification'];
         }

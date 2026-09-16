@@ -815,8 +815,6 @@ $string['bookedtextsubjectbookingmanager'] = 'New booking for {$a->title} by {$a
 $string['bookedusers'] = 'Booked users';
 $string['bookelectivesbtn'] = 'Book selected electives';
 $string['booking'] = 'Booking';
-$string['booking:addeditownoption'] = 'Edit own booking options (own booking options are those
-that you either created yourself or are assigned to as a teacher)';
 $string['booking:addinstance'] = 'Add new booking instances';
 $string['booking:addoption'] = 'Add new booking options';
 $string['booking:alwayscanapprove'] = 'Always can confirm/deny booking answers';
@@ -850,15 +848,21 @@ that you either created yourself or are assigned to as a teacher)';
 $string['booking:editbookingrules'] = "Edit rules (Pro)";
 $string['booking:editcertificateconditions'] = "Edit certificate conditions";
 $string['booking:editoptionformconfig'] = 'Edit option config form';
+$string['booking:editownoption'] = 'Edit own booking options (own booking options are those
+that you either created yourself or are assigned to as a teacher)';
 $string['booking:editperformance'] = 'Test Performance';
 $string['booking:editscheduledmails'] = 'Edit scheduled mails';
 $string['booking:editsemesters'] = 'Edit semesters';
 $string['booking:editteacherdescription'] = 'Edit teacher description';
+$string['booking:editteachersownoption'] = 'Change the teachers of own booking options, e.g. substitutions (own booking options are those
+that you either created yourself or are assigned to as a teacher)';
 $string['booking:executebulkoperations'] = "Can execute bulk operations";
 $string['booking:expertoptionform'] = "Expert option form";
 $string['booking:importoptions'] = "Import Options";
-$string['booking:limitededitownoption'] = 'Less than addeditownoption, only allows very limited actions';
+$string['booking:limitededitownoption'] = 'Less than editownoption, only allows very limited actions';
 $string['booking:managebookedusers'] = 'Manage user bookings (booking answers)';
+$string['booking:managebookingsownoption'] = 'Manage the bookings of own booking options (own booking options are those
+that you either created yourself or are assigned to as a teacher)';
 $string['booking:managecomments'] = 'Manage comments';
 $string['booking:managecustomfieldoptions'] = 'Manage booking custom field option lists';
 $string['booking:manageoptiondates'] = 'Manage option dates';
@@ -878,6 +882,8 @@ $string['booking:reducedoptionform5'] = "5. Reduced option form for course categ
 $string['booking:seealllisttoapprove'] = 'See all listtoapprove records';
 $string['booking:seepersonalteacherinformation'] = 'See personal teacher information';
 $string['booking:semesters'] = 'Booking: Semesters';
+$string['booking:sendmailownoption'] = 'Send e-mails to the booked users of own booking options (own booking options are those
+that you either created yourself or are assigned to as a teacher)';
 $string['booking:sendpollurl'] = 'Send poll url';
 $string['booking:sendpollurltoteachers'] = 'Send poll url to teachers';
 $string['booking:skill_mod_booking_add_price_category'] = 'AI skill: add a price category';
@@ -911,6 +917,7 @@ $string['booking:viewperformance'] = 'View Performance';
 $string['booking:viewrating'] = 'View the total rating you received';
 $string['booking:viewreports'] = 'Allow access for viewing reports';
 $string['booking:viewscheduledmails'] = 'View scheduled mails';
+$string['booking:viewteacherreports'] = 'View the teacher reports of booking instances';
 $string['booking_rulesexecutionfailed'] = 'Booking rule execution failed';
 $string['bookingaction'] = "Action";
 $string['bookingactionadd'] = "Add action";
@@ -3306,7 +3313,7 @@ $string['responsiblecontactcanedit'] = 'Allow responsible contacts to edit';
 $string['responsiblecontactcanedit_desc'] = 'Activate this setting if you want to allow responsible contact persons
 to edit their booking options and to see and edit the list of booked users.<br>
 <b>Important:</b> The responsible contact person additionally needs the capability
-<b>mod/booking:addeditownoption</b>.';
+<b>mod/booking:editownoption</b>.';
 $string['responsiblecontactenroltocourse'] = 'Enrol responsible contact person to connected Moodle course';
 $string['responsiblecontactenroltocourse_desc'] = 'Please also define the role the responsible contact person should have in the connected Moodle course.';
 $string['responsiblecontacts'] = 'Responsible contact(s) of the booking option, rendered as "Firstname Lastname (email)".';

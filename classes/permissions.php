@@ -67,7 +67,9 @@ class permissions {
      */
     public static function has_any_booking_editing_capability(): bool {
         return self::has_capability_anywhere('mod/booking:limitededitownoption')
-            || self::has_capability_anywhere('mod/booking:addeditownoption')
+            || self::has_capability_anywhere('mod/booking:editownoption')
+            || self::has_capability_anywhere('mod/booking:duplicateownoption')
+            || self::has_capability_anywhere('mod/booking:editteachersownoption')
             || self::has_capability_anywhere('mod/booking:updatebooking');
     }
 

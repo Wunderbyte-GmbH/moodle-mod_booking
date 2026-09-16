@@ -84,7 +84,7 @@ class dynamicoptiondateform extends dynamic_form {
      * @return void
      */
     protected function check_access_for_dynamic_submission(): void {
-        require_capability('mod/booking:addeditownoption', $this->get_context_for_dynamic_submission());
+        require_capability('mod/booking:editownoption', $this->get_context_for_dynamic_submission());
     }
 
     /**

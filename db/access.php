@@ -74,17 +74,21 @@ $capabilities = [
             'manager' => CAP_ALLOW,
         ],
     ],
-    // This is ONLY the editing capability, but we kept the name for legacy reasons.
-    'mod/booking:addeditownoption' => [
+    // The capabilities for own booking options replace mod/booking:addeditownoption (see
+    // $deprecatedcapabilities below). "Own" options are options where the user is teacher,
+    // responsible contact, or creator, see booking_check_if_teacher(). All of them clone the
+    // permissions of addeditownoption on upgrade, so roles keep what they could do before.
+    // Allows editing own booking options.
+    'mod/booking:editownoption' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,
         'archetypes' => [
             'editingteacher' => CAP_ALLOW,
             'manager' => CAP_ALLOW,
         ],
+        'clonepermissionsfrom' => 'mod/booking:addeditownoption',
     ],
-    // Allows cancelling (not deleting) own booking options, i.e. options where the
-    // user is teacher, responsible contact, or creator. See booking_check_if_teacher().
+    // Allows cancelling (not deleting) own booking options.
     'mod/booking:cancelownoption' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,
@@ -92,9 +96,9 @@ $capabilities = [
             'editingteacher' => CAP_ALLOW,
             'manager' => CAP_ALLOW,
         ],
+        'clonepermissionsfrom' => 'mod/booking:addeditownoption',
     ],
-    // Allows duplicating own booking options, i.e. options where the user is
-    // teacher, responsible contact, or creator. See booking_check_if_teacher().
+    // Allows duplicating own booking options.
     'mod/booking:duplicateownoption' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,
@@ -102,6 +106,47 @@ $capabilities = [
             'editingteacher' => CAP_ALLOW,
             'manager' => CAP_ALLOW,
         ],
+        'clonepermissionsfrom' => 'mod/booking:addeditownoption',
+    ],
+    // Allows managing the bookings of own booking options.
+    'mod/booking:managebookingsownoption' => [
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => [
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW,
+        ],
+        'clonepermissionsfrom' => 'mod/booking:addeditownoption',
+    ],
+    // Allows sending e-mails to the booked users of own booking options.
+    'mod/booking:sendmailownoption' => [
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => [
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW,
+        ],
+        'clonepermissionsfrom' => 'mod/booking:addeditownoption',
+    ],
+    // Allows changing the teachers of own booking options (substitutions).
+    'mod/booking:editteachersownoption' => [
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => [
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW,
+        ],
+        'clonepermissionsfrom' => 'mod/booking:addeditownoption',
+    ],
+    // Allows viewing the teacher reports of a booking instance.
+    'mod/booking:viewteacherreports' => [
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => [
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW,
+        ],
+        'clonepermissionsfrom' => 'mod/booking:addeditownoption',
     ],
     // This is the capability to ADD new booking options. It is separate from the editing capability.
     'mod/booking:addoption' => [
@@ -764,5 +809,16 @@ $capabilities = [
         'archetypes' => [
             'manager' => CAP_ALLOW,
         ],
+    ],
+];
+
+$deprecatedcapabilities = [
+    // Split up into the capabilities for own booking options, see above.
+    'mod/booking:addeditownoption' => [
+        'replacement' => 'mod/booking:editownoption',
+        'message' => ' It was split into mod/booking:editownoption, mod/booking:cancelownoption, '
+            . 'mod/booking:duplicateownoption, mod/booking:managebookingsownoption, '
+            . 'mod/booking:sendmailownoption, mod/booking:editteachersownoption and '
+            . 'mod/booking:viewteacherreports. ',
     ],
 ];

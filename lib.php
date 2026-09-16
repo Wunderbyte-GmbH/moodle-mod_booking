@@ -1552,7 +1552,7 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
     if (
         has_capability('mod/booking:manageoptiontemplates', $context)
         || has_capability('mod/booking:updatebooking', $context)
-        || has_capability('mod/booking:addeditownoption', $context)
+        || has_capability('mod/booking:editownoption', $context)
         || has_capability('mod/booking:subscribeusers', $context)
         || has_capability('mod/booking:readresponses', $context)
         || $bookingisteacher
@@ -1739,7 +1739,7 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
 
         if (
             has_capability('mod/booking:updatebooking', $context)
-            || has_capability('mod/booking:addeditownoption', $context)
+            || has_capability('mod/booking:editownoption', $context)
         ) {
             $navref->add(
                 get_string('editbookingoption', 'mod_booking'),
@@ -1751,6 +1751,11 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
                 null,
                 'nav_edit'
             );
+        }
+        if (
+            has_capability('mod/booking:updatebooking', $context)
+            || has_capability('mod/booking:managebookingsownoption', $context)
+        ) {
             $navref->add(
                 get_string('manageresponses', 'mod_booking'),
                 new moodle_url(
