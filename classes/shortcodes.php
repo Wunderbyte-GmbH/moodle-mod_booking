@@ -2347,6 +2347,19 @@ class shortcodes {
     }
 
     /**
+     * Returns the rows per page from the shortcode args, 100 if not set or invalid.
+     *
+     * @param array $args
+     *
+     * @return int
+     *
+     */
+    private static function get_perpage_from_args(array $args): int {
+        $perpage = (int)($args['perpage'] ?? 0);
+        return $perpage > 0 ? $perpage : 100;
+    }
+
+    /**
      * List to approve shortcode.
      *
      * @param mixed $shortcode
@@ -2384,6 +2397,7 @@ class shortcodes {
         } else {
             $customfields = [];
         }
+        $perpage = self::get_perpage_from_args($args);
         $data = new booked_users(
             $scope,
             0,
@@ -2397,7 +2411,10 @@ class shortcodes {
             false,
             0,
             true,
-            $customfields
+            $customfields,
+            false, // Sent messages.
+            $perpage,
+            true // Lazy load the table so the page can be sent before the query runs.
         );
 
         // Without values in the config setting deputyselect makes no sense.
@@ -2503,6 +2520,7 @@ class shortcodes {
         } else {
             $customfields = [];
         }
+        $perpage = self::get_perpage_from_args($args);
         $data = new booked_users(
             $scope,
             0,
@@ -2517,6 +2535,9 @@ class shortcodes {
             0,
             false,
             $customfields,
+            false, // Sent messages.
+            $perpage,
+            true // Lazy load the tables so the page can be sent before the queries run.
         );
 
         /** @var renderer $renderer */
