@@ -70,6 +70,18 @@ const SELECTORS = {
 /** Milliseconds the "checked in" confirmation stays on screen before the camera returns. */
 const CHECKEDIN_FLASH_MS = 700;
 
+/**
+ * Turn a webservice call result into a native Promise.
+ *
+ * core/ajax returns jQuery Deferred promises, which have then() and catch() but no finally().
+ * Calling finally() on one throws synchronously, which the scan loop swallowed - leaving the
+ * scanner "busy" for good, so Confirm and Reject silently did nothing after the first scan.
+ *
+ * @param {Object} thenable
+ * @return {Promise}
+ */
+const asPromise = (thenable) => Promise.resolve(thenable);
+
 /** Transparent 1x1 GIF shown while no holder picture is loaded (img needs a non-empty src). */
 const PLACEHOLDER_PICTURE = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
 
@@ -392,7 +404,7 @@ export const init = async(config) => {
             methodname: 'mod_booking_verify_ticket',
             args: {code, checkin: false, confirmed: false, optiondateid: optiondateid || 0, expectedoptionid},
         }]);
-        return request[0]
+        return asPromise(request[0])
             .then((response) => renderLookup(response, code))
             .catch((error) => {
                 Log.debug(error);
@@ -419,7 +431,7 @@ export const init = async(config) => {
             methodname: 'mod_booking_verify_ticket',
             args: {code, checkin: true, confirmed: true, optiondateid: response.optiondateid || 0, expectedoptionid},
         }]);
-        request[0]
+        asPromise(request[0])
             .then(async(written) => {
                 await updateCounter(written.presentcount, written.bookedcount);
                 if (written.status !== 'valid' || written.pendingconfirmation) {
@@ -466,7 +478,7 @@ export const init = async(config) => {
             methodname: 'mod_booking_reject_ticket',
             args: {code, optiondateid: response.optiondateid || 0, expectedoptionid},
         }]);
-        request[0]
+        asPromise(request[0])
             .catch((error) => {
                 Log.debug(error);
                 return null;
