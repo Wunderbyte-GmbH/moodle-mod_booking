@@ -93,6 +93,12 @@ class booked_users implements renderable, templatable {
     /** @var int $reduced Reduced status */
     public $reduced;
 
+    /** @var int $perpage Number of rows per page for the users tables */
+    private $perpage;
+
+    /** @var bool $lazyload Render the users tables as lazy loaded (AJAX) tables */
+    private $lazyload;
+
     /**
      * Constructor
      *
@@ -110,6 +116,8 @@ class booked_users implements renderable, templatable {
      * @param bool $showreducedbuttons
      * @param array $customfields
      * @param bool $showsentmessages
+     * @param int $perpage number of rows per page for the users tables
+     * @param bool $lazyload render the users tables lazily via AJAX instead of inline
      */
     public function __construct(
         string $scope = 'system',
@@ -125,8 +133,13 @@ class booked_users implements renderable, templatable {
         int $cmid = 0,
         bool $showreducedbuttons = false,
         array $customfields = [],
-        bool $showsentmessages = false
+        bool $showsentmessages = false,
+        int $perpage = 100,
+        bool $lazyload = false
     ) {
+        $this->perpage = $perpage > 0 ? $perpage : 100;
+        $this->lazyload = $lazyload;
+
         $ba = new booking_answers();
         /** @var scope_base $class */
         $class = $ba->return_class_for_scope($scope);
@@ -307,7 +320,22 @@ class booked_users implements renderable, templatable {
         $table->showreloadbutton = true;
         $table->showrowcountselect = true;
 
-        $html = $table->outhtml(100, false);
+        if ($this->lazyload) {
+            global $DB;
+            // The table is only shown if there is at least one record.
+            // A count query is much cheaper than rendering the rows synchronously.
+            $count = $DB->count_records_sql(
+                "SELECT COUNT(*) FROM {$table->sql->from} WHERE {$table->sql->where}",
+                $table->sql->params
+            );
+            if ($count < 1) {
+                return null;
+            }
+            [$idstring, $tablecachehash, $html] = $table->lazyouthtml($this->perpage, false);
+            return $html;
+        }
+
+        $html = $table->outhtml($this->perpage, false);
         return count($table->rawdata) > 0 ? $html : null;
     }
 
