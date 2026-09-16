@@ -28,6 +28,7 @@ namespace mod_booking;
 
 use mod_booking\form\editteachersforoptiondate_form;
 use mod_booking\local\option_edit_access;
+use mod_booking\local\ownoption_capabilities;
 use mod_booking\tests\capability_testcase;
 
 defined('MOODLE_INTERNAL') || die();
@@ -125,24 +126,24 @@ final class limitededitownoption_test extends capability_testcase {
 
     /**
      * With the standard roles the capability is inert: all its call sites OR
-     * in addeditownoption (and updatebooking), which editingteacher and
-     * manager hold by default anyway. It only becomes relevant for roles
+     * in the capabilities for own options (and updatebooking), which
+     * editingteacher and manager hold by default anyway. It only becomes relevant for roles
      * without those capabilities.
      *
      * @covers \mod_booking\form\editteachersforoptiondate_form::check_access_for_dynamic_submission
      * @covers \mod_booking\permissions::has_any_booking_editing_capability
      */
-    public function test_it_adds_nothing_to_roles_holding_addeditownoption(): void {
+    public function test_it_adds_nothing_to_roles_holding_the_own_option_capabilities(): void {
         $this->create_option();
         $cmid = (int)$this->settings->cmid;
 
-        // The capability addeditownoption alone already opens both call sites.
-        $this->user_with(['mod/booking:addeditownoption']);
+        // A role with the capabilities for own options (formerly addeditownoption) opens both call sites.
+        $this->user_with(ownoption_capabilities::NEW_CAPABILITIES);
         $this->assertNull($this->run_form_access_check(editteachersforoptiondate_form::class, ['cmid' => $cmid]));
         $this->assertTrue(permissions::has_any_booking_editing_capability());
 
         // Adding limitededitownoption changes nothing for such a role.
-        $this->user_with(['mod/booking:addeditownoption', 'mod/booking:limitededitownoption']);
+        $this->user_with(array_merge(ownoption_capabilities::NEW_CAPABILITIES, ['mod/booking:limitededitownoption']));
         $this->assertNull($this->run_form_access_check(editteachersforoptiondate_form::class, ['cmid' => $cmid]));
         $this->assertTrue(permissions::has_any_booking_editing_capability());
     }

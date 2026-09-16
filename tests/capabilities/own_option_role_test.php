@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Baseline of everything a role holding mod/booking:addeditownoption can do.
+ * Everything a role that held mod/booking:addeditownoption could do.
  *
  * @package    mod_booking
  * @category   test
@@ -34,6 +34,7 @@ use mod_booking\form\dynamicoptiondateform;
 use mod_booking\form\editteachersforoptiondate_form;
 use mod_booking\form\option_form;
 use mod_booking\local\option_edit_access;
+use mod_booking\local\ownoption_capabilities;
 use mod_booking\local\wizard\options\skills\bulk_update_options_skill;
 use mod_booking\local\wizard\options\skills\update_option_skill;
 use mod_booking\local\wizard\options\skills\update_option_trainer_skill;
@@ -51,15 +52,14 @@ require_once("$CFG->dirroot/mod/booking/lib.php");
 require_once("$CFG->libdir/formslib.php");
 
 /**
- * Everything a role holding mod/booking:addeditownoption can do today.
+ * Everything a role that held mod/booking:addeditownoption could do.
  *
- * mod/booking:addeditownoption is going to be split into smaller capabilities.
- * Customers must not notice: a role that holds addeditownoption today has to
- * be able to do exactly the same things after the split. This test is the
- * safety net for that.
- *
- * How to use it after the split: only change ROLE_CAPABILITIES to the new
- * capabilities the role gets from the migration. No assertion may change.
+ * mod/booking:addeditownoption was split into smaller capabilities for own
+ * booking options. Customers must not notice: a role that held
+ * addeditownoption gets all new capabilities from the migration and has to
+ * be able to do exactly the same things. The assertions were written against
+ * addeditownoption before the split and did not change; only
+ * ROLE_CAPABILITIES did.
  *
  * Every test also checks a user WITHOUT the role, so a test cannot pass
  * because a gate became open for everybody.
@@ -79,14 +79,10 @@ final class own_option_role_test extends capability_testcase {
     use \mod_booking\tests\agent_extension_test_trait;
 
     /**
-     * The capabilities of the role under test.
-     *
-     * Today this is addeditownoption. After the split, put the new
-     * capabilities here - and nothing else in this file.
+     * The capabilities of the role under test: the capabilities a role holding
+     * addeditownoption gets from the migration.
      */
-    private const ROLE_CAPABILITIES = [
-        'mod/booking:addeditownoption',
-    ];
+    private const ROLE_CAPABILITIES = ownoption_capabilities::NEW_CAPABILITIES;
 
     /**
      * Opening the option form (editoptions.php): allowed for the options the

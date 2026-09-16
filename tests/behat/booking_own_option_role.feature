@@ -2,13 +2,13 @@
 Feature: Pages a role with the own option capability can open
   As a teacher of booking options
   I need a role that opens the booking pages of my options
-  So that splitting the capability mod/booking:addeditownoption changes nothing for customers
+  So that splitting the capability mod/booking:addeditownoption changed nothing for customers
 
-  # Baseline for the split of mod/booking:addeditownoption: after the split, only
-  # the "permission overrides" table changes to the new capabilities.
+  # Written against mod/booking:addeditownoption before it was split. After the split, only
+  # the "permission overrides" table changed to the capabilities the migration gives such a role.
   # trainer1 holds the role, trainer2 is teacher of the same option without the role.
   # instancetemplatessettings.php is not tested: it is an admin settings page that needs
-  # moodle/site:config first, so addeditownoption alone never opens it.
+  # moodle/site:config first, so the role alone never opens it.
 
   Background:
     Given the following "users" exist:
@@ -28,8 +28,14 @@ Feature: Pages a role with the own option capability can open
       | name            | shortname     | description     | archetype |
       | Own option role | ownoptionrole | Own option role |           |
     And the following "permission overrides" exist:
-      | capability                   | permission | role          | contextlevel | reference |
-      | mod/booking:addeditownoption | Allow      | ownoptionrole | System       |           |
+      | capability                          | permission | role          | contextlevel | reference |
+      | mod/booking:editownoption           | Allow      | ownoptionrole | System       |           |
+      | mod/booking:cancelownoption         | Allow      | ownoptionrole | System       |           |
+      | mod/booking:duplicateownoption      | Allow      | ownoptionrole | System       |           |
+      | mod/booking:managebookingsownoption | Allow      | ownoptionrole | System       |           |
+      | mod/booking:sendmailownoption       | Allow      | ownoptionrole | System       |           |
+      | mod/booking:editteachersownoption   | Allow      | ownoptionrole | System       |           |
+      | mod/booking:viewteacherreports      | Allow      | ownoptionrole | System       |           |
     And the following "role assigns" exist:
       | user     | role          | contextlevel | reference |
       | trainer1 | ownoptionrole | System       |           |

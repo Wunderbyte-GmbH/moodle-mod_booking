@@ -219,7 +219,7 @@ final class external_context_capability_test extends booking_advanced_testcase {
             }
         }
 
-        // An editingteacher (mod/booking:addeditownoption in the module context) may search.
+        // An editingteacher (mod/booking:editownoption in the module context) may search.
         $this->setUser($teacher);
         $result = search_teachers::execute('someone');
         $this->assertArrayHasKey('list', $result);

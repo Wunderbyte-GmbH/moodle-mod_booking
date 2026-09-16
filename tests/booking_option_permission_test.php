@@ -33,7 +33,7 @@ use tool_mocktesttime\time_mock;
 
 /**
  * Tests that creators of booking options can edit their own options
- * with the mod/booking:addeditownoption capability.
+ * with the mod/booking:editownoption capability.
  *
  * @covers \booking_check_if_teacher
  */
@@ -121,28 +121,28 @@ final class booking_option_permission_test extends booking_advanced_testcase {
     }
 
     /**
-     * Test that a creator with mod/booking:addeditownoption can still edit
+     * Test that a creator with mod/booking:editownoption can still edit
      * the booking option after saving (without mod/booking:updatebooking).
      *
      * @covers \booking_check_if_teacher
      */
-    public function test_creator_can_edit_own_option_with_addeditownoption(): void {
+    public function test_creator_can_edit_own_option_with_editownoption(): void {
         global $DB;
 
         // Create user and setup.
         $creator = $this->getDataGenerator()->create_user();
         [$course, $booking, $context] = $this->create_booking_setup($creator);
 
-        // Give ONLY addeditownoption, explicitly NOT updatebooking.
+        // Give ONLY editownoption, explicitly NOT updatebooking.
         $roleid = create_role('OptionCreator', 'optioncreator', 'Can create and edit own options');
-        assign_capability('mod/booking:addeditownoption', CAP_ALLOW, $roleid, $context->id, true);
+        assign_capability('mod/booking:editownoption', CAP_ALLOW, $roleid, $context->id, true);
         role_assign($roleid, $creator->id, $context->id);
         accesslib_clear_all_caches_for_unit_testing();
 
         // Verify user does NOT have updatebooking.
         $this->setUser($creator);
         $this->assertFalse(has_capability('mod/booking:updatebooking', $context));
-        $this->assertTrue(has_capability('mod/booking:addeditownoption', $context));
+        $this->assertTrue(has_capability('mod/booking:editownoption', $context));
 
         // Create option as this user.
         $option = $this->create_option_as_user($creator, $booking->id, $course->id);
@@ -158,7 +158,7 @@ final class booking_option_permission_test extends booking_advanced_testcase {
     }
 
     /**
-     * Test that a creator who loses mod/booking:addeditownoption can no
+     * Test that a creator who loses mod/booking:editownoption can no
      * longer edit the booking option.
      *
      * @covers \booking_check_if_teacher
@@ -170,9 +170,9 @@ final class booking_option_permission_test extends booking_advanced_testcase {
         $creator = $this->getDataGenerator()->create_user();
         [$course, $booking, $context] = $this->create_booking_setup($creator);
 
-        // Give addeditownoption.
+        // Give editownoption.
         $roleid = create_role('OptionCreator', 'optioncreator', 'Can create and edit own options');
-        assign_capability('mod/booking:addeditownoption', CAP_ALLOW, $roleid, $context->id, true);
+        assign_capability('mod/booking:editownoption', CAP_ALLOW, $roleid, $context->id, true);
         role_assign($roleid, $creator->id, $context->id);
         accesslib_clear_all_caches_for_unit_testing();
 
@@ -181,28 +181,28 @@ final class booking_option_permission_test extends booking_advanced_testcase {
 
         // Verify the user can edit (sanity check).
         $this->setUser($creator);
-        $this->assertTrue(has_capability('mod/booking:addeditownoption', $context));
+        $this->assertTrue(has_capability('mod/booking:editownoption', $context));
         $this->assertTrue(booking_check_if_teacher($option->id, $creator->id));
 
         // Now revoke the capability.
-        unassign_capability('mod/booking:addeditownoption', $roleid, $context->id);
+        unassign_capability('mod/booking:editownoption', $roleid, $context->id);
         accesslib_clear_all_caches_for_unit_testing();
 
         // Verify capability is gone.
-        $this->assertFalse(has_capability('mod/booking:addeditownoption', $context));
+        $this->assertFalse(has_capability('mod/booking:editownoption', $context));
 
         // The booking_check_if_teacher still returns true (creator check),
         // but the full permission check requires BOTH capability AND teacher/creator check.
         // So the user should NOT be able to edit because capability is missing.
         // Simulate the editoptions.php permission check.
         $canedit = has_capability('mod/booking:updatebooking', $context)
-            || (has_capability('mod/booking:addeditownoption', $context)
+            || (has_capability('mod/booking:editownoption', $context)
                 && booking_check_if_teacher($option->id, $creator->id));
         $this->assertFalse($canedit);
     }
 
     /**
-     * Test that a user with mod/booking:addeditownoption cannot edit an
+     * Test that a user with mod/booking:editownoption cannot edit an
      * option they did not create and are not a teacher of.
      *
      * @covers \booking_check_if_teacher
@@ -219,9 +219,9 @@ final class booking_option_permission_test extends booking_advanced_testcase {
         // Enrol both users.
         $this->getDataGenerator()->enrol_user($otheruser->id, $course->id);
 
-        // Give addeditownoption to BOTH users.
+        // Give editownoption to BOTH users.
         $roleid = create_role('OptionCreator', 'optioncreator', 'Can create and edit own options');
-        assign_capability('mod/booking:addeditownoption', CAP_ALLOW, $roleid, $context->id, true);
+        assign_capability('mod/booking:editownoption', CAP_ALLOW, $roleid, $context->id, true);
         role_assign($roleid, $creator->id, $context->id);
         role_assign($roleid, $otheruser->id, $context->id);
         accesslib_clear_all_caches_for_unit_testing();
@@ -236,7 +236,7 @@ final class booking_option_permission_test extends booking_advanced_testcase {
         // Now switch to "otheruser" — has the capability but did NOT create the option
         // and is NOT a teacher of the option.
         $this->setUser($otheruser);
-        $this->assertTrue(has_capability('mod/booking:addeditownoption', $context));
+        $this->assertTrue(has_capability('mod/booking:editownoption', $context));
         $this->assertFalse(has_capability('mod/booking:updatebooking', $context));
 
         // The booking_check_if_teacher should return false (not teacher, not creator).
@@ -244,27 +244,27 @@ final class booking_option_permission_test extends booking_advanced_testcase {
 
         // Full permission check should deny access.
         $canedit = has_capability('mod/booking:updatebooking', $context)
-            || (has_capability('mod/booking:addeditownoption', $context)
+            || (has_capability('mod/booking:editownoption', $context)
                 && booking_check_if_teacher($option->id, $otheruser->id));
         $this->assertFalse($canedit);
     }
 
     /**
      * Test that a teacher (non-creator) can still edit an option with
-     * mod/booking:addeditownoption. Regression test for existing teacher logic.
+     * mod/booking:editownoption. Regression test for existing teacher logic.
      *
      * @covers \booking_check_if_teacher
      */
-    public function test_teacher_noncreator_can_edit_with_addeditownoption(): void {
+    public function test_teacher_noncreator_can_edit_with_editownoption(): void {
         global $DB;
 
         $admin = get_admin();
         $teacher = $this->getDataGenerator()->create_user();
         [$course, $booking, $context] = $this->create_booking_setup($teacher);
 
-        // Give teacher only addeditownoption.
+        // Give teacher only editownoption.
         $roleid = create_role('OptionTeacher', 'optionteacher', 'Teacher who can edit own options');
-        assign_capability('mod/booking:addeditownoption', CAP_ALLOW, $roleid, $context->id, true);
+        assign_capability('mod/booking:editownoption', CAP_ALLOW, $roleid, $context->id, true);
         role_assign($roleid, $teacher->id, $context->id);
         accesslib_clear_all_caches_for_unit_testing();
 
@@ -289,7 +289,7 @@ final class booking_option_permission_test extends booking_advanced_testcase {
         $this->assertTrue(booking_check_if_teacher($option->id, $teacher->id));
 
         $canedit = has_capability('mod/booking:updatebooking', $context)
-            || (has_capability('mod/booking:addeditownoption', $context)
+            || (has_capability('mod/booking:editownoption', $context)
                 && booking_check_if_teacher($option->id, $teacher->id));
         $this->assertTrue($canedit);
     }
@@ -343,9 +343,9 @@ final class booking_option_permission_test extends booking_advanced_testcase {
         $user = $this->getDataGenerator()->create_user();
         [$course, $booking, $context] = $this->create_booking_setup($user);
 
-        // Give user addeditownoption.
+        // Give user editownoption.
         $roleid = create_role('OptionCreator', 'optioncreator', 'Can create and edit own options');
-        assign_capability('mod/booking:addeditownoption', CAP_ALLOW, $roleid, $context->id, true);
+        assign_capability('mod/booking:editownoption', CAP_ALLOW, $roleid, $context->id, true);
         role_assign($roleid, $user->id, $context->id);
         accesslib_clear_all_caches_for_unit_testing();
 
@@ -392,7 +392,7 @@ final class booking_option_permission_test extends booking_advanced_testcase {
         $this->assertTrue(has_capability('mod/booking:updatebooking', $context));
 
         $canedit = has_capability('mod/booking:updatebooking', $context)
-            || (has_capability('mod/booking:addeditownoption', $context)
+            || (has_capability('mod/booking:editownoption', $context)
                 && booking_check_if_teacher($option->id, $manager->id));
         $this->assertTrue($canedit);
     }
