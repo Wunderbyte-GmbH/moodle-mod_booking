@@ -189,7 +189,7 @@ class optionformconfig_info {
         if (
             in_array($fallback, self::CAPABILITIES, true)
             && has_any_capability(
-                ['mod/booking:updatebooking', 'mod/booking:addeditownoption', 'mod/booking:addoption'],
+                ['mod/booking:updatebooking', 'mod/booking:editownoption', 'mod/booking:addoption'],
                 $context,
                 $userid
             )

@@ -51,8 +51,19 @@ class option_edit_access {
      * @return bool
      */
     public static function can_edit_option(int $cmid, int $optionid, int $copyoptionid = 0): bool {
-        $context = context_module::instance($cmid);
+        return self::can_edit_option_in_context(context_module::instance($cmid), $optionid, $copyoptionid);
+    }
 
+    /**
+     * The same rule for a context that is already known (the option form checks
+     * the context of its ajax data, which can also be the system context).
+     *
+     * @param \context $context
+     * @param int $optionid 0 when a new option is created
+     * @param int $copyoptionid the option that is duplicated, 0 when nothing is duplicated
+     * @return bool
+     */
+    public static function can_edit_option_in_context(\context $context, int $optionid, int $copyoptionid = 0): bool {
         // Either the user has the general capability to update booking options...
         if (has_capability('mod/booking:updatebooking', $context)) {
             return true;
@@ -74,6 +85,37 @@ class option_edit_access {
         }
         // ... or they have the capability to add options and are creating a new option (optionid is 0).
         return has_capability('mod/booking:addoption', $context) && empty($optionid);
+    }
+
+    /**
+     * Require access to the option form. Users without access get the same
+     * exception as before the rule was extracted.
+     *
+     * @param int $cmid
+     * @param int $optionid
+     * @param int $copyoptionid the option that is duplicated, 0 when nothing is duplicated
+     * @return void
+     * @throws moodle_exception
+     */
+    /**
+     * Whether the current user may submit the option form.
+     *
+     * Same rule as opening the form, plus the duplicate case: duplicating ends in
+     * saving a NEW option, and the copyoptionid is consumed when the form is loaded
+     * and not submitted again. So all that can be checked here is that no existing
+     * option is addressed - the ownership of the copied option was checked when the
+     * form was opened.
+     *
+     * @param \context $context
+     * @param int $optionid 0 when a new option is saved
+     * @param int $copyoptionid the option that is duplicated, 0 when nothing is duplicated
+     * @return bool
+     */
+    public static function can_submit_option_form(\context $context, int $optionid, int $copyoptionid = 0): bool {
+        if (self::can_edit_option_in_context($context, $optionid, $copyoptionid)) {
+            return true;
+        }
+        return $optionid <= 0 && has_capability('mod/booking:duplicateownoption', $context);
     }
 
     /**

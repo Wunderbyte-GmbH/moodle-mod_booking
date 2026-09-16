@@ -124,20 +124,19 @@ final class editownoption_callsites_test extends capability_testcase {
     }
 
     /**
-     * The dynamic option form: ownership is NOT checked. The AJAX endpoint
-     * behind the very same form accepts the option the user does not teach,
-     * so the "own options only" restriction of editoptions.php can be
-     * circumvented through it.
+     * The dynamic option form: ownership IS checked. The AJAX endpoint behind
+     * the form applies the same rule as editoptions.php, so the "own options
+     * only" restriction cannot be circumvented through it.
      *
      * @covers \mod_booking\form\option_form::check_access_for_dynamic_submission
      */
-    public function test_dynamic_option_form_does_not_check_ownership(): void {
+    public function test_dynamic_option_form_checks_ownership(): void {
         [$own, $other] = $this->create_owner_and_foreign_option();
         $cmid = (int)$own->cmid;
 
-        $this->assertNull(
+        $this->assertNotNull(
             $this->run_form_access_check(option_form::class, ['cmid' => $cmid, 'id' => (int)$other->id]),
-            'option_form only checks the capability, never booking_check_if_teacher().'
+            'option_form pairs the capability with booking_check_if_teacher().'
         );
         $this->assertNull(
             $this->run_form_access_check(option_form::class, ['cmid' => $cmid, 'id' => (int)$own->id])

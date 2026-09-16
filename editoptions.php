@@ -22,7 +22,7 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once(__DIR__ . '/../../config.php');
+require_once(__DIR__ . '/../../config.php'); // phpcs:ignore moodle.Files.RequireLogin.Missing
 require_once($CFG->dirroot . '/mod/booking/locallib.php');
 require_once($CFG->libdir . '/formslib.php');
 
@@ -44,7 +44,9 @@ $returnurl = optional_param('returnurl', $returnurl->out(), PARAM_LOCALURL);
 
 [$course, $cm] = get_course_and_cm_from_cmid($cmid);
 
-require_course_login($course, false, $cm);
+// Course login (enrolment or guest access) by default; a site login is enough if the
+// setting "editoptionsrequirecourselogin" is disabled. The capability checks below still apply.
+booking_require_editoptions_login($course, $cm);
 
 $url = new moodle_url('/mod/booking/editoptions.php', ['id' => $cmid, 'optionid' => $optionid]);
 $PAGE->set_url($url);
@@ -73,10 +75,10 @@ option_edit_access::require_edit_option((int)$cmid, (int)$optionid, (int)$copyop
 // We don't need this anymore.
 $optionid = $optionid < 0 ? 0 : $optionid;
 
-$settings = singleton_service::get_instance_of_booking_option_settings($optionid);
-
-if (!empty($settings->cmid) && $settings->cmid != $cmid) {
-    throw new moodle_exception('badcontext');
+// The ids are sent by the client, so the option, the booking instance and the copied
+// option have to belong to the course module whose context the capabilities were checked in.
+if (!booking_option_form_ids_match_cm($cm, $optionid, $bookingid, $copyoptionid)) {
+    throw new moodle_exception('invalidcontext', 'error');
 }
 
 // New code.
