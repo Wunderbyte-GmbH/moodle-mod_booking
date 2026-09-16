@@ -70,13 +70,18 @@ final class campaign_freetobookagain_test extends booking_advanced_testcase {
      * @covers \mod_booking\task\purge_campaign_caches::execute
      * @covers \mod_booking\booking_option::check_if_free_to_book_again
      *
+     * The same scenario is run a second time with an orphaned booking option present,
+     * a row in booking_options whose bookingid has no course module any more. Such a row
+     * must not abort the task run for the options that follow it.
+     *
      * @param array $bdata
+     * @param bool $withorphanedoption
      * @throws \coding_exception
      * @throws \dml_exception
      *
-     * @dataProvider booking_campaigns_settings_provider
+     * @dataProvider booking_campaigns_orphan_provider
      */
-    public function test_campaign_limitfactor_triggers_freetobookagain(array $bdata): void {
+    public function test_campaign_limitfactor_triggers_freetobookagain(array $bdata, bool $withorphanedoption): void {
         global $DB;
 
         // Setup test data.
@@ -144,6 +149,17 @@ final class campaign_freetobookagain_test extends booking_advanced_testcase {
         ];
         $plugingenerator->create_rule($ruledata);
 
+        // Create the orphaned option first, so that the task processes it before the option under test.
+        $orphanid = 0;
+        if ($withorphanedoption) {
+            $orphanid = $this->create_orphaned_booking_option(
+                $plugingenerator,
+                $booking1->id,
+                $course->id,
+                $teacher->username
+            );
+        }
+
         // Create booking option with maxanswers=2, waitinglist enabled.
         $record = new stdClass();
         $record->bookingid = $booking1->id;
@@ -162,6 +178,11 @@ final class campaign_freetobookagain_test extends booking_advanced_testcase {
         $record->customfield_spt1 = 'tennis';
         $option1 = $plugingenerator->create_option($record);
         singleton_service::destroy_booking_option_singleton($option1->id);
+
+        if ($withorphanedoption) {
+            // The task walks the options in id order, so the orphan has to come first for this to be a regression test.
+            $this->assertLessThan($option1->id, $orphanid);
+        }
 
         $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
         $boinfo = new bo_info($settings);
@@ -413,6 +434,67 @@ final class campaign_freetobookagain_test extends booking_advanced_testcase {
         // No mail tasks should have been created.
         $mailtasks = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
         $this->assertEmpty($mailtasks, 'No mail tasks should be created when option was not fully booked');
+    }
+
+    /**
+     * Creates a booking option and detaches it from its instance.
+     *
+     * The resulting row in booking_options has a bookingid without a course module, exactly
+     * like an option left behind by a deleted instance or a half deleted course.
+     *
+     * @param mod_booking_generator $plugingenerator
+     * @param int $bookingid
+     * @param int $courseid
+     * @param string $teacherusername
+     * @return int id of the orphaned booking option
+     * @throws \dml_exception
+     */
+    private function create_orphaned_booking_option(
+        mod_booking_generator $plugingenerator,
+        int $bookingid,
+        int $courseid,
+        string $teacherusername
+    ): int {
+        global $DB;
+
+        $record = new stdClass();
+        $record->bookingid = $bookingid;
+        $record->text = 'Orphaned option';
+        $record->chooseorcreatecourse = 1;
+        $record->courseid = $courseid;
+        $record->useprice = 0;
+        $record->maxanswers = 1;
+        $record->maxoverbooking = 0;
+        $record->optiondateid_0 = "0";
+        $record->daystonotify_0 = "0";
+        $record->coursestarttime_0 = strtotime('now + 3 day');
+        $record->courseendtime_0 = strtotime('now + 6 day');
+        $record->teachersforoption = $teacherusername;
+        $orphan = $plugingenerator->create_option($record);
+
+        // Point the option at a booking instance that does not exist, so no course module resolves.
+        $missingbookingid = 1 + (int) $DB->get_field_sql('SELECT COALESCE(MAX(id), 0) FROM {booking}');
+        $DB->set_field('booking_options', 'bookingid', $missingbookingid, ['id' => $orphan->id]);
+
+        singleton_service::destroy_booking_option_singleton($orphan->id);
+        singleton_service::destroy_booking_answers($orphan->id);
+
+        return (int) $orphan->id;
+    }
+
+    /**
+     * Data provider running the freetobookagain scenario with and without an orphaned option.
+     *
+     * @return array
+     * @throws \UnexpectedValueException
+     */
+    public static function booking_campaigns_orphan_provider(): array {
+        $bdata = self::booking_campaigns_settings_provider()['bdata'][0];
+
+        return [
+            'without orphaned option' => [$bdata, false],
+            'with orphaned option' => [$bdata, true],
+        ];
     }
 
     /**
