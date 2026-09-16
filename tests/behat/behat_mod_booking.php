@@ -328,13 +328,13 @@ class behat_mod_booking extends behat_base {
         $this->getSession()->visit($this->locate_path($url->out_as_local_url(false)));
     }
 
-     /**
+    /**
      * Visit a page of mod_booking with the ids of a booking option filled in.
      *
      * Placeholders in the url: {cmid} and {optionid} of the option in the booking
      * instance, {userid} of the logged in user.
      *
-     * @Given /^I visit the booking page "(?P<url_string>[^"]*)" for option "(?P<option_string>[^"]*)" in booking "(?P<booking_string>[^"]*)"$/
+     * @Given /^I visit the booking page "([^"]*)" for option "([^"]*)" in booking "([^"]*)"$/
      * @param string $url local url with placeholders
      * @param string $optiontext
      * @param string $bookingname

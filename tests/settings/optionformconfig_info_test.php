@@ -165,7 +165,7 @@ final class optionformconfig_info_test extends booking_advanced_testcase {
 
         // A site role (no course enrolment) which may edit own options, but has no option form capability.
         $roleid = $this->getDataGenerator()->create_role();
-        assign_capability('mod/booking:addeditownoption', CAP_ALLOW, $roleid, $context->id);
+        assign_capability('mod/booking:editownoption', CAP_ALLOW, $roleid, $context->id);
         $editor = $this->getDataGenerator()->create_user();
         role_assign($roleid, $editor->id, $context->id);
 

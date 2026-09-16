@@ -182,7 +182,7 @@ final class option_form_courselogin_test extends booking_advanced_testcase {
     /**
      * Helper: booking option with a teacher who is not enrolled in the course.
      *
-     * The teacher gets a system role with mod/booking:addeditownoption and mod/booking:expertoptionform.
+     * The teacher gets a system role with mod/booking:editownoption and mod/booking:expertoptionform.
      *
      * @return array{0: booking_option_settings, 1: stdClass, 2: int}
      */
@@ -196,7 +196,7 @@ final class option_form_courselogin_test extends booking_advanced_testcase {
         $teacher = $this->getDataGenerator()->create_user();
         $systemcontext = context_system::instance();
         $roleid = $this->getDataGenerator()->create_role();
-        assign_capability('mod/booking:addeditownoption', CAP_ALLOW, $roleid, $systemcontext->id);
+        assign_capability('mod/booking:editownoption', CAP_ALLOW, $roleid, $systemcontext->id);
         assign_capability('mod/booking:expertoptionform', CAP_ALLOW, $roleid, $systemcontext->id);
         role_assign($roleid, $teacher->id, $systemcontext->id);
         accesslib_clear_all_caches_for_unit_testing();

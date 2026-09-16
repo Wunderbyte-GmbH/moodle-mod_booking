@@ -34,6 +34,7 @@ use context_system;
 defined('MOODLE_INTERNAL') || die();
 require_once("$CFG->libdir/formslib.php");
 
+use mod_booking\local\option_edit_access;
 use mod_booking\booking_option;
 use mod_booking\option\fields_info;
 use mod_booking\singleton_service;
@@ -209,7 +210,6 @@ class option_form extends dynamic_form {
 
         $context = $this->get_option_context();
 
-        $context = $this->get_context_for_dynamic_submission();
         $formdata = $this->_ajaxformdata ?? [];
         $id = max(0, (int) ($formdata['id'] ?? $formdata['optionid'] ?? 0));
         $optionid = max(0, (int) ($formdata['optionid'] ?? $formdata['id'] ?? 0));
@@ -235,23 +235,18 @@ class option_form extends dynamic_form {
             }
         }
 
-        // Capability updatebooking may edit any option of the instance; addeditownoption only if teacher of this
-        // option; addoption only for a new option. Same rule as on editoptions.php (booking_can_edit_option()).
-        if (!booking_can_edit_option($context, $optionid)) {
-            throw new required_capability_exception($context, 'mod/booking:updatebooking', 'nopermissions', '');
+        // Capability updatebooking may edit any option of the instance; editownoption only if teacher of this
+        // option; addoption only for a new option; duplicateownoption only when a new option is saved (the
+        // duplicate). Same rule as on editoptions.php, see option_edit_access::can_submit_option_form().
+        if (
+            !option_edit_access::can_submit_option_form(
+                $context,
+                $optionid,
+                (int) ($formdata['copyoptionid'] ?? 0)
+            )
+        ) {
+            throw new required_capability_exception($context, 'mod/booking:editownoption', 'nopermissions', '');
         }
-
-        // Duplicating an own option ends in saving a NEW option: the copyoptionid is
-        // consumed when the form is loaded and is not submitted again, so the only
-        // thing that can be checked here is that no existing option is addressed.
-        // Ownership of the copied option is checked when the form is opened,
-        // see \mod_booking\local\option_edit_access::can_edit_option().
-        $optionid = (int)($this->_ajaxformdata['optionid'] ?? 0);
-        if (has_capability('mod/booking:duplicateownoption', $context) && $optionid <= 0) {
-            return;
-        }
-
-        throw new required_capability_exception($context, 'mod/booking:editownoption', 'nopermissions', '');
     }
 
 

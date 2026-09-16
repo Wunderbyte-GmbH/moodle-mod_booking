@@ -2002,22 +2002,15 @@ function booking_require_editoptions_login(stdClass $course, $cm): void {
  *
  * Used by editoptions.php and by the dynamic submission of the option form, so both apply the same rules.
  *
+ * The rule itself lives in \mod_booking\local\option_edit_access so it can be unit-tested.
+ *
  * @param context $context the module context of the booking instance
  * @param int $optionid the id of the option, 0 for a new option
+ * @param int $copyoptionid the id of the option that is duplicated, 0 if none
  * @return bool
  */
-function booking_can_edit_option(context $context, int $optionid): bool {
-    return has_capability('mod/booking:updatebooking', $context)
-        // The user may edit their own options and is actually editing their own option.
-        || (
-            has_capability('mod/booking:addeditownoption', $context)
-            && booking_check_if_teacher($optionid)
-        )
-        // The user may add options and is creating a new option.
-        || (
-            has_capability('mod/booking:addoption', $context)
-            && empty($optionid)
-        );
+function booking_can_edit_option(context $context, int $optionid, int $copyoptionid = 0): bool {
+    return \mod_booking\local\option_edit_access::can_edit_option_in_context($context, $optionid, $copyoptionid);
 }
 
 /**

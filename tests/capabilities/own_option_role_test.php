@@ -106,8 +106,9 @@ final class own_option_role_test extends capability_testcase {
     }
 
     /**
-     * Saving the option form (AJAX submission of option_form): allowed for
-     * every option of the activity, not only the own ones.
+     * Saving the option form (AJAX submission of option_form): allowed for the
+     * options the user teaches. Options of other people are refused since the
+     * ownership check was added to the form on MOODLE_405_DEV.
      *
      * @covers \mod_booking\form\option_form::check_access_for_dynamic_submission
      */
@@ -116,7 +117,7 @@ final class own_option_role_test extends capability_testcase {
         $cmid = (int)$own->cmid;
 
         $this->assertNull($this->run_form_access_check(option_form::class, ['cmid' => $cmid, 'id' => (int)$own->id]));
-        $this->assertNull($this->run_form_access_check(option_form::class, ['cmid' => $cmid, 'id' => (int)$other->id]));
+        $this->assertNotNull($this->run_form_access_check(option_form::class, ['cmid' => $cmid, 'id' => (int)$other->id]));
 
         $this->user_with([]);
         $this->assertNotNull($this->run_form_access_check(option_form::class, ['cmid' => $cmid, 'id' => (int)$own->id]));
