@@ -174,7 +174,7 @@ class booking_handler extends \core_customfield\handler {
      * @return bool true if the current can configure custom fields, false otherwise
      */
     public function can_configure(): bool {
-        return has_capability('mod/booking:addeditownoption', $this->get_configuration_context());
+        return has_capability('mod/booking:editownoption', $this->get_configuration_context());
     }
 
     /**
@@ -290,7 +290,7 @@ class booking_handler extends \core_customfield\handler {
         if ($visibility == self::MOD_BOOKING_NOTVISIBLE) {
             return false;
         } else if ($visibility == self::MOD_BOOKING_VISIBLETOTEACHERS) {
-            return has_capability('mod/booking:addeditownoption', $this->get_instance_context($instanceid));
+            return has_capability('mod/booking:editownoption', $this->get_instance_context($instanceid));
         } else {
             return true;
         }

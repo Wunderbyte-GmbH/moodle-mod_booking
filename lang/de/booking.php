@@ -804,8 +804,6 @@ $string['bookedtextsubjectbookingmanager'] = 'Neue Buchung für {$a->title} von 
 $string['bookedusers'] = 'Gebuchte Nutzer:innen';
 $string['bookelectivesbtn'] = 'Ausgewählte Wahlfächer buchen';
 $string['booking'] = 'Buchung';
-$string['booking:addeditownoption'] = 'Eigene Buchungsoptionen bearbeiten (eigene Buchungsoptionen sind solche,
-die man entweder selbst angelegt hat oder bei denen man als Trainer:in zugewiesen ist)';
 $string['booking:addinstance'] = 'Neue Buchungsinstanzen anlegen';
 $string['booking:addoption'] = 'Neue Buchungsoptionen anlegen';
 $string['booking:alwayscanapprove'] = 'Kann Buchungsantworten immer bestätigen/ablehnen';
@@ -836,15 +834,21 @@ $string['booking:duplicateownoption'] = 'Eigene Buchungsoptionen duplizieren (ei
 die man entweder selbst angelegt hat oder bei denen man als Trainer:in zugewiesen ist)';
 $string['booking:editbookingrules'] = "Regeln bearbeiten (Pro)";
 $string['booking:editoptionformconfig'] = 'Buchungsoptionsfelder bearbeiten';
+$string['booking:editownoption'] = 'Eigene Buchungsoptionen bearbeiten (eigene Buchungsoptionen sind solche,
+die man entweder selbst angelegt hat oder bei denen man als Trainer:in zugewiesen ist)';
 $string['booking:editperformance'] = 'Performance testen';
 $string['booking:editscheduledmails'] = 'Geplante Mails bearbeiten';
 $string['booking:editsemesters'] = 'Semester bearbeiten';
 $string['booking:editteacherdescription'] = 'Beschreibung der Lehrenden bearbeiten';
+$string['booking:editteachersownoption'] = 'Trainer:innen eigener Buchungsoptionen ändern, z. B. Vertretungen (eigene Buchungsoptionen sind solche,
+die man entweder selbst angelegt hat oder bei denen man als Trainer:in zugewiesen ist)';
 $string['booking:executebulkoperations'] = "Darf Bulk-Operationen durchführen";
 $string['booking:expertoptionform'] = "Expert Buchungsoptions Formular";
 $string['booking:importoptions'] = "Optionen importieren";
-$string['booking:limitededitownoption'] = 'Weniger als addeditownoption, nur sehr beschränktes Editieren eigener Optionen erlaubt.';
+$string['booking:limitededitownoption'] = 'Weniger als editownoption, nur sehr beschränktes Editieren eigener Optionen erlaubt.';
 $string['booking:managebookedusers'] = 'Buchungen von Nutzer:innen verwalten';
+$string['booking:managebookingsownoption'] = 'Buchungen eigener Buchungsoptionen verwalten (eigene Buchungsoptionen sind solche,
+die man entweder selbst angelegt hat oder bei denen man als Trainer:in zugewiesen ist)';
 $string['booking:manageoptiondates'] = 'Bearbeite Termine';
 $string['booking:manageoptiontemplates'] = "Buchungsoptionsvorlagen verwalten";
 $string['booking:manageslotunavailability'] = 'Abwesenheiten für Slot-Lehrende verwalten';
@@ -861,6 +865,8 @@ $string['booking:reducedoptionform5'] = "5. Reduziertes Buchungsoptionsformular 
 $string['booking:seealllisttoapprove'] = 'Alle „listtoapprove“-Einträge anzeigen';
 $string['booking:seepersonalteacherinformation'] = 'Detailinfos über Lehrende anzeigen';
 $string['booking:semesters'] = 'Booking: Semester';
+$string['booking:sendmailownoption'] = 'E-Mails an die gebuchten Nutzer:innen eigener Buchungsoptionen senden (eigene Buchungsoptionen sind solche,
+die man entweder selbst angelegt hat oder bei denen man als Trainer:in zugewiesen ist)';
 $string['booking:sendpollurl'] = 'Umfragelink senden';
 $string['booking:sendpollurltoteachers'] = 'Umfragelink and Trainer:innen senden';
 $string['booking:skill_mod_booking_add_price_category'] = 'KI-Skill: Preiskategorie anlegen';
@@ -893,6 +899,7 @@ $string['booking:viewperformance'] = 'Performance sehen';
 $string['booking:viewrating'] = 'Gesamtbewertung sehen';
 $string['booking:viewreports'] = 'Zugang um gewisse Buchungsberichte zu sehen';
 $string['booking:viewscheduledmails'] = 'Geplante Mails ansehen';
+$string['booking:viewteacherreports'] = 'Trainer:innen-Berichte von Buchungsinstanzen ansehen';
 $string['booking_rulesexecutionfailed'] = 'Ausführung der Buchungsregel fehlgeschlagen';
 $string['bookingaction'] = "Aktion";
 $string['bookingactionadd'] = "Füge Aktion hinzu";
@@ -3034,7 +3041,7 @@ $string['responsiblecontact_help'] = 'Geben Sie eine zuständige Kontaktperson(e
 $string['responsiblecontactcanedit'] = 'Kontaktpersonen das Editieren erlauben';
 $string['responsiblecontactcanedit_desc'] = 'Aktivieren Sie diese Einstellung, um es Kontaktpersonen zu erlauben,
 die Buchungsoptionen, bei denen Sie eingetragen sind, zu editieren und Teilnehmer:innen-Listen einzusehen.<br>
-<b>Wichtig:</b> Die Kontaktperson braucht zusätzlich das Recht <b>mod/booking:addeditownoption</b>.';
+<b>Wichtig:</b> Die Kontaktperson braucht zusätzlich das Recht <b>mod/booking:editownoption</b>.';
 $string['responsiblecontactenroltocourse'] = 'Kontaktperson in verbundenen Moodle-Kurs einschreiben';
 $string['responsiblecontactenroltocourse_desc'] = 'Bitte definieren Sie auch die Rolle, die die Kontaktperson im verbundenen Moodle-Kurs haben soll.';
 $string['responsiblecontacts'] = 'Zuständige Kontaktperson(en) der Buchungsoption, dargestellt als "Vorname Nachname (E-Mail)".';

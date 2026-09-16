@@ -40,7 +40,7 @@ class update_option_skill extends booking_skill_base implements
      * Constructor.
      */
     public function __construct() {
-        parent::__construct(false, \mod_booking\local\wizard\engine\skill_risk_class::R2, ['mod/booking:addeditownoption']);
+        parent::__construct(false, \mod_booking\local\wizard\engine\skill_risk_class::R2, ['mod/booking:editownoption']);
     }
 
     /**
@@ -304,7 +304,7 @@ class update_option_skill extends booking_skill_base implements
 
         // The option_targeted_skill trait resolves the operating context from the named option, so
         // this works from an activity page, the dashboard, or MCP (system context) alike.
-        $resolved = $this->resolve_option_operating_context($input, $cmid, 'mod/booking:addeditownoption', $userid, $lang);
+        $resolved = $this->resolve_option_operating_context($input, $cmid, 'mod/booking:editownoption', $userid, $lang);
         if (isset($resolved['clarification'])) {
             return $resolved['clarification'];
         }

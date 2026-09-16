@@ -36,7 +36,7 @@ require_course_login($course, false);
 
 $context = context_module::instance($cm->id);
 if (!has_capability('mod/booking:updatebooking', $context)) {
-    require_capability('mod/booking:addeditownoption', $context);
+    require_capability('mod/booking:editownoption', $context);
 }
 
 $pageurl = new moodle_url('/mod/booking/bookinginstancetemplatessettings.php', ['id' => $id, 'templateid' => $templateid]);

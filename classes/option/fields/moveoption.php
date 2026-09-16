@@ -145,7 +145,7 @@ class moveoption extends field_base {
                 $context = context_module::instance($record->cmid);
                 if (
                     has_capability('mod/booking:updatebooking', $context)
-                    || has_capability('mod/booking:addeditownoption', $context)
+                    || has_capability('mod/booking:editownoption', $context)
                 ) {
                     $allowedinstances[$record->cmid] = "$record->bookingname ($record->coursename, ID: $record->cmid)";
                 }

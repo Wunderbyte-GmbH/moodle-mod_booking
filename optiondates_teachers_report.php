@@ -51,7 +51,7 @@ $PAGE->activityheader->disable();
 
 if (
     (has_capability('mod/booking:updatebooking', $context)
-    || has_capability('mod/booking:addeditownoption', $context)
+    || has_capability('mod/booking:editteachersownoption', $context)
     || has_capability('mod/booking:viewreports', $context)
     || has_capability('mod/booking:limitededitownoption', $context)) == false
 ) {

@@ -74,7 +74,7 @@ if ($mform->is_cancelled()) {
     if (
         confirm_sesskey() &&
             (has_capability('mod/booking:updatebooking', $context) ||
-            has_capability('mod/booking:addeditownoption', $context))
+            has_capability('mod/booking:editownoption', $context))
     ) {
         if (!isset($fromform->limitanswers)) {
             $fromform->limitanswers = 0;

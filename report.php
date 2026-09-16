@@ -1059,7 +1059,7 @@ if (!$tableallbookings->is_downloading()) {
     if (
         get_config('booking', 'teachersallowmailtobookedusers') && (
         has_capability('mod/booking:updatebooking', $context) ||
-        (has_capability('mod/booking:addeditownoption', $context) && $isteacherofthisoption) ||
+        (has_capability('mod/booking:sendmailownoption', $context) && $isteacherofthisoption) ||
         (has_capability('mod/booking:limitededitownoption', $context) && $isteacherofthisoption)
         )
     ) {

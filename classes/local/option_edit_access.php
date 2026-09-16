@@ -58,7 +58,7 @@ class option_edit_access {
             return true;
         }
         // ... or they have the capability to edit their own options and are actually editing their own option.
-        if (has_capability('mod/booking:addeditownoption', $context) && booking_check_if_teacher($optionid)) {
+        if (has_capability('mod/booking:editownoption', $context) && booking_check_if_teacher($optionid)) {
             return true;
         }
         // ... or they duplicate one of their own options into a new one.

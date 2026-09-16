@@ -118,8 +118,6 @@ $string['bookedteachersshowemails'] = 'E-Mail-Adressen von Trainer/innen, bei de
 $string['bookedteachersshowemails_desc'] = 'Wenn Sie diese Einstellung aktivieren, dann werden bereits gebuchten Benutzer/innen
 die E-Mail-Adressen ihrer Trainer/innen angezeigt.';
 $string['bookedusers'] = 'Gebuchte Nutzer/innen';
-$string['booking:addeditownoption'] = 'Eigene Buchungsoptionen bearbeiten (eigene Buchungsoptionen sind solche,
-die man entweder selbst angelegt hat oder bei denen man als Trainer/in zugewiesen ist)';
 $string['booking:bookallstudents'] = 'Alle eingeschriebenen Teilnehmer/innen in eine Option buchen';
 $string['booking:bookanyone'] = 'Darf alle Nutzer/innen buchen';
 $string['booking:cancelownoption'] = 'Eigene Buchungsoptionen stornieren (eigene Buchungsoptionen sind solche,
@@ -130,12 +128,21 @@ $string['booking:createcalendarsiteevents'] = 'Website-Termine für Buchungsopti
 $string['booking:duplicateanycourse'] = 'Beliebigen Kurs als Duplizierungsvorlage auswählen (auch Kurse, auf die der/die Nutzer/in keinen Zugriff hat)';
 $string['booking:duplicateownoption'] = 'Eigene Buchungsoptionen duplizieren (eigene Buchungsoptionen sind solche,
 die man entweder selbst angelegt hat oder bei denen man als Trainer/in zugewiesen ist)';
+$string['booking:editownoption'] = 'Eigene Buchungsoptionen bearbeiten (eigene Buchungsoptionen sind solche,
+die man entweder selbst angelegt hat oder bei denen man als Trainer/in zugewiesen ist)';
+$string['booking:editteachersownoption'] = 'Trainer/innen eigener Buchungsoptionen ändern, z. B. Vertretungen (eigene Buchungsoptionen sind solche,
+die man entweder selbst angelegt hat oder bei denen man als Trainer/in zugewiesen ist)';
 $string['booking:managebookedusers'] = 'Buchungen von Nutzer/innen verwalten';
+$string['booking:managebookingsownoption'] = 'Buchungen eigener Buchungsoptionen verwalten (eigene Buchungsoptionen sind solche,
+die man entweder selbst angelegt hat oder bei denen man als Trainer/in zugewiesen ist)';
 $string['booking:overrideboconditions'] = 'Nutzer/in darf buchen auch wenn Verfügbarkeit false zurückliefert.';
+$string['booking:sendmailownoption'] = 'E-Mails an die gebuchten Nutzer/innen eigener Buchungsoptionen senden (eigene Buchungsoptionen sind solche,
+die man entweder selbst angelegt hat oder bei denen man als Trainer/in zugewiesen ist)';
 $string['booking:sendpollurltoteachers'] = 'Umfragelink and Trainer/innen senden';
 $string['booking:skill_mod_booking_book_users'] = 'KI-Skill: Nutzer/innen in eine Option einbuchen';
 $string['booking:skill_mod_booking_update_option_trainer'] = 'KI-Skill: Trainer/in einer Buchungsoption aktualisieren';
 $string['booking:subscribeusers'] = 'Für andere Teilnehmer/innen Buchungen durchführen';
+$string['booking:viewteacherreports'] = 'Trainer/innen-Berichte von Buchungsinstanzen ansehen';
 $string['bookinganswercancelled'] = 'Buchungsoption von/für Nutzer/in storniert';
 $string['bookinganswerwaitingforconfirmationdesc'] = 'Nutzer/in mit id {$a->relateduserid} hat sich für die Buchungsoption mit ID {$a->objectid} vorangemeldet.';
 $string['bookingdebugmode_desc'] = 'Der Booking-Debug-Modus sollte nur von Entwickler/innen aktiviert werden.';
@@ -421,7 +428,7 @@ $string['reserveddeleted'] = 'Reservierte Nutzer/in gelöscht';
 $string['responsesfields'] = 'Felder in der Teilnehmer/innen-Liste';
 $string['responsiblecontactcanedit_desc'] = 'Aktivieren Sie diese Einstellung, um es Kontaktpersonen zu erlauben,
 die Buchungsoptionen, bei denen Sie eingetragen sind, zu editieren und Teilnehmer/innen-Listen einzusehen.<br>
-<b>Wichtig:</b> Die Kontaktperson braucht zusätzlich das Recht <b>mod/booking:addeditownoption</b>.';
+<b>Wichtig:</b> Die Kontaktperson braucht zusätzlich das Recht <b>mod/booking:editownoption</b>.';
 $string['responsiblecontactshowfirstteacher'] = 'Auf der Detailseite die erste Trainer/in als Kontaktperson anzeigen, falls keine Kontaktperson gesetzt ist.';
 $string['resultofcohortorgroupbooking'] = '<p>Die Buchung der globalen Gruppen hat folgendes Ergebnis gebracht:</p>
 <ul>
