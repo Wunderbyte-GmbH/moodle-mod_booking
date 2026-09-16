@@ -91,20 +91,27 @@ class purge_campaign_caches extends \core\task\adhoc_task {
         // Destroy all campaign singletons to ensure fresh data.
         singleton_service::destroy_all_campaigns();
 
-        // Get all booking option IDs where maxanswers is set (limited places).
-        $alloptionids = $DB->get_fieldset_select('booking_options', 'id', 'maxanswers > 0');
+        // Get all booking options with limited places, together with their DB maxanswers.
+        // Options without a course module (orphaned rows, option templates) are left out right away,
+        // they are skipped further down anyway and would only cost us a full settings load.
+        $sql = "SELECT bo.id, bo.maxanswers
+                  FROM {booking_options} bo
+                  JOIN {course_modules} cm ON cm.instance = bo.bookingid
+                  JOIN {modules} m ON m.id = cm.module AND m.name = :modulename
+                 WHERE bo.maxanswers > 0";
+        $alloptions = $DB->get_records_sql($sql, ['modulename' => 'booking']);
 
-        if (empty($alloptionids)) {
+        if (empty($alloptions)) {
             mtrace('purge_campaign_caches task: No booking options with limited places found.');
             return;
         }
 
         $triggeredcount = 0;
 
-        foreach ($alloptionids as $optionid) {
+        foreach ($alloptions as $optionid => $optionrecord) {
             try {
-                // Get the DB maxanswers (without campaign modification).
-                $dbmaxanswers = (int) $DB->get_field('booking_options', 'maxanswers', ['id' => $optionid]);
+                // The DB maxanswers (without campaign modification).
+                $dbmaxanswers = (int) $optionrecord->maxanswers;
 
                 if (empty($dbmaxanswers)) {
                     continue;
@@ -149,7 +156,8 @@ class purge_campaign_caches extends \core\task\adhoc_task {
                 // Clean up singletons to save memory when processing many options.
                 singleton_service::destroy_booking_option_singleton($optionid);
                 singleton_service::destroy_booking_answers($optionid);
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
+                // A single broken option must never abort the whole campaign transition.
                 mtrace("  Option {$optionid}: Error - " . $e->getMessage());
             }
         }
