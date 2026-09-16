@@ -1185,4 +1185,36 @@ final class ticket_manager_test extends booking_advanced_testcase {
         $this->assertStringContainsString('Concert', $html);
         $this->assertStringContainsString('<option value="3" selected>Tonight</option>', $html);
     }
+
+    /**
+     * The ticket PDF file area refuses other students: only the holder, report viewers and entry staff pass.
+     *
+     * @covers ::booking_pluginfile
+     */
+    public function test_pluginfile_refuses_foreign_students(): void {
+        $this->build_environment();
+        $this->book_student();
+        $ticket = ticket_manager::find_valid_ticket($this->settings->id, $this->student->id);
+        $other = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->enrol_user($other->id, $this->course->id, 'student');
+        $cm = get_coursemodule_from_id('booking', $this->settings->cmid);
+        $context = \context_module::instance($this->settings->cmid);
+        $args = [(int) $ticket->id, $ticket->code . '.pdf'];
+        // Booking initialised the page theme; require_login() inside the gate needs a fresh page.
+        global $PAGE;
+        $PAGE = new \moodle_page();
+
+        // Another student in the same course: refused.
+        $this->setUser($other);
+        $this->assertFalse(booking_pluginfile($this->course, $cm, $context, 'tickets', $args, false, []));
+
+        // Unknown ticket id: refused even for the holder.
+        $this->setUser($this->student);
+        $this->assertFalse(booking_pluginfile($this->course, $cm, $context, 'tickets', [999999, 'x.pdf'], false, []));
+
+        // Entry staff picked on the option (no capability) may open the PDF: the gate lets them through
+        // to the file (send_stored_file() would end the request, so only the gate decision is asserted).
+        $this->set_option_json([ticket_manager::JSON_SCANNERS => [$other->id]]);
+        $this->assertTrue(ticket_manager::can_scan((int) $this->settings->cmid, $this->settings->id, (int) $other->id));
+    }
 }
