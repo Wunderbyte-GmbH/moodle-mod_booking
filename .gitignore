@@ -19,3 +19,5 @@ bookingextension/*/
 # Do not ignore confirmation_trainer
 !bookingextension/confirmation_trainer/
 !bookingextension/confirmation_trainer/**  # Unignore contents too
+# Local Claude Code session data and agent worktrees
+.claude/

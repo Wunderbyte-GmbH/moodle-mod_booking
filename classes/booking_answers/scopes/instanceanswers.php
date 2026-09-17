@@ -26,6 +26,7 @@ namespace mod_booking\booking_answers\scopes;
 use context_module;
 use local_wunderbyte_table\wunderbyte_table;
 use mod_booking\booking_answers\scope_base_answers;
+use mod_booking\local\bookingstracker\columns_helper;
 use mod_booking\output\booked_users;
 use mod_booking\table\manageusers_table;
 use moodle_url;
@@ -38,6 +39,12 @@ use moodle_url;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class instanceanswers extends scope_base_answers {
+    /**
+     * Scope name.
+     * @var string
+     */
+    public $scope = 'instanceanswers';
+
     /**
      * Returns the sql to fetch booked users with a certain status.
      * Orderd by timemodified, to be able to sort them.
@@ -57,7 +64,12 @@ class instanceanswers extends scope_base_answers {
             $params['statustocount'] = get_config('booking', 'bookingstrackerpresencecountervaluetocount');
         }
         $endpart = $this->get_endpart();
-        $selectpart = $this->get_selectpart($scope);
+
+        // Subselects for the custom user profile fields configured in the instance settings.
+        [$profilefieldselect, $profilefieldparams] = columns_helper::profilefield_sql($cmid);
+        $params = array_merge($params, $profilefieldparams);
+
+        $selectpart = $this->get_selectpart($scope, $profilefieldselect);
 
         // We need to set a limit for the query in mysqlfamily.
         $fields = 's1.*';
@@ -72,6 +84,9 @@ class instanceanswers extends scope_base_answers {
             ) s2
             $endpart
         ) s1";
+
+        // A booking extension can limit the answers the current user may see (e.g. their team).
+        $where .= $this->get_answers_restriction_sql('userid', $scopeid, $params);
 
         return [$fields, $from, $where, $params];
     }
@@ -130,11 +145,7 @@ class instanceanswers extends scope_base_answers {
             'lastname' => get_string('lastname', 'core'),
             'email' => get_string('email', 'core'),
         ];
-        if ($statusparam == 0) {
-            $sortablecolumns['presencecount'] = get_string('presencecount', 'mod_booking');
-            $sortablecolumns['status'] = get_string('presence', 'mod_booking');
-            $sortablecolumns['notes'] = get_string('notes', 'mod_booking');
-        }
+        $sortablecolumns['timebooked'] = get_string('bookingdate', 'mod_booking');
         $sortablecolumns['timemodified'] = get_string('timemodified', 'mod_booking');
         $table->define_sortablecolumns($sortablecolumns);
         $table->sort_default_column = 'timemodified';
@@ -142,10 +153,67 @@ class instanceanswers extends scope_base_answers {
 
         if ($statusparam != MOD_BOOKING_STATUSPARAM_DELETED) {
             $table->addcheckboxes = true;
-            $table->actionbuttons[] = booked_users::create_delete_button();
+
+            // Only show delete button if user has capability to delete responses.
+            if ($this->has_capability_in_scope($scopeid, 'mod/booking:deleteresponses')) {
+                $table->actionbuttons[] = booked_users::create_delete_button();
+            }
         }
 
         return $table;
+    }
+
+    /**
+     * This functions defines the columns for each scope.
+     * The fixed per-answer columns of the parent apply, but the email column
+     * follows the instance setting responsesfields ("Manage Responses Page & Bookings Tracker") -
+     * in instance scope the scopeid is the cmid, so the setting can be resolved.
+     *
+     * @param int $statusparam
+     * @param int $scopeid
+     *
+     * @return array
+     *
+     */
+    public function return_cols_for_tables(int $statusparam, int $scopeid = 0): array {
+        $columns = parent::return_cols_for_tables($statusparam, $scopeid);
+
+        $responsesfields = columns_helper::responsesfields($scopeid);
+        if (!empty($responsesfields) && !in_array('email', $responsesfields)) {
+            unset($columns['email']);
+        }
+
+        return $columns;
+    }
+
+    /**
+     * This functions defines the columns for the table download.
+     *
+     * @param int $statusparam
+     * @param int $scopeid
+     *
+     * @return array
+     *
+     */
+    public function return_cols_for_download(int $statusparam, int $scopeid = 0): array {
+
+        // Columns configured in the instance setting "Manage responses - Download" (reportfields).
+        $columns = columns_helper::download_columns($scopeid);
+        if (empty($columns)) {
+            return $this->return_cols_for_tables($statusparam, $scopeid);
+        }
+
+        return $columns;
+    }
+
+    /**
+     * Resolves the cmid of the booking instance for the given scopeid (cmid).
+     *
+     * @param int $scopeid
+     * @return int
+     */
+    public function get_cmid_for_scopeid(int $scopeid): int {
+        return $scopeid;
     }
 
     /**
@@ -160,12 +228,13 @@ class instanceanswers extends scope_base_answers {
      *
      */
     public function show_download_button(wunderbyte_table &$table, string $scope, int $scopeid, int $statusparam) {
-        if ($this->has_capability_in_scope($scopeid, 'mod/booking:updatebooking')) {
+        if ($this->has_capability_in_scope($scopeid, 'mod/booking:downloadresponses')) {
             $baseurl = new moodle_url(
                 '/mod/booking/download_report2.php',
                 [
                     'scope' => self::return_classname(),
                     'statusparam' => $statusparam,
+                    'scopeid' => $scopeid,
                 ]
             );
             $table->define_baseurl($baseurl);

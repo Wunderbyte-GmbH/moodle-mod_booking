@@ -26,6 +26,8 @@
 namespace mod_booking\local;
 
 use core_course_external;
+use core_text;
+use mod_booking\placeholders\placeholders_info;
 use mod_booking\singleton_service;
 use moodle_exception;
 use stdClass;
@@ -41,6 +43,39 @@ use context_course;
  */
 class connectedcourse {
     /**
+     * Whether the user may open the connected course.
+     *
+     * A hidden course (course.visible = 0) can be connected to an option and booked like any other,
+     * but a link to it is only useful for users who may see hidden courses: everybody else gets
+     * Moodle's "course is hidden" page. Callers rendering a "go to course" link use this to hide it.
+     *
+     * @param int $courseid the connected course, 0 if none
+     * @param int $userid the user who would follow the link, 0 for the current user
+     * @return bool true if the course exists and is visible, or the user may see hidden courses in it
+     */
+    public static function can_user_see_connected_course(int $courseid, int $userid = 0): bool {
+        global $USER;
+
+        if (empty($courseid)) {
+            return false;
+        }
+        $course = singleton_service::get_course($courseid);
+        if (empty($course)) {
+            // The course has been deleted.
+            return false;
+        }
+        if (!empty($course->visible)) {
+            return true;
+        }
+        $userid = $userid ?: (int)($USER->id ?? 0);
+        if (empty($userid)) {
+            return false;
+        }
+        $context = context_course::instance($courseid, IGNORE_MISSING);
+        return $context && has_capability('moodle/course:viewhiddencourses', $context, $userid);
+    }
+
+    /**
      * Create new course.
      * @param stdClass $newoption
      * @param stdClass $formdata
@@ -48,14 +83,16 @@ class connectedcourse {
      */
     public static function create_course_from_template_course(stdClass &$newoption, stdClass &$formdata) {
 
-        global $DB, $USER;
+        global $DB, $CFG;
 
-        $settings = singleton_service::get_instance_of_booking_option_settings($formdata->id);
+        require_once($CFG->dirroot . '/backup/util/includes/backup_includes.php');
+        require_once($CFG->dirroot . '/backup/util/includes/restore_includes.php');
 
         // Retrieve the origin courseid from the form.
         $origincourseid = $formdata->coursetemplateid;
         if (empty($origincourseid)) {
             $newoption->courseid = 0;
+            return;
         }
 
         // Create course.
@@ -63,9 +100,6 @@ class connectedcourse {
         if (!empty($formdata->titleprefix)) {
             $fullnamewithprefix .= $formdata->titleprefix . ' - ';
         }
-
-        // phpcs:ignore
-        //$fullname = $settings->text ?? $fullnamewithprefix; // Preserved upon decision.
 
         $fullnamewithprefix .= trim($formdata->text);
 
@@ -79,36 +113,104 @@ class connectedcourse {
 
         $categoryid = self::retrieve_categoryid($newoption, $formdata);
 
-        $options = [];
+        // Whether the duplicated course should include its enrolled users and their role assignments.
+        $withusers = !empty($formdata->createnewmoodlecoursefromtemplatewithusers);
 
-        if (empty($formdata->createnewmoodlecoursefromtemplatewithusers)) {
-            $options[] = ['name' => 'users', 'value' => false];
-            $options[] = ['name' => 'role_assignments', 'value' => false];
+        // The source (template) course - used to carry over visibility and the start/end dates.
+        $origincourse = get_course($origincourseid);
+
+        // To include users in a course copy, the async copy task needs BOTH userdata=1 AND a
+        // non-empty list of roles to keep (see \core\task\asynchronous_copy_task). Mirror the core
+        // copy form (backup\output\copy_form) and keep every role actually used in the template course.
+        $keptroles = [];
+        if ($withusers) {
+            $keptroles = array_values(array_map(
+                fn($role) => $role->id,
+                get_roles_used_in_context(context_course::instance($origincourseid), false)
+            ));
         }
 
-        // We need to switch the user.
-        $previoususer = $USER;
-        $USER = get_admin();
+        // Copy the course asynchronously.
+        // Create the backup and restore controllers to get the backup and restore ids.
+        // Adhoc task then transfers the backup to the new course and performs the restore...
+        // ...which is the heavy lifting part and runs in the background.
+        $adminid = get_admin()->id;
 
-        $courseinfo = core_course_external::duplicate_course(
+        // Create the initial backup controller (course copy, non-interactive).
+        $bc = new \backup_controller(
+            \backup::TYPE_1COURSE,
             $origincourseid,
-            $fullnamewithprefix,
-            $shortname,
-            $categoryid,
-            1,
-            $options
+            \backup::FORMAT_MOODLE,
+            \backup::INTERACTIVE_NO,
+            \backup::MODE_COPY,
+            $adminid,
+            \backup::RELEASESESSION_YES
         );
-        if (!empty($courseinfo["id"])) {
-            $newoption->courseid = $courseinfo["id"];
-            $formdata->courseid = $courseinfo["id"];
+        $backupid = $bc->get_backupid();
 
-            // Also, we need to take away all tags from the newly created course.
-            $tags = \core_tag_tag::get_item_tags('core', 'course', $newoption->courseid);
+        // Create the target course shell now, so the new courseid is known immediately
+        // (the heavy backup+restore happens later in the queued async task).
+        $newcourseid = \restore_dbops::create_new_course($fullnamewithprefix, $shortname, $categoryid);
 
-            \core_tag_tag::delete_instances_by_id(array_keys($tags));
-        }
+        // Copy data for the restore controller (same shape as self::create_copy()).
+        $copydata = new stdClass();
+        $copydata->courseid = $origincourseid;
+        $copydata->fullname = $fullnamewithprefix;
+        $copydata->shortname = $shortname;
+        $copydata->category = $categoryid;
+        $copydata->visible = $origincourse->visible;
+        $copydata->startdate = $origincourse->startdate;
+        $copydata->enddate = $origincourse->enddate;
+        $copydata->idnumber = '';
+        $copydata->userdata = $withusers ? "1" : "0";
+        $copydata->keptroles = $keptroles;
 
-        $USER = $previoususer;
+        // Create the initial restore controller targeting the new course shell.
+        $rc = new \restore_controller(
+            $backupid,
+            $newcourseid,
+            \backup::INTERACTIVE_NO,
+            \backup::MODE_COPY,
+            $adminid,
+            \backup::TARGET_NEW_COURSE,
+            null,
+            \backup::RELEASESESSION_NO,
+            $copydata
+        );
+
+        $bc->set_status(\backup::STATUS_AWAITING);
+        $bc->get_status();
+        $rc->save_controller();
+
+        // Queue the core async copy task to perform the actual backup+restore.
+        $asynctask = new \core\task\asynchronous_copy_task();
+        $asynctask->set_custom_data([
+            'backupid' => $backupid,
+            'restoreid' => $rc->get_restoreid(),
+        ]);
+        \core\task\manager::queue_adhoc_task($asynctask);
+
+        // Clean up the backup controller.
+        $bc->destroy();
+
+        // The new courseid is available immediately, so the option links to it right away.
+        $newoption->courseid = $newcourseid;
+        $formdata->courseid = $newcourseid;
+
+        // Once the async copy has finished, a finalizer task strips the template tags it re-adds to
+        // the copy and re-runs the booking enrolment (the restore rebuilds the destination course's
+        // enrolment instances). It is queued after the copy task and guards itself against running
+        // before the copy completes, so it settles in the same cron pass.
+        $finalizetask = new \mod_booking\task\finalize_template_course();
+        $finalizetask->set_custom_data([
+            'newcourseid' => $newcourseid,
+            // The intended course fullname. Core's async restore forces the fullname unique via
+            // restore_dbops::calculate_course_names(), appending a " copy N" suffix when another
+            // course already shares the name. The finalizer resets it back to this value.
+            'fullname' => $fullnamewithprefix,
+        ]);
+        \core\task\manager::queue_adhoc_task($finalizetask);
+
         fix_course_sortorder();
     }
 
@@ -140,6 +242,305 @@ class connectedcourse {
                 $newoption->courseid = $newoption->courseid ?: 0;
                 break;
         }
+    }
+
+    /**
+     * Copy a Moodle course and return the id of the copy.
+     *
+     * This is the mechanism only: it does NOT check any capabilities, because it is called
+     * both from an interactive form and from background code (adhoc tasks, restore steps)
+     * where the acting user is not the person who triggered the duplication. Callers which
+     * act on behalf of a user must do their own authorisation before calling this.
+     *
+     * The copy is created as a shell immediately, so its id is known right away, while the
+     * actual backup and restore happen later in the queued adhoc task.
+     *
+     * @param int $sourcecourseid the course to copy
+     * @return int the id of the new course, 0 if the source course does not exist
+     */
+    public static function copy_course(int $sourcecourseid): int {
+
+        global $DB;
+
+        if (empty($sourcecourseid) || !$DB->record_exists('course', ['id' => $sourcecourseid])) {
+            return 0;
+        }
+
+        $sourcecourse = get_course($sourcecourseid);
+
+        // Gather copy data. The names given here are provisional: when a naming scheme is
+        // configured, apply_naming_scheme() overwrites them once the option id is known.
+        $copydata = new stdClass();
+        $copydata->courseid = $sourcecourseid;
+        $copydata->fullname = $sourcecourse->fullname . " (" . get_string('copy', 'mod_booking') . ")";
+        $copydata->shortname = $sourcecourse->shortname . "_" . strtolower(get_string('copy', 'mod_booking'));
+        $copydata->category = $sourcecourse->category;
+        $copydata->visible = $sourcecourse->visible;
+        $copydata->startdate = $sourcecourse->startdate;
+        $copydata->enddate = $sourcecourse->enddate;
+        $copydata->idnumber = '';
+        $copydata->userdata = "0"; // This might be a feature in a future version.
+        $copydata->keptroles = [];
+        // Roles ($copydata->keptroles = [roleid1, roleid2,...]) are also not yet included.
+
+        return self::create_copy($copydata);
+    }
+
+    /**
+     * Creates a course copy.
+     *
+     * @param stdClass $copydata Course copy data from process_formdata
+     * @return int $newcourseid the id of the new course
+     */
+    private static function create_copy(stdClass $copydata): int {
+
+        global $CFG;
+
+        require_once($CFG->dirroot . '/backup/util/includes/backup_includes.php');
+        require_once($CFG->dirroot . '/backup/util/includes/restore_includes.php');
+
+        /* The copy is performed by the system on the user's behalf, not by the user directly.
+        Running it as the admin keeps it working where there is no meaningful acting user -
+        adhoc tasks and restore steps - and matches create_course_from_template_course(). */
+        $adminid = get_admin()->id;
+
+        $copyids = [];
+
+        // Create the initial backupcontoller.
+        $bc = new \backup_controller(
+            \backup::TYPE_1COURSE,
+            $copydata->courseid,
+            \backup::FORMAT_MOODLE,
+            \backup::INTERACTIVE_NO,
+            \backup::MODE_COPY,
+            $adminid,
+            \backup::RELEASESESSION_YES
+        );
+        $copyids['backupid'] = $bc->get_backupid();
+
+        // Create the initial restore contoller.
+        [$fullname, $shortname] = \restore_dbops::calculate_course_names(
+            0,
+            get_string('copyingcourse', 'backup'),
+            get_string('copyingcourseshortname', 'backup')
+        );
+        $newcourseid = \restore_dbops::create_new_course($fullname, $shortname, $copydata->category);
+        $rc = new \restore_controller(
+            $copyids['backupid'],
+            $newcourseid,
+            \backup::INTERACTIVE_NO,
+            \backup::MODE_COPY,
+            $adminid,
+            \backup::TARGET_NEW_COURSE,
+            null,
+            \backup::RELEASESESSION_NO,
+            $copydata
+        );
+        $copyids['restoreid'] = $rc->get_restoreid();
+
+        $bc->set_status(\backup::STATUS_AWAITING);
+        $bc->get_status();
+        $rc->save_controller();
+
+        // Create the ad-hoc task to perform the course copy.
+        $asynctask = new \core\task\asynchronous_copy_task();
+        $asynctask->set_custom_data($copyids);
+        \core\task\manager::queue_adhoc_task($asynctask);
+
+        // Clean up the controller.
+        $bc->destroy();
+
+        return (int) $newcourseid;
+    }
+
+    /**
+     * The configured naming templates, keyed by the course field they apply to.
+     *
+     * @return array [fullname => template, shortname => template, idnumber => template]
+     */
+    public static function return_naming_templates(): array {
+        return [
+            'fullname' => trim((string) get_config('booking', 'connectedcoursefullname')),
+            'shortname' => trim((string) get_config('booking', 'connectedcourseshortname')),
+            'idnumber' => trim((string) get_config('booking', 'connectedcourseidnumber')),
+        ];
+    }
+
+    /**
+     * Whether this site names its connected courses by a template at all.
+     *
+     * @return bool
+     */
+    public static function has_naming_scheme(): bool {
+        return !empty(array_filter(self::return_naming_templates()));
+    }
+
+    /**
+     * Queue the task which re-applies the naming scheme once an async course copy has settled.
+     *
+     * Copying a course is always asynchronous and \core\task\asynchronous_copy_task rewrites
+     * fullname, shortname and idnumber from the copy data when cron runs, undoing everything
+     * apply_naming_scheme() just did. Callers which name a freshly copied course therefore have
+     * to queue this as well - naming it only once would look right until the next cron run.
+     *
+     * @param int $courseid the copied course
+     * @param int $optionid the booking option the course belongs to
+     * @return void
+     */
+    public static function queue_naming_finalizer(int $courseid, int $optionid) {
+
+        if (empty($courseid) || empty($optionid) || !self::has_naming_scheme()) {
+            return;
+        }
+
+        $task = new \mod_booking\task\finalize_connected_course_naming();
+        $task->set_custom_data([
+            'courseid' => $courseid,
+            'optionid' => $optionid,
+        ]);
+        \core\task\manager::queue_adhoc_task($task);
+    }
+
+    /**
+     * Apply the configured naming scheme to the Moodle course connected to a booking option.
+     *
+     * The three settings connectedcoursefullname, connectedcourseshortname and
+     * connectedcourseidnumber hold placeholder templates, for example
+     * "{titlewithoutprefix}_{optionid}". An empty setting means: leave that field as it is,
+     * which keeps the naming every site had before these settings existed.
+     *
+     * This must run AFTER the booking option has been saved, because {optionid} can only be
+     * rendered once the option actually has an id.
+     *
+     * @param int $courseid the connected Moodle course
+     * @param int $optionid the booking option the course belongs to
+     * @return void
+     */
+    public static function apply_naming_scheme(int $courseid, int $optionid) {
+
+        global $CFG, $DB;
+
+        require_once($CFG->dirroot . '/course/lib.php');
+
+        if (empty($courseid) || empty($optionid)) {
+            return;
+        }
+
+        $templates = self::return_naming_templates();
+
+        // No template configured at all: nothing to do, the legacy naming stays untouched.
+        if (empty(array_filter($templates))) {
+            return;
+        }
+
+        if (!$course = $DB->get_record('course', ['id' => $courseid], 'id, fullname, shortname, idnumber')) {
+            return;
+        }
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $cmid = (int) ($settings->cmid ?? 0);
+
+        $update = new stdClass();
+        $update->id = $courseid;
+        $haschanges = false;
+
+        // Full course names do not have to be unique, so the rendered value can be used as it is.
+        if (!empty($templates['fullname'])) {
+            $fullname = self::render_naming_template($templates['fullname'], $cmid, $optionid, 254);
+            if ($fullname !== '' && $fullname !== $course->fullname) {
+                $update->fullname = $fullname;
+                $haschanges = true;
+            }
+        }
+
+        // Short course names have to be unique. Templates containing {optionid} are unique by
+        // construction, but we cannot rely on that, so we fall back to appending a counter.
+        if (!empty($templates['shortname'])) {
+            $shortname = self::render_naming_template($templates['shortname'], $cmid, $optionid, 255);
+            if ($shortname !== '') {
+                $shortname = self::make_shortname_unique($shortname, $courseid);
+                if ($shortname !== $course->shortname) {
+                    $update->shortname = $shortname;
+                    $haschanges = true;
+                }
+            }
+        }
+
+        /* Course ID numbers have to be unique as well. Appending a counter would defeat the
+        purpose here though - the value is meant to BE the booking option id and stay
+        machine readable. So we rather leave the field alone and tell the admin about it. */
+        if (!empty($templates['idnumber'])) {
+            $idnumber = self::render_naming_template($templates['idnumber'], $cmid, $optionid, 100);
+            if ($idnumber !== '' && $idnumber !== $course->idnumber) {
+                $params = ['idnumber' => $idnumber, 'courseid' => $courseid];
+                if ($DB->record_exists_select('course', 'idnumber = :idnumber AND id <> :courseid', $params)) {
+                    debugging(
+                        "mod_booking: could not set the course id number '$idnumber' on course $courseid, " .
+                        "it is already used by another course.",
+                        DEBUG_DEVELOPER
+                    );
+                } else {
+                    $update->idnumber = $idnumber;
+                    $haschanges = true;
+                }
+            }
+        }
+
+        if (!$haschanges) {
+            return;
+        }
+
+        update_course($update);
+    }
+
+    /**
+     * Render one naming template and cut it to the length the course table can store.
+     *
+     * @param string $template the configured template, may contain placeholders
+     * @param int $cmid
+     * @param int $optionid
+     * @param int $maxlength the maximum length of the target course field
+     * @return string the rendered value, empty if the template rendered to nothing
+     */
+    private static function render_naming_template(string $template, int $cmid, int $optionid, int $maxlength): string {
+
+        $value = trim((string) placeholders_info::render_text($template, $cmid, $optionid));
+
+        if ($value === '') {
+            return '';
+        }
+
+        return core_text::substr($value, 0, $maxlength);
+    }
+
+    /**
+     * Make a course shortname unique by appending a counter, ignoring the course itself.
+     *
+     * @param string $shortname the rendered shortname
+     * @param int $courseid the course which is going to carry the shortname
+     * @return string a shortname no other course uses
+     */
+    private static function make_shortname_unique(string $shortname, int $courseid): string {
+
+        global $DB;
+
+        $candidate = $shortname;
+        $i = 1;
+
+        while (
+            $DB->record_exists_select(
+                'course',
+                'shortname = :shortname AND id <> :courseid',
+                ['shortname' => $candidate, 'courseid' => $courseid]
+            )
+        ) {
+            $suffix = '_' . $i;
+            // Keep the result within the 255 characters the course table allows.
+            $candidate = core_text::substr($shortname, 0, 255 - core_text::strlen($suffix)) . $suffix;
+            $i++;
+        }
+
+        return $candidate;
     }
 
     /**
@@ -314,13 +715,19 @@ class connectedcourse {
 
         $courses = self::get_course_records($where, $params);
 
-        foreach ($courses as $key => $course) {
-            $context = context_course::instance($course->id);
-            if (
-                !has_capability('moodle/course:view', $context)
-                && !is_enrolled($context, $USER->id)
-            ) {
-                unset($courses[$key]);
+        // Users with this capability may duplicate any course, including ones they cannot
+        // otherwise see or access, so we skip the per-course access filter for them.
+        $canduplicateany = has_capability('mod/booking:duplicateanycourse', \context_system::instance());
+
+        if (!$canduplicateany) {
+            foreach ($courses as $key => $course) {
+                $context = context_course::instance($course->id);
+                if (
+                    !has_capability('moodle/course:view', $context)
+                    && !is_enrolled($context, $USER->id)
+                ) {
+                    unset($courses[$key]);
+                }
             }
         }
 

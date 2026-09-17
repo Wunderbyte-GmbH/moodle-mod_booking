@@ -105,15 +105,16 @@ class easy_availability_selectusers extends field_base {
             $formdata->bo_cond_selectusers_overrideoperator = 'OR'; // Can be hardcoded here.
 
             // We always override these conditions, so users are always allowed to book outside time restrictions.
+            // The notification list is always overridden too, otherwise it blocks these users from booking.
             $formdata->bo_cond_selectusers_overridecondition = [
                 MOD_BOOKING_BO_COND_BOOKING_TIME,
                 MOD_BOOKING_BO_COND_OPTIONHASSTARTED,
+                MOD_BOOKING_BO_COND_NOTIFYMELIST,
             ];
 
-            // If the overbook checkbox has been checked, we also add the conditions so the user(s) can overbook.
+            // If the overbook checkbox has been checked, we also add the condition so the user(s) can overbook.
             if (!empty($formdata->selectusersoverbookcheckbox)) {
                 $formdata->bo_cond_selectusers_overridecondition[] = MOD_BOOKING_BO_COND_FULLYBOOKED;
-                $formdata->bo_cond_selectusers_overridecondition[] = MOD_BOOKING_BO_COND_NOTIFYMELIST;
             }
         } else {
             $formdata->bo_cond_selectusers_restrict = 0;
@@ -121,25 +122,26 @@ class easy_availability_selectusers extends field_base {
 
         // Here we have to make sure we don't override anything.
         $tempform = new stdClass();
-        bo_info::set_defaults($tempform, json_decode($formdata->availability ?? '{}'));
+        bo_info::set_defaults($tempform, json_decode($formdata->availability ?? '[]'));
 
-        foreach ($tempform as $key => $value) {
-            if (!isset($formdata->{$key})) {
-                $formdata->{$key} = $value;
+        // Add data missing in formdata if it's available in tempform.
+        foreach ($tempform as $k => $v) {
+            if (!isset($formdata->{$k})) {
+                $formdata->{$k} = $v;
             }
         }
 
         // Save the additional JSON conditions (the ones which have been added to the mform).
         bo_info::save_json_conditions_from_form($formdata);
-        $newoption->availability = $formdata->availability;
+        $newoption->availability = $formdata->availability ?? '[]';
 
         $availabilityclass = new availability();
         return $availabilityclass->check_for_changes(
             $formdata,
             $availabilityclass,
-            $mockdata,
-            $key,
-            $value
+            '', // Mockdata Mockdata - currently not implemented in availability class.
+            null, // Key - currently not implemented in availability class.
+            '' // Value - currently not implemented in availability class.
         );
     }
 
@@ -188,7 +190,7 @@ class easy_availability_selectusers extends field_base {
         $options = [
             'multiple' => true,
             'noselectionstring' => get_string('choose...', 'mod_booking'),
-            'ajax' => 'local_shopping_cart/form_users_selector',
+            'ajax' => 'mod_booking/form_users_selector',
             'valuehtmlcallback' => function ($value) {
                 global $OUTPUT;
                 if (empty($value)) {
@@ -235,7 +237,7 @@ class easy_availability_selectusers extends field_base {
     public static function set_data(stdClass &$formdata, booking_option_settings $settings) {
 
         if (!empty($settings->availability)) {
-            $availabilityarray = json_decode($settings->availability ?? '{}');
+            $availabilityarray = json_decode($settings->availability ?? '[]');
             foreach ($availabilityarray as $av) {
                 switch ($av->id) {
                     case MOD_BOOKING_BO_COND_JSON_SELECTUSERS:
@@ -243,10 +245,7 @@ class easy_availability_selectusers extends field_base {
                             $formdata->bo_cond_selectusers_restrict = true;
                             $formdata->bo_cond_selectusers_userids = $av->userids;
                         }
-                        if (
-                            in_array(MOD_BOOKING_BO_COND_FULLYBOOKED, $av->overrides ?? []) &&
-                            in_array(MOD_BOOKING_BO_COND_NOTIFYMELIST, $av->overrides ?? [])
-                        ) {
+                        if (in_array(MOD_BOOKING_BO_COND_FULLYBOOKED, $av->overrides ?? [])) {
                             $formdata->selectusersoverbookcheckbox = true;
                         } else {
                             $formdata->selectusersoverbookcheckbox = false;
@@ -256,6 +255,6 @@ class easy_availability_selectusers extends field_base {
             }
         }
         // We will always transmit the initial values.
-        $formdata->availability = $settings->availability ?? '{}';
+        $formdata->availability = $settings->availability ?? '[]';
     }
 }

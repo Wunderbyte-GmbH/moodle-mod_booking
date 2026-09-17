@@ -128,7 +128,8 @@ class subbooking_additionalitem implements booking_subbooking {
 
         $formoptions = [0 => get_string('noformlink', 'mod_booking')];
         foreach ($formelements as $key => $value) {
-            $formoptions[$key] = $value->label;
+            // Keyed by the stable elementid, so the link survives reordering.
+            $formoptions[(int)($value->elementid ?? $key)] = $value->label;
         }
 
         $mform->addElement(

@@ -79,19 +79,19 @@ Feature: Create recurring options as teacher and configuring it.
     And I should see "RecurrOpt" in the ".allbookingoptionstable_r2" "css_element"
     And I should see "15 April 2045, 3:20 PM" in the ".allbookingoptionstable_r2" "css_element"
     And I should see "9 August 2045" in the ".allbookingoptionstable_r2" "css_element"
-    And I should see "Only users who have previously booked this option are allowed to book." in the ".allbookingoptionstable_r2" "css_element"
+    And I should see "Only users who have previously booked RecurrOpt are allowed to book." in the ".allbookingoptionstable_r2" "css_element"
     And I should see "RecurrOpt" in the ".allbookingoptionstable_r3" "css_element"
     And I should see "15 May 2045, 3:20 PM" in the ".allbookingoptionstable_r3" "css_element"
     And I should see "9 September 2045" in the ".allbookingoptionstable_r3" "css_element"
-    And I should see "Only users who have previously booked this option are allowed to book." in the ".allbookingoptionstable_r3" "css_element"
+    And I should see "Only users who have previously booked RecurrOpt are allowed to book." in the ".allbookingoptionstable_r3" "css_element"
     And I should see "RecurrOpt" in the ".allbookingoptionstable_r5" "css_element"
     And I should see "22 March 2045, 3:20 PM" in the ".allbookingoptionstable_r5" "css_element"
     And I should see "16 July 2045" in the ".allbookingoptionstable_r5" "css_element"
-    And I should not see "Only users who have previously booked this option are allowed to book." in the ".allbookingoptionstable_r5" "css_element"
+    And I should not see "Only users who have previously booked RecurrOpt are allowed to book." in the ".allbookingoptionstable_r5" "css_element"
     And I should see "RecurrOpt" in the ".allbookingoptionstable_r6" "css_element"
     And I should see "29 March 2045, 3:20 PM" in the ".allbookingoptionstable_r6" "css_element"
     And I should see "23 July 2045" in the ".allbookingoptionstable_r6" "css_element"
-    And I should not see "Only users who have previously booked this option are allowed to book." in the ".allbookingoptionstable_r6" "css_element"
+    And I should not see "Only users who have previously booked RecurrOpt are allowed to book." in the ".allbookingoptionstable_r6" "css_element"
 
   @javascript
   Scenario: Booking: add daily recurring options as a teacher and edit dates and titles
@@ -105,6 +105,7 @@ Feature: Create recurring options as teacher and configuring it.
     ## Create recurring options
     And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I expand all fieldsets
+    And I wait until ".collapsing" "css_element" does not exist
     And I set the following fields to these values:
       | Repeat this option               | 1   |
       | Number of repetitions            | 2   |
@@ -120,6 +121,7 @@ Feature: Create recurring options as teacher and configuring it.
     ## Update existing recuring options
     And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I expand all fieldsets
+    And I wait until ".collapsing" "css_element" does not exist
     And I set the field "Booking option name" to "RecurrOptUpd1"
     And I click on "15 March 2045" "text" in the "#booking_optiondate_1" "css_element"
     And I set the following fields to these values:
@@ -138,6 +140,7 @@ Feature: Create recurring options as teacher and configuring it.
     ## Update date of 2nd child
     And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r3" "css_element"
     And I expand all fieldsets
+    And I wait until ".collapsing" "css_element" does not exist
     And I click on "19 March 2045" "text" in the "#booking_optiondate_1" "css_element"
     And I set the following fields to these values:
       | coursestarttime_1[day]    | 20   |

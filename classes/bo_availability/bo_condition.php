@@ -153,10 +153,11 @@ interface bo_condition {
      * Each function can return additional sql.
      * This will be used if the conditions should not only block booking...
      * ... but actually hide the conditons alltogether.
-     *
+     * @param int $userid
+     * @param array $params This is the array with parameters for the sql query.
      * @return array
      */
-    public function return_sql(): array;
+    public function return_sql(int $userid = 0, &$params = []): array;
 
     /**
      * Returns the id of the condition.
@@ -164,4 +165,20 @@ interface bo_condition {
      * @return int
      */
     public function get_id(): int;
+
+    /**
+     * Returns the name of the condition.
+     *
+     * @return string
+     *
+     */
+    public function get_name(): string;
+
+    /**
+     * Returns whether the condition is skippable or not.
+     *
+     * @return bool
+     *
+     */
+    public function is_skippable(): bool;
 }

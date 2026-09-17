@@ -76,9 +76,6 @@ class option_form extends dynamic_form {
 
         $mform = &$this->_form;
 
-        $mform->addElement('hidden', 'scrollpos');
-        $mform->setType('scrollpos', PARAM_INT);
-
         // Add all available fields in the right order.
         $classes = fields_info::instance_form_definition($mform, $formdata);
 
@@ -168,6 +165,22 @@ class option_form extends dynamic_form {
      */
     protected function get_context_for_dynamic_submission(): context {
 
+        // This context is validated with require_login() in external_api::validate_context(). If the
+        // setting "editoptionsrequirecourselogin" is disabled, a site login is enough (like on editoptions.php).
+        // The page context and the capabilities are then set and checked in check_access_for_dynamic_submission().
+        if (get_config('booking', 'editoptionsrequirecourselogin') === '0') {
+            return context_system::instance();
+        }
+
+        return $this->get_option_context();
+    }
+
+    /**
+     * Returns the context of the booking instance the option belongs to.
+     * @return context
+     */
+    private function get_option_context(): context {
+
         $cmid = $this->_ajaxformdata['cmid'] ?? 0;
 
         if (empty($cmid)) {
@@ -179,17 +192,52 @@ class option_form extends dynamic_form {
 
     /**
      * Check access for dynamic submission.
+     *
+     * The ids in the ajax data are sent by the client, so they must not be trusted:
+     * "optionid" loads the option and "id" is the option that gets saved. We require them to be equal,
+     * so the teacher/capability check below applies to the option that is actually written.
+     * booking_option_form_ids_match_cm() then makes sure the option and the booking instance belong to the
+     * course module whose context is used for the capability checks (an attacker could otherwise use the
+     * capabilities of a booking instance they may edit to change an option of another instance).
+     *
      * @return void
      */
     protected function check_access_for_dynamic_submission(): void {
+        global $CFG, $PAGE;
 
-        $context = $this->get_context_for_dynamic_submission();
+        require_once($CFG->dirroot . '/mod/booking/lib.php');
 
-        if (
-            !has_capability('mod/booking:addeditownoption', $context)
-            && !has_capability('mod/booking:updatebooking', $context)
-        ) {
-                throw new required_capability_exception($context, '', 'cant access edit form', '');
+        $context = $this->get_option_context();
+
+        $formdata = $this->_ajaxformdata ?? [];
+        $id = max(0, (int) ($formdata['id'] ?? $formdata['optionid'] ?? 0));
+        $optionid = max(0, (int) ($formdata['optionid'] ?? $formdata['id'] ?? 0));
+        if ($id !== $optionid) {
+            throw new moodle_exception('invalidcontext', 'error');
+        }
+
+        if ($context->contextlevel == CONTEXT_MODULE) {
+            [$course, $cm] = get_course_and_cm_from_cmid($context->instanceid, 'booking');
+            if (
+                !booking_option_form_ids_match_cm(
+                    $cm,
+                    $optionid,
+                    (int) ($formdata['bookingid'] ?? 0),
+                    (int) ($formdata['copyoptionid'] ?? 0)
+                )
+            ) {
+                throw new moodle_exception('invalidcontext', 'error');
+            }
+            if ($PAGE->context->id != $context->id) {
+                // Only the site login was validated, so we set the course module for the page here.
+                $PAGE->set_cm($cm, $course);
+            }
+        }
+
+        // Capability updatebooking may edit any option of the instance; addeditownoption only if teacher of this
+        // option; addoption only for a new option. Same rule as on editoptions.php (booking_can_edit_option()).
+        if (!booking_can_edit_option($context, $optionid)) {
+            throw new required_capability_exception($context, 'mod/booking:updatebooking', 'nopermissions', '');
         }
     }
 
@@ -219,9 +267,12 @@ class option_form extends dynamic_form {
         $data = $this->get_data();
 
         // Pass data to update.
-        $context = $this->get_context_for_dynamic_submission();
+        $context = $this->get_option_context();
 
         $result = booking_option::update($data, $context);
+
+        // A new option gets its id in update(). The returned data is used to reload the form, where id and optionid must match.
+        $data->optionid = $data->id;
 
         return $data;
     }

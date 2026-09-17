@@ -19,11 +19,14 @@
  *
  * @package mod_booking
  * @copyright 2023 Wunderbyte GmbH <info@wunderbyte.at>
- * @author Andraž Prinčič
+ * @author Bernhard Fischer, Georg Maißer
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use mod_booking\booking_option;
+use mod_booking\local\connectedcourse;
 use mod_booking\local\override_user_field;
+use mod_booking\local\customform_prefill;
 use mod_booking\output\bookingoption_description;
 use mod_booking\singleton_service;
 
@@ -42,6 +45,7 @@ $userid = optional_param('userid', 0, PARAM_INT);
 $returnto = optional_param('returnto', '', PARAM_ALPHA);
 $returnurl = optional_param('returnurl', '', PARAM_URL);
 $redirecttocourse = optional_param('redirecttocourse', 0, PARAM_INT);
+$justbooked = optional_param('justbooked', 0, PARAM_INT);
 
 $cvpwd = optional_param('cvpwd', '', PARAM_TEXT);
 $cvfield = optional_param('cvfield', '', PARAM_TEXT);
@@ -50,9 +54,12 @@ $cvfield = optional_param('cvfield', '', PARAM_TEXT);
 $modcontext = context_module::instance($cmid);
 $syscontext = context_system::instance();
 
+// A foreign userid param is only respected for users who may book for others.
+// The bookforothers capability matches the enforcement in booking_bookit.
 if (
     $userid != $USER->id
     && !has_capability('mod/booking:updatebooking', $modcontext)
+    && !has_capability('mod/booking:bookforothers', $modcontext)
 ) {
     $userid = $USER->id;
 }
@@ -72,7 +79,12 @@ $ba = singleton_service::get_instance_of_booking_answers($settings);
 $bausersonlist = $ba->get_usersonlist();
 $courseid = $settings->courseid;
 
-if ($redirecttocourse === 1 && isset($bausersonlist[$USER->id])) {
+// Booked users are sent on to the course after login - unless the course is hidden for them.
+if (
+    $redirecttocourse === 1
+    && isset($bausersonlist[$USER->id])
+    && connectedcourse::can_user_see_connected_course((int)$courseid, $USER->id)
+) {
     $url = new moodle_url('/course/view.php', ['id' => $courseid]);
     redirect($url->out());
 }
@@ -86,27 +98,21 @@ if ($settings && !empty($settings->id)) {
 
     $ba = singleton_service::get_instance_of_booking_answers($settings);
 
-    if (isloggedin() && !isguestuser()) {
-        $user = $USER;
+    if (isloggedin() && !isguestuser() && customform_prefill::is_enabled()) {
+        // Prefill belongs to the buy-for target user (matches the cashier customform storage).
+        customform_prefill::prefill_from_request($settings, (int)$user->id);
     }
 
-    // There can be cases where we are booked, but don't have the right to see.
-    // We override this here. If we are booked, we can also see details.
-    if (
-        (
-            isloggedin()
-            && !isguestuser()
-            && $USER->id == $user->id
-            && $ba->user_status($USER->id) > MOD_BOOKING_STATUSPARAM_RESERVED
-        )
-        && !get_config('booking', 'showbookingdetailstoall')
-    ) {
-        require_login();
-
-        // If we have this setting.
-        if (!get_config('booking', 'bookonlyondetailspage')) {
-            require_capability('mod/booking:view', $modcontext);
+    // Central access rule, shared with the option title link in bookingoptions_wbtable.
+    // Booked users (booked, waiting list, reserved) can always see their own booking's details.
+    // Access is always judged for the VIEWER, even when the buy-for target is someone else.
+    if (!booking_option::can_view_option_details($optionid, (int)$USER->id)) {
+        if (!isloggedin() || isguestuser()) {
+            // Not logged in (or guest): send the user to the login page.
+            require_login();
         }
+
+        require_capability('mod/booking:view', $modcontext);
     }
 
     // If the user is logged-in, we check if (s)he has accepted the site policy.
@@ -130,6 +136,11 @@ if ($settings && !empty($settings->id)) {
     $PAGE->set_title(format_string($settings->get_title_with_prefix()));
     $PAGE->set_pagelayout('base');
 
+    if ($justbooked) {
+        \core\notification::success(get_string('slot_justbooked_notification', 'mod_booking'));
+    }
+
+
     echo $OUTPUT->header();
     // phpcs:ignore moodle.Commenting.TodoComment.MissingInfoInline
     // TODO: The following lines change the context of the PAGE object...
@@ -143,6 +154,7 @@ if ($settings && !empty($settings->id)) {
     // The isinvisible check ONLY checks the "real" invisible option, not the "visible only with direct link".
     // As the option here is only possible with direct link, we don't need to check this.
 
+
     if ($data->is_invisible()) {
         // If the user does have the capability to see invisible options...
         if (has_capability('mod/booking:canseeinvisibleoptions', $modcontext)) {
@@ -154,6 +166,10 @@ if ($settings && !empty($settings->id)) {
         }
     } else {
         echo $output->render_bookingoption_description_view($data);
+    }
+
+    if (array_key_exists('local_shopping_cart', \core_plugin_manager::instance()->get_installed_plugins('local'))) {
+        $PAGE->requires->js_call_amd('local_shopping_cart/cart', 'buttoninit', [$modalcounter, 'mod_booking']);
     }
 } else {
     $url = new moodle_url('/mod/booking/view.php', ['id' => $cmid]);

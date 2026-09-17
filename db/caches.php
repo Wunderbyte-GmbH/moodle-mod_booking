@@ -67,6 +67,12 @@ $definitions = [
         'staticaccelerationsize' => 100,
         'invalidationevents' => ['setbackoptionstable', 'setbackencodedtables'],
     ],
+    'sqlfilterrelevance' => [ // Site-wide set of values referenced by sqlfilter availability conditions.
+        'mode' => cache_store::MODE_APPLICATION,
+        'simplekeys' => true,
+        'staticacceleration' => true,
+        'staticaccelerationsize' => 1,
+    ],
     'mybookingoptionstable' => [ // This cache uses hashed sql queries as keys. We destroy it when a user has booked.
         'mode' => cache_store::MODE_SESSION,
         'simplekeys' => true,
@@ -85,6 +91,20 @@ $definitions = [
         'staticacceleration' => true,
         'staticaccelerationsize' => 1000,
         'invalidationevents' => ['setbackoptionsettings'],
+    ],
+    'slotrulesbyoption' => [ // Option-scoped slot rule sets.
+        'mode' => cache_store::MODE_APPLICATION,
+        'simplekeys' => true,
+        'staticacceleration' => true,
+        'staticaccelerationsize' => 1000,
+        'invalidationevents' => ['setbackslotrules'],
+    ],
+    'slotrulepricesbyoption' => [ // Option-scoped slot rule pricing sets.
+        'mode' => cache_store::MODE_APPLICATION,
+        'simplekeys' => true,
+        'staticacceleration' => true,
+        'staticaccelerationsize' => 1000,
+        'invalidationevents' => ['setbackslotruleprices', 'setbackprices'],
     ],
     // The bookingoptionsanswers is crucial.
     // The optionids are the keys, the lists of booked, reserved. etc users are provided in this cache.
@@ -162,12 +182,6 @@ $definitions = [
         'staticaccelerationsize' => 1,
         'invalidationevents' => ['setbackbookinghistorytable'],
     ],
-    'bookforuser' => [
-        'mode' => cache_store::MODE_SESSION,
-        'simplekeys' => true,
-        'staticacceleration' => true,
-        'staticaccelerationsize' => 10,
-    ],
     'usercompetenciescache' => [
         'mode' => cache_store::MODE_APPLICATION,
         'simplekeys' => true,
@@ -181,5 +195,26 @@ $definitions = [
         'staticacceleration' => true,
         'staticaccelerationsize' => 10,
         'invalidationevents' => ['setbackcompetenciesshortnamescache'],
+    ],
+    'scheduledmailscache' => [
+        'mode' => cache_store::MODE_APPLICATION,
+        'simplekeys' => true,
+        'staticacceleration' => true,
+        'staticaccelerationsize' => 10,
+        'invalidationevents' => ['setbackscheduledmailscache'],
+    ],
+    'customfields' => [
+        'mode' => cache_store::MODE_APPLICATION,
+        'simplekeys' => true,
+        'staticacceleration' => true,
+        'staticaccelerationsize' => 1000,
+        'invalidationevents' => ['setbackcustomfields'],
+    ],
+    'syncrules' => [ // Caches sync rules for an option with preloaded source names.
+        'mode' => cache_store::MODE_APPLICATION,
+        'simplekeys' => true,
+        'staticacceleration' => true,
+        'staticaccelerationsize' => 100,
+        'invalidationevents' => ['setbacksyncrules'],
     ],
 ];

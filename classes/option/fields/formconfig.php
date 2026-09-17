@@ -141,19 +141,19 @@ class formconfig extends field_base {
                 $capability = get_string($capstringidentifier, 'mod_booking');
                 $mform->addElement(
                     'html',
-                    '<div class="formconfiglabel text-muted small ml-4">'
+                    '<div class="formconfiglabel text-muted small ms-4">'
                     . get_string('youareusingconfig', 'mod_booking', $capability) . '</div>'
                 );
                 $msg = optionformconfig_info::return_message_stored_optionformconfig($context->id);
                 $mform->addElement(
                     'html',
-                    '<div class="formconfiglabel_more text-muted small ml-4 mb-3">'
+                    '<div class="formconfiglabel_more text-muted small ms-4 mb-3">'
                     . $msg . '</div>'
                 );
             } else {
                 $mform->addElement(
                     'html',
-                    '<div class="formconfiglabel_more text-muted small ml-4 mb-3">'
+                    '<div class="formconfiglabel_more text-muted small ms-4 mb-3">'
                     . get_string('nopermissiontoaccesspage', 'mod_booking') . '</div>'
                 );
             }

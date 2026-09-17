@@ -95,7 +95,7 @@ class delete_conditions_from_bookinganswer_by_rule_adhoc extends \core\task\adho
                    Action was NOT EXECUTED for bookinganswer ' .
                     $taskdata->baid
                     .  PHP_EOL
-                    . 'This message is expected and not signn of malfunction.');
+                    . 'This message is expected and not sign of malfunction.');
                 return;
             }
 

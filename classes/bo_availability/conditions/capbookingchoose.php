@@ -77,6 +77,25 @@ class capbookingchoose implements bo_condition {
     }
 
     /**
+     * Returns the name of the condition.
+     *
+     * @return string
+     *
+     */
+    public function get_name(): string {
+        return get_string('bocondcapbookingchoose', 'mod_booking');
+    }
+
+    /**
+     * Returns whether the condition is skippable or not.
+     *
+     * @return bool
+     */
+    public function is_skippable(): bool {
+        return true;
+    }
+
+    /**
      * Determines whether a particular item is currently available
      * according to this availability condition.
      * @param booking_option_settings $settings Item we're checking
@@ -85,9 +104,8 @@ class capbookingchoose implements bo_condition {
      * @return bool True if available
      */
     public function is_available(booking_option_settings $settings, int $userid, bool $not = false): bool {
-        global $DB;
         // This check can be overridden by a json condition.
-        // Therefore, we use it's logic.
+        // Therefore, we use its logic.
         $allowedtobookininstance = allowedtobookininstance::instance($settings->id);
         $allowedtobookininstance->apply_customdata($settings);
         return $allowedtobookininstance->is_available($settings, $userid, $not);
@@ -96,11 +114,12 @@ class capbookingchoose implements bo_condition {
     /**
      * Each function can return additional sql.
      * This will be used if the conditions should not only block booking...
-     * ... but actually hide the conditons alltogether.
+     * ... but actually hide the conditions altogether.
      * @param int $userid
+     * @param array $params This is the array with parameters for the sql query.
      * @return array
      */
-    public function return_sql(int $userid = 0): array {
+    public function return_sql(int $userid = 0, &$params = []): array {
 
         return ['', '', '', [], ''];
     }
@@ -208,7 +227,7 @@ class capbookingchoose implements bo_condition {
      * @param booking_option_settings $settings
      * @return string
      */
-    private function get_description_string($isavailable, $full, $settings): string {
+    public function get_description_string($isavailable, $full, $settings): string {
 
         if (
             !$isavailable

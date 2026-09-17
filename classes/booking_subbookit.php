@@ -176,12 +176,26 @@ class booking_subbookit {
 
         // Make sure the user has the right to book in principle.
         $context = context_system::instance();
-        if (
-            !empty($userid)
-            && $userid != $USER->id
-            && !has_capability('mod/booking:bookforothers', $context)
-        ) {
-            throw new moodle_exception('norighttoaccess', 'mod_booking');
+        if (!empty($userid) && $userid != $USER->id) {
+            $subbooking = subbookings_info::get_subbooking_by_area_and_id($area, $itemid);
+
+            if (!empty($subbooking->optionid)) {
+                [$allowedtobook, ] = \mod_booking\local\bookingworkflow\bookforothers::check_booking_capability(
+                    $subbooking->optionid,
+                    $USER->id,
+                    $userid
+                );
+            } else {
+                $allowedtobook = has_capability('mod/booking:bookforothers', $context);
+            }
+
+            if (!$allowedtobook) {
+                throw new moodle_exception('norighttoaccess', 'mod_booking');
+            }
+        } else if (empty($userid)) {
+            // Resolve the userid explicitly, the called functions must never
+            // depend on any session state to determine the acting user.
+            $userid = (int)$USER->id;
         }
 
         if (strpos($area, 'subbooking') === 0) {

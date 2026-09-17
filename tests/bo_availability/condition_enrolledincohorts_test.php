@@ -25,7 +25,7 @@
 
 namespace mod_booking;
 
-use advanced_testcase;
+use mod_booking\tests\booking_advanced_testcase;
 use coding_exception;
 use context_module;
 use mod_booking_generator;
@@ -46,26 +46,15 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  *
  */
-final class condition_enrolledincohorts_test extends advanced_testcase {
+final class condition_enrolledincohorts_test extends booking_advanced_testcase {
     /**
      * Tests set up.
      */
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest(true);
-        time_mock::init();
         time_mock::set_mock_time(strtotime('now'));
-        singleton_service::destroy_instance();
-    }
-
-    /**
-     * Mandatory clean-up after each test.
-     */
-    public function tearDown(): void {
-        parent::tearDown();
-        /** @var mod_booking_generator $plugingenerator */
-        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
-        $plugingenerator->teardown();
+        $this->preventResetByRollback();
     }
 
     /**
@@ -83,6 +72,8 @@ final class condition_enrolledincohorts_test extends advanced_testcase {
         global $DB, $CFG, $PAGE;
 
         $bdata['cancancelbook'] = 1;
+        // Make sure SQL filter for availability is not enabled for this test.
+        set_config('usesqlfilteravailability', 1, 'booking');
 
         singleton_service::destroy_instance();
 
@@ -237,6 +228,9 @@ final class condition_enrolledincohorts_test extends advanced_testcase {
      */
     public function test_booking_enrolledincohorts_with_bookit_bookingtime(array $bdata): void {
         global $DB, $CFG, $PAGE;
+
+        // Make sure SQL filter for availability is enabled for this test.
+        set_config('usesqlfilteravailability', 1, 'booking');
 
         $bdata['cancancelbook'] = 1;
 

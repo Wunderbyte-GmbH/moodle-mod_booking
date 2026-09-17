@@ -22,7 +22,7 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once(__DIR__ . '/../../config.php');
+require_once(__DIR__ . '/../../config.php'); // phpcs:ignore moodle.Files.RequireLogin.Missing
 require_once($CFG->dirroot . '/mod/booking/locallib.php');
 require_once($CFG->libdir . '/formslib.php');
 
@@ -36,8 +36,6 @@ $optionid = required_param('optionid', PARAM_INT);
 $copyoptionid = optional_param('copyoptionid', 0, PARAM_INT);
 $createfromoptiondates = optional_param('createfromoptiondates', 0, PARAM_INT);
 $confirm = optional_param('confirm', 0, PARAM_INT);
-$sesskey = optional_param('sesskey', '', PARAM_INT);
-$mode = optional_param('mode', '', PARAM_RAW);
 
 // Fallback url when there is no returnurl.
 $returnurl = new moodle_url('/mod/booking/view.php', ['id' => $cmid]);
@@ -45,7 +43,9 @@ $returnurl = optional_param('returnurl', $returnurl->out(), PARAM_LOCALURL);
 
 [$course, $cm] = get_course_and_cm_from_cmid($cmid);
 
-require_course_login($course, false, $cm);
+// Course login (enrolment or guest access) by default; a site login is enough if the
+// setting "editoptionsrequirecourselogin" is disabled. The capability checks below still apply.
+booking_require_editoptions_login($course, $cm);
 
 $url = new moodle_url('/mod/booking/editoptions.php', ['id' => $cmid, 'optionid' => $optionid]);
 $PAGE->set_url($url);
@@ -68,22 +68,15 @@ if (!$context = context_module::instance($cmid)) {
     throw new moodle_exception('badcontext');
 }
 
-if (
-    (has_capability('mod/booking:updatebooking', $context) || (has_capability(
-        'mod/booking:addeditownoption',
-        $context
-    ) && booking_check_if_teacher($optionid))) == false
-) {
+if (!booking_can_edit_option($context, $optionid)) {
     throw new moodle_exception('nopermissions');
 }
 
 // We don't need this anymore.
 $optionid = $optionid < 0 ? 0 : $optionid;
 
-$settings = singleton_service::get_instance_of_booking_option_settings($optionid);
-
-if (!empty($settings->cmid) && $settings->cmid != $cmid) {
-    throw new moodle_exception('badcontext');
+if (!booking_option_form_ids_match_cm($cm, $optionid, $bookingid, $copyoptionid)) {
+    throw new moodle_exception('invalidcontext', 'error');
 }
 
 // New code.

@@ -87,7 +87,7 @@ Feature: In a booking - create options with different contact persons settings a
     And I should see "Teacher 3" in the ".allbookingoptionstable_r3" "css_element"
     And I should see "RCP 1" in the ".allbookingoptionstable_r3 .col-repsoniblecontact-repsonsiblecontacts-container" "css_element"
     And I should see "RCP 4" in the ".allbookingoptionstable_r3 .col-repsoniblecontact-repsonsiblecontacts-container" "css_element"
-    ## Validate oprion with rcps only
+    ## Validate option with rcps only
     And I click on "Option1: RCP only" "text" in the ".allbookingoptionstable_r1" "css_element"
     ## Onlw "switch to a second window" working and it is mandatory!
     ##And I switch to "Option1: RCP only | Acceptance test site" tab
@@ -98,14 +98,14 @@ Feature: In a booking - create options with different contact persons settings a
     And I should see "RCP 4" in the ".mod-booking-row .infolist" "css_element"
     And I should not see "Teacher" in the ".mod-booking-row" "css_element"
     And I close all opened windows
-    ## Validate oprion with teachers only
+    ## Validate option with teachers only
     And I click on "Option2: Teachers only" "text" in the ".allbookingoptionstable_r2" "css_element"
     And I switch to a second window
     And I should not see "RCP" in the ".mod-booking-row" "css_element"
     And I should see "Teacher 1" in the ".mod-booking-row" "css_element"
     And I should see "Teacher 2" in the ".mod-booking-row" "css_element"
     And I close all opened windows
-    ## Validate oprion with teachers and rcps
+    ## Validate option with teachers and rcps
     And I click on "Option3: Teachers & RCP" "text" in the ".allbookingoptionstable_r3" "css_element"
     And I switch to a second window
     And I should see "RCP 1" in the ".mod-booking-row .infolist" "css_element"

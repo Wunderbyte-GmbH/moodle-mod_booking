@@ -69,18 +69,45 @@ class eventslist implements renderable, templatable {
     public $eventstable = '';
 
     /**
+     * Hint informing the user that the list is limited to a time span.
+     *
+     * @var string
+     */
+    public $hint = '';
+
+    /**
      * If there are no eventnames specified, we will get all of them for this plugin.
      *
      * @param int $id
      * @param array $eventnames
+     * @param string $countlabel optional lang string identifier (in mod_booking) for the records count label
+     * @param array $columns optional column definition [columnkey => header]; defaults to the generic user column
+     * @param int $timecreatedfrom only show log entries created at or after this timestamp, 0 to show all
+     * @param string $extrawhere optional additional where condition (starting with " AND "), e.g. to scope the events
+     * @param array $extraparams params for $extrawhere
      */
-    public function __construct(int $id = 0, array $eventnames = []) {
+    public function __construct(
+        int $id = 0,
+        array $eventnames = [],
+        string $countlabel = '',
+        array $columns = [],
+        int $timecreatedfrom = 0,
+        string $extrawhere = '',
+        array $extraparams = []
+    ) {
 
         global $DB;
 
-        [$select, $from, $where, $filter, $params] = booking::return_sql_for_event_logs('mod_booking', $eventnames, $id);
+        [$select, $from, $where, $filter, $params] =
+            booking::return_sql_for_event_logs('mod_booking', $eventnames, $id, $timecreatedfrom);
 
-        $tablenamestring = "eventlogtable" . $id . implode('-', $eventnames);
+        if (!empty($extrawhere)) {
+            $where .= $extrawhere;
+            $params = array_merge($params, $extraparams);
+        }
+
+        $tablenamestring = "eventlogtable" . $id . implode('-', $eventnames) . $timecreatedfrom
+            . (!empty($extrawhere) ? md5($extrawhere . json_encode($extraparams)) : '');
 
         $tablename = md5($tablenamestring);
 
@@ -88,7 +115,9 @@ class eventslist implements renderable, templatable {
 
         $table->set_filter_sql($select, $from, $where, $filter, $params);
 
-        $columnsarray = [
+        // Allow callers to override the displayed columns (e.g. the messages report shows the
+        // recipient instead of the generic "user" column). Falls back to the default set.
+        $columnsarray = !empty($columns) ? $columns : [
             'userid' => get_string('user', 'core'),
             'eventname' => get_string('eventname', 'core'),
             'description' => get_string('description', 'core'),
@@ -108,7 +137,13 @@ class eventslist implements renderable, templatable {
 
         $table->showcountlabel = true;
 
+        if (!empty($countlabel)) {
+            $table->define_countlabel($countlabel, 'mod_booking');
+        }
+
         $table->showrowcountselect = true;
+
+        $table->showreloadbutton = true;
 
         $table->filteronloadinactive = true;
 
@@ -116,6 +151,49 @@ class eventslist implements renderable, templatable {
 
         [$idstring, $tablecachehash, $html] = $table->lazyouthtml(10, true);
         $this->eventstable = $html;
+
+        if (!empty($timecreatedfrom)) {
+            $months = self::get_configured_months();
+            if (!empty($months)) {
+                $url = new moodle_url(
+                    '/admin/settings.php',
+                    ['section' => 'modsettingbooking'],
+                    'admin-eventslogtimefilter'
+                );
+                $this->hint = get_string('eventslogtimefilterhint', 'mod_booking', [
+                    'months' => $months,
+                    'url' => $url->out(false),
+                ]);
+            }
+        }
+    }
+
+    /**
+     * Return the number of months the event logs are limited to as configured in the plugin settings.
+     *
+     * @return int number of months, 0 if no limit is configured
+     */
+    public static function get_configured_months(): int {
+        $months = get_config('booking', 'eventslogtimefilter');
+        if ($months === false) {
+            // Setting has not been saved yet, apply the default of 3 months.
+            $months = 3;
+        }
+        return (int) $months;
+    }
+
+    /**
+     * Return the timecreated cutoff for the event logs as configured in the plugin settings.
+     *
+     * @return int cutoff timestamp, 0 if no limit is configured
+     */
+    public static function get_timecreatedfrom(): int {
+        $months = self::get_configured_months();
+        if (empty($months)) {
+            return 0;
+        }
+        // Round to midnight so the wunderbyte table cache keys stay stable within a day.
+        return strtotime("-{$months} months", usergetmidnight(time()));
     }
 
     /**
@@ -128,6 +206,7 @@ class eventslist implements renderable, templatable {
         return [
             'eventlist' => $this->eventlist,
             'eventstable' => $this->eventstable,
+            'hint' => $this->hint,
         ];
     }
 }

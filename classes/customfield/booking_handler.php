@@ -24,8 +24,11 @@
 
 namespace mod_booking\customfield;
 
+use cache;
 use core_customfield\api;
 use core_customfield\field_controller;
+use html_writer;
+use mod_booking\booking_settings;
 use mod_booking\settings\optionformconfig\optionformconfig_info;
 use mod_booking\singleton_service;
 use mod_booking\utils\wb_payment;
@@ -54,11 +57,11 @@ class booking_handler extends \core_customfield\handler {
     protected $parentcontext;
 
     /** @var int Field is visible to everybody */
-    const MOD_BOOKING_VISIBLETOALL = 2;
+    public const MOD_BOOKING_VISIBLETOALL = 2;
     /** @var int Field is only for teachers */
-    const MOD_BOOKING_VISIBLETOTEACHERS = 1;
+    public const MOD_BOOKING_VISIBLETOTEACHERS = 1;
     /** @var int Field is not displayed  */
-    const MOD_BOOKING_NOTVISIBLE = 0;
+    public const MOD_BOOKING_NOTVISIBLE = 0;
 
     /**
      * Returns a singleton
@@ -74,11 +77,14 @@ class booking_handler extends \core_customfield\handler {
     }
 
     /**
-     * Run reset code after unit tests to reset the singleton usage.
+     * Reset the singleton between automated test scenarios.
      */
     public static function reset_caches(): void {
-        if (!PHPUNIT_TEST) {
-            throw new \coding_exception('This feature is only intended for use in unit tests');
+        $isphpunittest = defined('PHPUNIT_TEST') && PHPUNIT_TEST;
+        $isbehattest = defined('BEHAT_SITE_RUNNING') && BEHAT_SITE_RUNNING;
+
+        if (!$isphpunittest && !$isbehattest) {
+            throw new \coding_exception('This feature is only intended for use in automated tests');
         }
 
         static::$singleton = null;
@@ -95,12 +101,26 @@ class booking_handler extends \core_customfield\handler {
     public static function get_customfields(array $selectedshortnames = []): array {
         global $DB;
 
+        $cache = cache::make('mod_booking', 'customfields');
+        if (!empty($selectedshortnames)) {
+            sort($selectedshortnames); // Ensure deterministic cache key regardless of argument order.
+            $cachekey = 'subset_' . sha1(implode('|', $selectedshortnames));
+        } else {
+            $cachekey = 'ALL';
+        }
+
+        $data = $cache->get($cachekey);
+        if ($data !== false) {
+            return $data;
+        }
+
         if (empty($selectedshortnames)) {
             $sql = "SELECT cff.id, cff.name, cff.shortname, cff.configdata, cff.type
                     FROM {customfield_field} cff
                     LEFT JOIN {customfield_category} cfc
                     ON cff.categoryid = cfc.id
                     WHERE cfc.component = 'mod_booking'
+                    AND cfc.area = 'booking'
                     ORDER BY cfc.sortorder, cff.sortorder";
             $params = [];
         } else {
@@ -110,11 +130,14 @@ class booking_handler extends \core_customfield\handler {
                     LEFT JOIN {customfield_category} cfc
                     ON cff.categoryid = cfc.id
                     WHERE cfc.component = 'mod_booking'
+                    AND cfc.area = 'booking'
                     AND cff.shortname $insql
                     ORDER BY cfc.sortorder, cff.sortorder";
         }
 
         $records = $DB->get_records_sql($sql, $params);
+
+        $cache->set($cachekey, $records);
 
         return $records;
     }
@@ -382,9 +405,27 @@ class booking_handler extends \core_customfield\handler {
      */
     public function instance_form_validation(array $data, array $files = []) {
 
-        $errors = parent::instance_form_validation($data, $files);
+        // We must not validate custom fields that are not shown in the form
+        // (e.g. unchecked in optionformconfig for a reduced form).
+        // The parent method validates ALL editable fields, which causes errors
+        // for fields not present in the submitted data.
+        $contextid = 0;
+        if (!empty($data['cmid'])) {
+            $contextid = \context_module::instance($data['cmid'])->id;
+        }
+        $uncheckedcustomfields = optionformconfig_info::get_unchecked_customfields($contextid);
 
-        // Currently nothing to validate.
+        $instanceid = empty($data['id']) ? 0 : $data['id'];
+        $editablefields = $this->get_editable_fields($instanceid);
+        $fields = api::get_instance_fields_data($editablefields, $instanceid);
+        $errors = [];
+        foreach ($fields as $formfield) {
+            $shortname = $formfield->get_field()->get('shortname');
+            if (in_array($shortname, $uncheckedcustomfields)) {
+                continue;
+            }
+            $errors += $formfield->instance_form_validation($data, $files);
+        }
 
         return $errors;
     }
@@ -481,7 +522,8 @@ class booking_handler extends \core_customfield\handler {
                         FROM {customfield_field} cf
                         JOIN {customfield_category} cc
                           ON cc.id = cf.categoryid
-                       WHERE cc.component = 'mod_booking'"
+                       WHERE cc.component = 'mod_booking'
+                         AND cc.area = 'booking'"
         );
         $forbiddenshortnames = array_intersect($boproperties, $usedshortnames);
         if (empty($forbiddenshortnames)) {
@@ -492,5 +534,88 @@ class booking_handler extends \core_customfield\handler {
             get_string('warningcustomfieldsforbiddenshortname', 'mod_booking', $forbiddenshortnamesstring),
             \core\output\notification::NOTIFY_ERROR
         );
+    }
+
+    /**
+     * Returns the booking customfields referenced in the given instance settings that do not
+     * exist on this platform, e.g. after restoring a course backup from another Moodle site.
+     *
+     * @param booking_settings $bookingsettings
+     * @return array missing fields as [shortname => name], name is the field name as stored
+     *               on the source platform or null if only the shortname is known
+     */
+    public static function get_missing_customfields(booking_settings $bookingsettings): array {
+        $referenced = [];
+
+        // The instance setting customfieldsforfilter is stored as shortname => fieldname map.
+        foreach ((array)($bookingsettings->customfieldsforfilter ?? []) as $shortname => $name) {
+            $referenced[$shortname] = $name;
+        }
+
+        // The instance setting customfieldsforview is stored as a list of shortnames
+        // (legacy format: shortname => fieldname map).
+        foreach ((array)($bookingsettings->customfieldsforview ?? []) as $key => $value) {
+            if (is_int($key)) {
+                $referenced[$value] = $referenced[$value] ?? null;
+            } else if (!isset($referenced[$key])) {
+                $referenced[$key] = $value;
+            }
+        }
+
+        if (empty($referenced)) {
+            return [];
+        }
+
+        $existingshortnames = array_map(fn($cf) => $cf->shortname, self::get_customfields());
+        return array_diff_key($referenced, array_flip($existingshortnames));
+    }
+
+    /**
+     * Check if the given instance references customfields missing on this platform and return
+     * a user-friendly warning listing them, instead of leaving users with silently broken
+     * filters and columns (e.g. after restoring a course backup from another Moodle site).
+     *
+     * The warning is only shown to users who can manage the booking instance. Users who can
+     * also create the missing fields additionally get a link to the configuration page.
+     *
+     * @param booking_settings $bookingsettings
+     * @param \context_module $context context of the booking instance
+     * @return string the rendered warning or an empty string
+     */
+    public function check_for_missing_customfields_and_return_warning(
+        booking_settings $bookingsettings,
+        \context_module $context
+    ): string {
+        global $OUTPUT;
+
+        if (!has_capability('mod/booking:updatebooking', $context)) {
+            return '';
+        }
+
+        $missingfields = self::get_missing_customfields($bookingsettings);
+        if (empty($missingfields)) {
+            return '';
+        }
+
+        $items = [];
+        foreach ($missingfields as $shortname => $name) {
+            if (empty($name) || $name == $shortname) {
+                $items[] = s($shortname);
+            } else {
+                $items[] = format_string($name) . ' (' . s($shortname) . ')';
+            }
+        }
+        $message = get_string('warningmissingcustomfields', 'mod_booking');
+        $message .= html_writer::alist($items);
+
+        // The customfield configuration page is an admin external page without own capability,
+        // so it requires moodle/site:config.
+        if (has_capability('moodle/site:config', context_system::instance())) {
+            $link = html_writer::link($this->get_configuration_url(), get_string('customfieldconfigure', 'mod_booking'));
+            $message .= html_writer::div(get_string('warningmissingcustomfieldscreate', 'mod_booking', $link));
+            return $OUTPUT->notification($message, \core\output\notification::NOTIFY_WARNING, false);
+        }
+
+        return $OUTPUT->notification($message, \core\output\notification::NOTIFY_INFO, false);
     }
 }

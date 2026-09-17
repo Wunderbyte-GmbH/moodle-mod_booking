@@ -44,9 +44,6 @@ $PAGE->set_heading($COURSE->fullname);
 
 $PAGE->set_title($title);
 
-// Get root categories.
-$categories = $DB->get_records('booking_category', ['course' => $courseid, 'cid' => 0]);
-
 echo $OUTPUT->header();
 
 echo $OUTPUT->heading(
@@ -55,39 +52,20 @@ echo $OUTPUT->heading(
     2
 );
 
-$message = "<a href=\"categoryadd.php?courseid=$courseid\">" .
-         get_string('addnewcategory', 'booking') . "</a>";
-echo $OUTPUT->box($message, 'box mdl-align');
+$addnewlink = html_writer::link(
+    new moodle_url('/mod/booking/categoryadd.php', ['courseid' => $courseid]),
+    get_string('addnewcategory', 'booking')
+);
+echo $OUTPUT->box($addnewlink, 'box mdl-align');
 
 echo $OUTPUT->box_start('generalbox', 'tag-blogs');
 
-echo "<ul>";
-
-foreach ($categories as $category) {
-    $editlink = "<a href=\"categoryadd.php?courseid=$courseid&cid=$category->id\">" .
-             get_string('editcategory', 'booking') . '</a>';
-    $deletelink = "<a href=\"categoryadd.php?courseid=$courseid&cid=$category->id&delete=1\">" .
-             get_string('deletecategory', 'booking') . '</a>';
-    echo "<li>$category->name - $editlink - $deletelink</li>";
-    $subcategories = $DB->get_records(
-        'booking_category',
-        ['course' => $courseid, 'cid' => $category->id]
-    );
-    if (count($subcategories) > 0) {
-        echo "<ul>";
-        foreach ($subcategories as $subcat) {
-            $editlink = "<a href=\"categoryadd.php?courseid=$courseid&cid=$subcat->id\">" .
-                     get_string('editcategory', 'booking') . '</a>';
-            $deletelink = "<a href=\"categoryadd.php?courseid=$courseid&cid=$subcat->id&delete=1\">" .
-                     get_string('deletecategory', 'booking') . '</a>';
-            echo "<li>$subcat->name - $editlink - $deletelink</li>";
-            booking_show_subcategories($subcat->id, $courseid);
-        }
-        echo "</ul>";
-    }
-}
-
-echo "</ul>";
+// Render the whole category tree, starting from the root categories.
+$categories = booking_get_category_tree(0, $courseid);
+echo $OUTPUT->render_from_template('mod_booking/category_list', [
+    'hascategories' => !empty($categories),
+    'categories' => $categories,
+]);
 
 echo $OUTPUT->box_end();
 

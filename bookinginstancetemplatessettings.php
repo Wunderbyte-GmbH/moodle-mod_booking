@@ -33,9 +33,16 @@ $action = optional_param('action', 0, PARAM_ALPHANUM);
 [$course, $cm] = get_course_and_cm_from_cmid($id);
 // No guest autologin.
 require_course_login($course, false);
+
+$context = context_module::instance($cm->id);
+if (!has_capability('mod/booking:updatebooking', $context)) {
+    require_capability('mod/booking:addeditownoption', $context);
+}
+
 $pageurl = new moodle_url('/mod/booking/bookinginstancetemplatessettings.php', ['id' => $id, 'templateid' => $templateid]);
 
 if (($action === 'delete') && ($templateid > 0)) {
+    require_sesskey();
     $DB->delete_records('booking_instancetemplate', ['id' => $templateid]);
     redirect($pageurl, get_string('templatedeleted', 'booking'), 5);
 }

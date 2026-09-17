@@ -26,6 +26,7 @@
 namespace mod_booking\booking_answers\scopes;
 
 use context_course;
+use local_wunderbyte_table\filters\types\standardfilter;
 use local_wunderbyte_table\wunderbyte_table;
 use mod_booking\booking_answers\scope_base_options;
 use mod_booking\table\manageusers_table;
@@ -41,6 +42,12 @@ use moodle_url;
  */
 class course extends scope_base_options {
     /**
+     * Scope name.
+     * @var string
+     */
+    public $scope = 'course';
+
+    /**
      * Returns the sql to fetch booked users with a certain status.
      * Orderd by timemodified, to be able to sort them.
      * @param string $scope option | instance | course | system
@@ -52,7 +59,20 @@ class course extends scope_base_options {
         $courseid = $scopeid;
         $fields = 's1.*';
         $where = ' 1 = 1 ';
+
+        $params = [
+            'statusparam' => $statusparam,
+            'statustocount' => get_config('booking', 'bookingstrackerpresencecountervaluetocount'),
+            'courseid' => $courseid,
+        ];
+
         $wherepart = $this->get_wherepart($statusparam);
+
+        // The rows of this scope are aggregated booking options, so the restriction of a booking
+        // extension (e.g. to the team of a supervisor) has to be applied inside the grouped query.
+        // This way the answers count only contains the answers the current user may see.
+        $wherepart .= $this->get_answers_restriction_sql('ba.userid', $scopeid, $params);
+
         $selectpart = $this->get_selectpart($statusparam);
         $endpart = $this->get_endpart();
         $from = " (
@@ -60,12 +80,6 @@ class course extends scope_base_options {
             $wherepart AND c.id = :courseid
             $endpart
         ) s1";
-
-        $params = [
-            'statusparam' => $statusparam,
-            'statustocount' => get_config('booking', 'bookingstrackerpresencecountervaluetocount'),
-            'courseid' => $courseid,
-        ];
 
         return [$fields, $from, $where, $params];
     }
@@ -120,13 +134,22 @@ class course extends scope_base_options {
         $sortablecolumns = [
             'titleprefix' => get_string('titleprefix', 'mod_booking'),
             'text' => get_string('bookingoption', 'mod_booking'),
+            'instancename' => get_string('bookinginstance', 'mod_booking'),
             'answerscount' => get_string('answerscount', 'mod_booking'),
+            'timecreated' => get_string('timecreated', 'mod_booking'),
         ];
         if ($statusparam == 0) {
             $sortablecolumns['presencecount'] = get_string('presencecount', 'mod_booking');
         }
 
         $table->define_sortablecolumns($sortablecolumns);
+        $table->sort_default_column = 'timecreated';
+        $table->sort_default_order = SORT_DESC;
+
+        // Filter for the booking instance.
+        $instancefilter = new standardfilter('instancename', get_string('bookinginstance', 'mod_booking'));
+        $table->add_filter($instancefilter);
+        $table->showfilterontop = true;
 
         return $table;
     }
@@ -143,7 +166,7 @@ class course extends scope_base_options {
      *
      */
     public function show_download_button(wunderbyte_table &$table, string $scope, int $scopeid, int $statusparam) {
-        if ($this->has_capability_in_scope($scopeid, 'mod/booking:updatebooking')) {
+        if ($this->has_capability_in_scope($scopeid, 'mod/booking:downloadresponses')) {
             $baseurl = new moodle_url(
                 '/mod/booking/download_report2.php',
                 [

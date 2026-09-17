@@ -35,9 +35,12 @@
     {{#error}}
         <div class="alert alert-danger" role="alert">
     {{/error}}
-    {{^error}}
+    {{#iswarning}}
+        <div class="alert alert-warning" role="alert">
+    {{/iswarning}}
+    {{^error}}{{^iswarning}}
         <div class="alert alert-success" role="alert">
-    {{/error}}
+    {{/iswarning}}{{/error}}
             {{info}}
             {{#courselink}}
                 <br>

@@ -23,12 +23,22 @@
  */
 
 use mod_booking\booking_option;
+use mod_booking\local\connectedcourse;
 use mod_booking\teachers_handler;
 
 /**
  * Structure step to restore one booking activity
  */
 class restore_booking_activity_structure_step extends restore_activity_structure_step {
+    /**
+     * Maps the courseid of a connected Moodle course to the id of the copy made for it during
+     * this restore. Several booking options may share one connected course, and they must keep
+     * sharing it afterwards, so every source course is copied at most once per restore.
+     *
+     * @var array
+     */
+    protected $connectedcoursemap = [];
+
     /**
      * Function that will return the structure to be processed by this restore_step.
      * Must return one array of @restore_path_element elements
@@ -64,6 +74,15 @@ class restore_booking_activity_structure_step extends restore_activity_structure
             'booking_customfield',
             '/activity/booking/customfields/customfield'
         );
+
+        // Only restore booking rules, if config setting is set. Rules are scoped to the
+        // instance context, so they are independent of the booking options setting below.
+        if (get_config('booking', 'duplicationrestorerules')) {
+            $paths[] = new restore_path_element(
+                'booking_rule',
+                '/activity/booking/bookingrules/bookingrule'
+            );
+        }
 
         // If we don't have booking options, of course we don't have any of the below settings.
         if (get_config('booking', 'duplicationrestorebookings')) {
@@ -111,6 +130,13 @@ class restore_booking_activity_structure_step extends restore_activity_structure
                 $paths[] = new restore_path_element(
                     'booking_subbookingoption',
                     '/activity/booking/options/option/subbookingoptions/subbookingoption'
+                );
+            }
+
+            if (class_exists('local_shopping_cart\shopping_cart')) {
+                $paths[] = new restore_path_element(
+                    'booking_option_shoppingcartiteminfo',
+                    '/activity/booking/options/option/shoppingcartiteminfoforoptions/shoppingcartiteminfoforoption'
                 );
             }
         }
@@ -229,6 +255,16 @@ class restore_booking_activity_structure_step extends restore_activity_structure
         $data->bookingid = $this->get_new_parentid('booking');
         $data->timemodified = $this->apply_date_offset($data->timemodified);
 
+        // Map user IDs for usercreated and usermodified.
+        if (!empty($data->usercreated)) {
+            $data->usercreated = $this->get_mappingid('user', $data->usercreated) ?: 0;
+        }
+        if (!empty($data->usermodified)) {
+            $data->usermodified = $this->get_mappingid('user', $data->usermodified) ?: 0;
+        }
+
+        $this->remap_connected_course($data);
+
         $cmid = null;
         $cmidsql = "SELECT cm.id AS cmid
                     FROM {course_modules} cm
@@ -252,6 +288,11 @@ class restore_booking_activity_structure_step extends restore_activity_structure
 
         $newitemid = $DB->insert_record('booking_options', $data);
 
+        /* The connected Moodle course is not part of this backup - only its id is - so the
+        restored option points at the very same course as the original. When the site asks for
+        it, duplicate that course as well, so the copy is a self contained duplicate. */
+        $this->duplicate_connected_course((int) $newitemid, (int) ($data->courseid ?? 0));
+
         // Also copy custom fields (e.g. sports).
         // Note: Do not confuse normal customfields (stored in customfield_data) with booking_customfields (used for optiondates).
         // This SQL will only select customfields for the mod_booking component.
@@ -262,6 +303,7 @@ class restore_booking_activity_structure_step extends restore_activity_structure
             LEFT JOIN {customfield_category} cfc
             ON cfc.id = cff.categoryid
             WHERE cfc.component = 'mod_booking'
+            AND cfc.area = 'booking'
             AND cfd.instanceid = :oldid";
 
         $params = [
@@ -334,6 +376,135 @@ class restore_booking_activity_structure_step extends restore_activity_structure
     }
 
     /**
+     * Make sure a restored booking option does not point at a foreign Moodle course.
+     *
+     * A Moodle course is never part of an activity backup - only its id is. On a restore onto
+     * a DIFFERENT site that id belongs to the origin site, so keeping it would silently connect
+     * the option to whichever unrelated course happens to carry that id here, or to a course
+     * that does not exist at all. Neither is a connection anybody asked for.
+     *
+     * The one id which can be translated is the course the backup was taken from: an option
+     * enrolling into that course should now enrol into the course we are restoring into.
+     * Everything else loses its connection and has to be re-established by hand.
+     *
+     * On the same site the id is still valid and is left untouched.
+     *
+     * @param stdClass $data the booking option data from the backup file, modified in place
+     * @return void
+     */
+    protected function remap_connected_course(stdClass $data) {
+
+        if (empty($data->courseid) || $this->get_task()->is_samesite()) {
+            return;
+        }
+
+        $originalcourseid = (int) ($this->get_task()->get_info()->original_course_id ?? 0);
+
+        if (!empty($originalcourseid) && (int) $data->courseid === $originalcourseid) {
+            $data->courseid = $this->get_courseid();
+            return;
+        }
+
+        $data->courseid = 0;
+    }
+
+    /**
+     * Duplicate the Moodle course connected to a restored booking option.
+     *
+     * A course is not part of an activity backup, so a restored option inherits the courseid of
+     * the original and both end up enrolling into the same Moodle course. With the
+     * duplicatemoodlecourses setting turned on, the connected course is copied as well and the
+     * restored option is pointed at the copy.
+     *
+     * The copy itself is asynchronous: a course shell exists immediately, its content is filled
+     * in by the core copy task on the next cron run.
+     *
+     * @param int $newoptionid the id of the booking option just restored
+     * @param int $oldcourseid the connected course as stored in the backup file
+     * @return void
+     */
+    protected function duplicate_connected_course(int $newoptionid, int $oldcourseid) {
+
+        global $DB;
+
+        if (empty($newoptionid) || empty($oldcourseid)) {
+            return;
+        }
+
+        // The very same setting which already governs duplication of a single booking option.
+        if (!get_config('booking', 'duplicatemoodlecourses')) {
+            return;
+        }
+
+        /* On a different site the stored courseid refers to a course of the origin site and
+        means nothing here, so there is nothing meaningful to copy. */
+        if (!$this->get_task()->is_samesite()) {
+            return;
+        }
+
+        /* Only the duplication of a single booking instance copies connected courses. A course
+        copy, a course restore or a course import brings the connected course along by itself, or
+        is not asked to. Above all, the course copy started here restores its own booking
+        instances later - with this very step - and copying their connected courses again would
+        chain one copy to the next without end. */
+        if (!$this->is_activity_duplication()) {
+            return;
+        }
+
+        /* An option enrolling into the very course its booking instance lives in keeps doing so.
+        Copying that course would copy the booking instance along with it, and a course which
+        contains its own copy is not a self contained duplicate of anything. */
+        if ($oldcourseid === (int) $this->get_courseid()) {
+            return;
+        }
+
+        if (!$DB->record_exists('course', ['id' => $oldcourseid])) {
+            return;
+        }
+
+        // Options which shared one connected course must keep sharing it, so a source course is
+        // copied only once per restore and every further option reuses that copy.
+        if (isset($this->connectedcoursemap[$oldcourseid])) {
+            $DB->set_field('booking_options', 'courseid', $this->connectedcoursemap[$oldcourseid], ['id' => $newoptionid]);
+            return;
+        }
+
+        $newcourseid = connectedcourse::copy_course($oldcourseid);
+
+        if (empty($newcourseid)) {
+            return;
+        }
+
+        $this->connectedcoursemap[$oldcourseid] = $newcourseid;
+        $DB->set_field('booking_options', 'courseid', $newcourseid, ['id' => $newoptionid]);
+
+        /* Name the copy after the option which owns it. Only the option that actually triggered
+        the copy does this - for a shared course, renaming it again for every further option
+        would just leave it named after whichever option happened to come last. */
+        connectedcourse::apply_naming_scheme($newcourseid, $newoptionid);
+
+        /* The copy is asynchronous and cron rewrites the names from the copy data when it runs,
+        so the naming has to be applied again afterwards. */
+        connectedcourse::queue_naming_finalizer($newcourseid, $newoptionid);
+    }
+
+    /**
+     * Whether this restore duplicates a single booking instance, as opposed to restoring, copying
+     * or importing a whole course.
+     *
+     * duplicate_module() backs up one activity in import mode; a course copy, a course restore
+     * or a course import backs up a whole course. Both facts are recorded in the backup itself,
+     * so this is decided from the backup information and not from anything the data says.
+     *
+     * @return bool
+     */
+    protected function is_activity_duplication(): bool {
+        $info = $this->get_task()->get_info();
+        return ($info->type ?? '') === backup::TYPE_1ACTIVITY
+            && (int) ($info->mode ?? 0) === backup::MODE_IMPORT;
+    }
+
+    /**
      * Processes booking answer data.
      *
      * @param array $data The instance data from the backup file.
@@ -347,6 +518,7 @@ class restore_booking_activity_structure_step extends restore_activity_structure
         $data->optionid = $this->get_mappingid('booking_option', $data->optionid);
         $data->userid = $this->get_mappingid('user', $data->userid);
         $data->timemodified = $this->apply_date_offset($data->timemodified);
+        $data->completeddate = $this->apply_date_offset($data->completeddate);
 
         $DB->insert_record('booking_answers', $data);
         // No need to save this mapping as far as nothing depend on it.
@@ -482,6 +654,46 @@ class restore_booking_activity_structure_step extends restore_activity_structure
         $DB->insert_record('booking_history', $data);
     }
 
+    /**
+     * Processes booking rule data.
+     *
+     * Rules are linked to an instance solely by contextid (the module context). We map the old
+     * context to the newly restored instance's module context and insert a fresh rule record.
+     *
+     * Note: rulejson->ruledata->cancelrules may reference other rule IDs; those references are
+     * not remapped to the duplicated rules, so cross-rule cancellation links between two
+     * instance rules will not survive duplication. This is a known limitation.
+     *
+     * @param array $data The instance data from the backup file.
+     * @throws dml_exception
+     */
+    protected function process_booking_rule($data) {
+        global $DB;
+
+        $data = (object) $data;
+
+        $newbookingid = $this->get_new_parentid('booking');
+
+        // Resolve the course module id of the newly restored instance (same lookup as process_booking()).
+        $cmidsql = "SELECT cm.id AS cmid
+                    FROM {course_modules} cm
+                    LEFT JOIN {modules} m
+                    ON m.id = cm.module
+                    WHERE m.name = 'booking' AND cm.instance = :newbookingid";
+
+        if (!$cmidrecord = $DB->get_record_sql($cmidsql, ['newbookingid' => $newbookingid])) {
+            // Without a target context we cannot attach the rule, so skip it.
+            debugging('process_booking_rule - could not find cmid for bookingid: ' . $newbookingid);
+            return;
+        }
+
+        // Attach the rule to the new instance's module context.
+        unset($data->id);
+        $data->contextid = context_module::instance($cmidrecord->cmid)->id;
+
+        $DB->insert_record('booking_rules', $data);
+        // No need to save this mapping as far as nothing depends on it.
+    }
 
     /**
      * Processes booking entity data for booking options.
@@ -589,6 +801,29 @@ class restore_booking_activity_structure_step extends restore_activity_structure
             // No need to save this mapping as far as nothing depends on it.
         }
         // NOTE: In the future we might want to support additional price areas!
+    }
+
+    /**
+     * Processes shopping cart iteminfo data for booking options.
+     *
+     * @param array $data The instance data from the backup file.
+     * @throws dml_exception
+     */
+    protected function process_booking_option_shoppingcartiteminfo($data) {
+        global $DB;
+
+        // Make sure, we have shopping cart installed.
+        if (class_exists('local_shopping_cart\shopping_cart')) {
+            $data = (object) $data;
+            if ($data->area != 'option') {
+                return;
+            }
+            $data->itemid = $this->get_mappingid('booking_option', $data->itemid);
+            $data->timecreated = time();
+            $data->timemodified = time();
+            $DB->insert_record('local_shopping_cart_iteminfo', $data);
+            // No need to save this mapping as far as nothing depends on it.
+        }
     }
 
     /**

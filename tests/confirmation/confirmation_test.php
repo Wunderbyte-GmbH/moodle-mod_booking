@@ -16,7 +16,7 @@
 
 namespace mod_booking;
 
-use advanced_testcase;
+use mod_booking\tests\booking_advanced_testcase;
 use mod_booking\output\booked_users;
 use mod_booking\singleton_service;
 use mod_booking\booking_bookit;
@@ -28,6 +28,9 @@ use tool_mocktesttime\time_mock;
 use mod_booking_generator;
 use context_module;
 
+defined('MOODLE_INTERNAL') || die();
+require_once(__DIR__ . '/../classes/booking_advanced_testcase.php');
+
 /**
  * Tests for confirmation capability.
  *
@@ -37,26 +40,15 @@ use context_module;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  *
  */
-final class confirmation_test extends advanced_testcase {
+final class confirmation_test extends booking_advanced_testcase {
     /**
      * Tests set up.
      */
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest();
-        time_mock::init();
         time_mock::set_mock_time(strtotime('now'));
         singleton_service::destroy_instance();
-    }
-
-    /**
-     * Mandatory clean-up after each test.
-     */
-    public function tearDown(): void {
-        parent::tearDown();
-        /** @var mod_booking_generator $plugingenerator */
-        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
-        $plugingenerator->teardown();
     }
 
     /**

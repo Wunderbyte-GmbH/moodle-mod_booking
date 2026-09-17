@@ -108,7 +108,10 @@ class bookit_price implements renderable, templatable {
                 case MOD_BOOKING_STATUSPARAM_NOTBOOKED:
                 case MOD_BOOKING_STATUSPARAM_DELETED:
                 case MOD_BOOKING_STATUSPARAM_NOTIFYMELIST:
-                    if ($this->priceitem = price::get_price('option', $settings->id, $buyforuser)) {
+                    if (
+                        ($this->priceitem = price::get_price('option', $settings->id, $buyforuser))
+                        && class_exists('local_shopping_cart\local\entities\cartitem')
+                    ) {
                         $cartitem = new cartitem(
                             $settings->id,
                             $settings->get_title_with_prefix(),

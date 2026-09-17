@@ -32,5 +32,6 @@ $string['confirmationtrainer'] = 'Confirmation by trainer';
 $string['confirmationtrainerenabled'] = 'Allow confirmation by trainer';
 $string['notallowedtoconfirm'] = "Not allowed to confirm";
 $string['pluginname'] = 'Confirmation workflow by trainer';
+$string['privacy:metadata'] = 'The plugin does not store any personal data.';
 $string['workflowdescription'] = 'In the standard workflow, users will just book on the waitinglist, if in a booking option the "Book only after confirmation"-checkbox is set. As a teacher or any person, who has the corresponding capabilities (mod/booking:bookforothers & mod/booking:subscribeusers) you can view the users on the waitinglist and, from there, confirm users.';
 $string['workflowname'] = 'Confirmation workflow by trainer';

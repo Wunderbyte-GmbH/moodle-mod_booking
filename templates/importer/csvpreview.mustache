@@ -1,0 +1,138 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_booking/importer/csvpreview
+
+    Template for the CSV import preview panel.
+
+    Renders two tables: one for rows that will be imported and one for rows that will be skipped.
+
+    Classes required for JS:
+    * none
+
+    Data attributes required for JS:
+    * none
+
+    Example context (json):
+    {
+        "columns": [
+            {"name": "coursename"},
+            {"name": "startdate"},
+            {"name": "enddate"}
+        ],
+        "validcount": 2,
+        "skippedcount": 1,
+        "hasvalidrows": true,
+        "hasskippedrows": true,
+        "validrows": [
+            {
+                "linenumber": 2,
+                "cells": [
+                    {"value": "Intro to PHP"},
+                    {"value": "2025-01-10"},
+                    {"value": "2025-03-10"}
+                ]
+            },
+            {
+                "linenumber": 3,
+                "cells": [
+                    {"value": "Advanced JS"},
+                    {"value": "2025-02-01"},
+                    {"value": "2025-04-01"}
+                ]
+            }
+        ],
+        "skippedrows": [
+            {
+                "linenumber": 4,
+                "cells": [
+                    {"value": ""},
+                    {"value": "2025-03-01"},
+                    {"value": "2025-05-01"}
+                ],
+                "reason": "Course name is required."
+            }
+        ]
+    }
+}}
+<div class="csv-import-preview mt-4">
+
+    <h4>{{#str}} importpreviewtitle, mod_booking {{/str}}</h4>
+
+    {{#hasvalidrows}}
+    <div class="mb-4">
+        <h5 class="text-success">
+            {{#str}} importpreviewvalid, mod_booking {{/str}} ({{validcount}})
+        </h5>
+        <div class="table-responsive">
+            <table class="table table-sm table-bordered table-hover">
+                <thead class="thead-light">
+                    <tr>
+                        <th scope="col">{{#str}} importpreviewlinenumber, mod_booking {{/str}}</th>
+                        {{#columns}}
+                        <th scope="col">{{name}}</th>
+                        {{/columns}}
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#validrows}}
+                    <tr class="table-success">
+                        <td>{{linenumber}}</td>
+                        {{#cells}}
+                        <td>{{value}}</td>
+                        {{/cells}}
+                    </tr>
+                    {{/validrows}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {{/hasvalidrows}}
+
+    {{#hasskippedrows}}
+    <div class="mb-4">
+        <h5 class="text-danger">
+            {{#str}} importpreviewskipped, mod_booking {{/str}} ({{skippedcount}})
+        </h5>
+        <div class="table-responsive">
+            <table class="table table-sm table-bordered table-hover">
+                <thead class="thead-light">
+                    <tr>
+                        <th scope="col">{{#str}} importpreviewlinenumber, mod_booking {{/str}}</th>
+                        {{#columns}}
+                        <th scope="col">{{name}}</th>
+                        {{/columns}}
+                        <th scope="col">{{#str}} importpreviewreason, mod_booking {{/str}}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#skippedrows}}
+                    <tr class="table-danger">
+                        <td>{{linenumber}}</td>
+                        {{#cells}}
+                        <td>{{value}}</td>
+                        {{/cells}}
+                        <td><em>{{reason}}</em></td>
+                    </tr>
+                    {{/skippedrows}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {{/hasskippedrows}}
+
+</div>

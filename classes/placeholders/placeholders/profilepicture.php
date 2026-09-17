@@ -39,7 +39,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @author Bernhard Fischer-Sengseis
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class profilepicture {
+class profilepicture extends \mod_booking\placeholders\placeholder_base {
     /**
      * Function which takes a text, replaces the placeholders...
      * ... and returns the text with the correct values.
@@ -72,7 +72,8 @@ class profilepicture {
             // The cachekey depends on the kind of placeholder and it's ttl.
             // If it's the same for all users, we don't use userid.
             // If it's the same for all options of a cmid, we don't use optionid.
-            $cachekey = "$classname-$optionid";
+            // The picture is the one of the user, so the value differs from user to user.
+            $cachekey = "$classname-$optionid-$userid";
             if (isset(placeholders_info::$placeholders[$cachekey])) {
                 return placeholders_info::$placeholders[$cachekey];
             }

@@ -283,10 +283,18 @@ class optiondate {
     public static function compare_optiondates(array $oldoptiondate, array $newoptiondate, int $mode = 0): bool {
 
         if ($mode <= 1) {
+            // The option form (like every UI of the plugin) handles dates with minute precision, while
+            // imports, web services and generators may store seconds. A difference below one minute is
+            // therefore no change - otherwise the first form save of an imported option "changed" every
+            // date, re-saved it and notified the booked users (Wunderbyte-GmbH/moodle-mod_booking#1556).
+            $oldstart = intdiv((int)($oldoptiondate['coursestarttime'] ?? 0), MINSECS);
+            $newstart = intdiv((int)($newoptiondate['coursestarttime'] ?? 0), MINSECS);
+            $oldend = intdiv((int)($oldoptiondate['courseendtime'] ?? 0), MINSECS);
+            $newend = intdiv((int)($newoptiondate['courseendtime'] ?? 0), MINSECS);
             if (
                 ($oldoptiondate['optiondateid'] != $newoptiondate['optiondateid'])
-                || ($oldoptiondate['coursestarttime'] != $newoptiondate['coursestarttime'])
-                || $oldoptiondate['courseendtime'] != $newoptiondate['courseendtime']
+                || $oldstart != $newstart
+                || $oldend != $newend
                 || $oldoptiondate['daystonotify'] != $newoptiondate['daystonotify'] // Also check daystonotify!
             ) {
                 // If one of the dates is not exactly the same, we need to delete the current option and add a new one.
@@ -337,7 +345,7 @@ class optiondate {
         }
         $optionid = $optiondate->optionid;
 
-        // Delete calendar course event for the optiondate.
+        // Delete calendar course or site event for the optiondate.
         if ($optiondate->eventid !== null && $optiondate->eventid !== 0) {
             $DB->delete_records('event', ['id' => $optiondate->eventid]);
         } else {
@@ -345,7 +353,7 @@ class optiondate {
             // Optionid and optiondateid are stored in uuid column like this: optionid-optiondateid.
             $DB->delete_records_select(
                 'event',
-                "eventtype = 'course'
+                "eventtype IN ('course', 'site')
                 AND courseid <> 0
                 AND component = 'mod_booking'
                 AND uuid = :pattern",

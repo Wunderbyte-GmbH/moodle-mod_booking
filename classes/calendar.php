@@ -27,6 +27,8 @@ namespace mod_booking;
 
 use calendar_event;
 use Exception;
+use mod_booking\option\fields\description;
+use mod_booking\output\description\description_calendarevent;
 use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
@@ -52,35 +54,60 @@ class calendar {
      *
      * @var int
      */
-    const MOD_BOOKING_TYPEUSER = 2;
+    public const MOD_BOOKING_TYPEUSER = 2;
 
     /**
      * MOD_BOOKING_TYPETEACHERADD
      *
      * @var int
      */
-    const MOD_BOOKING_TYPETEACHERADD = 3;
+    public const MOD_BOOKING_TYPETEACHERADD = 3;
 
     /**
      * MOD_BOOKING_TYPETEACHERREMOVE
      *
      * @var int
      */
-    const MOD_BOOKING_TYPETEACHERREMOVE = 4;
+    public const MOD_BOOKING_TYPETEACHERREMOVE = 4;
 
     /**
      * MOD_BOOKING_TYPETEACHERUPDATE
      *
      * @var int
      */
-    const MOD_BOOKING_TYPETEACHERUPDATE = 5;
+    public const MOD_BOOKING_TYPETEACHERUPDATE = 5;
 
     /**
      * MOD_BOOKING_TYPEOPTIONDATE
      *
      * @var int
      */
-    const MOD_BOOKING_TYPEOPTIONDATE = 6;
+    public const MOD_BOOKING_TYPEOPTIONDATE = 6;
+
+    /**
+     * Value of booking_options.addtocalendar: no instance-wide calendar event.
+     * (User events for booked users and teachers are created regardless.)
+     *
+     * @var int
+     */
+    public const ADDTOCALENDAR_NONE = 0;
+
+    /**
+     * Value of booking_options.addtocalendar: course event (eventtype 'course'),
+     * visible to users enrolled in the course of the booking instance.
+     *
+     * @var int
+     */
+    public const ADDTOCALENDAR_COURSE = 1;
+
+    /**
+     * Value of booking_options.addtocalendar: site event (eventtype 'site', courseid SITEID),
+     * visible to every user of the site. Setting this value requires the capability
+     * mod/booking:createcalendarsiteevents.
+     *
+     * @var int
+     */
+    public const ADDTOCALENDAR_SITE = 2;
 
     /**
      * Class constructor.
@@ -91,7 +118,6 @@ class calendar {
      * @param mixed $type
      * @param int $optiondateid
      * @param int $justbooked
-     *
      */
     public function __construct($cmid, $optionid, $userid, $type, $optiondateid = 0, $justbooked = 0) {
         global $DB;
@@ -142,7 +168,7 @@ class calendar {
                             }
                         }
                     }
-                } else if ($settings->addtocalendar == 1) {
+                } else if (self::instance_eventtype((int)$settings->addtocalendar) !== null) {
                     if ($optiondate = $DB->get_record("booking_optiondates", ["id" => $optiondateid])) {
                         $newcalendarid = self::booking_optiondate_add_to_cal(
                             $cmid,
@@ -150,7 +176,7 @@ class calendar {
                             $optiondate,
                             $settings->calendarid,
                             0,
-                            1
+                            (int)$settings->addtocalendar
                         );
                     }
                 }
@@ -216,7 +242,7 @@ class calendar {
      * @param int $optionid
      * @param int $calendareventid
      * @param int $userid
-     * @param int $addtocalendar 0 = do not add, 1 = add as course event
+     * @param int $addtocalendar 0 = do not add, 1 = add as course event, 2 = add as site event
      *
      * @return int calendarid
      * @throws \coding_exception
@@ -247,14 +273,24 @@ class calendar {
             // Add to user calendar.
             $courseid = 0;
             $instance = 0;
-            $visible = 1;
-            $fulldescription = get_rendered_eventdescription($optionid, $cmid, MOD_BOOKING_DESCRIPTION_CALENDAR);
+            if ($settings->invisible == 0) {
+                $visible = 1;
+            } else {
+                $visible = 0;
+            }
+            $descriptioncalendar = new description_calendarevent($optionid, false, $userid);
+            $fulldescription = $descriptioncalendar->render();
         } else {
             // Event calendar.
             $courseid = !empty($bookingsettings->course) ? $bookingsettings->course : 0;
             $instance = $settings->bookingid;
-            $visible = instance_is_visible('booking', $bookingsettings);
-            $fulldescription = get_rendered_eventdescription($optionid, $cmid, MOD_BOOKING_DESCRIPTION_CALENDAR);
+            if ($settings->invisible == 0) {
+                $visible = instance_is_visible('booking', $bookingsettings);
+            } else {
+                $visible = 0;
+            }
+            $descriptioncalendar = new description_calendarevent($optionid, false);
+            $fulldescription = $descriptioncalendar->render();
         }
 
         $event = new stdClass();
@@ -268,13 +304,12 @@ class calendar {
         $event->format = FORMAT_HTML;
 
         // First, check if it is no USER event.
-        if ($userid == 0 && $addtocalendar == 1) {
-            $event->eventtype = 'course';
-            $event->courseid = $courseid; // Only include course id in course events.
-            $event->modulename = 'booking'; // ONLY course events are allowed to have a modulename.
+        if ($userid == 0 && self::instance_eventtype($addtocalendar) !== null) {
+            // Instance-wide event (course or site event).
+            self::apply_instance_event_type($event, $addtocalendar, $courseid, (int)$instance);
             $event->userid = 0;
             $event->groupid = 0;
-            /* For course events, we store optionid and optiondateid as uuid, so we can delete all of them at once,
+            /* For instance-wide events, we store optionid and optiondateid as uuid, so we can delete all of them at once,
             if we create a new date series, for example. For events without optiondate we add "-0". */
             $event->uuid = "$optionid-0";
         } else {
@@ -283,9 +318,9 @@ class calendar {
             $event->courseid = 0;
             $event->userid = (int) $userid;
             $event->groupid = 0;
+            $event->instance = $instance;
         }
 
-        $event->instance = $instance;
         $event->timestart = $settings->coursestarttime;
         $event->visible = $visible;
         $event->timeduration = $settings->courseendtime - $settings->coursestarttime;
@@ -312,7 +347,7 @@ class calendar {
      * @param stdClass $optiondate
      * @param int $calendareventid
      * @param int $userid
-     * @param int $addtocalendar 0 = do not add, 1 = add as course event
+     * @param int $addtocalendar 0 = do not add, 1 = add as course event, 2 = add as site event
      *
      * @return int calendarid
      */
@@ -339,7 +374,6 @@ class calendar {
             // Add to user calendar.
             $courseid = 0;
             $instance = 0;
-            $visible = 1;
 
             // Get the user language to make sure, calendar entries are set in the right language.
             $user = singleton_service::get_instance_of_user($userid);
@@ -349,20 +383,23 @@ class calendar {
             // If the user is booked, we have a different kind of description.
             $bookedusers = $bookingoption->get_all_users_booked();
             $forbookeduser = isset($bookedusers[$userid]);
-            $fulldescription = get_rendered_eventdescription(
-                $optionid,
-                $cmid,
-                MOD_BOOKING_DESCRIPTION_CALENDAR,
-                $forbookeduser
-            );
+            $descriptioncalendar = new description_calendarevent($optionid, $forbookeduser, $userid);
+            $fulldescription = $descriptioncalendar->render();
             // Reset to system language.
             force_current_language($currentlang);
         } else {
             // Event calendar.
             $courseid = !empty($bookingsettings->course) ? $bookingsettings->course : 0;
             $instance = $settings->bookingid;
+            $descriptioncalendar = new description_calendarevent($optionid, false);
+            $fulldescription = $descriptioncalendar->render();
+        }
+
+        // If the optiondate is visible, we still need to check the visibility of the whole booking instance.
+        if ($settings->invisible == 0) {
             $visible = instance_is_visible('booking', $bookingsettings);
-            $fulldescription = get_rendered_eventdescription($optionid, $cmid, MOD_BOOKING_DESCRIPTION_CALENDAR);
+        } else {
+            $visible = 0;
         }
 
         $event = new stdClass();
@@ -375,13 +412,12 @@ class calendar {
         $event->description = $fulldescription;
         $event->format = FORMAT_HTML;
 
-        if ($userid == 0 && $addtocalendar == 1) {
-            $event->eventtype = 'course';
-            $event->modulename = 'booking'; // ONLY course events are allowed to have a modulename.
-            $event->courseid = $courseid; // Only include course id in course events.
+        if ($userid == 0 && self::instance_eventtype($addtocalendar) !== null) {
+            // Instance-wide event (course or site event).
+            self::apply_instance_event_type($event, $addtocalendar, $courseid, (int)$instance);
             $event->userid = 0;
             $event->groupid = 0;
-            /* For course events, we store optionid and optiondateid as uuid, so we can delete all of them at once,
+            /* For instance-wide events, we store optionid and optiondateid as uuid, so we can delete all of them at once,
             if we create a new date series, for example. */
             $event->uuid = "$optionid-{$optiondate->id}";
         } else {
@@ -390,9 +426,9 @@ class calendar {
             $event->courseid = 0;
             $event->userid = (int) $userid;
             $event->groupid = 0;
+            $event->instance = $instance;
         }
 
-        $event->instance = $instance;
         $event->timestart = $optiondate->coursestarttime;
         $event->visible = $visible;
         $event->timeduration = $optiondate->courseendtime - $optiondate->coursestarttime;
@@ -417,6 +453,89 @@ class calendar {
             }
             return $tmpevent->id;
         }
+    }
+
+    /**
+     * Returns the Moodle calendar eventtype of the instance-wide event for a given
+     * addtocalendar value, or null if no instance-wide event is to be created.
+     *
+     * @param int $addtocalendar one of the ADDTOCALENDAR_* constants
+     * @return string|null 'course', 'site' or null
+     */
+    public static function instance_eventtype(int $addtocalendar): ?string {
+        switch ($addtocalendar) {
+            case self::ADDTOCALENDAR_COURSE:
+                return 'course';
+            case self::ADDTOCALENDAR_SITE:
+                return 'site';
+            default:
+                return null;
+        }
+    }
+
+    /**
+     * Sets the type-dependent properties of an instance-wide (course or site) calendar event.
+     * This is the single place where eventtype, courseid, modulename and instance are decided.
+     *
+     * IMPORTANT: Site events must NOT carry a modulename/instance. Core's event container
+     * (calendar/classes/local/event/container.php) filters every event with a modulename by
+     * course module visibility AND enrolment, which would hide the event again for users
+     * who are not enrolled in the course of the booking instance.
+     *
+     * @param stdClass $event the event object (modified by reference)
+     * @param int $addtocalendar ADDTOCALENDAR_COURSE or ADDTOCALENDAR_SITE
+     * @param int $courseid id of the course of the booking instance (used for course events)
+     * @param int $bookingid id of the booking instance (used for course events)
+     * @return void
+     */
+    private static function apply_instance_event_type(stdClass $event, int $addtocalendar, int $courseid, int $bookingid): void {
+        if ($addtocalendar === self::ADDTOCALENDAR_SITE) {
+            $event->eventtype = 'site';
+            $event->courseid = SITEID;
+            $event->modulename = '';
+            $event->instance = 0;
+        } else {
+            $event->eventtype = 'course';
+            $event->courseid = $courseid; // Only include course id in course events.
+            $event->modulename = 'booking'; // ONLY course events are allowed to have a modulename.
+            $event->instance = $bookingid;
+        }
+    }
+
+    /**
+     * Converts an existing instance-wide calendar event in place to the type matching
+     * the given addtocalendar value (course event <-> site event). The event id and
+     * therefore booking_optiondates.eventid stay stable.
+     *
+     * @param int $eventid id of the record in table {event}
+     * @param int $addtocalendar ADDTOCALENDAR_COURSE or ADDTOCALENDAR_SITE
+     * @param int $courseid id of the course of the booking instance
+     * @param int $bookingid id of the booking instance
+     * @return bool true if the event was converted, false if nothing had to be done or the event does not exist
+     */
+    public static function convert_instance_event(int $eventid, int $addtocalendar, int $courseid, int $bookingid): bool {
+        global $DB;
+
+        $expectedtype = self::instance_eventtype($addtocalendar);
+        if ($expectedtype === null || empty($eventid)) {
+            return false;
+        }
+        if (!$record = $DB->get_record('event', ['id' => $eventid])) {
+            return false;
+        }
+        if (
+            $record->eventtype === $expectedtype
+            && ($expectedtype !== 'site' || (int)$record->courseid === SITEID)
+            && ($expectedtype !== 'course' || (int)$record->courseid === $courseid)
+        ) {
+            return false;
+        }
+
+        self::apply_instance_event_type($record, $addtocalendar, $courseid, $bookingid);
+        $calendarevent = calendar_event::load($eventid);
+        // Important: Second param needs to be false in order to fix "nopermissiontoupdatecalendar" bug.
+        $calendarevent->update($record, false);
+        return true;
     }
 
     /**

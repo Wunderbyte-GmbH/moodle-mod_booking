@@ -53,16 +53,17 @@ class scope_base_options extends scope_base {
                 bo.titleprefix,
                 bo.text,
                 b.name AS instancename,
+                COALESCE(MAX(ba.timecreated), 0) AS timecreated,
                 COUNT(ba.id) answerscount,
                 SUM(pcnt.presencecount) presencecount,
                 '" . $scope . "' AS scope
             FROM {booking_options} bo
             LEFT JOIN {booking_answers} ba ON bo.id = ba.optionid
             LEFT JOIN {user} u ON ba.userid = u.id
-            JOIN {course_modules} cm ON bo.bookingid = cm.instance
             JOIN {booking} b ON b.id = bo.bookingid
             JOIN {course} c ON c.id = b.course
-            JOIN {modules} m ON m.id = cm.module
+            JOIN {modules} m ON m.name = 'booking'
+            JOIN {course_modules} cm ON cm.instance = bo.bookingid AND cm.module = m.id
             LEFT JOIN (
                 SELECT boda.optionid, boda.userid, COUNT(*) AS presencecount
                 FROM {booking_optiondates_answers} boda
@@ -87,16 +88,22 @@ class scope_base_options extends scope_base {
      * This functions defines the columns for each scope.
      *
      * @param int $statusparam
+     * @param int $scopeid
      *
      * @return array
      *
      */
-    public function return_cols_for_tables(int $statusparam): array {
+    public function return_cols_for_tables(int $statusparam, int $scopeid = 0): array {
         $columns = [
             'titleprefix' => get_string('titleprefix', 'mod_booking'),
             'text'  => get_string('bookingoption', 'mod_booking'),
-            'answerscount'     => get_string('answerscount', 'mod_booking'),
         ];
+        // In system and course scope, show which booking instance each option belongs to.
+        // In instance scope the column would repeat the same value in every row.
+        if (in_array($this->scope, ['system', 'course'])) {
+            $columns['instancename'] = get_string('bookinginstance', 'mod_booking');
+        }
+        $columns['answerscount'] = get_string('answerscount', 'mod_booking');
 
         // Only for actual bookings, we need the presence counter.
         if (get_config('booking', 'bookingstrackerpresencecounter') && $statusparam == 0) {

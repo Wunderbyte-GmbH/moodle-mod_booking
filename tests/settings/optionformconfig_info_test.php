@@ -26,7 +26,7 @@
 
 namespace mod_booking;
 
-use advanced_testcase;
+use mod_booking\tests\booking_advanced_testcase;
 use context_course;
 use context_system;
 use mod_booking\settings\optionformconfig\optionformconfig_info;
@@ -39,26 +39,15 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
 /**
  * PHPUnit test case for the class.
  */
-final class optionformconfig_info_test extends advanced_testcase {
+final class optionformconfig_info_test extends booking_advanced_testcase {
     /**
      * Tests set up.
      */
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest();
-        time_mock::init();
         time_mock::set_mock_time(strtotime('now'));
         singleton_service::destroy_instance();
-    }
-
-    /**
-     * Mandatory clean-up after each test.
-     */
-    public function tearDown(): void {
-        parent::tearDown();
-        /** @var mod_booking_generator $plugingenerator */
-        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
-        $plugingenerator->teardown();
     }
 
     /**
@@ -162,5 +151,52 @@ final class optionformconfig_info_test extends advanced_testcase {
         $this->assertIsString($message);
         $this->assertStringContainsString('No special', $message);
         return;
+    }
+
+    /**
+     * A user who may edit booking options but holds no option form capability gets the fallback form, if configured.
+     * @covers \mod_booking\settings\optionformconfig\optionformconfig_info::return_capability_for_user
+     * @return void
+     */
+    public function test_return_capability_for_user_fallback(): void {
+        $this->resetAfterTest(true);
+
+        $context = context_system::instance();
+
+        // A site role (no course enrolment) which may edit own options, but has no option form capability.
+        $roleid = $this->getDataGenerator()->create_role();
+        assign_capability('mod/booking:addeditownoption', CAP_ALLOW, $roleid, $context->id);
+        $editor = $this->getDataGenerator()->create_user();
+        role_assign($roleid, $editor->id, $context->id);
+
+        $otheruser = $this->getDataGenerator()->create_user();
+
+        // Without a configured fallback, nothing is returned.
+        $this->setUser($editor);
+        $this->assertSame('', optionformconfig_info::return_capability_for_user($context->id));
+
+        // With a fallback, the editor gets it, also when passing the userid.
+        set_config('optionformfallbackcapability', 'mod/booking:reducedoptionform1', 'booking');
+        $this->assertSame('mod/booking:reducedoptionform1', optionformconfig_info::return_capability_for_user($context->id));
+        $this->setUser($otheruser);
+        $this->assertSame(
+            'mod/booking:reducedoptionform1',
+            optionformconfig_info::return_capability_for_user($context->id, $editor->id)
+        );
+
+        // Users who may not edit or add booking options never get the fallback.
+        $this->assertSame('', optionformconfig_info::return_capability_for_user($context->id));
+
+        // A real option form capability wins over the fallback.
+        assign_capability('mod/booking:reducedoptionform3', CAP_ALLOW, $roleid, $context->id, true);
+        accesslib_clear_all_caches_for_unit_testing();
+        $this->setUser($editor);
+        $this->assertSame('mod/booking:reducedoptionform3', optionformconfig_info::return_capability_for_user($context->id));
+
+        // Invalid config values are ignored.
+        unassign_capability('mod/booking:reducedoptionform3', $roleid, $context->id);
+        accesslib_clear_all_caches_for_unit_testing();
+        set_config('optionformfallbackcapability', 'moodle/site:config', 'booking');
+        $this->assertSame('', optionformconfig_info::return_capability_for_user($context->id));
     }
 }

@@ -17,6 +17,13 @@
 {{!
     @template mod_booking/button_notifyme
 
+    The standalone notify-me widget: wrapper, optional price and the bell.
+    This template is only rendered with the data of the button_notifyme
+    renderable (fully booked state, where the bell stands alone). It must NOT
+    be embedded as a partial into other button templates — partials inherit
+    the full parent context and this template would render the parent's price
+    a second time. Embedders use mod_booking/button_notifyme_bell instead.
+
     Classes required for JS:
     * none
 
@@ -29,7 +36,11 @@
         "onlist": true,
         "userid": 1212,
         "itemid": 12,
-        "area": "option"
+        "area": "option",
+        "price": {
+            "price": "10.00",
+            "currency": "EUR"
+        }
     }
 }}
 <div class="w-100 d-flex justify-content-center booking-button-area"
@@ -44,36 +55,11 @@
                 {{price}} {{currency}}
             </span>
                 <div>
-                    <a class="booking-button-notify-me h3 text-center"
-                        data-userid="{{userid}}"
-                        data-itemid="{{itemid}}"
-                        data-area="{{area}}"
-                        data-toggle="tooltip"
-                        data-bs-toggle="tooltip"
-                        data-placement="top"
-                        title="{{#str}} notifyme, mod_booking {{/str}}">
-                        <i class="{{^onlist}}fa fa-bell-o{{/onlist}}{{#onlist}}fa fa-bell{{/onlist}}" aria-hidden="true"></i>
-                    </a>
+                    {{> mod_booking/button_notifyme_bell }}
                 </div>
         </div>
      {{/price}}
      {{^price}}
-        <a class="booking-button-notify-me h3 text-center"
-            data-userid="{{userid}}"
-            data-itemid="{{itemid}}"
-            data-area="{{area}}"
-            data-toggle="tooltip"
-            data-bs-toggle="tooltip"
-            data-placement="top"
-            title="{{#str}} notifyme, mod_booking {{/str}}">
-            <i class="{{^onlist}}fa fa-bell-o{{/onlist}}{{#onlist}}fa fa-bell{{/onlist}}" aria-hidden="true"></i>
-        </a>
+        {{> mod_booking/button_notifyme_bell }}
      {{/price}}
 </div>
-
-
-{{#js}}
-    require(['mod_booking/button_notifyme'], function(init) {
-        init.init();
-    });
-{{/js}}

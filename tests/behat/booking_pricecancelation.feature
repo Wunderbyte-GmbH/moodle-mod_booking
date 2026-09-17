@@ -30,8 +30,8 @@ Feature: Create booking option with price and force students answer as admin tha
       | pricecategoryfield | userpricecat | booking |
     And I clean booking cache
     And the following "activities" exist:
-      | activity | course | name       | intro               | bookingmanager | eventtype | cancancelbook | Default view for booking options | Send confirmation e-mail |
-      | booking  | C1     | BookingCMP | Booking description | teacher1       | Webinar   | 1             | All bookings                     | Yes                      |
+      | activity | course | name       | intro               | bookingmanager | eventtype | cancancelbook | cancelrelativedate |
+      | booking  | C1     | BookingCMP | Booking description | teacher1       | Webinar   | 1             | 2                  |
     And the following "mod_booking > options" exist:
       | booking     | text            | course | description    | importing | maxanswers | datesmarker | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 | useprice | canceluntil    | canceluntilcheckbox |
       | BookingCMP  | Option-tenis    | C1     | Price-tenis    | 1         | 4          | 1           | 0              | 0              | ## +2 days ##     | ## +3 days ##   | 1        | ## tomorrow ## | 1                   |
@@ -60,7 +60,7 @@ Feature: Create booking option with price and force students answer as admin tha
     ##And I wait "1" seconds
     When I click on "Cancel purchase" "text" in the ".allbookingoptionstable_r2 .booknow" "css_element"
     Then I should see "Do you really want to cancel this purchase?" in the ".modal.show .modal-body" "css_element"
-    And I should see "You'll get the costs of your purchase (88 EUR) minus a cancelation fee (0 EUR) as credit (88 EUR) for your next purchase." in the ".modal.show .modal-body" "css_element"
+    And I should see "You'll get the costs of your purchase (88.00 EUR) minus a cancelation fee (0.00 EUR) as credit for your next purchase: 88.00 EUR" in the ".modal.show .modal-body" "css_element"
     And I click on "Cancel purchase" "button" in the ".modal.show .modal-footer" "css_element"
     ## Notification has been displayed but become clossed instantly
     ##And I should see "Successfully canceled" in the ".notifications" "css_element"
@@ -104,8 +104,8 @@ Feature: Create booking option with price and force students answer as admin tha
   @javascript
   Scenario: Booking: cancellation of all users purchases when price and fixed consumption were set
     Given the following "local_shopping_cart > plugin setup" exist:
-      | account  | cancelationfee | calculateconsumation | calculateconsumationfixedpercentage |
-      | Account1 | 4              | 1                    | 30                                  |
+      | account  | cancelationfee | calculateconsumation | calculateconsumationfixedpercentage | roundrefundamount |
+      | Account1 | 4              | 1                    | 30                                  | 0                 |
     And the following "mod_booking > user purchases" exist:
       | booking     | option          | user     |
       | BookingCMP  | Option-xconsume | student1 |
@@ -127,7 +127,7 @@ Feature: Create booking option with price and force students answer as admin tha
     And I visit "/local/shopping_cart/report.php"
     And the following should exist in the "cash_report_table" table:
       | Paid  | Credit: | Cancelation fee | Item name                  | E-Mail               | Payment method | Status   |
-      | 0.00  | 43.00   | 3.00            | Canceled - Option-xconsume | student3@example.com | Credits	       | Canceled |
-      | 0.00  | 51.00   | 3.00            | Canceled - Option-xconsume | student2@example.com | Credits	       | Canceled |
-      | 0.00  | 59.00   | 3.00            | Canceled - Option-xconsume | student1@example.com | Credits	       | Canceled |
+      | 0.00  | 43.20   | 3.00            | Canceled - Option-xconsume | student3@example.com | Credits	       | Canceled |
+      | 0.00  | 50.90   | 3.00            | Canceled - Option-xconsume | student2@example.com | Credits	       | Canceled |
+      | 0.00  | 58.60   | 3.00            | Canceled - Option-xconsume | student1@example.com | Credits	       | Canceled |
     And I log out

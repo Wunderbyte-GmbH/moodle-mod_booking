@@ -98,12 +98,14 @@ class actions extends field_base {
         // In the actions, we don't actually save, but we want to pass on json, if there is any.
         // But we don't want to overwrite already altered values.
         // When we use the form, we have to save the boactions via the boactionsjson key.
+        // The hidden boactionsjson element is only rendered with an active PRO license and
+        // showboactions enabled. If neither key is present in the submitted data, the stored
+        // actions must be kept instead of being overwritten with an empty array.
         if (!empty($formdata->boactionsjson)) {
-            $boactions = json_decode($formdata->boactionsjson);
-        } else {
-            $boactions = $formdata->boactions ?? [];
+            booking_option::add_data_to_json($newoption, 'boactions', json_decode($formdata->boactionsjson));
+        } else if (isset($formdata->boactions)) {
+            booking_option::add_data_to_json($newoption, 'boactions', $formdata->boactions);
         }
-        booking_option::add_data_to_json($newoption, 'boactions', $boactions);
 
         // Changes will only be reported in a separately triggered changes event ...
         // ... (in action class for save or update, in actions_info for deletion).

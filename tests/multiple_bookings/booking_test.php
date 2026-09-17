@@ -16,7 +16,7 @@
 
 namespace mod_booking;
 
-use advanced_testcase;
+use mod_booking\tests\booking_advanced_testcase;
 use mod_booking\output\booked_users;
 use mod_booking\singleton_service;
 use mod_booking\booking_bookit;
@@ -43,26 +43,15 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  *
  */
-final class booking_test extends advanced_testcase {
+final class booking_test extends booking_advanced_testcase {
     /**
      * Tests set up.
      */
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest();
-        time_mock::init();
         time_mock::set_mock_time(strtotime('now'));
         singleton_service::destroy_instance();
-    }
-
-    /**
-     * Mandatory clean-up after each test.
-     */
-    public function tearDown(): void {
-        parent::tearDown();
-        /** @var mod_booking_generator $plugingenerator */
-        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
-        $plugingenerator->teardown();
     }
 
     /**
@@ -404,6 +393,56 @@ final class booking_test extends advanced_testcase {
                 'tryrebooking' => 1,
             ],
         ];
+    }
+
+    /**
+     * Re-bookings of the same user within the same second must still produce separate answers,
+     * and the next booking must not overwrite any of them (GH-1550).
+     *
+     * @covers \mod_booking\booking_option::user_submit_response
+     * @return void
+     */
+    public function test_rebooking_within_the_same_second(): void {
+        global $DB;
+        $this->resetAfterTest(true);
+
+        $env = $this->setup_booking_environment();
+        $course = $env['course'];
+        $bookingmodule = $env['bookingmodule'];
+        $student1 = $env['users']['student1'];
+
+        /** @var mod_booking_generator $generator */
+        $generator = $this->getDataGenerator()->get_plugin_generator('mod_booking');
+        $option = $generator->create_option((object)[
+            'bookingid' => $bookingmodule->id,
+            'courseid' => $course->id,
+            'text' => 'Option same second',
+            'chooseorcreatecourse' => 1,
+            'waitforconfirmation' => 0,
+            'multiplebookings' => 1,
+            'allowtobookagainafter' => 0,
+        ]);
+        $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
+        $boinfo = new bo_info($settings);
+
+        // The mocked clock is frozen, so all bookings share the same timestamp.
+        for ($i = 1; $i <= 3; $i++) {
+            $this->student_books_without_price($boinfo, $settings, $student1);
+
+            $answers = array_values($DB->get_records('booking_answers', ['userid' => $student1->id], 'id ASC'));
+            $this->assertCount($i, $answers, "Booking $i must insert a new answer");
+            for ($ai = 0; $ai < $i - 1; $ai++) {
+                $this->assertSame(MOD_BOOKING_STATUSPARAM_PREVIOUSLYBOOKED, (int)$answers[$ai]->waitinglist);
+            }
+            $this->assertSame(MOD_BOOKING_STATUSPARAM_BOOKED, (int)$answers[$i - 1]->waitinglist);
+
+            $bookinganswers = singleton_service::get_instance_of_booking_answers($settings);
+            $this->assertSame($i, $bookinganswers->count_previous_bookings($student1->id));
+            $this->assertSame(
+                MOD_BOOKING_STATUSPARAM_BOOKED,
+                (int)($bookinganswers->get_users()[$student1->id]->waitinglist)
+            );
+        }
     }
 
     /**
