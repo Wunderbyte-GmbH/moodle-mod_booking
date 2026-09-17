@@ -21,7 +21,7 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-define(['core/config', 'jquery'], function(Config, $) {
+define(['core/config'], function(Config) {
     return {
         /**
          * Load source options from server.
@@ -32,9 +32,11 @@ define(['core/config', 'jquery'], function(Config, $) {
          * @param {Function} failure Failure callback.
          */
         transport: async function(selector, query, callback, failure) {
-            const el = $(selector);
-            const sourcetype = String(el.closest('form').find('[name="sourcetype"]').val() || 'cohort');
-            const cmid = parseInt(el.data('cmid') || 0, 10);
+            const el = document.querySelector(selector);
+            const form = el ? el.closest('form') : null;
+            const sourcetypefield = form ? form.querySelector('[name="sourcetype"]') : null;
+            const sourcetype = String((sourcetypefield && sourcetypefield.value) || 'cohort');
+            const cmid = parseInt((el && el.dataset.cmid) || 0, 10);
 
             try {
                 const body = new URLSearchParams();
