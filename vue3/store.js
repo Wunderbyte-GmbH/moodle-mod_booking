@@ -27,7 +27,6 @@ import { createStore } from 'vuex';
 import moodleAjax from 'core/ajax';
 import moodleStorage from 'core/localstorage';
 import Notification from 'core/notification';
-import $ from 'jquery';
 
 // Defining store for application
 export function createAppStore() {
@@ -64,11 +63,11 @@ export function createAppStore() {
         actions: {
             // Actions are asynchronous.
             async loadLang(context) {
-                const lang = $('html').attr('lang').replace(/-/g, '_');
+                const lang = document.documentElement.lang.replace(/-/g, '_');
                 context.commit('setLang', lang);
             },
             async loadComponentStrings(context) {
-                const lang = $('html').attr('lang').replace(/-/g, '_');
+                const lang = document.documentElement.lang.replace(/-/g, '_');
                 const cacheKey = 'mod_booking/strings/' + lang;
                 const cachedStrings = moodleStorage.get(cacheKey);
                 if (cachedStrings) {
