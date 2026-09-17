@@ -323,12 +323,13 @@ class booked_users implements renderable, templatable {
         if ($this->lazyload) {
             global $DB;
             // The table is only shown if there is at least one record.
-            // A count query is much cheaper than rendering the rows synchronously.
-            $count = $DB->count_records_sql(
-                "SELECT COUNT(*) FROM {$table->sql->from} WHERE {$table->sql->where}",
+            // An existence check (limited to one row by the DML layer) is much cheaper
+            // than counting or rendering the rows synchronously.
+            $exists = $DB->record_exists_sql(
+                "SELECT 1 FROM {$table->sql->from} WHERE {$table->sql->where}",
                 $table->sql->params
             );
-            if ($count < 1) {
+            if (!$exists) {
                 return null;
             }
             [$idstring, $tablecachehash, $html] = $table->lazyouthtml($this->perpage, false);
