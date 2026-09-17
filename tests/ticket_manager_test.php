@@ -642,7 +642,11 @@ final class ticket_manager_test extends booking_advanced_testcase {
             [(int) $future->id => MOD_BOOKING_PRESENCE_STATUS_CHECKEDIN],
             $this->date_presence()
         );
-        $this->assertEquals(MOD_BOOKING_PRESENCE_STATUS_CHECKEDIN, $this->current_presence());
+        $this->assertEquals(
+            MOD_BOOKING_PRESENCE_STATUS_NOTSET,
+            $this->current_presence(),
+            'With dates only the scanned session is marked, the booking status stays untouched.'
+        );
         $present = array_column($written['dates'], 'present', 'optiondateid');
         $this->assertTrue($present[(int) $future->id]);
         $this->assertFalse($present[(int) $running->id]);
@@ -670,7 +674,8 @@ final class ticket_manager_test extends booking_advanced_testcase {
             $this->date_presence()
         );
         $presencechanged = array_filter($sink->get_events(), fn($e) => $e instanceof bookinganswer_presencechanged);
-        $this->assertCount(1, $presencechanged, 'The answer-level presence is changed only once.');
+        $this->assertCount(0, $presencechanged, 'The answer-level presence is never changed for options with dates.');
+        $this->assertEquals(MOD_BOOKING_PRESENCE_STATUS_NOTSET, $this->current_presence());
         $scanned = array_filter($sink->get_events(), fn($e) => $e instanceof ticket_scanned);
         $this->assertCount(2, $scanned);
         $sink->close();
@@ -1227,24 +1232,23 @@ final class ticket_manager_test extends booking_advanced_testcase {
      */
     public function test_checkin_presence_is_stored_and_displayed(): void {
         global $DB;
-        [, $running] = $this->build_dated_environment();
+        // An option without dates: the presence is stored on the booking answer itself.
+        $this->build_environment();
+        $this->book_student();
         $ticket = ticket_manager::find_valid_ticket($this->settings->id, $this->student->id);
 
         $this->setUser($this->teacher);
-        $result = verify_ticket::execute($ticket->code, true, true, (int) $running->id, $this->settings->id);
+        $result = verify_ticket::execute($ticket->code, true, true, 0, $this->settings->id);
         $this->assertEquals('valid', $result['status']);
 
-        // Stored: on the booking answer and on the scanned date.
+        // Stored on the booking answer.
         $answer = $DB->get_record_select(
             'booking_answers',
             'optionid = :optionid AND userid = :userid AND waitinglist < 2',
             ['optionid' => $this->settings->id, 'userid' => $this->student->id]
         );
         $this->assertEquals(MOD_BOOKING_PRESENCE_STATUS_CHECKEDIN, (int) $answer->status);
-        $this->assertEquals(
-            [(int) $running->id => MOD_BOOKING_PRESENCE_STATUS_CHECKEDIN],
-            $this->date_presence()
-        );
+        $this->assertSame([], $this->date_presence());
 
         // Displayed: bookings tracker and legacy manage responses table render the stored value.
         $label = get_string('statuscheckedin', 'mod_booking');
@@ -1262,5 +1266,73 @@ final class ticket_manager_test extends booking_advanced_testcase {
             $shown = $colstatus->invoke($legacytable, (object) ['status' => $status]);
             $this->assertEquals($status === MOD_BOOKING_PRESENCE_STATUS_NOTSET ? '' : $expected, $shown);
         }
+    }
+
+    /**
+     * A ticket that is neither personalised nor identity-checked is checked in by the lookup itself
+     * when the scanner allows it; personalised tickets always wait for the staff decision.
+     */
+    public function test_autocheckin_for_transferable_tickets(): void {
+        [, $running] = $this->build_dated_environment(['ticketpersonalized' => 0]);
+        $ticket = ticket_manager::find_valid_ticket($this->settings->id, $this->student->id);
+        $this->assertEquals(0, (int) $ticket->personalized);
+
+        $this->setUser($this->teacher);
+        $sink = $this->redirectEvents();
+
+        // A plain lookup never writes.
+        $lookup = verify_ticket::execute($ticket->code, false, false, 0, $this->settings->id);
+        $this->assertTrue($lookup['autocheckin']);
+        $this->assertFalse($lookup['autocheckedin']);
+        $this->assertSame([], $this->date_presence());
+
+        // The scanner's lookup allows the automatic check-in.
+        $auto = verify_ticket::execute($ticket->code, false, false, 0, $this->settings->id, true);
+        $this->assertEquals('valid', $auto['status']);
+        $this->assertTrue($auto['autocheckedin']);
+        $this->assertFalse($auto['alreadypresent']);
+        $this->assertGreaterThan(0, $auto['presenttime']);
+        $this->assertEquals([(int) $running->id => MOD_BOOKING_PRESENCE_STATUS_CHECKEDIN], $this->date_presence());
+        $this->assertEquals(MOD_BOOKING_PRESENCE_STATUS_NOTSET, $this->current_presence());
+        $this->assertCount(1, array_filter($sink->get_events(), fn($e) => $e instanceof ticket_scanned));
+
+        // Scanned again: already present, nothing new.
+        $again = verify_ticket::execute($ticket->code, false, false, 0, $this->settings->id, true);
+        $this->assertTrue($again['alreadypresent']);
+        $this->assertFalse($again['autocheckedin']);
+        $this->assertCount(1, array_filter($sink->get_events(), fn($e) => $e instanceof ticket_scanned));
+        $sink->close();
+    }
+
+    /**
+     * Personalised tickets and identity-checked options are never checked in automatically.
+     */
+    public function test_no_autocheckin_when_staff_must_decide(): void {
+        $this->build_environment();
+        $this->book_student();
+        $ticket = ticket_manager::find_valid_ticket($this->settings->id, $this->student->id);
+
+        $this->setUser($this->teacher);
+        $result = verify_ticket::execute($ticket->code, false, false, 0, $this->settings->id, true);
+        $this->assertEquals('valid', $result['status']);
+        $this->assertTrue($result['personalized']);
+        $this->assertFalse($result['autocheckin']);
+        $this->assertFalse($result['autocheckedin']);
+        $this->assertEquals(MOD_BOOKING_PRESENCE_STATUS_NOTSET, $this->current_presence());
+    }
+
+    /**
+     * A transferable ticket on an option demanding an identity check still waits for the confirmation.
+     */
+    public function test_no_autocheckin_with_identity_confirmation(): void {
+        $this->build_environment(true, true, ['ticketpersonalized' => 0, 'ticketconfirmidentity' => 1]);
+        $this->book_student();
+        $ticket = ticket_manager::find_valid_ticket($this->settings->id, $this->student->id);
+
+        $this->setUser($this->teacher);
+        $result = verify_ticket::execute($ticket->code, false, false, 0, $this->settings->id, true);
+        $this->assertFalse($result['autocheckin']);
+        $this->assertFalse($result['autocheckedin']);
+        $this->assertEquals(MOD_BOOKING_PRESENCE_STATUS_NOTSET, $this->current_presence());
     }
 }

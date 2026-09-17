@@ -65,10 +65,17 @@ const SELECTORS = {
     confirmbutton: '[data-action="scanner-confirm"]',
     nextbutton: '[data-action="scanner-next"]',
     rejectbutton: '[data-action="scanner-reject"]',
+    lastscan: '[data-region="scanner-lastscan"]',
+    lastscanname: '[data-region="scanner-lastscan-name"]',
+    lastscanevent: '[data-region="scanner-lastscan-event"]',
+    lastscantime: '[data-region="scanner-lastscan-time"]',
 };
 
 /** Milliseconds the "checked in" confirmation stays on screen before the camera returns. */
 const CHECKEDIN_FLASH_MS = 700;
+
+/** Milliseconds the green screen of an automatic check-in stays open unless staff presses "Next". */
+const AUTOCHECKIN_SCREEN_MS = 2000;
 
 /**
  * Turn a webservice call result into a native Promise.
@@ -140,6 +147,8 @@ export const init = async(config) => {
         // Sticky date selection per option id, and the option currently shown in the date bar.
         datebyoption: {},
         baroptionid: 0,
+        // Timer returning to the camera after an automatic check-in.
+        autoclosetimer: null,
     };
     if (expectedoptionid) {
         state.baroptionid = expectedoptionid;
@@ -334,7 +343,26 @@ export const init = async(config) => {
         (buttons === 'decide' ? els.confirmbutton : els.nextbutton).focus();
     };
 
+    /**
+     * Remember the last successful check-in below the camera, so staff can still see who just went in.
+     *
+     * @param {object} response
+     */
+    const updateLastScan = (response) => {
+        if (!els.lastscan) {
+            return;
+        }
+        els.lastscanname.textContent = response.fullname || '';
+        els.lastscanevent.textContent = [response.eventname, response.eventdatelabel].filter((part) => part).join(' — ');
+        els.lastscantime.textContent = formatTime(response.presenttime || Math.floor(Date.now() / 1000));
+        els.lastscan.classList.remove('d-none');
+    };
+
     const closeOverlay = () => {
+        if (state.autoclosetimer) {
+            clearTimeout(state.autoclosetimer);
+            state.autoclosetimer = null;
+        }
         els.overlay.classList.add('d-none');
         state.current = null;
         state.paused = false;
@@ -379,6 +407,14 @@ export const init = async(config) => {
         } else if (response.status === 'valid' && response.alreadypresent) {
             const headline = await getString('ticketalreadypresent', 'mod_booking', formatTime(response.presenttime));
             showOverlay('warning', headline, response, response.eventdatelabel, 'next');
+        } else if (response.status === 'valid' && response.autocheckedin) {
+            // No staff decision needed: the lookup already checked the participant in. Show the green
+            // screen briefly, then return to the camera unless "Next" was pressed first.
+            state.lastcode = code;
+            state.lasttime = Date.now();
+            updateLastScan(response);
+            showOverlay('success', sCheckedin, response, response.eventdatelabel, 'next');
+            state.autoclosetimer = setTimeout(closeOverlay, AUTOCHECKIN_SCREEN_MS);
         } else if (response.status === 'valid') {
             const detail = [response.eventdatelabel, showidentity ? sConfirmidentity : sConfirmprompt]
                 .filter((part) => part).join(' — ');
@@ -402,7 +438,10 @@ export const init = async(config) => {
         state.busy = true;
         const request = Ajax.call([{
             methodname: 'mod_booking_verify_ticket',
-            args: {code, checkin: false, confirmed: false, optiondateid: optiondateid || 0, expectedoptionid},
+            args: {
+                code, checkin: false, confirmed: false, optiondateid: optiondateid || 0, expectedoptionid,
+                autocheckin: true,
+            },
         }]);
         return asPromise(request[0])
             .then((response) => renderLookup(response, code))
@@ -441,6 +480,7 @@ export const init = async(config) => {
                 }
                 state.lastcode = code;
                 state.lasttime = Date.now();
+                updateLastScan(written);
                 if (written.dates && written.dates.length) {
                     await fillDateSelect(els.overlaydateselect, written.dates, written.optiondateid);
                 }
