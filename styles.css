@@ -589,6 +589,17 @@ if there only was one booking option. */
     bottom: 5px;
 }
 
+/*
+ * Behat: when the driver scrolls an element into view it does not account for sticky elements, which then
+ * cover the element and intercept the click (core does the same for its sticky footer, see
+ * theme/boost/scss/moodle/debug.scss). Keep our sticky button bars and the editing alert in the flow there.
+ */
+body.behat-site#page-mod-booking-editoptions div[id^='fgroup_id_buttonar_'],
+body.behat-site#page-mod-booking-mod #fgroup_id_buttonar,
+body.behat-site#page-mod-booking-editoptions .editoption-youareediting-alert {
+    position: static;
+}
+
 #page-mod-booking-mod #fgroup_id_buttonar  input[name='submitbutton'],
 #page-mod-booking-mod #fgroup_id_buttonar  input[name='submitbutton2'],
 #page-mod-booking-mod #fgroup_id_buttonar  input[name='cancel'] {
