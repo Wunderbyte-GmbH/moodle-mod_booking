@@ -419,6 +419,8 @@ class bo_info {
 
         // Conditions that must not be treated as blockers when someone else books for the user.
         $irrelevantconditions = [
+            // The page checks the right to book for the user itself (bookforothers::check_booking_capability).
+            MOD_BOOKING_BO_COND_ALLOWEDTOBOOKFORUSER,
             MOD_BOOKING_BO_COND_CONFIRMATION,
             MOD_BOOKING_BO_COND_BOOKITBUTTON,
             MOD_BOOKING_BO_COND_CONFIRMBOOKIT,

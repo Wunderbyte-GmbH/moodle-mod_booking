@@ -534,6 +534,9 @@ $string['boactions_desc'] = "Booking actions after booking are still an EXPERIME
 But do not use them in a productive environment yet!";
 $string['boactionselectuserprofilefield'] = "Choose profile field";
 $string['boactionuserprofilefieldvalue'] = 'Value';
+$string['bocondallowedtobookforuser'] = 'allowedtobookforuser: Allowed to book for the selected user';
+$string['bocondallowedtobookforuserfullnotavailable'] = 'Not allowed to book this option for {$a}';
+$string['bocondallowedtobookforusernotavailable'] = 'You are not allowed to book for {$a}';
 $string['bocondallowedtobookininstance'] = 'Booking should be possible without special capability';
 $string['bocondallowedtobookininstanceanyways'] = "Users are allowed to book without the capability '<b>mod/booking:choose</b>'.<br>
 <div class='text-danger'>Note: Both this checkbox and the upper checkbox need to be checked if you want to activate this.</div>";

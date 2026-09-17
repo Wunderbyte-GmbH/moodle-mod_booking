@@ -1965,6 +1965,9 @@ class shortcodes {
             // This check actually corresponds to the check in booking_bookit currently line 126.
             // It allows overriding a blocking condition under some circumstances.
             || has_capability('mod/booking:bookforothers', $context)
+            // Team bookers (eg. supervisors) may book for some users only.
+            // The allowedtobookforuser condition decides per option and shows a label if not allowed.
+            || has_capability('mod/booking:bookmyteam', $context)
         ) {
             // Check if rendering is for another user id.
             $userid = actforuser::get_foruserid($args, 0);
