@@ -1217,4 +1217,50 @@ final class ticket_manager_test extends booking_advanced_testcase {
         $this->set_option_json([ticket_manager::JSON_SCANNERS => [$other->id]]);
         $this->assertTrue(ticket_manager::can_scan((int) $this->settings->cmid, $this->settings->id, (int) $other->id));
     }
+
+    /**
+     * A confirmed scan sets the presence status, and both participant lists show it: the legacy
+     * "Manage responses" table used to render the scanner's "Checked in" status as an empty cell.
+     *
+     * @covers \mod_booking\all_userbookings::col_status
+     * @covers \mod_booking\table\manageusers_table::col_status
+     */
+    public function test_checkin_presence_is_stored_and_displayed(): void {
+        global $DB;
+        [, $running] = $this->build_dated_environment();
+        $ticket = ticket_manager::find_valid_ticket($this->settings->id, $this->student->id);
+
+        $this->setUser($this->teacher);
+        $result = verify_ticket::execute($ticket->code, true, true, (int) $running->id, $this->settings->id);
+        $this->assertEquals('valid', $result['status']);
+
+        // Stored: on the booking answer and on the scanned date.
+        $answer = $DB->get_record_select(
+            'booking_answers',
+            'optionid = :optionid AND userid = :userid AND waitinglist < 2',
+            ['optionid' => $this->settings->id, 'userid' => $this->student->id]
+        );
+        $this->assertEquals(MOD_BOOKING_PRESENCE_STATUS_CHECKEDIN, (int) $answer->status);
+        $this->assertEquals(
+            [(int) $running->id => MOD_BOOKING_PRESENCE_STATUS_CHECKEDIN],
+            $this->date_presence()
+        );
+
+        // Displayed: bookings tracker and legacy manage responses table render the stored value.
+        $label = get_string('statuscheckedin', 'mod_booking');
+        $row = (object) ['status' => $answer->status, 'userid' => $answer->userid, 'optionid' => $answer->optionid];
+        $this->assertEquals($label, (new manageusers_table('presencedisplaytest'))->col_status($row));
+
+        $cm = get_coursemodule_from_id('booking', $this->settings->cmid);
+        $option = singleton_service::get_instance_of_booking_option((int) $this->settings->cmid, $this->settings->id);
+        $legacytable = new \mod_booking\all_userbookings('presencedisplaylegacy', $option, $cm, $this->settings->id);
+        $colstatus = new \ReflectionMethod($legacytable, 'col_status');
+        $colstatus->setAccessible(true);
+        $this->assertEquals($label, $colstatus->invoke($legacytable, $row));
+        // Every defined presence status has a label there, "not set" stays empty.
+        foreach (booking::get_array_of_possible_presence_statuses() as $status => $expected) {
+            $shown = $colstatus->invoke($legacytable, (object) ['status' => $status]);
+            $this->assertEquals($status === MOD_BOOKING_PRESENCE_STATUS_NOTSET ? '' : $expected, $shown);
+        }
+    }
 }
