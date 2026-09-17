@@ -214,6 +214,12 @@ define('MOD_BOOKING_BO_COND_CAPBOOKINGCHOOSE', 4);
 // MOD_BOOKING_OPTIONTYPE_SLOTBOOKING (also 2) above. Same number, different enum.
 define('MOD_BOOKING_BO_COND_SLOTBOOKING', 2);
 
+// Checks whether the current user may book the option for the (other) user it is rendered for.
+// Must stay ABOVE the flow conditions (bookit button, price, confirmation, askforconfirmation,
+// slotbooking - all <= 2), otherwise the always failing bookit button would hide its label,
+// and BELOW every real restriction, so that their messages take precedence.
+define('MOD_BOOKING_BO_COND_ALLOWEDTOBOOKFORUSER', 3);
+
 define('MOD_BOOKING_BO_COND_CONFIRMASKFORCONFIRMATION', 1);
 define('MOD_BOOKING_BO_COND_ASKFORCONFIRMATION', 0);
 

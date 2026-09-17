@@ -526,6 +526,9 @@ $string['boactions_desc'] = "Aktionen nach der Buchung sind derzeit ein experime
 Sie können es ausprobieren, aber bitte verwenden Sie es noch auf keiner Produktivplattform!";
 $string['boactionselectuserprofilefield'] = "Wähle Profilfeld";
 $string['boactionuserprofilefieldvalue'] = 'Wert';
+$string['bocondallowedtobookforuser'] = 'allowedtobookforuser: Darf für die ausgewählte Person buchen';
+$string['bocondallowedtobookforuserfullnotavailable'] = 'Keine Berechtigung, diese Option für {$a} zu buchen';
+$string['bocondallowedtobookforusernotavailable'] = 'Sie dürfen nicht für {$a} buchen';
 $string['bocondallowedtobookininstance'] = 'Buchen soll auch ohne spezielle Berechtigung möglich sein';
 $string['bocondallowedtobookininstanceanyways'] = "Benutzer:innen dürfen auch ohne die Berechtigung '<b>mod/booking:choose</b>' buchen.<br>
 <div class='text-danger'>Hinweis: Sowohl dieses als auch das darüberliegende Kästchen müssen angehakt sein, um dies zu aktivieren.</div>";

@@ -734,7 +734,7 @@ final class condition_all_test extends booking_advanced_testcase {
         $this->setUser($student2);
         singleton_service::destroy_instance();
 
-        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student2->id);
         // The user sees now either the payment button or the noshoppingcart message.
         if (class_exists('local_shopping_cart\shopping_cart')) {
             $this->assertEquals(MOD_BOOKING_BO_COND_PRICEISSET, $id);
@@ -750,7 +750,7 @@ final class condition_all_test extends booking_advanced_testcase {
         $this->setUser($student3);
         singleton_service::destroy_instance();
 
-        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student3->id);
         // The user sees now either the payment button or the noshoppingcart message.
         if (class_exists('local_shopping_cart\shopping_cart')) {
             $this->assertEquals(MOD_BOOKING_BO_COND_PRICEISSET, $id);
@@ -786,7 +786,7 @@ final class condition_all_test extends booking_advanced_testcase {
         $this->setUser($student2);
         singleton_service::destroy_instance();
 
-        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student2->id);
         // The user sees now either the payment button or the noshoppingcart message.
         if (class_exists('local_shopping_cart\shopping_cart')) {
             $this->assertEquals(MOD_BOOKING_BO_COND_PRICEISSET, $id);
@@ -802,7 +802,7 @@ final class condition_all_test extends booking_advanced_testcase {
         $this->setUser($student3);
         singleton_service::destroy_instance();
 
-        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student3->id);
         // The user sees now either the payment button or the noshoppingcart message.
         if (class_exists('local_shopping_cart\shopping_cart')) {
             $this->assertEquals(MOD_BOOKING_BO_COND_PRICEISSET, $id);
@@ -838,7 +838,7 @@ final class condition_all_test extends booking_advanced_testcase {
         $this->setUser($student2);
         singleton_service::destroy_instance();
 
-        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student2->id);
         // The user sees now either the payment button or the noshoppingcart message.
         if (class_exists('local_shopping_cart\shopping_cart')) {
             $this->assertEquals(MOD_BOOKING_BO_COND_PRICEISSET, $id);
@@ -854,7 +854,7 @@ final class condition_all_test extends booking_advanced_testcase {
         $this->setUser($student3);
         singleton_service::destroy_instance();
 
-        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student1->id);
+        [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student3->id);
         // The user sees now either the payment button or the noshoppingcart message.
         if (class_exists('local_shopping_cart\shopping_cart')) {
             $this->assertEquals(MOD_BOOKING_BO_COND_PRICEISSET, $id);
