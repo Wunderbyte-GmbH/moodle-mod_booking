@@ -18,7 +18,9 @@
  */
 
 /* eslint-disable */
-define(['core/chartjs', 'core/ajax', 'jquery'], function(Chart, Ajax, $) {
+define(['core/chartjs', 'core/ajax'], function(Chart, Ajax) {
+
+    let listenersRegistered = false;
 
     let chartInstance = null;
 
@@ -39,9 +41,7 @@ define(['core/chartjs', 'core/ajax', 'jquery'], function(Chart, Ajax, $) {
         }
 
         chartInstance = createChart(canvas, parsed);
-        registerSidebarClicks();
-        registerSaveClicks();
-        registerDeleteClicks();
+        registerClicks();
     };
 
     /**
@@ -145,94 +145,97 @@ define(['core/chartjs', 'core/ajax', 'jquery'], function(Chart, Ajax, $) {
         }
     };
 
-    const registerSidebarClicks = () => {
-        // Prevent double-binding if init() runs multiple times.
-        $(document).off('click', '#performancetable tbody tr td.shortcodename');
+    /**
+     * One delegated click listener for the measurement table and the note editors.
+     * Registered once, even if init() runs several times.
+     */
+    const registerClicks = () => {
+        if (listenersRegistered) {
+            return;
+        }
+        listenersRegistered = true;
 
-        $(document).on('click', '#performancetable tbody tr td.shortcodename', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-
-            const $tr = $(this).closest('tr');
-            const hash = $tr.data('id') || $tr.attr('data-id'); // your shortcodehash
-
-            if (!hash) {
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest) {
                 return;
             }
-
-            Ajax.call([{
-                methodname: 'mod_booking_get_performance_chart',
-                args: { value: hash },
-                done: function(response) {
-                    updateChart(response);
-                },
-                fail: function(error) {
-                    console.error('Error loading chart data', error);
-                }
-            }]);
+            const namecell = e.target.closest('#performancetable tbody tr td.shortcodename');
+            if (namecell) {
+                e.preventDefault();
+                e.stopPropagation();
+                loadChart(namecell);
+                return;
+            }
+            const savebutton = e.target.closest('[data-action="savemeasurement"]');
+            if (savebutton) {
+                e.preventDefault();
+                saveMeasurement(savebutton);
+                return;
+            }
+            const deletebutton = e.target.closest('[data-action="deletemeasurement"]');
+            if (deletebutton) {
+                e.preventDefault();
+                deleteMeasurement(deletebutton);
+            }
         });
     };
 
-    const registerSaveClicks = () => {
-        $(document).on('click', '[data-action="savemeasurement"]', function(e) {
-            e.preventDefault();
+    const loadChart = (namecell) => {
+        const row = namecell.closest('tr');
+        const hash = row ? row.dataset.id : ''; // The shortcode hash.
+        if (!hash) {
+            return;
+        }
 
-            const $btn = $(this);
-            const $editor = $btn.closest('.card-body');
-
-            const measurementid = $btn.data('id');
-            const note = $editor.find('textarea').val();
-
-            if (!measurementid) {
-                return;
+        Ajax.call([{
+            methodname: 'mod_booking_get_performance_chart',
+            args: { value: hash },
+            done: function(response) {
+                updateChart(response);
+            },
+            fail: function(error) {
+                console.error('Error loading chart data', error);
             }
+        }]);
+    };
 
-            Ajax.call([{
-                methodname: 'mod_booking_save_measurement',
-                args: {
-                    measurementid: measurementid,
-                    note: note
-                }
-            }])[0].then(function(response) {
-                // Optional UX feedback
-                $editor.closest('.collapse').collapse('hide');
+    const saveMeasurement = (button) => {
+        const editor = button.closest('.card-body');
+        const textarea = editor ? editor.querySelector('textarea') : null;
+        const measurementid = button.dataset.id;
+        if (!measurementid) {
+            return;
+        }
 
-                // Optional: visual success hint
-                $btn.blur();
-                window.location.reload();
-            }).catch(function(error) {
-                console.error('Saving measurement failed', error);
-            });
+        Ajax.call([{
+            methodname: 'mod_booking_save_measurement',
+            args: {
+                measurementid: measurementid,
+                note: textarea ? textarea.value : ''
+            }
+        }])[0].then(function() {
+            // The page is rebuilt from the server, which also closes the editor.
+            window.location.reload();
+        }).catch(function(error) {
+            console.error('Saving measurement failed', error);
         });
     };
 
-    const registerDeleteClicks = () => {
-        $(document).on('click', '[data-action="deletemeasurement"]', function(e) {
-            e.preventDefault();
+    const deleteMeasurement = (button) => {
+        const measurementid = button.dataset.id;
+        if (!measurementid) {
+            return;
+        }
 
-            const $btn = $(this);
-            const $editor = $btn.closest('.card-body');
-            const measurementid = $btn.data('id');
-
-            if (!measurementid) {
-                return;
+        Ajax.call([{
+            methodname: 'mod_booking_delete_measurement',
+            args: {
+                measurementid: measurementid
             }
-
-            Ajax.call([{
-                methodname: 'mod_booking_delete_measurement',
-                args: {
-                    measurementid: measurementid
-                }
-            }])[0].then(function(response) {
-                // Optional UX feedback
-                $editor.closest('.collapse').collapse('hide');
-
-                // Optional: visual success hint
-                $btn.blur();
-                window.location.reload();
-            }).catch(function(error) {
-                console.error('Deleting measurement failed', error);
-            });
+        }])[0].then(function() {
+            window.location.reload();
+        }).catch(function(error) {
+            console.error('Deleting measurement failed', error);
         });
     };
 
