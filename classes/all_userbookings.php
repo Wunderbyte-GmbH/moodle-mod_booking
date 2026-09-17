@@ -140,26 +140,14 @@ class all_userbookings extends \table_sql {
      * @throws coding_exception
      */
     protected function col_status($values) {
-        switch ($values->status) {
-            case 0:
-                return '';
-            case 1:
-                return get_string('statuscomplete', 'booking');
-            case 2:
-                return get_string('statusincomplete', 'booking');
-            case 3:
-                return get_string('statusnoshow', 'booking');
-            case 4:
-                return get_string('statusfailed', 'booking');
-            case 5:
-                return get_string('statusunknown', 'booking');
-            case 6:
-                return get_string('statusattending', 'booking');
-            case 7:
-                return get_string('statusexcused', 'booking');
-            default:
-                return '';
+        $status = (int) ($values->status ?? MOD_BOOKING_PRESENCE_STATUS_NOTSET);
+        if ($status === MOD_BOOKING_PRESENCE_STATUS_NOTSET) {
+            return '';
         }
+        // One source for the labels, so new statuses (e.g. "Checked in" set by the ticket scanner)
+        // never render as an empty cell again.
+        $possiblepresences = booking::get_array_of_possible_presence_statuses();
+        return $possiblepresences[$status] ?? '';
     }
 
     /**
