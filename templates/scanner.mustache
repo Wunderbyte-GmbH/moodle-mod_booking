@@ -73,6 +73,15 @@
 
     <div class="text-muted small mt-2" data-region="scanner-status">{{#str}} ticketscannerstartprompt, mod_booking {{/str}}</div>
 
+    <div class="booking-scanner-lastscan card mt-2 d-none" data-region="scanner-lastscan">
+        <div class="card-body p-2">
+            <div class="small text-muted">{{#str}} ticketscannerlastscan, mod_booking {{/str}}</div>
+            <div class="font-weight-bold fw-bold" data-region="scanner-lastscan-name"></div>
+            <div class="small" data-region="scanner-lastscan-event"></div>
+            <div class="small text-muted" data-region="scanner-lastscan-time"></div>
+        </div>
+    </div>
+
     <div class="booking-scanner-overlay d-none" role="dialog" aria-modal="true" aria-live="assertive"
          aria-labelledby="booking-scanner-headline-{{cmid}}" data-region="scanner-overlay" data-state="success">
         <div class="booking-scanner-overlay-body">

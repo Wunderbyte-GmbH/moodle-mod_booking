@@ -20,9 +20,10 @@
  * Single source of truth for the SofaTicket entry control — used by the browser scanner and the
  * Moodle mobile app alike. See mod/booking/classes/local/ticket/ticket_manager.php.
  *
- * Options with several dates (sessions) are checked in per date: the presence is stored in
- * booking_optiondates_answers for the selected date, and additionally on the booking answer the first
- * time the participant is admitted. Without an explicit optiondateid the nearest date is chosen.
+ * Options with dates (sessions) are checked in per date: the presence is stored in
+ * booking_optiondates_answers for the selected date only, the status of the whole booking is left alone.
+ * Options without dates set the presence on the booking answer. Without an explicit optiondateid the
+ * nearest date is chosen.
  *
  * @package    mod_booking
  * @copyright  2025 Wunderbyte GmbH <info@wunderbyte.at>
@@ -85,6 +86,13 @@ class verify_ticket extends external_api {
                 VALUE_DEFAULT,
                 0
             ),
+            'autocheckin' => new external_value(
+                PARAM_BOOL,
+                'Lookup (checkin=false) may check in at once when the ticket needs no staff decision, i.e. it is neither '
+                    . 'personalised nor subject to an identity confirmation.',
+                VALUE_DEFAULT,
+                false
+            ),
         ]);
     }
 
@@ -96,6 +104,7 @@ class verify_ticket extends external_api {
      * @param bool $confirmed
      * @param int $optiondateid
      * @param int $expectedoptionid
+     * @param bool $autocheckin
      *
      * @return array
      */
@@ -104,7 +113,8 @@ class verify_ticket extends external_api {
         bool $checkin = true,
         bool $confirmed = false,
         int $optiondateid = 0,
-        int $expectedoptionid = 0
+        int $expectedoptionid = 0,
+        bool $autocheckin = false
     ): array {
         global $DB, $PAGE;
 
@@ -116,6 +126,7 @@ class verify_ticket extends external_api {
                 'confirmed' => $confirmed,
                 'optiondateid' => $optiondateid,
                 'expectedoptionid' => $expectedoptionid,
+                'autocheckin' => $autocheckin,
             ]
         );
         $code = $params['code'];
@@ -123,6 +134,7 @@ class verify_ticket extends external_api {
         $confirmed = $params['confirmed'];
         $optiondateid = $params['optiondateid'];
         $expectedoptionid = $params['expectedoptionid'];
+        $autocheckin = $params['autocheckin'];
 
         $result = self::empty_result();
 
@@ -230,6 +242,15 @@ class verify_ticket extends external_api {
 
         $result['status'] = 'valid';
 
+        // A ticket that is neither bound to its holder nor subject to an identity check needs no staff
+        // decision: a lookup that allows it checks the participant in right away.
+        $result['autocheckin'] = !$result['personalized'] && !$result['requiresconfirmation'];
+        $automatic = false;
+        if (!$checkin && $autocheckin && $result['autocheckin']) {
+            $checkin = true;
+            $automatic = true;
+        }
+
         // Options demanding an identity check are only checked in once staff confirmed the holder.
         if ($checkin && $result['requiresconfirmation'] && !$confirmed) {
             $checkin = false;
@@ -258,18 +279,19 @@ class verify_ticket extends external_api {
                     $result['pendingconfirmation'] = false;
                 } else {
                     if ($optiondateid) {
+                        // Options with dates: the presence belongs to the scanned session only, the
+                        // status of the whole booking stays what it is.
                         $dateanswer = new optiondate_answer($userid, $optiondateid, $optionid);
                         $dateanswer->add_or_update_status($target);
-                    }
-                    if ($current && (int) $current->status !== $target) {
-                        // First admission: the booking answer itself becomes "checked in" too, so
-                        // single-date options and answer-level reports keep working as before.
+                    } else if ($current && (int) $current->status !== $target) {
+                        // Options without dates have no session to mark: the booking itself is checked in.
                         $option = singleton_service::get_instance_of_booking_option((int) $settings->cmid, $optionid);
                         $option->changepresencestatus([$userid], $target);
                     }
                     cache_helper::purge_by_event('setbackbookedusertable');
 
                     $result['presenttime'] = time();
+                    $result['autocheckedin'] = $automatic;
 
                     $event = ticket_scanned::create([
                         'context' => $context,
@@ -324,6 +346,8 @@ class verify_ticket extends external_api {
             'personalized' => false,
             'requiresconfirmation' => false,
             'pendingconfirmation' => false,
+            'autocheckin' => false,
+            'autocheckedin' => false,
             'alreadypresent' => false,
             'presenttime' => 0,
             'presentcount' => 0,
@@ -456,6 +480,11 @@ class verify_ticket extends external_api {
             'personalized' => new external_value(PARAM_BOOL, 'True if the ticket is bound to its holder'),
             'requiresconfirmation' => new external_value(PARAM_BOOL, 'True if staff must confirm the holder identity'),
             'pendingconfirmation' => new external_value(PARAM_BOOL, 'True if the check-in is waiting for that confirmation'),
+            'autocheckin' => new external_value(
+                PARAM_BOOL,
+                'True if the ticket needs no staff decision (not personalised, no identity check)'
+            ),
+            'autocheckedin' => new external_value(PARAM_BOOL, 'True if this lookup checked the participant in automatically'),
             'alreadypresent' => new external_value(PARAM_BOOL, 'True if the participant was already checked in (for the date)'),
             'presenttime' => new external_value(PARAM_INT, 'Timestamp of the check-in (0 if not checked in)'),
             'presentcount' => new external_value(PARAM_INT, 'Number of checked-in participants for the date, or the option'),
