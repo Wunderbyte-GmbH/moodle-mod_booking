@@ -22,85 +22,135 @@
  * @since 3.1
  */
 
-define(['jquery', 'core/ajax', 'mod_booking/jquery.barrating'],
-    function($, Ajax) {
-        return {
-            setup: function() {
-                const queryString = window.location.search;
-                const urlParams = new URLSearchParams(queryString);
-                const id = urlParams.get('id');
-                /*
-                 * TODO: We probably will need a possibility to update a rating
-                 * as soon as you have rated something. Right now you can change it,
-                 * but nothing will happen, which is bad usability.
-                 */
-                $('.starrating').each(function(index, value) {
-                    var currentrating = $(this).data('current-rating');
-                    var itemid = $(this).data('itemid');
-                    if (!value) {
-                        // Just for stupid TravisCI rules!
-                        value = '';
-                    }
-                    var thisid = this;
-                    $(this).barrating({
-                        initialRating: currentrating,
-                        theme: 'css-stars',
-                        onSelect: function(value, text, event) {
-                            if (typeof (event) !== 'undefined') {
-                                Ajax.call([{
-                                    methodname: 'mod_booking_rate_option',
-                                    args: {cmid: id, optionid: itemid, rate: value}
-                                }])[0].done(function(data) {
-                                    $(thisid).barrating('readonly', true);
-                                    $(thisid).barrating('set', data.rate);
-                                });
-                            }
-                        }
-                    });
-                });
+import Ajax from 'core/ajax';
+import Notification from 'core/notification';
+import {init as initStarRating} from 'mod_booking/starrating';
 
-                // Remove invalid aria-controls references that point to missing IDs.
-                $('[aria-controls]').each(function() {
-                    const controls = ($(this).attr('aria-controls') || '').trim();
-                    if (!controls) {
-                        return;
-                    }
-                    if (document.getElementById(controls) === null) {
-                        $(this).removeAttr('aria-controls');
-                    }
-                });
+const REPORTPAGE = '#page-mod-booking-report';
 
-                $('#page-mod-booking-report #buttonclear')
-                        .on('click',
-                                function() {
-                                    $('#menusearchwaitinglist, #menusearchfinished, #searchdate')
-                                            .val('');
-                                    $('#searchButton').trigger('click');
-                                });
+let reportListenersRegistered = false;
 
-                $('#page-mod-booking-report #usercheckboxall')
-                        .click(function() {
-                            $('#studentsform input:checkbox').not(this)
-                                    .prop('checked', this.checked);
-                        });
+/**
+ * Turn every rating select of the options overview into a star widget.
+ *
+ * A pick is sent to the server; the widget then shows the stored rating and is locked, because a
+ * rating cannot be changed afterwards. Selects that already carry a widget are skipped, so this is
+ * safe to run again after the table was reloaded.
+ */
+const setupStarRatings = () => {
+    const cmid = new URLSearchParams(window.location.search).get('id');
 
-                $('#page-mod-booking-report #menuratingall')
-                        .change(function() {
-                            $('#studentsform input:checkbox').not(this)
-                                    .prop('checked', 'checked');
-                            var selected = $(this).val();
-                            $('.booking-option-rating .postratingmenu.ratinginput [value="' + selected + '"]')
-                                    .attr('selected', true);
-                        });
-
-                $('#page-mod-booking-report .booking-option-rating .ratinginput')
-                        .change(function() {
-                            var selectid = $(this).attr('id');
-                            var selected = selectid.replace(/\D/g, '');
-                            $('#studentsform [id=check' + selected + ']')
-                                    .prop('checked', 'checked');
-                        });
-
-            }
-        };
+    document.querySelectorAll('.starrating').forEach((select) => {
+        const widget = initStarRating(select, {
+            initialRating: select.dataset.currentRating,
+            onSelect: (value) => {
+                // Note: core/ajax returns a jQuery promise; Promise.resolve() makes it a native one.
+                Promise.resolve(Ajax.call([{
+                    methodname: 'mod_booking_rate_option',
+                    args: {cmid: cmid, optionid: select.dataset.itemid, rate: value},
+                }])[0])
+                    .then((data) => {
+                        widget.setReadonly(true);
+                        widget.set(data.rate);
+                        return null;
+                    })
+                    .catch(Notification.exception);
+            },
+        });
     });
+};
+
+/**
+ * Remove aria-controls references that point to ids missing from the page.
+ */
+const removeInvalidAriaControls = () => {
+    document.querySelectorAll('[aria-controls]').forEach((element) => {
+        const controls = (element.getAttribute('aria-controls') || '').trim();
+        if (controls && document.getElementById(controls) === null) {
+            element.removeAttribute('aria-controls');
+        }
+    });
+};
+
+/**
+ * Tick every participant checkbox of the manage responses form except the given one.
+ *
+ * @param {HTMLElement|null} except
+ * @param {boolean} checked
+ */
+const setParticipantCheckboxes = (except, checked) => {
+    document.querySelectorAll('#studentsform input[type="checkbox"]').forEach((checkbox) => {
+        if (checkbox !== except) {
+            checkbox.checked = checked;
+        }
+    });
+};
+
+/**
+ * Helpers of the manage responses page (report.php), bound once through delegation.
+ */
+const registerReportListeners = () => {
+    if (reportListenersRegistered || !document.querySelector(REPORTPAGE)) {
+        return;
+    }
+    reportListenersRegistered = true;
+
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest) {
+            return;
+        }
+        // "Clear" resets the search fields and runs the search again.
+        if (e.target.closest(REPORTPAGE + ' #buttonclear')) {
+            ['menusearchwaitinglist', 'menusearchfinished', 'searchdate'].forEach((id) => {
+                const field = document.getElementById(id);
+                if (field) {
+                    field.value = '';
+                }
+            });
+            const searchbutton = document.getElementById('searchButton');
+            if (searchbutton) {
+                searchbutton.click();
+            }
+            return;
+        }
+        // "Select all" mirrors its state onto every participant checkbox.
+        const checkall = e.target.closest(REPORTPAGE + ' #usercheckboxall');
+        if (checkall) {
+            setParticipantCheckboxes(checkall, checkall.checked);
+        }
+    });
+
+    document.addEventListener('change', (e) => {
+        if (!e.target.closest) {
+            return;
+        }
+        // "Rate all": tick everybody and preselect the rating in every row.
+        const rateall = e.target.closest(REPORTPAGE + ' #menuratingall');
+        if (rateall) {
+            setParticipantCheckboxes(rateall, true);
+            document.querySelectorAll('.booking-option-rating .postratingmenu.ratinginput').forEach((select) => {
+                if (Array.from(select.options).some((option) => option.value === rateall.value)) {
+                    select.value = rateall.value;
+                }
+            });
+            return;
+        }
+        // A rating changed in one row: tick that participant.
+        const rating = e.target.closest(REPORTPAGE + ' .booking-option-rating .ratinginput');
+        if (rating && rating.id) {
+            const checkbox = document.querySelector('#studentsform [id="check' + rating.id.replace(/\D/g, '') + '"]');
+            if (checkbox) {
+                checkbox.checked = true;
+            }
+        }
+    });
+};
+
+/**
+ * Set up the options overview and the manage responses page. Safe to call repeatedly.
+ */
+export const setup = () => {
+    setupStarRatings();
+    removeInvalidAriaControls();
+    registerReportListeners();
+};
