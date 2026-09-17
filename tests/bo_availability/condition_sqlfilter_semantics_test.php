@@ -39,7 +39,9 @@ use mod_booking\tests\booking_advanced_testcase;
 use context_module;
 use context_system;
 use mod_booking\bo_availability\bo_info;
+use mod_booking\output\view;
 use mod_booking_generator;
+use moodle_page;
 use stdClass;
 use tool_mocktesttime\time_mock;
 
@@ -882,6 +884,101 @@ final class condition_sqlfilter_semantics_test extends booking_advanced_testcase
         $this->assertFalse(
             $encodedtablescache->get('dummyentry'),
             'the purge task must empty the encoded tables cache'
+        );
+    }
+
+    /**
+     * A teacher looking at the own teacher-scoped lists (teacher page, "options I
+     * teach", trainer course list) keeps seeing the options (s)he teaches although
+     * the filter condition would hide them (teacherbypass). Another user looking at
+     * that teacher's list gets no bypass, and neither does the general list.
+     *
+     * @covers \mod_booking\bo_availability\bo_info::return_sql_from_conditions
+     * @covers \mod_booking\booking::get_all_options_of_teacher_sql
+     * @covers \mod_booking\output\view::get_rendered_table_for_teacher
+     *
+     * @param array $bdata
+     * @dataProvider booking_common_settings_provider
+     */
+    public function test_teacher_bypass_in_teacher_scoped_query(array $bdata): void {
+        global $DB, $PAGE;
+
+        [$course1, $booking1] = $this->seed_instance($bdata);
+        $courseb = $this->getDataGenerator()->create_course();
+
+        $teacher = $this->getDataGenerator()->create_user();
+        $otheruser = $this->getDataGenerator()->create_user();
+        foreach ([$teacher, $otheruser] as $user) {
+            $this->getDataGenerator()->enrol_user($user->id, $course1->id);
+        }
+
+        $optiontitle = 'Taught option requiring course B';
+        $record = $this->base_option_record($booking1, $course1, $optiontitle);
+        $record->teachersforoption = $teacher->username;
+        $record->bo_cond_enrolledincourse_restrict = 1;
+        $record->bo_cond_enrolledincourse_courseids = [$courseb->id];
+        $record->bo_cond_enrolledincourse_courseids_operator = 'AND';
+        $record->bo_cond_enrolledincourse_sqlfiltercheck = 1;
+        $option = $this->plugingenerator->create_option($record);
+        singleton_service::destroy_instance();
+
+        $this->assertTrue(
+            $DB->record_exists('booking_teachers', ['optionid' => $option->id, 'userid' => $teacher->id]),
+            'precondition: the teacher must be assigned to the option'
+        );
+
+        // Neither the teacher nor the other user fulfil the condition: hidden in the general list.
+        $this->assertFalse(
+            $this->is_visible_for($teacher, (int) $option->id),
+            'general list: the teacher not enrolled in course B must not see the option'
+        );
+        $this->assertFalse(
+            $this->is_visible_for($otheruser, (int) $option->id),
+            'general list: the other user not enrolled in course B must not see the option'
+        );
+
+        // The teacher page and the shortcodes render outside the course module (no $PAGE->cm),
+        // so the capability bypass of the SQL filter cannot fire there.
+        $PAGE = new moodle_page();
+        $PAGE->set_context(context_system::instance());
+
+        // Trainer course list path: options of $teacher as seen by $viewer.
+        $taughtoptionids = function (stdClass $viewer, stdClass $teacher) use ($DB, $booking1): array {
+            $this->setUser($viewer);
+            [$fields, $from, $where, $params] =
+                booking::get_all_options_of_teacher_sql((int) $teacher->id, (int) $booking1->id);
+            $rows = $DB->get_records_sql("SELECT $fields FROM $from WHERE $where", $params);
+            return array_map(static fn($r): int => (int) $r->id, $rows);
+        };
+
+        $this->assertContains(
+            (int) $option->id,
+            $taughtoptionids($teacher, $teacher),
+            'the teacher must see the own taught option in the trainer course list although the condition fails'
+        );
+        $this->assertNotContains(
+            (int) $option->id,
+            $taughtoptionids($otheruser, $teacher),
+            'another user looking at the teacher\'s list gets no bypass and must not see the option'
+        );
+
+        // Teacher page path (teacher.php and the "options I teach" tab).
+        $renderfor = function (stdClass $viewer, stdClass $teacher) use ($booking1): string {
+            $this->setUser($viewer);
+            singleton_service::destroy_instance();
+            $view = new view((int) $booking1->cmid, 'shownothing', 0, true);
+            return $view->get_rendered_table_for_teacher((int) $teacher->id, false, false, false);
+        };
+
+        $this->assertStringContainsString(
+            $optiontitle,
+            $renderfor($teacher, $teacher),
+            'the teacher must see the own taught option on the teacher page although the condition fails'
+        );
+        $this->assertStringNotContainsString(
+            $optiontitle,
+            $renderfor($otheruser, $teacher),
+            'another user visiting the teacher page gets no bypass and must not see the option'
         );
     }
 

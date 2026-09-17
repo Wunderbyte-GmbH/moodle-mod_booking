@@ -1183,6 +1183,8 @@ class booking {
      * @param string $innerfrom
      * @param ?wunderbyte_table $tableinstance
      * @param int $visibilityoverridemode One of MOD_BOOKING_VISIBILITY_OVERRIDE_* constants.
+     * @param int $teacherid the viewing user, if the list shows the options (s)he teaches. The options (s)he is
+     *                       assigned to as a teacher bypass the availability SQL filter (usesqlfilteravailability).
      *
      * @return array
      */
@@ -1199,7 +1201,8 @@ class booking {
         $additionalwhere = '',
         $innerfrom = '',
         $tableinstance = null,
-        $visibilityoverridemode = MOD_BOOKING_VISIBILITY_OVERRIDE_DEFAULT
+        $visibilityoverridemode = MOD_BOOKING_VISIBILITY_OVERRIDE_DEFAULT,
+        int $teacherid = 0
     ) {
 
         global $DB;
@@ -1313,7 +1316,8 @@ class booking {
         // When we actually ask for one specific record, we always need to return it and don't apply where conditions.
         // This is important because of the connected availability conditions.
         if (empty($wherearray['id'])) {
-            [$select4, $from4, $filter4, $params4, $conditionsql] = bo_info::return_sql_from_conditions($userid ?? 0);
+            [$select4, $from4, $filter4, $params4, $conditionsql] =
+                bo_info::return_sql_from_conditions($userid ?? 0, $teacherid);
         }
 
         // The $outerfrom takes all the select from the supplementary selects.
@@ -1469,6 +1473,7 @@ class booking {
      * @return array
      */
     public static function get_all_options_of_teacher_sql(int $teacherid, int $bookingid) {
+        global $USER;
 
         $options = [
             'teacherobjects' => '%"id":' . $teacherid . ',%',
@@ -1483,7 +1488,26 @@ class booking {
             $context = $booking->context ?? null;
         }
 
-        return self::get_options_filter_sql(0, 0, '', '*', $context, [], $options);
+        // A teacher looking at the own list sees the options (s)he teaches even if the availability SQL filter
+        // (usesqlfilteravailability) would hide them.
+        $bypassteacherid = (isloggedin() && !isguestuser() && (int)$USER->id === $teacherid) ? $teacherid : 0;
+
+        return self::get_options_filter_sql(
+            0,
+            0,
+            '',
+            '*',
+            $context,
+            [],
+            $options,
+            null,
+            [MOD_BOOKING_STATUSPARAM_BOOKED],
+            '',
+            '',
+            null,
+            MOD_BOOKING_VISIBILITY_OVERRIDE_DEFAULT,
+            $bypassteacherid
+        );
     }
 
     /**

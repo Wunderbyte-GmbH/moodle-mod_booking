@@ -693,9 +693,12 @@ class view implements renderable, templatable {
         ];
 
         $visibilityoverridemode = MOD_BOOKING_VISIBILITY_OVERRIDE_DEFAULT;
+        $bypassteacherid = 0;
         if (isloggedin() && !isguestuser() && (int)$USER->id === (int)$teacherid) {
             // Visibility override applies only on the teacher's own page.
             $visibilityoverridemode = (int)get_config('booking', 'teacherpagevisibilitymode');
+            // The teacher sees the own options even if the availability SQL filter would hide them.
+            $bypassteacherid = (int)$teacherid;
         }
 
         [$fields, $from, $where, $params, $filter] =
@@ -712,7 +715,8 @@ class view implements renderable, templatable {
                 '',
                 '',
                 $teacheroptionstable,
-                $visibilityoverridemode
+                $visibilityoverridemode,
+                $bypassteacherid
             );
 
         $teacheroptionstable->set_filter_sql($fields, $from, $where, $filter, $params);

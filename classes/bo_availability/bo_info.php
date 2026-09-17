@@ -654,10 +654,13 @@ class bo_info {
 
     /**
      * Add the sql from the conditions.
-     * @param int $userid
+     *
+     * @param int $userid the booked user of a user-scoped query (0 for the general list); booked users bypass the filter
+     * @param int $teacherid the viewing user, if the list shows the options (s)he teaches; the options
+     *                       (s)he is assigned to as a teacher bypass the filter (0 = no teacher bypass)
      * @return array
      */
-    public static function return_sql_from_conditions(int $userid) {
+    public static function return_sql_from_conditions(int $userid, int $teacherid = 0) {
         global $PAGE;
 
         // Check if SQL filter for availability conditions is enabled.
@@ -697,20 +700,31 @@ class bo_info {
 
         $where = implode(" AND ", $wherearray);
 
+        $bypasses = [];
         // For booked users, we don't want to apply all of these conditions.
         if (!empty($userid)) {
             // If we look at the table for booked users, we ant to bypass the restriction.
             // If the user is already booked.
-            $bypass = "EXISTS (
+            $bypasses[] = "EXISTS (
                         SELECT 1 FROM {booking_answers} ba
                         WHERE ba.optionid = optionid
                         AND ba.userid = :bookeduserbypass
                         AND ba.waitinglist < 5
-                    ) OR ";
+                    )";
             $paramsarray['bookeduserbypass'] = $userid;
-        } else {
-            $bypass = "";
         }
+        // A teacher looking at the list of the options (s)he teaches (teacher page, "options I teach",
+        // trainer course list) always sees these options, no matter which conditions they carry.
+        // The WHERE is applied on the derived table s1 of get_options_filter_sql, so s1.id is the option.
+        if (!empty($teacherid)) {
+            $bypasses[] = "EXISTS (
+                        SELECT 1 FROM {booking_teachers} bt
+                        WHERE bt.optionid = s1.id
+                        AND bt.userid = :teacherbypass
+                    )";
+            $paramsarray['teacherbypass'] = $teacherid;
+        }
+        $bypass = empty($bypasses) ? "" : implode(" OR ", $bypasses) . " OR ";
 
         // For performance reason we have a flag if we need to check the value at all.
         $where = " (

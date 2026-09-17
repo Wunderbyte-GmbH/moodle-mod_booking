@@ -204,6 +204,8 @@ class cachereport_service {
         }
         $where = implode(" AND ", $wherearray);
         // The exact wrapper of the general view (userid null - no bypass).
+        // Teacher-scoped lists (teacher page, "options I teach") additionally carry a
+        // teacherbypass EXISTS fragment, see bo_info::return_sql_from_conditions().
         $where = " (
                         sqlfilter < 1 OR  $where
                         )
