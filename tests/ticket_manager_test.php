@@ -1335,4 +1335,30 @@ final class ticket_manager_test extends booking_advanced_testcase {
         $this->assertFalse($result['autocheckedin']);
         $this->assertEquals(MOD_BOOKING_PRESENCE_STATUS_NOTSET, $this->current_presence());
     }
+
+    /**
+     * The scanner follows the option's current "personalised" setting, not the snapshot stored on a
+     * ticket issued earlier: switching the option to transferable tickets enables the automatic check-in.
+     */
+    public function test_autocheckin_follows_current_option_setting(): void {
+        $this->build_environment();
+        $this->book_student();
+        $ticket = ticket_manager::find_valid_ticket($this->settings->id, $this->student->id);
+        $this->assertEquals(1, (int) $ticket->personalized, 'Issued while the option was personalised.');
+
+        $this->setUser($this->teacher);
+        $before = verify_ticket::execute($ticket->code, false, false, 0, $this->settings->id, true);
+        $this->assertTrue($before['personalized']);
+        $this->assertFalse($before['autocheckedin']);
+
+        // The option is switched to transferable tickets afterwards.
+        $this->set_option_json([ticket_manager::JSON_PERSONALIZED => 0]);
+
+        $after = verify_ticket::execute($ticket->code, false, false, 0, $this->settings->id, true);
+        $this->assertFalse($after['personalized']);
+        $this->assertTrue($after['autocheckin']);
+        $this->assertTrue($after['autocheckedin']);
+        $this->assertSame([], $after['identityfields']);
+        $this->assertEquals(MOD_BOOKING_PRESENCE_STATUS_CHECKEDIN, $this->current_presence());
+    }
 }

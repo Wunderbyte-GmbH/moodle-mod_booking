@@ -218,7 +218,10 @@ class verify_ticket extends external_api {
             : ($settings->coursestarttime ?? 0));
         $result['issuedate'] = (int) $ticket->timecreated;
         $result['bookedcount'] = self::count_booked($optionid);
-        $result['personalized'] = !empty($ticket->personalized);
+        // The door follows the option's CURRENT setting. The flag stored on the ticket is only a snapshot
+        // of what was printed when it was issued; an option switched to transferable tickets later must
+        // not keep demanding a staff decision for the tickets issued before.
+        $result['personalized'] = ticket_manager::is_personalized($optionid);
         $result['requiresconfirmation'] = ticket_manager::requires_identity_confirmation($optionid);
         if (!empty($user)) {
             // Lets entry staff compare the holder against the person at the door.
