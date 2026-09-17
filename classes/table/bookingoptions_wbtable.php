@@ -1479,7 +1479,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
                 }
             }
 
-            if ($canupdate || $isteacherandcanedit) {
+            if ($canupdate) {
                 $ddoptions[] = '<div class="dropdown-item">' .
                     html_writer::link(
                         $createfromoptiondateurl,

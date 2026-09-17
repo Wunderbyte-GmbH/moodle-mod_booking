@@ -148,7 +148,6 @@ final class own_option_role_test extends capability_testcase {
             'manage bookings' => '/mod/booking/report.php',
             'bookings tracker' => '/mod/booking/report2.php',
             'teacher substitutions' => '/mod/booking/optiondates_teachers_report.php',
-            'create options from dates' => 'createfromoptiondates=1',
             'show only this option' => 'whichview=showonlyone',
             'mail to booked users' => 'mailto:',
         ];

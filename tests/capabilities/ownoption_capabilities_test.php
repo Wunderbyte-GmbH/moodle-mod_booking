@@ -73,7 +73,7 @@ final class ownoption_capabilities_test extends capability_testcase {
      */
     public static function menu_provider(): array {
         return [
-            'editownoption' => ['mod/booking:editownoption', ['edit', 'createfromdates']],
+            'editownoption' => ['mod/booking:editownoption', ['edit']],
             'managebookingsownoption' => ['mod/booking:managebookingsownoption', ['managebookings', 'tracker']],
             'sendmailownoption' => ['mod/booking:sendmailownoption', ['mail']],
             'editteachersownoption' => ['mod/booking:editteachersownoption', ['substitutions']],
