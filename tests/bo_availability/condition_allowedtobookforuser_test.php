@@ -179,6 +179,36 @@ final class condition_allowedtobookforuser_test extends booking_advanced_testcas
     }
 
     /**
+     * The condition must not block bookings the system performs on behalf of another user
+     * (eg. waiting list, enrolment sync, enrolment links, other options), as those run in the
+     * request of whichever user happens to be logged in. Real restrictions still block.
+     *
+     * @covers \mod_booking\booking_option::option_allows_booking_for_user
+     */
+    public function test_system_booking_for_other_user_is_not_blocked(): void {
+        $env = $this->create_env();
+        $employee = $env['users']['employee'];
+        // A plain user without any booking capability is logged in.
+        $this->setUser($env['users']['agent']);
+
+        // Only allowedtobookforuser blocks, so the booking must be allowed.
+        [$id, , ] = $this->blocking($env['option']->id, (int)$employee->id);
+        $this->assertSame(MOD_BOOKING_BO_COND_ALLOWEDTOBOOKFORUSER, $id);
+        $this->assertTrue(booking_option::option_allows_booking_for_user($env['option']->id, (int)$employee->id));
+
+        // With a real restriction on top (fully booked), the booking stays blocked.
+        $fullenv = $this->create_env(['maxanswers' => 1, 'maxoverbooking' => 0]);
+        $fullenv['generator']->create_answer([
+            'optionid' => $fullenv['option']->id,
+            'userid' => $fullenv['users']['other']->id,
+        ]);
+        $this->setUser($fullenv['users']['agent']);
+        $this->assertFalse(
+            booking_option::option_allows_booking_for_user($fullenv['option']->id, (int)$fullenv['users']['employee']->id)
+        );
+    }
+
+    /**
      * Users with bookforothers may book for anybody.
      */
     public function test_bookforothers_is_allowed(): void {
