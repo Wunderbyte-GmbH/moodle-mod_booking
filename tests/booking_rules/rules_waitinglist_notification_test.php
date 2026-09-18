@@ -618,6 +618,8 @@ final class rules_waitinglist_notification_test extends booking_advanced_testcas
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student[4]->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_PRICEISSET, $id);
         // User that was deleted from the list can book on waitinglist again.
+        // Check as student1, otherwise allowedtobookforuser blocks checking for another user.
+        $this->setUser($student[1]);
         [$id, $isavailable, $description] = $boinfo->is_available($settings->id, $student[1]->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ASKFORCONFIRMATION, $id);
 

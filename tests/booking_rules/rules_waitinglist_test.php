@@ -1778,8 +1778,11 @@ final class rules_waitinglist_test extends booking_advanced_testcase {
 
         // After the rule execution, we check the booking answer of student2 to
         // verify that the JSON column contains the expected value.
+        // Check as student2, otherwise allowedtobookforuser blocks checking for another user.
+        $this->setUser($student2);
         [$id, $isavailable, $description] = $boinfo1->is_available($option1->id, $student2->id, true);
         $this->assertEquals($expected['student2condtionvalue'], $id);
+        $this->setUser($student5);
 
         $runnedtask = [];
         // 1. Check the userids in the tasks
