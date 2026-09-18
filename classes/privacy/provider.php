@@ -311,28 +311,24 @@ class provider implements
             INNER JOIN {modules} m ON m.id = cm.module AND m.name = :modname
             INNER JOIN {booking} boo ON boo.id = cm.instance
             INNER JOIN {booking_answers} ans ON ans.bookingid = boo.id
-            WHERE ans.userid = :userid
-            UNION
-            SELECT c.id
+            WHERE ans.userid = :userid";
+        $sql2 = "SELECT c.id
             FROM {context} c
-            INNER JOIN {course_modules} cm ON cm.id = c.instanceid AND c.contextlevel = :contextlevel2
-            INNER JOIN {modules} m ON m.id = cm.module AND m.name = :modname2
+            INNER JOIN {course_modules} cm ON cm.id = c.instanceid AND c.contextlevel = :contextlevel
+            INNER JOIN {modules} m ON m.id = cm.module AND m.name = :modname
             INNER JOIN {booking} boo ON boo.id = cm.instance
             INNER JOIN {booking_teachers} tea ON tea.bookingid = boo.id
-            WHERE tea.userid = :userid2";
+            WHERE tea.userid = :userid";
 
         $params = [
             'modname' => 'booking',
             'contextlevel' => CONTEXT_MODULE,
             'userid' => $userid,
-            // This is needed a second time because every param can only be used once.
-            'modname2' => 'booking',
-            'contextlevel2' => CONTEXT_MODULE,
-            'userid2' => $userid,
         ];
 
         $contextlist = new contextlist();
         $contextlist->add_from_sql($sql, $params);
+        $contextlist->add_from_sql($sql2, $params);
 
         return $contextlist;
     }
