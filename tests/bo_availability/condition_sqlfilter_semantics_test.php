@@ -983,6 +983,72 @@ final class condition_sqlfilter_semantics_test extends booking_advanced_testcase
     }
 
     /**
+     * The [mytaughtcourselist] shortcode on a page outside the course module (front page).
+     *
+     * @covers \mod_booking\shortcodes::mytaughtcourselist
+     *
+     * @param array $bdata
+     * @dataProvider booking_common_settings_provider
+     */
+    public function test_teacher_bypass_in_mytaughtcourselist_shortcode(array $bdata): void {
+        global $PAGE;
+
+        [$course1, $booking1] = $this->seed_instance($bdata);
+        $courseb = $this->getDataGenerator()->create_course();
+
+        $teacher = $this->getDataGenerator()->create_user();
+        $otheruser = $this->getDataGenerator()->create_user();
+        foreach ([$teacher, $otheruser] as $user) {
+            $this->getDataGenerator()->enrol_user($user->id, $course1->id);
+        }
+
+        $optiontitle = 'Shortcode option requiring course B';
+        $record = $this->base_option_record($booking1, $course1, $optiontitle);
+        $record->teachersforoption = $teacher->username;
+        $record->bo_cond_enrolledincourse_restrict = 1;
+        $record->bo_cond_enrolledincourse_courseids = [$courseb->id];
+        $record->bo_cond_enrolledincourse_courseids_operator = 'AND';
+        $record->bo_cond_enrolledincourse_sqlfiltercheck = 1;
+        $option = $this->plugingenerator->create_option($record);
+        singleton_service::destroy_instance();
+
+        $this->assertFalse(
+            $this->is_visible_for($teacher, (int) $option->id),
+            'general list: the teacher not enrolled in course B must not see the option'
+        );
+
+        // The front page renders outside the course module, so the capability bypass cannot fire.
+        $PAGE = new moodle_page();
+        $PAGE->set_context(context_system::instance());
+        $PAGE->set_url('/index.php');
+
+        $renderfor = function (stdClass $viewer, array $args): string {
+            $this->setUser($viewer);
+            singleton_service::destroy_instance();
+            return shortcodes::mytaughtcourselist(
+                'mytaughtcourselist',
+                $args,
+                null,
+                null,
+                static fn($content) => $content
+            );
+        };
+
+        $args = ['perpage' => 4, 'showpagination' => false, 'type' => 'cards'];
+
+        $this->assertStringContainsString(
+            $optiontitle,
+            $renderfor($teacher, $args),
+            'the teacher must see the own taught option in [mytaughtcourselist] although the condition fails'
+        );
+        $this->assertStringNotContainsString(
+            $optiontitle,
+            $renderfor($otheruser, $args + ['userid' => $teacher->id]),
+            'another user rendering the teacher\'s list gets no bypass and must not see the option'
+        );
+    }
+
+    /**
      * Data provider.
      *
      * @return array
