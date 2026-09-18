@@ -1259,6 +1259,10 @@ class shortcodes {
         // Additional where condition for both card and list views.
         $additionalwhere = self::set_customfield_wherearray($args, $wherearray) ?? '';
 
+        // A teacher looking at the own list sees the options (s)he teaches even if the availability SQL filter
+        // (usesqlfilteravailability) would hide them.
+        $bypassteacherid = (isloggedin() && !isguestuser() && (int)$USER->id === $teacherid) ? $teacherid : 0;
+
         [$fields, $from, $where, $params, $filter] =
                 booking::get_options_filter_sql(
                     0,
@@ -1270,7 +1274,11 @@ class shortcodes {
                     $wherearray,
                     null,
                     [],
-                    $additionalwhere
+                    $additionalwhere,
+                    '',
+                    null,
+                    MOD_BOOKING_VISIBILITY_OVERRIDE_DEFAULT,
+                    $bypassteacherid
                 );
         $table->set_filter_sql($fields, $from, $where, $filter, $params);
         $possibleoptions = [
@@ -1336,6 +1344,8 @@ class shortcodes {
 
         // Set common table options requirelogin, sortorder, sortby.
         self::set_common_table_options_from_arguments($table, $args);
+        // This second call is the one the table actually runs: it overwrites the filter sql set above,
+        // so it must carry the teacher bypass as well.
         [$fields, $from, $where, $params, $filter] =
                 booking::get_options_filter_sql(
                     0,
@@ -1349,7 +1359,9 @@ class shortcodes {
                     [],
                     $additionalwhere,
                     '',
-                    $table
+                    $table,
+                    MOD_BOOKING_VISIBILITY_OVERRIDE_DEFAULT,
+                    $bypassteacherid
                 );
         if (!empty($args['futureonly'])) {
             $now = time();
