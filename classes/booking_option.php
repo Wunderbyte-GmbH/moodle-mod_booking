@@ -4867,6 +4867,10 @@ class booking_option {
             in_array(
                 $id,
                 [
+                    // Whether the acting user may book for someone else is checked by the booking flow itself.
+                    // Here we book on behalf of the system (eg. waiting list, enrolment sync, other options),
+                    // so this condition must not block.
+                    MOD_BOOKING_BO_COND_ALLOWEDTOBOOKFORUSER,
                     MOD_BOOKING_BO_COND_BOOKITBUTTON,
                     MOD_BOOKING_BO_COND_PRICEISSET,
                     MOD_BOOKING_BO_COND_CONFIRMATION,
