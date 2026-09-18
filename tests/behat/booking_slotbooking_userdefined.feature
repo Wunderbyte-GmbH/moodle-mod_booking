@@ -59,7 +59,7 @@ Feature: Slot booking option of type "userdefined" lets a student pick a free st
     And I set the slot start time field to "09:15"
     And I follow "Continue"
     Then I should see "The selected slot is no longer available. Please choose another one."
-    And the field with xpath "//*[@data-region='slot-custom-editor']//input[@type='time']" matches value "09:15"
+    And the slot start time field should be "09:15"
 
   @javascript
   Scenario: Userdefined slotbooking: max_slots_per_user rejects a second, different slot with a clear message

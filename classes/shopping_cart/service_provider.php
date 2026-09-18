@@ -39,6 +39,7 @@ use mod_booking\local\slotbooking\slot_answer;
 use mod_booking\local\slotbooking\slot_move_store;
 use mod_booking\local\slotbooking\slot_mover;
 use mod_booking\local\slotbooking\slot_price;
+use mod_booking\local\slotbooking\slot_availability;
 use mod_booking\option\dates_handler;
 use mod_booking\semester;
 use mod_booking\singleton_service;
@@ -144,7 +145,17 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
             $numberofitems = empty($nritems) ? 1 : $nritems;
             $multipliable = empty($nritems) ? 0 : 1;
 
+            // Slot options have no course dates, so the service period spans the reserved slots.
+            [$serviceperiodstart, $serviceperiodend] = self::apply_slotbooking_service_period(
+                $settings,
+                $answer,
+                (int)$serviceperiodstart,
+                (int)$serviceperiodend
+            );
+
             $item = self::apply_reserved_slotbooking_price($settings, $item, $answer);
+            $item = self::append_slot_dates_to_title($settings, $item, $answer);
+
             $description = self::build_cartitem_description(
                 $settings,
                 $item,
@@ -323,6 +334,38 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
     }
 
     /**
+     * Fill an empty service period of a slot booking option with the reserved slots.
+     *
+     * Slot options have no course dates, so the service period would be 0. A service period set by
+     * other rules (e.g. semester or booking opening time) is kept.
+     *
+     * @param object $settings
+     * @param mixed $answer reserved booking answer of the buyer
+     * @param int $start service period start
+     * @param int $end service period end
+     * @return array [start, end]
+     */
+    private static function apply_slotbooking_service_period(object $settings, $answer, int $start, int $end): array {
+        if ((int)($settings->type ?? 0) !== MOD_BOOKING_OPTIONTYPE_SLOTBOOKING || empty($answer)) {
+            return [$start, $end];
+        }
+
+        $ranges = slot_availability::extract_booked_ranges_from_answer((object)$answer);
+        if (empty($ranges)) {
+            return [$start, $end];
+        }
+
+        if (empty($start)) {
+            $start = min(array_column($ranges, 'start'));
+        }
+        if (empty($end)) {
+            $end = max(array_column($ranges, 'end'));
+        }
+
+        return [$start, $end];
+    }
+
+    /**
      * Override cart item price from reserved slotbooking answer data when available.
      *
      * @param object $settings
@@ -345,6 +388,51 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
         }
 
         $item['price'] = round((float)$slotdata['price'], 2);
+        return $item;
+    }
+
+    /**
+     * Name the reserved slots in the cart item's title, for slot booking options.
+     *
+     * The title is what reaches the cart, the checkout page, the purchase history and the receipt -
+     * local_shopping_cart stores it as the history item name, and the cancellation confirmation
+     * reads it back from there. Carrying only the option name left neither the buyer nor the
+     * cashier able to tell WHICH slot was paid for or refunded, which matters most for exactly the
+     * options that are sold per slot. Formatted like the {slot_dates} description placeholder, so
+     * receipt and description cannot name the same booking differently.
+     *
+     * @param object $settings booking option settings
+     * @param array $item cart item data
+     * @param mixed $answer the user's reserved booking answer
+     * @return array the item, its title naming the slots where the answer holds any
+     */
+    private static function append_slot_dates_to_title(object $settings, array $item, $answer): array {
+        if ((int)($settings->type ?? 0) !== MOD_BOOKING_OPTIONTYPE_SLOTBOOKING || empty($answer)) {
+            return $item;
+        }
+
+        $slotdata = slot_answer::get_slot_data((object)$answer);
+        $slots = is_array($slotdata['slots'] ?? null) ? $slotdata['slots'] : [];
+
+        $slotlines = [];
+        foreach ($slots as $slot) {
+            if (empty($slot['start']) || empty($slot['end'])) {
+                continue;
+            }
+
+            $slotlines[] = dates_handler::prettify_optiondates_start_end(
+                (int)$slot['start'],
+                (int)$slot['end'],
+                current_language()
+            );
+        }
+
+        if (empty($slotlines)) {
+            return $item;
+        }
+
+        $item['title'] = (string)($item['title'] ?? '') . ' (' . implode(', ', $slotlines) . ')';
+
         return $item;
     }
 
@@ -383,12 +471,13 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
             preg_match_all('/\{(.*?)\}/', $modifieddescription, $matches);
             foreach ($matches[1] as $match) {
                 if (array_key_exists($match, $placeholdervalues)) {
+                    // Slot and booking placeholder values are already formatted (counts, prices, dates).
                     $value = $placeholdervalues[$match];
                 } else {
                     $value = $settings->$match ?? get_string('invalidplaceholder', 'mod_booking');
-                }
-                if (is_numeric($value)) {
-                    $value = userdate(time(), get_string('strftimedaydate', 'core_langconfig'));
+                    if (is_numeric($value)) {
+                        $value = userdate(time(), get_string('strftimedaydate', 'core_langconfig'));
+                    }
                 }
                 $replacements['{' . $match . '}'] = (string)$value;
             }
@@ -559,7 +648,7 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
         $slotcount = (int)($slotdata['num_slots'] ?? count($slotlines));
         $visiblecontext = [];
         if ($slotcount > 1) {
-            $visiblecontext[] = 'Anzahl der Slots: ' . $slotcount;
+            $visiblecontext[] = get_string('slot_cart_numslots', 'mod_booking', $slotcount);
         }
 
         $contextpayload = [
@@ -651,9 +740,16 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
      * @param int $itemid
      * @param int $paymentid
      * @param int $userid
+     * @param int $identifier
      * @return bool
      */
-    public static function successful_checkout(string $area, int $itemid, int $paymentid, int $userid): bool {
+    public static function successful_checkout(
+        string $area,
+        int $itemid,
+        int $paymentid,
+        int $userid,
+        int $identifier = 0
+    ): bool {
         global $USER, $CFG;
 
         require_once($CFG->dirroot . '/mod/booking/lib.php');
@@ -688,6 +784,13 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
                     return false;
                 }
             }
+            // Remember which purchase paid for this booking. A user may hold several separately
+            // purchased bookings on the same option, and the cancel callback below only learns the
+            // option - without this link it would have to drop all of them. The value comes from
+            // the payment component and is never interpreted here; it stays 0 without one.
+            if (!empty($identifier)) {
+                self::stamp_purchase_identifier($itemid, $userid, (int)$identifier);
+            }
             return true;
         } else if (strpos($area, 'subbooking') === 0) {
             // As a subbooking can have different slots, we use the area to provide the subbooking id.
@@ -719,23 +822,46 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
 
     /**
      * This cancels an already booked course.
+     *
      * @param string $area
      * @param int $itemid
      * @param int $userid
+     * @param int $identifier the purchase being cancelled, as stamped on the answer at checkout
+     *                        (0 = unknown, e.g. a booking made before this link existed)
      * @return bool
      */
-    public static function cancel_purchase(string $area, int $itemid, int $userid = 0): bool {
-        global $CFG, $USER;
+    public static function cancel_purchase(string $area, int $itemid, int $userid = 0, int $identifier = 0): bool {
+        global $CFG, $DB, $USER;
 
         require_once($CFG->dirroot . '/mod/booking/lib.php');
 
         if ($area === 'option') {
+            // A user may hold several separately purchased bookings on the same option, and this
+            // callback only learns the option - so without the purchase link it would cancel every
+            // one of them and refund a single purchase. Resolve the booking that was actually paid
+            // for by this purchase and scope the deletion to it. Falls back to the previous,
+            // unscoped behaviour when there is no link (bookings from before this column existed,
+            // or bookings made without a payment component).
+            $baid = 0;
+            if (!empty($identifier)) {
+                $baid = (int)$DB->get_field(
+                    'booking_answers',
+                    'id',
+                    [
+                        'optionid' => $itemid,
+                        'userid' => empty($userid) ? (int)$USER->id : $userid,
+                        'purchaseidentifier' => $identifier,
+                    ],
+                    IGNORE_MULTIPLE
+                );
+            }
             booking_bookit::answer_booking_option(
                 $area,
                 $itemid,
                 MOD_BOOKING_STATUSPARAM_DELETED,
                 $userid,
-                true
+                true,
+                $baid
             );
             return true;
         } else if (strpos($area, 'subbooking') === 0) {
@@ -1084,5 +1210,49 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
         }
 
         return $links;
+    }
+
+    /**
+     * Record which purchase paid for a freshly booked answer.
+     *
+     * Written once, right after the checkout booked the answer, and read only by cancel_purchase()
+     * to tell this booking apart from the user's other bookings on the same option. The value is
+     * opaque to mod_booking - it comes from the payment component and is handed straight back.
+     *
+     * The newest booked answer without a purchase link is the one this checkout just created: an
+     * older booking either carries its own identifier already, or predates the column and keeps 0.
+     *
+     * @param int $optionid booking option id
+     * @param int $userid booking owner
+     * @param int $identifier the payment component's purchase reference
+     * @return void
+     */
+    private static function stamp_purchase_identifier(int $optionid, int $userid, int $identifier): void {
+        global $DB, $USER;
+
+        $effectiveuserid = empty($userid) ? (int)$USER->id : $userid;
+        $answers = $DB->get_records_select(
+            'booking_answers',
+            'optionid = :optionid
+             AND userid = :userid
+             AND waitinglist = :booked
+             AND (purchaseidentifier IS NULL OR purchaseidentifier = 0)',
+            [
+                'optionid' => $optionid,
+                'userid' => $effectiveuserid,
+                'booked' => MOD_BOOKING_STATUSPARAM_BOOKED,
+            ],
+            'timemodified DESC, id DESC',
+            'id',
+            0,
+            1
+        );
+
+        if (empty($answers)) {
+            return;
+        }
+
+        $answer = reset($answers);
+        $DB->set_field('booking_answers', 'purchaseidentifier', $identifier, ['id' => (int)$answer->id]);
     }
 }

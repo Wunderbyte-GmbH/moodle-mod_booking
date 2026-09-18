@@ -31,6 +31,7 @@
         ]
     }
 }}
+{{^hidetabs}}
 <div class="prepage-booking-header col-md-12">
     <ul id="prepage-booking-tabs">
         {{#tabs}}
@@ -38,3 +39,12 @@
         {{/tabs}}
     </ul>
 </div>
+{{/hidetabs}}
+{{#hidetabs}}
+    {{!
+        No step bar in this flow, so nothing reserves the space the absolutely positioned close
+        button occupies (see .prepage-modal-close in styles.css) - without this spacer the first
+        line of the page below runs underneath the X.
+    }}
+    <div class="prepage-booking-header-spacer"></div>
+{{/hidetabs}}
