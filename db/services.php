@@ -158,6 +158,13 @@ $functions = [
             'capabilities' => '',
             'ajax' => 1,
     ],
+    'mod_booking_search_ticketscanners' => [
+        'classname'     => 'mod_booking\\external\\search_ticketscanners',
+        'description'   => 'Search users who may be picked as entry staff of a booking option (SofaTicket)',
+        'type'          => 'read',
+        'capabilities'  => '',
+        'ajax'          => 1,
+    ],
     'mod_booking_search_teachers' => [
         'classname' => 'mod_booking\external\search_teachers',
         'description' => 'Search a list of booking teachers',
@@ -227,6 +234,29 @@ $functions = [
         'type'          => 'write',
         'capabilities'  => 'mod/booking:readresponses',
         'ajax'          => 1,
+    ],
+    'mod_booking_verify_ticket' => [
+        'classname'     => 'mod_booking\external\verify_ticket',
+        'description'   => 'Verify an entry ticket by its QR code and check the participant in (SofaTicket)',
+        'type'          => 'write',
+        'capabilities'  => 'mod/booking:scanticket',
+        'ajax'          => 1,
+        'services'      => [MOODLE_OFFICIAL_MOBILE_SERVICE, 'moodle_mobile_app'],
+    ],
+    'mod_booking_reject_ticket' => [
+        'classname'     => 'mod_booking\external\reject_ticket',
+        'description'   => 'Record that entry staff rejected a scanned entry ticket (SofaTicket)',
+        'type'          => 'write',
+        'capabilities'  => 'mod/booking:scanticket',
+        'ajax'          => 1,
+        'services'      => [MOODLE_OFFICIAL_MOBILE_SERVICE, 'moodle_mobile_app'],
+    ],
+    'mod_booking_get_my_tickets' => [
+        'classname'     => 'mod_booking\external\get_my_tickets',
+        'description'   => 'List the entry tickets of a user (SofaTicket)',
+        'type'          => 'read',
+        'ajax'          => 1,
+        'services'      => [MOODLE_OFFICIAL_MOBILE_SERVICE, 'moodle_mobile_app'],
     ],
     'mod_booking_submit_performance' => [
         'classname'     => 'mod_booking\external\performance',

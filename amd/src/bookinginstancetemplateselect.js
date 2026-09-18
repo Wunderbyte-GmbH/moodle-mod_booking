@@ -14,13 +14,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * AJAX helper for the inline editing a value.
- *
- * This script is automatically included from template core/inplace_editable
- * It registers a click-listener on [data-inplaceeditablelink] link (the "inplace edit" icon),
- * then replaces the displayed value with an input field. On "Enter" it sends a request
- * to web service core_update_inplace_editable, which invokes the specified callback.
- * Any exception thrown by the web service (or callback) is displayed as an error popup.
+ * Fills the booking instance form with the values of the chosen instance template.
  *
  * @module     mod_booking/bookinginstancetemplateselect
  * @copyright  2019 Andraž Prinčič
@@ -28,148 +22,125 @@
  * @since      4.5
  */
 
-define(['jquery', 'core/ajax'], function($, ajax) {
+import Ajax from 'core/ajax';
+import Notification from 'core/notification';
 
-    return {
-        init: function() {
+/**
+ * Template properties copied into the form field with the id "id_<property>".
+ * Still missing (as before): attachment, bookingmanager, the field lists of "Customize columns and
+ * fields", sign-in sheet fields, custom report templates, common module settings, restrict access,
+ * activity completion and competencies.
+ */
+const VALUE_FIELDS = [
+    'name', 'eventtype', 'duration', 'points',
+    'organizatorname', 'pollurl', 'pollurlteachers', 'whichview',
+    'defaultoptionsort', 'defaultsortorder', 'templateid', 'showlistoncoursepage',
+    'coursepageshortinfo', 'sendmail', 'copymail', 'sendmailtobooker',
+    'daystonotify', 'daystonotify2', 'daystonotifyteachers', 'mailtemplatessource',
+    'btncacname', 'lblteachname', 'lblsputtname', 'btnbooknowname',
+    'btncancelname', 'lblbooking', 'lbllocation', 'lblinstitution',
+    'lblname', 'lblsurname', 'booktootherbooking', 'lblacceptingfrom',
+    'lblnumofusers', 'cancancelbook', 'allowupdate', 'allowupdatedays',
+    'autoenrol', 'addtogroup', 'maxperuser', 'showinapi',
+    'numgenerator', 'paginationnum', 'banusernames', 'completionmodule',
+    'comments', 'ratings', 'removeuseronunenrol', 'conectedbooking',
+    'teacherroleid', 'assessed',
+];
 
-            // Put whatever you like here. $ is available
-            // to you as normal.
-            $("#id_instancetemplateid").change(function() {
-                if ($("#id_instancetemplateid").val() != '') {
-                    ajax
-                    .call([{
-                        methodname: 'mod_booking_instancetemplate',
-                        args: {
-                            id: $("#id_instancetemplateid").val()
-                        },
-                        done: function(data) {
-                            var obj = $.parseJSON(data.template);
+/** Template properties shown in an editor: [id of the editable area, property]. */
+const EDITOR_FIELDS = [
+    ['id_introeditoreditable', 'intro'],
+    ['id_bookedtexteditable', 'bookedtext'],
+    ['id_waitingtexteditable', 'waitingtext'],
+    ['id_notifyemaileditable', 'notifyemail'],
+    ['id_notifyemailteacherseditable', 'notifyemailteachers'],
+    ['id_statuschangetexteditable', 'statuschangetext'],
+    ['id_userleaveeditable', 'userleave'],
+    ['id_deletedtexteditable', 'deletedtext'],
+    ['id_bookingchangedtexteditable', 'bookingchangedtext'],
+    ['id_pollurltexteditable', 'pollurltext'],
+    ['id_pollurlteacherstexteditable', 'pollurlteacherstext'],
+    ['id_activitycompletiontexteditable', 'activitycompletiontext'],
+    ['id_bookingpolicyeditable', 'bookingpolicy'],
+    ['id_beforecompletedtexteditable', 'beforecompletedtext'],
+    ['id_aftercompletedtexteditable', 'aftercompletedtext'],
+    ['id_beforebookedtexteditable', 'beforebookedtext'],
+];
 
-                            // General
-                            $("#id_name").val(obj.name);
+/**
+ * Set the value of a form field, if the field exists and the template carries the property.
+ *
+ * @param {String} id
+ * @param {*} value
+ */
+const setValue = (id, value) => {
+    const field = document.getElementById(id);
+    if (field && value !== undefined && value !== null) {
+        field.value = value;
+    }
+};
 
-                            // TODO: eventtype does not yet work correctly.
-                            $("#id_eventtype").val(obj.eventtype);
+/**
+ * Set the content of an editor's editable area.
+ *
+ * @param {String} id
+ * @param {String} html
+ */
+const setHtml = (id, html) => {
+    const area = document.getElementById(id);
+    if (area && html !== undefined && html !== null) {
+        area.innerHTML = html;
+    }
+};
 
-                            $("#id_introeditoreditable").html(obj.intro);
-                            $('#id_duration').val(obj.duration);
-                            $('#id_points').val(obj.points);
-                            $('#id_organizatorname').val(obj.organizatorname);
-                            $('#id_pollurl').val(obj.pollurl);
-                            $('#id_pollurlteachers').val(obj.pollurlteachers);
-                            // TODO: attachment - is this even possible?
-                            // TODO: Views to show in the booking options overview.
-                            $('#id_whichview').val(obj.whichview);
-                            $('#id_defaultoptionsort').val(obj.defaultoptionsort);
-                            $('#id_defaultsortorder').val(obj.defaultsortorder);
-                            $('#id_templateid').val(obj.templateid);
-                            $('#id_showlistoncoursepage').val(obj.showlistoncoursepage);
-                            $('#id_coursepageshortinfo').val(obj.coursepageshortinfo);
-                            // Known issue: coursepageshortinfo won't be unhidden when filled from template.
+/**
+ * Select the given values in a (multi) select.
+ *
+ * @param {String} id
+ * @param {Array} values
+ */
+const setSelected = (id, values) => {
+    const select = document.getElementById(id);
+    if (!select || !select.options) {
+        return;
+    }
+    const wanted = values.map((value) => String(value));
+    Array.from(select.options).forEach((option) => {
+        option.selected = wanted.includes(option.value);
+    });
+};
 
-                            // Confirmation e-mail settings
-                            $('#id_sendmail').val(obj.sendmail);
-                            $('#id_copymail').val(obj.copymail);
-                            $('#id_sendmailtobooker').val(obj.sendmailtobooker);
-                            $('#id_daystonotify').val(obj.daystonotify);
-                            $('#id_daystonotify2').val(obj.daystonotify2);
-                            $('#id_daystonotifyteachers').val(obj.daystonotifyteachers);
-                            // TODO: bookingmanager
-                            $('#id_mailtemplatessource').val(obj.mailtemplatessource);
-                            $('#id_bookedtexteditable').html(obj.bookedtext);
-                            $('#id_waitingtexteditable').html(obj.waitingtext);
-                            $('#id_notifyemaileditable').html(obj.notifyemail);
-                            $('#id_notifyemailteacherseditable').html(obj.notifyemailteachers);
-                            $('#id_statuschangetexteditable').html(obj.statuschangetext);
-                            $('#id_userleaveeditable').html(obj.userleave);
-                            $('#id_deletedtexteditable').html(obj.deletedtext);
-                            $('#id_bookingchangedtexteditable').html(obj.bookingchangedtext);
-                            $('#id_pollurltexteditable').html(obj.pollurltext);
-                            $('#id_pollurlteacherstexteditable').html(obj.pollurlteacherstext);
-                            $('#id_activitycompletiontexteditable').html(obj.activitycompletiontext);
+/**
+ * Copy the template into the form.
+ *
+ * @param {Object} template
+ */
+const applyTemplate = (template) => {
+    VALUE_FIELDS.forEach((key) => setValue('id_' + key, template[key]));
+    EDITOR_FIELDS.forEach(([id, key]) => setHtml(id, template[key]));
+    // Categories are stored as a comma separated list of ids.
+    if (template.categoryid !== undefined && template.categoryid !== null) {
+        setSelected('id_categoryid', String(template.categoryid).split(',').filter((id) => id !== ''));
+    }
+};
 
-                            // Custom labels
-                            $('#id_btncacname').val(obj.btncacname);
-                            $('#id_lblteachname').val(obj.lblteachname);
-                            $('#id_lblsputtname').val(obj.lblsputtname);
-                            $('#id_btnbooknowname').val(obj.btnbooknowname);
-                            $('#id_btncancelname').val(obj.btncancelname);
-                            $('#id_lblbooking').val(obj.lblbooking);
-                            $('#id_lbllocation').val(obj.lbllocation);
-                            $('#id_lblinstitution').val(obj.lblinstitution);
-                            $('#id_lblname').val(obj.lblname);
-                            $('#id_lblsurname').val(obj.lblsurname);
-                            $('#id_booktootherbooking').val(obj.booktootherbooking);
-                            $('#id_lblacceptingfrom').val(obj.lblacceptingfrom);
-                            $('#id_lblnumofusers').val(obj.lblnumofusers);
-
-                            // Miscellaneous settings
-                            $('#id_bookingpolicyeditable').html(obj.bookingpolicy);
-                            $('#id_cancancelbook').val(obj.cancancelbook);
-                            $('#id_allowupdate').val(obj.allowupdate);
-                            $('#id_allowupdatedays').val(obj.allowupdatedays);
-                            $('#id_autoenrol').val(obj.autoenrol);
-                            $('#id_addtogroup').val(obj.addtogroup);
-                            $('#id_maxperuser').val(obj.maxperuser);
-                            $('#id_showinapi').val(obj.showinapi);
-                            $('#id_numgenerator').val(obj.numgenerator);
-                            $('#id_paginationnum').val(obj.paginationnum);
-                            $('#id_banusernames').val(obj.banusernames);
-                            $('#id_completionmodule').val(obj.completionmodule);
-                            $('#id_comments').val(obj.comments);
-                            $('#id_ratings').val(obj.ratings);
-                            $('#id_removeuseronunenrol').val(obj.removeuseronunenrol);
-
-                            // Category
-                            $("#id_categoryid").val(JSON.parse("[" + obj.categoryid + "]"));
-
-                            // TODO: Fields to display in different contexts
-
-                            // Booking option text depending on booking status
-                            $('#id_beforecompletedtexteditable').html(obj.beforecompletedtext);
-                            $('#id_aftercompletedtexteditable').html(obj.aftercompletedtext);
-                            $('#id_beforebookedtexteditable').html(obj.beforebookedtext);
-
-                            // TODO: Sign-In Sheet Configuration
-                            // $("#id_signinsheetfields").val(JSON.parse("[" + obj.signinsheetfields + "]")).change();
-
-                            // TO-DO :Create backup!
-                            // TO-DO: Fields still to add:
-                            // - assesstimefinish
-                            // - assesstimestart
-                            // - course
-                            // - enablecompletion
-                            // - optionsfields
-                            // - optionsdownloadfields
-                            // - reportfields
-                            // - responsesfields
-                            // - scale
-                            // - signinsheetfields
-                            // - timeclose
-                            // - timemodified
-                            // - timeopen
-
-                            // Connected booking
-                            $('#id_conectedbooking').val(obj.conectedbooking);
-
-                            // Teachers
-                            $('#id_teacherroleid').val(obj.teacherroleid);
-
-                            // TODO: Custom report templates
-                            // TODO: Automatic booking option creation
-
-                            // Ratings
-                            $('#id_assessed').val(obj.assessed);
-
-                            // TODO: Common module settings
-                            // TODO: Restrict access (possible?)
-                            // TODO: Activity completion
-                            // TODO: Competencies
-                        }
-                    }], true);
-                }
-            });
+/**
+ * Load the chosen template whenever the template selector changes.
+ */
+export const init = () => {
+    const selector = document.getElementById('id_instancetemplateid');
+    if (!selector) {
+        return;
+    }
+    selector.addEventListener('change', () => {
+        if (selector.value === '') {
+            return;
         }
-    };
-});
+        Promise.resolve(Ajax.call([{
+            methodname: 'mod_booking_instancetemplate',
+            args: {id: selector.value},
+        }])[0])
+            .then((data) => applyTemplate(JSON.parse(data.template)))
+            .catch(Notification.exception);
+    });
+};

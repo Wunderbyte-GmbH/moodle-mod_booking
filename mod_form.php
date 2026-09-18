@@ -533,6 +533,10 @@ class mod_booking_mod_form extends moodleform_mod {
             'allusercertificates' => get_string('allusercertificates', 'mod_booking'),
             'completeddate' => get_string('completeddate', 'mod_booking'),
         ];
+        if (\mod_booking\local\ticket\ticket_manager::is_enabled()) {
+            // Download button for the participant's entry ticket (SofaTicket).
+            $responsesfields['ticket'] = get_string('ticketbuttoncolumn', 'mod_booking');
+        }
 
         $reportfields = [ // This is the download file.
             'optionid' => get_string("optionid", "mod_booking"),
@@ -558,6 +562,7 @@ class mod_booking_mod_form extends moodleform_mod {
         ];
 
         $optionsfields = [
+            'bookingconfirmation' => get_string('bookingconfirmationbutton', 'mod_booking'),
             'description' => get_string('description', 'mod_booking'),
             'statusdescription' => get_string('textdependingonstatus', 'mod_booking'),
             'teacher' => get_string('teachers', 'mod_booking'),
@@ -575,6 +580,10 @@ class mod_booking_mod_form extends moodleform_mod {
 
         if (get_config('booking', 'usecompetencies')) {
             $optionsfields['competencies'] = get_string('competencies', 'mod_booking');
+        }
+        if (\mod_booking\local\ticket\ticket_manager::is_enabled()) {
+            // Download button for the entry ticket of the current user (SofaTicket).
+            $optionsfields['ticket'] = get_string('ticketbuttoncolumn', 'mod_booking');
         }
         $optionsdownloadfields = [
             'identifier' => get_string('optionidentifier', 'mod_booking'),

@@ -470,6 +470,7 @@ if ($ADMIN->fulltree) {
             3 => get_string('statusnoshow', 'booking'),
             4 => get_string('statusfailed', 'booking'),
             7 => get_string('statusexcused', 'booking'),
+            8 => get_string('statuscheckedin', 'booking'),
         ];
 
         $settings->add(
@@ -477,7 +478,7 @@ if ($ADMIN->fulltree) {
                 'booking/presenceoptions',
                 get_string('presenceoptions', 'booking'),
                 get_string('presenceoptions_desc', 'booking'),
-                [5, 6, 1, 2, 3, 4, 7],
+                [5, 6, 1, 2, 3, 4, 7, 8],
                 $presenceoptions
             )
         );
@@ -988,6 +989,93 @@ if ($ADMIN->fulltree) {
                 )
             );
         }
+
+        // SofaTicket: entry-ticket system built on tool_certificate.
+        $settings->add(new admin_setting_heading(
+            'booking/bookingticketheading',
+            get_string('bookingticketheading', 'mod_booking'),
+            get_string('bookingticketheading_desc', 'mod_booking')
+        ));
+        $settings->add(
+            new admin_setting_configcheckbox(
+                'booking/bookingticketon',
+                get_string('bookingticketon', 'mod_booking'),
+                get_string('bookingticketon_desc', 'mod_booking'),
+                0
+            )
+        );
+        if (get_config('booking', 'bookingticketon')) {
+            // The ticket design itself is chosen per booking option, in the "Ticketing" section
+            // of the option form. Only site wide entry-control behaviour is configured here.
+            if (class_exists('tool_certificate\\template')) {
+                $templatename = get_string('tickettemplatename', 'mod_booking');
+                if (\tool_certificate\template::find_by_name($templatename)) {
+                    $templatehtml = get_string('bookingticketcreatetemplatedone', 'mod_booking', $templatename);
+                } else {
+                    $templatehtml = html_writer::link(
+                        new moodle_url('/mod/booking/createtickettemplate.php', ['sesskey' => sesskey()]),
+                        get_string('bookingticketcreatetemplatebutton', 'mod_booking'),
+                        ['class' => 'btn btn-secondary']
+                    );
+                }
+                $settings->add(
+                    new admin_setting_description(
+                        'booking/bookingticketcreatetemplate',
+                        get_string('bookingticketcreatetemplate', 'mod_booking'),
+                        get_string('bookingticketcreatetemplate_desc', 'mod_booking') . '<br>' . $templatehtml
+                    )
+                );
+            }
+            $settings->add(
+                new admin_setting_configselect(
+                    'booking/bookingticketcheckinstatus',
+                    get_string('bookingticketcheckinstatus', 'mod_booking'),
+                    get_string('bookingticketcheckinstatus_desc', 'mod_booking'),
+                    MOD_BOOKING_PRESENCE_STATUS_CHECKEDIN,
+                    booking::get_array_of_possible_presence_statuses()
+                )
+            );
+            // Presence status the tracker counts per date: scanned dates only show up in the
+            // "presence count" column when it equals the check-in status.
+            $checkinstatus = \mod_booking\local\ticket\ticket_manager::get_checkin_status();
+            $countedstatus = (int) get_config('booking', 'bookingstrackerpresencecountervaluetocount');
+            if (get_config('booking', 'bookingstrackerpresencecounter') && $countedstatus !== $checkinstatus) {
+                $settings->add(
+                    new admin_setting_description(
+                        'booking/bookingticketcounterhint',
+                        '',
+                        html_writer::div(get_string('bookingticketcounterhint', 'mod_booking'), 'alert alert-warning')
+                    )
+                );
+            }
+            $settings->add(
+                new admin_setting_configmultiselect(
+                    'booking/bookingticketidentityfields',
+                    get_string('bookingticketidentityfields', 'mod_booking'),
+                    get_string('bookingticketidentityfields_desc', 'mod_booking'),
+                    ['picture', 'fullname'],
+                    \mod_booking\local\ticket\ticket_manager::get_identity_field_choices()
+                )
+            );
+            $settings->add(
+                new admin_setting_configcheckbox(
+                    'booking/bookingticketserialscan',
+                    get_string('bookingticketserialscan', 'mod_booking'),
+                    get_string('bookingticketserialscan_desc', 'mod_booking'),
+                    1
+                )
+            );
+            $settings->add(
+                new admin_setting_configtext(
+                    'booking/bookingticketduplicatewindow',
+                    get_string('bookingticketduplicatewindow', 'mod_booking'),
+                    get_string('bookingticketduplicatewindow_desc', 'mod_booking'),
+                    5,
+                    PARAM_INT
+                )
+            );
+        }
+
         $settings->add(
             new admin_setting_configcheckbox(
                 'booking/usecompetencies',

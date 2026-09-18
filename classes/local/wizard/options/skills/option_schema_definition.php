@@ -520,6 +520,37 @@ class option_schema_definition {
                     . '{"default": 10, "student": 20}.',
                 'required' => false,
             ],
+            'ticketdesign' => [
+                'type' => 'string',
+                'description' => 'Entry ticket design for this booking option: the NAME of a certificate '
+                    . 'template (a numeric template id is also accepted). Setting it switches entry tickets ON '
+                    . 'for the option, so every booking creates a personalised PDF ticket with a QR code. '
+                    . 'Use the empty string or "none" to switch entry tickets OFF again. '
+                    . 'Only available when entry tickets are enabled in the site settings.',
+                'required' => false,
+            ],
+            'ticketpersonalized' => [
+                'type' => 'boolean',
+                'description' => 'Whether the entry ticket is bound to its holder (default true). '
+                    . 'A personalised ticket may not be passed on or resold, and the public ticket '
+                    . 'verification page says so. Set false for freely transferable tickets. '
+                    . 'Only meaningful together with ticketdesign.',
+                'required' => false,
+            ],
+            'ticketconfirmidentity' => [
+                'type' => 'boolean',
+                'description' => 'Whether entry staff must confirm the holder identity before a scan checks '
+                    . 'the participant in (default false). When true, scanning shows name and profile picture '
+                    . 'and waits for a confirmation. Use it for exams and similar events. '
+                    . 'Only meaningful together with ticketdesign.',
+                'required' => false,
+            ],
+            'ticketextrainfo' => [
+                'type' => 'string',
+                'description' => 'Additional free text printed on the entry ticket, for example entry rules '
+                    . 'or directions. Only meaningful together with ticketdesign.',
+                'required' => false,
+            ],
             'headerimage_token' => [
                 'type' => 'string',
                 'description' => 'Attachment token for setting the option header image. '

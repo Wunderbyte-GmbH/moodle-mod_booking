@@ -589,6 +589,17 @@ if there only was one booking option. */
     bottom: 5px;
 }
 
+/*
+ * Behat: when the driver scrolls an element into view it does not account for sticky elements, which then
+ * cover the element and intercept the click (core does the same for its sticky footer, see
+ * theme/boost/scss/moodle/debug.scss). Keep our sticky button bars and the editing alert in the flow there.
+ */
+body.behat-site#page-mod-booking-editoptions div[id^='fgroup_id_buttonar_'],
+body.behat-site#page-mod-booking-mod #fgroup_id_buttonar,
+body.behat-site#page-mod-booking-editoptions .editoption-youareediting-alert {
+    position: static;
+}
+
 #page-mod-booking-mod #fgroup_id_buttonar  input[name='submitbutton'],
 #page-mod-booking-mod #fgroup_id_buttonar  input[name='submitbutton2'],
 #page-mod-booking-mod #fgroup_id_buttonar  input[name='cancel'] {
@@ -1452,4 +1463,194 @@ table[id*="bulkoperationstable"] th {
 /* Custom form: Checkbox labels. */
 .condition-customform .form-check span[id$="description"] {
     margin-left: 0.5rem;
+}
+
+/*
+ * SofaTicket scanner (scan.php): sticky date bar and the full-screen result overlay that covers
+ * the page after every scan. The overlay colour signals the result; the icon draws itself in.
+ */
+.booking-scanner-datebar .card-body {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.booking-scanner-datebar [data-region="scanner-datebar-option"] {
+    flex: 1 1 12rem;
+    min-width: 0;
+}
+
+.booking-scanner-datebar select {
+    flex: 1 1 14rem;
+    width: auto;
+}
+
+.booking-scanner-overlay {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1070;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    overflow-y: auto;
+    background: #fff;
+    color: #212529;
+    animation: booking-scanner-pop 0.25s ease-out;
+}
+
+.booking-scanner-overlay[data-state="success"] {
+    background: #198754;
+    color: #fff;
+}
+
+.booking-scanner-overlay[data-state="danger"] {
+    background: #b02a37;
+    color: #fff;
+}
+
+.booking-scanner-overlay[data-state="warning"] {
+    background: #f0ad4e;
+    color: #212529;
+}
+
+.booking-scanner-overlay-body {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    text-align: center;
+    word-break: break-word;
+}
+
+.booking-scanner-overlay-actions {
+    display: flex;
+    flex: 0 0 auto;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding-top: 1rem;
+}
+
+.booking-scanner-overlay-actions .btn-lg {
+    padding: 1rem;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.booking-scanner-overlay .booking-scanner-confirm,
+.booking-scanner-overlay .booking-scanner-next {
+    color: #212529;
+}
+
+.booking-scanner-overlay .booking-scanner-reject {
+    align-self: center;
+    color: inherit;
+    opacity: 0.9;
+    text-decoration: underline;
+}
+
+.booking-scanner-overlay .booking-scanner-reject:hover,
+.booking-scanner-overlay .booking-scanner-reject:focus {
+    color: inherit;
+    opacity: 1;
+}
+
+.booking-scanner-icon {
+    width: 7.5rem;
+    height: 7.5rem;
+}
+
+.booking-scanner-icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+.booking-scanner-icon .booking-scanner-icon-circle {
+    stroke-dasharray: 340;
+    stroke-dashoffset: 340;
+}
+
+.booking-scanner-icon .booking-scanner-icon-mark {
+    stroke-dasharray: 120;
+    stroke-dashoffset: 120;
+}
+
+.booking-scanner-icon svg.booking-scanner-animate .booking-scanner-icon-circle {
+    animation: booking-scanner-draw 0.5s ease-out forwards;
+}
+
+.booking-scanner-icon svg.booking-scanner-animate .booking-scanner-icon-mark {
+    animation: booking-scanner-draw 0.4s ease-out 0.3s forwards;
+}
+
+.booking-scanner-overlay .booking-scanner-date select {
+    max-width: 100%;
+    width: auto;
+    margin: 0 auto;
+}
+
+.booking-scanner-identity {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    max-width: 100%;
+}
+
+.booking-scanner-identity img {
+    width: 10rem;
+    height: 10rem;
+    max-width: 45vw;
+    max-height: 45vw;
+    object-fit: cover;
+    border: 4px solid rgba(255, 255, 255, 0.85);
+    border-radius: 50%;
+}
+
+.booking-scanner-fields {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 0.25rem 1rem;
+    text-align: left;
+}
+
+.booking-scanner-fields dt {
+    font-weight: 600;
+    opacity: 0.85;
+}
+
+.booking-scanner-fields dd {
+    margin: 0;
+}
+
+@keyframes booking-scanner-draw {
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+@keyframes booking-scanner-pop {
+    from {
+        opacity: 0.4;
+        transform: scale(1.03);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .booking-scanner-overlay,
+    .booking-scanner-icon svg.booking-scanner-animate .booking-scanner-icon-circle,
+    .booking-scanner-icon svg.booking-scanner-animate .booking-scanner-icon-mark {
+        animation: none;
+        stroke-dashoffset: 0;
+    }
 }

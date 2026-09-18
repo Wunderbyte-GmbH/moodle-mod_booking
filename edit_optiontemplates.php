@@ -35,7 +35,6 @@ $sesskey = optional_param('sesskey', '', PARAM_INT);
 $url = new moodle_url('/mod/booking/edit_optiontemplate.php', ['optionid' => $optionid, 'id' => $id]);
 $redirecturl = new moodle_url('/mod/booking/optiontemplatessettings.php', ['optionid' => $optionid, 'id' => $id]);
 $PAGE->set_url($url);
-$PAGE->requires->jquery_plugin('ui-css');
 [$course, $cm] = get_course_and_cm_from_cmid($id);
 
 require_course_login($course, false, $cm);

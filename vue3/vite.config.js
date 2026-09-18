@@ -46,7 +46,6 @@ export default defineConfig({
         'core/notification',
         'core/templates',
         'core/localstorage',
-        'jquery',
       ],
       output: {
         format: 'iife',
@@ -56,7 +55,6 @@ export default defineConfig({
           'core/notification': 'core/notification',
           'core/templates': 'core/templates',
           'core/localstorage': 'core/localstorage',
-          'jquery': 'jQuery',
         }
       }
     }

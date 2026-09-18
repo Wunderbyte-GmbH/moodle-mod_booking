@@ -26,6 +26,7 @@ namespace mod_booking;
 
 use coding_exception;
 use mod_booking\local\slotbooking\slot_answer;
+use mod_booking\local\ticket\ticket_manager;
 use mod_booking\bo_availability\conditions\customform;
 use mod_booking\output\report_edit_bookingnotes;
 use html_writer;
@@ -139,26 +140,14 @@ class all_userbookings extends \table_sql {
      * @throws coding_exception
      */
     protected function col_status($values) {
-        switch ($values->status) {
-            case 0:
-                return '';
-            case 1:
-                return get_string('statuscomplete', 'booking');
-            case 2:
-                return get_string('statusincomplete', 'booking');
-            case 3:
-                return get_string('statusnoshow', 'booking');
-            case 4:
-                return get_string('statusfailed', 'booking');
-            case 5:
-                return get_string('statusunknown', 'booking');
-            case 6:
-                return get_string('statusattending', 'booking');
-            case 7:
-                return get_string('statusexcused', 'booking');
-            default:
-                return '';
+        $status = (int) ($values->status ?? MOD_BOOKING_PRESENCE_STATUS_NOTSET);
+        if ($status === MOD_BOOKING_PRESENCE_STATUS_NOTSET) {
+            return '';
         }
+        // One source for the labels, so new statuses (e.g. "Checked in" set by the ticket scanner)
+        // never render as an empty cell again.
+        $possiblepresences = booking::get_array_of_possible_presence_statuses();
+        return $possiblepresences[$status] ?? '';
     }
 
     /**
@@ -904,6 +893,22 @@ class all_userbookings extends \table_sql {
         }
 
         return array_values($DB->get_records_sql($sql, $params));
+    }
+
+    /**
+     * Column for the entry ticket download button of the participant (SofaTicket).
+     *
+     * @param stdClass $values
+     *
+     * @return string
+     */
+    public function col_ticket(stdClass $values): string {
+        if (empty(get_config('booking', 'bookingticketon')) || empty($values->userid)) {
+            return '';
+        }
+        $optionid = (int) ($values->optionid ?? $this->optionid ?? 0);
+        $ticket = ticket_manager::find_valid_ticket($optionid, (int) $values->userid);
+        return ticket_manager::render_download_button($ticket);
     }
 
     /**
