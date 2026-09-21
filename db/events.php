@@ -163,6 +163,27 @@ $observers = [
         'eventname' => '\core_customfield\event\field_deleted',
         'callback' => 'mod_booking_observer::customfield_created_updated_deleted',
     ],
+    // Global search: keep the documents of the booking options in sync with related data.
+    [
+        'eventname' => '\mod_booking\event\teacher_added',
+        'callback' => 'mod_booking_observer::teacher_of_option_changed',
+    ],
+    [
+        'eventname' => '\mod_booking\event\teacher_removed',
+        'callback' => 'mod_booking_observer::teacher_of_option_changed',
+    ],
+    [
+        'eventname' => '\mod_booking\event\optiondates_teacher_added',
+        'callback' => 'mod_booking_observer::teacher_of_option_changed',
+    ],
+    [
+        'eventname' => '\mod_booking\event\optiondates_teacher_deleted',
+        'callback' => 'mod_booking_observer::teacher_of_option_changed',
+    ],
+    [
+        'eventname' => '\core\event\course_updated',
+        'callback' => 'mod_booking_observer::course_updated',
+    ],
 ];
 
 if (class_exists('\local_shopping_cart\event\checkout_completed')) {

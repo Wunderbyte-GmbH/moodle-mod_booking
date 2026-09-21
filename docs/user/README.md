@@ -23,3 +23,4 @@ Index of the user and admin documentation chapters. For developer topics see the
 | Understand scheduled background tasks | [Scheduled tasks](scheduled_tasks/README.md) |
 | Allow external links to bypass profile-field restrictions | [Override user field](override_user_field/README.md) |
 | Build or install a booking extension (subplugin) | [Booking extensions](booking_extensions/README.md) |
+| Make booking options findable with Moodle's global search | [Global search](globalsearch/README.md) |

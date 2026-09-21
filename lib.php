@@ -3374,6 +3374,18 @@ function booking_db_is_at_least_mariadb_106_or_mysql_8() {
     return $cache = false;
 }
 
+/**
+ * Callback of the global search settings of mod_booking.
+ *
+ * Changing which content is indexed changes every existing document, so core search is asked
+ * to index the areas of this plugin again.
+ *
+ * @return void
+ */
+function mod_booking_search_settings_updated(): void {
+    \mod_booking\local\search\reindex::request_full_reindex();
+}
+
 // With this function, we can execute code at the last moment.
 register_shutdown_function(function () {
     // Bugfix: Make sure this does not break the update process if class is not existing yet.

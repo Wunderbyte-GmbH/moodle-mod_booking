@@ -42,6 +42,7 @@ use mod_booking\local\certificate_conditions\certificate_conditions;
 use mod_booking\local\ticket\ticket_manager;
 use mod_booking\local\checkanswers\checkanswers;
 use mod_booking\local\mobile\customformstore;
+use mod_booking\local\search\reindex;
 use mod_booking\option\fields\certificate;
 use mod_booking\output\view;
 use mod_booking\singleton_service;
@@ -765,5 +766,33 @@ class mod_booking_observer {
     public static function customfield_created_updated_deleted(base $event): void {
         // Invalidating with an empty key list would be a no-op, the whole cache needs to be purged.
         cache_helper::purge_by_event('setbackcustomfields');
+
+        // A changed field definition changes the display values of many booking options at once.
+        reindex::request_full_reindex();
+    }
+
+    /**
+     * Observer for the teacher_added and teacher_removed events.
+     *
+     * The names of the teachers are part of the search document of the booking option, but a
+     * teacher change does not touch the option record.
+     *
+     * @param base $event
+     * @return void
+     */
+    public static function teacher_of_option_changed(base $event): void {
+        reindex::mark_option_modified((int) $event->objectid);
+    }
+
+    /**
+     * Observer for the course_updated event.
+     *
+     * The full name of the connected course is part of the search document of a booking option.
+     *
+     * @param \core\event\course_updated $event
+     * @return void
+     */
+    public static function course_updated(\core\event\course_updated $event): void {
+        reindex::mark_options_of_connected_course_modified((int) $event->objectid);
     }
 }

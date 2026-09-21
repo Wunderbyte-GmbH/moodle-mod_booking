@@ -24,6 +24,7 @@
 
 use mod_booking\customfield\booking_handler;
 use mod_booking\local\htmlcomponents;
+use mod_booking\local\search\searchconfig;
 use mod_booking\placeholders\placeholders_info;
 
 defined('MOODLE_INTERNAL') || die();
@@ -3396,6 +3397,60 @@ if ($ADMIN->fulltree) {
             )
         );
     }
+
+    // Global search: which content of a booking option flows into the search index.
+    $settings->add(
+        new admin_setting_heading(
+            'bookingglobalsearchheading',
+            get_string('globalsearchsettings', 'mod_booking'),
+            get_string('globalsearchsettings_desc', 'mod_booking')
+        )
+    );
+
+    $searchsourcechoices = [];
+    foreach (searchconfig::get_all_sources() as $searchsource) {
+        $searchsourcechoices[$searchsource] = get_string('globalsearchsource:' . $searchsource, 'mod_booking');
+    }
+    $searchsourcedefaults = array_fill_keys(searchconfig::get_default_sources(), 1);
+
+    $searchsourcesetting = new admin_setting_configmulticheckbox(
+        'booking/searchindexsources',
+        get_string('globalsearchsources', 'mod_booking'),
+        get_string('globalsearchsources_desc', 'mod_booking'),
+        $searchsourcedefaults,
+        $searchsourcechoices
+    );
+    $searchsourcesetting->set_updatedcallback('mod_booking_search_settings_updated');
+    $settings->add($searchsourcesetting);
+
+    $searchcustomfieldchoices = [];
+    foreach (booking_handler::get_customfields() as $searchcustomfield) {
+        $searchcustomfieldchoices[$searchcustomfield->shortname] = format_string($searchcustomfield->name);
+    }
+    if (!empty($searchcustomfieldchoices)) {
+        $searchcustomfieldsetting = new admin_setting_configmultiselect(
+            'booking/searchindexcustomfields',
+            get_string('globalsearchcustomfields', 'mod_booking'),
+            get_string('globalsearchcustomfields_desc', 'mod_booking'),
+            [],
+            $searchcustomfieldchoices
+        );
+        $searchcustomfieldsetting->set_updatedcallback('mod_booking_search_settings_updated');
+        $settings->add($searchcustomfieldsetting);
+    }
+
+    $searchinvisiblesetting = new admin_setting_configselect(
+        'booking/searchinvisibleoptions',
+        get_string('globalsearchinvisibleoptions', 'mod_booking'),
+        get_string('globalsearchinvisibleoptions_desc', 'mod_booking'),
+        searchconfig::INVISIBLE_RESTRICT,
+        [
+            searchconfig::INVISIBLE_RESTRICT => get_string('globalsearchinvisible:restrict', 'mod_booking'),
+            searchconfig::INVISIBLE_NEVER => get_string('globalsearchinvisible:never', 'mod_booking'),
+        ]
+    );
+    $searchinvisiblesetting->set_updatedcallback('mod_booking_search_settings_updated');
+    $settings->add($searchinvisiblesetting);
 }
 
 $settings = null;
