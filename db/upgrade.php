@@ -5831,7 +5831,7 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2026091500, 'booking');
     }
 
-    if ($oldversion < 2026090206) {
+    if ($oldversion < 2026091801) {
         // A user can hold several separately purchased bookings on the same option, and the
         // payment component's cancel callback only knows the option - so cancelling one purchase
         // used to delete all of that user's bookings on it. This column links an answer to the
@@ -5844,7 +5844,7 @@ function xmldb_booking_upgrade($oldversion) {
             $dbman->add_field($table, $field);
         }
 
-        upgrade_mod_savepoint(true, 2026090206, 'booking');
+        upgrade_mod_savepoint(true, 2026091801, 'booking');
     }
 
     return true;

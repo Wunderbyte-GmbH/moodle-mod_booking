@@ -1,3 +1,11 @@
+## Version 9.7.10 (2026091801)
+* Improvement: Slot booking: the calendar marks the selected slots and lists the current selection with a summary, and the pre-booking modal can be closed. (Wunderbyte-GmbH/Wunderbyte-GmbH#2314)
+* Improvement: Slot booking: the booked slots of a user are listed in the option description and in the options table, single slots can be released selectively, and the slot list view is easier to read. (Wunderbyte-GmbH/Wunderbyte-GmbH#2315)
+* Improvement: Slot booking: releasing slots refunds the purchase through the shopping cart, and a booking answer remembers the purchase that paid for it (new column booking_answers.purchaseidentifier), so cancelling one purchase no longer deletes all bookings of the user on that option. (Wunderbyte-GmbH/Wunderbyte-GmbH#2316)
+* Bugfix: Slot booking: examiner selection works for every slot, also after changing the option in the merged calendar view. (Wunderbyte-GmbH/Wunderbyte-GmbH#2320)
+* Bugfix: Slot booking: moving and cancelling slots respects the cancel policy, the booking button state is correct after a slot purchase, the slot dates appear in receipts and in the success message after a slot update, and the merged calendar of several options renders correctly and no longer overflows. (Wunderbyte-GmbH/Wunderbyte-GmbH#2321)
+* Improvement: Slot booking: the booked slots are rendered in confirmation mails and in the placeholders {slotsbooked} and {bookingdetails}. (Wunderbyte-GmbH/Wunderbyte-GmbH#2286)
+
 ## Version 9.7.10 (2026091500)
 * New feature: Shortcode [mytaughtcourselist] lists the booking options in which the current user (or the user given by userid="…") is assigned as teacher. It takes the same table arguments as [mycourselist] (type, perpage, search, sort, filter, futureonly, cmid, custom field filters). With cmid the capability mod/booking:canseeinvisibleoptions of that activity is respected.
 * New feature: Shortcode [userid] returns the id of the current user, e.g. for links like /mod/booking/teacher.php?teacherid=[userid].
