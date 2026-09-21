@@ -433,7 +433,15 @@ class booking_skill_support {
         if (
             self::has_any_input_key(
                 $input,
-                ['ticketdesign', 'ticketpersonalized', 'ticketconfirmidentity', 'ticketextrainfo', 'ticketscanners', 'ticketscanbefore', 'ticketscanafter']
+                [
+                    'ticketdesign',
+                    'ticketpersonalized',
+                    'ticketconfirmidentity',
+                    'ticketextrainfo',
+                    'ticketscanners',
+                    'ticketscanbefore',
+                    'ticketscanafter',
+                ]
             )
         ) {
             $register(MOD_BOOKING_OPTION_FIELD_TICKET, get_string('ticketheader', 'mod_booking'));
