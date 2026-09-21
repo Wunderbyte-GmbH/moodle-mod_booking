@@ -165,6 +165,27 @@ $capabilities = [
             'manager' => CAP_ALLOW,
         ],
     ],
+    'mod/booking:skill_mod_booking_create_option_field' => [
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => [
+            'manager' => CAP_ALLOW,
+        ],
+    ],
+    'mod/booking:skill_mod_booking_list_option_fields' => [
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => [
+            'manager' => CAP_ALLOW,
+        ],
+    ],
+    'mod/booking:skill_mod_booking_update_option_field' => [
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => [
+            'manager' => CAP_ALLOW,
+        ],
+    ],
     'mod/booking:skill_mod_booking_analyze_rules' => [
         'captype' => 'read',
         'contextlevel' => CONTEXT_MODULE,
@@ -473,6 +494,11 @@ $capabilities = [
     'mod/booking:changelockedcustomfields' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => ['manager' => CAP_ALLOW],
+    ],
+    'mod/booking:managecustomfields' => [
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_SYSTEM,
         'archetypes' => ['manager' => CAP_ALLOW],
     ],
     'mod/booking:bookforothers' => [
