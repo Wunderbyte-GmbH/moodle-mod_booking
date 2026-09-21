@@ -762,6 +762,12 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
                 $user = singleton_service::get_instance_of_user($userid);
             }
 
+            // What the user holds before we deliver. Comparing it with the state afterwards is the
+            // only drift free way to know whether this checkout actually gave them something:
+            // whether a repeated purchase is due is decided inside user_submit_response(), by the
+            // multiplebookings gate and by the slot capacity, and must not be judged twice.
+            $heldbefore = self::held_answer_ids($itemid, $user->id);
+
             // If this returns false, the reason most like is that the reserveration was deleted before.
             // Most likely because the item wasnt reserved anymore.
             if (!$bookingoption->user_confirm_response($user)) {
@@ -784,13 +790,24 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
                     return false;
                 }
             }
+
+            // The user held something before and holds exactly the same afterwards, so this
+            // checkout delivered nothing: they already had this option and no repeated purchase
+            // was due. That happens when two checkouts of the same cart are paid. We note it for
+            // the cart, which asks for it right after this call.
+            $alreadyowned = !empty($heldbefore) && self::held_answer_ids($itemid, $user->id) === $heldbefore;
+            self::remember_delivery($area, $itemid, $user->id, $alreadyowned);
+
             // Remember which purchase paid for this booking. A user may hold several separately
             // purchased bookings on the same option, and the cancel callback below only learns the
             // option - without this link it would have to drop all of them. The value comes from
             // the payment component and is never interpreted here; it stays 0 without one.
-            if (!empty($identifier)) {
+            // A checkout that delivered nothing paid for no booking, so it must not be linked to
+            // the answer the user already held.
+            if (!empty($identifier) && !$alreadyowned) {
                 self::stamp_purchase_identifier($itemid, $userid, (int)$identifier);
             }
+
             return true;
         } else if (strpos($area, 'subbooking') === 0) {
             // As a subbooking can have different slots, we use the area to provide the subbooking id.
@@ -818,6 +835,92 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
         } else {
             return false;
         }
+    }
+
+    /**
+     * Deliveries of this request that reached nobody, keyed by area, item and user.
+     *
+     * successful_checkout() and the delivery_was_already_owned() question of the cart are two
+     * calls of the same delivery, so the answer is handed over here. It is request scoped and
+     * read exactly once.
+     *
+     * @var bool[]
+     */
+    private static $deliveries = [];
+
+    /**
+     * Notes whether a delivery reached the user, so that the cart can ask for it afterwards.
+     *
+     * @param string $area
+     * @param int $itemid
+     * @param int $userid
+     * @param bool $alreadyowned
+     * @return void
+     */
+    private static function remember_delivery(string $area, int $itemid, int $userid, bool $alreadyowned): void {
+        self::$deliveries[$area . '|' . $itemid . '|' . $userid] = $alreadyowned;
+    }
+
+    /**
+     * Optional shopping cart callback: did this checkout deliver nothing the user did not have?
+     *
+     * The cart calls this right after a successful checkout of the item. When the answer is true,
+     * the amount is not booked as a sale but given back as credit, and the cart triggers its
+     * duplicate_purchase event. See the optional callback described in the service_provider
+     * interface of local_shopping_cart.
+     *
+     * @param string $area
+     * @param int $itemid
+     * @param int $userid
+     * @return bool
+     */
+    public static function delivery_was_already_owned(string $area, int $itemid, int $userid): bool {
+
+        $key = $area . '|' . $itemid . '|' . $userid;
+
+        if (!isset(self::$deliveries[$key])) {
+            // Nothing was noted for this delivery, so we do not claim anything about it.
+            return false;
+        }
+
+        $alreadyowned = self::$deliveries[$key];
+        unset(self::$deliveries[$key]);
+
+        return $alreadyowned;
+    }
+
+    /**
+     * The answers of this user for this option that mean they hold a place.
+     *
+     * A reservation does not count: it is what the user is about to pay for, not what they have.
+     * The ids are read from the database, because the delivery has just written them and cached
+     * answers of this request would be stale.
+     *
+     * @param int $optionid
+     * @param int $userid
+     * @return int[] sorted answer ids
+     */
+    private static function held_answer_ids(int $optionid, int $userid): array {
+
+        global $DB;
+
+        [$insql, $inparams] = $DB->get_in_or_equal(
+            [MOD_BOOKING_STATUSPARAM_BOOKED, MOD_BOOKING_STATUSPARAM_WAITINGLIST],
+            SQL_PARAMS_NAMED,
+            'status'
+        );
+
+        $ids = $DB->get_fieldset_select(
+            'booking_answers',
+            'id',
+            "optionid = :optionid AND userid = :userid AND waitinglist $insql",
+            array_merge(['optionid' => $optionid, 'userid' => $userid], $inparams)
+        );
+
+        $ids = array_map('intval', $ids);
+        sort($ids);
+
+        return $ids;
     }
 
     /**

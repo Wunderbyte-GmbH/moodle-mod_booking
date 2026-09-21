@@ -188,6 +188,7 @@ class rule_react_on_event implements booking_rule {
                 'payment_confirmed',
                 'item_bought',
                 'item_canceled',
+                'duplicate_purchase',
             ];
             $shoppingcartevents = get_list_of_shoppingcart_events();
             foreach ($shoppingcartevents as $key => $value) {
