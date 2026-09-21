@@ -874,6 +874,7 @@ $string['booking:managecomments'] = 'Kommentare verwalten';
 $string['booking:managecustomfieldoptions'] = 'Wertelisten für benutzerdefinierte Buchungsfelder verwalten';
 $string['booking:manageoptiondates'] = 'Bearbeite Termine';
 $string['booking:manageoptiontemplates'] = "Buchungsoptionsvorlagen verwalten";
+$string['booking:managepricecategories'] = 'Preiskategorien verwalten';
 $string['booking:manageslotunavailability'] = 'Abwesenheiten für Slot-Lehrende verwalten';
 $string['booking:moveslots'] = 'Gebuchte Slots verschieben';
 $string['booking:moveslotsself'] = 'Eigene gebuchte Slots umbuchen';

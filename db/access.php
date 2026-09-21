@@ -458,6 +458,14 @@ $capabilities = [
             'manager' => CAP_ALLOW,
         ],
     ],
+    // Price categories are a site-wide list, but maintaining it is booking work, not server
+    // administration. It used to sit behind moodle/site:config, which no manager holds, so the
+    // whole area was unreachable for the role that owns it (run 23).
+    'mod/booking:managepricecategories' => [
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => ['manager' => CAP_ALLOW],
+    ],
     'mod/booking:manageoptiontemplates' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,

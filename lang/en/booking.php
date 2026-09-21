@@ -874,6 +874,7 @@ $string['booking:managecomments'] = 'Manage comments';
 $string['booking:managecustomfieldoptions'] = 'Manage booking custom field option lists';
 $string['booking:manageoptiondates'] = 'Manage option dates';
 $string['booking:manageoptiontemplates'] = "Manage option templates";
+$string['booking:managepricecategories'] = 'Manage price categories';
 $string['booking:manageslotunavailability'] = 'Manage teacher slot unavailability';
 $string['booking:moveslots'] = 'Move booked slots';
 $string['booking:moveslotsself'] = 'Rebook own booked slots';
