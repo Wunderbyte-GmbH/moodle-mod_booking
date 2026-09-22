@@ -1220,7 +1220,42 @@ final class ticket_manager_test extends booking_advanced_testcase {
         // Entry staff picked on the option (no capability) may open the PDF: the gate lets them through
         // to the file (send_stored_file() would end the request, so only the gate decision is asserted).
         $this->set_option_json([ticket_manager::JSON_SCANNERS => [$other->id]]);
-        $this->assertTrue(ticket_manager::can_scan((int) $this->settings->cmid, $this->settings->id, (int) $other->id));
+        $this->assertTrue(ticket_manager::can_download($ticket, (int) $this->settings->cmid, (int) $other->id));
+    }
+
+    /**
+     * The download decision: holder, report viewers and entry staff of the option, nobody else.
+     *
+     * @covers \mod_booking\local\ticket\ticket_manager::can_download
+     */
+    public function test_can_download(): void {
+        $this->build_environment();
+        $this->book_student();
+        $ticket = ticket_manager::find_valid_ticket($this->settings->id, $this->student->id);
+        $cmid = (int) $this->settings->cmid;
+        $other = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->enrol_user($other->id, $this->course->id, 'student');
+
+        $this->assertTrue(ticket_manager::can_download($ticket, $cmid, (int) $this->student->id), 'The holder.');
+        $this->assertTrue(ticket_manager::can_download($ticket, $cmid, (int) $this->teacher->id), 'Report viewer.');
+        $this->assertFalse(ticket_manager::can_download($ticket, $cmid, (int) $other->id), 'Another student.');
+        $this->assertFalse(ticket_manager::can_download($ticket, $cmid, (int) guest_user()->id));
+        $this->assertFalse(ticket_manager::can_download($ticket, 0, (int) $this->teacher->id), 'No instance.');
+
+        // A transferable ticket is no exception: "may be passed on" is about the door, not the file.
+        $this->set_option_json([ticket_manager::JSON_PERSONALIZED => 0]);
+        $this->assertFalse(ticket_manager::can_download($ticket, $cmid, (int) $other->id));
+
+        // Picked as entry staff of the option: allowed; on a different instance id: not.
+        $this->set_option_json([ticket_manager::JSON_SCANNERS => [$other->id]]);
+        $this->assertTrue(ticket_manager::can_download($ticket, $cmid, (int) $other->id));
+        $this->assertFalse(ticket_manager::can_download($ticket, $cmid + 1000, (int) $other->id));
+
+        // Current user by default.
+        $this->setUser($other);
+        $this->assertTrue(ticket_manager::can_download($ticket, $cmid));
+        $this->setUser(null);
+        $this->assertFalse(ticket_manager::can_download($ticket, $cmid), 'Nobody logged in.');
     }
 
     /**

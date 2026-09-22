@@ -217,6 +217,40 @@ class ticket_manager {
     }
 
     /**
+     * Whether a user may download a ticket PDF.
+     *
+     * The holder always may. Others need "View ticket report" in the booking instance, or must be
+     * allowed to scan the ticket's option (see can_scan()). Guests never may.
+     *
+     * @param stdClass $ticket Record of booking_tickets.
+     * @param int $cmid Course module id of the booking instance the file was requested in.
+     * @param int $userid Defaults to the current user.
+     *
+     * @return bool
+     */
+    public static function can_download(stdClass $ticket, int $cmid, int $userid = 0): bool {
+        global $USER;
+
+        if (empty($userid)) {
+            $userid = (int) ($USER->id ?? 0);
+        }
+        if (empty($userid) || isguestuser($userid) || empty($cmid)) {
+            return false;
+        }
+        if ((int) $ticket->userid === $userid) {
+            return true;
+        }
+        $context = context_module::instance($cmid, IGNORE_MISSING);
+        if (!$context) {
+            return false;
+        }
+        if (has_capability('mod/booking:viewticketreport', $context, $userid)) {
+            return true;
+        }
+        return self::can_scan($cmid, (int) $ticket->optionid, $userid);
+    }
+
+    /**
      * Throw the capability exception unless the user may scan (see can_scan()).
      *
      * @param int $cmid
