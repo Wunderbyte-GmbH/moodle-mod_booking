@@ -19,6 +19,7 @@ namespace mod_booking\local;
 use cache_helper;
 use core_text;
 use mod_booking\booking_rules\rules_info;
+use mod_booking\local\bulk_check\bulk_check;
 use mod_booking\output\scheduledmails as scheduledmails_output;
 use mod_booking\table\scheduledmails_table;
 use stdClass;
@@ -150,12 +151,22 @@ class scheduledmails {
             return false;
         }
 
+        // A bulk checked send runs later than the rule intended, and the days-before and
+        // specific-time rules re-validate by demanding exactly the intended time back. The
+        // checker keeps that time on its row; without it every postponed send would show as
+        // invalid here and the daily cleanup would delete it.
+        $checktime = (int)($values->nextruntime ?? 0);
+        $bulkrow = bulk_check::get_row_by_task((int)$values->id);
+        if (!empty($bulkrow)) {
+            $checktime = (int)$bulkrow->sendtime;
+        }
+
         try {
             $rule->set_ruledata($ruleinstance);
             return (bool)$rule->check_if_rule_still_applies(
                 (int)$taskdata->optionid,
                 (int)$taskdata->userid,
-                (int)($values->nextruntime ?? 0),
+                $checktime,
                 (int)($taskdata->optiondateid ?? 0)
             );
         } catch (\Throwable $e) {
@@ -216,6 +227,7 @@ class scheduledmails {
             }
 
             $DB->delete_records('task_adhoc', ['id' => $taskid]);
+            bulk_check::drop_by_task($taskid);
             $deleted++;
         }
 

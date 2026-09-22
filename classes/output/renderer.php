@@ -410,6 +410,18 @@ class renderer extends plugin_renderer_base {
     }
 
     /**
+     * Function to render the list of rule mails parked by the bulk send checker.
+     * @param bulkcheck $data
+     * @return string
+     */
+    public function render_bulkcheck(bulkcheck $data) {
+        $o = '';
+        $data = $data->export_for_template($this);
+        $o .= $this->render_from_template('mod_booking/bulkcheck', $data);
+        return $o;
+    }
+
+    /**
      * Function to print booking option description for mail placeholder {bookingdetails}.
      * @param bookingoption_description $data
      * @return string

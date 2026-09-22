@@ -27,7 +27,10 @@
 
 namespace mod_booking\output;
 
+use context_system;
 use local_wunderbyte_table\filters\types\standardfilter;
+use mod_booking\local\bulk_check\bulk_check;
+use moodle_url;
 use mod_booking\table\scheduledmails_table;
 use renderer_base;
 use renderable;
@@ -153,8 +156,21 @@ class scheduledmails implements renderable, templatable {
      * @return array
      */
     public function export_for_template(renderer_base $output): array {
-        return [
+        $data = [
             'renderedtable' => $this->renderedtable,
         ];
+
+        // The parked mails of the bulk send checker are the other half of the queue, on a
+        // page of their own because they are site wide.
+        if (has_capability('mod/booking:managebulkcheck', context_system::instance())) {
+            $parked = bulk_check::count_parked();
+            $data['bulkcheckurl'] = (new moodle_url('/mod/booking/bulkcheck.php'))->out(false);
+            $data['bulkcheckparked'] = $parked;
+            $data['bulkcheckwarning'] = $parked > 0
+                ? get_string('bulkcheckparkedwarning', 'mod_booking', $parked)
+                : '';
+        }
+
+        return $data;
     }
 }

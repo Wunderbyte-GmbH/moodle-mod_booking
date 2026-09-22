@@ -757,6 +757,15 @@ $capabilities = [
             'manager' => CAP_ALLOW,
         ],
     ],
+    /* Capability to see, send or delete the rule mails that the bulk send checker parked, and to
+       receive its alerts. Site wide, because booking rules can live in the system context. */
+    'mod/booking:managebulkcheck' => [
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => [
+            'manager' => CAP_ALLOW,
+        ],
+    ],
     'mod/booking:seealllisttoapprove' => [
         'captype' => 'read',
         'contextlevel' => CONTEXT_SYSTEM,
