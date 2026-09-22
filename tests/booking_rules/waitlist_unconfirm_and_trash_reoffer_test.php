@@ -126,8 +126,7 @@ final class waitlist_unconfirm_and_trash_reoffer_test extends booking_advanced_t
                 $this->fail(
                     'Step 5/Variante A: unconfirming person 2 rewrites their EXISTING waiting-list ' .
                     'answer - it must not re-fire bookingoptionwaitinglist_booked for them, exactly ' .
-                    'like confirming does not (booking_option.php\'s own '.
-                    '"is_null($currentanswerid)" guard on that same event for the join case).'
+                    'like confirming does not (booking_option.php\'s own ' .
                 );
             }
         }
