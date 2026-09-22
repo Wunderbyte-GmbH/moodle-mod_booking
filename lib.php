@@ -561,21 +561,17 @@ function booking_pluginfile($course, $cm, $context, $filearea, $args, $forcedown
         $filepath = '/' . implode('/', $args) . '/';
     }
 
-    // Entry tickets are personal documents, so this area needs its own authorization.
+    // Entry tickets are personal documents: their own authorization, and no caching, so a browser
+    // shared by several accounts never hands the PDF of one user to the next one logged in.
+    $lifetime = null;
     if ($filearea === 'tickets') {
-        global $DB, $USER;
+        global $DB;
         require_login($course, false, $cm);
         $ticket = $DB->get_record('booking_tickets', ['id' => $itemid]);
-        if (empty($ticket)) {
+        if (empty($ticket) || !\mod_booking\local\ticket\ticket_manager::can_download($ticket, (int) $cm->id)) {
             return false;
         }
-        if (
-            (int) $ticket->userid !== (int) $USER->id
-            && !has_capability('mod/booking:viewticketreport', $context)
-            && !\mod_booking\local\ticket\ticket_manager::can_scan((int) $cm->id, (int) $ticket->optionid)
-        ) {
-            return false;
-        }
+        $lifetime = 0;
     }
 
     // Retrieve the file from the Files API.
@@ -585,8 +581,8 @@ function booking_pluginfile($course, $cm, $context, $filearea, $args, $forcedown
         return false; // The file does not exist.
     }
 
-    // Send the file back to the browser - in this case with a cache lifetime of 1 day and no filtering.
-    send_stored_file($file, null, 0, true, $options);
+    // Send the file back to the browser (default cache lifetime, no filtering; tickets uncached).
+    send_stored_file($file, $lifetime, 0, true, $options);
 }
 
 /**
