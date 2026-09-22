@@ -927,5 +927,48 @@
       </KEYS>
     </TABLE>
 
+    <TABLE NAME="booking_bulk_check" COMMENT="Tracks queued sends of bulk checked rule mails so bursts can be detected and parked.">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="ruleid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The booking rule whose mail this is, the key of a burst"/>
+        <FIELD NAME="optionid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="taskid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="The task_adhoc record this row belongs to, null once the mail is out"/>
+        <FIELD NAME="status" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="0 pending, 1 sent, 2 blocked, 3 released, 6 releasing"/>
+        <FIELD NAME="notified" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Set on the row that raised the burst notification"/>
+        <FIELD NAME="sendtime" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The run time the rule computed, before any delay. The rule re-validates against this"/>
+        <FIELD NAME="scheduledtime" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="When the task actually runs, the anchor of the counting window"/>
+        <FIELD NAME="timesent" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="When the mail went out, for sent rows"/>
+        <FIELD NAME="taskdata" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Copy of the task customdata, only on blocked rows, so a release can rebuild the task"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="taskid_uix" UNIQUE="true" FIELDS="taskid"/>
+        <INDEX NAME="rule_status_sched_ix" UNIQUE="false" FIELDS="ruleid, status, scheduledtime"/>
+        <INDEX NAME="rule_status_sent_ix" UNIQUE="false" FIELDS="ruleid, status, timesent"/>
+        <INDEX NAME="status_sched_ix" UNIQUE="false" FIELDS="status, scheduledtime"/>
+        <INDEX NAME="status_rule_ix" UNIQUE="false" FIELDS="status, ruleid"/>
+      </INDEXES>
+    </TABLE>
+
+    <TABLE NAME="booking_bulk_config" COMMENT="Per rule configuration of the bulk send checker.">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="ruleid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="enabled" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="limitcount" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="50" SEQUENCE="false" COMMENT="Sends of this rule allowed within the period. Not called limit because that is a reserved word"/>
+        <FIELD NAME="usermodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="ruleid_unique" TYPE="unique" FIELDS="ruleid"/>
+      </KEYS>
+    </TABLE>
   </TABLES>
 </XMLDB>

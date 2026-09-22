@@ -5830,6 +5830,49 @@ function xmldb_booking_upgrade($oldversion) {
 
         upgrade_mod_savepoint(true, 2026091500, 'booking');
     }
+    if ($oldversion < 2026092500) {
+        // Bulk send checker: rows of queued sends of bulk checked rule mails.
+        $table = new xmldb_table('booking_bulk_check');
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('ruleid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('optionid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('userid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('taskid', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+        $table->add_field('status', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('notified', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('sendtime', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('scheduledtime', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('timesent', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('taskdata', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_index('taskid_uix', XMLDB_INDEX_UNIQUE, ['taskid']);
+        $table->add_index('rule_status_sched_ix', XMLDB_INDEX_NOTUNIQUE, ['ruleid', 'status', 'scheduledtime']);
+        $table->add_index('rule_status_sent_ix', XMLDB_INDEX_NOTUNIQUE, ['ruleid', 'status', 'timesent']);
+        $table->add_index('status_sched_ix', XMLDB_INDEX_NOTUNIQUE, ['status', 'scheduledtime']);
+        $table->add_index('status_rule_ix', XMLDB_INDEX_NOTUNIQUE, ['status', 'ruleid']);
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Bulk send checker: which rules are checked and their limit.
+        $table = new xmldb_table('booking_bulk_config');
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('ruleid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('enabled', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('limitcount', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '50');
+        $table->add_field('usermodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('ruleid_unique', XMLDB_KEY_UNIQUE, ['ruleid']);
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        upgrade_mod_savepoint(true, 2026092500, 'booking');
+    }
 
     return true;
 }

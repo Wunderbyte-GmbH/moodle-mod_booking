@@ -25,6 +25,8 @@
 
 namespace mod_booking\booking_rules;
 
+use mod_booking\local\bulk_check\bulk_check;
+use mod_booking\local\bulk_check\bulk_check_config;
 use context;
 use context_module;
 use core_component;
@@ -179,6 +181,46 @@ class rules_info {
 
         // Finally, we load the actions.
         actions_info::add_actions_to_mform($mform, $repeateloptions, $ajaxformdata);
+
+        self::add_bulk_check_to_mform($mform);
+    }
+
+    /**
+     * The two fields of the bulk send checker, only while the checker is switched on.
+     *
+     * They are hidden for every action whose mails never pass through the checker, so that
+     * nothing is stored that could never take effect.
+     *
+     * @param MoodleQuickForm $mform
+     * @return void
+     */
+    private static function add_bulk_check_to_mform(MoodleQuickForm &$mform): void {
+        if (!bulk_check_config::is_enabled()) {
+            return;
+        }
+
+        $mform->addElement('html', '<hr>');
+        $mform->addElement(
+            'advcheckbox',
+            'bulkcheckactive',
+            get_string('bulkcheckactive', 'mod_booking'),
+            get_string('bulkcheckactive_label', 'mod_booking')
+        );
+        $mform->addHelpButton('bulkcheckactive', 'bulkcheckactive', 'mod_booking');
+
+        $mform->addElement('text', 'bulkchecklimit', get_string('bulkchecklimit', 'mod_booking'), ['size' => 6]);
+        $mform->setType('bulkchecklimit', PARAM_INT);
+        $mform->setDefault('bulkchecklimit', bulk_check_config::DEFAULT_LIMIT);
+        $mform->hideIf('bulkchecklimit', 'bulkcheckactive', 'notchecked');
+
+        foreach (actions_info::get_actions() as $action) {
+            $actionname = $action->actionname ?? '';
+            if (empty($actionname) || bulk_check_config::is_checkable_action($actionname)) {
+                continue;
+            }
+            $mform->hideIf('bulkcheckactive', 'bookingruleactiontype', 'eq', $actionname);
+            $mform->hideIf('bulkchecklimit', 'bookingruleactiontype', 'eq', $actionname);
+        }
     }
 
     /**
@@ -278,6 +320,14 @@ class rules_info {
         $condition->set_defaults($data, $record);
         $action->set_defaults($data, $record);
         $rule->set_defaults($data, $record);
+
+        // The bulk send check is stored next to the rule, not inside its json. Templates
+        // (negative ids) have none.
+        if ($data->id > 0) {
+            $bulkconfig = bulk_check_config::get_record((int)$record->id);
+            $data->bulkcheckactive = empty($bulkconfig->enabled) ? 0 : 1;
+            $data->bulkchecklimit = (int)($bulkconfig->limitcount ?? bulk_check_config::DEFAULT_LIMIT);
+        }
         return (object)$data;
     }
 
@@ -301,6 +351,20 @@ class rules_info {
         // Rule has to be saved last, because it actually writes to DB.
         $ruleid = $rule->save_rule($data);
         $data->id = $ruleid;
+
+        // The bulk send check has to be stored before the rule runs below: that run is
+        // itself a burst source, and it must already see the setting. While the checker is
+        // switched off the fields are absent and a stored setting is left alone, so it is
+        // back the moment the checker is switched on again. A field hidden by hideIf is
+        // still submitted, hence the check on the action.
+        if (bulk_check_config::is_enabled() && isset($data->bulkcheckactive)) {
+            bulk_check_config::set_settings(
+                (int)$ruleid,
+                !empty($data->bulkcheckactive)
+                    && bulk_check_config::is_checkable_action($data->bookingruleactiontype ?? ''),
+                (int)($data->bulkchecklimit ?? bulk_check_config::DEFAULT_LIMIT)
+            );
+        }
 
         self::execute_booking_rules($ruleid);
 
@@ -401,6 +465,12 @@ class rules_info {
     public static function delete_rule(int $ruleid) {
         global $DB;
         $DB->delete_records('booking_rules', ['id' => (int)$ruleid]);
+
+        // A parked send of a deleted rule could never pass the re-validation of its task, so
+        // it is given up on now, with the audit event that says so. Pending rows drop
+        // themselves when their task finds the rule gone.
+        bulk_check::dismiss_rule((int)$ruleid);
+        bulk_check_config::delete_settings((int)$ruleid);
     }
 
     /**

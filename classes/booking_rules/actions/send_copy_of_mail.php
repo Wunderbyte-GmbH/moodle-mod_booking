@@ -19,6 +19,7 @@ namespace mod_booking\booking_rules\actions;
 use mod_booking\booking_rules\booking_rule_action;
 use mod_booking\placeholders\placeholders_info;
 use mod_booking\singleton_service;
+use mod_booking\local\bulk_check\bulk_check;
 use mod_booking\task\send_mail_by_rule_adhoc;
 use MoodleQuickForm;
 use stdClass;
@@ -227,9 +228,14 @@ class send_copy_of_mail implements booking_rule_action {
         $task->set_custom_data($taskdata);
         $task->set_userid($record->userid);
 
-        $task->set_next_run_time($record->nextruntime);
-
-        // Now queue the task or reschedule it if it already exists (with matching data).
-        \core\task\manager::reschedule_or_queue_adhoc_task($task);
+        // Queues the task or reschedules it if it already exists (with matching data), and
+        // records it when the rule is bulk checked.
+        bulk_check::schedule_task(
+            $task,
+            (int) $this->ruleid,
+            (int) $record->optionid,
+            (int) $record->userid,
+            (int) $record->nextruntime
+        );
     }
 }

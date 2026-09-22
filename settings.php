@@ -159,6 +159,16 @@ $ADMIN->add(
 $ADMIN->add(
     'modbookingfolder',
     new admin_externalpage(
+        'modbookingbulkcheck',
+        get_string('bulkcheckparked', 'mod_booking'),
+        new moodle_url('/mod/booking/bulkcheck.php'),
+        'mod/booking:managebulkcheck'
+    )
+);
+
+$ADMIN->add(
+    'modbookingfolder',
+    new admin_externalpage(
         'modbookingbulkoperations',
         get_string('bulkoperationspro', 'mod_booking'),
         new moodle_url('/mod/booking/bulkoperations.php'),
@@ -2031,6 +2041,55 @@ if ($ADMIN->fulltree) {
             get_string('displayinfoaboutrules', 'mod_booking'),
             '',
             1
+        )
+    );
+
+    // Bulk send checker: guards the mails of booking rules against accidental mass sending.
+    $settings->add(
+        new admin_setting_configcheckbox(
+            'booking/bulkcheckenabled',
+            get_string('bulkcheckenabled', 'mod_booking'),
+            get_string('bulkcheckenabled_desc', 'mod_booking'),
+            0
+        )
+    );
+
+    $settings->add(
+        new admin_setting_configduration(
+            'booking/bulkcheckdelay',
+            get_string('bulkcheckdelay', 'mod_booking'),
+            get_string('bulkcheckdelay_desc', 'mod_booking'),
+            2 * MINSECS,
+            MINSECS
+        )
+    );
+
+    $settings->add(
+        new admin_setting_configduration(
+            'booking/bulkcheckperiod',
+            get_string('bulkcheckperiod', 'mod_booking'),
+            get_string('bulkcheckperiod_desc', 'mod_booking'),
+            HOURSECS,
+            MINSECS
+        )
+    );
+
+    $settings->add(
+        new admin_setting_users_with_capability(
+            'booking/bulkchecknotifyusers',
+            get_string('bulkchecknotifyusers', 'mod_booking'),
+            get_string('bulkchecknotifyusers_desc', 'mod_booking'),
+            [],
+            'mod/booking:managebulkcheck'
+        )
+    );
+
+    $bulkcheckurl = new moodle_url('/mod/booking/bulkcheck.php');
+    $settings->add(
+        new admin_setting_heading(
+            'booking/bulkchecklink',
+            get_string('bulkcheckparked', 'mod_booking'),
+            html_writer::link($bulkcheckurl, get_string('bulkcheckparkeddescription', 'mod_booking'))
         )
     );
 

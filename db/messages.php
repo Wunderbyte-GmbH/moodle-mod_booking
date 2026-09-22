@@ -40,4 +40,13 @@ $messageproviders = [
         ],
         'capability' => 'mod/booking:cansendmessages',
     ],
+
+    // Alert and daily reminder of the bulk send checker.
+    'bulkchecknotification' => [
+        'defaults' => [
+            'popup' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_ENABLED,
+            'email' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_ENABLED,
+        ],
+        'capability' => 'mod/booking:managebulkcheck',
+    ],
 ];

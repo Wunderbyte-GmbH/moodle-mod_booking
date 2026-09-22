@@ -114,6 +114,18 @@ class provider implements
         );
 
         $collection->add_database_table(
+            'booking_bulk_check',
+            [
+                'userid' => 'privacy:metadata:booking_bulk_check:userid',
+                'ruleid' => 'privacy:metadata:booking_bulk_check:ruleid',
+                'optionid' => 'privacy:metadata:booking_bulk_check:optionid',
+                'status' => 'privacy:metadata:booking_bulk_check:status',
+                'scheduledtime' => 'privacy:metadata:booking_bulk_check:scheduledtime',
+            ],
+            'privacy:metadata:booking_bulk_check'
+        );
+
+        $collection->add_database_table(
             'booking_ratings',
             [
                 'userid' => 'privacy:metadata:bookingratings:userid',
@@ -510,6 +522,7 @@ class provider implements
 
             // Slot booking and sync data is keyed by option, so delete via the options of the instance.
             $optionswhere = 'optionid IN (SELECT id FROM {booking_options} WHERE bookingid = :bookingid)';
+            $DB->delete_records_select('booking_bulk_check', $optionswhere, ['bookingid' => $cm->instance]);
             $DB->delete_records_select('booking_slot_moves', $optionswhere, ['bookingid' => $cm->instance]);
             $DB->delete_records_select('booking_slot_student_teacher', $optionswhere, ['bookingid' => $cm->instance]);
             $DB->delete_records_select('booking_teacher_unavailability', $optionswhere, ['bookingid' => $cm->instance]);
@@ -545,6 +558,12 @@ class provider implements
             $DB->delete_records('booking_teachers', ['bookingid' => $instanceid, 'userid' => $userid]);
             // Also delete all entries for booking_optiondates_teachers in context for the user.
             teachers_handler::delete_booking_optiondates_teachers_by_bookingid($instanceid, $userid);
+            // Queued or parked rule mails of the bulk send check for options of this instance.
+            $DB->delete_records_select(
+                'booking_bulk_check',
+                'userid = :userid AND optionid IN (SELECT id FROM {booking_options} WHERE bookingid = :bookingid)',
+                ['userid' => $userid, 'bookingid' => $instanceid]
+            );
         }
 
         // Ratings, icalsequence and userevents do not have a booking id and will therefore be deleted independent of contexts.
@@ -638,6 +657,9 @@ class provider implements
         // Add users with enrolment sync attempts.
         $userlist->add_from_sql('userid', "SELECT userid FROM {booking_sync_attempts}", []);
 
+        // Add users with queued or parked rule mails of the bulk send check.
+        $userlist->add_from_sql('userid', "SELECT userid FROM {booking_bulk_check}", []);
+
         // Add students and teachers of slot teacher assignments.
         $userlist->add_from_sql('userid', "SELECT userid FROM {booking_slot_student_teacher}", []);
         $userlist->add_from_sql('userid', "SELECT teacherid FROM {booking_slot_student_teacher}", []);
@@ -675,6 +697,7 @@ class provider implements
 
         // Now delete everything related to the selected userids.
         $DB->delete_records_select('booking_answers', $select, $params);
+        $DB->delete_records_select('booking_bulk_check', $select, $params);
         $DB->delete_records_select('booking_history', $select, $params);
         $DB->delete_records_select('booking_teachers', $select, $params);
         $DB->delete_records_select('booking_optiondates_teachers', $select, $params);

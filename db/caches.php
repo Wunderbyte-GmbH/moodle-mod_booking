@@ -203,6 +203,21 @@ $definitions = [
         'staticaccelerationsize' => 10,
         'invalidationevents' => ['setbackscheduledmailscache'],
     ],
+    // The whole per rule configuration of the bulk send checker under one key.
+    'bulkcheckconfig' => [
+        'mode' => cache_store::MODE_APPLICATION,
+        'simplekeys' => true,
+        'staticacceleration' => true,
+        'staticaccelerationsize' => 1,
+    ],
+    // The list of parked mails on bulkcheck.php.
+    'bulkcheckmails' => [
+        'mode' => cache_store::MODE_APPLICATION,
+        'simplekeys' => true,
+        'staticacceleration' => true,
+        'staticaccelerationsize' => 10,
+        'invalidationevents' => ['changesinwunderbytetable', 'setbackbulkcheckmails'],
+    ],
     'customfields' => [
         'mode' => cache_store::MODE_APPLICATION,
         'simplekeys' => true,

@@ -29,6 +29,7 @@ use cache_helper;
 use core_text;
 use html_writer;
 use local_wunderbyte_table\output\table;
+use mod_booking\local\bulk_check\bulk_check;
 use mod_booking\local\scheduledmails;
 use mod_booking\singleton_service;
 
@@ -304,6 +305,8 @@ class scheduledmails_table extends wunderbyte_table {
         global $DB;
 
         $DB->delete_records('task_adhoc', ['id' => $id]);
+        // The bulk send checker keeps a row per queued send, which must not outlive the task.
+        bulk_check::drop_by_task((int) $id);
 
         cache_helper::purge_by_event('setbackscheduledmailscache');
 
