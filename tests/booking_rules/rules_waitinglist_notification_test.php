@@ -298,6 +298,10 @@ final class rules_waitinglist_notification_test extends booking_advanced_testcas
         // cancels, offering the one free seat to s2 (oldest WL, non-zero price) - and
         // confirmationonnotification=1 grants confirmation immediately, so s2 is already at
         // PRICEISSET here, not still ONWAITINGLIST waiting for a later mail-interval step.
+        // Condition allowedtobookforuser hard-blocks every check for a foreign user, and student6
+        // is still logged in from the block above - so switch to the user we are checking.
+        $this->setUser($student2);
+        singleton_service::destroy_user($student2->id);
         [$id, $isavailable, $description] = $boinfo1->is_available($settings1->id, $student2->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_PRICEISSET, $id);
 
@@ -312,8 +316,13 @@ final class rules_waitinglist_notification_test extends booking_advanced_testcas
 
         // S3 and s4 (next-oldest untouched WL candidates) must stay on WL - no free capacity
         // (maxanswers=1 - booked=0 - open_offers=1[s2]).
+        // Again each check has to run as the user it is about (allowedtobookforuser).
+        $this->setUser($student3);
+        singleton_service::destroy_user($student3->id);
         [$id] = $boinfo1->is_available($settings1->id, $student3->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
+        $this->setUser($student4);
+        singleton_service::destroy_user($student4->id);
         [$id] = $boinfo1->is_available($settings1->id, $student4->id, true);
         $this->assertEquals(MOD_BOOKING_BO_COND_ONWAITINGLIST, $id);
 
