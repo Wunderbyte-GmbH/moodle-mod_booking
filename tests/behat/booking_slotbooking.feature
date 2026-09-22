@@ -75,11 +75,11 @@ Feature: Slot booking option renders fixed calendar slots in student timezone
     And I follow "Continue"
     And I should see "Thank you! You have successfully booked" in the ".modal-dialog.modal-xl .condition-confirmation" "css_element"
     And I follow "Close"
-    ## Capacity exhausted (2 of 2 slots): now the row locks to the booked state with the course
-    ## "Start" link, and the "available for you" counter drops to 0 - with max_slots_per_user used
-    ## up, no remaining slot is bookable by this user any more, however much per-slot capacity is
-    ## still free.
-    And I should see "0" in the ".allbookingoptionstable_r1 .bookings " "css_element"
+    ## Capacity exhausted (2 of 2 slots): the row locks to the booked state with the course
+    ## "Start" link. The counter keeps reporting what is still free ON THE OPTION, not what this
+    ## user may still book (col_bookings passes $ignoreuserslotcap): the two slots this student
+    ## took are gone, the other ten stay open for everybody else.
+    And I should see "10" in the ".allbookingoptionstable_r1 .bookings " "css_element"
     And I should see "Start" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Booked slots" in the ".allbookingoptionstable_r1 " "css_element"
     And I should see "9 May 2046, 4:00 PM - 4:20 PM" in the ".allbookingoptionstable_r1 " "css_element"
@@ -116,15 +116,25 @@ Feature: Slot booking option renders fixed calendar slots in student timezone
     And I wait until the page is ready
     ## Validate correct slots
     And I should see "10" in the ".allbookingoptionstable_r1 .bookings " "css_element"
-    And I should see "Monday, 7 May 2046 - 4:00 PM - 4:40 PM" in the ".booking-slotbooking-prepage" "css_element"
-    And I should see "Monday, 7 May 2046 - 4:20 PM - 5:00 PM" in the ".booking-slotbooking-prepage" "css_element"
-    And I should see "Monday, 7 May 2046 - 4:40 PM - 5:20 PM" in the ".booking-slotbooking-prepage" "css_element"
-    And I should see "Monday, 7 May 2046 - 5:00 PM - 5:40 PM" in the ".booking-slotbooking-prepage" "css_element"
-    And I should see "Monday, 7 May 2046 - 5:20 PM - 6:00 PM" in the ".booking-slotbooking-prepage" "css_element"
-    And I should see "Wednesday, 9 May 2046 - 4:00 PM - 4:40 PM" in the ".booking-slotbooking-prepage" "css_element"
-    And I should see "Wednesday, 9 May 2046 - 5:20 PM - 6:00 PM" in the ".booking-slotbooking-prepage" "css_element"
-    ## Book slot
-    And I click on "Monday, 7 May 2046 - 5:20 PM - 6:00 PM" "text" in the ".booking-slotbooking-prepage" "css_element"
+    ## The list view groups the slots into collapsible days: the date sits on the day header and
+    ## every row below it carries the time only, so there is no combined "<day> - <time>" label to
+    ## assert on. The day key is what slot_dto builds with userdate('%Y-%m-%d'), which does NOT
+    ## zero-pad the day - "2046-05-7", not "2046-05-07".
+    And I should see "Monday, 7 May 2046" in the ".booking-slot-day-group[data-day-key='2046-05-7'] .booking-slot-day-label" "css_element"
+    And I should see "5 slots" in the ".booking-slot-day-group[data-day-key='2046-05-7'] .booking-slot-day-count" "css_element"
+    And I should see "4:00 PM - 4:40 PM" in the ".booking-slot-day-group[data-day-key='2046-05-7'] .booking-slot-day-items" "css_element"
+    And I should see "4:20 PM - 5:00 PM" in the ".booking-slot-day-group[data-day-key='2046-05-7'] .booking-slot-day-items" "css_element"
+    And I should see "4:40 PM - 5:20 PM" in the ".booking-slot-day-group[data-day-key='2046-05-7'] .booking-slot-day-items" "css_element"
+    And I should see "5:00 PM - 5:40 PM" in the ".booking-slot-day-group[data-day-key='2046-05-7'] .booking-slot-day-items" "css_element"
+    And I should see "5:20 PM - 6:00 PM" in the ".booking-slot-day-group[data-day-key='2046-05-7'] .booking-slot-day-items" "css_element"
+    ## Only the first day holding a bookable slot opens on render (slot_day_renderers), so every
+    ## later day starts collapsed and its rows are invisible until its header is clicked.
+    And I should see "Wednesday, 9 May 2046" in the ".booking-slot-day-group[data-day-key='2046-05-9'] .booking-slot-day-label" "css_element"
+    And I click on ".booking-slot-day-group[data-day-key='2046-05-9'] .booking-slot-day-toggle" "css_element"
+    And I should see "4:00 PM - 4:40 PM" in the ".booking-slot-day-group[data-day-key='2046-05-9'] .booking-slot-day-items" "css_element"
+    And I should see "5:20 PM - 6:00 PM" in the ".booking-slot-day-group[data-day-key='2046-05-9'] .booking-slot-day-items" "css_element"
+    ## Book slot: the same times repeat on every day, so the click must be scoped to the day group.
+    And I click on "5:20 PM - 6:00 PM" "text" in the ".booking-slot-day-group[data-day-key='2046-05-7'] .booking-slot-day-items" "css_element"
     And I follow "Continue"
     And I should see "Thank you! You have successfully booked" in the ".modal-dialog.modal-xl .condition-confirmation" "css_element"
     And I should see "Slot booking option" in the ".modal-dialog.modal-xl .condition-confirmation" "css_element"
@@ -142,15 +152,17 @@ Feature: Slot booking option renders fixed calendar slots in student timezone
     When I click on "Book now" "text" in the ".allbookingoptionstable_r1" "css_element"
     And I wait until the page is ready
     And I should see "5:20 PM - 6:00 PM" in the ".booking-slot-list-item--booked" "css_element"
-    And I click on "Wednesday, 9 May 2046 - 4:00 PM - 4:40 PM" "text" in the ".booking-slotbooking-prepage" "css_element"
+    ## Monday reopens on its own (first day with a bookable slot); Wednesday has to be expanded again.
+    And I click on ".booking-slot-day-group[data-day-key='2046-05-9'] .booking-slot-day-toggle" "css_element"
+    And I click on "4:00 PM - 4:40 PM" "text" in the ".booking-slot-day-group[data-day-key='2046-05-9'] .booking-slot-day-items" "css_element"
     And I follow "Continue"
     And I should see "Thank you! You have successfully booked" in the ".modal-dialog.modal-xl .condition-confirmation" "css_element"
     And I follow "Close"
-    ## Capacity exhausted (2 of 2 slots): now the row locks to the booked state with the course
-    ## "Start" link, and the "available for you" counter drops to 0 - with max_slots_per_user used
-    ## up, no remaining slot is bookable by this user any more, however much per-slot capacity is
-    ## still free.
-    And I should see "0" in the ".allbookingoptionstable_r1 .bookings " "css_element"
+    ## Capacity exhausted (2 of 2 slots): the row locks to the booked state with the course
+    ## "Start" link. The counter keeps reporting what is still free ON THE OPTION, not what this
+    ## user may still book (col_bookings passes $ignoreuserslotcap). Each of the two bookings took
+    ## two of the ten away - the booked slot plus its overlapping neighbour - so six remain.
+    And I should see "6" in the ".allbookingoptionstable_r1 .bookings " "css_element"
     And I should see "Start" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Booked slots" in the ".allbookingoptionstable_r1 " "css_element"
     And I should see "7 May 2046, 5:20 PM - 6:00 PM" in the ".allbookingoptionstable_r1 " "css_element"
