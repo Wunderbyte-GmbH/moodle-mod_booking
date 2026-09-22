@@ -899,6 +899,7 @@ class booking_option {
                 ]
             )
         ) {
+            \mod_booking\event\observer\answer_removed_waitlist_adapter::skip((int) $this->optionid, (int) $userid);
             (new db_waitlist_offer_repository())->lift_locks((int) $this->optionid, (int) $userid);
         }
 
@@ -1929,12 +1930,14 @@ class booking_option {
         We keep this here (not in write_user_answer_to_db) to avoid retrigger loops
         from automatic UN_CONFIRM updates during task processing. */
         if ($status === MOD_BOOKING_BO_SUBMIT_STATUS_UN_CONFIRM) {
-            // Waitlist-progression refactoring (Phase 3): decline BEFORE check_if_free_to_book_again()
-            // below triggers reconcile() (via freetobookagain_waitlist_adapter) - K7 must lock this
-            // user out before the reconciler looks for the next candidate.
             \mod_booking\event\observer\unconfirm_waitlist_adapter::decline($this->optionid, $user->id);
 
             self::check_if_free_to_book_again($this->settings, $user->id, true);
+
+            // Unconfirm only rewrites an existing waiting-list answer: the person does not land on
+            // the waiting list anew, so the booking routine (waitinglist_booked event and its
+            // rules, calendar, book actions, legacy mail) must not run again.
+            return true;
         }
 
         // The answers cache was already invalidated by write_user_answer_to_db() above (which
