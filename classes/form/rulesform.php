@@ -122,6 +122,11 @@ class rulesform extends dynamic_form {
         // The optional filter on booking option fields is available for all rule types.
         optionfield_filter::validation($data, $errors);
 
+        // The bulk send check needs a limit of at least one send per period.
+        if (!empty($data['bulkcheckactive']) && (int) ($data['bulkchecklimit'] ?? 0) < 1) {
+            $errors['bulkchecklimit'] = get_string('error:entervalue', 'mod_booking');
+        }
+
         switch ($data['bookingruletype']) {
             case '0':
                 $errors['bookingruletype'] = get_string('error:choosevalue', 'mod_booking');

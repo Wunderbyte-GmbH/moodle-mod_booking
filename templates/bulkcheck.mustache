@@ -15,7 +15,9 @@
     along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 }}
 {{!
-    @template mod_booking/scheduledmails_list
+    @template mod_booking/bulkcheck
+
+    The list of rule mails whose sending was parked by the bulk send checker.
 
     Classes required for JS:
     * none
@@ -23,23 +25,17 @@
     Data attributes required for JS:
     * data-region
 
-   Example context (json):
-    [
-        {
-            "renderedtable": "<table>...</table>",
-            "bulkcheckurl": "https://example.com/mod/booking/bulkcheck.php",
-            "bulkcheckparked": 0,
-            "bulkcheckwarning": ""
-        }
-    ]
+    Context variables required for this template:
+    * renderedtable - string: the rendered table
+    * parked - int: how many mails are parked in this list
+
+    Example context (json):
+    {
+        "renderedtable": "<div>the rendered table</div>",
+        "parked": 3
+    }
 }}
-<div data-region="scheduledmails-list">
-    <div class="alert alert-warning">{{#str}} infotext:scheduledmailswarning, mod_booking {{/str}} </div>
-    {{#bulkcheckurl}}
-    <div class="alert {{#bulkcheckwarning}}alert-danger{{/bulkcheckwarning}}{{^bulkcheckwarning}}alert-secondary{{/bulkcheckwarning}}">
-        {{#bulkcheckwarning}}{{bulkcheckwarning}} {{/bulkcheckwarning}}
-        <a href="{{bulkcheckurl}}">{{#str}} bulkcheckparkeddescription, mod_booking {{/str}}</a>
-    </div>
-    {{/bulkcheckurl}}
+<div data-region="bulkcheck-list" class="mod_booking_bulkcheck">
+    <div class="alert alert-info">{{#str}} bulkcheckparkedintro, mod_booking {{/str}}</div>
     {{{ renderedtable }}}
 </div>
