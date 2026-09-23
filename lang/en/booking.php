@@ -972,6 +972,7 @@ $string['bookingidfilter'] = 'Booking Instance';
 $string['bookingimages'] = 'Upload header images for booking options - they need to have the exact same name as the value of the selected customfield in each booking option.';
 $string['bookingimagescustomfield'] = 'Booking option custom field to match the header images with';
 $string['bookinginstance'] = 'Booking instance';
+$string['bookinginstancename'] = 'Booking instance name';
 $string['bookinginstancetemplatename'] = 'Booking instance template name';
 $string['bookinginstancetemplatessettings'] = 'Booking: Instance templates';
 $string['bookinginstanceupdated'] = 'Booking instance updated';

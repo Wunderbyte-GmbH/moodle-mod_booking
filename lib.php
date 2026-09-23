@@ -3113,6 +3113,13 @@ function mod_booking_tool_certificate_fields() {
         get_string('bookingoptionname', 'mod_booking'),
     );
     $handler->ensure_field_exists(
+        'bookinginstancename',
+        'text',
+        get_string('bookinginstancename', 'mod_booking'),
+        true,
+        get_string('bookinginstancename', 'mod_booking'),
+    );
+    $handler->ensure_field_exists(
         'bookingoptiondescription',
         'textarea',
         get_string('bookingoptiondescription', 'mod_booking'),
