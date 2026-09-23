@@ -176,6 +176,7 @@ class certificateclass {
         $bookingoptionfields = [
             'bookingoptionid' => $settings->id,
             'bookingoptionname' => $settings->get_title_with_prefix(),
+            'bookinginstancename' => singleton_service::get_instance_of_booking_settings_by_cmid($settings->cmid)->name,
             'bookingoptiondescription' => clean_text(
                 $settings->description,
                 $format = FORMAT_HTML,

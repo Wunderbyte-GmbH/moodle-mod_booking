@@ -951,6 +951,7 @@ $string['bookingidfilter'] = 'Buchungsinstanz';
 $string['bookingimages'] = 'Header-Bilder für Buchungsoptionen hochladen - diese müssen exakt den selben Namen haben, wie der jeweilige Wert, den das ausgewählte benutzerdefinierte Feld in der jeweiligen Buchungsoption hat.';
 $string['bookingimagescustomfield'] = 'Benutzerdefiniertes Feld von Buchungsoptionen, mit dem die Header-Bilder gematcht werden';
 $string['bookinginstance'] = 'Buchungsinstanz';
+$string['bookinginstancename'] = 'Bezeichnung der Buchungsinstanz';
 $string['bookinginstancetemplatename'] = 'Name der Buchungsinstanz-Vorlage';
 $string['bookinginstancetemplatessettings'] = 'Booking: Vorlagen für Buchungsinstanzen';
 $string['bookinginstanceupdated'] = 'Buchungsinstanz upgedated';
