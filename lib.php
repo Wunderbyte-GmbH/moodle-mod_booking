@@ -1984,8 +1984,12 @@ function booking_require_report_login(stdClass $course, $cm = null): void {
  *
  * By default (setting "editoptionsrequirecourselogin" enabled), the user has to be enrolled in the course
  * (or the course must allow guest access), like require_course_login() does.
- * If the setting is disabled, a site login is enough. The page course/cm/context are still set,
- * so the capability checks of the form keep working in the right context.
+ * If the setting is disabled, a site login is enough. Users who can access the course get the same page
+ * setup as with require_course_login(). For users who are not enrolled, the page context is the system
+ * context: the javascript of the page sends the page context to web services (e.g. core_get_user_dates
+ * for the calendar of every date selector), which validate it with require_login(), so a module or course
+ * context would fail with "Not enrolled" as soon as a date is changed. The capability checks of the form
+ * use the module context explicitly, so they are not affected; the course is still set for $COURSE.
  *
  * @param stdClass $course the course record
  * @param cm_info|stdClass $cm the course module
@@ -2000,7 +2004,14 @@ function booking_require_editoptions_login(stdClass $course, $cm): void {
     }
 
     require_login(0, false);
-    $PAGE->set_cm($cm, $course);
+
+    if (can_access_course($course)) {
+        $PAGE->set_cm($cm, $course);
+        return;
+    }
+
+    $PAGE->set_context(context_system::instance());
+    $PAGE->set_course($course);
 }
 
 /**
