@@ -97,6 +97,7 @@ class col_availableplaces implements renderable, templatable {
 
         $canviewreport = (
             has_capability('mod/booking:viewreports', $syscontext)
+            || has_capability('mod/booking:viewreports', $modcontext)
             || has_capability('mod/booking:updatebooking', $modcontext)
             || has_capability('mod/booking:updatebooking', $syscontext)
             || booking_check_if_teacher($optionid)
