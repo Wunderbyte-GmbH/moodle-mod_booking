@@ -2004,6 +2004,32 @@ function booking_require_editoptions_login(stdClass $course, $cm): void {
 }
 
 /**
+ * Fallback return url of the booking option form (editoptions.php) when the caller passes none.
+ *
+ * By default this is the booking instance (view.php). If the setting "editoptionsrequirecourselogin" is
+ * disabled, users who are not enrolled in the course may edit their options, but view.php still requires
+ * the course login, so they would land on the enrolment page after saving or cancelling the form.
+ * For these users the fallback is their teacher page, or the dashboard if they are not a teacher.
+ *
+ * @param stdClass $course the course record
+ * @param int $cmid the course module id of the booking instance
+ * @return moodle_url
+ */
+function booking_editoptions_returnurl(stdClass $course, int $cmid): moodle_url {
+    global $USER;
+
+    if (get_config('booking', 'editoptionsrequirecourselogin') !== '0' || can_access_course($course)) {
+        return new moodle_url('/mod/booking/view.php', ['id' => $cmid]);
+    }
+
+    if (booking_check_if_teacher()) {
+        return new moodle_url('/mod/booking/teacher.php', ['teacherid' => $USER->id]);
+    }
+
+    return new moodle_url('/my/');
+}
+
+/**
  * Checks if the current user may edit (or create) a booking option in the booking option form.
  *
  * Used by editoptions.php and by the dynamic submission of the option form, so both apply the same rules.

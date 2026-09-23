@@ -38,15 +38,15 @@ $copyoptionid = optional_param('copyoptionid', 0, PARAM_INT);
 $createfromoptiondates = optional_param('createfromoptiondates', 0, PARAM_INT);
 $confirm = optional_param('confirm', 0, PARAM_INT);
 
-// Fallback url when there is no returnurl.
-$returnurl = new moodle_url('/mod/booking/view.php', ['id' => $cmid]);
-$returnurl = optional_param('returnurl', $returnurl->out(), PARAM_LOCALURL);
-
 [$course, $cm] = get_course_and_cm_from_cmid($cmid);
 
 // Course login (enrolment or guest access) by default; a site login is enough if the
 // setting "editoptionsrequirecourselogin" is disabled. The capability checks below still apply.
 booking_require_editoptions_login($course, $cm);
+
+// Fallback url when there is no returnurl: the booking instance, or a page without course login
+// for users who are not enrolled in the course (see booking_editoptions_returnurl()).
+$returnurl = optional_param('returnurl', booking_editoptions_returnurl($course, $cmid)->out(), PARAM_LOCALURL);
 
 $url = new moodle_url('/mod/booking/editoptions.php', ['id' => $cmid, 'optionid' => $optionid]);
 $PAGE->set_url($url);

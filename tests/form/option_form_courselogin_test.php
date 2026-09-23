@@ -31,6 +31,7 @@ use mod_booking\form\option_form;
 use mod_booking\tests\booking_advanced_testcase;
 use mod_booking_generator;
 use moodle_exception;
+use moodle_url;
 use require_login_exception;
 use required_capability_exception;
 use stdClass;
@@ -160,6 +161,47 @@ final class option_form_courselogin_test extends booking_advanced_testcase {
                 $this->assertEquals('invalidcontext', $e->errorcode, "Tampered $case must be rejected.");
             }
         }
+    }
+
+    /**
+     * Without course login, the fallback return url of the form must not need a course login either.
+     *
+     * @covers \booking_editoptions_returnurl
+     */
+    public function test_returnurl_fallback_without_enrolment(): void {
+        global $DB;
+
+        [$settings, $teacher] = $this->create_option_with_teacher_without_enrolment();
+        // The course of the booking instance, not the course linked to the option.
+        [$course] = get_course_and_cm_from_cmid((int)$settings->cmid, 'booking');
+        $viewurl = new moodle_url('/mod/booking/view.php', ['id' => (int)$settings->cmid]);
+
+        // Default setting: always the booking instance, the course login is checked before.
+        $this->setUser($teacher);
+        $this->assertEquals($viewurl->out(), booking_editoptions_returnurl($course, (int)$settings->cmid)->out());
+
+        set_config('editoptionsrequirecourselogin', 0, 'booking');
+
+        // Not enrolled and not in the teachers table: the dashboard.
+        $this->assertEquals(
+            (new moodle_url('/my/'))->out(),
+            booking_editoptions_returnurl($course, (int)$settings->cmid)->out()
+        );
+
+        // Not enrolled, but a teacher: the teacher's own page.
+        $DB->insert_record('booking_teachers', [
+            'bookingid' => (int)$settings->bookingid,
+            'optionid' => (int)$settings->id,
+            'userid' => (int)$teacher->id,
+        ]);
+        $this->assertEquals(
+            (new moodle_url('/mod/booking/teacher.php', ['teacherid' => (int)$teacher->id]))->out(),
+            booking_editoptions_returnurl($course, (int)$settings->cmid)->out()
+        );
+
+        // Enrolled users keep the booking instance as fallback.
+        $this->getDataGenerator()->enrol_user($teacher->id, $course->id, 'editingteacher');
+        $this->assertEquals($viewurl->out(), booking_editoptions_returnurl($course, (int)$settings->cmid)->out());
     }
 
     /**
