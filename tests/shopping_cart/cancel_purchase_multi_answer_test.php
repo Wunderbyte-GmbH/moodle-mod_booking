@@ -27,9 +27,12 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
 /**
  * Cancelling one of several purchases must leave the user's other bookings on that option alone.
  *
- * With "book again" a user can hold more than one booking on the same option, each paid for
- * separately. The cart's cancel callback only learns the option, so without the purchase link
- * stamped onto the answer it cancelled every booking the user held and refunded a single purchase.
+ * With "book again" a user can buy the same option more than once, each time paid for
+ * separately. Booking again does not add a second active booking: the earlier answer is
+ * demoted to "previously booked" and the new purchase becomes the one booked answer. Every
+ * answer still carries the purchase that paid for it, so the cart's cancel callback - which only
+ * learns the option - can address exactly the purchase being cancelled instead of dropping all
+ * of the user's answers and refunding a single purchase.
  *
  * @package    mod_booking
  * @category   test
@@ -62,7 +65,7 @@ final class cancel_purchase_multi_answer_test extends booking_advanced_testcase 
     }
 
     /**
-     * Cancelling the first of two purchases keeps the second booking and refunds only one price.
+     * Cancelling the first of two purchases keeps the current booking and refunds only one price.
      *
      * @runInSeparateProcess
      * @return void
@@ -79,26 +82,45 @@ final class cancel_purchase_multi_answer_test extends booking_advanced_testcase 
         $firsthistoryid = $this->purchase($optionid, $userid);
         $secondhistoryid = $this->purchase($optionid, $userid);
         $this->assertNotSame($firsthistoryid, $secondhistoryid, 'Two separate purchases are needed.');
+        $firstidentifier = (int)$DB->get_field('local_shopping_cart_history', 'identifier', ['id' => $firsthistoryid]);
+        $secondidentifier = (int)$DB->get_field('local_shopping_cart_history', 'identifier', ['id' => $secondhistoryid]);
+        $this->assertNotEmpty($firstidentifier, 'The first purchase must carry an identifier.');
+        $this->assertNotEmpty($secondidentifier, 'The second purchase must carry an identifier.');
+        $this->assertNotSame($firstidentifier, $secondidentifier, 'The two purchases must have different identifiers.');
 
-        $answers = $this->booked_answers($optionid, $userid);
-        $this->assertCount(2, $answers, 'Book again must have produced two booked answers.');
-        $identifiers = array_map(static fn(\stdClass $a): int => (int)$a->purchaseidentifier, $answers);
-        $this->assertNotContains(0, $identifiers, 'Every purchased answer must carry its purchase reference.');
-        $this->assertSame($identifiers, array_unique($identifiers), 'The two answers must reference different purchases.');
+        // Booking again demotes the first answer: one booked, one previously booked.
+        $booked = $this->answers_with_status($optionid, $userid, MOD_BOOKING_STATUSPARAM_BOOKED);
+        $this->assertCount(1, $booked, 'Book again must leave exactly one booked answer.');
+        $previouslybooked = $this->answers_with_status($optionid, $userid, MOD_BOOKING_STATUSPARAM_PREVIOUSLYBOOKED);
+        $this->assertCount(1, $previouslybooked, 'Book again must demote the first answer to previously booked.');
+
+        // Each answer references the purchase that paid for it.
+        $current = reset($booked);
+        $previous = reset($previouslybooked);
+        $this->assertNotEquals((int)$previous->id, (int)$current->id);
+        $this->assertSame($firstidentifier, (int)$previous->purchaseidentifier, 'The first answer belongs to the first purchase.');
+        $this->assertSame(
+            $secondidentifier,
+            (int)$current->purchaseidentifier,
+            'The booked answer belongs to the second purchase.'
+        );
 
         // Cancel the FIRST purchase, as the user themselves.
-        $firstidentifier = (int)$DB->get_field('local_shopping_cart_history', 'identifier', ['id' => $firsthistoryid]);
-        $cancelledbaid = (int)array_search($firstidentifier, $identifiers, true);
         $this->setUser($userid);
         $result = shopping_cart::cancel_purchase($optionid, 'option', $userid, 'mod_booking', $firsthistoryid);
         $this->assertEquals(1, $result['success'], 'The cancellation should succeed.');
 
-        // Exactly the cancelled purchase's booking is gone; the other one survives.
-        $remaining = $this->booked_answers($optionid, $userid);
+        // The current booking is untouched; the first answer is still not an active booking.
+        $remaining = $this->answers_with_status($optionid, $userid, MOD_BOOKING_STATUSPARAM_BOOKED);
         $this->assertCount(1, $remaining, 'Cancelling one purchase must not delete the other booking.');
         $survivor = reset($remaining);
-        $this->assertNotEquals($cancelledbaid, (int)$survivor->id);
-        $this->assertNotEquals($firstidentifier, (int)$survivor->purchaseidentifier);
+        $this->assertEquals((int)$current->id, (int)$survivor->id, 'The booked answer must be the same row as before.');
+        $this->assertSame($secondidentifier, (int)$survivor->purchaseidentifier);
+        $this->assertNotEquals(
+            MOD_BOOKING_STATUSPARAM_BOOKED,
+            (int)$DB->get_field('booking_answers', 'waitinglist', ['id' => (int)$previous->id]),
+            'The cancelled purchase must not become an active booking.'
+        );
 
         // And only one price came back.
         $this->assertEqualsWithDelta(
@@ -110,13 +132,14 @@ final class cancel_purchase_multi_answer_test extends booking_advanced_testcase 
     }
 
     /**
-     * The user's booked answers on this option.
+     * The user's answers on this option with the given waitinglist status.
      *
      * @param int $optionid
      * @param int $userid
+     * @param int $status a MOD_BOOKING_STATUSPARAM_* value
      * @return array<int, \stdClass>
      */
-    private function booked_answers(int $optionid, int $userid): array {
+    private function answers_with_status(int $optionid, int $userid, int $status): array {
         global $DB;
 
         booking_option::purge_cache_for_answers($optionid);
@@ -125,7 +148,7 @@ final class cancel_purchase_multi_answer_test extends booking_advanced_testcase 
         return $DB->get_records('booking_answers', [
             'optionid' => $optionid,
             'userid' => $userid,
-            'waitinglist' => MOD_BOOKING_STATUSPARAM_BOOKED,
+            'waitinglist' => $status,
         ], 'id');
     }
 
