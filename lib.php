@@ -2015,26 +2015,38 @@ function booking_require_editoptions_login(stdClass $course, $cm): void {
 }
 
 /**
- * Fallback return url of the booking option form (editoptions.php) when the caller passes none.
+ * Return url of the booking option form (editoptions.php).
  *
- * By default this is the booking instance (view.php). If the setting "editoptionsrequirecourselogin" is
- * disabled, users who are not enrolled in the course may edit their options, but view.php still requires
- * the course login, so they would land on the enrolment page after saving or cancelling the form.
- * For these users the fallback is their teacher page, or the dashboard if they are not a teacher.
+ * By default this is the url passed by the caller, or the booking instance (view.php) if there is none.
+ * If the setting "editoptionsrequirecourselogin" is disabled, users who are not enrolled in the course
+ * may edit their options, but view.php still requires the course login, so they would land on the
+ * enrolment page after saving or cancelling the form. Callers like the action menu of the options table
+ * pass view.php even then, so for these users a missing return url or one to view.php is replaced by
+ * the page of the setting "editoptionsreturnurl" (teachers only), or if it is empty by their teacher page,
+ * or the dashboard if they are not a teacher.
  *
  * @param stdClass $course the course record
  * @param int $cmid the course module id of the booking instance
+ * @param string $returnurl the return url passed by the caller (local url), empty if none
  * @return moodle_url
  */
-function booking_editoptions_returnurl(stdClass $course, int $cmid): moodle_url {
+function booking_editoptions_returnurl(stdClass $course, int $cmid, string $returnurl = ''): moodle_url {
     global $USER;
 
+    $viewurl = new moodle_url('/mod/booking/view.php', ['id' => $cmid]);
     if (get_config('booking', 'editoptionsrequirecourselogin') !== '0' || can_access_course($course)) {
-        return new moodle_url('/mod/booking/view.php', ['id' => $cmid]);
+        return empty($returnurl) ? $viewurl : new moodle_url($returnurl);
+    }
+
+    if (!empty($returnurl) && (new moodle_url($returnurl))->get_path() !== $viewurl->get_path()) {
+        return new moodle_url($returnurl);
     }
 
     if (booking_check_if_teacher()) {
-        return new moodle_url('/mod/booking/teacher.php', ['teacherid' => $USER->id]);
+        $configreturnurl = (string)get_config('booking', 'editoptionsreturnurl');
+        return empty($configreturnurl)
+            ? new moodle_url('/mod/booking/teacher.php', ['teacherid' => $USER->id])
+            : new moodle_url($configreturnurl);
     }
 
     return new moodle_url('/my/');

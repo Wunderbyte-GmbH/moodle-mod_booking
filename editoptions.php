@@ -44,9 +44,10 @@ $confirm = optional_param('confirm', 0, PARAM_INT);
 // setting "editoptionsrequirecourselogin" is disabled. The capability checks below still apply.
 booking_require_editoptions_login($course, $cm);
 
-// Fallback url when there is no returnurl: the booking instance, or a page without course login
-// for users who are not enrolled in the course (see booking_editoptions_returnurl()).
-$returnurl = optional_param('returnurl', booking_editoptions_returnurl($course, $cmid)->out(), PARAM_LOCALURL);
+// The passed returnurl, or the booking instance if there is none. Users who are not enrolled in the course
+// get a page without course login instead of view.php (see booking_editoptions_returnurl()).
+$returnurl = optional_param('returnurl', '', PARAM_LOCALURL);
+$returnurl = booking_editoptions_returnurl($course, $cmid, $returnurl)->out(false);
 
 $url = new moodle_url('/mod/booking/editoptions.php', ['id' => $cmid, 'optionid' => $optionid]);
 $PAGE->set_url($url);

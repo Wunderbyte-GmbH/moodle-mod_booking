@@ -1359,6 +1359,20 @@ if ($ADMIN->fulltree) {
                 1
             )
         );
+        $settings->add(
+            new admin_setting_configtext(
+                'booking/editoptionsreturnurl',
+                get_string('editoptionsreturnurl', 'mod_booking'),
+                get_string('editoptionsreturnurl_desc', 'mod_booking'),
+                '',
+                PARAM_LOCALURL
+            )
+        );
+        $settings->hide_if(
+            'booking/editoptionsreturnurl',
+            'booking/editoptionsrequirecourselogin',
+            'checked'
+        );
         $optionformfallbackchoices = ['' => get_string('none')];
         foreach (optionformconfig_info::CAPABILITIES as $capability) {
             $optionformfallbackchoices[$capability] = get_string($capability, 'mod_booking');

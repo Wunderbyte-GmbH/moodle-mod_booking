@@ -266,6 +266,7 @@ Da das Duplizieren asynchron über einen Adhoc-Task gemacht wird, stellen Sie bi
 $string['duplicationrestoreteachers'] = 'Trainer/innen inkludieren';
 $string['easyavailabilityselectusers'] = 'Einfache Nutzer/innen Voraussetzung';
 $string['editoptionsrequirecourselogin_desc'] = 'Wenn aktiviert (Standard), müssen Nutzer/innen im Kurs eingeschrieben sein (oder der Kurs muss Gastzugang erlauben), um das Formular für Buchungsoptionen (editoptions.php) zu öffnen. Wenn deaktiviert, reicht ein Login auf der Seite; die Rechteprüfungen des Formulars gelten weiterhin, bearbeiten können also nur Trainer/innen der Buchungsoption oder Nutzer/innen mit den nötigen Rechten.';
+$string['editoptionsreturnurl_desc'] = 'Seite (lokale URL, z. B. /local/mypage/index.php), auf die Trainer/innen, die nicht im Kurs eingeschrieben sind, nach dem Speichern oder Abbrechen des Formulars für Buchungsoptionen weitergeleitet werden. Wird nur verwendet, wenn "Kurs-Login für das Bearbeiten von Buchungsoptionen erforderlich" deaktiviert ist. Wenn leer, kommen sie auf ihre Trainer/innen-Seite. Für andere Nutzer/innen und für Nutzer/innen, die im Kurs eingeschrieben sind, ändert sich nichts.';
 $string['editteacherslink'] = 'Lehrer/innen bearbeiten';
 $string['enablecompletionmincompleted'] = 'Mindestanzahl an Buchungsoptionen, in denen der/die Nutzer/in auf "Abgeschlossen" gesetzt werden muss';
 $string['enablecompletionmincompleted_help'] = 'Ein/e Nutzer/in muss in mindestens so vielen Buchungsoptionen auf "Abgeschlossen" gesetzt werden, wie Sie hier angeben,
