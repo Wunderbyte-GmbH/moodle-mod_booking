@@ -28,6 +28,7 @@ namespace mod_booking;
 use context_system;
 use core\lock\lock_config;
 use mod_booking\booking_rules\actions_info;
+use mod_booking\booking_rules\rules\rule_react_on_event;
 use mod_booking\booking_rules\rules_info;
 use mod_booking\event\bulk_check_blocked;
 use mod_booking\event\bulk_check_dismissed;
@@ -134,9 +135,10 @@ final class bulk_check_test extends booking_advanced_testcase {
     /**
      * A rule that mails the booked user whenever an option is booked.
      *
+     * @param int $condition One of the condition constants of rule_react_on_event.
      * @return int The rule id.
      */
-    private function create_react_rule(): int {
+    private function create_react_rule(int $condition = rule_react_on_event::ALWAYS): int {
         $rule = $this->generator->create_rule([
             'name' => 'Bulk react rule',
             'conditionname' => 'select_user_from_event',
@@ -146,7 +148,8 @@ final class bulk_check_test extends booking_advanced_testcase {
             'actiondata' => '{"sendical":0,"sendicalcreateorcancel":"","subject":"' . self::SUBJECT
                 . '","template":"Bulk body","templateformat":"1"}',
             'rulename' => 'rule_react_on_event',
-            'ruledata' => '{"boevent":"\\\\mod_booking\\\\event\\\\bookingoption_booked","aftercompletion":"","condition":"0"}',
+            'ruledata' => '{"boevent":"\\\\mod_booking\\\\event\\\\bookingoption_booked","aftercompletion":"","condition":"'
+                . $condition . '"}',
         ]);
         return (int) $rule->id;
     }
@@ -177,9 +180,10 @@ final class bulk_check_test extends booking_advanced_testcase {
      * A booking option that starts at the given time.
      *
      * @param int $starttime
+     * @param int $maxanswers Seats of the option, zero for unlimited.
      * @return stdClass
      */
-    private function create_option(int $starttime): stdClass {
+    private function create_option(int $starttime, int $maxanswers = 0): stdClass {
         $record = (object) [
             'bookingid' => $this->booking->id,
             'text' => 'Bulk option',
@@ -190,6 +194,7 @@ final class bulk_check_test extends booking_advanced_testcase {
             'daystonotify_0' => '0',
             'coursestarttime_0' => $starttime,
             'courseendtime_0' => $starttime + HOURSECS,
+            'maxanswers' => $maxanswers,
         ];
         return $this->generator->create_option($record);
     }
@@ -530,7 +535,7 @@ final class bulk_check_test extends booking_advanced_testcase {
 
         $this->run_due();
         $this->assertCount(3, $this->mails($sink->get_messages()));
-        $this->assertEquals([bulk_check::STATUS_SENT => 3], $this->count_by_status($ruleid));
+        $this->assertEquals([bulk_check::STATUS_SENTRELEASED => 3], $this->count_by_status($ruleid));
         $sink->close();
     }
 
@@ -552,7 +557,7 @@ final class bulk_check_test extends booking_advanced_testcase {
         $sink = $this->redirectMessages();
         $this->run_due();
         $this->assertCount(3, $this->mails($sink->get_messages()));
-        $this->assertEquals([bulk_check::STATUS_SENT => 3], $this->count_by_status($ruleid));
+        $this->assertEquals([bulk_check::STATUS_SENTRELEASED => 3], $this->count_by_status($ruleid));
         $this->assertEmpty(bulk_check::get_parked_bursts());
         $sink->close();
     }
@@ -738,6 +743,25 @@ final class bulk_check_test extends booking_advanced_testcase {
         $this->assertEquals(1, bulk_check::cleanup()['sentpurged']);
         $this->assertCount(0, $DB->get_records(bulk_check::TABLENAME));
 
+        // A mail that went out after a release is purged on the same schedule.
+        $DB->insert_record(bulk_check::TABLENAME, (object) [
+            'ruleid' => $ruleid,
+            'optionid' => $option->id,
+            'userid' => 2,
+            'taskid' => null,
+            'status' => bulk_check::STATUS_SENTRELEASED,
+            'notified' => 0,
+            'sendtime' => $this->base,
+            'scheduledtime' => $this->base + 120,
+            'timesent' => time_mock::get_mock_time(),
+            'taskdata' => null,
+            'timecreated' => $this->base,
+            'timemodified' => time_mock::get_mock_time(),
+        ]);
+        time_mock::set_mock_time(time_mock::get_mock_time() + 2 * HOURSECS + 1);
+        $this->assertEquals(1, bulk_check::cleanup()['sentpurged']);
+        $this->assertCount(0, $DB->get_records(bulk_check::TABLENAME));
+
         // A releasing row nobody works on any more gets its task back, but only once.
         $DB->insert_record(bulk_check::TABLENAME, (object) [
             'ruleid' => $ruleid,
@@ -804,7 +828,7 @@ final class bulk_check_test extends booking_advanced_testcase {
         $sink = $this->redirectMessages();
         $this->run_due();
         $this->assertCount(3, $this->mails($sink->get_messages()));
-        $this->assertEquals([bulk_check::STATUS_SENT => 3], $this->count_by_status($ruleid));
+        $this->assertEquals([bulk_check::STATUS_SENTRELEASED => 3], $this->count_by_status($ruleid));
         $sink->close();
     }
 
@@ -1114,5 +1138,150 @@ final class bulk_check_test extends booking_advanced_testcase {
         rules_info::save_booking_rule($data);
         $this->assertEquals(0, (int) bulk_check_config::get_record($ruleid)->enabled);
         $this->assertEquals(3, (int) bulk_check_config::get_record($ruleid)->limitcount);
+    }
+
+    /**
+     * Released mails do not count against the next sends of their rule once they are out.
+     */
+    public function test_send_after_release_is_not_blocked(): void {
+        [$ruleid, $option] = $this->block_three();
+        $this->assertEquals(3, bulk_check::release_all());
+
+        $sink = $this->redirectMessages();
+        $this->run_due();
+        $this->assertCount(3, $this->mails($sink->get_messages()));
+        $this->assertEquals([bulk_check::STATUS_SENTRELEASED => 3], $this->count_by_status($ruleid));
+
+        // Ten minutes later one more user books, well inside the window of the release.
+        time_mock::set_mock_time($this->base + 600);
+        $this->book($option, 1);
+        time_mock::set_mock_time($this->base + 600 + 120);
+        $this->run_due();
+
+        $this->assertCount(4, $this->mails($sink->get_messages()));
+        $this->assertCount(0, $this->alerts($sink->get_messages()));
+        $this->assertEquals(
+            [bulk_check::STATUS_SENT => 1, bulk_check::STATUS_SENTRELEASED => 3],
+            $this->count_by_status($ruleid)
+        );
+        $sink->close();
+    }
+
+    /**
+     * A burst that is blocked after an earlier one was released is announced again.
+     */
+    public function test_block_after_release_alerts_again(): void {
+        [$ruleid, $option] = $this->block_three();
+        bulk_check::release_all();
+
+        $sink = $this->redirectMessages();
+        $this->run_due();
+        $sink->close();
+
+        // Two more within the window of the first burst: over the limit of one on their own.
+        time_mock::set_mock_time($this->base + 600);
+        $sink = $this->redirectMessages();
+        $this->book($option, 2);
+        time_mock::set_mock_time($this->base + 600 + 120);
+        $this->run_due();
+
+        $this->assertCount(0, $this->mails($sink->get_messages()));
+        $this->assertCount(1, $this->alerts($sink->get_messages()));
+        $this->assertEquals(
+            [bulk_check::STATUS_BLOCKED => 2, bulk_check::STATUS_SENTRELEASED => 3],
+            $this->count_by_status($ruleid)
+        );
+        $sink->close();
+    }
+
+    /**
+     * Queues two valid sends and one that stops applying before it runs, over a limit of two.
+     *
+     * The react rule only mails while the option is not fully booked. The single seat of the
+     * second option is taken by the booking itself, so its mail no longer applies by the time
+     * it would run, while the first option has unlimited seats.
+     *
+     * @return array [ruleid, row of the first valid send, row of the invalid send]
+     */
+    private function queue_burst_with_one_invalid_send(): array {
+        global $DB;
+        $ruleid = $this->create_react_rule(rule_react_on_event::NOTFULLYBOOKED);
+        $this->enable($ruleid, 2);
+        $open = $this->create_option($this->base + 10 * DAYSECS);
+        $single = $this->create_option($this->base + 10 * DAYSECS, 1);
+
+        $sink = $this->redirectMessages();
+        $this->book($open, 2);
+        $this->book($single, 1);
+        $sink->close();
+        $this->assertEquals([bulk_check::STATUS_PENDING => 3], $this->count_by_status($ruleid));
+
+        time_mock::set_mock_time($this->base + 120);
+        $first = $DB->get_record(bulk_check::TABLENAME, ['ruleid' => $ruleid, 'optionid' => $open->id], '*', IGNORE_MULTIPLE);
+        $invalid = $DB->get_record(bulk_check::TABLENAME, ['ruleid' => $ruleid, 'optionid' => $single->id]);
+        return [$ruleid, $first, $invalid];
+    }
+
+    /**
+     * A queued send that no longer applies is cleared away before it can tip a burst over the limit.
+     */
+    public function test_invalid_queued_send_does_not_block_the_burst(): void {
+        global $DB;
+        [$ruleid, $first, $invalid] = $this->queue_burst_with_one_invalid_send();
+
+        $this->expectOutputRegex('/1 queued sends of rule ' . $ruleid . ' no longer apply/');
+        $this->assertEquals(bulk_check::SEND, bulk_check::check($first, '{}'));
+        $this->assertFalse($DB->record_exists(bulk_check::TABLENAME, ['id' => $invalid->id]));
+        $this->assertFalse($DB->record_exists('task_adhoc', ['id' => $invalid->taskid]));
+        $this->assertEquals([bulk_check::STATUS_PENDING => 2], $this->count_by_status($ruleid));
+
+        // End to end the two valid mails go out and nobody is alerted.
+        $sink = $this->redirectMessages();
+        $this->run_due();
+        $this->assertCount(2, $this->mails($sink->get_messages()));
+        $this->assertCount(0, $this->alerts($sink->get_messages()));
+        $this->assertEquals([bulk_check::STATUS_SENT => 2], $this->count_by_status($ruleid));
+        $sink->close();
+    }
+
+    /**
+     * The sweep leaves a task alone that another worker has already started.
+     */
+    public function test_sweep_leaves_started_tasks_alone(): void {
+        global $DB;
+        [$ruleid, $first, $invalid] = $this->queue_burst_with_one_invalid_send();
+        $DB->set_field('task_adhoc', 'timestarted', time(), ['id' => $invalid->taskid]);
+
+        $sink = $this->redirectMessages();
+        $this->assertEquals(bulk_check::BLOCKED, bulk_check::check($first, '{}'));
+        $sink->close();
+
+        $this->assertTrue($DB->record_exists(bulk_check::TABLENAME, ['id' => $invalid->id]));
+        $this->assertTrue($DB->record_exists('task_adhoc', ['id' => $invalid->taskid]));
+        $this->assertEquals(
+            [bulk_check::STATUS_PENDING => 2, bulk_check::STATUS_BLOCKED => 1],
+            $this->count_by_status($ruleid)
+        );
+    }
+
+    /**
+     * A queued send whose task is gone no longer counts once the burst is about to be blocked.
+     */
+    public function test_sweep_drops_rows_without_task(): void {
+        global $DB;
+        $ruleid = $this->create_react_rule();
+        $this->enable($ruleid, 2);
+        $option = $this->create_option($this->base + 10 * DAYSECS);
+        $sink = $this->redirectMessages();
+        $this->book($option, 3);
+        $sink->close();
+
+        $rows = array_values($DB->get_records(bulk_check::TABLENAME, ['ruleid' => $ruleid], 'id ASC'));
+        $DB->delete_records('task_adhoc', ['id' => $rows[2]->taskid]);
+        time_mock::set_mock_time($this->base + 120);
+
+        $this->expectOutputRegex('/1 queued sends of rule ' . $ruleid . ' no longer apply/');
+        $this->assertEquals(bulk_check::SEND, bulk_check::check($rows[0], '{}'));
+        $this->assertFalse($DB->record_exists(bulk_check::TABLENAME, ['id' => $rows[2]->id]));
     }
 }

@@ -34,6 +34,7 @@ use html_writer;
 use mod_booking\event\bulk_check_blocked;
 use mod_booking\event\bulk_check_dismissed;
 use mod_booking\event\bulk_check_released;
+use mod_booking\local\scheduledmails;
 use mod_booking\task\release_bulk_check;
 use mod_booking\task\send_mail_by_rule_adhoc;
 use moodle_url;
@@ -79,6 +80,13 @@ class bulk_check {
     /** @var int The send was released manually and requeued. */
     public const STATUS_RELEASED = 3;
 
+    /**
+     * @var int The mail went out after it was released by hand. Kept apart from STATUS_SENT
+     * because a person already decided about it: it must not count against the next sends of
+     * its rule, or every release would block the rule again for half a period.
+     */
+    public const STATUS_SENTRELEASED = 4;
+
     /** @var int The send was let through by hand and waits for the release task. */
     public const STATUS_RELEASING = 6;
 
@@ -102,6 +110,9 @@ class bulk_check {
 
     /** @var int How many row ids an audit event carries at most. */
     private const EVENTIDS = 500;
+
+    /** @var int How many seconds a worker waits for another one that sweeps the same rule. */
+    private const SWEEPLOCKWAIT = 10;
 
     /**
      * Whether the mails of the given rule have to pass the bulk check.
@@ -313,12 +324,20 @@ class bulk_check {
             case self::STATUS_RELEASED:
             case self::STATUS_RELEASING:
             case self::STATUS_SENT:
+            case self::STATUS_SENTRELEASED:
                 // Decided by hand, or already out. Never judged again.
                 return self::SEND;
         }
 
+        $limit = bulk_check_config::get_limit((int) $row->ruleid);
         $count = self::count_window($row, bulk_check_config::get_global_period());
-        if ($count <= bulk_check_config::get_limit((int) $row->ruleid)) {
+        if ($count > $limit) {
+            // Queued sends are counted before they are validated. Before blocking on that
+            // count, the ones that will never go out are cleared away and the count is taken
+            // again, so that a cancelled booking cannot tip a burst over the limit.
+            $count = self::sweep_window($row, $limit);
+        }
+        if ($count <= $limit) {
             return self::SEND;
         }
 
@@ -361,6 +380,9 @@ class bulk_check {
      * row pending and the retry of the task can claim it again. The task id is cleared:
      * core deletes the task next, and the unique index on the task id must stay meaningful.
      *
+     * A released row becomes STATUS_SENTRELEASED rather than STATUS_SENT. Somebody decided
+     * that those mails go out, so they must not count against the next sends of the rule.
+     *
      * @param stdClass|null $row The row of the running task.
      * @return void
      */
@@ -371,9 +393,12 @@ class bulk_check {
         }
         $DB->execute(
             "UPDATE {" . self::TABLENAME . "}
-                SET status = :sent, timesent = :now, taskid = NULL, taskdata = NULL, timemodified = :now2
+                SET status = CASE WHEN status = :wasreleased THEN :sentreleased ELSE :sent END,
+                    timesent = :now, taskid = NULL, taskdata = NULL, timemodified = :now2
               WHERE id = :id AND status IN (:pending, :released)",
             [
+                'wasreleased' => self::STATUS_RELEASED,
+                'sentreleased' => self::STATUS_SENTRELEASED,
                 'sent' => self::STATUS_SENT,
                 'now' => time(),
                 'now2' => time(),
@@ -964,8 +989,12 @@ class bulk_check {
         for ($batch = 0; $batch < $maxbatches; $batch++) {
             $rows = $DB->get_records_select(
                 self::TABLENAME,
-                'status = :sent AND timesent < :horizon',
-                ['sent' => self::STATUS_SENT, 'horizon' => $now - 2 * $period],
+                'status IN (:sent, :sentreleased) AND timesent < :horizon',
+                [
+                    'sent' => self::STATUS_SENT,
+                    'sentreleased' => self::STATUS_SENTRELEASED,
+                    'horizon' => $now - 2 * $period,
+                ],
                 'id ASC',
                 'id',
                 0,
@@ -1018,6 +1047,126 @@ class bulk_check {
     }
 
     /**
+     * Clears the queued sends out of the window that will never go out, then counts again.
+     *
+     * A queued send is counted from the moment it is queued, but only validated when its own
+     * task runs. For a reminder that is queued days ahead a booking can be cancelled or an
+     * option changed in between, and those sends would still push the count over the limit.
+     * This runs only when the running task is about to be blocked, and validates the other
+     * pending rows of the window with the same check the scheduled mails list uses. A send
+     * that no longer applies loses its task and its row, which is what its own task would
+     * have done when it ran.
+     *
+     * The sweep stops as soon as enough invalid sends can no longer be found to get under the
+     * limit. A real flood is therefore settled after about as many checks as the limit, while
+     * a burst just over the limit is checked completely.
+     *
+     * A task another worker has already started is left alone: deleting it would take away
+     * the row it needs, and it would then send without being checked.
+     *
+     * @param stdClass $row The row of the running task.
+     * @param int $limit
+     * @return int The count of the window after the sweep.
+     */
+    private static function sweep_window(stdClass $row, int $limit): int {
+        global $DB;
+
+        $period = bulk_check_config::get_global_period();
+        $lock = lock_config::get_lock_factory(self::LOCKTYPE)
+            ->get_lock('sweep' . $row->ruleid, self::SWEEPLOCKWAIT);
+        if (!$lock) {
+            // Another worker sweeps this rule and did not finish in time. Its result is in
+            // the table by the time the next task of the burst runs.
+            return self::count_window($row, $period);
+        }
+
+        try {
+            // Taken again under the lock: the worker that held it may have swept already.
+            $count = self::count_window($row, $period);
+            $needed = $count - $limit;
+            if ($needed <= 0) {
+                return $count;
+            }
+
+            $params = self::window_params($row, $period) + [
+                'pending' => self::STATUS_PENDING,
+                'ownid' => $row->id,
+            ];
+            $where = "b.ruleid = :ruleid
+                  AND b.status = :pending
+                  AND b.id <> :ownid
+                  AND b.scheduledtime >= :windowstart
+                  AND b.scheduledtime <= :windowend";
+
+            $remaining = $DB->count_records_sql("SELECT COUNT(b.id) FROM {" . self::TABLENAME . "} b WHERE $where", $params);
+            if ($remaining < $needed) {
+                // Even if every other queued send was invalid, the count stays over the limit.
+                return $count;
+            }
+
+            $candidates = $DB->get_recordset_sql(
+                "SELECT b.id AS rowid, t.id, t.customdata, t.nextruntime, t.timestarted, t.attemptsavailable,
+                        br.id AS ruleid, br.isactive, br.contextid
+                   FROM {" . self::TABLENAME . "} b
+              LEFT JOIN {task_adhoc} t ON t.id = b.taskid
+              LEFT JOIN {booking_rules} br ON br.id = b.ruleid
+                  WHERE $where
+               ORDER BY b.id ASC",
+                $params
+            );
+
+            $dropped = 0;
+            $deletedtasks = 0;
+            foreach ($candidates as $candidate) {
+                if ($dropped + $remaining < $needed) {
+                    break;
+                }
+                $remaining--;
+
+                if (empty($candidate->id)) {
+                    // The task is gone, so this send can never happen.
+                    $DB->delete_records(self::TABLENAME, ['id' => $candidate->rowid, 'status' => self::STATUS_PENDING]);
+                    $dropped++;
+                    continue;
+                }
+                if (!empty($candidate->timestarted)) {
+                    // Running on another worker right now, it settles its own row.
+                    continue;
+                }
+                if ($candidate->attemptsavailable !== null && (int) $candidate->attemptsavailable === 0) {
+                    // Failed for good. Core keeps the task for the admin, the row goes.
+                    $DB->delete_records(self::TABLENAME, ['id' => $candidate->rowid, 'status' => self::STATUS_PENDING]);
+                    $dropped++;
+                    continue;
+                }
+                if (scheduledmails::is_task_still_valid($candidate)) {
+                    continue;
+                }
+
+                $DB->delete_records_select('task_adhoc', 'id = :id AND timestarted IS NULL', ['id' => $candidate->id]);
+                $DB->delete_records(self::TABLENAME, ['id' => $candidate->rowid, 'status' => self::STATUS_PENDING]);
+                $deletedtasks++;
+                $dropped++;
+            }
+            $candidates->close();
+
+            if (empty($dropped)) {
+                return $count;
+            }
+
+            mtrace("bulk_check: {$dropped} queued sends of rule {$row->ruleid} no longer apply and were removed.");
+            if (!empty($deletedtasks)) {
+                cache_helper::purge_by_definition('mod_booking', 'scheduledmailscache');
+                cache_helper::purge_by_event('setbackscheduledmailscache');
+            }
+
+            return self::count_window($row, $period);
+        } finally {
+            $lock->release();
+        }
+    }
+
+    /**
      * Counts the sends of the same rule around the sending time of the row.
      *
      * Two kinds of row add up. Pending and blocked rows are the sends still ahead, and the
@@ -1029,8 +1178,9 @@ class bulk_check {
      * Released and releasing rows were decided by hand and are not counted. Leaving them in
      * would break the release itself: the sends that were just let through would be counted
      * against their own limit and blocked all over again, so the admin would get a success
-     * message and no mail would ever go out. Once such a send is out it is a sent row and
-     * counts like any other, which is right: the mails did go out.
+     * message and no mail would ever go out. Once such a send is out it becomes a
+     * STATUS_SENTRELEASED row, which does not count either: otherwise the released burst
+     * would block every further send of the rule for half a period after the release.
      *
      * @param stdClass $row
      * @param int $period
@@ -1157,7 +1307,10 @@ class bulk_check {
     }
 
     /**
-     * Whether any row of the same burst already raised the notification.
+     * Whether the burst that is parked right now was already announced.
+     *
+     * Only blocked rows count. Once a burst was released or dismissed it is dealt with, and a
+     * block after that is a new burst that the configured users have to hear about.
      *
      * @param stdClass $row
      * @param int $period
@@ -1170,8 +1323,10 @@ class bulk_check {
                  WHERE ruleid = :ruleid
                    AND scheduledtime >= :windowstart
                    AND scheduledtime <= :windowend
-                   AND notified = 1";
-        return $DB->count_records_sql($sql, self::window_params($row, $period)) > 0;
+                   AND notified = 1
+                   AND status = :blocked";
+        $params = self::window_params($row, $period) + ['blocked' => self::STATUS_BLOCKED];
+        return $DB->count_records_sql($sql, $params) > 0;
     }
 
     /**
