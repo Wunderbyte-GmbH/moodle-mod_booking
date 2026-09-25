@@ -51,7 +51,7 @@ require_once("$CFG->dirroot/mod/booking/lib.php");
 final class booking_check_if_teacher_test extends capability_testcase {
     /**
      * A negative id is no option: not a teacher, no exception - also for a user
-     * who teaches an option. An empty id keeps its meaning "teaches any option".
+     * who teaches an option. Only the call without argument means "teaches any option".
      *
      * @covers ::booking_check_if_teacher
      */
@@ -67,7 +67,7 @@ final class booking_check_if_teacher_test extends capability_testcase {
         );
         $this->assertFalse(booking_check_if_teacher(-1), 'A negative id is no option.');
         $this->assertTrue(booking_check_if_teacher((int)$own->id), 'Precondition: teacher of the own option.');
-        $this->assertTrue(booking_check_if_teacher(0), 'An empty id still means "teaches any option".');
+        $this->assertTrue(booking_check_if_teacher(), 'Without argument: teaches any option.');
     }
 
     /**
