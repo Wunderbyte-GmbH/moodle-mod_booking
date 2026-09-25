@@ -814,6 +814,8 @@ final class bulk_check_test extends booking_advanced_testcase {
     public function test_table_actions_are_gated_and_act_on_ticked_rows(): void {
         global $DB;
         [$ruleid, , , $ids] = $this->block_three();
+        // Running the tasks leaves the user of the last task logged in, not the admin.
+        $this->setAdminUser();
         $table = new bulk_check_table('bulkcheckdummy');
 
         // Nothing ticked, nothing happens - the ids are never guessed from the row id.
@@ -1017,7 +1019,8 @@ final class bulk_check_test extends booking_advanced_testcase {
         $this->assertEquals(9, bulk_check_config::get_limit($ruleid));
 
         // The form reads the stored row back.
-        $data = rules_info::set_data_for_form((object) ['id' => $ruleid]);
+        $data = (object) ['id' => $ruleid];
+        rules_info::set_data_for_form($data);
         $this->assertEquals(1, $data->bulkcheckactive);
         $this->assertEquals(9, $data->bulkchecklimit);
 
