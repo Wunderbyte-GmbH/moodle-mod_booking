@@ -660,10 +660,12 @@ class bo_info {
      * @param int $userid the booked user of a user-scoped query (0 for the general list); booked users bypass the filter
      * @param int $teacherid the viewing user, if the list shows the options (s)he teaches; the options
      *                       (s)he is assigned to as a teacher bypass the filter (0 = no teacher bypass)
+     *                       With responsiblecontactcanedit active, the options the viewing user is responsible
+     *                       contact of bypass the filter as well (in every list, incl. shortcodes).
      * @return array
      */
     public static function return_sql_from_conditions(int $userid, int $teacherid = 0) {
-        global $PAGE;
+        global $DB, $PAGE;
 
         // Check if SQL filter for availability conditions is enabled.
         if (!get_config('booking', 'usesqlfilteravailability')) {
@@ -726,6 +728,16 @@ class bo_info {
                     )";
             $paramsarray['teacherbypass'] = $teacherid;
         }
+        // Responsible contacts who may edit their options (responsiblecontactcanedit)
+        // always see them, no matter which conditions they carry.
+        $rcuserid = self::responsible_contact_bypass_userid();
+        if (!empty($rcuserid)) {
+            $bypasses[] = $DB->sql_like(
+                $DB->sql_concat("','", 's1.responsiblecontact', "','"),
+                ':responsiblecontactbypass'
+            );
+            $paramsarray['responsiblecontactbypass'] = '%,' . $rcuserid . ',%';
+        }
         $bypass = empty($bypasses) ? "" : implode(" OR ", $bypasses) . " OR ";
 
         // For performance reason we have a flag if we need to check the value at all.
@@ -735,6 +747,38 @@ class bo_info {
                         ";
 
         return ['', '', '', $paramsarray, $where];
+    }
+
+    /**
+     * Returns the id of the viewing user, if (s)he gets the responsible contact bypass of the SQL filter.
+     *
+     * The bypass is only added for users who are responsible contact of at least one filtered option.
+     * Everybody else keeps the user independent SQL, so the table cache keys stay shared.
+     *
+     * @return int the userid or 0 if there is no bypass
+     */
+    private static function responsible_contact_bypass_userid(): int {
+        global $DB, $USER;
+
+        if (
+            !get_config('booking', 'responsiblecontactcanedit')
+            || !isloggedin()
+            || isguestuser()
+        ) {
+            return 0;
+        }
+
+        $like = $DB->sql_like(
+            $DB->sql_concat("','", 'responsiblecontact', "','"),
+            ':responsiblecontact'
+        );
+        $isresponsible = $DB->record_exists_select(
+            'booking_options',
+            "sqlfilter > 0 AND $like",
+            ['responsiblecontact' => '%,' . (int)$USER->id . ',%']
+        );
+
+        return $isresponsible ? (int)$USER->id : 0;
     }
 
     /**
