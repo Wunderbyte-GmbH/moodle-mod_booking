@@ -74,8 +74,8 @@ final class option_editing_capabilities_test extends capability_testcase {
         return [
             'addoption' => ['mod/booking:addoption', CONTEXT_MODULE, ['editingteacher', 'manager']],
             'editownoption' => ['mod/booking:editownoption', CONTEXT_MODULE, ['editingteacher', 'manager']],
-            'cancelownoption' => ['mod/booking:cancelownoption', CONTEXT_MODULE, ['editingteacher', 'manager']],
-            'duplicateownoption' => ['mod/booking:duplicateownoption', CONTEXT_MODULE, ['editingteacher', 'manager']],
+            'cancelownoption' => ['mod/booking:cancelownoption', CONTEXT_MODULE, ['manager']],
+            'duplicateownoption' => ['mod/booking:duplicateownoption', CONTEXT_MODULE, ['manager']],
             'managebookingsownoption' => ['mod/booking:managebookingsownoption', CONTEXT_MODULE, ['editingteacher', 'manager']],
             'sendmailownoption' => ['mod/booking:sendmailownoption', CONTEXT_MODULE, ['editingteacher', 'manager']],
             'editteachersownoption' => ['mod/booking:editteachersownoption', CONTEXT_MODULE, ['editingteacher', 'manager']],

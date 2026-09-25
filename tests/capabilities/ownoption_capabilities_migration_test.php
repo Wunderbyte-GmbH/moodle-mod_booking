@@ -52,18 +52,52 @@ require_once("$CFG->dirroot/mod/booking/lib.php");
 final class ownoption_capabilities_migration_test extends capability_testcase {
     /**
      * A site that has none of the new capabilities yet: every role permission of
-     * addeditownoption is cloned into all of them - also overrides in courses,
-     * and also where an admin removed the capability from a standard role.
+     * addeditownoption is cloned into the capabilities that replace it - also
+     * overrides in courses, and also where an admin removed the capability from
+     * a standard role. cancelownoption and duplicateownoption only get their
+     * archetype default (manager), nothing from addeditownoption.
      *
      * @covers \mod_booking\local\ownoption_capabilities::copy_permissions_to_installed_capabilities
      * @covers ::update_capabilities
      */
     public function test_upgrade_clones_all_permissions_into_new_capabilities(): void {
+        global $DB;
+
         $oldpermissions = $this->install_old_capability_state(ownoption_capabilities::NEW_CAPABILITIES);
 
         $this->run_upgrade();
 
-        foreach (ownoption_capabilities::NEW_CAPABILITIES as $capability) {
+        foreach (ownoption_capabilities::CLONED_CAPABILITIES as $capability) {
+            $this->assertSame($oldpermissions, $this->permissions_of($capability), "Permissions of $capability.");
+        }
+        $managerid = (int)$DB->get_field('role', 'id', ['shortname' => 'manager']);
+        $archetypeonly = [$managerid . '/' . context_system::instance()->id => CAP_ALLOW];
+        foreach (ownoption_capabilities::NOT_CLONED_CAPABILITIES as $capability) {
+            $this->assertSame($archetypeonly, $this->permissions_of($capability), "Permissions of $capability.");
+        }
+        $this->assert_old_capability_removed();
+    }
+
+    /**
+     * A test system where some of the replacing capabilities are installed
+     * already (with their default permissions): upgrade.php makes them equal to
+     * addeditownoption, the others are cloned by Moodle.
+     *
+     * @covers \mod_booking\local\ownoption_capabilities::copy_permissions_to_installed_capabilities
+     * @covers ::update_capabilities
+     */
+    public function test_upgrade_replaces_permissions_of_installed_capabilities(): void {
+        $installed = ['mod/booking:editownoption', 'mod/booking:viewteacherreports'];
+        $oldpermissions = $this->install_old_capability_state(
+            array_diff(ownoption_capabilities::NEW_CAPABILITIES, $installed)
+        );
+
+        // Precondition: the installed ones have their defaults, which differ from the old capability.
+        $this->assertNotSame($oldpermissions, $this->permissions_of('mod/booking:editownoption'));
+
+        $this->run_upgrade();
+
+        foreach (ownoption_capabilities::CLONED_CAPABILITIES as $capability) {
             $this->assertSame($oldpermissions, $this->permissions_of($capability), "Permissions of $capability.");
         }
         $this->assert_old_capability_removed();
@@ -71,26 +105,25 @@ final class ownoption_capabilities_migration_test extends capability_testcase {
 
     /**
      * A test system where cancelownoption and duplicateownoption are installed
-     * already (with their default permissions): upgrade.php makes them equal to
-     * addeditownoption, the other capabilities are cloned by Moodle.
+     * already: the upgrade leaves their permissions alone, it neither copies
+     * addeditownoption into them nor removes what an admin granted.
      *
      * @covers \mod_booking\local\ownoption_capabilities::copy_permissions_to_installed_capabilities
      * @covers ::update_capabilities
      */
-    public function test_upgrade_replaces_permissions_of_installed_capabilities(): void {
-        $notinstalled = array_diff(
-            ownoption_capabilities::NEW_CAPABILITIES,
-            ['mod/booking:cancelownoption', 'mod/booking:duplicateownoption']
+    public function test_upgrade_leaves_installed_not_cloned_capabilities_alone(): void {
+        $this->install_old_capability_state(
+            array_diff(ownoption_capabilities::NEW_CAPABILITIES, ownoption_capabilities::NOT_CLONED_CAPABILITIES)
         );
-        $oldpermissions = $this->install_old_capability_state($notinstalled);
-
-        // Precondition: the installed ones have their defaults, which differ from the old capability.
-        $this->assertNotSame($oldpermissions, $this->permissions_of('mod/booking:cancelownoption'));
+        $before = [];
+        foreach (ownoption_capabilities::NOT_CLONED_CAPABILITIES as $capability) {
+            $before[$capability] = $this->permissions_of($capability);
+        }
 
         $this->run_upgrade();
 
-        foreach (ownoption_capabilities::NEW_CAPABILITIES as $capability) {
-            $this->assertSame($oldpermissions, $this->permissions_of($capability), "Permissions of $capability.");
+        foreach (ownoption_capabilities::NOT_CLONED_CAPABILITIES as $capability) {
+            $this->assertSame($before[$capability], $this->permissions_of($capability), "Permissions of $capability.");
         }
         $this->assert_old_capability_removed();
     }

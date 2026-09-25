@@ -49,18 +49,19 @@ require_once("$CFG->dirroot/mod/booking/lib.php");
  */
 final class duplicateownoption_test extends capability_testcase {
     /**
-     * The capability is defined on the module level and allowed for the same
-     * archetypes as editownoption.
+     * The capability is defined on the module level and allowed for the manager
+     * archetype only: unlike editownoption it is a new action, which editing
+     * teachers must not gain on upgrade (Wunderbyte-GmbH/moodle-mod_booking#1602).
      *
      * @covers \mod_booking\local\option_edit_access::can_edit_option
      */
-    public function test_capability_is_defined_like_editownoption(): void {
+    public function test_capability_is_defined_for_manager_only(): void {
         $this->create_option();
 
         $this->assert_capability_default(
             'mod/booking:duplicateownoption',
             CONTEXT_MODULE,
-            ['editingteacher', 'manager']
+            ['manager']
         );
     }
 

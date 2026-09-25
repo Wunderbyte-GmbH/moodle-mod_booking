@@ -76,8 +76,11 @@ $capabilities = [
     ],
     // The capabilities for own booking options replace mod/booking:addeditownoption (see
     // $deprecatedcapabilities below). "Own" options are options where the user is teacher,
-    // responsible contact, or creator, see booking_check_if_teacher(). All of them clone the
-    // permissions of addeditownoption on upgrade, so roles keep what they could do before.
+    // responsible contact, or creator, see booking_check_if_teacher(). The capabilities that
+    // replace addeditownoption clone its permissions on upgrade, so roles keep what they could do
+    // before. cancelownoption and duplicateownoption are NEW actions that addeditownoption never
+    // allowed: they do not clone it and only the manager archetype (which holds updatebooking
+    // anyway) gets them, so the upgrade widens no role (Wunderbyte-GmbH/moodle-mod_booking#1602).
     // Allows editing own booking options.
     'mod/booking:editownoption' => [
         'captype' => 'write',
@@ -93,20 +96,16 @@ $capabilities = [
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,
         'archetypes' => [
-            'editingteacher' => CAP_ALLOW,
             'manager' => CAP_ALLOW,
         ],
-        'clonepermissionsfrom' => 'mod/booking:addeditownoption',
     ],
     // Allows duplicating own booking options.
     'mod/booking:duplicateownoption' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,
         'archetypes' => [
-            'editingteacher' => CAP_ALLOW,
             'manager' => CAP_ALLOW,
         ],
-        'clonepermissionsfrom' => 'mod/booking:addeditownoption',
     ],
     // Allows managing the bookings of own booking options.
     'mod/booking:managebookingsownoption' => [
@@ -816,8 +815,8 @@ $deprecatedcapabilities = [
     // Split up into the capabilities for own booking options, see above.
     'mod/booking:addeditownoption' => [
         'replacement' => 'mod/booking:editownoption',
-        'message' => ' It was split into mod/booking:editownoption, mod/booking:cancelownoption, '
-            . 'mod/booking:duplicateownoption, mod/booking:managebookingsownoption, '
+        'message' => ' It was split into mod/booking:editownoption, '
+            . 'mod/booking:managebookingsownoption, '
             . 'mod/booking:sendmailownoption, mod/booking:editteachersownoption and '
             . 'mod/booking:viewteacherreports. ',
     ],

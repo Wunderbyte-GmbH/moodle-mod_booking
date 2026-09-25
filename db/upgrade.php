@@ -5821,10 +5821,11 @@ function xmldb_booking_upgrade($oldversion) {
     }
 
     if ($oldversion < 2026091500) {
-        // Split mod/booking:addeditownoption. The new capabilities clone its permissions
+        // Split mod/booking:addeditownoption. The capabilities that replace it clone its permissions
         // (clonepermissionsfrom in db/access.php) - but Moodle only clones into capabilities
-        // that are not installed yet. For capabilities that are already installed (e.g.
-        // cancelownoption and duplicateownoption on test systems) we copy the permissions here.
+        // that are not installed yet. For those that are already installed we copy the permissions
+        // here. cancelownoption and duplicateownoption are not cloned: addeditownoption never allowed
+        // these actions (Wunderbyte-GmbH/moodle-mod_booking#1602).
         // This has to happen now: right after upgrade.php, Moodle removes addeditownoption.
         \mod_booking\local\ownoption_capabilities::copy_permissions_to_installed_capabilities();
 
