@@ -2089,6 +2089,11 @@ function booking_check_if_teacher($optionoroptionid = null, int $userid = 0) {
         } else {
             return false;
         }
+        // A negative id is no option, e.g. the -1 of the duplicate link. It must not mean "any option" and
+        // must not reach the option settings cache (Wunderbyte-GmbH/moodle-mod_booking#1604).
+        if ($optionid < 0) {
+            return false;
+        }
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
         $isresponsiblecontact = false;
         if (!empty($settings->responsiblecontact) && in_array($userid, $settings->responsiblecontact)) {
