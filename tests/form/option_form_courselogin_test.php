@@ -362,14 +362,54 @@ final class option_form_courselogin_test extends booking_advanced_testcase {
             'optionid' => (int)$settings->id,
             'userid' => (int)$teacher->id,
         ]);
+        $teacherurl = new moodle_url('/mod/booking/teacher.php', ['teacherid' => (int)$teacher->id]);
         $this->assertEquals(
-            (new moodle_url('/mod/booking/teacher.php', ['teacherid' => (int)$teacher->id]))->out(),
+            $teacherurl->out(),
             booking_editoptions_returnurl($course, (int)$settings->cmid)->out()
         );
 
-        // Enrolled users keep the booking instance as fallback.
+        // A passed return url to view.php (like the action menu of the options table does) is replaced too.
+        $passedviewurl = new moodle_url('/mod/booking/view.php', ['id' => (int)$settings->cmid, 'whichview' => 'showall']);
+        $this->assertEquals(
+            $teacherurl->out(),
+            booking_editoptions_returnurl($course, (int)$settings->cmid, $passedviewurl->out(false))->out()
+        );
+
+        // Other passed return urls are kept.
+        $otherurl = new moodle_url('/mod/booking/optionview.php', ['optionid' => (int)$settings->id]);
+        $this->assertEquals(
+            $otherurl->out(),
+            booking_editoptions_returnurl($course, (int)$settings->cmid, $otherurl->out(false))->out()
+        );
+
+        // The page of the setting "editoptionsreturnurl" replaces the teacher page, but not other passed urls.
+        set_config('editoptionsreturnurl', '/local/mypage/index.php', 'booking');
+        $configurl = new moodle_url('/local/mypage/index.php');
+        $this->assertEquals($configurl->out(), booking_editoptions_returnurl($course, (int)$settings->cmid)->out());
+        $this->assertEquals(
+            $configurl->out(),
+            booking_editoptions_returnurl($course, (int)$settings->cmid, $passedviewurl->out(false))->out()
+        );
+        $this->assertEquals(
+            $otherurl->out(),
+            booking_editoptions_returnurl($course, (int)$settings->cmid, $otherurl->out(false))->out()
+        );
+
+        // The setting is for teachers only: other users still get the dashboard.
+        $this->setUser($this->getDataGenerator()->create_user());
+        $this->assertEquals(
+            (new moodle_url('/my/'))->out(),
+            booking_editoptions_returnurl($course, (int)$settings->cmid)->out()
+        );
+        $this->setUser($teacher);
+
+        // Enrolled users keep the booking instance as fallback and the passed return url, even with the setting.
         $this->getDataGenerator()->enrol_user($teacher->id, $course->id, 'editingteacher');
         $this->assertEquals($viewurl->out(), booking_editoptions_returnurl($course, (int)$settings->cmid)->out());
+        $this->assertEquals(
+            $passedviewurl->out(),
+            booking_editoptions_returnurl($course, (int)$settings->cmid, $passedviewurl->out(false))->out()
+        );
     }
 
     /**
