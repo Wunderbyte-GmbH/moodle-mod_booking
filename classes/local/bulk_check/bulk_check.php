@@ -161,7 +161,7 @@ class bulk_check {
         // back, and its lookup scans task_adhoc with a text compare on the custom data, so
         // calling it and then looking the task up again would double the time the loop that
         // queues a burst takes - the very time the delay has to cover.
-        $existing = manager::get_queued_adhoc_task_record($task, false);
+        $existing = self::get_queued_task_record($task);
         if (!empty($existing)) {
             if ((int) $existing->nextruntime !== $runtime) {
                 $DB->set_field('task_adhoc', 'nextruntime', $runtime, ['id' => $existing->id]);
@@ -175,6 +175,36 @@ class bulk_check {
         }
 
         self::record_scheduled($ruleid, $optionid, $userid, $taskid, $sendtime, $runtime);
+    }
+
+    /**
+     * The queued task with the same class, component, custom data and user, if there is one.
+     *
+     * The same lookup as manager::get_queued_adhoc_task_record($task, false) in Moodle 5.0 and
+     * later. Moodle 4.5 has that method only as protected and without the $includefailed flag,
+     * so it is rebuilt here from the public record_from_adhoc_task().
+     *
+     * @param send_mail_by_rule_adhoc $task
+     * @return stdClass|false
+     */
+    private static function get_queued_task_record(send_mail_by_rule_adhoc $task) {
+        global $DB;
+
+        $record = manager::record_from_adhoc_task($task);
+        $params = [$record->classname, $record->component, $record->customdata];
+        $sql = 'classname = ? AND component = ? AND ' .
+            $DB->sql_compare_text('customdata', \core_text::strlen($record->customdata) + 1) . ' = ?';
+
+        if ($record->userid) {
+            $params[] = $record->userid;
+            $sql .= ' AND userid = ?';
+        }
+
+        // Tasks that failed and will not be retried do not count as queued.
+        $sql .= ' AND (attemptsavailable > 0 OR attemptsavailable IS NULL)';
+
+        $queuedtasks = $DB->get_records_select('task_adhoc', $sql, $params, 'timecreated DESC, id DESC', '*', 0, 1);
+        return reset($queuedtasks);
     }
 
     /**
