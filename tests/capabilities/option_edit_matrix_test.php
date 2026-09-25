@@ -26,6 +26,7 @@
 
 namespace mod_booking;
 
+use mod_booking\form\option_form;
 use mod_booking\local\option_edit_access;
 use mod_booking\tests\capability_testcase;
 use moodle_exception;
@@ -34,6 +35,7 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 require_once("$CFG->dirroot/mod/booking/lib.php");
+require_once("$CFG->libdir/formslib.php");
 
 /**
  * The documented matrix of the option form gate (editoptions.php):
@@ -114,6 +116,50 @@ final class option_edit_matrix_test extends capability_testcase {
             $mayeditother,
             option_edit_access::can_edit_option($cmid, (int)$other->id),
             "$capability and editing an option of somebody else, while teaching another one."
+        );
+        // Teaching an option does not turn "edit own" into "create" (Wunderbyte-GmbH/moodle-mod_booking#1603).
+        $this->assertSame(
+            $maycreate,
+            option_edit_access::can_edit_option($cmid, 0),
+            "$capability and creating a new option, while teaching another one."
+        );
+    }
+
+    /**
+     * editownoption does not create options, also not for a user who teaches
+     * an option: booking_check_if_teacher(0) means "teaches ANY option", so the
+     * own-option rule must not be applied to a new option. Opening the form and
+     * saving it are refused; with addoption both work, and editing the own
+     * option keeps working (Wunderbyte-GmbH/moodle-mod_booking#1603).
+     *
+     * @covers \mod_booking\local\option_edit_access::can_edit_option
+     * @covers \mod_booking\form\option_form::check_access_for_dynamic_submission
+     */
+    public function test_teacher_with_editownoption_cannot_create_options(): void {
+        $own = $this->create_option();
+        $cmid = (int)$own->cmid;
+
+        $user = $this->user_with(['mod/booking:editownoption']);
+        $this->make_teacher_of((int)$own->id, (int)$user->id);
+        $this->setUser($user);
+        $this->assertTrue(booking_check_if_teacher(0), 'Precondition: the user teaches some option.');
+
+        $this->assertFalse(option_edit_access::can_edit_option($cmid, 0), 'Opening the form for a new option.');
+        $this->assert_blocked_by_capability(
+            $this->run_form_access_check(option_form::class, ['cmid' => $cmid, 'optionid' => 0]),
+            'mod/booking:editownoption'
+        );
+        $this->assertTrue(option_edit_access::can_edit_option($cmid, (int)$own->id), 'Editing the own option.');
+        $this->assert_capability_gate_passed(
+            $this->run_form_access_check(option_form::class, ['cmid' => $cmid, 'optionid' => (int)$own->id])
+        );
+
+        $creator = $this->user_with(['mod/booking:editownoption', 'mod/booking:addoption']);
+        $this->make_teacher_of((int)$own->id, (int)$creator->id);
+        $this->setUser($creator);
+        $this->assertTrue(option_edit_access::can_edit_option($cmid, 0), 'addoption opens the form for a new option.');
+        $this->assert_capability_gate_passed(
+            $this->run_form_access_check(option_form::class, ['cmid' => $cmid, 'optionid' => 0])
         );
     }
 

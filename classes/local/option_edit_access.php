@@ -69,7 +69,13 @@ class option_edit_access {
             return true;
         }
         // ... or they have the capability to edit their own options and are actually editing their own option.
-        if (has_capability('mod/booking:editownoption', $context) && booking_check_if_teacher($optionid)) {
+        // Only an existing option can be "own": booking_check_if_teacher() of an empty id means "teaches ANY
+        // option", which must not open a new option (Wunderbyte-GmbH/moodle-mod_booking#1603).
+        if (
+            $optionid > 0
+            && has_capability('mod/booking:editownoption', $context)
+            && booking_check_if_teacher($optionid)
+        ) {
             return true;
         }
         // ... or they duplicate one of their own options into a new one.
