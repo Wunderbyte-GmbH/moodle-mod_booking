@@ -1049,6 +1049,121 @@ final class condition_sqlfilter_semantics_test extends booking_advanced_testcase
     }
 
     /**
+     * With responsiblecontactcanedit active, a responsible contact keeps seeing the options (s)he is
+     * responsible for in the instance list although the filter condition would hide them.
+     * Without the setting, and for any other user, the filter applies as usual.
+     *
+     * @covers \mod_booking\bo_availability\bo_info::return_sql_from_conditions
+     *
+     * @param array $bdata
+     * @dataProvider booking_common_settings_provider
+     */
+    public function test_responsible_contact_bypass_in_instance_list(array $bdata): void {
+        [$course1, $booking1] = $this->seed_instance($bdata);
+        $courseb = $this->getDataGenerator()->create_course();
+
+        $responsiblecontact = $this->getDataGenerator()->create_user();
+        $otheruser = $this->getDataGenerator()->create_user();
+        foreach ([$responsiblecontact, $otheruser] as $user) {
+            $this->getDataGenerator()->enrol_user($user->id, $course1->id);
+        }
+
+        $record = $this->base_option_record($booking1, $course1, 'Responsible option requiring course B');
+        $record->responsiblecontact = $responsiblecontact->username;
+        $record->bo_cond_enrolledincourse_restrict = 1;
+        $record->bo_cond_enrolledincourse_courseids = [$courseb->id];
+        $record->bo_cond_enrolledincourse_courseids_operator = 'AND';
+        $record->bo_cond_enrolledincourse_sqlfiltercheck = 1;
+        $option = $this->plugingenerator->create_option($record);
+        singleton_service::destroy_instance();
+
+        set_config('responsiblecontactcanedit', 0, 'booking');
+        $this->assertFalse(
+            $this->is_visible_for($responsiblecontact, (int) $option->id),
+            'setting off: the responsible contact not enrolled in course B must not see the option'
+        );
+
+        set_config('responsiblecontactcanedit', 1, 'booking');
+        $this->assertTrue(
+            $this->is_visible_for($responsiblecontact, (int) $option->id),
+            'setting on: the responsible contact must see the option although the condition fails'
+        );
+        $this->assertFalse(
+            $this->is_visible_for($otheruser, (int) $option->id),
+            'setting on: another user not enrolled in course B gets no bypass'
+        );
+    }
+
+    /**
+     * The [courselist] shortcode on a page outside the course module (front page), where the
+     * capability bypass cannot fire: the responsible contact bypass must work there as well.
+     *
+     * @covers \mod_booking\shortcodes::courselist
+     * @covers \mod_booking\bo_availability\bo_info::return_sql_from_conditions
+     *
+     * @param array $bdata
+     * @dataProvider booking_common_settings_provider
+     */
+    public function test_responsible_contact_bypass_in_courselist_shortcode(array $bdata): void {
+        global $PAGE;
+
+        [$course1, $booking1] = $this->seed_instance($bdata);
+        $courseb = $this->getDataGenerator()->create_course();
+
+        $responsiblecontact = $this->getDataGenerator()->create_user();
+        $otheruser = $this->getDataGenerator()->create_user();
+        foreach ([$responsiblecontact, $otheruser] as $user) {
+            $this->getDataGenerator()->enrol_user($user->id, $course1->id);
+        }
+
+        $optiontitle = 'Shortcode responsible option requiring course B';
+        $record = $this->base_option_record($booking1, $course1, $optiontitle);
+        $record->responsiblecontact = $responsiblecontact->username;
+        $record->bo_cond_enrolledincourse_restrict = 1;
+        $record->bo_cond_enrolledincourse_courseids = [$courseb->id];
+        $record->bo_cond_enrolledincourse_courseids_operator = 'AND';
+        $record->bo_cond_enrolledincourse_sqlfiltercheck = 1;
+        $this->plugingenerator->create_option($record);
+        singleton_service::destroy_instance();
+
+        // The front page renders outside the course module, so the capability bypass cannot fire.
+        $PAGE = new moodle_page();
+        $PAGE->set_context(context_system::instance());
+        $PAGE->set_url('/index.php');
+
+        $renderfor = function (stdClass $viewer) use ($booking1): string {
+            $this->setUser($viewer);
+            singleton_service::destroy_instance();
+            return shortcodes::courselist(
+                'courselist',
+                ['cmid' => $booking1->cmid, 'all' => 1, 'perpage' => 4, 'showpagination' => false, 'type' => 'cards'],
+                null,
+                null,
+                static fn($content) => $content
+            );
+        };
+
+        set_config('responsiblecontactcanedit', 0, 'booking');
+        $this->assertStringNotContainsString(
+            $optiontitle,
+            $renderfor($responsiblecontact),
+            'setting off: the responsible contact must not see the option in [courselist]'
+        );
+
+        set_config('responsiblecontactcanedit', 1, 'booking');
+        $this->assertStringContainsString(
+            $optiontitle,
+            $renderfor($responsiblecontact),
+            'setting on: the responsible contact must see the option in [courselist] although the condition fails'
+        );
+        $this->assertStringNotContainsString(
+            $optiontitle,
+            $renderfor($otheruser),
+            'setting on: another user gets no bypass in [courselist]'
+        );
+    }
+
+    /**
      * Data provider.
      *
      * @return array
