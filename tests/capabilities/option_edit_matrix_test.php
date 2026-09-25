@@ -127,7 +127,7 @@ final class option_edit_matrix_test extends capability_testcase {
 
     /**
      * editownoption does not create options, also not for a user who teaches
-     * an option: booking_check_if_teacher(0) means "teaches ANY option", so the
+     * an option: booking_check_if_teacher() of an empty id meant "teaches ANY option", so the
      * own-option rule must not be applied to a new option. Opening the form and
      * saving it are refused; with addoption both work, and editing the own
      * option keeps working (Wunderbyte-GmbH/moodle-mod_booking#1603).
@@ -142,7 +142,7 @@ final class option_edit_matrix_test extends capability_testcase {
         $user = $this->user_with(['mod/booking:editownoption']);
         $this->make_teacher_of((int)$own->id, (int)$user->id);
         $this->setUser($user);
-        $this->assertTrue(booking_check_if_teacher(0), 'Precondition: the user teaches some option.');
+        $this->assertTrue(booking_check_if_teacher(), 'Precondition: the user teaches some option.');
 
         $this->assertFalse(option_edit_access::can_edit_option($cmid, 0), 'Opening the form for a new option.');
         $this->assert_blocked_by_capability(
