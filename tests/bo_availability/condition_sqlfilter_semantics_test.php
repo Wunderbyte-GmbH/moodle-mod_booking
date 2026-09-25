@@ -983,14 +983,14 @@ final class condition_sqlfilter_semantics_test extends booking_advanced_testcase
     }
 
     /**
-     * The [mytaughtcourselist] shortcode on a page outside the course module (front page).
+     * The [mymanagedcourselist] shortcode on a page outside the course module (front page).
      *
-     * @covers \mod_booking\shortcodes::mytaughtcourselist
+     * @covers \mod_booking\shortcodes::mymanagedcourselist
      *
      * @param array $bdata
      * @dataProvider booking_common_settings_provider
      */
-    public function test_teacher_bypass_in_mytaughtcourselist_shortcode(array $bdata): void {
+    public function test_teacher_bypass_in_mymanagedcourselist_shortcode(array $bdata): void {
         global $PAGE;
 
         [$course1, $booking1] = $this->seed_instance($bdata);
@@ -1025,8 +1025,8 @@ final class condition_sqlfilter_semantics_test extends booking_advanced_testcase
         $renderfor = function (stdClass $viewer, array $args): string {
             $this->setUser($viewer);
             singleton_service::destroy_instance();
-            return shortcodes::mytaughtcourselist(
-                'mytaughtcourselist',
+            return shortcodes::mymanagedcourselist(
+                'mymanagedcourselist',
                 $args,
                 null,
                 null,
@@ -1039,7 +1039,7 @@ final class condition_sqlfilter_semantics_test extends booking_advanced_testcase
         $this->assertStringContainsString(
             $optiontitle,
             $renderfor($teacher, $args),
-            'the teacher must see the own taught option in [mytaughtcourselist] although the condition fails'
+            'the teacher must see the own taught option in [mymanagedcourselist] although the condition fails'
         );
         $this->assertStringNotContainsString(
             $optiontitle,

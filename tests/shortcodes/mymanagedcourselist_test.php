@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Tests for the mytaughtcourselist shortcode.
+ * Tests for the mymanagedcourselist shortcode.
  *
  * @package mod_booking
  * @category test
@@ -37,14 +37,14 @@ global $CFG;
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 
 /**
- * Class handling tests for the mytaughtcourselist shortcode.
+ * Class handling tests for the mymanagedcourselist shortcode.
  *
  * @package mod_booking
  * @category test
  * @copyright 2026 Wunderbyte GmbH <info@wunderbyte.at>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-final class mytaughtcourselist_test extends booking_advanced_testcase {
+final class mymanagedcourselist_test extends booking_advanced_testcase {
     /**
      * Tests set up.
      */
@@ -57,15 +57,16 @@ final class mytaughtcourselist_test extends booking_advanced_testcase {
 
     /**
      * The shortcode lists only the options the user teaches, not the ones the user booked.
+     * With responsiblecontactcanedit active, it also lists the options the user is responsible contact of.
      *
-     * @covers \mod_booking\shortcodes::mytaughtcourselist
+     * @covers \mod_booking\shortcodes::mymanagedcourselist
      *
      * @param array $data
      * @param array $expected
      *
-     * @dataProvider mytaughtcourselist_provider
+     * @dataProvider mymanagedcourselist_provider
      */
-    public function test_mytaughtcourselist_shortcode(array $data, array $expected): void {
+    public function test_mymanagedcourselist_shortcode(array $data, array $expected): void {
         global $PAGE;
 
         $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
@@ -92,12 +93,14 @@ final class mytaughtcourselist_test extends booking_advanced_testcase {
         /** @var mod_booking_generator $plugingenerator */
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
 
-        // Two options taught by teacher1, one taught by teacher2, one without teacher.
+        // Two options taught by teacher1, one taught by teacher2, one without teacher
+        // and one teacher1 is only responsible contact of.
         $definitions = [
             ['text' => 'Taught by teacher1 A', 'teachers' => $teacher1->username],
             ['text' => 'Taught by teacher1 B', 'teachers' => $teacher1->username],
             ['text' => 'Taught by teacher2', 'teachers' => $teacher2->username],
             ['text' => 'No teacher', 'teachers' => ''],
+            ['text' => 'Responsible teacher1', 'teachers' => '', 'responsiblecontact' => $teacher1->username],
         ];
         $options = [];
         foreach ($definitions as $definition) {
@@ -109,6 +112,9 @@ final class mytaughtcourselist_test extends booking_advanced_testcase {
             $record->maxanswers = 5;
             if (!empty($definition['teachers'])) {
                 $record->teachersforoption = $definition['teachers'];
+            }
+            if (!empty($definition['responsiblecontact'])) {
+                $record->responsiblecontact = $definition['responsiblecontact'];
             }
             $options[] = $plugingenerator->create_option($record);
         }
@@ -135,12 +141,12 @@ final class mytaughtcourselist_test extends booking_advanced_testcase {
 
         $this->setUser($teacher1);
         $PAGE->set_context(context_user::instance($teacher1->id));
-        $PAGE->set_url(new \moodle_url('/mod/booking/tests/mytaughtcourselist_test.php'));
+        $PAGE->set_url(new \moodle_url('/mod/booking/tests/mymanagedcourselist_test.php'));
 
         $env = new stdClass();
         $next = function () {
         };
-        $out = shortcodes::mytaughtcourselist('mytaughtcourselist', $args, null, $env, $next);
+        $out = shortcodes::mymanagedcourselist('mymanagedcourselist', $args, null, $env, $next);
         $this->assertNotEmpty($out);
         $this->assertStringContainsString($expected['tablestringcontains'], $out);
 
@@ -159,11 +165,11 @@ final class mytaughtcourselist_test extends booking_advanced_testcase {
     }
 
     /**
-     * Data provider for test_mytaughtcourselist_shortcode.
+     * Data provider for test_mymanagedcourselist_shortcode.
      *
      * @return array
      */
-    public static function mytaughtcourselist_provider(): array {
+    public static function mymanagedcourselist_provider(): array {
         return [
             'settingoff' => [
                 [
@@ -198,6 +204,49 @@ final class mytaughtcourselist_test extends booking_advanced_testcase {
                     'tablestringcontains' => 'wunderbyte_table_container',
                     'numberofrecords' => 2,
                     'texts' => ['Taught by teacher1 A', 'Taught by teacher1 B'],
+                ],
+            ],
+            'responsiblecontactcaneditoff' => [
+                [
+                    'args' => [],
+                    'settings' => [
+                        'responsiblecontactcanedit' => 0,
+                    ],
+                ],
+                [
+                    'displaytable' => true,
+                    'tablestringcontains' => 'wunderbyte_table_container',
+                    'numberofrecords' => 2,
+                    'texts' => ['Taught by teacher1 A', 'Taught by teacher1 B'],
+                ],
+            ],
+            'responsiblecontactcaneditonwithresponsible' => [
+                [
+                    'args' => [],
+                    'settings' => [
+                        'responsiblecontactcanedit' => 1,
+                    ],
+                ],
+                [
+                    'displaytable' => true,
+                    'tablestringcontains' => 'wunderbyte_table_container',
+                    'numberofrecords' => 3,
+                    'texts' => ['Responsible teacher1', 'Taught by teacher1 A', 'Taught by teacher1 B'],
+                ],
+            ],
+            'responsiblecontactcaneditonotheruser' => [
+                [
+                    'args' => [],
+                    'userid' => 'teacher2',
+                    'settings' => [
+                        'responsiblecontactcanedit' => 1,
+                    ],
+                ],
+                [
+                    'displaytable' => true,
+                    'tablestringcontains' => 'wunderbyte_table_container',
+                    'numberofrecords' => 1,
+                    'texts' => ['Taught by teacher2'],
                 ],
             ],
             'otheruser' => [

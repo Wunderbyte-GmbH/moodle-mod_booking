@@ -1,8 +1,10 @@
 [Back to shortcode index](README.md)
 
-# `[mytaughtcourselist]`
+# `[mymanagedcourselist]`
 
-Shows the booking options in which one user is assigned as **teacher**.
+Shows the booking options in which one user is assigned as **teacher**. If the site setting "Allow responsible contacts to edit" (`responsiblecontactcanedit`) is active, it also shows the options in which that user is **responsible contact**.
+
+Formerly `[mytaughtcourselist]`. The old name is no longer registered: replace it on existing pages.
 
 By default, that user is the **current logged-in user**. In manager-style scenarios the shortcode can also render another teacher's options.
 
@@ -11,9 +13,9 @@ By default, that user is the **current logged-in user**. In manager-style scenar
 ## Syntax
 
 ```text
-[mytaughtcourselist]
-[mytaughtcourselist futureonly="1" perpage="10"]
-[mytaughtcourselist userid="123" cmid="42"]
+[mymanagedcourselist]
+[mymanagedcourselist futureonly="1" perpage="10"]
+[mymanagedcourselist userid="123" cmid="42"]
 ```
 
 ---
@@ -30,7 +32,7 @@ None.
 
 | Parameter | Meaning |
 |-----------|---------|
-| `userid="123"` | Render the options taught by another user. |
+| `userid="123"` | Render the options taught (or, with the setting above, managed as responsible contact) by another user. |
 | `cmid="42"` | Restrict the result to one booking activity. Invisible options are included for users holding `mod/booking:canseeinvisibleoptions` in that activity. |
 | `futureonly="1"` | Keep only items whose `courseendtime` is still in the future. |
 
@@ -78,19 +80,19 @@ None.
 ### Current teacher's upcoming options
 
 ```text
-[mytaughtcourselist futureonly="1" perpage="10"]
+[mymanagedcourselist futureonly="1" perpage="10"]
 ```
 
 ### Cards with search and sort
 
 ```text
-[mytaughtcourselist type="cards" search="1" sort="1"]
+[mymanagedcourselist type="cards" search="1" sort="1"]
 ```
 
 ### Show one teacher's options for one booking activity
 
 ```text
-[mytaughtcourselist userid="123" cmid="42"]
+[mymanagedcourselist userid="123" cmid="42"]
 ```
 
 ---
