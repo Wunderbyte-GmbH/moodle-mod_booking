@@ -82,7 +82,7 @@ The shortcode parser can pass many attributes, but each callback only uses the a
 | `[allbookingoptions]` | [allbookingoptions.md](allbookingoptions.md) | Show booking options across booking activities | `mod_booking\shortcodes::allbookingoptions()` |
 | `[courselist]` | [courselist.md](courselist.md) | Show options from one specific booking activity | `mod_booking\shortcodes::courselist()` |
 | `[mycourselist]` | [mycourselist.md](mycourselist.md) | Show the current user's own bookings | `mod_booking\shortcodes::mycourselist()` |
-| `[mytaughtcourselist]` | [mytaughtcourselist.md](mytaughtcourselist.md) | Show the booking options the current user teaches | `mod_booking\shortcodes::mytaughtcourselist()` |
+| `[mymanagedcourselist]` | [mymanagedcourselist.md](mymanagedcourselist.md) | Show the booking options the current user teaches or is responsible contact of | `mod_booking\shortcodes::mymanagedcourselist()` |
 | `[recommendedin]` | [recommendedin.md](recommendedin.md) | Show options recommended for the current course | `mod_booking\shortcodes::recommendedin()` |
 | `[fieldofstudyoptions]` | [fieldofstudyoptions.md](fieldofstudyoptions.md) | Show options matched through Moodle groups | `mod_booking\shortcodes::fieldofstudyoptions()` |
 | `[fieldofstudycohortoptions]` | [fieldofstudycohortoptions.md](fieldofstudycohortoptions.md) | Show options matched through cohort enrolment | `mod_booking\shortcodes::fieldofstudycohortoptions()` |
@@ -200,7 +200,7 @@ These shortcodes render booking options through the booking options table render
 - [allbookingoptions](allbookingoptions.md)
 - [courselist](courselist.md)
 - [mycourselist](mycourselist.md)
-- [mytaughtcourselist](mytaughtcourselist.md)
+- [mymanagedcourselist](mymanagedcourselist.md)
 - [recommendedin](recommendedin.md)
 - [fieldofstudyoptions](fieldofstudyoptions.md)
 - [fieldofstudycohortoptions](fieldofstudycohortoptions.md)

@@ -1211,6 +1211,7 @@ class shortcodes {
 
     /**
      * Shortcode to show the booking options the current (or a specified) user teaches.
+     * With responsiblecontactcanedit active, also the options (s)he is responsible contact of.
      *
      * @param string $shortcode
      * @param array $args
@@ -1219,7 +1220,7 @@ class shortcodes {
      * @param Closure $next
      * @return string
      */
-    public static function mytaughtcourselist($shortcode, $args, $content, $env, $next) {
+    public static function mymanagedcourselist($shortcode, $args, $content, $env, $next) {
         global $USER, $PAGE, $CFG;
 
         // Get rid of quotation marks.
@@ -1237,10 +1238,14 @@ class shortcodes {
             $teacherid = (int) $USER->id;
         }
 
-        // Only booking options where the given user is assigned as teacher.
-        $wherearray = [
-            'teacherobjects' => '%"id":' . $teacherid . ',%',
-        ];
+        // Only booking options where the given user is assigned as teacher
+        // or - if responsible contacts may edit - as responsible contact.
+        $wherearray = [];
+        $managedwhere = "teacherobjects LIKE '%\"id\":" . $teacherid . ",%'";
+        if (get_config('booking', 'responsiblecontactcanedit')) {
+            $managedwhere .= " OR CONCAT(',', responsiblecontact, ',') LIKE '%," . $teacherid . ",%'";
+        }
+        $managedwhere = "($managedwhere)";
         $context = null;
         $course = $PAGE->course;
         $pageurl = $course->shortname . $PAGE->url->out();
@@ -1258,6 +1263,7 @@ class shortcodes {
 
         // Additional where condition for both card and list views.
         $additionalwhere = self::set_customfield_wherearray($args, $wherearray) ?? '';
+        $additionalwhere = empty($additionalwhere) ? $managedwhere : "$managedwhere AND $additionalwhere";
 
         // A teacher looking at the own list sees the options (s)he teaches even if the availability SQL filter
         // (usesqlfilteravailability) would hide them.
