@@ -84,11 +84,12 @@ final class option_form_courselogin_test extends booking_advanced_testcase {
         $newend = make_timestamp(2050, 6, 10, 12, 0);
         $sink = $this->redirectEvents();
 
-        // The identifier has a "required" rule and the autocompletes (teachers, entities) do not export
+        // The identifier has a "required" rule and the autocompletes (teachers, entities, institution) do not export
         // their stored values when they are not submitted, so these fields are submitted like the browser does.
         $submitted = [
             'identifier' => $settings->identifier,
             'teachersforoption' => [(int)$teacher->id],
+            'institution' => '',
         ];
         if (class_exists('local_entities\\entitiesrelation_handler')) {
             $submitted[LOCAL_ENTITIES_FORM_ENTITYID . '0'] = '';
