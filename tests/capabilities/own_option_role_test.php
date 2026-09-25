@@ -82,7 +82,7 @@ final class own_option_role_test extends capability_testcase {
      * The capabilities of the role under test: the capabilities a role holding
      * addeditownoption gets from the migration.
      */
-    private const ROLE_CAPABILITIES = ownoption_capabilities::NEW_CAPABILITIES;
+    private const ROLE_CAPABILITIES = ownoption_capabilities::CLONED_CAPABILITIES;
 
     /**
      * Opening the option form (editoptions.php): allowed for the options the
