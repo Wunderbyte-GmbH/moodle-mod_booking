@@ -2161,7 +2161,11 @@ function booking_option_form_ids_match_cm($cm, int $optionid, int $bookingid, in
 
 /**
  * Check if logged in user is a teacher, responsible contact, or the creator of the passed option.
- * @param mixed|int $optionoroptionid optional option class or optionid
+ *
+ * Called without argument it answers whether the user is teacher of ANY option. A given
+ * option id that is empty or not positive is no option, the answer is false.
+ *
+ * @param mixed|int $optionoroptionid optional option class or optionid, leave out for "any option"
  * @param int $userid optional userid, if none is provided, we use the logged-in $USER->id
  * @return bool true if user is assigned as teacher, responsible contact (if enabled), or the creator of the option
  */
@@ -2171,6 +2175,19 @@ function booking_check_if_teacher($optionoroptionid = null, int $userid = 0) {
     // If no userid is provided, we use the logged-in user.
     if (empty($userid)) {
         $userid = $USER->id;
+    }
+
+    // Only a call WITHOUT argument asks "is the user teacher of ANY option?" (e.g. the "my options" tab).
+    // A given id that is empty or not positive is no option - callers that pass an id from the request
+    // must not open for a teacher of some other option (Wunderbyte-GmbH/moodle-mod_booking#1608).
+    if (
+        func_num_args() > 0
+        && (
+            empty($optionoroptionid)
+            || (is_number($optionoroptionid) && (int)$optionoroptionid <= 0)
+        )
+    ) {
+        return false;
     }
 
     if (empty($optionoroptionid)) {
