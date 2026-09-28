@@ -228,4 +228,123 @@ class calendar_helper {
             }
         }
     }
+
+    /**
+     * Next page of ids of booking options that have at least one session starting after $now.
+     *
+     * Keyset pagination on the option id (no OFFSET), so a run over tens of thousands of options
+     * costs one indexed query per page whatever the page number is.
+     *
+     * @param int $lastoptionid ids greater than this one are returned
+     * @param int $now unix timestamp, sessions starting after it count as future
+     * @param int $limit page size
+     * @return int[] ascending option ids
+     */
+    public static function get_optionids_with_future_sessions(int $lastoptionid, int $now, int $limit): array {
+        global $DB;
+
+        $sql = "SELECT DISTINCT od.optionid
+                  FROM {booking_optiondates} od
+                 WHERE od.coursestarttime > :now
+                   AND od.optionid > :lastoptionid
+              ORDER BY od.optionid ASC";
+        $params = ['now' => $now, 'lastoptionid' => $lastoptionid];
+        return array_map('intval', array_keys($DB->get_records_sql($sql, $params, 0, $limit)));
+    }
+
+    /**
+     * Future sessions of one option, indexed by id (full records of {booking_optiondates}).
+     *
+     * @param int $optionid
+     * @param int $now
+     * @return stdClass[]
+     */
+    public static function get_future_optiondates(int $optionid, int $now): array {
+        global $DB;
+
+        return $DB->get_records_select(
+            'booking_optiondates',
+            'optionid = :optionid AND coursestarttime > :now AND coursestarttime > 0 AND courseendtime > 0',
+            ['optionid' => $optionid, 'now' => $now],
+            'coursestarttime ASC, id ASC'
+        );
+    }
+
+    /**
+     * Pairs (userid, optiondateid) of one option for which a booked user has no personal calendar event
+     * for a future session.
+     *
+     * "No event" means: no row in {booking_userevents} for user, option and session - or a row whose
+     * event has been deleted in the meantime (option_set_visibility_for_all_calendar_events() keeps the
+     * rows). Only regular bookings count (waitinglist = MOD_BOOKING_STATUSPARAM_BOOKED), deleted users
+     * are skipped. Sessions without start or end time never get an event, so they are not returned.
+     *
+     * @param int $optionid
+     * @param int $now
+     * @return \moodle_recordset rows with userid and optiondateid, ordered by userid, optiondateid
+     */
+    public static function get_missing_user_events_for_option(int $optionid, int $now): \moodle_recordset {
+        global $DB;
+
+        [$sql, $params] = self::missing_user_events_sql($optionid, $now);
+        // The stale-rows count tells the caller whether an event is created anew or a stale tracking row is
+        // repaired; a correlated subquery on the indexed triple is cheaper than one extra query per pair.
+        return $DB->get_recordset_sql(
+            "SELECT ba.userid, od.id AS optiondateid,
+                    (SELECT COUNT(1)
+                       FROM {booking_userevents} bue2
+                      WHERE bue2.userid = ba.userid
+                        AND bue2.optionid = ba.optionid
+                        AND bue2.optiondateid = od.id) AS stalerows
+             $sql
+             ORDER BY ba.userid ASC, od.id ASC",
+            $params
+        );
+    }
+
+    /**
+     * Number of missing personal calendar events of one option (see get_missing_user_events_for_option()).
+     *
+     * @param int $optionid
+     * @param int $now
+     * @return int
+     */
+    public static function count_missing_user_events_for_option(int $optionid, int $now): int {
+        global $DB;
+
+        [$sql, $params] = self::missing_user_events_sql($optionid, $now);
+        return $DB->count_records_sql("SELECT COUNT(*) $sql", $params);
+    }
+
+    /**
+     * FROM/WHERE part shared by the missing-events queries.
+     *
+     * @param int $optionid
+     * @param int $now
+     * @return array [sql, params]
+     */
+    private static function missing_user_events_sql(int $optionid, int $now): array {
+        $sql = "FROM {booking_answers} ba
+                JOIN {booking_optiondates} od ON od.optionid = ba.optionid
+                JOIN {user} u ON u.id = ba.userid AND u.deleted = 0
+               WHERE ba.optionid = :optionid
+                 AND ba.waitinglist = :booked
+                 AND od.coursestarttime > :now
+                 AND od.coursestarttime > 0
+                 AND od.courseendtime > 0
+                 AND NOT EXISTS (
+                        SELECT 1
+                          FROM {booking_userevents} bue
+                          JOIN {event} e ON e.id = bue.eventid
+                         WHERE bue.userid = ba.userid
+                           AND bue.optionid = ba.optionid
+                           AND bue.optiondateid = od.id
+                     )";
+        $params = [
+            'optionid' => $optionid,
+            'booked' => MOD_BOOKING_STATUSPARAM_BOOKED,
+            'now' => $now,
+        ];
+        return [$sql, $params];
+    }
 }

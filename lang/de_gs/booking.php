@@ -187,6 +187,12 @@ $string['circumventavailabilityconditions_desc'] = 'Wenn diese Einstellung geset
     Wenn Nutzer/innen die "optionview.php" Seite einmalig mit den richtigen Parametern aufrufen, kann die Buchungsoption trotz dieser Einschränkungen für sie buchbar werden.
     Parameter sind <b>cvfield=userfeldkurzname_Gewuenschterwert</b> und optional <b>cvpwd=passwort</b>.
     Die Umgehung der Einschränkung ist buchungsinstanzspezifisch und gilt nur für jene Instanz, bei der als letztes die optionview mit dem "cvfield" aufgerufen wurde.';
+$string['cli:backfillusercalendarevents:help'] = 'Erstellt die persönlichen Kalendereinträge, die für zukünftige Termine gebuchter Teilnehmer/innen fehlen (siehe Einstellung "Keine Einträge im persönlichen Kalender erstellen").
+
+Optionen:
+  --run       Task-Kette in diesem Prozess bis zum Ende ausführen (Standard: nur einplanen, Cron erledigt die Arbeit).
+  --dry-run   Anzahl der fehlenden Einträge je Buchungsoption ausgeben, nichts schreiben.
+  -h, --help  Diese Hilfe ausgeben.';
 $string['completionmodule_help'] = 'Button zum Löschen aller Buchungen anzeigen, wenn eine andere Kursaktivität abgeschlossen wurde. Die Buchungen von Nutzer/innen werden mit einem Klick auf einen Button auf der Berichtsseite gelöscht! Nur Aktivitäten mit aktiviertem Abschluss können aus der Liste ausgewählt werden.';
 $string['completionoptioncompletedcminfo'] = 'In mind. {$a} Buchungsoptionen auf "Abgeschlossen" gesetzt werden (von Trainer/in, Kursersteller/in oder Manager/in).';
 $string['conditionselectbookingmanager'] = 'Verwalter/in der Buchungen wählen.';
@@ -246,7 +252,7 @@ $string['deleteuserfrombooking'] = 'Buchung für Nutzer/innen wirklich storniere
 $string['deputiesalreadyset'] = 'Ihre aktuellen Stellvertreter/in(nen):';
 $string['disablebookingusers'] = 'Buchung von Teilnehmer/innen deaktivieren - "Jetzt buchen" Button unsichtbar schalten';
 $string['displayemptyprice_desc'] = 'Wenn eine Buchungsoption Preise für einige Preiskategorien hat und für andere nicht, können Sie entscheiden, ob Nutzer/innen, für die die Option kostenlos ist, den Preis 0 angezeigt bekommen oder ob der Preis komplett ausgeblendet wird.';
-$string['dontaddpersonaleventsdesc'] = 'Für jede Buchung und alle Termine werden eigene Einträge im persönlichen Kalender der Teilnehmer/innen erstellt. Für eine bessere Performance auf sehr intensiv genutzten Seiten kann diese Funktion deaktiviert werden.';
+$string['dontaddpersonaleventsdesc'] = 'Für jede Buchung und alle Termine werden eigene Einträge im persönlichen Kalender der Teilnehmer/innen erstellt. Für eine bessere Performance auf sehr intensiv genutzten Seiten kann diese Funktion deaktiviert werden. Wird sie wieder aktiviert, erstellt ein Hintergrund-Task die fehlenden Einträge aller gebuchten Teilnehmer/innen für alle zukünftigen Termine.';
 $string['downloadusersforthisoptionods'] = 'Nutzer/innen im .ods-Format herunterladen';
 $string['downloadusersforthisoptionxls'] = 'Nutzer/innen im  .xls-Format herunterladen';
 $string['duplicatemoodlecourses_desc'] = 'Wenn diese Einstellung aktiviert ist, dann wird beim Duplizieren einer Buchungsoption

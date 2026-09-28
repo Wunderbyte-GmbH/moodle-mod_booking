@@ -2584,14 +2584,20 @@ if ($ADMIN->fulltree) {
             get_string('icalcfgdesc', 'mod_booking')
         )
     );
-    $settings->add(
-        new admin_setting_configcheckbox(
-            'booking/dontaddpersonalevents',
-            get_string('dontaddpersonalevents', 'mod_booking'),
-            get_string('dontaddpersonaleventsdesc', 'mod_booking'),
-            0
-        )
+    $dontaddpersonalevents = new admin_setting_configcheckbox(
+        'booking/dontaddpersonalevents',
+        get_string('dontaddpersonalevents', 'mod_booking'),
+        get_string('dontaddpersonaleventsdesc', 'mod_booking'),
+        0
     );
+    // When the personal events are switched on again, the events missing for future sessions are created
+    // by an adhoc task chain (Wunderbyte-GmbH/moodle-mod_booking#1613). Only one chain is pending at a time.
+    $dontaddpersonalevents->set_updatedcallback(function () {
+        if (empty(get_config('booking', 'dontaddpersonalevents'))) {
+            \mod_booking\task\backfill_user_calendar_events_adhoc::queue();
+        }
+    });
+    $settings->add($dontaddpersonalevents);
     // Default of the "Add to Moodle calendar" dropdown for NEW booking options.
     // "Site event" (2) is only applied for users holding mod/booking:createcalendarsiteevents,
     // see \mod_booking\option\fields\addtocalendar::instance_form_definition().
