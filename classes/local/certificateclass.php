@@ -186,6 +186,7 @@ class certificateclass {
             'institution' => $settings->institution,
             'teachers' => self::return_teachers_for_certificate($settings->teachers),
             'sessions' => self::return_sessions_for_certificate($settings->sessions),
+            'daterange' => self::return_daterange_for_certificate($settings),
             'duration' => self::return_duration_for_certificate($settings),
             'timeawarded' => self::return_timeawarded_for_certificate($settings, $userid, $completeddate),
             'competencies' => self::return_competencies_for_certificate($settings->competencies ?? ''),
@@ -370,6 +371,53 @@ class certificateclass {
             ) . "<br />";
         }
         return $dates;
+    }
+
+    /**
+     * Helper function to return a single date range for the certificate.
+     *
+     * When the booking option has more than one session, this returns the date of the
+     * very first session's start up to the date of the last session's end, e.g.
+     * "12 May 2026 - 18 July 2026". With a single session (or a single day) it returns
+     * that one date. This is a compact alternative to the full {sessions} list, exposed
+     * to certificate templates as the {daterange} placeholder.
+     *
+     * @param booking_option_settings $settings booking option settings (with ->sessions and course start/end times)
+     *
+     * @return string
+     */
+    private static function return_daterange_for_certificate(booking_option_settings $settings): string {
+        $starts = [];
+        $ends = [];
+        foreach ($settings->sessions ?? [] as $session) {
+            if (!empty($session->coursestarttime)) {
+                $starts[] = (int)$session->coursestarttime;
+            }
+            if (!empty($session->courseendtime)) {
+                $ends[] = (int)$session->courseendtime;
+            }
+        }
+        // Options without separate sessions fall back to their own start / end time.
+        if (empty($starts) && !empty($settings->coursestarttime)) {
+            $starts[] = (int)$settings->coursestarttime;
+        }
+        if (empty($ends) && !empty($settings->courseendtime)) {
+            $ends[] = (int)$settings->courseendtime;
+        }
+        if (empty($starts)) {
+            return '';
+        }
+
+        $firststart = min($starts);
+        $lastend = !empty($ends) ? max($ends) : max($starts);
+
+        $date = dates_handler::prettify_datetime($firststart, $lastend, current_language(), false);
+
+        // Single day (or only one date available): show it once, without a range.
+        if (empty($date->enddate) || $date->startdate === $date->enddate) {
+            return $date->startdate;
+        }
+        return $date->startdate . ' - ' . $date->enddate;
     }
 
     /**

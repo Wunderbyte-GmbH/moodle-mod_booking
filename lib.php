@@ -3146,6 +3146,13 @@ function mod_booking_tool_certificate_fields() {
         get_string('sessions', 'mod_booking'),
     );
     $handler->ensure_field_exists(
+        'daterange',
+        'text',
+        get_string('daterange', 'mod_booking'),
+        true,
+        get_string('daterange', 'mod_booking'),
+    );
+    $handler->ensure_field_exists(
         'duration',
         'textarea',
         get_string('duration', 'mod_booking'),

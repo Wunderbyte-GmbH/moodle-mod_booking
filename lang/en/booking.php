@@ -1872,6 +1872,7 @@ $string['duplicationrestoreprices'] = 'Include prices';
 $string['duplicationrestorerules'] = 'Include booking rules <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['duplicationrestoresubbookings'] = 'Include subbookings <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['duplicationrestoreteachers'] = 'Include teachers';
+$string['daterange'] = 'Date range (first - last date)';
 $string['duration'] = "Duration";
 $string['duration:minutes'] = 'Duration (minutes)';
 $string['duration:units'] = 'Units ({$a} min)';
