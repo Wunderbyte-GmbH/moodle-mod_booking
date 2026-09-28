@@ -44,6 +44,7 @@ Es ist auch möglich, Nutzer/innen für jede gebuchte Option in eine spezifische
 $string['addtogroupsofconnectedcourse'] = 'Nutzer/innen in Gruppe(n) des verknüpften Kurses einschreiben';
 $string['addtogroupsofconnectedcourse_help'] = 'Wählen Sie die Gruppe(n) des verknüpften Kurses aus, in die Nutzer/innen bei der Buchung dieser Option eingeschrieben werden. Es können nur Gruppen des aktuell gespeicherten verknüpften Kurses gewählt werden - nach einem Kurswechsel bitte die Option zuerst speichern. Diese manuelle Auswahl ist nur verfügbar, solange "Nutzer/innen automatisch in Gruppe des verknüpften Kurses einschreiben" in den Einstellungen der Buchungsinstanz nicht aktiv ist.';
 $string['addtogroupsofconnectedcourseinfo'] = 'Die Gruppe im verknüpften Kurs wird für diese Buchungsoption automatisch erstellt, weil "Nutzer/innen automatisch in Gruppe des verknüpften Kurses einschreiben" in den Einstellungen der Buchungsinstanz aktiv ist. Gruppen können daher hier nicht manuell ausgewählt werden.';
+$string['addusertogroup'] = 'Benutzer/in zu Gruppe hinzufügen: ';
 $string['agent_booking_booked_users_label'] = 'Gebuchte Nutzer/innen';
 $string['agent_booking_diagnose_cancel_other_user_permission_denied'] = 'Sie dürfen keine Stornodiagnose für andere Nutzer/innen ausführen.';
 $string['agent_booking_diagnose_cancel_reason_concrete_enrollink_used'] = 'Konkreter Zustand: Eine andere Person ist über den Einschreibelink dieser Buchungsantwort gebucht (booking_enrollink_items mit consumed = 1 zum Bundle der Antwort). Selbststorno ist absichtlich gesperrt; bei Bedarf muss eine Kassier/in oder eine Person mit Buchungsverwaltungsrechten die Buchung stornieren (über den Link gebuchte Personen bleiben gebucht, der Link wird ungültig).';
@@ -95,6 +96,7 @@ $string['bocondhascompetencyfullnotavailable'] = 'Nur Benutzer/innen, die mind. 
     <br>Sie haben aber das Recht dennoch zu buchen.';
 $string['bocondhascompetencyfullnotavailableand'] = 'Nur Benutzer/innen, die alle folgenden Kompetenzen haben, dürfen buchen: {$a}
 <br>Sie haben aber das Recht dennoch zu buchen.';
+$string['bocondisloggedinfullnotavailable'] = 'Benutzer/in ist nicht eingeloggt.';
 $string['bocondmaxnumberofbookings'] = 'max_number_of_bookings: Maximum an Nutzer/innen erreicht, die dieser User buchen darf';
 $string['bocondmaxnumberofbookingsfullnotavailable'] = 'Nutzer/in hat die max. Buchungsanzahl erreicht';
 $string['bocondonnotifylistfullnotavailable'] = 'Ausgebucht - Nutzer/in ist auf der Benachrichtigungliste';
@@ -136,6 +138,7 @@ $string['booking:managebookedusers'] = 'Buchungen von Nutzer/innen verwalten';
 $string['booking:managebookingsownoption'] = 'Buchungen eigener Buchungsoptionen verwalten (eigene Buchungsoptionen sind solche,
 die man entweder selbst angelegt hat oder bei denen man als Trainer/in zugewiesen ist)';
 $string['booking:overrideboconditions'] = 'Nutzer/in darf buchen auch wenn Verfügbarkeit false zurückliefert.';
+$string['booking:readallinstitutionusers'] = 'Alle Benutzer/innen anzeigen';
 $string['booking:sendmailownoption'] = 'E-Mails an die gebuchten Nutzer/innen eigener Buchungsoptionen senden (eigene Buchungsoptionen sind solche,
 die man entweder selbst angelegt hat oder bei denen man als Trainer/in zugewiesen ist)';
 $string['booking:sendpollurltoteachers'] = 'Umfragelink and Trainer/innen senden';
@@ -171,6 +174,7 @@ $string['bookotherusersavailabilitywarningconfirm'] = 'Möchten Sie die ausgewä
 $string['bookotheruserslimit'] = 'Max. Anzahl an Buchungen, die ein/e der Buchungsoption zugewiesene/r Trainer/in vornehmen kann';
 $string['booktootherbooking'] = 'Nutzer/innen umbuchen / zu anderer Buchungsoption hinzufügen';
 $string['bookusers'] = 'Feld für den Import, um Nutzer/innen zu buchen';
+$string['bookuserswithoutcompletedactivity'] = 'Benutzer/innen ohne abgeschlossene Aktivität buchen';
 $string['bookwithcreditsactive_desc'] = 'Nutzer/innen mit Guthaben/Credits sehen keinen Preis, sondern können mit ihren Credits buchen.';
 $string['bookwithcreditsprofilefield_desc'] = 'Um die Funktion nutzen zu können, muss es ein Profilfeld geben, in dem die Credits der Nutzer/innen hiinterlegt werden können.
 <span class=\'text-danger\'><b>Achtung:</b> Dieses Feld sollte von den Nutzer/innen nicht bearbeitet werden können.</span>';
@@ -178,6 +182,13 @@ $string['bstparticipants'] = 'Teilnehmer/innen';
 $string['bstteacher'] = 'Trainer/in(nen)';
 $string['cachedef_bookedusertable'] = 'Gebuchte Nutzer/innen-Tabelle (Cache)';
 $string['cachedef_usercompetenciescache'] = 'Kompetenzen von Nutzer/innen (Cache)';
+$string['cachereportfindingkeysharingcritical'] = 'Nahezu jede erfasste Person erzeugt eigene Cache-Einträge ({$a} unterschiedliche Key-Stämme). Die Caches wachsen mit der Anzahl der Benutzer/innen.';
+$string['cachereportfindingkeysharingok'] = 'Cache-Keys werden gut zwischen den Benutzer/innen geteilt ({$a} unterschiedliche Key-Stämme).';
+$string['cachereportfindingkeysharingwarning'] = 'Cache-Keys werden nur teilweise zwischen den Benutzer/innen geteilt ({$a} unterschiedliche Key-Stämme).';
+$string['cachereportintro'] = 'Dieser Bericht misst, wie sich die Caches der Buchungsoptions-Tabelle auf dieser Website verhalten: wie gut Cache-Keys zwischen den Benutzer/innen geteilt werden, wie viele Optionen den SQL-Verfügbarkeitsfilter verwenden, wie viel Abfragezeit der Filter kostet und wie groß die betroffenen Cache-Definitionen sind. Er greift ausschließlich lesend auf die Caches zu und zeigt nur aggregierte Werte.';
+$string['cachereportsampleinterpretation'] = 'Ein Wert nahe der Stichprobengröße bedeutet, dass jede Person eigene Cache-Einträge erzeugt (der Problemfall); ein kleiner Wert bedeutet, dass sich die Benutzer/innen Einträge je Sichtbarkeitsklasse teilen.';
+$string['cachereportsamplesize'] = 'Stichprobengröße (kürzlich aktive Benutzer/innen)';
+$string['cachereporttopclasses'] = 'Größte Key-Klassen (Benutzer/innen pro Key)';
 $string['cacheturnoffforbookinganswers'] = 'Caching der Antworten (der Buchungen durch Nutzer/innen) abschalten';
 $string['caladdascourseevent'] = 'Zum Kalender hinzufügen (nur für Teilnehmer/innen des Moodle-Kurses sichtbar)';
 $string['caladdassiteevent'] = 'Als Website-Termin hinzufügen (für alle Nutzer/innen der Website sichtbar)';
@@ -201,6 +212,7 @@ $string['circumventavailabilityconditions_desc'] = 'Wenn diese Einstellung geset
     Die Umgehung der Einschränkung ist buchungsinstanzspezifisch und gilt nur für jene Instanz, bei der als letztes die optionview mit dem "cvfield" aufgerufen wurde.';
 $string['completionmodule_help'] = 'Button zum Löschen aller Buchungen anzeigen, wenn eine andere Kursaktivität abgeschlossen wurde. Die Buchungen von Nutzer/innen werden mit einem Klick auf einen Button auf der Berichtsseite gelöscht! Nur Aktivitäten mit aktiviertem Abschluss können aus der Liste ausgewählt werden.';
 $string['completionoptioncompletedcminfo'] = 'In mind. {$a} Buchungsoptionen auf "Abgeschlossen" gesetzt werden (von Trainer/in, Kursersteller/in oder Manager/in).';
+$string['condition:profilefieldcurrentuser'] = 'Aktuelle/r Benutzer/in';
 $string['conditionselectbookingmanager'] = 'Verwalter/in der Buchungen wählen.';
 $string['conditionselectbookingmanager_desc'] = 'Verwalter/in der Buchungen wird in den Einstellungen der Buchungs Modul Instanz ausgewählt';
 $string['conditionselectstudentinbo_desc'] = 'Nutzer/innen der von der Regel betroffenen Buchungsoption wählen.';
@@ -208,9 +220,12 @@ $string['conditionselectteacherinbo_desc'] = 'Trainer/innen der von der Regel be
 $string['conditionselectuserfromevent_desc'] = 'Nutzer/in, die mit dem Ereignis in Verbindung steht wählen';
 $string['conditionselectusershoppingcart_desc'] = 'Nutzer/in mit Zahlungsverpflichtung ist ausgewählt';
 $string['conditionselectusersuserids'] = 'Wähle die gewünschten Nutzer/innen';
+$string['confirmactivtyfrom'] = 'Aktivität der Benutzer/innen bestätigen ab';
 $string['confirmationonnotificationyesforall'] = 'Ja, für alle benachrichtigten Benutzer/innen';
 $string['confirmbookinganswer'] = 'Buchungsantwort bestätigen, wenn die Benachrichtigung für Benutzer/innen aktiviert ist.';
 $string['confirmcustomformoverwrite'] = 'Mir ist bewusst, dass ich durch Speichern die vom/von der Benutzer/in eingegebenen Formularwerte überschreibe.';
+$string['confirmusers'] = 'Aktivität der Benutzer/innen bestätigen';
+$string['confirmuserswith'] = 'Benutzer/innen bestätigen, die die Aktivität abgeschlossen oder einen Badge erhalten haben';
 $string['connectedbooking_help'] = 'Buchung von der Teilnehmer/innen übernommen werden. Es kann bestimmt werden wie viele Teilnehmer/innen übernommen werden.';
 $string['consumeatonce_help'] = 'Die Nutzer/innen haben nur einen einzigen Buchungsschritt, bei dem alle Wahlfächer gebucht werden müssen.';
 $string['containsinarray'] = 'Teilnehmer/in hat einen dieser Werte zumindest teilweise (Komma getrennt)';
@@ -254,7 +269,10 @@ $string['definefieldofstudy'] = 'Sie können hier alle Buchungsoptionen aus dem 
  Shortcodes derjenigen Kurse, in denen eine Buchungsoption empfohlen werden soll, eintragen. Wenn ein/e Benutzer/in Teil der
  Gruppe "Philosophie" ist, werden ihm/ihr alle Buchungsoptionen aus Kursen angezeigt, in denen mindestens einer der "Philosophie"-Kurse empfohlen wird.';
 $string['deletedusers'] = 'Gelöschte Nutzer/innen';
+$string['deleteresponsesactivitycompletion'] = 'Alle Benutzer/innen mit abgeschlossener Aktivität löschen: {$a}';
 $string['deleteuserfrombooking'] = 'Buchung für Nutzer/innen wirklich stornieren?';
+$string['delnotification'] = 'Sie haben {$a->del} von {$a->all} Benutzer/innen gelöscht. Benutzer/innen, die die Aktivität abgeschlossen haben, können nicht gelöscht werden!';
+$string['delnotificationactivitycompletion'] = 'Sie haben {$a->del} von {$a->all} Benutzer/innen gelöscht. Benutzer/innen, die die Aktivität abgeschlossen haben, können nicht gelöscht werden!';
 $string['deputiesalreadyset'] = 'Ihre aktuellen Stellvertreter/in(nen):';
 $string['disablebookingusers'] = 'Buchung von Teilnehmer/innen deaktivieren - "Jetzt buchen" Button unsichtbar schalten';
 $string['displayemptyprice_desc'] = 'Wenn eine Buchungsoption Preise für einige Preiskategorien hat und für andere nicht, können Sie entscheiden, ob Nutzer/innen, für die die Option kostenlos ist, den Preis 0 angezeigt bekommen oder ob der Preis komplett ausgeblendet wird.';
@@ -268,6 +286,7 @@ $string['duplicationrestoreteachers'] = 'Trainer/innen inkludieren';
 $string['easyavailabilityselectusers'] = 'Einfache Nutzer/innen Voraussetzung';
 $string['editoptionsrequirecourselogin_desc'] = 'Wenn aktiviert (Standard), müssen Nutzer/innen im Kurs eingeschrieben sein (oder der Kurs muss Gastzugang erlauben), um das Formular für Buchungsoptionen (editoptions.php) zu öffnen. Wenn deaktiviert, reicht ein Login auf der Seite; die Rechteprüfungen des Formulars gelten weiterhin, bearbeiten können also nur Trainer/innen der Buchungsoption oder Nutzer/innen mit den nötigen Rechten.';
 $string['editteacherslink'] = 'Lehrer/innen bearbeiten';
+$string['electiveforcesortorder'] = 'Trainer/in kann Reihenfolge vorgeben';
 $string['enablecompletionmincompleted'] = 'Mindestanzahl an Buchungsoptionen, in denen der/die Nutzer/in auf "Abgeschlossen" gesetzt werden muss';
 $string['enablecompletionmincompleted_help'] = 'Ein/e Nutzer/in muss in mindestens so vielen Buchungsoptionen auf "Abgeschlossen" gesetzt werden, wie Sie hier angeben,
 um die Buchungsaktivität (Buchungsinstanz) abzuschließen.
@@ -276,6 +295,8 @@ Danach können die Optionen auf der Berichtsseite als abgeschlossen markiert wer
 $string['enablefavoritestoggle_desc'] = 'Ermöglicht es Nutzer/innen, Buchungsoptionen als Favoriten zu markieren. Wenn aktiviert, erscheint bei jeder Buchungsoption ein Stern-Symbol, mit dem Nutzer/innen die Option zu ihrer persönlichen Favoritenliste hinzufügen oder daraus entfernen können. In den Einstellungen jeder Buchungsinstanz kann dann ein eigener Tab "Meine Favoriten" hinzugefügt werden.
 <span class="text-danger">Bitte denken Sie daran, den Tab "Meine Favoriten" in den Einstellungen Ihrer Buchungsinstanzen hinzuzufügen, nachdem Sie diese Funktion aktiviert haben.</span>';
 $string['enforceorder_help'] = 'Nutzer/innen werden erst nach Abschluss des vorangegangene Kurses in den nächsten Kurs eingeschrieben.';
+$string['enforceteacherorder'] = 'Reihenfolge der Trainer/innen erzwingen';
+$string['enforceteacherorder_help'] = 'Benutzer/innen können die Reihenfolge der ausgewählten Optionen nicht selbst festlegen, sie wird von der Trainerin bzw. dem Trainer bestimmt';
 $string['enrolledusers'] = 'In den Kurs eingeschriebene Nutzer/innen';
 $string['enrolmentstatus'] = 'Nutzer/innen erst zu Kursbeginn in den Kurs einschreiben (Standard: Nicht angehakt &rarr; sofort einschreiben.)';
 $string['enrolmentstatus_help'] = 'Achtung: Damit die automatische Einschreibung funktioniert,
@@ -343,6 +364,7 @@ $string['maxperuserdontcountcompleted_desc'] = 'Abgeschlossene Buchungen und Tei
 bei der Berechnung der maximalen Anzahl an Buchungen nicht mitzählen';
 $string['maxperuserdontcountnoshow_desc'] = 'Abwesende Teilnehmer/innen mit Anwesenheitsstatus "Nicht aufgetaucht"
 bei der Berechnung der maximalen Anzahl an Buchungen nicht mitzählen';
+$string['messagerecipient'] = 'Empfänger/in';
 $string['mod/booking:expertoptionform'] = 'Buchungsoption für Expert/innen';
 $string['nodirectbookingbecauseofprice'] = 'Das Buchen von anderen ist bei dieser Buchungsoption nur eingeschränkt möglich. Die Gründe dafür sind folgende:
 <ul>
@@ -366,6 +388,7 @@ Hier geht\'s zum Kurs:  {$a->courselink}
 $string['notifymelistdeleted'] = 'Nutzer/in von der Benachrichtigungsliste gelöscht';
 $string['notinarray'] = 'Teilnehmer/in hat keinen dieser Werte (Komma getrennt)';
 $string['nouserfound'] = 'Kein/e Benutzer/in gefunden: ';
+$string['nousers'] = 'Keine Benutzer/innen!';
 $string['onecompetencymustbefound'] = 'Nutzer/in muss mind. eine dieser Kompetenzen haben';
 $string['openbookingdetailinsametab_desc'] = 'Wählen Sie, wie die Detailansicht geöffnet wird, wenn eine/ein Nutzer/in in der Kursliste auf den Titel einer Buchungsoption klickt.';
 $string['optiondatesteacheradded'] = 'Trainer/in wurde zu Einzeltermin hinzugefügt';
@@ -391,12 +414,21 @@ $string['pollurlteachers'] = 'Trainer/innen Umfragelink';
 $string['pollurlteacherstemplate'] = 'Vorlage für Trainer/innen Umfragelink';
 $string['pollurlteacherstext'] = 'Umfragetext für Trainer/innen';
 $string['potentialsubscribers'] = 'Mögliche Nutzer/innen';
+$string['previewcfg_daystonotifyteachers'] = 'Tage vor dem Termin für die Benachrichtigung der Trainer/innen';
+$string['previewcfg_notifyemailteachers'] = 'E-Mail-Adresse für Benachrichtigungen (Trainer/innen)';
+$string['previewcfg_pollurlteachers'] = 'Umfrage-URL (Trainer/innen)';
+$string['previewcfg_pollurlteacherstext'] = 'Linktext der Umfrage-URL (Trainer/innen)';
+$string['previewlabel_teacher'] = 'Trainer/in';
+$string['previewtitle_bookusers'] = 'Benutzer/innen buchen';
+$string['previewtitle_updatetrainer'] = 'Trainer/innen aktualisieren';
 $string['pricecategorychoosehighest_desc'] = 'Hat ein/e Nutzer/in mehrere Preiskategorie-Identifier in seinem Userprofil hinterlegt, wird die am höchsten gereihte Preiskategorie zuerst gewählt. Standard ist die niedrigste.';
 $string['privacy:metadata:bookingaimessages:role'] = 'Rolle der Nachricht: Nutzer/in, Assistent oder System.';
 $string['privacy:metadata:bookingaithreads'] = 'KI-Konversations-Threads, die von Nutzer/innen für Buchungsinstanzen erstellt wurden.';
+$string['privacy:metadata:bookingoptiondatesteachers'] = 'Erfasst die Trainer/innen für jeden Termin.';
 $string['privacy:metadata:bookingslotstudentteacher'] = 'Einer Person zugewiesene/r Trainer/in für eine Slot-Buchungsoption';
 $string['privacy:metadata:bookingslotstudentteacher:teacherid'] = 'Nutzer-ID der zugewiesenen Trainer/in';
 $string['privacy:metadata:bookingslotstudentteacher:userid'] = 'Person (Teilnehmer/in), der die Trainer/in zugewiesen ist';
+$string['privacy:metadata:bookingteachers'] = 'Trainer/in(nen) eines Termins';
 $string['privacy:metadata:bookingteacherunavailability'] = 'Abwesenheitszeiträume von Trainer/innen für die Slot-Buchung';
 $string['privacy:metadata:bookingteacherunavailability:teacherid'] = 'Nutzer-ID der abwesenden Trainer/in';
 $string['privacy:metadata:bookingwaitlistdeclines'] = 'Sperrliste für Nutzer/innen, die ein Wartelisten-Angebot abgelehnt oder verfallen lassen haben';
@@ -507,6 +539,8 @@ $string['subbookingadditemformlink_help'] = 'Wählen Sie das Formularelement, da
 $string['subscribersto'] = 'Trainer/innen für \'{$a}\'';
 $string['subscribetocourse'] = 'Nutzer/innen in den Kurs einschreiben';
 $string['subscribetocoursebody'] = 'Wollen Sie die ausgewählten Nutzer/innen wirklich in den mit dieser Buchungsoption verbundenen Kurs einschreiben?';
+$string['sucesfullcompleted'] = 'Die Aktivität wurde für die Benutzer/innen erfolgreich abgeschlossen.';
+$string['sucesfullytransfered'] = 'Die Benutzer/innen wurden erfolgreich übertragen.';
 $string['switchtemplates'] = 'Nutzer/innen können die Ansicht wechseln';
 $string['switchtemplates_help'] = 'Aktivieren Sie diese Einstellung, um es Nutzer/innen zu ermöglichen zwischen verschiedenen Ansichten zu wechseln.
 Definieren Sie im nächsten Schritt die Ansichten zwischen denen gewechselt werden kann.';
@@ -521,6 +555,7 @@ $string['tableheaderteacher'] = 'Trainer/in(nen)';
 $string['tabwhatsnew_desc'] = 'Sie können diesen Tab verwenden, um Benutzer/innen alle neuen Buchungen anzuzeigen,
 die innerhalb der letzten X Tage (die Anzahl können Sie hier angeben) auf sichtbar gesetzt ODER erstellt wurden.
 <span class="text-danger">Denken Sie daran, den Tab in den Einstellungen Ihrer Buchungsinstanz hinzuzufügen, nachdem Sie ihn aktiviert haben.</span>';
+$string['taskupdateteachercalendarentries'] = 'Booking: Kalendereinträge der Trainer/innen aktualisieren (Adhoc-Task)';
 $string['teacher'] = 'Trainer/in';
 $string['teachernotfound'] = 'Trainer/in konnte nicht gefunden werden oder existiert nicht.';
 $string['teacherpageshiddenbookingids'] = 'Buchungsinstanzen, die auf Trainer/innen-Seiten nicht angezeigt werden sollen';
@@ -554,8 +589,10 @@ wenn es die Datenschutzbestimmungen Ihrer Organisation erlauben.</span>';
 $string['teachingreportforinstance'] = 'Trainer/innen-Gesamtbericht für ';
 $string['teachingreportfortrainer'] = 'Leistungs-Report für Trainer/in';
 $string['toomuchusersbooked'] = 'Maximale Anzahl an Nutzer/innen, die Sie buchen können: {$a}';
+$string['transefusers'] = 'Benutzer/innen übertragen';
 $string['transferconfirmlabel'] = 'Ich habe die obenstehenden Warnungen verstanden und möchte die ausgewählten Nutzer/innen trotzdem umbuchen.';
 $string['transferheading'] = 'Ausgewählte Nutzer/innen in die ausgewählte Buchungsoption umbuchen';
+$string['transferhelp'] = 'Benutzer/innen, die die Aktivität nicht abgeschlossen haben, von der ausgewählten Option zu {$a} übertragen.';
 $string['transferoptionsuccess'] = 'Die Buchungsoption und die registrierten Nutzer/innen wurden erfolgreich umgebucht';
 $string['transferproblem'] = 'Die folgenden Nutzer/innen konnten aufgrund einer limitierten Anzahl an Plätzen der Buchungsoption oder aufgrund individueller Limitierungen seitens des/der Nutzer/in nicht umgebucht werden: {$a}';
 $string['transfersameoption'] = 'Bitte wählen Sie eine andere Buchungsoption als jene, in der die Nutzer/innen aktuell gebucht sind.';
@@ -580,6 +617,7 @@ $string['usersonlist'] = 'Nutzer/innen';
 $string['userspecificcampaignwarning'] = 'Wenn Sie ein unten ein Benutzerdefiniertes User Profilfeld auswählen, wird die Kampagne nur für jene Nutzer/innen wirksam, die in diesem Feld den angegebenen Wert haben (oder nicht haben).';
 $string['userssuccessfullenrolled'] = 'Alle Nutzer/innen wurden erfolgreich eingeschrieben!';
 $string['userssuccessfullybooked'] = 'Alle Nutzer/innen wurden erfolgreich in die andere Buchungsoption eingeschrieben.';
+$string['userssuccessfullygetnewpresencestatus'] = 'Alle Benutzer/innen haben einen neuen Anwesenheitsstatus.';
 $string['userssucesfullygetnewpresencestatus'] = 'Anwesenheitsstatus für ausgewählte Nutzer/innen erfolgreich aktualisiert';
 $string['userwhotriggeredevent'] = 'Nutzer/in, die das Ereignis ausgelöst hat';
 $string['waitinglistinfotextsinfo'] = 'Wählen Sie aus, wie die Platzverfügbarkeit für die Warteliste den Nutzer/innen angezeigt werden soll.';
