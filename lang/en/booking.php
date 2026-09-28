@@ -1450,6 +1450,15 @@ Required parameter is <b>cvfield=userprofileshortname_desiredvalue</b>, and opti
 The bypass of the restriction is specific to each booking instance and only applies to the instance for which "optionview" was last called with the "cvfield" parameter.';
 $string['circumventpassword'] = 'Password to circumvent the restrictions. Leave empty if no password should be required.';
 $string['classicview'] = 'Classic view';
+$string['cli:backfillusercalendarevents:alreadyqueued'] = 'A backfill of the personal calendar events is already queued or running. Nothing to do.';
+$string['cli:backfillusercalendarevents:help'] = 'Create the personal calendar events that are missing for future sessions of booked users (see the setting "Dont add personal calendar events").
+
+Options:
+  --run       Run the task chain in this process until it is done (default: only queue it, cron does the work).
+  --dry-run   Report the number of missing events per booking option, write nothing.
+  -h, --help  Print this help.';
+$string['cli:backfillusercalendarevents:queued'] = 'The backfill of the personal calendar events has been queued as an adhoc task.';
+$string['cli:backfillusercalendarevents:settingison'] = 'The setting "Dont add personal calendar events" is on. Switch it off first, the events would only be missing again.';
 $string['close'] = 'Close';
 $string['closed'] = 'Booking closed';
 $string['cohort'] = 'Cohort';
@@ -1844,7 +1853,7 @@ $string['displayshoppingcarthistory_desc'] = 'Should transactions, receipts etc.
 $string['displaytext'] = "Display text";
 $string['documentation'] = 'Booking documentation';
 $string['dontaddpersonalevents'] = 'Dont add personal calendar events';
-$string['dontaddpersonaleventsdesc'] = 'For each booked option and for all of its sessions, personal events are created in the moodle calendar. Suppressing them improves performance for heavy load sites.';
+$string['dontaddpersonaleventsdesc'] = 'For each booked option and for all of its sessions, personal events are created in the moodle calendar. Suppressing them improves performance for heavy load sites. When you switch the personal events on again, a background task creates the missing events of all booked users for all future sessions.';
 $string['dontapply'] = 'Don\'t apply';
 $string['dontmove'] = 'Don\'t move';
 $string['dontusefuction'] = 'Don\'t use this function';
@@ -4121,6 +4130,7 @@ $string['takesplace'] = 'Takes place';
 $string['takesplaceno'] = 'Does not take place';
 $string['takesplaceyes'] = 'Takes place';
 $string['taskadhocresetoptiondatesforsemester'] = 'Adhoc task: Reset and generate new optiondates for semester';
+$string['taskbackfillusercalendareventsadhoc'] = 'Booking: Create missing personal calendar events for future sessions (adhoc task)';
 $string['taskcheckanswers'] = 'Booking: Check answers';
 $string['taskcleanbookingdb'] = 'Booking: Clean database';
 $string['taskcleanupinvalidscheduledmails'] = 'Booking: Cleanup invalid scheduled mails';

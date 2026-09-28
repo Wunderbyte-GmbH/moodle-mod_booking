@@ -122,8 +122,6 @@ class calendar {
     public function __construct($cmid, $optionid, $userid, $type, $optiondateid = 0, $justbooked = 0) {
         global $DB;
 
-        $bu = new booking_utils();
-
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
         $newcalendarid = 0;
@@ -133,40 +131,12 @@ class calendar {
                 if ($justbooked && !empty($optiondateid)) {
                     // A user has just booked. The events will be created as USER events.
                     if ($optiondate = $DB->get_record("booking_optiondates", ["id" => $optiondateid])) {
-                        $newcalendarid = self::booking_optiondate_add_to_cal(
-                            $cmid,
-                            $optionid,
+                        $newcalendarid = self::create_user_event_for_optiondate(
+                            (int)$cmid,
+                            (int)$optionid,
                             $optiondate,
-                            $settings->calendarid,
-                            $userid
+                            (int)$userid
                         );
-                        if ($newcalendarid) {
-                            // If it's a new user event, then insert.
-                            if (
-                                !$userevent = $DB->get_record(
-                                    'booking_userevents',
-                                    ['userid' => $userid,
-                                                                'optionid' => $optionid,
-                                                                'optiondateid' => $optiondateid,
-                                    ]
-                                )
-                            ) {
-                                $data = new stdClass();
-                                $data->userid = $userid;
-                                $data->optionid = $optionid;
-                                $data->eventid = $newcalendarid;
-                                $data->optiondateid = $optiondateid;
-                                $DB->insert_record('booking_userevents', $data);
-
-                                // Delete old option events because we use multisession.
-                                $bu->booking_hide_option_userevents($optionid);
-                            } else {
-                                // If the user event already exists, then update.
-                                $DB->delete_records('event', ['id' => $userevent->eventid]);
-                                $userevent->eventid = $newcalendarid;
-                                $DB->update_record('booking_userevents', $userevent);
-                            }
-                        }
                     }
                 } else if (self::instance_eventtype((int)$settings->addtocalendar) !== null) {
                     if ($optiondate = $DB->get_record("booking_optiondates", ["id" => $optiondateid])) {
@@ -233,6 +203,81 @@ class calendar {
                 $DB->execute($sql2, $params);
                 break;
         }
+    }
+
+    /**
+     * Create the personal calendar event of one booked user for one session (optiondate) of a booking option.
+     *
+     * This is the code path of a live booking (constructor with MOD_BOOKING_TYPEOPTIONDATE and $justbooked):
+     * the event is created via booking_optiondate_add_to_cal() as a USER event and tracked in
+     * {booking_userevents}. If a tracking row for this user, option and session already exists, the event it
+     * points to is deleted and the row is pointed at the new event.
+     *
+     * The backfill task (see \mod_booking\task\backfill_user_calendar_events_adhoc) uses the very same method,
+     * so live and backfilled events cannot drift apart. It triggers no mod_booking event.
+     *
+     * @param int $cmid
+     * @param int $optionid
+     * @param stdClass $optiondate full record of {booking_optiondates}
+     * @param int $userid
+     * @param bool $hideoptionuserevents run the legacy hiding of option-level user events (rows with
+     *                                   optiondateid NULL) after an insert; callers that process many events
+     *                                   of one option can pass false and run booking_hide_option_userevents()
+     *                                   once themselves, the result is identical
+     * @return int id of the new calendar event, 0 if none was created (e.g. session without start or end time)
+     */
+    public static function create_user_event_for_optiondate(
+        int $cmid,
+        int $optionid,
+        stdClass $optiondate,
+        int $userid,
+        bool $hideoptionuserevents = true
+    ): int {
+        global $DB;
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+
+        $newcalendarid = (int)self::booking_optiondate_add_to_cal(
+            $cmid,
+            $optionid,
+            $optiondate,
+            (int)$settings->calendarid,
+            $userid
+        );
+        if (!$newcalendarid) {
+            return 0;
+        }
+
+        $userevent = $DB->get_record(
+            'booking_userevents',
+            [
+                'userid' => $userid,
+                'optionid' => $optionid,
+                'optiondateid' => $optiondate->id,
+            ]
+        );
+        if (!$userevent) {
+            // If it's a new user event, then insert.
+            $data = new stdClass();
+            $data->userid = $userid;
+            $data->optionid = $optionid;
+            $data->eventid = $newcalendarid;
+            $data->optiondateid = $optiondate->id;
+            $DB->insert_record('booking_userevents', $data);
+
+            if ($hideoptionuserevents) {
+                // Delete old option events because we use multisession.
+                $bu = new booking_utils();
+                $bu->booking_hide_option_userevents($optionid);
+            }
+        } else {
+            // If the user event already exists, then update.
+            $DB->delete_records('event', ['id' => $userevent->eventid]);
+            $userevent->eventid = $newcalendarid;
+            $DB->update_record('booking_userevents', $userevent);
+        }
+
+        return $newcalendarid;
     }
 
     /**
