@@ -518,7 +518,14 @@ class connectedcourse {
      */
     private static function render_naming_template(string $template, int $cmid, int $optionid, int $maxlength): string {
 
-        $value = trim((string) placeholders_info::render_text($template, $cmid, $optionid));
+        $value = (string) placeholders_info::render_text($template, $cmid, $optionid);
+
+        /* The placeholders render their value through format_string(), which escapes HTML. That is
+        right for a mail template but wrong for a course name: an option called "tom & jerry" would
+        be stored as "tom &amp; jerry". Course names are plain text fields which Moodle escapes on
+        output, so resolve the entities again here - before truncating, so that no entity is cut in
+        half and turned into garbage. */
+        $value = trim(html_entity_decode($value, ENT_QUOTES | ENT_HTML5, 'UTF-8'));
 
         if ($value === '') {
             return '';
