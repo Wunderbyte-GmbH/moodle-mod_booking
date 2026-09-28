@@ -285,6 +285,77 @@ final class connectedcourse_naming_test extends advanced_testcase {
     }
 
     /**
+     * An ampersand in the option title reaches the course name as a plain "&".
+     *
+     * The placeholders run their value through format_string(), which is right for mail templates
+     * but turns "&" into "&amp;". A course name is a plain text field, so the entity has to be
+     * resolved before it is stored - otherwise the course ends up literally called
+     * "tom &amp; jerry".
+     *
+     * @return void
+     */
+    public function test_ampersand_in_title_is_not_html_escaped(): void {
+        set_config('connectedcoursefullname', '{titlewithoutprefix}', 'booking');
+        set_config('connectedcourseshortname', '{titlewithoutprefix}_{optionid}', 'booking');
+
+        [$option, $connectedcourse] = $this->create_option_with_connected_course('tom & jerry');
+
+        connectedcourse::apply_naming_scheme($connectedcourse->id, $option->id);
+
+        $course = $this->reload_course($connectedcourse->id);
+        $this->assertSame('tom & jerry', $course->fullname);
+        $this->assertSame('tom & jerry_' . $option->id, $course->shortname);
+    }
+
+    /**
+     * The other characters format_string() escapes are resolved as well.
+     *
+     * @return void
+     */
+    public function test_quotes_and_angle_brackets_are_not_html_escaped(): void {
+        set_config('connectedcoursefullname', '{titlewithoutprefix}', 'booking');
+
+        [$option, $connectedcourse] = $this->create_option_with_connected_course("Tom's < 5 & > 3");
+
+        connectedcourse::apply_naming_scheme($connectedcourse->id, $option->id);
+
+        $course = $this->reload_course($connectedcourse->id);
+        $this->assertSame("Tom's < 5 & > 3", $course->fullname);
+    }
+
+    /**
+     * Naming a course must not add an Announcements forum to it.
+     *
+     * A connected course copy is renamed while it is still an empty shell. update_course() fires
+     * \core\event\course_updated, which mod_forum observes to auto-create the Announcements
+     * forum when the course has newsitems > 0. The async restore then brings the source course's
+     * own forum along, so the copy would end up with two of them - and with one it should not
+     * have at all when the source course has none.
+     *
+     * @return void
+     */
+    public function test_naming_does_not_create_an_announcements_forum(): void {
+        global $DB;
+
+        set_config('connectedcoursefullname', '{titlewithoutprefix}', 'booking');
+
+        [$option, $connectedcourse] = $this->create_option_with_connected_course('Aerial Yoga');
+
+        // Reproduce the state of a freshly created course copy: newsitems set, but no forum yet.
+        $DB->set_field('course', 'newsitems', 1, ['id' => $connectedcourse->id]);
+        $DB->delete_records('forum', ['course' => $connectedcourse->id]);
+        $this->assertSame(0, $DB->count_records('forum', ['course' => $connectedcourse->id]));
+
+        connectedcourse::apply_naming_scheme($connectedcourse->id, $option->id);
+
+        // The rename happened...
+        $course = $this->reload_course($connectedcourse->id);
+        $this->assertSame('Aerial Yoga', $course->fullname);
+        // ...but no forum was conjured up along the way.
+        $this->assertSame(0, $DB->count_records('forum', ['course' => $connectedcourse->id]));
+    }
+
+    /**
      * A course the user merely picked from the list is never renamed, even with templates
      * configured. It may belong to somebody else and be shared by many booking options.
      *
