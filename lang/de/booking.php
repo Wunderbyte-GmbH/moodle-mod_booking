@@ -1331,6 +1331,15 @@ $string['circumventavailabilityconditions_desc'] = 'Wenn diese Einstellung geset
     Die Umgehung der Einschränkung ist buchungsinstanzspezifisch und gilt nur für jene Instanz, bei der als letztes die optionview mit dem "cvfield" aufgerufen wurde.';
 $string['circumventpassword'] = 'Passwort um die Einschränkung zu umgehen. Leer bedeutet, kein Passwort nötig.';
 $string['classicview'] = 'Klassische Ansicht';
+$string['cli:backfillusercalendarevents:alreadyqueued'] = 'Das Nachtragen der persönlichen Kalendereinträge ist bereits eingeplant oder läuft. Nichts zu tun.';
+$string['cli:backfillusercalendarevents:help'] = 'Erstellt die persönlichen Kalendereinträge, die für zukünftige Termine gebuchter Teilnehmer:innen fehlen (siehe Einstellung "Keine Einträge im persönlichen Kalender erstellen").
+
+Optionen:
+  --run       Task-Kette in diesem Prozess bis zum Ende ausführen (Standard: nur einplanen, Cron erledigt die Arbeit).
+  --dry-run   Anzahl der fehlenden Einträge je Buchungsoption ausgeben, nichts schreiben.
+  -h, --help  Diese Hilfe ausgeben.';
+$string['cli:backfillusercalendarevents:queued'] = 'Das Nachtragen der persönlichen Kalendereinträge wurde als Adhoc-Task eingeplant.';
+$string['cli:backfillusercalendarevents:settingison'] = 'Die Einstellung "Keine Einträge im persönlichen Kalender erstellen" ist aktiv. Bitte zuerst deaktivieren, sonst würden die Einträge gleich wieder fehlen.';
 $string['close'] = 'Schließen';
 $string['closed'] = 'Buchung beendet';
 $string['cohort'] = 'Globale Gruppe';
@@ -1690,7 +1699,7 @@ $string['displayshoppingcarthistory_desc'] = 'Sollen die vergangenen Transaktion
 $string['displaytext'] = "Text anzeigen";
 $string['documentation'] = 'Buchungs-Dokumentation';
 $string['dontaddpersonalevents'] = 'Keine Einträge im persönlichen Kalender erstellen.';
-$string['dontaddpersonaleventsdesc'] = 'Für jede Buchung und alle Termine werden eigene Einträge im persönlichen Kalender der Teilnehmer:innen erstellt. Für eine bessere Performance auf sehr intensiv genutzten Seiten kann diese Funktion deaktiviert werden.';
+$string['dontaddpersonaleventsdesc'] = 'Für jede Buchung und alle Termine werden eigene Einträge im persönlichen Kalender der Teilnehmer:innen erstellt. Für eine bessere Performance auf sehr intensiv genutzten Seiten kann diese Funktion deaktiviert werden. Wird sie wieder aktiviert, erstellt ein Hintergrund-Task die fehlenden Einträge aller gebuchten Teilnehmer:innen für alle zukünftigen Termine.';
 $string['dontapply'] = 'Nicht anwenden';
 $string['dontmove'] = 'Nicht bewegen';
 $string['dontusefuction'] = 'Nicht benutzen';
@@ -3680,6 +3689,7 @@ $string['tagtemplates'] = 'Schlagwort Vorlagen';
 $string['tagtext'] = 'Schlagwort-Text';
 $string['taken'] = 'gebucht';
 $string['taskadhocresetoptiondatesforsemester'] = 'Adhoc task: Termine zurücksetzen und neu erstellen';
+$string['taskbackfillusercalendareventsadhoc'] = 'Booking: Fehlende persönliche Kalendereinträge für zukünftige Termine erstellen (Adhoc-Task)';
 $string['taskcheckanswers'] = 'Booking: Antworten prüfen';
 $string['taskcleanbookingdb'] = 'Booking: Datenbank aufräumen';
 $string['taskcleanupinvalidscheduledmails'] = 'Booking: Ungültige geplante E-Mails bereinigen';
