@@ -1778,6 +1778,7 @@ $string['duplicationrestoreprices'] = 'Preise inkludieren';
 $string['duplicationrestorerules'] = 'Buchungsregeln inkludieren <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['duplicationrestoresubbookings'] = 'Zusatzbuchungen inkludieren <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['duplicationrestoreteachers'] = 'Trainer:innen inkludieren';
+$string['daterange'] = 'Zeitraum (erster - letzter Termin)';
 $string['duration'] = "Dauer";
 $string['duration:minutes'] = 'Dauer (Minuten)';
 $string['duration:units'] = 'Einheiten ({$a} min)';
