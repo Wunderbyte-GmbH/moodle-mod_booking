@@ -5832,7 +5832,7 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2026091500, 'booking');
     }
 
-    if ($oldversion < 2026091801) {
+    if ($oldversion < 2026092900) {
         // Entry tickets are now owned by mod_booking instead of being tool_certificate issues.
         $table = new xmldb_table('booking_tickets');
         $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
@@ -5862,10 +5862,10 @@ function xmldb_booking_upgrade($oldversion) {
         // This setting was never read by any code. Delivery is configured with a booking rule now.
         unset_config('bookingticketsendmail', 'booking');
 
-        upgrade_mod_savepoint(true, 2026091801, 'booking');
+        upgrade_mod_savepoint(true, 2026092900, 'booking');
     }
 
-    if ($oldversion < 2026091802) {
+    if ($oldversion < 2026092901) {
         // The booking confirmation button of the options overview became configurable
         // ("Bookings overview - page"). Keep it visible on every existing instance.
         $rs = $DB->get_recordset('booking', null, '', 'id, optionsfields');
@@ -5879,7 +5879,7 @@ function xmldb_booking_upgrade($oldversion) {
         }
         $rs->close();
 
-        upgrade_mod_savepoint(true, 2026091802, 'booking');
+        upgrade_mod_savepoint(true, 2026092901, 'booking');
     }
 
     return true;
