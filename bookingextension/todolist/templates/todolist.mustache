@@ -1,0 +1,47 @@
+{{!
+    @template bookingextension_todolist/todolist
+
+    The to-do list of one booking option: every item with its checkbox, or the empty note.
+
+    Context variables required for this template:
+    * optionid - id of the booking option
+    * cmid - course module id of the booking activity
+    * cancheck - whether the viewer may tick items
+    * hasitems - whether the list has items
+    * items - array of items with id, optionid, text, checkedattr (checked attribute or empty), readonly
+
+    Example context (json):
+    {
+        "optionid": 7301,
+        "cmid": 42,
+        "cancheck": true,
+        "hasitems": true,
+        "items": [
+            {"id": 1, "optionid": 7301, "text": "Bring the certificate", "checkedattr": "checked", "readonly": false},
+            {"id": 2, "optionid": 7301, "text": "Sign the attendance list", "checkedattr": "", "readonly": false}
+        ]
+    }
+}}
+<div class="bookingextension-todolist" data-region="bookingextension-todolist" data-optionid="{{optionid}}" data-cmid="{{cmid}}" data-cancheck="{{#cancheck}}1{{/cancheck}}{{^cancheck}}0{{/cancheck}}">
+    <ul class="list-unstyled mb-0">
+        {{#hasitems}}
+            {{#items}}
+                <li class="d-flex align-items-start mb-1">
+                    <input
+                        type="checkbox"
+                        class="form-check-input mt-1 me-2 js-bookingextension-todolist-checkbox"
+                        data-action="toggle-todolist-item"
+                        data-itemid="{{id}}"
+                        data-optionid="{{optionid}}"
+                        {{{checkedattr}}}
+                        {{#readonly}}disabled{{/readonly}}
+                    >
+                    <span>{{text}}</span>
+                </li>
+            {{/items}}
+        {{/hasitems}}
+        {{^hasitems}}
+            <li>{{#str}}todolist_empty, bookingextension_todolist{{/str}}</li>
+        {{/hasitems}}
+    </ul>
+</div>
