@@ -391,15 +391,15 @@ class bulk_check {
         if (empty($row)) {
             return;
         }
+        // The statuses in the CASE are inlined: postgres types bound parameters there as text
+        // and refuses to assign the result to the smallint column.
         $DB->execute(
             "UPDATE {" . self::TABLENAME . "}
-                SET status = CASE WHEN status = :wasreleased THEN :sentreleased ELSE :sent END,
+                SET status = CASE WHEN status = " . self::STATUS_RELEASED . " THEN " . self::STATUS_SENTRELEASED .
+                    " ELSE " . self::STATUS_SENT . " END,
                     timesent = :now, taskid = NULL, taskdata = NULL, timemodified = :now2
               WHERE id = :id AND status IN (:pending, :released)",
             [
-                'wasreleased' => self::STATUS_RELEASED,
-                'sentreleased' => self::STATUS_SENTRELEASED,
-                'sent' => self::STATUS_SENT,
                 'now' => time(),
                 'now2' => time(),
                 'id' => $row->id,
