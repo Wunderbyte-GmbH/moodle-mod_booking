@@ -23,5 +23,9 @@ bookingextension/*/
 # Do not ignore todolist (bundled since 2026-09-24, Wunderbyte-GmbH/moodle-mod_booking#1138)
 !bookingextension/todolist/
 !bookingextension/todolist/**
+
+# Do not ignore confirmation_supervisor (bundled since 2026-09-29, Wunderbyte-GmbH/Wunderbyte-GmbH#2499)
+!bookingextension/confirmation_supervisor/
+!bookingextension/confirmation_supervisor/**
 # Local Claude Code session data and agent worktrees
 .claude/
