@@ -86,10 +86,12 @@ class confirmbooking implements confirmbooking_interface {
 
         // A PE (HR users list of the supervisor workflow) must follow the supervisor
         // confirmation order - their bookforothers must not route them through the
-        // trainer workflow.
+        // trainer workflow. is_pe() only exists in newer supervisor versions: a site which
+        // updated mod_booking before the subplugin must not fatal here.
         $supervisorclass = '\\bookingextension_confirmation_supervisor\\local\\confirmbooking';
         if (
             class_exists($supervisorclass)
+            && method_exists($supervisorclass, 'is_pe')
             && get_config('bookingextension_confirmation_supervisor', 'confirmationsupervisorenabled')
             && $supervisorclass::is_pe($approverid)
         ) {
