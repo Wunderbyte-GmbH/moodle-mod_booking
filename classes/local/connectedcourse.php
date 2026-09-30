@@ -25,6 +25,7 @@
 
 namespace mod_booking\local;
 
+use cache_helper;
 use core_course_external;
 use core_text;
 use mod_booking\placeholders\placeholders_info;
@@ -490,7 +491,20 @@ class connectedcourse {
             return;
         }
 
-        update_course($update);
+        /* Deliberately NOT update_course(): that fires \core\event\course_updated, which mod_forum
+        observes to auto-create the Announcements forum whenever the course has newsitems > 0 (see
+        \mod_forum\observer::course_updated). Connected course copies are renamed while they are
+        still empty shells, so the forum would be created right here and the async restore would then
+        put the source course's own one on top of it - leaving the duplicate with two, or with one it
+        should not have at all when the source course has none.
+        Core's own \core\task\asynchronous_copy_task updates the copied course the same low level
+        way, for the same reason. The uniqueness checks update_course() would do are already done
+        above, so nothing is lost by skipping it. */
+        $update->timemodified = time();
+        $DB->update_record('course', $update);
+
+        rebuild_course_cache($courseid, true);
+        cache_helper::purge_by_event('changesincourse');
     }
 
     /**
@@ -504,7 +518,14 @@ class connectedcourse {
      */
     private static function render_naming_template(string $template, int $cmid, int $optionid, int $maxlength): string {
 
-        $value = trim((string) placeholders_info::render_text($template, $cmid, $optionid));
+        $value = (string) placeholders_info::render_text($template, $cmid, $optionid);
+
+        /* The placeholders render their value through format_string(), which escapes HTML. That is
+        right for a mail template but wrong for a course name: an option called "tom & jerry" would
+        be stored as "tom &amp; jerry". Course names are plain text fields which Moodle escapes on
+        output, so resolve the entities again here - before truncating, so that no entity is cut in
+        half and turned into garbage. */
+        $value = trim(html_entity_decode($value, ENT_QUOTES | ENT_HTML5, 'UTF-8'));
 
         if ($value === '') {
             return '';

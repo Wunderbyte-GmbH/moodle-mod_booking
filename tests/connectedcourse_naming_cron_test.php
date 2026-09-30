@@ -178,6 +178,89 @@ final class connectedcourse_naming_cron_test extends advanced_testcase {
     }
 
     /**
+     * The copy of a connected course ends up with exactly ONE Announcements forum.
+     *
+     * The copy is renamed while it is still an empty shell, and update_course() makes mod_forum
+     * auto-create the Announcements forum. The async restore then adds the source course's own
+     * forum, so the duplicate used to contain two of them.
+     *
+     * @return void
+     */
+    public function test_copy_has_only_one_announcements_forum(): void {
+        global $DB;
+
+        $this->set_naming_scheme();
+
+        [$sourceoption, $sourcecourse] = $this->create_option_with_connected_course('Math', 'PF1');
+
+        /* The test data generator creates courses with newsitems = 0, so switch the announcements
+        on to get the Announcements forum a normal course has. */
+        update_course((object) ['id' => $sourcecourse->id, 'newsitems' => 1]);
+        $this->assertSame(1, $DB->count_records('forum', ['course' => $sourcecourse->id, 'type' => 'news']));
+
+        // Duplicate the option: this copies the connected course and names the copy.
+        $data = new stdClass();
+        $data->oldcopyoptionid = $sourceoption->id;
+        courseid::set_data($data, singleton_service::get_instance_of_booking_option_settings($sourceoption->id));
+        $copiedcourseid = (int) $data->courseid;
+
+        [$newoption] = $this->create_option_with_connected_course('Algebra', 'PF1');
+        $formdata = (object) [
+            'chooseorcreatecourse' => 1,
+            'connectedcoursecopied' => $copiedcourseid,
+        ];
+        $optionrecord = (object) ['id' => $newoption->id, 'courseid' => $copiedcourseid];
+        courseid::save_data($formdata, $optionrecord);
+
+        // Cron performs the actual backup and restore.
+        ob_start();
+        $this->run_all_adhoc_tasks();
+        ob_end_clean();
+
+        $forums = $DB->count_records('forum', ['course' => $copiedcourseid, 'type' => 'news']);
+        $this->assertSame(1, $forums, 'The duplicated course must have exactly one Announcements forum.');
+    }
+
+    /**
+     * When the source course has no Announcements forum, the copy does not get one either.
+     *
+     * @return void
+     */
+    public function test_copy_of_a_course_without_announcements_gets_none(): void {
+        global $DB;
+
+        $this->set_naming_scheme();
+
+        [$sourceoption, $sourcecourse] = $this->create_option_with_connected_course('Math', 'PF1');
+
+        // The test data generator creates courses with newsitems = 0, so there is no forum already.
+        $this->assertSame(0, $DB->count_records('forum', ['course' => $sourcecourse->id, 'type' => 'news']));
+
+        $data = new stdClass();
+        $data->oldcopyoptionid = $sourceoption->id;
+        courseid::set_data($data, singleton_service::get_instance_of_booking_option_settings($sourceoption->id));
+        $copiedcourseid = (int) $data->courseid;
+
+        [$newoption] = $this->create_option_with_connected_course('Algebra', 'PF1');
+        $formdata = (object) [
+            'chooseorcreatecourse' => 1,
+            'connectedcoursecopied' => $copiedcourseid,
+        ];
+        $optionrecord = (object) ['id' => $newoption->id, 'courseid' => $copiedcourseid];
+        courseid::save_data($formdata, $optionrecord);
+
+        ob_start();
+        $this->run_all_adhoc_tasks();
+        ob_end_clean();
+
+        $this->assertSame(
+            0,
+            $DB->count_records('forum', ['course' => $copiedcourseid, 'type' => 'news']),
+            'A course copied from a source without announcements must not get an Announcements forum.'
+        );
+    }
+
+    /**
      * Without a naming scheme configured nothing is queued, so sites which never configured
      * anything keep exactly the behaviour they had.
      *
