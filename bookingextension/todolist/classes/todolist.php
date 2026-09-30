@@ -190,7 +190,7 @@ class todolist extends bookingextension implements bookingextension_interface {
                 'bookingextension_todolist/enableglobally',
                 get_string('todolist:enableglobally', 'bookingextension_todolist'),
                 get_string('todolist:enableglobally_desc', 'bookingextension_todolist'),
-                1
+                0
             )
         );
 
@@ -278,11 +278,6 @@ class todolist extends bookingextension implements bookingextension_interface {
      * @return bool
      */
     private static function is_globally_enabled(): bool {
-        $enabled = get_config('bookingextension_todolist', 'enableglobally');
-        if ($enabled === false || $enabled === null) {
-            return true;
-        }
-
-        return !empty($enabled);
+        return !empty(get_config('bookingextension_todolist', 'enableglobally'));
     }
 }

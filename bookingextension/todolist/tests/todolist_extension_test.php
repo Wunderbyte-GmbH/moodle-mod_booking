@@ -39,11 +39,23 @@ final class todolist_extension_test extends advanced_testcase {
         parent::tearDown();
     }
 
-    public function test_contains_option_fields_true_by_default(): void {
+    public function test_contains_option_fields_false_by_default(): void {
         set_config('enableglobally', null, 'bookingextension_todolist');
 
         $plugin = new todolist();
-        $this->assertTrue($plugin->contains_option_fields());
+        $this->assertFalse($plugin->contains_option_fields());
+    }
+
+    public function test_enableglobally_setting_defaults_to_off(): void {
+        global $CFG;
+        require_once($CFG->libdir . '/adminlib.php');
+
+        $adminroot = new \admin_root(true);
+        $adminroot->add('root', new \admin_category('modbookingfolder', 'modbookingfolder'));
+        (new todolist())->load_settings($adminroot, 'modbookingfolder', true);
+
+        $setting = $adminroot->locate('bookingextension_todolist_settings')->settings->bookingextension_todolistenableglobally;
+        $this->assertSame(0, $setting->get_defaultsetting());
     }
 
     public function test_contains_option_fields_false_when_disabled_globally(): void {
