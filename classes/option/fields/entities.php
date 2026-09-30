@@ -101,6 +101,9 @@ class entities extends field_base {
             // We only run this line to make sure we have the constants.
             $erhandler = new entitiesrelation_handler('mod_booking', 'option');
 
+            // The submitted ids can be outdated, nothing may be saved for an entity that does not exist.
+            self::unset_ids_of_missing_entities($formdata);
+
             // Initialize location and address.
             $newoption->location = '';
             $newoption->address = '';
@@ -137,6 +140,33 @@ class entities extends field_base {
             }
         }
         return [];
+    }
+
+    /**
+     * Treat every submitted id of an entity that does not exist (any more) as "no entity".
+     *
+     * The id is outdated when the entity was deleted while the option form was open, or when it comes
+     * from an import or a web service. Without this, the save of the option fails and relations to the
+     * missing entity are stored for the option and its dates.
+     *
+     * @param stdClass $formdata
+     * @return void
+     */
+    private static function unset_ids_of_missing_entities(stdClass $formdata): void {
+        $exists = [];
+        $entityidkeys = preg_grep('/^' . LOCAL_ENTITIES_FORM_ENTITYID . '\d+$/', array_keys((array)$formdata));
+        foreach ($entityidkeys as $key) {
+            $entityid = (int)$formdata->{$key};
+            if ($entityid <= 0) {
+                continue;
+            }
+            if (!isset($exists[$entityid])) {
+                $exists[$entityid] = !empty(entitiesrelation_handler::get_entities_by_id($entityid));
+            }
+            if (!$exists[$entityid]) {
+                $formdata->{$key} = 0;
+            }
+        }
     }
 
     /**
