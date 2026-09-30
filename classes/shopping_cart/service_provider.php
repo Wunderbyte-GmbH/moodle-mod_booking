@@ -766,7 +766,7 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
             // only drift free way to know whether this checkout actually gave them something:
             // whether a repeated purchase is due is decided inside user_submit_response(), by the
             // multiplebookings gate and by the slot capacity, and must not be judged twice.
-            $heldbefore = self::held_answer_ids($itemid, $user->id);
+            $heldbefore = self::held_answers($itemid, $user->id);
 
             // If this returns false, the reason most like is that the reserveration was deleted before.
             // Most likely because the item wasnt reserved anymore.
@@ -794,8 +794,10 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
             // The user held something before and holds exactly the same afterwards, so this
             // checkout delivered nothing: they already had this option and no repeated purchase
             // was due. That happens when two checkouts of the same cart are paid. We note it for
-            // the cart, which asks for it right after this call.
-            $alreadyowned = !empty($heldbefore) && self::held_answer_ids($itemid, $user->id) === $heldbefore;
+            // the cart, which asks for it right after this call. The status is compared as well
+            // as the id: an answer that moved from the waiting list to booked is updated in
+            // place, and that delivery did give the user a place.
+            $alreadyowned = !empty($heldbefore) && self::held_answers($itemid, $user->id) === $heldbefore;
             self::remember_delivery($area, $itemid, $user->id, $alreadyowned);
 
             // Remember which purchase paid for this booking. A user may hold several separately
@@ -890,17 +892,17 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
     }
 
     /**
-     * The answers of this user for this option that mean they hold a place.
+     * The answers of this user for this option that mean they hold a place or a waiting list position.
      *
      * A reservation does not count: it is what the user is about to pay for, not what they have.
-     * The ids are read from the database, because the delivery has just written them and cached
+     * The answers are read from the database, because the delivery has just written them and cached
      * answers of this request would be stale.
      *
      * @param int $optionid
      * @param int $userid
-     * @return int[] sorted answer ids
+     * @return int[] the status of each answer (booked or waiting list), keyed by answer id and sorted by it
      */
-    private static function held_answer_ids(int $optionid, int $userid): array {
+    private static function held_answers(int $optionid, int $userid): array {
 
         global $DB;
 
@@ -910,17 +912,15 @@ class service_provider implements \local_shopping_cart\local\callback\service_pr
             'status'
         );
 
-        $ids = $DB->get_fieldset_select(
+        $answers = $DB->get_records_select_menu(
             'booking_answers',
-            'id',
             "optionid = :optionid AND userid = :userid AND waitinglist $insql",
-            array_merge(['optionid' => $optionid, 'userid' => $userid], $inparams)
+            array_merge(['optionid' => $optionid, 'userid' => $userid], $inparams),
+            'id',
+            'id, waitinglist'
         );
 
-        $ids = array_map('intval', $ids);
-        sort($ids);
-
-        return $ids;
+        return array_map('intval', $answers);
     }
 
     /**
