@@ -86,13 +86,11 @@ final class search_test extends booking_advanced_testcase {
             'text' => 'Yoga for beginners',
             'titleprefix' => 'SPORT-01',
             'description' => '<p>A gentle introduction to yoga.</p>',
-            'location' => 'Gym hall',
             'institution' => 'Sports institute',
-            'address' => 'Mainstreet 1',
             'identifier' => 'YOGA-1',
             'annotation' => 'Internal note about the trainer contract',
             'dayofweektime' => 'Monday 10:00 - 11:00',
-        ], $optionrecord);
+        ], $this->location_fields('Gym hall', 'Mainstreet', '1'), $optionrecord);
 
         /** @var mod_booking_generator $plugingenerator */
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
@@ -102,6 +100,40 @@ final class search_test extends booking_advanced_testcase {
         singleton_service::destroy_booking_option_singleton($option->id);
 
         return [$course, $booking, $option];
+    }
+
+    /**
+     * The location fields of a booking option record.
+     *
+     * With local_entities installed, location and address of an option are derived from its entity
+     * when the option is saved (a submitted location is discarded), so the location is an entity
+     * then. Without local_entities the plain fields are stored as they are.
+     *
+     * @param string $name name of the location
+     * @param string $streetname
+     * @param string $streetnumber
+     * @return array fields to merge into the option record
+     */
+    private function location_fields(string $name, string $streetname, string $streetnumber): array {
+        if (!class_exists('local_entities\entitiesrelation_handler')) {
+            return [
+                'location' => $name,
+                'address' => "$streetname $streetnumber",
+            ];
+        }
+
+        /** @var \local_entities_generator $entitygenerator */
+        $entitygenerator = self::getDataGenerator()->get_plugin_generator('local_entities');
+        $entityid = $entitygenerator->create_entities([
+            'name' => $name,
+            'shortname' => 'gymhall',
+            'entitytype' => 'location',
+            'country_0' => 'AT',
+            'streetname_0' => $streetname,
+            'streetnumber_0' => $streetnumber,
+        ]);
+
+        return ['local_entities_entityid_0' => $entityid];
     }
 
     /**
@@ -471,12 +503,17 @@ final class search_test extends booking_advanced_testcase {
 
         /** @var mod_booking_generator $plugingenerator */
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        // The json carries what the subbooking form stores: name, type and the type's data.
         $subbooking = $plugingenerator->create_subbooking([
             'optionid' => $option->id,
             'name' => 'Airport transfer',
             'type' => 'subbooking_additionalitem',
             'block' => 0,
-            'json' => '{"description":"Transfer"}',
+            'json' => json_encode((object)[
+                'name' => 'Airport transfer',
+                'type' => 'subbooking_additionalitem',
+                'data' => (object)['description' => 'Transfer', 'descriptionformat' => FORMAT_HTML, 'useprice' => 0],
+            ]),
         ]);
 
         $area = new subbooking();
