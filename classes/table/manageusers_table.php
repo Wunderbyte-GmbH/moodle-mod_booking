@@ -27,6 +27,7 @@ namespace mod_booking\table;
 use html_writer;
 use mod_booking\bo_availability\conditions\customform;
 use mod_booking\local\certificateclass;
+use mod_booking\local\ticket\ticket_manager;
 use mod_booking\local\certificate_conditions\certificate_conditions;
 use mod_booking\local\slotbooking\slot_answer;
 use user_picture;
@@ -1422,6 +1423,20 @@ class manageusers_table extends wunderbyte_table {
         [$insql, $inparams] = $DB->get_in_or_equal($groups[0]);
         $groupnames = $DB->get_fieldset_select('groups', 'name', 'id ' . $insql, $inparams);
         return implode(', ', array_map('format_string', $groupnames));
+    }
+
+    /**
+     * Renders the entry ticket download button of the participant (SofaTicket).
+     *
+     * @param stdClass $values
+     * @return string
+     */
+    public function col_ticket(stdClass $values): string {
+        if (empty(get_config('booking', 'bookingticketon'))) {
+            return '';
+        }
+        $ticket = ticket_manager::find_valid_ticket((int) ($values->optionid ?? 0), (int) ($values->userid ?? 0));
+        return ticket_manager::render_download_button($ticket);
     }
 
     /**

@@ -29,6 +29,7 @@ use context_module;
 use mod_booking\bo_availability\conditions\customform;
 use mod_booking\booking_option;
 use mod_booking\local\certificate_conditions\certificate_conditions;
+use mod_booking\local\ticket\ticket_manager;
 use mod_booking\singleton_service;
 
 /**
@@ -145,6 +146,11 @@ class columns_helper {
                 case 'allusercertificates':
                     if (!empty($optionid) && self::show_certificate_columns($optionid)) {
                         $columns['allusercertificates'] = get_string('allusercertificates', 'mod_booking');
+                    }
+                    break;
+                case 'ticket':
+                    if (ticket_manager::is_enabled()) {
+                        $columns['ticket'] = get_string('ticketbutton', 'mod_booking');
                     }
                     break;
             }

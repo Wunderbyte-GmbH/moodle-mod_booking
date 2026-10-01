@@ -1,0 +1,127 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_booking/scanner
+
+    SofaTicket entry scanner UI: camera view with a sticky date selection, and a full-screen
+    result overlay (confirm / reject) that covers the page after every scan.
+
+    Classes required for JS:
+    * data-region="scanner-*" and data-action="scanner-*" hooks are read by mod_booking/scanner.
+
+    Context variables required for this template:
+    * cmid int The booking course module id.
+    * optionid int The booking option the scanner is started for (0 = any option of the instance).
+    * optionname string Title of that option (option mode only).
+    * hasdates bool Whether the option has dates to choose from (option mode only).
+    * dates array Dates of the option: optiondateid, label, present, selected (option mode only).
+
+    Example context (json):
+    {
+        "cmid": 42,
+        "optionid": 7,
+        "optionname": "Concert",
+        "hasdates": true,
+        "dates": [
+            {
+                "optiondateid": 3,
+                "label": "1 May 2026, 20:00 - 22:00",
+                "present": false,
+                "selected": true
+            }
+        ]
+    }
+}}
+<div class="booking-scanner" data-region="scanner" data-cmid="{{cmid}}" data-optionid="{{optionid}}">
+    {{#optionid}}
+    <p class="lead mb-2" data-region="scanner-option">{{#str}} ticketscannerforoption, mod_booking, {{optionname}} {{/str}}</p>
+    {{/optionid}}
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <span class="badge badge-secondary p-2" data-region="scanner-counter">{{#str}} ticketscannercounter, mod_booking, {"present": "0", "booked": "0"} {{/str}}</span>
+        <button type="button" class="btn btn-primary" data-action="scanner-start">{{#str}} ticketscannerstart, mod_booking {{/str}}</button>
+    </div>
+
+    <div class="booking-scanner-datebar card mb-2 {{^hasdates}}d-none{{/hasdates}}" data-region="scanner-datebar">
+        <div class="card-body p-2">
+            <div class="font-weight-bold fw-bold small text-truncate" data-region="scanner-datebar-option">{{optionname}}</div>
+            <label class="sr-only visually-hidden" for="booking-scanner-dateselect-{{cmid}}">{{#str}} ticketscannerdate, mod_booking {{/str}}</label>
+            <select class="custom-select form-select" id="booking-scanner-dateselect-{{cmid}}" data-region="scanner-dateselect">
+                {{#dates}}
+                <option value="{{optiondateid}}" {{#selected}}selected{{/selected}}>{{label}}</option>
+                {{/dates}}
+            </select>
+        </div>
+    </div>
+
+    <div class="scanner-video-wrap position-relative bg-dark rounded" data-region="scanner-video-wrap" style="min-height: 240px;">
+        <video data-region="scanner-video" class="w-100 rounded" muted playsinline autoplay style="max-height: 60vh; object-fit: cover;"></video>
+    </div>
+
+    <div class="text-muted small mt-2" data-region="scanner-status">{{#str}} ticketscannerstartprompt, mod_booking {{/str}}</div>
+
+    <div class="booking-scanner-lastscan card mt-2 d-none" data-region="scanner-lastscan">
+        <div class="card-body p-2">
+            <div class="small text-muted">{{#str}} ticketscannerlastscan, mod_booking {{/str}}</div>
+            <div class="font-weight-bold fw-bold" data-region="scanner-lastscan-name"></div>
+            <div class="small" data-region="scanner-lastscan-event"></div>
+            <div class="small text-muted" data-region="scanner-lastscan-time"></div>
+        </div>
+    </div>
+
+    <div class="booking-scanner-overlay d-none" role="dialog" aria-modal="true" aria-live="assertive"
+         aria-labelledby="booking-scanner-headline-{{cmid}}" data-region="scanner-overlay" data-state="success">
+        <div class="booking-scanner-overlay-body">
+            <div class="booking-scanner-icon" data-region="scanner-result-icon" aria-hidden="true">
+                <svg viewBox="0 0 120 120" data-region="scanner-icon-success" class="d-none">
+                    <circle class="booking-scanner-icon-circle" cx="60" cy="60" r="54" fill="none" stroke="currentColor" stroke-width="6"/>
+                    <path class="booking-scanner-icon-mark" d="M34 62 L52 80 L88 42" fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <svg viewBox="0 0 120 120" data-region="scanner-icon-danger" class="d-none">
+                    <circle class="booking-scanner-icon-circle" cx="60" cy="60" r="54" fill="none" stroke="currentColor" stroke-width="6"/>
+                    <path class="booking-scanner-icon-mark" d="M40 40 L80 80 M80 40 L40 80" fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round"/>
+                </svg>
+                <svg viewBox="0 0 120 120" data-region="scanner-icon-warning" class="d-none">
+                    <circle class="booking-scanner-icon-circle" cx="60" cy="60" r="54" fill="none" stroke="currentColor" stroke-width="6"/>
+                    <path class="booking-scanner-icon-mark" d="M60 30 L60 62 L82 76" fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <h2 class="booking-scanner-headline h3 mb-0" id="booking-scanner-headline-{{cmid}}" data-region="scanner-result-headline"></h2>
+            <div class="booking-scanner-event" data-region="scanner-result-event"></div>
+            <div class="booking-scanner-date d-none" data-region="scanner-overlay-date">
+                <label class="sr-only visually-hidden" for="booking-scanner-overlay-dateselect-{{cmid}}">{{#str}} ticketscannerdate, mod_booking {{/str}}</label>
+                <select class="custom-select form-select" id="booking-scanner-overlay-dateselect-{{cmid}}" data-region="scanner-overlay-dateselect"></select>
+            </div>
+            <div class="booking-scanner-identity d-none" data-region="scanner-result-identity">
+                <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="" class="d-none" data-region="scanner-result-picture">
+                <div class="booking-scanner-name h4 mb-1" data-region="scanner-result-name"></div>
+                <dl class="booking-scanner-fields mb-0" data-region="scanner-result-fields"></dl>
+            </div>
+            <div class="booking-scanner-detail" data-region="scanner-result-detail"></div>
+        </div>
+        <div class="booking-scanner-overlay-actions">
+            <button type="button" class="btn btn-light btn-lg btn-block booking-scanner-confirm" data-action="scanner-confirm">
+                {{#str}} ticketconfirmentry, mod_booking {{/str}}
+            </button>
+            <button type="button" class="btn btn-light btn-lg btn-block booking-scanner-next d-none" data-action="scanner-next">
+                {{#str}} ticketscannernext, mod_booking {{/str}}
+            </button>
+            <button type="button" class="btn btn-link booking-scanner-reject" data-action="scanner-reject">
+                {{#str}} ticketrejectentry, mod_booking {{/str}}
+            </button>
+        </div>
+    </div>
+</div>

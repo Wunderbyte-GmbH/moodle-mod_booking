@@ -38,6 +38,7 @@ use core_privacy\local\request\userlist;
 use core_privacy\local\request\writer;
 use dml_exception;
 use mod_booking\booking;
+use mod_booking\local\ticket\ticket_manager;
 use mod_booking\teachers_handler;
 use stdClass;
 
@@ -111,6 +112,18 @@ class provider implements
                 'timecreated' => 'privacy:metadata:bookingwaitlistdeclines:timecreated',
             ],
             'privacy:metadata:bookingwaitlistdeclines'
+        );
+
+        $collection->add_database_table(
+            'booking_bulk_check',
+            [
+                'userid' => 'privacy:metadata:booking_bulk_check:userid',
+                'ruleid' => 'privacy:metadata:booking_bulk_check:ruleid',
+                'optionid' => 'privacy:metadata:booking_bulk_check:optionid',
+                'status' => 'privacy:metadata:booking_bulk_check:status',
+                'scheduledtime' => 'privacy:metadata:booking_bulk_check:scheduledtime',
+            ],
+            'privacy:metadata:booking_bulk_check'
         );
 
         $collection->add_database_table(
@@ -297,6 +310,23 @@ class provider implements
             'privacy:metadata:bookingteacherunavailability'
         );
 
+        $collection->add_database_table(
+            'booking_tickets',
+            [
+                'optionid' => 'privacy:metadata:bookingtickets:optionid',
+                'userid' => 'privacy:metadata:bookingtickets:userid',
+                'answerid' => 'privacy:metadata:bookingtickets:answerid',
+                'code' => 'privacy:metadata:bookingtickets:code',
+                'status' => 'privacy:metadata:bookingtickets:status',
+                'personalized' => 'privacy:metadata:bookingtickets:personalized',
+                'timecreated' => 'privacy:metadata:bookingtickets:timecreated',
+                'timemodified' => 'privacy:metadata:bookingtickets:timemodified',
+                'timerevoked' => 'privacy:metadata:bookingtickets:timerevoked',
+                'json' => 'privacy:metadata:bookingtickets:json',
+            ],
+            'privacy:metadata:bookingtickets'
+        );
+
         // The booking action "Execute REST script" (bo_actions\action_types\executerestscript)
         // is the only place where this plugin transmits data to an external system. Nothing is
         // sent unless a trainer/admin explicitly configures such an action on a booking option;
@@ -343,6 +373,14 @@ class provider implements
             INNER JOIN {booking} boo ON boo.id = cm.instance
             INNER JOIN {booking_teachers} tea ON tea.bookingid = boo.id
             WHERE tea.userid = :userid";
+        $sql3 = "SELECT c.id
+            FROM {context} c
+            INNER JOIN {course_modules} cm ON cm.id = c.instanceid AND c.contextlevel = :contextlevel
+            INNER JOIN {modules} m ON m.id = cm.module AND m.name = :modname
+            INNER JOIN {booking} boo ON boo.id = cm.instance
+            INNER JOIN {booking_options} opt ON opt.bookingid = boo.id
+            INNER JOIN {booking_tickets} tic ON tic.optionid = opt.id
+            WHERE tic.userid = :userid";
 
         $params = [
             'modname' => 'booking',
@@ -353,6 +391,7 @@ class provider implements
         $contextlist = new contextlist();
         $contextlist->add_from_sql($sql, $params);
         $contextlist->add_from_sql($sql2, $params);
+        $contextlist->add_from_sql($sql3, $params);
 
         return $contextlist;
     }
@@ -447,6 +486,45 @@ class provider implements
             $context = context_module::instance($lastcmid);
             self::export_booking($bookingdata, $context, $user);
         }
+
+        // Export the user's entry tickets, grouped per booking instance.
+        $sql = "SELECT tic.id,
+                       cm.id AS cmid,
+                       opt.text AS optionname,
+                       tic.code,
+                       tic.status,
+                       tic.personalized,
+                       tic.timecreated,
+                       tic.timerevoked
+                  FROM {context} c
+            INNER JOIN {course_modules} cm ON cm.id = c.instanceid AND c.contextlevel = :contextlevel
+            INNER JOIN {modules} m ON m.id = cm.module AND m.name = :modname
+            INNER JOIN {booking} boo ON boo.id = cm.instance
+            INNER JOIN {booking_options} opt ON opt.bookingid = boo.id
+            INNER JOIN {booking_tickets} tic ON tic.optionid = opt.id
+                 WHERE c.id {$contextsql}
+                       AND tic.userid = :userid
+              ORDER BY cm.id, tic.id";
+
+        $ticketspercm = [];
+        foreach ($DB->get_records_sql($sql, $params) as $ticket) {
+            $ticketspercm[$ticket->cmid][] = [
+                'option' => $ticket->optionname,
+                'code' => $ticket->code,
+                'status' => $ticket->status,
+                'personalized' => \core_privacy\local\request\transform::yesno($ticket->personalized),
+                'timecreated' => \core_privacy\local\request\transform::datetime($ticket->timecreated),
+                'timerevoked' => $ticket->timerevoked
+                    ? \core_privacy\local\request\transform::datetime($ticket->timerevoked)
+                    : '',
+            ];
+        }
+        foreach ($ticketspercm as $cmid => $tickets) {
+            writer::with_context(context_module::instance($cmid))->export_data(
+                [get_string('mytickets', 'mod_booking')],
+                (object) ['tickets' => $tickets]
+            );
+        }
     }
 
     /**
@@ -462,6 +540,9 @@ class provider implements
             return;
         }
         if ($cm = get_coursemodule_from_id('booking', $context->instanceid)) {
+            // Delete all entry tickets (rows and PDF files) within the instance first,
+            // while the option -> cm resolution for the file area still works.
+            ticket_manager::delete_tickets_for_booking($cm->instance);
             // Delete all booking answers within the instance.
             $DB->delete_records('booking_answers', ['bookingid' => $cm->instance]);
             $DB->delete_records('booking_history', ['bookingid' => $cm->instance]);
@@ -510,6 +591,7 @@ class provider implements
 
             // Slot booking and sync data is keyed by option, so delete via the options of the instance.
             $optionswhere = 'optionid IN (SELECT id FROM {booking_options} WHERE bookingid = :bookingid)';
+            $DB->delete_records_select('booking_bulk_check', $optionswhere, ['bookingid' => $cm->instance]);
             $DB->delete_records_select('booking_slot_moves', $optionswhere, ['bookingid' => $cm->instance]);
             $DB->delete_records_select('booking_slot_student_teacher', $optionswhere, ['bookingid' => $cm->instance]);
             $DB->delete_records_select('booking_teacher_unavailability', $optionswhere, ['bookingid' => $cm->instance]);
@@ -540,11 +622,19 @@ class provider implements
                 continue;
             }
             $instanceid = $DB->get_field('course_modules', 'instance', ['id' => $context->instanceid], MUST_EXIST);
+            // Entry tickets (rows and PDF files) of this user within the instance.
+            ticket_manager::delete_tickets_for_booking((int) $instanceid, [$userid]);
             $DB->delete_records('booking_answers', ['bookingid' => $instanceid, 'userid' => $userid]);
             $DB->delete_records('booking_history', ['bookingid' => $instanceid, 'userid' => $userid]);
             $DB->delete_records('booking_teachers', ['bookingid' => $instanceid, 'userid' => $userid]);
             // Also delete all entries for booking_optiondates_teachers in context for the user.
             teachers_handler::delete_booking_optiondates_teachers_by_bookingid($instanceid, $userid);
+            // Queued or parked rule mails of the bulk send check for options of this instance.
+            $DB->delete_records_select(
+                'booking_bulk_check',
+                'userid = :userid AND optionid IN (SELECT id FROM {booking_options} WHERE bookingid = :bookingid)',
+                ['userid' => $userid, 'bookingid' => $instanceid]
+            );
         }
 
         // Ratings, icalsequence and userevents do not have a booking id and will therefore be deleted independent of contexts.
@@ -623,6 +713,9 @@ class provider implements
         // Add users with booking_subbooking_answers.
         $userlist->add_from_sql('userid', "SELECT userid FROM {booking_subbooking_answers}", []);
 
+        // Add users holding entry tickets.
+        $userlist->add_from_sql('userid', "SELECT userid FROM {booking_tickets}", []);
+
         // Add users with booking_odt_deductions.
         $userlist->add_from_sql('userid', "SELECT userid FROM {booking_odt_deductions}", []);
 
@@ -637,6 +730,9 @@ class provider implements
 
         // Add users with enrolment sync attempts.
         $userlist->add_from_sql('userid', "SELECT userid FROM {booking_sync_attempts}", []);
+
+        // Add users with queued or parked rule mails of the bulk send check.
+        $userlist->add_from_sql('userid', "SELECT userid FROM {booking_bulk_check}", []);
 
         // Add students and teachers of slot teacher assignments.
         $userlist->add_from_sql('userid', "SELECT userid FROM {booking_slot_student_teacher}", []);
@@ -673,8 +769,12 @@ class provider implements
         [$usersql, $params] = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
         $select = "userid $usersql";
 
+        // Entry tickets (rows and PDF files) of the selected users within the instance.
+        ticket_manager::delete_tickets_for_booking((int) $cm->instance, $userids);
+
         // Now delete everything related to the selected userids.
         $DB->delete_records_select('booking_answers', $select, $params);
+        $DB->delete_records_select('booking_bulk_check', $select, $params);
         $DB->delete_records_select('booking_history', $select, $params);
         $DB->delete_records_select('booking_teachers', $select, $params);
         $DB->delete_records_select('booking_optiondates_teachers', $select, $params);

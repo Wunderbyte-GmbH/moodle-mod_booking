@@ -23,6 +23,7 @@ This `docs/` directory is the central reference for administrators, teachers, an
 | Run a time-limited booking campaign (discount / block) | [Campaigns](user/campaigns/README.md) |
 | Let participants choose add-ons or time slots | [Sub-bookings](user/subbookings/README.md) |
 | Offer individually bookable time slots (appointments, exams) | [Slot booking](user/slotbooking/README.md) |
+| Issue entry tickets with a QR code and check people in at the door | [Entry tickets](user/ticketing/README.md) |
 | Trigger actions automatically when someone books - NOT used for notification or messages | [Actions after booking](user/actions_after_booking/README.md) |
 | Understand scheduled background tasks | [Scheduled tasks](user/scheduled_tasks/README.md) |
 | Automatically remove bookings when a user loses access | [Check answers](developer-guides/CHECKANSWERS_API.md) |
@@ -34,6 +35,7 @@ Important distinction for AI/explain tasks:
 - Questions about messages, reminders, notification emails, or message automation belong to [Booking rules](user/booking_rules/README.md).
 - [Actions after booking](user/actions_after_booking/README.md) (bo_actions) are not the messaging system; they run immediate post-booking actions like cancel/book/profile/REST.
 - Questions about restrictions or limitations (who can book, when bookable, booking window, time limit) belong to [Booking Conditions](user/booking_conditions/README.md) and [Availability](user/booking-option/04-availability.md). These pages take priority over Booking Rules for restriction/limitation queries.
+- Questions about entry tickets, QR codes, scanning people in at the door, or ticket validity belong to [Entry tickets](user/ticketing/README.md). Tickets are **not** certificates: certificates document an achievement afterwards, tickets grant entry beforehand.
 
 ## First Admin Workflow (click-by-click)
 
@@ -85,6 +87,7 @@ Common next steps:
 | [`subbookings/`](user/subbookings/README.md) | Sub-booking types: additional items, additional persons, and time slot selection |
 | [`campaigns/`](user/campaigns/README.md) | Time-limited campaigns that modify prices or block booking based on custom field values |
 | [`actions_after_booking/`](user/actions_after_booking/README.md) | Immediate actions triggered on booking/cancellation: auto-cancel, book other options, REST scripts, profile field updates |
+| [`ticketing/`](user/ticketing/README.md) | Entry tickets: personalised PDF tickets with a QR code, delivery by rule, door scanner, identity confirmation and public verification |
 
 ### Administrator guides
 

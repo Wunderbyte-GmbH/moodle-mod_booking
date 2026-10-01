@@ -30,6 +30,10 @@ namespace mod_booking\local\slotbooking;
 
 use context_module;
 use core_user;
+use local_shopping_cart\shopping_cart;
+use local_shopping_cart\shopping_cart_history;
+use mod_booking\bo_availability\conditions\cancelmyself;
+use mod_booking\booking;
 use mod_booking\booking_option;
 use mod_booking\event\bookinganswer_slotcancelled;
 use mod_booking\event\bookinganswer_slotmoved;
@@ -367,12 +371,140 @@ class slot_mover {
     }
 
     /**
-     * Self-service partial cancellation: release individual booked slots (Phase 2, no price).
+     * Whether this booking option was actually purchased through the shopping cart by this user.
+     *
+     * Mirrors cancelmyself::has_shopping_cart_history_entry(). Only a real purchase has a
+     * refundable counterpart, so only a real purchase has to be sent to the cart's cancel flow
+     * instead of being given up slot by slot.
+     *
+     * @param int $optionid booking option id
+     * @param int $userid user id
+     * @return bool
+     */
+    public static function purchased_via_cart(int $optionid, int $userid): bool {
+        if (!class_exists('local_shopping_cart\\shopping_cart_history')) {
+            return false;
+        }
+        $historyitem = shopping_cart_history::get_most_recent_historyitem('mod_booking', 'option', $optionid, $userid);
+        return !empty($historyitem->id);
+    }
+
+    /**
+     * Whether the general cancellation policy blocks a self-service slot release for this user.
+     *
+     * release_self()'s own gates (opt-in, ownership, per-slot deadline) deliberately say nothing
+     * about the cancellation policy - but a user who releases slots one by one has cancelled their
+     * booking just the same, so the policy gates that govern the full self-cancellation must
+     * govern the partial one too, or per-slot release becomes a full cancel through the back door.
+     * Mirrors the policy half of cancelmyself::is_available() (which cannot be called directly
+     * here: its result also folds in slot-technical clauses like "every slot still actionable"
+     * that must NOT block a per-slot release): instance/option disablecancel, the option's
+     * absolute canceluntil, the instance cancancelbook switch, activity completion, the
+     * cooling-off period, and the no-refund-possible case (priced option without shopping cart).
+     *
+     * @param int $optionid booking option id
+     * @param int $userid the booking owner
+     * @return bool true when policy forbids releasing slots
+     */
+    public static function self_release_policy_blocked(int $optionid, int $userid): bool {
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+
+        if (
+            booking_option::get_value_of_json_by_key($optionid, 'disablecancel')
+            || booking::get_value_of_json_by_key((int)$settings->bookingid, 'disablecancel')
+        ) {
+            return true;
+        }
+
+        $canceluntil = booking_option::get_value_of_json_by_key($optionid, 'canceluntil');
+        if (!empty($canceluntil) && time() > $canceluntil) {
+            return true;
+        }
+
+        $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid((int)$settings->cmid);
+        if ((int)($bookingsettings->cancancelbook ?? 0) !== 1) {
+            return true;
+        }
+
+        // A released paid slot means a partial refund; without the shopping cart there is nothing
+        // that could pay it back, so the money would silently be gone.
+        if (!empty($settings->jsonobject->useprice) && !class_exists('local_shopping_cart\\shopping_cart')) {
+            return true;
+        }
+
+        // Purchased through the cart: its own cancellation window applies too - the same check
+        // cancelmyself runs before offering the cancel button. Without it an expired cart deadline
+        // would refuse the full cancellation while the per-slot release still handed out credit.
+        if (!empty($settings->jsonobject->useprice) && class_exists('local_shopping_cart\\shopping_cart')) {
+            $historyitem = shopping_cart_history::get_most_recent_historyitem('mod_booking', 'option', $optionid, $userid);
+            if (!empty($historyitem->id)) {
+                $item = (object)[
+                    'itemid' => $optionid,
+                    'componentname' => 'mod_booking',
+                    'canceluntil' => booking_option::return_cancel_until_date($optionid),
+                ];
+                if (!shopping_cart::allowed_to_cancel_for_item($item, 'option')) {
+                    return true;
+                }
+            }
+        }
+
+        $answers = singleton_service::get_instance_of_booking_answers($settings);
+        if ($answers->is_activity_completed($userid)) {
+            return true;
+        }
+
+        if (cancelmyself::apply_coolingoff_period($settings, $userid)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Whether the per-slot cancel button (release UI) is offered to the current user.
+     *
+     * Self-service only: the button acts as the logged-in user, so it never shows on a
+     * description rendered FOR someone else. On top of the policy gate this requires the option's
+     * self-rebooking opt-in and the same capability the release webservice checks, so the button
+     * never points at a call that would be refused.
+     *
+     * @param int $optionid booking option id
+     * @param int $userid the user the surrounding view is rendered for
+     * @return bool
+     */
+    public static function per_slot_release_available(int $optionid, int $userid): bool {
+        global $USER;
+
+        if ($userid <= 0 || (int)$USER->id !== $userid) {
+            return false;
+        }
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        if (empty($settings->slotconfig) || empty($settings->slotconfig->allow_self_rebooking)) {
+            return false;
+        }
+
+        $context = context_module::instance((int)$settings->cmid);
+        if (!has_capability('mod/booking:moveslotsself', $context)) {
+            return false;
+        }
+
+        return !self::self_release_policy_blocked($optionid, $userid);
+    }
+
+    /**
+     * Self-service partial cancellation: release individual booked slots (mechanics only).
      *
      * Only still-actionable slots (before their relative deadline) may be released. Locked slots
      * must stay. When every booked slot is released the whole booking answer is cancelled through
      * the standard deletion path; otherwise the remaining slots are persisted and a slot-cancelled
-     * event is fired for the released ones. Price/refund handling is intentionally out of scope.
+     * event is fired for the released ones.
+     *
+     * The money is NOT handled here, and deliberately so: this method has two callers (the
+     * release_slots webservice and slot_update_service::apply_reduction()), so a refund booked in
+     * here would be issued twice for the same release. Both callers route through
+     * slot_update_service, which prices the given-up slots and refunds them as cart credit.
      *
      * @param int $optionid booking option id
      * @param int $baid booking answer id
@@ -398,6 +530,12 @@ class slot_mover {
         }
         if (!self::self_rebooking_allowed($optionid, $answer)) {
             throw new moodle_exception('slot_rebook_not_allowed', 'mod_booking');
+        }
+
+        // Releasing slots is a (partial) cancellation, so the cancellation policy applies - see
+        // self_release_policy_blocked(). Moves/swaps (move_validated) stay possible regardless.
+        if (self::self_release_policy_blocked($optionid, (int)$answer->userid)) {
+            throw new moodle_exception('slot_release_policy_blocked', 'mod_booking');
         }
 
         $releaseset = array_fill_keys(
@@ -435,7 +573,10 @@ class slot_mover {
         // (handles status, completion, waiting list and fires its own slot-cancelled event).
         if (empty($remaining)) {
             $option = singleton_service::get_instance_of_booking_option((int)$settings->cmid, $optionid);
-            $option->user_delete_response((int)$answer->userid);
+            // Scope the deletion to THIS answer row: the user may hold further active answers on
+            // this option (book again), and giving up the last slot of one booking must not
+            // cancel the others.
+            $option->user_delete_response((int)$answer->userid, onlybaid: $baid);
             return ['released' => count($released), 'remaining' => 0, 'cancelled' => true];
         }
 
@@ -444,6 +585,24 @@ class slot_mover {
         usort($remaining, static fn(array $a, array $b): int => $a['start'] <=> $b['start']);
         $slotdata = slot_answer::get_slot_data($answer) ?? [];
         $slotdata['slots'] = array_values($remaining);
+        if (isset($slotdata['num_slots'])) {
+            $slotdata['num_slots'] = count($remaining);
+        }
+        // Drop the released ranges from the per-slot teacher assignments too:
+        // extract_booked_ranges_from_answer() prefers teachers_per_slot over slots, so a stale
+        // entry there would keep a released slot "booked" everywhere downstream - the booked-slots
+        // list, the capacity/allowance checks and the overlap checks all read those ranges.
+        if (!empty($slotdata['teachers_per_slot']) && is_array($slotdata['teachers_per_slot'])) {
+            $remainingkeys = array_fill_keys(
+                array_map(static fn(array $s): string => $s['start'] . ':' . $s['end'], $remaining),
+                true
+            );
+            $slotdata['teachers_per_slot'] = array_values(array_filter(
+                $slotdata['teachers_per_slot'],
+                static fn($entry): bool => is_array($entry)
+                    && !empty($remainingkeys[(int)($entry['start'] ?? 0) . ':' . (int)($entry['end'] ?? 0)])
+            ));
+        }
         $answer->startdate = (int)$remaining[0]['start'];
         $answer->enddate = (int)$remaining[count($remaining) - 1]['end'];
         $payload = json_decode((string)$answer->json, true);
@@ -528,17 +687,29 @@ class slot_mover {
             return null;
         }
 
-        $answer = $DB->get_record('booking_answers', [
-            'optionid' => $optionid,
-            'userid' => $userid,
-            'waitinglist' => MOD_BOOKING_STATUSPARAM_BOOKED,
-        ], '*', IGNORE_MULTIPLE);
+        // A user can hold several active answers on one option ("book again"), and only some of
+        // them may still be movable - one whose slots have all started, or a leftover without any
+        // slot at all, is not. get_record(..., IGNORE_MULTIPLE) picked an arbitrary one and gave up
+        // when that one failed, which made the move button and the move tab disappear even though
+        // a perfectly movable booking was sitting right next to it. Walk them in booking order
+        // instead and answer with the first one that really can be moved.
+        $answers = $DB->get_records(
+            'booking_answers',
+            [
+                'optionid' => $optionid,
+                'userid' => $userid,
+                'waitinglist' => MOD_BOOKING_STATUSPARAM_BOOKED,
+            ],
+            'id ASC'
+        );
 
-        if (empty($answer) || !self::self_rebooking_allowed($optionid, $answer)) {
-            return null;
+        foreach ($answers as $answer) {
+            if (self::self_rebooking_allowed($optionid, $answer)) {
+                return $answer;
+            }
         }
 
-        return $answer;
+        return null;
     }
 
     /**

@@ -25,6 +25,7 @@
 namespace mod_booking\table;
 use core_completion\progress;
 use mod_booking\bo_availability\conditions\alreadybooked;
+use mod_booking\bo_availability\conditions\slotmove;
 use mod_booking\booking_answers\booking_answers;
 use core_plugin_manager;
 use mod_booking\local\connectedcourse;
@@ -58,6 +59,8 @@ use mod_booking\output\col_teacher;
 use mod_booking\price;
 use mod_booking\singleton_service;
 use mod_booking\local\slotbooking\slot_availability;
+use mod_booking\local\slotbooking\slot_dto;
+use mod_booking\local\slotbooking\slot_mover;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -116,6 +119,12 @@ class bookingoptions_wbtable extends wunderbyte_table {
      * @var bool
      */
     public bool $showfavoritestoggle = false;
+
+    /** @var bool Show the entry ticket download button in the action column (instance setting "ticket"). */
+    public bool $showticketbutton = false;
+
+    /** @var bool Show the booking confirmation button in the action column (instance setting "bookingconfirmation"). */
+    public bool $showbookingconfirmation = true;
 
     /**
      * Set display options for the table.
@@ -781,8 +790,17 @@ class bookingoptions_wbtable extends wunderbyte_table {
                     $slotcounttext = $bookedslots . ' / ' . $bookableslots;
                 }
             } else {
+                // Report what is still available ON THE OPTION, not what this particular user may
+                // still book. get_slots_with_status() otherwise downgrades every remaining slot to
+                // 'unavailable' once the user has used up max_slots_per_user, so somebody who is at
+                // their limit saw a bare "0" next to an option that still has hundreds of free
+                // slots. Passing $ignoreuserslotcap = true skips that per-user gate only - per-slot
+                // capacity, opening hours and overlap rules all still apply, so a genuinely full
+                // option still counts 0.
+                $availableslots = slot_availability::get_slots_with_status((int)$values->id, $targetuserid, true);
+
                 $availableuserslots = 0;
-                foreach ($slots as $slot) {
+                foreach ($availableslots as $slot) {
                     if (in_array((string)($slot['status'] ?? 'unavailable'), ['open', 'warning'], true)) {
                         $availableuserslots++;
                     }
@@ -879,6 +897,31 @@ class bookingoptions_wbtable extends wunderbyte_table {
 
         // If no entity is set, we show the value stored in location.
         return $settings->location;
+    }
+
+    /**
+     * This function is called for each data row to render the entry ticket of the current user.
+     *
+     * Only shown in "my bookings" style lists, where the table is rendered for one specific user.
+     *
+     * @param object $values Contains object with all the values of record.
+     * @return string ticket download link, or an empty string when there is no ticket
+     */
+    public function col_ticket($values) {
+        global $USER;
+
+        if (empty($values->id) || empty(get_config('booking', 'bookingticketon'))) {
+            return '';
+        }
+
+        // Same convention as col_booknow: foruserid is 0 unless the list is rendered for someone else.
+        $userid = (int) $this->foruserid;
+        if ($userid <= 0) {
+            $userid = (int) $USER->id;
+        }
+        // A booking made before the ticket design was chosen has no ticket yet: create it on first sight.
+        $ticket = \mod_booking\local\ticket\ticket_manager::find_or_create_for_booked_user((int) $values->id, $userid);
+        return \mod_booking\local\ticket\ticket_manager::render_download_button($ticket);
     }
 
     /**
@@ -1081,7 +1124,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
      * @throws coding_exception
      */
     public function col_showdates($values) {
-        global $USER;
+        global $USER, $PAGE, $OUTPUT;
 
         // If $values->id is missing, we show the values object in debug mode, so we can investigate what happens.
         if (empty($values->id)) {
@@ -1112,27 +1155,39 @@ class bookingoptions_wbtable extends wunderbyte_table {
         $isslotoption = (int)($settings->type ?? MOD_BOOKING_OPTIONTYPE_DEFAULT) === MOD_BOOKING_OPTIONTYPE_SLOTBOOKING;
         if ($isslotoption) {
             // A user can hold more than one active answer for a slot option (buying several slots
-            // up to max_slots_per_user), so aggregate the booked slots across ALL of their active
-            // answers - usersonlist would only expose the newest answer per user.
-            $slots = slot_availability::get_booked_slot_ranges_for_user($optionid, (int)$USER->id);
+            // up to max_slots_per_user), and each answer carries its slots as ranges - the helper
+            // aggregates across all of them, where usersonlist would only expose the newest answer
+            // per user. Shared with the booking option detail page (see
+            // output\bookingoption_description) so the two views can never name different slots.
+            // At the cashier the list is rendered for the selected buyer, so we show the buyer's slots.
+            $buyforuser = price::return_user_to_buy_for();
+            $slotrows = slot_dto::build_booked_slot_rows($optionid, (int)$buyforuser->id);
 
-            if (empty($slots)) {
+            if (!$this->is_downloading()) {
+                // Load the per-slot cancel module for EVERY slot option row - even rows without
+                // booked slots or buttons. The options table re-renders rows via AJAX (e.g. right
+                // after booking), where $PAGE->requires no longer executes; only the document-level
+                // delegated listener bound during the initial page load catches the buttons that
+                // appear in such a re-render. The module is tiny and no-ops without buttons.
+                $PAGE->requires->js_call_amd('mod_booking/slotbooking/slot_release', 'init');
+            }
+
+            if (empty($slotrows)) {
                 return '';
             }
 
-            $slotlines = [];
-            foreach ($slots as $slot) {
-                $start = (int)$slot['start'];
-                $end = (int)$slot['end'];
-                $slotlines[] = userdate($start, get_string('strftimedatetime', 'langconfig'))
-                    . ' - ' . userdate($end, get_string('strftimetime', 'langconfig'));
-            }
-
-            if (empty($slotlines)) {
-                return '';
-            }
-
+            $slotlines = array_column($slotrows, 'label');
             $label = get_string('slot_report_numslots', 'mod_booking');
+            $examinerlabel = get_string('slot_booked_examiners', 'mod_booking');
+
+            // The examiner is part of what was booked, so a download that names the slot but not
+            // the person the user is meeting is missing half the booking.
+            $slotlines = [];
+            foreach ($slotrows as $slotrow) {
+                $slotlines[] = empty($slotrow['hasteachers'])
+                    ? $slotrow['label']
+                    : $slotrow['label'] . ' (' . $examinerlabel . ': ' . $slotrow['teacherlabel'] . ')';
+            }
 
             if ($this->is_downloading()) {
                 return $label . ': ' . implode(' | ', $slotlines);
@@ -1147,11 +1202,74 @@ class bookingoptions_wbtable extends wunderbyte_table {
             $ret .= html_writer::span(html_writer::tag('b', s($label) . ':'));
             $ret .= html_writer::end_div();
 
-            foreach ($slotlines as $line) {
-                $ret .= html_writer::div(s($line));
+            // Per-slot cancel buttons, same gate and same AMD module as the option detail page
+            // (bookingoption_description_bookedslots.mustache): self-service only, option opted
+            // into self-rebooking, cancellation policy allows it; per row the relative deadline
+            // decides. Read-only rows stay plain text.
+            // Not at the cashier: the rows belong to the selected buyer, the release is self-service only.
+            $releaseavailable = (int)$buyforuser->id === (int)$USER->id
+                && slot_mover::per_slot_release_available($optionid, (int)$USER->id);
+
+            foreach ($slotrows as $slotrow) {
+                $line = s($slotrow['label']);
+                if (!empty($slotrow['hasteachers'])) {
+                    $line .= html_writer::span(
+                        html_writer::tag('i', '', [
+                            'class' => 'fa fa-user-o fa-fw',
+                            'aria-hidden' => 'true',
+                        ]) . '&nbsp;' . s($slotrow['teacherlabel']),
+                        'bo_bookedslot_teachers text-muted ms-2',
+                        ['title' => $examinerlabel]
+                    );
+                }
+                if ($releaseavailable && !empty($slotrow['cancelable'])) {
+                    $releaselabel = get_string('slot_release_action', 'mod_booking');
+                    $line .= html_writer::tag(
+                        'button',
+                        $OUTPUT->pix_icon('t/delete', ''),
+                        [
+                            'type' => 'button',
+                            'class' => 'btn btn-sm btn-outline-danger icon-no-margin ms-auto booking-slot-release',
+                            'data-action' => 'booking-slot-release',
+                            'data-optionid' => $slotrow['optionid'],
+                            'data-baid' => $slotrow['baid'],
+                            'data-slotkey' => $slotrow['key'],
+                            'data-slotlabel' => $slotrow['label'],
+                            'aria-label' => $releaselabel,
+                            'title' => $releaselabel,
+                        ]
+                    );
+                }
+                $ret .= html_writer::div($line, 'd-flex align-items-center flex-wrap gap-2');
             }
 
             $ret .= html_writer::end_div();
+
+            // Same hidden data carrier the option detail page emits (see
+            // bookingoption_description_slotoverview.mustache): when the user has no allowance
+            // left, the booking button and the slot picker are blocked, so clicking the "Booked"
+            // bar opens the option's remaining availability in a modal instead. The list itself is
+            // drawn by the shared JS renderer; only the slot data travels in the page.
+            // Skipped when the slotmove condition owns the button (self-rebooking enabled and
+            // possible): its move prepage shows the same list interactively, and opening the
+            // read-only overview on top would stack two modals whose focus traps fight.
+            $slotmovecondition = new slotmove();
+            if (
+                $slotmovecondition->is_available($settings, (int)$USER->id)
+                && !slot_availability::has_remaining_slot_capacity($optionid, (int)$USER->id)
+            ) {
+                $overviewslots = slot_dto::build_picker_slots($optionid, (int)$USER->id, true);
+                if (!empty($overviewslots)) {
+                    $ret .= html_writer::div('', '', [
+                        'data-region' => 'slot-overview-source',
+                        'data-optionid' => $optionid,
+                        'data-slots' => json_encode($overviewslots),
+                        'hidden' => 'hidden',
+                    ]);
+                    $PAGE->requires->js_call_amd('mod_booking/slotbooking/slot_overview_modal', 'init');
+                }
+            }
+
             return $ret;
         }
 
@@ -1297,22 +1415,50 @@ class bookingoptions_wbtable extends wunderbyte_table {
         $isteacherandcanduplicate = has_capability('mod/booking:duplicateownoption', $context) && $isteacher;
 
         $ddoptions = [];
-        $ret = '<div class="menubar p-1" id="action-menu-' . $optionid . '-menubar" role="group" aria-label="' .
+        $ret = '<div class="menubar p-1 d-inline-flex flex-wrap align-items-center justify-content-end gap-1 ' .
+            'mod-booking-option-actions" id="action-menu-' . $optionid . '-menubar" role="group" aria-label="' .
             get_string('actions') . '">';
 
         if ($status == MOD_BOOKING_STATUSPARAM_BOOKED) {
+            // Entry ticket first, then the booking confirmation - both belong to the booked user.
+            if ($this->showticketbutton) {
+                $ticket = \mod_booking\local\ticket\ticket_manager::find_or_create_for_booked_user(
+                    (int) $optionid,
+                    (int) $USER->id
+                );
+                $ret .= \mod_booking\local\ticket\ticket_manager::render_download_button($ticket);
+            }
+            if ($this->showbookingconfirmation) {
+                $ret .= html_writer::link(
+                    new moodle_url(
+                        '/mod/booking/viewconfirmation.php',
+                        ['id' => $cmid, 'optionid' => $optionid]
+                    ),
+                    '<i class="icon fa fa-print fa-fw" aria-hidden="true" title="' .
+                        get_string('bookedtext', 'mod_booking') . '"></i>' . get_string('bookedtext', 'mod_booking'),
+                    [
+                        'target' => '_blank',
+                        'class' => 'btn btn-outline-secondary btn-sm mod-booking-confirmation-link',
+                        'role' => 'button',
+                        'title' => get_string('bookedtext', 'mod_booking'),
+                        'aria-label' => get_string('bookedtext', 'mod_booking'),
+                    ]
+                );
+            }
+        }
+
+        $canscan = \mod_booking\local\ticket\ticket_manager::is_enabled_for_option((int) $optionid)
+            && \mod_booking\local\ticket\ticket_manager::can_scan((int) $cmid, (int) $optionid);
+        if ($canscan && !($canupdate || $isteacherandcanedit)) {
+            // Entry staff without editing rights get no dropdown, so the scanner is a button for them.
             $ret .= html_writer::link(
-                new moodle_url(
-                    '/mod/booking/viewconfirmation.php',
-                    ['id' => $cmid, 'optionid' => $optionid]
-                ),
-                '<i class="icon fa fa-print fa-fw me-1" aria-hidden="true" title="' .
-                    get_string('bookedtext', 'mod_booking') .
-                '"></i>',
+                new moodle_url('/mod/booking/scan.php', ['optionid' => $optionid]),
+                '<i class="icon fa fa-qrcode fa-fw" aria-hidden="true" title="' .
+                    get_string('ticketscanner', 'mod_booking') . '"></i>' . get_string('ticketscanner', 'mod_booking'),
                 [
-                    'target' => '_blank',
-                    'class' => 'text-primary',
-                    'aria-label' => get_string('bookedtext', 'mod_booking'),
+                    'class' => 'btn btn-outline-secondary btn-sm mod-booking-scanner-link',
+                    'role' => 'button',
+                    'aria-label' => get_string('ticketscanner', 'mod_booking'),
                 ]
             );
         }
@@ -1328,12 +1474,13 @@ class bookingoptions_wbtable extends wunderbyte_table {
                         'returnurl' => $returnurl,
                     ]
                 ),
-                '<i class="icon fa fa-pen fa-fw me-1" aria-hidden="true" title="' .
-                    get_string('editbookingoption', 'mod_booking') .
-                '"></i>',
+                '<i class="icon fa fa-pen fa-fw" aria-hidden="true" title="' .
+                    get_string('editbookingoption', 'mod_booking') . '"></i>' . get_string('edit'),
                 [
                     'target' => '_self',
-                    'class' => 'text-primary',
+                    'class' => 'btn btn-outline-primary btn-sm mod-booking-editoption-link',
+                    'role' => 'button',
+                    'title' => get_string('editbookingoption', 'mod_booking'),
                     'aria-label' => get_string('editbookingoption', 'mod_booking'),
                 ]
             );
@@ -1385,6 +1532,17 @@ class bookingoptions_wbtable extends wunderbyte_table {
                     '" title="' . get_string('bookingstracker', 'mod_booking') . '" >
                     </i>' .
                     get_string('bookingstracker', 'mod_booking')
+                ) . '</div>';
+            }
+
+            if ($canscan) {
+                $ddoptions[] = '<div class="dropdown-item">' . html_writer::link(
+                    new moodle_url('/mod/booking/scan.php', ['optionid' => $optionid]),
+                    '<i class="icon fa fa-qrcode fa-fw" aria-hidden="true"
+                        aria-label="' . get_string('ticketscanner', 'mod_booking') .
+                    '" title="' . get_string('ticketscanner', 'mod_booking') . '" >
+                    </i>' .
+                    get_string('ticketscanner', 'mod_booking')
                 ) . '</div>';
             }
 
@@ -2091,6 +2249,8 @@ class bookingoptions_wbtable extends wunderbyte_table {
 
         $realuniquestring =
             ($this->showfavoritestoggle ? '1' : '0') . '|' .
+            ($this->showticketbutton ? '1' : '0') . '|' .
+            ($this->showbookingconfirmation ? '1' : '0') . '|' .
             ($this->showreloadbutton ? '1' : '0') . '|' .
             ($this->showdownloadbutton ? '1' : '0') . '|' .
             ($this->showcountlabel ? '1' : '0') . '|' .

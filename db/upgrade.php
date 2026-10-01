@@ -5832,5 +5832,115 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2026091500, 'booking');
     }
 
+    if ($oldversion < 2026093000) {
+        // Entry tickets are now owned by mod_booking instead of being tool_certificate issues.
+        $table = new xmldb_table('booking_tickets');
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('optionid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('optiondateid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('userid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('answerid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('templateid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('code', XMLDB_TYPE_CHAR, '40', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('status', XMLDB_TYPE_CHAR, '20', null, XMLDB_NOTNULL, null, 'valid');
+        $table->add_field('personalized', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '1');
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('timerevoked', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('json', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_index('code', XMLDB_INDEX_UNIQUE, ['code']);
+        $table->add_index('optionid-userid', XMLDB_INDEX_NOTUNIQUE, ['optionid', 'userid']);
+        $table->add_index('userid', XMLDB_INDEX_NOTUNIQUE, ['userid']);
+
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // The ticket template is chosen per booking option now, so the global setting is gone.
+        unset_config('bookingtickettemplateid', 'booking');
+        // This setting was never read by any code. Delivery is configured with a booking rule now.
+        unset_config('bookingticketsendmail', 'booking');
+
+        upgrade_mod_savepoint(true, 2026093000, 'booking');
+    }
+
+    if ($oldversion < 2026093001) {
+        // The booking confirmation button of the options overview became configurable
+        // ("Bookings overview - page"). Keep it visible on every existing instance.
+        $rs = $DB->get_recordset('booking', null, '', 'id, optionsfields');
+        foreach ($rs as $record) {
+            $fields = array_filter(array_map('trim', explode(',', (string) $record->optionsfields)));
+            if (in_array('bookingconfirmation', $fields, true)) {
+                continue;
+            }
+            $fields[] = 'bookingconfirmation';
+            $DB->set_field('booking', 'optionsfields', implode(',', $fields), ['id' => $record->id]);
+        }
+        $rs->close();
+
+        upgrade_mod_savepoint(true, 2026093001, 'booking');
+    }
+
+    if ($oldversion < 2026093003) {
+        // A user can hold several separately purchased bookings on the same option, and the
+        // payment component's cancel callback only knows the option - so cancelling one purchase
+        // used to delete all of that user's bookings on it. This column links an answer to the
+        // purchase that paid for it, so the cancellation can be scoped to that one booking.
+        // Opaque to mod_booking and empty without a payment component; existing rows keep 0 and
+        // fall back to the previous behaviour.
+        $table = new xmldb_table('booking_answers');
+        $field = new xmldb_field('purchaseidentifier', XMLDB_TYPE_INTEGER, '10', null, null, null, '0', 'enddate');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        upgrade_mod_savepoint(true, 2026093003, 'booking');
+    }
+
+    if ($oldversion < 2026093004) {
+        // Bulk send checker: rows of queued sends of bulk checked rule mails.
+        $table = new xmldb_table('booking_bulk_check');
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('ruleid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('optionid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('userid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('taskid', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+        $table->add_field('status', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('notified', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('sendtime', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('scheduledtime', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('timesent', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('taskdata', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_index('taskid_uix', XMLDB_INDEX_UNIQUE, ['taskid']);
+        $table->add_index('rule_status_sched_ix', XMLDB_INDEX_NOTUNIQUE, ['ruleid', 'status', 'scheduledtime']);
+        $table->add_index('rule_status_sent_ix', XMLDB_INDEX_NOTUNIQUE, ['ruleid', 'status', 'timesent']);
+        $table->add_index('status_sched_ix', XMLDB_INDEX_NOTUNIQUE, ['status', 'scheduledtime']);
+        $table->add_index('status_rule_ix', XMLDB_INDEX_NOTUNIQUE, ['status', 'ruleid']);
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Bulk send checker: which rules are checked and their limit.
+        $table = new xmldb_table('booking_bulk_config');
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('ruleid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('enabled', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('limitcount', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '50');
+        $table->add_field('usermodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('ruleid_unique', XMLDB_KEY_UNIQUE, ['ruleid']);
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        upgrade_mod_savepoint(true, 2026093004, 'booking');
+    }
+
     return true;
 }

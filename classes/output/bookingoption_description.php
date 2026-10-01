@@ -29,6 +29,7 @@ use context_system;
 use core_plugin_manager;
 use html_writer;
 use local_wunderbyte_table\local\customfield\wbt_field_controller_info;
+use mod_booking\bo_availability\conditions\slotmove;
 use mod_booking\booking;
 use mod_booking\booking_answers\booking_answers;
 use mod_booking\booking_bookit;
@@ -36,6 +37,9 @@ use mod_booking\booking_context_helper;
 use mod_booking\booking_option;
 use mod_booking\customfield\booking_handler;
 use mod_booking\local\modechecker;
+use mod_booking\local\slotbooking\slot_availability;
+use mod_booking\local\slotbooking\slot_dto;
+use mod_booking\local\slotbooking\slot_mover;
 use mod_booking\option\dates_handler;
 use mod_booking\option\fields\competencies;
 use mod_booking\placeholders\placeholders_info;
@@ -120,6 +124,21 @@ class bookingoption_description implements renderable, templatable {
 
     /** @var bool $datesexist flag true if dates exist, else null (not false!) */
     private $datesexist = null;
+
+    /** @var array $bookedslots slot ranges this user holds on a slot booking option */
+    private $bookedslots = [];
+
+    /** @var bool $bookedslotsexist flag true if booked slots exist, else null (not false!) */
+    private $bookedslotsexist = null;
+
+    /** @var bool $slotreleaseenabled true when the per-slot cancel buttons are offered, else null */
+    private $slotreleaseenabled = null;
+
+    /** @var string $slotoverviewjson slot DTOs for the read-only availability overview, as JSON */
+    private $slotoverviewjson = '';
+
+    /** @var bool $slotoverviewexist flag true if the slot overview should be shown, else null */
+    private $slotoverviewexist = null;
 
     /** @var array $teachers by names */
     private $teachers = [];
@@ -450,6 +469,52 @@ class bookingoption_description implements renderable, templatable {
             }
         }
 
+        // Slot booking options carry no optiondates at all - a user's slots live as ranges inside
+        // their booking answer - so the dates block above always comes out empty for them and the
+        // page never said WHICH slots somebody holds. Once max_slots_per_user is used up the
+        // picker stops opening too, leaving a bare "Booked" with no way back to that information.
+        // Deliberately scoped to $this->userid (the user this description is rendered FOR, which
+        // may be someone other than $USER), and read through the same helper the options table
+        // uses, so both views always name the same slots.
+        if ((int)($settings->type ?? MOD_BOOKING_OPTIONTYPE_DEFAULT) === MOD_BOOKING_OPTIONTYPE_SLOTBOOKING) {
+            $this->bookedslots = slot_dto::build_booked_slot_rows($optionid, (int)$this->userid);
+            if (!empty($this->bookedslots)) {
+                $this->bookedslotsexist = true;
+                // Per-slot cancel buttons: self-service only, gated on the self-rebooking opt-in
+                // plus the same cancellation policy the full cancel obeys (see
+                // slot_mover::per_slot_release_available()). Per row the relative deadline decides.
+                if (slot_mover::per_slot_release_available($optionid, (int)$this->userid)) {
+                    $this->slotreleaseenabled = true;
+                }
+            }
+
+            // Read-only availability overview, shown ONLY when the user cannot open the picker:
+            // they hold at least one slot and have no allowance left, so alreadybooked blocks the
+            // booking button and the picker - which is otherwise the only place the option's
+            // remaining availability is visible at all. While they can still book, the picker
+            // itself shows this, so duplicating it here would just make the page longer.
+            // When the slotmove condition owns the button (self-rebooking enabled and possible),
+            // clicking "Booked" opens the interactive move prepage, which shows the same list
+            // itself - opening the read-only overview as well would stack two modals whose focus
+            // traps fight each other. is_available() === false means slotmove takes the click.
+            $slotmovecondition = new slotmove();
+            if (
+                !empty($this->bookedslots)
+                    && $slotmovecondition->is_available($settings, (int)$this->userid)
+                    && !slot_availability::has_remaining_slot_capacity($optionid, (int)$this->userid)
+            ) {
+                // Same DTO shape the booking picker consumes, resolved with the per-user cap
+                // ignored so it shows the option's real availability. The list itself is rendered
+                // by the SAME JS renderer the picker uses (see slotbooking/slot_overview_modal),
+                // so there is only one implementation of the day grouping and the row markup.
+                $overviewslots = slot_dto::build_picker_slots($optionid, (int)$this->userid, true);
+                if (!empty($overviewslots)) {
+                    $this->slotoverviewjson = json_encode($overviewslots);
+                    $this->slotoverviewexist = true;
+                }
+            }
+        }
+
         $colteacher = new col_teacher($optionid, $settings, true);
         $this->teachers = $colteacher->teachers;
 
@@ -716,6 +781,12 @@ class bookingoption_description implements renderable, templatable {
             'duration' => $this->duration,
             'dates' => $this->dates,
             'datesexist' => $this->datesexist,
+            'bookedslots' => $this->bookedslots,
+            'bookedslotsexist' => $this->bookedslotsexist,
+            'slotreleaseenabled' => $this->slotreleaseenabled,
+            'slotoverviewjson' => $this->slotoverviewjson,
+            'slotoverviewexist' => $this->slotoverviewexist,
+            'slotoverviewoptionid' => $this->optionid,
             'booknowbutton' => $this->booknowbutton,
             'teachers' => $this->teachers,
             'responsiblecontactuser' => $this->responsiblecontactuser,

@@ -213,6 +213,7 @@
         <FIELD NAME="syncruleid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="0 for manual bookings, otherwise the booking_sync_rules.id that created this booking answer."/>
         <FIELD NAME="startdate" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="enddate" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="purchaseidentifier" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Reference of the purchase that paid for this answer, as reported by the payment component (0 = not purchased). Opaque to mod_booking: it is stored and handed back, never interpreted."/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
@@ -654,6 +655,31 @@
         <INDEX NAME="area" UNIQUE="false" FIELDS="area"/>
       </INDEXES>
     </TABLE>
+    <TABLE NAME="booking_tickets" COMMENT="Entry tickets issued for booking answers. The PDF is built with a tool_certificate template but the ticket itself is owned by mod_booking.">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="optionid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Id of the booking option this ticket belongs to."/>
+        <FIELD NAME="optiondateid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Reserved for per session tickets. 0 means the ticket is valid for the whole booking option."/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Id of the user holding the ticket."/>
+        <FIELD NAME="answerid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Id of the booking answer this ticket was created for. 0 if unknown."/>
+        <FIELD NAME="templateid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Id of the tool_certificate template used to build the PDF."/>
+        <FIELD NAME="code" TYPE="char" LENGTH="40" NOTNULL="true" SEQUENCE="false" COMMENT="Unique verification code, encoded in the QR code of the ticket."/>
+        <FIELD NAME="status" TYPE="char" LENGTH="20" NOTNULL="true" DEFAULT="valid" SEQUENCE="false" COMMENT="Either valid or cancelled."/>
+        <FIELD NAME="personalized" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="1 if the ticket is only valid for the registered holder, 0 if it may be transferred."/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timerevoked" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Time the ticket was cancelled. 0 as long as it is valid."/>
+        <FIELD NAME="json" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Snapshot of the booking option data at the time the ticket was created. Used to render the PDF deterministically."/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="code" UNIQUE="true" FIELDS="code"/>
+        <INDEX NAME="optionid-userid" UNIQUE="false" FIELDS="optionid,userid"/>
+        <INDEX NAME="userid" UNIQUE="false" FIELDS="userid"/>
+      </INDEXES>
+    </TABLE>
     <TABLE NAME="booking_subbooking_options" COMMENT="Stores the configured subbookings for individual booking options.">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
@@ -927,5 +953,48 @@
       </KEYS>
     </TABLE>
 
+    <TABLE NAME="booking_bulk_check" COMMENT="Tracks queued sends of bulk checked rule mails so bursts can be detected and parked.">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="ruleid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The booking rule whose mail this is, the key of a burst"/>
+        <FIELD NAME="optionid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="taskid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="The task_adhoc record this row belongs to, null once the mail is out"/>
+        <FIELD NAME="status" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="0 pending, 1 sent, 2 blocked, 3 released, 4 sent after release, 6 releasing"/>
+        <FIELD NAME="notified" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Set on the row that raised the burst notification"/>
+        <FIELD NAME="sendtime" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The run time the rule computed, before any delay. The rule re-validates against this"/>
+        <FIELD NAME="scheduledtime" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="When the task actually runs, the anchor of the counting window"/>
+        <FIELD NAME="timesent" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="When the mail went out, for sent rows"/>
+        <FIELD NAME="taskdata" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Copy of the task customdata, only on blocked rows, so a release can rebuild the task"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="taskid_uix" UNIQUE="true" FIELDS="taskid"/>
+        <INDEX NAME="rule_status_sched_ix" UNIQUE="false" FIELDS="ruleid, status, scheduledtime"/>
+        <INDEX NAME="rule_status_sent_ix" UNIQUE="false" FIELDS="ruleid, status, timesent"/>
+        <INDEX NAME="status_sched_ix" UNIQUE="false" FIELDS="status, scheduledtime"/>
+        <INDEX NAME="status_rule_ix" UNIQUE="false" FIELDS="status, ruleid"/>
+      </INDEXES>
+    </TABLE>
+
+    <TABLE NAME="booking_bulk_config" COMMENT="Per rule configuration of the bulk send checker.">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="ruleid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="enabled" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="limitcount" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="50" SEQUENCE="false" COMMENT="Sends of this rule allowed within the period. Not called limit because that is a reserved word"/>
+        <FIELD NAME="usermodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="ruleid_unique" TYPE="unique" FIELDS="ruleid"/>
+      </KEYS>
+    </TABLE>
   </TABLES>
 </XMLDB>

@@ -30,6 +30,7 @@ use mod_booking\bo_availability\bo_condition;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_bookit;
 use mod_booking\booking_option_settings;
+use mod_booking\local\slotbooking\slot_mover;
 use mod_booking\output\bookingoption_description;
 use mod_booking\output\bookit_button;
 use mod_booking\price;
@@ -289,6 +290,19 @@ class bookitbutton implements bo_condition {
                 $label = get_string('bookagainwithcountsingular', 'mod_booking');
             } else {
                 $label = get_string('bookagainwithcountplural', 'mod_booking', $count);
+            }
+            // In this state the prepage behind the button carries the self-service move as a second
+            // tab (see slotbooking::get_description()'s showmovetab), so "Book again" alone
+            // understates what the dialog opens. Same wording as the standalone move button, and
+            // the same dependency on the cancellation policy - only promise cancelling where it is
+            // actually allowed. get_self_rebookable_answer() returns null for anything that is not
+            // a slot option with self-rebooking enabled, so no other option type is affected.
+            $moveanswer = slot_mover::get_self_rebookable_answer((int)$settings->id, $userid);
+            if ($moveanswer !== null && slot_mover::book_again_active((int)$settings->id, $moveanswer)) {
+                $movehint = slot_mover::self_release_policy_blocked((int)$settings->id, $userid)
+                    ? get_string('slot_move_action', 'mod_booking')
+                    : get_string('slot_move_or_cancel_action', 'mod_booking');
+                $label .= '<div class="booking-slot-move-hint small mt-1">' . $movehint . '</div>';
             }
         } else {
             $label = $this->get_description_string(false, $full, $settings);

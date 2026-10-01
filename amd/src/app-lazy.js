@@ -1,5 +1,5 @@
 /* eslint-disable */
-define(["core/ajax","core/localstorage","core/notification","jquery"], function(__WEBPACK_EXTERNAL_MODULE__536__, __WEBPACK_EXTERNAL_MODULE__746__, __WEBPACK_EXTERNAL_MODULE__711__, __WEBPACK_EXTERNAL_MODULE__982__) { return /******/ (function() { // webpackBootstrap
+define(["core/ajax","core/localstorage","core/notification"], function(__WEBPACK_EXTERNAL_MODULE__536__, __WEBPACK_EXTERNAL_MODULE__746__, __WEBPACK_EXTERNAL_MODULE__711__) { return /******/ (function() { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
 /***/ 620:
@@ -1295,14 +1295,6 @@ module.exports = __WEBPACK_EXTERNAL_MODULE__746__;
 
 "use strict";
 module.exports = __WEBPACK_EXTERNAL_MODULE__711__;
-
-/***/ }),
-
-/***/ 982:
-/***/ (function(module) {
-
-"use strict";
-module.exports = __WEBPACK_EXTERNAL_MODULE__982__;
 
 /***/ })
 
@@ -24271,9 +24263,6 @@ var localstorage_default = /*#__PURE__*/__webpack_require__.n(localstorage_);
 // EXTERNAL MODULE: external {"amd":"core/notification"}
 var notification_ = __webpack_require__(711);
 var notification_default = /*#__PURE__*/__webpack_require__.n(notification_);
-// EXTERNAL MODULE: external {"amd":"jquery"}
-var external_amd_jquery_ = __webpack_require__(982);
-var external_amd_jquery_default = /*#__PURE__*/__webpack_require__.n(external_amd_jquery_);
 ;// ./store.js
 // This file is part of Moodle - http://moodle.org/
 //
@@ -24300,7 +24289,6 @@ var external_amd_jquery_default = /*#__PURE__*/__webpack_require__.n(external_am
  */
 
 // Import needed libraries
-
 
 
 
@@ -24341,11 +24329,11 @@ function createAppStore() {
     actions: {
       // Actions are asynchronous.
       async loadLang(context) {
-        const lang = external_amd_jquery_default()('html').attr('lang').replace(/-/g, '_');
+        const lang = document.documentElement.lang.replace(/-/g, '_');
         context.commit('setLang', lang);
       },
       async loadComponentStrings(context) {
-        const lang = external_amd_jquery_default()('html').attr('lang').replace(/-/g, '_');
+        const lang = document.documentElement.lang.replace(/-/g, '_');
         const cacheKey = 'mod_booking/strings/' + lang;
         const cachedStrings = localstorage_default().get(cacheKey);
         if (cachedStrings) {

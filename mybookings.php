@@ -74,6 +74,17 @@ $PAGE->navbar->add($heading);
 echo $OUTPUT->header();
 echo $OUTPUT->heading($heading);
 
+// Entry tickets live outside the certificate world, so they get their own overview.
+if (get_config('booking', 'bookingticketon')) {
+    echo html_writer::div(
+        html_writer::link(
+            new moodle_url('/mod/booking/mytickets.php', ['userid' => $userid]),
+            html_writer::tag('i', '', ['class' => 'fa fa-fw fa-ticket', 'aria-hidden' => 'true'])
+                . ' ' . get_string('mytickets', 'mod_booking')
+        ),
+        'mb-3'
+    );
+}
 
 $arguments['sort'] = 1;
 $arguments['sortby'] = 'coursestarttime';

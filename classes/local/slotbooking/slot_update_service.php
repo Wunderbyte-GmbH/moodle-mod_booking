@@ -143,6 +143,16 @@ class slot_update_service {
                     break;
                 }
             }
+            // Giving up more slots than are picked in return is a (partial or full) cancellation,
+            // so the cancellation policy applies - the very same gate the per-slot cancel buttons
+            // are shown under (slot_mover::per_slot_release_available()). Without it the move tab
+            // offered a cancellation route that the trash buttons correctly refuse to show, and the
+            // user only found out after confirming. A pure move/swap gives up nothing on balance
+            // and stays possible regardless, which is why this counts instead of merely looking for
+            // removed slots.
+            if (count($removed) > count($added) && slot_mover::self_release_policy_blocked($optionid, $userid)) {
+                $errors[] = 'slot_release_policy_blocked';
+            }
         }
         $newslots = [];
         foreach ($newkeys as $key) {
@@ -395,6 +405,16 @@ class slot_update_service {
         string $reason,
         booking_option_settings $settings
     ): array {
+        // Same gate as plan() above and as the per-slot cancel buttons: reaching this method means
+        // slots are being given up, which is a cancellation. Checked here and not only inside
+        // release_self(), because the branch below that hands a fully cancelled booking to the
+        // payment component returns BEFORE release_self() is ever reached - a paid booking would
+        // otherwise be cancelled past mod_booking's own "Allow users to cancel" / "Disable
+        // cancellation" / "Cancel until" settings, none of which the shopping cart knows about.
+        if (slot_mover::self_release_policy_blocked($optionid, $userid)) {
+            throw new moodle_exception('slot_release_policy_blocked', 'mod_booking');
+        }
+
         $currentslots = $ctx['currentslots'];
         $newset = array_fill_keys($newkeys, true);
 
@@ -414,6 +434,35 @@ class slot_update_service {
         usort($newslots, static fn(array $a, array $b): int => $a['start'] <=> $b['start']);
 
         $delta = target_price_policy::calculate_move_delta($optionid, $userid, $currentslots, $newslots);
+        // The booking runs empty: that is a full cancellation, not a partial refund. When the
+        // answer knows which purchase paid for it, hand exactly that purchase to the payment
+        // component - it applies its own cancellation rules (remaining value after earlier partial
+        // refunds, cancellation fee, consumed quota) and deletes this one booking through the
+        // cancel callback. Without a payment component, or for a booking that was never purchased,
+        // the plain release below still cancels it.
+        if (empty($newkeys)) {
+            $identifier = (int)($ctx['answer']->purchaseidentifier ?? 0);
+            if (!empty($identifier) && method_exists(shopping_cart::class, 'cancel_purchase_by_identifier')) {
+                $cancelled = shopping_cart::cancel_purchase_by_identifier(
+                    'mod_booking',
+                    'option',
+                    $optionid,
+                    $userid,
+                    $identifier
+                );
+                if (empty($cancelled['success'])) {
+                    // Refused by the cart (cancellation switched off, deadline passed, fee rules):
+                    // the booking stays untouched and the reason is passed on to the user.
+                    throw new moodle_exception(
+                        'slot_release_cart_refused',
+                        'mod_booking',
+                        '',
+                        (string)($cancelled['error'] ?? '')
+                    );
+                }
+                return self::outcome('cancel', 0.0, 0, ['newstart' => 0, 'newend' => 0, 'slotcount' => 0]);
+            }
+        }
 
         slot_mover::release_self($optionid, $baid, $released, $reason);
 
@@ -467,7 +516,9 @@ class slot_update_service {
         if (count($newkeys) === 0) {
             $answer = $ctx['answer'];
             $option = singleton_service::get_instance_of_booking_option((int)$settings->cmid, $optionid);
-            $option->user_delete_response((int)$answer->userid);
+            // Scope the deletion to THIS answer row - the user may hold further active answers
+            // on this option (book again), and cancelling one booking must not delete the others.
+            $option->user_delete_response((int)$answer->userid, onlybaid: (int)$answer->id);
             return self::outcome('cancel', 0.0, 0, ['newstart' => 0, 'newend' => 0, 'slotcount' => 0]);
         }
 

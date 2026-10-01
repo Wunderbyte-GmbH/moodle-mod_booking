@@ -1350,6 +1350,11 @@ class view implements renderable, templatable {
         // Activate sorting.
         $bowbtable->cardsort = true;
 
+        // Buttons of the action column, configured in the instance setting "Bookings overview - page".
+        $bowbtable->showbookingconfirmation = in_array('bookingconfirmation', $optionsfields);
+        $bowbtable->showticketbutton = in_array('ticket', $optionsfields)
+            && \mod_booking\local\ticket\ticket_manager::is_enabled();
+
         // Without defining sorting won't work!
         $bowbtable->define_columns(['titleprefix', 'coursestarttime', 'courseendtime']);
 

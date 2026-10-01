@@ -559,6 +559,24 @@ $capabilities = [
             'manager' => CAP_ALLOW,
         ],
     ],
+    // SofaTicket: scan/verify entry tickets and check participants in (assignable to door/entry staff).
+    'mod/booking:scanticket' => [
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => [
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW,
+        ],
+    ],
+    // SofaTicket: view the entry overview/dashboard (full participant list with check-in times).
+    'mod/booking:viewticketreport' => [
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => [
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW,
+        ],
+    ],
     // Limited capability to edit own booking options.
     'mod/booking:limitededitownoption' => [
         'captype' => 'write',
@@ -735,6 +753,15 @@ $capabilities = [
     'mod/booking:editscheduledmails' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => [
+            'manager' => CAP_ALLOW,
+        ],
+    ],
+    /* Capability to see, send or delete the rule mails that the bulk send checker parked, and to
+       receive its alerts. Site wide, because booking rules can live in the system context. */
+    'mod/booking:managebulkcheck' => [
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_SYSTEM,
         'archetypes' => [
             'manager' => CAP_ALLOW,
         ],

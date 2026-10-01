@@ -777,6 +777,10 @@ class booking_option {
      * @param bool $suppresscancelledevent set this to true if the caller triggers its own
      *     bookinganswer_cancelled event for this deletion (e.g. sync_waiting_list trimming the
      *     waiting list adds an extrainfo payload), so the user does not get the event twice
+     * @param int $onlybaid restrict the deletion to this ONE booking_answers row. A user can hold
+     *     several active answers on one slot option (book again); cancelling one of them (e.g.
+     *     releasing its last slot) must not delete the others. 0 (default) keeps the historic
+     *     behaviour of deleting every active answer of the user on this option.
      * @return bool true if booking was deleted successfully, otherwise false
      */
     public function user_delete_response(
@@ -786,7 +790,8 @@ class booking_option {
         $syncwaitinglist = true,
         $deleteall = false,
         $openruleexecution = false,
-        $suppresscancelledevent = false
+        $suppresscancelledevent = false,
+        int $onlybaid = 0
     ) {
         global $USER, $DB;
 
@@ -806,6 +811,10 @@ class booking_option {
         if ($deleteall === false) {
             // Delete only incompleted booked options.
             $conditions['completed'] = 0;
+        }
+        if (!empty($onlybaid)) {
+            // Scope the cancellation to one answer row - see the $onlybaid parameter doc.
+            $conditions['id'] = $onlybaid;
         }
         $results = $DB->get_records('booking_answers', $conditions);
 
@@ -3029,6 +3038,11 @@ class booking_option {
 
         // The option may have carried sqlfilter availability conditions.
         \mod_booking\bo_availability\sqlfilter_relevance::purge();
+
+        // Entry tickets (rows and PDF files) must go while the option still exists,
+        // so the module context of the file area can be resolved. Instance deletion
+        // is covered too: booking_delete_instance() deletes option by option.
+        \mod_booking\local\ticket\ticket_manager::delete_tickets_for_option($this->optionid);
 
         $result = true;
         $answers = $this->get_all_users();

@@ -16,6 +16,7 @@
 
 namespace mod_booking\local\wizard\options\skills;
 
+use mod_booking\local\ticket\ticket_manager;
 use mod_booking\singleton_service;
 
 /**
@@ -51,6 +52,47 @@ class option_preview_builder {
 
     /** @var int Number of option titles listed by name in a bulk preview. */
     private const MAX_BULK_OPTION_TITLES = 5;
+
+    /**
+     * Render the requested entry ticket design, or the off state.
+     *
+     * @param array $input
+     * @param string $lang
+     * @return string|null
+     */
+    private static function format_ticketdesign(array $input, string $lang): ?string {
+        if (!array_key_exists('ticketdesign', $input)) {
+            return null;
+        }
+        $query = trim((string)$input['ticketdesign']);
+        // Only the schema-documented sentinel means "off" (no word lists).
+        if (ticket_manager::is_design_off_sentinel($query)) {
+            return self::str('previewvalue_ticketsoff', $lang);
+        }
+        $resolved = \mod_booking\local\wizard\booking\booking_skill_support::resolve_ticket_design($query);
+        if ($resolved['status'] === 'ok') {
+            return (string)$resolved['name'];
+        }
+
+        // Ambiguous/unknown design: surface that state instead of echoing the query as
+        // if it were the chosen design - the apply step will not save it either.
+        return self::str('previewvalue_ticketdesignunresolved', $lang, $query);
+    }
+
+    /**
+     * Render a boolean-ish input as a localized yes/no, or null when it was not part of the request.
+     *
+     * @param mixed $value
+     * @param string $lang
+     * @return string|null
+     */
+    private static function yes_no($value, string $lang): ?string {
+        if ($value === null || $value === '') {
+            return null;
+        }
+
+        return self::str(!empty($value) ? 'yes' : 'no', $lang, null, 'core');
+    }
 
     /**
      * Build the preview descriptor for creating a normal (dated) booking option.
@@ -535,6 +577,15 @@ class option_preview_builder {
         self::push_str($rows, 'previewlabel_bookingopens', $lang, $opens);
         self::push_str($rows, 'previewlabel_bookingcloses', $lang, $closes);
         self::push_str($rows, 'previewlabel_visibility', $lang, self::format_visibility($input, $lang));
+        self::push_str($rows, 'previewlabel_ticketdesign', $lang, self::format_ticketdesign($input, $lang));
+        self::push_str($rows, 'previewlabel_ticketpersonalized', $lang, self::yes_no($input['ticketpersonalized'] ?? null, $lang));
+        self::push_str(
+            $rows,
+            'previewlabel_ticketconfirmidentity',
+            $lang,
+            self::yes_no($input['ticketconfirmidentity'] ?? null, $lang)
+        );
+        self::push_str($rows, 'previewlabel_ticketextrainfo', $lang, self::text_value($input['ticketextrainfo'] ?? null));
         return $rows;
     }
 
@@ -553,6 +604,7 @@ class option_preview_builder {
             'maxanswers', 'maxoverbooking', 'coursestarttime', 'courseendtime', 'optiondates',
             'location', 'address', 'teacherquery', 'teacheremail', 'prices',
             'bookingopeningtime', 'bookingclosingtime', 'visibility', 'invisible',
+            'ticketdesign', 'ticketpersonalized', 'ticketconfirmidentity', 'ticketextrainfo',
         ];
 
         // Any other changed key falls back to a humanized label + generic value.

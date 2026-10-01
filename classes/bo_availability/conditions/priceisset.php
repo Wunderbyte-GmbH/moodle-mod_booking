@@ -31,6 +31,7 @@ use mod_booking\bo_availability\bo_condition;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_option_settings;
 use mod_booking\local\modechecker;
+use mod_booking\local\slotbooking\slot_mover;
 use mod_booking\price;
 use mod_booking\singleton_service;
 use moodle_url;
@@ -144,6 +145,28 @@ class priceisset implements bo_condition {
     }
 
     /**
+     * True when the option uses prices but price::get_price() cannot resolve any price for this
+     * user: the user's price category matches no configured category and the site setting
+     * "pricecategoryfallback" is turned off. Same check as askforconfirmation::is_available().
+     * A price of 0 is a resolved price and does NOT count as missing (see 'displayemptyprice').
+     *
+     * @param booking_option_settings $settings
+     * @param int $userid
+     * @return bool
+     */
+    private static function price_missing_for_user(booking_option_settings $settings, int $userid): bool {
+        if (empty($settings->jsonobject->useprice)) {
+            return false;
+        }
+        $user = singleton_service::get_instance_of_user($userid);
+        if (empty($user)) {
+            return false;
+        }
+        $price = price::get_price('option', $settings->id, $user);
+        return !isset($price['price']);
+    }
+
+    /**
      * Each function can return additional sql.
      * This will be used if the conditions should not only block booking...
      * ... but actually hide the conditons alltogether.
@@ -205,6 +228,16 @@ class priceisset implements bo_condition {
             has_capability('mod/booking:bookforothers', $context)
         ) {
             return [$isavailable, $description, MOD_BOOKING_BO_PREPAGE_NONE, MOD_BOOKING_BO_BUTTON_MYALERT];
+        }
+
+        // No price resolvable for this user (no matching price category, fallback turned off): there is
+        // nothing to buy, so no prepage modal may be built around the message. JUSTMYALERT renders this
+        // condition's button directly (see booking_bookit::render_bookit_template_data()) instead of
+        // wrapping the bare "no price" text into the clickable modal trigger.
+        global $USER;
+        $userid = !empty($userid) ? (int)$userid : (int)$USER->id;
+        if (!$isavailable && self::price_missing_for_user($settings, $userid)) {
+            return [$isavailable, $description, MOD_BOOKING_BO_PREPAGE_NONE, MOD_BOOKING_BO_BUTTON_JUSTMYALERT];
         }
 
         return [$isavailable, $description, MOD_BOOKING_BO_PREPAGE_NONE, MOD_BOOKING_BO_BUTTON_MYBUTTON];
@@ -271,6 +304,24 @@ class priceisset implements bo_condition {
 
         $user = singleton_service::get_instance_of_user($userid);
 
+        // No price resolvable for this user: bookit_price would render only the bare "no price" text
+        // (no wrapper, nothing to add to the cart). Render the same message as a plain alert instead,
+        // like every other blocking condition, so it is neither a button nor a modal trigger.
+        if (self::price_missing_for_user($settings, $userid)) {
+            $identifier = singleton_service::get_pricecategory_for_user($user) ?: '';
+            $label = get_string('nopriceisset', 'mod_booking', $identifier);
+            return bo_info::render_button(
+                $settings,
+                $userid,
+                $label,
+                'alert alert-warning',
+                false, // No price line: there is none to show.
+                $fullwidth,
+                'alert',
+                'option'
+            );
+        }
+
         $data = $settings->return_booking_option_information($user, false);
 
         $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
@@ -305,6 +356,28 @@ class priceisset implements bo_condition {
             $data['link'] = $url->out(false);
             $data['nojs'] = true;
             $data['role'] = '';
+        }
+
+        // A booked user who may also move their slot reaches that editor through this very button
+        // (the prepage carries it as a second tab - see slotbooking::get_description()), but nothing
+        // here said so: for a priced option this condition owns the button, so the hint added to
+        // bookitbutton::render_button() never appears. Same wording and the same dependency on the
+        // cancellation policy as the other two buttons, so all three describe the dialog alike.
+        // get_self_rebookable_answer() is null for anything that is not a slot option with
+        // self-rebooking enabled, so no other option type is affected.
+        $moveanswer = slot_mover::get_self_rebookable_answer((int)$settings->id, $userid);
+        if (
+            empty($data['sub'])
+            && $moveanswer !== null
+            && slot_mover::book_again_active((int)$settings->id, $moveanswer)
+        ) {
+            $data['sub'] = [
+                'label' => slot_mover::self_release_policy_blocked((int)$settings->id, $userid)
+                    ? get_string('slot_move_action', 'mod_booking')
+                    : get_string('slot_move_or_cancel_action', 'mod_booking'),
+                'class' => ' text-center small ',
+                'role' => '',
+            ];
         }
 
         return ['mod_booking/bookit_price', $data];
