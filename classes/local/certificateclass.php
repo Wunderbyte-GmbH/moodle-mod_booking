@@ -269,6 +269,7 @@ class certificateclass {
             'sessions' => self::return_sessions_for_certificate($settings->sessions),
             'daterange' => self::return_daterange_for_certificate($settings),
             'duration' => self::return_duration_for_certificate($settings),
+            'dateswithduration' => self::return_dateswithduration_for_certificate($settings),
             'timeawarded' => self::return_timeawarded_for_certificate($settings, $userid, $completeddate),
             'competencies' => self::return_competencies_for_certificate($settings->competencies ?? ''),
             'bookingnotes' => self::return_notes_for_certificate($settings->id, $userid),
@@ -381,18 +382,8 @@ class certificateclass {
      *
      */
     private static function return_duration_for_certificate(object $settings) {
-        if (!empty($settings->sessions)) {
-            $duration = 0;
-            foreach ($settings->sessions as $session) {
-                $duration += ($session->courseendtime - $session->coursestarttime);
-            }
-        } else if (
-            !empty($settings->courseendtime)
-            && !empty($settings->coursestarttime)
-            && $settings->courseendtime > $settings->coursestarttime
-        ) {
-            $duration = $settings->courseendtime - $settings->coursestarttime;
-        } else {
+        $duration = self::return_duration_seconds($settings);
+        if (empty($duration)) {
             return '';
         }
         $hours = (string)floor($duration / 3600);
@@ -401,6 +392,78 @@ class certificateclass {
         $a->hours = $hours;
         $a->minutes = $minutes;
         return get_string('durationforcertificate', 'mod_booking', $a);
+    }
+
+    /**
+     * Helper function returning the duration of a booking option in seconds,
+     * summed over its sessions (booking_optiondates), falling back to the
+     * option's coursestarttime/courseendtime span. The duration is not stored
+     * anywhere, so it always has to be calculated.
+     *
+     * @param object $settings booking_option_settings
+     *
+     * @return int duration in seconds, 0 when there are no usable dates
+     *
+     */
+    private static function return_duration_seconds(object $settings): int {
+        if (!empty($settings->sessions)) {
+            $duration = 0;
+            foreach ($settings->sessions as $session) {
+                $duration += ($session->courseendtime - $session->coursestarttime);
+            }
+            return $duration;
+        }
+        if (
+            !empty($settings->courseendtime)
+            && !empty($settings->coursestarttime)
+            && $settings->courseendtime > $settings->coursestarttime
+        ) {
+            return $settings->courseendtime - $settings->coursestarttime;
+        }
+        return 0;
+    }
+
+    /**
+     * Helper function to return a combined period field for the certificate:
+     * the overall start date, the end date and the duration (summed from the
+     * sessions) as decimal hours in brackets, e.g.
+     * "20 August 2026 - 25 August 2026 (12,5 h)".
+     *
+     * The duration is not stored anywhere, it is calculated from the option's
+     * sessions (booking_optiondates) - see return_duration_seconds().
+     *
+     * @param object $settings booking_option_settings
+     *
+     * @return string the combined period, or '' when there are no usable dates
+     *
+     */
+    private static function return_dateswithduration_for_certificate(object $settings) {
+        // Overall period: the option's start and end, falling back to the span of its sessions.
+        $start = (int)($settings->coursestarttime ?? 0);
+        $end = (int)($settings->courseendtime ?? 0);
+        if ((empty($start) || empty($end)) && !empty($settings->sessions)) {
+            $starts = array_column($settings->sessions, 'coursestarttime');
+            $ends = array_column($settings->sessions, 'courseendtime');
+            $start = $start ?: (!empty($starts) ? min($starts) : 0);
+            $end = $end ?: (!empty($ends) ? max($ends) : 0);
+        }
+
+        if (empty($start) || empty($end)) {
+            return '';
+        }
+
+        $timeformat = get_string('strftimedate', 'langconfig');
+        $period = userdate($start, $timeformat) . ' - ' . userdate($end, $timeformat);
+
+        // Append the calculated duration as decimal hours in brackets, e.g. "(12,5 h)".
+        // format_float renders the localized decimal separator and strips trailing zeros.
+        $seconds = self::return_duration_seconds($settings);
+        if (!empty($seconds)) {
+            $hours = format_float($seconds / 3600, 2, true, true);
+            $period .= ' (' . $hours . ' h)';
+        }
+
+        return $period;
     }
 
     /**
