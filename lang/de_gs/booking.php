@@ -91,6 +91,8 @@ $string['bocondenrolledincoursefullnotavailable'] = 'Nur Benutzer/innen, die in 
     <br>Sie haben aber das Recht dennoch zu buchen.';
 $string['bocondenrolledincoursefullnotavailableand'] = 'Nur Benutzer/innen, die in alle folgenden Kurs(e) eingeschrieben sind, dürfen buchen: {$a}
 <br>Sie haben aber das Recht dennoch zu buchen.';
+$string['bocondenrolledincoursefullnotcompleted'] = 'Nur Benutzer/innen, die zumindest einen der folgenden Kurse abgeschlossen haben, dürfen buchen: {$a}';
+$string['bocondenrolledincoursefullnotcompletedand'] = 'Nur Benutzer/innen, die alle der folgenden Kurse abgeschlossen haben, dürfen buchen: {$a}';
 $string['bocondhascompetency'] = 'Benutzer/in hat bestimmte Kompetenzen';
 $string['bocondhascompetencyfullnotavailable'] = 'Nur Benutzer/innen, die mind. eine der folgenden Kompetenzen haben, dürfen buchen: {$a}
     <br>Sie haben aber das Recht dennoch zu buchen.';
@@ -104,7 +106,11 @@ $string['bocondonwaitinglistfullnotavailable'] = 'Nutzer/in ist auf der Wartelis
 $string['bocondpreviouslybooked'] = 'Benutzer/in hat früher eine bestimmte Option gebucht';
 $string['bocondpreviouslybookedfullnotavailable'] = 'Nur Benutzer/innen, die früher bereits <a href="{$a->url}">{$a->title}</a> gebucht haben, dürfen buchen.
  <br>Sie haben aber das Recht dennoch zu buchen.';
+$string['bocondpreviouslybookedfullnotavailableall'] = 'Nur Benutzer/innen, die früher bereits alle folgenden Optionen gebucht haben, dürfen buchen: {$a}';
+$string['bocondpreviouslybookedfullnotavailableany'] = 'Nur Benutzer/innen, die früher bereits zumindest eine der folgenden Optionen gebucht haben, dürfen buchen: {$a}';
 $string['bocondpreviouslybookednotavailable'] = 'Nur Benutzer/innen, die früher bereits <a href="{$a->url}">{$a->title}</a> gebucht haben, dürfen buchen.';
+$string['bocondpreviouslybookednotavailableall'] = 'Nur Benutzer/innen, die früher bereits alle folgenden Optionen gebucht haben, dürfen buchen: {$a}';
+$string['bocondpreviouslybookednotavailableany'] = 'Nur Benutzer/innen, die früher bereits zumindest eine der folgenden Optionen gebucht haben, dürfen buchen: {$a}';
 $string['bocondselectusers'] = 'Nur bestimmte Benutzer/in(nen) dürfen buchen';
 $string['bocondselectusersfullnotavailable'] = 'Nur die folgenden Nutzer/innen können buchen:<br>{$a}';
 $string['bocondselectusersrestrict'] = 'Nur bestimmte Benutzer/in(nen) dürfen buchen';
