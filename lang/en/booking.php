@@ -639,8 +639,14 @@ $string['bocondenrolledincoursefullnotavailable'] = 'Only users who are enrolled
     <br>But you have the right to book a user anyways.';
 $string['bocondenrolledincoursefullnotavailableand'] = 'Only users who are enrolled in all of the following course(s) are allowed to book: {$a}
     <br>But you have the right to book a user anyways.';
+$string['bocondenrolledincoursefullnotcompleted'] = 'Only users who have completed at least one of the following course(s) are allowed to book: {$a}';
+$string['bocondenrolledincoursefullnotcompletedand'] = 'Only users who have completed all of the following course(s) are allowed to book: {$a}';
 $string['bocondenrolledincoursenotavailable'] = 'Booking not allowed because you are not enrolled in at least one of the following course(s): {$a}';
 $string['bocondenrolledincoursenotavailableand'] = 'Booking not allowed because you are not enrolled in all of the following course(s): {$a}';
+$string['bocondenrolledincoursenotcompleted'] = 'Booking not allowed because you have not completed at least one of the following course(s): {$a}';
+$string['bocondenrolledincoursenotcompletedand'] = 'Booking not allowed because you have not completed all of the following course(s): {$a}';
+$string['bocondenrolledincourserequirecompletion'] = 'Require completion of the selected course(s)';
+$string['bocondenrolledincourserequirecompletion_help'] = 'The course counts only once the user has completed it (course completion). A completion that was reached earlier still counts, even if the user is no longer enrolled. The SQL filter cannot be combined with this setting.';
 $string['bocondfullybooked'] = 'Fully booked';
 $string['bocondfullybookedavailable'] = 'Book it';
 $string['bocondfullybookedfullavailable'] = 'Booking is possible';

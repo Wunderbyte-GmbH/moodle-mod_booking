@@ -126,6 +126,18 @@ $definitions = [
             'setbacksessionanswers',
         ],
     ],
+    'usercoursestate' => [ // Course enrolments and completions of the session user, key = userid.
+        'mode' => cache_store::MODE_SESSION,
+        'simplekeys' => true,
+        'staticacceleration' => true,
+        'staticaccelerationsize' => 10,
+        'invalidationevents' => ['setbackusercoursestate'],
+    ],
+    'usercoursestaterequest' => [ // Request-level layer of usercoursestate for any user id, key = userid.
+        'mode' => cache_store::MODE_REQUEST,
+        'simplekeys' => true,
+        'invalidationevents' => ['setbackusercoursestate'],
+    ],
     'bookedusertable' => [
         'mode' => cache_store::MODE_APPLICATION,
         'simplekeys' => true,

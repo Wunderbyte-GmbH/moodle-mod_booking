@@ -24,15 +24,14 @@
  */
 namespace mod_booking\bo_availability\conditions;
 
-use context_course;
 use context_system;
-use Exception;
 use mod_booking\bo_availability\bo_condition;
 use mod_booking\bo_availability\freezable_condition;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\bo_availability\sqlfilter_form_support;
 use mod_booking\bo_availability\sqlfilter_relevance;
 use mod_booking\booking_option_settings;
+use mod_booking\local\user_course_state;
 use mod_booking\singleton_service;
 use mod_booking\utils\wb_payment;
 use moodle_url;
@@ -164,41 +163,27 @@ class enrolledincourse implements bo_condition, freezable_condition {
         if (empty($this->customsettings->courseids)) {
             $isavailable = true;
         } else {
-            $courseids = $this->customsettings->courseids;
-            $enrolled = true; // We start with true.
-
-            if (empty($this->customsettings->courseidsoperator) || $this->customsettings->courseidsoperator != 'OR') {
-                foreach ($courseids as $courseid) {
-                    try {
-                        $context = context_course::instance($courseid);
-                        $enrolled = $enrolled && is_enrolled($context, $userid, '', true);
-                    } catch (Exception $e) {
-                        // If the course does not exist anymore, we can't be enrolled.
-                        $enrolled = false;
-                    }
-
-                    // We only get true, if the user is enrolled in ALL courses of the condition.
-                }
-            } else {
-                $enrolled = false;
-                foreach ($courseids as $courseid) {
-                    try {
-                        $context = context_course::instance($courseid);
-                        // As soon as we find an enrollement, we break.
-                        if (is_enrolled($context, $userid)) {
-                            $enrolled = true;
-                            break;
-                        }
-                    } catch (Exception $e) {
-                        // Do nothing. Just so linter does not call it empty.
-                        $a = 1;
-                    }
-
-                    // We only get true, if the user is enrolled in one of the courses of the condition.
+            // Enrolments and completions come from the per-user course state cache: no query per
+            // option and course. With "require completion" the course counts only once the user
+            // has completed it (a completion record outlives the enrolment, so enrolment is not
+            // required on top). A course that does not exist (anymore) is neither.
+            $requirecompletion = self::requires_completion($this->customsettings);
+            $matches = 0;
+            $courseids = array_map('intval', (array)$this->customsettings->courseids);
+            foreach ($courseids as $courseid) {
+                $fulfilled = $requirecompletion
+                    ? user_course_state::has_completed($userid, $courseid)
+                    : user_course_state::is_enrolled($userid, $courseid);
+                if ($fulfilled) {
+                    $matches++;
                 }
             }
 
-            $isavailable = $enrolled;
+            if (self::operator($this->customsettings) === 'OR') {
+                $isavailable = $matches > 0;
+            } else {
+                $isavailable = $matches === count($courseids);
+            }
         }
 
         // If it's inversed, we inverse.
@@ -224,9 +209,10 @@ class enrolledincourse implements bo_condition, freezable_condition {
             $userid = $USER->id;
         }
 
-        // Get all courses where the user is enrolled.
-        $usercourses = enrol_get_users_courses($userid);
-        $usercourseids = array_keys($usercourses);
+        // All courses the user is actively enrolled in, from the per-user course state cache.
+        // Conditions that require completion are never saved with the sql filter (see
+        // get_condition_object_for_json()), so the enrolled set is the only one the filter needs.
+        $usercourseids = user_course_state::enrolled_courseids($userid);
         // Trim to the course ids any sqlfilter condition references site-wide:
         // other ids can never match a configured condition, but they would make
         // the SQL string (and with it the table cache key) unique per user.
@@ -455,6 +441,7 @@ class enrolledincourse implements bo_condition, freezable_condition {
             'bo_cond_enrolledincourse_restrict',
             'bo_cond_enrolledincourse_courseids',
             'bo_cond_enrolledincourse_courseids_operator',
+            'bo_cond_enrolledincourse_requirecompletion',
             'bo_cond_enrolledincourse_sqlfiltercheck',
             'bo_cond_enrolledincourse_sqlfiltercheck_disablednote',
             'bo_cond_enrolledincourse_overrideconditioncheckbox',
@@ -526,15 +513,32 @@ class enrolledincourse implements bo_condition, freezable_condition {
             $mform->setDefault('bo_cond_enrolledincourse_courseids_operator', 'AND');
             $mform->hideIf('bo_cond_enrolledincourse_courseids_operator', 'bo_cond_enrolledincourse_restrict', 'notchecked');
 
+            // Require the course(s) to be completed, not only enrolled.
+            $mform->addElement(
+                'advcheckbox',
+                'bo_cond_enrolledincourse_requirecompletion',
+                get_string('bocondenrolledincourserequirecompletion', 'mod_booking')
+            );
+            $mform->addHelpButton(
+                'bo_cond_enrolledincourse_requirecompletion',
+                'bocondenrolledincourserequirecompletion',
+                'mod_booking'
+            );
+            $mform->hideIf('bo_cond_enrolledincourse_requirecompletion', 'bo_cond_enrolledincourse_restrict', 'notchecked');
+
+            // The sql filter hides options by the enrolled courses only, so it is not offered together
+            // with the completion requirement.
             $mform->addElement(
                 'advcheckbox',
                 'bo_cond_enrolledincourse_sqlfiltercheck',
                 get_string('sqlfiltercheckstring', 'mod_booking')
             );
             $mform->hideIf('bo_cond_enrolledincourse_sqlfiltercheck', 'bo_cond_enrolledincourse_restrict', 'notchecked');
+            $mform->hideIf('bo_cond_enrolledincourse_sqlfiltercheck', 'bo_cond_enrolledincourse_requirecompletion', 'checked');
             $notename = sqlfilter_form_support::freeze_when_disabled($mform, 'bo_cond_enrolledincourse_sqlfiltercheck');
             if ($notename !== null) {
                 $mform->hideIf($notename, 'bo_cond_enrolledincourse_restrict', 'notchecked');
+                $mform->hideIf($notename, 'bo_cond_enrolledincourse_requirecompletion', 'checked');
             }
 
             $mform->addElement(
@@ -649,7 +653,12 @@ class enrolledincourse implements bo_condition, freezable_condition {
             $conditionobject->class = $classname;
             $conditionobject->courseids = $fromform->bo_cond_enrolledincourse_courseids;
             $conditionobject->courseidsoperator = $fromform->bo_cond_enrolledincourse_courseids_operator;
-            $conditionobject->sqlfilter = (string) ($fromform->bo_cond_enrolledincourse_sqlfiltercheck ?? 0);
+            $conditionobject->requirecompletion = !empty($fromform->bo_cond_enrolledincourse_requirecompletion) ? 1 : 0;
+            // The sql filter only knows enrolments; with the completion requirement it must stay off,
+            // otherwise it would hide options from users who completed the course after unenrolment.
+            $conditionobject->sqlfilter = $conditionobject->requirecompletion
+                ? "0"
+                : (string) ($fromform->bo_cond_enrolledincourse_sqlfiltercheck ?? 0);
 
             if (!empty($fromform->bo_cond_enrolledincourse_overrideconditioncheckbox)) {
                 $conditionobject->overrides = $fromform->bo_cond_enrolledincourse_overridecondition;
@@ -670,6 +679,7 @@ class enrolledincourse implements bo_condition, freezable_condition {
             $defaultvalues->bo_cond_enrolledincourse_restrict = "1";
             $defaultvalues->bo_cond_enrolledincourse_courseids = $acdefault->courseids;
             $defaultvalues->bo_cond_enrolledincourse_courseids_operator = $acdefault->courseidsoperator ?? 'AND';
+            $defaultvalues->bo_cond_enrolledincourse_requirecompletion = self::requires_completion($acdefault) ? "1" : "0";
             $defaultvalues->bo_cond_enrolledincourse_sqlfiltercheck = $acdefault->sqlfilter ?? "";
         }
         if (!empty($acdefault->overrides)) {
@@ -766,20 +776,44 @@ class enrolledincourse implements bo_condition, freezable_condition {
 
             $a = implode(', ', $coursestringsarr);
 
-            if (
-                isset($this->customsettings->courseidsoperator)
-                && $this->customsettings->courseidsoperator == 'OR'
-            ) {
-                $description = $full ?
-                    get_string('bocondenrolledincoursefullnotavailable', 'mod_booking', $a) :
-                    get_string('bocondenrolledincoursenotavailable', 'mod_booking', $a);
+            $or = self::operator($this->customsettings) === 'OR';
+            if (self::requires_completion($this->customsettings)) {
+                $identifier = $or ? 'bocondenrolledincoursenotcompleted' : 'bocondenrolledincoursenotcompletedand';
             } else {
-                $description = $full ?
-                    get_string('bocondenrolledincoursefullnotavailableand', 'mod_booking', $a) :
-                    get_string('bocondenrolledincoursenotavailableand', 'mod_booking', $a);
+                $identifier = $or ? 'bocondenrolledincoursenotavailable' : 'bocondenrolledincoursenotavailableand';
             }
+            if ($full) {
+                $identifier = str_replace('bocondenrolledincourse', 'bocondenrolledincoursefull', $identifier);
+            }
+            // Mdlcode-disable-next-line cannot-parse-string.
+            $description = get_string($identifier, 'mod_booking', $a);
         }
 
         return $description;
+    }
+
+    /**
+     * Does the saved condition require course completion (instead of enrolment only)?
+     *
+     * Conditions saved before this option existed carry no key and require enrolment only.
+     *
+     * @param ?stdClass $customsettings
+     * @return bool
+     */
+    public static function requires_completion(?stdClass $customsettings): bool {
+        return !empty($customsettings->requirecompletion);
+    }
+
+    /**
+     * Returns the operator that combines the courses: AND (all) or OR (at least one).
+     *
+     * @param ?stdClass $customsettings
+     * @return string 'AND' or 'OR'
+     */
+    public static function operator(?stdClass $customsettings): string {
+        if (!empty($customsettings->courseidsoperator) && $customsettings->courseidsoperator === 'OR') {
+            return 'OR';
+        }
+        return 'AND';
     }
 }

@@ -40,6 +40,7 @@ use mod_booking\local\calendar\calendar_helper;
 use mod_booking\local\certificateclass;
 use mod_booking\local\certificate_conditions\certificate_conditions;
 use mod_booking\local\ticket\ticket_manager;
+use mod_booking\local\user_course_state;
 use mod_booking\local\checkanswers\checkanswers;
 use mod_booking\local\mobile\customformstore;
 use mod_booking\local\search\reindex;
@@ -110,6 +111,7 @@ class mod_booking_observer {
      * @param \core\event\user_enrolment_deleted $event
      */
     public static function user_enrolment_deleted(\core\event\user_enrolment_deleted $event) {
+        self::user_course_state_changed($event);
         $cp = (object) $event->other['userenrolment'];
 
         // Removing the user's responses is heavy (waitlist sync, mails, unenrolments from
@@ -478,6 +480,21 @@ class mod_booking_observer {
     }
 
     /**
+     * A user's enrolments or course completions changed: drop the cached course state the
+     * availability conditions read (see {@see user_course_state}).
+     *
+     * Bound to user_enrolment_created / _updated / _deleted, course_completed and
+     * course_completion_updated. The affected user is relateduserid; course_completion_updated
+     * (a course's completion settings were edited) carries no user, so every entry is dropped.
+     *
+     * @param \core\event\base $event
+     * @return void
+     */
+    public static function user_course_state_changed(\core\event\base $event): void {
+        user_course_state::invalidate((int)($event->relateduserid ?? 0));
+    }
+
+    /**
      * When a course is completed, check if the user needs to be enrolled in the next course.
      *
      * @param \core\event\course_completed $event
@@ -487,6 +504,8 @@ class mod_booking_observer {
      */
     public static function course_completed(\core\event\course_completed $event) {
         global $DB, $CFG;
+
+        self::user_course_state_changed($event);
 
         // Check if there is an associated booking_answer with status 'booked' for the userid and courseid.
         $sql = 'SELECT ba.id, ba.userid, bo.courseid, ba.optionid, ba.completed

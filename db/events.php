@@ -47,6 +47,18 @@ $observers = [
         'callback' => 'mod_booking_observer::user_enrolment_deleted',
     ],
     [
+        'eventname' => '\core\event\user_enrolment_created',
+        'callback' => 'mod_booking_observer::user_course_state_changed',
+    ],
+    [
+        'eventname' => '\core\event\user_enrolment_updated',
+        'callback' => 'mod_booking_observer::user_course_state_changed',
+    ],
+    [
+        'eventname' => '\core\event\course_completion_updated',
+        'callback' => 'mod_booking_observer::user_course_state_changed',
+    ],
+    [
         'eventname' => '\mod_booking\event\bookingoption_created',
         'callback' => 'mod_booking_observer::bookingoption_created',
     ],
