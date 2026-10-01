@@ -277,8 +277,11 @@ final class listtoapprove_trainer_test extends advanced_testcase {
     }
 
     /**
-     * Calls the real [listtoapprove] shortcode and returns its HTML output together with
-     * the rendered table, re-instantiated from the data-encodedtable hash in the HTML.
+     * Calls the real [listtoapprove] shortcode and returns the HTML a browser would end up with
+     * together with the rendered table. The shortcode renders the table lazily: its output only
+     * holds the container and the page gets an inline JS call with the table cache hash, which
+     * the browser sends to the load_data web service. This helper does the same: it takes the
+     * hash from the inline JS, re-instantiates the table from the cache and renders its rows.
      * The table is null if the shortcode did not render one (no answers to confirm).
      *
      * @return array [string $html, ?wunderbyte_table $table]
@@ -286,7 +289,7 @@ final class listtoapprove_trainer_test extends advanced_testcase {
     private function get_table_from_listtoapprove_shortcode(): array {
         global $PAGE;
 
-        // Use a fresh page for each call, so context & url can be set repeatedly.
+        // Use a fresh page for each call, so context, url and the inline JS can be set repeatedly.
         $PAGE = new \moodle_page();
         $PAGE->set_context(\context_system::instance());
         $PAGE->set_url(new \moodle_url('/mod/booking/tests/confirmation/listtoapprove_trainer_test.php'));
@@ -302,12 +305,16 @@ final class listtoapprove_trainer_test extends advanced_testcase {
         }
         $this->assertStringNotContainsString('alert-warning', $html, 'The shortcode returned an error message.');
 
-        if (!preg_match('/<div[^>]*\sdata-encodedtable=["\']?([^"\'>\s]+)["\']?/i', $html, $matches)) {
+        // The lazy table hands its cache hash to the browser via init.init('<idstring>', '<hash>').
+        $inlinejs = $PAGE->requires->get_end_code();
+        if (!preg_match('/init\.init\(\s*[\'"][^\'"]+[\'"]\s*,\s*[\'"]([0-9a-f]{32})[\'"]\s*\)/', $inlinejs, $matches)) {
             return [$html, null];
         }
 
         $table = wunderbyte_table::instantiate_from_tablecache_hash($matches[1]);
-        $table->printtable($table->pagesize, $table->useinitialsbar, $table->downloadhelpbutton);
+        $this->assertInstanceOf(wunderbyte_table::class, $table, 'The lazy table must be cached under its hash.');
+        // Render the rows the way the load_data web service does for the browser.
+        $html .= $table->outhtml($table->pagesize, false);
         return [$html, $table];
     }
 }

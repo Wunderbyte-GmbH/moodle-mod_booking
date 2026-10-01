@@ -84,9 +84,11 @@ class confirmation_trainer extends field_base {
 
     /**
      * Additionally to the classname, there might be others keys which should instantiate this class.
+     * An import (CSV, web service, test generator) carries the form key of the checkbox, so the
+     * trainer workflow can be enabled for an option without the class name being a column.
      * @var array
      */
-    public static $alternativeimportidentifiers = [];
+    public static $alternativeimportidentifiers = ['confirmationtrainerenabled'];
 
     /**
      * This is an array of incompatible field ids.

@@ -56,8 +56,8 @@ Feature: In a course add a booking option and manage its waiting list
   @javascript
   Scenario: Booking option: reorder waiting list and waitinglistshowplaceonwaitinglist setings
     Given the following "mod_booking > options" exist:
-      | booking    | text                 | course | description  | importing | teachersforoption | maxanswers | maxoverbooking | datesmarker | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 | waitforconfirmation |
-      | My booking | Option: waiting list | C1     | Waiting list | 1         | teacher1          | 5          | 5              | 1           | 0              | 0              | ## tomorrow ##    | ## +2 days ##   | 1                   |
+      | booking    | text                 | course | description  | importing | teachersforoption | maxanswers | maxoverbooking | datesmarker | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 | waitforconfirmation | confirmationtrainerenabled |
+      | My booking | Option: waiting list | C1     | Waiting list | 1         | teacher1          | 5          | 5              | 1           | 0              | 0              | ## tomorrow ##    | ## +2 days ##   | 1                   | 1                          |
     And the following config values are set as admin:
       | config                            | value | plugin  |
       | waitinglistshowplaceonwaitinglist |       | booking |
@@ -104,8 +104,8 @@ Feature: In a course add a booking option and manage its waiting list
       | pricecategoryfield                | userpricecat | booking |
       | waitinglistshowplaceonwaitinglist |              | booking |
     And the following "mod_booking > options" exist:
-      | booking    | text                    | course | description  | importing | teachersforoption | useprice | maxanswers | maxoverbooking | datesmarker | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 | waitforconfirmation |
-      | My booking | Waiting_list_with_price | C1     | Waiting list | 1         | teacher1          | 1        | 2          | 3              | 1           | 0              | 0              | ## tomorrow ##    | ## +2 days ##   | 1                   |
+      | booking    | text                    | course | description  | importing | teachersforoption | useprice | maxanswers | maxoverbooking | datesmarker | optiondateid_0 | daystonotify_0 | coursestarttime_0 | courseendtime_0 | waitforconfirmation | confirmationtrainerenabled |
+      | My booking | Waiting_list_with_price | C1     | Waiting list | 1         | teacher1          | 1        | 2          | 3              | 1           | 0              | 0              | ## tomorrow ##    | ## +2 days ##   | 1                   | 1                          |
     And the following "mod_booking > answers" exist:
       | booking    | option                  | user     |
       | My booking | Waiting_list_with_price | student1 |
