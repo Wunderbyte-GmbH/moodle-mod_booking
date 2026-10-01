@@ -302,8 +302,11 @@ final class recurringoptions_test extends booking_advanced_testcase {
             // Verify that previouslybooked condition was applied.
             if ($expected['previouslybooked']) {
                 $this->assertNotEmpty($childdata->bo_cond_previouslybooked_restrict);
-                // This could be extended to make sure, it's really the right optionids here.
-                $this->assertIsNumeric($childdata->bo_cond_previouslybooked_optionid);
+                // The form field holds a list of option ids since several options can be required;
+                // recurring options reference exactly one (the previous sibling).
+                $this->assertIsArray($childdata->bo_cond_previouslybooked_optionid);
+                $this->assertCount(1, $childdata->bo_cond_previouslybooked_optionid);
+                $this->assertIsNumeric(reset($childdata->bo_cond_previouslybooked_optionid));
             } else {
                 $this->assertFalse(property_exists($childdata, 'bo_cond_previouslybooked_restrict'));
             }

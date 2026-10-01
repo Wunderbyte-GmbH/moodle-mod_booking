@@ -413,6 +413,7 @@ $string['allmailssend'] = 'Alle Benachrichtigungen wurden erfolgreich versandt!'
 $string['allmoodleusers'] = 'Alle Nutzer:innen dieser Website';
 $string['alloptionsinreport'] = 'Report über alle Buchungen einer Instanz <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['alloptionsinreportdesc'] = 'Der Report einer Buchungsoption beinhaltet alle Buchungen der ganzen Instanz';
+$string['alloptionsmustbebooked'] = 'Alle ausgewählten Buchungsoptionen müssen gebucht sein';
 $string['allowbookingafterstart'] = 'Buchen nach Kursbeginn erlauben';
 $string['allowoverbooking'] = 'Überbuchen erlauben';
 $string['allowoverbookingheader'] = 'Buchungsoptionen überbuchen <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
@@ -711,10 +712,17 @@ $string['bocondoptionhasstartednotavailable'] = 'Bereits begonnen - Buchen nicht
 $string['bocondotheroptionsavailable'] = 'Verknüpfte Buchungsoptionen nicht verfügbar';
 $string['bocondpreviouslybooked'] = 'Benutzer:in hat früher eine bestimmte Option gebucht';
 $string['bocondpreviouslybookedavailable'] = 'Buchen';
+$string['bocondpreviouslybookeddeletedoption'] = 'Gelöschte Buchungsoption (ID {$a})';
 $string['bocondpreviouslybookedfullavailable'] = 'Buchen möglich';
 $string['bocondpreviouslybookedfullnotavailable'] = 'Nur Benutzer:innen, die früher bereits <a href="{$a->url}">{$a->title}</a> gebucht haben, dürfen buchen.
  <br>Sie haben aber das Recht dennoch zu buchen.';
+$string['bocondpreviouslybookedfullnotavailableall'] = 'Nur Benutzer:innen, die früher bereits alle folgenden Optionen gebucht haben, dürfen buchen: {$a}';
+$string['bocondpreviouslybookedfullnotavailableany'] = 'Nur Benutzer:innen, die früher bereits zumindest eine der folgenden Optionen gebucht haben, dürfen buchen: {$a}';
+$string['bocondpreviouslybookednooption'] = 'In der Verfügbarkeitsbedingung „früher gebucht“ ist keine Buchungsoption ausgewählt.';
 $string['bocondpreviouslybookednotavailable'] = 'Nur Benutzer:innen, die früher bereits <a href="{$a->url}">{$a->title}</a> gebucht haben, dürfen buchen.';
+$string['bocondpreviouslybookednotavailableall'] = 'Nur Benutzer:innen, die früher bereits alle folgenden Optionen gebucht haben, dürfen buchen: {$a}';
+$string['bocondpreviouslybookednotavailableany'] = 'Nur Benutzer:innen, die früher bereits zumindest eine der folgenden Optionen gebucht haben, dürfen buchen: {$a}';
+$string['bocondpreviouslybookedoperator'] = 'Welche der ausgewählten Buchungsoptionen gebucht sein müssen';
 $string['bocondpreviouslybookedoptionid'] = 'Buchungsoption';
 $string['bocondpreviouslybookedrequirecompletion'] = 'Abschluss der ausgewählten Buchungsoption erforderlich';
 $string['bocondpreviouslybookedrestrict'] = 'User hat früher bereits eine bestimmte Option gebucht';
@@ -2809,6 +2817,7 @@ $string['on'] = "An";
 $string['onecohortmustbefound'] = 'Zumindest eine dieser globalen Gruppen muss zutreffen';
 $string['onecompetencymustbefound'] = 'Nutzer:in muss mind. eine dieser Kompetenzen haben';
 $string['onecoursemustbefound'] = 'Zumindest einer dieser Kurse muss gebucht sein';
+$string['oneoptionmustbebooked'] = 'Zumindest eine der ausgewählten Buchungsoptionen muss gebucht sein';
 $string['onlineoptiondate'] = 'Findet online statt';
 $string['onlyaddactionsonsavedoption'] = "Aktionen nach der Buchung könnnen nur zu schon gespeicherte Optionen hinzugefügt werden.";
 $string['onlyaddentitiesonsavedsubbooking'] = "Sie müssen diese neue zusätzliche Buchungsoption speichern, bevor sie Entities hinzufügen können.";

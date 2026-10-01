@@ -212,6 +212,20 @@ class singleton_service {
     }
 
     /**
+     * Drops the per-user answers of ALL users from this request's singleton.
+     *
+     * Called whenever answers change (see booking_option::broadcast_answer_caches()), so that a
+     * per-user check later in the same request (e.g. a prerequisite option that was just booked
+     * or completed) does not read the answers loaded before the change.
+     *
+     * @return void
+     */
+    public static function destroy_answers_for_all_users(): void {
+        $instance = self::get_instance();
+        $instance->bookinganswersforuser = [];
+    }
+
+    /**
      * Service to store the array of answers in the singleton.
      * @param int $userid
      * @param int $bookingid

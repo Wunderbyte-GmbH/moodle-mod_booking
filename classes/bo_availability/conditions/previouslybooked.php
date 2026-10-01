@@ -161,34 +161,46 @@ class previouslybooked implements bo_condition, freezable_condition {
         // This is the return value. Not available to begin with.
         $isavailable = false;
 
-        if (
-            empty($this->customsettings->optionid
-            || (!isloggedin() || isguestuser()))
-        ) {
+        $optionids = self::required_optionids($this->customsettings);
+
+        if (empty($optionids) || !isloggedin() || isguestuser()) {
             $isavailable = true;
         } else {
-            $optionid = $this->customsettings->optionid;
-            $optionsettings = singleton_service::get_instance_of_booking_option_settings($optionid);
+            // The user's own answers across all instances are already in the per-user cache
+            // (session cache + request singleton, see booking_answers::get_all_answers_for_user_cached()).
+            // We never load the answers of the referenced options themselves: that would cost one
+            // answers object (and query) per prerequisite option for every option rendered.
+            $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
+            $myanswers = $bookinganswer->get_all_answers_for_user($userid, 0, [
+                MOD_BOOKING_STATUSPARAM_BOOKED,
+                MOD_BOOKING_STATUSPARAM_WAITINGLIST,
+                MOD_BOOKING_STATUSPARAM_RESERVED,
+            ]);
 
-            // There might be a booking option specified which does not exist (anymore).
-            // Only if there is an id, we can really check.
-            if (!empty($optionsettings->id)) {
-                $bookinganswer = singleton_service::get_instance_of_booking_answers($optionsettings);
-                $bookinginformation = $bookinganswer->return_all_booking_information($userid);
-
-                if (isset($bookinginformation['iambooked'])) {
-                    // If completion is required, ensure the user completed the referenced option.
-                    $requirecompletion = !empty($this->customsettings->requirecompletion);
-                    if ($requirecompletion) {
-                        $ba = singleton_service::get_instance_of_booking_answers($optionsettings);
-                        $isavailable = ($ba->is_activity_completed($userid) === 1);
-                    } else {
-                        $isavailable = true;
-                    }
+            $requirecompletion = !empty($this->customsettings->requirecompletion);
+            $fulfilled = [];
+            foreach ($myanswers as $answer) {
+                if ((int)$answer->waitinglist !== MOD_BOOKING_STATUSPARAM_BOOKED) {
+                    continue;
                 }
+                if ($requirecompletion && (int)($answer->completed ?? 0) !== 1) {
+                    continue;
+                }
+                $fulfilled[(int)$answer->optionid] = true;
+            }
+
+            $matches = 0;
+            foreach ($optionids as $optionid) {
+                if (isset($fulfilled[$optionid])) {
+                    $matches++;
+                }
+            }
+
+            if (self::operator($this->customsettings) === 'OR') {
+                $isavailable = $matches > 0;
             } else {
-                // If not, it's not available.
-                $isavailable = false;
+                // A referenced option that does not exist (anymore) can never be booked, so AND fails.
+                $isavailable = $matches === count($optionids);
             }
         }
 
@@ -198,6 +210,42 @@ class previouslybooked implements bo_condition, freezable_condition {
         }
 
         return $isavailable;
+    }
+
+    /**
+     * Returns the ids of the booking options this condition requires.
+     *
+     * Reads the current "optionids" array and, for conditions saved before several options
+     * could be selected, the legacy single "optionid".
+     *
+     * @param ?stdClass $customsettings
+     * @return int[] distinct option ids, empty when the condition has no option
+     */
+    public static function required_optionids(?stdClass $customsettings): array {
+        if (empty($customsettings)) {
+            return [];
+        }
+        $optionids = [];
+        if (!empty($customsettings->optionids)) {
+            $optionids = (array)$customsettings->optionids;
+        } else if (!empty($customsettings->optionid)) {
+            $optionids = (array)$customsettings->optionid;
+        }
+        $optionids = array_values(array_unique(array_filter(array_map('intval', $optionids))));
+        return $optionids;
+    }
+
+    /**
+     * Returns the operator that combines the required options: AND (all) or OR (at least one).
+     *
+     * @param ?stdClass $customsettings
+     * @return string 'AND' or 'OR'
+     */
+    public static function operator(?stdClass $customsettings): string {
+        if (!empty($customsettings->optionidsoperator) && $customsettings->optionidsoperator === 'OR') {
+            return 'OR';
+        }
+        return 'AND';
     }
 
     /**
@@ -281,6 +329,7 @@ class previouslybooked implements bo_condition, freezable_condition {
         return [
             'bo_cond_previouslybooked_restrict',
             'bo_cond_previouslybooked_optionid',
+            'bo_cond_previouslybooked_optionidsoperator',
             'bo_cond_previouslybooked_requirecompletion',
             'bo_cond_previouslybooked_overrideconditioncheckbox',
             'bo_cond_previouslybooked_overrideoperator',
@@ -308,7 +357,7 @@ class previouslybooked implements bo_condition, freezable_condition {
 
             $previouslybookedoptions = [
                 'tags' => false,
-                'multiple' => false,
+                'multiple' => true,
                 'noselectionstring' => get_string('choose...', 'mod_booking'),
                 'ajax' => 'mod_booking/form_booking_options_selector',
                 'valuehtmlcallback' => function ($value) {
@@ -340,6 +389,23 @@ class previouslybooked implements bo_condition, freezable_condition {
             );
             $mform->setType('bo_cond_previouslybooked_optionid', PARAM_INT);
             $mform->hideIf('bo_cond_previouslybooked_optionid', 'bo_cond_previouslybooked_restrict', 'notchecked');
+
+            // How the selected options combine: all of them (AND) or at least one (OR).
+            $mform->addElement(
+                'select',
+                'bo_cond_previouslybooked_optionidsoperator',
+                get_string('bocondpreviouslybookedoperator', 'mod_booking'),
+                [
+                    'AND' => get_string('alloptionsmustbebooked', 'mod_booking'),
+                    'OR' => get_string('oneoptionmustbebooked', 'mod_booking'),
+                ]
+            );
+            $mform->setDefault('bo_cond_previouslybooked_optionidsoperator', 'AND');
+            $mform->hideIf(
+                'bo_cond_previouslybooked_optionidsoperator',
+                'bo_cond_previouslybooked_restrict',
+                'notchecked'
+            );
 
             // Require completion of the selected booking option before allowing booking.
             $mform->addElement(
@@ -466,7 +532,15 @@ class previouslybooked implements bo_condition, freezable_condition {
             $conditionobject->id = $this->id;
             $conditionobject->name = $shortclassname;
             $conditionobject->class = $classname;
-            $conditionobject->optionid = $fromform->bo_cond_previouslybooked_optionid;
+            // The form field accepts one id (legacy callers, easy availability, import) or an array.
+            $optionids = self::required_optionids((object)[
+                'optionids' => $fromform->bo_cond_previouslybooked_optionid ?? [],
+            ]);
+            $conditionobject->optionids = $optionids;
+            $conditionobject->optionidsoperator =
+                ($fromform->bo_cond_previouslybooked_optionidsoperator ?? 'AND') === 'OR' ? 'OR' : 'AND';
+            // Readers that still expect a single option get the first one.
+            $conditionobject->optionid = $optionids[0] ?? 0;
 
             // Persist completion requirement.
             if (!empty($fromform->bo_cond_previouslybooked_requirecompletion)) {
@@ -488,9 +562,11 @@ class previouslybooked implements bo_condition, freezable_condition {
      * @param stdClass $acdefault the condition object from JSON
      */
     public function set_defaults(stdClass &$defaultvalues, stdClass $acdefault) {
-        if (!empty($acdefault->optionid)) {
+        $optionids = self::required_optionids($acdefault);
+        if (!empty($optionids)) {
             $defaultvalues->bo_cond_previouslybooked_restrict = "1";
-            $defaultvalues->bo_cond_previouslybooked_optionid = $acdefault->optionid;
+            $defaultvalues->bo_cond_previouslybooked_optionid = $optionids;
+            $defaultvalues->bo_cond_previouslybooked_optionidsoperator = self::operator($acdefault);
         }
         if (!empty($acdefault->requirecompletion)) {
             $defaultvalues->bo_cond_previouslybooked_requirecompletion = "1";
@@ -574,30 +650,68 @@ class previouslybooked implements bo_condition, freezable_condition {
                 }
             }
 
-            if (!isset($this->customsettings->optionid)) {
-                return 'something is wrong here';
+            $optionids = self::required_optionids($this->customsettings);
+            if (empty($optionids)) {
+                return get_string('bocondpreviouslybookednooption', 'mod_booking');
             }
-            $settings = singleton_service::get_instance_of_booking_option_settings($this->customsettings->optionid);
-            $url = new moodle_url('/mod/booking/optionview.php', [
-                'optionid' => $this->customsettings->optionid,
-                'cmid' => $settings->cmid,
-            ]);
 
-            $a = new stdClass();
-            $a->url = $url->out(false);
-            /* Nothing formats the button label downstream, so without format_string() a title with
-            multilang tags like {mlang de}...{mlang} reaches the user as literal tags. The context is
-            passed explicitly for callers without a $PAGE->context (cron, tasks, web services). */
-            $a->title = format_string(
-                $settings->get_title_with_prefix(),
-                true,
-                ['context' => context_module::instance($settings->cmid)]
-            );
-            $description = $full ?
-                get_string('bocondpreviouslybookedfullnotavailable', 'mod_booking', $a) :
-                get_string('bocondpreviouslybookednotavailable', 'mod_booking', $a);
+            $links = [];
+            foreach ($optionids as $optionid) {
+                $links[] = self::option_link($optionid);
+            }
+
+            if (count($links) === 1) {
+                $description = $full ?
+                    get_string('bocondpreviouslybookedfullnotavailable', 'mod_booking', $links[0]) :
+                    get_string('bocondpreviouslybookednotavailable', 'mod_booking', $links[0]);
+            } else {
+                $a = implode(', ', array_map(
+                    fn(stdClass $link) => '<a href="' . $link->url . '">' . $link->title . '</a>',
+                    $links
+                ));
+                if (self::operator($this->customsettings) === 'OR') {
+                    $description = $full ?
+                        get_string('bocondpreviouslybookedfullnotavailableany', 'mod_booking', $a) :
+                        get_string('bocondpreviouslybookednotavailableany', 'mod_booking', $a);
+                } else {
+                    $description = $full ?
+                        get_string('bocondpreviouslybookedfullnotavailableall', 'mod_booking', $a) :
+                        get_string('bocondpreviouslybookednotavailableall', 'mod_booking', $a);
+                }
+            }
         }
 
         return $description;
+    }
+
+    /**
+     * Url and formatted title of a referenced option, for the description strings.
+     *
+     * @param int $optionid
+     * @return stdClass with "url" and "title"
+     */
+    private static function option_link(int $optionid): stdClass {
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $a = new stdClass();
+        if (empty($settings->id)) {
+            // The referenced option was deleted; still name it so the configuration error is visible.
+            $a->url = '';
+            $a->title = get_string('bocondpreviouslybookeddeletedoption', 'mod_booking', $optionid);
+            return $a;
+        }
+        $url = new moodle_url('/mod/booking/optionview.php', [
+            'optionid' => $optionid,
+            'cmid' => $settings->cmid,
+        ]);
+        $a->url = $url->out(false);
+        /* Nothing formats the button label downstream, so without format_string() a title with
+        multilang tags like {mlang de}...{mlang} reaches the user as literal tags. The context is
+        passed explicitly for callers without a $PAGE->context (cron, tasks, web services). */
+        $a->title = format_string(
+            $settings->get_title_with_prefix(),
+            true,
+            ['context' => context_module::instance($settings->cmid)]
+        );
+        return $a;
     }
 }

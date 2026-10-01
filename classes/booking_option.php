@@ -4896,6 +4896,7 @@ class booking_option {
      */
     public static function broadcast_answer_caches() {
         cache_helper::purge_by_event('setbacksessionanswers');
+        singleton_service::destroy_answers_for_all_users();
         cache_helper::purge_by_event('setbackbookedusertable');
         cache_helper::purge_by_event('setbackmyoptionstable');
     }
