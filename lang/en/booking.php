@@ -1798,6 +1798,7 @@ $string['dates'] = 'Dates';
 $string['datesandentities'] = 'Given dates with given entities';
 $string['datescompact'] = 'Dates in compact form: one line per day, times on the same day combined';
 $string['datesheader'] = 'Dates';
+$string['dateswithduration'] = 'Period with duration (start - end and calculated hours)';
 $string['dayofweek'] = 'Weekday';
 $string['dayofweektime'] = 'Day & Time';
 $string['days'] = '{$a} days';

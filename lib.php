@@ -3263,6 +3263,13 @@ function mod_booking_tool_certificate_fields() {
         get_string('duration', 'mod_booking'),
     );
     $handler->ensure_field_exists(
+        'dateswithduration',
+        'text',
+        get_string('dateswithduration', 'mod_booking'),
+        true,
+        get_string('dateswithduration', 'mod_booking'),
+    );
+    $handler->ensure_field_exists(
         'location',
         'text',
         get_string('location', 'mod_booking'),
