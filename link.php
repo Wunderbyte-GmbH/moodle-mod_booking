@@ -45,6 +45,11 @@ if ($action !== 'join') {
     die();
 }
 
+// The conference redirect below runs before require_login(). Set the course module now: loading the
+// option runs the text filters, which may set up the theme, and require_login() could then no longer
+// set the course.
+$PAGE->set_cm($cm, $course);
+
 if (!$bookingoption = singleton_service::get_instance_of_booking_option($cm->id, $optionid)) {
     die();
 }

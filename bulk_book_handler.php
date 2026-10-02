@@ -25,7 +25,7 @@
 require_once('../../config.php');
 
 use core\task\manager;
-use mod_booking\singleton_service;
+use mod_booking\booking_option;
 use mod_booking\task\book_all_students_task;
 
 $optionid = required_param('optionid', PARAM_INT);
@@ -35,19 +35,14 @@ if (!confirm_sesskey($sesskey)) {
     throw new moodle_exception('invalidsesskey');
 }
 
-$settings = \mod_booking\singleton_service::get_instance_of_booking_option_settings($optionid);
-if (empty($settings) || empty($settings->id)) {
+// Not via the option settings: loading them runs the text filters, which may set up the theme
+// before require_login() sets the course.
+$cmid = booking_option::get_cmid_from_optionid_before_login($optionid);
+if (empty($cmid)) {
     throw new moodle_exception('invalidobjectid', 'error', '', 'booking option');
 }
 
-$bookingoption = \mod_booking\booking_option::create_option_from_optionid($optionid);
-if (empty($bookingoption)) {
-    throw new moodle_exception('invalidobjectid', 'error', '', 'booking option');
-}
-
-// Get the course module and course records for proper page setup.
-$cm = get_coursemodule_from_id('booking', $bookingoption->cmid, 0, false, MUST_EXIST);
-$course = $bookingoption->booking->course;
+[$course, $cm] = get_course_and_cm_from_cmid($cmid, 'booking');
 
 require_login($course, false, $cm);
 
@@ -64,7 +59,7 @@ manager::queue_adhoc_task($task);
 
 // Redirect back to the booking option view with success notification.
 $redirecturl = new moodle_url('/mod/booking/view.php', [
-    'id' => $bookingoption->cmid,
+    'id' => $cmid,
 ]);
 
 redirect(

@@ -5320,6 +5320,27 @@ class booking_option {
     }
 
     /**
+     * Get $cmid for $optionid without instantiating booking_option_settings.
+     *
+     * Loading the option settings formats customfield values through the text filters, and a filter
+     * may initialise the page theme. Page scripts that derive the course module from an option must
+     * resolve it before require_login() sets the course, so they use this lookup instead.
+     *
+     * @param int $optionid
+     * @return int 0 if the option or its booking instance does not exist.
+     */
+    public static function get_cmid_from_optionid_before_login(int $optionid): int {
+        global $DB;
+
+        $bookingid = $DB->get_field('booking_options', 'bookingid', ['id' => $optionid]);
+        if (empty($bookingid)) {
+            return 0;
+        }
+        $cm = get_coursemodule_from_instance('booking', $bookingid);
+        return $cm ? (int) $cm->id : 0;
+    }
+
+    /**
      * Returns an array with status and a label to be displayed on the booking button.
      * @param booking_option_settings $settings
      * @param int $userid

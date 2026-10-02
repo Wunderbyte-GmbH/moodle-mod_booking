@@ -31,6 +31,7 @@
 
 require_once(__DIR__ . '/../../config.php');
 
+use mod_booking\booking_option;
 use mod_booking\local\ticket\ticket_manager;
 use mod_booking\singleton_service;
 
@@ -39,11 +40,12 @@ $optionid = optional_param('optionid', 0, PARAM_INT);
 
 $settings = null;
 if (!empty($optionid)) {
-    $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
-    if (empty($settings->id)) {
+    // Not via the option settings: loading them runs the text filters, which may set up the theme
+    // before require_course_login() sets the course.
+    $cmid = booking_option::get_cmid_from_optionid_before_login($optionid);
+    if (empty($cmid)) {
         throw new moodle_exception('invalidrecord', 'error', '', 'booking_options');
     }
-    $cmid = (int) $settings->cmid;
 }
 if (empty($cmid)) {
     throw new moodle_exception('missingparam', 'error', '', 'id');
@@ -51,6 +53,10 @@ if (empty($cmid)) {
 
 [$course, $cm] = get_course_and_cm_from_cmid($cmid, 'booking');
 require_course_login($course, false, $cm);
+
+if (!empty($optionid)) {
+    $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+}
 
 $context = context_module::instance($cmid);
 ticket_manager::require_can_scan($cmid, $optionid);
