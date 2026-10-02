@@ -115,9 +115,9 @@ final class settings_loading_test extends advanced_testcase {
      * no PHP warning, notice, deprecation, exception or unexpected output occurs.
      *
      * @param bool $fulltree whether to build the full settings tree
-     * @return void
+     * @return \admin_root the admin tree the settings were loaded into
      */
-    private function load_settings_and_assert_clean(bool $fulltree): void {
+    private function load_settings_and_assert_clean(bool $fulltree): \admin_root {
         global $ADMIN;
 
         $mode = $fulltree ? 'fulltree' : 'non-fulltree';
@@ -207,5 +207,27 @@ final class settings_loading_test extends advanced_testcase {
                 'The main booking settings page contains no settings although the full tree was requested.'
             );
         }
+
+        return $adminroot;
+    }
+
+    /**
+     * The fields offered for the sign-in sheet are the booking custom fields defined on the custom field
+     * page (stored as customfield_<n>), never other settings whose names merely contain "customfield".
+     */
+    public function test_showcustfields_offers_only_defined_custom_fields(): void {
+        set_config('customfield_0', 'Room', 'booking');
+        set_config('customfield_0type', 'textfield', 'booking');
+        set_config('customfield_0options', '', 'booking');
+        set_config('cardoptionviewcustomfields', 'sport,botags', 'booking');
+        set_config('customfieldicon_sport', 'fa-futbol', 'booking');
+        set_config('customfieldsforview', '', 'booking');
+
+        $this->assertSame(['customfield_0'], array_keys(booking_option::get_customfield_settings()));
+
+        $adminroot = $this->load_settings_and_assert_clean(true);
+        $settings = $adminroot->locate('modsettingbooking')->settings;
+        $this->assertTrue(property_exists($settings, 'bookingshowcustfields'));
+        $this->assertSame(['customfield_0' => 'Room'], $settings->bookingshowcustfields->choices);
     }
 }

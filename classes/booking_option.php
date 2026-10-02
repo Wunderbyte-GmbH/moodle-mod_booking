@@ -3728,10 +3728,10 @@ class booking_option {
         $customfieldvals = \get_object_vars($bkgconfig);
         if (!empty($customfieldvals)) {
             foreach (array_keys($customfieldvals) as $customfieldname) {
-                $iscustomfield = \strpos($customfieldname, 'customfield');
-                $istype = \strpos($customfieldname, 'type');
-                $isoptions = \strpos($customfieldname, 'options');
-                if ($iscustomfield !== false && $istype === false && $isoptions === false) {
+                // The custom field page stores each field as customfield_<n>, with its type and options in
+                // customfield_<n>type and customfield_<n>options. Other settings merely contain the word
+                // (e.g. cardoptionviewcustomfields, customfieldicon_<shortname>) and are no custom fields.
+                if (preg_match('/^customfield_\d+$/', $customfieldname)) {
                     $type = $customfieldname . "type";
                     $options = $customfieldname . "options";
                     $values[$customfieldname]['value'] = $bkgconfig->$customfieldname;
