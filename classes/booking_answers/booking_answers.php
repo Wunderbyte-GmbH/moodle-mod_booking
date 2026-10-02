@@ -467,6 +467,45 @@ class booking_answers {
     }
 
     /**
+     * Set the given previously booked answers of a user on this option back to booked.
+     *
+     * Used when a reservation is removed from the cart: it restores exactly the answers the reservation demoted
+     * (book again). Answers of other users or options and answers that are no longer previously booked stay as
+     * they are.
+     *
+     * @param int $userid
+     * @param array $answerids
+     * @return int number of reactivated answers
+     */
+    public function reactivate_previouslybooked_answers(int $userid, array $answerids): int {
+        global $DB;
+
+        $answerids = array_unique(array_filter(array_map('intval', $answerids)));
+        if (empty($answerids) || empty($this->optionid)) {
+            return 0;
+        }
+        [$insql, $params] = $DB->get_in_or_equal($answerids, SQL_PARAMS_NAMED);
+        $params['userid'] = $userid;
+        $params['optionid'] = $this->optionid;
+        $params['previouslybooked'] = MOD_BOOKING_STATUSPARAM_PREVIOUSLYBOOKED;
+        $ids = $DB->get_fieldset_select(
+            'booking_answers',
+            'id',
+            "id $insql AND userid = :userid AND optionid = :optionid AND waitinglist = :previouslybooked",
+            $params
+        );
+        $now = time();
+        foreach ($ids as $id) {
+            $DB->update_record('booking_answers', (object) [
+                'id' => (int) $id,
+                'waitinglist' => MOD_BOOKING_STATUSPARAM_BOOKED,
+                'timemodified' => $now,
+            ]);
+        }
+        return count($ids);
+    }
+
+    /**
      * Reactivate the most recently set previously-booked answer back to booked status.
      * Used when a cart reservation is removed without completing a purchase (book-again flow).
      * Requires get_userspreviouslybooked() to have been called first to populate the candidate list.

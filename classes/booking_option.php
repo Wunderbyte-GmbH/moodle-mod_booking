@@ -831,18 +831,32 @@ class booking_option {
 
             // Make sure to log this operation into the booking_history table.
             // self::booking_history_insert($result->waitinglist, $result->id, $result->optionid, $result->booking, $userid);.
-            $DB->delete_records(
-                'booking_answers',
-                [
-                    'userid' => $userid,
-                    'optionid' => $this->optionid,
-                    'completed' => 0,
-                    'waitinglist' => MOD_BOOKING_STATUSPARAM_RESERVED,
-                ]
-            );
-            // With this, we make sure that if the user had a reserved booking...
-            // ... this gets deleted and the user gets reactivated on the waiting list if there was one before.
-            $ba->reactivate_latest_previouslybooked($userid);
+            $reservedconditions = [
+                'userid' => $userid,
+                'optionid' => $this->optionid,
+                'completed' => 0,
+                'waitinglist' => MOD_BOOKING_STATUSPARAM_RESERVED,
+            ];
+            $reservedanswers = $DB->get_records('booking_answers', $reservedconditions);
+            $DB->delete_records('booking_answers', $reservedconditions);
+            // Only a removed reservation gives back what it took: the answers it demoted to previously booked
+            // (book again). Without a removed reservation (e.g. cart cleanup after checkout) nothing is reactivated.
+            $demotedanswerids = [];
+            $legacyreservation = false;
+            foreach ($reservedanswers as $reservedanswer) {
+                $ids = self::get_data_from_json($reservedanswer, 'demotedanswerids');
+                if (is_array($ids)) {
+                    $demotedanswerids = array_merge($demotedanswerids, $ids);
+                } else {
+                    $legacyreservation = true;
+                }
+            }
+            if (!empty($demotedanswerids)) {
+                $ba->reactivate_previouslybooked_answers((int) $userid, $demotedanswerids);
+            } else if ($legacyreservation) {
+                // Reservations written before the demoted answers were recorded keep the old behaviour.
+                $ba->reactivate_latest_previouslybooked($userid);
+            }
         } else {
             // Normally, we will have only one record which is not deleted or previously booked.
             // But we still fetch an array to make sure of it.
@@ -1563,7 +1577,7 @@ class booking_option {
         bool $skipuserlimitcheck = false,
     ) {
 
-        global $USER;
+        global $DB, $USER;
 
         $bookingsettings = singleton_service::get_instance_of_booking_settings_by_bookingid($this->bookingid);
 
@@ -1672,6 +1686,7 @@ class booking_option {
 
             $currentanswerid = null;
             $timecreated = null;
+            $demotedanswerids = [];
 
             // Handling of waitinglist.
             if (isset($answersusers[$user->id]) && ($currentanswer = $answersusers[$user->id])) {
@@ -1734,6 +1749,17 @@ class booking_option {
                             $comparingtime = empty($timebooked) ? time() : $timebooked;
                             if (empty($timebooked) || $currentanswer->timebooked <= $comparingtime) {
                                 $timecreated = $comparingtime;
+                                // Remember the demoted answers, so removing a reservation from the cart can restore them.
+                                $demotedanswerids = $DB->get_fieldset_select(
+                                    'booking_answers',
+                                    'id',
+                                    'optionid = :optionid AND userid = :userid AND waitinglist = :booked',
+                                    [
+                                        'optionid' => $this->optionid,
+                                        'userid' => $user->id,
+                                        'booked' => MOD_BOOKING_STATUSPARAM_BOOKED,
+                                    ]
+                                );
                                 self::change_booking_answer_waitinglist_status(
                                     MOD_BOOKING_STATUSPARAM_BOOKED,
                                     MOD_BOOKING_STATUSPARAM_PREVIOUSLYBOOKED,
@@ -1892,7 +1918,8 @@ class booking_option {
                 $historystatus ?? 0,
                 $syncruleid,
                 !empty($timebooked) ? $timebooked : null,
-                $deferbroadcastpurge
+                $deferbroadcastpurge,
+                array_map('intval', $demotedanswerids)
             );
         } finally {
             // Release the per-option capacity lock as soon as the answer is written and
@@ -2006,6 +2033,8 @@ class booking_option {
      *                                  responsible for one broadcast_answer_caches() afterwards. Used by
      *                                  bulk operations (e.g. waiting-list promotion) so the global purge
      *                                  happens once for the batch instead of once per written answer.
+     * @param array $demotedanswerids ids of the answers this answer demoted to previously booked (book again);
+     *                                 stored on reservations, so removing them from the cart restores exactly these
      * @return int
      */
     public static function write_user_answer_to_db(
@@ -2021,7 +2050,8 @@ class booking_option {
         int $historystatus = 0,
         int $syncruleid = 0,
         ?int $timebooked = null,
-        bool $deferbroadcastpurge = false
+        bool $deferbroadcastpurge = false,
+        array $demotedanswerids = []
     ) {
 
         global $DB, $USER;
@@ -2069,6 +2099,11 @@ class booking_option {
 
         // When a user submits a userform, we need to save this as well.
         credits::add_json_to_booking_answer($newanswer, $userid);
+
+        if ($waitinglist == MOD_BOOKING_STATUSPARAM_RESERVED) {
+            // Always recorded on reservations (also empty), so a removal knows it is not a legacy reservation.
+            self::add_data_to_json($newanswer, 'demotedanswerids', array_values($demotedanswerids));
+        }
 
         if (
             !empty($settings->selflearningcourse)
