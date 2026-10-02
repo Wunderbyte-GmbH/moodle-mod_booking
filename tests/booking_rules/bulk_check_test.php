@@ -42,6 +42,7 @@ use mod_booking\task\bulk_check_reminder;
 use mod_booking\task\release_bulk_check;
 use mod_booking\task\send_mail_by_rule_adhoc;
 use mod_booking\tests\booking_advanced_testcase;
+use mod_booking\tests\held_lock_factory;
 use mod_booking_generator;
 use required_capability_exception;
 use stdClass;
@@ -50,6 +51,7 @@ use tool_mocktesttime\time_mock;
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once(__DIR__ . '/../classes/booking_advanced_testcase.php');
+require_once(__DIR__ . '/../classes/held_lock_factory.php');
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 
 /**
@@ -794,8 +796,9 @@ final class bulk_check_test extends booking_advanced_testcase {
 
         // The database lock factories hand the same lock to the same session twice, and the
         // whole test runs in one session, so holding the lock here would hold nothing back.
-        // File locks go by the open file, which is what makes the stand down observable.
-        $CFG->lock_factory = '\\core\\lock\\file_lock_factory';
+        // The file lock factory would, but under the mock clock a contended file lock never
+        // gives up, which hung the whole run. See held_lock_factory.
+        $CFG->lock_factory = '\\' . held_lock_factory::class;
 
         [$ruleid] = $this->block_three();
         $this->assertEquals(3, bulk_check::release_rule($ruleid));
