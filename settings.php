@@ -2186,7 +2186,7 @@ if ($ADMIN->fulltree) {
     $settings->add(
         new admin_setting_heading(
             'booking/bulkchecklink',
-            get_string('bulkcheckparked', 'mod_booking'),
+            get_string('bulkcheckparked', 'mod_booking') . ' ' . get_string('badge:booking10', 'mod_booking'),
             html_writer::link($bulkcheckurl, get_string('bulkcheckparkeddescription', 'mod_booking'))
         )
     );
