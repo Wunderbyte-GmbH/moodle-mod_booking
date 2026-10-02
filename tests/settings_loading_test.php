@@ -212,6 +212,37 @@ final class settings_loading_test extends advanced_testcase {
     }
 
     /**
+     * The booking category opens with the PRO activation, followed by the links to the other booking
+     * pages, and only then the general settings.
+     */
+    public function test_category_starts_with_pro_activation_then_subpages_then_settings(): void {
+        wb_payment::override_pro_version_for_tests(true);
+        $adminroot = $this->load_settings_and_assert_clean(true);
+
+        $children = array_values($adminroot->locate('modbookingfolder')->get_children());
+        $names = array_map(fn($child) => $child->name, $children);
+
+        $this->assertSame('modbookinglicense', $names[0], 'The PRO activation must be the first page.');
+        // Subplugins append their own pages behind the general settings, so these are not necessarily
+        // last - but every page of the booking module itself comes before them.
+        $settingsindex = array_search('modsettingbooking', $names, true);
+        $this->assertGreaterThan(1, $settingsindex, 'The linked pages must come before the general settings.');
+        foreach ($children as $index => $child) {
+            if ($child instanceof \admin_externalpage && strpos($child->name, 'modbooking') === 0) {
+                $this->assertLessThan($settingsindex, $index, "The page {$child->name} must come before the general settings.");
+            }
+        }
+
+        $licensepage = $children[0];
+        $this->assertInstanceOf(\admin_settingpage::class, $licensepage);
+        $this->assertTrue(property_exists($licensepage->settings, 'bookinglicensekey'));
+        $this->assertFalse(
+            property_exists($adminroot->locate('modsettingbooking')->settings, 'bookinglicensekey'),
+            'The license key must exist only once.'
+        );
+    }
+
+    /**
      * The fields offered for the sign-in sheet are the booking custom fields defined on the custom field
      * page (stored as customfield_<n>), never other settings whose names merely contain "customfield".
      */

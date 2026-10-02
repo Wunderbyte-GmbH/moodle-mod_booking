@@ -60,8 +60,13 @@ $ADMIN->add(
     )
 );
 
-// The main settings page comes first, so that the PRO activation is at the top of the category.
-$ADMIN->add('modbookingfolder', $settings);
+// The PRO activation has a page of its own, so that it opens the category, followed by the links to
+// the other booking pages and only then by the general settings.
+$licensesettings = new admin_settingpage(
+    'modbookinglicense',
+    get_string('licensekeycfg', 'mod_booking')
+);
+$ADMIN->add('modbookingfolder', $licensesettings);
 
 $ADMIN->add(
     'modbookingfolder',
@@ -210,6 +215,8 @@ $ADMIN->add(
     )
 );
 
+$ADMIN->add('modbookingfolder', $settings);
+
 if ($ADMIN->fulltree) {
     $notsupported = false;
     $version = $CFG->version;
@@ -264,10 +271,11 @@ if ($ADMIN->fulltree) {
         $customfieldsarray[$record->shortname] = format_string("$record->name ($record->shortname)");
     }
 
-    $settings->add(
+    // The page itself is titled with the activation, so the heading only carries its description.
+    $licensesettings->add(
         new admin_setting_heading(
             'licensekeycfgheading',
-            get_string('licensekeycfg', 'mod_booking'),
+            '',
             $proversion ? get_string('licensekeycfgdesc:active', 'mod_booking') :
             get_string('licensekeycfgdesc', 'mod_booking')
         )
@@ -315,7 +323,7 @@ if ($ADMIN->fulltree) {
         }
     }
 
-    $settings->add(
+    $licensesettings->add(
         new admin_setting_configtext(
             'booking/licensekey',
             get_string('licensekey', 'mod_booking'),
