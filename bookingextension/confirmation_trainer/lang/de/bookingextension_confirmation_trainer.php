@@ -31,6 +31,6 @@ $string['bookingextensionconfirmationtrainer:heading_desc'] = 'Bestätigung durc
 $string['confirmationtrainer'] = 'Bestätigung durch Trainer:innen';
 $string['confirmationtrainerenabled'] = 'Erlaube Bestätigung durch Trainer:innen';
 $string['notallowedtoconfirm'] = "Keine Berechtigung zu buchen";
-$string['pluginname'] = 'Bestätigungsworkflow durch Trainer:in';
+$string['pluginname'] = 'Booking-Erweiterung: Bestätigungsworkflow durch Trainer:in';
 $string['workflowdescription'] = 'Im Standard-Workflow buchen Nutzer nur auf die Warteliste, wenn in einer Buchungsoption die Checkbox "Nur nach Bestätigung buchen" aktiviert ist. Als Trainer oder jede Person mit den entsprechenden Rechten (mod/booking:bookforothers & mod/booking:subscribeusers) kannst du die Nutzer auf der Warteliste einsehen und von dort aus Nutzer bestätigen.';
 $string['workflowname'] = 'Bestätigungsworkflow durch Trainer:in';
