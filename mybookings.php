@@ -75,7 +75,7 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading($heading);
 
 // Entry tickets live outside the certificate world, so they get their own overview.
-if (get_config('booking', 'bookingticketon')) {
+if (\mod_booking\local\ticket\ticket_manager::is_enabled()) {
     echo html_writer::div(
         html_writer::link(
             new moodle_url('/mod/booking/mytickets.php', ['userid' => $userid]),

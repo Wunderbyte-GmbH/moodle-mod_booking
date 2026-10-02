@@ -261,7 +261,7 @@ class ticket extends field_base {
 
         if (
             !class_exists('tool_certificate\\template')
-            || empty(get_config('booking', 'bookingticketon'))
+            || !\mod_booking\local\ticket\ticket_manager::is_enabled()
         ) {
             return;
         }

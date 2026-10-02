@@ -60,7 +60,7 @@ $PAGE->navbar->add($heading);
 echo $OUTPUT->header();
 echo $OUTPUT->heading($heading);
 
-if (empty(get_config('booking', 'bookingticketon'))) {
+if (!\mod_booking\local\ticket\ticket_manager::is_enabled()) {
     echo $OUTPUT->notification(get_string('myticketsnone', 'mod_booking'), 'info');
     echo $OUTPUT->footer();
     die();

@@ -26,6 +26,7 @@ namespace mod_booking;
 
 use mod_booking\tests\booking_advanced_testcase;
 use mod_booking\booking_option;
+use mod_booking\external\get_my_tickets;
 use mod_booking\external\reject_ticket;
 use mod_booking\external\search_ticketscanners;
 use mod_booking\external\verify_ticket;
@@ -38,6 +39,11 @@ use mod_booking\event\bookinganswer_presencechanged;
 use mod_booking\event\ticket_created;
 use mod_booking\event\ticket_rejected;
 use mod_booking\event\ticket_scanned;
+use mod_booking\booking_rules\actions\send_ticket;
+use mod_booking\placeholders\placeholders\ticketcode;
+use mod_booking\placeholders\placeholders\ticketurl;
+use mod_booking\placeholders\placeholders\ticketverifyurl;
+use mod_booking\utils\wb_payment;
 use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
@@ -1395,5 +1401,43 @@ final class ticket_manager_test extends booking_advanced_testcase {
         $this->assertTrue($after['autocheckedin']);
         $this->assertSame([], $after['identityfields']);
         $this->assertEquals(MOD_BOOKING_PRESENCE_STATUS_CHECKEDIN, $this->current_presence());
+    }
+
+    /**
+     * Entry tickets are a PRO feature: without an activated PRO version nothing of it works, even
+     * with the feature switched on and a ticket design on the option. Existing tickets stay stored.
+     */
+    public function test_tickets_require_pro(): void {
+        $this->build_environment();
+        $this->book_student();
+        $ticket = ticket_manager::find_valid_ticket($this->settings->id, $this->student->id);
+        $this->assertNotEmpty($ticket, 'Precondition failed: with PRO the booking creates a ticket.');
+        $cmid = (int) $this->settings->cmid;
+
+        wb_payment::override_pro_version_for_tests(false);
+        try {
+            $this->assertFalse(ticket_manager::is_enabled());
+            $this->assertFalse(ticket_manager::is_enabled_for_option($this->settings->id));
+            $this->assertNull(ticket_manager::create_ticket($this->settings->id, $this->teacher->id));
+            $this->assertFalse(ticket_manager::can_scan($cmid, $this->settings->id));
+            $this->assertFalse(ticket_manager::can_download($ticket, $cmid, (int) $this->student->id));
+
+            $this->assertFalse((new send_ticket())->is_compatible_with_ajaxformdata());
+            foreach ([ticketcode::class, ticketurl::class, ticketverifyurl::class] as $placeholder) {
+                $this->assertFalse($placeholder::is_applicable(), $placeholder);
+                $this->assertSame('', (string) $placeholder::return_value($cmid, $this->settings->id, $this->student->id));
+            }
+
+            $this->setUser($this->student);
+            $this->assertSame([], get_my_tickets::execute());
+            $this->setAdminUser();
+            $this->assertSame([], search_ticketscanners::execute('', $cmid)['list']);
+
+            // Nothing is deleted: the tickets are back as soon as the license is.
+            $this->assertCount(1, $this->all_tickets());
+        } finally {
+            wb_payment::override_pro_version_for_tests(null);
+        }
+        $this->assertTrue(ticket_manager::is_enabled());
     }
 }

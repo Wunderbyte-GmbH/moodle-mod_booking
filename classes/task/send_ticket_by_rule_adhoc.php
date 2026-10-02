@@ -80,6 +80,11 @@ class send_ticket_by_rule_adhoc extends \core\task\adhoc_task {
         mtrace('send_ticket_by_rule_adhoc task: sending ticket for option ' . $taskdata->optionid . ' to user '
             . $taskdata->userid);
 
+        if (!ticket_manager::is_enabled()) {
+            mtrace('send_ticket_by_rule_adhoc task: Entry tickets are not available (PRO feature). Ticket was NOT SENT.');
+            return;
+        }
+
         if (!$ruleinstance = $DB->get_record('booking_rules', ['id' => $taskdata->ruleid])) {
             mtrace('send_ticket_by_rule_adhoc task: Rule does not exist anymore. Ticket was NOT SENT for option ' .
                 $taskdata->optionid . ' and user ' . $taskdata->userid);

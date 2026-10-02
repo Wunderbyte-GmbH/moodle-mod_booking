@@ -903,7 +903,7 @@ class all_userbookings extends \table_sql {
      * @return string
      */
     public function col_ticket(stdClass $values): string {
-        if (empty(get_config('booking', 'bookingticketon')) || empty($values->userid)) {
+        if (!\mod_booking\local\ticket\ticket_manager::is_enabled() || empty($values->userid)) {
             return '';
         }
         $optionid = (int) ($values->optionid ?? $this->optionid ?? 0);

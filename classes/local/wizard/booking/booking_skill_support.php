@@ -1566,7 +1566,7 @@ class booking_skill_support {
             return null;
         }
 
-        if (empty(get_config('booking', 'bookingticketon'))) {
+        if (!\mod_booking\local\ticket\ticket_manager::is_enabled()) {
             return [
                 'status' => 'error',
                 'detail' => get_string('agent_ticket_feature_disabled', 'mod_booking'),

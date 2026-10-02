@@ -910,7 +910,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
     public function col_ticket($values) {
         global $USER;
 
-        if (empty($values->id) || empty(get_config('booking', 'bookingticketon'))) {
+        if (empty($values->id) || !\mod_booking\local\ticket\ticket_manager::is_enabled()) {
             return '';
         }
 

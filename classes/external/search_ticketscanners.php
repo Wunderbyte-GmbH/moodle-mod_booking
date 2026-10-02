@@ -82,6 +82,11 @@ class search_ticketscanners extends external_api {
             throw new \required_capability_exception($context, 'mod/booking:updatebooking', 'nopermissions', '');
         }
 
+        // Entry tickets are a PRO feature: without it there is no entry staff to pick.
+        if (!ticket_manager::is_enabled()) {
+            return ['warnings' => '', 'list' => []];
+        }
+
         if (has_capability('moodle/user:viewdetails', context_system::instance())) {
             // May view every profile: anyone can be picked.
             return booking::load_users($query);

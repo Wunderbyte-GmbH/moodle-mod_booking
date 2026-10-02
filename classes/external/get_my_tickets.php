@@ -81,6 +81,11 @@ class get_my_tickets extends external_api {
         }
         self::validate_context(context_user::instance($userid));
 
+        // Entry tickets are a PRO feature: without it no ticket is listed.
+        if (!ticket_manager::is_enabled()) {
+            return [];
+        }
+
         $result = [];
         foreach (ticket_manager::find_all_for_user($userid) as $ticket) {
             $settings = singleton_service::get_instance_of_booking_option_settings((int) $ticket->optionid);

@@ -1449,7 +1449,7 @@ class manageusers_table extends wunderbyte_table {
      * @return string
      */
     public function col_ticket(stdClass $values): string {
-        if (empty(get_config('booking', 'bookingticketon'))) {
+        if (!\mod_booking\local\ticket\ticket_manager::is_enabled()) {
             return '';
         }
         $ticket = ticket_manager::find_valid_ticket((int) ($values->optionid ?? 0), (int) ($values->userid ?? 0));

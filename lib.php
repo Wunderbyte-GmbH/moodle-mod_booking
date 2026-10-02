@@ -1519,7 +1519,7 @@ function booking_myprofile_navigation(core_user\output\myprofile\tree $tree, $us
     }
 
     // Entry tickets are deliberately separate from certificates, so they get their own node.
-    if (get_config('booking', 'bookingticketon')) {
+    if (\mod_booking\local\ticket\ticket_manager::is_enabled()) {
         $canseeforeign = has_capability('mod/booking:viewticketreport', context_system::instance());
         if ($iscurrentuser || $canseeforeign) {
             $params = $iscurrentuser ? [] : ['userid' => $user->id];
@@ -1573,7 +1573,7 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
     // Entry scanner for staff at the door: for the option on the page, else instance-wide.
     // Lives in the "More" menu of the secondary navigation, it is no everyday tab.
     if (
-        get_config('booking', 'bookingticketon')
+        \mod_booking\local\ticket\ticket_manager::is_enabled()
         && \mod_booking\local\ticket\ticket_manager::can_scan((int) $cmid, (int) $optionid)
     ) {
         $scannerurl = !empty($optionid)

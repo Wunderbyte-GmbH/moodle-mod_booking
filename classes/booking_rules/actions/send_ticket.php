@@ -16,6 +16,7 @@
 
 namespace mod_booking\booking_rules\actions;
 
+use mod_booking\local\ticket\ticket_manager;
 use core_user;
 use Exception;
 use mod_booking\booking_rules\booking_rule_action;
@@ -128,7 +129,8 @@ class send_ticket implements booking_rule_action {
      * @return bool true if compatible, else false
      */
     public function is_compatible_with_ajaxformdata(array $ajaxformdata = []) {
-        return true;
+        // Entry tickets are a PRO feature: without it the action is not offered.
+        return ticket_manager::is_enabled();
     }
 
     /**
@@ -176,7 +178,7 @@ class send_ticket implements booking_rule_action {
      */
     public function execute(stdClass $record) {
 
-        if (!isset($record->userid)) {
+        if (!isset($record->userid) || !ticket_manager::is_enabled()) {
             return;
         }
         // Only execute for active users.

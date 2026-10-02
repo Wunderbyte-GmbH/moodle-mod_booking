@@ -22,6 +22,7 @@ use core_user;
 use mod_booking\booking_option;
 use mod_booking\local\certificateclass;
 use mod_booking\singleton_service;
+use mod_booking\utils\wb_payment;
 use moodle_url;
 use stdClass;
 use stored_file;
@@ -91,6 +92,9 @@ class ticket_manager {
     /**
      * Whether the entry-ticket feature is globally enabled.
      *
+     * Entry tickets are a PRO feature: without an activated PRO version the feature is off,
+     * whatever the setting says. Every entry point checks this method (or is_enabled_for_option(),
+     * can_scan(), can_download()); stored tickets are kept, so they return with the license.
      * Per booking option configuration is checked with is_enabled_for_option().
      *
      * @return bool
@@ -99,7 +103,7 @@ class ticket_manager {
         if (!class_exists('tool_certificate\\template')) {
             return false;
         }
-        return !empty(get_config('booking', 'bookingticketon'));
+        return !empty(get_config('booking', 'bookingticketon')) && wb_payment::pro_version_is_activated();
     }
 
     /**
@@ -196,7 +200,7 @@ class ticket_manager {
         if (empty($userid)) {
             $userid = (int) ($USER->id ?? 0);
         }
-        if (empty($cmid) || empty($userid) || isguestuser($userid)) {
+        if (!self::is_enabled() || empty($cmid) || empty($userid) || isguestuser($userid)) {
             return false;
         }
         $context = context_module::instance($cmid, IGNORE_MISSING);
@@ -234,7 +238,7 @@ class ticket_manager {
         if (empty($userid)) {
             $userid = (int) ($USER->id ?? 0);
         }
-        if (empty($userid) || isguestuser($userid) || empty($cmid)) {
+        if (!self::is_enabled() || empty($userid) || isguestuser($userid) || empty($cmid)) {
             return false;
         }
         if ((int) $ticket->userid === $userid) {

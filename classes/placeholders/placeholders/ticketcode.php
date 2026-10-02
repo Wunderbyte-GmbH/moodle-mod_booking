@@ -67,6 +67,10 @@ class ticketcode extends \mod_booking\placeholders\placeholder_base {
         int $descriptionparam = MOD_BOOKING_DESCRIPTION_WEBSITE,
         string $rulejson = ''
     ) {
+        // Entry tickets are a PRO feature; without it the placeholder renders nothing.
+        if (!ticket_manager::is_enabled()) {
+            return '';
+        }
         $ticket = ticket_manager::find_valid_ticket($optionid, $userid);
         if (empty($ticket)) {
             return '';
@@ -81,6 +85,6 @@ class ticketcode extends \mod_booking\placeholders\placeholder_base {
      *
      */
     public static function is_applicable(): bool {
-        return true;
+        return ticket_manager::is_enabled();
     }
 }
