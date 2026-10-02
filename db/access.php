@@ -870,6 +870,15 @@ $capabilities = [
             'manager' => CAP_ALLOW,
         ],
     ],
+    // See the number of places on the notification list (users waiting for a free place).
+    'mod/booking:viewnotificationlistplaces' => [
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => [
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW,
+        ],
+    ],
 ];
 
 $deprecatedcapabilities = [

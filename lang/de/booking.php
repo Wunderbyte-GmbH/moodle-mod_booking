@@ -936,6 +936,7 @@ $string['booking:view'] = 'Darf Buchungsinstanzen sehen';
 $string['booking:viewallratings'] = 'Alle Bewertungen sehen';
 $string['booking:viewanyrating'] = 'Alle Bewertungen sehen';
 $string['booking:viewdocumentation'] = 'Buchungs-Dokumentation ansehen';
+$string['booking:viewnotificationlistplaces'] = 'Anzahl der Plätze auf der Benachrichtigungsliste sehen';
 $string['booking:viewperformance'] = 'Performance sehen';
 $string['booking:viewrating'] = 'Gesamtbewertung sehen';
 $string['booking:viewreports'] = 'Zugang um gewisse Buchungsberichte zu sehen';
@@ -3825,7 +3826,7 @@ $string['showmybookingsonly'] = 'Meine Buchungen';
 $string['showmyfavoritesonly'] = 'Meine Favoriten';
 $string['showmyfieldofstudyonly'] = "Mein Studiengang";
 $string['shownotificationlistplaces'] = 'Anzahl der Plätze auf der Benachrichtigungsliste anzeigen';
-$string['shownotificationlistplaces_desc'] = 'Wenn aktiviert, wird die Anzahl der Plätze auf der Benachrichtigungsliste mit einem Glocken-Icon in der Spalte mit den verfügbaren Plätzen angezeigt (z.B. "20 / 20 (Glocken-Icon 4)"). Kann für einen einzelnen Shortcode mit dem Argument <b>shownotificationlist=1</b> bzw. <b>shownotificationlist=0</b> überschrieben werden.';
+$string['shownotificationlistplaces_desc'] = 'Wenn aktiviert, wird die Anzahl der Plätze auf der Benachrichtigungsliste mit einem Glocken-Icon in der Spalte mit den verfügbaren Plätzen angezeigt (z.B. "20 / 20 (Glocken-Icon 4)"). Kann für einen einzelnen Shortcode mit dem Argument <b>shownotificationlist=1</b> bzw. <b>shownotificationlist=0</b> überschrieben werden. Die Anzahl sehen nur Personen mit dem Recht <b>mod/booking:viewnotificationlistplaces</b>.';
 $string['showoptiondatesextrainfo'] = 'Extra-Infos zu Terminen anzeigen';
 $string['showoptiondatesextrainfo_desc'] = 'Kommentare und Extra-Infos zu Terminen in der Liste der Buchungsoptionen anzeigen
 (auf der Buchungsoptionsdetailseite werden die zusätzlichen Informationen immer angezeigt, unabhängig von dieser Einstellung).

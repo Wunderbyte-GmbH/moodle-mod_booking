@@ -936,6 +936,7 @@ $string['booking:view'] = 'View booking instances';
 $string['booking:viewallratings'] = 'View all raw ratings given by individuals';
 $string['booking:viewanyrating'] = 'View total ratings that anyone received';
 $string['booking:viewdocumentation'] = 'View the booking documentation';
+$string['booking:viewnotificationlistplaces'] = 'View the number of places on the notification list';
 $string['booking:viewperformance'] = 'View Performance';
 $string['booking:viewrating'] = 'View the total rating you received';
 $string['booking:viewreports'] = 'Allow access for viewing reports';
@@ -3812,7 +3813,7 @@ $string['showmybookingsonly'] = 'My booked options';
 $string['showmyfavoritesonly'] = 'My favorites';
 $string['showmyfieldofstudyonly'] = "My field of study";
 $string['shownotificationlistplaces'] = 'Show number of places on the notification list';
-$string['shownotificationlistplaces_desc'] = 'If activated, the number of places on the notification list is shown with a bell icon in the column with the available places (e.g. "20 / 20 (bell icon 4)"). It can be overruled for a single shortcode with the argument <b>shownotificationlist=1</b> or <b>shownotificationlist=0</b>.';
+$string['shownotificationlistplaces_desc'] = 'If activated, the number of places on the notification list is shown with a bell icon in the column with the available places (e.g. "20 / 20 (bell icon 4)"). It can be overruled for a single shortcode with the argument <b>shownotificationlist=1</b> or <b>shownotificationlist=0</b>. The number is only shown to users with the capability <b>mod/booking:viewnotificationlistplaces</b>.';
 $string['showoptiondatesextrainfo'] = 'Show additional information for dates';
 $string['showoptiondatesextrainfo_desc'] = 'Show comments and extra infos of sessions (dates) in the list of booking options
 (on the booking option detail page the extra infos will always be shown regardless of this setting).

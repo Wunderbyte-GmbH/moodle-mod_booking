@@ -71,6 +71,9 @@ class col_availableplaces implements renderable, templatable {
      */
     public $shownotificationlist = null;
 
+    /** @var bool $canviewnotificationlistplaces the current user may see the number of places on the notification list */
+    private $canviewnotificationlistplaces = false;
+
     /**
      * The constructor takes the values from db.
      *
@@ -102,6 +105,8 @@ class col_availableplaces implements renderable, templatable {
             || has_capability('mod/booking:updatebooking', $syscontext)
             || booking_check_if_teacher($optionid)
         );
+
+        $this->canviewnotificationlistplaces = has_capability('mod/booking:viewnotificationlistplaces', $modcontext);
 
         if ($canviewreport) {
             $this->showmanageresponses = true;
@@ -222,6 +227,12 @@ class col_availableplaces implements renderable, templatable {
         $data = $this->bookinginformation;
 
         if (!is_array($data)) {
+            return $data;
+        }
+
+        // Only users with the capability may see the number, neither the setting nor the shortcode can overrule this.
+        if (!$this->canviewnotificationlistplaces) {
+            unset($data['notificationlistplaces']);
             return $data;
         }
 
