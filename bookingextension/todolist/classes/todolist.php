@@ -182,7 +182,8 @@ class todolist extends bookingextension implements bookingextension_interface {
             $todolistsettings->add(
                 new admin_setting_heading(
                     'bookingextension_todolist',
-                    get_string('todolist:heading', 'bookingextension_todolist'),
+                    get_string('todolist:heading', 'bookingextension_todolist')
+                        . ' ' . get_string('badge:booking10', 'mod_booking'),
                     get_string('todolist:heading_desc', 'bookingextension_todolist')
                 )
             );

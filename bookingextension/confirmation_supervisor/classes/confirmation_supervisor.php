@@ -115,7 +115,8 @@ class confirmation_supervisor extends bookingextension implements bookingextensi
             // Skeleton.
             $settings->add(new admin_setting_heading(
                 'bookingextension_confirmation_supervisor',
-                get_string('bookingextensionconfirmationsupervisor:heading', 'bookingextension_confirmation_supervisor'),
+                get_string('bookingextensionconfirmationsupervisor:heading', 'bookingextension_confirmation_supervisor')
+                    . ' ' . get_string('badge:booking10', 'mod_booking'),
                 get_string('bookingextensionconfirmationsupervisor:heading_desc', 'bookingextension_confirmation_supervisor')
             ));
 

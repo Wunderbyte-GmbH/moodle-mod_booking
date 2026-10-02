@@ -56,7 +56,7 @@ $PAGE->set_title(format_string($SITE->shortname) . ': ' . get_string('bulkoperat
 $PAGE->navbar->add(get_string('bulkoperationspro', 'mod_booking'), $pageurl);
 
 echo $OUTPUT->header();
-echo $OUTPUT->heading(get_string('bulkoperationspro', 'mod_booking'));
+echo $OUTPUT->heading(get_string('bulkoperationspro', 'mod_booking') . ' ' . get_string('badge:booking10', 'mod_booking'));
 
 if (!$hascapability) {
     echo html_writer::div(get_string('nocapabilitytoaccesspage', 'mod_booking'), 'alert alert-warning');

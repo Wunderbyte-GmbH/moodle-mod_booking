@@ -48,7 +48,7 @@ $PAGE->add_body_class('limitedwidth');
 $output = $PAGE->get_renderer('mod_booking');
 
 echo $output->header();
-echo $output->heading(get_string('bulkcheckparked', 'mod_booking'));
+echo $output->heading(get_string('bulkcheckparked', 'mod_booking') . ' ' . get_string('badge:booking10', 'mod_booking'));
 
 if (!empty($ruleid)) {
     // Scoping the list also scopes the two buttons that act on everything, so it has to be
