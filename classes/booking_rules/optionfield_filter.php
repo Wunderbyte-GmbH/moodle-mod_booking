@@ -18,6 +18,7 @@ namespace mod_booking\booking_rules;
 
 use context_system;
 use local_wunderbyte_table\local\customfield\wbt_field_controller_info;
+use mod_booking\booking_option_settings;
 use mod_booking\customfield\booking_handler;
 use mod_booking\singleton_service;
 use MoodleQuickForm;
@@ -81,7 +82,57 @@ class optionfield_filter {
             'location' => 'ruleoptionfieldlocation',
             'address' => 'ruleoptionfieldaddress',
             'identifier' => 'ruleoptionfieldidentifier',
+            'pollurl' => 'ruleoptionfieldpollurl',
+            'pollurlteachers' => 'ruleoptionfieldpollurlteachers',
+            'type' => 'ruleoptionfieldtype',
         ];
+    }
+
+    /**
+     * Standard fields which hold a number instead of text, with the value which stands for null.
+     * Like everywhere else in the plugin, a booking option without type is a default booking option.
+     *
+     * @return array
+     */
+    private static function get_numeric_standard_fields(): array {
+        return [
+            'type' => MOD_BOOKING_OPTIONTYPE_DEFAULT,
+        ];
+    }
+
+    /**
+     * Returns the column of a standard field as it is compared in sql.
+     * Numeric columns are turned into text, so we can compare them like every other field.
+     *
+     * @param string $fieldname
+     * @return string
+     */
+    private static function get_standard_field_sql(string $fieldname): string {
+        global $DB;
+
+        $numericfields = self::get_numeric_standard_fields();
+        if (!array_key_exists($fieldname, $numericfields)) {
+            return "bo." . $fieldname;
+        }
+
+        return $DB->sql_concat("''", "COALESCE(bo.$fieldname, " . (int) $numericfields[$fieldname] . ")");
+    }
+
+    /**
+     * Returns the value of a standard field of a booking option, just like the sql sees it.
+     *
+     * @param booking_option_settings $settings
+     * @param string $fieldname
+     * @return mixed
+     */
+    private static function get_standard_field_value(booking_option_settings $settings, string $fieldname) {
+
+        $numericfields = self::get_numeric_standard_fields();
+        if (array_key_exists($fieldname, $numericfields)) {
+            return (int) ($settings->{$fieldname} ?? $numericfields[$fieldname]);
+        }
+
+        return $settings->{$fieldname} ?? '';
     }
 
     /**
@@ -284,7 +335,13 @@ class optionfield_filter {
                 $sql->where .= " AND 1 = 2 ";
                 return;
             }
-            $condition = self::get_compare_sql("bo." . $filter->fieldname, $positiveoperator, $values, $params, false);
+            $condition = self::get_compare_sql(
+                self::get_standard_field_sql($filter->fieldname),
+                $positiveoperator,
+                $values,
+                $params,
+                false
+            );
         }
 
         $sql->where .= $negate ? " AND NOT ($condition) " : " AND ($condition) ";
@@ -319,7 +376,7 @@ class optionfield_filter {
                 // Unknown field, e.g. a customfield which was deleted in the meantime. The rule cannot apply.
                 return false;
             }
-            $value = $settings->{$filter->fieldname} ?? '';
+            $value = self::get_standard_field_value($settings, $filter->fieldname);
         }
 
         $matches = self::value_matches(

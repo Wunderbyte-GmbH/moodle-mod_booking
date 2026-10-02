@@ -270,6 +270,101 @@ final class rules_optionfield_filter_test extends advanced_testcase {
     }
 
     /**
+     * The poll urls and the option type can be chosen as field of the filter.
+     */
+    public function test_pollurls_and_type_are_selectable(): void {
+        $fields = optionfield_filter::get_fields_for_select();
+
+        $this->assertArrayHasKey('pollurl', $fields);
+        $this->assertArrayHasKey('pollurlteachers', $fields);
+        $this->assertArrayHasKey('type', $fields);
+    }
+
+    /**
+     * Create the two booking options and set poll urls and option type directly.
+     * The option nearby keeps type null, as older booking options do.
+     *
+     * @return array
+     */
+    private function create_options_with_pollurls_and_type(): array {
+        global $DB;
+
+        [$far, $near] = $this->create_options();
+
+        $DB->update_record('booking_options', (object) [
+            'id' => $far,
+            'pollurl' => 'https://poll.example.com/far',
+            'pollurlteachers' => 'https://poll.example.com/teachers-far',
+            'type' => MOD_BOOKING_OPTIONTYPE_SELFLEARNINGCOURSE,
+        ]);
+        $DB->update_record('booking_options', (object) [
+            'id' => $near,
+            'pollurl' => '',
+            'pollurlteachers' => null,
+        ]);
+        $DB->set_field('booking_options', 'type', null, ['id' => $near]);
+
+        // The settings of booking options are cached, so the cache has to know about the changes.
+        \mod_booking\booking_option::purge_cache_for_option($far);
+        \mod_booking\booking_option::purge_cache_for_option($near);
+        singleton_service::destroy_booking_option_singleton($far);
+        singleton_service::destroy_booking_option_singleton($near);
+
+        return [$far, $near];
+    }
+
+    /**
+     * The filter on poll urls and on the option type, in sql and in the check before the action.
+     *
+     * @param string $fieldname
+     * @param string $operator
+     * @param string $value
+     * @param bool $expectfar
+     * @param bool $expectnear
+     * @dataProvider pollurl_and_type_provider
+     */
+    public function test_filter_on_pollurls_and_type(
+        string $fieldname,
+        string $operator,
+        string $value,
+        bool $expectfar,
+        bool $expectnear
+    ): void {
+        [$far, $near] = $this->create_options_with_pollurls_and_type();
+
+        $ruledata = $this->get_ruledata($fieldname, $operator, $value);
+        $ids = $this->get_matching_optionids($ruledata);
+
+        $this->assertEquals($expectfar, in_array($far, $ids), "sql, option far away, $fieldname $operator");
+        $this->assertEquals($expectnear, in_array($near, $ids), "sql, option nearby, $fieldname $operator");
+
+        // The check before the action has to come to the very same conclusion.
+        $this->assertEquals($expectfar, optionfield_filter::option_matches($far, $ruledata), "check, far, $fieldname $operator");
+        $this->assertEquals($expectnear, optionfield_filter::option_matches($near, $ruledata), "check, near, $fieldname $operator");
+    }
+
+    /**
+     * Data provider for test_filter_on_pollurls_and_type.
+     *
+     * @return array
+     */
+    public static function pollurl_and_type_provider(): array {
+        return [
+            'pollurl equals' => ['pollurl', optionfield_filter::OPERATOR_EQUALS, 'https://poll.example.com/far', true, false],
+            'pollurl contains' => ['pollurl', optionfield_filter::OPERATOR_CONTAINS, 'example', true, false],
+            'pollurl is not empty' => ['pollurl', optionfield_filter::OPERATOR_NOTEMPTY, '', true, false],
+            'pollurl is empty' => ['pollurl', optionfield_filter::OPERATOR_EMPTY, '', false, true],
+            'pollurlteachers contains' => ['pollurlteachers', optionfield_filter::OPERATOR_CONTAINS, 'teachers', true, false],
+            'pollurlteachers is empty' => ['pollurlteachers', optionfield_filter::OPERATOR_EMPTY, '', false, true],
+            'type self-learning' => ['type', optionfield_filter::OPERATOR_EQUALS, '1', true, false],
+            'type default includes null' => ['type', optionfield_filter::OPERATOR_EQUALS, '0', false, true],
+            'type not self-learning' => ['type', optionfield_filter::OPERATOR_NOTEQUALS, '1', false, true],
+            'type slot booking' => ['type', optionfield_filter::OPERATOR_EQUALS, '2', false, false],
+            'type is never empty' => ['type', optionfield_filter::OPERATOR_EMPTY, '', false, false],
+        ];
+    }
+
+    /**
      * A filter on a field which does not exist anymore must not let the rule apply.
      */
     public function test_filter_on_deleted_field(): void {

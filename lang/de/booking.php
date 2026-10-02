@@ -3561,8 +3561,11 @@ $string['ruleoptionfieldoperatornotcontains'] = 'beinhaltet nicht';
 $string['ruleoptionfieldoperatornotempty'] = 'Feld ist nicht leer';
 $string['ruleoptionfieldoperatornotequals'] = 'hat nicht genau diesen Wert';
 $string['ruleoptionfieldoptiondatestarttime'] = 'Beginn eines jeden Termins';
+$string['ruleoptionfieldpollurl'] = 'Umfragelink (pollurl)';
+$string['ruleoptionfieldpollurlteachers'] = 'Umfragelink für Trainer:innen (pollurlteachers)';
 $string['ruleoptionfieldselflearningcourseenddate'] = 'Enddatum eines Selbstlernkurses';
 $string['ruleoptionfieldtext'] = 'Name der Buchungsoption (text)';
+$string['ruleoptionfieldtype'] = 'Art der Buchungsoption (type): 0 = Standard, 1 = Selbstlernkurs, 2 = Slot-Buchung';
 $string['rulereactonchangeevent_desc'] = 'Für das "Buchungsoption aktualisiert" Event können Sie Ihre Einstellungen hier ändern: <a href="{$a}">Einstellungen</a>';
 $string['rulereactonevent'] = 'Reagiere auf Ereignis';
 $string['rulereactonevent_desc'] = 'Wählen Sie ein Ereignis aus, durch das die Regel ausgelöst werden soll.<br>

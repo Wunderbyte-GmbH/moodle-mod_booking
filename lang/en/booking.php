@@ -3547,8 +3547,11 @@ $string['ruleoptionfieldoperatornotcontains'] = 'does not contain';
 $string['ruleoptionfieldoperatornotempty'] = 'field is not empty';
 $string['ruleoptionfieldoperatornotequals'] = 'does not have exactly this value';
 $string['ruleoptionfieldoptiondatestarttime'] = 'Start of every session (date)';
+$string['ruleoptionfieldpollurl'] = 'Poll url (pollurl)';
+$string['ruleoptionfieldpollurlteachers'] = 'Teachers poll url (pollurlteachers)';
 $string['ruleoptionfieldselflearningcourseenddate'] = 'End date of self-learning course';
 $string['ruleoptionfieldtext'] = 'Name of the booking option (text)';
+$string['ruleoptionfieldtype'] = 'Option type (type): 0 = default, 1 = self-learning course, 2 = slot booking';
 $string['rulereactonchangeevent_desc'] = 'For the "Booking option updated" event, you can specify options here: <a href="{$a}">Booking Plugin Settings</a>.';
 $string['rulereactonevent'] = "React on event";
 $string['rulereactonevent_desc'] = "Choose an event that should trigger the rule.<br>
