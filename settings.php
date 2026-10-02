@@ -1688,23 +1688,6 @@ if ($ADMIN->fulltree) {
          );
     }
 
-    // Load all settings from booking extensions. This runs regardless of the Booking PRO license:
-    // booking extensions (e.g. the Wunderbyte Agent) ship their own settings and license handling,
-    // so their settings page must always appear and their defaults must be seeded on install even
-    // when no Booking PRO key is present.
-    foreach (core_plugin_manager::instance()->get_plugins_of_type('bookingextension') as $plugin) {
-        $fullclassname = "\\bookingextension_{$plugin->name}\\{$plugin->name}";
-        if (!class_exists($fullclassname)) {
-            continue; // Skip if the class does not exist.
-        }
-        $plugin = new $fullclassname();
-        if (!$plugin instanceof bookingextension_interface) {
-            continue; // Skip if the plugin does not implement the interface.
-        }
-        // Todo: This is not very stable. Maybe alter $settings object.
-        $plugin->load_settings($ADMIN, 'modbookingfolder', $hassiteconfig);
-    }
-
     // PRO feature: Cancellation settings.
     if ($proversion) {
         $settings->add(
@@ -3460,6 +3443,23 @@ if ($ADMIN->fulltree) {
     );
     $searchinvisiblesetting->set_updatedcallback('mod_booking_search_settings_updated');
     $settings->add($searchinvisiblesetting);
+}
+
+// Load all settings from booking extensions. This runs regardless of the Booking PRO license:
+// booking extensions (e.g. the Wunderbyte Agent) ship their own settings and license handling,
+// so their settings page must always appear and their defaults must be seeded on install even
+// when no Booking PRO key is present. It also runs without the full tree, so that their pages are
+// listed in the admin navigation; each extension builds its settings only for the full tree.
+foreach (core_plugin_manager::instance()->get_plugins_of_type('bookingextension') as $plugin) {
+    $fullclassname = "\\bookingextension_{$plugin->name}\\{$plugin->name}";
+    if (!class_exists($fullclassname)) {
+        continue; // Skip if the class does not exist.
+    }
+    $plugin = new $fullclassname();
+    if (!$plugin instanceof bookingextension_interface) {
+        continue; // Skip if the plugin does not implement the interface.
+    }
+    $plugin->load_settings($ADMIN, 'modbookingfolder', $hassiteconfig);
 }
 
 $settings = null;

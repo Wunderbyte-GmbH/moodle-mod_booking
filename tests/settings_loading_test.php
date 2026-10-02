@@ -261,4 +261,45 @@ final class settings_loading_test extends advanced_testcase {
         $this->assertTrue(property_exists($settings, 'bookingshowcustfields'));
         $this->assertSame(['customfield_0' => 'Room'], $settings->bookingshowcustfields->choices);
     }
+
+    /**
+     * The admin navigation (built without the full tree) lists the same booking pages as the full
+     * tree, including the pages of every booking extension.
+     */
+    public function test_navigation_lists_the_same_pages_as_the_full_tree(): void {
+        wb_payment::override_pro_version_for_tests(true);
+        $full = $this->folder_page_names($this->load_settings_and_assert_clean(true));
+        $navigation = $this->folder_page_names($this->load_settings_and_assert_clean(false));
+
+        $this->assertSame($full, $navigation);
+        $this->assertNotEmpty(
+            array_filter($navigation, fn($name) => strpos($name, 'mod') !== 0),
+            'Precondition failed: no booking extension added a page.'
+        );
+    }
+
+    /**
+     * Without the full tree no settings page in the booking category carries settings: the navigation
+     * is built on every admin page, so the settings and their database or config work wait for the full tree.
+     */
+    public function test_navigation_builds_no_settings(): void {
+        wb_payment::override_pro_version_for_tests(true);
+        $adminroot = $this->load_settings_and_assert_clean(false);
+
+        foreach ($adminroot->locate('modbookingfolder')->get_children() as $child) {
+            if ($child instanceof \admin_settingpage) {
+                $this->assertEmpty((array) $child->settings, "The page {$child->name} built settings without the full tree.");
+            }
+        }
+    }
+
+    /**
+     * The names of the pages in the booking category, in their order.
+     *
+     * @param \admin_root $adminroot
+     * @return string[]
+     */
+    private function folder_page_names(\admin_root $adminroot): array {
+        return array_values(array_map(fn($child) => $child->name, $adminroot->locate('modbookingfolder')->get_children()));
+    }
 }

@@ -52,6 +52,10 @@ interface bookingextension_interface {
      * This function usually includes settings.php file in plugins folder.
      * Alternatively it can create a link to some settings page (instance of admin_externalpage)
      *
+     * It is called for every admin tree, also without the full tree (admin navigation, admin search
+     * link lists). Always add the pages, but build their settings - and do any database or config
+     * work - only when $adminroot->fulltree is set, like a Moodle settings.php does.
+     *
      * @param \part_of_admin_tree $adminroot
      * @param string $parentnodename
      * @param bool $hassiteconfig whether the current user has moodle/site:config capability

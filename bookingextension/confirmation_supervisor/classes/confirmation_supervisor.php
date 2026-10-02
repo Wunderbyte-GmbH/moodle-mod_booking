@@ -109,82 +109,86 @@ class confirmation_supervisor extends bookingextension implements bookingextensi
             $this->is_enabled() === false
         );
 
-        // Add settings to Booking plugin.
-        // Skeleton.
-        $settings->add(new admin_setting_heading(
-            'bookingextension_confirmation_supervisor',
-            get_string('bookingextensionconfirmationsupervisor:heading', 'bookingextension_confirmation_supervisor'),
-            get_string('bookingextensionconfirmationsupervisor:heading_desc', 'bookingextension_confirmation_supervisor')
-        ));
+        // The navigation tree needs the page only; its settings are built for the full tree alone.
+        if ($adminroot->fulltree) {
+            // Add settings to Booking plugin.
+            // Skeleton.
+            $settings->add(new admin_setting_heading(
+                'bookingextension_confirmation_supervisor',
+                get_string('bookingextensionconfirmationsupervisor:heading', 'bookingextension_confirmation_supervisor'),
+                get_string('bookingextensionconfirmationsupervisor:heading_desc', 'bookingextension_confirmation_supervisor')
+            ));
 
-        // Checkbox to enable or disable.
-        $settings->add(new admin_setting_configcheckbox(
-            'bookingextension_confirmation_supervisor/confirmationsupervisorenabled',
-            get_string(
-                'bookingextensionconfirmationsupervisor:confirmationsupervisorenabled',
-                'bookingextension_confirmation_supervisor'
-            ),
-            get_string(
-                'bookingextensionconfirmationsupervisor:confirmationsupervisorenabled_desc',
-                'bookingextension_confirmation_supervisor'
-            ),
-            0
-        ));
+            // Checkbox to enable or disable.
+            $settings->add(new admin_setting_configcheckbox(
+                'bookingextension_confirmation_supervisor/confirmationsupervisorenabled',
+                get_string(
+                    'bookingextensionconfirmationsupervisor:confirmationsupervisorenabled',
+                    'bookingextension_confirmation_supervisor'
+                ),
+                get_string(
+                    'bookingextensionconfirmationsupervisor:confirmationsupervisorenabled_desc',
+                    'bookingextension_confirmation_supervisor'
+                ),
+                0
+            ));
 
-        // Checkbox to limit the answers a supervisor sees to the answers of their own team.
-        $settings->add(new admin_setting_configcheckbox(
-            'bookingextension_confirmation_supervisor/restricttrackertomyteam',
-            get_string('restricttrackertomyteam', 'bookingextension_confirmation_supervisor'),
-            get_string('restricttrackertomyteam_desc', 'bookingextension_confirmation_supervisor'),
-            0
-        ));
+            // Checkbox to limit the answers a supervisor sees to the answers of their own team.
+            $settings->add(new admin_setting_configcheckbox(
+                'bookingextension_confirmation_supervisor/restricttrackertomyteam',
+                get_string('restricttrackertomyteam', 'bookingextension_confirmation_supervisor'),
+                get_string('restricttrackertomyteam_desc', 'bookingextension_confirmation_supervisor'),
+                0
+            ));
 
-        $settings->add(
-            new admin_setting_configselect(
-                'bookingextension_confirmation_supervisor/defaultconfirmationorder',
-                get_string('defaultconfirmationorder', 'bookingextension_confirmation_supervisor'),
-                get_string('defaultconfirmationorder_desc', 'bookingextension_confirmation_supervisor'),
-                0,
-                self::get_confirmation_order_options()
-            )
-        );
+            $settings->add(
+                new admin_setting_configselect(
+                    'bookingextension_confirmation_supervisor/defaultconfirmationorder',
+                    get_string('defaultconfirmationorder', 'bookingextension_confirmation_supervisor'),
+                    get_string('defaultconfirmationorder_desc', 'bookingextension_confirmation_supervisor'),
+                    0,
+                    self::get_confirmation_order_options()
+                )
+            );
 
-        $settings->add(new admin_setting_configtext(
-            'bookingextension_confirmation_supervisor/confirmation_supervisor_hrusers',
-            get_string('hrusers', 'bookingextension_confirmation_supervisor'),
-            get_string('hrusers_desc', 'bookingextension_confirmation_supervisor'),
-            0
-        ));
+            $settings->add(new admin_setting_configtext(
+                'bookingextension_confirmation_supervisor/confirmation_supervisor_hrusers',
+                get_string('hrusers', 'bookingextension_confirmation_supervisor'),
+                get_string('hrusers_desc', 'bookingextension_confirmation_supervisor'),
+                0
+            ));
 
-        // Code snippet to choose user profile fields.
-        $userprofilefieldsarray[0] = get_string('choose...', 'mod_booking');
-        $userprofilefields = profile_get_custom_fields();
-        if (!empty($userprofilefields)) {
-            // Create an array of key => value pairs for the dropdown.
-            foreach ($userprofilefields as $userprofilefield) {
-                $userprofilefieldsarray[$userprofilefield->shortname] = "$userprofilefield->name ($userprofilefield->shortname)";
+            // Code snippet to choose user profile fields.
+            $userprofilefieldsarray[0] = get_string('choose...', 'mod_booking');
+            $userprofilefields = profile_get_custom_fields();
+            if (!empty($userprofilefields)) {
+                // Create an array of key => value pairs for the dropdown.
+                foreach ($userprofilefields as $userprofilefield) {
+                    $userprofilefieldsarray[$userprofilefield->shortname] =
+                        "$userprofilefield->name ($userprofilefield->shortname)";
+                }
             }
+
+            $settings->add(
+                new admin_setting_configselect(
+                    'bookingextension_confirmation_supervisor/supervisor',
+                    get_string('supervisorfield', 'bookingextension_confirmation_supervisor'),
+                    get_string('supervisorfield_desc', 'bookingextension_confirmation_supervisor'),
+                    0,
+                    $userprofilefieldsarray
+                )
+            );
+
+            $settings->add(
+                new admin_setting_configselect(
+                    'bookingextension_confirmation_supervisor/deputy',
+                    get_string('deputyfield', 'bookingextension_confirmation_supervisor'),
+                    get_string('deputyfield_desc', 'bookingextension_confirmation_supervisor'),
+                    0,
+                    $userprofilefieldsarray
+                )
+            );
         }
-
-        $settings->add(
-            new admin_setting_configselect(
-                'bookingextension_confirmation_supervisor/supervisor',
-                get_string('supervisorfield', 'bookingextension_confirmation_supervisor'),
-                get_string('supervisorfield_desc', 'bookingextension_confirmation_supervisor'),
-                0,
-                $userprofilefieldsarray
-            )
-        );
-
-        $settings->add(
-            new admin_setting_configselect(
-                'bookingextension_confirmation_supervisor/deputy',
-                get_string('deputyfield', 'bookingextension_confirmation_supervisor'),
-                get_string('deputyfield_desc', 'bookingextension_confirmation_supervisor'),
-                0,
-                $userprofilefieldsarray
-            )
-        );
 
         $adminroot->add('modbookingfolder', $settings);
     }

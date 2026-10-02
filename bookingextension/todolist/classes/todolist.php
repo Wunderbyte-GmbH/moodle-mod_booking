@@ -177,22 +177,25 @@ class todolist extends bookingextension implements bookingextension_interface {
             'moodle/site:config'
         );
 
-        $todolistsettings->add(
-            new admin_setting_heading(
-                'bookingextension_todolist',
-                get_string('todolist:heading', 'bookingextension_todolist'),
-                get_string('todolist:heading_desc', 'bookingextension_todolist')
-            )
-        );
+        // The navigation tree needs the page only; its settings are built for the full tree alone.
+        if ($adminroot->fulltree) {
+            $todolistsettings->add(
+                new admin_setting_heading(
+                    'bookingextension_todolist',
+                    get_string('todolist:heading', 'bookingextension_todolist'),
+                    get_string('todolist:heading_desc', 'bookingextension_todolist')
+                )
+            );
 
-        $todolistsettings->add(
-            new admin_setting_configcheckbox(
-                'bookingextension_todolist/enableglobally',
-                get_string('todolist:enableglobally', 'bookingextension_todolist'),
-                get_string('todolist:enableglobally_desc', 'bookingextension_todolist'),
-                0
-            )
-        );
+            $todolistsettings->add(
+                new admin_setting_configcheckbox(
+                    'bookingextension_todolist/enableglobally',
+                    get_string('todolist:enableglobally', 'bookingextension_todolist'),
+                    get_string('todolist:enableglobally_desc', 'bookingextension_todolist'),
+                    0
+                )
+            );
+        }
 
         $adminroot->add('modbookingfolder', $todolistsettings);
     }
