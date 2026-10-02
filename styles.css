@@ -1841,3 +1841,34 @@ table[id*="bulkoperationstable"] th {
     letter-spacing: .02em;
     box-shadow: 0 1px 3px rgba(111, 66, 193, .35);
 }
+
+/*
+ * The same "Booking 10" pill next to the admin pages new in Booking 10, in the admin search link lists
+ * and on the booking category page. Their titles are rendered as plain text there, so the pill is added
+ * by the link target instead of the title.
+ */
+#page-admin-search .tab-pane a[href*="/mod/booking/bulkcheck.php"]::after,
+#page-admin-search .tab-pane a[href*="section=bookingextension_agent_aisettings"]::after,
+#page-admin-search .tab-pane a[href*="section=bookingextension_confirmation_supervisor_settings"]::after,
+#page-admin-search .tab-pane a[href*="/mod/booking/bulkoperations.php"]::after,
+#page-admin-search .tab-pane a[href*="section=bookingextension_todolist_settings"]::after,
+#page-admin-category #region-main h3 a[href*="/mod/booking/bulkcheck.php"]::after,
+#page-admin-category #region-main h3 a[href*="section=bookingextension_agent_aisettings"]::after,
+#page-admin-category #region-main h3 a[href*="section=bookingextension_confirmation_supervisor_settings"]::after,
+#page-admin-category #region-main h3 a[href*="/mod/booking/bulkoperations.php"]::after,
+#page-admin-category #region-main h3 a[href*="section=bookingextension_todolist_settings"]::after {
+    content: "Booking 10";
+    display: inline-block;
+    margin-left: .5em;
+    padding: .25em .6em;
+    border-radius: 10rem;
+    font-family: inherit;
+    font-size: .75em;
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: .02em;
+    vertical-align: middle;
+    color: #fff;
+    background: linear-gradient(135deg, #6f42c1 0%, #d63384 100%);
+    box-shadow: 0 1px 3px rgba(111, 66, 193, .35);
+}
