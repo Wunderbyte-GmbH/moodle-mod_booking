@@ -60,6 +60,9 @@ $ADMIN->add(
     )
 );
 
+// The main settings page comes first, so that the PRO activation is at the top of the category.
+$ADMIN->add('modbookingfolder', $settings);
+
 $ADMIN->add(
     'modbookingfolder',
     new admin_externalpage(
@@ -206,8 +209,6 @@ $ADMIN->add(
         'mod/booking:viewdocumentation'
     )
 );
-
-$ADMIN->add('modbookingfolder', $settings);
 
 if ($ADMIN->fulltree) {
     $notsupported = false;
