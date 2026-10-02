@@ -233,6 +233,21 @@ final class settings_loading_test extends advanced_testcase {
             }
         }
 
+        // The links form one block right below the activation: no settings page of the booking module
+        // sits between them, otherwise the category page renders its settings in the middle of the list.
+        $firstsettingspage = null;
+        foreach ($children as $index => $child) {
+            if ($index === 0 || strpos($child->name, 'mod') !== 0) {
+                continue;
+            }
+            if ($child instanceof \admin_settingpage && $firstsettingspage === null) {
+                $firstsettingspage = $child->name;
+            }
+            if ($child instanceof \admin_externalpage && $firstsettingspage !== null) {
+                $this->fail("The link {$child->name} comes after the settings page {$firstsettingspage}.");
+            }
+        }
+
         $licensepage = $children[0];
         $this->assertInstanceOf(\admin_settingpage::class, $licensepage);
         $this->assertTrue(property_exists($licensepage->settings, 'bookinglicensekey'));

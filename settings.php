@@ -141,12 +141,6 @@ $ADMIN->add(
     )
 );
 
-$conditionssettings = new admin_settingpage(
-    'modbookingconditions',
-    get_string('conditionssettings', 'mod_booking')
-);
-$ADMIN->add('modbookingfolder', $conditionssettings);
-
 $ADMIN->add(
     'modbookingfolder',
     new admin_externalpage(
@@ -214,6 +208,13 @@ $ADMIN->add(
         'mod/booking:viewdocumentation'
     )
 );
+
+// The settings pages follow the block of links, so the category page does not render them in its middle.
+$conditionssettings = new admin_settingpage(
+    'modbookingconditions',
+    get_string('conditionssettings', 'mod_booking')
+);
+$ADMIN->add('modbookingfolder', $conditionssettings);
 
 $ADMIN->add('modbookingfolder', $settings);
 
