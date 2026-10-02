@@ -28,7 +28,7 @@ use mod_booking\singleton_service;
 use stdClass;
 
 /**
- * The ticket_scanned event class (SofaTicket entry control).
+ * The ticket_scanned event class (entry control).
  *
  * Fired when an entry ticket is successfully scanned and the participant is checked in.
  * `relateduserid` is the scanned (admitted) participant; `userid` is the scanning staff member;

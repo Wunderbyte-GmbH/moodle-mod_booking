@@ -17,7 +17,7 @@
 /**
  * Webservice: verify an entry ticket and (optionally) check the participant in.
  *
- * Single source of truth for the SofaTicket entry control — used by the browser scanner and the
+ * Single source of truth for the entry control — used by the browser scanner and the
  * Moodle mobile app alike. See mod/booking/classes/local/ticket/ticket_manager.php.
  *
  * Options with dates (sessions) are checked in per date: the presence is stored in

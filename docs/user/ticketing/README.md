@@ -1,6 +1,6 @@
 [Back to parent section](../../../README.md)
 
-# Entry Tickets (SofaTicket)
+# Entry Tickets
 
 Entry tickets are personalised PDF tickets with a QR code. A ticket is created automatically when
 someone books a booking option, it is delivered by a [booking rule](../booking_rules/README.md), and
@@ -75,7 +75,7 @@ Two limits worth knowing:
 
 ## 1. Site settings
 
-*Site administration → Plugins → Activity modules → Booking → **Entry tickets (SofaTicket)***
+*Site administration → Plugins → Activity modules → Booking → **Entry tickets***
 
 The site configuration only switches the feature on and sets site-wide behaviour for the door
 scanner. Everything that describes a concrete ticket belongs to the booking option.

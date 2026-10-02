@@ -896,7 +896,7 @@ class all_userbookings extends \table_sql {
     }
 
     /**
-     * Column for the entry ticket download button of the participant (SofaTicket).
+     * Column for the entry ticket download button of the participant.
      *
      * @param stdClass $values
      *

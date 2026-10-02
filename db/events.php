@@ -87,7 +87,7 @@ $observers = [
         'callback' => 'mod_booking_observer::bookinganswer_cancelled',
     ],
     [
-        // SofaTicket: issue an entry ticket certificate when a booking succeeds.
+        // Entry tickets: issue an entry ticket certificate when a booking succeeds.
         'eventname' => '\mod_booking\event\bookingoption_booked',
         'callback' => 'mod_booking_observer::bookingoption_booked',
     ],

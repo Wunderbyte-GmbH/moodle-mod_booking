@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Tests for the SofaTicket entry-ticket system (create, cancel, verify/check-in).
+ * Tests for the entry-ticket system (create, cancel, verify/check-in).
  *
  * @package    mod_booking
  * @copyright  2026 Wunderbyte GmbH <info@wunderbyte.at>
@@ -52,7 +52,7 @@ global $CFG;
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 
 /**
- * Test the SofaTicket entry-ticket flow end to end.
+ * Test the entry-ticket flow end to end.
  *
  * @package mod_booking
  * @copyright 2026 Wunderbyte GmbH <info@wunderbyte.at>
@@ -92,7 +92,7 @@ final class ticket_manager_test extends booking_advanced_testcase {
 
     /**
      * Build a course + booking instance + one option + an enrolled student and teacher,
-     * and configure the SofaTicket feature with a ticket certificate template.
+     * and configure the entry ticket feature with a ticket certificate template.
      *
      * @param bool $enablefeature Whether to switch the ticket feature on.
      * @param bool $assigntemplate Whether the option gets a ticket design.

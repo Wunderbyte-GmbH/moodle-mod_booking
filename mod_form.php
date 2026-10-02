@@ -534,7 +534,7 @@ class mod_booking_mod_form extends moodleform_mod {
             'completeddate' => get_string('completeddate', 'mod_booking'),
         ];
         if (\mod_booking\local\ticket\ticket_manager::is_enabled()) {
-            // Download button for the participant's entry ticket (SofaTicket).
+            // Download button for the participant's entry ticket.
             $responsesfields['ticket'] = get_string('ticketbuttoncolumn', 'mod_booking');
         }
 
@@ -582,7 +582,7 @@ class mod_booking_mod_form extends moodleform_mod {
             $optionsfields['competencies'] = get_string('competencies', 'mod_booking');
         }
         if (\mod_booking\local\ticket\ticket_manager::is_enabled()) {
-            // Download button for the entry ticket of the current user (SofaTicket).
+            // Download button for the entry ticket of the current user.
             $optionsfields['ticket'] = get_string('ticketbuttoncolumn', 'mod_booking');
         }
         $optionsdownloadfields = [

@@ -14,7 +14,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * SofaTicket entry scanner.
+ * Entry ticket scanner.
  *
  * Reads a ticket QR from the device camera using the standard BarcodeDetector API and resolves it
  * through the mod_booking_verify_ticket webservice (single source of truth). Every scan opens a

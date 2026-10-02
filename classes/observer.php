@@ -182,14 +182,14 @@ class mod_booking_observer {
         $optionid = $event->objectid;
         cache_helper::invalidate_by_event('setbackoptionsanswers', [$optionid]);
 
-        // SofaTicket: cancel any entry ticket the cancelled user holds for this option.
+        // Cancel any entry ticket the cancelled user holds for this option.
         // Not gated on is_enabled() so tickets created earlier are still invalidated after the feature is turned off.
         // cancel_ticket() is a safe no-op when the user holds no valid ticket.
         ticket_manager::cancel_ticket((int) $event->objectid, (int) $event->relateduserid);
     }
 
     /**
-     * Booking option booked: create the entry ticket (SofaTicket) for the booked user.
+     * Booking option booked: create the entry ticket for the booked user.
      *
      * @param \mod_booking\event\bookingoption_booked $event
      */

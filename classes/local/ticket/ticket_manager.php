@@ -28,7 +28,7 @@ use stdClass;
 use stored_file;
 
 /**
- * Entry-ticket manager ("SofaTicket").
+ * Entry-ticket manager.
  *
  * A ticket is a {booking_tickets} record owned by mod_booking. tool_certificate is only used as a
  * layout engine to build the PDF (see \mod_booking\local\ticket\ticket_pdf) — no

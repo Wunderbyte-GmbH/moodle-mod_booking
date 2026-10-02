@@ -9,7 +9,7 @@ is checked at the door.
 The section is only shown when **Enable entry tickets** is switched on in the booking site settings.
 
 For the complete feature — site settings, ticket designs, delivery, scanner, verification page — see
-[Entry tickets (SofaTicket)](../ticketing/README.md).
+[Entry tickets](../ticketing/README.md).
 
 ---
 
@@ -87,6 +87,6 @@ Participants find their tickets under *Profile → My tickets* and in *My bookin
 
 ## Related pages
 
-- [Entry tickets (SofaTicket)](../ticketing/README.md) — the complete feature guide
+- [Entry tickets](../ticketing/README.md) — the complete feature guide
 - [Booking rules — Actions](../booking_rules/actions.md) — the *Send ticket* action
 - [07 — Advanced options](07-advanced.md) — cancellation settings that also invalidate tickets

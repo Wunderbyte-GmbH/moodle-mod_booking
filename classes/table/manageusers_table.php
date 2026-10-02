@@ -1443,7 +1443,7 @@ class manageusers_table extends wunderbyte_table {
     }
 
     /**
-     * Renders the entry ticket download button of the participant (SofaTicket).
+     * Renders the entry ticket download button of the participant.
      *
      * @param stdClass $values
      * @return string

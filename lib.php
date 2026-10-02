@@ -153,7 +153,7 @@ define('MOD_BOOKING_PRESENCE_STATUS_UNKNOWN', 5);
 define('MOD_BOOKING_PRESENCE_STATUS_ATTENDING', 6);
 define('MOD_BOOKING_PRESENCE_STATUS_EXCUSED', 7);
 // Ticket entry control: participant was admitted at the door (scanned in). Distinct from COMPLETE/ATTENDING
-// so a check-in scan never triggers activity completion or presence-coupled certificate issuance (see SofaTicket).
+// so a check-in scan never triggers activity completion or presence-coupled certificate issuance (see the entry tickets).
 define('MOD_BOOKING_PRESENCE_STATUS_CHECKEDIN', 8);
 
 // Params to define behavior of booking_option::update.

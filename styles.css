@@ -1644,7 +1644,7 @@ table[id*="bulkoperationstable"] th {
 }
 
 /*
- * SofaTicket scanner (scan.php): sticky date bar and the full-screen result overlay that covers
+ * Entry ticket scanner (scan.php): sticky date bar and the full-screen result overlay that covers
  * the page after every scan. The overlay colour signals the result; the icon draws itself in.
  */
 .booking-scanner-datebar .card-body {
