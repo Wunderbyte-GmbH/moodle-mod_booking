@@ -431,6 +431,8 @@ class rule_daysbefore implements booking_rule {
                     'bigint'
                 );
                 $sql->select = "bo.id optionid, cm.id cmid, $stringfordatefield datefield";
+                // The end date belongs to the answer: a previously booked answer still runs until it (#2545).
+                $sql->answerdatefield = true;
 
                 // In testmode we don't check the timestamp.
                 // Also, add one hour of tolerance.

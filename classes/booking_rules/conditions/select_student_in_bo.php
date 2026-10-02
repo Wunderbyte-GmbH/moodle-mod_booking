@@ -219,7 +219,18 @@ class select_student_in_bo implements booking_rule_condition {
             }
         }
 
-        $sql->where .= " AND (ba.waitinglist $operator :borole $anduserid $additionalusers) ";
+        $waitinglistsql = "ba.waitinglist $operator :borole";
+        // When the rule's date belongs to the answer (end of a self-learning course), a previously booked answer
+        // still counts until that date: the rule's date filter drops the ones that have ended.
+        if (
+            !empty($sql->answerdatefield)
+            && ($operator === '<=' || (int) $borole === MOD_BOOKING_STATUSPARAM_BOOKED)
+        ) {
+            $waitinglistsql = "(ba.waitinglist $operator :borole OR ba.waitinglist = :previouslybooked)";
+            $params['previouslybooked'] = MOD_BOOKING_STATUSPARAM_PREVIOUSLYBOOKED;
+        }
+
+        $sql->where .= " AND ($waitinglistsql $anduserid $additionalusers) ";
         // Add sorting in case we use this condition for interval notification.
         $sql->sort = " ba.timemodified ASC, ba.id ASC ";
         $params['borole'] = $borole;
