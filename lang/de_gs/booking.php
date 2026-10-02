@@ -489,6 +489,7 @@ $string['resultofcohortorgroupbooking'] = '<p>Die Buchung der globalen Gruppen h
 <li>{$a->sumgroupmembers} Nutzer/innen in den ausgewählten Kursgruppen gefunden</li>
 <li>{$a->subscribedusers} Nutzer/innen wurden erfolgreich für die Option gebucht</li>
 </ul>';
+$string['ruleoptionfieldpollurlteachers'] = 'Umfragelink für Trainer/innen (pollurlteachers)';
 $string['rulesendmailcpf'] = '[Vorschau] E-Mail versenden an User/in mit benutzerdefiniertem Feld';
 $string['rulesendmailcpf_desc'] = 'Wählen Sie ein Event aus, auf das reagiert werden soll. Legen Sie eine E-Mail-Vorlage an
 (Sie können auch Platzhalter wie {bookingdetails} verwenden) und legen Sie fest, an welche Nutzer/innen die E-Mail versendet werden soll.
