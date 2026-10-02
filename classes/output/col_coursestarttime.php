@@ -59,8 +59,11 @@ class col_coursestarttime implements renderable, templatable {
     /** @var string $duration */
     public $duration = null;
 
-    /** @var string $timeremaining */
+    /** @var string $timeremaining remaining time of the oldest running period */
     public $timeremaining = null;
+
+    /** @var array $timeremainings remaining time of every running period, oldest first */
+    public $timeremainings = [];
 
     /** @var bool $selflearningcourseshowdurationinfo */
     private $selflearningcourseshowdurationinfo = null;
@@ -102,18 +105,17 @@ class col_coursestarttime implements renderable, templatable {
                 $this->duration = format_time($settings->duration);
 
                 $ba = singleton_service::get_instance_of_booking_answers($settings);
-                $usersonlist = $ba->get_usersonlist();
                 $buyforuser = price::return_user_to_buy_for();
-                if (isset($usersonlist[$buyforuser->id])) {
-                    $timebooked = $usersonlist[$buyforuser->id]->timecreated;
-                    $timeremainingsec = $timebooked + $settings->duration - time();
-
-                    if ($timeremainingsec <= 0) {
-                        $this->selflearningcourseshowdurationinfo = null;
-                        $this->selflearningcourseshowdurationinfoexpired = true;
-                    } else {
-                        $this->timeremaining = format_time($timeremainingsec);
-                    }
+                // Every period of the user that still runs is shown, oldest first.
+                $periods = $ba->get_running_selflearning_periods((int) $buyforuser->id, (int) $settings->duration);
+                foreach ($periods as $period) {
+                    $this->timeremainings[] = ['timeremaining' => format_time($period->remaining)];
+                }
+                if (!empty($this->timeremainings)) {
+                    $this->timeremaining = $this->timeremainings[0]['timeremaining'];
+                } else if (isset($ba->get_usersonlist()[$buyforuser->id])) {
+                    $this->selflearningcourseshowdurationinfo = null;
+                    $this->selflearningcourseshowdurationinfoexpired = true;
                 }
             }
         } else {
@@ -158,6 +160,9 @@ class col_coursestarttime implements renderable, templatable {
             $returnarr['selflearningcourseshowdurationinfoexpired'] = $this->selflearningcourseshowdurationinfoexpired;
             if (!empty($this->timeremaining)) {
                 $returnarr['timeremaining'] = $this->timeremaining;
+            }
+            if (!empty($this->timeremainings)) {
+                $returnarr['timeremainings'] = $this->timeremainings;
             }
             return $returnarr;
         }

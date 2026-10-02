@@ -113,8 +113,11 @@ class bookingoption_description implements renderable, templatable {
     /** @var string $duration is saved in db as seconds and will be formatted in this class */
     private $duration = null;
 
-    /** @var string $timeremaining */
+    /** @var string $timeremaining remaining time of the oldest running period */
     private $timeremaining = null;
+
+    /** @var array $timeremainings remaining time of every running period, oldest first */
+    private $timeremainings = [];
 
     /** @var string $booknowbutton as saved in db in minutes */
     private $booknowbutton = null;
@@ -317,18 +320,17 @@ class bookingoption_description implements renderable, templatable {
                 $this->duration = format_time($settings->duration);
 
                 $ba = singleton_service::get_instance_of_booking_answers($settings);
-                $usersonlist = $ba->get_usersonlist();
                 $buyforuser = price::return_user_to_buy_for();
-                if (isset($usersonlist[$buyforuser->id])) {
-                    $timebooked = $usersonlist[$buyforuser->id]->timecreated;
-                    $timeremainingsec = $timebooked + $settings->duration - time();
-
-                    if ($timeremainingsec <= 0) {
-                        $this->selflearningcourseshowdurationinfo = null;
-                        $this->selflearningcourseshowdurationinfoexpired = true;
-                    } else {
-                        $this->timeremaining = format_time($timeremainingsec);
-                    }
+                // Every period of the user that still runs is shown, oldest first.
+                $periods = $ba->get_running_selflearning_periods((int) $buyforuser->id, (int) $settings->duration);
+                foreach ($periods as $period) {
+                    $this->timeremainings[] = ['timeremaining' => format_time($period->remaining)];
+                }
+                if (!empty($this->timeremainings)) {
+                    $this->timeremaining = $this->timeremainings[0]['timeremaining'];
+                } else if (isset($ba->get_usersonlist()[$buyforuser->id])) {
+                    $this->selflearningcourseshowdurationinfo = null;
+                    $this->selflearningcourseshowdurationinfoexpired = true;
                 }
             }
         }
@@ -812,6 +814,10 @@ class bookingoption_description implements renderable, templatable {
 
         if (!empty($this->timeremaining)) {
             $returnarray['timeremaining'] = $this->timeremaining;
+        }
+
+        if (!empty($this->timeremainings)) {
+            $returnarray['timeremainings'] = $this->timeremainings;
         }
 
         if (!empty($this->unitstring)) {

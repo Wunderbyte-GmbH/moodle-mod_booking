@@ -163,15 +163,18 @@
             {{> mod_booking/bookingoption_description_bookedslots }}
             {{> mod_booking/bookingoption_description_slotoverview }}
             {{#selflearningcourseshowdurationinfo}}
-                <div>
-                    <i class="fa fa-fw fa-clock-o" aria-hidden="true"></i>&nbsp;
-                    {{^timeremaining}}
+                {{^timeremainings}}
+                    <div>
+                        <i class="fa fa-fw fa-clock-o" aria-hidden="true"></i>&nbsp;
                         {{#str}}selflearningcoursedurationinfo, mod_booking, {{duration}}{{/str}}
-                    {{/timeremaining}}
-                    {{#timeremaining}}
+                    </div>
+                {{/timeremainings}}
+                {{#timeremainings}}
+                    <div>
+                        <i class="fa fa-fw fa-clock-o" aria-hidden="true"></i>&nbsp;
                         {{#str}}selflearningcoursetimeremaininginfo, mod_booking, {{timeremaining}}{{/str}}
-                    {{/timeremaining}}
-                </div>
+                    </div>
+                {{/timeremainings}}
             {{/selflearningcourseshowdurationinfo}}
             {{#selflearningcourseshowdurationinfoexpired}}
                 <i class="fa fa-fw fa-clock-o" aria-hidden="true"></i>&nbsp;

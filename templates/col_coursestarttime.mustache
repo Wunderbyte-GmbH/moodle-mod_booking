@@ -25,6 +25,12 @@
 
     Example context (json):
     {
+        "selflearningcourseshowdurationinfo" : true,
+        "duration" : "365 days",
+        "timeremainings" : [
+            {"timeremaining" : "188 days 2 hours"},
+            {"timeremaining" : "363 days 23 hours"}
+        ],
         "showcollapsebtn" : true,
         "optionid" : "1",
         "datestrings" : [
@@ -87,13 +93,16 @@
 </div>
 {{/datesexist}}{{/selflearningcourse}}
 {{#selflearningcourseshowdurationinfo}}
-    <i class="fa fa-fw fa-clock-o" aria-hidden="true"></i>&nbsp;
-    {{^timeremaining}}
+    {{^timeremainings}}
+        <i class="fa fa-fw fa-clock-o" aria-hidden="true"></i>&nbsp;
         {{#str}}selflearningcoursedurationinfo, mod_booking, {{duration}}{{/str}}
-    {{/timeremaining}}
-    {{#timeremaining}}
-        {{#str}}selflearningcoursetimeremaininginfo, mod_booking, {{timeremaining}}{{/str}}
-    {{/timeremaining}}
+    {{/timeremainings}}
+    {{#timeremainings}}
+        <div>
+            <i class="fa fa-fw fa-clock-o" aria-hidden="true"></i>&nbsp;
+            {{#str}}selflearningcoursetimeremaininginfo, mod_booking, {{timeremaining}}{{/str}}
+        </div>
+    {{/timeremainings}}
 {{/selflearningcourseshowdurationinfo}}
 {{#selflearningcourseshowdurationinfoexpired}}
     <i class="fa fa-fw fa-clock-o" aria-hidden="true"></i>&nbsp;

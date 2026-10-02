@@ -96,25 +96,21 @@ class datesandentities extends \mod_booking\placeholders\placeholder_base {
 
                 $value = get_string('selflearningcourseplaceholder', 'mod_booking');
 
-                if (
-                    $settings->duration > 0
-                    && isset($usersonlist[$userid])
-                ) {
-                    $timebooked = $usersonlist[$userid]->timecreated;
-                    $timeremainingsec = $timebooked + $settings->duration - time();
+                if ($settings->duration > 0) {
+                    // Every period of the user that still runs is listed, oldest first.
+                    $periods = $ba->get_running_selflearning_periods($userid, (int) $settings->duration);
+                    foreach ($periods as $period) {
+                        // We want to round up, to not have strange messages.
+                        $timeremainingsec = (int) ceil($period->remaining / 3600) * 3600;
 
-                    if ($timeremainingsec < 0) {
+                        $durationstring = format_time($timeremainingsec);
+                        $value .= " " . get_string('selflearningcourseplaceholderduration', 'mod_booking', $durationstring);
+                    }
+                    if (empty($periods) && isset($usersonlist[$userid])) {
                         $value .= " " . get_string(
                             'selflearningcourseplaceholderdurationexpired',
                             'mod_booking'
                         );
-                    } else {
-                        // We want to round up, to not have strange messages.
-                        $hours = ceil($timeremainingsec / 3600);
-                        $timeremainingsec = $hours * 3600;
-
-                        $durationstring = format_time($timeremainingsec);
-                        $value .= " " . get_string('selflearningcourseplaceholderduration', 'mod_booking', $durationstring);
                     }
                 }
             } else if (class_exists('local_entities\entitiesrelation_handler')) {

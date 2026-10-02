@@ -303,6 +303,48 @@ class booking_answers {
     }
 
     /**
+     * Get the periods of a self-learning course that still run for a user, oldest first.
+     *
+     * Every booked, reserved or previously booked answer of the user opens a period that starts at its
+     * booked date and lasts the option's duration. A previously booked answer still counts while its
+     * period runs. Old answers without a booked date fall back to timecreated.
+     *
+     * @param int $userid
+     * @param int $duration duration of the self-learning course in seconds
+     * @return array list of stdClass with answerid, start, end and remaining (seconds)
+     */
+    public function get_running_selflearning_periods(int $userid, int $duration): array {
+        if ($duration <= 0) {
+            return [];
+        }
+        $now = time();
+        $statuses = [
+            MOD_BOOKING_STATUSPARAM_BOOKED,
+            MOD_BOOKING_STATUSPARAM_RESERVED,
+            MOD_BOOKING_STATUSPARAM_PREVIOUSLYBOOKED,
+        ];
+        $periods = [];
+        foreach ($this->answers as $answerid => $answer) {
+            if ((int) $answer->userid !== $userid || !in_array((int) $answer->waitinglist, $statuses, true)) {
+                continue;
+            }
+            $start = !empty($answer->timebooked) ? (int) $answer->timebooked : (int) $answer->timecreated;
+            $end = $start + $duration;
+            if ($end <= $now) {
+                continue;
+            }
+            $periods[] = (object) [
+                'answerid' => (int) ($answer->baid ?? $answerid),
+                'start' => $start,
+                'end' => $end,
+                'remaining' => $end - $now,
+            ];
+        }
+        usort($periods, fn($a, $b) => [$a->start, $a->answerid] <=> [$b->start, $b->answerid]);
+        return $periods;
+    }
+
+    /**
      * Get all users who are on the notification list.
      *
      * Returns an array of user booking answers for users who have requested
