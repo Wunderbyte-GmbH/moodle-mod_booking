@@ -502,6 +502,7 @@ $string['availableplaces'] = 'Places available: {$a->available} of {$a->maxanswe
 $string['availplacesfull'] = 'Full';
 $string['back'] = 'Back';
 $string['backtoresponses'] = '&lt;&lt; Back to responses';
+$string['badge:booking10'] = '<span class="badge badge-pill rounded-pill mod-booking-badge-booking10"><i class="fa fa-rocket" aria-hidden="true"></i> Booking 10</span>';
 $string['badge:exp'] = '<span class="badge bg-danger text-light"><i class="fa fa-flask" aria-hidden="true"></i> Experimental</span>';
 $string['badge:pro'] = '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['baid'] = 'Booking answer ID';
@@ -1131,7 +1132,7 @@ $string['bookingticketcreatetemplatebutton'] = 'Create example ticket template';
 $string['bookingticketcreatetemplatedone'] = 'The example ticket template "{$a}" already exists.';
 $string['bookingticketduplicatewindow'] = 'Duplicate-scan warning window (seconds)';
 $string['bookingticketduplicatewindow_desc'] = 'Scanning the same code again within this many seconds after a confirmed check-in is shown as "already checked" instead of re-processing it. A rejected ticket can be scanned again at once.';
-$string['bookingticketheading'] = 'Entry tickets (SofaTicket)';
+$string['bookingticketheading'] = 'Entry tickets';
 $string['bookingticketheading_desc'] = 'Create a personalised PDF ticket with a QR code when a booking succeeds, verify it at the door and invalidate it on cancellation. Which design a ticket uses is configured per booking option, in the "Ticketing" section. Delivery is configured with a booking rule using the "Send ticket" action. Requires tool_certificate.';
 $string['bookingticketidentityfields'] = 'Identity data shown on scan';
 $string['bookingticketidentityfields_desc'] = 'The data of the ticket holder that the scanner shows so entry staff can compare it with the person at the door, e.g. profile picture, name, birth date or gender (custom profile fields). Shown for personalised tickets and for options that require an identity confirmation.';

@@ -309,6 +309,30 @@ final class settings_loading_test extends advanced_testcase {
     }
 
     /**
+     * The entry tickets heading only carries the ticket settings: the settings registered after the
+     * ticket block (e.g. use competencies) must not appear as part of that section.
+     */
+    public function test_ticket_heading_only_carries_ticket_settings(): void {
+        wb_payment::override_pro_version_for_tests(true);
+        set_config('bookingticketon', 1, 'booking');
+        $adminroot = $this->load_settings_and_assert_clean(true);
+
+        $insection = false;
+        $found = false;
+        foreach ((array) $adminroot->locate('modsettingbooking')->settings as $key => $setting) {
+            if ($setting instanceof \admin_setting_heading) {
+                $insection = $key === 'bookingbookingticketheading';
+                $found = $found || $insection;
+                continue;
+            }
+            if ($insection) {
+                $this->assertStringStartsWith('bookingticket', $setting->name, "{$key} is shown under the entry tickets heading.");
+            }
+        }
+        $this->assertTrue($found, 'Precondition failed: the entry tickets heading is missing.');
+    }
+
+    /**
      * The names of the pages in the booking category, in their order.
      *
      * @param \admin_root $adminroot

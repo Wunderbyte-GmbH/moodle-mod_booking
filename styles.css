@@ -1832,3 +1832,12 @@ table[id*="bulkoperationstable"] th {
         stroke-dashoffset: 0;
     }
 }
+
+/* "Booking 10" pill marking the settings and features new in Booking 10. */
+.mod-booking-badge-booking10 {
+    background: linear-gradient(135deg, #6f42c1 0%, #d63384 100%);
+    color: #fff;
+    font-weight: 600;
+    letter-spacing: .02em;
+    box-shadow: 0 1px 3px rgba(111, 66, 193, .35);
+}

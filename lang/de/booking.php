@@ -502,6 +502,7 @@ $string['availableplaces'] = 'Verfügbare Plätze: {$a->available} von {$a->maxa
 $string['availplacesfull'] = 'Voll';
 $string['back'] = 'Zurück';
 $string['backtoresponses'] = '&lt;&lt; Zurück zu den Buchungen';
+$string['badge:booking10'] = '<span class="badge badge-pill rounded-pill mod-booking-badge-booking10"><i class="fa fa-rocket" aria-hidden="true"></i> Booking 10</span>';
 $string['badge:exp'] = '<span class="badge bg-danger text-light"><i class="fa fa-flask" aria-hidden="true"></i> Experimentell</span>';
 $string['badge:pro'] = '<span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['baid'] = 'ID der Buchungsantwort';
@@ -1131,7 +1132,7 @@ $string['bookingticketcreatetemplatebutton'] = 'Beispiel-Ticketvorlage anlegen';
 $string['bookingticketcreatetemplatedone'] = 'Die Beispiel-Ticketvorlage „{$a}“ existiert bereits.';
 $string['bookingticketduplicatewindow'] = 'Warnfenster für Doppel-Scan (Sekunden)';
 $string['bookingticketduplicatewindow_desc'] = 'Wird derselbe Code innerhalb dieser Sekundenzahl nach einem bestätigten Einlass erneut gescannt, wird „bereits geprüft“ angezeigt statt erneut zu verarbeiten. Ein abgelehntes Ticket kann sofort erneut gescannt werden.';
-$string['bookingticketheading'] = 'Eintrittstickets (SofaTicket)';
+$string['bookingticketheading'] = 'Eintrittstickets';
 $string['bookingticketheading_desc'] = 'Bei erfolgreicher Buchung ein personalisiertes PDF-Ticket mit QR-Code erstellen, am Einlass prüfen und bei Stornierung entwerten. Welches Design ein Ticket verwendet, wird je Buchungsoption im Abschnitt „Ticketing“ eingestellt. Der Versand wird über eine Buchungsregel mit der Aktion „Ticket senden“ konfiguriert. Benötigt tool_certificate.';
 $string['bookingticketidentityfields'] = 'Beim Scan angezeigte Identitätsdaten';
 $string['bookingticketidentityfields_desc'] = 'Die Daten der Ticketinhaberin bzw. des Ticketinhabers, die der Scanner anzeigt, damit das Einlasspersonal sie mit der Person an der Tür vergleichen kann, z. B. Profilbild, Name, Geburtsdatum oder Geschlecht (benutzerdefinierte Profilfelder). Wird bei personalisierten Tickets und bei Optionen mit Identitätsprüfung angezeigt.';
