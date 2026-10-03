@@ -118,7 +118,7 @@ if ((int)($optionsettings->type ?? MOD_BOOKING_OPTIONTYPE_DEFAULT) === MOD_BOOKI
     $warning .= ' ' . get_string('slot_nosubscribe_unenrol', 'mod_booking');
     echo $OUTPUT->notification($warning, notification::NOTIFY_WARNING);
 
-    $backurl = new moodle_url('/mod/booking/report.php', ['id' => $cm->id, 'optionid' => $optionid]);
+    $backurl = \mod_booking\local\bookingstracker\responses_url::for_option((int) $cm->id, (int) $optionid);
     echo $OUTPUT->single_button($backurl, get_string('backtoresponses', 'booking'), 'get');
 
     echo $OUTPUT->footer();
@@ -568,10 +568,7 @@ echo $renderer->render_booked_users($data);
 echo html_writer::tag(
     'div',
     html_writer::link(
-        new moodle_url(
-            '/mod/booking/report.php',
-            ['id' => $cm->id, 'optionid' => $optionid]
-        ),
+        \mod_booking\local\bookingstracker\responses_url::for_option((int) $cm->id, (int) $optionid),
         get_string('backtoresponses', 'booking')
     ),
     ['style' => 'width:100%; font-weight: bold; text-align: right;']

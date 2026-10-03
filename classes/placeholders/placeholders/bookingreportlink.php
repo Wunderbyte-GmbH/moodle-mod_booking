@@ -24,10 +24,10 @@
 
 namespace mod_booking\placeholders\placeholders;
 
+use mod_booking\local\bookingstracker\responses_url;
 use html_writer;
 use mod_booking\placeholders\placeholders_info;
 use mod_booking\singleton_service;
-use moodle_url;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -78,7 +78,7 @@ class bookingreportlink extends \mod_booking\placeholders\placeholder_base {
                 return placeholders_info::$placeholders[$cachekey];
             }
 
-            $bookingreportlink = new moodle_url('/mod/booking/report.php', ['id' => $cmid, 'optionid' => $optionid]);
+            $bookingreportlink = responses_url::for_option((int) $cmid, (int) $optionid);
             $value = html_writer::link($bookingreportlink, $bookingreportlink->out());
 
              // Save the value to profit from singleton.

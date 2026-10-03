@@ -44,7 +44,7 @@ $baseurl = new moodle_url('/mod/booking/slotcalendar.php', [
     'id' => $id,
     'optionid' => $optionid,
 ]);
-$reporturl = new moodle_url('/mod/booking/report.php', ['id' => $id, 'optionid' => $optionid]);
+$reporturl = \mod_booking\local\bookingstracker\responses_url::for_option((int) $id, (int) $optionid);
 
 $PAGE->set_url($baseurl);
 $PAGE->set_title(get_string('slot_calendar_title', 'mod_booking'));

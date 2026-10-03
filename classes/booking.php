@@ -24,6 +24,7 @@
 
 namespace mod_booking;
 
+use mod_booking\local\bookingstracker\responses_url;
 use cache_helper;
 use context_module;
 use course_modinfo;
@@ -1094,11 +1095,7 @@ class booking {
                     // When inserting a new teacher, we also need to insert the teacher for each optiondate.
                     teachers_handler::subscribe_teacher_to_all_optiondates($newteacher->optionid, $newteacher->userid);
 
-                    $params = [
-                        'id' => $this->cm->id,
-                        'optionid' => $nrecid,
-                    ];
-                    $url = new moodle_url('/mod/booking/report.php', $params);
+                    $url = responses_url::for_option((int) $this->cm->id, (int) $nrecid);
 
                     redirect($url);
                 }

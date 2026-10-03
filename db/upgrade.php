@@ -5942,5 +5942,20 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2026093004, 'booking');
     }
 
+    if ($oldversion < 2026100300) {
+        // Links to the booked users lead to the Bookings tracker (report2.php) or to "Manage bookings" (report.php).
+        // Sites that had activated the Bookings tracker keep it, all others keep "Manage bookings". The old setting
+        // was removed in step 2026072200, so its last saved value is read from the admin settings log as well.
+        if (get_config('booking', 'bookingstrackerdefault') === false) {
+            set_config(
+                'bookingstrackerdefault',
+                \mod_booking\local\bookingstracker\responses_url::default_for_upgrade(),
+                'booking'
+            );
+        }
+
+        upgrade_mod_savepoint(true, 2026100300, 'booking');
+    }
+
     return true;
 }

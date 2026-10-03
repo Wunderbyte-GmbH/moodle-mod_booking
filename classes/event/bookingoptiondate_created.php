@@ -23,6 +23,8 @@
  */
 namespace mod_booking\event;
 
+use mod_booking\local\bookingstracker\responses_url;
+
 /**
  * The bookingoptiondate_created event class.
  *
@@ -71,9 +73,6 @@ class bookingoptiondate_created extends \core\event\base {
      *
      */
     public function get_url() {
-        return new \moodle_url(
-            '/mod/booking/report.php',
-            ['id' => $this->contextinstanceid, 'optiondateid' => $this->objectid]
-        );
+        return responses_url::for_optiondate((int) $this->contextinstanceid, 0, (int) $this->objectid);
     }
 }

@@ -1102,6 +1102,8 @@ $string['bookingstatusonwaitinglist'] = 'Auf der Warteliste';
 $string['bookingstatuspreviouslybooked'] = 'Bereits gebucht';
 $string['bookingstatusreserved'] = 'Reserviert';
 $string['bookingstracker'] = "Buchungstracker";
+$string['bookingstrackerdefault'] = 'Buchungstracker statt „Buchungen verwalten“';
+$string['bookingstrackerdefault_desc'] = 'Links auf die gebuchten Nutzer:innen einer Buchungsoption (Optionsmenü, Navigation, Optionslisten, Platzhalter in E-Mails, Log-Einträge, Zurück-Links) führen zum Buchungstracker statt zur alten Seite „Buchungen verwalten“. „Buchungen verwalten“ bleibt erreichbar und verlinkt auf den Buchungstracker.';
 $string['bookingstrackerdelete'] = 'Abmelden';
 $string['bookingstrackermessagesender'] = 'Absender von Nachrichten aus dem Buchungstracker';
 $string['bookingstrackermessagesender:bookingmanager'] = 'Buchungsverwalter:in der Buchungsinstanz (Standard)';
@@ -3474,6 +3476,7 @@ $string['reoccurringdatestring_help'] = 'Geben Sie einen Text in folgendem Forma
 $string['reoccurringdatestringerror'] = 'Geben Sie einen Text in folgendem Format ein:
     Tag, HH:MM - HH:MM oder "Block" bzw. "Blockveranstaltung."';
 $string['repeatthisbooking'] = 'Diese Option wiederholen';
+$string['report1deprecated'] = 'Die Seite „Buchungen verwalten“ ist veraltet und wird in einer zukünftigen Version entfernt.';
 $string['report1deprecationwarning'] = 'Diese Seite wird demnächst durch eine modernisierte Version ersetzt: <a href="{$a}">Buchungstracker - Jetzt ausprobieren!</a>';
 $string['report2breadcrumbs'] = 'Bookings-Tracker-Navigation';
 $string['report2columnsconfighint'] = 'Die hier angezeigten Spalten können in den <a href="{$a->url}">Einstellungen der Buchungsinstanz</a> unter "{$a->section}" &gt; "{$a->field}" angepasst werden.';
@@ -4238,11 +4241,14 @@ $string['sucessfullybooked'] = 'Erfolgreich gebucht';
 $string['sumunits'] = 'Summe UE';
 $string['sunday'] = 'Sonntag';
 $string['supervisorteam'] = 'Team der Vorgesetzten';
+$string['switchedtobookingstracker'] = 'Alle Links auf die gebuchten Nutzer:innen führen jetzt zum Buchungstracker. Das lässt sich in den Booking-Einstellungen der Website-Administration rückgängig machen.';
 $string['switchtemplates'] = 'Nutzer:innen können die Ansicht wechseln';
 $string['switchtemplates_help'] = 'Aktivieren Sie diese Einstellung, um es Nutzer:innen zu ermöglichen zwischen verschiedenen Ansichten zu wechseln.
 Definieren Sie im nächsten Schritt die Ansichten zwischen denen gewechselt werden kann.';
 $string['switchtemplatesselection'] = 'Ansichten zwischen denen gewechselt werden kann';
 $string['switchtemplatesselection_help'] = 'Wählen Sie die Ansichten aus, zwischen denen Nutzer:innen wechseln können.';
+$string['switchtobookingstracker'] = 'Dauerhaft auf den Buchungstracker umstellen';
+$string['switchtobookingstrackerconfirm'] = 'Das gilt für die ganze Website: Alle Links auf die gebuchten Nutzer:innen von Buchungsoptionen führen dann zum Buchungstracker statt zu „Buchungen verwalten“ – für alle Nutzer:innen und alle Buchungsinstanzen. Rückgängig machen lässt sich das unter Website-Administration > Plugins > Aktivitäten > Buchung (Einstellung „Buchungstracker statt „Buchungen verwalten““).';
 $string['syncactionenrol'] = 'Einbuchen';
 $string['syncactionunenrol'] = 'Ausbuchen';
 $string['syncactivaterule'] = 'Sync-Regel aktivieren';

@@ -24,6 +24,7 @@
 
 namespace mod_booking\output;
 
+use mod_booking\local\bookingstracker\responses_url;
 use context_module;
 use context_system;
 use core_plugin_manager;
@@ -385,10 +386,7 @@ class bookingoption_description implements renderable, templatable {
             $this->showmanageresponses = true;
 
             // Add a link to redirect to the booking option.
-            $link = new moodle_url($CFG->wwwroot . '/mod/booking/report.php', [
-                'id' => $cmid,
-                'optionid' => $optionid,
-            ]);
+            $link = responses_url::for_option((int) $cmid, (int) $optionid);
             $this->manageresponsesurl = html_entity_decode($link->out(), ENT_QUOTES);
         }
 

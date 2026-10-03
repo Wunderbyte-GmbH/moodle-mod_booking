@@ -193,6 +193,18 @@ $paging = 100; // Currently hardcoded. We might need a new setting for this in a
 $isteacher = booking_check_if_teacher($bookingoption->option);
 report_access::require_report_access((int)$cm->id, (int)$optionid);
 
+// Administrators can switch all links of the site to the Bookings tracker from here (Wunderbyte-GmbH/Wunderbyte-GmbH#2332).
+if ($action === 'switchtobookingstracker') {
+    require_sesskey();
+    \mod_booking\local\bookingstracker\responses_url::switch_site_to_bookingstracker();
+    redirect(
+        \mod_booking\local\bookingstracker\responses_url::for_option((int)$cm->id, (int)$optionid),
+        get_string('switchedtobookingstracker', 'mod_booking'),
+        null,
+        \core\output\notification::NOTIFY_SUCCESS
+    );
+}
+
 // A booking extension can limit the answers the current user may see (e.g. a supervisor who
 // only sees their own team). Both the displayed table and its download use $addsqlwhere and
 // $sqlvalues, so the restriction only has to be added once, here.
@@ -995,8 +1007,25 @@ if (!$tableallbookings->is_downloading()) {
     // (report2.php). Link to the option scope of the new report.
     $report2url = new moodle_url('/mod/booking/report2.php', ['optionid' => $optionid]);
     echo '<div class="alert alert-warning">'
-        . get_string('report1deprecationwarning', 'mod_booking', $report2url->out(false))
-        . '</div>';
+        . html_writer::tag('p', get_string('report1deprecated', 'mod_booking'))
+        . html_writer::tag('p', get_string('report1deprecationwarning', 'mod_booking', $report2url->out(false)));
+    // Administrators can switch the whole site to the Bookings tracker; it can be undone in the site administration.
+    if (has_capability('moodle/site:config', context_system::instance())) {
+        $switchbutton = new single_button(
+            new moodle_url('/mod/booking/report.php', [
+                'id' => $cm->id,
+                'optionid' => $optionid,
+                'action' => 'switchtobookingstracker',
+                'sesskey' => sesskey(),
+            ]),
+            get_string('switchtobookingstracker', 'mod_booking'),
+            'post',
+            single_button::BUTTON_PRIMARY
+        );
+        $switchbutton->add_confirm_action(get_string('switchtobookingstrackerconfirm', 'mod_booking'));
+        echo $OUTPUT->render($switchbutton);
+    }
+    echo '</div>';
 
     // We need this on top, so we have the action to download the sign-in-sheet.
     echo '<input name="action" type="hidden" value="downloadsigninsheet">';

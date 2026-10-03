@@ -1822,11 +1822,10 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
             || has_capability('mod/booking:managebookingsownoption', $context)
         ) {
             $navref->add(
-                get_string('manageresponses', 'mod_booking'),
-                new moodle_url(
-                    '/mod/booking/report.php',
-                    ['id' => $cmid, 'optionid' => $optionid]
-                ),
+                \mod_booking\local\bookingstracker\responses_url::uses_bookingstracker()
+                    ? get_string('bookingstracker', 'mod_booking')
+                    : get_string('manageresponses', 'mod_booking'),
+                \mod_booking\local\bookingstracker\responses_url::for_option((int) $cmid, (int) $optionid),
                 navigation_node::TYPE_CUSTOM,
                 null,
                 'nav_manageresponses'

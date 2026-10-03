@@ -24,6 +24,7 @@
  */
 namespace mod_booking;
 
+use mod_booking\local\bookingstracker\responses_url;
 use coding_exception;
 use mod_booking\local\slotbooking\slot_answer;
 use mod_booking\local\ticket\ticket_manager;
@@ -399,10 +400,7 @@ class all_userbookings extends \table_sql {
                 $settings = singleton_service::get_instance_of_booking_option_settings($values->optionid);
                 $values->cmid = $settings->cmid;
                 $values->text = $settings->text;
-                $values->url = new moodle_url(
-                    '/mod/booking/report.php',
-                    ['id' => $values->cmid, 'optionid' => $values->optionid]
-                );
+                $values->url = responses_url::for_option((int) $values->cmid, (int) $values->optionid);
                 return get_string('sharedplacenoselect', 'mod_booking', $values);
             }
 

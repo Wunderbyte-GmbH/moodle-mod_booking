@@ -23,6 +23,7 @@
  */
 
 namespace mod_booking\table;
+use mod_booking\local\bookingstracker\responses_url;
 use core_completion\progress;
 use mod_booking\bo_availability\conditions\alreadybooked;
 use mod_booking\bo_availability\conditions\slotmove;
@@ -824,10 +825,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
                 );
 
                 if ($canviewreport) {
-                    $reporturl = new moodle_url('/mod/booking/report.php', [
-                        'id' => $cmid,
-                        'optionid' => (int)$settings->id,
-                    ]);
+                    $reporturl = responses_url::for_option((int) $cmid, (int) (int)$settings->id);
 
                     return html_writer::link($reporturl, $slotcounttext, ['style' => 'text-decoration: none;']);
                 }
@@ -1322,10 +1320,7 @@ class bookingoptions_wbtable extends wunderbyte_table {
 
         if (booking_answers::count_places($bookinganswers->get_usersonlist()) > 0) {
             // Add a link to redirect to the booking option.
-            $link = new moodle_url($CFG->wwwroot . '/mod/booking/report.php', [
-                'id' => $values->cmid,
-                'optionid' => $values->optionid,
-            ]);
+            $link = responses_url::for_option((int) $values->cmid, (int) $values->optionid);
             // Use html_entity_decode to convert "&amp;" to a simple "&" character.
             if ($CFG->version >= 2023042400) {
                 // Moodle 4.2 needs second param.
@@ -1503,7 +1498,8 @@ class bookingoptions_wbtable extends wunderbyte_table {
                 ) . '</div>';
             }
 
-            if ($canupdate || $isteacherandcanmanagebookings) {
+            // The entry to "Manage bookings" is only offered while the site has not switched to the Bookings tracker.
+            if (($canupdate || $isteacherandcanmanagebookings) && !responses_url::uses_bookingstracker()) {
                 $ddoptions[] = '<div class="dropdown-item">' . html_writer::link(
                     new moodle_url(
                         '/mod/booking/report.php',
@@ -1518,7 +1514,9 @@ class bookingoptions_wbtable extends wunderbyte_table {
                     </i>' .
                     get_string('manageresponses', 'mod_booking')
                 ) . '</div>';
+            }
 
+            if ($canupdate || $isteacherandcanmanagebookings) {
                 $ddoptions[] = '<div class="dropdown-item">' . html_writer::link(
                     new moodle_url(
                         '/mod/booking/report2.php',

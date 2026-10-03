@@ -16,6 +16,7 @@
 
 namespace mod_booking;
 
+use mod_booking\local\bookingstracker\responses_url;
 use context_module;
 use context_system;
 use context_user;
@@ -963,10 +964,7 @@ class booking_option_settings {
      */
     private function generate_manageresponses_url(int $optionid) {
         if (!empty($this->cmid) && !empty($optionid)) {
-            $manageresponsesmoodleurl = new moodle_url(
-                '/mod/booking/report.php',
-                ['id' => $this->cmid, 'optionid' => $optionid]
-            );
+            $manageresponsesmoodleurl = responses_url::for_option((int) $this->cmid, $optionid);
             $this->manageresponsesurl = html_entity_decode($manageresponsesmoodleurl->out(), ENT_QUOTES);
         }
     }

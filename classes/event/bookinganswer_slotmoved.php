@@ -24,6 +24,7 @@
 
 namespace mod_booking\event;
 
+use mod_booking\local\bookingstracker\responses_url;
 use coding_exception;
 use moodle_url;
 
@@ -169,10 +170,7 @@ class bookinganswer_slotmoved extends \core\event\base {
      * @return moodle_url
      */
     public function get_url() {
-        return new moodle_url('/mod/booking/report.php', [
-            'id' => $this->contextinstanceid,
-            'optionid' => (int)($this->data['other']['optionid'] ?? 0),
-        ]);
+        return responses_url::for_option((int) $this->contextinstanceid, (int)($this->data['other']['optionid'] ?? 0));
     }
 
     /**

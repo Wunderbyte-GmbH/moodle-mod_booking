@@ -1622,6 +1622,18 @@ if ($ADMIN->fulltree) {
             ""
         )
     );
+    // Links to the booked users lead to the Bookings tracker instead of "Manage bookings" (report.php).
+    // New installations use the Bookings tracker; upgrades keep what the site had activated (see db/upgrade.php).
+    $bookingstrackerdefault = new admin_setting_configcheckbox(
+        'booking/bookingstrackerdefault',
+        get_string('bookingstrackerdefault', 'mod_booking'),
+        get_string('bookingstrackerdefault_desc', 'mod_booking'),
+        1
+    );
+    $bookingstrackerdefault->set_updatedcallback(function () {
+        \mod_booking\local\bookingstracker\responses_url::purge_caches();
+    });
+    $settings->add($bookingstrackerdefault);
     $settings->add(
         new admin_setting_configcheckbox(
             'booking/bookingstrackerpresencecounter',

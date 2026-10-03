@@ -29,6 +29,7 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->libdir . '/tablelib.php');
 
+use mod_booking\local\bookingstracker\responses_url;
 use coding_exception;
 use dml_exception;
 use local_wunderbyte_table\wunderbyte_table;
@@ -119,10 +120,7 @@ class bookingoptions_simple_table extends wunderbyte_table {
 
         if ($DB->get_records('booking_answers', ['optionid' => $values->optionid])) {
             // Add a link to redirect to the booking option.
-            $link = new moodle_url($CFG->wwwroot . '/mod/booking/report.php', [
-                'id' => $values->cmid,
-                'optionid' => $values->optionid,
-            ]);
+            $link = responses_url::for_option((int) $values->cmid, (int) $values->optionid);
             // Use html_entity_decode to convert "&amp;" to a simple "&" character.
             if ($CFG->version >= 2023042400) {
                 // Moodle 4.2 needs second param.

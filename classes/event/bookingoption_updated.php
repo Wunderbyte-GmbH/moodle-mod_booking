@@ -23,6 +23,7 @@
  */
 
 namespace mod_booking\event;
+use mod_booking\local\bookingstracker\responses_url;
 use Exception;
 use mod_booking\output\bookingoption_changes;
 use mod_booking\singleton_service;
@@ -76,7 +77,7 @@ class bookingoption_updated extends \core\event\base {
      *
      */
     public function get_url() {
-        return new \moodle_url('/mod/booking/report.php', ['id' => $this->contextinstanceid, 'optionid' => $this->objectid]);
+        return responses_url::for_option((int) $this->contextinstanceid, (int) $this->objectid);
     }
 
     /**

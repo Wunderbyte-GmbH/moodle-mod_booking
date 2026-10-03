@@ -49,7 +49,7 @@ $baseurl = new moodle_url('/mod/booking/moveslot.php', [
     'optionid' => $optionid,
     'baid' => $baid,
 ]);
-$returnurl = new moodle_url('/mod/booking/report.php', ['id' => $id, 'optionid' => $optionid]);
+$returnurl = \mod_booking\local\bookingstracker\responses_url::for_option((int) $id, (int) $optionid);
 
 $PAGE->set_url($baseurl);
 $PAGE->set_title(get_string('slot_move_action', 'mod_booking'));

@@ -62,7 +62,7 @@ echo $OUTPUT->heading(
 );
 
 echo html_writer::link(
-    new moodle_url('/mod/booking/report.php', ['id' => $cm->id, 'optionid' => $optionid]),
+    \mod_booking\local\bookingstracker\responses_url::for_option((int) $cm->id, (int) $optionid),
     get_string('gotomanageresponses', 'booking'),
     ['style' => 'float:right;']
 );
@@ -110,7 +110,7 @@ foreach ($rules as $rule) {
 $table->data = $rulestable;
 echo html_writer::table($table);
 
-$cancel = new moodle_url('/mod/booking/report.php', ['id' => $cm->id, 'optionid' => $optionid]);
+$cancel = \mod_booking\local\bookingstracker\responses_url::for_option((int) $cm->id, (int) $optionid);
 $addnew = new moodle_url('/mod/booking/otherbookingaddrule.php', ['id' => $cm->id, 'optionid' => $optionid]);
 
 echo $OUTPUT->render_from_template('mod_booking/button_row', [

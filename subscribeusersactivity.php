@@ -45,7 +45,7 @@ $PAGE->set_context($context);
 
 $bookingoption = singleton_service::get_instance_of_booking_option($id, $optionid);
 $url = new moodle_url('/mod/booking/subscribeusersactivity.php', ['id' => $id, 'optionid' => $optionid]);
-$backurl = new moodle_url('/mod/booking/report.php', ['id' => $cm->id, 'optionid' => $optionid]);
+$backurl = \mod_booking\local\bookingstracker\responses_url::for_option((int) $cm->id, (int) $optionid);
 $errorurl = new moodle_url('/mod/booking/view.php', ['id' => $id]);
 
 if (!booking_check_if_teacher($bookingoption->option)) {

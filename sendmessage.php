@@ -59,7 +59,7 @@ $defaultvalues->optionid = $optionid;
 $defaultvalues->id = $id;
 $defaultvalues->uids = $uids;
 
-$redirecturl = new moodle_url('/mod/booking/report.php', ['id' => $id, 'optionid' => $optionid]);
+$redirecturl = \mod_booking\local\bookingstracker\responses_url::for_option((int) $id, (int) $optionid);
 
 $mform = new mod_booking_sendmessage_form();
 
