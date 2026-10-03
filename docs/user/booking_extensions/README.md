@@ -1,4 +1,4 @@
-[Back to parent section](../../../README.md)
+[Back to parent section](../README.md)
 
 # Booking Extensions — Overview
 
@@ -74,5 +74,5 @@ For full developer documentation, see [Booking extensions developer API](develop
 ## See also
 
 - [Booking extensions developer API](developer-api.md)
-- [Developer guides](../../developer-guides/BOOKING_EXTENSIONS_API.md)
+- [Developer guides](https://github.com/Wunderbyte-GmbH/moodle-mod_booking/blob/main/docs/developer-guides/BOOKING_EXTENSIONS_API.md)
 - [Booking rules](../booking_rules/README.md) — Custom events from extensions can be used as rule triggers

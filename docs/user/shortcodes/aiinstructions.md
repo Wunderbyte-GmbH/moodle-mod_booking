@@ -51,5 +51,4 @@ Use this shortcode when you want to expose the Booking Agent outside the default
 
 ## Related docs
 
-- [Developer guide: Booking Agent workflow](../../../bookingextension/agent/classes/local/wbagent/README_AGENT.md)
 - [courselist](courselist.md) — embed the booking options table for the same activity

@@ -242,5 +242,5 @@ The restriction is enforced centrally (via `mod_booking\local\bookingworkflow\an
 ## See also
 
 - [Booking extensions overview](README.md)
-- [Developer guides — Booking Extensions API](../../developer-guides/BOOKING_EXTENSIONS_API.md)
+- [Developer guides — Booking Extensions API](https://github.com/Wunderbyte-GmbH/moodle-mod_booking/blob/main/docs/developer-guides/BOOKING_EXTENSIONS_API.md)
 - [Booking rules — Rule types](../booking_rules/rule-types.md) — How custom events integrate with rules

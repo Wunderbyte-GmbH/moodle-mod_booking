@@ -1,4 +1,4 @@
-[Back to documentation index](../README.md)
+[Back to documentation index](https://github.com/Wunderbyte-GmbH/moodle-mod_booking/blob/main/docs/README.md)
 
 # mod_booking — User documentation
 

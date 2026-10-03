@@ -1,4 +1,4 @@
-[Back to documentation index](../../README.md)
+[Back to documentation index](../README.md)
 
 # Bookings Tracker (report2.php)
 

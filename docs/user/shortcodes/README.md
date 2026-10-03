@@ -1,4 +1,4 @@
-[Back to parent section](../../../README.md)
+[Back to parent section](../README.md)
 
 # Shortcodes — Overview and Index
 
