@@ -155,7 +155,7 @@ Feature: In a booking instance with multiple bookings enabled
     ## Check report as admin
     And I am on the "My booking" Activity page logged in as admin
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
-    And I click on "Manage bookings" "link" in the ".allbookingoptionstable_r1" "css_element"
-    And I should see "Student 1" in the "#mod_booking_all_users_sort_new_r0" "css_element"
-    ## TODO: Expected to be "C" but actually see "2"?
-    And I should see "C" in the "#mod_booking_all_users_sort_new_r0_c8" "css_element"
+    And I click on "Bookings tracker" "link" in the ".allbookingoptionstable_r1" "css_element"
+    And "//table[starts-with(@id, 'booked_option_')]//tr[.//td[@data-label='firstname' and normalize-space(.)='Student'] and .//td[@data-label='lastname' and normalize-space(.)='1']]" "xpath_element" should exist
+    ## The customform field "Choice" is the first form element, so its tracker column is formfield_1.
+    And I should see "C" in the "//table[starts-with(@id, 'booked_option_')]//tr[.//td[@data-label='firstname' and normalize-space(.)='Student'] and .//td[@data-label='lastname' and normalize-space(.)='1']]//td[@data-label='formfield_1']" "xpath_element"

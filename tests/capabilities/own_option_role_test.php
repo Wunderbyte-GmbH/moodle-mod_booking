@@ -143,9 +143,9 @@ final class own_option_role_test extends capability_testcase {
         $this->make_teacher_of((int)$own->id, (int)$user->id);
         $this->setUser($user);
 
+        // The Bookings tracker is the default view of the booked users, so there is no "Manage bookings" entry.
         $entries = [
             'edit option' => 'editoptions.php?id=' . $own->cmid . '&amp;optionid=' . $own->id,
-            'manage bookings' => '/mod/booking/report.php',
             'bookings tracker' => '/mod/booking/report2.php',
             'teacher substitutions' => '/mod/booking/optiondates_teachers_report.php',
             'show only this option' => 'whichview=showonlyone',

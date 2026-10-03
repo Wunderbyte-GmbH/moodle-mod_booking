@@ -369,8 +369,8 @@ Feature: Test booking options avaialbility conditions
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r4" "css_element"
     And I click on "Book other users" "link" in the ".allbookingoptionstable_r4" "css_element"
     And I follow "<< Back to responses"
-    And I should see "student1" in the "#mod_booking_all_users_sort_new_r0" "css_element"
-    And I should see "lactose-free milk" in the "#mod_booking_all_users_sort_new_r0" "css_element"
+    And "//table[starts-with(@id, 'booked_option_')]//tr[.//td[@data-label='firstname' and normalize-space(.)='Student'] and .//td[@data-label='lastname' and normalize-space(.)='1']]" "xpath_element" should exist
+    And I should see "lactose-free milk" in the "//table[starts-with(@id, 'booked_option_')]//tr[.//td[@data-label='firstname' and normalize-space(.)='Student'] and .//td[@data-label='lastname' and normalize-space(.)='1']]//td[@data-label='formfield_1']" "xpath_element"
 
   @javascript
   Scenario: Availability with modal form and multiple elements (seeded form)
@@ -400,9 +400,9 @@ Feature: Test booking options avaialbility conditions
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r4" "css_element"
     And I click on "Book other users" "link" in the ".allbookingoptionstable_r4" "css_element"
     And I follow "<< Back to responses"
-    And I should see "student1" in the "#mod_booking_all_users_sort_new_r0" "css_element"
-    And I should see "https://test.com" in the "#mod_booking_all_users_sort_new_r0" "css_element"
-    And I should see "test@test.com" in the "#mod_booking_all_users_sort_new_r0" "css_element"
+    And "//table[starts-with(@id, 'booked_option_')]//tr[.//td[@data-label='firstname' and normalize-space(.)='Student'] and .//td[@data-label='lastname' and normalize-space(.)='1']]" "xpath_element" should exist
+    And I should see "https://test.com" in the "//table[starts-with(@id, 'booked_option_')]//tr[.//td[@data-label='firstname' and normalize-space(.)='Student'] and .//td[@data-label='lastname' and normalize-space(.)='1']]//td[@data-label='formfield_2']" "xpath_element"
+    And I should see "test@test.com" in the "//table[starts-with(@id, 'booked_option_')]//tr[.//td[@data-label='firstname' and normalize-space(.)='Student'] and .//td[@data-label='lastname' and normalize-space(.)='1']]//td[@data-label='formfield_3']" "xpath_element"
 
   @javascript
   Scenario: Availability to fill inline agreement form (seeded form)

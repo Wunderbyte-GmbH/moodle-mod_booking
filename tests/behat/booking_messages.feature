@@ -37,28 +37,30 @@ Feature: Test messaging features in a booking
     And I click on "Student 1 (student1@example.com)" "text"
     And I click on "Student 2 (student2@example.com)" "text"
     And I click on "Add" "button"
+    ## The back link leads to the Bookings tracker, which sends reminders as custom e-mails.
     And I follow "<< Back to responses"
-    And I click on "selectall" "checkbox"
-    And I click on "Send reminder e-mail" "button"
-    And I click on "selectall" "checkbox"
-    And I click on "Send custom email" "button"
+    And I click on "//table[starts-with(@id, 'booked_option_')]//thead//input[contains(@class, 'tableheadercheckbox') and @type='checkbox']" "xpath_element"
+    And I click on "//a[@data-formname='mod_booking\form\modal_send_custom_message']" "xpath_element"
     And I set the following fields to these values:
       | Subject | Behat test                                                     |
       | Message | Dear, Firstly, I would like to thank you for booking my Course |
-    And I press "Send message"
-    And I should see "Your message has been sent."
+    And I click on "//div[@data-region='modal'][.//*[@data-region='title' and normalize-space(.)='Send custom email']]//button[@data-action='save']" "xpath_element"
+    And I wait until the page is ready
     And I run all booking adhoc tasks
     Then the events log should contain "Booking option booked"
-    And the events log should contain "Unknown message type A message e-mail with subject \"Behat test\" has been sent to user with id:"
     And the events log should contain "Custom message A message e-mail with subject \"Behat test\" has been sent to user: \"Student 2\" by the user \"Teacher 1\""
     And the events log should contain "Custom message A message e-mail with subject \"Behat test\" has been sent to user: \"Student 1\" by the user \"Teacher 1\""
 
   @javascript
   Scenario: Admin book students into booking option and sends mails to them
-    ## Legacy mail templates must be used to have the expected items in the events log
+    ## Legacy mail templates must be used to have the expected items in the events log.
+    ## The reminder e-mail of a legacy mail template is only offered on the old page "Manage bookings",
+    ## so this scenario switches off the Bookings tracker as default view. The tracker sends custom e-mails
+    ## and leaves reminders to booking rules.
     Given the following config values are set as admin:
       | config                 | value | plugin  |
       | uselegacymailtemplates | 1     | booking |
+      | bookingstrackerdefault | 0     | booking |
     And I am on the "My booking" Activity page logged in as admin
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
     And I click on "Book other users" "link" in the ".allbookingoptionstable_r1" "css_element"

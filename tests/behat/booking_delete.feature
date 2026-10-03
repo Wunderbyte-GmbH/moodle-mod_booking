@@ -73,13 +73,15 @@ Feature: In a booking delete
       | My booking | New option | student2 |
     And I am on the "My booking" Activity page logged in as teacher1
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
-    And I click on "Manage bookings" "link" in the ".allbookingoptionstable_r1" "css_element"
-    And I should see "Student 1"
-    And I should see "Student 2"
-    And I click on "selectall" "checkbox"
-    And I click on "Delete responses" "button"
-    And I should not see "Student 1"
-    And I should not see "Student 2"
+    And I click on "Bookings tracker" "link" in the ".allbookingoptionstable_r1" "css_element"
+    And "//table[starts-with(@id, 'booked_option_')]//tr[.//td[@data-label='firstname' and normalize-space(.)='Student'] and .//td[@data-label='lastname' and normalize-space(.)='1']]" "xpath_element" should exist
+    And "//table[starts-with(@id, 'booked_option_')]//tr[.//td[@data-label='firstname' and normalize-space(.)='Student'] and .//td[@data-label='lastname' and normalize-space(.)='2']]" "xpath_element" should exist
+    And I click on "//table[starts-with(@id, 'booked_option_')]//thead//input[contains(@class, 'tableheadercheckbox') and @type='checkbox']" "xpath_element"
+    And I click on "//a[@data-methodname='delete_checked_booking_answers']" "xpath_element"
+    And I click on "//div[@data-region='modal'][.//*[@data-region='title' and normalize-space(.)='Delete']]//button[@data-action='save']" "xpath_element"
+    And I wait until the page is ready
+    And "//table[starts-with(@id, 'booked_option_')]//tr[.//td[@data-label='firstname' and normalize-space(.)='Student'] and .//td[@data-label='lastname' and normalize-space(.)='1']]" "xpath_element" should not exist
+    And "//table[starts-with(@id, 'booked_option_')]//tr[.//td[@data-label='firstname' and normalize-space(.)='Student'] and .//td[@data-label='lastname' and normalize-space(.)='2']]" "xpath_element" should not exist
     And I run all booking adhoc tasks
     Then the events log should contain "The user \"Teacher 1 (ID:"
     And the events log should contain "cancelled \"Student 1 (ID:"

@@ -69,12 +69,20 @@ final class ownoption_capabilities_test extends capability_testcase {
     /**
      * Each capability and the menu entries it opens alone.
      *
+     * The Bookings tracker is the default view of the booked users (bookingstrackerdefault), so the menu
+     * has no "Manage bookings" entry; with the setting off it is there next to the tracker entry.
+     *
      * @return array
      */
     public static function menu_provider(): array {
         return [
             'editownoption' => ['mod/booking:editownoption', ['edit']],
-            'managebookingsownoption' => ['mod/booking:managebookingsownoption', ['managebookings', 'tracker']],
+            'managebookingsownoption' => ['mod/booking:managebookingsownoption', ['tracker']],
+            'managebookingsownoption without tracker default' => [
+                'mod/booking:managebookingsownoption',
+                ['managebookings', 'tracker'],
+                ['bookingstrackerdefault' => 0],
+            ],
             'sendmailownoption' => ['mod/booking:sendmailownoption', ['mail']],
             'editteachersownoption' => ['mod/booking:editteachersownoption', ['substitutions']],
             'cancelownoption' => ['mod/booking:cancelownoption', ['cancel']],
@@ -89,14 +97,22 @@ final class ownoption_capabilities_test extends capability_testcase {
      *
      * @param string $capability
      * @param string[] $expected keys of MENU_ENTRIES
+     * @param array $config booking settings for this case
      * @dataProvider menu_provider
      * @covers \mod_booking\table\bookingoptions_wbtable::col_action
      */
-    public function test_each_capability_opens_only_its_menu_entries(string $capability, array $expected): void {
+    public function test_each_capability_opens_only_its_menu_entries(
+        string $capability,
+        array $expected,
+        array $config = []
+    ): void {
         global $PAGE;
 
         $PAGE->set_url('/mod/booking/view.php');
         set_config('teachersallowmailtobookedusers', 1, 'booking');
+        foreach ($config as $name => $value) {
+            set_config($name, $value, 'booking');
+        }
 
         $own = $this->create_option();
         $this->book_students(1);

@@ -178,10 +178,12 @@ Feature: Create global booking rules as admin and insure they are working.
       | BookingCMP | Option-football | student1 |
     When I am on the "BookingCMP" Activity page logged in as admin
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
-    And I click on "Manage bookings" "link" in the ".allbookingoptionstable_r1" "css_element"
-    And I click on "selectall" "checkbox"
-    And I click on "Delete responses" "button"
-    And I should see "You deleted 1 of 1 users. Users, that have completed activity, can't be deleted!"
+    And I click on "Bookings tracker" "link" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "//table[starts-with(@id, 'booked_option_')]//thead//input[contains(@class, 'tableheadercheckbox') and @type='checkbox']" "xpath_element"
+    And I click on "//a[@data-methodname='delete_checked_booking_answers']" "xpath_element"
+    And I click on "//div[@data-region='modal'][.//*[@data-region='title' and normalize-space(.)='Delete']]//button[@data-action='save']" "xpath_element"
+    And I wait until the page is ready
+    And "//table[starts-with(@id, 'booked_option_')]//tr[.//td[@data-label='firstname' and normalize-space(.)='Student'] and .//td[@data-label='lastname' and normalize-space(.)='1']]" "xpath_element" should not exist
     And I run all booking adhoc tasks
     Then the events log should contain "Booking option cancelled for/by user"
     ## Legacy mail templates (uselegacymailtemplates=1) must be used to have next item in the events log
@@ -257,10 +259,11 @@ Feature: Create global booking rules as admin and insure they are working.
       | BookingCMP | Option-football | student1 |
     When I am on the "BookingCMP" Activity page logged in as admin
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
-    And I click on "Manage bookings" "link" in the ".allbookingoptionstable_r1" "css_element"
-    And I click on "selectall" "checkbox"
-    And I click on "Toggle completion status" "button"
-    And I should see "All selected users have been marked for activity completion"
+    And I click on "Bookings tracker" "link" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "//table[starts-with(@id, 'booked_option_')]//thead//input[contains(@class, 'tableheadercheckbox') and @type='checkbox']" "xpath_element"
+    And I click on "//a[@data-methodname='toggle_completion_booking_answers']" "xpath_element"
+    And I click on "//div[@data-region='modal'][.//*[@data-region='title' and normalize-space(.)='Toggle completion status']]//button[@data-action='save']" "xpath_element"
+    And I wait until the page is ready
     ## Verify custom completion message
     And I run all booking adhoc tasks
     Then the events log should contain "Booking option completed"
@@ -273,10 +276,11 @@ Feature: Create global booking rules as admin and insure they are working.
     And I set the field "Organizer name" to "Teacher 2"
     And I press "Save and display"
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
-    And I click on "Manage bookings" "link" in the ".allbookingoptionstable_r1" "css_element"
-    And I click on "selectall" "checkbox"
-    And I click on "Toggle completion status" "button"
-    And I should see "All selected users have been marked for activity completion"
+    And I click on "Bookings tracker" "link" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "//table[starts-with(@id, 'booked_option_')]//thead//input[contains(@class, 'tableheadercheckbox') and @type='checkbox']" "xpath_element"
+    And I click on "//a[@data-methodname='toggle_completion_booking_answers']" "xpath_element"
+    And I click on "//div[@data-region='modal'][.//*[@data-region='title' and normalize-space(.)='Toggle completion status']]//button[@data-action='save']" "xpath_element"
+    And I wait until the page is ready
     ## Verify custom uncompletion message
     And I run all booking adhoc tasks
     Then the events log should contain "Completion of booking option undone"
@@ -333,10 +337,11 @@ Feature: Create global booking rules as admin and insure they are working.
       | BookingCMP | football | student1 |
     When I am on the "BookingCMP" Activity page logged in as admin
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
-    And I click on "Manage bookings" "link" in the ".allbookingoptionstable_r1" "css_element"
-    And I click on "selectall" "checkbox"
-    And I click on "Toggle completion status" "button"
-    And I should see "All selected users have been marked for activity completion"
+    And I click on "Bookings tracker" "link" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "//table[starts-with(@id, 'booked_option_')]//thead//input[contains(@class, 'tableheadercheckbox') and @type='checkbox']" "xpath_element"
+    And I click on "//a[@data-methodname='toggle_completion_booking_answers']" "xpath_element"
+    And I click on "//div[@data-region='modal'][.//*[@data-region='title' and normalize-space(.)='Toggle completion status']]//button[@data-action='save']" "xpath_element"
+    And I wait until the page is ready
     And I run all booking adhoc tasks
     Then the events log should contain "Booking option completed"
     And the events log should contain "Custom message A message e-mail with subject \"completion football\" has been sent to user: \"Teacher 2\" by the user \"Teacher 1\""
@@ -363,18 +368,17 @@ Feature: Create global booking rules as admin and insure they are working.
       | BookingCMP | Option-football | student1 |
     When I am on the "BookingCMP" Activity page logged in as admin
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
-    And I click on "Manage bookings" "link" in the ".allbookingoptionstable_r1" "css_element"
-    And I click on "selectall" "checkbox"
-    And I click on "Send custom email" "button"
+    And I click on "Bookings tracker" "link" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "//table[starts-with(@id, 'booked_option_')]//thead//input[contains(@class, 'tableheadercheckbox') and @type='checkbox']" "xpath_element"
+    And I click on "//a[@data-formname='mod_booking\form\modal_send_custom_message']" "xpath_element"
     And I set the following fields to these values:
       | Subject | Rule send_copy_of_mail test             |
       | Message | Test bookig Rule send_copy_of_mail test |
-    And I press "Send message"
-    And I should see "Your message has been sent."
+    And I click on "//div[@data-region='modal'][.//*[@data-region='title' and normalize-space(.)='Send custom email']]//button[@data-action='save']" "xpath_element"
+    And I wait until the page is ready
     And I run all booking adhoc tasks
     Then the events log should contain "Custom email sent"
     And the events log should contain "Custom message A message e-mail with subject \"Rule send_copy_of_mail test\" has been sent to user: \"Student 1\" by the user \"Teacher 1\""
-    And the events log should contain "Unknown message type A message e-mail with subject \"Rule send_copy_of_mail test\" has been sent to user with id:"
     And the events log should contain "Custom message A message e-mail with subject \"Custom msg copy: Rule send_copy_of_mail test\" has been sent to user: \"Admin User\" by the user \"Teacher 1\""
 
   @javascript
@@ -401,14 +405,14 @@ Feature: Create global booking rules as admin and insure they are working.
       | BookingCMP | Option-football | student3 |
     When I am on the "BookingCMP" Activity page logged in as admin
     And I click on "Settings" "icon" in the ".allbookingoptionstable_r1" "css_element"
-    And I click on "Manage bookings" "link" in the ".allbookingoptionstable_r1" "css_element"
-    And I click on "selectall" "checkbox"
-    And I click on "Send custom email" "button"
+    And I click on "Bookings tracker" "link" in the ".allbookingoptionstable_r1" "css_element"
+    And I click on "//table[starts-with(@id, 'booked_option_')]//thead//input[contains(@class, 'tableheadercheckbox') and @type='checkbox']" "xpath_element"
+    And I click on "//a[@data-formname='mod_booking\form\modal_send_custom_message']" "xpath_element"
     And I set the following fields to these values:
       | Subject | Rule send_copy_of_bulk_mail test             |
       | Message | Test bookig Rule send_copy_of_bulk_mail test |
-    And I press "Send message"
-    And I should see "Your message has been sent."
+    And I click on "//div[@data-region='modal'][.//*[@data-region='title' and normalize-space(.)='Send custom email']]//button[@data-action='save']" "xpath_element"
+    And I wait until the page is ready
     And I run all booking adhoc tasks
     Then the events log should contain "Custom email sent"
     And the events log should contain "Custom message A message e-mail with subject \"Rule send_copy_of_bulk_mail test\" has been sent to user: \"Student 3\" by the user \"Teacher 1\""
