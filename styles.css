@@ -1852,11 +1852,13 @@ table[id*="bulkoperationstable"] th {
 #page-admin-search .tab-pane a[href*="section=bookingextension_confirmation_supervisor_settings"]::after,
 #page-admin-search .tab-pane a[href*="/mod/booking/bulkoperations.php"]::after,
 #page-admin-search .tab-pane a[href*="section=bookingextension_todolist_settings"]::after,
+#page-admin-search .tab-pane a[href*="/mod/booking/documentation.php"]::after,
 #page-admin-category #region-main h3 a[href*="/mod/booking/bulkcheck.php"]::after,
 #page-admin-category #region-main h3 a[href*="section=bookingextension_agent_aisettings"]::after,
 #page-admin-category #region-main h3 a[href*="section=bookingextension_confirmation_supervisor_settings"]::after,
 #page-admin-category #region-main h3 a[href*="/mod/booking/bulkoperations.php"]::after,
-#page-admin-category #region-main h3 a[href*="section=bookingextension_todolist_settings"]::after {
+#page-admin-category #region-main h3 a[href*="section=bookingextension_todolist_settings"]::after,
+#page-admin-category #region-main h3 a[href*="/mod/booking/documentation.php"]::after {
     content: "Booking 10";
     display: inline-block;
     margin-left: .5em;
