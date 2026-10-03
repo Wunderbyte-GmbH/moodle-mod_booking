@@ -39,6 +39,8 @@ final class toggle_todolist_item_external_test extends advanced_testcase {
         parent::setUp();
         $this->preventResetByRollback();
         $this->resetAfterTest();
+        // The extension is off by default; without it the option form stores no todo list items.
+        set_config('enableglobally', 1, 'bookingextension_todolist');
     }
 
     public function tearDown(): void {

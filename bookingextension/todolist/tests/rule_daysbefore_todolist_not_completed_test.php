@@ -38,6 +38,8 @@ final class rule_daysbefore_todolist_not_completed_test extends advanced_testcas
         parent::setUp();
         $this->resetAfterTest();
         $this->preventResetByRollback();
+        // The extension is off by default; without it the option form stores no todo list items.
+        set_config('enableglobally', 1, 'bookingextension_todolist');
         time_mock::init();
         time_mock::set_mock_time(strtotime('now'));
     }
