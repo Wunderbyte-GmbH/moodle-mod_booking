@@ -1496,6 +1496,12 @@ class slot_availability {
         $hours = (int)$matches[1];
         $minutes = (int)$matches[2];
 
+        // "24:00" marks the end of the day so that a resource can be offered around the clock
+        // (e.g. a shared car): user-defined slots may then span midnight.
+        if ($hours === 24 && $minutes === 0) {
+            return DAYSECS;
+        }
+
         if ($hours < 0 || $hours > 23 || $minutes < 0 || $minutes > 59) {
             return 0;
         }
