@@ -89,6 +89,18 @@ final class slot_price_from_test extends booking_advanced_testcase {
     }
 
     /**
+     * One rule carrying prices for several price categories must keep ALL of them - the rule query
+     * used to key its rows by rule id, so every category but the last one was silently dropped.
+     */
+    public function test_rule_with_prices_for_several_categories_keeps_all(): void {
+        [$optionid, $userid] = $this->create_priced_slot_option();
+        $ruleid = $this->add_price_rule($optionid, 'default', 'delta', 10.0);
+        $this->add_rule_price($ruleid, 'student', 'delta', 5.0);
+
+        $this->assertSame(['min' => 10.0, 'max' => 20.0], slot_price::get_bookable_price_range($optionid, $userid));
+    }
+
+    /**
      * Render the priceisset button data for the given user.
      *
      * @param int $optionid
@@ -108,8 +120,9 @@ final class slot_price_from_test extends booking_advanced_testcase {
      * @param string $category price category identifier the rule applies to
      * @param string $mode absolute|delta|factor
      * @param float $value
+     * @return int rule id
      */
-    private function add_price_rule(int $optionid, string $category, string $mode, float $value): void {
+    private function add_price_rule(int $optionid, string $category, string $mode, float $value): int {
         global $DB;
 
         $ruleid = (int) $DB->insert_record('booking_slot_rule', (object) [
@@ -123,6 +136,22 @@ final class slot_price_from_test extends booking_advanced_testcase {
             'timerangeend' => '12:00',
             'timecreated' => time(),
         ]);
+        $this->add_rule_price($ruleid, $category, $mode, $value);
+
+        return $ruleid;
+    }
+
+    /**
+     * Add a price (for one price category) to an existing price rule.
+     *
+     * @param int $ruleid
+     * @param string $category price category identifier
+     * @param string $mode absolute|delta|factor
+     * @param float $value
+     */
+    private function add_rule_price(int $ruleid, string $category, string $mode, float $value): void {
+        global $DB;
+
         $DB->insert_record('booking_slot_rule_price', (object) [
             'ruleid' => $ruleid,
             'pricecategoryidentifier' => $category,
