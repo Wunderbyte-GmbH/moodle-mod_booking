@@ -365,7 +365,7 @@ class slotbooking_form extends dynamic_form {
             return;
         }
 
-        if (empty($openslots)) {
+        if (empty($openslots) && $viewmode !== 'calendar') {
             $mform->addElement('static', 'slot_selection_info', '', get_string('slot_no_open_slots', 'mod_booking'));
             $mform->addElement('hidden', 'slot_selection', '');
             $mform->setType('slot_selection', PARAM_TEXT);
