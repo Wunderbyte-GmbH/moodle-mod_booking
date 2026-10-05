@@ -601,7 +601,10 @@ final class rules_selflearningcourse_test extends booking_advanced_testcase {
                     'bo_cond' => MOD_BOOKING_BO_COND_BOOKITBUTTON,
                     'showprice' => false,
                     'price' => 10,
-                    'numberoftasks' => 3, // 2 from previous test.
+                    // 2 from previous test. The duration (84400s) is shorter than one day, so the
+                    // "1 day before" reminder of this booking is already overdue and is not scheduled.
+                    // "1 day after" is skipped by skipbookingrules (moodle-mod_booking#1625).
+                    'numberoftasks' => 2,
                     'taskexpected' => [
                         [
                             'subject' => '1 day after', // From previous test.
@@ -611,11 +614,6 @@ final class rules_selflearningcourse_test extends booking_advanced_testcase {
                         [
                             'subject' => '1 day before', // From previous test.
                             'nextruntime' => strtotime('+ 3 days'),
-                            'days' => '1',
-                        ],
-                        [
-                            'subject' => '1 day before',
-                            'nextruntime' => strtotime('now'),
                             'days' => '1',
                         ],
                     ],

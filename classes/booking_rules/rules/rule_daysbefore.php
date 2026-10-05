@@ -258,6 +258,12 @@ class rule_daysbefore implements booking_rule {
             // Use strtotime to correctly handle DST transitions instead of fixed 86400s per day.
             $daysoffset = -1 * (int) $this->days;
             $nextruntime = strtotime("{$daysoffset} days", (int) $record->datefield);
+            // The SQL only prefilters with a tolerance. Never schedule a mail whose time has already passed:
+            // its task has run already, or the user only qualified afterwards (e.g. booked late).
+            // Re-evaluations (user updated, option saved...) would otherwise send it a second time.
+            if ($nextruntime < time()) {
+                continue;
+            }
             $record->rulename = $this->rulename;
             $record->nextruntime = $nextruntime;
             $action->execute($record);

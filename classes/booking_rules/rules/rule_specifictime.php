@@ -289,6 +289,12 @@ class rule_specifictime implements booking_rule {
             }
             // Set the time of when the task should run.
             $nextruntime = (int) $record->datefield - $this->seconds;
+            // The SQL only prefilters with a tolerance. Never schedule a mail whose time has already passed:
+            // its task has run already, or the user only qualified afterwards (e.g. booked late).
+            // Re-evaluations (user updated, option saved...) would otherwise send it a second time.
+            if ($nextruntime < time()) {
+                continue;
+            }
             $record->rulename = $this->rulename;
             $record->nextruntime = $nextruntime;
             $action->execute($record);
