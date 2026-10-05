@@ -279,7 +279,69 @@ class teachers_handler {
                         'Cannot remove subscriber with id: ' . $oldteacherid
                     );
                 }
+                // The removed teacher should also lose the teacher role in the linked course.
+                if ($doenrol && !empty($oldteacherid) && !empty($optionsettings->cmid)) {
+                    $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($optionsettings->cmid);
+                    $this->remove_teacher_from_linked_course(
+                        (int)$oldteacherid,
+                        (int)($formdata->courseid ?? $optionsettings->courseid ?? 0),
+                        (int)($bookingsettings->teacherroleid ?? 0)
+                    );
+                }
             }
+        }
+    }
+
+    /**
+     * Removes the teacher role of a removed teacher from the course linked to the booking option.
+     * The user is unenrolled only if no other role is left in the course.
+     * If the user is still teacher of another booking option linked to the same course, nothing happens.
+     *
+     * @param int $userid the removed teacher
+     * @param int $courseid the course linked to the booking option
+     * @param int $roleid the role teachers are enrolled with (teacherroleid of the booking instance)
+     * @return void
+     */
+    public function remove_teacher_from_linked_course(int $userid, int $courseid, int $roleid): void {
+        global $DB;
+
+        if (empty($userid) || empty($courseid) || empty($roleid)) {
+            return;
+        }
+        if (!$DB->record_exists('course', ['id' => $courseid])) {
+            return;
+        }
+
+        // Still teacher of another booking option linked to the same course: keep the enrolment.
+        $sql = "SELECT 1
+                  FROM {booking_teachers} bt
+                  JOIN {booking_options} bo ON bo.id = bt.optionid
+                 WHERE bt.userid = :userid
+                   AND bo.courseid = :courseid
+                   AND bo.id <> :optionid";
+        if ($DB->record_exists_sql($sql, ['userid' => $userid, 'courseid' => $courseid, 'optionid' => $this->optionid])) {
+            return;
+        }
+
+        if (!enrol_is_enabled('manual') || !$enrol = enrol_get_plugin('manual')) {
+            return;
+        }
+        $instances = $DB->get_records(
+            'enrol',
+            ['enrol' => 'manual', 'courseid' => $courseid, 'status' => ENROL_INSTANCE_ENABLED],
+            'sortorder,id ASC'
+        );
+        if (empty($instances)) {
+            return;
+        }
+
+        $coursecontext = context_course::instance($courseid);
+        role_unassign($roleid, $userid, $coursecontext->id);
+
+        // Only unenrol, if the user has no other role left in the course (e.g. as student).
+        if (empty(get_user_roles($coursecontext, $userid, false))) {
+            $instance = reset($instances); // Same instance as used in booking_option::enrol_user.
+            $enrol->unenrol_user($instance, $userid);
         }
     }
 
