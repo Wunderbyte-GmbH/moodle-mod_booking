@@ -433,6 +433,10 @@ class slot_rules {
 
         $hours = (int)$matches[1];
         $minutes = (int)$matches[2];
+        // The value "24:00" marks the end of the day (see slot_availability::time_to_seconds()).
+        if ($hours === 24 && $minutes === 0) {
+            return DAYSECS;
+        }
         if ($hours < 0 || $hours > 23 || $minutes < 0 || $minutes > 59) {
             return null;
         }

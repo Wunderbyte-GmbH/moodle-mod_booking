@@ -789,6 +789,12 @@ class slotbooking_form extends dynamic_form {
      *
      */
     private static function get_default_custom_duration(?object $config, array $options): int {
+        // For user-defined slots slot_duration_minutes holds the MAXIMAL slot length. Preselecting it
+        // makes every booking start at the longest duration (e.g. 7 days for a rental), so the
+        // shortest duration is the default whenever a range of durations is offered.
+        if (count($options) > 1) {
+            return (int)array_key_first($options);
+        }
         $configured = max(1, (int)($config->slot_duration_minutes ?? 30)) * MINSECS;
         if (array_key_exists($configured, $options)) {
             return $configured;
@@ -969,6 +975,10 @@ class slotbooking_form extends dynamic_form {
 
         $hours = (int)$matches[1];
         $minutes = (int)$matches[2];
+        // The value "24:00" marks the end of the day (see slot_availability::time_to_seconds()).
+        if ($hours === 24 && $minutes === 0) {
+            return DAYSECS;
+        }
         if ($hours < 0 || $hours > 23 || $minutes < 0 || $minutes > 59) {
             return 0;
         }
