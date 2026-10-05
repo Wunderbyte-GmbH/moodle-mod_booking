@@ -34,6 +34,7 @@ use mod_booking\local\slotbooking\slot_availability;
 use mod_booking\local\slotbooking\slot_feature;
 use mod_booking\local\slotbooking\slot_mover;
 use mod_booking\local\slotbooking\slot_price;
+use mod_booking\local\slotbooking\slot_dto;
 use MoodleQuickForm;
 use mod_booking\utils\wb_payment;
 use moodle_exception;
@@ -335,6 +336,18 @@ class slotbooking implements bo_condition {
                     continue;
                 }
                 if (empty($sidebarsettings->id)) {
+                    continue;
+                }
+                // Hide options the user can no longer book from the sidebar, so it lists exactly the
+                // options that contribute slots to the merged calendar. Fixed-grid types: same source
+                // as the calendar data (own still-visible booked slots keep the option listed).
+                // Userdefined has no picker slots, so fall back to the per-user slot cap.
+                $sidebarslottype = (string)($sidebarsettings->slotconfig->slot_type ?? 'fixed');
+                if ($sidebarslottype === 'userdefined') {
+                    if (!slot_availability::has_remaining_slot_capacity((int)$sidebarsettings->id, $userid)) {
+                        continue;
+                    }
+                } else if (empty(slot_dto::build_picker_slots((int)$sidebarsettings->id, $userid))) {
                     continue;
                 }
                 $sidebaroptions[] = [
