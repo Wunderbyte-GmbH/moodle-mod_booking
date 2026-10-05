@@ -32,6 +32,7 @@ use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_option_settings;
 use mod_booking\local\modechecker;
 use mod_booking\local\slotbooking\slot_mover;
+use mod_booking\local\slotbooking\slot_price;
 use mod_booking\price;
 use mod_booking\singleton_service;
 use moodle_url;
@@ -379,7 +380,19 @@ class priceisset implements bo_condition {
                 'role' => '',
             ];
         }
-
+        // Slot options with price rules can cost differently per slot. If this user faces more than
+        // one price among the slots they can book, advertise the cheapest one as "from <price>";
+        // with a single price the display stays exactly as before.
+        if (!empty($settings->slotconfig) && isset($data['price'])) {
+            $pricerange = slot_price::get_bookable_price_range((int)$settings->id, (int)$userid);
+            if ($pricerange !== null && $pricerange['min'] < $pricerange['max']) {
+                $data['priceformatted'] = get_string(
+                    'slot_price_from',
+                    'mod_booking',
+                    number_format($pricerange['min'], 2, '.', '')
+                );
+            }
+        }
         return ['mod_booking/bookit_price', $data];
     }
 
