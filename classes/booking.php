@@ -383,11 +383,12 @@ class booking {
             '\' \''
         );
 
-        // By default, ALL users can be selected as teachers.
+        // By default, all active (not deleted, not suspended) users can be selected as teachers.
         $sql = "SELECT * FROM (
                 SELECT DISTINCT u.id, u.firstname, u.lastname, u.email, $fullsql AS fulltextstring
                 FROM {user} u
                 WHERE u.deleted = 0
+                AND u.suspended = 0
             ) AS fulltexttable";
 
         /*
@@ -409,6 +410,7 @@ class booking {
                         JOIN {user_info_data} uid ON uid.userid = u.id
                         JOIN {user_info_field} uif ON uif.id = uid.fieldid
                         WHERE u.deleted = 0
+                        AND u.suspended = 0
                         AND uif.shortname = :profilefieldname
                         AND TRIM(uid.data) $inorequal
                     ) AS fulltexttable";
@@ -418,7 +420,7 @@ class booking {
             }
         }
 
-        // Check for u.deleted = 0 is important, so we do not load any deleted users!
+        // Check for u.deleted = 0 and u.suspended = 0 is important, so we do not load any deleted or suspended users!
         if (!empty($query)) {
             // We search for every word extra to get better results.
             $firstrun = true;
