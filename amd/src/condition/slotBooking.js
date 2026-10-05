@@ -296,7 +296,7 @@ const renderCustomDayEditor = (
     durationLabel.textContent = legendLabels.duration || 'Duration';
     controls.appendChild(durationLabel);
 
-    durationSelect.classList.add('booking-slot-duration-select');
+    durationSelect.classList.add('booking-slot-duration-select', 'form-select-sm');
     controls.appendChild(durationSelect);
 
     const label = document.createElement('label');
@@ -305,7 +305,7 @@ const renderCustomDayEditor = (
     controls.appendChild(label);
 
     const timeInput = document.createElement('select');
-    timeInput.className = 'form-control form-control-sm booking-slot-time-input';
+    timeInput.className = 'form-select form-select-sm booking-slot-time-input';
     // Only genuinely bookable starts: from the opening time up to closing time minus the
     // chosen duration, on the configured start interval. A <select> also ends at its last
     // entry, unlike the native time input whose hour/minute wheels wrap around endlessly.
@@ -466,11 +466,18 @@ const renderCustomDayEditor = (
     selectionBlock.className = 'booking-slot-selection position-absolute';
     selectionBlock.style.top = '0';
     selectionBlock.style.height = '2px';
-    // Purely a visual indicator of the currently chosen new start/duration - it can end up
-    // positioned right on top of an existing booked block (e.g. the default start happens to
-    // match a previous pick), and being appended last it would otherwise sit above that block in
-    // paint order, intercepting clicks meant for its "Booked" link.
-    selectionBlock.style.pointerEvents = 'none';
+    // The band can be dragged to move it, its top/bottom handles to resize it. It stays BELOW
+    // booked blocks in paint order (see .booking-slot-selection z-index in styles.css), so where it
+    // overlaps a booking, that booking's "Booked" link still receives the click.
+    const selectionLabel = document.createElement('div');
+    selectionLabel.className = 'booking-slot-selection-label';
+    selectionBlock.appendChild(selectionLabel);
+    const topHandle = document.createElement('div');
+    topHandle.className = 'booking-slot-selection-handle booking-slot-selection-handle--top';
+    selectionBlock.appendChild(topHandle);
+    const bottomHandle = document.createElement('div');
+    bottomHandle.className = 'booking-slot-selection-handle booking-slot-selection-handle--bottom';
+    selectionBlock.appendChild(bottomHandle);
     timeline.appendChild(selectionBlock);
 
     const syncStart = (timestamp) => {
@@ -491,6 +498,7 @@ const renderCustomDayEditor = (
         const height = span > 0 ? (duration / span) * 100 : 0;
         selectionBlock.style.top = `${Math.max(0, Math.min(100, top))}%`;
         selectionBlock.style.height = `${Math.max(2, Math.min(100, height))}%`;
+        selectionLabel.textContent = `${toTimeValue(clamped, timeFormatter)} - ${toTimeValue(clamped + duration, timeFormatter)}`;
 
         // Programmatic value assignment above does not fire a native 'change' event; dispatch one
         // so live-validation wiring (see setupInteractiveUi) reacts to every start/duration pick,
@@ -522,11 +530,78 @@ const renderCustomDayEditor = (
         syncStart(Number(hiddenStartInput.value || openFrom));
     };
 
-    timeline.addEventListener('click', (event) => {
+    const timestampAt = (clientY) => {
         const rect = timeline.getBoundingClientRect();
-        const ratio = rect.height > 0 ? (event.clientY - rect.top) / rect.height : 0;
-        const timestamp = openFrom + Math.round((openUntil - openFrom) * Math.max(0, Math.min(1, ratio)));
-        syncStart(timestamp);
+        const ratio = rect.height > 0 ? (clientY - rect.top) / rect.height : 0;
+        return openFrom + Math.round((openUntil - openFrom) * Math.max(0, Math.min(1, ratio)));
+    };
+
+    // Resizing may only produce durations the select actually offers (= what the server accepts),
+    // and never one that runs past the given limit (closing time / opening time).
+    const nearestDuration = (wanted, maxDuration) => {
+        const values = Array.from(durationSelect.options)
+            .map(option => Number(option.value || 0))
+            .filter(value => value > 0);
+        if (values.length === 0) {
+            return Math.max(1, Number(durationSelect.value || 0));
+        }
+        const fitting = values.filter(value => value <= maxDuration);
+        const candidates = fitting.length > 0 ? fitting : [Math.min(...values)];
+        return candidates.reduce((best, value) => (Math.abs(value - wanted) < Math.abs(best - wanted) ? value : best));
+    };
+
+    // Pointer events cover mouse and touch alike. Pointer capture keeps the drag alive when the
+    // pointer leaves the band; the mode check stops a handle's bubbling moves from also moving the band.
+    let dragState = null;
+    const bindDrag = (element, mode) => {
+        element.addEventListener('pointerdown', (event) => {
+            if (event.button !== 0) {
+                return;
+            }
+            event.preventDefault();
+            event.stopPropagation();
+            const start = Number(hiddenStartInput.value || openFrom);
+            dragState = {
+                mode,
+                start,
+                end: start + Math.max(1, Number(durationSelect.value || 0)),
+                grab: timestampAt(event.clientY) - start,
+            };
+            element.setPointerCapture(event.pointerId);
+        });
+        element.addEventListener('pointermove', (event) => {
+            if (!dragState || dragState.mode !== mode) {
+                return;
+            }
+            const at = timestampAt(event.clientY);
+            if (mode === 'move') {
+                syncStart(at - dragState.grab);
+            } else if (mode === 'end') {
+                durationSelect.value = String(nearestDuration(at - dragState.start, openUntil - dragState.start));
+                syncStart(dragState.start);
+            } else {
+                // Top edge: the end stays put, start and duration follow the pointer.
+                const duration = nearestDuration(dragState.end - at, dragState.end - openFrom);
+                durationSelect.value = String(duration);
+                syncStart(dragState.end - duration);
+            }
+        });
+        const endDrag = () => {
+            dragState = null;
+        };
+        element.addEventListener('pointerup', endDrag);
+        element.addEventListener('pointercancel', endDrag);
+    };
+    bindDrag(selectionBlock, 'move');
+    bindDrag(topHandle, 'start');
+    bindDrag(bottomHandle, 'end');
+
+    timeline.addEventListener('click', (event) => {
+        // A drag on the band ends in a click on it - that must not re-place the band.
+        if (event.target.closest('.booking-slot-selection')) {
+            return;
+        }
+        syncStart(timestampAt(event.clientY));
     });
 
     syncStart(defaultStart);
