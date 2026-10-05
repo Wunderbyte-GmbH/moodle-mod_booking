@@ -270,7 +270,8 @@ class slot_rules {
             return $cached;
         }
 
-        $sql = "SELECT sr.id AS ruleid,
+        $sql = "SELECT srp.id,
+                       sr.id AS ruleid,
                        sr.optionid,
                        sr.ruletype,
                        sr.priority,
@@ -279,7 +280,6 @@ class slot_rules {
                        sr.weekdays,
                        sr.timerangestart,
                        sr.timerangeend,
-                       srp.id,
                        srp.pricecategoryidentifier,
                        srp.mode,
                        srp.value,
