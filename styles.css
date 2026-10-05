@@ -1190,9 +1190,63 @@ div.checkbox:has(label[for^="id_bo_cond_allowedtobookininstance_capabilitynotnee
 .booking-slot-selection {
     left: 0;
     right: 0;
+    z-index: 1;
     background: rgba(13, 110, 253, 0.2);
     border-top: 1px solid rgba(13, 110, 253, 0.75);
     border-bottom: 1px solid rgba(13, 110, 253, 0.75);
+    cursor: grab;
+    touch-action: none;
+    user-select: none;
+}
+
+.booking-slot-selection:active {
+    cursor: grabbing;
+}
+
+/* Booked blocks sit above the draggable selection band, so their "Booked" link stays clickable
+   where both overlap (see renderCustomDayEditor in slotBooking.js). */
+.booking-slot-timeline--clickable .booking-slot--booked {
+    z-index: 2;
+}
+
+.booking-slot-selection-label {
+    padding: 0 0.35rem;
+    overflow: hidden;
+    font-size: 0.7rem;
+    font-weight: 600;
+    line-height: 1.4;
+    color: rgb(10, 88, 202);
+    white-space: nowrap;
+    pointer-events: none;
+}
+
+.booking-slot-selection-handle {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 12px;
+    cursor: ns-resize;
+    touch-action: none;
+}
+
+.booking-slot-selection-handle--top {
+    top: -6px;
+}
+
+.booking-slot-selection-handle--bottom {
+    bottom: -6px;
+}
+
+.booking-slot-selection-handle::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 2rem;
+    height: 4px;
+    margin: -2px 0 0 -1rem;
+    border-radius: 2px;
+    background: rgba(13, 110, 253, 0.75);
 }
 
 /* List-view slot picker (multi-select, renderSlotList). */
