@@ -203,6 +203,16 @@ class slot_rules {
     }
 
     /**
+     * Whether the option has any slot price rules at all.
+     *
+     * @param int $optionid booking option id
+     * @return bool
+     */
+    public static function has_price_rules(int $optionid): bool {
+        return !empty(self::get_price_rules_for_option($optionid));
+    }
+
+    /**
      * Determine if a slot is allowed by the given rules.
      *
      * @param array $rules option rules

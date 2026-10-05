@@ -101,6 +101,43 @@ class slot_price {
     }
 
     /**
+     * Lowest and highest price among the slots the user can currently book.
+     *
+     * Returns null when the option has no slot price rules (every slot then costs the base price)
+     * or when the user cannot book any slot, so callers keep their regular price display.
+     *
+     * @param int $optionid booking option id
+     * @param int $userid user id for price category resolution
+     * @return array{min: float, max: float}|null
+     */
+    public static function get_bookable_price_range(int $optionid, int $userid = 0): ?array {
+        if (!slot_rules::has_price_rules($optionid)) {
+            return null;
+        }
+
+        $basedata = self::get_base_slot_price_data($optionid, $userid);
+        $prices = [];
+        foreach (slot_availability::get_slots_with_status($optionid, $userid) as $slot) {
+            if (!in_array((string)($slot['status'] ?? ''), ['open', 'warning'], true)) {
+                continue;
+            }
+            $prices[] = round((float)slot_rules::apply_price_rules_to_slot_price(
+                $optionid,
+                (int)$slot['start'],
+                (int)$slot['end'],
+                (float)$basedata['price'],
+                (string)$basedata['pricecategoryidentifier']
+            ), 2);
+        }
+
+        if (empty($prices)) {
+            return null;
+        }
+
+        return ['min' => min($prices), 'max' => max($prices)];
+    }
+
+    /**
      * Get base price per slot from standard option prices.
      *
      * @param int $optionid booking option id
