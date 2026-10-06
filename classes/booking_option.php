@@ -2732,7 +2732,12 @@ class booking_option {
                     $now,
                     $end
                 );
-            } else if (empty($this->settings->semesterid) || $isteacher) {
+            } else if (
+                empty($this->settings->semesterid)
+                || $isteacher
+                // Setting defaults to on: only an explicitly saved "0" disables the semester limit.
+                || get_config('booking', 'enrollimitbysemester') === '0'
+            ) {
                 // Enrol using the default role.
                 $enrol->enrol_user($instance, $userid, ($roleid > 0 ? $roleid : $instance->roleid));
             } else {
