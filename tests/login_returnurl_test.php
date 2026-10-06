@@ -37,13 +37,15 @@ global $CFG;
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 
 /**
- * The option details return target must travel in the login link, not in $SESSION at render time.
+ * The login button must carry its return target in its own href, never in $SESSION at render time.
  *
  * A booking shortcode/list renders a login button for every option a logged-out user sees. If the
  * return target were written to $SESSION->wantsurl while building each button, the last rendered
- * card would win and a plain frontpage login would redirect there instead of staying put. The
- * target therefore rides along as a wantsurl GET parameter on the login URL, so it only applies
- * when the user actually clicks that button.
+ * card would win and a plain frontpage login would redirect there instead of staying put. Instead
+ * the button links to the option's optionview.php with forcelogin=1; a logged-out click makes
+ * optionview call require_login(), which stores the target in $SESSION->wantsurl at click time and
+ * returns there after login. (A wantsurl GET parameter on /login/index.php would not work: core
+ * only reads that parameter under BEHAT_SITE_RUNNING.)
  *
  * @package    mod_booking
  * @category   test
@@ -53,11 +55,11 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  */
 final class login_returnurl_test extends booking_advanced_testcase {
     /**
-     * A logged-out user building the login link gets the return target in the link, not the session.
+     * The button links to the option (with forcelogin) and building it does not touch the session.
      *
      * @return void
      */
-    public function test_returnurl_rides_in_link_and_session_is_untouched(): void {
+    public function test_button_targets_option_and_session_is_untouched(): void {
         global $SESSION;
 
         set_config('showbookingdetailstoall', 1, 'booking');
@@ -68,18 +70,15 @@ final class login_returnurl_test extends booking_advanced_testcase {
         unset($SESSION->wantsurl);
 
         $settings = singleton_service::get_instance_of_booking_option_settings($fixture->optionid);
-        $loginurl = bo_info::set_login_returnurl($settings);
+        $url = new moodle_url(bo_info::set_login_returnurl($settings));
 
         // Merely building the button must not mutate the session.
         $this->assertTrue(empty($SESSION->wantsurl));
 
-        // The return target rides along in the login link.
-        $url = new moodle_url($loginurl);
-        $this->assertStringContainsString('/login/index.php', $url->out(false));
-        $wantsurl = $url->param('wantsurl');
-        $this->assertNotEmpty($wantsurl);
-        $this->assertStringContainsString('/mod/booking/optionview.php', $wantsurl);
-        $this->assertStringContainsString('optionid=' . $fixture->optionid, $wantsurl);
+        // The button points at the option's view page, with forcelogin so a logged-out click logs in.
+        $this->assertStringContainsString('/mod/booking/optionview.php', $url->out(false));
+        $this->assertEquals($fixture->optionid, $url->param('optionid'));
+        $this->assertEquals(1, $url->param('forcelogin'));
     }
 
     /**
@@ -108,35 +107,26 @@ final class login_returnurl_test extends booking_advanced_testcase {
     }
 
     /**
-     * The full round trip: a logged-out user clicks the login button and the session gets the target.
-     *
-     * Emulates what core login/index.php does with the wantsurl GET parameter:
-     *   $wantsurl = optional_param('wantsurl', '', PARAM_LOCALURL);
-     *   $SESSION->wantsurl = (new moodle_url($wantsurl))->out(false);
-     * After login core redirects to $SESSION->wantsurl, which must point at the clicked option.
+     * Each card's button carries its own option, so there is no cross-card bleed.
      *
      * @return void
      */
-    public function test_login_consumes_wantsurl_and_lands_on_option(): void {
-        global $SESSION;
-
+    public function test_each_button_targets_its_own_option(): void {
         set_config('showbookingdetailstoall', 1, 'booking');
-        $fixture = $this->create_simple_option();
+        $first = $this->create_simple_option();
+        $second = $this->create_simple_option();
 
         $this->setUser(0);
-        unset($SESSION->wantsurl);
 
-        $settings = singleton_service::get_instance_of_booking_option_settings($fixture->optionid);
-        $loginurl = new moodle_url(bo_info::set_login_returnurl($settings));
+        $firsturl = new moodle_url(
+            bo_info::set_login_returnurl(singleton_service::get_instance_of_booking_option_settings($first->optionid))
+        );
+        $secondurl = new moodle_url(
+            bo_info::set_login_returnurl(singleton_service::get_instance_of_booking_option_settings($second->optionid))
+        );
 
-        // The user clicks the button: core reads and validates the wantsurl GET parameter.
-        $wantsurl = clean_param($loginurl->param('wantsurl'), PARAM_LOCALURL);
-        $this->assertNotEmpty($wantsurl);
-        $SESSION->wantsurl = (new moodle_url($wantsurl))->out(false);
-
-        // After login core redirects to the session target: the clicked option.
-        $this->assertStringContainsString('/mod/booking/optionview.php', $SESSION->wantsurl);
-        $this->assertStringContainsString('optionid=' . $fixture->optionid, $SESSION->wantsurl);
+        $this->assertEquals($first->optionid, $firsturl->param('optionid'));
+        $this->assertEquals($second->optionid, $secondurl->param('optionid'));
     }
 
     /**
@@ -151,14 +141,15 @@ final class login_returnurl_test extends booking_advanced_testcase {
         $this->setUser(0);
 
         $settings = singleton_service::get_instance_of_booking_option_settings($fixture->optionid);
-        $wantsurl = (new moodle_url(bo_info::set_login_returnurl($settings)))->param('wantsurl');
+        $url = new moodle_url(bo_info::set_login_returnurl($settings));
 
-        $this->assertNotEmpty($wantsurl);
-        $this->assertStringContainsString('redirecttocourse=1', $wantsurl);
+        $this->assertStringContainsString('/mod/booking/optionview.php', $url->out(false));
+        $this->assertEquals(1, $url->param('redirecttocourse'));
+        $this->assertEquals(1, $url->param('forcelogin'));
     }
 
     /**
-     * With neither config enabled, the login link carries no return target and the session stays clean.
+     * With neither config enabled, the button goes straight to login and the session stays clean.
      *
      * @return void
      */
@@ -173,10 +164,11 @@ final class login_returnurl_test extends booking_advanced_testcase {
         unset($SESSION->wantsurl);
 
         $settings = singleton_service::get_instance_of_booking_option_settings($fixture->optionid);
-        $loginurl = new moodle_url(bo_info::set_login_returnurl($settings));
+        $url = new moodle_url(bo_info::set_login_returnurl($settings));
 
         $this->assertTrue(empty($SESSION->wantsurl));
-        $this->assertEmpty($loginurl->param('wantsurl'));
+        $this->assertStringContainsString('/login/index.php', $url->out(false));
+        $this->assertEmpty($url->param('forcelogin'));
     }
 
     /**

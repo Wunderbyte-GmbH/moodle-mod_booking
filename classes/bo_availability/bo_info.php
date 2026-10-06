@@ -1261,20 +1261,23 @@ class bo_info {
     }
 
     /**
-     * Build the login link for a login button, carrying the option details page as the post-login target.
+     * Build the href for a login button so that logging in leads back to the clicked option.
      *
      * Used by every condition that renders a login button, so that logging in leads back to the
      * option the user actually clicked instead of the page they started on.
      *
-     * The return target is passed as a wantsurl GET parameter on the login URL (consumed by
-     * core login/index.php) rather than written to $SESSION->wantsurl here. Writing the session
-     * at render time is wrong: on a list/shortcode page every rendered card would overwrite it,
-     * so a plain login would redirect to whichever option happened to render last. Carrying it in
-     * the link means it only applies when the user actually clicks this button.
+     * When a return feature is enabled the button points at the option's optionview.php with
+     * forcelogin=1: a logged-out click makes optionview call require_login(), which stores the
+     * current URL in $SESSION->wantsurl and returns there after login. The session must NOT be
+     * written here: this runs while rendering, and on a list/shortcode page every rendered card
+     * would overwrite $SESSION->wantsurl, so a plain login would jump to whichever option rendered
+     * last. (A wantsurl GET parameter on /login/index.php does not work either - core only reads
+     * that parameter under BEHAT_SITE_RUNNING.) With neither feature enabled there is no return
+     * target, so the button points straight at the login page.
      *
      * @param booking_option_settings $settings
      *
-     * @return string the url of the login page
+     * @return string the url the login button should link to
      *
      */
     public static function set_login_returnurl(booking_option_settings $settings): string {
@@ -1285,6 +1288,7 @@ class bo_info {
                 [
                     'optionid' => $settings->id,
                     'cmid' => $settings->cmid,
+                    'forcelogin' => 1,
                 ]
             );
         }
@@ -1296,16 +1300,16 @@ class bo_info {
                     'optionid' => $settings->id,
                     'cmid' => $settings->cmid,
                     'redirecttocourse' => 1,
+                    'forcelogin' => 1,
                 ]
             );
         }
 
-        $loginparams = [];
         if (!empty($returnurl)) {
-            $loginparams['wantsurl'] = $returnurl->out(false);
+            return $returnurl->out(false);
         }
 
-        return (new moodle_url('/login/index.php', $loginparams))->out(false);
+        return (new moodle_url('/login/index.php'))->out(false);
     }
 
     /**
