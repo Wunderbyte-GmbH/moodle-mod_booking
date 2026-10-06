@@ -326,6 +326,17 @@ final class reportbuilder_test extends core_reportbuilder_testcase {
         usort($content, fn($a, $b) => strcmp($a[0], $b[0]));
 
         $this->assertEquals($expected, $content);
+
+        // In certificate conditions mode the legacy template of option 3 is not issued, so only the template of
+        // the condition is shown.
+        set_config('certificateoptions', 1, 'booking');
+        certificate_helper::reset_caches();
+        $expected[2][2] = '#6';
+
+        $content = array_map('array_values', $this->get_custom_report_content($report->get('id')));
+        usort($content, fn($a, $b) => strcmp($a[0], $b[0]));
+
+        $this->assertEquals($expected, $content);
     }
 
     /**

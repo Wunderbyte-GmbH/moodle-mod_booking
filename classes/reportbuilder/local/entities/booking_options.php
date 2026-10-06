@@ -314,8 +314,8 @@ class booking_options extends base {
                 return $options[(int) $value] ?? '';
             });
 
-        // Certificate template(s) the option grants: legacy template from the option JSON plus the templates
-        // of all active certificate conditions targeting the option or its booking instance.
+        // Certificate template(s) the option grants: legacy template from the option JSON (per-option mode only)
+        // plus the templates of all active certificate conditions targeting the option or its booking instance.
         $columns[] = (new column(
             'certificate',
             new lang_string('certificate', 'mod_booking'),

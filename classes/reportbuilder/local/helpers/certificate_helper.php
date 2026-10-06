@@ -16,14 +16,16 @@
 
 namespace mod_booking\reportbuilder\local\helpers;
 
+use mod_booking\local\certificateclass;
 use stdClass;
 
 /**
  * Resolves the certificates a booking option grants, for Report Builder columns.
  *
- * A booking option can grant a certificate in two independent ways, both of which are live
- * regardless of the "certificateoptions" site setting (that setting only switches the UI):
- * - the legacy template stored in the option's JSON under the key "certificate";
+ * A booking option can grant a certificate in two ways:
+ * - the legacy template stored in the option's JSON under the key "certificate", only issued while the
+ *   "certificateoptions" site setting selects the per-option certificate
+ *   ({@see certificateclass::option_certificate_applies()});
  * - active certificate conditions targeting the option, either directly (item area "bookingoption",
  *   used by the bookingoption and taggedoptions logic) or through its booking instance (item area
  *   "bookinginstance", used by the instance logic). The template is the "certid" of the action.
@@ -85,7 +87,8 @@ class certificate_helper {
 
     /**
      * Names of all certificate templates a booking option grants: the legacy template from the
-     * option JSON followed by the templates of all applying certificate conditions.
+     * option JSON (only while the per-option certificate applies) followed by the templates of all
+     * applying certificate conditions.
      *
      * Unknown template ids (template deleted, tool_certificate missing) are rendered as "#<id>".
      *
@@ -97,7 +100,7 @@ class certificate_helper {
     public static function get_template_names_for_option(int $optionid, ?string $json, int $bookingid): array {
         $templateids = [];
 
-        if (!empty($json)) {
+        if (!empty($json) && certificateclass::option_certificate_applies()) {
             $decoded = json_decode($json);
             if (!empty($decoded->certificate)) {
                 $templateids[] = (int) $decoded->certificate;
