@@ -97,13 +97,18 @@ class permissions {
      * mod/booking:choose on the booking instance (the capability the "allowed to book
      * in instance" condition checks as well) may book anyway: for them the system
      * context is validated instead, which still enforces an active login and session.
+     * The same applies when an option id is passed and that option explicitly disables
+     * the capability check of the "allowed to book in instance" condition
+     * (capabilitynotneeded), e.g. for options booked via direct link by users without
+     * mod/booking:choose.
      * All other users need full access to the course of the booking instance.
      *
      * @param int $cmid course module id of the booking instance, 0 if unknown
+     * @param int $optionid booking option id, 0 if not option specific
      * @return void
      * @throws require_login_exception if the user may not access the booking instance
      */
-    public static function validate_context_for_booking(int $cmid): void {
+    public static function validate_context_for_booking(int $cmid, int $optionid = 0): void {
         if (empty($cmid)) {
             external_api::validate_context(context_system::instance());
             return;
@@ -112,10 +117,46 @@ class permissions {
         try {
             external_api::validate_context($modulecontext);
         } catch (require_login_exception $e) {
-            if (!has_capability('mod/booking:choose', $modulecontext)) {
+            if (
+                !has_capability('mod/booking:choose', $modulecontext)
+                && !self::option_bookable_without_choose_capability($optionid)
+            ) {
                 throw $e;
             }
             external_api::validate_context(context_system::instance());
         }
+    }
+
+    /**
+     * Checks if the "allowed to book in instance" condition of a booking option
+     * is configured to not need the mod/booking:choose capability.
+     *
+     * @param int $optionid booking option id
+     * @return bool
+     */
+    private static function option_bookable_without_choose_capability(int $optionid): bool {
+        global $CFG;
+        if (empty($optionid)) {
+            return false;
+        }
+        require_once($CFG->dirroot . '/mod/booking/lib.php');
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        if (empty($settings->availability)) {
+            return false;
+        }
+        $conditions = json_decode($settings->availability);
+        if (!is_array($conditions)) {
+            return false;
+        }
+        foreach ($conditions as $condition) {
+            if (
+                (int)($condition->id ?? 0) === MOD_BOOKING_BO_COND_JSON_ALLOWEDTOBOOKININSTANCE
+                && ($condition->capabilitynotneeded ?? 0) == 1
+            ) {
+                return true;
+            }
+        }
+        return false;
     }
 }

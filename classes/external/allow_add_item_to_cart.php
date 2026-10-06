@@ -73,8 +73,9 @@ class allow_add_item_to_cart extends external_api {
         $settings = singleton_service::get_instance_of_booking_option_settings($params['itemid']);
 
         // The user needs access to the booking instance the option belongs to.
-        // Users with mod/booking:choose may book without course access (e.g. via shortcode lists).
-        permissions::validate_context_for_booking((int)($settings->cmid ?? 0));
+        // Users with mod/booking:choose (or any user, if the option does not need it)
+        // may book without course access (e.g. via shortcode lists or direct links).
+        permissions::validate_context_for_booking((int)($settings->cmid ?? 0), (int)$params['itemid']);
         // Acting for another user needs the book for others (or cashier) rights.
         \mod_booking\form\condition\customform_form::require_userid_access($params['userid'], $params['itemid']);
 

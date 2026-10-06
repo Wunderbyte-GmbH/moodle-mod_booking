@@ -32,6 +32,7 @@ use core_external\external_function_parameters;
 use core_external\external_value;
 use core_external\external_single_structure;
 use mod_booking\booking_bookit;
+use mod_booking\booking_option_settings;
 use mod_booking\permissions;
 use mod_booking\price;
 use mod_booking\singleton_service;
@@ -82,10 +83,15 @@ class bookit extends external_api {
         ]);
 
         // The user needs access to the booking instance the option belongs to; users
-        // with mod/booking:choose may book without course access (e.g. via shortcode lists).
+        // with mod/booking:choose (or any user, if the option does not need it) may book
+        // without course access (e.g. via shortcode lists or direct links).
         // No further capability is needed here: bookit() itself enforces the
         // book for others capability and the booking (availability) conditions.
-        permissions::validate_context_for_booking(self::resolve_cmid($params['area'], $params['itemid']));
+        $contextsettings = self::resolve_settings($params['area'], $params['itemid']);
+        permissions::validate_context_for_booking(
+            (int)($contextsettings->cmid ?? 0),
+            (int)($contextsettings->id ?? 0)
+        );
 
         $response = booking_bookit::bookit($params['area'], $params['itemid'], $params['userid'], $params['data']);
 
@@ -128,13 +134,13 @@ class bookit extends external_api {
     }
 
     /**
-     * Resolves the course module id of the booking instance the booked item belongs to.
+     * Resolves the settings of the booking option the booked item belongs to.
      *
      * @param string $area
      * @param int $itemid
-     * @return int the cmid, 0 if it cannot be resolved
+     * @return booking_option_settings|null the option settings, null if they cannot be resolved
      */
-    private static function resolve_cmid(string $area, int $itemid): int {
+    private static function resolve_settings(string $area, int $itemid): ?booking_option_settings {
         if ($area === 'option') {
             $settings = singleton_service::get_instance_of_booking_option_settings($itemid);
         } else if (strpos($area, 'subbooking') === 0) {
@@ -145,7 +151,7 @@ class bookit extends external_api {
         } else {
             $settings = null;
         }
-        return (int)($settings->cmid ?? 0);
+        return $settings;
     }
 
     /**
