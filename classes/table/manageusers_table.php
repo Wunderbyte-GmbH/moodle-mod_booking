@@ -1036,6 +1036,7 @@ class manageusers_table extends wunderbyte_table {
                 // Keep legacy trigger behaviour for option-level certificate configuration.
                 if (
                     !empty($certificateid)
+                    && certificateclass::option_certificate_applies()
                     && (empty($presenceconfig) || $answerrecord->status == $presenceconfig)
                     && (!empty($presenceconfig) || $answerrecord->completed != 0)
                 ) {
