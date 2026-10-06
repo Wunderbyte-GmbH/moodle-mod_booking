@@ -1261,10 +1261,16 @@ class bo_info {
     }
 
     /**
-     * Store the booking option details page as the target users return to after logging in.
+     * Build the login link for a login button, carrying the option details page as the post-login target.
      *
      * Used by every condition that renders a login button, so that logging in leads back to the
      * option the user actually clicked instead of the page they started on.
+     *
+     * The return target is passed as a wantsurl GET parameter on the login URL (consumed by
+     * core login/index.php) rather than written to $SESSION->wantsurl here. Writing the session
+     * at render time is wrong: on a list/shortcode page every rendered card would overwrite it,
+     * so a plain login would redirect to whichever option happened to render last. Carrying it in
+     * the link means it only applies when the user actually clicks this button.
      *
      * @param booking_option_settings $settings
      *
@@ -1272,8 +1278,6 @@ class bo_info {
      *
      */
     public static function set_login_returnurl(booking_option_settings $settings): string {
-        global $SESSION;
-
         $returnurl = null;
         if (get_config('booking', 'showbookingdetailstoall')) {
             $returnurl = new moodle_url(
@@ -1296,11 +1300,12 @@ class bo_info {
             );
         }
 
+        $loginparams = [];
         if (!empty($returnurl)) {
-            $SESSION->wantsurl = $returnurl->out(false);
+            $loginparams['wantsurl'] = $returnurl->out(false);
         }
 
-        return (new moodle_url('/login/index.php'))->out(false);
+        return (new moodle_url('/login/index.php', $loginparams))->out(false);
     }
 
     /**
