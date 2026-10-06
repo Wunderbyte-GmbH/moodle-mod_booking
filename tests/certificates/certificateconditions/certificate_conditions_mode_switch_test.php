@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Tests for switching from the per-option certificate to certificate conditions.
+ * Tests for switching between the per-option certificate and certificate conditions.
  *
  * @package mod_booking
  * @category test
@@ -43,6 +43,7 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * Scenario (Wunderbyte-GmbH/moodle-mod_booking#1630): a booking option has a certificate template in its own
  * settings. The site is then switched to certificate conditions and a condition for the booking instance is
  * created. A user who completes the option must receive exactly one certificate, the one of the condition.
+ * After switching back to the per-option certificate, the saved condition must not issue a certificate either.
  *
  * @package mod_booking
  * @category test
@@ -173,6 +174,75 @@ final class certificate_conditions_mode_switch_test extends booking_advanced_tes
         $option = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
         $option->toggle_user_completion($this->student->id);
 
+        $this->assert_only_option_certificate();
+    }
+
+    /**
+     * Completing the option after switching back to the per-option certificate issues only the option certificate.
+     *
+     * @covers \mod_booking\booking_option::toggle_user_completion
+     * @covers \mod_booking\local\certificate_conditions\certificate_conditions::evaluate_certificate_conditions
+     * @covers \mod_booking\local\certificateclass::issue_certificate
+     * @dataProvider condition_context_provider
+     *
+     * @param string $contextlevel
+     */
+    public function test_completion_after_switch_back_issues_option_certificate(string $contextlevel): void {
+        $this->create_option_with_certificate();
+        $this->switch_to_conditions($contextlevel);
+        $this->switch_back_to_option_certificate();
+
+        $this->book_student();
+        $this->setAdminUser();
+        $settings = singleton_service::get_instance_of_booking_option_settings($this->option->id);
+        $option = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
+        $option->toggle_user_completion($this->student->id);
+
+        $this->assert_only_option_certificate();
+    }
+
+    /**
+     * Triggering certificates manually after switching back issues only the option certificate.
+     *
+     * @covers \mod_booking\table\manageusers_table::action_trigger_certificate_booking_answers
+     * @covers \mod_booking\local\certificate_conditions\certificate_conditions::evaluate_certificate_conditions_with_result
+     * @dataProvider condition_context_provider
+     *
+     * @param string $contextlevel
+     */
+    public function test_manual_trigger_after_switch_back_issues_option_certificate(string $contextlevel): void {
+        global $DB;
+        set_config('certificatemanualtrigger', 1, 'booking');
+        $this->create_option_with_certificate();
+        $this->switch_to_conditions($contextlevel);
+        $this->switch_back_to_option_certificate();
+
+        $this->book_student();
+        $this->setAdminUser();
+        $settings = singleton_service::get_instance_of_booking_option_settings($this->option->id);
+        $option = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
+        $option->toggle_user_completion($this->student->id);
+        singleton_service::destroy_booking_answers($this->option->id);
+
+        // The manual trigger setting keeps completion from issuing anything.
+        $this->assertEquals(0, $DB->count_records('tool_certificate_issues', ['userid' => $this->student->id]));
+
+        $answerid = $DB->get_field('booking_answers', 'id', [
+            'optionid' => $this->option->id,
+            'userid' => $this->student->id,
+        ]);
+        $result = (new manageusers_table('certificatemodeswitchtest'))
+            ->action_trigger_certificate_booking_answers(0, json_encode(['checkedids' => [$answerid]]));
+
+        $this->assertEquals(1, $result['success']);
+        $this->assert_only_option_certificate();
+    }
+
+    /**
+     * Assert that the student holds exactly one certificate and that it is the certificate stored on the option.
+     */
+    private function assert_only_option_certificate(): void {
+        global $DB;
         $issues = $DB->get_records('tool_certificate_issues', ['userid' => $this->student->id]);
         $this->assertCount(1, $issues);
         $issue = reset($issues);
@@ -301,6 +371,14 @@ final class certificate_conditions_mode_switch_test extends booking_advanced_tes
         certificate_conditions::reset_caches();
 
         return (int)$conditionid;
+    }
+
+    /**
+     * Switch the site back to the per-option certificate. The saved condition stays active.
+     */
+    private function switch_back_to_option_certificate(): void {
+        set_config('certificateoptions', 0, 'booking');
+        certificate_conditions::reset_caches();
     }
 
     /**

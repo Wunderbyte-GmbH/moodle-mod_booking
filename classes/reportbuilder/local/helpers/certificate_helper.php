@@ -29,6 +29,7 @@ use stdClass;
  * - active certificate conditions targeting the option, either directly (item area "bookingoption",
  *   used by the bookingoption and taggedoptions logic) or through its booking instance (item area
  *   "bookinginstance", used by the instance logic). The template is the "certid" of the action.
+ *   Conditions only issue certificates while the setting selects certificate conditions.
  *
  * All lookups are served from a request-level cache that is built with two queries, so a report
  * row only performs array lookups.
@@ -48,7 +49,7 @@ class certificate_helper {
     private static ?array $templatenames = null;
 
     /**
-     * Active certificate conditions applying to a booking option, sorted by name.
+     * Active certificate conditions applying to a booking option, sorted by name (none in per-option mode).
      *
      * Each record carries id, name and certid (template id of the createcertificate action, 0 if none).
      *
@@ -57,6 +58,10 @@ class certificate_helper {
      * @return stdClass[]
      */
     public static function get_conditions_for_option(int $optionid, int $bookingid): array {
+        // In per-option mode certificate conditions issue nothing.
+        if (certificateclass::option_certificate_applies()) {
+            return [];
+        }
         self::build_conditions_cache();
 
         $conditions = [];
