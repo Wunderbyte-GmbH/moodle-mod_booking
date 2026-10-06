@@ -26,6 +26,8 @@
 namespace mod_booking;
 
 use mod_booking\bo_availability\bo_info;
+use mod_booking\bo_availability\conditions\isloggedin;
+use mod_booking\bo_availability\conditions\isloggedinprice;
 use mod_booking\tests\booking_advanced_testcase;
 use mod_booking_generator;
 use moodle_url;
@@ -52,6 +54,8 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * @copyright  2026 Wunderbyte GmbH <info@wunderbyte.at>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @covers \mod_booking\bo_availability\bo_info::set_login_returnurl
+ * @covers \mod_booking\bo_availability\conditions\isloggedin::render_button
+ * @covers \mod_booking\bo_availability\conditions\isloggedinprice::render_button
  */
 final class login_returnurl_test extends booking_advanced_testcase {
     /**
@@ -102,6 +106,38 @@ final class login_returnurl_test extends booking_advanced_testcase {
         // Render both login buttons, as a list of cards would.
         bo_info::set_login_returnurl(singleton_service::get_instance_of_booking_option_settings($first->optionid));
         bo_info::set_login_returnurl(singleton_service::get_instance_of_booking_option_settings($second->optionid));
+
+        $this->assertTrue(empty($SESSION->wantsurl));
+    }
+
+    /**
+     * Rendering the login buttons of several options through both login conditions leaves the session clean.
+     *
+     * Same regression as above, but through the conditions that render the buttons of a list, so a
+     * condition writing the session on its own is caught as well. Each button links to its own option.
+     *
+     * @return void
+     */
+    public function test_rendering_buttons_through_conditions_leaves_session_clean(): void {
+        global $SESSION;
+
+        set_config('showbookingdetailstoall', 1, 'booking');
+        set_config('displayloginbuttonforbookingoptions', 1, 'booking');
+        $options = [$this->create_simple_option(), $this->create_simple_option(), $this->create_simple_option()];
+
+        $this->setUser(0);
+        unset($SESSION->wantsurl);
+
+        foreach ($options as $option) {
+            $settings = singleton_service::get_instance_of_booking_option_settings($option->optionid);
+            foreach ([new isloggedin(), new isloggedinprice()] as $condition) {
+                [, $data] = $condition->render_button($settings, 0);
+                $link = new moodle_url($data['main']['link']);
+                $this->assertTrue($link->compare(new moodle_url('/mod/booking/optionview.php'), URL_MATCH_BASE));
+                $this->assertEquals($option->optionid, $link->param('optionid'));
+                $this->assertEquals(1, $link->param('forcelogin'));
+            }
+        }
 
         $this->assertTrue(empty($SESSION->wantsurl));
     }
