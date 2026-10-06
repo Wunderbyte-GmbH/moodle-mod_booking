@@ -157,6 +157,63 @@ final class wizard_diagnose_user_certificate_test extends advanced_testcase {
     }
 
     /**
+     * In certificate conditions mode a template left on the option is never issued, so the report does not
+     * treat it as the configured certificate and does not explain a missing certificate with its change time.
+     */
+    public function test_option_certificate_ignored_in_certificate_conditions_mode(): void {
+        global $DB;
+        $this->resetAfterTest();
+
+        [$booking, $option, $student] = $this->setup_booking();
+        $templateid = $this->create_cert_template();
+        $this->set_option_certificate((int)$option->id, $templateid);
+        set_config('certificateoptions', 1, 'booking');
+
+        // Book and mark the user completed at a point in the past (no certificate issued).
+        $completiontime = time() - DAYSECS;
+        $this->book_user((int)$option->id, (int)$student->id);
+        $DB->set_field('booking_answers', 'completed', 1, ['optionid' => (int)$option->id, 'userid' => (int)$student->id]);
+        $DB->set_field(
+            'booking_answers',
+            'timemodified',
+            $completiontime,
+            ['optionid' => (int)$option->id, 'userid' => (int)$student->id]
+        );
+        \cache::make('mod_booking', 'bookingoptionsanswers')->delete((int)$option->id);
+        singleton_service::destroy_instance();
+
+        // Log a change of the certificate field after completion, which would be reported in per-option mode.
+        set_config('enabled_stores', 'logstore_standard', 'tool_log');
+        set_config('buffersize', 0, 'logstore_standard');
+        set_config('logguests', 1, 'logstore_standard');
+        get_log_manager(true);
+
+        $event = \mod_booking\event\bookingoption_updated::create([
+            'context' => \context_module::instance($booking->cmid),
+            'objectid' => (int)$option->id,
+            'other' => [
+                'changes' => [
+                    ['fieldname' => 'certificate', 'oldvalue' => 0, 'newvalue' => (string)$templateid, 'formkey' => 'certificate'],
+                ],
+            ],
+        ]);
+        $event->trigger();
+
+        $this->setAdminUser();
+        $result = (new diagnose_user_booking_skill())->execute(
+            ['userid' => (int)$student->id, 'optionid' => (int)$option->id, 'includemessages' => false],
+            (int)\context_module::instance($booking->cmid)->id,
+            (int)get_admin()->id
+        );
+
+        $this->assertSame('executed', $result['status']);
+        $report = $this->decode_report($result);
+        $this->assertSame(0, $report['certificates']['configured_template_id']);
+        $this->assertFalse($report['certificates']['has_configured_certificate']);
+        $this->assertArrayNotHasKey('certificate_field', $report);
+    }
+
+    /**
      * The instance-wide overview names the host course (id + name) and booking instance per option.
      */
     public function test_userwide_report_includes_host_course(): void {
