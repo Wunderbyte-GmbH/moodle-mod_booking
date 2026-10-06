@@ -300,10 +300,17 @@ final class reportbuilder_test extends core_reportbuilder_testcase {
             'booking_options:certificate',
         ];
         // No templates exist in the test DB, so template ids are rendered as "#<id>".
-        $expected = [
+        // In per-option mode (the default) only the legacy template of option 3 is issued, conditions are ignored.
+        $expectedoptionmode = [
+            ['Option1', '', ''],
+            ['Option2', '', ''],
+            ['Option3', '', '#7'],
+        ];
+        // In certificate conditions mode only the conditions issue certificates, the legacy template is ignored.
+        $expectedconditionsmode = [
             ['Option1', 'Condition A, Condition B', '#5, #6'],
             ['Option2', 'Condition B', '#6'],
-            ['Option3', 'Condition B', '#7, #6'],
+            ['Option3', 'Condition B', '#6'],
         ];
 
         // The issued-certificates column needs tool_certificate (installed in CI) and a DB with JSON support.
@@ -311,10 +318,8 @@ final class reportbuilder_test extends core_reportbuilder_testcase {
         if (class_exists('tool_certificate\certificate') && in_array($DB->get_dbfamily(), ['postgres', 'mysql'])) {
             $this->assertNotNull($issuedcolumn);
             $columns[] = 'booking_options:certificatesissued';
-            foreach ($expected as &$row) {
-                $row[] = 0;
-            }
-            unset($row);
+            $expectedoptionmode = array_map(fn($row) => [...$row, 0], $expectedoptionmode);
+            $expectedconditionsmode = array_map(fn($row) => [...$row, 0], $expectedconditionsmode);
         } else {
             $this->assertNull($issuedcolumn);
         }
@@ -325,18 +330,15 @@ final class reportbuilder_test extends core_reportbuilder_testcase {
         $content = array_map('array_values', $this->get_custom_report_content($report->get('id')));
         usort($content, fn($a, $b) => strcmp($a[0], $b[0]));
 
-        $this->assertEquals($expected, $content);
+        $this->assertEquals($expectedoptionmode, $content);
 
-        // In certificate conditions mode the legacy template of option 3 is not issued, so only the template of
-        // the condition is shown.
         set_config('certificateoptions', 1, 'booking');
         certificate_helper::reset_caches();
-        $expected[2][2] = '#6';
 
         $content = array_map('array_values', $this->get_custom_report_content($report->get('id')));
         usort($content, fn($a, $b) => strcmp($a[0], $b[0]));
 
-        $this->assertEquals($expected, $content);
+        $this->assertEquals($expectedconditionsmode, $content);
     }
 
     /**

@@ -16,6 +16,7 @@
 
 namespace mod_booking\local\certificate_conditions;
 
+use mod_booking\local\certificateclass;
 use mod_booking\output\certificateconditionslist;
 use context_system;
 use dml_exception;
@@ -105,6 +106,10 @@ class certificate_conditions {
      * @return bool
      */
     public static function option_is_targeted_by_condition(int $optionid): bool {
+        // In per-option mode certificate conditions issue nothing, so they target no option.
+        if (certificateclass::option_certificate_applies()) {
+            return false;
+        }
         if (self::$optiontargets === null) {
             self::build_option_targets_cache();
         }
@@ -275,6 +280,12 @@ class certificate_conditions {
         int $optionid
     ): bool {
         global $DB;
+
+        // In per-option mode only the certificate stored on the option is issued, saved conditions are ignored.
+        if (certificateclass::option_certificate_applies()) {
+            return false;
+        }
+
         $eventcontext = new stdClass();
         $eventcontext->event = $event;
         $eventcontext->userid = $userid;

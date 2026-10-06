@@ -136,6 +136,10 @@ class certificateclass {
         if (empty($condition) && !self::option_certificate_applies()) {
             return $id;
         }
+        // In per-option mode only the option certificate is issued, conditions saved before the switch are ignored.
+        if (!empty($condition) && self::option_certificate_applies()) {
+            return $id;
+        }
         if (empty($templateid)) {
             $templateid = (int)(booking_option::get_value_of_json_by_key($optionid, 'certificate') ?? 0);
         }
@@ -200,8 +204,9 @@ class certificateclass {
      * Whether the certificate stored on a booking option (JSON key "certificate") is issued.
      *
      * The site setting "certificateoptions" selects how certificates are issued: 0 = per booking option,
-     * 1 = by certificate conditions. The option form only shows the option certificate in the first mode,
-     * but a value saved before switching stays in the option settings and must not be issued anymore.
+     * 1 = by certificate conditions. Only the selected source issues certificates: an option certificate
+     * saved before switching to conditions, or conditions saved before switching back, stay stored but
+     * are not issued. When this returns false, certificate conditions apply instead.
      *
      * @return bool
      */
