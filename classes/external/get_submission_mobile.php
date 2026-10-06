@@ -103,10 +103,11 @@ class get_submission_mobile extends external_api {
         }
 
         // The user needs access to the booking instance the option belongs to.
-        // Users with mod/booking:choose may submit the custom form without course
-        // access (e.g. options presented outside their course in the mobile app).
+        // Users with mod/booking:choose (or any user, if the option does not need it)
+        // may submit the custom form without course access (e.g. options presented
+        // outside their course in the mobile app).
         $settings = \mod_booking\singleton_service::get_instance_of_booking_option_settings($params['itemid']);
-        \mod_booking\permissions::validate_context_for_booking((int)($settings->cmid ?? 0));
+        \mod_booking\permissions::validate_context_for_booking((int)($settings->cmid ?? 0), (int)$params['itemid']);
         // Submitting form data for another user needs the book for others (or cashier) rights.
         \mod_booking\form\condition\customform_form::require_userid_access((int)$params['userid'], (int)$params['itemid']);
 

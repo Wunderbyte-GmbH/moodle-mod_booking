@@ -85,9 +85,10 @@ class load_pre_booking_page extends external_api {
         );
 
         // The user needs access to the booking instance the option belongs to.
-        // Users with mod/booking:choose may book without course access (e.g. via shortcode lists).
+        // Users with mod/booking:choose (or any user, if the option does not need it)
+        // may book without course access (e.g. via shortcode lists or direct links).
         $settings = \mod_booking\singleton_service::get_instance_of_booking_option_settings($params['optionid']);
-        permissions::validate_context_for_booking((int)($settings->cmid ?? 0));
+        permissions::validate_context_for_booking((int)($settings->cmid ?? 0), (int)$params['optionid']);
         // Loading the pre booking pages of another user needs the book for others (or cashier) rights.
         \mod_booking\form\condition\customform_form::require_userid_access($params['userid'], $params['optionid']);
 
