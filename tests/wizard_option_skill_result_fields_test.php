@@ -102,6 +102,45 @@ final class wizard_option_skill_result_fields_test extends booking_advanced_test
     }
 
     /**
+     * Thread 23513 (2026-09-30, Wunderbyte-GmbH/Wunderbyte-GmbH#2453): "welche Moodle-Kurse hat X gebucht?" is routed to
+     * the booking diagnosis (the verb wins over the object in the selector, measured 0-2 of 8 across five card
+     * variants). The answer is right either way when the diagnosis carries the person's Moodle course enrolments.
+     */
+    public function test_diagnose_user_booking_carries_the_persons_course_enrolments(): void {
+        $env = $this->setup_booking('Enrolment booking');
+        $option = $this->create_option($env, 'Enrolment option');
+        $student = $env['student'];
+        $this->book_user((int)$option->id, (int)$student->id);
+
+        $other = $this->getDataGenerator()->create_course(['fullname' => 'Das Rote Wien']);
+        $this->getDataGenerator()->enrol_user((int)$student->id, (int)$other->id, 'editingteacher');
+        $unrelated = $this->getDataGenerator()->create_course(['fullname' => 'Nicht eingeschrieben']);
+        singleton_service::destroy_instance();
+
+        $this->setAdminUser();
+        $result = (new diagnose_user_booking_skill())->execute(
+            ['userid' => (int)$student->id, 'includemessages' => false],
+            (int)$env['modulecontext']->id,
+            (int)get_admin()->id
+        );
+
+        $this->assertSame('executed', $result['status']);
+        $courses = (array)($result['enrolled_courses'] ?? []);
+        $ids = array_map(static fn(array $c): int => (int)($c['courseid'] ?? 0), $courses);
+        $this->assertContains((int)$other->id, $ids);
+        $this->assertContains((int)$env['course']->id, $ids);
+        $this->assertNotContains((int)$unrelated->id, $ids);
+        $rotewien = $courses[array_search((int)$other->id, $ids, true)];
+        $this->assertSame('Das Rote Wien', $rotewien['fullname']);
+        $this->assertContains('editingteacher', (array)$rotewien['roles']);
+        $this->assertStringContainsString('/course/view.php?id=' . $other->id, (string)$rotewien['courseurl']);
+
+        $this->assertStringContainsString('Das Rote Wien', (string)$result['observation_full']);
+        $this->assertStringContainsString('Das Rote Wien', (string)$result['usermessage']);
+        $this->assertStringContainsString('/course/view.php?id=' . $other->id, (string)$result['usermessage']);
+    }
+
+    /**
      * get_option_details supports maxanswers, location and visibility as standard fields and
      * returns the persisted values (raw invisible int plus a human-readable label).
      *

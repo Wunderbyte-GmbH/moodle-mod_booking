@@ -93,6 +93,9 @@ final class wizard_bulk_update_error_transparency_test extends advanced_testcase
             $this->skill_support()
         );
 
+        // An unresolvable token is reported through the postconditions; the service also notes it via
+        // debugging() (DEBUG_DEVELOPER) on the Moodle versions whose file API throws for it.
+        $this->resetDebugging();
         $this->assertEquals('error', $result['status'] ?? '');
 
         // Structured per-option failures, each carrying its optionid.
@@ -161,6 +164,9 @@ final class wizard_bulk_update_error_transparency_test extends advanced_testcase
             (int)$USER->id
         );
 
+        // An unresolvable token is reported through the postconditions; the service also notes it via
+        // debugging() (DEBUG_DEVELOPER) on the Moodle versions whose file API throws for it.
+        $this->resetDebugging();
         $this->assertEquals('error', $result['status'] ?? '');
         $usermessage = (string)($result['usermessage'] ?? '');
         $generic = get_string('agent_booking_bulk_update_completed', 'booking', 'error');
@@ -220,6 +226,9 @@ final class wizard_bulk_update_error_transparency_test extends advanced_testcase
             $this->skill_support()
         );
 
+        // An unresolvable token is reported through the postconditions; the service also notes it via
+        // debugging() (DEBUG_DEVELOPER) on the Moodle versions whose file API throws for it.
+        $this->resetDebugging();
         $this->assertEquals('error', $result['status'] ?? '', 'Faithful error status must stay.');
         $this->assertEquals('failed', $result['postcondition_status'] ?? '');
         $this->assertEquals(['text'], (array)($result['persisted_fields'] ?? []));

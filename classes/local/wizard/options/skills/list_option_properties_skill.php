@@ -69,7 +69,18 @@ class list_option_properties_skill extends booking_skill_base implements skill_t
     public function get_schema(): array {
         return [
             'version' => 1,
+            // Reverted to the proven wording (#2423): the longer "field list … not documentation" window of the
+            // wave-8 rewrite pulled LOP-1/2/3 to wizard.explain_docs in two consecutive Nachläufe (2026-09-17),
+            // while this short description reached the skill in runs 8 and 10. LOP-4 stays open (see the ledger).
             'description' => 'List booking option properties derived from create/update task schemas.',
+            // W32 LOP-4 (L41 call 79626, L43 thread 13168 call 82972): the first pick was list_option_fields, whose
+            // card names "fields ... with its type". The IS line is card-only (not embedded, 1c02ed0c02); it states
+            // what this skill returns (name, label, type, description - see the guidance) and the built-in/custom
+            // boundary, in its own words, without moving the description that #2423 keeps for LOP-1..3.
+            'is' => 'Reference of the built-in booking option fields (not administrator-defined ones): name, label, type and '
+                . 'description of each.',
+            'not' => 'Custom option fields an administrator defined (list_option_fields); the written documentation '
+                . '(wizard.explain_docs).',
             'readonly' => $this->is_read_only(),
             'properties' => [
                 'question' => [
@@ -86,6 +97,13 @@ class list_option_properties_skill extends booking_skill_base implements skill_t
                 'outputlang' => [
                     'type' => 'string',
                     'description' => 'Optional language code override for the user-facing summary, e.g. de or en.',
+                    'required' => false,
+                ],
+                'cmid' => [
+                    'type' => 'integer',
+                    'description' => 'Course-module id of the booking activity, when it is known — e.g. from a '
+                        . 'candidate list that names "cmid <id>" or from a link. Takes precedence over '
+                        . 'activityquery; use it to pick one of several activities that share a name.',
                     'required' => false,
                 ],
                 'activityquery' => [
@@ -112,8 +130,13 @@ class list_option_properties_skill extends booking_skill_base implements skill_t
         return [
             [
                 'id' => 'mod_booking.list_option_properties_request',
-                'description' => 'User asks for a list of option properties or field definitions '
-                    . 'when creating or updating a booking option.',
+                // W32 LOP-4 (L41 call 79626 miss, L43 thread 13168 call 82972 detour - same first pick list_option_fields
+                // under the old and the frozen selector prompt): "when creating or updating" narrowed this WHEN line
+                // to a create/update context, while the neighbour's WHEN names "which booking option fields exist".
+                // The WHEN line is card-only (anchors = description + example_utterances,
+                // embeddings_catalog_builder_service.php:62), so discovery for LOP-1..3 is unchanged. <= 180.
+                'description' => 'The user wants the built-in fields of booking options listed or described - all of them, '
+                    . 'or those used when creating or updating one - not custom fields.',
                 'examples' => [
                     'What properties can an option have?',
                     'List fields for creating an option',

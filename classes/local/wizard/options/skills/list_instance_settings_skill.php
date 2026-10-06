@@ -17,6 +17,7 @@
 namespace mod_booking\local\wizard\options\skills;
 
 use context_module;
+use mod_booking\booking;
 use mod_booking\local\wizard\engine\module_targeted_skill;
 use mod_booking\local\wizard\engine\skill_risk_class;
 use mod_booking\local\wizard\engine\skill_trigger_provider_interface;
@@ -83,11 +84,13 @@ class list_instance_settings_skill extends booking_skill_base implements skill_t
     public function get_schema(): array {
         return [
             'version' => 1,
-            'description' => 'List the configurable settings of a booking activity instance: the full'
-                . ' field catalog (name, label, type, description) with the current values.'
-                . ' Read-only — use this for questions like "what can I configure" or "show the'
-                . ' current settings". To CHANGE a setting, use mod_booking.configure_booking_instance'
-                . ' (action=update) afterwards.',
+            // The selector sees only the first 240 characters: read-only mode and the mutation sibling
+            // come first (#2411, run 9 CBI-2).
+            'description' => 'List (read-only) the configurable settings of a booking activity instance with their current values. '
+                . 'Returns the full field catalog (name, label, type, description) — use this for questions like "what can I '
+                . 'configure" or "show the current settings".',
+            'is' => 'Reading settings.',
+            'not' => 'Changing a setting (configure_booking_instance).',
             'readonly' => $this->is_read_only(),
             'example_utterances' => [
                 'What can I configure for this booking instance?',
@@ -96,6 +99,13 @@ class list_instance_settings_skill extends booking_skill_base implements skill_t
                 'List the instance settings of the booking activity',
             ],
             'properties' => [
+                'cmid' => [
+                    'type' => 'integer',
+                    'description' => 'Course-module id of the booking activity, when it is known — e.g. from a '
+                        . 'candidate list that names "cmid <id>" or from a link. Takes precedence over '
+                        . 'activityquery; use it to pick one of several activities that share a name.',
+                    'required' => false,
+                ],
                 'activityquery' => [
                     'type' => 'string',
                     'description' => 'Optional: the name of the target booking activity, when it is not the '
@@ -210,9 +220,22 @@ class list_instance_settings_skill extends booking_skill_base implements skill_t
         $bookingid = (int)$cm->instance;
 
         $record = $DB->get_record('booking', ['id' => $bookingid]);
+        $json = $record ? (array)json_decode((string)($record->json ?? ''), true) : [];
+        $views = booking::get_array_of_all_views();
         $fields = [];
         foreach (configure_booking_instance_skill::get_configurable_fields() as $key => $meta) {
-            $current = $record ? ($record->$key ?? null) : null;
+            if (($meta['storage'] ?? '') === 'json') {
+                // JSON-backed settings (the view settings) are not columns of the booking record.
+                $current = $json[$key] ?? null;
+                if (in_array($meta['type'], ['choice', 'choicelist'], true) && $current !== null) {
+                    $current = implode(', ', array_map(
+                        static fn($id): string => $id . (isset($views[(int)$id]) ? ' (' . $views[(int)$id] . ')' : ''),
+                        (array)$current
+                    ));
+                }
+            } else {
+                $current = $record ? ($record->$key ?? null) : null;
+            }
             $fields[] = [
                 'field' => $key,
                 'label' => $meta['label'],

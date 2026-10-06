@@ -436,6 +436,7 @@ $string['previewcfg_daystonotifyteachers'] = 'Tage vor dem Termin für die Benac
 $string['previewcfg_notifyemailteachers'] = 'E-Mail-Adresse für Benachrichtigungen (Trainer/innen)';
 $string['previewcfg_pollurlteachers'] = 'Umfrage-URL (Trainer/innen)';
 $string['previewcfg_pollurlteacherstext'] = 'Linktext der Umfrage-URL (Trainer/innen)';
+$string['previewcfg_switchtemplates'] = 'Nutzer/innen können die Ansicht wechseln';
 $string['previewlabel_teacher'] = 'Trainer/in';
 $string['previewtitle_bookusers'] = 'Benutzer/innen buchen';
 $string['previewtitle_updatetrainer'] = 'Trainer/innen aktualisieren';

@@ -1,0 +1,921 @@
+{
+    "model": "bge-multilingual-gemma2",
+    "dimensions": 3584,
+    "queries": [
+        {
+            "id": "ACS-1",
+            "skill": "course.analyze_course_structure",
+            "text": "Walk me through what's inside \"Winter School 2027\" — sections, activities, the lot."
+        },
+        {
+            "id": "ACS-3",
+            "skill": "course.analyze_course_structure",
+            "text": "Describe to me the organization of the course « Apikultur – Bienenkunde »: how many sections, what activities?"
+        },
+        {
+            "id": "ACS-4",
+            "skill": "course.analyze_course_structure",
+            "text": "Before I paste something: How are the sections in the procurement course structured?"
+        },
+        {
+            "id": "APC-1",
+            "skill": "mod_booking.add_price_category",
+            "text": "We need our own rate for apprentices going forward."
+        },
+        {
+            "id": "APC-2",
+            "skill": "mod_booking.add_price_category",
+            "text": "Alumni should get their own pricing tier — set that up."
+        },
+        {
+            "id": "APC-3",
+            "skill": "mod_booking.add_price_category",
+            "text": "Adds a rate category « retraités » that can be used on the offers."
+        },
+        {
+            "id": "APC-4",
+            "skill": "mod_booking.add_price_category",
+            "text": "Besides \"default\" and \"student\" I want a third rate called \"partner\"."
+        },
+        {
+            "id": "AQ-3",
+            "skill": "course.add_quiz",
+            "text": "Create a quiz about photosynthesis in the biology class, about ten questions."
+        },
+        {
+            "id": "AR-1",
+            "skill": "mod_booking.analyze_rules",
+            "text": "When someone signs up here, do they get any mail? And what happens on cancellation?"
+        },
+        {
+            "id": "AR-2",
+            "skill": "mod_booking.analyze_rules",
+            "text": "What automatisms run in the background of this booking?"
+        },
+        {
+            "id": "AR-3",
+            "skill": "mod_booking.analyze_rules",
+            "text": "What automatic messages are sent by this booking activity, and when?"
+        },
+        {
+            "id": "AR-4",
+            "skill": "mod_booking.analyze_rules",
+            "text": "Do the participants actually get a reminder before the appointment, and how is it set up?"
+        },
+        {
+            "id": "BKU-2",
+            "skill": "mod_booking.book_users",
+            "text": "Sign me up at the sewing café."
+        },
+        {
+            "id": "BKU-3",
+            "skill": "mod_booking.book_users",
+            "text": "Register Mrs. ANON_USER_1_lastname for the Erste-Hilfe-Kurs (Refresher), she asked me to do it for her."
+        },
+        {
+            "id": "BU-2",
+            "skill": "mod_booking.bulk_update_options",
+            "text": "Every single offering in here should be hidden until we've checked the prices — do it in one sweep."
+        },
+        {
+            "id": "CBI-1",
+            "skill": "mod_booking.configure_booking_instance",
+            "text": "Maximum two bookings per person in this activity, please change that."
+        },
+        {
+            "id": "CBI-2",
+            "skill": "mod_booking.configure_booking_instance",
+            "text": "I keep getting copies of every confirmation mail — turn that off at the activity level."
+        },
+        {
+            "id": "CBI-3",
+            "skill": "mod_booking.configure_booking_instance",
+            "text": "Change the name of this booking activity to « Inscriptions hiver 2026 » and disable cancellation by participants."
+        },
+        {
+            "id": "CC-1",
+            "skill": "course.create_course",
+            "text": "We are starting a new topic: create a course \"Nachhaltige Beschaffung\" for it, category Administration."
+        },
+        {
+            "id": "CO-1",
+            "skill": "mod_booking.create_option",
+            "text": "We need a welding seminar for the Thursday after next 14–17, maximum 12 people."
+        },
+        {
+            "id": "CO-2",
+            "skill": "mod_booking.create_option",
+            "text": "Set up something bookable called \"Rooftop Yoga\", next Wednesday evening, 6 to 7:30."
+        },
+        {
+            "id": "CO-3",
+            "skill": "mod_booking.create_option",
+            "text": "Next week we have conferences from Monday to Friday, always from 6pm to 8pm, please number them."
+        },
+        {
+            "id": "CO-4",
+            "skill": "mod_booking.create_option",
+            "text": "Create an offer \"Nähcafé\", the appointment is the day after next Tuesday morning, Mrs. ANON_USER_1_lastname should take care of it."
+        },
+        {
+            "id": "CRT-1",
+            "skill": "mod_booking.create_rule_from_template",
+            "text": "After each booking, a confirmation should automatically be sent out — set that up."
+        },
+        {
+            "id": "CRT-3",
+            "skill": "mod_booking.create_rule_from_template",
+            "text": "When someone cancels, trainers should receive an automatic message — set this up."
+        },
+        {
+            "id": "CSB-2",
+            "skill": "mod_booking.create_slotbooking_option",
+            "text": "Our massage chair should be reservable weekdays 8–18 in half-hour chunks for the whole of next month."
+        },
+        {
+            "id": "CSL-2",
+            "skill": "mod_booking.create_selflearning_option",
+            "text": "I would like an online self-study course \"Excel Basics\", without fixed dates, you have three hours to complete it."
+        },
+        {
+            "id": "CSL-3",
+            "skill": "mod_booking.create_selflearning_option",
+            "text": "Create a self-training offer « RGPD » that everyone can follow when they want, with a duration of approximately two hours."
+        },
+        {
+            "id": "CSL-4",
+            "skill": "mod_booking.create_selflearning_option",
+            "text": "No fixed dates, just a 4-hour learning window everyone completes on their own — call it \"Fire Safety Refresher\"."
+        },
+        {
+            "id": "DAS-1",
+            "skill": "local_taskflow.diagnose_assignment_status",
+            "text": "Assignment 4033 says overdue although the course is complete — how come?"
+        },
+        {
+            "id": "DAS-2",
+            "skill": "local_taskflow.diagnose_assignment_status",
+            "text": "Why does it say 'extended\" und nicht „überfällig\"' for Mr. ANON_USER_1_lastname?"
+        },
+        {
+            "id": "DAS-3",
+            "skill": "local_taskflow.diagnose_assignment_status",
+            "text": "Assignment 4037 has been « planifiée » for three weeks — what's blocking it?"
+        },
+        {
+            "id": "DAS-4",
+            "skill": "local_taskflow.diagnose_assignment_status",
+            "text": "Assignment 4035 is paused, although the colleague is already back. Explain the status."
+        },
+        {
+            "id": "DBI-1",
+            "skill": "mod_booking.diagnose_booking_issue",
+            "text": "The ANON_USER_1_both says he just can't get into the pottery class — what's blocking there?"
+        },
+        {
+            "id": "DBI-2",
+            "skill": "mod_booking.diagnose_booking_issue",
+            "text": "I clicked book on the Herbstwanderung but nothing happened and no mail either. What's wrong?"
+        },
+        {
+            "id": "DBI-3",
+            "skill": "mod_booking.diagnose_booking_issue",
+            "text": "Why can't Mrs. ANON_USER_1_lastname register for the Erste-Hilfe-Kurs (Auffrischung)?"
+        },
+        {
+            "id": "DCI-2",
+            "skill": "mod_booking.diagnose_cancellation_issue",
+            "text": "I can't find a cancel button in the sewing café — why?"
+        },
+        {
+            "id": "DCI-3",
+            "skill": "mod_booking.diagnose_cancellation_issue",
+            "text": "I cannot cancel my reservation for the Fotoatelier Nachtfotografie, the button does not appear anywhere."
+        },
+        {
+            "id": "DCI-4",
+            "skill": "mod_booking.diagnose_cancellation_issue",
+            "text": "Why won't the system let me out of the sweat seminar?"
+        },
+        {
+            "id": "DI-1",
+            "skill": "local_taskflow.diagnose_import",
+            "text": "When did the HR feed last run, and did it choke on anything?"
+        },
+        {
+            "id": "DI-2",
+            "skill": "local_taskflow.diagnose_import",
+            "text": "After the last import, some people are missing their supervisors — how healthy is the data matching?"
+        },
+        {
+            "id": "DI-3",
+            "skill": "local_taskflow.diagnose_import",
+            "text": "Check the status of the HR import: last run, errors, unmapped fields."
+        },
+        {
+            "id": "DI-4",
+            "skill": "local_taskflow.diagnose_import",
+            "text": "Were people blocked last night because they were missing from the feed?"
+        },
+        {
+            "id": "DMD-3",
+            "skill": "local_taskflow.diagnose_message_delivery",
+            "text": "Has the 7-day reminder for assignment 4033 been sent, is it pending, or is it blocked?"
+        },
+        {
+            "id": "DN-1",
+            "skill": "core.diagnose_notifications",
+            "text": "Mails from this platform just stopped arriving for our colleague ANON_USER_1_lastname — all of them, not just booking stuff."
+        },
+        {
+            "id": "DN-2",
+            "skill": "core.diagnose_notifications",
+            "text": "The woman ANON_USER_1_lastname generally doesn't receive a single Moodle email anymore. What is the reason for this?"
+        },
+        {
+            "id": "DN-4",
+            "skill": "core.diagnose_notifications",
+            "text": "Why have I had absolute radio silence from the system in my inbox for weeks?"
+        },
+        {
+            "id": "DP-1",
+            "skill": "core.diagnose_permissions",
+            "text": "Is ANON_USER_1_lastname even allowed to create booking options in \"Alpinwandern\"? And if not, which role is missing for them?"
+        },
+        {
+            "id": "DP-4",
+            "skill": "core.diagnose_permissions",
+            "text": "Check for ANON_USER_1_lastname the Capability mod/booking:updatebooking in the course Excel — is there an override active?"
+        },
+        {
+            "id": "DUA-1",
+            "skill": "local_taskflow.diagnose_user_assignments",
+            "text": "The woman ANON_USER_1_lastname is in Facility, but the data protection training does not appear for her. Why?"
+        },
+        {
+            "id": "DUA-2",
+            "skill": "local_taskflow.diagnose_user_assignments",
+            "text": "Why did Mr ANON_USER_1_lastname get the „Brandschutzunterweisung Baseline“ obligation? He's not even in Team Nord as far as I know."
+        },
+        {
+            "id": "DUA-3",
+            "skill": "local_taskflow.diagnose_user_assignments",
+            "text": "Mrs. ANON_USER_1_lastname was hired 100 days ago, but the rule « beschäftigt über 6 Monate » did not account for it — explain."
+        },
+        {
+            "id": "DUB-1",
+            "skill": "mod_booking.diagnose_user_booking",
+            "text": "How's it looking with Ms. ANON_USER_1_lastname — what has she booked and completed?"
+        },
+        {
+            "id": "DUB-2",
+            "skill": "mod_booking.diagnose_user_booking",
+            "text": "Did the confirmation and the reminder actually reach ANON_USER_1@anon.invalid for the Schweißseminar?"
+        },
+        {
+            "id": "DUB-3",
+            "skill": "mod_booking.diagnose_user_booking",
+            "text": "Did Mr. ANON_USER_1_lastname receive his certificate for the Erste-Hilfe-Kurs (Auffrischung)?"
+        },
+        {
+            "id": "DUB-4",
+            "skill": "mod_booking.diagnose_user_booking",
+            "text": "Give me the complete booking history for userid 42, including waitlists and cancellations."
+        },
+        {
+            "id": "DUC-2",
+            "skill": "course.diagnose_user_in_course",
+            "text": "Why did the cohort sync not pull ANON_USER_1_lastname into \"Winter School 2027\"?"
+        },
+        {
+            "id": "DUC-3",
+            "skill": "course.diagnose_user_in_course",
+            "text": "Where is Madame ANON_USER_1_lastname in the Ersthelfer Grundkurs course — has she completed the activities?"
+        },
+        {
+            "id": "DWL-1",
+            "skill": "mod_booking.diagnose_waitinglist",
+            "text": "I cut the seats on Kochkurs Italienisch from 20 down to 10, but all 20 are still in. Explain."
+        },
+        {
+            "id": "DWL-3",
+            "skill": "mod_booking.diagnose_waitinglist",
+            "text": "I reduced the capacity of Fotoatelier Nachtfotografie but nobody switched to the waiting list — why?"
+        },
+        {
+            "id": "DWL-4",
+            "skill": "mod_booking.diagnose_waitinglist",
+            "text": "The waiting list at \"Yoga im Park\" just won't move, even though spots have opened up."
+        },
+        {
+            "id": "ED-1",
+            "skill": "wizard.explain_docs",
+            "text": "I don't understand the waitlist behavior — how is that supposed to work in the plugin?"
+        },
+        {
+            "id": "ED-2",
+            "skill": "wizard.explain_docs",
+            "text": "What's the deal with placeholders in notification templates here — where is that documented?"
+        },
+        {
+            "id": "ED-3",
+            "skill": "wizard.explain_docs",
+            "text": "How do the booking conditions work in this module, according to the documentation?"
+        },
+        {
+            "id": "ED-4",
+            "skill": "wizard.explain_docs",
+            "text": "According to the docs, explain to me what \"Optionsdaten\" are and how to configure them."
+        },
+        {
+            "id": "EU-1",
+            "skill": "course.enrol_user",
+            "text": "Get ANON_USER_1@anon.invalid into Biologie, normal student access is fine."
+        },
+        {
+            "id": "FC-1",
+            "skill": "core.find_content",
+            "text": "Somewhere on the platform there was something about crediting prior learning — find that."
+        },
+        {
+            "id": "FC-2",
+            "skill": "core.find_content",
+            "text": "Which of our courses actually deals with data protection? I don't remember the title."
+        },
+        {
+            "id": "FC-3",
+            "skill": "core.find_content",
+            "text": "Somewhere on a forum someone explained the registration procedure — find that message."
+        },
+        {
+            "id": "FC-4",
+            "skill": "core.find_content",
+            "text": "Is there material here on fire protection? Whether page, glossary or forum."
+        },
+        {
+            "id": "FOR-2",
+            "skill": "wizard.forget",
+            "text": "Wipe everything you've ever stored about me, clean slate."
+        },
+        {
+            "id": "FOR-3",
+            "skill": "wizard.forget",
+            "text": "Forget my preference for morning slots, it's no longer relevant."
+        },
+        {
+            "id": "FOR-4",
+            "skill": "wizard.forget",
+            "text": "You can delete the saved cost center."
+        },
+        {
+            "id": "GAD-1",
+            "skill": "local_taskflow.get_assignment_details",
+            "text": "Assignment 4033 — what is the status there, what is still missing, are there any open applications for it?"
+        },
+        {
+            "id": "GAD-2",
+            "skill": "local_taskflow.get_assignment_details",
+            "text": "For Ms ANON_USER_1_lastname's „Datenschutz-Unterweisung 2026“ obligation: due date, what's already ticked off, and the last few history entries."
+        },
+        {
+            "id": "GAD-3",
+            "skill": "local_taskflow.get_assignment_details",
+            "text": "Open assignment #4035: status, deadline, and the last message in the discussion."
+        },
+        {
+            "id": "GCU-1",
+            "skill": "core.get_current_user",
+            "text": "Which account am I using right now?"
+        },
+        {
+            "id": "GCU-2",
+            "skill": "core.get_current_user",
+            "text": "Quick sanity check: which user is this session running as, and what's the mail on file?"
+        },
+        {
+            "id": "GCU-3",
+            "skill": "core.get_current_user",
+            "text": "What is my username and my role on this platform?"
+        },
+        {
+            "id": "GCU-4",
+            "skill": "core.get_current_user",
+            "text": "Tell me briefly who I am for the system."
+        },
+        {
+            "id": "GCU-5",
+            "skill": "core.get_current_user",
+            "text": "what can I book here? which courses am I enrolled in?"
+        },
+        {
+            "id": "GCU-6",
+            "skill": "core.get_current_user",
+            "text": "What can I book here? Where am I enrolled?"
+        },
+        {
+            "id": "GCU-7",
+            "skill": "core.get_current_user",
+            "text": "which courses am I enrolled in?"
+        },
+        {
+            "id": "GOD-1",
+            "skill": "mod_booking.get_option_details",
+            "text": "That Herbstwanderung thing — when exactly does it meet and is there still room?"
+        },
+        {
+            "id": "GOD-2",
+            "skill": "mod_booking.get_option_details",
+            "text": "Who actually runs the pottery class, and how much does it cost?"
+        },
+        {
+            "id": "GOD-3",
+            "skill": "mod_booking.get_option_details",
+            "text": "Tell me everything you know about the workshop « Fotoatelier Nachtfotografie »."
+        },
+        {
+            "id": "GQ-2",
+            "skill": "question.generate_questions",
+            "text": "Formulate five true/false questions about the rules of handball and add them to the question collection."
+        },
+        {
+            "id": "GRD-1",
+            "skill": "local_taskflow.get_rule_details",
+            "text": "What is \"Data Protection Training 2026\" genau aufgesetzt — Frist, Wiederholung, wer entscheidet über „nicht relevant\"?"
+        },
+        {
+            "id": "GRD-2",
+            "skill": "local_taskflow.get_rule_details",
+            "text": "For rule 2: which filters, which targets, which message templates are attached?"
+        },
+        {
+            "id": "GRD-3",
+            "skill": "local_taskflow.get_rule_details",
+            "text": "Does the rule „Brandschutzunterweisung Baseline“ have an extension period, and what happens after completion — does it reset?"
+        },
+        {
+            "id": "GRD-4",
+            "skill": "local_taskflow.get_rule_details",
+            "text": "Show me everything about \"Erste-Hilfe-Auffrischung\", including how many people sit in each status."
+        },
+        {
+            "id": "LC-1",
+            "skill": "course.list_categories",
+            "text": "How is the platform actually structured? Show me the category tree."
+        },
+        {
+            "id": "LC-2",
+            "skill": "course.list_categories",
+            "text": "Where would a beekeeping course best live — what categories do we even have?"
+        },
+        {
+            "id": "LC-3",
+            "skill": "course.list_categories",
+            "text": "List the course categories with their identifiers, I need the one for « Marketing »."
+        },
+        {
+            "id": "LC-4",
+            "skill": "course.list_categories",
+            "text": "How many courses are in each area?"
+        },
+        {
+            "id": "LIS-1",
+            "skill": "mod_booking.list_instance_settings",
+            "text": "Before I touch anything — what knobs does this booking activity actually have?"
+        },
+        {
+            "id": "LIS-2",
+            "skill": "mod_booking.list_instance_settings",
+            "text": "How is the activity configured here right now? List everything once."
+        },
+        {
+            "id": "LIS-3",
+            "skill": "mod_booking.list_instance_settings",
+            "text": "What settings exist for this reservation activity, and what are the current values?"
+        },
+        {
+            "id": "LIS-4",
+            "skill": "mod_booking.list_instance_settings",
+            "text": "Give me an overview of the instance-level configuration so I can decide what to change."
+        },
+        {
+            "id": "LM-1",
+            "skill": "wizard.list_memories",
+            "text": "Before we go on — what's in your file on me?"
+        },
+        {
+            "id": "LM-2",
+            "skill": "wizard.list_memories",
+            "text": "What preferences and facts have you remembered about me?"
+        },
+        {
+            "id": "LM-3",
+            "skill": "wizard.list_memories",
+            "text": "Show me everything you have remembered about me."
+        },
+        {
+            "id": "LM-4",
+            "skill": "wizard.list_memories",
+            "text": "Do you have anything stored about me? If so, what?"
+        },
+        {
+            "id": "LOP-1",
+            "skill": "mod_booking.list_option_properties",
+            "text": "What can I specify when creating an option?"
+        },
+        {
+            "id": "LOP-2",
+            "skill": "mod_booking.list_option_properties",
+            "text": "Which attributes does one of these bookable things support — full field list please."
+        },
+        {
+            "id": "LOP-3",
+            "skill": "mod_booking.list_option_properties",
+            "text": "When I modify an offer, what fields are exactly available?"
+        },
+        {
+            "id": "LR-1",
+            "skill": "local_taskflow.list_requests",
+            "text": "Anything waiting for my decision — extension or \"not relevant\" asks from my team?"
+        },
+        {
+            "id": "LR-2",
+            "skill": "local_taskflow.list_requests",
+            "text": "Which applications are still pending at HR?"
+        },
+        {
+            "id": "LR-3",
+            "skill": "local_taskflow.list_requests",
+            "text": "Do I have an application running somewhere myself, and what happened to it?"
+        },
+        {
+            "id": "LR-4",
+            "skill": "local_taskflow.list_requests",
+            "text": "All the denied requests from last month, please."
+        },
+        {
+            "id": "LRP-1",
+            "skill": "local_taskflow.list_rule_properties",
+            "text": "Before I create a preset: what components does it consist of, and how does the system evaluate a date filter that looks into the past?"
+        },
+        {
+            "id": "LRP-2",
+            "skill": "local_taskflow.list_rule_properties",
+            "text": "I am documenting our configuration: what categories of targets and recipients does the system make available for an obligation?"
+        },
+        {
+            "id": "LRP-3",
+            "skill": "local_taskflow.list_rule_properties",
+            "text": "For our handbook: enumerate everything a rule is made of, and how the dispatch time of an attached message is expressed."
+        },
+        {
+            "id": "LS-1",
+            "skill": "wizard.list_skills",
+            "text": "I'm new here — give me the menu. What can this assistant handle?"
+        },
+        {
+            "id": "LS-2",
+            "skill": "wizard.list_skills",
+            "text": "What all falls into your repertoire? Only the things that change nothing, please."
+        },
+        {
+            "id": "LS-3",
+            "skill": "wizard.list_skills",
+            "text": "What actions are you capable of executing on this platform?"
+        },
+        {
+            "id": "LS-4",
+            "skill": "wizard.list_skills",
+            "text": "What commands do you even understand?"
+        },
+        {
+            "id": "LU-1",
+            "skill": "local_taskflow.list_units",
+            "text": "How is the organization structured in Taskflow — what units, with how many people?"
+        },
+        {
+            "id": "LU-2",
+            "skill": "local_taskflow.list_units",
+            "text": "What units are under \"Facility\", and how many rules are on each of them?"
+        },
+        {
+            "id": "LU-3",
+            "skill": "local_taskflow.list_units",
+            "text": "Are our departments cohorts or Taskflow-native units, and can you list them as a tree?"
+        },
+        {
+            "id": "LU-4",
+            "skill": "local_taskflow.list_units",
+            "text": "Is there a unit called \"Team Nord\"? How many people are in it?"
+        },
+        {
+            "id": "PM-1",
+            "skill": "local_taskflow.preview_message",
+            "text": "Show me the 7-day reminder as it would go out for assignment 4033 — without sending it."
+        },
+        {
+            "id": "PM-3",
+            "skill": "local_taskflow.preview_message",
+            "text": "Render template 1 against assignment 4035 so I can check the placeholders actually resolve."
+        },
+        {
+            "id": "PM-4",
+            "skill": "local_taskflow.preview_message",
+            "text": "View only, don't send: the completion confirmation for assignment 4037."
+        },
+        {
+            "id": "REM-1",
+            "skill": "wizard.remember",
+            "text": "For all future stuff: our default room is B12, keep that on file."
+        },
+        {
+            "id": "REM-3",
+            "skill": "wizard.remember",
+            "text": "Remember that I prefer morning time slots for all my appointments."
+        },
+        {
+            "id": "REM-4",
+            "skill": "wizard.remember",
+            "text": "Note down: My cost center is 4711, you'll need it more often."
+        },
+        {
+            "id": "RM-1",
+            "skill": "wizard.recall_memory",
+            "text": "What were we talking about last time again?"
+        },
+        {
+            "id": "RM-2",
+            "skill": "wizard.recall_memory",
+            "text": "We looked at some option together on Tuesday — pull that back up."
+        },
+        {
+            "id": "RM-4",
+            "skill": "wizard.recall_memory",
+            "text": "Haven't we talked about woman ANON_USER_1_lastname before? What was that about?"
+        },
+        {
+            "id": "RSC-1",
+            "skill": "wizard.recreate_skill_catalog",
+            "text": "The skill catalog seems outdated — trigger the embedding rebuild."
+        },
+        {
+            "id": "RSC-2",
+            "skill": "wizard.recreate_skill_catalog",
+            "text": "The vector catalog for skill retrieval looks stale, queue a rebuild."
+        },
+        {
+            "id": "RSC-3",
+            "skill": "wizard.recreate_skill_catalog",
+            "text": "Rebuild the embeddings index of the skills catalog, some entries are missing."
+        },
+        {
+            "id": "RSC-4",
+            "skill": "wizard.recreate_skill_catalog",
+            "text": "Please have the Skill catalog CSV regenerated."
+        },
+        {
+            "id": "SC-1",
+            "skill": "course.search_courses",
+            "text": "Is there a course on this platform whose name has \"Onboarding\" in it? Get me the link."
+        },
+        {
+            "id": "SC-2",
+            "skill": "course.search_courses",
+            "text": "What is the ID of the Moodle course \"Ersthelfer Grundkurs\" and how many people are enrolled there?"
+        },
+        {
+            "id": "SC-3",
+            "skill": "course.search_courses",
+            "text": "Find the Moodle course that has a name something like « Statistiques avancées »."
+        },
+        {
+            "id": "SC-4",
+            "skill": "course.search_courses",
+            "text": "I'm looking for the course from last winter, \"Winter School\" I think it was called."
+        },
+        {
+            "id": "SCA-3",
+            "skill": "wizard.scaffold_skill",
+            "text": "Generate me a skill skeleton for my local_salles plugin that will list free rooms."
+        },
+        {
+            "id": "SCA-4",
+            "skill": "wizard.scaffold_skill",
+            "text": "I need a template for my plugin local_anwesenheit for a new agent command \"Anwesenheit erfassen\"."
+        },
+        {
+            "id": "SMT-1",
+            "skill": "local_taskflow.search_message_templates",
+            "text": "Which email templates do we have that are sent to the supervisor?"
+        },
+        {
+            "id": "SMT-2",
+            "skill": "local_taskflow.search_message_templates",
+            "text": "Is there a template that fires seven days before the deadline, and which rules use it?"
+        },
+        {
+            "id": "SMT-4",
+            "skill": "local_taskflow.search_message_templates",
+            "text": "We file templates in packages — show me everything filed under onboarding."
+        },
+        {
+            "id": "SO-1",
+            "skill": "mod_booking.search_options",
+            "text": "What's coming up with you guys that I can still join in on?"
+        },
+        {
+            "id": "SO-2",
+            "skill": "mod_booking.search_options",
+            "text": "I'm browsing — anything with \"pilates\" in it on offer here?"
+        },
+        {
+            "id": "SO-3",
+            "skill": "mod_booking.search_options",
+            "text": "What can we book here right now?"
+        },
+        {
+            "id": "SO-4",
+            "skill": "mod_booking.search_options",
+            "text": "Show me what is offered in autumn."
+        },
+        {
+            "id": "SR-1",
+            "skill": "local_taskflow.search_rules",
+            "text": "For Facility: which rule definitions are switched on at the moment?"
+        },
+        {
+            "id": "SR-2",
+            "skill": "local_taskflow.search_rules",
+            "text": "Is there already a rule with \"fire protection\" in the name?"
+        },
+        {
+            "id": "SR-4",
+            "skill": "local_taskflow.search_rules",
+            "text": "List me the inactive rules — the ones we disabled but never deleted."
+        },
+        {
+            "id": "SS-1",
+            "skill": "wizard.search_skills",
+            "text": "Can you export bookings as CSV? If you have something for that, look it up."
+        },
+        {
+            "id": "SS-2",
+            "skill": "wizard.search_skills",
+            "text": "Is there anything in your toolbox for issuing certificates directly? Nothing in your list mentions it."
+        },
+        {
+            "id": "SS-3",
+            "skill": "wizard.search_skills",
+            "text": "I would like to import entries from a file — do you have a hidden tool for that?"
+        },
+        {
+            "id": "SU-1",
+            "skill": "core.search_users",
+            "text": "There's someone called ANON_USER_1_lastname in the system — dig up their account."
+        },
+        {
+            "id": "SU-2",
+            "skill": "core.search_users",
+            "text": "Which user is behind the address ANON_USER_1@anon.invalid, and where is she registered everywhere?"
+        },
+        {
+            "id": "SU-3",
+            "skill": "core.search_users",
+            "text": "Find the account of ANON_USER_1_firstname, I only know their first name."
+        },
+        {
+            "id": "SU-4",
+            "skill": "core.search_users",
+            "text": "Who is User 91? Profile and courses please."
+        },
+        {
+            "id": "SVO-1",
+            "skill": "local_taskflow.supervisor_overview",
+            "text": "How is my team doing — who is overdue, who has requested what, where are there unread messages?"
+        },
+        {
+            "id": "SVO-2",
+            "skill": "local_taskflow.supervisor_overview",
+            "text": "Summary for a team leader: my team members, their delays, open requests."
+        },
+        {
+            "id": "SVO-4",
+            "skill": "local_taskflow.supervisor_overview",
+            "text": "Quick status for my direct reports before the Monday meeting."
+        },
+        {
+            "id": "TDP-1",
+            "skill": "local_taskflow.diagnose_permissions",
+            "text": "Mr. ANON_USER_1_lastname does not see the \"Supervisors\" tab, although he manages two people. What is missing for him?"
+        },
+        {
+            "id": "TDP-2",
+            "skill": "local_taskflow.diagnose_permissions",
+            "text": "Why can't Mrs. ANON_USER_1_lastname process the requests from her team?"
+        },
+        {
+            "id": "TDP-3",
+            "skill": "local_taskflow.diagnose_permissions",
+            "text": "Am I HR in this system's eyes? Which Taskflow rights do I hold, and which am I missing?"
+        },
+        {
+            "id": "TLS-1",
+            "skill": "local_taskflow.list_settings",
+            "text": "Before I touch the HR sync: what's actually switched on in Taskflow right now — which adapter, cohorts or units, who counts as HR?"
+        },
+        {
+            "id": "TLS-2",
+            "skill": "local_taskflow.list_settings",
+            "text": "Is the 'extended' status actually active with us, and which statuses have been removed? Show me the configuration."
+        },
+        {
+            "id": "TLS-3",
+            "skill": "local_taskflow.list_settings",
+            "text": "Make me an inventory of Taskflow settings, with the current values and what they are used for."
+        },
+        {
+            "id": "TLS-4",
+            "skill": "local_taskflow.list_settings",
+            "text": "Which profile field does the system use as the supervisor field, and which role do supervisors automatically get? Everything from the settings please."
+        },
+        {
+            "id": "TSA-1",
+            "skill": "local_taskflow.search_assignments",
+            "text": "Is anyone in Team Nord sitting on something they should have finished by now?"
+        },
+        {
+            "id": "TSA-2",
+            "skill": "local_taskflow.search_assignments",
+            "text": "What mandatory trainings do I still have open?"
+        },
+        {
+            "id": "TSA-3",
+            "skill": "local_taskflow.search_assignments",
+            "text": "Show me all paused assignments of the Facility service."
+        },
+        {
+            "id": "TSA-4",
+            "skill": "local_taskflow.search_assignments",
+            "text": "What trainings are due for my people in the next 14 days?"
+        },
+        {
+            "id": "UO-2",
+            "skill": "mod_booking.update_option",
+            "text": "The \"Nähcafé\" should finally be visible to everyone, and the price goes up to 25 euros."
+        },
+        {
+            "id": "UO-3",
+            "skill": "mod_booking.update_option",
+            "text": "Rename « Rooftop Yoga » to « Yoga au coucher du soleil » and add an additional date on the 28th of next month, from 6 PM to 7:30 PM."
+        },
+        {
+            "id": "UO-4",
+            "skill": "mod_booking.update_option",
+            "text": "Take the uploaded image as the title image for the autumn hike and attach the Moodle course \"Alpinwandern\" to it."
+        },
+        {
+            "id": "UOT-1",
+            "skill": "mod_booking.update_option_trainer",
+            "text": "At the welding seminar, Mr. ANON_USER_1_lastname is now taking over instead of Ms. ANON_USER_2_lastname."
+        },
+        {
+            "id": "UOT-3",
+            "skill": "mod_booking.update_option_trainer",
+            "text": "It is now Monsieur ANON_USER_1_lastname who will lead the Fotoatelier Nachtfotografie, replacing the current presenter."
+        },
+        {
+            "id": "UOT-4",
+            "skill": "mod_booking.update_option_trainer",
+            "text": "The Schweißseminar needs two people running it: add both ANON_USER_1_lastname and userid 91."
+        },
+        {
+            "id": "URT-1",
+            "skill": "mod_booking.update_rule_from_template",
+            "text": "The rule \"Email reminder 2 days before course start\" should fire three days ahead from now on."
+        },
+        {
+            "id": "URT-2",
+            "skill": "mod_booking.update_rule_from_template",
+            "text": "Please deactivate the confirmation rule \"Willkommen an Bord\" for now."
+        },
+        {
+            "id": "URT-4",
+            "skill": "mod_booking.update_rule_from_template",
+            "text": "Rename the rule \"Notification annulation formateur\" to \"Storno-Info\" and switch it off."
+        },
+        {
+            "id": "UTP-1",
+            "skill": "local_taskflow.get_user_taskflow_profile",
+            "text": "Who's the supervisor on file for ANON_USER_1@anon.invalid, and is anyone set as deputy?"
+        },
+        {
+            "id": "UTP-2",
+            "skill": "local_taskflow.get_user_taskflow_profile",
+            "text": "When does Mr. ANON_USER_1_lastname's contract expire according to the import, and is he currently on long-term absence?"
+        },
+        {
+            "id": "UTP-4",
+            "skill": "local_taskflow.get_user_taskflow_profile",
+            "text": "Am I registered as a supervisor in this system — for whom, and through which field?"
+        }
+    ]
+}

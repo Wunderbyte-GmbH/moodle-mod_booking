@@ -88,6 +88,7 @@ class ruletemplate_usercancellation {
             'eventname' => "\\mod_booking\\event\\bookinganswer_cancelled",
             'contextid' => 1,
             'useastemplate' => 0,
+            'isactive' => 1,
         ];
         return (object) $returnobject;
     }

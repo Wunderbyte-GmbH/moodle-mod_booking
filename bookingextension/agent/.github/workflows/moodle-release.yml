@@ -1,0 +1,20 @@
+name: Release to Moodle Plugins Directory
+
+on:
+  push:
+    tags:
+      - v*-stable
+
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to be released'
+        required: true
+
+jobs:
+  release:
+    uses: Wunderbyte-GmbH/catalyst-moodle-workflows/.github/workflows/tag-release.yml@main
+    with:
+      plugin_name: mod_booking  # Change this to your plugin's frankenstyle name like local_shopping_cart
+    secrets:
+      moodle_org_token: ${{ secrets.MOODLE_ORG_TOKEN }}

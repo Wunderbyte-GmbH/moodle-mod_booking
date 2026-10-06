@@ -105,7 +105,7 @@ class create_slotbooking_option_skill extends create_option_skill {
             'text', 'description',
             'maxanswers', 'teacherquery', 'teacheremail', 'prices',
             'bookingopeningtime', 'bookingclosingtime', 'maxoverbooking',
-            'override', 'outputlang', 'activityquery', 'linkedcoursequery',
+            'override', 'outputlang', 'activityquery', 'cmid', 'linkedcoursequery',
         ]);
         // Keep the core fields plus ALL slot_* properties (opening/closing/duration/interval/
         // validity/capacity AND the slot_day_1..7 weekday toggles) — they are all slot-relevant.
@@ -115,15 +115,14 @@ class create_slotbooking_option_skill extends create_option_skill {
             ARRAY_FILTER_USE_KEY
         );
 
-        $schema['description'] = 'Create a slot-based booking option for appointment scheduling with reusable '
-            . 'availability windows, slot duration, validity range and per-slot capacity. '
-            . 'Use this canonical task for requests like consultation slots, court appointments, '
-            . 'office-hour availability, or any recurring bookable time window. '
-            . 'Do not use it for fixed dated event series with trainer/capacity and numbered titles '
-            . '(for example Lecture 1..n on specific weekdays); those are normal dated options. '
-            . 'Do not use it for single dated events or normal course sessions; those belong to the '
-            . 'general create_option task.';
-        $schema['properties'] = $properties;
+        $schema['description'] = 'Create a SLOT booking option: reusable appointment windows, slot duration, '
+            . 'validity range and per-slot capacity (slot_ fields). '
+            . 'Use it for consultation slots, court appointments, office-hour availability or any '
+            . 'recurring bookable time window.';
+        $schema['is'] = 'Reusable availability windows people pick a slot from.';
+        $schema['not'] = 'Dated events or numbered series like Lecture 1..n (create_option); self-paced duration offers '
+            . '(create_selflearning_option).';
+        $schema['properties'] = self::describe_scoped_creation_fields($properties);
 
         $schema['example_utterances'] = [
             'Create bookable consultation slots every Monday from 10:00 to 14:00',
@@ -148,6 +147,9 @@ class create_slotbooking_option_skill extends create_option_skill {
         return [
             'intent' => 'create_slotbooking',
             'anchors' => ['option'],
+            // Every weekday flag is listed: the constructor only sees this card, and a weekday it
+            // cannot see is a weekday it silently leaves false (W1 CSB-1: "Tuesdays and Thursdays"
+            // produced slot_day_4=false, #2399).
             'minimal_input' => [
                 'text',
                 'slot_opening_time',
@@ -156,19 +158,34 @@ class create_slotbooking_option_skill extends create_option_skill {
                 'slot_valid_from',
                 'slot_valid_until',
                 'slot_max_participants_per_slot',
+                'slot_day_1',
+                'slot_day_2',
+                'slot_day_3',
+                'slot_day_4',
+                'slot_day_5',
+                'slot_day_6',
+                'slot_day_7',
                 'activityquery',
             ],
             'example_input' => [
                 'text' => 'Georgs Zeit 1',
-                'slot_opening_time' => '10:00',
-                'slot_closing_time' => '14:00',
+                'slot_opening_time' => 'HH:MM',
+                'slot_closing_time' => 'HH:MM',
                 'slot_duration_minutes' => 25,
                 'slot_max_participants_per_slot' => 1,
-                'slot_valid_from' => '2026-07-01',
-                'slot_valid_until' => '2026-07-31',
+                'slot_valid_from' => 'YYYY-MM-DD',
+                'slot_valid_until' => 'YYYY-MM-DD',
                 'slot_day_1' => true,
+                'slot_day_2' => false,
                 'slot_day_3' => true,
+                'slot_day_4' => false,
+                'slot_day_5' => false,
+                'slot_day_6' => false,
+                'slot_day_7' => false,
             ],
+            // What the schema actually requires; the selection catalogue prints exactly this behind
+            // "REQUIRED:" (baseline run 15 forensics). minimal_input above stays the constructor card.
+            'required_input' => self::required_fields_of((array)$this->get_schema()),
             'namespace' => 'mod_booking',
             'version' => 1,
             'context_scopes' => ['module'],
@@ -184,12 +201,8 @@ class create_slotbooking_option_skill extends create_option_skill {
         return [
             [
                 'id' => 'mod_booking.create_slotbooking_request',
-                'description' => 'User asks for slot/appointment booking with reusable availability windows and '
-                    . 'slot duration. Route here when the user wants bookable appointment windows rather than '
-                    . 'a single dated event. Convert weekday phrases to slot_day_1..slot_day_7 '
-                    . '(Monday=1 ... Sunday=7) and set slot_max_participants_per_slot explicitly. '
-                    . 'Do not route fixed weekday lecture/session series with numbered titles '
-                    . '(Lecture x) to slotbooking.',
+                'description' => 'The user wants bookable appointment windows with reusable availability and a slot duration, not'
+                    . ' a single dated event.',
                 'examples' => [
                     'Create my office hours every Monday and Wednesday from 10:00 to 14:00, '
                         . '25 minutes per slot, for the whole of July.',

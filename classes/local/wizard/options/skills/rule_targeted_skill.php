@@ -76,6 +76,13 @@ trait rule_targeted_skill {
      *         null to stay ambient (system/course rules, unknown or ambiguous rules).
      */
     public function get_target_selector(array $input): ?target_selector {
+        // An explicitly named activity wins over name inference (#2335) - the ch. 02
+        // module-target channel, same precedence as the option-targeted skills.
+        $activityquery = trim((string)($input['activityquery'] ?? ''));
+        if ($activityquery !== '') {
+            return target_selector::for_module(null, $activityquery, 'booking');
+        }
+
         $contextid = booking_skill_support::context_for_rule(
             (int)($input['ruleid'] ?? 0),
             trim((string)($input['rulequery'] ?? ''))

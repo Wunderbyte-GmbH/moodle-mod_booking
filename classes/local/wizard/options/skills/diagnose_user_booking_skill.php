@@ -122,6 +122,15 @@ class diagnose_user_booking_skill extends booking_skill_base implements skill_tr
     }
 
     /**
+     * A person is this skill's direct object and it executes without confirmation (#2226 R3).
+     *
+     * @return bool
+     */
+    public function is_person_centric_readonly(): bool {
+        return true;
+    }
+
+    /**
      * Native capability required to read other users' booking responses (Gate 2).
      *
      * @return string[]
@@ -138,15 +147,20 @@ class diagnose_user_booking_skill extends booking_skill_base implements skill_tr
     public function get_schema(): array {
         $schema = [
             'version' => 1,
-            'description' => 'Diagnose a person\'s booking status and history and return a detailed status report. '
-                . 'Use this when the user asks about ONE specific person: whether/when they booked, whether they '
-                . 'completed, their waiting-list/cancelled/previous bookings, their submitted booking form data, and '
-                . 'which notification messages they received. If a specific booking option is named, the report focuses '
-                . 'on that option (including the full received-message history); if no option is named, it returns an '
-                . 'instance-wide overview of all the person\'s bookings (e.g. "how many options has Billy completed"). '
-                . 'The report also includes the certificates (tool_certificate) issued to the person, including whether '
-                . 'the focused option\'s certificate was actually issued. Every reported option carries the host course '
+            // First 240 characters = selector window (#2423, DUB-2 "did the reminder reach him?").
+            'description' => 'ONE person\'s BOOKINGS (userquery): status, waiting list, cancellations, certificates; for a named '
+                . 'option (optionquery) also received messages (includemessages). The report covers booked and completed bookings '
+                . 'too. The report also covers submitted booking form data. Use this when the user asks about ONE specific person: '
+                . 'whether/when they booked, whether they completed, their waiting-list/cancelled/previous bookings, their '
+                . 'submitted booking form data, and which notification messages they received. If a specific booking option is '
+                . 'named, the report focuses on that option (including the full received-message history); if no option is named, '
+                . 'it returns an instance-wide overview of all the person\'s bookings (e.g. "how many options has Billy '
+                . 'completed"). The report also includes the certificates (tool_certificate) issued to the person, including '
+                . 'whether the focused option\'s certificate was actually issued. Every reported option carries the host course '
                 . '(id and name) and booking instance the option lives in.',
+            'is' => 'One person\'s booking history.',
+            'not' => 'WHY someone cannot book (diagnose_booking_issue); course progress or grades '
+                . '(course.diagnose_user_in_course); mail plumbing (core.diagnose_notifications).',
             'readonly' => $this->is_read_only(),
             'example_utterances' => [
                 'what is the booking status of this user',
@@ -159,9 +173,12 @@ class diagnose_user_booking_skill extends booking_skill_base implements skill_tr
             'properties' => [
                 'userquery' => [
                     'type' => 'string',
-                    'description' => 'Name, e-mail or numeric id of the person to diagnose. Pass the user\'s wording '
-                        . 'verbatim; "me" resolves to the current user. If only a name is known and it is '
-                        . 'ambiguous, provide a more specific name or e-mail address instead.',
+                    // L48 DBI-4 (thread 16682): the constructor sent "me" and the resolver knows no such person (the
+                    // word list went in wave 26). A/B at the recorded call, planner action: "me" in 12/20 runs; with
+                    // this text 0/20, the field omitted (= the requester) 20/20.
+                    'description' => 'Name, e-mail or numeric id of the person to diagnose; omit it when the person is '
+                        . 'the requester. If only a name is known and it is ambiguous, provide a more specific name '
+                        . 'or e-mail address instead.',
                     'required' => false,
                 ],
                 'userid' => [
@@ -194,8 +211,13 @@ class diagnose_user_booking_skill extends booking_skill_base implements skill_tr
         ];
 
         $schema['prompt_meta'] = [
-            'input_fields_for_prompt' => ['userquery (or userid)', 'optionquery (or optionid, optional)'],
+            'input_fields_for_prompt' => ['userquery'],
             'anchor_fields' => ['userquery', 'userid', 'optionquery', 'optionid'],
+            // Mirrors check_structure(): the person to look at must be named, as userid or as userquery.
+            // Declared as a group because neither field is required on its own.
+            'required_groups' => [
+                ['userid', 'userquery'],
+            ],
         ];
 
         return $this->enrich_schema_with_prompt_meta($schema);
@@ -210,11 +232,8 @@ class diagnose_user_booking_skill extends booking_skill_base implements skill_tr
         return [
             [
                 'id' => 'mod_booking.diagnose_user_booking_request',
-                'description' => 'User asks about ONE person\'s booking status, booking history, completion, cancelled '
-                    . 'or previous bookings, submitted form data, which messages that person received, which '
-                    . 'certificates that person was issued — or why that person did NOT receive an expected booking '
-                    . 'notification/e-mail or certificate: this skill reports the booking messages and certificates '
-                    . 'for the person/option.',
+                'description' => 'The user asks about one person\'s booking status, history, form data, received booking messages'
+                    . ' or certificates, or why that person did not get one.',
                 'examples' => [
                     'Has Billy booked and completed the course "First Aid"?',
                     'How many booking options has Maria completed so far?',
@@ -278,12 +297,10 @@ class diagnose_user_booking_skill extends booking_skill_base implements skill_tr
         $errors = [];
         $lang = $this->get_output_language($input);
 
-        $hasuserid = !empty((int)($input['userid'] ?? 0));
-        $hasuserquery = trim((string)($input['userquery'] ?? '')) !== '';
-
-        if (!$hasuserid && !$hasuserquery) {
-            $errors[] = $this->localized_string('agent_booking_diagnose_user_required', null, $lang);
-        }
+        // No person named means the requester (engine doctrine: a person parameter carrying the
+        // requester's own identity is omitted by the constructor). Since wave 25 the read-only path
+        // runs this preflight before execution, so demanding a person here would turn every
+        // "what did I book" into a question the user already answered (self_reference_construction_test).
 
         return [
             'valid' => empty($errors),
@@ -330,7 +347,7 @@ class diagnose_user_booking_skill extends booking_skill_base implements skill_tr
         $includemessages = !array_key_exists('includemessages', $input) || !empty($input['includemessages']);
 
         // 1) Resolve the person to diagnose.
-        $targetuserid = $this->resolve_target_userid($input);
+        $targetuserid = $this->resolve_target_userid($input, $userid);
         if ($targetuserid <= 0) {
             return $this->error_result(
                 $this->localized_string('agent_booking_diagnose_user_notfound', null, $outputlang),
@@ -371,6 +388,12 @@ class diagnose_user_booking_skill extends booking_skill_base implements skill_tr
 
         $report['target_userid'] = $targetuserid;
 
+        // Thread 23513 (Wunderbyte-GmbH/Wunderbyte-GmbH#2453): "which Moodle courses has X booked?" routes here, the verb
+        // winning over the object in the selector. The person's Moodle course enrolments travel with the report, so
+        // the answer is right whichever of the two person skills the selector picks.
+        $enrolledcourses = $this->collect_enrolled_courses($targetuserid, $userid);
+        $report['enrolled_courses'] = $enrolledcourses;
+
         // Entity mentions always carry real moodle_url links for the synchronizer
         // (diagnosed option + target user's profile).
         if ($cmid > 0 && $optionid > 0) {
@@ -382,6 +405,16 @@ class diagnose_user_booking_skill extends booking_skill_base implements skill_tr
                 . $targetuserlink . '.';
         }
 
+        if (!empty($enrolledcourses)) {
+            $detail .= ' ' . get_string('agent_booking_diagnose_user_enrolled_courses', 'booking', (object)[
+                'count' => count($enrolledcourses),
+                'list' => implode(', ', array_map(
+                    static fn(array $c): string => '[' . $c['fullname'] . '](' . $c['courseurl'] . ')',
+                    $enrolledcourses
+                )),
+            ]);
+        }
+
         // Render all Unix timestamps in the report as LLM-readable, timezone-adjusted dates.
         $report = $this->humanize_report_timestamps($report);
 
@@ -390,6 +423,7 @@ class diagnose_user_booking_skill extends booking_skill_base implements skill_tr
             'detail' => $detail,
             'usermessage' => $detail,
             'observation_full' => $this->build_observation_full($detail, $report),
+            'enrolled_courses' => $enrolledcourses,
             'resultid' => $optionid > 0 ? $optionid : null,
             // Deduplicated (first occurrence wins): a user can have several answer rows per option
             // (active + previous/cancelled cycles), which would repeat the same optionid here.
@@ -406,12 +440,61 @@ class diagnose_user_booking_skill extends booking_skill_base implements skill_tr
     }
 
     /**
-     * Resolve the target user id from explicit userid or a userquery.
+     * The Moodle courses the person is enrolled in, with roles and links; a viewer without
+     * moodle/user:viewalldetails sees only the courses they can access themselves.
+     *
+     * @param int $targetuserid
+     * @param int $vieweruserid The requester.
+     * @return array[] Entries of courseid, fullname, shortname, courseurl, roles (role shortnames).
+     */
+    private function collect_enrolled_courses(int $targetuserid, int $vieweruserid): array {
+        $courses = enrol_get_users_courses($targetuserid, true, 'id, fullname, shortname, visible');
+
+        $restrict = false;
+        $viewer = null;
+        if ($vieweruserid > 0 && $vieweruserid !== $targetuserid) {
+            $restrict = !is_siteadmin($vieweruserid)
+                && !has_capability('moodle/user:viewalldetails', \context_system::instance(), $vieweruserid);
+            if ($restrict) {
+                $viewer = \core_user::get_user($vieweruserid, '*', IGNORE_MISSING);
+                if (!$viewer) {
+                    return [];
+                }
+            }
+        }
+
+        $result = [];
+        foreach ($courses as $course) {
+            $courseid = (int)($course->id ?? 0);
+            if ($courseid <= 0 || ($restrict && !can_access_course($course, $viewer))) {
+                continue;
+            }
+            $coursecontext = \context_course::instance($courseid, IGNORE_MISSING);
+            $roles = [];
+            if ($coursecontext) {
+                foreach (get_user_roles($coursecontext, $targetuserid, false) as $role) {
+                    $roles[] = (string)$role->shortname;
+                }
+            }
+            $result[] = [
+                'courseid' => $courseid,
+                'fullname' => format_string((string)($course->fullname ?? '')),
+                'shortname' => (string)($course->shortname ?? ''),
+                'courseurl' => (new \moodle_url('/course/view.php', ['id' => $courseid]))->out(false),
+                'roles' => array_values(array_unique($roles)),
+            ];
+        }
+        return $result;
+    }
+
+    /**
+     * Resolve the target user id from explicit userid or a userquery; nobody named means the requester.
      *
      * @param array $input
-     * @return int 0 when it could not be resolved.
+     * @param int $requesterid The acting user - the target when no person is named.
+     * @return int 0 when a named person could not be resolved.
      */
-    private function resolve_target_userid(array $input): int {
+    private function resolve_target_userid(array $input, int $requesterid = 0): int {
         $explicit = (int)($input['userid'] ?? 0);
         if ($explicit > 0) {
             return $explicit;
@@ -419,7 +502,7 @@ class diagnose_user_booking_skill extends booking_skill_base implements skill_tr
 
         $query = trim((string)($input['userquery'] ?? ''));
         if ($query === '') {
-            return 0;
+            return $requesterid;
         }
 
         $resolved = booking_skill_support::resolve_single_user($query);
@@ -439,17 +522,15 @@ class diagnose_user_booking_skill extends booking_skill_base implements skill_tr
      * @return int 0 when no option focus is requested or it could not be resolved.
      */
     private function resolve_focus_optionid(array $input, int $cmid, int $actinguserid): int {
-        $optionid = (int)($input['optionid'] ?? 0);
-        if ($optionid > 0) {
-            return $optionid;
+        if ($cmid <= 0) {
+            return 0;
         }
-
-        $query = trim((string)($input['optionquery'] ?? ''));
-        if ($query === '' || $cmid <= 0) {
+        if ((int)($input['optionid'] ?? 0) <= 0 && trim((string)($input['optionquery'] ?? '')) === '') {
             return 0;
         }
 
-        $resolved = booking_skill_support::resolve_single_option($cmid, $query, '');
+        // Instance-scoped: a foreign or stale optionid degrades to the instance-wide report.
+        $resolved = $this->resolve_diagnose_option($input, $cmid, $actinguserid);
         if (($resolved['status'] ?? '') === 'ok') {
             return (int)($resolved['optionid'] ?? 0);
         }

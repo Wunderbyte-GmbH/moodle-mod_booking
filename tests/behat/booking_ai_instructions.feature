@@ -31,9 +31,11 @@ Feature: AI instructions chat interface for booking managers
   Scenario: Teacher with capability can access AI instructions page
     Given I am on the AI instructions page for booking "AI Booking" logged in as teacher1
     Then I should see "AI Booking"
+    And the AI instructions should report the use capability as granted
 
-  Scenario: Student without useaiinstructions capability is denied access
-    Given I visit the AI instructions page for booking "AI Booking" as "student1" and expect access denied
+  Scenario: Student without useaiinstructions capability is not offered the AI chat
+    Given I am on the AI instructions page for booking "AI Booking" logged in as student1
+    Then the AI instructions should report the use capability as missing
 
   ##############################################################################
   # UI RENDERING (@javascript — DOM element checks, no LLM needed)

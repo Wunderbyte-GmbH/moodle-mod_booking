@@ -81,6 +81,7 @@ class ruletemplate_bookingoptionuncompleted {
             'eventname' => "\\mod_booking\\event\\bookingoption_uncompleted",
             'contextid' => 1,
             'useastemplate' => 0,
+            'isactive' => 1,
         ];
         return (object) $returnobject;
     }

@@ -1,0 +1,84 @@
+<?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+declare(strict_types=1);
+
+namespace bookingextension_agent\agent\contracts;
+
+use bookingextension_agent\local\wizard\conversation_store;
+use bookingextension_agent\local\wizard\services\messaging\message_persistence_service;
+use PHPUnit\Framework\TestCase;
+
+/**
+ * Contract tests for assistant message persistence semantics.
+ *
+ * @covers \bookingextension_agent\local\wizard\services\messaging\message_persistence_service
+ *
+ * @package    bookingextension_agent
+ * @copyright  2026 Wunderbyte GmbH <info@wunderbyte.at>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+final class message_persistence_contract_test extends TestCase {
+    /**
+     * Persisting assistant results must write planner trace and phase trace consistently.
+     */
+    public function test_persist_assistant_message_writes_phase_and_planner_trace(): void {
+        $store = $this->getMockBuilder(conversation_store::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['set_planner_trace_history', 'set_phase_trace', 'add_message'])
+            ->getMock();
+
+        $expectedhistory = ['disc', 'sel', 'cons'];
+        $expectedphasetrace = [
+            'discovery' => ['phase' => 'discovery', 'response_type' => 'clarification'],
+            'selection' => ['phase' => 'selection', 'response_type' => 'clarification'],
+            'parameter_construction' => ['phase' => 'parameter_construction', 'response_type' => 'skill_call'],
+        ];
+
+        $store->expects($this->once())
+            ->method('set_planner_trace_history')
+            ->with(123, $expectedhistory);
+
+        $store->expects($this->once())
+            ->method('set_phase_trace')
+            ->with(123, $expectedphasetrace);
+
+        $store->expects($this->once())
+            ->method('add_message')
+            ->with(
+                123,
+                'assistant',
+                'done',
+                $this->callback(static function (array $structured) use ($expectedphasetrace): bool {
+                    return isset($structured['phase_trace'])
+                        && $structured['phase_trace'] === $expectedphasetrace
+                        && isset($structured['planner_result'])
+                        && is_array($structured['planner_result']);
+                })
+            );
+
+        $svc = new message_persistence_service($store);
+        $svc->persist_assistant_message(123, [
+            'response_type' => 'skill_call',
+            'message' => 'done',
+            'phase_trace' => $expectedphasetrace,
+            'planner_result' => [
+                'planner_trace_history' => [' disc ', '', 'sel', 'cons '],
+                'phase_trace' => $expectedphasetrace,
+            ],
+        ]);
+    }
+}

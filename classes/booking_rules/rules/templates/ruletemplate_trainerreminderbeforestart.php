@@ -83,6 +83,7 @@ class ruletemplate_trainerreminderbeforestart {
             'rulejson' => json_encode($rulejson),
             'contextid' => 1,
             'useastemplate' => 0,
+            'isactive' => 1,
         ];
         return (object) $returnobject;
     }

@@ -95,7 +95,10 @@ class get_option_details_skill extends booking_skill_base implements skill_trigg
     public function get_schema(): array {
         $schema = [
             'version' => 1,
-            'description' => 'Get detailed information for one or more booking options via booking option APIs.',
+            'description' => 'Full details of ONE named booking option (optionquery or optionid): dates, seats, price, teachers, '
+                . 'description, link. Reads via the booking option APIs.',
+            'is' => 'One named booking option: dates, seats, price, teachers.',
+            'not' => 'A list of options (search_options); a taskflow rule of the same name (local_taskflow.get_rule_details).',
             'readonly' => $this->is_read_only(),
             'example_utterances' => [
                 'Show me the full details of the Spring Workshop',
@@ -117,7 +120,9 @@ class get_option_details_skill extends booking_skill_base implements skill_trigg
                 ],
                 'optionquery' => [
                     'type' => 'string',
-                    'description' => 'Option title/query to resolve when optionid is unknown.',
+                    'description' => 'Pass the user\'s wording VERBATIM, even when it is vague ("that autumn '
+                        . 'hiking thing"): this skill resolves it and reports candidates itself, so never ask the '
+                        . 'user for a name or id first. Used when optionid is unknown.',
                     'required' => false,
                 ],
                 'includesessions' => [
@@ -160,8 +165,14 @@ class get_option_details_skill extends booking_skill_base implements skill_trigg
         ];
 
         $schema['prompt_meta'] = [
-            'input_fields_for_prompt' => ['optionquery (or optionid / optionids)'],
+            'input_fields_for_prompt' => ['optionquery'],
             'anchor_fields' => ['optionquery', 'optionid'],
+            // Mirrors check_structure(): one of the three option references must be present. The array
+            // type checks there (optionids, requested_fields, customfield_keys) only fire when those
+            // fields are set and are therefore no requirement of an empty input.
+            'required_groups' => [
+                ['optionid', 'optionids', 'optionquery'],
+            ],
         ];
 
         return $this->enrich_schema_with_prompt_meta($schema);
@@ -200,7 +211,7 @@ class get_option_details_skill extends booking_skill_base implements skill_trigg
                     'option details', 'option detail', 'option sessions',
                 ],
                 'guidance' => [
-                    '- Use booking.get_option_details when the user asks for specific fields of an option',
+                    '- Use mod_booking.get_option_details when the user asks for specific fields of an option',
                     '  (e.g. teachers, sessions, times, image, price context).',
                     '- Prefer optionid when already known; otherwise pass the title as optionquery — this skill',
                     '  resolves the title itself, so a separate search step is not required.',
@@ -287,10 +298,21 @@ class get_option_details_skill extends booking_skill_base implements skill_trigg
             $stringkey = $outofscope
                 ? 'agent_booking_details_error_option_out_of_scope'
                 : 'agent_booking_diagnose_error_option_resolve';
+            $detail = $this->localized_string($stringkey, null, $outputlang);
+            // Wave 32 (GOD-4, threads 12109/12856): the refusal named no activity, so the answer asked the user
+            // "which booking activity contains option 88?" - a fact the database holds. The instance boundary stays;
+            // the refusal now names the activity that owns the option, with its link, when the user can see it.
+            $owner = $outofscope ? $this->owning_activity_of_input($input, $userid) : null;
+            if ($owner !== null) {
+                $detail .= ' ' . $this->localized_string('agent_booking_details_option_in_other_activity', $owner, $outputlang);
+            }
 
             return [
                 'status' => 'error',
-                'detail' => $this->localized_string($stringkey, null, $outputlang),
+                // The user can fix this by naming the option differently, so the turn must not be stamped as a
+                // failed run: the planner's own honest answer stands (see agent_runtime, run 17/18 UTP-3/TDP-4).
+                'issue_codes' => ['RECOVERABLE_INPUT_ERROR'],
+                'detail' => $detail,
                 'resultid' => null,
                 'optiondetails' => [],
                 'debugmessage' => $this->build_task_debug_message(
@@ -353,6 +375,7 @@ class get_option_details_skill extends booking_skill_base implements skill_trigg
         if (empty($details)) {
             return [
                 'status' => 'error',
+                'issue_codes' => ['RECOVERABLE_INPUT_ERROR'],
                 'detail' => $this->localized_string('agent_booking_diagnose_error_option_resolve', null, $outputlang),
                 'resultid' => null,
                 'optiondetails' => [],
@@ -873,6 +896,53 @@ class get_option_details_skill extends booking_skill_base implements skill_trigg
         }
 
         return !empty($directids) && empty($this->filter_ids_to_instance_scope($directids, $cmid));
+    }
+
+    /**
+     * The booking activity that owns the single option id of the input, when the user can see it (wave 32).
+     *
+     * @param array $input Skill input (optionid, one optionids entry, or a numeric optionquery).
+     * @param int $userid Requesting user.
+     * @return object|null {name, url} of the owning activity, or null when unknown or not visible to the user.
+     */
+    private function owning_activity_of_input(array $input, int $userid): ?object {
+        $ids = [];
+        if ((int)($input['optionid'] ?? 0) > 0) {
+            $ids[] = (int)$input['optionid'];
+        }
+        foreach ((array)($input['optionids'] ?? []) as $id) {
+            if ((int)$id > 0) {
+                $ids[] = (int)$id;
+            }
+        }
+        $query = trim((string)($input['optionquery'] ?? ''));
+        if (preg_match('/^\d+$/', $query)) {
+            $ids[] = (int)$query;
+        }
+        $ids = array_values(array_unique($ids));
+        if (count($ids) !== 1) {
+            return null;
+        }
+        $ownercmid = booking_skill_support::cmid_for_option($ids[0]);
+        if ($ownercmid <= 0) {
+            return null;
+        }
+        try {
+            [$course, $cm] = get_course_and_cm_from_cmid($ownercmid, 'booking');
+            $cminfo = get_fast_modinfo($course, $userid)->get_cm($cm->id);
+        } catch (\Throwable $e) {
+            return null;
+        }
+        // Review w32s-b1: uservisible alone ignores course access; a user outside the owning course must not learn
+        // the name and link of an activity there. is_user_visible() checks both - called with the id, because for a
+        // cm_info of the same user it returns uservisible without the course check.
+        if (!\core_availability\info_module::is_user_visible($ownercmid, $userid, true)) {
+            return null;
+        }
+        return (object)[
+            'name' => format_string($cminfo->name),
+            'url' => (new \moodle_url('/mod/booking/view.php', ['id' => $ownercmid]))->out(false),
+        ];
     }
 
     /**

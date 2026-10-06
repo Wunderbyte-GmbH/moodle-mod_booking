@@ -84,6 +84,7 @@ class ruletemplate_trainerpoll {
             'eventname' => "\\mod_booking\\event\\bookingoption_completed",
             'contextid' => 1,
             'useastemplate' => 0,
+            'isactive' => 1,
         ];
         return (object) $returnobject;
     }

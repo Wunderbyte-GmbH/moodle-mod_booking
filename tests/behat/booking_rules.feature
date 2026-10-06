@@ -308,7 +308,7 @@ Feature: Create global booking rules as admin and insure they are working.
     And I click on "Cancel this booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Reason for cancellation" in the ".modal-dialog" "css_element"
     And I set the field "Reason for cancellation of this booking option" to "rule testing"
-    And I click on "Save changes" "button"
+    And I click on "Save changes" "button" in the ".modal-dialog" "css_element"
     And I should see "Option-football" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Cancelled" in the ".allbookingoptionstable_r1" "css_element"
     And I run all booking adhoc tasks
@@ -488,7 +488,7 @@ Feature: Create global booking rules as admin and insure they are working.
     And I click on "Cancel this booking option" "link" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Reason for cancellation" in the ".modal-dialog" "css_element"
     And I set the field "Reason for cancellation of this booking option" to "rule testing"
-    And I click on "Save changes" "button"
+    And I click on "Save changes" "button" in the ".modal-dialog" "css_element"
     And I should see "Option-football" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "Cancelled" in the ".allbookingoptionstable_r1" "css_element"
     And I run all booking adhoc tasks

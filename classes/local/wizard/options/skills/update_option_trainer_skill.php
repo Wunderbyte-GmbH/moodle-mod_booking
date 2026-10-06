@@ -107,25 +107,45 @@ class update_option_trainer_skill extends booking_skill_base implements
     public function get_schema(): array {
         $schema = [
             'version' => 1,
-            'description' => 'Assign or replace trainer(s) for an existing booking option. '
-                . 'This task only updates trainer assignment and does not change other option fields.',
+            // First 240 characters = selector/constructor window (#2423, UOT-2/3): both targets by name.
+            'description' => 'Assign or replace the trainer(s) who RUN, lead or teach an existing booking option. Name the option '
+                . '(optionquery) and the person (teacherquery); both are resolved, no ids needed. This task only updates the '
+                . 'trainer assignment and leaves the other option fields unchanged.',
+            'is' => 'Trainers of an option.',
+            'not' => 'Participants booked into the option (book_users).',
             'readonly' => $this->is_read_only(),
+            'example_utterances' => [
+                'The course needs two people running it: add both as trainers',
+                'Assign Tom as the trainer of the welding seminar',
+                'Replace the teacher of the Friday pilates session',
+                'Maria is leading the workshop from now on',
+                'Add userid 91 as a second trainer for this option',
+            ],
             'fallback_confirm_string_key' => 'ai_status_confirm_booking_update_option',
             'fallback_taskcall_string_key' => 'ai_status_taskcall_booking_update_option',
             'properties' => [
-                'optionid' => [
-                    'type' => 'integer',
-                    'description' => 'ID of the booking option to update. If omitted, provide optionquery.',
-                    'required' => false,
-                ],
+                // The option reference comes first: listed third behind the id and the activity, a short name was
+                // read as the activity and the constructor asked which option was meant.
                 'optionquery' => [
                     'type' => 'string',
-                    'description' => 'Text query to resolve the target option by title/description/location.',
+                    'description' => 'Never ask which option when the request names one: pass the user\'s words verbatim, however '
+                        . 'short; the skill resolves them or lists the candidates.',
+                    'required' => false,
+                ],
+                'optionid' => [
+                    'type' => 'integer',
+                    'description' => 'Explicit booking option id when already known.',
                     'required' => false,
                 ],
                 'optionwhen' => [
                     'type' => 'string',
                     'description' => 'Optional temporal hint for disambiguation (e.g. "next monday").',
+                    'required' => false,
+                ],
+                'activityquery' => [
+                    'type' => 'string',
+                    'description' => 'Leave it out unless the user names a booking activity other than the current one (e.g. over '
+                        . 'MCP, which runs at the system context); never a course.',
                     'required' => false,
                 ],
                 'teacheremail' => [
@@ -150,8 +170,16 @@ class update_option_trainer_skill extends booking_skill_base implements
                 ],
             ],
             'prompt_meta' => [
-                'input_fields_for_prompt' => ['optionquery', 'teacherquery', 'teacherids'],
+                // Id-only keys are not advertised: names are resolved (#2423, UOT-3 asked for teacherids).
+                'input_fields_for_prompt' => ['optionquery', 'teacherquery'],
                 'anchor_fields' => ['option'],
+                // Mirrors the two independent gates of check_structure(): the option must be named, and
+                // a trainer selector must be present — each group on its own, hence two groups. The
+                // teacherids array check and the allowed-key check only apply to fields that ARE set.
+                'required_groups' => [
+                    ['optionid', 'optionquery'],
+                    ['teacheremail', 'teacherquery', 'teacherids'],
+                ],
             ],
         ];
 
@@ -167,11 +195,8 @@ class update_option_trainer_skill extends booking_skill_base implements
         return [
             [
                 'id' => 'mod_booking.assign_trainers_to_option_dedicated',
-                'description' => 'User asks to add, set, change, assign or replace trainer(s), '
-                    . 'or instructor(s) for an existing booking option. '
-                    . 'Use this task when the user wants to define who leads, teaches or trains a session. '
-
-                    . 'Keywords: trainer assign, set trainer, assign trainer.',
+                'description' => 'The user wants the trainer or instructor of an existing booking option set, changed or'
+                    . ' replaced.',
                 'examples' => [
                     'Set ANON_USER_1 as trainer for option First Aid Basics.',
                     'Assign trainer ids 42 and 77 to option 123.',
@@ -210,6 +235,7 @@ class update_option_trainer_skill extends booking_skill_base implements
         $allowedkeys = [
             'optionid',
             'optionquery',
+            'activityquery',
             'optionwhen',
             'teacheremail',
             'teacherquery',
@@ -277,11 +303,13 @@ class update_option_trainer_skill extends booking_skill_base implements
             );
 
             if (($result['status'] ?? '') !== 'ok') {
-                $issues[] = [
-                    'code' => 'OPTION_RESOLUTION_FAILED',
-                    'severity' => 'needs_clarification',
-                    'message' => (string)($result['message'] ?? ''),
-                ];
+                $issues[] = $this->option_resolution_issue(
+                    $result,
+                    $cmid,
+                    self::scalar_string($preparedinput['optionquery'] ?? ''),
+                    self::scalar_string($preparedinput['optionwhen'] ?? ''),
+                    $lang
+                );
                 return $this->invalid($issues);
             }
 
@@ -363,6 +391,7 @@ class update_option_trainer_skill extends booking_skill_base implements
         $allowedkeys = [
             'optionid',
             'optionquery',
+            'activityquery',
             'optionwhen',
             'teacheremail',
             'teacherquery',

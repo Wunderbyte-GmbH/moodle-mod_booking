@@ -18,6 +18,7 @@ namespace mod_booking\local\wizard\options\skills;
 
 use mod_booking\local\wizard\booking\booking_skill_mutation_execute_service;
 use mod_booking\local\wizard\booking\booking_skill_support;
+use mod_booking\local\wizard\booking\support\entity_location;
 use mod_booking\local\wizard\engine\queue_identity_provider_interface;
 use mod_booking\local\wizard\engine\skill_trigger_provider_interface;
 
@@ -114,6 +115,13 @@ class update_option_skill extends booking_skill_base implements
             'optionquery'      => 'Code Swap',
             'text'             => 'New option title',
             'headerimage_token' => 'tok_abc123',
+            // The date-range shape is load-bearing: without it the model falls back to Moodle-idiomatic
+            // timestart/timeend and the validator drops it (#2272). Wave 30 (UO-3): the example VALUES were copied
+            // too - 18:00-20:00 became the time of a session the user never gave - so the shape is shown with a
+            // placeholder in exactly the format the parser takes.
+            'optiondates'      => [
+                ['coursestarttime' => 'YYYY-MM-DD HH:MM', 'courseendtime' => 'YYYY-MM-DD HH:MM'],
+            ],
         ];
     }
 
@@ -125,9 +133,13 @@ class update_option_skill extends booking_skill_base implements
     public function get_schema(): array {
         return [
             'version' => 1,
-            'description' => 'Update an existing booking option in the current booking instance. '
-                . 'Also links a Moodle course to the option (coursequery) or sets its header image '
+            'description' => 'Change fields of ONE existing booking option (optionquery or optionid): title, dates, seats, price, '
+                . 'location, visibility, trainers. Also links a Moodle course to the option (coursequery) or sets its header image '
                 . '(headerimage_token).',
+            'when' => 'The user wants fields of one existing booking option changed, including its header image.',
+            'is' => 'One option.',
+            'not' => 'Many options at once (bulk_update_options); the field definitions themselves (create_option_field, '
+                . 'update_option_field).',
             'readonly' => $this->is_read_only(),
             'fallback_confirm_string_key' => 'ai_status_confirm_booking_update_option',
             'fallback_taskcall_string_key' => 'ai_status_taskcall_booking_update_option',
@@ -152,9 +164,26 @@ class update_option_skill extends booking_skill_base implements
                     'description' => 'ID of the booking option to update. If omitted, provide optionquery.',
                     'required' => false,
                 ],
+                'activityquery' => [
+                    'type' => 'string',
+                    'description' => 'Optional: name of the target booking activity when it is not the current one'
+                        . ' (e.g. over MCP, which runs at the system context). Names only - never a course.',
+                    'required' => false,
+                ],
+                'shiftdays' => [
+                    'type' => 'integer',
+                    'description' => 'Move ALL existing sessions of this option by whole days, RELATIVE to where '
+                        . 'they are now: 7 = one week later, -7 = one week earlier. Use this whenever the user '
+                        . 'describes the move relative ("push the start back a week") instead of naming a date — '
+                        . 'you do not need to know the current dates, this skill reads them. Do not combine with '
+                        . 'optiondates or coursestarttime.',
+                    'required' => false,
+                ],
                 'optionquery' => [
                     'type' => 'string',
-                    'description' => 'Text query to resolve the target option by title/description/location.',
+                    'description' => 'Pass the user\'s wording VERBATIM, even when it is vague ("der Wanderkurs"): '
+                        . 'this skill resolves it and reports candidates itself. Never ask the user for a name or id '
+                        . 'first. Resolves the target option by title/description/location.',
                     'required' => false,
                 ],
                 'optionwhen' => [
@@ -168,6 +197,19 @@ class update_option_skill extends booking_skill_base implements
                     'required' => false,
                 ],
             ], option_schema_definition::common_properties()),
+            'prompt_meta' => [
+                // The prompt_meta block keeps its established shape even where only the group is declared: the
+                // contract test asserts both keys on every skill that carries prompt_meta at all, and an
+                // empty list is what the readers saw before this block existed.
+                'input_fields_for_prompt' => [],
+                'anchor_fields' => [],
+                // Mirrors check_structure(): the option to change must be named, by id or by query.
+                // The other checks there (shiftdays numeric, shiftdays vs. explicit dates) only apply
+                // once those fields ARE set, so they are no requirement of an empty input.
+                'required_groups' => [
+                    ['optionid', 'optionquery'],
+                ],
+            ],
         ];
     }
 
@@ -233,8 +275,10 @@ class update_option_skill extends booking_skill_base implements
                     '- Do not ask for slot details when the user asks to book participants into a normal option.',
                     '- For mutating requests, do not ask for permission to run internal lookup steps.',
                     '- Do not output standalone search tasks as final action for mutating intent.',
-                    '- For date additions on existing options, use optiondates with optiondatesmode=append '
-                        . '(or omit optiondatesmode; append is default).',
+                    '- For a RELATIVE move of the existing sessions ("a week later", "push it back three days")',
+                    '  set shiftdays (7 / -3). Never ask the user for the current dates - this skill reads them.',
+                    '- For dates use optiondates: optiondatesmode=append ADDS sessions, replace SETS the whole list; '
+                        . 'without a mode a single date on a single-session option MOVES that session, otherwise dates are added.',
                     '- Use confirmation_request for updates and follow structured validation issues when returned.',
                 ],
             ],
@@ -296,12 +340,61 @@ class update_option_skill extends booking_skill_base implements
      * @param  array $input
      * @return array{valid:bool,errors:array<int,string>}
      */
+    /**
+     * Move existing sessions by whole days.
+     *
+     * The model states the movement, the skill does the arithmetic on the sessions it read from the database —
+     * that is the whole point of the relative field (baseline runs 15/16, UO-1).
+     *
+     * @param array $sessions Session records with coursestarttime/courseendtime.
+     * @param int $days Whole days; positive moves later, negative earlier.
+     * @return array[] Session payload for optiondates.
+     */
+    public static function shifted_sessions(array $sessions, int $days): array {
+        $shift = $days * DAYSECS;
+        $out = [];
+        foreach ($sessions as $session) {
+            $start = (int)($session->coursestarttime ?? ($session['coursestarttime'] ?? 0));
+            $end = (int)($session->courseendtime ?? ($session['courseendtime'] ?? 0));
+            if ($start <= 0) {
+                continue;
+            }
+            $out[] = [
+                'coursestarttime' => $start + $shift,
+                'courseendtime' => $end > 0 ? $end + $shift : $end,
+            ];
+        }
+
+        return $out;
+    }
+
+    /**
+     * Validate the structure of the input before anything is resolved or changed.
+     *
+     * @param array $input
+     * @return array valid/errors result
+     */
     public function check_structure(array $input): array {
         if (empty($input['optionid']) && empty($input['optionquery'])) {
             return [
                 'valid'  => false,
                 'errors' => [get_string('agent_booking_update_option_missing_target', 'booking')],
             ];
+        }
+
+        if (isset($input['shiftdays']) && $input['shiftdays'] !== '' && $input['shiftdays'] !== null) {
+            if (!is_numeric($input['shiftdays']) || (int)$input['shiftdays'] != $input['shiftdays']) {
+                return [
+                    'valid' => false,
+                    'errors' => ['shiftdays must be a whole number of days (7 = one week later, -7 = earlier).'],
+                ];
+            }
+            if (!empty($input['optiondates']) || !empty($input['coursestarttime'])) {
+                return [
+                    'valid' => false,
+                    'errors' => ['Use either shiftdays (relative) or explicit dates, not both.'],
+                ];
+            }
         }
 
         $commonerrors = $this->validate_common_mutation_structure($input, false);
@@ -346,6 +439,13 @@ class update_option_skill extends booking_skill_base implements
         // real query here — no anonymized-token short-circuit needed at the skill level.
 
         $preparedinput = $input;
+
+        // Canonicalize the prices SHAPE before the confirm preview, exactly like create_option: a
+        // bare numeric ("prices": 25) means the default price category. Execute normalizes the same
+        // way, so without this the price is written but never shown on the card (run 9, P3, #2409).
+        if (isset($preparedinput['prices']) && is_numeric($preparedinput['prices'])) {
+            $preparedinput['prices'] = ['default' => (float)$preparedinput['prices']];
+        }
 
         if (empty($input['optionid'])) {
             if (empty($input['optionquery'])) {
@@ -396,31 +496,15 @@ class update_option_skill extends booking_skill_base implements
                     (string)$input['optionquery'],
                     (string)($input['optionwhen'] ?? '')
                 );
-                if ($result['status'] === 'error') {
-                    $issues[] = [
-                        'code'          => 'OPTION_RESOLUTION_FAILED',
-                        'severity'      => 'needs_clarification',
-                        'message'       => (string)$result['message'],
-                        'user_question' => $this->localized_string(
-                            'agent_booking_update_option_resolution_failed_question',
-                            null,
-                            $lang
-                        ),
-                        'remedy_options' => ['PROVIDE_MORE_SPECIFIC_OPTIONQUERY', 'PROVIDE_OPTIONID'],
-                    ];
-                    return $this->invalid($issues);
-                } else if ($result['status'] === 'ambiguity') {
-                    $issues[] = [
-                        'code'          => 'OPTION_RESOLUTION_AMBIGUOUS',
-                        'severity'      => 'needs_clarification',
-                        'message'       => (string)$result['message'],
-                        'user_question' => $this->localized_string(
-                            'agent_booking_update_option_resolution_ambiguous_question',
-                            null,
-                            $lang
-                        ),
-                        'remedy_options' => ['SELECT_EXACT_OPTION', 'PROVIDE_OPTIONID'],
-                    ];
+                if ($result['status'] === 'error' || $result['status'] === 'ambiguity') {
+                    // L45 UOT-2: choices instead of the resolver's English text naming optionquery/optionid.
+                    $issues[] = $this->option_resolution_issue(
+                        $result,
+                        $cmid,
+                        (string)$input['optionquery'],
+                        (string)($input['optionwhen'] ?? ''),
+                        $lang
+                    );
                     return $this->invalid($issues);
                 } else if ($result['status'] === 'ok') {
                     // Store resolved ID in prepared_input.
@@ -454,6 +538,43 @@ class update_option_skill extends booking_skill_base implements
                 ];
                 return $this->invalid($issues);
             }
+        }
+
+        // A relative move is expanded here, AFTER the option is resolved: read the current sessions, move them,
+        // and hand the executor the same absolute list it always gets (baseline UO-1). W32: this block ran before
+        // the resolution above, so an option named by optionquery had no optionid yet, every shift found "no
+        // sessions" and the issue asked which option to update (UO-1, all ten runs L30-L41).
+        if (isset($preparedinput['shiftdays']) && $preparedinput['shiftdays'] !== '' && $preparedinput['shiftdays'] !== null) {
+            $optionid = (int)($preparedinput['optionid'] ?? 0);
+            $sessions = $optionid > 0
+                ? $DB->get_records('booking_optiondates', ['optionid' => $optionid], 'coursestarttime ASC')
+                : [];
+            $shifted = self::shifted_sessions(array_values($sessions), (int)$preparedinput['shiftdays']);
+            unset($preparedinput['shiftdays']);
+            if (empty($shifted)) {
+                $issues[] = [
+                    'code' => 'UPDATE_OPTION_NO_SESSIONS_TO_SHIFT',
+                    'severity' => 'needs_clarification',
+                    'message' => $this->localized_string('agent_booking_update_option_no_sessions_to_shift', null, $lang),
+                ];
+                // Return here: apply_service_preflight() hands existing issues on only when the service itself reports
+                // an error, so this question was dropped and the preflight passed (wave-32 integration test).
+                return $this->invalid($issues);
+            } else {
+                $preparedinput['optiondates'] = $shifted;
+                $preparedinput['optiondatesmode'] = 'replace';
+            }
+        }
+
+        // With local_entities the location is an entity: resolve it here so the card and the save
+        // carry the entity link; an unknown name is a clarification with the entities as remedies (#2414).
+        $entityissue = entity_location::preflight_issue(
+            $preparedinput,
+            fn(string $id, $a): string => $this->localized_string($id, $a, $lang)
+        );
+        if ($entityissue !== null) {
+            $issues[] = $entityissue;
+            return $this->invalid($issues);
         }
 
         // Run service-level preflight (teacher resolution, dates, etc.) and enrich prepared_input.

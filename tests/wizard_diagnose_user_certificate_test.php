@@ -100,6 +100,9 @@ final class wizard_diagnose_user_certificate_test extends advanced_testcase {
     public function test_certificate_field_change_after_completion_flagged(): void {
         global $DB;
         $this->resetAfterTest();
+        // The standard log store observes events only after the DB transaction commits. On PostgreSQL the test
+        // would run inside the rollback transaction and the update event would never reach the log.
+        $this->preventResetByRollback();
 
         [$booking, $option, $student] = $this->setup_booking();
         $templateid = $this->create_cert_template();

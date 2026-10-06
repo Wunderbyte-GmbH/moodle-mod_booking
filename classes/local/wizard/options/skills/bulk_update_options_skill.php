@@ -18,6 +18,7 @@ namespace mod_booking\local\wizard\options\skills;
 
 use mod_booking\local\wizard\booking\booking_skill_mutation_execute_service;
 use mod_booking\local\wizard\booking\booking_skill_support;
+use mod_booking\local\wizard\booking\support\entity_location;
 use mod_booking\local\wizard\engine\queue_identity_provider_interface;
 use mod_booking\local\wizard\engine\skill_trigger_provider_interface;
 
@@ -155,8 +156,13 @@ class bulk_update_options_skill extends booking_skill_base implements
     public function get_schema(): array {
         return [
             'version' => 1,
-            'description' => 'Update multiple booking options at once. All provided fields are applied to every '
-                . 'matched option. Requires optionids, optionquery, or apply_to_all=true to select targets.',
+            // First 240 characters = selector window (#2423, BU-1 "all cooking classes get 18 seats").
+            'description' => 'CHANGE fields (maxanswers seats, prices, visibility, location, dates) on MANY booking options at '
+                . 'once, selected by optionquery (e.g. all cooking classes), optionids or apply_to_all. All provided fields are '
+                . 'applied to every matched option.',
+            'when' => 'The user wants the same fields changed on many booking options at once.',
+            'is' => 'Many options in one call.',
+            'not' => 'One single option (update_option).',
             'readonly' => $this->is_read_only(),
             'fallback_confirm_string_key' => 'ai_status_confirm_booking_bulk_update_options',
             'fallback_taskcall_string_key' => 'ai_status_taskcall_booking_bulk_update_options',
@@ -171,6 +177,12 @@ class bulk_update_options_skill extends booking_skill_base implements
                 'optionids' => [
                     'type' => 'array',
                     'description' => 'Array of specific option IDs to update.',
+                    'required' => false,
+                ],
+                'activityquery' => [
+                    'type' => 'string',
+                    'description' => 'Optional: name of the target booking activity when it is not the current one'
+                        . ' (e.g. over MCP, which runs at the system context). Names only - never a course.',
                     'required' => false,
                 ],
                 'optionquery' => [
@@ -191,6 +203,20 @@ class bulk_update_options_skill extends booking_skill_base implements
                     'required' => false,
                 ],
             ], option_schema_definition::common_properties()),
+            'prompt_meta' => [
+                // The prompt_meta block keeps its established shape even where only the group is declared: the
+                // contract test asserts both keys on every skill that carries prompt_meta at all, and an
+                // empty list is what the readers saw before this block existed.
+                'input_fields_for_prompt' => [],
+                'anchor_fields' => [],
+                // Mirrors the first gate of check_structure(): without optionids, optionquery or
+                // apply_to_all there is no selection to work on. The second gate there (at least one
+                // known change field) is not declared here: its alternatives are the whole set of
+                // mutation properties, derived from the schema at runtime, and a static copy would drift.
+                'required_groups' => [
+                    ['optionids', 'optionquery', 'apply_to_all'],
+                ],
+            ],
         ];
     }
 
@@ -223,7 +249,7 @@ class bulk_update_options_skill extends booking_skill_base implements
      * @var array<int,string>
      */
     private const BULK_CONTROL_KEYS = [
-        'optionids', 'resolvedoptionids', 'optionquery', 'optionwhen', 'apply_to_all',
+        'optionids', 'resolvedoptionids', 'optionquery', 'activityquery', 'optionwhen', 'apply_to_all',
         'outputlang', 'override',
     ];
 
@@ -327,6 +353,12 @@ class bulk_update_options_skill extends booking_skill_base implements
         $issues = [];
         $preparedinput = $input;
 
+        // Bulk mirrors update_option: a bare numeric price becomes the default category before the
+        // confirm preview, so the card shows what execute will write (run 9, P3, #2409).
+        if (isset($preparedinput['prices']) && is_numeric($preparedinput['prices'])) {
+            $preparedinput['prices'] = ['default' => (float)$preparedinput['prices']];
+        }
+
         $hasids   = !empty($input['optionids']) && is_array($input['optionids'])
             && count($input['optionids']) > 0;
         $hasquery = !empty($input['optionquery']) && trim((string)$input['optionquery']) !== '';
@@ -400,6 +432,51 @@ class bulk_update_options_skill extends booking_skill_base implements
                 'severity' => 'needs_clarification',
                 'message'  => $this->localized_string('agent_booking_bulk_update_bookusersquery_unsupported', null, $lang),
             ];
+            return $this->invalid($issues);
+        }
+
+        // Resolve the query / apply-to-all match set now: the confirm card must state the
+        // real scope, and an empty set is a clarification, never a confirmable command.
+        if (empty($preparedinput['optionids'])) {
+            $matchedids = booking_skill_support::resolve_bulk_option_ids_for_execute($cmid, $input, $userid);
+            if (empty($matchedids)) {
+                $query = trim((string)($input['optionquery'] ?? ''));
+                $nomatch = $query === ''
+                    ? $this->localized_string('agent_booking_bulk_update_no_options', null, $lang)
+                    : $this->localized_string('agent_booking_bulk_update_no_matches', $query, $lang);
+                // The engine shows user_question, not message: the "nothing matched" fact must be
+                // part of the question, or the user only sees the generic scope question again.
+                $issue = [
+                    'code'           => 'EMPTY_BULK_TARGET_SELECTION',
+                    'severity'       => 'needs_clarification',
+                    'message'        => $nomatch,
+                    'user_question'  => $nomatch . ' '
+                        . $this->localized_string('agent_booking_bulk_update_issue_user_question', null, $lang),
+                    'remedy_options' => ['PROVIDE_OPTIONQUERY', 'PROVIDE_OPTIONIDS', 'SET_APPLY_TO_ALL'],
+                ];
+                // Wave 32 (BU-1 0/10, threads 9106-12890): "Kochkurse" is in no option name, "Kochkurs Italienisch"
+                // and "Kochkurs Vegetarisch" are. Choices, not an error: the options of the activity are offered
+                // (visible first) and the model picks the ids meant - no stemming, no word list in the code.
+                $choices = $query === '' ? [] : booking_skill_support::option_choices($cmid);
+                if (!empty($choices)) {
+                    $issue['message'] = $nomatch . ' '
+                        . $this->localized_string('agent_booking_bulk_update_choose_from_candidates', null, $lang);
+                    $issue['field'] = 'optionids';
+                    $issue['candidates'] = $choices;
+                }
+                $issues[] = $issue;
+                return $this->invalid($issues);
+            }
+            $preparedinput['optionids'] = array_values(array_map('intval', $matchedids));
+        }
+
+        // Bulk mirrors update_option: an entity-managed location is resolved before the card (#2414).
+        $entityissue = entity_location::preflight_issue(
+            $preparedinput,
+            fn(string $id, $a): string => $this->localized_string($id, $a, $lang)
+        );
+        if ($entityissue !== null) {
+            $issues[] = $entityissue;
             return $this->invalid($issues);
         }
 

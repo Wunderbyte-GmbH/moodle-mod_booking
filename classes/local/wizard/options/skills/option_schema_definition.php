@@ -86,6 +86,30 @@ class option_schema_definition {
                 'description' => 'Search query to resolve a teacher by name/email/id when teacheremail is unknown.',
                 'required'    => false,
             ],
+            // The fields a user changes most often come before the slot and availability blocks,
+            // so they stay inside the constructor's field window.
+            'prices' => [
+                'type' => 'object',
+                'description' => 'Map of price category identifiers to numeric prices, e.g. '
+                    . '{"default": 10, "student": 20}.',
+                'required' => false,
+            ],
+            'invisible' => [
+                'type' => 'integer',
+                'description' => 'Visibility state of the option: 0 = visible, 1 = invisible, 2 = visible only via direct link.',
+                'required' => false,
+            ],
+            'visibility' => [
+                'type' => 'string',
+                'description' => 'Visibility alias: visible|invisible|directlink (also accepts visiblewithlink/public/hidden).',
+                'required' => false,
+            ],
+            'coursequery' => [
+                'type' => 'string',
+                'description' => 'Search query to resolve a Moodle course by full name/shortname and link it.',
+                'required' => false,
+            ],
+
             'optiontype' => [
                 'type' => 'string',
                 'description' => 'Booking option type. Accepted values: normal|withdates, selflearning|selflearningcourse, '
@@ -111,12 +135,14 @@ class option_schema_definition {
             ],
             'slot_valid_from' => [
                 'type' => 'string',
-                'description' => 'Date from which recurring slots are generated (ISO 8601 or Unix timestamp).',
+                'description' => 'Date from which recurring slots are generated (ISO 8601 or Unix timestamp). '
+                    . 'Leave it out when the user names no start: the slots are then bookable from now on.',
                 'required' => false,
             ],
             'slot_valid_until' => [
                 'type' => 'string',
-                'description' => 'Date until which recurring slots are generated (ISO 8601 or Unix timestamp).',
+                'description' => 'Date until which recurring slots are generated (ISO 8601 or Unix timestamp). '
+                    . 'Leave it out when the user names no end: the slots then run for one year.',
                 'required' => false,
             ],
             // WEEKDAY FLAGS: 1=Monday, 2=Tuesday, 3=Wednesday, 4=Thursday, 5=Friday, 6=Saturday, 7=Sunday.
@@ -196,21 +222,6 @@ class option_schema_definition {
                 'type' => 'boolean',
                 'description' => 'If true, participants cannot cancel their own booking. '
                     . 'If false (default), self-cancellation is allowed.',
-                'required' => false,
-            ],
-            'invisible' => [
-                'type' => 'integer',
-                'description' => 'Visibility state of the option: 0 = visible, 1 = invisible, 2 = visible only via direct link.',
-                'required' => false,
-            ],
-            'visibility' => [
-                'type' => 'string',
-                'description' => 'Visibility alias: visible|invisible|directlink (also accepts visiblewithlink/public/hidden).',
-                'required' => false,
-            ],
-            'coursequery' => [
-                'type' => 'string',
-                'description' => 'Search query to resolve a Moodle course by full name/shortname and link it.',
                 'required' => false,
             ],
             'enrolledincoursequery' => [
@@ -512,12 +523,6 @@ class option_schema_definition {
             'customformenabled' => [
                 'type' => 'boolean',
                 'description' => 'Enable/disable custom form condition explicitly.',
-                'required' => false,
-            ],
-            'prices' => [
-                'type' => 'object',
-                'description' => 'Map of price category identifiers to numeric prices, e.g. '
-                    . '{"default": 10, "student": 20}.',
                 'required' => false,
             ],
             'ticketdesign' => [

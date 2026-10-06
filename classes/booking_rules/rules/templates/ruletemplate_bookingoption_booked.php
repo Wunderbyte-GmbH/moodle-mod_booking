@@ -88,6 +88,7 @@ class ruletemplate_bookingoption_booked {
             'eventname' => "\\mod_booking\\event\\bookingoption_booked",
             'contextid' => 1,
             'useastemplate' => 0,
+            'isactive' => 1,
         ];
         return (object) $returnobject;
     }

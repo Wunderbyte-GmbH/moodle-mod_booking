@@ -545,7 +545,10 @@ class behat_mod_booking extends behat_base {
     // AI instructions chat steps.
 
     /**
-     * Navigate to the AI instructions chat page for a named booking instance.
+     * Open the AI instructions of a named booking instance.
+     *
+     * The AI instructions have no page of their own: view.php renders them in a tab next to the
+     * classic view. The step opens the activity and shows that tab.
      *
      * @Given /^I am on the AI instructions page for booking "(?P<bookingname_string>[^"]*)"$/
      * @param string $bookingname
@@ -553,8 +556,38 @@ class behat_mod_booking extends behat_base {
      */
     public function i_am_on_the_ai_instructions_page_for_booking(string $bookingname): void {
         $cm = $this->get_cm_by_booking_name($bookingname);
-        $url = new \moodle_url('/mod/booking/aiinstructions.php', ['id' => $cm->id]);
+        $url = new \moodle_url('/mod/booking/view.php', ['id' => $cm->id]);
         $this->getSession()->visit($this->locate_path($url->out_as_local_url(false)));
+        $this->show_ai_instructions_tab();
+    }
+
+    /**
+     * Show the tab of the booking view that holds the AI instructions.
+     *
+     * Without JavaScript all tab panes are part of the page anyway, so only a running browser needs the click.
+     *
+     * @return void
+     */
+    protected function show_ai_instructions_tab(): void {
+        $page = $this->getSession()->getPage();
+        $pane = $page->find('xpath', "//div[contains(concat(' ', normalize-space(@class), ' '), ' tab-pane ')]"
+            . "[.//*[@id='booking-ai-wrapper']]");
+        if (!$pane) {
+            throw new \Behat\Mink\Exception\ElementNotFoundException(
+                $this->getSession(),
+                'element',
+                'css',
+                '#booking-ai-wrapper'
+            );
+        }
+        if (!$this->running_javascript() || $pane->hasClass('active')) {
+            return;
+        }
+        $tablink = $page->find('css', 'a.nav-link[aria-controls="' . $pane->getAttribute('id') . '"]');
+        if ($tablink) {
+            $tablink->click();
+            $this->wait_for_pending_js();
+        }
     }
 
     /**
@@ -574,48 +607,66 @@ class behat_mod_booking extends behat_base {
     }
 
     /**
-     * Log in as user, visit the AI instructions page, verify access is denied, then navigate away.
-     * Navigating away is required so that the ChainedStepTester's automatic exception check.
-     * The clean-page navigation avoids failures on the error page.
+     * Assert whether the AI instructions report the capability to use them as granted.
      *
-     * @Given /^I visit the AI instructions page for booking "([^"]*)" as "([^"]*)" and expect access denied$/
-     * @param string $bookingname
-     * @param string $username
+     * The readiness list links its capability row to the capability check page of
+     * bookingextension/agent:useaiinstructions; the row icon tells whether the check is done.
+     * Without the capability the chat is not offered, so the readiness list is always shown then.
+     *
+     * @Then /^the AI instructions should report the use capability as (granted|missing)$/
+     * @param string $state
      * @return void
      */
-    public function i_visit_ai_instructions_and_expect_access_denied(
-        string $bookingname,
-        string $username
-    ): void {
-        $this->execute('behat_auth::i_log_in_as', [$username]);
-        $cm  = $this->get_cm_by_booking_name($bookingname);
-        $url = new \moodle_url('/mod/booking/aiinstructions.php', ['id' => $cm->id]);
-        $this->getSession()->visit($this->locate_path($url->out_as_local_url(false)));
-
-        // Verify access is denied. Moodle can render this in different wrappers
-        // depending on theme/version, so check both structure and common texts.
+    public function the_ai_instructions_should_report_the_use_capability_as(string $state): void {
         $page = $this->getSession()->getPage();
-        $errordiv = $page->find('xpath', "//div[@data-rel='fatalerror']");
-        $errorbox = $page->find('css', '.alert-danger, .errorbox, #notice');
-        $pagetext = core_text::strtolower($page->getText());
-        $hasdeniedtext =
-            str_contains($pagetext, 'you do not have permission')
-            || str_contains($pagetext, 'you do not currently have permissions')
-            || str_contains($pagetext, 'access denied')
-            || str_contains($pagetext, 'keine berechtigung')
-            || str_contains($pagetext, 'zugriff verweigert');
-
-        if (!$errordiv && !$errorbox && !$hasdeniedtext) {
-            throw new \Behat\Mink\Exception\ExpectationException(
-                'Expected a Moodle permission-denied error page but none was found.',
-                $this->getSession()
+        $wrapper = $page->find('css', '#booking-ai-wrapper');
+        if (!$wrapper) {
+            throw new \Behat\Mink\Exception\ElementNotFoundException(
+                $this->getSession(),
+                'element',
+                'css',
+                '#booking-ai-wrapper'
             );
         }
 
-        // Navigate away so that the ChainedStepTester automatic "I look for exceptions"
-        // step runs on the homepage rather than on the error page.
-        $homeurl = new \moodle_url('/');
-        $this->getSession()->visit($this->locate_path($homeurl->out_as_local_url(false)));
+        $row = $wrapper->find('xpath', "//ul[contains(@class, 'booking-ai-readiness-list')]/li"
+            . "[.//a[contains(@href, 'useaiinstructions')]]");
+        if ($state === 'missing') {
+            if ($wrapper->getAttribute('data-ready-for-chat') === '1') {
+                throw new \Behat\Mink\Exception\ExpectationException(
+                    'Expected the AI chat not to be offered without the use capability.',
+                    $this->getSession()
+                );
+            }
+            if (!$row) {
+                throw new \Behat\Mink\Exception\ElementNotFoundException(
+                    $this->getSession(),
+                    'readiness row',
+                    'xpath',
+                    'booking-ai-readiness-list capability row'
+                );
+            }
+        }
+        if (!$row) {
+            // Granted and ready for chat: the readiness list is not rendered at all.
+            if ($wrapper->getAttribute('data-ready-for-chat') === '1') {
+                return;
+            }
+            throw new \Behat\Mink\Exception\ElementNotFoundException(
+                $this->getSession(),
+                'readiness row',
+                'xpath',
+                'booking-ai-readiness-list capability row'
+            );
+        }
+
+        $done = (bool)$row->find('css', '.fa-check-square');
+        if ($done !== ($state === 'granted')) {
+            throw new \Behat\Mink\Exception\ExpectationException(
+                'Expected the use capability of the AI instructions to be reported as ' . $state . '.',
+                $this->getSession()
+            );
+        }
     }
 
     /**
@@ -724,10 +775,11 @@ class behat_mod_booking extends behat_base {
         // skill instantiation outside engine discovery needs it bootstrapped first.
         \mod_booking\local\wizard\engine_component::ensure_engine_aliases();
         $task = new diagnose_cancellation_issue_skill();
+        // Skills run in a context: execute() takes the id of the module context, not the cmid.
         $this->lastdiagnosecancellationresult = $task->execute([
             'question' => $question,
             'optionquery' => $optionquery,
-        ], (int)$cm->id, (int)$USER->id);
+        ], (int)context_module::instance((int)$cm->id)->id, (int)$USER->id);
     }
 
     /**

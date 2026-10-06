@@ -1,0 +1,271 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template bookingextension_agent/connect_claude
+
+    Readiness checklist and how-to for connecting an external AI client (Claude) over MCP, via
+    either OAuth 2.1 (browser login) or a web-service token.
+
+    Context variables required:
+    * common - array of check rows {done, label, detail, icon, configureurl, configurelabel}
+    * oauth - array of OAuth-method check rows (same shape)
+    * token - array of token-method check rows (same shape)
+    * common_ready - bool, true when every common prerequisite passes
+    * oauth_own_ready - bool, true when every check in the oauth list passes (ignores common)
+    * token_own_ready - bool, true when every check in the token list passes (ignores common)
+    * oauth_ready - bool, true when common + oauth checks all pass
+    * token_ready - bool, true when common + token checks all pass
+    * oauth_blocked_by_common - bool, true when oauth's own checks pass but a common one is red
+    * token_blocked_by_common - bool, true when token's own checks pass but a common one is red
+    * server_url - string, the MCP endpoint URL to add in Claude
+    * wellknown_vhost_snippet - string, Apache vhost block for the /.well-known rewrites
+    * wellknown_htaccess_snippet - string, .htaccess block for managed hosting without root
+    * wellknown_curl_test - string, curl command that verifies the discovery URL answers 200
+    * server_ok - bool, true when header pass-through and both discovery documents all answer
+    * fixer_supported - bool, tool_oauthmcp's automatic .htaccess setup can run on this layout
+    * fixer_url - string, URL of tool_oauthmcp's automatic server setup page
+    * is_siteadmin - bool, whether the viewer may open the automatic setup page
+    * show_alt_header - bool, Authorization is stripped but X-Moodle-Token is available
+
+    Each method shows exactly one banner: success (*_ready), "fix the cross in this list"
+    (^*_own_ready), or "fix the common prerequisites above" (*_blocked_by_common).
+
+    Example context (json):
+    {
+        "common": [{"done": true, "label": "MCP server enabled", "detail": "OK", "icon": "<i></i>"}],
+        "oauth": [],
+        "token": [],
+        "common_ready": false,
+        "oauth_own_ready": true,
+        "token_own_ready": true,
+        "oauth_ready": false,
+        "token_ready": false,
+        "oauth_blocked_by_common": true,
+        "token_blocked_by_common": true,
+        "server_url": "https://example.com/admin/tool/oauthmcp/server.php",
+        "wellknown_vhost_snippet": "RewriteEngine On",
+        "wellknown_htaccess_snippet": "RewriteEngine On",
+        "wellknown_curl_test": "curl -s https://example.com/.well-known/oauth-authorization-server"
+    }
+}}
+<div class="booking-ai-connect-claude" style="max-width: 860px;">
+    <p class="lead">{{#str}}claudeconnect_intro, bookingextension_agent{{/str}}</p>
+    <p class="text-muted">{{#str}}claudeconnect_intro_detail, bookingextension_agent{{/str}}</p>
+
+    <div class="alert alert-secondary" role="note">
+        <p class="mb-1"><strong>{{#str}}claudeconnect_methods_heading, bookingextension_agent{{/str}}</strong></p>
+        <ul class="mb-0">
+            <li>{{#str}}claudeconnect_method_oauth_summary, bookingextension_agent{{/str}}</li>
+            <li>{{#str}}claudeconnect_method_token_summary, bookingextension_agent{{/str}}</li>
+        </ul>
+    </div>
+
+    <div class="alert alert-info" role="note">
+        <i class="fa fa-info-circle mr-1" aria-hidden="true"></i>{{#str}}claudeconnect_skills_note, bookingextension_agent{{/str}}
+    </div>
+
+    <div class="form-group mt-3">
+        <label class="font-weight-bold small mb-1" for="booking-ai-mcp-url">{{#str}}claudeconnect_server_url_label, bookingextension_agent{{/str}}</label>
+        <input type="text" id="booking-ai-mcp-url" class="form-control" readonly value="{{server_url}}" aria-label="{{#str}}claudeconnect_server_url_label, bookingextension_agent{{/str}}">
+        <small class="form-text text-muted">{{#str}}claudeconnect_server_url_hint, bookingextension_agent{{/str}}</small>
+    </div>
+
+    <h4 class="mt-4">{{#str}}claudeconnect_common_heading, bookingextension_agent{{/str}}</h4>
+    <ul class="list-group mt-2 mb-0">
+        {{#common}}
+        <li class="list-group-item d-flex align-items-start">
+            <span class="mr-3 mt-1">{{{icon}}}</span>
+            <div>
+                <strong>{{label}}</strong>
+                <div class="small text-muted mt-1">{{detail}}</div>
+                {{#configureurl}}
+                <div class="small mt-1"><a href="{{configureurl}}">{{configurelabel}}</a></div>
+                {{/configureurl}}
+            </div>
+        </li>
+        {{/common}}
+    </ul>
+
+    {{! ---- Method 1: OAuth 2.1 ---- }}
+    <hr class="my-4">
+    <h4>{{#str}}claudeconnect_method_oauth_heading, bookingextension_agent{{/str}}</h4>
+    <p class="text-muted">{{#str}}claudeconnect_method_oauth_detail, bookingextension_agent{{/str}}</p>
+    <ul class="list-group mt-2 mb-0">
+        {{#oauth}}
+        <li class="list-group-item d-flex align-items-start">
+            <span class="mr-3 mt-1">{{{icon}}}</span>
+            <div>
+                <strong>{{label}}</strong>
+                <div class="small text-muted mt-1">{{detail}}</div>
+                {{#configureurl}}
+                <div class="small mt-1"><a href="{{configureurl}}">{{configurelabel}}</a></div>
+                {{/configureurl}}
+            </div>
+        </li>
+        {{/oauth}}
+    </ul>
+    {{! Server setup, three states: everything green -> one success line; otherwise the
+        automatic setup card (when tool_oauthmcp can do it safely on this layout) followed by
+        the two manual recipes, which double as the fallback when automation cannot run. }}
+    {{#server_ok}}
+    <p class="small text-muted mt-2">
+        <i class="fa fa-check text-success" aria-hidden="true"></i>
+        {{#str}}claudeconnect_server_setup_ok, bookingextension_agent{{/str}}
+    </p>
+    {{/server_ok}}
+    {{^server_ok}}
+    <div class="mt-3 small">
+        <p class="font-weight-bold mb-1">{{#str}}claudeconnect_wellknown_heading, bookingextension_agent{{/str}}</p>
+        <p class="text-muted">{{#str}}claudeconnect_wellknown_intro, bookingextension_agent{{/str}}</p>
+        {{#fixer_supported}}
+        <div class="card border-primary mb-3">
+            <div class="card-body">
+                <h5 class="card-title">{{#str}}claudeconnect_autofix_heading, bookingextension_agent{{/str}}</h5>
+                <p>{{#str}}claudeconnect_autofix_intro, bookingextension_agent{{/str}}</p>
+                <p class="text-muted">{{#str}}claudeconnect_autofix_safety, bookingextension_agent{{/str}}</p>
+                {{#is_siteadmin}}
+                <a class="btn btn-primary" href="{{fixer_url}}">{{#str}}claudeconnect_autofix_button, bookingextension_agent{{/str}}</a>
+                {{/is_siteadmin}}
+                {{^is_siteadmin}}
+                <p class="mb-0">{{#str}}claudeconnect_autofix_admin_needed, bookingextension_agent{{/str}}</p>
+                {{/is_siteadmin}}
+            </div>
+        </div>
+        <p class="text-muted">{{#str}}claudeconnect_manual_fallback_hint, bookingextension_agent{{/str}}</p>
+        {{/fixer_supported}}
+        <details class="mb-2">
+            <summary class="font-weight-bold">{{#str}}claudeconnect_wellknown_vhost_title, bookingextension_agent{{/str}}</summary>
+            <div class="pt-2 text-muted">
+                <p>{{#str}}claudeconnect_wellknown_vhost_intro, bookingextension_agent{{/str}}</p>
+                <pre class="p-2 bg-light border rounded"><code>{{wellknown_vhost_snippet}}</code></pre>
+                <p>{{#str}}claudeconnect_wellknown_vhost_after, bookingextension_agent{{/str}}</p>
+                <p class="mb-1">{{#str}}claudeconnect_wellknown_verify, bookingextension_agent{{/str}}</p>
+                <pre class="p-2 bg-light border rounded"><code>{{wellknown_curl_test}}</code></pre>
+            </div>
+        </details>
+        <details class="mb-2">
+            <summary class="font-weight-bold">{{#str}}claudeconnect_wellknown_htaccess_title, bookingextension_agent{{/str}}</summary>
+            <div class="pt-2 text-muted">
+                <p>{{#str}}claudeconnect_wellknown_htaccess_intro, bookingextension_agent{{/str}}</p>
+                <pre class="p-2 bg-light border rounded"><code>{{wellknown_htaccess_snippet}}</code></pre>
+                <p class="mb-1">{{#str}}claudeconnect_wellknown_verify, bookingextension_agent{{/str}}</p>
+                <pre class="p-2 bg-light border rounded"><code>{{wellknown_curl_test}}</code></pre>
+                <p class="mb-0">{{#str}}claudeconnect_wellknown_htaccess_after, bookingextension_agent{{/str}}</p>
+            </div>
+        </details>
+    </div>
+    {{/server_ok}}
+    {{#oauth_ready}}
+    <div class="alert alert-success mt-3" role="status">
+        <i class="fa fa-check-circle mr-1" aria-hidden="true"></i>{{#str}}claudeconnect_oauth_ready, bookingextension_agent{{/str}}
+    </div>
+    {{/oauth_ready}}
+    {{^oauth_own_ready}}
+    <div class="alert alert-warning mt-3" role="status">
+        <i class="fa fa-exclamation-triangle mr-1" aria-hidden="true"></i>{{#str}}claudeconnect_oauth_notready, bookingextension_agent{{/str}}
+    </div>
+    {{/oauth_own_ready}}
+    {{#oauth_blocked_by_common}}
+    <div class="alert alert-warning mt-3" role="status">
+        <i class="fa fa-exclamation-triangle mr-1" aria-hidden="true"></i>{{#str}}claudeconnect_oauth_notready_common, bookingextension_agent{{/str}}
+    </div>
+    {{/oauth_blocked_by_common}}
+    <p class="font-weight-bold mt-3 mb-1">{{#str}}claudeconnect_howto, bookingextension_agent{{/str}}</p>
+    <ol>
+        <li class="mb-2">{{#str}}claudeconnect_oauth_step_open, bookingextension_agent{{/str}}</li>
+        <li class="mb-2">{{#str}}claudeconnect_oauth_step_add, bookingextension_agent{{/str}}</li>
+        <li class="mb-2">{{#str}}claudeconnect_oauth_step_paste, bookingextension_agent, {"serverurl": "{{server_url}}"}{{/str}}</li>
+        <li class="mb-2">{{#str}}claudeconnect_oauth_step_login, bookingextension_agent{{/str}}</li>
+        <li class="mb-2">{{#str}}claudeconnect_oauth_step_consent, bookingextension_agent{{/str}}</li>
+        <li class="mb-2">{{#str}}claudeconnect_oauth_step_done, bookingextension_agent{{/str}}</li>
+    </ol>
+    <div class="alert alert-info" role="note">{{#str}}claudeconnect_oauth_note, bookingextension_agent{{/str}}</div>
+
+    {{! ---- Method 2: web-service token ---- }}
+    <hr class="my-4">
+    <h4>{{#str}}claudeconnect_method_token_heading, bookingextension_agent{{/str}}</h4>
+    <p class="text-muted">{{#str}}claudeconnect_method_token_detail, bookingextension_agent{{/str}}</p>
+    <ul class="list-group mt-2 mb-0">
+        {{#token}}
+        <li class="list-group-item d-flex align-items-start">
+            <span class="mr-3 mt-1">{{{icon}}}</span>
+            <div>
+                <strong>{{label}}</strong>
+                <div class="small text-muted mt-1">{{detail}}</div>
+                {{#configureurl}}
+                <div class="small mt-1"><a href="{{configureurl}}">{{configurelabel}}</a></div>
+                {{/configureurl}}
+            </div>
+        </li>
+        {{/token}}
+    </ul>
+    {{#token_ready}}
+    <div class="alert alert-success mt-3" role="status">
+        <i class="fa fa-check-circle mr-1" aria-hidden="true"></i>{{#str}}claudeconnect_token_ready, bookingextension_agent{{/str}}
+    </div>
+    {{/token_ready}}
+    {{^token_own_ready}}
+    <div class="alert alert-warning mt-3" role="status">
+        <i class="fa fa-exclamation-triangle mr-1" aria-hidden="true"></i>{{#str}}claudeconnect_token_notready, bookingextension_agent{{/str}}
+    </div>
+    {{/token_own_ready}}
+    {{#token_blocked_by_common}}
+    <div class="alert alert-warning mt-3" role="status">
+        <i class="fa fa-exclamation-triangle mr-1" aria-hidden="true"></i>{{#str}}claudeconnect_token_notready_common, bookingextension_agent{{/str}}
+    </div>
+    {{/token_blocked_by_common}}
+    {{#show_alt_header}}
+    {{! The webserver strips Authorization, but this tool_oauthmcp accepts the token in an
+        X-Moodle-Token header instead - the token method works with NO server change at all. }}
+    <div class="alert alert-info mt-3" role="note">
+        <p class="mb-1"><strong>{{#str}}claudeconnect_altheader_heading, bookingextension_agent{{/str}}</strong></p>
+        <p class="small mb-2">{{#str}}claudeconnect_altheader_intro, bookingextension_agent{{/str}}</p>
+        <pre class="small p-2 bg-light border rounded mb-2"><code>{{#str}}claudeconnect_altheader_code_command, bookingextension_agent, {"serverurl": "{{server_url}}"}{{/str}}</code></pre>
+        <p class="small mb-0">{{#str}}claudeconnect_altheader_desktop_note, bookingextension_agent{{/str}}</p>
+    </div>
+    {{/show_alt_header}}
+    <p class="font-weight-bold mt-3 mb-1">{{#str}}claudeconnect_howto, bookingextension_agent{{/str}}</p>
+    <ol>
+        <li class="mb-2">{{#str}}claudeconnect_token_step_create, bookingextension_agent, {"tokensurl": "{{token_manage_url}}"}{{/str}}</li>
+        <li class="mb-2">{{#str}}claudeconnect_token_step_config, bookingextension_agent{{/str}}</li>
+        <li class="mb-2">{{#str}}claudeconnect_token_step_url, bookingextension_agent, {"serverurl": "{{server_url}}"}{{/str}}</li>
+        <li class="mb-2">{{#str}}claudeconnect_token_step_bearer, bookingextension_agent{{/str}}</li>
+        <li class="mb-2">{{#str}}claudeconnect_token_step_done, bookingextension_agent{{/str}}</li>
+    </ol>
+
+    {{! Exact per-client configuration, so nobody has to guess the shape of step 2. }}
+    <div class="card mt-3">
+        <div class="card-body">
+            <h5 class="card-title">{{#str}}claudeconnect_client_desktop_heading, bookingextension_agent{{/str}}</h5>
+            <p class="small">{{#str}}claudeconnect_client_desktop_intro, bookingextension_agent{{/str}}</p>
+            <div class="alert alert-warning small" role="note">
+                <i class="fa fa-exclamation-triangle mr-1" aria-hidden="true"></i>{{#str}}claudeconnect_client_node_warning, bookingextension_agent{{/str}}
+            </div>
+            <pre class="small p-2 bg-light border rounded mb-2"><code>{{#str}}claudeconnect_client_desktop_config, bookingextension_agent, {"serverurl": "{{server_url}}"}{{/str}}</code></pre>
+            <p class="small text-muted mb-0">{{#str}}claudeconnect_client_desktop_notes, bookingextension_agent{{/str}}</p>
+        </div>
+    </div>
+    <div class="card mt-3 mb-3">
+        <div class="card-body">
+            <h5 class="card-title">{{#str}}claudeconnect_client_code_heading, bookingextension_agent{{/str}}</h5>
+            <pre class="small p-2 bg-light border rounded mb-2"><code>{{#str}}claudeconnect_client_code_command, bookingextension_agent, {"serverurl": "{{server_url}}"}{{/str}}</code></pre>
+            <p class="small text-muted mb-0">{{#str}}claudeconnect_client_code_verify, bookingextension_agent{{/str}}</p>
+        </div>
+    </div>
+
+    <div class="alert alert-info" role="note">{{#str}}claudeconnect_token_note, bookingextension_agent{{/str}}</div>
+</div>

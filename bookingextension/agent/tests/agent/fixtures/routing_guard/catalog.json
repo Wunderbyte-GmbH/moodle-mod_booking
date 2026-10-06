@@ -1,0 +1,2764 @@
+{
+    "model": "bge-multilingual-gemma2",
+    "dimensions": 3584,
+    "site_configured": [
+        "oneclick.create_instance"
+    ],
+    "rows": [
+        {
+            "skill": "mod_booking.add_price_category",
+            "anchor_index": 0,
+            "content_hash": "513e1acc3bf7d366ba78116e7198ecc1bc2c1ef7badea779229728c641f7cdd0"
+        },
+        {
+            "skill": "mod_booking.analyze_rules",
+            "anchor_index": 0,
+            "content_hash": "4b5434d01b1d0d6bbbd3daaf47e9e4f00730d35eb6c41d4788f0e35584d0010b"
+        },
+        {
+            "skill": "mod_booking.analyze_rules",
+            "anchor_index": 1,
+            "content_hash": "4711d5a814ca6790cdd26f4ea89fe0a31f77ef5c825ef6fee956e9b0db128af1"
+        },
+        {
+            "skill": "mod_booking.analyze_rules",
+            "anchor_index": 2,
+            "content_hash": "2187f4c30782b18895b437d1bbeb87eb41d19f953a905517f9194a58d45e7ea0"
+        },
+        {
+            "skill": "mod_booking.analyze_rules",
+            "anchor_index": 3,
+            "content_hash": "55ccd5a68922d64eb0e37cadbd08ed5230ba21547633d245d2ab9a26f6caed9b"
+        },
+        {
+            "skill": "mod_booking.analyze_rules",
+            "anchor_index": 4,
+            "content_hash": "5ce6d691b476fad74ed5eccc0080763ac16adc43e091b778f74c5c3c47134e4c"
+        },
+        {
+            "skill": "mod_booking.analyze_rules",
+            "anchor_index": 5,
+            "content_hash": "737700e2e93fe4b78a092dce6902a5d75a1a6d695f598e82109aa3046db91b83"
+        },
+        {
+            "skill": "mod_booking.analyze_rules",
+            "anchor_index": 6,
+            "content_hash": "4010d46dafa72c4c56a383d16722445f4c8cb2963ecc3c0e8669a3c23c5bd86f"
+        },
+        {
+            "skill": "mod_booking.analyze_rules",
+            "anchor_index": 7,
+            "content_hash": "7b88f58c226e974066ae9ac5caaa2ff314d741852ecc905382df58a0d94a1118"
+        },
+        {
+            "skill": "mod_booking.analyze_rules",
+            "anchor_index": 8,
+            "content_hash": "9a4f4c54188b43172aba242d6c9d3fcb1b4505c2854d8da677acd63667840596"
+        },
+        {
+            "skill": "mod_booking.book_users",
+            "anchor_index": 0,
+            "content_hash": "52e692fb07d81a29d6001bd6a90035837b8a1427afc549f4dfd1cc6c7d39e30f"
+        },
+        {
+            "skill": "mod_booking.book_users",
+            "anchor_index": 1,
+            "content_hash": "5a87847a2dd29f2a90eac67b2a36fa854e68bb186e6611f77ef0c4a65b1287e9"
+        },
+        {
+            "skill": "mod_booking.book_users",
+            "anchor_index": 2,
+            "content_hash": "8991b682b17e562951d4a823740afd110507f755b7a34387a5419aafc390f9db"
+        },
+        {
+            "skill": "mod_booking.book_users",
+            "anchor_index": 3,
+            "content_hash": "b945231c8956a4dcd059977e4308418dde298b9701c904197c372fa1ca314f8f"
+        },
+        {
+            "skill": "mod_booking.book_users",
+            "anchor_index": 4,
+            "content_hash": "effb7b29de6fa4d76c0a4024f45f63620e6ee857509fdde811aa80ad8bf98d71"
+        },
+        {
+            "skill": "mod_booking.book_users",
+            "anchor_index": 5,
+            "content_hash": "4dfbf5bacc5c58c43f0ed70f8bb52c1e35621db31a57103f68dad824d97b269a"
+        },
+        {
+            "skill": "mod_booking.bulk_update_options",
+            "anchor_index": 0,
+            "content_hash": "94ea1eb0f13778b1b26989f14ebd4a87c3fede9548b322e5fc3bc5c1a31e27b1"
+        },
+        {
+            "skill": "mod_booking.bulk_update_options",
+            "anchor_index": 1,
+            "content_hash": "d21d481c0e1e1d19187b542c79be95dcee2b4f44b2ed71a40ac3b8ea4438e050"
+        },
+        {
+            "skill": "mod_booking.bulk_update_options",
+            "anchor_index": 2,
+            "content_hash": "a901c376e1ef94dfdf299e6ab1e366fe6896a0bddacbfbc0c82340e30e8f3e6f"
+        },
+        {
+            "skill": "mod_booking.bulk_update_options",
+            "anchor_index": 3,
+            "content_hash": "9743270926ba69954cbbdf37631bc3641f36b00b7a1dc7bcb395c427356473b1"
+        },
+        {
+            "skill": "mod_booking.bulk_update_options",
+            "anchor_index": 4,
+            "content_hash": "9028f2e4f96921a58c7ce3af6546672ae7dd897bf41be6370356016a3e1614a8"
+        },
+        {
+            "skill": "mod_booking.bulk_update_options",
+            "anchor_index": 5,
+            "content_hash": "c75ceb49239d036879ab95d4feeb558d71358350fa583467279da2a07597fef7"
+        },
+        {
+            "skill": "mod_booking.configure_booking_instance",
+            "anchor_index": 0,
+            "content_hash": "05f6cc4ab24d7fb7d96e29ec3c485ed929f34189ba8d38daa8e400f236f6e286"
+        },
+        {
+            "skill": "mod_booking.configure_booking_instance",
+            "anchor_index": 1,
+            "content_hash": "6c1cd24f35f5881f1580aa1bde0356e7d4e65d92cb3c5404c82f27a540fdce80"
+        },
+        {
+            "skill": "mod_booking.configure_booking_instance",
+            "anchor_index": 2,
+            "content_hash": "35276f29cc54378b69197c9f535c27a431fe272e4ecf1112cf69c8e01bf69dfb"
+        },
+        {
+            "skill": "mod_booking.configure_booking_instance",
+            "anchor_index": 3,
+            "content_hash": "01b068003d4f90b8c1bd6d42778f3301a83dcd6001f43b8fd77f90ff6dc1123d"
+        },
+        {
+            "skill": "mod_booking.configure_booking_instance",
+            "anchor_index": 4,
+            "content_hash": "f4c0837b556459a12a91fbc7366e7b9a446a38a900b27a95c7cf45c50a07b929"
+        },
+        {
+            "skill": "mod_booking.configure_booking_instance",
+            "anchor_index": 5,
+            "content_hash": "7fe2f2bf9be3a7bf79773c75a9962a829fac66c86804cb50e67675d22cd90229"
+        },
+        {
+            "skill": "mod_booking.create_option",
+            "anchor_index": 0,
+            "content_hash": "9f679f2803b189361bf4919e9d1494ae74019cc1c408c587ae1a60913619b6df"
+        },
+        {
+            "skill": "mod_booking.create_option",
+            "anchor_index": 1,
+            "content_hash": "afbaff84f9b7cfe3f8b8894be6a270c6caef34c58541f4d97c6b92baf7736e81"
+        },
+        {
+            "skill": "mod_booking.create_option",
+            "anchor_index": 2,
+            "content_hash": "b9dbe3360866572e4279def16e54b1c0f0838f9a80d301496b7b5ed2cc9b913f"
+        },
+        {
+            "skill": "mod_booking.create_option",
+            "anchor_index": 3,
+            "content_hash": "096e211d00ba4c5f1d5fb25d4aee59a0e996dd6515c9b8adf7f420855bbf5d03"
+        },
+        {
+            "skill": "mod_booking.create_option",
+            "anchor_index": 4,
+            "content_hash": "5ce477bb87eafc9ce953c5c30c4bfabc53df712dfdbc61bfb872604768b3df19"
+        },
+        {
+            "skill": "mod_booking.create_option",
+            "anchor_index": 5,
+            "content_hash": "8fc8e339a7c303a51caae42d1ebb1b699247170f01766dfa14ba4a4cf5aeeb10"
+        },
+        {
+            "skill": "mod_booking.create_option_field",
+            "anchor_index": 0,
+            "content_hash": "3e352d3d18b4cf172337849b14263e9c27f4116d3176ac6786021d87d5fdfa4c"
+        },
+        {
+            "skill": "mod_booking.create_rule_from_template",
+            "anchor_index": 0,
+            "content_hash": "cbb02f3511aeeac39b49e2d737b5e60ac05d75505d8a5986c739bfbf3e1fed8b"
+        },
+        {
+            "skill": "mod_booking.create_rule_from_template",
+            "anchor_index": 1,
+            "content_hash": "f8d31234167a4ff90d0d590874da545762fc4c0f9dfa4922cd07edddb929c969"
+        },
+        {
+            "skill": "mod_booking.create_rule_from_template",
+            "anchor_index": 2,
+            "content_hash": "ab41caf8a92f4c8cc58e47673f584febd22f31b09d2ca439e37f700598baa3b2"
+        },
+        {
+            "skill": "mod_booking.create_rule_from_template",
+            "anchor_index": 3,
+            "content_hash": "96b1bf48c42d23d334a4e8ba07e4ccaadcde4f436d97c615d2d58ff0690d15d8"
+        },
+        {
+            "skill": "mod_booking.create_rule_from_template",
+            "anchor_index": 4,
+            "content_hash": "0b0de41fdba0471a40e9f3691a068573e2ff1af017645da309ee5faf76baf276"
+        },
+        {
+            "skill": "mod_booking.create_rule_from_template",
+            "anchor_index": 5,
+            "content_hash": "f340f8f8204a25a512579d37f2b9b4845325d738870f61cc07532c64bff2f85d"
+        },
+        {
+            "skill": "mod_booking.create_selflearning_option",
+            "anchor_index": 0,
+            "content_hash": "ad5190a6e6bc1557706792cb801adb692d4645557424e546399ae00daf408918"
+        },
+        {
+            "skill": "mod_booking.create_selflearning_option",
+            "anchor_index": 1,
+            "content_hash": "650a2641a27593118098dcbaa48c28861c1c8e7453755e75b427b9b5ab3f87a4"
+        },
+        {
+            "skill": "mod_booking.create_selflearning_option",
+            "anchor_index": 2,
+            "content_hash": "db36641860c32089a46b4a302001d1e45c4c83a995eb0a7c467e5e2c202f4196"
+        },
+        {
+            "skill": "mod_booking.create_selflearning_option",
+            "anchor_index": 3,
+            "content_hash": "6a852a6f6fd36c55a1d51b2cfe31298903408d1239e46de51e495dee3d22f9a3"
+        },
+        {
+            "skill": "mod_booking.create_selflearning_option",
+            "anchor_index": 4,
+            "content_hash": "0545f1108600585144fc3e1de400f4686edd786f3ff1c2e7af98410ea53e6654"
+        },
+        {
+            "skill": "mod_booking.create_selflearning_option",
+            "anchor_index": 5,
+            "content_hash": "c07cc9e685a463a3810be17624d64bb49f1d1dbb8806283932f6c7d23ac1d461"
+        },
+        {
+            "skill": "mod_booking.create_slotbooking_option",
+            "anchor_index": 0,
+            "content_hash": "c59fff9c20eeb28e8cc68899cbc4238a1a2aa2f3e1a5b8f2ae1ef1528a6a56e1"
+        },
+        {
+            "skill": "mod_booking.create_slotbooking_option",
+            "anchor_index": 1,
+            "content_hash": "0628c1831d33a314b4c2ac90cc105aef1245e623783ebdb9b3051e0944fd9ef7"
+        },
+        {
+            "skill": "mod_booking.create_slotbooking_option",
+            "anchor_index": 2,
+            "content_hash": "8ae79e8b19b34791851821671dc61bd6d793dd6d7b492d79ab1455754c45eb21"
+        },
+        {
+            "skill": "mod_booking.create_slotbooking_option",
+            "anchor_index": 3,
+            "content_hash": "d09e705a0c6551d62746b338432af429f673ea76990620c24f5552b2f035901c"
+        },
+        {
+            "skill": "mod_booking.create_slotbooking_option",
+            "anchor_index": 4,
+            "content_hash": "fa5f09a32862ba1dc311742b0744dc383c5fbcb07cd256ab2fb5c2714c122e4a"
+        },
+        {
+            "skill": "mod_booking.create_slotbooking_option",
+            "anchor_index": 5,
+            "content_hash": "955b9f58fcbd567772d9829cbd5fa1f6fb8ac34fc2de9bd54e7e59b52ad60645"
+        },
+        {
+            "skill": "mod_booking.diagnose_booking_issue",
+            "anchor_index": 0,
+            "content_hash": "5327953b9e543776898b7d348b99c20306bfd4e70e26b318af64cb5337f78020"
+        },
+        {
+            "skill": "mod_booking.diagnose_booking_issue",
+            "anchor_index": 1,
+            "content_hash": "59b75c94bf36da5b5a82445623b8c510d77796208ca6e15605c25bb80ae723b0"
+        },
+        {
+            "skill": "mod_booking.diagnose_booking_issue",
+            "anchor_index": 2,
+            "content_hash": "af3adac9896e1c68b57be4e69022b7fa0cc20c3552af0de586c7fdfddcd431dd"
+        },
+        {
+            "skill": "mod_booking.diagnose_booking_issue",
+            "anchor_index": 3,
+            "content_hash": "41c53713986a5f59a8a633eed1877149d6b1a639c726abded92bf5cdeddbf113"
+        },
+        {
+            "skill": "mod_booking.diagnose_booking_issue",
+            "anchor_index": 4,
+            "content_hash": "f89ff68dc8821e431e2b48d83a01ebd405f31279baacbadc9f5805cfdd89de69"
+        },
+        {
+            "skill": "mod_booking.diagnose_booking_issue",
+            "anchor_index": 5,
+            "content_hash": "6191ba1ff69d5f166f561352251506e100a11ef16bcab2f3d62d7b5dbec2a32f"
+        },
+        {
+            "skill": "mod_booking.diagnose_booking_issue",
+            "anchor_index": 6,
+            "content_hash": "e23ebfb6ec46736ee56e8124a78d18e13979e456b19e70ed4e1fa1962875fcb8"
+        },
+        {
+            "skill": "mod_booking.diagnose_cancellation_issue",
+            "anchor_index": 0,
+            "content_hash": "e4bbb506b6e2bf26af4c168c40894b9e458c6141d8f37562020fa1ee5af75c25"
+        },
+        {
+            "skill": "mod_booking.diagnose_cancellation_issue",
+            "anchor_index": 1,
+            "content_hash": "97ede7270cc31c525231d3b303ab3677abd221da8d7077df6d1aeb1bc0385f74"
+        },
+        {
+            "skill": "mod_booking.diagnose_cancellation_issue",
+            "anchor_index": 2,
+            "content_hash": "2ab12702baf408122d86f6d8cda9b216e53b4362f800410a77bff7f1f9caa58c"
+        },
+        {
+            "skill": "mod_booking.diagnose_cancellation_issue",
+            "anchor_index": 3,
+            "content_hash": "9a7d389129462380eadfcdd2af03611010417e7c791f4d9485a1b1069e621856"
+        },
+        {
+            "skill": "mod_booking.diagnose_cancellation_issue",
+            "anchor_index": 4,
+            "content_hash": "33f8c2182b77d1d41000bb529d720e48fe60b6ea4b76ef99f02f054306cf3f8c"
+        },
+        {
+            "skill": "mod_booking.diagnose_cancellation_issue",
+            "anchor_index": 5,
+            "content_hash": "fe50fe3cbd739810fa3b7566fe95bfee55bf79a8469ab2a9ed5acbdd6a2d9b21"
+        },
+        {
+            "skill": "mod_booking.diagnose_user_booking",
+            "anchor_index": 0,
+            "content_hash": "df23ee4ec2a9d530365d044287aa77de2b2ace1b70a99527c0f22b16f81ef10f"
+        },
+        {
+            "skill": "mod_booking.diagnose_user_booking",
+            "anchor_index": 1,
+            "content_hash": "30c7e3a844df31b228f6e9185c6742d7f77cd2215a4c54178847e278e5750c52"
+        },
+        {
+            "skill": "mod_booking.diagnose_user_booking",
+            "anchor_index": 2,
+            "content_hash": "31b00e4217c8788b3b3986f248d7be3039ebc68ac28c3929df95257505f7c33e"
+        },
+        {
+            "skill": "mod_booking.diagnose_user_booking",
+            "anchor_index": 3,
+            "content_hash": "522d4d42a64814c44aafd5237b0df543ad4fa349dad47d7db44716a8224f035e"
+        },
+        {
+            "skill": "mod_booking.diagnose_user_booking",
+            "anchor_index": 4,
+            "content_hash": "42657d4a8d2d9d2a081cfe2d6e9b8f694ff91e214de3f4c8ef1723f8afe674a6"
+        },
+        {
+            "skill": "mod_booking.diagnose_user_booking",
+            "anchor_index": 5,
+            "content_hash": "f22ec22fcf052fdb4a5f233f1a2327569e7b230b38429b40689f294ac812f0e3"
+        },
+        {
+            "skill": "mod_booking.diagnose_user_booking",
+            "anchor_index": 6,
+            "content_hash": "a9842a170bcb609edd062963ce6c1772d246469c5e4b0e566ea8c8f98eaa4903"
+        },
+        {
+            "skill": "mod_booking.diagnose_waitinglist",
+            "anchor_index": 0,
+            "content_hash": "b540c1d6fdd791f10eaff5150343344919b5b5fa6d2ddfb4e3b9a22d67ed12da"
+        },
+        {
+            "skill": "mod_booking.diagnose_waitinglist",
+            "anchor_index": 1,
+            "content_hash": "78ff90d78c1bb6824351deb6e3512169f2f2b59bc2ebf3e9d748051e3891ae6c"
+        },
+        {
+            "skill": "mod_booking.diagnose_waitinglist",
+            "anchor_index": 2,
+            "content_hash": "22368fb6e0032e4153743ea1cf362952d2f8f85f5a8b51195327498950b952ec"
+        },
+        {
+            "skill": "mod_booking.diagnose_waitinglist",
+            "anchor_index": 3,
+            "content_hash": "b61d2f6cf71eb8a44fbe5506ab3f2e2f5d99c37a36a3247d4bfa6497215e5d40"
+        },
+        {
+            "skill": "mod_booking.diagnose_waitinglist",
+            "anchor_index": 4,
+            "content_hash": "5e256578aed4f21ff8923df2e13a99b2456aabefe1e67a2c93a2e6b55042bcda"
+        },
+        {
+            "skill": "mod_booking.diagnose_waitinglist",
+            "anchor_index": 5,
+            "content_hash": "05e9ee551f9b6f6771c590a34d0ffa6c384b30b7c34a85674bd9470b2aba7159"
+        },
+        {
+            "skill": "mod_booking.get_option_details",
+            "anchor_index": 0,
+            "content_hash": "98ec6a9c36e979948e55026831ea946bb1c42e0110b4ff4172c18f36c9b93d4c"
+        },
+        {
+            "skill": "mod_booking.get_option_details",
+            "anchor_index": 1,
+            "content_hash": "581df4040991096dd49d7af83e529998fa11dac49a1591b03e25708cb478bb35"
+        },
+        {
+            "skill": "mod_booking.get_option_details",
+            "anchor_index": 2,
+            "content_hash": "129bc83496deadd34c451ea27916d95d9d257abb9f8f1b46707f23682cc71bb4"
+        },
+        {
+            "skill": "mod_booking.get_option_details",
+            "anchor_index": 3,
+            "content_hash": "01ffabdf36ccafcca812f6f3ad6324f3b4733e7cc066a54c75823421a6e82f8e"
+        },
+        {
+            "skill": "mod_booking.get_option_details",
+            "anchor_index": 4,
+            "content_hash": "22897934b2c9bb7e7edd02736061a98e22305e13a9386722051424537aec3e39"
+        },
+        {
+            "skill": "mod_booking.get_option_details",
+            "anchor_index": 5,
+            "content_hash": "d2a3b0e84d0d0df4cd01061c09d655e333aa20a13126ef4e7632651331d6889a"
+        },
+        {
+            "skill": "mod_booking.list_instance_settings",
+            "anchor_index": 0,
+            "content_hash": "d913cedf8f683d72c04ae69b5c5b597859a90f1b677b6d6ba6f8230e097309ca"
+        },
+        {
+            "skill": "mod_booking.list_instance_settings",
+            "anchor_index": 1,
+            "content_hash": "29e65912b69df2aec73d82c0155921b22ca2d944ca8b0b0eb9564b00c3d9735c"
+        },
+        {
+            "skill": "mod_booking.list_instance_settings",
+            "anchor_index": 2,
+            "content_hash": "2e8a7206ebeb368567d78e9d63c4072ad07a20f5b7e5ab6106c134c9aa56bf89"
+        },
+        {
+            "skill": "mod_booking.list_instance_settings",
+            "anchor_index": 3,
+            "content_hash": "ebf8c07b78050eeda7b534fff29e9afb97d1909009440e240877e37ae250881a"
+        },
+        {
+            "skill": "mod_booking.list_instance_settings",
+            "anchor_index": 4,
+            "content_hash": "6ccb7f719a487b3c99de70f7bcc211e5c2ab684fe1c1e49af23d4a39554f2993"
+        },
+        {
+            "skill": "mod_booking.list_option_fields",
+            "anchor_index": 0,
+            "content_hash": "92c236b4f1bfc633e75b4750cb18b339436f7262a534f65e5f9e54bcaa9e39b4"
+        },
+        {
+            "skill": "mod_booking.list_option_properties",
+            "anchor_index": 0,
+            "content_hash": "1475f12097bd8318d8e5131d0a8e0ad0a1bddc8ddf23de08b70d968a496a7dee"
+        },
+        {
+            "skill": "mod_booking.search_options",
+            "anchor_index": 0,
+            "content_hash": "2df2474d48677063adfa05ebf0649bd99e6bd6726cf948aad7e70e25bd059cbf"
+        },
+        {
+            "skill": "mod_booking.search_options",
+            "anchor_index": 1,
+            "content_hash": "c39922d7b0cd05e155ef20190b08122dc2e6c839dbc8a8967949251a58cac5b3"
+        },
+        {
+            "skill": "mod_booking.search_options",
+            "anchor_index": 2,
+            "content_hash": "2a8fe8b879e56a4f8fc69bfded14ab214c393f5d4a0b39d1fe449700229f0539"
+        },
+        {
+            "skill": "mod_booking.search_options",
+            "anchor_index": 3,
+            "content_hash": "c6da60c95833fb36135eb19b80d7f58e7c4904cd900db5cc9e38a75637387a83"
+        },
+        {
+            "skill": "mod_booking.search_options",
+            "anchor_index": 4,
+            "content_hash": "065e2381aab9586bf1159d02b635646ad0c910050ce797e21dbc9d6c624a3f98"
+        },
+        {
+            "skill": "mod_booking.search_options",
+            "anchor_index": 5,
+            "content_hash": "4e6f000fad314a5bfa7b7149d70cc2884369a5a77e5bcf0713344c10d35acf6a"
+        },
+        {
+            "skill": "mod_booking.search_options",
+            "anchor_index": 6,
+            "content_hash": "61c9d85ab29d3f618396be9a92382bea638fad2d21ec0bc952de93c787835a7b"
+        },
+        {
+            "skill": "mod_booking.search_options",
+            "anchor_index": 7,
+            "content_hash": "a84e1a20c66e131908968a1dfa451ebce046e5cf1260fa8473aaace3d735546e"
+        },
+        {
+            "skill": "mod_booking.search_options",
+            "anchor_index": 8,
+            "content_hash": "28a09beefa4f57784bf6c0e5d23ac818b0d626deb172282a799f88d1ec361c78"
+        },
+        {
+            "skill": "mod_booking.update_option",
+            "anchor_index": 0,
+            "content_hash": "8b027f79bdd0ae21232cde3a46c3bda41737e84d7cce2c552d19a71647a76b0a"
+        },
+        {
+            "skill": "mod_booking.update_option",
+            "anchor_index": 1,
+            "content_hash": "d9f768860938d388e877694aecc50232e71f4749dd2bff9e18f57cca28789f4b"
+        },
+        {
+            "skill": "mod_booking.update_option",
+            "anchor_index": 2,
+            "content_hash": "68d31e0d8c76b41c62fa01e036d36f74540eda6261b6f2cb131534fe05761fc2"
+        },
+        {
+            "skill": "mod_booking.update_option",
+            "anchor_index": 3,
+            "content_hash": "173b2a1796206bffa6dee639f03205127bb65dc68be1ebc691d614ff68c4ce5f"
+        },
+        {
+            "skill": "mod_booking.update_option",
+            "anchor_index": 4,
+            "content_hash": "e21199e23b906375ecbe5ef8f80cae8ca198fba2b57cdca74f441a41e954b334"
+        },
+        {
+            "skill": "mod_booking.update_option",
+            "anchor_index": 5,
+            "content_hash": "77274db027a89f294785a815e65f81c7db3a37abcdd9c6ba519f56a15fb47401"
+        },
+        {
+            "skill": "mod_booking.update_option",
+            "anchor_index": 6,
+            "content_hash": "8eb5afb713bdc1ace1137d57b5a5d93497359a69e4a429725d1fa2f61d2c93f0"
+        },
+        {
+            "skill": "mod_booking.update_option",
+            "anchor_index": 7,
+            "content_hash": "e7f6ce5b1f354e21d785706e956d8af50cf9020e0ff7fb4a2065ccc015d08454"
+        },
+        {
+            "skill": "mod_booking.update_option",
+            "anchor_index": 8,
+            "content_hash": "61955ccc753e152bb49447f811d1d91af5ebb69e2e842516d370b6217ec672b3"
+        },
+        {
+            "skill": "mod_booking.update_option_field",
+            "anchor_index": 0,
+            "content_hash": "88cc379dbee86f08912d554b35710c389c323a451832035c8d51a80e0d3a479f"
+        },
+        {
+            "skill": "mod_booking.update_option_trainer",
+            "anchor_index": 0,
+            "content_hash": "e5b40c33640528e536d319b2c168f69f75670ea1c60e368a05b97d0ac3f2b33a"
+        },
+        {
+            "skill": "mod_booking.update_option_trainer",
+            "anchor_index": 1,
+            "content_hash": "5556a3c8b45f6c9d1357f8a628e40c27147bd5d2e47d258bc2e6718fc87e5fda"
+        },
+        {
+            "skill": "mod_booking.update_option_trainer",
+            "anchor_index": 2,
+            "content_hash": "93b5380988c4738987ae6b0f21e942f4fd93e001db6c69176cfc53e7c34b8dbd"
+        },
+        {
+            "skill": "mod_booking.update_option_trainer",
+            "anchor_index": 3,
+            "content_hash": "c9c2a216e72a24908f3a870d798deba1b6aa50ece63c96e2415c38c639945886"
+        },
+        {
+            "skill": "mod_booking.update_option_trainer",
+            "anchor_index": 4,
+            "content_hash": "367ec7f285bf3fed8654e15faa86c20058c0807e72058e442a4ce4853d155037"
+        },
+        {
+            "skill": "mod_booking.update_option_trainer",
+            "anchor_index": 5,
+            "content_hash": "49b6a3c221eac4e36b44c44ba63263cf00c9d18f83f42fc37bebb877a3a37c93"
+        },
+        {
+            "skill": "mod_booking.update_rule_from_template",
+            "anchor_index": 0,
+            "content_hash": "9799270cc088761af7175abf13a8099d35a978ceb272f9f22849ffec5dd07b57"
+        },
+        {
+            "skill": "mod_booking.update_rule_from_template",
+            "anchor_index": 1,
+            "content_hash": "4a4c99ee317babc4a8cc2dc096be4c6eb7e9d42c061f451e31a63d1ed9071bb9"
+        },
+        {
+            "skill": "mod_booking.update_rule_from_template",
+            "anchor_index": 2,
+            "content_hash": "86a469eb9b94704f7073f400664106ea280c7d1ce95a92cd8017c23cfe47f4ef"
+        },
+        {
+            "skill": "mod_booking.update_rule_from_template",
+            "anchor_index": 3,
+            "content_hash": "fa76ef90214007ca151e06e705f9686fb7ae36775a804dcd06f252dc5420649d"
+        },
+        {
+            "skill": "mod_booking.update_rule_from_template",
+            "anchor_index": 4,
+            "content_hash": "bcf637bcec980f3ab31954ab2db3d5865cfb9126e07a796333c2d40a4362c40b"
+        },
+        {
+            "skill": "mod_booking.update_rule_from_template",
+            "anchor_index": 5,
+            "content_hash": "d52418222b9d00337a9b8d1997d350f6d0b7a7750c6906c4a8d3d7d5e503bfe4"
+        },
+        {
+            "skill": "local_taskflow.change_assignment_status",
+            "anchor_index": 0,
+            "content_hash": "e508f661e084e4e862593887a65cd1adf47f0e5ae480363fb8bfcb4c87135f6e"
+        },
+        {
+            "skill": "local_taskflow.change_assignment_status",
+            "anchor_index": 1,
+            "content_hash": "784572af0523033acb9671ff09e0bfa2ee6b7cf72e3ed6a681bb6fc620490e8c"
+        },
+        {
+            "skill": "local_taskflow.change_assignment_status",
+            "anchor_index": 2,
+            "content_hash": "a1e2e07ec13689c640fa43450ef193297653df1b1e391d08a9578c4e870c217f"
+        },
+        {
+            "skill": "local_taskflow.create_message_template",
+            "anchor_index": 0,
+            "content_hash": "261de3add02e17135cac65b7b9b9fcf6c4d523bf38f03d7427bb16708c882f96"
+        },
+        {
+            "skill": "local_taskflow.create_message_template",
+            "anchor_index": 1,
+            "content_hash": "139c64eaf3e1e281a2d37ab8277638055d1ac81810603d8875500189d448fa14"
+        },
+        {
+            "skill": "local_taskflow.create_message_template",
+            "anchor_index": 2,
+            "content_hash": "f4fc37ba652255ad4d7c6bba1a26ab1716093c21e2a9cdd13604b79aa2c07648"
+        },
+        {
+            "skill": "local_taskflow.create_message_template",
+            "anchor_index": 3,
+            "content_hash": "7469826b444a490c89d65ea829e9efd18628b04c40fe13b0fe84715d2fd938ba"
+        },
+        {
+            "skill": "local_taskflow.create_request",
+            "anchor_index": 0,
+            "content_hash": "4a42f5772e8a0fee6d185d2bfa66d9c240fa71dc7973b16d1208d92976b60cad"
+        },
+        {
+            "skill": "local_taskflow.create_request",
+            "anchor_index": 1,
+            "content_hash": "ea63b22168ddb923e13b199ec80880ba509e0ec80f5e829a0615294ca2768f74"
+        },
+        {
+            "skill": "local_taskflow.create_request",
+            "anchor_index": 2,
+            "content_hash": "2af16c2fbf6c7c457263abdf725011ad9d8dd8dcd93c9bea262f7090d0fcd913"
+        },
+        {
+            "skill": "local_taskflow.create_request",
+            "anchor_index": 3,
+            "content_hash": "0024974ad2cf9f278b2328f71d338258c861654856c53672417c8474a7e4ffe3"
+        },
+        {
+            "skill": "local_taskflow.create_request",
+            "anchor_index": 4,
+            "content_hash": "abaf9fe08b1bc9a0dd3ae29aa97c1cf28e21d7362e78a67890cc700ddf07e936"
+        },
+        {
+            "skill": "local_taskflow.create_rule",
+            "anchor_index": 0,
+            "content_hash": "150cda40fe709a06bf194f7ce3caace98151df044f08502827e04acd46d8c616"
+        },
+        {
+            "skill": "local_taskflow.create_rule",
+            "anchor_index": 1,
+            "content_hash": "8d8ae2d7e674487360eb60e4f9771b54e7e1f4b58e2036c53c2fe32addac470d"
+        },
+        {
+            "skill": "local_taskflow.create_rule",
+            "anchor_index": 2,
+            "content_hash": "69b419aba86c7bce40829b89782a9cdb1bea01ba706954613a5011c79420433a"
+        },
+        {
+            "skill": "local_taskflow.create_rule",
+            "anchor_index": 3,
+            "content_hash": "6701f89137353eb145222468710dc00928f7206c69cdaf7ba8400b843f8169f1"
+        },
+        {
+            "skill": "local_taskflow.create_rule",
+            "anchor_index": 4,
+            "content_hash": "40d2609dd8a22612df0397bc34727ac9eff2f60cc74e0ef47982748171a4719e"
+        },
+        {
+            "skill": "local_taskflow.delete_rule",
+            "anchor_index": 0,
+            "content_hash": "0a074ba3f6519d33df6fdea00df008eed57cf906d3eddf615e1524b8720b03c5"
+        },
+        {
+            "skill": "local_taskflow.delete_rule",
+            "anchor_index": 1,
+            "content_hash": "e6c5d2375ee4930fe2fb9860a64750ed5bb85b61d0e8acd3a90ef88a4264ad32"
+        },
+        {
+            "skill": "local_taskflow.delete_rule",
+            "anchor_index": 2,
+            "content_hash": "322d10aa04989f02ef8e90bc9ebfba9c3d468463cf74a48f0734a063e869ab27"
+        },
+        {
+            "skill": "local_taskflow.delete_rule",
+            "anchor_index": 3,
+            "content_hash": "85e353da02eec1865cdf47da584a9850e11c8ab7af61f2cfc5ea1f4849a9dbfd"
+        },
+        {
+            "skill": "local_taskflow.diagnose_assignment_status",
+            "anchor_index": 0,
+            "content_hash": "bf87e38ce5f9df11717731eb0f27422bc6f019838a768be8a34ae669c7e7b72a"
+        },
+        {
+            "skill": "local_taskflow.diagnose_assignment_status",
+            "anchor_index": 1,
+            "content_hash": "02ed96574767f5ccd1fb650477e1e1d61cd3d9167124a9e1e08510c340bd8a66"
+        },
+        {
+            "skill": "local_taskflow.diagnose_assignment_status",
+            "anchor_index": 2,
+            "content_hash": "98691cff4c84dbd36c5a64fb5c902ba25ab6004c9098a295e996756436016a37"
+        },
+        {
+            "skill": "local_taskflow.diagnose_assignment_status",
+            "anchor_index": 3,
+            "content_hash": "6bf05bbc255ef9022505643451a56f7da6dcbc53f1728c19f6ad2428441d20e5"
+        },
+        {
+            "skill": "local_taskflow.diagnose_assignment_status",
+            "anchor_index": 4,
+            "content_hash": "d05b20bf0c90a0df54ea1429cd18903c902be5c9aa6f1dcdcc1aee645b2bd9ab"
+        },
+        {
+            "skill": "local_taskflow.diagnose_assignment_status",
+            "anchor_index": 5,
+            "content_hash": "f650fb116741496a2a7e4a83b3b4628b2ac6d04532e3938603cd8885496db629"
+        },
+        {
+            "skill": "local_taskflow.diagnose_import",
+            "anchor_index": 0,
+            "content_hash": "715020fd051c110d6cc8f48151f6a73051b2bf43afd0161eba634867ea193676"
+        },
+        {
+            "skill": "local_taskflow.diagnose_import",
+            "anchor_index": 1,
+            "content_hash": "8f08019ac26e5f82342ade65cd294978c80145b0de9c30f0e2a0822e26b623d1"
+        },
+        {
+            "skill": "local_taskflow.diagnose_import",
+            "anchor_index": 2,
+            "content_hash": "50ae8c54ab0443503232d2c28fcfc4a760ee5680c432f2b146d06be5f66e5b05"
+        },
+        {
+            "skill": "local_taskflow.diagnose_import",
+            "anchor_index": 3,
+            "content_hash": "e6a6d315eafcee0888eee378514d1732a77a1dbc7324d3820d29fa10ade9c297"
+        },
+        {
+            "skill": "local_taskflow.diagnose_import",
+            "anchor_index": 4,
+            "content_hash": "baddabbc61825633c24a4a82b29d2616d9cdfb022e427f557a9ce2e285b16acc"
+        },
+        {
+            "skill": "local_taskflow.diagnose_import",
+            "anchor_index": 5,
+            "content_hash": "c2ce4c89c67c3c88b360d3d189296f5833d4ca3cbc2686ed0d923de310a00b49"
+        },
+        {
+            "skill": "local_taskflow.diagnose_import",
+            "anchor_index": 6,
+            "content_hash": "ecd2284fe1d7fb3c2302e96d91f5f14104d67ac23fa19881e8b504e4f66b9598"
+        },
+        {
+            "skill": "local_taskflow.diagnose_message_delivery",
+            "anchor_index": 0,
+            "content_hash": "e0496dbb79df5b14f242565a823f3ad834aa7d7875728420e0dd75e7c3e7827b"
+        },
+        {
+            "skill": "local_taskflow.diagnose_message_delivery",
+            "anchor_index": 1,
+            "content_hash": "012dee2f4116558a62559796e7091d59b18dbf93ac56a41a0ff55e7bc47f7fb5"
+        },
+        {
+            "skill": "local_taskflow.diagnose_message_delivery",
+            "anchor_index": 2,
+            "content_hash": "b9c604e949f248a949559e8482767b20266ded9b07a622df7a45d870510483b0"
+        },
+        {
+            "skill": "local_taskflow.diagnose_message_delivery",
+            "anchor_index": 3,
+            "content_hash": "1fb3edc9a77efbfcddbaa9c90bd0798cf0e3782da05f316d512846c286ac352d"
+        },
+        {
+            "skill": "local_taskflow.diagnose_message_delivery",
+            "anchor_index": 4,
+            "content_hash": "fa8efcb470a40f9c2f1f57baec3665298c0219374e8987b5103cbfdf4e8c3425"
+        },
+        {
+            "skill": "local_taskflow.diagnose_message_delivery",
+            "anchor_index": 5,
+            "content_hash": "bcc11b8b55da3939ec6ab198ab032a10fa27f27b3e893754dfa75af825b7127f"
+        },
+        {
+            "skill": "local_taskflow.diagnose_permissions",
+            "anchor_index": 0,
+            "content_hash": "8fc6409d7e427f495962dca4e9b5ca730706a2e1017da443505c515b4227571f"
+        },
+        {
+            "skill": "local_taskflow.diagnose_permissions",
+            "anchor_index": 1,
+            "content_hash": "1b9b873b7b90f52d174c1d8b0ffe8c6fcc171dc1747dd97be8071f894b5a847c"
+        },
+        {
+            "skill": "local_taskflow.diagnose_permissions",
+            "anchor_index": 2,
+            "content_hash": "0fd46eb4c809da30f87572912792573f72acd0497156e04c03bd386dd1849477"
+        },
+        {
+            "skill": "local_taskflow.diagnose_permissions",
+            "anchor_index": 3,
+            "content_hash": "d42a00fe828bd05846d96b22d18cbecc5bfe19330dc1626e93fc704c01800641"
+        },
+        {
+            "skill": "local_taskflow.diagnose_permissions",
+            "anchor_index": 4,
+            "content_hash": "69457ae6f8caa1b34703e4f0e6a69beb9f07f2dc13c6fcf08d33bf90345ea698"
+        },
+        {
+            "skill": "local_taskflow.diagnose_permissions",
+            "anchor_index": 5,
+            "content_hash": "58a56e16d54568de1c926dfe82c7697ce3b4931243af6213ba7daaead9983027"
+        },
+        {
+            "skill": "local_taskflow.diagnose_user_assignments",
+            "anchor_index": 0,
+            "content_hash": "650d80868c2debca21dd09aae6c99b3ea22fb5a5234085f44f66b85dff969f0c"
+        },
+        {
+            "skill": "local_taskflow.diagnose_user_assignments",
+            "anchor_index": 1,
+            "content_hash": "6eaaeae807c161cb38eb8af4c6c2f11b23260148da0a83ac31313f5be38a8004"
+        },
+        {
+            "skill": "local_taskflow.diagnose_user_assignments",
+            "anchor_index": 2,
+            "content_hash": "ff06985accf699dab80c4653e9a291373753e08437a4f65c45d1bff13a921a1f"
+        },
+        {
+            "skill": "local_taskflow.diagnose_user_assignments",
+            "anchor_index": 3,
+            "content_hash": "1a9bb5293fadd6838374e932330daebee998d8cb505cf099bcbdfa3daf17e314"
+        },
+        {
+            "skill": "local_taskflow.diagnose_user_assignments",
+            "anchor_index": 4,
+            "content_hash": "5873056a54331648a4122d08f4e60ed86878a3e695a033bc2681ae1aa1955794"
+        },
+        {
+            "skill": "local_taskflow.diagnose_user_assignments",
+            "anchor_index": 5,
+            "content_hash": "f38d6f739395fbe14bb2fce221bb225aa0a5fd17c96b07bd53cfb137ae70b934"
+        },
+        {
+            "skill": "local_taskflow.extend_assignment_duedate",
+            "anchor_index": 0,
+            "content_hash": "7210c529724833f348e072dadd7c45c852ce5478c1a5073df07d571c0f864bea"
+        },
+        {
+            "skill": "local_taskflow.extend_assignment_duedate",
+            "anchor_index": 1,
+            "content_hash": "cb9b6e3e2bff0b7ed06cf41865607908141e44b2258bf802a79a509cd45c9ff3"
+        },
+        {
+            "skill": "local_taskflow.extend_assignment_duedate",
+            "anchor_index": 2,
+            "content_hash": "9e26fed8829a6558bf39a18c43409cb6e0550e5d4e0c9497791c6fd0b2818336"
+        },
+        {
+            "skill": "local_taskflow.extend_assignment_duedate",
+            "anchor_index": 3,
+            "content_hash": "87c266492dfdd1d1c60c03f65af092f5f2d858c8db9174615e9b348c352d182d"
+        },
+        {
+            "skill": "local_taskflow.get_assignment_details",
+            "anchor_index": 0,
+            "content_hash": "779aa8bf778ee9f6696909d455e25cd0ed3f12f170f9854f4c884fba1fb2783b"
+        },
+        {
+            "skill": "local_taskflow.get_assignment_details",
+            "anchor_index": 1,
+            "content_hash": "0cbff80f486304178a12abb12455c7a05b528c57deaa07eeb471e997fd28bd74"
+        },
+        {
+            "skill": "local_taskflow.get_assignment_details",
+            "anchor_index": 2,
+            "content_hash": "5379d6e19a35e2bdd3033cc5e3549cdefec6a17e5dc032001e7c9e2146708cb5"
+        },
+        {
+            "skill": "local_taskflow.get_assignment_details",
+            "anchor_index": 3,
+            "content_hash": "b537c6209bbbc1ac500f556db3d9d9257bf701dce0a865eb473c03700074ece6"
+        },
+        {
+            "skill": "local_taskflow.get_assignment_details",
+            "anchor_index": 4,
+            "content_hash": "c819a7f2b5f54bf2681a58ff309176754354e5b4e7eb5e8a63926a8fe8d26e38"
+        },
+        {
+            "skill": "local_taskflow.get_assignment_details",
+            "anchor_index": 5,
+            "content_hash": "65e832fd940006336d20eaa2ba380cab4366d21ec854d623aecebe8b3af6a8e6"
+        },
+        {
+            "skill": "local_taskflow.get_assignment_details",
+            "anchor_index": 6,
+            "content_hash": "4cf048ad6fd4f92405a59e42bca253f2040b287f31f4196d8e4c77873e17067c"
+        },
+        {
+            "skill": "local_taskflow.get_rule_details",
+            "anchor_index": 0,
+            "content_hash": "819d1ce0e04d22118fd5be8f6df3d07e978eb38f7031cd0ec6f13f37e187cc2e"
+        },
+        {
+            "skill": "local_taskflow.get_rule_details",
+            "anchor_index": 1,
+            "content_hash": "7173ef51ae7a270411d8be3901047ec47428f309796a33a4e67bdd259e1fa00f"
+        },
+        {
+            "skill": "local_taskflow.get_rule_details",
+            "anchor_index": 2,
+            "content_hash": "62cc742bb145340c132c14f8c76e9c172b6ec87c20d0b3c409b59685a1cc48a1"
+        },
+        {
+            "skill": "local_taskflow.get_rule_details",
+            "anchor_index": 3,
+            "content_hash": "b384902b2fda5e01d73f57e10dc25da2d182303a461348ac3cad1ba01a7413b7"
+        },
+        {
+            "skill": "local_taskflow.get_rule_details",
+            "anchor_index": 4,
+            "content_hash": "8a569470fdb815f42e10f357cfb5fa8d3f48aa4a0148445efb3842e116ef2221"
+        },
+        {
+            "skill": "local_taskflow.get_rule_details",
+            "anchor_index": 5,
+            "content_hash": "10693f2cc298d8129ffa8a7e7d5d9e9a0e0b780e83ce797a377f212a5665c545"
+        },
+        {
+            "skill": "local_taskflow.get_rule_details",
+            "anchor_index": 6,
+            "content_hash": "1016f68d7c5728ebc5a1b3955974536dc33675ce8129c34d161e8e4feed1e4db"
+        },
+        {
+            "skill": "local_taskflow.get_rule_details",
+            "anchor_index": 7,
+            "content_hash": "faabcc743f08c4d5977b6e1cc88e54393983740f2272fb9cb96136686c6bef79"
+        },
+        {
+            "skill": "local_taskflow.get_rule_details",
+            "anchor_index": 8,
+            "content_hash": "96edd3c49cb30a679febb3c9d9a75335cd0d21de2d7a71ce97f8cc8e84cfe0ee"
+        },
+        {
+            "skill": "local_taskflow.get_rule_details",
+            "anchor_index": 9,
+            "content_hash": "bdbac5fbe02d628c8b6342256c5974e1f0b32d789afcac8c21d9a685e55d3f03"
+        },
+        {
+            "skill": "local_taskflow.get_user_taskflow_profile",
+            "anchor_index": 0,
+            "content_hash": "e41571afc474a9784846f307985c3f4c648ce26af257a5985026544f83c437bc"
+        },
+        {
+            "skill": "local_taskflow.get_user_taskflow_profile",
+            "anchor_index": 1,
+            "content_hash": "09068bc16eeba3bf2877c051931a5c50e6eabe718064ac39b533642d756d456c"
+        },
+        {
+            "skill": "local_taskflow.get_user_taskflow_profile",
+            "anchor_index": 2,
+            "content_hash": "c175a402e612b1e0f8a135cd249801456a048bb9fb20c79753ba89e2a136dfa6"
+        },
+        {
+            "skill": "local_taskflow.get_user_taskflow_profile",
+            "anchor_index": 3,
+            "content_hash": "12098e4ec9bfae83fa2c54603a8e62d7e86a8108cb55d5223bca162418711b50"
+        },
+        {
+            "skill": "local_taskflow.get_user_taskflow_profile",
+            "anchor_index": 4,
+            "content_hash": "36ffad2145f7407597d68df3fde251e56fcc859e03f456bda04123f1303d855b"
+        },
+        {
+            "skill": "local_taskflow.get_user_taskflow_profile",
+            "anchor_index": 5,
+            "content_hash": "da372608e883531f68c22bb2ee5fe59251fe101c673376fc8917f50c3476d06a"
+        },
+        {
+            "skill": "local_taskflow.list_requests",
+            "anchor_index": 0,
+            "content_hash": "213d5147a1f21a28b7ded3aed265d61d9a8b37ee75366ecaa54e54c1ca3cb45f"
+        },
+        {
+            "skill": "local_taskflow.list_requests",
+            "anchor_index": 1,
+            "content_hash": "90159430cf74fa7ccfe8fff98cf190962e82825e68837b1b5d3484c97f1a0b95"
+        },
+        {
+            "skill": "local_taskflow.list_requests",
+            "anchor_index": 2,
+            "content_hash": "00b67a0b1d5288fa076a3765e7f31eb3adad3bad83f4e24ed7533a36c6754842"
+        },
+        {
+            "skill": "local_taskflow.list_requests",
+            "anchor_index": 3,
+            "content_hash": "c38138bce34483fc64c0818a6478d785aa0a07f85bff8e62d2f665c9330c5cca"
+        },
+        {
+            "skill": "local_taskflow.list_requests",
+            "anchor_index": 4,
+            "content_hash": "4381b6a0c3ecce85af3ec46531dab276809c83dd381764399dafafd7baf924b4"
+        },
+        {
+            "skill": "local_taskflow.list_requests",
+            "anchor_index": 5,
+            "content_hash": "8ac79a9df88ac976d86f51e83d3f7a2f31b0dd1fae5d668b339d26ff0818167d"
+        },
+        {
+            "skill": "local_taskflow.list_rule_properties",
+            "anchor_index": 0,
+            "content_hash": "4af23992619e6a90149025137cc24475bd74f0eb470516007e8beb8af91688d4"
+        },
+        {
+            "skill": "local_taskflow.list_rule_properties",
+            "anchor_index": 1,
+            "content_hash": "4022bc191c6ad2784ec6c7ac8bc9ddc70b30341b76241b63492f93bacde82d64"
+        },
+        {
+            "skill": "local_taskflow.list_rule_properties",
+            "anchor_index": 2,
+            "content_hash": "e1589669957116495c5603965718a70137c5b0931ce4dfc37becc051adeffd6d"
+        },
+        {
+            "skill": "local_taskflow.list_rule_properties",
+            "anchor_index": 3,
+            "content_hash": "a553ae4a3afcd94caaed795146ba9dad5ee7ce30ba505e307708a00bf3c289be"
+        },
+        {
+            "skill": "local_taskflow.list_rule_properties",
+            "anchor_index": 4,
+            "content_hash": "53f54961b64266b668a02f122b3105f16627f977e8cd03cb5865d439b73c8b22"
+        },
+        {
+            "skill": "local_taskflow.list_rule_properties",
+            "anchor_index": 5,
+            "content_hash": "466ca619a28d0e6d1ccc7bdd56688abf22589326cca109e72d075afa0472fd00"
+        },
+        {
+            "skill": "local_taskflow.list_rule_properties",
+            "anchor_index": 6,
+            "content_hash": "1f060fbe5d9da7675bb467b0d50b3308aaae2adc3367c8a316ae64d7fa984811"
+        },
+        {
+            "skill": "local_taskflow.list_rule_properties",
+            "anchor_index": 7,
+            "content_hash": "47c19a08b359fa5b2a0ccf11ff46e6d21eacb908cf2dc50b3085ee2131dde58a"
+        },
+        {
+            "skill": "local_taskflow.list_rule_properties",
+            "anchor_index": 8,
+            "content_hash": "37ffa9374d0ac2d5cb81f7f6d5fd75106c19f14e76827175cd11a59a633aa191"
+        },
+        {
+            "skill": "local_taskflow.list_settings",
+            "anchor_index": 0,
+            "content_hash": "4c8870981b6360f2f71ee4f1284c7b60b9f02148cee83e004e33132b6718c421"
+        },
+        {
+            "skill": "local_taskflow.list_settings",
+            "anchor_index": 1,
+            "content_hash": "374916a0f2892701942f6b3441118a74862ee93b21018cc9075a94b52c9e027d"
+        },
+        {
+            "skill": "local_taskflow.list_settings",
+            "anchor_index": 2,
+            "content_hash": "1cb2ba201d3e3ddc8c31caa685988ebc5d3edb35efc1d34d963d27ef000f2082"
+        },
+        {
+            "skill": "local_taskflow.list_settings",
+            "anchor_index": 3,
+            "content_hash": "96c4557afdbb37a292bde6a3eb90d10cd529d672e5ab9be99f71f2a8de017eb2"
+        },
+        {
+            "skill": "local_taskflow.list_settings",
+            "anchor_index": 4,
+            "content_hash": "a70002f8b4311f3a88b0df3002e5fcdd27d4d1562aa8136a09be5ba9721527ba"
+        },
+        {
+            "skill": "local_taskflow.list_settings",
+            "anchor_index": 5,
+            "content_hash": "be0a56af8a3ca1fbb10c9b7ab8854d0181ae8df9f516e41ec9199448c765bb09"
+        },
+        {
+            "skill": "local_taskflow.list_units",
+            "anchor_index": 0,
+            "content_hash": "4176f8b2114e0dfed693b6aa4fc97b68a0eaa9157edc7baea4a60244a52b5bdb"
+        },
+        {
+            "skill": "local_taskflow.list_units",
+            "anchor_index": 1,
+            "content_hash": "413d983aa3f574564039034be1f1fd85c520f7cb08e87d31667fa0534fd982c4"
+        },
+        {
+            "skill": "local_taskflow.list_units",
+            "anchor_index": 2,
+            "content_hash": "d22b0f09c6a241e495bd7f377f633d3d416c8f9ee0db1555c063d502af38f833"
+        },
+        {
+            "skill": "local_taskflow.list_units",
+            "anchor_index": 3,
+            "content_hash": "e18c5679472008f0f80691aea2941608bfa2e4eb97138e717f23bbe87bf864f3"
+        },
+        {
+            "skill": "local_taskflow.list_units",
+            "anchor_index": 4,
+            "content_hash": "8ef200c1629a23765d21938aefebffe88416b8252a31e6d7e8799a84fa77e2e3"
+        },
+        {
+            "skill": "local_taskflow.list_units",
+            "anchor_index": 5,
+            "content_hash": "8a5b99569bf235ebcbe3b2c57196995800cfb05e208336efa5088f6a803840fd"
+        },
+        {
+            "skill": "local_taskflow.list_units",
+            "anchor_index": 6,
+            "content_hash": "01197f8d8868bc26472de722aff5c3c1b698fc7bc27a71e73c0f8ab1b7513a9a"
+        },
+        {
+            "skill": "local_taskflow.manage_unit_membership",
+            "anchor_index": 0,
+            "content_hash": "cf8a2161215a81c390110fbbbcabf3f37b1e84bb87b84d3c6d50b408bdf77e4d"
+        },
+        {
+            "skill": "local_taskflow.manage_unit_membership",
+            "anchor_index": 1,
+            "content_hash": "06b2bbf5d6660ae998f6b063fb91a67905cbfee2c9de5ac014db15f4a102cbc7"
+        },
+        {
+            "skill": "local_taskflow.manage_unit_membership",
+            "anchor_index": 2,
+            "content_hash": "1dc8319c0b5e9e82347e525494dc235dedb56432a8d9df13a7a2750dd6786106"
+        },
+        {
+            "skill": "local_taskflow.manage_unit_membership",
+            "anchor_index": 3,
+            "content_hash": "b381fbba9f93774833d0624e0108ed30509f52f1a13bec451403930bb368dfe9"
+        },
+        {
+            "skill": "local_taskflow.pause_or_resume_assignments",
+            "anchor_index": 0,
+            "content_hash": "43263795203faab7520b46dc91d3aed45fa806cf57e884558c814b38e15be257"
+        },
+        {
+            "skill": "local_taskflow.pause_or_resume_assignments",
+            "anchor_index": 1,
+            "content_hash": "c80db184f3b89ea71b52d6e3087e7108cf78b003d9178bb532761f4b1cdf7274"
+        },
+        {
+            "skill": "local_taskflow.pause_or_resume_assignments",
+            "anchor_index": 2,
+            "content_hash": "16e8d4e5e2abd73107f88dc4866c1a75507fa023270928ffa905b01dc66f5e3e"
+        },
+        {
+            "skill": "local_taskflow.pause_or_resume_assignments",
+            "anchor_index": 3,
+            "content_hash": "064564e768d4544001812cf448c9cff0bf2d7c5645a6c5f3ff623a4fec5ccdec"
+        },
+        {
+            "skill": "local_taskflow.post_internal_message",
+            "anchor_index": 0,
+            "content_hash": "4090700f161d18c8a10e7819283016d4a9467ac6c00e095cd2bddc3693543472"
+        },
+        {
+            "skill": "local_taskflow.post_internal_message",
+            "anchor_index": 1,
+            "content_hash": "486313f50c050e9b52223ad7a7c75e18e7f893eebb17c624fa52c08db823c66d"
+        },
+        {
+            "skill": "local_taskflow.post_internal_message",
+            "anchor_index": 2,
+            "content_hash": "32d2e5a3e2584a403e6d587429d7126016d4cf3a37e7f542dd1350a79a6412dc"
+        },
+        {
+            "skill": "local_taskflow.preview_message",
+            "anchor_index": 0,
+            "content_hash": "f145c410ba969cd438ea4d35baa34876fb0396191d086f638aee618c34607ede"
+        },
+        {
+            "skill": "local_taskflow.preview_message",
+            "anchor_index": 1,
+            "content_hash": "b68d801d4ed94b51c6566ebab1959ff302d755a38dd91d277053a366dce03671"
+        },
+        {
+            "skill": "local_taskflow.preview_message",
+            "anchor_index": 2,
+            "content_hash": "f8dfa8d583868caced39ace7c2bc440ccf1559bcc5a643f2f7819350f5434c6c"
+        },
+        {
+            "skill": "local_taskflow.preview_message",
+            "anchor_index": 3,
+            "content_hash": "63ebbb368c73126ed472b785542b1deb6c02316cca685c4c9bfed818c191cbcf"
+        },
+        {
+            "skill": "local_taskflow.preview_message",
+            "anchor_index": 4,
+            "content_hash": "6b08213ed8c9419fe76918c8dda894ba1635c77688a93c86859f58f8466e7c47"
+        },
+        {
+            "skill": "local_taskflow.recheck_assignments",
+            "anchor_index": 0,
+            "content_hash": "53662f383793fba486666c94fdd12ea1fad5b00d07ca06e2cea916239608044b"
+        },
+        {
+            "skill": "local_taskflow.recheck_assignments",
+            "anchor_index": 1,
+            "content_hash": "1d3326a7e7dbca47712ccc81a1021c853016ae885930e3ed68565afac8a3d169"
+        },
+        {
+            "skill": "local_taskflow.recheck_assignments",
+            "anchor_index": 2,
+            "content_hash": "9808b502eb8011991d27e7885a54bfcae9ced89a0215fc94744f2013e4ac1d5e"
+        },
+        {
+            "skill": "local_taskflow.recheck_assignments",
+            "anchor_index": 3,
+            "content_hash": "dee50f56d4dd5eca1d7a8a0857bec72eeefa7b586a33426c81ba32c473a06195"
+        },
+        {
+            "skill": "local_taskflow.reschedule_rule",
+            "anchor_index": 0,
+            "content_hash": "57c141a924361ec96001f4fb813a4a8df58fa554984224e91dc601525038077e"
+        },
+        {
+            "skill": "local_taskflow.reschedule_rule",
+            "anchor_index": 1,
+            "content_hash": "554704af12941bbf1078714051fdf54c52e9a153cefe63f8cdda2b160b6cec85"
+        },
+        {
+            "skill": "local_taskflow.reschedule_rule",
+            "anchor_index": 2,
+            "content_hash": "809df6273ef92a6de90d752912efe0676edd2ca1101ff424a7e0215d8631960e"
+        },
+        {
+            "skill": "local_taskflow.reschedule_rule",
+            "anchor_index": 3,
+            "content_hash": "474e5ad9f9bd1b5803819a6882de1fe2f258207f083dc094424e3e3ba8ffb5ee"
+        },
+        {
+            "skill": "local_taskflow.reschedule_rule",
+            "anchor_index": 4,
+            "content_hash": "fe1d9dacae7e16f78260ce8efc0fcfce82a0def3263579654f7a1edee95e2880"
+        },
+        {
+            "skill": "local_taskflow.review_evidence",
+            "anchor_index": 0,
+            "content_hash": "53e49b22d637a52a65230bb21c972ec6f95388e93075e23e1696476ae489763c"
+        },
+        {
+            "skill": "local_taskflow.review_evidence",
+            "anchor_index": 1,
+            "content_hash": "3cb5a8d33fa22121c789c955f8cfe18c38dabf98f0e8a320922fc90c81431f58"
+        },
+        {
+            "skill": "local_taskflow.review_evidence",
+            "anchor_index": 2,
+            "content_hash": "45f8dcbbcf44664bd421cac1265f66e13683e460e13e0c46f4a4e2c7c7680024"
+        },
+        {
+            "skill": "local_taskflow.review_evidence",
+            "anchor_index": 3,
+            "content_hash": "924cff2a82889a58b806574bcf663b10ccb61f108c0f5d84c65e2633f295e2c4"
+        },
+        {
+            "skill": "local_taskflow.search_assignments",
+            "anchor_index": 0,
+            "content_hash": "11b48c1d65761e4aab47d689a3a1672cf52a5a808d14ad9cb07840b0751da2dc"
+        },
+        {
+            "skill": "local_taskflow.search_assignments",
+            "anchor_index": 1,
+            "content_hash": "a4fdbf9969728b4ec66f7b909f3aac309cc59a5d2d3f790a64b4f818dc90f987"
+        },
+        {
+            "skill": "local_taskflow.search_assignments",
+            "anchor_index": 2,
+            "content_hash": "2f53eafbd2fd5e49ca39a2481a5eccec830d967e6f3c73acfd30a1875e7f9be5"
+        },
+        {
+            "skill": "local_taskflow.search_assignments",
+            "anchor_index": 3,
+            "content_hash": "b628afa4232f3b8c9da5ba909ae859cfe00fdd95033edb2075175d70a5061037"
+        },
+        {
+            "skill": "local_taskflow.search_assignments",
+            "anchor_index": 4,
+            "content_hash": "86bd49c9ca41d3c1be591b78a1a84dc128eaddc7a39abb8b909f69aa037a5704"
+        },
+        {
+            "skill": "local_taskflow.search_assignments",
+            "anchor_index": 5,
+            "content_hash": "8548aaa9cc8aed64dd95dbe8d99cad60fc2eee60c49474b4cf32f2809f07e3ee"
+        },
+        {
+            "skill": "local_taskflow.search_assignments",
+            "anchor_index": 6,
+            "content_hash": "67276589d8ae88e4d0d1df8565c4bda33dd96ff88fec77301cee5a8489d806d5"
+        },
+        {
+            "skill": "local_taskflow.search_assignments",
+            "anchor_index": 7,
+            "content_hash": "5de069f942d05bac45f432e2bf8b5f74a287f3abcd60d92aa2c21e4a15187d1b"
+        },
+        {
+            "skill": "local_taskflow.search_assignments",
+            "anchor_index": 8,
+            "content_hash": "812e9978618d63bc8f75ea01e7267da092b79248619145fd9fdb02ed4857897b"
+        },
+        {
+            "skill": "local_taskflow.search_message_templates",
+            "anchor_index": 0,
+            "content_hash": "aec7f3f22065d8f3aa5b6ea3c41cd2e4214021463fd2423bb769361740fd4297"
+        },
+        {
+            "skill": "local_taskflow.search_message_templates",
+            "anchor_index": 1,
+            "content_hash": "984a4ba19feee28176fb8324d323747d2b3ab17b10e3adfd934a277e9984bd89"
+        },
+        {
+            "skill": "local_taskflow.search_message_templates",
+            "anchor_index": 2,
+            "content_hash": "6d83b928212517e534e1bc4a0d50c1be744bd3240b97b51efcd78fa80ed1540a"
+        },
+        {
+            "skill": "local_taskflow.search_message_templates",
+            "anchor_index": 3,
+            "content_hash": "6a994483cad583b7fcff12ab9897217c958c014a1d53c99ba4d086a54082f0d1"
+        },
+        {
+            "skill": "local_taskflow.search_message_templates",
+            "anchor_index": 4,
+            "content_hash": "a911c48bef1df1f69e31d8bf950845e97d351f71dcec0d569f9b90fe515b705c"
+        },
+        {
+            "skill": "local_taskflow.search_message_templates",
+            "anchor_index": 5,
+            "content_hash": "4b4ad4ccbaa0146ccc298f919f2f18073d319621ef669d945e883ad291fad589"
+        },
+        {
+            "skill": "local_taskflow.search_message_templates",
+            "anchor_index": 6,
+            "content_hash": "c7f0ceaadf72f9f0eee9383501e043514c3abdba4d87d6fa489d96bcff35beda"
+        },
+        {
+            "skill": "local_taskflow.search_rules",
+            "anchor_index": 0,
+            "content_hash": "f252759a95e67484e178472321ddf6de63b6f9b6857d1995e86291df73198f5e"
+        },
+        {
+            "skill": "local_taskflow.search_rules",
+            "anchor_index": 1,
+            "content_hash": "58ae600fa06e84cac0b7041cd535ce2e49d640df873e471d6ee896ed663b3c0e"
+        },
+        {
+            "skill": "local_taskflow.search_rules",
+            "anchor_index": 2,
+            "content_hash": "0960ffc02362e15fa30993dfa47c944df065b277a49709acaf02a821736c90cf"
+        },
+        {
+            "skill": "local_taskflow.search_rules",
+            "anchor_index": 3,
+            "content_hash": "4f652d5a007afdbbb2d405af511ab92d24ebd66361d4a203d9262c86758d7902"
+        },
+        {
+            "skill": "local_taskflow.search_rules",
+            "anchor_index": 4,
+            "content_hash": "11a79ec4d33b01b791308f66f68d29678d396ffd308a022a4a06ddff0fa03e34"
+        },
+        {
+            "skill": "local_taskflow.search_rules",
+            "anchor_index": 5,
+            "content_hash": "e719e06292488325df634046e30971bcc1ae250c28868b942390cea5caacd19a"
+        },
+        {
+            "skill": "local_taskflow.search_rules",
+            "anchor_index": 6,
+            "content_hash": "23c1b69374b2ea2a44472cae4b2ea049d4d308c5acdda1becaac8c709dc45639"
+        },
+        {
+            "skill": "local_taskflow.search_rules",
+            "anchor_index": 7,
+            "content_hash": "0a030721339fe1a33a591d20cc1a67f6ba63562ce5090760e9de425039fdaab6"
+        },
+        {
+            "skill": "local_taskflow.search_rules",
+            "anchor_index": 8,
+            "content_hash": "6f4c589cd1a6e6b890d986458dd30dbc9fcd44513a2077465c1be4494c99eb1c"
+        },
+        {
+            "skill": "local_taskflow.search_rules",
+            "anchor_index": 9,
+            "content_hash": "dddf19f683b0382de3416f505e79f4ca1df5568fa61c524c19381820481a749f"
+        },
+        {
+            "skill": "local_taskflow.send_message_now",
+            "anchor_index": 0,
+            "content_hash": "e065a13c89a2c77157c0040d4fe174d36943cccd800f0b6e9f266fca9d8a6781"
+        },
+        {
+            "skill": "local_taskflow.send_message_now",
+            "anchor_index": 1,
+            "content_hash": "d6a1dccfba98d91eaf515d1ded23efe951cb459f72500b42d0f22130e55b211f"
+        },
+        {
+            "skill": "local_taskflow.send_message_now",
+            "anchor_index": 2,
+            "content_hash": "133b5568e54a7c0dff66e07d6eabd748e10df36f4149c1b7bbfa78cbc9c9ef1a"
+        },
+        {
+            "skill": "local_taskflow.send_message_now",
+            "anchor_index": 3,
+            "content_hash": "7b7b6cbf1b81f7e3c8c060cdd6b79dc7a1cda521486dba3af192f62b7bc4cf6f"
+        },
+        {
+            "skill": "local_taskflow.supervisor_overview",
+            "anchor_index": 0,
+            "content_hash": "1eb2ebf178ac192f93d45453aff6b7f1fa7b49d6b8709371364cf94c3cb15056"
+        },
+        {
+            "skill": "local_taskflow.supervisor_overview",
+            "anchor_index": 1,
+            "content_hash": "641607a4f3babf828a3fe611f13bd7c07eeda05af93e5c7321da31e3e870074a"
+        },
+        {
+            "skill": "local_taskflow.supervisor_overview",
+            "anchor_index": 2,
+            "content_hash": "e21916aa685a9b25020a6bfa777d128da3048b9614c57d767ab0d42fd1aa433f"
+        },
+        {
+            "skill": "local_taskflow.supervisor_overview",
+            "anchor_index": 3,
+            "content_hash": "920c8fdaf04578e191e35863e7cd698a7f67771c4aba50cdff4d4dac42ccac91"
+        },
+        {
+            "skill": "local_taskflow.supervisor_overview",
+            "anchor_index": 4,
+            "content_hash": "7f321ea80d4a4dee281be6d7ebae48ca8bea69dfb7fb031073c0c06e2e994a35"
+        },
+        {
+            "skill": "local_taskflow.supervisor_overview",
+            "anchor_index": 5,
+            "content_hash": "6c3f5b8da7f477ab01c57919008c82fccbfb0cd5924ba1824b7c2ef5a1c729cd"
+        },
+        {
+            "skill": "local_taskflow.treat_request",
+            "anchor_index": 0,
+            "content_hash": "a26e16d94e27b4a9c7d920a129e8dc5a0b89d87ccdf8660cefb0ae995f7310ec"
+        },
+        {
+            "skill": "local_taskflow.treat_request",
+            "anchor_index": 1,
+            "content_hash": "bfc0c451f7527ddbab39d897fccabf0c2bdede5ef1ec215bbae24d582e15ad9f"
+        },
+        {
+            "skill": "local_taskflow.treat_request",
+            "anchor_index": 2,
+            "content_hash": "086214b9a3491dc588c55fbbdbc4603850d307af776ca9717765fc35765425fe"
+        },
+        {
+            "skill": "local_taskflow.treat_request",
+            "anchor_index": 3,
+            "content_hash": "df45d76f685af0b4e06d93a95d21384ca04e7d6e0c2d5396ecbb044c5ed21015"
+        },
+        {
+            "skill": "local_taskflow.treat_request",
+            "anchor_index": 4,
+            "content_hash": "7417207e07f1d00838a94abc46494910e157e3aab4a37e67154a28570883ca13"
+        },
+        {
+            "skill": "local_taskflow.trigger_import",
+            "anchor_index": 0,
+            "content_hash": "c5544c9e5fa7967e61f40a3bb0230a0e2c49f6ef3acb55286ec754912593870e"
+        },
+        {
+            "skill": "local_taskflow.trigger_import",
+            "anchor_index": 1,
+            "content_hash": "79315566773ba9995589bc18232234aa7bc70da07c6210c3bd4c78d14dc4a7c3"
+        },
+        {
+            "skill": "local_taskflow.trigger_import",
+            "anchor_index": 2,
+            "content_hash": "05d6d5767ba4a7939a6967c1680e8dc50d39bfd566c3119e5efb0ebdadcbceb4"
+        },
+        {
+            "skill": "local_taskflow.trigger_import",
+            "anchor_index": 3,
+            "content_hash": "137101e87345dc58e77e7110df67b6d6405305dff0f1bb9addab27b432630676"
+        },
+        {
+            "skill": "local_taskflow.update_message_template",
+            "anchor_index": 0,
+            "content_hash": "91d60ed8bfcf0eb90c06df8c6fb9cc803d1f7f05f5a44b383d39c27ff99240df"
+        },
+        {
+            "skill": "local_taskflow.update_message_template",
+            "anchor_index": 1,
+            "content_hash": "fb49817124388cb20a9f7b3b8a2318ae279e42c51a7bec3bf0d632f515917eb1"
+        },
+        {
+            "skill": "local_taskflow.update_message_template",
+            "anchor_index": 2,
+            "content_hash": "facd2782df4e30b051318ad3b7e908ef0b1a566ba6bd796fbe600387015631b5"
+        },
+        {
+            "skill": "local_taskflow.update_message_template",
+            "anchor_index": 3,
+            "content_hash": "d93a749feefbda9969ff6cdd6688d626ef4c506abc17d10fe92ce414fd4e9f3b"
+        },
+        {
+            "skill": "local_taskflow.update_message_template",
+            "anchor_index": 4,
+            "content_hash": "85b88c46999e3476ff10a024889042ee34ccbb9a2f1379b17187bead4c0f2a7b"
+        },
+        {
+            "skill": "local_taskflow.update_rule",
+            "anchor_index": 0,
+            "content_hash": "b2e06bb9cd9891377c4ede0f823a58be9dbde8e2e589c321f18316077aced996"
+        },
+        {
+            "skill": "local_taskflow.update_rule",
+            "anchor_index": 1,
+            "content_hash": "95baa36552f92ac670c4b4d5fb729c023dbd1cd17d9df5ef056147e38162c331"
+        },
+        {
+            "skill": "local_taskflow.update_rule",
+            "anchor_index": 2,
+            "content_hash": "7868cf934ae769b779a5e95c1d9c8748fe3efcc94522ac8e37cad22315d4ebab"
+        },
+        {
+            "skill": "local_taskflow.update_rule",
+            "anchor_index": 3,
+            "content_hash": "76103eeeaa3667561da9dabb26320234caf41365a9f7eb5555445353ebddb115"
+        },
+        {
+            "skill": "local_taskflow.update_rule",
+            "anchor_index": 4,
+            "content_hash": "9f27c9a3c3ccc13f451405a57f8bf9e40a2e6453e00f0ce7ebdfcb8ef9bd5705"
+        },
+        {
+            "skill": "core.diagnose_notifications",
+            "anchor_index": 0,
+            "content_hash": "88b6dec7731adf81aba76dabb152690fe31bbbb0a8877a49573640b0b639d0f6"
+        },
+        {
+            "skill": "core.diagnose_notifications",
+            "anchor_index": 1,
+            "content_hash": "bf44c52f444fddf879eeb2ed870f5849467f7a9e9d3ac406fefc89216fa3740e"
+        },
+        {
+            "skill": "core.diagnose_notifications",
+            "anchor_index": 2,
+            "content_hash": "6ac46a947fad3f3eea07f5f25449e457d7d87eb5897dc1d4a37ed9b7bc0256e6"
+        },
+        {
+            "skill": "core.diagnose_notifications",
+            "anchor_index": 3,
+            "content_hash": "49ceea6c18af1e263ab8db42e3519fecd0e858e6eba177c5eed97a06b95aaa9e"
+        },
+        {
+            "skill": "core.diagnose_notifications",
+            "anchor_index": 4,
+            "content_hash": "cf021448acfa1e326ed020c1eac68b071fe6c230441d8fd7f1cb50a73400f306"
+        },
+        {
+            "skill": "core.diagnose_notifications",
+            "anchor_index": 5,
+            "content_hash": "0e8152a1ff5f47743cbe3431fe4e9c413d3814f9905accfc01ea7cc0b635793a"
+        },
+        {
+            "skill": "core.diagnose_notifications",
+            "anchor_index": 6,
+            "content_hash": "024e6462c76033799539e76105115d5def2753f5423e977a8dc36ff875f2ecec"
+        },
+        {
+            "skill": "core.diagnose_permissions",
+            "anchor_index": 0,
+            "content_hash": "74f76ae5b618b1c4436da60f3d8a3470e55590ef7bba5c79d1155de32a8f75ab"
+        },
+        {
+            "skill": "core.diagnose_permissions",
+            "anchor_index": 1,
+            "content_hash": "f9aff8a1913af9cc25117bbd8fa082baa178811647ba4d4032b2869c2929c105"
+        },
+        {
+            "skill": "core.diagnose_permissions",
+            "anchor_index": 2,
+            "content_hash": "407986aab614d5a7869b59594f0f1d86ed8c674aa18396b6e87fcee8dbd760ea"
+        },
+        {
+            "skill": "core.diagnose_permissions",
+            "anchor_index": 3,
+            "content_hash": "b6da762f7244aeae0cae4ffdae9cbb4c07fb297f552eb112761fa2bf83f4d033"
+        },
+        {
+            "skill": "core.diagnose_permissions",
+            "anchor_index": 4,
+            "content_hash": "91ebb25aa5850d49e890918a072ad6232f6c79edf701d10fcc6ea773f0a6e872"
+        },
+        {
+            "skill": "core.diagnose_permissions",
+            "anchor_index": 5,
+            "content_hash": "7b0a188166443cae791b969697bcff9ecf28ce6a8a9073259552a5a791d46e84"
+        },
+        {
+            "skill": "core.diagnose_permissions",
+            "anchor_index": 6,
+            "content_hash": "3944d2c9c8a34e741d9cad52cd4b61a67cb4f12b791ec72000fe4703624d0e74"
+        },
+        {
+            "skill": "core.find_content",
+            "anchor_index": 0,
+            "content_hash": "22501e9a10325b43366de6c0b80312d2d8f606588fdd299110cffca4be83caf2"
+        },
+        {
+            "skill": "core.find_content",
+            "anchor_index": 1,
+            "content_hash": "ac022fac464471d3fde842687751d97755f8ed80411740014511dbbb4ae8c5a7"
+        },
+        {
+            "skill": "core.find_content",
+            "anchor_index": 2,
+            "content_hash": "fb63dfc85c577d2dffd6108c55936e92606fc29d3fa2118c6d9e7a6b77043e78"
+        },
+        {
+            "skill": "core.find_content",
+            "anchor_index": 3,
+            "content_hash": "985ddafc15e8d26ba2b05cc1c2be6e0aa21d64a88b36d3115bb297b66617e7df"
+        },
+        {
+            "skill": "core.find_content",
+            "anchor_index": 4,
+            "content_hash": "9c4b5b8f2bccf9425af6d33055f2f84e20c54b380a1b5167160e540845af775a"
+        },
+        {
+            "skill": "core.find_content",
+            "anchor_index": 5,
+            "content_hash": "1a95b9e3666961512b9f2c91c6348cfb6a58f504dcea54948fe04666d65628ae"
+        },
+        {
+            "skill": "core.find_content",
+            "anchor_index": 6,
+            "content_hash": "1e929b49e94162682a3c28e3f4f7e7311ba6078f9988b4b8a740aea783f48162"
+        },
+        {
+            "skill": "core.get_current_user",
+            "anchor_index": 0,
+            "content_hash": "1f57530e25fc67a1af9f9d5b99d8ae7fd7a40c5421276e6fac0acb0f54d637a6"
+        },
+        {
+            "skill": "core.get_current_user",
+            "anchor_index": 1,
+            "content_hash": "70546343268e77f8458eccda17d43e3019805782fc11631e29dc7769fc434d61"
+        },
+        {
+            "skill": "core.get_current_user",
+            "anchor_index": 2,
+            "content_hash": "9b66996ec04ed124ddb3f63d0859f2aeab9b09e033676155949de4d92341d861"
+        },
+        {
+            "skill": "core.get_current_user",
+            "anchor_index": 3,
+            "content_hash": "8a14a5f2d8d069e9f0f41864462a8741fbef819abbd4ad5149f09fae3f4cf21c"
+        },
+        {
+            "skill": "core.get_current_user",
+            "anchor_index": 4,
+            "content_hash": "63080a5844a6a9a40699d5f04a009a9671ef57f8f1b9061f9cca915021345d1f"
+        },
+        {
+            "skill": "core.get_current_user",
+            "anchor_index": 5,
+            "content_hash": "ab7138e9c1590f5eaf74cafafeaed8db6c094c2d134568b34f01eb8be082d0bf"
+        },
+        {
+            "skill": "core.get_current_user",
+            "anchor_index": 6,
+            "content_hash": "aea37a88cda490d7b54fa116953f3209fbcb0a5e5fb11f85d3bf36ace279e033"
+        },
+        {
+            "skill": "core.get_current_user",
+            "anchor_index": 7,
+            "content_hash": "0392e505656b8fe668572c8cd44794205c0f899358ced3b5ec3b5b108aba5834"
+        },
+        {
+            "skill": "core.get_current_user",
+            "anchor_index": 8,
+            "content_hash": "e647c64c8d43afe866cd0d7a26da1e11da81522d8cf0a6cd1d0e4efe54cee246"
+        },
+        {
+            "skill": "core.search_users",
+            "anchor_index": 0,
+            "content_hash": "278c704ea1c6694a74b8d03fccea774c46165d6df048455061e11ac2d60ab918"
+        },
+        {
+            "skill": "core.search_users",
+            "anchor_index": 1,
+            "content_hash": "cc2e6de93e140127b8a542e009a57441298163dfa61e7bc20a3b71afbf188540"
+        },
+        {
+            "skill": "core.search_users",
+            "anchor_index": 2,
+            "content_hash": "9773fb18a9cfbdb05b2500ee092f11e88a0542d6e9a0ab08eb24f2400480c14b"
+        },
+        {
+            "skill": "core.search_users",
+            "anchor_index": 3,
+            "content_hash": "6e9dc73cdd548eb944ea4c5a1654de9f4419f6350a1f1608c388f0af2bf50725"
+        },
+        {
+            "skill": "core.search_users",
+            "anchor_index": 4,
+            "content_hash": "e9445a9fcfd900b3c81487b62024201be39e08e46977dfb0fb3f6ad4a41f2d51"
+        },
+        {
+            "skill": "core.search_users",
+            "anchor_index": 5,
+            "content_hash": "2009247e27473925f229398561f4c8575fd8d9aebabdd3bf9a880b7355cdf438"
+        },
+        {
+            "skill": "core.search_users",
+            "anchor_index": 6,
+            "content_hash": "b357e9bc6dcc4fd8123f50488edc65d3120ea5881045e0167835c91c51d57c7d"
+        },
+        {
+            "skill": "core.search_users",
+            "anchor_index": 7,
+            "content_hash": "f99bcb3ce9518e862dc0fc7b2ad4fd945970c1364125000466de1c92950e9f14"
+        },
+        {
+            "skill": "course.add_activity",
+            "anchor_index": 0,
+            "content_hash": "1f8d290f4dd20049cc24c1d23b4ccbca2d7a7f2ce3efacad7d94784836804153"
+        },
+        {
+            "skill": "course.add_activity",
+            "anchor_index": 1,
+            "content_hash": "76e52140953a48bada1248fe83dd4b7a2d266253dc91e1cce97fcbb897e1b810"
+        },
+        {
+            "skill": "course.add_activity",
+            "anchor_index": 2,
+            "content_hash": "02928cd4ab053b861ca3329367cd66a3c261b3dad5676c6fed428c494a998c6b"
+        },
+        {
+            "skill": "course.add_activity",
+            "anchor_index": 3,
+            "content_hash": "82461bbf755c13a524c627029687a8166bf7c16c5861dbfabbf792d0460bbe2e"
+        },
+        {
+            "skill": "course.add_activity",
+            "anchor_index": 4,
+            "content_hash": "613d229759dc12aa8626b87171a4521e0b34fe4792152e69eb56c3be9138364c"
+        },
+        {
+            "skill": "course.add_activity",
+            "anchor_index": 5,
+            "content_hash": "e857ba2b7e6a0470732541661aacbd5438594fb0fec688cd13563476f895939e"
+        },
+        {
+            "skill": "course.add_activity",
+            "anchor_index": 6,
+            "content_hash": "ff3eea7440d9d1d45888e48a11b0ef60619380bc33ba23d1f24251cabbdbd514"
+        },
+        {
+            "skill": "course.add_quiz",
+            "anchor_index": 0,
+            "content_hash": "96da597b412dac17e0b8ddff387503f12caca88dda01e785c4da2cf6341173fe"
+        },
+        {
+            "skill": "course.add_quiz",
+            "anchor_index": 1,
+            "content_hash": "9de539fa19f7c87db58ee81e916fb809c33cbb23e8a891b905c2f7e2bb75db6b"
+        },
+        {
+            "skill": "course.add_quiz",
+            "anchor_index": 2,
+            "content_hash": "fe972616a7284ab33f0e224a586b6f8e99aa653ae5f2bf821045119076344b1f"
+        },
+        {
+            "skill": "course.add_quiz",
+            "anchor_index": 3,
+            "content_hash": "4eb9a35d27870dce546c89f34d65905c43147b4db5bdb9037779db621e8b92f8"
+        },
+        {
+            "skill": "course.add_quiz",
+            "anchor_index": 4,
+            "content_hash": "2314b9d966b332426e3cab000fd0a8dc1a6b2e56e79118b3ad81f6436cf98a16"
+        },
+        {
+            "skill": "course.add_quiz",
+            "anchor_index": 5,
+            "content_hash": "35a37e914290bd5d2b4e25a0505d90fbcfb3f9e54a7727dc31ecee802baaada3"
+        },
+        {
+            "skill": "course.add_quiz",
+            "anchor_index": 6,
+            "content_hash": "b7cde788b158dda44756ca17136c89d0593e746e4f912b0b49d794a2e7e22226"
+        },
+        {
+            "skill": "course.analyze_course_structure",
+            "anchor_index": 0,
+            "content_hash": "7913af55fe0beac8aaccfb85ca845931da29f979fef8ffe52a66d77c5023d7c1"
+        },
+        {
+            "skill": "course.analyze_course_structure",
+            "anchor_index": 1,
+            "content_hash": "2b1f9374c1306dd7b72398852e6ed73d04cd2c2fb5ef9c22dfa6843967653f50"
+        },
+        {
+            "skill": "course.analyze_course_structure",
+            "anchor_index": 2,
+            "content_hash": "5147780f5b6580cc4e84b14db59dad0c8d828458811188f26debbcd8ce63e54c"
+        },
+        {
+            "skill": "course.analyze_course_structure",
+            "anchor_index": 3,
+            "content_hash": "f84b083aed35d4858b4f294b727b4469c307995ff9749944f8cae5dd8753652e"
+        },
+        {
+            "skill": "course.analyze_course_structure",
+            "anchor_index": 4,
+            "content_hash": "a39f25ac79c77eb9dafece2622c47e9037c59530f3d444f9ef06738a3baabc4e"
+        },
+        {
+            "skill": "course.analyze_course_structure",
+            "anchor_index": 5,
+            "content_hash": "fb4841cd04095fc95d239d5dd3b99758c392b8a8ae88a299ab8fc11b3db8a10e"
+        },
+        {
+            "skill": "course.analyze_course_structure",
+            "anchor_index": 6,
+            "content_hash": "376662c39dd5052abb64170d30c627cbfbdbb87cba8a7e6ffb27534664760868"
+        },
+        {
+            "skill": "course.create_course",
+            "anchor_index": 0,
+            "content_hash": "ba6325e6b5e800a5ee919259be55f69353e047135621d68f74d7716a2fe80d56"
+        },
+        {
+            "skill": "course.create_course",
+            "anchor_index": 1,
+            "content_hash": "dc861259aa4be7b0162cbcb1d4b0464a2b336752476c889d2fdbf2592b694c27"
+        },
+        {
+            "skill": "course.create_course",
+            "anchor_index": 2,
+            "content_hash": "ce77975c0648b1135675a13e653831dfcd07bb8296f8daf04f2431eb6362143d"
+        },
+        {
+            "skill": "course.create_course",
+            "anchor_index": 3,
+            "content_hash": "e079bf4e98a632c7c003151cfb0ceab666e54c0b2c80468dce29fa044f069a2c"
+        },
+        {
+            "skill": "course.create_course",
+            "anchor_index": 4,
+            "content_hash": "f7116bda3a9de196473603ec5bc064ce4c30bbe049113ad6ed19dc0ebb93d6aa"
+        },
+        {
+            "skill": "course.diagnose_user_in_course",
+            "anchor_index": 0,
+            "content_hash": "e2d98444314b4b684ef04d882e5941c4696530b5ebd4baba22fb7c11b676b223"
+        },
+        {
+            "skill": "course.diagnose_user_in_course",
+            "anchor_index": 1,
+            "content_hash": "558d62828da685ba59b3b37ed1ad99161e0c1cf811cb04ebd358c84c50328b5d"
+        },
+        {
+            "skill": "course.diagnose_user_in_course",
+            "anchor_index": 2,
+            "content_hash": "f0382c2e2d0012b6d6f36b6e27b080a263fe544cd442b006ac05246d9aad969a"
+        },
+        {
+            "skill": "course.diagnose_user_in_course",
+            "anchor_index": 3,
+            "content_hash": "3ff16ed533bdda903236ec004efc0fc0a6e6afd47c2318b8d61d3d3afadface3"
+        },
+        {
+            "skill": "course.diagnose_user_in_course",
+            "anchor_index": 4,
+            "content_hash": "4988b29d4959fedb8e5b54b1f4a661a498d9ba1f52ebefc22675f90bdbf39081"
+        },
+        {
+            "skill": "course.diagnose_user_in_course",
+            "anchor_index": 5,
+            "content_hash": "60ecbb7a7a5ff649c65f3c58a5f8777c68db646158701a7ecd38eb138c55da89"
+        },
+        {
+            "skill": "course.diagnose_user_in_course",
+            "anchor_index": 6,
+            "content_hash": "df2295e4a4d0102728dbb1c4c510c4776dcb73101ec297fbb75c41f7f45c291f"
+        },
+        {
+            "skill": "course.diagnose_user_in_course",
+            "anchor_index": 7,
+            "content_hash": "987c86bf207dd57f1cde972ef0024073abbd49150eef99c9b714501faf94072d"
+        },
+        {
+            "skill": "course.diagnose_user_in_course",
+            "anchor_index": 8,
+            "content_hash": "3705ff7f045d14e612eb4c9a2a395e7b6af7cc78d3bbfea526b88f223483b844"
+        },
+        {
+            "skill": "course.diagnose_user_in_course",
+            "anchor_index": 9,
+            "content_hash": "dec1c70e04a42d7c130154d31515b0bdb12d9f165311c2a0d91ab96d1c722a5f"
+        },
+        {
+            "skill": "course.diagnose_user_in_course",
+            "anchor_index": 10,
+            "content_hash": "44d9cbe130aaddaf364c96308b3ef36c620a4789eaeff0f82c59713d245490d1"
+        },
+        {
+            "skill": "course.diagnose_user_in_course",
+            "anchor_index": 11,
+            "content_hash": "a88b64df0cb7db91bb4a3e2c8e6e4021a5f002eb120d706670b0a3e484c4fc9c"
+        },
+        {
+            "skill": "course.enrol_user",
+            "anchor_index": 0,
+            "content_hash": "a352a3a091ac89e61697cbac80d7bba4e94f9047a7f109c3c4fb69dd34e5f729"
+        },
+        {
+            "skill": "course.enrol_user",
+            "anchor_index": 1,
+            "content_hash": "66740dd1e92ecdc002955c8e6b5d0b4f9c08c76a045766e30d142f9550491176"
+        },
+        {
+            "skill": "course.enrol_user",
+            "anchor_index": 2,
+            "content_hash": "5f1a77551cf80dba9033897c5cc3f5fd92257504d2c42c9e18f86f6eead96ae2"
+        },
+        {
+            "skill": "course.enrol_user",
+            "anchor_index": 3,
+            "content_hash": "6e4ae39e110d8ad58bf1fe326b6368f76beaa590c1bb1bee7619ae5ff7f0e8a5"
+        },
+        {
+            "skill": "course.enrol_user",
+            "anchor_index": 4,
+            "content_hash": "870ea60275c344a6b3fd1aefdd7601e3239e448f113a05368d3d1f92d53bfe4a"
+        },
+        {
+            "skill": "course.enrol_user",
+            "anchor_index": 5,
+            "content_hash": "678c75930fb37fa529848c9d209df34f068c3d540fdfaf9486aea54afc1e6415"
+        },
+        {
+            "skill": "course.list_categories",
+            "anchor_index": 0,
+            "content_hash": "3610250c224964cad2f12d5dd1b84fc811849edfcd52581b80af3e1bab38812f"
+        },
+        {
+            "skill": "course.list_categories",
+            "anchor_index": 1,
+            "content_hash": "da79041ac2cb84abc2567a2f7c51bdce8267debc7abb2f83494f28506c98e2cf"
+        },
+        {
+            "skill": "course.list_categories",
+            "anchor_index": 2,
+            "content_hash": "5bab56541be9298d4abeba0be90e4fefc86149e0b4eed898c4c04354301b0923"
+        },
+        {
+            "skill": "course.list_categories",
+            "anchor_index": 3,
+            "content_hash": "37b2474ffa2683e18fcd38a82957ad9e3bc8df1cc1165bfc8e41f7746edb5310"
+        },
+        {
+            "skill": "course.list_categories",
+            "anchor_index": 4,
+            "content_hash": "21958c25f35e4ce8ed0fd1a4082c82abe24f45c7014ce2e8ba0c0f5f7c6bb5de"
+        },
+        {
+            "skill": "course.list_categories",
+            "anchor_index": 5,
+            "content_hash": "2c11e9f3d9f52f03eac990a1234e4629d3c79689e2ed45e7b1c2804aef235caa"
+        },
+        {
+            "skill": "course.list_categories",
+            "anchor_index": 6,
+            "content_hash": "5fdbaf9dd307ee6d107ec619272ece01c67f91cdf85e74930d350c0920507ba5"
+        },
+        {
+            "skill": "course.scaffold_course_content",
+            "anchor_index": 0,
+            "content_hash": "128be44aff8b62df0b9004f8d166002d85528c1c860861b9704e4016ba038640"
+        },
+        {
+            "skill": "course.scaffold_course_content",
+            "anchor_index": 1,
+            "content_hash": "d3dd8bbe7d4dfa931963bd70d0b5dff8d0113dbeb9cb67a46e393d736993b650"
+        },
+        {
+            "skill": "course.scaffold_course_content",
+            "anchor_index": 2,
+            "content_hash": "21105eb74ff7d82a13189230f2900bffa85c54e7e2d2b45bc36df7588cbefcb6"
+        },
+        {
+            "skill": "course.scaffold_course_content",
+            "anchor_index": 3,
+            "content_hash": "62bd370606291d677a7bdece88a4c48e2e7d185f32cd41fdcc214ae12e7bf84e"
+        },
+        {
+            "skill": "course.scaffold_course_content",
+            "anchor_index": 4,
+            "content_hash": "c5ef792880e2d7a6716f485233aba092e3910b02e349477aa08ff5c0fd83a651"
+        },
+        {
+            "skill": "course.scaffold_course_content",
+            "anchor_index": 5,
+            "content_hash": "af38dab8f5ff9320e5e20c15c2633e699cebadd93aa31ce59f41e30fbeb7c7ae"
+        },
+        {
+            "skill": "course.search_courses",
+            "anchor_index": 0,
+            "content_hash": "e947121b40227459f708f6217ecb88e30aa9ea1229603d67d8bf03aea1a09746"
+        },
+        {
+            "skill": "course.search_courses",
+            "anchor_index": 1,
+            "content_hash": "c0a68570d6e5782a7c321d8635d053d2acbad19135e1474ca0fd0d79a9297ce9"
+        },
+        {
+            "skill": "course.search_courses",
+            "anchor_index": 2,
+            "content_hash": "f346076cc9642ae8af1857ba14016defa027f6dbf5ffccdb827a20c4b0d1aaf2"
+        },
+        {
+            "skill": "course.search_courses",
+            "anchor_index": 3,
+            "content_hash": "bfd82221af3b9649ba25e3960a682dff4503eceaf9f965cac0c5b79b02682911"
+        },
+        {
+            "skill": "course.search_courses",
+            "anchor_index": 4,
+            "content_hash": "755646d5754175fc47fcbf9321c9b9ed5d09d0fc1c3d315a5bbfae98ec459808"
+        },
+        {
+            "skill": "course.update_activity",
+            "anchor_index": 0,
+            "content_hash": "85e85e58e00e8b9a7d8d12f4e9be8f9b3533ca62d1005a6d4bbfa52de95b759e"
+        },
+        {
+            "skill": "course.update_activity",
+            "anchor_index": 1,
+            "content_hash": "2219979342d227cc0ea6671396e256d626cb3d1f1816b086a8b16c99a5c6c778"
+        },
+        {
+            "skill": "course.update_activity",
+            "anchor_index": 2,
+            "content_hash": "9a7fc1494d4cd3e60213f008aa1d6f100c036bb1f2c944c6598133f1ad70a342"
+        },
+        {
+            "skill": "course.update_activity",
+            "anchor_index": 3,
+            "content_hash": "2da44a60a263108ad50d8158b87e213401f679881e31cd6ff5b1f10b0433eaf0"
+        },
+        {
+            "skill": "course.update_activity",
+            "anchor_index": 4,
+            "content_hash": "eaca1d8b668b12d833c20e841bd419d8729b5a156d60df7189805fa49ec3990c"
+        },
+        {
+            "skill": "course.update_activity",
+            "anchor_index": 5,
+            "content_hash": "1012f5cb8e2cca4442a96b507d6a75cc4d9baedb2d7d579802ca2f65a2760cef"
+        },
+        {
+            "skill": "course.update_activity",
+            "anchor_index": 6,
+            "content_hash": "494cabde2191ef06510d2d9dd134c7208f12989ed49f0fcfaa31a69d916c2226"
+        },
+        {
+            "skill": "course.update_activity",
+            "anchor_index": 7,
+            "content_hash": "f7537cdb0458fabf0fd779f58ccb5909f1af9076a06903c5bd9c13559392787a"
+        },
+        {
+            "skill": "course.update_quiz",
+            "anchor_index": 0,
+            "content_hash": "115c6957f96dfbc043ce2faaa895aafade6129af9499daaecf4516b8ae864f2c"
+        },
+        {
+            "skill": "course.update_quiz",
+            "anchor_index": 1,
+            "content_hash": "1438e09e45fa9e37ba1c8930104f82cb6ff0ac03e30306374db4c186c1703312"
+        },
+        {
+            "skill": "course.update_quiz",
+            "anchor_index": 2,
+            "content_hash": "a263a476d31aba8771344be45d03bbb0adc344855ea3519c28be010570417927"
+        },
+        {
+            "skill": "course.update_quiz",
+            "anchor_index": 3,
+            "content_hash": "aed136567f24b865ee7856cd9ea5e02d1224b6305181e69f00ec9e31581ea3e4"
+        },
+        {
+            "skill": "course.update_quiz",
+            "anchor_index": 4,
+            "content_hash": "e1c23bd0004dd207e5a140c794e8172ec4f5070a61437bcbe45a905d90fec193"
+        },
+        {
+            "skill": "course.update_quiz",
+            "anchor_index": 5,
+            "content_hash": "e60c9d50fad0d827c8c277d69d697eebae50acde4f6b59c41a10679ae33c324c"
+        },
+        {
+            "skill": "question.generate_questions",
+            "anchor_index": 0,
+            "content_hash": "343f3cd0c4d028c27e577edbbd13b881131799ad8fefcff7f6a464803179624a"
+        },
+        {
+            "skill": "question.generate_questions",
+            "anchor_index": 1,
+            "content_hash": "5e5a3eb791c20f0eeaa16a69cfffb067d162af1b2a5c720c1b824fe82ef8f366"
+        },
+        {
+            "skill": "question.generate_questions",
+            "anchor_index": 2,
+            "content_hash": "8ba704b1e18d47aa3717d602106ccf79c34e44f61d6aa4873de8801898d6d83a"
+        },
+        {
+            "skill": "question.generate_questions",
+            "anchor_index": 3,
+            "content_hash": "a193c36aebb8ff1debf2f2700a781d0b47fa51d7299d400b2c313fe971efcc7e"
+        },
+        {
+            "skill": "question.generate_questions",
+            "anchor_index": 4,
+            "content_hash": "1b575573d484fbed0b9c3f03eabb8fc0819ca9c4ba7f9c14ee0f3a18777d7945"
+        },
+        {
+            "skill": "question.generate_questions",
+            "anchor_index": 5,
+            "content_hash": "acc581ac0718fd65ee080639025beb94c4c940ac9533c8594882490f70a6d1c9"
+        },
+        {
+            "skill": "question.generate_questions",
+            "anchor_index": 6,
+            "content_hash": "536a6862bfb2892b5e3320d7ecbcc1be18f6b7e73f9713e26d7af190f031e69e"
+        },
+        {
+            "skill": "question.generate_questions",
+            "anchor_index": 7,
+            "content_hash": "589be25cf6154c6f14b566d8e50f129298f7fa7152c8269b7b025e1d53296ea0"
+        },
+        {
+            "skill": "report.create_report",
+            "anchor_index": 0,
+            "content_hash": "7ff8a2d31396309fa79aaae8032671c2a80f15b61bd712e72a4ca57050330774"
+        },
+        {
+            "skill": "report.create_report",
+            "anchor_index": 1,
+            "content_hash": "1d84509ed033a248e613982df09d62d94391b341e278c90738f143fe62420a7d"
+        },
+        {
+            "skill": "report.create_report",
+            "anchor_index": 2,
+            "content_hash": "2066d7c46710086b2a4371036e137f2c8076bf4646f42b592855423e65dbcabf"
+        },
+        {
+            "skill": "report.create_report",
+            "anchor_index": 3,
+            "content_hash": "ae068a98cedab62fb9d943d8b49e6599b1d460e17906c67671745453c75b746e"
+        },
+        {
+            "skill": "report.create_report",
+            "anchor_index": 4,
+            "content_hash": "14b320c79be3f84baac9f9a1259a893546feec6dbdf380ffde12d9ad395c36af"
+        },
+        {
+            "skill": "report.create_report",
+            "anchor_index": 5,
+            "content_hash": "79ff76a4f33631b356cec54999a107a98837b2730d538cae6fc15cd9969dabde"
+        },
+        {
+            "skill": "report.create_report",
+            "anchor_index": 6,
+            "content_hash": "e1831b685783460031f6aedde1b203e88089aefbbd7f29a79ce69089ea048a25"
+        },
+        {
+            "skill": "report.describe_report_source",
+            "anchor_index": 0,
+            "content_hash": "da012d28e787310ad8ef35677dd8146dfb4579a73909b9ec5fb9de9c79217c4b"
+        },
+        {
+            "skill": "report.describe_report_source",
+            "anchor_index": 1,
+            "content_hash": "0bfa50e1b961ec60cee7201801cdf56c75f582d129c519c15467bb09542e3609"
+        },
+        {
+            "skill": "report.describe_report_source",
+            "anchor_index": 2,
+            "content_hash": "96e7f0bc1d8c4a17302bb086f57f628b50d57786c6f858106d1af146fffd0c37"
+        },
+        {
+            "skill": "report.describe_report_source",
+            "anchor_index": 3,
+            "content_hash": "9674b90d7e79a04f67c6a90d62ff36d11fde3acc6bb7005eeb2e59e249c26ede"
+        },
+        {
+            "skill": "report.describe_report_source",
+            "anchor_index": 4,
+            "content_hash": "4cc6dc2017c42247053b67ad1adb56c5a4691ee692660ac7ba9c721fd34ab857"
+        },
+        {
+            "skill": "report.describe_report_source",
+            "anchor_index": 5,
+            "content_hash": "4356f45196e76be452d32c2b3c119ab7215c3a44481428dc987ea1635670a6ff"
+        },
+        {
+            "skill": "report.describe_report_source",
+            "anchor_index": 6,
+            "content_hash": "5edcc032328398e26c196e2cf5c44150361606572d9d758f851779e9648c74f4"
+        },
+        {
+            "skill": "report.get_report_details",
+            "anchor_index": 0,
+            "content_hash": "c3effd95ff4fe3d40a4ad31d7537371ecc160a68d0e1dee958a19092c257f686"
+        },
+        {
+            "skill": "report.get_report_details",
+            "anchor_index": 1,
+            "content_hash": "ff7e954f27971b0ca886be552ff6fe52057c557d1fff356566b3c9425a9c64e2"
+        },
+        {
+            "skill": "report.get_report_details",
+            "anchor_index": 2,
+            "content_hash": "39184b27251f8c9479211dd9cae4392fe927a22212171b91a0c425ecd03aa773"
+        },
+        {
+            "skill": "report.get_report_details",
+            "anchor_index": 3,
+            "content_hash": "f23be807033cc0b92b212d3003c32e6aeb12666cfef60f81545ffdd8983eb27f"
+        },
+        {
+            "skill": "report.get_report_details",
+            "anchor_index": 4,
+            "content_hash": "e4f9585c8485d4e002de0714b16fb357d39299bcb0144b72b860e0534a3240f5"
+        },
+        {
+            "skill": "report.get_report_details",
+            "anchor_index": 5,
+            "content_hash": "ddbde452f4408bad7bc72555c09e4efce035000e7e794e509051e19a81c54da8"
+        },
+        {
+            "skill": "report.get_report_details",
+            "anchor_index": 6,
+            "content_hash": "23da319e19606931b4d5a030ff22603de21b6890a7221361dce32c538801c2d5"
+        },
+        {
+            "skill": "report.list_report_sources",
+            "anchor_index": 0,
+            "content_hash": "806b166767e70674b86518c95feca3dda0557b1161e4bf04d0c2f325c153bc89"
+        },
+        {
+            "skill": "report.list_report_sources",
+            "anchor_index": 1,
+            "content_hash": "d59d2abffda9a2571aa7f401c8e5de7bb8764abeee816aafa71289953e933020"
+        },
+        {
+            "skill": "report.list_report_sources",
+            "anchor_index": 2,
+            "content_hash": "42739ebe071bc8e0f845dfe88be816902758726c21d830fdf3d52a59e08a51e4"
+        },
+        {
+            "skill": "report.list_report_sources",
+            "anchor_index": 3,
+            "content_hash": "45d0236950be7f8491d347cd9235a2d07d2717b6ba1edfb0f6dd494ea64d0fff"
+        },
+        {
+            "skill": "report.list_report_sources",
+            "anchor_index": 4,
+            "content_hash": "ac6e6d733754abf71182c30873221a66b824df4b6223b03566d2de884dcba9b2"
+        },
+        {
+            "skill": "report.list_report_sources",
+            "anchor_index": 5,
+            "content_hash": "8f877d2f554b9773d7f492cdf3a3b34db4697cc7461d1a081d2aa0d9f4c50a4d"
+        },
+        {
+            "skill": "report.list_report_sources",
+            "anchor_index": 6,
+            "content_hash": "3dfa2bdec283cd6ba00b205dc940f88402cae1c724f82d47d19dc71201c6c491"
+        },
+        {
+            "skill": "report.query_report",
+            "anchor_index": 0,
+            "content_hash": "92264ac40d92b79dca884c242ab3e5f4117c2328dd1cb75beca19ad0ed398a13"
+        },
+        {
+            "skill": "report.query_report",
+            "anchor_index": 1,
+            "content_hash": "c728feb7d3d179b458b34f27fdcad5e7952cf5e0de9a2afc75a289a1ab9d341a"
+        },
+        {
+            "skill": "report.query_report",
+            "anchor_index": 2,
+            "content_hash": "1f8454f4365d212b1ced5b9d18d05688726bee3716d868aa38fe1351b43e913c"
+        },
+        {
+            "skill": "report.query_report",
+            "anchor_index": 3,
+            "content_hash": "c339c981d9e2c522fe191da667b7010c254f9f9b63f0a6e31b0e71577ea0465b"
+        },
+        {
+            "skill": "report.query_report",
+            "anchor_index": 4,
+            "content_hash": "2a2881b12a218c9f42764380c436f2de49ede3f7ab9782de0c6e0c6964d35cdd"
+        },
+        {
+            "skill": "report.query_report",
+            "anchor_index": 5,
+            "content_hash": "e8c16c41c7b8e4c212e53c0dfed6b6f98c885cea590f61877d9f2cc3e53f67dd"
+        },
+        {
+            "skill": "report.query_report",
+            "anchor_index": 6,
+            "content_hash": "a8c9502ddfbfcadd995add3fbe48d422f15703500dac446fc554972cb71782db"
+        },
+        {
+            "skill": "report.schedule_report",
+            "anchor_index": 0,
+            "content_hash": "31e777fde0c40e698749f0dea03c5a21f17963cddd4004727001ca093e42b9b9"
+        },
+        {
+            "skill": "report.schedule_report",
+            "anchor_index": 1,
+            "content_hash": "5198d8797a2ea875f3062edffa5cca7164a017560bd2e7e4fb128aa6beb70f6b"
+        },
+        {
+            "skill": "report.schedule_report",
+            "anchor_index": 2,
+            "content_hash": "b781de3016e10d742492399dbbd1722a0309167c24834b9a504d07afc672a992"
+        },
+        {
+            "skill": "report.schedule_report",
+            "anchor_index": 3,
+            "content_hash": "2eccc4c94217556548d041001a0d344f3020823e224e54086be0cae728740553"
+        },
+        {
+            "skill": "report.schedule_report",
+            "anchor_index": 4,
+            "content_hash": "b5aed438f09f16876702b155385b63b0f3999de31cf6a8dd6c0ee489f2bdc990"
+        },
+        {
+            "skill": "report.schedule_report",
+            "anchor_index": 5,
+            "content_hash": "32748848f7cd16c72605d36d0724fbdbe0e8cc372daa1e31ea7fb1f4e7e8e6b4"
+        },
+        {
+            "skill": "report.schedule_report",
+            "anchor_index": 6,
+            "content_hash": "9a15f3d18fe56cd93d8cb2829f93d35937c096ce1a6d26dbcc50245aa58380d4"
+        },
+        {
+            "skill": "report.search_reports",
+            "anchor_index": 0,
+            "content_hash": "6b79f0f748ad7d2a56787df4e5afbe3c846eba3dbc8ac0cd57d9ae7634c30ddb"
+        },
+        {
+            "skill": "report.search_reports",
+            "anchor_index": 1,
+            "content_hash": "17703fbbef82f6a343cfdc87ba6c9e3bd044ab507c671b1ecc4d9fb5c11c4fd5"
+        },
+        {
+            "skill": "report.search_reports",
+            "anchor_index": 2,
+            "content_hash": "958e959d9d91930c623e1eabc8ac30c48320acd7bd2f5b15a67efba6d4b93b4d"
+        },
+        {
+            "skill": "report.search_reports",
+            "anchor_index": 3,
+            "content_hash": "280f6f8b904a550bdadf96789abe878fdf8e852abc1cf5dc427ab42d4ea3038d"
+        },
+        {
+            "skill": "report.search_reports",
+            "anchor_index": 4,
+            "content_hash": "b957d541fb459dc845c6820faba335e02104fc891ad6d0375eb7a94670f1ee80"
+        },
+        {
+            "skill": "report.search_reports",
+            "anchor_index": 5,
+            "content_hash": "489fbbeed2651e8f01c00f8137f7700655c3837bbcc1219275aa1c89b1308dd9"
+        },
+        {
+            "skill": "report.search_reports",
+            "anchor_index": 6,
+            "content_hash": "2e5f800c39bebc2175a328552cbabeb0fd28f66880bbd6701e98e24738ad1739"
+        },
+        {
+            "skill": "report.set_report_audience",
+            "anchor_index": 0,
+            "content_hash": "b4a1eb83bae3f4ffb59eda7363c149102aad741afabe881b28ce8a8335f673ad"
+        },
+        {
+            "skill": "report.set_report_audience",
+            "anchor_index": 1,
+            "content_hash": "eac9efc48b1a0ff8b60a2629d223a556503fe5ae9cf98e2eb5ce1f8e5b78a209"
+        },
+        {
+            "skill": "report.set_report_audience",
+            "anchor_index": 2,
+            "content_hash": "c085eb028168940b24f1b5791bf7124eaa65055212ff001c814167aeb76c3462"
+        },
+        {
+            "skill": "report.set_report_audience",
+            "anchor_index": 3,
+            "content_hash": "485227256b0061a9c3db43c23bacaed8f74a297d15fed321ad8be893b5a23083"
+        },
+        {
+            "skill": "report.set_report_audience",
+            "anchor_index": 4,
+            "content_hash": "8f8f7716d8af9c8d4b3a74a52cea5ef9bcdddd3f00f40b6cb2e78ce43cef982f"
+        },
+        {
+            "skill": "report.set_report_audience",
+            "anchor_index": 5,
+            "content_hash": "5257ebfb6a9ebf51779438bf9e944e529cd700e0c2fca397191a6e25c4d4eb48"
+        },
+        {
+            "skill": "report.set_report_audience",
+            "anchor_index": 6,
+            "content_hash": "6c2cc401c1d7c13d0d1373cbeca40df2f735b632899c738ef7eb28ef827ebedf"
+        },
+        {
+            "skill": "report.update_report",
+            "anchor_index": 0,
+            "content_hash": "7ac12e2d1f16ccc77709f2b302a501461b31658ac0b3f21d6116f6249100fa14"
+        },
+        {
+            "skill": "report.update_report",
+            "anchor_index": 1,
+            "content_hash": "77ac01495f2ed382e4602c0e2ea17c430697c572a8c2aab944d8d6d50905f83f"
+        },
+        {
+            "skill": "report.update_report",
+            "anchor_index": 2,
+            "content_hash": "f5b88f51012919c04e62873e9a5e116582dd77e99e2f605357e963f0dc281096"
+        },
+        {
+            "skill": "report.update_report",
+            "anchor_index": 3,
+            "content_hash": "ec94d61a3ce44fbba740d80ffddc48ef448f7ff3035ddd3e3b24114b270fd282"
+        },
+        {
+            "skill": "report.update_report",
+            "anchor_index": 4,
+            "content_hash": "bb7ecd0ef2aaa5662eb11a463de40f158b61b06caabb768c46ae00403ffa9d7b"
+        },
+        {
+            "skill": "report.update_report",
+            "anchor_index": 5,
+            "content_hash": "1c3e728acbe78ccb8c0d055d942681edb79fd07f6132f6855aaf33a18a0398db"
+        },
+        {
+            "skill": "report.update_report",
+            "anchor_index": 6,
+            "content_hash": "a848ae21a712cbfa7133e9ec6a68e6f57a3de9cf6911f3c1f727fc76deac4703"
+        },
+        {
+            "skill": "wizard.explain_docs",
+            "anchor_index": 0,
+            "content_hash": "abd297480d249324901903f909a3512f8b912a49865d3feaff37351ec56cce41"
+        },
+        {
+            "skill": "wizard.explain_docs",
+            "anchor_index": 1,
+            "content_hash": "94780935e48daa6f6096c55586db36335bcd4290a122db966a3e101ec7a4573a"
+        },
+        {
+            "skill": "wizard.explain_docs",
+            "anchor_index": 2,
+            "content_hash": "7f1112b509f5927fe3d7ea3d1a59f85c550da0dc78a2c5a5781f297e88847336"
+        },
+        {
+            "skill": "wizard.explain_docs",
+            "anchor_index": 3,
+            "content_hash": "ec3fc9bebc5db05e9e59cd1ea3587b44c7f80972f588eaacf1cd33f24f9b6731"
+        },
+        {
+            "skill": "wizard.explain_docs",
+            "anchor_index": 4,
+            "content_hash": "400cdc5e923ca305782bea72a48839c6ab16ce3f0ee894a8e6c536943a2a1a66"
+        },
+        {
+            "skill": "wizard.explain_docs",
+            "anchor_index": 5,
+            "content_hash": "a666bb9033dde8abec515bafdbd3ad4f250ed3a44ce616a47f44924e3f7f30bb"
+        },
+        {
+            "skill": "wizard.forget",
+            "anchor_index": 0,
+            "content_hash": "da3d381049e418cf5eca5626a241eef3393876b835ddfc6ae9d87ff5d16f44a1"
+        },
+        {
+            "skill": "wizard.forget",
+            "anchor_index": 1,
+            "content_hash": "855f9d050eafaef82f7995272b14080a5f28808a325c0f0cbfa76cbf6a648fbd"
+        },
+        {
+            "skill": "wizard.forget",
+            "anchor_index": 2,
+            "content_hash": "ea734a423b92225609be3b31b3a3743d07f1e1e9c0d01a653131af4b9921baf6"
+        },
+        {
+            "skill": "wizard.forget",
+            "anchor_index": 3,
+            "content_hash": "f26cdcf624dad6c731c0965ad8a3b381c02c97c37ccae93bcb31eabdc51a908b"
+        },
+        {
+            "skill": "wizard.forget",
+            "anchor_index": 4,
+            "content_hash": "44437b798418b6e3bb885f4ddaa85038041bf86e660a74ba2af1c0609c857734"
+        },
+        {
+            "skill": "wizard.forget",
+            "anchor_index": 5,
+            "content_hash": "bf81f375d87148168e595672ad06c3648df3b3b025d460f404629b102717edc8"
+        },
+        {
+            "skill": "wizard.forget",
+            "anchor_index": 6,
+            "content_hash": "60ade285e85a674b69f2123aed9dd74ea2989677d110c5c1ec762cff2ca75b08"
+        },
+        {
+            "skill": "wizard.forget",
+            "anchor_index": 7,
+            "content_hash": "455745dc8251acc14bd33e82160c0d828d44dd6522c66e6a6fb5aa558d90cc26"
+        },
+        {
+            "skill": "wizard.list_memories",
+            "anchor_index": 0,
+            "content_hash": "e5487b1bb20ad3b5ccd3a160b7e2617cb8ac2e93de691c2ff1521d55df692127"
+        },
+        {
+            "skill": "wizard.list_memories",
+            "anchor_index": 1,
+            "content_hash": "01d224d27c1bc7bddf33187e332fc10e0d87d40f7b9c50f14d087208ec999e75"
+        },
+        {
+            "skill": "wizard.list_memories",
+            "anchor_index": 2,
+            "content_hash": "f5909e828489c739d58878f40fc65f35e8c57c97f46172d5aa0792d0c69d5c8e"
+        },
+        {
+            "skill": "wizard.list_memories",
+            "anchor_index": 3,
+            "content_hash": "718cff4595c7d9b77dceca7a5acb4610134049a99e079bbeb9f81b1205c241a2"
+        },
+        {
+            "skill": "wizard.list_memories",
+            "anchor_index": 4,
+            "content_hash": "947ad50cd92bf0c5c917775867f6d978a7d1e2d4a19add983fe5b7f8d5d83383"
+        },
+        {
+            "skill": "wizard.list_memories",
+            "anchor_index": 5,
+            "content_hash": "f44601271f36768fcb7452be9038cc130c5005dda6c13f3ffc400464154077c9"
+        },
+        {
+            "skill": "wizard.list_skills",
+            "anchor_index": 0,
+            "content_hash": "6776ffae2f007dd694394682ccbd504c34d29f29868c1216419591c5a2cbe0b2"
+        },
+        {
+            "skill": "wizard.list_skills",
+            "anchor_index": 1,
+            "content_hash": "7693d2f727c13fbc05b2f3ebd78f23ad75370efd754b00fcae0db64acecff24b"
+        },
+        {
+            "skill": "wizard.list_skills",
+            "anchor_index": 2,
+            "content_hash": "f9ce128a8807f5558f4682dc6b1b5937d71552851477b4de79b879a6e8b99ca9"
+        },
+        {
+            "skill": "wizard.list_skills",
+            "anchor_index": 3,
+            "content_hash": "16a603a0da44e1cfd9f6ed951fcae2bbbaf0e28f858253a28578b5d34c40a3ec"
+        },
+        {
+            "skill": "wizard.list_skills",
+            "anchor_index": 4,
+            "content_hash": "0b38f604b7dbdee1ff2267380cb44ea1b0fad7407ac00e141a7455e48f56bd05"
+        },
+        {
+            "skill": "wizard.list_skills",
+            "anchor_index": 5,
+            "content_hash": "1e27376bf259501f6cd5b0c91d3ceee6aabcc6043ec55b9d188ae4c69efed6fa"
+        },
+        {
+            "skill": "wizard.recall_memory",
+            "anchor_index": 0,
+            "content_hash": "98b9673645dc1822468c7a90f22ddc476f4af5c720361b497cb3c48fbee2a660"
+        },
+        {
+            "skill": "wizard.recall_memory",
+            "anchor_index": 1,
+            "content_hash": "aedc21ab6e500e083d43ed7a8f0ef505d3c667f6c19f35874a4aeda44840f1d0"
+        },
+        {
+            "skill": "wizard.recall_memory",
+            "anchor_index": 2,
+            "content_hash": "3a8d41e4fb92e8b1dde7abe45374fb409cbd5bab99c5be2975ee6bda29068a29"
+        },
+        {
+            "skill": "wizard.recall_memory",
+            "anchor_index": 3,
+            "content_hash": "2a84befb323344a961e6cb473bf7789f874a35beb3169080a27078dc60c32f72"
+        },
+        {
+            "skill": "wizard.recall_memory",
+            "anchor_index": 4,
+            "content_hash": "1dce849402274e91f3e822d9f760797e383e00fc43940642e6d7360cb9912a43"
+        },
+        {
+            "skill": "wizard.recall_memory",
+            "anchor_index": 5,
+            "content_hash": "5c108bf6f74776a54d88afa08e0bc40ba2126a8a4065db784960d7390a6b9505"
+        },
+        {
+            "skill": "wizard.recreate_skill_catalog",
+            "anchor_index": 0,
+            "content_hash": "9ba8f4b25c8075956588fa594d28b01938c1c567ae27ee9b4a243bc6957882ea"
+        },
+        {
+            "skill": "wizard.remember",
+            "anchor_index": 0,
+            "content_hash": "7226fe73069416d118e429e81f12df2bcf150d64030e147365724d1b909ec346"
+        },
+        {
+            "skill": "wizard.remember",
+            "anchor_index": 1,
+            "content_hash": "4d9c2c8414461ec6db7791c743ed60ea0a806ea0857524abaee2f24bf719539f"
+        },
+        {
+            "skill": "wizard.remember",
+            "anchor_index": 2,
+            "content_hash": "a3c0b94618ccfbab7c8bba8abf2f4b64cfadd5c98d53197a33a16e0e7cf56382"
+        },
+        {
+            "skill": "wizard.remember",
+            "anchor_index": 3,
+            "content_hash": "0ffeb8a87c802e870befcdcb63381c82737eddfdd6abdf0bd6aca5c7c7b5878b"
+        },
+        {
+            "skill": "wizard.remember",
+            "anchor_index": 4,
+            "content_hash": "2f0b06da41310f1b43d44b2f9cac607c96b808881602f08c65f8742e144a6db3"
+        },
+        {
+            "skill": "wizard.remember",
+            "anchor_index": 5,
+            "content_hash": "11294a73a0b77d311e4e32747ae6fe47ad9cf41cea309a5130f87ea3f5bcbd31"
+        },
+        {
+            "skill": "wizard.remember",
+            "anchor_index": 6,
+            "content_hash": "cda97a105e43df4deb5c62204eb5ffe590653b874878d513679af8051b884528"
+        },
+        {
+            "skill": "wizard.remember",
+            "anchor_index": 7,
+            "content_hash": "16a8c53caa2c87f09a98b16e06f750d17e971942eba4ae9e791a214d025847b4"
+        },
+        {
+            "skill": "wizard.scaffold_skill",
+            "anchor_index": 0,
+            "content_hash": "b594080df93fd0d3d6c959f7248f5a5d66e4c984dddc4a7610a5a413072a93dc"
+        },
+        {
+            "skill": "wizard.scaffold_skill",
+            "anchor_index": 1,
+            "content_hash": "5cb8eafa41124057d35f97d22aa7764b4f4e826c573700da198200dc1d1f47fa"
+        },
+        {
+            "skill": "wizard.scaffold_skill",
+            "anchor_index": 2,
+            "content_hash": "dae9ab82e26bbb01a44c27a611e9a688641169fa0de12b119f4be58aaa6ac49e"
+        },
+        {
+            "skill": "wizard.scaffold_skill",
+            "anchor_index": 3,
+            "content_hash": "f586f11e9573cd5e588968e46e9d72c1ab6ef2d522a12b2164b88e2cf74933cc"
+        },
+        {
+            "skill": "wizard.scaffold_skill",
+            "anchor_index": 4,
+            "content_hash": "106ba98c9fc9d5a813a222b4caba6c7765c3b6709cbe151f04b80a3df3afd45a"
+        },
+        {
+            "skill": "wizard.scaffold_skill",
+            "anchor_index": 5,
+            "content_hash": "004b0eb263049fd25ba7ae1bb12d68a3015078a802c441dc9d73b39cfaa948bc"
+        },
+        {
+            "skill": "wizard.scaffold_skill",
+            "anchor_index": 6,
+            "content_hash": "6561443a65a71a75fe1a43e018d32a3131ef2b7876ec1e34e5ba1beaaf848911"
+        },
+        {
+            "skill": "wizard.search_skills",
+            "anchor_index": 0,
+            "content_hash": "ca5d6561da842bfdd53edaa45d4a8e355e626b2e4f899860fc99653861e0327a"
+        },
+        {
+            "skill": "oneclick.create_instance",
+            "anchor_index": 0,
+            "content_hash": "597f37ed06fd4bb7ad8e24047207214688390968dc7e25eb18e78c6123205973"
+        },
+        {
+            "skill": "oneclick.delete_instance",
+            "anchor_index": 0,
+            "content_hash": "92620045124757eb4e7e259a4e2895d1bf9180b7d0d5075c351cf54ff13b0b1f"
+        },
+        {
+            "skill": "oneclick.list_instances",
+            "anchor_index": 0,
+            "content_hash": "f2ab21ceae540445c52853b286001da959dbfde4c0c6b94975f8b83a9e3fe371"
+        }
+    ]
+}

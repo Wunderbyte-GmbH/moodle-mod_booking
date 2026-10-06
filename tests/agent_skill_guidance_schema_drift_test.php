@@ -66,6 +66,12 @@ final class agent_skill_guidance_schema_drift_test extends advanced_testcase {
         'question', 'description', 'properties', 'location', 'address', 'identifier',
         'confirmed', 'visibility', 'invisible', 'duration', 'courseid', 'capability',
         'category', 'override',
+        // Generic words that local_taskflow skills declare as keys (list_requests, list_units) and that
+        // guidance prose uses in their plain sense ("hide/show requests", "non-recursive").
+        'requests', 'recursive',
+        // The option field skills (create/update_option_field) declare "required" and the report skills
+        // "conditions" as keys; the availability and custom form guidance uses both as plain words.
+        'required', 'conditions',
     ];
 
     /**

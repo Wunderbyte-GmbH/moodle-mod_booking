@@ -1,0 +1,68 @@
+{{!
+    GDPR consent body for the AI trial.
+
+    Rendered into a core/modal_save_cancel before the trial key is requested.
+    The user must tick the consent checkbox before the "Agree and start trial"
+    button is enabled (gating handled in aiinstructions.js).
+
+    @template bookingextension_agent/trial_consent_modal
+
+    @package    bookingextension_agent
+    @copyright  2026 Wunderbyte GmbH <info@wunderbyte.at>
+    @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+
+    Example context (json):
+    {
+        "privacy_mode_active": true
+    }
+}}
+<div class="booking-ai-trial-consent">
+    <p class="mb-3">{{#str}}aitrial_consent_intro, bookingextension_agent{{/str}}</p>
+
+    <div class="mb-3">
+        <h6 class="font-weight-bold">
+            <i class="fa fa-database mr-1" aria-hidden="true"></i>{{#str}}aitrial_consent_data_heading, bookingextension_agent{{/str}}
+        </h6>
+        <p class="mb-0">{{#str}}aitrial_consent_data_body, bookingextension_agent{{/str}}</p>
+    </div>
+
+    <div class="mb-3">
+        <h6 class="font-weight-bold">
+            <i class="fa fa-server mr-1" aria-hidden="true"></i>{{#str}}aitrial_consent_llm_heading, bookingextension_agent{{/str}}
+        </h6>
+        <p class="mb-1">
+            {{#str}}
+                aitrial_consent_llm_body, bookingextension_agent,
+                <a href="{{#str}}aitrial_consent_llm_url, bookingextension_agent{{/str}}" target="_blank" rel="noopener noreferrer">{{#str}}aitrial_consent_llm_link_label, bookingextension_agent{{/str}}<i class="fa fa-external-link ml-1" aria-hidden="true"></i></a>, <a href="{{#str}}aitrial_consent_llm_url2, bookingextension_agent{{/str}}" target="_blank" rel="noopener noreferrer">{{#str}}aitrial_consent_llm_link_label2, bookingextension_agent{{/str}}<i class="fa fa-external-link ml-1" aria-hidden="true"></i></a>, <a href="{{#str}}aitrial_consent_llm_url3, bookingextension_agent{{/str}}" target="_blank" rel="noopener noreferrer">{{#str}}aitrial_consent_llm_link_label3, bookingextension_agent{{/str}}<i class="fa fa-external-link ml-1" aria-hidden="true"></i></a>
+            {{/str}}
+        </p>
+        <p class="mb-0 text-muted small">{{#str}}aitrial_consent_llm_alternative, bookingextension_agent{{/str}}</p>
+    </div>
+
+    <div class="mb-3">
+        <h6 class="font-weight-bold">
+            <i class="fa fa-user-secret mr-1" aria-hidden="true"></i>{{#str}}aitrial_consent_privacy_heading, bookingextension_agent{{/str}}
+        </h6>
+        {{#privacy_mode_active}}
+        <div class="alert alert-success py-2 mb-2">
+            <i class="fa fa-check-circle mr-1" aria-hidden="true"></i>{{#str}}aitrial_consent_privacy_active, bookingextension_agent{{/str}}
+        </div>
+        <p class="mb-0">{{#str}}aitrial_consent_privacy_active_body, bookingextension_agent{{/str}}</p>
+        {{/privacy_mode_active}}
+        {{^privacy_mode_active}}
+        <div class="alert alert-warning py-2 mb-2">
+            <i class="fa fa-exclamation-triangle mr-1" aria-hidden="true"></i>{{#str}}aitrial_consent_privacy_inactive, bookingextension_agent{{/str}}
+        </div>
+        <p class="mb-0">{{#str}}aitrial_consent_privacy_inactive_body, bookingextension_agent{{/str}}</p>
+        {{/privacy_mode_active}}
+    </div>
+
+    <hr>
+
+    <div class="custom-control custom-checkbox">
+        <input type="checkbox" class="custom-control-input" id="booking-ai-trial-consent-checkbox">
+        <label class="custom-control-label" for="booking-ai-trial-consent-checkbox">
+            {{#str}}aitrial_consent_checkbox, bookingextension_agent{{/str}}
+        </label>
+    </div>
+</div>

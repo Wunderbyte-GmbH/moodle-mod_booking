@@ -1,0 +1,409 @@
+{{!
+    AI Instructions chat interface template.
+
+    @template bookingextension_agent/aiinstructions
+
+    @package    bookingextension_agent
+    @copyright  2025 Wunderbyte GmbH <info@wunderbyte.at>
+    @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+
+    Example context (json):
+    {
+        "contextid": 1234,
+        "threadid": 0,
+        "sesskey": "abc123",
+        "ready_for_chat": false,
+        "num_options": 0,
+        "num_booked": 0,
+        "debug_mode": false,
+        "welcome_text": "",
+        "intro_text": "",
+        "admin_text": "",
+        "nonadmin_text": "",
+        "show_trial_button": false,
+        "show_trial_activate_button": false,
+        "activation_question_text": "",
+        "readiness_checks": []
+    }
+}}
+<div id="booking-ai-wrapper" class="booking-ai-instructions" data-contextid="{{contextid}}" data-threadid="{{threadid}}" data-sesskey="{{sesskey}}" data-ready-for-chat="{{#ready_for_chat}}1{{/ready_for_chat}}{{^ready_for_chat}}0{{/ready_for_chat}}" data-num-options="{{num_options}}" data-num-booked="{{num_booked}}" data-debug-mode="{{#debug_mode}}1{{/debug_mode}}{{^debug_mode}}0{{/debug_mode}}" data-llm-debug-enabled="{{#llm_debug_enabled}}1{{/llm_debug_enabled}}{{^llm_debug_enabled}}0{{/llm_debug_enabled}}" data-trial-success-default="{{#str}}aitrial_success_activated, bookingextension_agent{{/str}}" data-trial-reloading-label="{{#str}}aitrial_js_reloading, bookingextension_agent{{/str}}" data-trial-failed-default="{{#str}}aitrial_js_failed_default, bookingextension_agent{{/str}}" data-trial-unexpected-error="{{#str}}aitrial_js_unexpected_error, bookingextension_agent{{/str}}" data-trial-activation-question="{{#str}}aitrial_activation_question, bookingextension_agent{{/str}}" data-trial-activate-success="{{#str}}aitrial_activate_success, bookingextension_agent{{/str}}" data-trial-activate-button="{{#str}}aitrial_activate_now, bookingextension_agent{{/str}}" data-privacy-check-running="{{#str}}ai_privacy_check_running, bookingextension_agent{{/str}}" data-privacy-answer-note="{{#str}}ai_privacy_response_note, bookingextension_agent{{/str}}" data-ai-trial-token-invalid-title="{{#str}}ai_trial_token_invalid_title, bookingextension_agent{{/str}}" data-ai-trial-token-invalid-message="{{#str}}ai_trial_token_invalid_message, bookingextension_agent{{/str}}" data-ai-trial-token-invalid-ok="{{#str}}ok, moodle{{/str}}" data-step-planning-label="{{#str}}ai_step_planning, bookingextension_agent{{/str}}" data-step-executing-label="{{#str}}ai_step_executing, bookingextension_agent{{/str}}" data-privacy-mode-active="{{#privacy_mode_active}}1{{/privacy_mode_active}}{{^privacy_mode_active}}0{{/privacy_mode_active}}" data-trial-consent-title="{{#str}}aitrial_consent_title, bookingextension_agent{{/str}}" data-trial-consent-accept="{{#str}}aitrial_consent_accept, bookingextension_agent{{/str}}" data-trial-consent-cancel="{{#str}}aitrial_consent_cancel, bookingextension_agent{{/str}}" data-agent-ready-heading="{{#str}}agent_ready_heading, bookingextension_agent{{/str}}" data-agent-ready-body="{{#str}}agent_ready_body, bookingextension_agent{{/str}}" data-agent-open-agent="{{#str}}agent_open_agent, bookingextension_agent{{/str}}">
+
+    {{#ready_for_chat}}
+    <div class="booking-ai-chat-container card">
+        <div class="card-header d-flex align-items-center justify-content-between">
+            <h5 class="mb-0">{{#str}}aiinstructions, bookingextension_agent{{/str}} {{#str}}badge_experimental, bookingextension_agent{{/str}}</h5>
+            <div class="d-flex align-items-center">
+                {{#show_usage_bar}}<span class="booking-ai-usage d-inline-flex align-items-center mr-2" data-region="wb-usage-bar"></span>{{/show_usage_bar}}
+                {{#provider_configure_available}}
+                {{! WB plugin installed but not configured: one-click auto-configuration (WB trial). "Nearly green". }}
+                <button type="button" id="booking-ai-configure-pill" class="badge booking-ai-pill-nearly border-0">
+                    <i class="fa fa-magic mr-1" aria-hidden="true"></i>{{#str}}agent_configure_provider, bookingextension_agent{{/str}}
+                </button>
+                {{/provider_configure_available}}
+                {{^provider_configure_available}}
+                {{#provider_upgrade_available}}
+                {{! WB plugin not installed: link to install it. "Yellow". }}
+                <a class="badge badge-warning text-dark booking-ai-upgrade-pill" href="{{provider_install_url}}" target="_blank" rel="noopener noreferrer" title="{{#str}}aitrial_provider_install_hint, bookingextension_agent{{/str}}">
+                    <i class="fa fa-arrow-circle-up mr-1" aria-hidden="true"></i>{{#str}}agent_upgrade_provider, bookingextension_agent{{/str}}
+                </a>
+                {{/provider_upgrade_available}}
+                {{^provider_upgrade_available}}
+                <span class="badge badge-success">{{#str}}ai_provider_active, bookingextension_agent{{/str}}</span>
+                {{#show_get_pro}}
+                <a class="badge badge-warning text-dark ml-1 booking-ai-getpro-pill" href="{{#str}}aitrial_pro_license_url, bookingextension_agent{{/str}}" target="_blank" rel="noopener noreferrer">
+                    <i class="fa fa-star mr-1" aria-hidden="true"></i>{{#str}}agent_get_pro, bookingextension_agent{{/str}}
+                </a>
+                {{/show_get_pro}}
+                {{/provider_upgrade_available}}
+                {{/provider_configure_available}}
+                {{#provider_manage_available}}
+                {{! Admin gear: rotate/switch the API key + toggle debug mode (distinct from the
+                    not-yet-configured "Configure" pill). Capability-gated server-side; items inside
+                    are shown per their own capability. }}
+                <div class="booking-ai-manage d-inline-block ml-1" style="position:relative;">
+                    <button type="button" id="booking-ai-manage-gear" class="btn btn-sm btn-link p-0 text-muted border-0"
+                            aria-haspopup="true" aria-expanded="false"
+                            title="{{#str}}agent_manage, bookingextension_agent{{/str}}">
+                        <i class="fa fa-cog" aria-hidden="true"></i>
+                    </button>
+                    <div id="booking-ai-manage-menu" class="card d-none p-3 text-left"
+                         style="position:absolute; right:0; top:100%; z-index:1050; min-width:280px;">
+                        {{#can_store_key}}
+                        <div class="mb-2">
+                            <label class="small font-weight-bold mb-1" for="booking-ai-key-input">{{#str}}agent_key_label, bookingextension_agent{{/str}}</label>
+                            <div class="input-group input-group-sm">
+                                <input type="password" id="booking-ai-key-input" class="form-control" autocomplete="off" placeholder="sk-...">
+                                <div class="input-group-append">
+                                    <button type="button" id="booking-ai-key-save" class="btn btn-primary"
+                                            data-contextid="{{contextid}}"
+                                            data-provider-configured="{{#provider_configured}}1{{/provider_configured}}{{^provider_configured}}0{{/provider_configured}}"
+                                            data-overwrite-confirm="{{#str}}agent_key_overwrite_confirm, bookingextension_agent{{/str}}">{{#str}}savechanges, moodle{{/str}}</button>
+                                </div>
+                            </div>
+                            <div id="booking-ai-key-result" class="small mt-1 d-none"></div>
+                        </div>
+                        {{/can_store_key}}
+                        {{#can_toggle_debug}}
+                        <div class="custom-control custom-switch mb-2">
+                            <input type="checkbox" class="custom-control-input" id="booking-ai-debug-toggle" {{#debug_mode}}checked{{/debug_mode}}>
+                            <label class="custom-control-label small" for="booking-ai-debug-toggle">{{#str}}aidebugmode, bookingextension_agent{{/str}} <span class="text-muted">({{#str}}agent_debug_sitewide, bookingextension_agent{{/str}})</span></label>
+                        </div>
+                        {{/can_toggle_debug}}
+                        {{! Per-thread LLM debug logs. Always rendered (hidden via d-none) so the switch
+                            above can reveal it live: debug_mode IS the aidebugmode switch, so when the
+                            user turns it on without reloading, the JS can un-hide this button. Gating its
+                            presence on llm_debug_enabled (the page-load snapshot) left it out of the DOM
+                            entirely, so a post-load toggle could never show it. }}
+                        <button type="button" id="booking-ai-debug-refresh" class="btn btn-outline-secondary btn-sm btn-block mb-2 {{^debug_mode}}d-none{{/debug_mode}}">
+                            <i class="fa fa-search mr-1" aria-hidden="true"></i>{{#str}}agent_debug_logs, bookingextension_agent{{/str}}
+                        </button>
+                        {{#can_connect_claude}}
+                        <a class="btn btn-outline-primary btn-sm btn-block mb-2" href="{{wwwroot}}/mod/booking/bookingextension/agent/connect_claude.php">
+                            <i class="fa fa-plug mr-1" aria-hidden="true"></i>{{#str}}claudeconnect_menu, bookingextension_agent{{/str}}
+                        </a>
+                        {{/can_connect_claude}}
+                        <a class="small" href="{{wwwroot}}/admin/settings.php?section=bookingextension_agent_aisettings">{{#str}}agent_manage_settings_link, bookingextension_agent{{/str}}</a>
+                    </div>
+                </div>
+                {{/provider_manage_available}}
+            </div>
+        </div>
+
+        {{#provider_configure_available}}
+        {{! One-click Wunderbyte auto-config from the chat: the "Configure" pill reveals this inline
+            consent step (no nested modal); accepting provisions the Wunderbyte trial and reloads. }}
+        <div class="booking-ai-inline-config">
+            {{! Revealed by the "Configure" pill: choose auto-config from the existing provider, or a trial. }}
+            <div id="booking-ai-config-choice" class="d-none p-3 border-bottom">
+                {{#configure_from_existing_access}}
+                {{! The site already has Wunderbyte access (trial or key on another provider type): configure the
+                    Wunderbyte provider with it - one action, no second trial. }}
+                <p class="mb-2 small text-muted">{{#str}}agent_configure_existing_intro, bookingextension_agent, {{source_provider_name}}{{/str}}</p>
+                <button type="button" id="booking-ai-config-clone" class="btn btn-primary btn-sm" data-contextid="{{contextid}}" data-sesskey="{{sesskey}}">
+                    <i class="fa fa-magic mr-1" aria-hidden="true"></i>{{#str}}agent_configure_existing_button, bookingextension_agent{{/str}}
+                </button>
+                {{/configure_from_existing_access}}
+                {{^configure_from_existing_access}}
+                <p class="mb-2 small text-muted">{{#str}}agent_configure_intro, bookingextension_agent{{/str}}</p>
+                <button type="button" id="booking-ai-config-clone" class="btn btn-primary btn-sm mr-2" data-contextid="{{contextid}}" data-sesskey="{{sesskey}}">
+                    <i class="fa fa-clone mr-1" aria-hidden="true"></i>{{#str}}agent_configure_use_provider, bookingextension_agent, {{source_provider_name}}{{/str}}
+                </button>
+                {{#configure_offer_trial}}
+                <button type="button" class="btn btn-outline-secondary btn-sm" data-trial-strategy="wunderbyte">
+                    <i class="fa fa-rocket mr-1" aria-hidden="true"></i>{{#str}}agent_configure_use_trial, bookingextension_agent{{/str}}
+                </button>
+                {{/configure_offer_trial}}
+                {{/configure_from_existing_access}}
+            </div>
+            <div id="booking-ai-consent-step" class="d-none p-3 border-bottom">
+                {{> bookingextension_agent/trial_consent_modal }}
+                <div class="mt-3">
+                    <button type="button" id="booking-ai-consent-accept" class="btn btn-primary" data-strategy="" disabled>
+                        <i class="fa fa-rocket mr-2" aria-hidden="true"></i>{{#str}}aitrial_consent_accept, bookingextension_agent{{/str}}
+                    </button>
+                    <button type="button" id="booking-ai-consent-back" class="btn btn-link">
+                        {{#str}}aitrial_consent_cancel, bookingextension_agent{{/str}}
+                    </button>
+                </div>
+            </div>
+            <div id="booking-ai-trial-spinner" class="d-none px-3 pt-3">
+                <span class="spinner-border spinner-border-sm text-primary" role="status" aria-hidden="true"></span>
+                <span class="ml-1 text-muted small">{{#str}}aitrial_activating, bookingextension_agent{{/str}}</span>
+            </div>
+            <div id="booking-ai-trial-result" class="d-none px-3 pt-2"></div>
+        </div>
+        {{/provider_configure_available}}
+
+        <div class="card-body p-0">
+            <div class="booking-ai-body-layout preview-collapsed" id="booking-ai-body-layout">
+                <div class="booking-ai-main-pane" id="booking-ai-main-pane">
+                    {{! Message history }}
+                    <div id="booking-ai-messages" class="booking-ai-messages p-3" style="min-height:300px; max-height:500px; overflow-y:auto;">
+                        {{! Welcome message }}
+                        <div class="booking-ai-msg assistant mb-3" id="booking-ai-welcome-msg">
+                            <div class="bubble" id="booking-ai-welcome-text">
+                                <p>{{welcome_text}}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{! Confirmation panel – shown when AI proposes commands }}
+                    <div id="booking-ai-confirm-panel" class="booking-ai-confirm-panel alert alert-info m-3 d-none">
+                        <h6>{{#str}}ai_confirm_heading, bookingextension_agent{{/str}}</h6>
+                        <div id="booking-ai-confirm-preview" class="mb-2"></div>
+                        <div id="booking-ai-option-preview-wrap" class="mb-3 d-none">
+                            <div id="booking-ai-option-preview"></div>
+                        </div>
+                        <button id="booking-ai-btn-confirm" class="btn btn-primary mr-2">
+                            {{#str}}ai_btn_confirm, bookingextension_agent{{/str}}
+                        </button>
+                        {{! Capability-gated (agent:confirmforsession, admin-only by default):
+                            suspending the per-action confirm gate for the whole session is only
+                            offered to users who hold it; ai_confirm_run enforces it server-side. }}
+                        {{#can_confirm_session}}
+                        <button id="booking-ai-btn-confirm-session" class="btn btn-outline-primary mr-2">
+                            {{#str}}ai_btn_confirm_session, bookingextension_agent, {{session_confirm_minutes}}{{/str}}
+                        </button>
+                        {{/can_confirm_session}}
+                        <button id="booking-ai-btn-cancel" class="btn btn-secondary">
+                            {{#str}}ai_btn_cancel, bookingextension_agent{{/str}}
+                        </button>
+                    </div>
+
+                    {{! Run status panel }}
+                    <div id="booking-ai-run-status" class="booking-ai-run-status alert m-3 d-none"></div>
+                    <div id="booking-ai-run-preview-wrap" class="m-3 d-none">
+                        <div id="booking-ai-run-preview"></div>
+                    </div>
+                </div>
+
+                <div class="booking-ai-splitter" id="booking-ai-splitter" role="separator" aria-orientation="vertical" aria-label="{{#str}}ai_preview_resize, bookingextension_agent{{/str}}">
+                    <span class="booking-ai-splitter-handle"></span>
+                </div>
+
+                <aside class="booking-ai-preview-pane" id="booking-ai-preview-pane">
+                    <div class="booking-ai-preview-header">{{#str}}ai_preview_pane_heading, bookingextension_agent{{/str}}</div>
+                    <div id="booking-ai-side-preview" class="booking-ai-side-preview-content">
+                        <div class="text-muted small">{{#str}}ai_preview_empty, bookingextension_agent{{/str}}</div>
+                    </div>
+                </aside>
+            </div>
+            <button type="button" class="booking-ai-mobile-toggle d-lg-none" id="booking-ai-mobile-toggle" aria-controls="booking-ai-main-pane booking-ai-preview-pane" aria-pressed="false">
+                <span class="booking-ai-mobile-toggle-label">{{#str}}ai_preview_pane_heading, bookingextension_agent{{/str}}</span>
+            </button>
+        </div>
+
+        <div class="card-footer booking-ai-card-footer-drop" id="booking-ai-card-footer">
+            <div id="booking-ai-attachment-tray" class="booking-ai-attachment-tray d-none"></div>
+            <div class="input-group">
+                <textarea id="booking-ai-input"
+                          class="form-control booking-ai-input"
+                          rows="2"
+                          placeholder="{{#str}}ai_input_placeholder, bookingextension_agent{{/str}}"
+                          ></textarea>
+                <div class="input-group-append d-flex align-items-stretch">
+                    <button id="booking-ai-attach-btn" type="button"
+                            class="btn btn-outline-secondary booking-ai-attach-btn"
+                            title="{{#str}}ai_attach_file, bookingextension_agent{{/str}}">
+                        <span aria-hidden="true">&#128206;</span>
+                    </button>
+                    <input type="file" id="booking-ai-file-input"
+                           class="d-none"
+                           accept="image/jpeg,image/png,image/webp,image/gif,application/pdf">
+                    <button id="booking-ai-send" class="btn btn-primary">
+                        {{#str}}ai_btn_send, bookingextension_agent{{/str}}
+                    </button>
+                </div>
+            </div>
+            <div id="booking-ai-thinking" class="text-muted small mt-1 d-none booking-ai-thinking-bar">
+                <span class="booking-ai-thinking-spinner" aria-hidden="true"></span>
+                <span id="booking-ai-thinking-label">{{#str}}ai_thinking, bookingextension_agent{{/str}}</span>
+                <button id="booking-ai-btn-stop" type="button"
+                        class="btn btn-link btn-sm p-0 ml-2 booking-ai-btn-stop d-none">
+                    {{#str}}ai_btn_stop, bookingextension_agent{{/str}}
+                </button>
+            </div>
+        </div>
+    </div>
+    {{/ready_for_chat}}
+
+    {{^ready_for_chat}}
+    <div class="card booking-ai-onboarding-card">
+        <div class="card-header booking-ai-onboarding-header">
+            <ol class="booking-ai-stepper" aria-label="{{#str}}agent_setup_details, bookingextension_agent{{/str}}">
+                <li class="booking-ai-step {{#wizard_connect}}is-active{{/wizard_connect}}{{^wizard_connect}}is-done{{/wizard_connect}}">
+                    <span class="booking-ai-step-no">{{#wizard_connect}}1{{/wizard_connect}}{{^wizard_connect}}<i class="fa fa-check" aria-hidden="true"></i>{{/wizard_connect}}</span>
+                    <span class="booking-ai-step-label">{{#str}}agent_step_connect, bookingextension_agent{{/str}}</span>
+                </li>
+                <li class="booking-ai-step {{#wizard_activate}}is-active{{/wizard_activate}}{{^wizard_activate}}is-upcoming{{/wizard_activate}}">
+                    <span class="booking-ai-step-no">2</span>
+                    <span class="booking-ai-step-label">{{#str}}agent_step_activate, bookingextension_agent{{/str}}</span>
+                </li>
+                <li class="booking-ai-step is-upcoming">
+                    <span class="booking-ai-step-no">3</span>
+                    <span class="booking-ai-step-label">{{#str}}agent_step_ready, bookingextension_agent{{/str}}</span>
+                </li>
+            </ol>
+        </div>
+        <div class="card-body">
+            <p class="booking-ai-onboarding-intro mb-3">
+                <strong>{{#str}}aiready_intro_heading, bookingextension_agent{{/str}}</strong><br>
+                {{intro_text}}
+            </p>
+
+            {{#admin_text}}<p class="text-muted small mb-3">{{admin_text}}</p>{{/admin_text}}
+            {{#nonadmin_text}}<p class="text-muted small mb-3">{{nonadmin_text}}</p>{{/nonadmin_text}}
+
+            {{#wizard_connect}}
+            <div class="booking-ai-trial-wrap mb-2">
+                {{! Provider guidance stays visible across BOTH the decision and the consent
+                    sub-screen, so the user can still choose to install the Wunderbyte provider
+                    even after picking a path. }}
+                {{#wunderbyte_provider_installed}}
+                <p class="booking-ai-provider-status text-success mb-2">
+                    <i class="fa fa-check-circle mr-1" aria-hidden="true"></i>{{#str}}aitrial_provider_installed_check, bookingextension_agent{{/str}}
+                </p>
+                {{/wunderbyte_provider_installed}}
+                {{^wunderbyte_provider_installed}}
+                {{#reduced_mode_permanent}}
+                {{! Moodle 4.5: the Wunderbyte provider plugin is not installable here. Explain the
+                    permanent reduced mode instead of linking to an install that cannot succeed. }}
+                <p class="booking-ai-provider-status text-muted mb-2">
+                    <i class="fa fa-info-circle mr-1" aria-hidden="true"></i>{{#str}}agent_reduced_mode_note, bookingextension_agent{{/str}}
+                </p>
+                {{/reduced_mode_permanent}}
+                {{^reduced_mode_permanent}}
+                <p class="booking-ai-provider-status text-muted mb-2">
+                    {{#str}}aitrial_provider_install_hint, bookingextension_agent{{/str}}
+                    <a href="{{provider_install_url}}" target="_blank" rel="noopener noreferrer">
+                        <i class="fa fa-external-link mr-1" aria-hidden="true"></i>{{#str}}aitrial_provider_install_link_label, bookingextension_agent{{/str}}</a>
+                </p>
+                {{/reduced_mode_permanent}}
+                {{/wunderbyte_provider_installed}}
+
+                {{! Sub-screen A: the path-decision buttons (hidden once a path is chosen). }}
+                <div id="booking-ai-connect-decision">
+                    {{#wunderbyte_provider_installed}}
+                    <button type="button" class="btn btn-primary" data-trial-strategy="wunderbyte">
+                        <i class="fa fa-rocket mr-2" aria-hidden="true"></i>{{#str}}agent_connect_wb, bookingextension_agent{{/str}}
+                    </button>
+                    {{/wunderbyte_provider_installed}}
+
+                    {{! Explicit alternative: a deliberate "no, without Wunderbyte" downgrade. }}
+                    {{#standard_provider_installed}}
+                    <div class="booking-ai-connect-alt {{#wunderbyte_provider_installed}}mt-3{{/wunderbyte_provider_installed}}">
+                        <button type="button" class="btn btn-outline-secondary btn-sm" data-trial-strategy="openai"
+                                data-strategy-confirm="{{#reduced_mode_permanent}}{{#str}}agent_reduced_mode_confirm, bookingextension_agent{{/str}}{{/reduced_mode_permanent}}">
+                            {{#str}}agent_connect_standard, bookingextension_agent{{/str}}
+                        </button>
+                        <p class="small text-muted mt-1 mb-0">{{#str}}aitrial_fallback_note, bookingextension_agent{{/str}}</p>
+                    </div>
+                    {{/standard_provider_installed}}
+
+                    {{! "I already have a key" is intentionally NOT offered upfront here: the key-entry
+                        field is surfaced only after a trial request is attempted and fails (see
+                        revealKeyEntryFallback() in aiinstructions.js), so it stays out of the initial
+                        connect decision. }}
+                </div>
+
+                {{! Sub-screen B: GDPR consent, inline (replaces the former modal-in-modal). }}
+                <div id="booking-ai-consent-step" class="d-none">
+                    {{> bookingextension_agent/trial_consent_modal }}
+                    <div class="mt-3">
+                        <button type="button" id="booking-ai-consent-accept" class="btn btn-primary" data-strategy="" disabled>
+                            <i class="fa fa-rocket mr-2" aria-hidden="true"></i>{{#str}}aitrial_consent_accept, bookingextension_agent{{/str}}
+                        </button>
+                        <button type="button" id="booking-ai-consent-back" class="btn btn-link">
+                            {{#str}}aitrial_consent_cancel, bookingextension_agent{{/str}}
+                        </button>
+                    </div>
+                </div>
+
+                {{! Sub-screen C: paste a purchased key (dedicated field; never sent to the LLM). }}
+                {{#can_store_key}}
+                <div id="booking-ai-key-step" class="d-none">
+                    <label class="small font-weight-bold mb-1" for="booking-ai-key-input">{{#str}}agent_key_label, bookingextension_agent{{/str}}</label>
+                    <div class="input-group">
+                        <input type="password" id="booking-ai-key-input" class="form-control" autocomplete="off" placeholder="sk-...">
+                        <div class="input-group-append">
+                            <button type="button" id="booking-ai-key-save" class="btn btn-primary"
+                                    data-contextid="{{contextid}}" data-provider-configured="0"
+                                    data-overwrite-confirm="{{#str}}agent_key_overwrite_confirm, bookingextension_agent{{/str}}">{{#str}}savechanges, moodle{{/str}}</button>
+                        </div>
+                    </div>
+                    <button type="button" id="booking-ai-key-back" class="btn btn-link mt-1">{{#str}}aitrial_consent_cancel, bookingextension_agent{{/str}}</button>
+                    <div id="booking-ai-key-result" class="small mt-1 d-none"></div>
+                </div>
+                {{/can_store_key}}
+
+                <span id="booking-ai-trial-spinner" class="ml-2 d-none">
+                    <span class="spinner-border spinner-border-sm text-primary" role="status" aria-hidden="true"></span>
+                    <span class="ml-1 text-muted small">{{#str}}aitrial_activating, bookingextension_agent{{/str}}</span>
+                </span>
+                <div id="booking-ai-trial-result" class="mt-2 d-none"></div>
+            </div>
+            {{/wizard_connect}}
+
+            {{#wizard_activate}}
+            <div class="booking-ai-trial-wrap mb-2">
+                <p class="booking-ai-activate-q mb-2">{{activation_question_text}}</p>
+                <button id="booking-ai-activate-btn" class="btn btn-primary">
+                    <i class="fa fa-toggle-on mr-2" aria-hidden="true"></i>{{#str}}aitrial_activate_now, bookingextension_agent{{/str}}
+                </button>
+                <span id="booking-ai-trial-spinner" class="ml-2 d-none">
+                    <span class="spinner-border spinner-border-sm text-primary" role="status" aria-hidden="true"></span>
+                    <span class="ml-1 text-muted small">{{#str}}aitrial_activating, bookingextension_agent{{/str}}</span>
+                </span>
+                <div id="booking-ai-trial-result" class="mt-2 d-none"></div>
+            </div>
+            {{/wizard_activate}}
+
+            <details class="booking-ai-setup-details mt-3" {{^wizard_connect}}{{^wizard_activate}}open{{/wizard_activate}}{{/wizard_connect}}>
+                <summary class="booking-ai-setup-summary">{{#str}}agent_setup_details, bookingextension_agent{{/str}}</summary>
+                <ul class="list-group booking-ai-readiness-list mt-2 mb-0">
+                    {{#readiness_checks}}
+                    <li class="list-group-item d-flex align-items-start">
+                        <span class="mr-3 mt-1">{{{icon}}}</span>
+                        <div>
+                            <strong>{{label}}</strong>
+                            <div class="small text-muted mt-1">{{detail}}</div>
+                            {{#configureurl}}
+                            <div class="small mt-1"><a href="{{configureurl}}">{{configurelabel}}</a></div>
+                            {{/configureurl}}
+                        </div>
+                    </li>
+                    {{/readiness_checks}}
+                </ul>
+            </details>
+        </div>
+    </div>
+    {{/ready_for_chat}}
+
+
+</div>
+
+{{#js}}
+require(['bookingextension_agent/aiinstructions'], function(AIInstructions) {
+    AIInstructions.init({{{registered_js_modules_json}}});
+});
+{{/js}}

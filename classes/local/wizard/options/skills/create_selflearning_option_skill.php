@@ -82,16 +82,19 @@ class create_selflearning_option_skill extends create_option_skill {
             // must stay valid schema keys (the shared validator rejects unknown keys, and the
             // planner naturally emits them for a self-learning request).
             'optiontype', 'selflearningcourse',
-            'override', 'outputlang', 'activityquery', 'linkedcoursequery',
+            'override', 'outputlang', 'activityquery', 'cmid', 'linkedcoursequery',
         ]);
         $properties = array_intersect_key($properties, $allowed);
 
-        $schema['description'] = 'Create a self-learning booking option for duration-based participation. '
-            . 'Use this task when the user wants a self-paced or e-learning style offer with a duration '
-            . '(for example 2h, 4h, or 14400 seconds) instead of fixed appointment slots. '
-            . 'This is the canonical self-learning create task and should be preferred over the general '
-            . 'create_option task whenever the request is about a course-like learning period.';
-        $schema['properties'] = $properties;
+        // Two sentences that together stay inside the 240-character card window, so the card carries the
+        // purpose AND the use case; a third sentence would be dropped whole.
+        $schema['description'] = 'Create a SELF-LEARNING booking option (duration in seconds, no dates, no slots) '
+            . 'for duration-based participation. '
+            . 'Use it when the user wants a self-paced or e-learning offer with a duration '
+            . '(for example 2h, 4h or 14400 seconds).';
+        $schema['is'] = 'Duration-based, self-paced offers without fixed dates.';
+        $schema['not'] = 'Dated events or session series (create_option); appointment slots (create_slotbooking_option).';
+        $schema['properties'] = self::describe_scoped_creation_fields($properties);
 
         return $schema;
     }
@@ -105,9 +108,8 @@ class create_selflearning_option_skill extends create_option_skill {
         return [
             [
                 'id' => 'mod_booking.create_selflearning_request',
-                'description' => 'User asks for a self-learning/e-learning option with duration-based participation '
-                    . 'and no fixed appointment slots. Route here when the user mentions a learning duration, '
-                    . 'self-paced course, or e-learning style booking.',
+                'description' => 'The user wants a self-learning or e-learning option with a participation duration and no fixed'
+                    . ' appointment dates.',
                 'examples' => [
                     'Create a self-learning course with a learning duration of 4 hours.',
                     'Create a self-learning booking option for 2 hours duration.',

@@ -2208,16 +2208,36 @@ class booking {
      * @return array of possible views
      */
     public static function get_array_of_possible_views(): array {
-        // List view is always possible.
-        $viewparamoptions = [MOD_BOOKING_VIEW_PARAM_LIST => get_string('viewparam:list', 'mod_booking')];
+        $allviews = self::get_array_of_all_views();
         // Additional views like cards view are a PRO feature.
         if (wb_payment::pro_version_is_activated()) {
-            $viewparamoptions[MOD_BOOKING_VIEW_PARAM_CARDS] = get_string('viewparam:cards', 'mod_booking');
-            $viewparamoptions[MOD_BOOKING_VIEW_PARAM_LIST_IMG_LEFT] = get_string('viewparam:listimgleft', 'mod_booking');
-            $viewparamoptions[MOD_BOOKING_VIEW_PARAM_LIST_IMG_RIGHT] = get_string('viewparam:listimgright', 'mod_booking');
-            $viewparamoptions[MOD_BOOKING_VIEW_PARAM_LIST_IMG_LEFT_HALF] = get_string('viewparam:listimglefthalf', 'mod_booking');
+            return $allviews;
         }
-        return $viewparamoptions;
+        // List view is always possible.
+        return [MOD_BOOKING_VIEW_PARAM_LIST => $allviews[MOD_BOOKING_VIEW_PARAM_LIST]];
+    }
+
+    /**
+     * All views a booking instance knows, regardless of the license (the views beyond the list view need PRO).
+     *
+     * @param string|null $lang Language of the labels (null = current language).
+     * @return array view id => localized label
+     */
+    public static function get_array_of_all_views(?string $lang = null): array {
+        $keys = [
+            MOD_BOOKING_VIEW_PARAM_LIST => 'viewparam:list',
+            MOD_BOOKING_VIEW_PARAM_CARDS => 'viewparam:cards',
+            MOD_BOOKING_VIEW_PARAM_LIST_IMG_LEFT => 'viewparam:listimgleft',
+            MOD_BOOKING_VIEW_PARAM_LIST_IMG_RIGHT => 'viewparam:listimgright',
+            MOD_BOOKING_VIEW_PARAM_LIST_IMG_LEFT_HALF => 'viewparam:listimglefthalf',
+        ];
+        $views = [];
+        foreach ($keys as $id => $key) {
+            $views[$id] = $lang === null
+                ? get_string($key, 'mod_booking')
+                : get_string_manager()->get_string($key, 'mod_booking', null, $lang);
+        }
+        return $views;
     }
 
     /**

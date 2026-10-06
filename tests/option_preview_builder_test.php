@@ -100,6 +100,24 @@ final class option_preview_builder_test extends advanced_testcase {
     }
 
     /**
+     * The start/end rows render the WEEKDAY computed from the timestamp: a wrongly resolved
+     * relative date ("next Thursday" saved as a Saturday) must be visible before the confirm.
+     */
+    public function test_create_descriptor_dates_carry_the_weekday(): void {
+        $saturday = strtotime('2026-09-05 14:00');
+        $descriptor = option_preview_builder::create_descriptor([
+            'text' => 'Welding seminar',
+            'coursestarttime' => $saturday,
+            'courseendtime' => $saturday + (3 * HOURSECS),
+            'outputlang' => 'en',
+        ]);
+
+        $rows = $this->rows_map($descriptor);
+        $this->assertStringContainsString('Saturday', $rows['Start']);
+        $this->assertStringContainsString('Saturday', $rows['End']);
+    }
+
+    /**
      * slotbooking_descriptor collapses the weekday flags + window and builds a summary.
      */
     public function test_slotbooking_descriptor(): void {

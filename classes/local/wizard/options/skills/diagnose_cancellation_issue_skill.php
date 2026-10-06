@@ -66,6 +66,15 @@ class diagnose_cancellation_issue_skill extends booking_skill_base implements sk
     }
 
     /**
+     * A person is this skill's direct object and it executes without confirmation (#2226 R3).
+     *
+     * @return bool
+     */
+    public function is_person_centric_readonly(): bool {
+        return true;
+    }
+
+    /**
      * Return task schema.
      *
      * @return array
@@ -73,7 +82,11 @@ class diagnose_cancellation_issue_skill extends booking_skill_base implements sk
     public function get_schema(): array {
         return [
             'version' => 1,
-            'description' => 'Diagnose why the current user cannot cancel their own booking for a booking option.',
+            'description' => 'Diagnose why the current user cannot CANCEL their own booking for a booking option.',
+            // Wave 38 (L52sol DCI-1: "I want out of the pilates course" - GPT-6 Sol found no skill 20/20; with this line
+            // 20/20 here). Users call the option a course.
+            'is' => 'Cancelling an existing booking of a booking option, also when the user calls the option a course or class.',
+            'not' => 'Getting into an option in the first place (diagnose_booking_issue).',
             'readonly' => $this->is_read_only(),
             'example_utterances' => [
                 'Why can\'t I cancel my booking?',
@@ -83,6 +96,17 @@ class diagnose_cancellation_issue_skill extends booking_skill_base implements sk
                 'Why is the cancellation deadline blocking me?',
             ],
             'properties' => [
+                'optionquery' => [
+                    'type' => 'string',
+                    'description' => 'Never ask which option when the request names one: pass the user\'s words verbatim, '
+                        . 'however short; the skill resolves them or lists the candidates.',
+                    'required' => false,
+                ],
+                'optionid' => [
+                    'type' => 'integer',
+                    'description' => 'Explicit booking option id when already known.',
+                    'required' => false,
+                ],
                 'question' => [
                     'type' => 'string',
                     'description' => 'The user question in natural language, e.g. "Why can I not cancel option X?". '
@@ -90,17 +114,6 @@ class diagnose_cancellation_issue_skill extends booking_skill_base implements sk
                         . 'Omit only when the option is already identified via optionquery or optionid.',
                     'required' => false,
                     'from_user_message' => true,
-                ],
-                'optionquery' => [
-                    'type' => 'string',
-                    'description' => 'Booking option title, id-like reference, or words like "last option" '
-                        . 'when referring to the last shown option.',
-                    'required' => false,
-                ],
-                'optionid' => [
-                    'type' => 'integer',
-                    'description' => 'Explicit booking option id when already known.',
-                    'required' => false,
                 ],
                 'userquery' => [
                     'type' => 'string',
@@ -113,10 +126,29 @@ class diagnose_cancellation_issue_skill extends booking_skill_base implements sk
                     'description' => 'Optional explicit user id to diagnose for. Defaults to current user.',
                     'required' => false,
                 ],
+                'activityquery' => [
+                    'type' => 'string',
+                    'description' => 'Leave it out unless the user names a booking activity other than the current one '
+                        . '(e.g. over MCP, which runs at the system context); never a course.',
+                    'required' => false,
+                ],
                 'outputlang' => [
                     'type' => 'string',
                     'description' => 'Optional language code for localized task strings, e.g. de or en.',
                     'required' => false,
+                ],
+            ],
+            'prompt_meta' => [
+                // The prompt_meta block keeps its established shape even where only the group is declared: the
+                // contract test asserts both keys on every skill that carries prompt_meta at all, and an
+                // empty list is what the readers saw before this block existed.
+                'input_fields_for_prompt' => [],
+                'anchor_fields' => [],
+                // Mirrors check_structure(): it rejects an input that carries neither the question text nor
+                // an option reference. The user reference is NOT part of this — an omitted target user means
+                // the acting user, so it never makes an empty input invalid.
+                'required_groups' => [
+                    ['question', 'optionid', 'optionquery'],
                 ],
             ],
         ];
@@ -161,8 +193,8 @@ class diagnose_cancellation_issue_skill extends booking_skill_base implements sk
                         — no clarification, no confirmation_request.',
                     '- booking.diagnose_cancellation_issue is READ-ONLY.
                         Execute it directly without asking the user for permission.',
-                    '- Extract ALL information from the user message in one pass: option name
-                        → optionquery, person name → userquery.',
+                    '- Extract ALL information from the user message in one pass: the user\'s words for the option
+                        → optionquery, short ones too, also when they call it a course or class; person name → userquery.',
                     '- Example: "Why can\'t Maxima cancel \'Reading with Georg\'?"
                         → optionquery="Reading with Georg", userquery="Maxima".',
                     '- Same applies to German input: extract optionquery and userquery directly from the message.',
@@ -209,7 +241,7 @@ class diagnose_cancellation_issue_skill extends booking_skill_base implements sk
      */
     protected function run_preflight(array $input, int $cmid, int $userid): array {
         $cmid = $this->resolve_cmid_from_context_or_cmid($cmid);
-        if ($guard = $this->require_booking_instance_scope($cmid)) {
+        if ($guard = $this->require_booking_instance_scope($cmid, $input)) {
             return $guard;
         }
         $structure = $this->check_structure($input);
@@ -236,6 +268,7 @@ class diagnose_cancellation_issue_skill extends booking_skill_base implements sk
             }
         }
 
+        $choiceissue = null;
         $resolvedoption = $this->resolve_option_id($input, $cmid, $userid, $lang);
         if (($resolvedoption['status'] ?? '') === 'ok') {
             $optionid = (int)($resolvedoption['optionid'] ?? 0);
@@ -244,16 +277,59 @@ class diagnose_cancellation_issue_skill extends booking_skill_base implements sk
         } else if (($resolvedoption['status'] ?? '') === 'ambiguity') {
             $ambiguities[] = (string)($resolvedoption['message']
                 ?? $this->localized_string('agent_booking_diagnose_ambiguity_option_specify', null, $lang));
+        } else if (($resolvedoption['issue_code'] ?? '') === 'OPTION_NOT_FOUND') {
+            // Nothing matched the words for the option (W32 DCI-1: "pilates course"): offer the options instead of
+            // ending on an error - the ones the diagnosed person holds a booking in first, since only a held
+            // booking can be cancelled (choices instead of an error).
+            $choiceissue = $this->option_miss_choices_issue(
+                'DIAGNOSE_CANCELLATION_PREFLIGHT_BLOCKED',
+                $cmid,
+                $this->held_booking_option_ids($cmid, (int)($preparedinput['targetuserid'] ?? $userid)),
+                $lang
+            );
         } else {
             $errors[] = (string)($resolvedoption['message']
                 ?? $this->localized_string('agent_booking_diagnose_error_option_resolve', null, $lang));
         }
 
-        if (!empty($errors) || !empty($ambiguities)) {
-            return $this->invalid($this->build_preflight_issues(array_merge($errors, $ambiguities)));
+        if (!empty($errors) || !empty($ambiguities) || $choiceissue !== null) {
+            $issues = $this->build_preflight_issues(array_merge($errors, $ambiguities));
+            if ($choiceissue !== null) {
+                $issues[] = $choiceissue;
+            }
+            return $this->invalid($issues);
         }
 
         return $this->pass($preparedinput);
+    }
+
+    /**
+     * Options of this activity in which the person holds a booking or a waiting-list place.
+     *
+     * @param int $cmid
+     * @param int $diagnoseduserid
+     * @return int[]
+     */
+    private function held_booking_option_ids(int $cmid, int $diagnoseduserid): array {
+        global $DB;
+
+        $cm = get_coursemodule_from_id('booking', $cmid, 0, false, IGNORE_MISSING);
+        if (!$cm || $diagnoseduserid <= 0) {
+            return [];
+        }
+        [$insql, $params] = $DB->get_in_or_equal(
+            [MOD_BOOKING_STATUSPARAM_BOOKED, MOD_BOOKING_STATUSPARAM_WAITINGLIST],
+            SQL_PARAMS_NAMED,
+            'st'
+        );
+        $params['userid'] = $diagnoseduserid;
+        $params['bookingid'] = (int)$cm->instance;
+        $sql = "SELECT DISTINCT ba.optionid
+                  FROM {booking_answers} ba
+                 WHERE ba.userid = :userid
+                   AND ba.bookingid = :bookingid
+                   AND ba.waitinglist $insql";
+        return array_map('intval', $DB->get_fieldset_sql($sql, $params));
     }
 
     /**
@@ -288,7 +364,7 @@ class diagnose_cancellation_issue_skill extends booking_skill_base implements sk
      */
     public function execute(array $input, int $cmid, int $userid): array {
         $cmid = $this->resolve_cmid_from_context_or_cmid($cmid);
-        if ($scoperesult = $this->build_no_instance_scope_result($cmid)) {
+        if ($scoperesult = $this->build_no_instance_scope_result($cmid, $input)) {
             return $scoperesult;
         }
         global $DB;
@@ -418,7 +494,6 @@ class diagnose_cancellation_issue_skill extends booking_skill_base implements sk
             'option_canceluntil' => $optioncanceluntil,
             'effective_canceluntil' => $effectivecanceluntil,
             'coolingoff_active' => $coolingoffactive,
-            'reply_requirements' => 'Mention exact setting keys and concrete admin changes.',
         ];
 
         $usermessage = $this->localized_string(
@@ -447,6 +522,15 @@ class diagnose_cancellation_issue_skill extends booking_skill_base implements sk
                 'stats' => $stats,
                 'reasons' => $reasons,
             ],
+            // Without this the summarizer renders only the reasons, cut at 220 characters, and the model
+            // never sees the deadline, cooling-off and cancancelbook facts.
+            'observation_full' => $this->build_observation_full(
+                $optionname,
+                $userstatus,
+                $stats,
+                $coolingoffseconds,
+                $reasons
+            ),
             'debugmessage' => $this->build_task_debug_message(
                 self::TASK_NAME,
                 $input,
@@ -478,6 +562,50 @@ class diagnose_cancellation_issue_skill extends booking_skill_base implements sk
         }
 
         return $last;
+    }
+
+    /**
+     * The text the model reads: the cancellation facts first, then every finding, uncut.
+     *
+     * @param string $optionname
+     * @param string $userstatus
+     * @param array $stats
+     * @param int $coolingoffseconds
+     * @param string[] $reasons
+     * @return string
+     */
+    private function build_observation_full(
+        string $optionname,
+        string $userstatus,
+        array $stats,
+        int $coolingoffseconds,
+        array $reasons
+    ): string {
+        $now = time();
+        $deadline = static function (int $timestamp) use ($now): string {
+            if ($timestamp <= 0) {
+                return 'none';
+            }
+            return userdate($timestamp) . ($now > $timestamp ? ' (passed)' : ' (open)');
+        };
+        $yesno = static fn(bool $value): string => $value ? 'yes' : 'no';
+
+        $lines = ['Diagnosis for option "' . $optionname . '" (issue: cannot_cancel).'];
+        $lines[] = 'User booking status: ' . $userstatus . '.';
+        $lines[] = 'Cancellation settings: users may cancel: ' . $yesno(!empty($stats['instance_cancancelbook_enabled']))
+            . ' (cancancelbook = ' . (int)($stats['instance_cancancelbook_value'] ?? 0) . ');'
+            . ' disablecancel: option ' . $yesno(!empty($stats['option_disablecancel']))
+            . ', instance ' . $yesno(!empty($stats['instance_disablecancel'])) . ';'
+            . ' option deadline: ' . $deadline((int)($stats['option_canceluntil'] ?? 0)) . ';'
+            . ' effective deadline: ' . $deadline((int)($stats['effective_canceluntil'] ?? 0)) . ';'
+            . ' cooling-off: ' . (!empty($stats['coolingoff_active']) ? 'active' : 'not active')
+            . ' (' . $coolingoffseconds . ' s).';
+        $lines[] = 'Findings:';
+        foreach ($reasons as $reason) {
+            $lines[] = '- ' . trim((string)$reason);
+        }
+
+        return implode("\n", $lines);
     }
 
     /**
@@ -883,52 +1011,6 @@ class diagnose_cancellation_issue_skill extends booking_skill_base implements sk
      * @return array
      */
     private function resolve_option_id(array $input, int $cmid, int $userid, string $lang = ''): array {
-        global $DB;
-
-        $optionid = (int)($input['optionid'] ?? 0);
-        $optionquery = trim((string)($input['optionquery'] ?? ''));
-        if ($optionid > 0) {
-            $cm = get_coursemodule_from_id('booking', $cmid, 0, false, MUST_EXIST);
-            if ($DB->record_exists('booking_options', ['id' => $optionid, 'bookingid' => (int)$cm->instance])) {
-                return ['status' => 'ok', 'optionid' => $optionid];
-            }
-
-            // If a model provided a stale/wrong optionid but also a concrete title,
-            // prefer resolving by query over failing hard.
-            if ($optionquery !== '') {
-                return booking_skill_support::resolve_single_option($cmid, $optionquery, '');
-            }
-
-            return [
-                'status' => 'error',
-                'message' => $this->localized_string('agent_booking_diagnose_error_option_not_in_instance', null, $lang),
-            ];
-        }
-
-        if ($optionquery === '') {
-            return [
-                'status' => 'ambiguity',
-                'message' => $this->localized_string('agent_booking_diagnose_ambiguity_option_title_or_id', null, $lang),
-            ];
-        }
-
-        if (booking_skill_support::is_last_option_reference($optionquery)) {
-            $lastids = booking_skill_support::resolve_last_preview_option_ids_for_user_for_execute($cmid, $userid);
-            if (count($lastids) === 1) {
-                return ['status' => 'ok', 'optionid' => (int)$lastids[0]];
-            }
-            if (count($lastids) > 1) {
-                return [
-                    'status' => 'ambiguity',
-                    'message' => $this->localized_string('agent_booking_diagnose_ambiguity_last_preview_multiple', null, $lang),
-                ];
-            }
-            return [
-                'status' => 'error',
-                'message' => $this->localized_string('agent_booking_diagnose_error_last_preview_none', null, $lang),
-            ];
-        }
-
-        return booking_skill_support::resolve_single_option($cmid, $optionquery, '');
+        return $this->resolve_diagnose_option($input, $cmid, $userid, $lang);
     }
 }

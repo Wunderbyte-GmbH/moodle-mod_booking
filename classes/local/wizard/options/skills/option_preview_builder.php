@@ -113,7 +113,7 @@ class option_preview_builder {
         }
         self::push($rows, self::str('duration', $lang), self::humanize_duration($input['duration'] ?? null, $lang));
 
-        foreach (self::curated_option_rows($input, $lang) as $row) {
+        foreach (self::curated_option_rows($input, $lang, true) as $row) {
             $rows[] = $row;
         }
 
@@ -217,8 +217,11 @@ class option_preview_builder {
             $optionids = self::sanitize_ids($input['resolvedoptionids'] ?? null);
         }
 
+        $query = trim((string)($input['optionquery'] ?? ''));
         if (!empty($input['apply_to_all'])) {
             $target = self::str('previewvalue_alloptions', $lang);
+        } else if ($query !== '') {
+            $target = $query;
         } else if (!empty($optionids)) {
             $target = self::str('previewvalue_noptions', $lang, count($optionids));
         } else {
@@ -227,6 +230,15 @@ class option_preview_builder {
 
         $rows = self::target_rows($input, $lang);
         self::push_str($rows, 'previewlabel_appliesto', $lang, $target);
+        // The resolved match count: the user must see the real scope before confirming.
+        if (!empty($optionids) && ($query !== '' || !empty($input['apply_to_all']))) {
+            self::push_str(
+                $rows,
+                'previewlabel_matchcount',
+                $lang,
+                self::str('previewvalue_noptions', $lang, count($optionids))
+            );
+        }
         self::push_str($rows, 'previewlabel_options', $lang, self::format_option_list($optionids, $lang));
         foreach (self::changed_field_rows($input, $lang) as $row) {
             $rows[] = $row;
@@ -297,6 +309,108 @@ class option_preview_builder {
     }
 
     /**
+     * Build the preview descriptor for creating a booking option field.
+     *
+     * @param array $input Prepared input.
+     * @return array|null
+     */
+    public static function create_option_field_descriptor(array $input): ?array {
+        $lang = self::lang($input);
+
+        $rows = [];
+        self::push_str($rows, 'previewlabel_fieldshortname', $lang, self::text_value($input['shortname'] ?? null));
+        self::push_str($rows, 'previewlabel_fieldname', $lang, self::text_value($input['name'] ?? null));
+        self::push_str($rows, 'previewlabel_fieldtype', $lang, self::text_value($input['typename'] ?? $input['type'] ?? null));
+        self::push_str($rows, 'previewlabel_fieldcategory', $lang, self::text_value($input['categoryname'] ?? null));
+        self::push_str(
+            $rows,
+            'previewlabel_fieldrequired',
+            $lang,
+            empty($input['required'])
+                ? self::str('no', $lang, null, 'core')
+                : self::str('yes', $lang, null, 'core')
+        );
+        self::push_str(
+            $rows,
+            'previewlabel_fieldunique',
+            $lang,
+            empty($input['uniquevalues'])
+                ? self::str('no', $lang, null, 'core')
+                : self::str('yes', $lang, null, 'core')
+        );
+        self::push_str($rows, 'previewlabel_fielddefault', $lang, self::text_value($input['defaultvalue'] ?? null));
+        $options = (array)($input['options'] ?? []);
+        if (!empty($options)) {
+            self::push_str($rows, 'previewlabel_fieldoptions', $lang, implode(', ', array_map('strval', $options)));
+        }
+
+        return [
+            'title' => self::str('previewtitle_createoptionfield', $lang),
+            'summary' => '',
+            'rows' => $rows,
+        ];
+    }
+
+    /**
+     * Build the preview descriptor for updating a booking option field.
+     *
+     * Only the values the caller actually changes are listed, so the confirmation shows the change
+     * and not the whole field.
+     *
+     * @param array $input Prepared input.
+     * @return array|null
+     */
+    public static function update_option_field_descriptor(array $input): ?array {
+        $lang = self::lang($input);
+
+        $rows = [];
+        self::push_str($rows, 'previewlabel_fieldshortname', $lang, self::text_value($input['currentshortname'] ?? null));
+
+        if (array_key_exists('shortname', $input)) {
+            self::push_str($rows, 'previewlabel_fieldnewshortname', $lang, self::text_value($input['shortname'] ?? null));
+        }
+        if (array_key_exists('name', $input)) {
+            self::push_str($rows, 'previewlabel_fieldname', $lang, self::text_value($input['name'] ?? null));
+        }
+        if (array_key_exists('categoryname', $input)) {
+            self::push_str($rows, 'previewlabel_fieldcategory', $lang, self::text_value($input['categoryname'] ?? null));
+        }
+        if (array_key_exists('required', $input)) {
+            self::push_str(
+                $rows,
+                'previewlabel_fieldrequired',
+                $lang,
+                empty($input['required'])
+                    ? self::str('no', $lang, null, 'core')
+                    : self::str('yes', $lang, null, 'core')
+            );
+        }
+        if (array_key_exists('uniquevalues', $input)) {
+            self::push_str(
+                $rows,
+                'previewlabel_fieldunique',
+                $lang,
+                empty($input['uniquevalues'])
+                    ? self::str('no', $lang, null, 'core')
+                    : self::str('yes', $lang, null, 'core')
+            );
+        }
+        if (array_key_exists('defaultvalue', $input)) {
+            self::push_str($rows, 'previewlabel_fielddefault', $lang, self::text_value($input['defaultvalue'] ?? null));
+        }
+        $options = (array)($input['options'] ?? []);
+        if (!empty($options)) {
+            self::push_str($rows, 'previewlabel_fieldoptions', $lang, implode(', ', array_map('strval', $options)));
+        }
+
+        return [
+            'title' => self::str('previewtitle_updateoptionfield', $lang),
+            'summary' => '',
+            'rows' => $rows,
+        ];
+    }
+
+    /**
      * Build the preview descriptor for configuring booking-instance settings.
      *
      * @param array $input Prepared input ({action, changes:[{field,value}]}).
@@ -317,9 +431,21 @@ class option_preview_builder {
                 continue;
             }
             $type = (string)($fieldspec[$field]['type'] ?? 'string');
-            $value = $type === 'boolean'
-                ? ($change['value'] ? self::str('yes', $lang, null, 'core') : self::str('no', $lang, null, 'core'))
-                : self::generic_value($change['value'] ?? null, $lang);
+            $options = (array)($fieldspec[$field]['options'] ?? []);
+            if (($type === 'choice' || $type === 'choicelist') && !empty($options)) {
+                // Prepared input carries the chosen view id(s); the card names them by their labels.
+                $labels = [];
+                foreach ((array)($change['value'] ?? []) as $id) {
+                    if (is_scalar($id) && isset($options[(int)$id])) {
+                        $labels[] = (string)$options[(int)$id];
+                    }
+                }
+                $value = empty($labels) ? null : implode(', ', $labels);
+            } else {
+                $value = $type === 'boolean'
+                    ? ($change['value'] ? self::str('yes', $lang, null, 'core') : self::str('no', $lang, null, 'core'))
+                    : self::generic_value($change['value'] ?? null, $lang);
+            }
             if ($value === null) {
                 continue;
             }
@@ -558,12 +684,13 @@ class option_preview_builder {
      *
      * @param array $input
      * @param string $lang
+     * @param bool $create
      * @return array[]
      */
-    private static function curated_option_rows(array $input, string $lang): array {
+    private static function curated_option_rows(array $input, string $lang, bool $create = false): array {
         $teacher = self::text_value($input['teacherquery'] ?? ($input['teacheremail'] ?? null));
         $rows = [];
-        self::push_str($rows, 'previewlabel_seats', $lang, self::positive_int_string($input['maxanswers'] ?? null));
+        self::push_str($rows, 'previewlabel_seats', $lang, self::seats_value($input, $lang, $create));
         self::push_str($rows, 'previewlabel_waitinglist', $lang, self::positive_int_string($input['maxoverbooking'] ?? null));
         self::push_str($rows, 'previewlabel_start', $lang, self::format_datetime($input['coursestarttime'] ?? null, $lang));
         self::push_str($rows, 'previewlabel_end', $lang, self::format_datetime($input['courseendtime'] ?? null, $lang));
@@ -757,7 +884,7 @@ class option_preview_builder {
      */
     private static function format_date($value, string $lang): ?string {
         $ts = self::to_timestamp($value);
-        return $ts === null ? null : userdate($ts, self::str('strftimedate', $lang, null, 'langconfig'));
+        return $ts === null ? null : userdate($ts, self::str('strftimedaydate', $lang, null, 'langconfig'));
     }
 
     /**
@@ -769,7 +896,7 @@ class option_preview_builder {
      */
     private static function format_datetime($value, string $lang): ?string {
         $ts = self::to_timestamp($value);
-        return $ts === null ? null : userdate($ts, self::str('strftimedatetime', $lang, null, 'langconfig'));
+        return $ts === null ? null : userdate($ts, self::str('strftimedaydatetime', $lang, null, 'langconfig'));
     }
 
     /**
@@ -900,6 +1027,33 @@ class option_preview_builder {
 
     /**
      * Positive integer as string, or null.
+     *
+     * @param mixed $value
+     * @return string|null
+     */
+    /**
+     * Seats row: an explicit 0 means unlimited; on a create card an omitted capacity is unlimited too
+     * (capacity is optional, #2413). On update/bulk cards an omitted capacity is simply not a change.
+     *
+     * @param array $input
+     * @param string $lang
+     * @param bool $create Whether the card describes a creation.
+     * @return string|null
+     */
+    private static function seats_value(array $input, string $lang, bool $create): ?string {
+        $present = array_key_exists('maxanswers', $input) && $input['maxanswers'] !== null && $input['maxanswers'] !== '';
+        $seats = $present ? self::positive_int_string($input['maxanswers']) : null;
+        if ($seats !== null) {
+            return $seats;
+        }
+        if ($create || ($present && is_numeric($input['maxanswers']) && (int)$input['maxanswers'] === 0)) {
+            return self::str('previewvalue_unlimited', $lang);
+        }
+        return null;
+    }
+
+    /**
+     * Positive integer as string, null otherwise.
      *
      * @param mixed $value
      * @return string|null

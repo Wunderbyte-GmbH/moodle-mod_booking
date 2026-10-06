@@ -37,6 +37,7 @@ class rule_preview_builder {
         $rows = option_preview_builder::target_rows($input, $lang);
         self::push($rows, self::str('previewlabel_template', $lang), self::template_value($input));
         self::push($rows, self::str('previewlabel_rulename', $lang), self::text($input['rulename'] ?? null));
+        self::push($rows, self::str('previewlabel_days', $lang), self::days_value($input, $lang));
         self::push($rows, self::str('previewlabel_active', $lang), self::active_value($input, $lang));
         self::push($rows, self::str('previewlabel_question', $lang), self::text($input['question'] ?? null));
 
@@ -75,9 +76,18 @@ class rule_preview_builder {
         $rows = option_preview_builder::target_rows($input, $lang);
         self::push($rows, self::str('previewlabel_template', $lang), self::template_value($input));
         self::push($rows, self::str('previewlabel_rulename', $lang), self::text($input['rulename'] ?? null));
+        self::push($rows, self::str('previewlabel_days', $lang), self::days_value($input, $lang));
         if (isset($input['isactive']) && $input['isactive'] !== '') {
             self::push($rows, self::str('previewlabel_active', $lang), self::active_value($input, $lang));
         }
+        // Wave 32 (URT-3): a new mail subject or text is shown as written, so the confirmation carries the change.
+        self::push($rows, self::str('previewlabel_mailsubject', $lang), self::text($input['mailsubject'] ?? null));
+        $mailbody = self::text($input['mailbody'] ?? null);
+        self::push(
+            $rows,
+            self::str('previewlabel_mailbody', $lang),
+            $mailbody === null ? null : shorten_text(strip_tags($mailbody), 400)
+        );
 
         return [
             'title' => $title,
@@ -102,6 +112,20 @@ class rule_preview_builder {
             return $query;
         }
         return self::positive_int_string($input['templateid'] ?? null);
+    }
+
+    /**
+     * Days row: the requested number, or the note that the template has no days model.
+     *
+     * @param array $input
+     * @param string $lang
+     * @return string|null
+     */
+    private static function days_value(array $input, string $lang): ?string {
+        if (!empty($input['days_not_applicable'])) {
+            return self::str('agent_booking_rules_days_not_applicable', $lang);
+        }
+        return self::positive_int_string($input['days'] ?? null);
     }
 
     /**

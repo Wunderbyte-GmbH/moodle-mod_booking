@@ -88,6 +88,7 @@ class ruletemplate_paymentconfirmation {
             'eventname' => "\\local_shopping_cart\\event\\payment_confirmed",
             'contextid' => 1,
             'useastemplate' => 0,
+            'isactive' => 1,
         ];
         return (object) $returnobject;
     }

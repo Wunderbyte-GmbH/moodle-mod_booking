@@ -195,6 +195,103 @@ final class diagnose_waitinglist_skill_test extends advanced_testcase {
     }
 
     /**
+     * Book 20 users on an option with 10 seats; 10 land on the waiting list.
+     *
+     * @return array [contextid, cmid, optionid]
+     */
+    private function seed_reduced_option(): array {
+        [$contextid, $cmid, $optionid] = $this->seed(['maxanswers' => 10, 'maxoverbooking' => 10]);
+        /** @var \mod_booking_generator $gen */
+        $gen = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        for ($i = 0; $i < 20; $i++) {
+            $user = $this->getDataGenerator()->create_user();
+            $gen->create_answer(['optionid' => $optionid, 'userid' => (int)$user->id]);
+        }
+        singleton_service::destroy_booking_answers($optionid);
+        return [$contextid, $cmid, $optionid];
+    }
+
+    /**
+     * The observation the model reads carries the seat and waiting list numbers first, then the
+     * findings; the finding no longer sends the model to look the numbers up.
+     */
+    public function test_observation_carries_the_counts(): void {
+        global $USER;
+        [$contextid, $cmid, $optionid] = $this->seed_reduced_option();
+
+        $result = (new diagnose_waitinglist_skill())->execute(
+            ['optionid' => $optionid],
+            $contextid,
+            (int)$USER->id
+        );
+
+        $observation = (string)($result['observation_full'] ?? '');
+        $this->assertStringStartsWith('Diagnosis for option "Waitlist option" (waiting list).', $observation);
+        $this->assertStringContainsString('Seats: 10 booked of 10, 10 on the waiting list (10 places), 0 reserved.', $observation);
+        $this->assertStringContainsString('Overbooked: no', $observation);
+        $this->assertStringContainsString('Blocking gate: none.', $observation);
+        $this->assertStringContainsString(
+            "Findings:\n- " . get_string('agent_booking_waitinglist_nothing_blocking', 'booking'),
+            $observation
+        );
+        $this->assertStringNotContainsString('re-check', $observation);
+
+        // The result for card and preview is as before.
+        $this->assertSame(
+            ['booked' => 10, 'reserved' => 0, 'waiting' => 10, 'maxanswers' => 10, 'maxoverbooking' => 10],
+            $result['diagnosis']['counts']
+        );
+        $this->assertFalse($result['diagnosis']['overbooked']);
+        $this->assertNull($result['diagnosis']['blockinggate']);
+        $this->assertSame([$optionid], $result['previewoptionids']);
+    }
+
+    /**
+     * A blocking gate and an overbooked option are named in the observation.
+     */
+    public function test_observation_names_the_blocking_gate(): void {
+        global $USER;
+        [$contextid, $cmid, $optionid] = $this->seed_reduced_option();
+        set_config('turnoffwaitinglist', 1, 'booking');
+        singleton_service::destroy_booking_option_singleton($optionid);
+
+        $result = (new diagnose_waitinglist_skill())->execute(
+            ['optionid' => $optionid],
+            $contextid,
+            (int)$USER->id
+        );
+
+        $observation = (string)($result['observation_full'] ?? '');
+        $this->assertStringContainsString('Blocking gate: turnoffwaitinglist.', $observation);
+        $this->assertStringContainsString(
+            '- ' . get_string('agent_booking_waitinglist_reason_turnoffglobal', 'booking'),
+            $observation
+        );
+    }
+
+    /**
+     * An option without a seat limit has no waiting list; the observation says so instead of "0 of 0".
+     */
+    public function test_observation_without_seat_limit(): void {
+        global $USER;
+        [$contextid, $cmid, $optionid] = $this->seed(['limitanswers' => 0, 'maxanswers' => 0, 'maxoverbooking' => 0]);
+
+        $result = (new diagnose_waitinglist_skill())->execute(
+            ['optionid' => $optionid],
+            $contextid,
+            (int)$USER->id
+        );
+
+        $observation = (string)($result['observation_full'] ?? '');
+        $this->assertStringContainsString('Seats: 0 booked, no seat limit, no waiting list.', $observation);
+        $this->assertStringNotContainsString('Overbooked', $observation);
+        $this->assertStringContainsString(
+            '- ' . get_string('agent_booking_waitinglist_reason_nowaitinglist', 'booking'),
+            $observation
+        );
+    }
+
+    /**
      * An unresolvable option returns an error rather than fataling.
      */
     public function test_unresolvable_option_returns_error(): void {
@@ -208,5 +305,20 @@ final class diagnose_waitinglist_skill_test extends advanced_testcase {
         );
 
         $this->assertSame('error', $result['status']);
+    }
+
+    /**
+     * The option reference is the first field the constructor sees and its description fits the 160-character
+     * field window: listed second and cut, the constructor asked which option was meant instead of passing the
+     * user's words on.
+     */
+    public function test_option_reference_is_the_first_field_and_fits_the_constructor_window(): void {
+        $skill = new diagnose_waitinglist_skill();
+        $lines = \bookingextension_agent\local\wizard\services\skill_input_schema_projection::for_skill($skill);
+
+        $this->assertStringStartsWith('optionquery (', (string)$lines[0]);
+        $this->assertStringStartsWith('optionid (', (string)$lines[1]);
+        $description = (string)$skill->get_schema()['properties']['optionquery']['description'];
+        $this->assertLessThanOrEqual(159, \core_text::strlen($description));
     }
 }

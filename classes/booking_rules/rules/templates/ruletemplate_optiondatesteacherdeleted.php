@@ -82,6 +82,7 @@ class ruletemplate_optiondatesteacherdeleted {
             'eventname' => "\\mod_booking\\event\\optiondates_teacher_deleted",
             'contextid' => 1,
             'useastemplate' => 0,
+            'isactive' => 1,
         ];
         return (object) $returnobject;
     }

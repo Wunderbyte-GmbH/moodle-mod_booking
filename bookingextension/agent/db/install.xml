@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="mod/booking/bookingextension/agent/db" VERSION="2026070202" COMMENT="XMLDB file for bookingextension_agent"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../../../../../lib/xmldb/xmldb.xsd"
+>
+  <TABLES>
+    <TABLE NAME="bx_agent_ai_threads" COMMENT="AI agent conversation threads, one per user per context">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="contextid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Moodle context id (module, course or system)"/>
+        <FIELD NAME="status" TYPE="char" LENGTH="20" NOTNULL="true" DEFAULT="active" SEQUENCE="false" COMMENT="active | closed"/>
+        <FIELD NAME="metadatajson" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Analytics metadata: intent categories, entities, state"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="useridcontextid" UNIQUE="false" FIELDS="userid, contextid"/>
+        <INDEX NAME="statusidx" UNIQUE="false" FIELDS="status"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="bx_agent_ai_messages" COMMENT="Individual messages within an AI agent conversation thread">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="threadid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="role" TYPE="char" LENGTH="20" NOTNULL="true" DEFAULT="user" SEQUENCE="false" COMMENT="user | assistant | system"/>
+        <FIELD NAME="content" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Raw message text"/>
+        <FIELD NAME="structuredjson" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Extracted intent, entities, validated draft command"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="threadid" TYPE="foreign" FIELDS="threadid" REFTABLE="bx_agent_ai_threads" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="threadidx" UNIQUE="false" FIELDS="threadid"/>
+        <INDEX NAME="useridthreadidx" UNIQUE="false" FIELDS="userid, threadid"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="bx_agent_ai_runs" COMMENT="AI agent execution runs tracking actions to be or already executed">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="threadid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="contextid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="status" TYPE="char" LENGTH="20" NOTNULL="true" DEFAULT="pending" SEQUENCE="false" COMMENT="pending | queued | running | completed | failed"/>
+        <FIELD NAME="idempotencykey" TYPE="char" LENGTH="64" NOTNULL="true" SEQUENCE="false" COMMENT="SHA256 hash for deduplication"/>
+        <FIELD NAME="commandsjson" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Interpreter-validated execution commands"/>
+        <FIELD NAME="resultsjson" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Execution results per action"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="threadid" TYPE="foreign" FIELDS="threadid" REFTABLE="bx_agent_ai_threads" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="useridcontextidx" UNIQUE="false" FIELDS="userid, contextid"/>
+        <INDEX NAME="statusidx" UNIQUE="false" FIELDS="status"/>
+        <INDEX NAME="idempotencyidx" UNIQUE="true" FIELDS="idempotencykey"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="bx_agent_ai_llm_debug" COMMENT="Raw LLM request/response strings for booking AI debug mode">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="threadid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="contextid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="source" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="Call site identifier with its phase flags (orchestrator/feedback/followup)"/>
+        <FIELD NAME="requesttext" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Exact prompt string sent to provider"/>
+        <FIELD NAME="responsetext" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Exact raw provider response string"/>
+        <FIELD NAME="success" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="1=provider success, 0=provider error/exception"/>
+        <FIELD NAME="errormessage" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Failure detail when success=0"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="threadid" TYPE="foreign" FIELDS="threadid" REFTABLE="bx_agent_ai_threads" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="threadtimeidx" UNIQUE="false" FIELDS="threadid, timecreated"/>
+        <INDEX NAME="contextidtimeidx" UNIQUE="false" FIELDS="contextid, timecreated"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="bx_agent_bm_runs" COMMENT="One row per benchmark run (full scenario set execution)">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="run_uuid" TYPE="char" LENGTH="36" NOTNULL="true" SEQUENCE="false" COMMENT="UUID v4"/>
+        <FIELD NAME="label" TYPE="char" LENGTH="120" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="model_id" TYPE="char" LENGTH="80" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="model_version" TYPE="char" LENGTH="40" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="prompt_profile" TYPE="char" LENGTH="80" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="skill_set" TYPE="char" LENGTH="80" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="total_scenarios" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="passed" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="failed" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="skipped" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="success_rate" TYPE="number" LENGTH="5" NOTNULL="true" DEFAULT="0" SEQUENCE="false" DECIMALS="2"/>
+        <FIELD NAME="baseline_run_id" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="is_baseline" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="regression_detected" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="total_tokens" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="total_cost_estimate" TYPE="number" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" DECIMALS="4"/>
+        <FIELD NAME="duration_ms" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="environment" TYPE="char" LENGTH="80" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="git_ref" TYPE="char" LENGTH="80" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="embeddings_used" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="1 if family/skill embeddings were live for this run, 0 if keyword-only routing"/>
+        <FIELD NAME="embeddings_model" TYPE="char" LENGTH="80" NOTNULL="false" SEQUENCE="false" COMMENT="Embedding model used when embeddings were live (catalog current); empty when not live"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="run_uuid_idx" UNIQUE="true" FIELDS="run_uuid"/>
+        <INDEX NAME="timecreated_idx" UNIQUE="false" FIELDS="timecreated"/>
+        <INDEX NAME="is_baseline_idx" UNIQUE="false" FIELDS="is_baseline"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="bx_agent_bm_scenarios" COMMENT="Individual scenario results within a benchmark run">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="run_id" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="scenario_key" TYPE="char" LENGTH="120" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="scenario_class" TYPE="char" LENGTH="40" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="passed" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="response_type_expected" TYPE="char" LENGTH="40" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="response_type_actual" TYPE="char" LENGTH="40" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="skill_expected" TYPE="char" LENGTH="120" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="skill_selected" TYPE="char" LENGTH="120" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="json_valid" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="contract_compliant" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="planned_steps_present" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="tokens_prompt" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="tokens_completion" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="duration_ms" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="step_count" TYPE="int" LENGTH="5" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="error_message" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="result_json" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="run_id" TYPE="foreign" FIELDS="run_id" REFTABLE="bx_agent_bm_runs" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="run_scenario_idx" UNIQUE="false" FIELDS="run_id, scenario_key"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="bx_agent_bm_baselines" COMMENT="Pinned benchmark baselines for regression comparison">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="run_id" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="label" TYPE="char" LENGTH="120" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="locked" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="description" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="createdby" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="run_id" TYPE="foreign" FIELDS="run_id" REFTABLE="bx_agent_bm_runs" REFFIELDS="id"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="bx_agent_bm_metrics" COMMENT="Aggregated metric snapshots per benchmark run for trend queries">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="run_id" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="metric_key" TYPE="char" LENGTH="80" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="metric_value" TYPE="number" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" DECIMALS="4"/>
+        <FIELD NAME="metric_unit" TYPE="char" LENGTH="20" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="scenario_class" TYPE="char" LENGTH="40" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="run_id" TYPE="foreign" FIELDS="run_id" REFTABLE="bx_agent_bm_runs" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="run_metric_idx" UNIQUE="false" FIELDS="run_id, metric_key"/>
+        <INDEX NAME="timecreated_idx" UNIQUE="false" FIELDS="timecreated"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="bx_agent_user_memory" COMMENT="User-stated memories/instructions for the AI agent (global per user)">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Owning user"/>
+        <FIELD NAME="memory" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="The stated fact/preference/instruction"/>
+        <FIELD NAME="scopes" TYPE="char" LENGTH="120" NOTNULL="false" SEQUENCE="false" COMMENT="Comma-separated injection channels (selection,construction,synchronization); empty = all"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="userid_fk" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="bx_agent_embeddings" COMMENT="Embedding vectors for the retrieval foundation (docs/skills/site content), one row per chunk">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="area" TYPE="char" LENGTH="32" NOTNULL="true" SEQUENCE="false" COMMENT="Area discriminator (docs|skills|site_content)"/>
+        <FIELD NAME="owner" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="Identity part 1 (corpus/skill/search-area-id)"/>
+        <FIELD NAME="refkey" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="Identity part 2 (chunk path/anchor kind/doc id); may be long"/>
+        <FIELD NAME="refindex" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Identity part 3 (start line/anchor index/chunk number)"/>
+        <FIELD NAME="endindex" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Optional end index (docs: end line)"/>
+        <FIELD NAME="title" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Human-readable title for display"/>
+        <FIELD NAME="emodel" TYPE="char" LENGTH="128" NOTNULL="true" SEQUENCE="false" COMMENT="Embedding model"/>
+        <FIELD NAME="edims" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Embedding dimensions"/>
+        <FIELD NAME="contenthash" TYPE="char" LENGTH="64" NOTNULL="false" SEQUENCE="false" COMMENT="Change-detection hash (content + model + dims); 64 fits the skills sha256, docs/site sha1 use 40"/>
+        <FIELD NAME="identityhash" TYPE="char" LENGTH="40" NOTNULL="true" SEQUENCE="false" COMMENT="sha1 of the area identity key, for reuse lookups on rebuild"/>
+        <FIELD NAME="generation" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Generation number; readers only ever see the committed one"/>
+        <FIELD NAME="embedding" TYPE="binary" NOTNULL="true" SEQUENCE="false" COMMENT="Little-endian float32 vector blob"/>
+        <FIELD NAME="docid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Site provenance: source document id (null for docs/skills)"/>
+        <FIELD NAME="contextid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Site provenance: context id (null for docs/skills)"/>
+        <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Site provenance: course id (null for docs/skills)"/>
+        <FIELD NAME="owneruserid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Site provenance: authoring user id (null for docs/skills)"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="variant_gen_idx" UNIQUE="false" FIELDS="area, emodel, edims, generation"/>
+        <INDEX NAME="reuse_idx" UNIQUE="false" FIELDS="area, emodel, edims, generation, identityhash"/>
+        <INDEX NAME="contextid_idx" UNIQUE="false" FIELDS="contextid"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="bx_agent_embeddings_meta" COMMENT="Per-variant committed-generation pointer and source fingerprint for the embeddings store">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="area" TYPE="char" LENGTH="32" NOTNULL="true" SEQUENCE="false" COMMENT="Area discriminator (docs|skills|site_content)"/>
+        <FIELD NAME="emodel" TYPE="char" LENGTH="128" NOTNULL="true" SEQUENCE="false" COMMENT="Embedding model"/>
+        <FIELD NAME="edims" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Embedding dimensions"/>
+        <FIELD NAME="committedgeneration" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The generation readers resolve to; 0 = none published"/>
+        <FIELD NAME="fingerprint" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Source fingerprint the committed index was built from"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="variant_uix" UNIQUE="true" FIELDS="area, emodel, edims"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="bx_agent_search_state" COMMENT="Per area x variant incremental indexing cursor for the site search index (runtime state, task-written; deliberately separate from the admin-written governance config in bx_agent_search_scope)">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="areakey" TYPE="char" LENGTH="100" NOTNULL="true" SEQUENCE="false" COMMENT="core_search area id (e.g. mod_forum-post); length 100 keeps the unique index with emodel under the 333-char composed-index limit"/>
+        <FIELD NAME="emodel" TYPE="char" LENGTH="128" NOTNULL="true" SEQUENCE="false" COMMENT="Embedding model"/>
+        <FIELD NAME="edims" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Embedding dimensions"/>
+        <FIELD NAME="indexcursor" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Unix timestamp (modified) of the last successfully processed document; named indexcursor because cursor is a MySQL reserved word"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="areavariant_uix" UNIQUE="true" FIELDS="areakey, emodel, edims"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="bx_agent_search_scope" COMMENT="Site search governance: which search area x scope combinations are enabled for indexing (admin-written config, variant-independent; default = everything off)">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="area" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="core_search area id (e.g. mod_forum-post)"/>
+        <FIELD NAME="scopetype" TYPE="char" LENGTH="16" NOTNULL="true" SEQUENCE="false" COMMENT="Scope kind: site | course | category"/>
+        <FIELD NAME="scopeid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Course/category id for the scope; 0 for site"/>
+        <FIELD NAME="enabled" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="1 = area x scope is enabled for indexing"/>
+        <FIELD NAME="includefiles" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="1 = also index attached files (PDF) for this area x scope; only effective while enabled"/>
+        <FIELD NAME="usermodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="areascope_idx" UNIQUE="false" FIELDS="area, scopetype, scopeid"/>
+      </INDEXES>
+    </TABLE>
+  </TABLES>
+</XMLDB>

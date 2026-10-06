@@ -88,6 +88,7 @@ class ruletemplate_confirmwaitinglist {
             'eventname' => "\\mod_booking\\event\\bookingoptionwaitinglist_booked",
             'contextid' => 1,
             'useastemplate' => 0,
+            'isactive' => 1,
         ];
         return (object) $returnobject;
     }

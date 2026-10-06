@@ -476,11 +476,7 @@ class rule_react_on_event implements booking_rule {
             return false;
         }
 
-        if (
-            // Self-learning courses only use sorting date, so we cannot do this check.
-            empty($settings->selflearningcourse)
-            && !$this->rule_still_in_time($jsonobject, $settings)
-        ) {
+        if (!self::rule_still_in_time($jsonobject, $settings)) {
             return false;
         }
 
@@ -523,24 +519,39 @@ class rule_react_on_event implements booking_rule {
      *
      */
     private static function rule_still_in_time(object $ruledata, object $bookingoption): bool {
+        $windowend = self::get_time_window_end($ruledata, $bookingoption);
+
+        return $windowend === null || $windowend > time();
+    }
+
+    /**
+     * End of the time window in which the rule still applies to a booking option.
+     *
+     * The window is set by "Number of days after end of booking option, where rule still applies"
+     * (ruledata->aftercompletion), counted from the end of the option. Negative values close it
+     * before the end. Also used by the booking diagnosis, so both decide on the same moment.
+     *
+     * @param object $ruledata Decoded rule JSON.
+     * @param object $bookingoption Booking option settings.
+     * @return int|null Timestamp from which on the rule no longer applies, null for no limit.
+     */
+    public static function get_time_window_end(object $ruledata, object $bookingoption): ?int {
+        // Self-learning courses only use sorting date, so we cannot do this check.
+        if (!empty($bookingoption->selflearningcourse)) {
+            return null;
+        }
+
         $aftercompletiondays = $ruledata->ruledata->aftercompletion ?? null;
         if (empty($aftercompletiondays)) {
-            return true;
-        };
+            return null;
+        }
 
-        $endtime = (int)$bookingoption->courseendtime ?? 0;
+        $endtime = (int)($bookingoption->courseendtime ?? 0);
         if (empty($endtime)) {
-            return true;
+            return null;
         }
 
-        $now = time();
-        $days = (int)$aftercompletiondays;
-        $add = $days * 24 * 60 * 60;
-        if ($endtime + $add <= $now) {
-            return false;
-        } else {
-            return true;
-        }
+        return $endtime + (int)$aftercompletiondays * DAYSECS;
     }
 
     /**

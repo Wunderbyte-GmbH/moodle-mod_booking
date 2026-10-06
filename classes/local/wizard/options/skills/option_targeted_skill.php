@@ -105,6 +105,13 @@ trait option_targeted_skill {
                 : null;
         }
 
+        // An explicitly named activity wins over inference: the ch. 02 module-target channel,
+        // same mechanism the create skills use (#2334 - answerable over MCP).
+        $activityquery = trim(self::scalar_string($input['activityquery'] ?? ''));
+        if ($activityquery !== '') {
+            return target_selector::for_module(null, $activityquery, 'booking');
+        }
+
         // An option named by text resolves to its activity site-wide when it is unique.
         $optionquery = trim(self::scalar_string($input['optionquery'] ?? ''));
         if ($optionquery !== '') {

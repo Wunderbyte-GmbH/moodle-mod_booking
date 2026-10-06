@@ -136,12 +136,13 @@ class book_users_skill extends booking_skill_base implements
     public function get_schema(): array {
         return [
             'version' => 1,
-            'description' => 'Book one or more users into an existing booking option. '
-                . 'All booking conditions are enforced. Use bookusersquery to name the users and '
-                . 'optionquery to name the target option directly (a title or fragment, e.g. the '
-                . 'course/event name) — this skill resolves the option itself, so do NOT run a '
-                . 'separate search/find step first; call it directly even when only the option name '
-                . 'is known.',
+            'description' => 'Book users (bookusersquery) INTO an existing booking option (optionquery) as PARTICIPANTS. All '
+                . 'booking conditions are enforced. Use bookusersquery to name the users and optionquery to name the target option '
+                . 'directly (a title or fragment, e.g. the course/event name) — this skill resolves the option itself, so call it '
+                . 'directly even when only the option name is known, without a separate search step.',
+            'is' => 'Participants of an option.',
+            'not' => 'Trainers who run or teach the option (update_option_trainer); enrolling into a Moodle course '
+                . '(course.enrol_user).',
             'readonly' => $this->is_read_only(),
             'example_utterances' => [
                 'Enrol Maria into the Tuesday cooking course',
@@ -151,9 +152,12 @@ class book_users_skill extends booking_skill_base implements
                 'Sign me up for the yoga class',
             ],
             'properties' => [
+                // The option reference comes first: listed behind the activity field, a short name was read as the
+                // activity and the constructor asked which option inside it was meant.
                 'optionquery' => [
                     'type' => 'string',
-                    'description' => 'Booking option title or text fragment to identify the target option.',
+                    'description' => 'Never ask which option when the request names one: pass the user\'s words verbatim, however '
+                        . 'short; the skill resolves them or lists the candidates.',
                     'required' => false,
                 ],
                 'optionid' => [
@@ -166,10 +170,18 @@ class book_users_skill extends booking_skill_base implements
                     'description' => 'Optional temporal hint for disambiguation (e.g. "next monday").',
                     'required' => false,
                 ],
+                'activityquery' => [
+                    'type' => 'string',
+                    'description' => 'Leave it out unless the user names a booking activity other than the current one (e.g. over '
+                        . 'MCP, which runs at the system context); never a course.',
+                    'required' => false,
+                ],
                 'bookusersquery' => [
                     'type' => 'string',
-                    'description' => 'Comma-separated list of user names, e-mails or ids to book.',
-                    'required' => true,
+                    'description' => 'Comma-separated list of user names, e-mails or ids to book. OMIT this '
+                        . 'field entirely (do NOT send an empty string) to book the CURRENT user - '
+                        . 'self-referencing requests like "book me in" need no name.',
+                    'required' => false,
                 ],
                 'bookuserstimebooked' => [
                     'type' => 'string',
@@ -199,6 +211,19 @@ class book_users_skill extends booking_skill_base implements
                     'required' => false,
                 ],
             ],
+            'prompt_meta' => [
+                // The prompt_meta block keeps its established shape even where only the group is declared: the
+                // contract test asserts both keys on every skill that carries prompt_meta at all, and an
+                // empty list is what the readers saw before this block existed.
+                'input_fields_for_prompt' => [],
+                'anchor_fields' => [],
+                // Mirrors check_structure(): the target option is mandatory, but it may arrive as an id
+                // OR as a query — no single field carries the schema's 'required' flag. Declared so the
+                // catalogue prints the gate instead of staying silent about it.
+                'required_groups' => [
+                    ['optionid', 'optionquery'],
+                ],
+            ],
         ];
     }
 
@@ -216,6 +241,7 @@ class book_users_skill extends booking_skill_base implements
                     'Book a user into an option.',
                     'Book ANON_USER into option "Spring Workshop".',
                     'Please register ANON_USER1 and ANON_USER2 for the cooking course.',
+                    'Book me into option "Spring Workshop".',
                 ],
             ],
         ];
@@ -234,18 +260,23 @@ class book_users_skill extends booking_skill_base implements
                     'book user', 'register user', 'enroll user',
                 ],
                 'guidance' => [
-                    '- Use booking.book_users to book one or more users into an existing booking option.',
-                    '- If you know only the user\'s name (not their id), call booking.search_users FIRST,',
-                    '  wait for the observation with the resolved userid, then call booking.book_users.',
-                    '- Pass bookusersquery as a comma-separated list of names, e-mails, or user ids.',
-                    '- Pass optionquery with the option title when the option is named in the request.',
-                    '- If the user already named a concrete option title (e.g. "My event"),',
-                    '  pass it directly as optionquery and do not ask for optionid first.',
-                    '- Prefer one direct booking call with optionquery + bookusersquery when both are grounded.',
-                    '- Do NOT use booking.update_option just to book users; use booking.book_users instead.',
-                    '- If the option cannot be found, ask the user for clarification before proceeding.',
-                    '- If preflight returns a soft-override confirmation issue, ask the user for confirmation and '
-                        . 'then call again with confirmed=true to proceed.',
+                    // W32: the former lines "call booking.search_users FIRST, wait for the observation" named a
+                    // skill that does not exist and contradicted the description ("this skill resolves ... call it
+                    // directly"); the skill resolves names itself and offers the matching people when a name is open.
+                    '- Use mod_booking.book_users to book one or more users into an existing booking option.',
+                    '- Pass bookusersquery as a comma-separated list of names, e-mails, or user ids exactly as the user '
+                        . 'gave them; the skill resolves them itself.',
+                    '- For self-reference (the requester themselves), OMIT bookusersquery entirely:',
+                    '  the engine books the current user - never ask the requester for their own name.',
+                    '- Put the user\'s words for the option into optionquery, short ones too; the skill resolves them.',
+                    '- A short name counts as naming the option: pass it, never ask for the full title or an id.',
+                    '- One direct call with optionquery and bookusersquery when the request names the option and the people.',
+                    '- Do NOT use mod_booking.update_option just to book users; use mod_booking.book_users instead.',
+                    // W32: "ask the user for confirmation and then call again" read as "confirm before any command"
+                    // (constructor confirmation_request with commands=[]: BKU-1 L41 call 79470, L36 call 68774,
+                    // BKU-4 L41 call 79504). The engine asks for confirmation once the command is built.
+                    '- Set confirmed=true only when the skill reported a soft booking restriction and the user has '
+                        . 'answered that question with yes.',
                 ],
             ],
         ];
@@ -261,12 +292,8 @@ class book_users_skill extends booking_skill_base implements
         $errors = [];
         $lang = $this->get_output_language($input);
 
-        $bookusersquery = $this->normalize_query_text($input['bookusersquery'] ?? '');
-        $explicituserids = $this->extract_explicit_user_ids($input);
-        if ($bookusersquery === '' && empty($explicituserids)) {
-            $errors[] = $this->localized_string('agent_booking_book_users_required_bookusersquery', null, $lang);
-        }
-
+        // An omitted user selector is valid: it books the acting user (self-reference),
+        // mirroring the diagnose skills' omit-userquery contract.
         $optionid = (int)($input['optionid'] ?? 0);
         $optionquery = $this->normalize_query_text($input['optionquery'] ?? '');
         if ($optionid <= 0 && $optionquery === '') {
@@ -331,8 +358,13 @@ class book_users_skill extends booking_skill_base implements
         }
 
         $bookuserids = $this->extract_explicit_user_ids($input);
+        $bookusersquery = $this->normalize_query_text($input['bookusersquery'] ?? '');
+        if (empty($bookuserids) && $bookusersquery === '') {
+            // Omitted selector: the acting user is the booking target. The engine knows who
+            // is asking, so a self-reference must never trigger a name question.
+            $bookuserids = [(int)$userid];
+        }
         if (empty($bookuserids)) {
-            $bookusersquery = $this->normalize_query_text($input['bookusersquery'] ?? '');
             $usersforbooking = booking_skill_support::resolve_users_for_booking($bookusersquery);
             if (!empty($usersforbooking['issues']) && is_array($usersforbooking['issues'])) {
                 foreach ($usersforbooking['issues'] as $entry) {
@@ -526,8 +558,12 @@ class book_users_skill extends booking_skill_base implements
         if (empty($bookuserids)) {
             $bookuserids = $this->extract_explicit_user_ids($input);
         }
+        $bookusersquery = $this->normalize_query_text($input['bookusersquery'] ?? '');
+        if (empty($bookuserids) && $bookusersquery === '') {
+            // Omitted selector = self-booking for the acting user (see run_preflight).
+            $bookuserids = [(int)$userid];
+        }
         if (empty($bookuserids)) {
-            $bookusersquery = $this->normalize_query_text($input['bookusersquery'] ?? '');
             $usersforbooking = booking_skill_support::resolve_users_for_booking($bookusersquery);
             if (!empty($usersforbooking['errors']) || !empty($usersforbooking['ambiguities'])) {
                 return [

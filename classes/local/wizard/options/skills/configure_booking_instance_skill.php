@@ -17,14 +17,17 @@
 namespace mod_booking\local\wizard\options\skills;
 
 use context_module;
+use mod_booking\booking;
 use mod_booking\local\wizard\engine\module_targeted_skill;
+use mod_booking\utils\wb_payment;
 use stdClass;
+use mod_booking\local\wizard\engine\skill_trigger_provider_interface;
 
 /**
  * Task: update (configure) the current booking activity instance — WRITE-ONLY.
  *
- * Applies a set of field/value changes to the booking activity and persists them via
- * booking_update_instance() (mutating, confirmation-gated). The former read path
+ * Applies a set of field/value changes to the booking activity and writes exactly these fields
+ * (mutating, confirmation-gated). The former read path
  * (action=list_fields) moved to the read-only skill mod_booking.list_instance_settings
  * ({@see list_instance_settings_skill}); a pure read must never travel through the
  * confirmation queue. The "action" input field is kept for compatibility: action=list_fields
@@ -38,7 +41,7 @@ use stdClass;
  * @copyright  2026 Wunderbyte GmbH <info@wunderbyte.at>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class configure_booking_instance_skill extends booking_skill_base {
+class configure_booking_instance_skill extends booking_skill_base implements skill_trigger_provider_interface {
     use module_targeted_skill;
 
     /** Task name constant. */
@@ -172,6 +175,32 @@ class configure_booking_instance_skill extends booking_skill_base {
             'type' => 'boolean',
             'description' => 'Whether this booking instance and its options are exposed via the public API (1 = yes, 0 = no).',
         ],
+        // The view settings live in the instance JSON ('storage'), take view ids ('choice' / 'choicelist', see
+        // get_choices()) and, beyond the list view, need Booking PRO ('requirespro' for the whole field).
+        'viewparam' => [
+            'label' => 'Default view',
+            'type' => 'choice',
+            'storage' => 'json',
+            'labelstring' => 'viewparam',
+            'description' => 'Default view of the booking options: one view id (list, cards, list with image left, right'
+                . ' or left over half the width). Every view except the list view needs Booking PRO.',
+        ],
+        'switchtemplates' => [
+            'label' => 'Users can switch between views',
+            'type' => 'boolean',
+            'storage' => 'json',
+            'requirespro' => true,
+            'labelstring' => 'switchtemplates',
+            'description' => 'Whether users can switch between views (1 = yes, 0 = no). Needs Booking PRO.',
+        ],
+        'switchtemplatesselection' => [
+            'label' => 'Views users can switch between',
+            'type' => 'choicelist',
+            'storage' => 'json',
+            'requirespro' => true,
+            'labelstring' => 'switchtemplatesselection',
+            'description' => 'The views users can switch between: comma-separated view ids. Needs Booking PRO.',
+        ],
     ];
 
     /**
@@ -184,6 +213,123 @@ class configure_booking_instance_skill extends booking_skill_base {
      */
     public static function get_configurable_fields(): array {
         return self::CONFIGURABLE_FIELDS;
+    }
+
+    /**
+     * The configurable identifiers with their labels as structured remedies for a clarification.
+     *
+     * @return array<int,array{id:string,label:string}>
+     */
+    private static function field_remedies(): array {
+        $remedies = [];
+        foreach (self::CONFIGURABLE_FIELDS as $identifier => $meta) {
+            $remedies[] = ['id' => (string)$identifier, 'label' => (string)$meta['label']];
+        }
+        return $remedies;
+    }
+
+    /**
+     * Construction hint: the constructor never sees the property schema, only example values and
+     * guidance, so the configurable identifiers are handed over here (data-derived, #2411).
+     *
+     * @param int $contextid Context id.
+     * @param int $userid Acting user.
+     * @return array
+     */
+    public function get_dynamic_construction_hints(int $contextid, int $userid): array {
+        $fields = [];
+        foreach (self::CONFIGURABLE_FIELDS as $identifier => $meta) {
+            $fields[] = $identifier . ' (' . $meta['label'] . ')';
+        }
+        $views = [];
+        foreach (booking::get_array_of_all_views('en') as $id => $label) {
+            $views[] = $id . ' (' . $label . ')';
+        }
+        return [
+            'guidance' => [
+                '- changes[].field MUST be one of these EXACT identifiers: ' . implode(', ', $fields)
+                    . '. Map the user\'s wording to the closest identifier; NEVER invent field names.',
+                '- viewparam takes ONE view id, switchtemplatesselection a comma-separated list of view ids. View ids: '
+                    . implode(', ', $views) . '.',
+            ],
+        ];
+    }
+
+    /**
+     * The choices of a 'choice' / 'choicelist' field: all views, independent of the license.
+     *
+     * The license is checked after the value was recognised, so a PRO view is answered with the PRO hint and not
+     * with "unknown value".
+     *
+     * @param string $field Field identifier.
+     * @param string $lang Output language ('' = current).
+     * @return array|null id => localized label; null for a field without choices.
+     */
+    private static function get_choices(string $field, string $lang = ''): ?array {
+        $type = (string)(self::CONFIGURABLE_FIELDS[$field]['type'] ?? '');
+        if ($type !== 'choice' && $type !== 'choicelist') {
+            return null;
+        }
+        return booking::get_array_of_all_views($lang === '' ? null : $lang);
+    }
+
+    /**
+     * The ids a choice value names, or null when a part is not the id of a choice.
+     *
+     * Accepts an id, a list of ids or a comma-separated string of ids. A word is never mapped to an id here:
+     * it is answered with the choices, and selection picks the id (engine path for offered choices).
+     *
+     * @param mixed $value Raw value from the construction.
+     * @param array $choices id => label.
+     * @param bool $multiple Whether several ids are allowed.
+     * @return int[]|null
+     */
+    private static function parse_choice_ids($value, array $choices, bool $multiple): ?array {
+        $parts = is_array($value) ? $value : explode(',', (string)$value);
+        $ids = [];
+        foreach ($parts as $part) {
+            $part = trim((string)$part);
+            if ($part === '') {
+                continue;
+            }
+            if ((string)(int)$part !== $part || !array_key_exists((int)$part, $choices)) {
+                return null;
+            }
+            $ids[] = (int)$part;
+        }
+        $ids = array_values(array_unique($ids));
+        if (empty($ids) || (!$multiple && count($ids) !== 1)) {
+            return null;
+        }
+        return $ids;
+    }
+
+    /**
+     * Localized name of a configurable setting for user texts (never the field identifier).
+     *
+     * @param string $field Field identifier.
+     * @param string $lang Output language ('' = current).
+     * @return string
+     */
+    private function setting_label(string $field, string $lang): string {
+        return $this->localized_string((string)(self::CONFIGURABLE_FIELDS[$field]['labelstring'] ?? ''), null, $lang);
+    }
+
+    /**
+     * The clarification for a setting that needs Booking PRO on a site without it (hint with link, no choices).
+     *
+     * @param string $field Field identifier.
+     * @param string $lang Output language ('' = current).
+     * @return array
+     */
+    private function requires_pro_issue(string $field, string $lang): array {
+        $message = $this->localized_string('agent_booking_configure_requires_pro', $this->setting_label($field, $lang), $lang);
+        return [
+            'severity' => 'needs_clarification',
+            'code' => 'CONFIGURE_INSTANCE_REQUIRES_PRO',
+            'message' => $message,
+            'user_question' => $message,
+        ];
     }
 
     /**
@@ -209,7 +355,16 @@ class configure_booking_instance_skill extends booking_skill_base {
      * @return array|null
      */
     public function describe_proposed_action(array $input): ?array {
-        return option_preview_builder::configure_instance_descriptor($input, self::CONFIGURABLE_FIELDS);
+        // Choice fields show the localized labels of the chosen ids on the card, not the ids.
+        $lang = trim((string)($input['outputlang'] ?? ''));
+        $fieldspec = self::CONFIGURABLE_FIELDS;
+        foreach (array_keys($fieldspec) as $field) {
+            $choices = self::get_choices($field, $lang);
+            if ($choices !== null) {
+                $fieldspec[$field]['options'] = $choices;
+            }
+        }
+        return option_preview_builder::configure_instance_descriptor($input, $fieldspec);
     }
 
     /**
@@ -224,13 +379,19 @@ class configure_booking_instance_skill extends booking_skill_base {
     public function get_schema(): array {
         return [
             'version' => 1,
-            'description' => 'UPDATE the current booking activity instance settings (write-only).'
-                . ' Use action=update with a changes array to apply concrete changes ("change X to Y").'
-                . ' This skill does NOT list settings: for read requests like "what can I configure"'
-                . ' or "show the current settings", call the read-only skill'
-                . ' mod_booking.list_instance_settings instead — it returns the field catalog with'
-                . ' current values and needs no confirmation.',
+            // The selector sees only the first 240 characters (sentence-aware): mode, input and the
+            // read-only sibling come first (#2411, run 9 CBI-2).
+            'description' => 'CHANGE settings of the booking activity instance (write): action=update with a changes'
+                . ' array, e.g. confirmation mails, cancellation, bookings per user.',
+            'is' => 'Writing a setting of a booking activity, including its name.',
+            // Wave 32 (UA-3, L43 thread 13277): a link or other activity of the course went to this card, whose NOT
+            // named only hiding and moving; counterpart of course.update_activity's NOT line (<= 160 characters).
+            'not' => 'Reading settings (list_instance_settings); a link or another activity of the course, or generic '
+                . 'edits like hiding or moving (course.update_activity).',
             'readonly' => $this->is_read_only(),
+            'prompt_meta' => [
+                'intent' => 'Change settings of one booking activity instance: name, intro, organizer, limits, mails, views.',
+            ],
             'fallback_confirm_string_key' => 'ai_status_confirm_configure_booking_instance',
             'fallback_taskcall_string_key' => 'ai_status_taskcall_configure_booking_instance',
             'example_utterances' => [
@@ -238,8 +399,16 @@ class configure_booking_instance_skill extends booking_skill_base {
                 'Set the maximum bookings per user to 3',
                 'Turn off the confirmation emails of this booking instance',
                 'Rename the booking activity and adjust its defaults',
+                'Show the booking options of this activity as cards and let users switch views',
             ],
             'properties' => [
+                'cmid' => [
+                    'type' => 'integer',
+                    'description' => 'Course-module id of the booking activity, when it is known — e.g. from a '
+                        . 'candidate list that names "cmid <id>" or from a link. Takes precedence over '
+                        . 'activityquery; use it to pick one of several activities that share a name.',
+                    'required' => false,
+                ],
                 'activityquery' => [
                     'type' => 'string',
                     'description' => 'Optional: the name of the target booking activity, when it is not the '
@@ -257,7 +426,8 @@ class configure_booking_instance_skill extends booking_skill_base {
                 'changes' => [
                     'type' => 'array',
                     'description' => 'For action=update: array of {field, value} objects to apply.'
-                        . ' Use action=list_fields first to discover valid field names.',
+                        . ' Use the read-only skill mod_booking.list_instance_settings first to'
+                        . ' discover valid field names.',
                     'required' => false,
                     'items' => [
                         'type' => 'object',
@@ -295,7 +465,9 @@ class configure_booking_instance_skill extends booking_skill_base {
             if (!is_array($changes) || empty($changes)) {
                 $errors[] = 'action=update requires a non-empty "changes" array.';
             } else {
-                $validfields = array_keys(self::CONFIGURABLE_FIELDS);
+                // Shape only. An unknown field NAME is a recoverable input error handled in preflight
+                // (clarification with the configurable identifiers as remedies, #2411): as a structural
+                // error it made the engine retry the constructor until the loop budget was exhausted.
                 foreach ($changes as $idx => $change) {
                     if (!is_array($change)) {
                         $errors[] = "changes[$idx]: must be an object with \"field\" and \"value\".";
@@ -304,9 +476,6 @@ class configure_booking_instance_skill extends booking_skill_base {
                     $field = trim((string)($change['field'] ?? ''));
                     if ($field === '') {
                         $errors[] = "changes[$idx]: \"field\" is required.";
-                    } else if (!in_array($field, $validfields, true)) {
-                        $errors[] = "changes[$idx]: unknown field \"$field\"."
-                            . ' Use action=list_fields to see valid field names.';
                     }
                     if (!array_key_exists('value', $change)) {
                         $errors[] = "changes[$idx]: \"value\" is required.";
@@ -340,8 +509,8 @@ class configure_booking_instance_skill extends booking_skill_base {
             // and not a place to call context_module::instance() (which would throw) — ask which one.
             return $this->invalid([[
                 'severity' => 'needs_clarification',
-                'message' => 'This action needs a target booking activity. Please open a booking activity, '
-                    . 'or tell me which booking activity (and course) it should apply to.',
+                'message' => get_string('agent_booking_missing_target_activity', 'mod_booking'),
+                'repair' => 'Name the booking activity via activityquery.',
                 'code' => 'MISSING_TARGET_ACTIVITY',
             ]]);
         }
@@ -372,24 +541,70 @@ class configure_booking_instance_skill extends booking_skill_base {
         // (option_preview_builder::target_rows). Execute ignores this key.
         $input['targetcmid'] = $cmid;
 
-        // For update: validate field types.
+        // For update: unknown field names are a clarification (with the configurable identifiers as
+        // structured remedies), known fields are type-checked.
         $changes = (array)($input['changes'] ?? []);
         $issues = [];
+        $lang = $this->get_output_language($input);
         foreach ($changes as $idx => $change) {
             if (!is_array($change)) {
                 continue;
             }
             $field = trim((string)($change['field'] ?? ''));
             if (!isset(self::CONFIGURABLE_FIELDS[$field])) {
+                $issues[] = [
+                    'severity' => 'needs_clarification',
+                    'code' => 'CONFIGURE_INSTANCE_UNKNOWN_FIELD',
+                    'field' => 'changes',
+                    'message' => $this->localized_string('agent_booking_configure_unknown_field', $field, $lang),
+                    'user_question' => $this->localized_string('agent_booking_configure_unknown_field_question', $field, $lang),
+                    'remedy_options' => self::field_remedies(),
+                ];
                 continue;
             }
             $meta = self::CONFIGURABLE_FIELDS[$field];
             $value = $change['value'] ?? '';
+            $choices = self::get_choices($field, $lang);
+            if ($choices !== null) {
+                $ids = self::parse_choice_ids($value, $choices, $meta['type'] === 'choicelist');
+                if ($ids === null) {
+                    // Not an id of a choice (e.g. the user's word for a view): offer the choices. The engine hands
+                    // them to selection for one re-plan, which constructs the command again with the chosen id.
+                    $question = $this->localized_string('agent_booking_configure_choice_question', (object)[
+                        'setting' => $this->setting_label($field, $lang),
+                        'choices' => implode(', ', $choices),
+                    ], $lang);
+                    $issues[] = [
+                        'severity' => 'needs_clarification',
+                        'code' => 'CONFIGURE_INSTANCE_VALUE_NOT_A_CHOICE',
+                        'field' => 'changes[' . $idx . '].value',
+                        'message' => $question,
+                        'user_question' => $question,
+                        'candidates' => array_map(
+                            static fn(int $id, string $label): array => ['id' => $id, 'label' => $label],
+                            array_keys($choices),
+                            array_values($choices)
+                        ),
+                    ];
+                    continue;
+                }
+                $needspro = !empty($meta['requirespro']) || array_diff($ids, [MOD_BOOKING_VIEW_PARAM_LIST]) !== [];
+                if ($needspro && !wb_payment::pro_version_is_activated()) {
+                    $issues[] = $this->requires_pro_issue($field, $lang);
+                    continue;
+                }
+                $input['changes'][$idx]['value'] = $meta['type'] === 'choice' ? $ids[0] : $ids;
+                continue;
+            }
+            if (!empty($meta['requirespro']) && !wb_payment::pro_version_is_activated()) {
+                $issues[] = $this->requires_pro_issue($field, $lang);
+                continue;
+            }
             $typevalid = $this->validate_field_value_type($field, $meta['type'], $value);
             if ($typevalid !== null) {
                 $issues[] = [
                     'severity' => 'needs_clarification',
-                    'message' => "Field \"$field\": $typevalid",
+                    'message' => $this->localized_string('agent_booking_configure_value_invalid', null, $lang),
                     'code' => 'CONFIGURE_INSTANCE_FIELD_TYPE_ERROR',
                 ];
             }
@@ -473,8 +688,8 @@ class configure_booking_instance_skill extends booking_skill_base {
     /**
      * Apply the requested changes to the booking instance record.
      *
-     * Uses booking_update_instance() from lib.php to go through the canonical
-     * update path (events, caches, etc.) rather than writing to DB directly.
+     * Writes only the requested fields and keeps the side effects of an instance update
+     * (event with the change list, cache refresh); see the comment in the method body.
      *
      * @param array    $input
      * @param int      $bookingid
@@ -483,7 +698,7 @@ class configure_booking_instance_skill extends booking_skill_base {
      * @return array
      */
     private function execute_update(array $input, int $bookingid, int $cmid, stdClass $cm): array {
-        global $DB, $CFG;
+        global $DB;
 
         // Load current record as base.
         $record = $DB->get_record('booking', ['id' => $bookingid]);
@@ -494,6 +709,10 @@ class configure_booking_instance_skill extends booking_skill_base {
         $changes = (array)($input['changes'] ?? []);
         $applied = [];
         $skipped = [];
+        $update = (object)['id' => $bookingid];
+        // JSON-backed settings are set on the stored JSON; every other key in it stays as it is.
+        $jsonholder = (object)['json' => (string)($record->json ?? '')];
+        $jsonchanged = false;
 
         foreach ($changes as $change) {
             if (!is_array($change)) {
@@ -505,25 +724,54 @@ class configure_booking_instance_skill extends booking_skill_base {
                 continue;
             }
             $meta = self::CONFIGURABLE_FIELDS[$field];
-            $value = $this->cast_value($field, $meta['type'], $change['value'] ?? '');
-            $record->$field = $value;
+            $choices = self::get_choices($field);
+            if ($choices !== null) {
+                $ids = self::parse_choice_ids($change['value'] ?? '', $choices, $meta['type'] === 'choicelist');
+                if ($ids === null) {
+                    $skipped[] = $field . ' (invalid value)';
+                    continue;
+                }
+                $value = $meta['type'] === 'choice' ? $ids[0] : $ids;
+            } else {
+                $value = $this->cast_value($field, $meta['type'], $change['value'] ?? '');
+            }
+            if (($meta['storage'] ?? '') === 'json') {
+                booking::add_data_to_json($jsonholder, $field, $value);
+                $jsonchanged = true;
+            } else {
+                $update->$field = $value;
+            }
             $applied[] = $field . ' = ' . $this->format_value_for_summary($value);
         }
 
         if (empty($applied)) {
             return $this->error_result('No valid changes were provided.');
         }
-
-        // Booking_update_instance() expects ->instance, not ->id.
-        $record->instance = $record->id;
-        $record->coursemodule = $cm->id;
-
-        // Include lib.php where booking_update_instance is defined.
-        if (!function_exists('booking_update_instance')) {
-            require_once($CFG->dirroot . '/mod/booking/lib.php');
+        if ($jsonchanged) {
+            // As on the settings form: without the view switcher there is no selection of views to switch between.
+            $switcher = json_decode($jsonholder->json, true)['switchtemplates'] ?? null;
+            if ($switcher !== null && empty($switcher)) {
+                booking::remove_key_from_json($jsonholder, 'switchtemplatesselection');
+            }
+            $update->json = $jsonholder->json;
         }
 
-        booking_update_instance($record);
+        // Only the requested fields are written. booking_update_instance() handles mod_form data: every
+        // setting that a DB record carries only in the JSON or not at all (timerestrict, viewparam,
+        // disablecancel, ...) reads as empty there and was reset (Wunderbyte-GmbH/Wunderbyte-GmbH#2494).
+        // Its side effects for a changed instance are kept: event with the change list, cache refresh.
+        $update->timemodified = time();
+        $changelist = booking::booking_instance_get_changes($record, $update);
+        $context = context_module::instance($cmid);
+        \mod_booking\event\bookinginstance_updated::create([
+            'context' => $context,
+            'objectid' => $cmid,
+            'other' => ['changes' => $changelist ?? ''],
+        ])->trigger();
+        $DB->update_record('booking', $update);
+        booking::purge_cache_for_booking_instance_by_cmid($cmid);
+        \course_modinfo::purge_course_module_cache($cm->course, $cmid);
+        rebuild_course_cache($cm->course, false, true);
 
         $editlink = (new \moodle_url('/course/modedit.php', ['update' => $cmid]))->out(false);
         $summary = 'Booking instance updated. Changed: ' . implode(', ', $applied) . '.';
@@ -620,7 +868,7 @@ class configure_booking_instance_skill extends booking_skill_base {
         if ($value === null) {
             return '(null)';
         }
-        $str = (string)$value;
+        $str = is_array($value) ? implode(',', $value) : (string)$value;
         if (strlen($str) > 80) {
             return substr($str, 0, 77) . '...';
         }
@@ -652,5 +900,20 @@ class configure_booking_instance_skill extends booking_skill_base {
      */
     protected function build_task_debug_message(string $taskname, array $input, array $extra = []): string {
         return $taskname . ' | ' . implode(', ', $extra);
+    }
+
+    /**
+     * The situation in which the selector routes here; rendered as the card's WHEN line.
+     *
+     * @return array[]
+     */
+    public function get_message_triggers(): array {
+        return [
+            [
+                'id' => 'mod_booking.configure_booking_instance_request',
+                'description' => 'The user wants a setting of the booking activity itself changed, not a single'
+                    . ' booking option inside it.',
+            ],
+        ];
     }
 }

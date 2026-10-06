@@ -57,6 +57,43 @@ class create_rule_from_template_skill extends booking_skill_base implements skil
     }
 
     /**
+     * Template attributes that travel with a choice (wave 32): what the rule does, never words of the request. Keys are
+     * the service's attribute names, values the names in the choice: a template's own number of days is its DEFAULT and
+     * is named apart from the input field "days" that takes the requested number (L44 CRT-2, thread 13616: "days=3" read
+     * as the template's fixed value dropped the requested two days).
+     */
+    private const TEMPLATE_CHOICE_ATTRIBUTES = [
+        'ruletype' => 'ruletype',
+        'event' => 'event',
+        'recipients' => 'recipients',
+        'datefield' => 'datefield',
+        'days' => 'defaultdays',
+        'namematch' => 'namematch',
+    ];
+
+    /**
+     * Templates in the engine's choice shape (wave 30): id = templateid, label = template name, plus the attributes
+     * the rules service reports (wave 32: rule type, trigger event, recipients, date field, default days, name hit).
+     *
+     * @param array $templates Templates as the rules service lists them.
+     * @return array<int,array<string,mixed>>
+     */
+    public static function template_choices(array $templates): array {
+        return array_values(array_map(static function (array $t): array {
+            $choice = [
+                'id' => (int)($t['templateid'] ?? 0),
+                'label' => (string)($t['name'] ?? ''),
+            ];
+            foreach (self::TEMPLATE_CHOICE_ATTRIBUTES as $attribute => $name) {
+                if (isset($t[$attribute]) && is_scalar($t[$attribute]) && (string)$t[$attribute] !== '') {
+                    $choice[$name] = $t[$attribute];
+                }
+            }
+            return $choice;
+        }, $templates));
+    }
+
+    /**
      * Resolve optional rules service without breaking task discovery.
      *
      * @return object|null
@@ -111,9 +148,9 @@ class create_rule_from_template_skill extends booking_skill_base implements skil
                 . 'via the existing server-side rules form pipeline. '
                 . 'Use this for natural-language requests like adding a booking confirmation, reminder, '
                 . 'waitlist, or cancellation notification rule. '
-                . 'If the user explicitly asks for a booking confirmation, '
-                . 'resolve templatequery directly to "booking confirmation" without asking for template type again. '
                 . 'If the user says "with the name ...", map that value to rulename (not to optionquery).',
+            'is' => 'Creating a booking rule.',
+            'not' => 'Changing an existing rule (update_rule_from_template); taskflow rules (local_taskflow.create_rule).',
             'readonly' => $this->is_read_only(),
             'example_utterances' => [
                 'Set up a confirmation email when someone books',
@@ -123,6 +160,13 @@ class create_rule_from_template_skill extends booking_skill_base implements skil
                 'Add an automatic booking confirmation message',
             ],
             'properties' => [
+                'cmid' => [
+                    'type' => 'integer',
+                    'description' => 'Course-module id of the booking activity, when it is known — e.g. from a '
+                        . 'candidate list that names "cmid <id>" or from a link. Takes precedence over '
+                        . 'activityquery; use it to pick one of several activities that share a name.',
+                    'required' => false,
+                ],
                 'activityquery' => [
                     'type' => 'string',
                     'description' => 'Optional: the name of the target booking activity, when it is not the '
@@ -135,16 +179,24 @@ class create_rule_from_template_skill extends booking_skill_base implements skil
                     'description' => 'Rule template id (negative id for built-in templates).',
                     'required' => false,
                 ],
+                // Wave 32 (CRT-1/-4): the English examples here and "booking confirmation" in the example input were
+                // copied verbatim in 17 of 20 constructions of CRT-1/CRT-4 (L30-L41) and matched no German template
+                // name; every such turn needed a second round. A request that describes what the rule does leaves
+                // this field out: the skill then lists every template with its attributes and the model picks by id.
                 'templatequery' => [
                     'type' => 'string',
-                    'description' => 'Template name fragment if templateid is unknown. '
-                        . 'Use the user phrasing directly (e.g. "booking confirmation", "reminder", "cancellation").',
+                    // L43: <= 160 characters (skill_input_schema_projection::MAX_DESCRIPTION_CHARS cuts the rest).
+                    // L44 CRT-4 (thread 13620): "only when the user NAMES a template" left a request that DESCRIBES the
+                    // rule without any value to call the skill with; the model asked instead. A description is a query
+                    // like a name: only an exact name resolves, anything else lists every template (no guess, ebaeae3d57).
+                    'description' => 'The template the user names or describes, in their words. Only an exact template '
+                        . 'name resolves; otherwise every template is listed, closest names first.',
                     'required' => false,
                 ],
                 'question' => [
                     'type' => 'string',
-                    'description' => 'Optional original user request text used for '
-                        . 'template inference when templatequery is missing.',
+                    'description' => 'Optional original user request text (context only; a template is never '
+                        . 'inferred from it).',
                     'required' => false,
                     'from_user_message' => true,
                 ],
@@ -156,6 +208,12 @@ class create_rule_from_template_skill extends booking_skill_base implements skil
                 'isactive' => [
                     'type' => 'boolean',
                     'description' => 'Optional active flag for the new rule (default true).',
+                    'required' => false,
+                ],
+                'days' => [
+                    'type' => 'integer',
+                    'description' => 'Number of days for a "days before/after a date" reminder template, e.g. 2 for '
+                        . '"two days before the course starts". Only for templates with a days model.',
                     'required' => false,
                 ],
                 'outputlang' => [
@@ -240,24 +298,23 @@ class create_rule_from_template_skill extends booking_skill_base implements skil
 
         $templateid = (int)($input['templateid'] ?? 0);
         $templatequery = trim((string)($input['templatequery'] ?? ''));
-        $rulename = trim((string)($input['rulename'] ?? ''));
+        // Wave 32: the request sentence and the new rule's own name are no template names. Using them as a lookup
+        // ran a substring and a fuzzy similarity pick over the whole sentence - a silent guess at best, a miss that
+        // only then listed the templates at worst (threads 12935, 12937, 12939). No template named -> every
+        // template is offered with its attributes at once.
         if ($templateid === 0 && $templatequery === '') {
-            $templatequery = trim((string)($input['question'] ?? $input['userquery'] ?? ''));
-        }
-        if ($templateid === 0 && $templatequery === '' && $rulename !== '') {
-            $templatequery = $rulename;
-        }
-
-        if ($templateid === 0 && $templatequery === '') {
+            $alltemplates = $this->ruleservice->template_candidates();
             $issues[] = [
                 'code' => 'TEMPLATE_SELECTION_REQUIRED',
                 'severity' => 'needs_clarification',
-                'message' => 'Please choose a base template by templateid, for '
-                    . 'example: templateid=-1 (Template - Confirm booking).',
+                'message' => get_string('agent_booking_rules_no_template_named', 'mod_booking') . ' '
+                    . get_string('agent_booking_rules_choose_template', 'mod_booking'),
+                'field' => 'templateid',
+                'candidates' => self::template_choices($alltemplates),
             ];
 
             $candidates = array_slice(
-                $this->ruleservice->list_templates(),
+                $alltemplates,
                 0,
                 self::MAX_TEMPLATE_CANDIDATES_IN_CLARIFICATION
             );
@@ -279,43 +336,27 @@ class create_rule_from_template_skill extends booking_skill_base implements skil
         );
 
         if (($resolved['status'] ?? '') === 'error') {
-            $autoselected = $this->try_autoselect_confirmation_template(
-                $templatequery,
-                $rulename,
-                (array)$this->ruleservice->list_templates()
-            );
-            if (is_array($autoselected)) {
-                $prepared = $input;
-                $prepared['templateid'] = (int)($autoselected['templateid'] ?? 0);
-                $prepared['template_name_resolved'] = (string)($autoselected['name'] ?? '');
-                return $this->pass($prepared);
-            }
-
+            // Choices, not an error (wave 30): a template query that matches nothing offers the templates.
             $issues[] = [
                 'code' => 'TEMPLATE_RESOLUTION_FAILED',
                 'severity' => 'needs_clarification',
                 'message' => (string)($resolved['message'] ?? 'The template could not be resolved.'),
+                'field' => 'templateid',
+                'candidates' => self::template_choices($this->ruleservice->template_candidates()),
             ];
             return $this->invalid($issues);
         }
 
         if (($resolved['status'] ?? '') === 'ambiguity') {
-            $autoselected = $this->try_autoselect_confirmation_template(
-                $templatequery,
-                $rulename,
-                (array)($resolved['candidates'] ?? [])
-            );
-            if (is_array($autoselected)) {
-                $prepared = $input;
-                $prepared['templateid'] = (int)($autoselected['templateid'] ?? 0);
-                $prepared['template_name_resolved'] = (string)($autoselected['name'] ?? '');
-                return $this->pass($prepared);
-            }
-
+            // F83 (wave 28): the English needle list that auto-picked a "confirmation" template here was a
+            // language-bound detection and never matched the German template names anyway. Several matching
+            // templates are the user's choice; one matching template is resolved by the service itself.
             $issues[] = [
                 'code' => 'TEMPLATE_RESOLUTION_AMBIGUOUS',
                 'severity' => 'needs_clarification',
                 'message' => (string)($resolved['message'] ?? 'Multiple templates match.'),
+                'field' => 'templateid',
+                'candidates' => self::template_choices((array)($resolved['candidates'] ?? [])),
             ];
             $candidates = array_slice(
                 (array)($resolved['candidates'] ?? []),
@@ -347,81 +388,17 @@ class create_rule_from_template_skill extends booking_skill_base implements skil
         $prepared['templateid'] = (int)$template['templateid'];
         $prepared['template_name_resolved'] = (string)($template['name'] ?? '');
 
+        // A number of days only applies to templates with a days model. On any other template the
+        // value is dropped VISIBLY: the confirm card shows that it does not apply (W14, #2403), so
+        // neither the execution nor the answer can claim it.
+        $days = $input['days'] ?? null;
+        $templatetype = $this->ruleservice->rule_type_of((int)$template['templateid']);
+        if ($days !== null && $days !== '' && !$this->ruleservice->rule_type_has_days($templatetype)) {
+            unset($prepared['days']);
+            $prepared['days_not_applicable'] = 1;
+        }
+
         return $this->pass($prepared);
-    }
-
-    /**
-     * Task-specific ambiguity resolver for booking confirmation intents.
-     *
-     * Keeps generic resolver untouched and applies only to
-     * booking.create_rule_from_template.
-     *
-     * @param string $templatequery
-     * @param string $rulename
-     * @param array $candidates
-     * @return array<string,mixed>|null
-     */
-    private function try_autoselect_confirmation_template(
-        string $templatequery,
-        string $rulename,
-        array $candidates
-    ): ?array {
-        if (empty($candidates)) {
-            return null;
-        }
-
-        $intenttext = $this->normalize_intent_text(trim($templatequery . ' ' . $rulename));
-        if ($intenttext === '') {
-            return null;
-        }
-
-        $isconfirmationintent = false;
-        $confirmationneedles = [
-            'booking confirmation',
-            'confirm booking',
-            'confirmation',
-        ];
-        foreach ($confirmationneedles as $needle) {
-            if (strpos($intenttext, $needle) !== false) {
-                $isconfirmationintent = true;
-                break;
-            }
-        }
-
-        if (!$isconfirmationintent) {
-            return null;
-        }
-
-        foreach ($candidates as $candidate) {
-            if (!is_array($candidate)) {
-                continue;
-            }
-
-            $name = $this->normalize_intent_text((string)($candidate['name'] ?? ''));
-            if (strpos($name, 'confirm booking') !== false || strpos($name, 'booking confirmation') !== false) {
-                return $candidate;
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * Normalize free text for task-local intent matching.
-     *
-     * @param string $value
-     * @return string
-     */
-    private function normalize_intent_text(string $value): string {
-        $value = trim(mb_strtolower($value));
-        if ($value === '') {
-            return '';
-        }
-
-        $value = preg_replace('/[^\pL\pN]+/u', ' ', $value);
-        $value = preg_replace('/\s+/u', ' ', (string)$value);
-
-        return trim((string)$value);
     }
 
     /**
@@ -452,6 +429,9 @@ class create_rule_from_template_skill extends booking_skill_base implements skil
         }
         if (array_key_exists('isactive', $input)) {
             $overrides['isactive'] = !empty($input['isactive']);
+        }
+        if (isset($input['days']) && $input['days'] !== '') {
+            $overrides['days'] = (int)$input['days'];
         }
 
         $result = $this->ruleservice->create_rule_from_template(

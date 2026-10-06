@@ -1,0 +1,12 @@
+name: Create ERPNext Task from Labeled Issue
+
+on:
+  issues:
+    types:
+      - labeled
+
+jobs:
+  call-labeled-issue-workflow:
+    uses: Wunderbyte-GmbH/catalyst-moodle-workflows/.github/workflows/labeled-issue.yml@main
+    secrets:
+      webhook_token: ${{ secrets.WEBHOOK_TOKEN }}

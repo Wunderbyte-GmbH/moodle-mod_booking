@@ -33,13 +33,15 @@ class booking_mutation_validation {
      * @param array $input
      * @param int $cmid
      * @param string $taskname
-     * @return array{errors:array<int,string>,ambiguities:array<int,string>,issue_codes:array<int,string>,error_details:array}
+     * @return array{errors:array<int,string>,ambiguities:array<int,string>,issue_codes:array<int,string>,error_details:array,
+     *     ambiguity_choices:array}
      */
     public static function validate_common(array $input, int $cmid, string $taskname): array {
         global $DB;
 
         $errors = [];
         $ambiguities = [];
+        $ambiguitychoices = [];
           $issuecodes = [];
 
         if (!empty($input['teacherids'])) {
@@ -100,6 +102,14 @@ class booking_mutation_validation {
                     $issuecodes[] = 'TEACHER_USER_NOT_FOUND';
                 }
             } else if ($userresult['status'] === 'ambiguity') {
+                // P6a (#2569): the matching people are a choice for the trainer field, not a text listing user ids.
+                if (!empty($userresult['candidates'])) {
+                    $ambiguitychoices[count($ambiguities)] = [
+                        'field' => 'teacherquery',
+                        'message' => (string)($userresult['choice_message'] ?? $userresult['message']),
+                        'candidates' => (array)$userresult['candidates'],
+                    ];
+                }
                 $ambiguities[] = (string)$userresult['message'];
                 if ((string)($userresult['issue_code'] ?? '') !== '') {
                     $issuecodes[] = (string)$userresult['issue_code'];
@@ -428,6 +438,8 @@ class booking_mutation_validation {
             'ambiguities' => $ambiguities,
             'issue_codes' => array_values(array_unique(array_filter($issuecodes))),
             'error_details' => $errordetails,
+            // Keyed by the index in 'ambiguities': {field, message, candidates} for an ambiguity that is a choice.
+            'ambiguity_choices' => $ambiguitychoices,
         ];
     }
 }

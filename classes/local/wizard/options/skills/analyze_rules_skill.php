@@ -28,6 +28,17 @@ use mod_booking\local\wizard\engine\skill_trigger_provider_interface;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class analyze_rules_skill extends booking_skill_base implements skill_trigger_provider_interface {
+    use \mod_booking\local\wizard\engine\module_targeted_skill;
+
+    /**
+     * Rules live on booking activities - the named one becomes the operating context (#2335).
+     *
+     * @return string
+     */
+    public function get_target_modname(): string {
+        return 'booking';
+    }
+
     /** Task name constant. */
     public const TASK_NAME = 'mod_booking.analyze_rules';
 
@@ -83,13 +94,26 @@ class analyze_rules_skill extends booking_skill_base implements skill_trigger_pr
     public function get_schema(): array {
         return [
             'version' => 1,
-            'description' => 'Read-only analysis of booking rules and notification behavior in the current booking context. '
-                . 'Use this for natural-language questions like "what emails are sent", '
-                . '"which rules are active", or "how are confirmations/reminders configured".',
+            // The three quoted example questions that used to stand here were invisible to the selector while
+            // the catalogue cut cards at 160 characters. Once wave 12 restored the full 240-character window
+            // they became visible and cost SR-1 in run 19: the card carried the user's own wording ("which
+            // rules are active") and won a taskflow question for the booking domain. Example phrasings belong
+            // in example_utterances, which feed the embedding anchors; the card says what the skill IS.
+            // Both boundaries have to fit inside the 240-character selector window, and the first attempt at
+            // the mutation boundary pushed the taskflow one out — which cost SR-1 again while it fixed CBI-4
+            // and URT-3. The window is a budget: what a card says about ITSELF competes with what it says
+            // about its siblings, so the self-description is kept to one short clause.
+            'description' => 'READ-ONLY analysis of a booking activity\'s rules and the mails they send.',
+            'is' => 'Rules of a booking activity that send mails.',
+            'not' => 'Changing a rule (update_rule_from_template); taskflow rules (local_taskflow.search_rules) and messages '
+                . '(local_taskflow.diagnose_message_delivery).',
             'readonly' => $this->is_read_only(),
             'fallback_confirm_string_key' => 'ai_status_confirm_booking_search_options',
             'fallback_taskcall_string_key' => 'ai_status_taskcall_booking_search_options',
             'example_utterances' => [
+                'What emails are sent?',
+                'Which rules are active?',
+                'How are confirmations and reminders configured?',
                 'What emails does this booking send out?',
                 'Which rules are currently set up here?',
                 'Show me how the reminders are configured',
@@ -97,6 +121,19 @@ class analyze_rules_skill extends booking_skill_base implements skill_trigger_pr
                 'Explain what automations are active on this instance',
             ],
             'properties' => [
+                'cmid' => [
+                    'type' => 'integer',
+                    'description' => 'Course-module id of the booking activity, when it is known — e.g. from a '
+                        . 'candidate list that names "cmid <id>" or from a link. Takes precedence over '
+                        . 'activityquery; use it to pick one of several activities that share a name.',
+                    'required' => false,
+                ],
+                'activityquery' => [
+                    'type' => 'string',
+                    'description' => 'Optional: name of the target booking activity whose rules are meant, when it'
+                        . ' is not the current one (e.g. over MCP, which runs at the system context).',
+                    'required' => false,
+                ],
                 'query' => [
                     'type' => 'string',
                     'description' => 'Optional keyword filter applied to rule name, rule type, condition or action. '
@@ -140,11 +177,8 @@ class analyze_rules_skill extends booking_skill_base implements skill_trigger_pr
         return [
             [
                 'id' => 'mod_booking.analyze_rules',
-                'description' => 'User asks to inspect, understand, list or summarize booking rules, '
-                    . 'automated notifications, e-mails or messages that are sent by the booking instance, '
-                    . 'or wants to know which rules are active / configured. '
-                    . 'This also covers read-only capability questions about booking confirmations, '
-                    . 'reminders or mails triggered after a booking.',
+                'description' => 'The user wants to know which booking rules, automated notifications or mails this booking'
+                . ' instance has, what they do, or whether one is active.',
                 'examples' => [
                     'Which messages are currently being sent here?',
                     'What notifications does this booking send?',
@@ -358,6 +392,10 @@ class analyze_rules_skill extends booking_skill_base implements skill_trigger_pr
             }
             if ($action !== '') {
                 $line .= " | action: {$action}";
+            }
+            // The mail task silently skips the rule once this window after the option end has closed.
+            if (isset($rule['aftercompletion'])) {
+                $line .= " | applies until: {$rule['aftercompletion']} day(s) after the end of the booking option";
             }
             if ($editlink !== '') {
                 $line .= " | edit: {$editlink}";

@@ -146,7 +146,8 @@ final class get_option_details_capability_test extends advanced_testcase {
             (array)($result['previewoptionids'] ?? []),
             'An out-of-scope option must not reach the preview card.'
         );
-        $this->assertSame(
+        // The scope sentence comes first; the skill may append the owning activity behind it.
+        $this->assertStringStartsWith(
             get_string('agent_booking_details_error_option_out_of_scope', 'mod_booking'),
             (string)($result['detail'] ?? ''),
             'The rejection must name the instance scope rather than a generic resolution miss.'
@@ -173,7 +174,7 @@ final class get_option_details_capability_test extends advanced_testcase {
 
         $this->assertSame('error', (string)($result['status'] ?? ''));
         $this->assertEmpty((array)($result['optiondetails'] ?? []));
-        $this->assertSame(
+        $this->assertStringStartsWith(
             get_string('agent_booking_details_error_option_out_of_scope', 'mod_booking'),
             (string)($result['detail'] ?? '')
         );

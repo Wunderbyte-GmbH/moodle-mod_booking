@@ -28,6 +28,7 @@ use cache;
 use core_customfield\api;
 use core_customfield\field_controller;
 use html_writer;
+use mod_booking\booking_option_settings;
 use mod_booking\booking_settings;
 use mod_booking\settings\optionformconfig\optionformconfig_info;
 use mod_booking\singleton_service;
@@ -506,18 +507,58 @@ class booking_handler extends \core_customfield\handler {
     }
 
     /**
-     * Check if forbidden shortnames have been created.
-     * @return string the warning message containing the forbidden shortnames
+     * The shortnames a booking custom field must not use because a booking option property
+     * of that name already exists and the field would shadow it.
+     *
+     * The declared properties of booking_option_settings are the baseline, so the rule also holds
+     * on a site without a single booking option. When an option exists, the properties actually set
+     * on it are added, which keeps the list identical to what the management page reported before.
+     *
+     * @return string[] forbidden shortnames, sorted
      */
-    public function check_for_forbidden_shortnames_and_return_warning(): string {
-        global $DB, $OUTPUT;
+    public static function get_reserved_shortnames(): array {
+        global $DB;
+
+        $reserved = array_keys(get_class_vars(booking_option_settings::class));
+
         // Just the first optionid we find.
         $anyoptionid = $DB->get_field_sql(
             "SELECT id FROM {booking_options} LIMIT 1"
         );
-        $settings = singleton_service::get_instance_of_booking_option_settings($anyoptionid);
-        $boproperties = $settings->get_booking_option_properties();
-        $usedshortnames = $DB->get_fieldset_sql(
+        if (!empty($anyoptionid)) {
+            $settings = singleton_service::get_instance_of_booking_option_settings((int)$anyoptionid);
+            if (!empty($settings)) {
+                $reserved = array_merge($reserved, $settings->get_booking_option_properties());
+            }
+        }
+
+        $reserved = array_values(array_unique(array_map('strval', $reserved)));
+        sort($reserved);
+        return $reserved;
+    }
+
+    /**
+     * Whether this shortname would shadow a booking option property.
+     *
+     * Same rule as the warning on the custom field management page, so the page and every
+     * other caller (e.g. the agent skills) decide identically.
+     *
+     * @param string $shortname
+     * @return bool
+     */
+    public static function is_reserved_shortname(string $shortname): bool {
+        return in_array(trim($shortname), self::get_reserved_shortnames(), true);
+    }
+
+    /**
+     * The shortnames of the booking custom fields that currently exist on this site.
+     *
+     * @return string[]
+     */
+    public static function get_used_shortnames(): array {
+        global $DB;
+
+        return $DB->get_fieldset_sql(
             "SELECT DISTINCT cf.shortname
                         FROM {customfield_field} cf
                         JOIN {customfield_category} cc
@@ -525,7 +566,25 @@ class booking_handler extends \core_customfield\handler {
                        WHERE cc.component = 'mod_booking'
                          AND cc.area = 'booking'"
         );
-        $forbiddenshortnames = array_intersect($boproperties, $usedshortnames);
+    }
+
+    /**
+     * The existing booking custom fields whose shortname shadows a booking option property.
+     *
+     * @return string[]
+     */
+    public static function get_forbidden_shortnames_in_use(): array {
+        return array_values(array_intersect(self::get_reserved_shortnames(), self::get_used_shortnames()));
+    }
+
+    /**
+     * Check if forbidden shortnames have been created.
+     * @return string the warning message containing the forbidden shortnames
+     */
+    public function check_for_forbidden_shortnames_and_return_warning(): string {
+        global $OUTPUT;
+
+        $forbiddenshortnames = self::get_forbidden_shortnames_in_use();
         if (empty($forbiddenshortnames)) {
             return '';
         }
