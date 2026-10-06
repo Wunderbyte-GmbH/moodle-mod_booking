@@ -695,6 +695,15 @@ if ($ADMIN->fulltree) {
         )
     );
 
+    $settings->add(
+        new admin_setting_configcheckbox(
+            'booking/enrollimitbysemester',
+            get_string('enrollimitbysemester', 'mod_booking'),
+            get_string('enrollimitbysemester_desc', 'mod_booking'),
+            1
+        )
+    );
+
     $courseroleids = [0 => ''];
     $allrolenames = role_get_names();
     $assignableroles = get_roles_for_contextlevels(CONTEXT_COURSE);
