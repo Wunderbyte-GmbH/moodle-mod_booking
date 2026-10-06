@@ -29,6 +29,7 @@ use mod_booking\local\wizard\engine\observation_time;
 use mod_booking\local\wizard\booking\booking_skill_support;
 use mod_booking\booking_answers\booking_answers;
 use mod_booking\booking_option;
+use mod_booking\local\certificateclass;
 use mod_booking\singleton_service;
 
 /**
@@ -507,7 +508,10 @@ class diagnose_user_booking_skill extends booking_skill_base implements skill_tr
         }
 
         // Certificates (tool_certificate): whether this option's certificate was issued to the user.
-        $configuredtemplate = (int)(booking_option::get_value_of_json_by_key($optionid, 'certificate') ?? 0);
+        // In certificate conditions mode a template left on the option is never issued, so it is not configured.
+        $configuredtemplate = certificateclass::option_certificate_applies()
+            ? (int)(booking_option::get_value_of_json_by_key($optionid, 'certificate') ?? 0)
+            : 0;
         $report['certificates'] = $this->collect_user_certificates($targetuserid, $configuredtemplate);
 
         // If the option configures a certificate and the user is completed but no certificate was
