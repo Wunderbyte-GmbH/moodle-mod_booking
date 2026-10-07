@@ -84,6 +84,9 @@ class bulkcheck implements renderable, templatable {
         // switched off instead: the filters of a table are built through the cache without
         // asking whether there is one.
         $table->define_cache('mod_booking', 'bulkcheckmails');
+        // Newly parked mails don't invalidate the cache, so the reload button purges it.
+        $table->showreloadbutton = true;
+        $table->reloadpurgescache = true;
 
         $table->pageable(true);
         $table->showrowcountselect = true;

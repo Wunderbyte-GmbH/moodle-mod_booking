@@ -100,6 +100,9 @@ class scheduledmails implements renderable, templatable {
         $table->fulltextsearchcolumns = ['rulename', 'name', 'subject', 'message'];
 
         $table->define_cache('mod_booking', 'scheduledmailscache');
+        // Queued and sent mails don't invalidate the cache, so the reload button purges it.
+        $table->showreloadbutton = true;
+        $table->reloadpurgescache = true;
 
         $table->actionbuttons[] = [
             'label' => get_string('delete'), // Name of your action button.
