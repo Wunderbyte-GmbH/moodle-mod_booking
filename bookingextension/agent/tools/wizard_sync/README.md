@@ -66,7 +66,10 @@ over the engine and the bundled agent stands down.
    capability assignments into its own component — agent originals stay
    untouched, so uninstalling the wizard later reactivates the agent exactly
    where it stood; this functionality exists only in the artifact, never in
-   the installed agent).
+   the installed agent). `README.md` and `docs/README.md` are the standalone
+   plugin's own documentation: the root README (requirements, installation,
+   AI provider, capabilities, skill families) and a docs landing page that
+   separates the general guide from the chapters that need mod_booking.
 4b. **Verbatim files** (copied untransformed, exempt from the residual-token
    check): the scaffold's engine-alias-layer templates
    (`classes/local/wizard/services/scaffold/templates/engine_layer/`) — they

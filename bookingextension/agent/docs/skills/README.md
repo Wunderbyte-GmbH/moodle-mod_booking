@@ -20,7 +20,9 @@ responsibility across four namespaces (all registered by
   every installed plugin appears automatically through core's own discovery.
 
 Booking-domain skills live under **`mod_booking.*`** (discovered from the `mod_booking`
-component, base class `booking_skill_base`).
+component, base class `booking_skill_base`). They ship with mod_booking and exist only on
+sites where mod_booking is installed; other plugins can contribute their own skill families
+the same way.
 
 Every skill is gated at run time by its per-skill capability
 `bookingextension/agent:skill_<name>` and by the activation toggle
@@ -97,6 +99,9 @@ filters, and the rows appear in the side panel only (decision D9 of Wunderbyte-G
 ---
 
 ## Booking skills (`mod_booking.*`)
+
+> **Requires mod_booking.** These skills are provided by mod_booking, not by the agent engine.
+> Without mod_booking installed they are not available.
 
 ### Read-only (R0)
 
