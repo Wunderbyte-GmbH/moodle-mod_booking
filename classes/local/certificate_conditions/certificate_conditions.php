@@ -45,7 +45,8 @@ class certificate_conditions {
      */
     public static function get_rendered_list_of_saved_conditions(int $contextid = 1, bool $enableaddbutton = true) {
         global $PAGE;
-        $condition = self::get_list_of_saved_conditions($contextid);
+        // Fetch all conditions: the output class splits them into this context and (on system level) other contexts.
+        $condition = self::get_list_of_saved_conditions(0);
         $data = new certificateconditionslist($condition, $contextid, $enableaddbutton);
         /** @var \mod_booking\output\renderer $output */
         $output = $PAGE->get_renderer('mod_booking');

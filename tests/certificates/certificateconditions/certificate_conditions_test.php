@@ -32,6 +32,9 @@ use mod_booking\table\manageusers_table;
 use mod_booking_generator;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\event\certificate_issued;
+use mod_booking\local\certificate_conditions\certificate_conditions;
+use context_module;
+use context_system;
 use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
@@ -586,6 +589,39 @@ final class certificate_conditions_test extends booking_advanced_testcase {
         // Multiple certificates are allowed in base_scenario, so a re-trigger would issue a second one.
         $this->complete_option_for_user($otheroption->id, $userid);
         $this->assertEquals(1, $DB->count_records('tool_certificate_issues', ['userid' => $userid]));
+
+        self::teardown();
+    }
+
+    /**
+     * An instance condition is listed on its instance page and linked from the system page's other-contexts list.
+     *
+     * @covers \mod_booking\local\certificate_conditions\certificate_conditions::get_rendered_list_of_saved_conditions
+     * @covers \mod_booking\output\certificateconditionslist
+     */
+    public function test_rendered_list_shows_instance_conditions(): void {
+        global $DB;
+        $this->base_scenario();
+        $certificate = $this->get_certificate_generator()->create_template((object)['name' => 'Certificate 1']);
+
+        $modulecontext = context_module::instance($this->booking->cmid);
+        $data = $this->set_instance_condition($certificate);
+        $data->contextid = $modulecontext->id;
+        $DB->insert_record('booking_cert_cond', $data);
+
+        $instancelist = certificate_conditions::get_rendered_list_of_saved_conditions($modulecontext->id);
+        $this->assertStringContainsString($data->name, $instancelist);
+
+        $systemlist = certificate_conditions::get_rendered_list_of_saved_conditions(context_system::instance()->id);
+        // Not a system condition, so it is not listed as one...
+        $this->assertStringNotContainsString($data->name, $systemlist);
+        // ...but its instance is linked under "other contexts".
+        $this->assertStringContainsString(format_string($this->booking->name), $systemlist);
+        $this->assertStringContainsString('cmid=' . $this->booking->cmid, $systemlist);
+        $this->assertStringNotContainsString(
+            get_string('certificateconditionsnootherfound', 'mod_booking'),
+            $systemlist
+        );
 
         self::teardown();
     }
