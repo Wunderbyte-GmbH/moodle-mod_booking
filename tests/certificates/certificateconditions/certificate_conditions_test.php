@@ -544,6 +544,83 @@ final class certificate_conditions_test extends booking_advanced_testcase {
     }
 
     /**
+     * Completing an option of another booking instance must not re-trigger a fulfilled condition.
+     *
+     * @covers \mod_booking\local\certificate_conditions\conditions\bookingoption::evaluate
+     * @covers \mod_booking\local\certificate_conditions\conditions\instance::evaluate
+     * @covers \mod_booking\local\certificate_conditions\certificate_conditions::evaluate_certificate_conditions
+     * @dataProvider other_instance_provider
+     * @param string $conditiontype
+     */
+    public function test_completion_in_other_instance_does_not_trigger_condition(string $conditiontype): void {
+        global $DB;
+        $this->base_scenario();
+        $certificate = $this->get_certificate_generator()->create_template((object)['name' => 'Certificate 1']);
+
+        if ($conditiontype === 'instance') {
+            $conditionid = $DB->insert_record('booking_cert_cond', $this->set_instance_condition($certificate));
+            $this->set_instance_condition_items($conditionid);
+        } else {
+            $conditionid = $DB->insert_record('booking_cert_cond', $this->set_bookingoption_condition($certificate));
+            $this->set_condition_items($conditionid);
+        }
+
+        // Second booking instance with one option, not targeted by the condition.
+        $bdata = self::provide_standard_data()['booking'];
+        $bdata['course'] = $this->course->id;
+        $bdata['bookingmanager'] = $this->users['bookingmanager']->username;
+        $otherbooking = $this->getDataGenerator()->create_module('booking', $bdata);
+        $otheroption = self::provide_standard_data()['option'];
+        $otheroption['bookingid'] = $otherbooking->id;
+        $otheroption['courseid'] = $this->course->id;
+        $otheroption['text'] = 'Other instance option';
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $otheroption = $plugingenerator->create_option((object)$otheroption);
+
+        $userid = $this->users['student1']->id;
+        $this->complete_option_for_user($this->bookingoptions[0]->id, $userid);
+        $this->complete_option_for_user($this->bookingoptions[1]->id, $userid);
+        $this->assertEquals(1, $DB->count_records('tool_certificate_issues', ['userid' => $userid]));
+
+        // Multiple certificates are allowed in base_scenario, so a re-trigger would issue a second one.
+        $this->complete_option_for_user($otheroption->id, $userid);
+        $this->assertEquals(1, $DB->count_records('tool_certificate_issues', ['userid' => $userid]));
+
+        self::teardown();
+    }
+
+    /**
+     * Data provider for test_completion_in_other_instance_does_not_trigger_condition.
+     *
+     * @return array
+     */
+    public static function other_instance_provider(): array {
+        return [
+            'bookingoption condition' => ['bookingoption'],
+            'instance condition' => ['instance'],
+        ];
+    }
+
+    /**
+     * Book a user into an option and mark it as completed.
+     *
+     * @param int $optionid
+     * @param int $userid
+     * @return void
+     */
+    private function complete_option_for_user(int $optionid, int $userid): void {
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        booking_bookit::bookit('option', $settings->id, $userid);
+        booking_bookit::bookit('option', $settings->id, $userid);
+
+        $this->setAdminUser();
+        $option = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
+        $option->toggle_user_completion($userid);
+        singleton_service::destroy_booking_answers($option->id);
+    }
+
+    /**
      * Set up base certificate configuration and create all standard entities from provide_standard_data().
      * Results are stored on $this->users, $this->bookingoptions, $this->course, and $this->booking.
      *
