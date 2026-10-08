@@ -156,7 +156,10 @@ class enrolmentstatus extends field_base {
             }
 
             $value = $settings->enrolmentstatus ?? 2;
-            $data->enrolmentstatus = $value;
+            // Legacy value 1 means "enrol at course start" as well (see booking_option::enrol_user_coursestart).
+            // The checkbox only knows 2 and 0: showing 1 as unchecked would post 2 and silently switch the
+            // option to immediate enrolment, and every untouched save would report a change.
+            $data->enrolmentstatus = (int)$value === 1 ? 0 : $value;
         }
     }
 
