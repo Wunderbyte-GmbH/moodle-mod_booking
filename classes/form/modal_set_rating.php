@@ -141,7 +141,7 @@ class modal_set_rating extends dynamic_form {
     protected function check_access_for_dynamic_submission(): void {
         $cmid = (int)($this->_ajaxformdata['cmid'] ?? 0);
         $optionid = (int)($this->_ajaxformdata['optionid'] ?? 0);
-        $context = $this->get_context_for_dynamic_submission();
+        $context = $this->get_module_context();
 
         $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
         if (empty($bookingsettings->assessed)) {
@@ -225,11 +225,14 @@ class modal_set_rating extends dynamic_form {
     }
 
     /**
-     * Returns form context.
+     * Module context of the booking instance (system context without cmid).
+     *
+     * Capability checks use this context. get_context_for_dynamic_submission() may
+     * return the system context instead, see booking_report_validation_context().
      *
      * @return context
      */
-    protected function get_context_for_dynamic_submission(): context {
+    protected function get_module_context(): context {
         $cmid = $this->_ajaxformdata['cmid'] ?? 0;
         if (empty($cmid)) {
             $cmid = $this->optional_param('cmid', 0, PARAM_INT);
@@ -238,6 +241,19 @@ class modal_set_rating extends dynamic_form {
             }
         }
         return context_module::instance($cmid);
+    }
+
+    /**
+     * Get context for dynamic submission.
+     *
+     * Users who may open the booked users reports without course login (setting
+     * "reportrequirecourselogin" disabled) get the system context here, as the
+     * web service would refuse the module context with "Not enrolled".
+     *
+     * @return context
+     */
+    protected function get_context_for_dynamic_submission(): context {
+        return booking_report_validation_context($this->get_module_context());
     }
 
     /**
