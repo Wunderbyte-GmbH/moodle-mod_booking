@@ -230,6 +230,11 @@ class taggedoptions implements certificate_conditions_interface {
                 return false;
             }
 
+            // Only the completion of one of this condition's own options may trigger it.
+            if (!in_array((int)($context->optionid ?? 0), $candidateoptionids, true)) {
+                return false;
+            }
+
             $userid = (int)($context->userid ?? $event->relateduserid ?? $event->userid ?? 0);
             if (empty($userid)) {
                 return false;

@@ -17,6 +17,8 @@
 namespace mod_booking\local\certificate_conditions;
 
 use mod_booking\local\certificate_conditions\conditions\taggedoptions;
+use context_module;
+use context_system;
 use html_writer;
 use moodle_url;
 use MoodleQuickForm;
@@ -40,7 +42,8 @@ class option_conditions_info {
      */
     public static function add_static_info_to_mform(MoodleQuickForm &$mform, array $formdata): void {
 
-        $taggedconditions = self::get_all_taggedoptions_conditions();
+        $cmid = (int)($formdata['cmid'] ?? 0);
+        $taggedconditions = self::get_all_taggedoptions_conditions($cmid);
         if (!empty($taggedconditions)) {
             $taggedconditions = ['Choose'] + $taggedconditions;
             $mform->addElement(
@@ -194,14 +197,30 @@ class option_conditions_info {
 
     /**
      * Returns tagged options conditions for choosing.
+     * Only system conditions and conditions of the given booking instance are returned.
      *
+     * @param int $cmid course module id of the booking instance, 0 for system conditions only
      * @return array
      *
      */
-    public static function get_all_taggedoptions_conditions() {
+    public static function get_all_taggedoptions_conditions(int $cmid = 0) {
         global $DB;
 
-        $records = $DB->get_records('booking_cert_cond', null, 'name ASC', 'id,name,contextid,logicjson');
+        $contextids = [context_system::instance()->id];
+        if (!empty($cmid)) {
+            $modulecontext = context_module::instance($cmid, IGNORE_MISSING);
+            if ($modulecontext) {
+                $contextids[] = $modulecontext->id;
+            }
+        }
+        [$insql, $params] = $DB->get_in_or_equal($contextids);
+        $records = $DB->get_records_select(
+            'booking_cert_cond',
+            "contextid $insql",
+            $params,
+            'name ASC',
+            'id,name,contextid,logicjson'
+        );
         $conditions = [];
 
         foreach ($records as $record) {
@@ -255,7 +274,9 @@ class option_conditions_info {
         $data = new stdClass();
         $data->id = $optionid;
         $data->optionid = $optionid;
-        $data->conditions = $formdata['taggedconditions'] ?? [];
+        // Only conditions offered on this option's form may be linked.
+        $allowedconditionids = array_keys(self::get_all_taggedoptions_conditions((int)($formdata['cmid'] ?? 0)));
+        $data->conditions = array_intersect((array)($formdata['taggedconditions'] ?? []), $allowedconditionids);
 
         $logic = new taggedoptions();
         $logic->save_items(0, $data);
