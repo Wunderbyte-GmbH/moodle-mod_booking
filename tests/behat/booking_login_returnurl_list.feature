@@ -15,6 +15,11 @@ Feature: Logging in from a page listing booking options ends where the visitor e
       | config                              | value | plugin  |
       | displayloginbuttonforbookingoptions | 1     | booking |
       | showbookingdetailstoall             | 1     | booking |
+    ## Moodle 5.2+ (MDL-87545) sends logged-out visitors from the site home to the login page unless
+    ## enablemyhome is on; earlier versions do not know the setting and ignore it.
+    And the following config values are set as admin:
+      | config       | value |
+      | enablemyhome | 1     |
     And the "shortcodes" filter is "on"
     And the following "users" exist:
       | username | firstname | lastname | email                |
@@ -57,7 +62,7 @@ Feature: Logging in from a page listing booking options ends where the visitor e
     Given I am on site homepage
     And I should see "Option A"
     And I should see "Option C"
-    When I click on "Log in to book this option." "text" in the "Option A" "table_row"
+    When I click on "Log in to book this option." "link" in the "//div[contains(concat(' ', normalize-space(@class), ' '), ' mod-booking-row ')][.//a[normalize-space(.)='Option A']]" "xpath_element"
     And I set the field "Username" to "student1"
     And I set the field "Password" to "student1"
     And I press "Log in"
