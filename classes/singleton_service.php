@@ -307,6 +307,11 @@ class singleton_service {
     public static function destroy_booking_answers($optionid) {
         $instance = self::get_instance();
 
+        // Placeholders that depend on the answers (e.g. {status}, {bookedplaces}) must be rendered
+        // anew as well: cron runs many adhoc tasks in one PHP process, so a value rendered before
+        // the user was booked would otherwise be reused by the mail sent after the booking.
+        placeholders_info::purge_for_option((int) $optionid);
+
         if (isset($instance->bookinganswers[$optionid])) {
             unset($instance->bookinganswers[$optionid]);
 
