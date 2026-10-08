@@ -16,10 +16,12 @@ Feature: Logging in from a page listing booking options ends where the visitor e
       | displayloginbuttonforbookingoptions | 1     | booking |
       | showbookingdetailstoall             | 1     | booking |
     ## Moodle 5.2+ (MDL-87545) sends logged-out visitors from the site home to the login page unless
-    ## enablemyhome is on; earlier versions do not know the setting and ignore it.
+    ## enablemyhome is on; earlier versions do not know the setting and ignore it. Fresh 5.2+ installs
+    ## also force login by default (MDL-87523), which bounces every logged-out visit to the login page.
     And the following config values are set as admin:
       | config       | value |
       | enablemyhome | 1     |
+      | forcelogin   | 0     |
     And the "shortcodes" filter is "on"
     And the following "users" exist:
       | username | firstname | lastname | email                |
