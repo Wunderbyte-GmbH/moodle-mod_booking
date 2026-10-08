@@ -185,6 +185,49 @@ final class login_returnurl_test extends booking_advanced_testcase {
     }
 
     /**
+     * Without a linked course, redirectonlogintocourse has nothing to redirect to and is a no-op.
+     *
+     * @return void
+     */
+    public function test_redirectonlogintocourse_without_course_goes_to_login(): void {
+        global $SESSION;
+
+        set_config('showbookingdetailstoall', 0, 'booking');
+        set_config('redirectonlogintocourse', 1, 'booking');
+        $fixture = $this->create_simple_option(false);
+
+        $this->setUser(0);
+        unset($SESSION->wantsurl);
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($fixture->optionid);
+        $url = new moodle_url(bo_info::set_login_returnurl($settings));
+
+        $this->assertTrue(empty($SESSION->wantsurl));
+        $this->assertStringContainsString('/login/index.php', $url->out(false));
+        $this->assertEmpty($url->param('redirecttocourse'));
+    }
+
+    /**
+     * With both configs enabled, redirectonlogintocourse wins: the user ends up on the course.
+     *
+     * @return void
+     */
+    public function test_redirectonlogintocourse_overrides_showbookingdetailstoall(): void {
+        set_config('showbookingdetailstoall', 1, 'booking');
+        set_config('redirectonlogintocourse', 1, 'booking');
+        $fixture = $this->create_simple_option();
+
+        $this->setUser(0);
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($fixture->optionid);
+        $url = new moodle_url(bo_info::set_login_returnurl($settings));
+
+        $this->assertEquals($fixture->optionid, $url->param('optionid'));
+        $this->assertEquals(1, $url->param('redirecttocourse'));
+        $this->assertEquals(1, $url->param('forcelogin'));
+    }
+
+    /**
      * With neither config enabled, the button goes straight to login and the session stays clean.
      *
      * @return void
@@ -208,11 +251,12 @@ final class login_returnurl_test extends booking_advanced_testcase {
     }
 
     /**
-     * Create a minimal booking option with a connected course.
+     * Create a minimal booking option, by default with a connected course.
      *
+     * @param bool $withcourse whether to connect the option to a course
      * @return stdClass with cmid and optionid
      */
-    private function create_simple_option(): stdClass {
+    private function create_simple_option(bool $withcourse = true): stdClass {
         global $DB;
 
         $this->setAdminUser();
@@ -228,6 +272,10 @@ final class login_returnurl_test extends booking_advanced_testcase {
             'course' => $course->id,
             'importing' => 1,
         ]);
+
+        if (!$withcourse) {
+            return (object) ['cmid' => (int) $booking->cmid, 'optionid' => (int) $option->id];
+        }
 
         // Set the connected course directly: $settings->courseid is read from this column and
         // drives the redirectonlogintocourse branch of set_login_returnurl().
