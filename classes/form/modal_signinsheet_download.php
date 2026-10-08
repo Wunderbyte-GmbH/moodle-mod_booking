@@ -193,7 +193,7 @@ class modal_signinsheet_download extends dynamic_form {
      * @return void
      */
     protected function check_access_for_dynamic_submission(): void {
-        $context = $this->get_context_for_dynamic_submission();
+        $context = $this->get_module_context();
         $optionid = (int)($this->_ajaxformdata['optionid'] ?? 0);
 
         $isteacher = booking_check_if_teacher($optionid);
@@ -252,14 +252,30 @@ class modal_signinsheet_download extends dynamic_form {
     }
 
     /**
+     * Module context of the booking instance (system context without cmid).
+     *
+     * Capability checks use this context. get_context_for_dynamic_submission() may
+     * return the system context instead, see booking_report_validation_context().
+     *
+     * @return context
+     */
+    protected function get_module_context(): context {
+        $cmid = (int)($this->_ajaxformdata['cmid'] ?? 0);
+
+        return context_module::instance($cmid);
+    }
+
+    /**
      * Get context for dynamic submission.
+     *
+     * Users who may open the booked users reports without course login (setting
+     * "reportrequirecourselogin" disabled) get the system context here, as the
+     * web service would refuse the module context with "Not enrolled".
      *
      * @return context
      */
     protected function get_context_for_dynamic_submission(): context {
-        $cmid = (int)($this->_ajaxformdata['cmid'] ?? 0);
-
-        return context_module::instance($cmid);
+        return booking_report_validation_context($this->get_module_context());
     }
 
     /**

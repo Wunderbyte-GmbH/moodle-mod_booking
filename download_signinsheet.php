@@ -32,7 +32,7 @@ use mod_booking\signinsheet\signinsheet_config;
 use mod_booking\signinsheet\signinsheet_generator;
 use mod_booking\singleton_service;
 
-require_once("../../config.php");
+require_once("../../config.php"); // phpcs:ignore moodle.Files.RequireLogin.Missing
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 
 global $PAGE;
@@ -41,7 +41,9 @@ $cmid = required_param('cmid', PARAM_INT);
 $optionid = required_param('optionid', PARAM_INT);
 
 [$course, $cm] = get_course_and_cm_from_cmid($cmid, 'booking');
-require_course_login($course, false, $cm);
+// Course login (enrolment or guest access) by default; a site login is enough if the
+// setting "reportrequirecourselogin" is disabled. The capability checks below still apply.
+booking_require_report_login($course, $cm);
 
 $context = context_module::instance($cm->id);
 $PAGE->set_url(new moodle_url('/mod/booking/download_signinsheet.php', ['cmid' => $cmid, 'optionid' => $optionid]));

@@ -32,6 +32,7 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 require_once("$CFG->libdir/formslib.php");
+require_once("$CFG->dirroot/mod/booking/lib.php");
 
 use cache_helper;
 use context;
@@ -105,7 +106,7 @@ class modal_change_status extends dynamic_form {
      * @return void
      */
     protected function check_access_for_dynamic_submission(): void {
-        require_capability('mod/booking:managebookedusers', $this->get_context_for_dynamic_submission());
+        require_capability('mod/booking:managebookedusers', $this->get_module_context());
     }
 
     /**
@@ -198,14 +199,14 @@ class modal_change_status extends dynamic_form {
     }
 
     /**
-     * Returns form context
+     * Module context of the booking instance (system context without cmid).
      *
-     * If context depends on the form data, it is available in $this->_ajaxformdata or
-     * by calling $this->optional_param()
+     * Capability checks use this context. get_context_for_dynamic_submission() may
+     * return the system context instead, see booking_report_validation_context().
      *
      * @return context
      */
-    protected function get_context_for_dynamic_submission(): context {
+    protected function get_module_context(): context {
         $cmid = $this->_ajaxformdata['cmid'] ?? 0;
         if (empty($cmid)) {
             $cmid = $this->optional_param('cmid', 0, PARAM_INT);
@@ -214,6 +215,19 @@ class modal_change_status extends dynamic_form {
             }
         }
         return context_module::instance($cmid);
+    }
+
+    /**
+     * Get context for dynamic submission.
+     *
+     * Users who may open the booked users reports without course login (setting
+     * "reportrequirecourselogin" disabled) get the system context here, as the
+     * web service would refuse the module context with "Not enrolled".
+     *
+     * @return context
+     */
+    protected function get_context_for_dynamic_submission(): context {
+        return booking_report_validation_context($this->get_module_context());
     }
 
     /**

@@ -2038,6 +2038,31 @@ function booking_require_report_login(stdClass $course, $cm = null): void {
 }
 
 /**
+ * Context to validate in the dynamic forms of the booked users reports (report.php and report2.php).
+ *
+ * The dynamic form web service validates the context of the form with require_login(), so a module context
+ * fails with "Not enrolled" for users who are not enrolled in the course. If the setting
+ * "reportrequirecourselogin" is disabled, booking_require_report_login() lets these users open the reports,
+ * so their forms get the system context instead. The forms have to check their capabilities in the module
+ * context explicitly, the returned context is only meant for the login check.
+ *
+ * @param context $context the context of the form (usually the module context of the booking instance)
+ * @return context
+ */
+function booking_report_validation_context(context $context): context {
+    if ($context->contextlevel != CONTEXT_MODULE || get_config('booking', 'reportrequirecourselogin') !== '0') {
+        return $context;
+    }
+
+    $course = get_course($context->get_course_context()->instanceid);
+    if (can_access_course($course)) {
+        return $context;
+    }
+
+    return context_system::instance();
+}
+
+/**
  * Login check for the booking option form (editoptions.php).
  *
  * By default (setting "editoptionsrequirecourselogin" enabled), the user has to be enrolled in the course
