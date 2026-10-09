@@ -313,6 +313,9 @@ class booked_users implements renderable, templatable {
         if (empty($table)) {
             return null;
         }
+        // The table is reloaded via web service (paging, filters, lazy loading), which validates the
+        // context of the table with require_login(). See booking_report_validation_context().
+        $table->context = booking_report_validation_context($table->context);
         $table->cardsort = true; // Activate sorting dropdown.
         $table->showcountlabel = true;
         $table->showdownloadbutton = true;
@@ -469,6 +472,9 @@ class booked_users implements renderable, templatable {
 
         $table->set_sql($fields, $from, $where, $params);
         $table->define_cache('mod_booking', 'bookinghistorytable');
+        // The table is reloaded via web service (paging, filters, lazy loading), which validates the
+        // context of the table with require_login(). See booking_report_validation_context().
+        $table->context = booking_report_validation_context($table->context);
         $table->use_pages = true;
 
         $columns1 = [];
