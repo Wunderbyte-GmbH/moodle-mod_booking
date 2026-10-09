@@ -46,6 +46,7 @@ $returnto = optional_param('returnto', '', PARAM_ALPHA);
 $returnurl = optional_param('returnurl', '', PARAM_URL);
 $redirecttocourse = optional_param('redirecttocourse', 0, PARAM_INT);
 $justbooked = optional_param('justbooked', 0, PARAM_INT);
+$forcelogin = optional_param('forcelogin', 0, PARAM_INT);
 
 $cvpwd = optional_param('cvpwd', '', PARAM_TEXT);
 $cvfield = optional_param('cvfield', '', PARAM_TEXT);
@@ -72,6 +73,15 @@ $PAGE->set_context($syscontext);
 
 $url = new moodle_url('/mod/booking/optionview.php', ['cmid' => $cmid, 'optionid' => $optionid]);
 $PAGE->set_url($url);
+
+// A login button on a booking option (the bo_availability isloggedin condition) links here with
+// forcelogin=1 so clicking it sends a logged-out user to the login page and back to this option
+// afterwards. require_login() stores the current URL in $SESSION->wantsurl, which is the correct
+// per-click moment to set it - unlike writing the session while rendering a whole list of cards,
+// where every card would overwrite it and a plain login would jump to the last one rendered.
+if ($forcelogin && (!isloggedin() || isguestuser())) {
+    require_login();
+}
 
 $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
 $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
