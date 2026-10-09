@@ -235,6 +235,70 @@ final class checkout_multiuser_buttons_test extends booking_advanced_testcase {
     }
 
     /**
+     * A cashier books the multi-user option for another user, increases the number
+     * of users in the cart and checks out. The booked answer must keep the increased
+     * number of places instead of falling back to the value of the customform prepage.
+     *
+     * @param array $bdata
+     * @runInSeparateProcess
+     * @covers \mod_booking\observer::shoppingcart_item_added
+     * @covers \mod_booking\bo_availability\conditions\customform::add_json_to_booking_answer
+     * @dataProvider booking_common_settings_provider
+     */
+    public function test_cashier_checkout_keeps_adjusted_places_for_other_user(array $bdata): void {
+        global $DB;
+
+        [$targetuser, $settings, $cashieruser] = $this->setup_multiuser_scenario($bdata, true);
+
+        $this->setUser($cashieruser);
+
+        // The cashier submits the customform prepage for the target user with 3 users.
+        $_POST = [
+            'id' => (string)$settings->id,
+            'userid' => (string)$targetuser->id,
+            'customform_enrolusersaction_1' => '3',
+            'sesskey' => sesskey(),
+            '_qf__mod_booking_form_condition_customform_form' => '1',
+        ];
+        $form = new customform_form(null, null, 'post', '', [], true, $_POST, true);
+        $this->assertTrue($form->is_validated(), 'Customform submission should validate for the cashier.');
+        $form->process_dynamic_submission();
+        $_POST = [];
+
+        shopping_cart::delete_all_items_from_cart($targetuser->id);
+        shopping_cart::buy_for_user($targetuser->id);
+        $cartstore = cartstore::instance($targetuser->id);
+        shopping_cart::add_item_to_cart('mod_booking', 'option', $settings->id, -1);
+
+        // Adding the item must clear the prepage data of the target user, not of the cashier.
+        $customformstore = new \mod_booking\local\mobile\customformstore($targetuser->id, $settings->id);
+        $this->assertEmpty($customformstore->get_customform_data(), 'Prepage data of the target user must be cleared.');
+
+        // Click "+" twice as the cashier: 3 -> 5.
+        increase_number_of_item::execute('mod_booking', 'option', $settings->id, (int)$targetuser->id);
+        increase_number_of_item::execute('mod_booking', 'option', $settings->id, (int)$targetuser->id);
+        $optionitem = $this->get_option_item($cartstore);
+        $this->assertEquals(5, (int)($optionitem['nritems'] ?? 0), 'Increase must be reflected in the cart.');
+
+        // The cashier checks out for the target user.
+        $result = shopping_cart::confirm_payment($targetuser->id, LOCAL_SHOPPING_CART_PAYMENT_METHOD_CASHIER_CASH);
+        $this->assertEquals(1, (int)$result['status'], 'Checkout must succeed.');
+
+        $answer = $DB->get_record('booking_answers', [
+            'optionid' => $settings->id,
+            'userid' => $targetuser->id,
+            'waitinglist' => MOD_BOOKING_STATUSPARAM_BOOKED,
+        ]);
+        $this->assertNotEmpty($answer, 'The target user must be booked.');
+        $this->assertEquals(5, (int)$answer->places, 'Booked places must keep the increased number.');
+        $this->assertEquals(
+            5,
+            \mod_booking\enrollink::return_number_of_booked_licenses_from_booking_answer($answer),
+            'The enrolusersaction value in the answer json must keep the increased number.'
+        );
+    }
+
+    /**
      * Returns the mod_booking option item from the cart or null.
      *
      * @param cartstore $cartstore

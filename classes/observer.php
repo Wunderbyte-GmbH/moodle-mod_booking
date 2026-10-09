@@ -714,7 +714,9 @@ class mod_booking_observer {
             return;
         }
         // Any data that is stored in a form is deleted from the cache if an item is added to the shoppingcart.
-        $customformstore = new customformstore($eventdata['userid'], $eventdata['other']['itemid']);
+        // The form data is keyed by the buyer (relateduserid), not by the cashier who triggered the event.
+        $buyerid = $eventdata['relateduserid'] ?? $eventdata['userid'];
+        $customformstore = new customformstore($buyerid, $eventdata['other']['itemid']);
         $customformstore->delete_customform_data();
         return;
     }
