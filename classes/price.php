@@ -875,6 +875,28 @@ class price {
     }
 
     /**
+     * The price label shown to a user, e.g. "49.00 EUR", or an empty string if no price is shown.
+     *
+     * A price of 0 is only shown with the settings "priceisalwayson" or "displayemptyprice";
+     * otherwise the user sees the plain book now button instead of a price.
+     *
+     * @param array $priceitem as returned by get_price()
+     *
+     * @return string
+     */
+    public static function get_display_label(array $priceitem): string {
+        if (
+            !get_config('booking', 'priceisalwayson')
+            && empty(get_config('booking', 'displayemptyprice'))
+            && (!isset($priceitem['price']) || empty((float) $priceitem['price']))
+        ) {
+            return '';
+        }
+        $currstring = isset($priceitem['currency']) ? ' ' . $priceitem['currency'] : '';
+        return format_float((float) ($priceitem['price'] ?? 0.0), 2) . $currstring;
+    }
+
+    /**
      * Price class caches once determined prices and returns them quickly.
      * If no category identifier has been set, it will return the default price.
      *

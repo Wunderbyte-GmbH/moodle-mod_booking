@@ -1874,3 +1874,180 @@ table[id*="bulkoperationstable"] th {
     background: linear-gradient(135deg, #6f42c1 0%, #d63384 100%);
     box-shadow: 0 1px 3px rgba(111, 66, 193, .35);
 }
+
+/* Booking confirmation step (condition "confirmation"). */
+.mod-booking-confirmation {
+    --mbc-accent: #357a32;
+    --mbc-accent-bg: rgba(53, 122, 50, .1);
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin: .25rem 1rem;
+    text-align: left;
+}
+
+.mod-booking-confirmation-reserved {
+    --mbc-accent: #0f6cbf;
+    --mbc-accent-bg: rgba(15, 108, 191, .1);
+}
+
+.mod-booking-confirmation-waitinglist {
+    --mbc-accent: #a86700;
+    --mbc-accent-bg: rgba(168, 103, 0, .1);
+}
+
+.mod-booking-confirmation-error {
+    --mbc-accent: #ca3120;
+    --mbc-accent-bg: rgba(202, 49, 32, .1);
+}
+
+.mod-booking-confirmation-status {
+    display: flex;
+    align-items: flex-start;
+    gap: .75rem;
+    padding: .75rem 1rem;
+    border-radius: .5rem;
+    background: var(--mbc-accent-bg);
+}
+
+.mod-booking-confirmation-icon {
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    background: var(--mbc-accent);
+    color: #fff;
+}
+
+.mod-booking-confirmation-message {
+    align-self: center;
+    min-width: 0;
+}
+
+/* The thankyou* strings (and site customisations of them) start with their own large icon and
+   line breaks; the status header shows the state icon instead. */
+.mod-booking-confirmation-message > i.fa:first-child,
+.mod-booking-confirmation-message > i.fa:first-child + br,
+.mod-booking-confirmation-message > i.fa:first-child + br + br {
+    display: none;
+}
+
+.mod-booking-confirmation-ticket {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    border: 1px dashed currentcolor;
+    border-radius: .5rem;
+}
+
+.mod-booking-confirmation-qrcode {
+    flex: none;
+    width: 168px;
+    max-width: 100%;
+    height: auto;
+    padding: 12px;
+    background: #fff;
+    border-radius: .25rem;
+    image-rendering: pixelated;
+}
+
+.mod-booking-confirmation-ticket-text {
+    display: flex;
+    flex-direction: column;
+    gap: .35rem;
+    flex: 1 1 12rem;
+    min-width: 0;
+}
+
+.mod-booking-confirmation-ticket-code {
+    font-family: monospace;
+    letter-spacing: .08em;
+    overflow-wrap: anywhere;
+}
+
+.mod-booking-confirmation-steps-heading {
+    font-size: .8rem;
+    font-weight: bold;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    opacity: .7;
+}
+
+.mod-booking-confirmation-steps {
+    list-style: none;
+    margin: -.5rem 0 0;
+    padding: 0;
+}
+
+.mod-booking-confirmation-steps li {
+    position: relative;
+    display: flex;
+    gap: .75rem;
+    padding-bottom: .9rem;
+}
+
+.mod-booking-confirmation-steps li:last-child {
+    padding-bottom: 0;
+}
+
+.mod-booking-confirmation-steps li::before {
+    content: "";
+    position: absolute;
+    left: calc(.8rem - 1px);
+    top: 1.6rem;
+    bottom: 0;
+    width: 2px;
+    background: currentcolor;
+    opacity: .15;
+}
+
+.mod-booking-confirmation-steps li:last-child::before {
+    display: none;
+}
+
+.mod-booking-confirmation-dot {
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.6rem;
+    height: 1.6rem;
+    border: 2px solid rgba(128, 128, 128, .4);
+    border-radius: 50%;
+    font-size: .8rem;
+    font-weight: bold;
+}
+
+.mod-booking-confirmation-steps li.done .mod-booking-confirmation-dot {
+    border-color: var(--mbc-accent);
+    background: var(--mbc-accent);
+    color: #fff;
+}
+
+.mod-booking-confirmation-steps li.current .mod-booking-confirmation-dot {
+    border-color: var(--mbc-accent);
+    color: var(--mbc-accent);
+}
+
+.mod-booking-confirmation-step {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    padding-top: .1rem;
+}
+
+.mod-booking-confirmation-statusdescription {
+    padding: .5rem .75rem;
+    border-left: 3px solid var(--mbc-accent);
+    border-radius: 0 .25rem .25rem 0;
+    background: rgba(128, 128, 128, .08);
+}
+
+.mod-booking-confirmation-statusdescription > :last-child {
+    margin-bottom: 0;
+}

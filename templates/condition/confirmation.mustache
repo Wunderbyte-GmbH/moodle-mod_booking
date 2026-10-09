@@ -17,6 +17,10 @@
 {{!
     @template mod_booking/condition/confirmation
 
+    Last step of the booking process: status of the booking, the next steps derived from the
+    option and the booking answer, the "after booking" text and, if entry tickets are enabled,
+    the ticket QR code.
+
     Classes required for JS:
     * none
 
@@ -25,21 +29,74 @@
 
     Example context (json):
     {
-       "optionid": "1"
+        "title": "Yoga for beginners",
+        "alreadybooked": true,
+        "confirmationstate": "booked",
+        "confirmationstateclass": "mod-booking-confirmation-booked",
+        "hassteps": true,
+        "steps": [
+            {"number": 1, "title": "Booked", "hastext": false, "text": "", "done": true, "current": false},
+            {"number": 2, "title": "Cancellation possible until", "hastext": true,
+                "text": "12 October 2026, 11:59 PM", "done": false, "current": false},
+            {"number": 3, "title": "Next date", "hastext": true,
+                "text": "Monday, 13 October 2026, 6:00 PM - 7:30 PM", "done": false, "current": false}
+        ],
+        "showstatusdescription": true,
+        "statusdescription": "<p>Please bring your own mat.</p>",
+        "hasticket": false,
+        "mybookingsurl": "https://example.com/mod/booking/mybookings.php"
     }
 }}
+<div class="condition-confirmation mod-booking-confirmation {{confirmationstateclass}} w-100">
+    <div class="mod-booking-confirmation-status" role="status">
+        <span class="mod-booking-confirmation-icon" aria-hidden="true">
+            {{#alreadybooked}}<i class="fa fa-check"></i>{{/alreadybooked}}
+            {{#alreadyreserved}}<i class="fa fa-shopping-cart"></i>{{/alreadyreserved}}
+            {{#onwaitinglist}}<i class="fa fa-clock-o"></i>{{/onwaitinglist}}
+            {{#notyetbooked}}<i class="fa fa-times"></i>{{/notyetbooked}}
+        </span>
+        <div class="mod-booking-confirmation-message">
+            {{#alreadybooked}}{{#str}} thankyoubooked, mod_booking, {{{title}}} {{/str}}{{/alreadybooked}}
+            {{#alreadyreserved}}{{#str}} thankyoucheckout, mod_booking, {{{title}}} {{/str}}{{/alreadyreserved}}
+            {{#onwaitinglist}}{{#str}} thankyouwaitinglist, mod_booking, {{{title}}} {{/str}}{{/onwaitinglist}}
+            {{#notyetbooked}}{{#str}} thankyouerror, mod_booking, {{{title}}} {{/str}}{{/notyetbooked}}
+        </div>
+    </div>
 
-<div class="condition-confirmation w-100 ms-3 me-3 mb-1 mt-1 p-2 text-center bg-light border border-secondary rounded">
-    {{#alreadybooked}}
-        {{#str}} thankyoubooked, mod_booking, {{{title}}} {{/str}}
-    {{/alreadybooked}}
-    {{#alreadyreserved}}
-        {{#str}} thankyoucheckout, mod_booking, {{{title}}} {{/str}}
-    {{/alreadyreserved}}
-    {{#onwaitinglist}}
-        {{#str}} thankyouwaitinglist, mod_booking, {{{title}}} {{/str}}
-    {{/onwaitinglist}}
-    {{#notyetbooked}}
-        {{#str}} thankyouerror, mod_booking, {{{title}}} {{/str}}
-    {{/notyetbooked}}
+    {{#hasticket}}{{#ticket}}
+    <div class="mod-booking-confirmation-ticket">
+        <img class="mod-booking-confirmation-qrcode" src="{{qrcodesrc}}" alt="{{qrcodealt}}" width="168" height="168">
+        <div class="mod-booking-confirmation-ticket-text">
+            <strong>{{#str}} confirmationticketheading, mod_booking {{/str}}</strong>
+            <span class="text-muted">{{#str}} confirmationtickethint, mod_booking {{/str}}</span>
+            <span class="mod-booking-confirmation-ticket-code">{{code}}</span>
+            <div>{{{downloadbutton}}}</div>
+        </div>
+    </div>
+    {{/ticket}}{{/hasticket}}
+
+    {{#hassteps}}
+    <div class="mod-booking-confirmation-steps-heading">{{#str}} confirmationnextsteps, mod_booking {{/str}}</div>
+    <ol class="mod-booking-confirmation-steps">
+        {{#steps}}
+        <li class="{{#done}}done{{/done}}{{#current}}current{{/current}}">
+            <span class="mod-booking-confirmation-dot" aria-hidden="true">{{#done}}<i class="fa fa-check"></i>{{/done}}{{^done}}{{number}}{{/done}}</span>
+            <span class="mod-booking-confirmation-step">
+                <strong>{{title}}</strong>
+                {{#hastext}}<span class="text-muted">{{{text}}}</span>{{/hastext}}
+            </span>
+        </li>
+        {{/steps}}
+    </ol>
+    {{/hassteps}}
+
+    {{#showstatusdescription}}
+    <div class="mod-booking-confirmation-statusdescription">{{{statusdescription}}}</div>
+    {{/showstatusdescription}}
+
+    {{#mybookingsurl}}
+    <div class="mod-booking-confirmation-links">
+        <a href="{{mybookingsurl}}"><i class="fa fa-list" aria-hidden="true"></i> {{#str}} mybookingoptions, mod_booking {{/str}}</a>
+    </div>
+    {{/mybookingsurl}}
 </div>

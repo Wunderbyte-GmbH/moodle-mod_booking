@@ -28,10 +28,14 @@ namespace mod_booking\bo_availability\conditions;
 
 use mod_booking\bo_availability\bo_condition;
 use mod_booking\bo_availability\bo_info;
+use core_qrcode;
 use mod_booking\booking_option_settings;
+use mod_booking\local\ticket\ticket_manager;
+use mod_booking\option\dates_handler;
 use mod_booking\output\bookingoption_description;
 use mod_booking\singleton_service;
 use mod_booking\price;
+use moodle_url;
 use MoodleQuickForm;
 
 defined('MOODLE_INTERNAL') || die();
@@ -239,6 +243,8 @@ class confirmation implements bo_condition {
             }
         }
 
+        $bodata = array_merge($bodata, self::get_next_steps_data($settings, $bodata, $userid));
+
         $dataarray[] = [
             'data' => $bodata,
         ];
@@ -252,6 +258,171 @@ class confirmation implements bo_condition {
         ];
 
         return $returnarray;
+    }
+
+    /**
+     * Template data for the confirmation step: status, next steps and the entry ticket.
+     *
+     * Every step is derived from the state of the option and of the user's booking answer,
+     * nothing is shown that the option does not actually provide.
+     *
+     * @param booking_option_settings $settings
+     * @param array $bodata the option description data, with the state flag already set
+     * @param int $userid
+     * @return array
+     */
+    private static function get_next_steps_data(booking_option_settings $settings, array $bodata, int $userid): array {
+        $steps = [];
+        $ticket = [];
+
+        if (!empty($bodata['alreadybooked'])) {
+            $state = 'booked';
+            $steps[] = self::step(get_string('confirmationstepbooked', 'mod_booking'), '', true);
+            $ticket = self::get_ticket_data($settings, $userid);
+            if (!empty($bodata['canstillbecancelled']) && !empty($bodata['canceluntil'])) {
+                $steps[] = self::step(get_string('confirmationstepcancel', 'mod_booking'), $bodata['canceluntil']);
+            }
+            $nextdate = self::get_next_date_step($settings);
+            if (!empty($nextdate)) {
+                $steps[] = $nextdate;
+            }
+        } else if (!empty($bodata['alreadyreserved'])) {
+            $state = 'reserved';
+            $expiration = (int) get_config('local_shopping_cart', 'expirationtime');
+            $steps[] = self::step(
+                get_string('confirmationstepreserved', 'mod_booking'),
+                $expiration > 0 ? get_string('confirmationreservedfor', 'mod_booking', format_time($expiration * MINSECS)) : '',
+                true
+            );
+            // Same label as on the book button, so the price shows exactly where the button shows it.
+            $price = price::get_display_label(
+                price::get_price('option', (int) $settings->id, singleton_service::get_instance_of_user($userid))
+            );
+            $steps[] = self::step(get_string('confirmationsteppay', 'mod_booking'), $price, false, true);
+            $steps[] = self::step(
+                get_string('confirmationstepbooked', 'mod_booking'),
+                get_string('confirmationstepbookedafterpayment', 'mod_booking')
+            );
+        } else if (!empty($bodata['onwaitinglist'])) {
+            $state = 'waitinglist';
+            $steps[] = self::step(
+                get_string('confirmationstepwaitinglist', 'mod_booking'),
+                get_string('confirmationstepwaitinglistdesc', 'mod_booking'),
+                true
+            );
+            if (!empty($settings->waitforconfirmation)) {
+                $steps[] = self::step(
+                    get_string('confirmationstepconfirmation', 'mod_booking'),
+                    get_string('confirmationstepconfirmationdesc', 'mod_booking'),
+                    false,
+                    true
+                );
+            } else {
+                $steps[] = self::step(
+                    get_string('confirmationstepmoveup', 'mod_booking'),
+                    get_string('confirmationstepmoveupdesc', 'mod_booking'),
+                    false,
+                    true
+                );
+            }
+        } else {
+            $state = 'error';
+        }
+
+        // Number the open steps; finished steps show a check mark instead.
+        foreach ($steps as $index => $step) {
+            $steps[$index]['number'] = $index + 1;
+        }
+
+        return [
+            'confirmationstate' => $state,
+            'confirmationstateclass' => 'mod-booking-confirmation-' . $state,
+            'steps' => $steps,
+            'hassteps' => !empty($steps),
+            'ticket' => $ticket,
+            'hasticket' => !empty($ticket),
+            'showstatusdescription' => $state === 'booked' && !empty(trim(strip_tags($bodata['statusdescription'] ?? ''))),
+            'mybookingsurl' => $state === 'error' ? '' : (new moodle_url('/mod/booking/mybookings.php'))->out(false),
+        ];
+    }
+
+    /**
+     * One entry of the next steps list.
+     *
+     * @param string $title
+     * @param string $text
+     * @param bool $done
+     * @param bool $current
+     * @return array
+     */
+    private static function step(string $title, string $text = '', bool $done = false, bool $current = false): array {
+        return [
+            'title' => $title,
+            'text' => $text,
+            'hastext' => $text !== '',
+            'done' => $done,
+            'current' => $current,
+        ];
+    }
+
+    /**
+     * The step for the next upcoming date of the option, with the number of further dates.
+     *
+     * @param booking_option_settings $settings
+     * @return array empty if no upcoming date exists (e.g. self-learning courses or past options)
+     */
+    private static function get_next_date_step(booking_option_settings $settings): array {
+        if (!empty($settings->selflearningcourse) || empty($settings->sessions)) {
+            return [];
+        }
+        $now = time();
+        $upcoming = array_values(array_filter(
+            $settings->sessions,
+            fn($session) => (int) ($session->coursestarttime ?? 0) > $now
+        ));
+        if (empty($upcoming)) {
+            return [];
+        }
+        $next = $upcoming[0];
+        $text = dates_handler::prettify_optiondates_start_end(
+            (int) $next->coursestarttime,
+            (int) $next->courseendtime,
+            current_language()
+        );
+        $more = count($upcoming) - 1;
+        if ($more > 0) {
+            $text .= ' · ' . ($more === 1
+                ? get_string('confirmationmoredate', 'mod_booking')
+                : get_string('confirmationmoredates', 'mod_booking', $more));
+        }
+        return self::step(get_string('confirmationstepnextdate', 'mod_booking'), $text);
+    }
+
+    /**
+     * The entry ticket of a booked user: QR code of the verification URL and the PDF download.
+     *
+     * The QR code is rendered locally (core_qrcode), no external service sees the ticket code.
+     *
+     * @param booking_option_settings $settings
+     * @param int $userid
+     * @return array empty if tickets are off for this option or no valid ticket exists
+     */
+    private static function get_ticket_data(booking_option_settings $settings, int $userid): array {
+        if (!ticket_manager::is_enabled_for_option((int) $settings->id)) {
+            return [];
+        }
+        $ticket = ticket_manager::find_or_create_for_booked_user((int) $settings->id, $userid);
+        if (empty($ticket) || ticket_manager::is_cancelled($ticket)) {
+            return [];
+        }
+        $qrcode = new core_qrcode(ticket_manager::get_verify_url($ticket)->out(false));
+        $svg = $qrcode->getBarcodeSVGcode(4, 4, '#000000');
+        return [
+            'qrcodesrc' => 'data:image/svg+xml;base64,' . base64_encode($svg),
+            'qrcodealt' => get_string('confirmationticketqralt', 'mod_booking', format_string($settings->get_title_with_prefix())),
+            'code' => $ticket->code,
+            'downloadbutton' => ticket_manager::render_download_button($ticket),
+        ];
     }
 
     /**

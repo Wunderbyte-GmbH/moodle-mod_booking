@@ -1154,16 +1154,7 @@ class bo_info {
                 $currstring = isset($priceitem["currency"]) ? " " .  $priceitem["currency"] : '';
                 $label .= $currstring;
             } else if ($includeprice) {
-                $priceitem = price::get_price('option', $settings->id, $user);
-                if (
-                    get_config('booking', 'priceisalwayson')
-                    || !empty(get_config('booking', 'displayemptyprice'))
-                    || (isset($priceitem["price"]) && !empty((float)$priceitem["price"]))
-                ) {
-                    $currstring = isset($priceitem["currency"]) ? " " .  $priceitem["currency"] : '';
-                    $label = format_float((float)$priceitem['price'] ?? 0.0, 2);
-                    $label .= $currstring;
-                }
+                $label = price::get_display_label(price::get_price('option', $settings->id, $user));
             }
 
             if (!empty($label)) {
