@@ -39,7 +39,9 @@ use context;
 use context_system;
 use context_module;
 use core_form\dynamic_form;
+use mod_booking\local\bookingstracker\report2_access;
 use mod_booking\local\optiondates\optiondate_answer;
+use moodle_exception;
 use moodle_url;
 
 /**
@@ -99,7 +101,16 @@ class modal_change_notes extends dynamic_form {
      * @return void
      */
     protected function check_access_for_dynamic_submission(): void {
-        require_capability('mod/booking:managebookedusers', $this->get_module_context());
+        $context = $this->get_module_context();
+        $optionid = (int)($this->_ajaxformdata['optionid'] ?? 0);
+        if (!report2_access::can_manage_option_answers($context, $optionid)) {
+            require_capability('mod/booking:managebookedusers', $context);
+        }
+
+        // The capability only counts for the options of this booking instance.
+        if (!empty($optionid) && !report2_access::option_belongs_to_context($optionid, $context)) {
+            throw new moodle_exception('nopermissiontoaccesspage', 'mod_booking');
+        }
     }
 
     /**
@@ -140,12 +151,22 @@ class modal_change_notes extends dynamic_form {
         For optiondate scope: optionid-optiondateid-userid */
         switch ($scope) {
             case 'optiondate':
+                $context = $this->get_module_context();
                 foreach ($checkedids as $checkedid) {
                     [$optionid, $optiondateid, $userid] = explode('-', $checkedid);
                     if (empty($optionid) || empty($optiondateid) || empty($userid)) {
                         continue;
                     }
                     if (!is_int((int) $optionid) || !is_int((int) $optiondateid) || !is_int((int) $userid)) {
+                        continue;
+                    }
+                    // Only sessions of options of the booking instance the capability was checked for,
+                    // and of options the user may manage (teachers only their own ones).
+                    if (
+                        !report2_access::option_belongs_to_context((int) $optionid, $context)
+                        || !report2_access::optiondate_belongs_to_option((int) $optiondateid, (int) $optionid)
+                        || !report2_access::can_manage_option_answers($context, (int) $optionid)
+                    ) {
                         continue;
                     }
                     $optiondateanswer = new optiondate_answer($userid, $optiondateid, $optionid);

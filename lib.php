@@ -2013,7 +2013,8 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
  *
  * By default (setting "reportrequirecourselogin" enabled), the user has to be enrolled in the course
  * (or the course must allow guest access), like require_course_login() does.
- * If the setting is disabled, a site login is enough. The page course/cm/context are still set,
+ * If the setting is disabled, a site login is enough, as long as the course and the activity are visible
+ * to the user (see booking_report_is_visible()). The page course/cm/context are still set,
  * so the capability checks of the reports keep working in the right context.
  *
  * @param stdClass $course the course record
@@ -2029,6 +2030,13 @@ function booking_require_report_login(stdClass $course, $cm = null): void {
     }
 
     require_login(0, false);
+
+    // Without course login, require_course_login() does not check the visibility of the course and
+    // the activity, so hidden or restricted courses and activities stay closed here as well.
+    if (!booking_report_is_visible($course, $cm)) {
+        throw new require_login_exception($cm ? 'Activity is hidden' : 'Course is hidden');
+    }
+
     if ($cm) {
         $PAGE->set_cm($cm, $course);
         $PAGE->set_pagelayout('incourse');
@@ -2038,13 +2046,38 @@ function booking_require_report_login(stdClass $course, $cm = null): void {
 }
 
 /**
+ * Whether the course and the course module are visible to the current user, like require_login() checks it:
+ * a hidden course needs moodle/course:viewhiddencourses, the course module has to be visible to the user
+ * (visible flag, section visibility and availability restrictions, see cm_info::$uservisible).
+ *
+ * @param stdClass $course the course record
+ * @param cm_info|stdClass|null $cm the course module (null for course scope)
+ * @return bool
+ */
+function booking_report_is_visible(stdClass $course, $cm = null): bool {
+    if (
+        empty($course->visible)
+        && !has_capability('moodle/course:viewhiddencourses', context_course::instance($course->id))
+    ) {
+        return false;
+    }
+
+    if ($cm && !get_fast_modinfo($course)->get_cm($cm->id)->uservisible) {
+        return false;
+    }
+
+    return true;
+}
+
+/**
  * Context to validate in the dynamic forms of the booked users reports (report.php and report2.php).
  *
  * The dynamic form web service validates the context of the form with require_login(), so a module context
  * fails with "Not enrolled" for users who are not enrolled in the course. If the setting
  * "reportrequirecourselogin" is disabled, booking_require_report_login() lets these users open the reports,
- * so their forms get the system context instead. The forms have to check their capabilities in the module
- * context explicitly, the returned context is only meant for the login check.
+ * so their forms get the system context instead (unless the course or activity is hidden from them). The forms
+ * have to check their capabilities in the module context explicitly, the returned context is only meant for the
+ * login check.
  *
  * @param context $context the context of the form (usually the module context of the booking instance)
  * @return context
@@ -2054,8 +2087,14 @@ function booking_report_validation_context(context $context): context {
         return $context;
     }
 
-    $course = get_course($context->get_course_context()->instanceid);
+    [$course, $cm] = get_course_and_cm_from_cmid($context->instanceid);
     if (can_access_course($course)) {
+        return $context;
+    }
+
+    // Hidden or restricted courses and activities keep the module context, so the login check fails for
+    // these users, like booking_require_report_login() does.
+    if (!booking_report_is_visible($course, $cm)) {
         return $context;
     }
 
