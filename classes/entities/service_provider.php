@@ -31,12 +31,13 @@ class service_provider implements CallbackService_provider {
      * Callback function that returns an array of dates.
      *
      * @param array $areas
+     * @param int $entityid the entity the dates are requested for, 0 if local_entities does not pass it
      * @return array
      */
-    public static function return_array_of_entity_dates(array $areas): array {
+    public static function return_array_of_entity_dates(array $areas, int $entityid = 0): array {
 
         // We just call the right class to return the array of dates.
-        $itemsarray = booking::return_array_of_entity_dates($areas);
+        $itemsarray = booking::return_array_of_entity_dates($areas, $entityid);
 
         return $itemsarray;
     }
