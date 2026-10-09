@@ -1543,9 +1543,10 @@ class booking {
      * It's used to return all the booking dates of the given IDs in a special format.
      *
      * @param array $areas
+     * @param int $entityid the entity the dates are requested for, 0 if local_entities does not pass it
      * @return array
      */
-    public static function return_array_of_entity_dates(array $areas): array {
+    public static function return_array_of_entity_dates(array $areas, int $entityid = 0): array {
 
         // phpcs:ignore moodle.Commenting.TodoComment.MissingInfoInline
         // Todo: Now that the SQL has been changed, we need to fix this function!
@@ -1676,8 +1677,14 @@ class booking {
         // (e.g. equipment, or a room linked once for the whole option) applies to every session.
         // Optiondates that carry their OWN relation (already requested via $areas['optiondate'])
         // override and are skipped, implementing the optiondate-overrides-option fallback rule.
+        // A date that takes place in ANOTHER location overrides the location of its option as well:
+        // $areas['optiondate'] only lists the dates linked to the entity being queried, so those dates
+        // are looked up separately. Equipment linked to the option is not affected by the location of
+        // a date, so this only applies when the queried entity is a location.
         if (!empty($areas['option'])) {
             $explicitoptiondates = array_flip(array_map('intval', $areas['optiondate'] ?? []));
+            $queriedislocation = $entityid > 0
+                && ($DB->get_field('local_entities', 'entitytype', ['id' => $entityid]) ?: 'location') !== 'equipment';
             foreach ($areas['option'] as $optionlevelid) {
                 $optionlevelid = (int)$optionlevelid;
                 if (in_array($optionlevelid, $slotoptionids, true)) {
@@ -1692,6 +1699,22 @@ class booking {
                 );
                 if (empty($optiondates)) {
                     continue; // No optiondates → the option-level row was already returned above.
+                }
+
+                $otherlocationdates = [];
+                if ($queriedislocation) {
+                    [$indatesql, $indateparams] = $DB->get_in_or_equal(array_keys($optiondates), SQL_PARAMS_NAMED);
+                    $otherlocationdates = $DB->get_records_sql_menu(
+                        "SELECT r.instanceid, r.entityid
+                           FROM {local_entities_relations} r
+                           JOIN {local_entities} e ON e.id = r.entityid
+                          WHERE r.component = :component
+                                AND r.area = :area
+                                AND r.instanceid $indatesql
+                                AND r.entityid <> :entityid
+                                AND (e.entitytype <> 'equipment' OR e.entitytype IS NULL)",
+                        ['component' => 'mod_booking', 'area' => 'optiondate', 'entityid' => $entityid] + $indateparams
+                    );
                 }
 
                 $optionsettings = singleton_service::get_instance_of_booking_option_settings($optionlevelid);
@@ -1728,7 +1751,7 @@ class booking {
                 }
 
                 foreach ($optiondates as $optiondate) {
-                    if (isset($explicitoptiondates[(int)$optiondate->id])) {
+                    if (isset($explicitoptiondates[(int)$optiondate->id]) || isset($otherlocationdates[(int)$optiondate->id])) {
                         continue; // Optiondate overrides with its own entity relation.
                     }
                     if (empty($optiondate->coursestarttime) || empty($optiondate->courseendtime)) {
