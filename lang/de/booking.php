@@ -1925,6 +1925,7 @@ $string['dates'] = 'Termine';
 $string['datesandentities'] = 'Termine mit Orten';
 $string['datescompact'] = 'Termine in Kompaktform: eine Zeile pro Tag, Uhrzeiten am selben Tag zusammengefasst';
 $string['datesheader'] = 'Termine';
+$string['dateswithduration'] = 'Zeitraum mit Dauer (Beginn - Ende und berechnete Stunden)';
 $string['dayofweek'] = 'Wochentag';
 $string['dayofweektime'] = 'Tag & Uhrzeit';
 $string['days'] = '{$a} Tage';

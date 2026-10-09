@@ -32,6 +32,9 @@ use mod_booking\table\manageusers_table;
 use mod_booking_generator;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\event\certificate_issued;
+use mod_booking\local\certificate_conditions\certificate_conditions;
+use context_module;
+use context_system;
 use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
@@ -541,6 +544,116 @@ final class certificate_conditions_test extends booking_advanced_testcase {
         $this->assertEquals(1, $DB->count_records('tool_certificate_issues', ['userid' => $this->users['student1']->id]));
 
         self::teardown();
+    }
+
+    /**
+     * Completing an option of another booking instance must not re-trigger a fulfilled condition.
+     *
+     * @covers \mod_booking\local\certificate_conditions\conditions\bookingoption::evaluate
+     * @covers \mod_booking\local\certificate_conditions\conditions\instance::evaluate
+     * @covers \mod_booking\local\certificate_conditions\certificate_conditions::evaluate_certificate_conditions
+     * @dataProvider other_instance_provider
+     * @param string $conditiontype
+     */
+    public function test_completion_in_other_instance_does_not_trigger_condition(string $conditiontype): void {
+        global $DB;
+        $this->base_scenario();
+        $certificate = $this->get_certificate_generator()->create_template((object)['name' => 'Certificate 1']);
+
+        if ($conditiontype === 'instance') {
+            $conditionid = $DB->insert_record('booking_cert_cond', $this->set_instance_condition($certificate));
+            $this->set_instance_condition_items($conditionid);
+        } else {
+            $conditionid = $DB->insert_record('booking_cert_cond', $this->set_bookingoption_condition($certificate));
+            $this->set_condition_items($conditionid);
+        }
+
+        // Second booking instance with one option, not targeted by the condition.
+        $bdata = self::provide_standard_data()['booking'];
+        $bdata['course'] = $this->course->id;
+        $bdata['bookingmanager'] = $this->users['bookingmanager']->username;
+        $otherbooking = $this->getDataGenerator()->create_module('booking', $bdata);
+        $otheroption = self::provide_standard_data()['option'];
+        $otheroption['bookingid'] = $otherbooking->id;
+        $otheroption['courseid'] = $this->course->id;
+        $otheroption['text'] = 'Other instance option';
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $otheroption = $plugingenerator->create_option((object)$otheroption);
+
+        $userid = $this->users['student1']->id;
+        $this->complete_option_for_user($this->bookingoptions[0]->id, $userid);
+        $this->complete_option_for_user($this->bookingoptions[1]->id, $userid);
+        $this->assertEquals(1, $DB->count_records('tool_certificate_issues', ['userid' => $userid]));
+
+        // Multiple certificates are allowed in base_scenario, so a re-trigger would issue a second one.
+        $this->complete_option_for_user($otheroption->id, $userid);
+        $this->assertEquals(1, $DB->count_records('tool_certificate_issues', ['userid' => $userid]));
+
+        self::teardown();
+    }
+
+    /**
+     * An instance condition is listed on its instance page and linked from the system page's other-contexts list.
+     *
+     * @covers \mod_booking\local\certificate_conditions\certificate_conditions::get_rendered_list_of_saved_conditions
+     * @covers \mod_booking\output\certificateconditionslist
+     */
+    public function test_rendered_list_shows_instance_conditions(): void {
+        global $DB;
+        $this->base_scenario();
+        $certificate = $this->get_certificate_generator()->create_template((object)['name' => 'Certificate 1']);
+
+        $modulecontext = context_module::instance($this->booking->cmid);
+        $data = $this->set_instance_condition($certificate);
+        $data->contextid = $modulecontext->id;
+        $DB->insert_record('booking_cert_cond', $data);
+
+        $instancelist = certificate_conditions::get_rendered_list_of_saved_conditions($modulecontext->id);
+        $this->assertStringContainsString($data->name, $instancelist);
+
+        $systemlist = certificate_conditions::get_rendered_list_of_saved_conditions(context_system::instance()->id);
+        // Not a system condition, so it is not listed as one...
+        $this->assertStringNotContainsString($data->name, $systemlist);
+        // ...but its instance is linked under "other contexts".
+        $this->assertStringContainsString(format_string($this->booking->name), $systemlist);
+        $this->assertStringContainsString('cmid=' . $this->booking->cmid, $systemlist);
+        $this->assertStringNotContainsString(
+            get_string('certificateconditionsnootherfound', 'mod_booking'),
+            $systemlist
+        );
+
+        self::teardown();
+    }
+
+    /**
+     * Data provider for test_completion_in_other_instance_does_not_trigger_condition.
+     *
+     * @return array
+     */
+    public static function other_instance_provider(): array {
+        return [
+            'bookingoption condition' => ['bookingoption'],
+            'instance condition' => ['instance'],
+        ];
+    }
+
+    /**
+     * Book a user into an option and mark it as completed.
+     *
+     * @param int $optionid
+     * @param int $userid
+     * @return void
+     */
+    private function complete_option_for_user(int $optionid, int $userid): void {
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        booking_bookit::bookit('option', $settings->id, $userid);
+        booking_bookit::bookit('option', $settings->id, $userid);
+
+        $this->setAdminUser();
+        $option = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
+        $option->toggle_user_completion($userid);
+        singleton_service::destroy_booking_answers($option->id);
     }
 
     /**

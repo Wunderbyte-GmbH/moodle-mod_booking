@@ -268,6 +268,12 @@ class instance implements certificate_conditions_interface {
             return false;
         }
 
+        // Only the completion of an option of this booking instance may trigger it.
+        $triggeringsettings = singleton_service::get_instance_of_booking_option_settings((int)($context->optionid ?? 0));
+        if (empty($triggeringsettings->id) || (int)$triggeringsettings->bookingid !== (int)$this->bookingid) {
+            return false;
+        }
+
         $userid = (int)($context->userid ?? $event->relateduserid ?? $event->userid ?? 0);
         if (empty($userid)) {
             return false;
