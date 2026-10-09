@@ -1429,12 +1429,11 @@ class bookingoptions_wbtable extends wunderbyte_table {
                         '/mod/booking/viewconfirmation.php',
                         ['id' => $cmid, 'optionid' => $optionid]
                     ),
-                    '<i class="icon fa fa-print fa-fw" aria-hidden="true" title="' .
-                        get_string('bookedtext', 'mod_booking') . '"></i>' . get_string('bookedtext', 'mod_booking'),
+                    '<i class="icon fa fa-print fa-fw me-1" aria-hidden="true" title="' .
+                        get_string('bookedtext', 'mod_booking') . '"></i>',
                     [
                         'target' => '_blank',
-                        'class' => 'btn btn-outline-secondary btn-sm mod-booking-confirmation-link',
-                        'role' => 'button',
+                        'class' => 'text-primary mod-booking-confirmation-link',
                         'title' => get_string('bookedtext', 'mod_booking'),
                         'aria-label' => get_string('bookedtext', 'mod_booking'),
                     ]
@@ -1469,12 +1468,11 @@ class bookingoptions_wbtable extends wunderbyte_table {
                         'returnurl' => $returnurl,
                     ]
                 ),
-                '<i class="icon fa fa-pen fa-fw" aria-hidden="true" title="' .
-                    get_string('editbookingoption', 'mod_booking') . '"></i>' . get_string('edit'),
+                '<i class="icon fa fa-pen fa-fw me-1" aria-hidden="true" title="' .
+                    get_string('editbookingoption', 'mod_booking') . '"></i>',
                 [
                     'target' => '_self',
-                    'class' => 'btn btn-outline-primary btn-sm mod-booking-editoption-link',
-                    'role' => 'button',
+                    'class' => 'text-primary mod-booking-editoption-link',
                     'title' => get_string('editbookingoption', 'mod_booking'),
                     'aria-label' => get_string('editbookingoption', 'mod_booking'),
                 ]

@@ -931,6 +931,7 @@ final class ticket_manager_test extends booking_advanced_testcase {
         $this->assertNotFalse($confirmationpos);
         $this->assertLessThan($confirmationpos, $ticketpos, 'The ticket button comes before the confirmation.');
         $this->assertStringContainsString('mod-booking-confirmation-link', $html);
+        $this->assert_icon_only_link($html, 'mod-booking-confirmation-link');
         $this->assertStringNotContainsString('editoptions.php', $html, 'Students cannot edit the option.');
 
         $table = new bookingoptions_wbtable('actioncolumntest2');
@@ -946,6 +947,7 @@ final class ticket_manager_test extends booking_advanced_testcase {
         $table->showticketbutton = true;
         $html = $table->col_action($row);
         $this->assertStringContainsString('mod-booking-editoption-link', $html);
+        $this->assert_icon_only_link($html, 'mod-booking-editoption-link');
         $this->assertStringNotContainsString('mod-booking-ticket-link', $html);
         $this->assertStringNotContainsString('viewconfirmation.php', $html);
     }
@@ -1439,5 +1441,25 @@ final class ticket_manager_test extends booking_advanced_testcase {
             wb_payment::override_pro_version_for_tests(null);
         }
         $this->assertTrue(ticket_manager::is_enabled());
+    }
+
+    /**
+     * The link with the given class is a plain icon (as before v10.0.0): no button styling and no
+     * visible text - its label is only available as tooltip and aria-label.
+     *
+     * @param string $html
+     * @param string $class
+     */
+    private function assert_icon_only_link(string $html, string $class): void {
+        $dom = new \DOMDocument();
+        @$dom->loadHTML('<?xml encoding="utf-8"?>' . $html);
+        $links = (new \DOMXPath($dom))->query("//a[contains(concat(' ', @class, ' '), ' $class ')]");
+        $this->assertSame(1, $links->length, "Exactly one link with class $class.");
+        $link = $links->item(0);
+        $classes = explode(' ', $link->getAttribute('class'));
+        $this->assertEmpty(preg_grep('/^btn(-|$)/', $classes), "$class must not be styled as a button.");
+        $this->assertSame('', trim($link->textContent), "$class must not show a visible label.");
+        $this->assertNotEmpty($link->getAttribute('aria-label'), "$class keeps its label for screen readers.");
+        $this->assertNotEmpty($link->getAttribute('title'), "$class keeps its label as tooltip.");
     }
 }
