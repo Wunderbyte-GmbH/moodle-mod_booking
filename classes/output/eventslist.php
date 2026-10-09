@@ -149,6 +149,10 @@ class eventslist implements renderable, templatable {
 
         $table->define_baseurl(new moodle_url('/mod/booking/downloads/download.php'));
 
+        // The table is reloaded via web service (paging, filters, lazy loading), which validates the
+        // context of the table with require_login(). See booking_report_validation_context().
+        $table->context = booking_report_validation_context($table->context);
+
         [$idstring, $tablecachehash, $html] = $table->lazyouthtml(10, true);
         $this->eventstable = $html;
 
