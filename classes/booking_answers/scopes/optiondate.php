@@ -29,6 +29,7 @@ use local_wunderbyte_table\wunderbyte_table;
 use mod_booking\booking;
 use mod_booking\booking_answers\scope_base;
 use mod_booking\local\bookingstracker\columns_helper;
+use mod_booking\local\bookingstracker\report2_access;
 use mod_booking\singleton_service;
 use context_module;
 use mod_booking\table\manageusers_table;
@@ -150,11 +151,12 @@ class optiondate extends scope_base {
                 $table->showfilterontop = true;
             }
 
-            // Presence and notes modals require managebookedusers on submit, so
-            // the buttons are hidden from users who may only read the report.
-            $canmanagebookedusers = has_capability(
-                'mod/booking:managebookedusers',
-                context_module::instance($cmid)
+            // Presence and notes modals require managebookedusers (or managebookingsownoption
+            // for teachers of the option) on submit, so the buttons are hidden from users who
+            // may only read the report.
+            $canmanagebookedusers = report2_access::can_manage_option_answers(
+                context_module::instance($cmid),
+                (int)$optionid
             );
 
             if (in_array('status', $responsesfields) && $canmanagebookedusers) {

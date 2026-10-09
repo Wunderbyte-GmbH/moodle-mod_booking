@@ -43,6 +43,7 @@ use stdClass;
 defined('MOODLE_INTERNAL') || die();
 
 require_once("$CFG->libdir/formslib.php");
+require_once("$CFG->dirroot/mod/booking/lib.php");
 
 /**
  * Modal dynamic form to send a custom message to selected booked users in report2.php.
@@ -206,7 +207,7 @@ class modal_send_custom_message extends dynamic_form {
      * @return void
      */
     protected function check_access_for_dynamic_submission(): void {
-        require_capability('mod/booking:communicate', $this->get_context_for_dynamic_submission());
+        require_capability('mod/booking:communicate', $this->get_module_context());
     }
 
     /**
@@ -376,10 +377,14 @@ class modal_send_custom_message extends dynamic_form {
     }
 
     /**
-     * Get context for dynamic submission.
+     * Module context of the booking instance (system context without cmid).
+     *
+     * Capability checks use this context. get_context_for_dynamic_submission() may
+     * return the system context instead, see booking_report_validation_context().
+     *
      * @return context
      */
-    protected function get_context_for_dynamic_submission(): context {
+    protected function get_module_context(): context {
         $cmid = (int) ($this->_ajaxformdata['cmid'] ?? 0);
 
         if (empty($cmid)) {
@@ -387,6 +392,19 @@ class modal_send_custom_message extends dynamic_form {
         }
 
         return context_module::instance($cmid);
+    }
+
+    /**
+     * Get context for dynamic submission.
+     *
+     * Users who may open the booked users reports without course login (setting
+     * "reportrequirecourselogin" disabled) get the system context here, as the
+     * web service would refuse the module context with "Not enrolled".
+     *
+     * @return context
+     */
+    protected function get_context_for_dynamic_submission(): context {
+        return booking_report_validation_context($this->get_module_context());
     }
 
     /**

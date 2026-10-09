@@ -32,13 +32,16 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 require_once("$CFG->libdir/formslib.php");
+require_once("$CFG->dirroot/mod/booking/lib.php");
 
 use cache_helper;
 use context;
 use context_system;
 use context_module;
 use core_form\dynamic_form;
+use mod_booking\local\bookingstracker\report2_access;
 use mod_booking\local\optiondates\optiondate_answer;
+use moodle_exception;
 use moodle_url;
 
 /**
@@ -98,7 +101,16 @@ class modal_change_notes extends dynamic_form {
      * @return void
      */
     protected function check_access_for_dynamic_submission(): void {
-        require_capability('mod/booking:managebookedusers', $this->get_context_for_dynamic_submission());
+        $context = $this->get_module_context();
+        $optionid = (int)($this->_ajaxformdata['optionid'] ?? 0);
+        if (!report2_access::can_manage_option_answers($context, $optionid)) {
+            require_capability('mod/booking:managebookedusers', $context);
+        }
+
+        // The capability only counts for the options of this booking instance.
+        if (!empty($optionid) && !report2_access::option_belongs_to_context($optionid, $context)) {
+            throw new moodle_exception('nopermissiontoaccesspage', 'mod_booking');
+        }
     }
 
     /**
@@ -139,12 +151,22 @@ class modal_change_notes extends dynamic_form {
         For optiondate scope: optionid-optiondateid-userid */
         switch ($scope) {
             case 'optiondate':
+                $context = $this->get_module_context();
                 foreach ($checkedids as $checkedid) {
                     [$optionid, $optiondateid, $userid] = explode('-', $checkedid);
                     if (empty($optionid) || empty($optiondateid) || empty($userid)) {
                         continue;
                     }
                     if (!is_int((int) $optionid) || !is_int((int) $optiondateid) || !is_int((int) $userid)) {
+                        continue;
+                    }
+                    // Only sessions of options of the booking instance the capability was checked for,
+                    // and of options the user may manage (teachers only their own ones).
+                    if (
+                        !report2_access::option_belongs_to_context((int) $optionid, $context)
+                        || !report2_access::optiondate_belongs_to_option((int) $optiondateid, (int) $optionid)
+                        || !report2_access::can_manage_option_answers($context, (int) $optionid)
+                    ) {
                         continue;
                     }
                     $optiondateanswer = new optiondate_answer($userid, $optiondateid, $optionid);
@@ -191,14 +213,14 @@ class modal_change_notes extends dynamic_form {
     }
 
     /**
-     * Returns form context
+     * Module context of the booking instance (system context without cmid).
      *
-     * If context depends on the form data, it is available in $this->_ajaxformdata or
-     * by calling $this->optional_param()
+     * Capability checks use this context. get_context_for_dynamic_submission() may
+     * return the system context instead, see booking_report_validation_context().
      *
      * @return context
      */
-    protected function get_context_for_dynamic_submission(): context {
+    protected function get_module_context(): context {
         $cmid = $this->_ajaxformdata['cmid'] ?? 0;
         if (empty($cmid)) {
             $cmid = $this->optional_param('cmid', 0, PARAM_INT);
@@ -207,6 +229,19 @@ class modal_change_notes extends dynamic_form {
             }
         }
         return context_module::instance($cmid);
+    }
+
+    /**
+     * Get context for dynamic submission.
+     *
+     * Users who may open the booked users reports without course login (setting
+     * "reportrequirecourselogin" disabled) get the system context here, as the
+     * web service would refuse the module context with "Not enrolled".
+     *
+     * @return context
+     */
+    protected function get_context_for_dynamic_submission(): context {
+        return booking_report_validation_context($this->get_module_context());
     }
 
     /**

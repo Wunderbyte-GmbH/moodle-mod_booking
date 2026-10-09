@@ -38,6 +38,7 @@ use mod_booking\event\bookingoption_completed;
 use mod_booking\event\bookinganswer_confirmed;
 use mod_booking\event\bookinganswer_denied;
 use mod_booking\local\bookingstracker\bookingstracker_helper;
+use mod_booking\local\bookingstracker\report2_access;
 use mod_booking\local\confirmationworkflow\confirmation;
 use mod_booking\price;
 
@@ -944,10 +945,10 @@ class manageusers_table extends wunderbyte_table {
                 $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
                 $context = context_module::instance($settings->cmid);
 
-                // Managebookedusers is the general edit gate of the tracker:
-                // read-only roles (e.g. non-editing teachers) must not change
-                // the completion status.
-                if (!has_capability('mod/booking:managebookedusers', $context)) {
+                // Managebookedusers (or managebookingsownoption for teachers of the
+                // option) is the general edit gate of the tracker: read-only roles
+                // (e.g. non-editing teachers) must not change the completion status.
+                if (!report2_access::can_manage_option_answers($context, (int)$optionid)) {
                     throw new moodle_exception('Missing capability: mod/booking:managebookedusers', 'mod_booking');
                 }
 
