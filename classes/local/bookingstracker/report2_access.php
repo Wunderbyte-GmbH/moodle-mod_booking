@@ -24,6 +24,7 @@
 
 namespace mod_booking\local\bookingstracker;
 
+use context;
 use context_course;
 use context_module;
 use context_system;
@@ -74,6 +75,30 @@ class report2_access {
     }
 
     /**
+     * Whether the current user may change the booking answers of the option in the
+     * tracker (completion, presence status, notes).
+     *
+     * managebookedusers allows it for all options of the context. Teachers of the
+     * option need mod/booking:managebookingsownoption instead, so trainers can
+     * manage their own options without managebookedusers, which would also open
+     * the instance, course and system scopes of the tracker.
+     *
+     * @param context $context module context of the booking instance (or system context)
+     * @param int $optionid
+     * @return bool
+     */
+    public static function can_manage_option_answers(context $context, int $optionid): bool {
+        if (has_capability('mod/booking:managebookedusers', $context)) {
+            return true;
+        }
+        if (empty($optionid) || !booking_check_if_teacher($optionid)) {
+            return false;
+        }
+
+        return has_capability('mod/booking:managebookingsownoption', $context);
+    }
+
+    /**
      * Whether the current user may view the system scope (all bookings of the
      * whole site): managebookedusers checked in the SYSTEM context, so only a
      * global role assignment counts (the system context has no parents).
@@ -105,5 +130,49 @@ class report2_access {
      */
     public static function has_instance_scope_access(int $cmid): bool {
         return has_capability('mod/booking:managebookedusers', context_module::instance($cmid));
+    }
+
+    /**
+     * Whether the booking option belongs to the booking instance of the given context.
+     *
+     * The dynamic forms of the tracker check their capability in the module context of
+     * the cmid they get, but act on option (and optiondate) IDs from the same request.
+     * Without this check, a capability in one booking instance would allow changes in the
+     * options of every other instance. The system context covers all options.
+     *
+     * @param int $optionid
+     * @param context $context module context of the booking instance or system context
+     * @return bool
+     */
+    public static function option_belongs_to_context(int $optionid, context $context): bool {
+        global $DB;
+
+        if ($context->contextlevel == CONTEXT_SYSTEM) {
+            return true;
+        }
+        if ($context->contextlevel != CONTEXT_MODULE || empty($optionid)) {
+            return false;
+        }
+
+        $bookingid = $DB->get_field('booking_options', 'bookingid', ['id' => $optionid]);
+        if (empty($bookingid)) {
+            return false;
+        }
+        $cm = get_coursemodule_from_instance('booking', $bookingid);
+
+        return !empty($cm) && (int)$cm->id === (int)$context->instanceid;
+    }
+
+    /**
+     * Whether the optiondate (session) belongs to the booking option.
+     *
+     * @param int $optiondateid
+     * @param int $optionid
+     * @return bool
+     */
+    public static function optiondate_belongs_to_option(int $optiondateid, int $optionid): bool {
+        global $DB;
+
+        return $DB->record_exists('booking_optiondates', ['id' => $optiondateid, 'optionid' => $optionid]);
     }
 }

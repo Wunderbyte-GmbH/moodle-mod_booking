@@ -30,6 +30,7 @@ use local_wunderbyte_table\wunderbyte_table;
 use mod_booking\booking_answers\scope_base;
 use mod_booking\form\option\modal_change_customform;
 use mod_booking\local\bookingstracker\columns_helper;
+use mod_booking\local\bookingstracker\report2_access;
 use mod_booking\output\booked_users;
 use mod_booking\singleton_service;
 use mod_booking\utils\wb_payment;
@@ -186,11 +187,14 @@ class option extends scope_base {
                 $responsesfields = ['status', 'notes'];
             }
 
-            // Managebookedusers is the general edit gate of the tracker: users
-            // without it (e.g. non-editing teachers) can read the report but
-            // must not change any booking data, even if their role carries the
-            // action-specific capability by default.
-            $canmanagebookedusers = has_capability('mod/booking:managebookedusers', context_module::instance($cmid));
+            // Managebookedusers (or managebookingsownoption for teachers of the option)
+            // is the general edit gate of the tracker: users without it (e.g. non-editing
+            // teachers) can read the report but must not change any booking data, even if
+            // their role carries the action-specific capability by default.
+            $canmanagebookedusers = report2_access::can_manage_option_answers(
+                context_module::instance($cmid),
+                (int)$optionid
+            );
 
             // Like on report.php, the "Toggle completion status" button is only shown
             // if the completed column is configured in the responsesfields setting.

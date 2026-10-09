@@ -59,13 +59,13 @@ $r2systemurl = new moodle_url('/mod/booking/report2.php');
 
 if (!empty($optiondateid)) {
     // We are in optiondate (session) scope.
+    // The option is always the one of the optiondate: the access check below runs against this option,
+    // so an optionid from the URL must not open the session of another option.
+    $optionid = (int)$DB->get_field('booking_optiondates', 'optionid', ['id' => $optiondateid], MUST_EXIST);
     $PAGE->set_url(new moodle_url('/mod/booking/report2.php', ['optionid' => $optionid, 'optiondateid' => $optiondateid]));
     $scopes = ['system', 'course', 'instance', 'option', 'optiondate'];
     $scope = 'optiondate'; // A specific date of a booking option.
     $scopeid = $optiondateid;
-    if (empty($optionid)) {
-        $optionid = $DB->get_field('booking_optiondates', 'optionid', ['id' => $optiondateid]);
-    }
     // Resolve course and cm cheaply and log in BEFORE building the option settings.
     // Constructing booking_option_settings runs format_text() on customfields, which
     // initialises the page theme; if that happens before booking_require_report_login() the
