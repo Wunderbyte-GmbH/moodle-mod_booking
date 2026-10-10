@@ -1,0 +1,65 @@
+name: CI Failure Autofix
+
+on:
+  workflow_run:
+    workflows: ["Moodle Plugin CI"]
+    types: [completed]
+
+jobs:
+  autofix:
+    # Only failures of same-repo branches; skip claude/ branches to prevent fix loops.
+    if: >
+      github.event.workflow_run.conclusion == 'failure' &&
+      github.event.workflow_run.head_repository.full_name == github.repository &&
+      !startsWith(github.event.workflow_run.head_branch, 'claude/')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+      actions: read
+      id-token: write
+    steps:
+      - name: Checkout failing ref
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          fetch-depth: 0
+
+      - name: Analyze failure, fix trivial causes
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt: |
+            CI run ${{ github.event.workflow_run.id }} ("${{ github.event.workflow_run.name }}")
+            failed on branch "${{ github.event.workflow_run.head_branch }}"
+            (head ${{ github.event.workflow_run.head_sha }}) of ${{ github.repository }}.
+            The failing ref is checked out in the working directory.
+
+            1. Fetch failure details:
+               `gh run view ${{ github.event.workflow_run.id }} --repo ${{ github.repository }} --log-failed`
+               (fallback: `gh api repos/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }}/jobs`).
+            2. Identify the root cause and classify it:
+               - TRIVIAL: PHP syntax/parse errors, phpcs (Moodle coding style) violations,
+                 PHPDoc checker complaints, ESLint/grunt/mustache lint findings, obvious typos.
+                 Deterministic fixes with no behaviour change.
+               - NON-TRIVIAL: failing PHPUnit/Behat assertions, Moodle core incompatibilities,
+                 infrastructure flakes, anything requiring a design decision.
+            3. ALWAYS document first: search open issues for an existing report for the same
+               branch and cause and reuse it; otherwise create an issue titled
+               "CI failure on <branch>: <short cause>" containing your concise analysis
+               (root cause, failing jobs, evidence lines). Do not add labels.
+            4. Only if TRIVIAL: create branch claude/ci-fix-run-${{ github.event.workflow_run.id }}
+               from the checked-out head, apply the minimal fix, verify where possible
+               (e.g. `php -l`, `vendor/bin/phpcs` if present), commit, push, and open a PR
+               targeting "${{ github.event.workflow_run.head_branch }}".
+               - Commit message in English: "Bugfix: <description> (#<issue-number>)".
+                 No Co-Authored-By trailers.
+               - PR body: root cause, fix summary, link to the failed run, "Closes #<issue-number>".
+            5. If NON-TRIVIAL: change no code; the analysis issue is the only output.
+            6. Never push to the failing branch itself, never force-push, never amend or
+               rewrite existing commits, touch nothing outside this repository.
+          claude_args: |
+            --allowedTools "Bash(gh:*),Bash(git:*),Bash(php:*),Bash(vendor/bin/phpcs:*),Read,Grep,Glob,Edit,Write"
+        env:
+          GH_TOKEN: ${{ github.token }}
