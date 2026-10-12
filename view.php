@@ -203,7 +203,12 @@ if (!empty($aireadyclass)) {
     ];
 }
 
-echo htmlcomponents::render_bootstrap_earmarks($tabs, 'booking-view-tabs-' . $cmid);
+// Only show the tab navigation if there is more than one view to switch between.
+if (count($tabs) > 1) {
+    echo htmlcomponents::render_bootstrap_earmarks($tabs, 'booking-view-tabs-' . $cmid);
+} else {
+    echo $classicview;
+}
 
 if (!get_config('booking', 'turnoffwunderbytelogo')) {
     // Wunderbyte info and footer.
