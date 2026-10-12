@@ -4632,6 +4632,7 @@ $string['ticketverifytransferablehint'] = 'Dieses Ticket ist nicht an eine besti
 $string['ticketverifyurl'] = 'Prüf-URL des Tickets';
 $string['ticketverifyvalid'] = 'Dieses Ticket ist gültig.';
 $string['timeawarded'] = 'Verliehen am';
+$string['timeawardedformat'] = '%d.%m.%Y';
 $string['timebooked'] = 'Buchungszeit';
 $string['timecreated'] = 'Erstellt';
 $string['timefilter:bookingtime'] = 'Anmeldezeiten';

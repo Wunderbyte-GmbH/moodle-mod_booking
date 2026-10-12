@@ -532,7 +532,7 @@ class certificateclass {
         }
 
         // The time awarded is currently the time modified. We might change that at one point.
-        return userdate($completeddate, get_string('strftimedaydate'));
+        return userdate($completeddate, get_string('timeawardedformat', 'mod_booking'), 99, false);
     }
 
     /**
