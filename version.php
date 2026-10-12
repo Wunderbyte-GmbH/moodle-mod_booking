@@ -25,12 +25,12 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2026100900;
+$plugin->version = 2026101200;
 $plugin->requires = 2024100700; // Requires this Moodle version. Current: Moodle 4.5.
 $plugin->release = '10.0.2';
 $plugin->maturity = MATURITY_STABLE;
 $plugin->component = 'mod_booking';
 $plugin->supported = [405, 502];
 $plugin->dependencies = [
-    'local_wunderbyte_table' => 2026081800,
+    'local_wunderbyte_table' => 2026101200,
 ];
