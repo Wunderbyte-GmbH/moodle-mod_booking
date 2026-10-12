@@ -4619,6 +4619,7 @@ $string['ticketverifytransferablehint'] = 'This ticket is not bound to a specifi
 $string['ticketverifyurl'] = 'Ticket verification URL';
 $string['ticketverifyvalid'] = 'This ticket is valid.';
 $string['timeawarded'] = 'Awarded on';
+$string['timeawardedformat'] = '%d.%m.%Y';
 $string['timebooked'] = 'Time booked';
 $string['timecreated'] = 'Time created';
 $string['timefilter:bookingtime'] = 'Booking time';
