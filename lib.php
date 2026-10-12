@@ -2013,9 +2013,12 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
  *
  * By default (setting "reportrequirecourselogin" enabled), the user has to be enrolled in the course
  * (or the course must allow guest access), like require_course_login() does.
- * If the setting is disabled, a site login is enough, as long as the course and the activity are visible
- * to the user (see booking_report_is_visible()). The page course/cm/context are still set,
- * so the capability checks of the reports keep working in the right context.
+ * If the setting is disabled, a site login is enough. Users who can access the course get the same page
+ * setup as with require_course_login(). For users who are not enrolled (e.g. teachers of a booking option),
+ * the page context is the system context: the wunderbyte tables of the reports are loaded via web service
+ * (local_wunderbyte_table_load_data), which validates the page context with require_login(), so a module or
+ * course context would return empty tables. The capability checks of the reports use the module or course
+ * context explicitly, so they are not affected; the course is still set for $COURSE.
  *
  * @param stdClass $course the course record
  * @param cm_info|stdClass|null $cm the course module (null for course scope)
@@ -2031,10 +2034,10 @@ function booking_require_report_login(stdClass $course, $cm = null): void {
 
     require_login(0, false);
 
-    // Without course login, require_course_login() does not check the visibility of the course and
-    // the activity, so hidden or restricted courses and activities stay closed here as well.
-    if (!booking_report_is_visible($course, $cm)) {
-        throw new require_login_exception($cm ? 'Activity is hidden' : 'Course is hidden');
+    if (!can_access_course($course)) {
+        $PAGE->set_context(context_system::instance());
+        $PAGE->set_course($course);
+        return;
     }
 
     if ($cm) {
