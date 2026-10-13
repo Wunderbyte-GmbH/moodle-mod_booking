@@ -33,6 +33,14 @@ $settings = null;
 use bookingextension_agent\local\wizard\orchestrator;
 use core_ai\aiactions\summarise_text;
 
+// Coexistence: when a higher-ranked engine plugin (local_wizard) owns the agent, its settings were
+// imported there and it carries its own pages. The bundled engine then registers no settings page at
+// all - no prompt seeding, no AI settings, no benchmark or governance pages. Inside the primary engine
+// this never triggers; in the bundled engine the pages come back when the primary engine is removed.
+if (\bookingextension_agent\local\wizard\services\security\authorization_service::primary_engine_takes_over()) {
+    return;
+}
+
 // The admin navigation is built on every admin page, so it only gets the pages. The prompt
 // seeding and every setting - with their config and license work - wait for the full tree.
 if ($adminroot->fulltree) {
@@ -88,26 +96,6 @@ if ($adminroot->fulltree) {
             get_string('aisettings_desc', 'bookingextension_agent')
         )
     );
-}
-
-
-// Coexistence: when a higher-ranked engine plugin owns the agent, every knob on this page is
-// inert (the primary engine carries its own settings). Rather than offer admins controls that do
-// nothing, replace the page body with a single notice and stop building it here. Inside the
-// primary engine this never triggers; in the bundled engine it reverts automatically when the
-// primary engine is removed.
-if (\bookingextension_agent\local\wizard\services\security\authorization_service::primary_engine_takes_over()) {
-    if ($adminroot->fulltree) {
-        $aisettingspage->add(
-            new admin_setting_heading(
-                'bookingextension_agent_handedover_notice',
-                get_string('settings_handedover_heading', 'bookingextension_agent'),
-                get_string('settings_handedover_desc', 'bookingextension_agent')
-            )
-        );
-    }
-    $adminroot->add('modbookingfolder', $aisettingspage);
-    return;
 }
 
 // Default is off: an unsaved (false) value counts as disabled. The same check gates the wand, the panel,
