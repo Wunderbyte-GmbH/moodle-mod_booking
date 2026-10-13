@@ -30,6 +30,7 @@ use context_system;
 use core_plugin_manager;
 use html_writer;
 use local_wunderbyte_table\local\customfield\wbt_field_controller_info;
+use local_shopping_cart\shopping_cart_history;
 use mod_booking\bo_availability\conditions\slotmove;
 use mod_booking\booking;
 use mod_booking\booking_answers\booking_answers;
@@ -355,11 +356,27 @@ class bookingoption_description implements renderable, templatable {
                     $this->canceluntil = userdate($canceluntiltimestamp, get_string('strftimedatetime', 'langconfig'));
                 }
             }
+
+            // Whoever bought via shopping cart is bound to the date valid at the time of booking.
+            if (class_exists('local_shopping_cart\shopping_cart_history')) {
+                $historyitem = shopping_cart_history::get_most_recent_historyitem(
+                    'mod_booking',
+                    'option',
+                    $optionid,
+                    (int)$user->id
+                );
+                if (!empty($historyitem->id)) {
+                    $canceluntiltimestamp = (int)$historyitem->canceluntil;
+                    $this->canceluntil = !empty($canceluntiltimestamp)
+                        ? userdate($canceluntiltimestamp, get_string('strftimedatetime', 'langconfig'))
+                        : null;
+                }
+            }
+
             if (!empty($canceluntiltimestamp) && ($canceluntiltimestamp > time())) {
                 $this->canstillbecancelled = true;
             }
         }
-
         // Datestring for date series and calculation of educational unit length.
         $this->dayofweektime = $settings->dayofweektime;
 
