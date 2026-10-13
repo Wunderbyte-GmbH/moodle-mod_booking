@@ -266,6 +266,7 @@ class certificateclass {
             'location' => $settings->location,
             'institution' => $settings->institution,
             'teachers' => self::return_teachers_for_certificate($settings->teachers),
+            'teacherscommaseparated' => self::return_teachers_for_certificate($settings->teachers, ', '),
             'sessions' => self::return_sessions_for_certificate($settings->sessions),
             'daterange' => self::return_daterange_for_certificate($settings),
             'duration' => self::return_duration_for_certificate($settings),
@@ -361,16 +362,17 @@ class certificateclass {
      * Helper function to return Teachers for certificate.
      *
      * @param array $teachers
+     * @param string $separator
      *
      * @return string
      *
      */
-    private static function return_teachers_for_certificate(array $teachers) {
+    private static function return_teachers_for_certificate(array $teachers, string $separator = '<br />') {
         $certificateteachers = [];
         foreach ($teachers as $teacher) {
             $certificateteachers[] = "$teacher->firstname $teacher->lastname";
         }
-        return implode("<br />", $certificateteachers);
+        return implode($separator, $certificateteachers);
     }
 
     /**

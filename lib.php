@@ -3258,6 +3258,13 @@ function mod_booking_tool_certificate_fields() {
         get_string('teachers', 'mod_booking'),
     );
     $handler->ensure_field_exists(
+        'teacherscommaseparated',
+        'text',
+        get_string('teacherscommaseparated', 'mod_booking'),
+        true,
+        get_string('teacherscommaseparated', 'mod_booking'),
+    );
+    $handler->ensure_field_exists(
         'sessions',
         'textarea',
         get_string('sessions', 'mod_booking'),
