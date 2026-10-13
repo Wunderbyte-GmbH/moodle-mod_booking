@@ -394,6 +394,9 @@ Der Zweck dieses Verhaltens ist es, "gemischte" Buchungen mit und ohne Warenkorb
 $string['nosubscribers'] = 'Keine Trainer/innen zugewiesen!';
 $string['notallbooked'] = 'Folgende Nutzer/innen konnten aufgrund nicht mehr verfügbarer Plätze oder durch das Überschreiten des vorgegebenen Buchungslimits pro Nutzer/in nicht gebucht werden: {$a}';
 $string['noteacherset'] = 'Kein/e Trainer/in';
+$string['notificationlistdesc'] = 'Wenn es bei einer Buchungsoption keine verfügbaren Plätze mehr gibt,
+ können sich Teilnehmer/innen registrieren lassen, um eine Benachrichtung zu erhalten, sobald wieder
+ Plätze verfügbar sind.';
 $string['notifyemail'] = 'Teilnehmer/innen-Benachrichtigung vor dem Beginn';
 $string['notifyemailteachers'] = 'Trainer/innen-Benachrichtigung vor dem Beginn';
 $string['notifyemailteachersmessage'] = 'Ihre Buchung startet demnächst:
