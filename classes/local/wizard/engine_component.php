@@ -63,20 +63,46 @@ final class engine_component {
     }
 
     /**
-     * Fully qualified aiready class of the active engine, or null if unavailable.
+     * Fully qualified aiready class of the active engine, or null if unavailable or switched off.
      *
      * Both engines expose the panel entry point under the same relative
-     * namespace, so the class name derives from the component.
+     * namespace, so the class name derives from the component. A null return
+     * means the booking view renders no wizard tab at all.
      *
      * @return string|null
      */
     public static function aiready_class(): ?string {
         $component = self::active();
-        if ($component === null) {
+        if ($component === null || !self::engine_switched_on($component)) {
             return null;
         }
         $class = '\\' . $component . '\\local\\wizard\\aiready';
         return class_exists($class) ? $class : null;
+    }
+
+    /**
+     * Whether the given engine reports itself active for this site.
+     *
+     * Asks the engine's own authorization_service::is_agent_engine_active(), the single switch
+     * that also gates its navbar wand, shortcode and webservices: installed, not switched off by
+     * the admin ("Enable Booking Wizard", agent_enabled) and not superseded by a higher-ranked
+     * engine. The booking view must honour the same switch, otherwise a disabled engine still
+     * puts its wizard tab (with the onboarding card) on every booking instance. An engine without
+     * that method predates the switch and counts as on.
+     *
+     * @param string $component Engine component as returned by active().
+     * @return bool
+     */
+    public static function engine_switched_on(string $component): bool {
+        $authz = '\\' . $component . '\\local\\wizard\\services\\security\\authorization_service';
+        if (!class_exists($authz) || !method_exists($authz, 'is_agent_engine_active')) {
+            return true;
+        }
+        try {
+            return (bool)$authz::is_agent_engine_active();
+        } catch (\Throwable $e) {
+            return false;
+        }
     }
 
     /**
