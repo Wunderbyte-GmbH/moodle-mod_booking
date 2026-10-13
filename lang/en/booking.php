@@ -4505,6 +4505,7 @@ $string['teachersallowmailtobookedusers_desc'] = 'If you activate this setting, 
     <span class="text-danger"><b>Be careful:</b> This might be a privacy issue. Only activate this,
     if you are sure it corresponds with your organization\'s privacy policy.</span>';
 $string['teachersbookingoptionsfromcondition'] = 'Teachers: ';
+$string['teacherscommaseparated'] = 'Teachers (comma separated)';
 $string['teachersettings'] = 'Teachers <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['teachersettings_desc'] = 'Teacher-specific settings.';
 $string['teachersforoption'] = 'Teachers';
