@@ -89,18 +89,35 @@ class authorization_service implements agent_authorization_service {
     }
 
     /**
+     * Return true when the admin has not switched the agent off ("Enable Booking Wizard" checkbox).
+     *
+     * Reads the agent_enabled setting of THIS engine. Default is on: a never-saved value (false)
+     * counts as enabled, exactly as settings.php evaluates it, so a fresh install shows the agent
+     * without any admin action while an explicit 0 turns it off.
+     *
+     * @return bool
+     */
+    public static function is_agent_enabled(): bool {
+        $raw = get_config(self::ENGINE_COMPONENT, 'agent_enabled');
+        return $raw === false || !empty($raw);
+    }
+
+    /**
      * Return true when THIS engine is the active agent for the site.
      *
-     * The single coexistence chokepoint: this engine is active only when it is installed AND no
-     * higher-ranked engine has taken over. Routing every entry point (panel readiness, all
-     * webservice gates, the navbar head-hook) through here means the engine yields everywhere
-     * with one switch when the primary engine is installed — and resumes everywhere when it is
-     * removed (reversible cutover).
+     * The single coexistence and on/off chokepoint: this engine is active only when it is
+     * installed AND the admin has not disabled it (see is_agent_enabled()) AND no higher-ranked
+     * engine has taken over. Routing every entry point (panel readiness, all webservice gates,
+     * the shortcode, the navbar head-hook) through here means the engine yields everywhere with
+     * one switch — when the admin unticks "Enable Booking Wizard" or when the primary engine is
+     * installed — and resumes everywhere when the switch is reverted (reversible cutover).
      *
      * @return bool
      */
     public static function is_agent_engine_active(): bool {
-        return self::is_agent_extension_installed() && !self::primary_engine_takes_over();
+        return self::is_agent_extension_installed()
+            && self::is_agent_enabled()
+            && !self::primary_engine_takes_over();
     }
 
     /**

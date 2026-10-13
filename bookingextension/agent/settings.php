@@ -110,9 +110,9 @@ if (\bookingextension_agent\local\wizard\services\security\authorization_service
     return;
 }
 
-// Default is on: an unsaved (false) value must count as enabled.
-$agentenabledraw = get_config('bookingextension_agent', 'agent_enabled');
-$agentenabled = $agentenabledraw === false || !empty($agentenabledraw);
+// Default is on: an unsaved (false) value counts as enabled. The same check gates the wand, the panel,
+// the shortcode and every webservice entry point via is_agent_engine_active().
+$agentenabled = \bookingextension_agent\local\wizard\services\security\authorization_service::is_agent_enabled();
 
 if ($adminroot->fulltree) {
     // One-time announcement of the Wunderbyte Agent. The whole notice lives on a single checkbox so it

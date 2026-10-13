@@ -22,9 +22,10 @@ use bookingextension_agent\local\wizard\services\security\authorization_service;
 /**
  * Injects the navbar magic-wand entry point on every Moodle page.
  *
- * Gated by the inject_in_navbar admin setting (default off), a logged-in
- * non-guest user and the manager-only agent:seemagicwand capability checked at
- * the current page context. The wand is a site-wide entry point, so it is
+ * Gated by the engine being active (installed, agent_enabled not switched off,
+ * no primary engine takeover), the inject_in_navbar admin setting (default on),
+ * a logged-in non-guest user and the manager-only agent:seemagicwand capability
+ * checked at the current page context. The wand is a site-wide entry point, so it is
  * deliberately restricted to managers; per-module agent usage stays at teacher
  * level via useaiinstructions, which is still enforced server-side on every
  * call. No CSS is injected here: the plugin's styles.css
@@ -44,8 +45,9 @@ class page_injection {
     public static function extend_head(before_standard_head_html_generation $hook): void {
         global $PAGE;
 
-        // Coexistence: when the standalone local_wizard plugin has taken over, it injects its own
-        // navbar entry point — the bundled engine must not add a second wand.
+        // One switch for the whole engine: the admin's "Enable Booking Wizard" checkbox (agent_enabled)
+        // and the coexistence rule (when the standalone local_wizard plugin has taken over, it injects
+        // its own navbar entry point — the bundled engine must not add a second wand).
         if (!authorization_service::is_agent_engine_active()) {
             return;
         }
