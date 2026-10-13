@@ -350,7 +350,7 @@ final class cancelmyself_history_canceluntil_test extends booking_advanced_testc
         singleton_service::destroy_booking_answers($optionid);
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
-        // is_available() == false means, the cancel button is shown.
+        // The boolean is_available() == false means, the cancel button is shown.
         $buttonshown = !(new cancelmyself())->is_available($settings, (int)$user->id);
         $allowed = shopping_cart::allowed_to_cancel($historyid, $optionid, 'option', (int)$user->id);
 
