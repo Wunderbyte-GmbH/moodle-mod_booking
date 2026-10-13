@@ -175,7 +175,15 @@ class cancelmyself implements bo_condition {
                 ) {
                     /* Apply shopping cart specific cancel rules only for purchases that
                     were actually processed via shopping cart. */
-                    if (self::has_shopping_cart_history_entry($settings->id, $userid)) {
+                    $historyitem = shopping_cart_history::get_most_recent_historyitem(
+                        'mod_booking',
+                        'option',
+                        $settings->id,
+                        $userid
+                    );
+                    if (!empty($historyitem->id)) {
+                        // The date stored at checkout is binding: shopping cart checks exactly this one on cancelling.
+                        $canceluntil = (int)$historyitem->canceluntil;
                         $item = (object)[
                             'itemid' => $settings->id,
                             'componentname' => 'mod_booking',
@@ -186,7 +194,6 @@ class cancelmyself implements bo_condition {
                             $isavailable = true;
                         }
                     }
-
                     // If user is confirmed, we don't block.
                     if (isset($bookinginformation['onwaitinglist'])) {
                         // We don't show cancel when we don't ask for confirmation and it's not fully booked.
