@@ -131,7 +131,12 @@ class cancelmyself implements bo_condition {
         // Check if the option has its own canceluntil date and if it has already passed.
         $now = time();
         $canceluntil = booking_option::get_value_of_json_by_key($optionid, 'canceluntil');
-        if (!empty($canceluntil) && $now > $canceluntil) {
+        if (
+            !empty($canceluntil)
+            && $now > $canceluntil
+            // Purchases via shopping cart follow the date stored at checkout, it is checked further below.
+            && !self::has_shopping_cart_history_entry($optionid, $userid)
+        ) {
             return true;
         }
 

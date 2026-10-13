@@ -30,9 +30,11 @@ use local_shopping_cart\local\cartstore;
 use local_shopping_cart\shopping_cart;
 use local_shopping_cart\shopping_cart_history;
 use mod_booking\bo_availability\conditions\cancelmyself;
+use mod_booking\output\bookingoption_description;
 use mod_booking\tests\booking_advanced_testcase;
 use mod_booking_generator;
 use stdClass;
+use tool_mocktesttime\time_mock;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
@@ -117,6 +119,11 @@ final class cancelmyself_history_canceluntil_test extends booking_advanced_testc
                 . ($allowed ? 'allows' : 'denies') . ' the cancellation.'
         );
 
+        // The date valid at the time of booking applies to this user: it has passed, so no cancelling.
+        // The later change of the option's date only counts for users who book afterwards.
+        $this->assertFalse($buttonshown, 'The date of the booking time has passed: no cancel button.');
+        $this->assertFalse($allowed, 'The date of the booking time has passed: cancelling is denied.');
+
         // The real cancellation has to behave like the button promised.
         ob_start();
         $result = shopping_cart::cancel_purchase(
@@ -170,14 +177,16 @@ final class cancelmyself_history_canceluntil_test extends booking_advanced_testc
     }
 
     /**
-     * The date of the option is an absolute limit for the cancel button: once it has passed, the button
-     * is hidden, even if the date in the history of the purchase was corrected to the future by an admin.
-     * The date of the option has to be updated as well, then the user can cancel again.
+     * The date valid at the time of booking applies to the purchase, even if the date of the option has
+     * been moved to the past afterwards (or was never updated): the cancel button follows the date
+     * stored in the history of the purchase. This is also what a correction by an admin in the history
+     * table relies on.
      *
      * @covers \mod_booking\bo_availability\conditions\cancelmyself::is_available
+     * @covers \local_shopping_cart\shopping_cart::allowed_to_cancel
      * @covers \local_shopping_cart\shopping_cart::cancel_purchase
      */
-    public function test_passed_option_canceluntil_hides_cancel_button_until_option_date_is_updated(): void {
+    public function test_history_canceluntil_applies_even_if_option_date_is_in_the_past(): void {
         global $DB;
 
         $optioncanceluntil = time() - DAYSECS;
@@ -196,20 +205,13 @@ final class cancelmyself_history_canceluntil_test extends booking_advanced_testc
 
         $this->setUser($student);
 
-        // The date of the option has passed: no cancel button (is_available() == true means hidden).
-        $this->assertTrue(
-            (new cancelmyself())->is_available($settings, (int)$student->id),
-            'The cancel button is hidden as long as the date of the option has passed.'
-        );
+        $allowed = shopping_cart::allowed_to_cancel($historyitem->id, $settings->id, 'option', (int)$student->id);
+        $this->assertTrue($allowed, 'Shopping cart allows the cancellation, the history date is in the future.');
 
-        // The date of the option is updated as well: now the user can cancel.
-        $this->set_option_canceluntil($settings->id, $historycanceluntil);
-        $settings = singleton_service::get_instance_of_booking_option_settings($settings->id);
-        $this->assertEquals($historycanceluntil, (int)$settings->canceluntil);
-
+        // The date of the purchase is in the future: the cancel button is shown (is_available() == false).
         $this->assertFalse(
             (new cancelmyself())->is_available($settings, (int)$student->id),
-            'The cancel button is shown, both dates are in the future.'
+            'The cancel button is shown, the date of the purchase has not passed.'
         );
 
         ob_start();
@@ -226,16 +228,168 @@ final class cancelmyself_history_canceluntil_test extends booking_advanced_testc
     }
 
     /**
+     * The whole story of the ticket: A buys, does not cancel, the date of the option passes and is then
+     * moved into the future. A keeps the date from the time of booking: no cancel button and no
+     * cancellation. B, who books after the change, gets the new date and can cancel.
+     *
+     * @covers \mod_booking\bo_availability\conditions\cancelmyself::is_available
+     * @covers \local_shopping_cart\shopping_cart::allowed_to_cancel
+     * @covers \local_shopping_cart\shopping_cart::cancel_purchase
+     */
+    public function test_date_of_booking_time_applies_per_user_when_option_date_is_extended(): void {
+        $start = time();
+        ['settings' => $settings, 'student' => $usera, 'student2' => $userb]
+            = $this->create_priced_option($start + DAYSECS);
+
+        // A buys while the date is still in the future and could cancel.
+        $historya = $this->buy_option($settings->id, (int)$usera->id);
+        $this->assertEquals($start + DAYSECS, (int)$historya->canceluntil);
+        [$buttonshown, $allowed] = $this->cancel_state($settings->id, $usera, (int)$historya->id);
+        $this->assertTrue($buttonshown, 'A sees the cancel button before the date has passed.');
+        $this->assertTrue($allowed, 'A is allowed to cancel before the date has passed.');
+
+        // The date passes, A did not cancel.
+        time_mock::set_mock_time($start + 2 * DAYSECS);
+        [$buttonshown, $allowed] = $this->cancel_state($settings->id, $usera, (int)$historya->id);
+        $this->assertFalse($buttonshown, 'No cancel button after the date has passed.');
+        $this->assertFalse($allowed, 'No cancellation after the date has passed.');
+
+        // The date of the option is set into the future.
+        $newcanceluntil = $start + 30 * DAYSECS;
+        $this->set_option_canceluntil($settings->id, $newcanceluntil);
+
+        // A keeps the date of the booking time: still no button, still no cancellation.
+        [$buttonshown, $allowed] = $this->cancel_state($settings->id, $usera, (int)$historya->id);
+        $this->assertFalse($buttonshown, 'A must not see a cancel button: the date of A\'s booking has passed.');
+        $this->assertFalse($allowed, 'A must not be allowed to cancel: the date of A\'s booking has passed.');
+
+        // B books after the change and gets the new date.
+        $historyb = $this->buy_option($settings->id, (int)$userb->id);
+        $this->assertEquals($newcanceluntil, (int)$historyb->canceluntil);
+        [$buttonshown, $allowed] = $this->cancel_state($settings->id, $userb, (int)$historyb->id);
+        $this->assertTrue($buttonshown, 'B sees the cancel button, the new date applies to B.');
+        $this->assertTrue($allowed, 'B is allowed to cancel.');
+
+        // B booking does not change anything for A.
+        [$buttonshown, $allowed] = $this->cancel_state($settings->id, $usera, (int)$historya->id);
+        $this->assertFalse($buttonshown);
+        $this->assertFalse($allowed);
+
+        // A real cancellation: denied for A, successful for B.
+        $this->setUser($usera);
+        ob_start();
+        $result = shopping_cart::cancel_purchase(
+            $settings->id,
+            'option',
+            (int)$usera->id,
+            'mod_booking',
+            (int)$historya->id,
+            0
+        );
+        ob_end_clean();
+        $this->assertEmpty($result['success'], 'The cancellation is denied for A.');
+
+        $this->setUser($userb);
+        ob_start();
+        $result = shopping_cart::cancel_purchase(
+            $settings->id,
+            'option',
+            (int)$userb->id,
+            'mod_booking',
+            (int)$historyb->id,
+            0
+        );
+        ob_end_clean();
+        $this->assertEquals(1, $result['success'], 'The cancellation works for B.');
+    }
+
+    /**
+     * Same story as above, but for the info "cancelling possible until" in the option description:
+     * every user is shown the date which applies to them.
+     *
+     * @covers \mod_booking\output\bookingoption_description::get_returnarray
+     */
+    public function test_description_shows_date_of_booking_time_per_user(): void {
+        $start = time();
+        ['settings' => $settings, 'student' => $usera, 'student2' => $userb]
+            = $this->create_priced_option($start + DAYSECS);
+
+        $historya = $this->buy_option($settings->id, (int)$usera->id);
+        $this->assertEquals($start + DAYSECS, (int)$historya->canceluntil);
+
+        time_mock::set_mock_time($start + 2 * DAYSECS);
+        $newcanceluntil = $start + 30 * DAYSECS;
+        $this->set_option_canceluntil($settings->id, $newcanceluntil);
+
+        $historyb = $this->buy_option($settings->id, (int)$userb->id);
+        $this->assertEquals($newcanceluntil, (int)$historyb->canceluntil);
+
+        $format = get_string('strftimedatetime', 'langconfig');
+
+        // A is shown the date of the booking time and that cancelling is not possible anymore.
+        $data = $this->description_data($settings->id, $usera);
+        $this->assertSame(userdate($start + DAYSECS, $format), $data['canceluntil']);
+        $this->assertEmpty($data['canstillbecancelled'], 'A cannot cancel anymore.');
+
+        // B is shown the new date and that cancelling is possible.
+        $data = $this->description_data($settings->id, $userb);
+        $this->assertSame(userdate($newcanceluntil, $format), $data['canceluntil']);
+        $this->assertNotEmpty($data['canstillbecancelled'], 'B can still cancel.');
+    }
+
+    /**
+     * Returns what the cancel button shows and what shopping cart allows for the given user.
+     *
+     * @param int $optionid
+     * @param stdClass $user
+     * @param int $historyid
+     * @return array [bool button is shown, bool shopping cart allows cancelling]
+     */
+    private function cancel_state(int $optionid, stdClass $user, int $historyid): array {
+        $this->setUser($user);
+        singleton_service::destroy_booking_answers($optionid);
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+
+        // is_available() == false means, the cancel button is shown.
+        $buttonshown = !(new cancelmyself())->is_available($settings, (int)$user->id);
+        $allowed = shopping_cart::allowed_to_cancel($historyid, $optionid, 'option', (int)$user->id);
+
+        return [$buttonshown, $allowed];
+    }
+
+    /**
+     * Returns the data of the option description as it is rendered for the given user.
+     *
+     * @param int $optionid
+     * @param stdClass $user
+     * @return array
+     */
+    private function description_data(int $optionid, stdClass $user): array {
+        $this->setUser($user);
+        singleton_service::destroy_booking_answers($optionid);
+
+        return (new bookingoption_description(
+            $optionid,
+            null,
+            MOD_BOOKING_DESCRIPTION_WEBSITE,
+            true,
+            null,
+            $user
+        ))->get_returnarray();
+    }
+
+    /**
      * Creates a booking with one priced option which has the given canceluntil date.
      *
      * @param int $canceluntil
-     * @return array settings, student
+     * @return array settings, student, student2 (a second user who books later)
      */
     private function create_priced_option(int $canceluntil): array {
         set_config('cancelationfee', 0, 'local_shopping_cart');
 
         $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
         $student = $this->getDataGenerator()->create_user();
+        $student2 = $this->getDataGenerator()->create_user();
         $bookingmanager = $this->getDataGenerator()->create_user();
 
         $bdata = self::provide_bdata();
@@ -246,6 +400,7 @@ final class cancelmyself_history_canceluntil_test extends booking_advanced_testc
 
         $this->setAdminUser();
         $this->getDataGenerator()->enrol_user($student->id, $course->id, 'student');
+        $this->getDataGenerator()->enrol_user($student2->id, $course->id, 'student');
         $this->getDataGenerator()->enrol_user($bookingmanager->id, $course->id, 'editingteacher');
 
         /** @var mod_booking_generator $plugingenerator */
@@ -283,7 +438,7 @@ final class cancelmyself_history_canceluntil_test extends booking_advanced_testc
 
         $this->assertEquals($canceluntil, (int)$settings->canceluntil, 'The option has the canceluntil date we set.');
 
-        return ['settings' => $settings, 'student' => $student];
+        return ['settings' => $settings, 'student' => $student, 'student2' => $student2];
     }
 
     /**
