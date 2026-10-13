@@ -40,6 +40,9 @@ final class mcp_hook_tool_provider_test extends advanced_testcase {
             $this->markTestSkipped('tool_oauthmcp is not installed.');
         }
         parent::setUp();
+        $this->resetAfterTest();
+        // The agent is off by default; these tests run with it switched on.
+        set_config('agent_enabled', 1, 'bookingextension_agent');
     }
 
     /**

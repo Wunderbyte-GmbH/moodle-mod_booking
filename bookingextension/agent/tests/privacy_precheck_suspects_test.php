@@ -34,6 +34,15 @@ use bookingextension_agent\external\ai_privacy_precheck;
  */
 final class privacy_precheck_suspects_test extends advanced_testcase {
     /**
+     * The agent is off by default; these tests run with it switched on.
+     */
+    protected function setUp(): void {
+        parent::setUp();
+        $this->resetAfterTest();
+        set_config('agent_enabled', 1, 'bookingextension_agent');
+    }
+
+    /**
      * A colliding single word must come back as a suspect {token, word} pair.
      */
     public function test_low_confidence_suspects_are_returned(): void {

@@ -59,6 +59,9 @@ final class agent_skill_system_context_resolution_test extends booking_advanced_
     public function setUp(): void {
         parent::setUp();
         $this->skip_without_agent_extension();
+        $this->resetAfterTest();
+        // The agent is off by default; these tests run with it switched on.
+        set_config('agent_enabled', 1, 'bookingextension_agent');
     }
 
     /**

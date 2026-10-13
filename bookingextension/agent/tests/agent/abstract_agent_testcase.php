@@ -109,6 +109,8 @@ abstract class abstract_agent_testcase extends agent_testcase_parent {
         \bookingextension_agent\local\wizard\testing\mod_booking_dependency::require_installed();
         parent::setUp();
         $this->resetAfterTest();
+        // The agent is off by default; every agent test runs with it switched on.
+        set_config('agent_enabled', 1, 'bookingextension_agent');
 
         $coursekey = substr(sha1(uniqid('booking_agent_', true)), 0, 12);
         $this->course  = $this->getDataGenerator()->create_course([

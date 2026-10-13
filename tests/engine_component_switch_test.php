@@ -42,15 +42,15 @@ final class engine_component_switch_test extends advanced_testcase {
     }
 
     /**
-     * Default on: with the switch never saved the panel class is resolved.
+     * Default off: with the switch never saved the panel class is not resolved.
      */
-    public function test_unset_switch_keeps_the_panel(): void {
+    public function test_unset_switch_removes_the_panel(): void {
         $this->resetAfterTest();
         $engine = $this->engine();
         unset_config('agent_enabled', $engine);
 
-        $this->assertTrue(engine_component::engine_switched_on($engine));
-        $this->assertNotNull(engine_component::aiready_class());
+        $this->assertFalse(engine_component::engine_switched_on($engine));
+        $this->assertNull(engine_component::aiready_class());
     }
 
     /**

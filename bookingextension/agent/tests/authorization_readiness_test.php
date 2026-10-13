@@ -30,6 +30,15 @@ use bookingextension_agent\local\wizard\services\security\authorization_service;
  */
 final class authorization_readiness_test extends advanced_testcase {
     /**
+     * The agent is off by default; these tests run with it switched on.
+     */
+    protected function setUp(): void {
+        parent::setUp();
+        $this->resetAfterTest();
+        set_config('agent_enabled', 1, 'bookingextension_agent');
+    }
+
+    /**
      * A permitted user (editing teacher) is ready; the check never throws.
      */
     public function test_ready(): void {

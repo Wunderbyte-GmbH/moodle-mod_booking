@@ -91,15 +91,13 @@ class authorization_service implements agent_authorization_service {
     /**
      * Return true when the admin has not switched the agent off ("Enable Booking Wizard" checkbox).
      *
-     * Reads the agent_enabled setting of THIS engine. Default is on: a never-saved value (false)
-     * counts as enabled, exactly as settings.php evaluates it, so a fresh install shows the agent
-     * without any admin action while an explicit 0 turns it off.
+     * Reads the agent_enabled setting of THIS engine. Default is off: a never-saved value (false)
+     * counts as disabled, so a fresh install shows no agent until an admin switches it on.
      *
      * @return bool
      */
     public static function is_agent_enabled(): bool {
-        $raw = get_config(self::ENGINE_COMPONENT, 'agent_enabled');
-        return $raw === false || !empty($raw);
+        return !empty(get_config(self::ENGINE_COMPONENT, 'agent_enabled'));
     }
 
     /**

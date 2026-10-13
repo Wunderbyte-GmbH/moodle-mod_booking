@@ -46,6 +46,9 @@ final class privacy_precheck_decision_test extends advanced_testcase {
     protected function setUp(): void {
         parent::setUp();
         $this->resetAfterTest();
+        // The agent is off by default; these tests run with it switched on.
+        set_config('agent_enabled', 1, 'bookingextension_agent');
+        $this->resetAfterTest();
         $this->getDataGenerator()->create_user(['firstname' => 'Testa', 'lastname' => 'Kranich']);
         $this->getDataGenerator()->create_user(['firstname' => 'Paula', 'lastname' => 'Beispielfrau']);
         $this->setAdminUser();
