@@ -6,6 +6,10 @@ Feature: AI instructions chat interface for booking managers
 
   Background:
     Given the "bookingextension_agent" plugin is installed
+    ## The wizard is off by default; these scenarios run with it switched on.
+    And the following config values are set as admin:
+      | config        | value | plugin                 |
+      | agent_enabled | 1     | bookingextension_agent |
     And the following "users" exist:
       | username | firstname | lastname | email                   | idnumber |
       | teacher1 | Teacher   | 1        | teacher1@example.com    | T1       |
