@@ -1,0 +1,351 @@
+<?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * Tests that the cancel button and the cancellation check use the same canceluntil date.
+ *
+ * @package mod_booking
+ * @category test
+ * @copyright 2026 Wunderbyte GmbH <info@wunderbyte.at>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+namespace mod_booking;
+
+use cache;
+use local_shopping_cart\local\cartstore;
+use local_shopping_cart\shopping_cart;
+use local_shopping_cart\shopping_cart_history;
+use mod_booking\bo_availability\conditions\cancelmyself;
+use mod_booking\tests\booking_advanced_testcase;
+use mod_booking_generator;
+use stdClass;
+
+defined('MOODLE_INTERNAL') || die();
+global $CFG;
+require_once($CFG->dirroot . '/mod/booking/lib.php');
+
+/**
+ * Tests that the cancel button and the cancellation check use the same canceluntil date.
+ *
+ * Shopping cart stores canceluntil in local_shopping_cart_history at checkout and checks that stored
+ * value when a purchase is cancelled. The cancel button of mod_booking (cancelmyself) used to
+ * look at the CURRENT date of the booking option instead. When the option's date is moved after the
+ * purchase, the user sees a cancel button but the cancellation fails with "nopermission".
+ *
+ * @package mod_booking
+ * @category test
+ * @copyright 2026 Wunderbyte GmbH <info@wunderbyte.at>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+final class cancelmyself_history_canceluntil_test extends booking_advanced_testcase {
+    /**
+     * Tests set up.
+     */
+    public function setUp(): void {
+        parent::setUp();
+        $this->resetAfterTest();
+        singleton_service::destroy_instance();
+    }
+
+    /**
+     * Mandatory clean-up after each test.
+     */
+    public function tearDown(): void {
+        parent::tearDown();
+        singleton_service::destroy_instance();
+    }
+
+    /**
+     * The option's canceluntil was already in the past when the user bought it and is moved into
+     * the future afterwards. The cancel button and the cancellation itself have to agree.
+     *
+     * @covers \mod_booking\bo_availability\conditions\cancelmyself::is_available
+     * @covers \local_shopping_cart\shopping_cart::allowed_to_cancel
+     * @covers \local_shopping_cart\shopping_cart::cancel_purchase
+     */
+    public function test_cancel_button_matches_cancellation_after_canceluntil_moved_to_future(): void {
+        ['settings' => $settings, 'student' => $student] = $this->create_priced_option(time() - DAYSECS);
+
+        $historyitem = $this->buy_option($settings->id, (int)$student->id);
+
+        // The date stored at checkout is the one which was already expired when buying.
+        $this->assertEquals(LOCAL_SHOPPING_CART_PAYMENT_SUCCESS, (int)$historyitem->paymentstatus);
+        $this->assertNotEmpty($historyitem->canceluntil);
+        $this->assertLessThan(time(), (int)$historyitem->canceluntil, 'Date stored in history is in the past');
+
+        // Afterwards the date of the option is moved into the future.
+        $newcanceluntil = time() + 30 * DAYSECS;
+        $this->set_option_canceluntil($settings->id, $newcanceluntil);
+        $settings = singleton_service::get_instance_of_booking_option_settings($settings->id);
+        $this->assertEquals($newcanceluntil, (int)$settings->canceluntil);
+
+        // The history keeps the expired date, we do not touch it.
+        $historyitem = shopping_cart_history::get_most_recent_historyitem(
+            'mod_booking',
+            'option',
+            $settings->id,
+            $student->id
+        );
+        $this->assertLessThan(time(), (int)$historyitem->canceluntil);
+
+        $this->setUser($student);
+
+        // What the user sees: is_available() == false means, the cancel button is shown.
+        $buttonshown = !(new cancelmyself())->is_available($settings, (int)$student->id);
+
+        // What shopping cart enforces.
+        $allowed = shopping_cart::allowed_to_cancel($historyitem->id, $settings->id, 'option', (int)$student->id);
+
+        $this->assertSame(
+            $allowed,
+            $buttonshown,
+            'The cancel button is ' . ($buttonshown ? 'shown' : 'hidden') . ' but shopping cart '
+                . ($allowed ? 'allows' : 'denies') . ' the cancellation.'
+        );
+
+        // The real cancellation has to behave like the button promised.
+        ob_start();
+        $result = shopping_cart::cancel_purchase(
+            $settings->id,
+            'option',
+            (int)$student->id,
+            'mod_booking',
+            (int)$historyitem->id,
+            0
+        );
+        ob_end_clean();
+        $this->assertSame(
+            $buttonshown,
+            !empty($result['success']),
+            'A visible cancel button must lead to a successful cancellation, a hidden one must not exist.'
+        );
+    }
+
+    /**
+     * Control: canceluntil is in the future when buying and stays there. Button and cancellation
+     * agree and the user can cancel. Proves the setup of the test above is sound.
+     *
+     * @covers \mod_booking\bo_availability\conditions\cancelmyself::is_available
+     * @covers \local_shopping_cart\shopping_cart::allowed_to_cancel
+     * @covers \local_shopping_cart\shopping_cart::cancel_purchase
+     */
+    public function test_cancel_button_matches_cancellation_with_future_canceluntil(): void {
+        ['settings' => $settings, 'student' => $student] = $this->create_priced_option(time() + 10 * DAYSECS);
+
+        $historyitem = $this->buy_option($settings->id, (int)$student->id);
+        $this->assertGreaterThan(time(), (int)$historyitem->canceluntil);
+
+        $this->setUser($student);
+        $buttonshown = !(new cancelmyself())->is_available($settings, (int)$student->id);
+        $allowed = shopping_cart::allowed_to_cancel($historyitem->id, $settings->id, 'option', (int)$student->id);
+
+        $this->assertTrue($buttonshown, 'The cancel button is shown.');
+        $this->assertTrue($allowed, 'Shopping cart allows the cancellation.');
+
+        ob_start();
+        $result = shopping_cart::cancel_purchase(
+            $settings->id,
+            'option',
+            (int)$student->id,
+            'mod_booking',
+            (int)$historyitem->id,
+            0
+        );
+        ob_end_clean();
+        $this->assertEquals(1, $result['success']);
+    }
+
+    /**
+     * The date of the option is an absolute limit for the cancel button: once it has passed, the button
+     * is hidden, even if the date in the history of the purchase was corrected to the future by an admin.
+     * The date of the option has to be updated as well, then the user can cancel again.
+     *
+     * @covers \mod_booking\bo_availability\conditions\cancelmyself::is_available
+     * @covers \local_shopping_cart\shopping_cart::cancel_purchase
+     */
+    public function test_passed_option_canceluntil_hides_cancel_button_until_option_date_is_updated(): void {
+        global $DB;
+
+        $optioncanceluntil = time() - DAYSECS;
+        ['settings' => $settings, 'student' => $student] = $this->create_priced_option($optioncanceluntil);
+
+        $historyitem = $this->buy_option($settings->id, (int)$student->id);
+        $this->assertLessThan(time(), (int)$historyitem->canceluntil, 'Date stored in history is in the past');
+
+        // The date of the purchase is corrected directly in the history table, the option keeps its date.
+        $historycanceluntil = time() + 30 * DAYSECS;
+        $DB->set_field('local_shopping_cart_history', 'canceluntil', $historycanceluntil, ['id' => $historyitem->id]);
+
+        singleton_service::destroy_instance();
+        $settings = singleton_service::get_instance_of_booking_option_settings($settings->id);
+        $this->assertEquals($optioncanceluntil, (int)$settings->canceluntil);
+
+        $this->setUser($student);
+
+        // The date of the option has passed: no cancel button (is_available() == true means hidden).
+        $this->assertTrue(
+            (new cancelmyself())->is_available($settings, (int)$student->id),
+            'The cancel button is hidden as long as the date of the option has passed.'
+        );
+
+        // The date of the option is updated as well: now the user can cancel.
+        $this->set_option_canceluntil($settings->id, $historycanceluntil);
+        $settings = singleton_service::get_instance_of_booking_option_settings($settings->id);
+        $this->assertEquals($historycanceluntil, (int)$settings->canceluntil);
+
+        $this->assertFalse(
+            (new cancelmyself())->is_available($settings, (int)$student->id),
+            'The cancel button is shown, both dates are in the future.'
+        );
+
+        ob_start();
+        $result = shopping_cart::cancel_purchase(
+            $settings->id,
+            'option',
+            (int)$student->id,
+            'mod_booking',
+            (int)$historyitem->id,
+            0
+        );
+        ob_end_clean();
+        $this->assertEquals(1, $result['success']);
+    }
+
+    /**
+     * Creates a booking with one priced option which has the given canceluntil date.
+     *
+     * @param int $canceluntil
+     * @return array settings, student
+     */
+    private function create_priced_option(int $canceluntil): array {
+        set_config('cancelationfee', 0, 'local_shopping_cart');
+
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $student = $this->getDataGenerator()->create_user();
+        $bookingmanager = $this->getDataGenerator()->create_user();
+
+        $bdata = self::provide_bdata();
+        $bdata['course'] = $course->id;
+        $bdata['bookingmanager'] = $bookingmanager->username;
+        $bdata['cancancelbook'] = 1;
+        $booking = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        $this->setAdminUser();
+        $this->getDataGenerator()->enrol_user($student->id, $course->id, 'student');
+        $this->getDataGenerator()->enrol_user($bookingmanager->id, $course->id, 'editingteacher');
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+
+        $plugingenerator->create_pricecategory((object)[
+            'ordernum' => 1,
+            'name' => 'default',
+            'identifier' => 'default',
+            'defaultvalue' => 100,
+            'pricecatsortorder' => 1,
+        ]);
+
+        $record = new stdClass();
+        $record->bookingid = $booking->id;
+        $record->text = 'Option with canceluntil';
+        $record->chooseorcreatecourse = 1;
+        $record->courseid = $course->id;
+        $record->maxanswers = 5;
+        $record->useprice = 1;
+        $record->importing = 1;
+        // The start of the course is far away, so only the fixed canceluntil date matters.
+        $record->optiondateid_0 = "0";
+        $record->daystonotify_0 = "0";
+        $record->coursestarttime_0 = strtotime('+ 1 year', time());
+        $record->courseendtime_0 = strtotime('+ 1 year + 2 hours', time());
+        $record->canceluntilcheckbox = 1;
+        $record->canceluntil = $canceluntil;
+        $option = $plugingenerator->create_option($record);
+        singleton_service::destroy_booking_option_singleton($option->id);
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
+        singleton_service::destroy_booking_singleton_by_cmid($settings->cmid);
+        $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
+
+        $this->assertEquals($canceluntil, (int)$settings->canceluntil, 'The option has the canceluntil date we set.');
+
+        return ['settings' => $settings, 'student' => $student];
+    }
+
+    /**
+     * The cashier buys the option on behalf of the user via shopping cart.
+     *
+     * @param int $optionid
+     * @param int $userid
+     * @return stdClass the shopping cart history record
+     */
+    private function buy_option(int $optionid, int $userid): stdClass {
+        $this->setAdminUser();
+        shopping_cart::delete_all_items_from_cart($userid);
+        shopping_cart::buy_for_user($userid);
+        cartstore::instance($userid);
+        shopping_cart::add_item_to_cart('mod_booking', 'option', $optionid, -1);
+        shopping_cart::confirm_payment($userid, LOCAL_SHOPPING_CART_PAYMENT_METHOD_CASHIER_CASH);
+
+        singleton_service::destroy_booking_answers($optionid);
+
+        $historyitem = shopping_cart_history::get_most_recent_historyitem('mod_booking', 'option', $optionid, $userid);
+        $this->assertNotEmpty($historyitem, 'The purchase is stored in shopping cart history.');
+        return $historyitem;
+    }
+
+    /**
+     * Changes the canceluntil date of the option directly in its json, like an editor saving the form.
+     *
+     * @param int $optionid
+     * @param int $canceluntil
+     */
+    private function set_option_canceluntil(int $optionid, int $canceluntil): void {
+        global $DB;
+
+        $json = json_decode((string)$DB->get_field('booking_options', 'json', ['id' => $optionid]) ?: '{}');
+        $json->canceluntil = $canceluntil;
+        $DB->set_field('booking_options', 'json', json_encode($json), ['id' => $optionid]);
+        cache::make('mod_booking', 'bookingoptionsettings')->delete($optionid);
+        singleton_service::destroy_booking_option_singleton($optionid);
+    }
+
+    /**
+     * Provides the data that's constant for the test.
+     *
+     * @return array
+     */
+    private static function provide_bdata(): array {
+        return [
+            'name' => 'Test Booking canceluntil',
+            'eventtype' => 'Test event',
+            'enablecompletion' => 1,
+            'bookedtext' => ['text' => 'text'],
+            'waitingtext' => ['text' => 'text'],
+            'notifyemail' => ['text' => 'text'],
+            'statuschangetext' => ['text' => 'text'],
+            'deletedtext' => ['text' => 'text'],
+            'pollurltext' => ['text' => 'text'],
+            'pollurlteacherstext' => ['text' => 'text'],
+            'notificationtext' => ['text' => 'text'],
+            'userleave' => ['text' => 'text'],
+            'tags' => '',
+            'completion' => 2,
+            'showviews' => ['mybooking,myoptions,showall,showactive,myinstitution'],
+        ];
+    }
+}
