@@ -5960,6 +5960,69 @@ function xmldb_booking_upgrade($oldversion) {
     if ($oldversion < 2026101401) {
         // Step 2026013000 created three columns of booking_performance_measurements nullable; install.xml has NOT NULL.
         booking_performance_measurements_notnull_2026101401();
+
+        // Repair step: sites upgrading from ines/v9.7.10 (2026091800) skipped the waitlist-progression
+        // steps 2026090302 - 2026090305, as they were merged in with lower version numbers.
+        // Re-run them here; every part is guarded and a no-op on sites that already have it.
+        // It runs at 2026101401, so sites on the INES branch (2026101200) get it as well.
+        $table = new xmldb_table('booking_waitlist_offers');
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('optionid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('userid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('baid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('roundid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('status', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('sortorder', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('offeredat', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('expiresat', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('ruleid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('version', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '1');
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('optionid', XMLDB_KEY_FOREIGN, ['optionid'], 'booking_options', ['id']);
+        $table->add_key('optionid-roundid-userid', XMLDB_KEY_UNIQUE, ['optionid', 'roundid', 'userid']);
+        $table->add_index('userid-optionid-status', XMLDB_INDEX_NOTUNIQUE, ['userid', 'optionid', 'status']);
+        $offersmissing = !$dbman->table_exists($table);
+        if ($offersmissing) {
+            $dbman->create_table($table);
+        }
+
+        $table = new xmldb_table('booking_waitlist_declines');
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('optionid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('userid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('reason', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '3');
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('optionid', XMLDB_KEY_FOREIGN, ['optionid'], 'booking_options', ['id']);
+        $table->add_key('optionid-userid', XMLDB_KEY_UNIQUE, ['optionid', 'userid']);
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        } else {
+            $field = new xmldb_field('reason', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '3');
+            if (!$dbman->field_exists($table, $field)) {
+                $dbman->add_field($table, $field);
+            }
+        }
+
+        $table = new xmldb_table('booking_options');
+        $field = new xmldb_field('waitlistrecycling', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+        $field = new xmldb_field('waitlistopenmode', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Only on sites that really skipped the original steps: upgrade_step::run() deletes ALL
+        // pending send_mail_by_rule_adhoc / confirm_bookinganswer_by_rule_adhoc tasks, which on a
+        // correctly upgraded site are live rule mails, not legacy waitlist chains.
+        if ($offersmissing) {
+            \mod_booking\local\waitlist\migration\upgrade_step::run();
+        }
+
         // Booking savepoint reached.
         upgrade_mod_savepoint(true, 2026101401, 'booking');
     }
