@@ -316,3 +316,49 @@ function booking_delete_duplicate_customfields_2017112101(): void {
         $DB->delete_records_select('booking_customfields', "id $insql", $inparams);
     }
 }
+
+/**
+ * Make shortcodename, shortcodehash and measurementname of booking_performance_measurements NOT NULL.
+ *
+ * Step 2026013000 created these columns nullable on upgraded sites, while install.xml declares them NOT NULL.
+ * Existing NULL values become empty strings. The indexes on shortcodehash are dropped and re-created,
+ * because the database manager refuses to change columns that are part of an index.
+ *
+ * @return void
+ */
+function booking_performance_measurements_notnull_2026101401(): void {
+    global $DB;
+
+    $dbman = $DB->get_manager();
+    $table = new xmldb_table('booking_performance_measurements');
+    if (!$dbman->table_exists($table)) {
+        return;
+    }
+
+    $indexes = [
+        new xmldb_index('hashx', XMLDB_INDEX_NOTUNIQUE, ['shortcodehash']),
+        new xmldb_index('hashnameendx', XMLDB_INDEX_NOTUNIQUE, ['shortcodehash', 'endtime']),
+    ];
+    foreach ($indexes as $index) {
+        if ($dbman->index_exists($table, $index)) {
+            $dbman->drop_index($table, $index);
+        }
+    }
+
+    $fields = [
+        new xmldb_field('shortcodename', XMLDB_TYPE_CHAR, '1333', null, XMLDB_NOTNULL, null, null, 'endtime'),
+        new xmldb_field('shortcodehash', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null, 'shortcodename'),
+        new xmldb_field('measurementname', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null, 'shortcodehash'),
+    ];
+    foreach ($fields as $field) {
+        $name = $field->getName();
+        $DB->set_field_select('booking_performance_measurements', $name, '', "$name IS NULL");
+        $dbman->change_field_notnull($table, $field);
+    }
+
+    foreach ($indexes as $index) {
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+    }
+}

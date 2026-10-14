@@ -35,6 +35,7 @@ require_once($CFG->dirroot . '/mod/booking/db/upgradelib.php');
  * PHPUnit tests for the upgrade helpers in db/upgradelib.php.
  *
  * @covers ::booking_delete_duplicate_customfields_2017112101
+ * @covers ::booking_performance_measurements_notnull_2026101401
  */
 final class upgradelib_test extends booking_advanced_testcase {
     /**
@@ -101,5 +102,104 @@ final class upgradelib_test extends booking_advanced_testcase {
         booking_delete_duplicate_customfields_2017112101();
 
         $this->assertCount(3, $DB->get_records('booking_customfields'));
+    }
+
+    /**
+     * Puts booking_performance_measurements into the state step 2026013000 left on upgraded sites:
+     * shortcodename, shortcodehash and measurementname allow NULL.
+     */
+    private function make_performance_measurement_columns_nullable(): void {
+        global $DB;
+
+        $dbman = $DB->get_manager();
+        $table = new \xmldb_table('booking_performance_measurements');
+        $indexes = [
+            new \xmldb_index('hashx', XMLDB_INDEX_NOTUNIQUE, ['shortcodehash']),
+            new \xmldb_index('hashnameendx', XMLDB_INDEX_NOTUNIQUE, ['shortcodehash', 'endtime']),
+        ];
+        foreach ($indexes as $index) {
+            $dbman->drop_index($table, $index);
+        }
+        foreach (['shortcodename' => '1333', 'shortcodehash' => '255', 'measurementname' => '255'] as $name => $length) {
+            $dbman->change_field_notnull($table, new \xmldb_field($name, XMLDB_TYPE_CHAR, $length, null, null, null, null));
+        }
+        foreach ($indexes as $index) {
+            $dbman->add_index($table, $index);
+        }
+    }
+
+    /**
+     * Returns the not_null flag of the three repaired columns.
+     *
+     * @return array
+     */
+    private function performance_measurement_notnull_flags(): array {
+        global $DB;
+
+        $columns = $DB->get_columns('booking_performance_measurements', false);
+        return [
+            'shortcodename' => $columns['shortcodename']->not_null,
+            'shortcodehash' => $columns['shortcodehash']->not_null,
+            'measurementname' => $columns['measurementname']->not_null,
+        ];
+    }
+
+    /**
+     * Upgraded sites with nullable columns get NOT NULL columns as in install.xml; NULL values become
+     * empty strings, the indexes on shortcodehash exist again and a second run changes nothing.
+     */
+    public function test_performance_measurements_columns_become_not_null(): void {
+        global $DB;
+
+        $dbman = $DB->get_manager();
+        $table = new \xmldb_table('booking_performance_measurements');
+        $this->make_performance_measurement_columns_nullable();
+        $this->assertSame(
+            ['shortcodename' => false, 'shortcodehash' => false, 'measurementname' => false],
+            $this->performance_measurement_notnull_flags()
+        );
+
+        $complete = $DB->insert_record('booking_performance_measurements', (object)[
+            'starttime' => 1,
+            'endtime' => 2,
+            'shortcodename' => 'courselist',
+            'shortcodehash' => 'abc',
+            'measurementname' => 'render',
+        ]);
+        $incomplete = $DB->insert_record('booking_performance_measurements', (object)[
+            'starttime' => 3,
+            'endtime' => 4,
+            'shortcodename' => null,
+            'shortcodehash' => null,
+            'measurementname' => null,
+        ]);
+
+        booking_performance_measurements_notnull_2026101401();
+
+        $this->assertSame(
+            ['shortcodename' => true, 'shortcodehash' => true, 'measurementname' => true],
+            $this->performance_measurement_notnull_flags()
+        );
+        $row = $DB->get_record('booking_performance_measurements', ['id' => $incomplete]);
+        $this->assertSame('', (string)$row->shortcodename);
+        $this->assertSame('', (string)$row->shortcodehash);
+        $this->assertSame('', (string)$row->measurementname);
+        $row = $DB->get_record('booking_performance_measurements', ['id' => $complete]);
+        $this->assertSame('courselist', $row->shortcodename);
+        $this->assertSame('abc', $row->shortcodehash);
+        $this->assertSame('render', $row->measurementname);
+        $this->assertTrue($dbman->index_exists($table, new \xmldb_index('hashx', XMLDB_INDEX_NOTUNIQUE, ['shortcodehash'])));
+        $this->assertTrue($dbman->index_exists(
+            $table,
+            new \xmldb_index('hashnameendx', XMLDB_INDEX_NOTUNIQUE, ['shortcodehash', 'endtime'])
+        ));
+
+        // A site that is already correct (fresh install or second run) stays unchanged.
+        booking_performance_measurements_notnull_2026101401();
+        $this->assertSame(
+            ['shortcodename' => true, 'shortcodehash' => true, 'measurementname' => true],
+            $this->performance_measurement_notnull_flags()
+        );
+        $this->assertCount(2, $DB->get_records('booking_performance_measurements'));
     }
 }

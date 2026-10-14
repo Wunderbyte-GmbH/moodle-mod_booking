@@ -5141,9 +5141,9 @@ function xmldb_booking_upgrade($oldversion) {
         $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
         $table->add_field('starttime', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, null);
         $table->add_field('endtime', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('shortcodename', XMLDB_TYPE_CHAR, '1333', XMLDB_NOTNULL, null, null, null);
-        $table->add_field('shortcodehash', XMLDB_TYPE_CHAR, '255', XMLDB_NOTNULL, null, null, null);
-        $table->add_field('measurementname', XMLDB_TYPE_CHAR, '255', XMLDB_NOTNULL, null, null, null);
+        $table->add_field('shortcodename', XMLDB_TYPE_CHAR, '1333', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('shortcodehash', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('measurementname', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
         $table->add_field('actions', XMLDB_TYPE_CHAR, '1333', null, null, null, null);
         $table->add_field('note', XMLDB_TYPE_TEXT, null, null, null, null, null);
 
@@ -5955,6 +5955,13 @@ function xmldb_booking_upgrade($oldversion) {
         }
 
         upgrade_mod_savepoint(true, 2026100300, 'booking');
+    }
+
+    if ($oldversion < 2026101401) {
+        // Step 2026013000 created three columns of booking_performance_measurements nullable; install.xml has NOT NULL.
+        booking_performance_measurements_notnull_2026101401();
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2026101401, 'booking');
     }
 
     return true;
