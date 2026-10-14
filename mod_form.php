@@ -1514,12 +1514,13 @@ class mod_booking_mod_form extends moodleform_mod {
         // Sign-In Sheet Configuration.
         $mform->addElement('header', 'cfgsigninheader', get_string('cfgsignin', 'mod_booking'));
 
+        // TCPDF cannot render SVG, so only allow raster formats.
         $mform->addElement(
             'filemanager',
             'signinlogoheader',
             get_string('signinlogoheader', 'mod_booking'),
             null,
-            ['subdirs' => 0, 'maxbytes' => $CFG->maxbytes, 'maxfiles' => 1, 'accepted_types' => ['image']]
+            ['subdirs' => 0, 'maxbytes' => $CFG->maxbytes, 'maxfiles' => 1, 'accepted_types' => ['.jpg', '.jpeg', '.png', '.gif']]
         );
 
         $mform->addElement(
@@ -1527,7 +1528,7 @@ class mod_booking_mod_form extends moodleform_mod {
             'signinlogofooter',
             get_string('signinlogofooter', 'mod_booking'),
             null,
-            ['subdirs' => 0, 'maxbytes' => $CFG->maxbytes, 'maxfiles' => 1, 'accepted_types' => ['image']]
+            ['subdirs' => 0, 'maxbytes' => $CFG->maxbytes, 'maxfiles' => 1, 'accepted_types' => ['.jpg', '.jpeg', '.png', '.gif']]
         );
 
         // Add the new settings dropdown for the sign-in sheet top orientation.

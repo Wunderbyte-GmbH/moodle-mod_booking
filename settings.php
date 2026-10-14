@@ -2998,7 +2998,8 @@ if ($ADMIN->fulltree) {
     $name = 'booking/signinlogo';
     $title = get_string('signinlogoheader', 'mod_booking');
     $description = $title;
-    $fileoptions = ['maxfiles' => 1, 'accepted_types' => ['image']];
+    // TCPDF cannot render SVG (needs Imagick), so only allow raster formats.
+    $fileoptions = ['maxfiles' => 1, 'accepted_types' => ['.jpg', '.jpeg', '.png', '.gif']];
     $setting = new admin_setting_configstoredfile(
         $name,
         $title,
@@ -3012,7 +3013,7 @@ if ($ADMIN->fulltree) {
     $name = 'booking/signinlogofooter';
     $title = get_string('signinlogofooter', 'mod_booking');
     $description = $title;
-    $fileoptions = ['maxfiles' => 1, 'accepted_types' => ['image']];
+    $fileoptions = ['maxfiles' => 1, 'accepted_types' => ['.jpg', '.jpeg', '.png', '.gif']];
     $setting = new admin_setting_configstoredfile(
         $name,
         $title,
