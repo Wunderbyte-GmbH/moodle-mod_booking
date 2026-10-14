@@ -161,9 +161,8 @@ class create_course_skill extends core_skill_base implements
                 ],
                 'categoryquery' => [
                     'type' => 'string',
-                    'description' => 'The course category the user named, verbatim. Leave empty when none was '
-                        . 'named — the system then resolves it (asking when several categories are available). '
-                        . 'Never guess or invent a category name.',
+                    'description' => 'The course category the user named, verbatim. Leave empty when none was named '
+                        . '(the system resolves it). Never guess or invent a category name.',
                     'required' => false,
                 ],
                 'shortname' => [

@@ -102,8 +102,7 @@ class list_option_properties_skill extends booking_skill_base implements skill_t
                 'cmid' => [
                     'type' => 'integer',
                     'description' => 'Course-module id of the booking activity, when it is known — e.g. from a '
-                        . 'candidate list that names "cmid <id>" or from a link. Takes precedence over '
-                        . 'activityquery; use it to pick one of several activities that share a name.',
+                        . 'candidate list that names "cmid <id>" or from a link.',
                     'required' => false,
                 ],
                 'activityquery' => [

@@ -107,15 +107,10 @@ class remember_skill extends core_skill_base implements skill_trigger_provider_i
                         user_memory_service::SCOPE_CONSTRUCTION,
                         user_memory_service::SCOPE_SYNCHRONIZATION,
                     ]],
+                    // The constructor sees 160 characters of this text; the longer decision rule behind them never
+                    // reached it, and A/B on Gemma preferred the cut-free first sentence (22/32 -> 27/32, #2582).
                     'description' => 'Which planning stages this memory should influence. Decision rule: does it '
-                        . 'change HOW THE AGENT TALKS to the user (form of address, tone, language, formatting)? '
-                        . '→ "' . user_memory_service::SCOPE_SYNCHRONIZATION . '" (the user-facing reply stage). '
-                        . 'Does it change FIELD VALUES when building an action (e.g. "I prefer morning bookings", '
-                        . '"my employee id is 12345")? → "' . user_memory_service::SCOPE_CONSTRUCTION . '". '
-                        . 'Does it change WHICH ACTION to pick (e.g. "always create bookings, never events")? '
-                        . '→ "' . user_memory_service::SCOPE_SELECTION . '". Pick all that apply. '
-                        . 'WHEN IN DOUBT, OMIT THIS FIELD ENTIRELY — an untagged memory applies everywhere, '
-                        . 'a wrongly narrowed one is invisible to the user.',
+                        . 'change HOW THE AGENT TALKS to the user (form of address, tone, language, formatting)?',
                     'required' => false,
                 ],
             ],

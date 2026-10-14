@@ -41,6 +41,30 @@ use stdClass;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class module_form_contract {
+    /** Flat skill fields that carry a module-specific value (Wunderbyte-GmbH/Wunderbyte-GmbH#2600). */
+    public const FLAT_MODULE_FIELDS = ['externalurl', 'content'];
+
+    /**
+     * Module-specific settings from a skill input: the settings object plus the flat fields.
+     *
+     * The link of a URL and the text of a Page come as the flat fields externalurl and content: nested in a settings
+     * object, Gemma's constructor wrote invalid JSON at the deepest closing brackets (#2600). A flat value wins over
+     * the same key inside settings.
+     *
+     * @param array $input Skill input.
+     * @return array Module settings keyed by form field name.
+     */
+    public static function settings_from_input(array $input): array {
+        $settings = is_array($input['settings'] ?? null) ? (array)$input['settings'] : [];
+        foreach (self::FLAT_MODULE_FIELDS as $field) {
+            $value = trim((string)($input[$field] ?? ''));
+            if ($value !== '') {
+                $settings[$field] = $value;
+            }
+        }
+        return $settings;
+    }
+
     /**
      * Validate candidate input for a module type against its real mod_form (read-only).
      *

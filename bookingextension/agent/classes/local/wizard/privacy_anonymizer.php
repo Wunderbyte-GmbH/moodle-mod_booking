@@ -210,9 +210,11 @@ class privacy_anonymizer {
      * @return string
      */
     public function get_mode(): string {
-        $mode = (string)(get_config('bookingextension_agent', 'aiprivacymode') ?: self::MODE_OFF);
+        // Fail closed (Wunderbyte-GmbH/Wunderbyte-GmbH#2601): an unset, empty or unknown value masks strictly, like the
+        // setting default and the trial consent dialog promise. Only an explicit off/soft weakens the masking.
+        $mode = (string)get_config('bookingextension_agent', 'aiprivacymode');
         if (!in_array($mode, [self::MODE_OFF, self::MODE_SOFT, self::MODE_STRICT], true)) {
-            return self::MODE_OFF;
+            return self::MODE_STRICT;
         }
         return $mode;
     }

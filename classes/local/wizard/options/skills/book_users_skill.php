@@ -178,9 +178,8 @@ class book_users_skill extends booking_skill_base implements
                 ],
                 'bookusersquery' => [
                     'type' => 'string',
-                    'description' => 'Comma-separated list of user names, e-mails or ids to book. OMIT this '
-                        . 'field entirely (do NOT send an empty string) to book the CURRENT user - '
-                        . 'self-referencing requests like "book me in" need no name.',
+                    'description' => 'Comma-separated list of user names, e-mails or ids to book. OMIT this field '
+                        . 'entirely (do NOT send an empty string) to book the CURRENT user - self-referencing.',
                     'required' => false,
                 ],
                 'bookuserstimebooked' => [
@@ -205,9 +204,8 @@ class book_users_skill extends booking_skill_base implements
                 ],
                 'confirmed' => [
                     'type' => 'boolean',
-                    'description' => 'Set to true to confirm booking when the target user has soft-only booking '
-                        . 'restrictions (e.g. selectuser) that the current actor (admin) can override. '
-                        . 'Only set this after the user has explicitly confirmed they want to proceed.',
+                    'description' => 'Set true to override soft-only booking restrictions (e.g. selectuser) as '
+                        . 'admin, only after the user explicitly confirmed to proceed.',
                     'required' => false,
                 ],
             ],

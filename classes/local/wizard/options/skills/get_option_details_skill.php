@@ -98,7 +98,8 @@ class get_option_details_skill extends booking_skill_base implements skill_trigg
             'description' => 'Full details of ONE named booking option (optionquery or optionid): dates, seats, price, teachers, '
                 . 'description, link. Reads via the booking option APIs.',
             'is' => 'One named booking option: dates, seats, price, teachers.',
-            'not' => 'A list of options (search_options); a taskflow rule of the same name (local_taskflow.get_rule_details).',
+            'not' => 'A list of options (search_options); a taskflow rule of this name (local_taskflow.get_rule_details); '
+                . 'a course\'s contents (course.analyze_course_structure).',
             'readonly' => $this->is_read_only(),
             'example_utterances' => [
                 'Show me the full details of the Spring Workshop',
@@ -120,9 +121,8 @@ class get_option_details_skill extends booking_skill_base implements skill_trigg
                 ],
                 'optionquery' => [
                     'type' => 'string',
-                    'description' => 'Pass the user\'s wording VERBATIM, even when it is vague ("that autumn '
-                        . 'hiking thing"): this skill resolves it and reports candidates itself, so never ask the '
-                        . 'user for a name or id first. Used when optionid is unknown.',
+                    'description' => 'The user\'s wording VERBATIM, even when vague ("that autumn hiking thing"); the '
+                        . 'skill resolves it and lists candidates. Never ask for a name first.',
                     'required' => false,
                 ],
                 'includesessions' => [
@@ -132,13 +132,8 @@ class get_option_details_skill extends booking_skill_base implements skill_trigg
                 ],
                 'requested_fields' => [
                     'type' => 'array',
-                    'description' => 'Optional targeted standard fields (e.g. description, price, teachers). '
-                        . 'If omitted, returns a default set covering title, teachers, sessions, price, '
-                        . 'availability (seat limit, booked, free places, waiting list), location and imageurl. '
-                        . 'Fields left out of a call are listed in detail_capabilities.omitted_fields: they were '
-                        . 'not looked up, which says nothing about whether the option has such a value. '
-                        . 'Fields that were looked up and are genuinely unset appear in the per-option '
-                        . 'empty_fields list.',
+                    'description' => 'Optional standard fields (e.g. description, price, teachers). Omitted = '
+                        . 'default set: title, teachers, sessions, price, availability, location, image.',
                     'required' => false,
                 ],
                 'include_customfields' => [

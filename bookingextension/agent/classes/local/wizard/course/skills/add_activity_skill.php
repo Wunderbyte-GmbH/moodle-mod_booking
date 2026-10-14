@@ -149,8 +149,10 @@ class add_activity_skill extends core_skill_base implements skill_trigger_provid
                     'type' => 'string',
                     // L45 AA-3 (thread 14947): "un lien vers le site de la fédération nationale" names what the link is, yet the
                     // constructor asked for a name; the user's words for what the activity holds or points to are its name.
-                    'description' => 'The name shown in the course: the user\'s words for the activity or for what it '
-                        . 'holds or points to. Optional for a label/text area (the text is the content).',
+                    // Wunderbyte-GmbH/Wunderbyte-GmbH#2600 follow-up: with the link as its own field Gemma left the name out
+                    // more often (AA-3 replay 8/10, AA-2 4/6 with a name); "always set it" restored it (10/10, 6/6).
+                    'description' => 'The name shown in the course: the user\'s words for the activity or what it holds '
+                        . 'or points to. Always set it, except for a label/text area.',
                     'required' => false,
                 ],
                 'intro' => [
@@ -162,16 +164,25 @@ class add_activity_skill extends core_skill_base implements skill_trigger_provid
                 'section' => [
                     'type' => 'string',
                     'description' => 'Where to place the activity: pass the user\'s wording verbatim — "top", '
-                        . '"bottom", a section name (e.g. "Week 2"), or a section '
-                        . 'number. Leave empty if the user did not say where; the system then lists the course '
-                        . 'sections and asks.',
+                        . '"bottom", a section name (e.g. "Week 2"), or a section number.',
+                    'required' => false,
+                ],
+                // Wunderbyte-GmbH/Wunderbyte-GmbH#2600: the two common module values are flat fields; nested in settings,
+                // Gemma wrote invalid JSON at the closing brackets (replays UA-3 12/20 -> 8/8, AA-3 1/10 -> 8/8 valid).
+                'externalurl' => [
+                    'type' => 'string',
+                    'description' => 'For a URL resource: the link address.',
+                    'required' => false,
+                ],
+                'content' => [
+                    'type' => 'string',
+                    'description' => 'For a Page: the text/body of the page (not intro).',
                     'required' => false,
                 ],
                 'settings' => [
                     'type' => 'object',
-                    'description' => 'Module-specific fields, as a free object. Examples: for a URL pass '
-                        . '{"externalurl":"https://…"}; for a Page pass {"content":"…the page body…"}. Only set what '
-                        . 'the user provided; the system validates against the module and asks for anything missing.',
+                    'description' => 'Other module-specific fields as a free object, only when externalurl or content do '
+                        . 'not fit. The system validates them and asks for anything missing.',
                     'required' => false,
                 ],
                 'coursequery' => [
@@ -254,8 +265,8 @@ class add_activity_skill extends core_skill_base implements skill_trigger_provid
                         . 'addable types and asks.',
                     '- If the user did not say WHERE to place it, leave input.section empty — the system lists the '
                         . 'course sections and asks. If they did ("top"/"bottom"/a section name), pass it verbatim.',
-                    '- Put module-specific values into input.settings (e.g. {"externalurl":"https://…"} for a URL, '
-                        . '{"content":"…"} for a Page). Do NOT invent values; the system asks for anything missing.',
+                    '- Put the link of a URL into externalurl and the text of a Page into content; other '
+                        . 'module-specific values into settings. Do NOT invent values; the system asks for anything missing.',
                     '- For quiz/test questions use question.generate_questions instead, not this skill.',
                 ],
             ],
@@ -347,7 +358,7 @@ class add_activity_skill extends core_skill_base implements skill_trigger_provid
         // 5) Field validation (Stage B) against the module's real mod_form.
         $name = trim((string)($input['name'] ?? ''));
         $intro = trim((string)($input['intro'] ?? ''));
-        $settings = is_array($input['settings'] ?? null) ? (array)$input['settings'] : [];
+        $settings = module_form_contract::settings_from_input($input);
 
         $validation = (new module_form_contract())->validate($course, $modname, $sectionnum, $name, $intro, $settings);
         if (!$validation['ok']) {

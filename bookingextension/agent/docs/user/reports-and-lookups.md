@@ -1,105 +1,70 @@
-# Reports and lookups
+# Look-ups for one person or one course
 
-The assistant can pull together read-only information about people and courses: a user's profile and roles, their grades, completion and enrolments in a course, the participants of a course, a course overview, and a short summary of the whole site. Because these are lookups, nothing changes — the assistant answers right away with no confirmation step.
+The wizard can pull together read-only information about **one person** — their profile, roles and courses, and their access, enrolment, progress and grades in a course — and about the **structure of one course**. Because these are lookups, nothing changes: the wizard answers right away with no confirmation step.
 
-Most of these are **manager-level**: you typically need teacher or manager rights in the course (or site-level rights for the site summary). The assistant only ever shows you what your account is allowed to see. If you can't view something, it tells you instead of revealing it. See [privacy](privacy.md).
+The wizard only ever shows you what your account is allowed to see. If you can't view something, it tells you instead of revealing it. See [privacy](privacy.md).
 
-## Looking up a user's profile and roles
+For **lists across a whole course or the whole site** — everyone enrolled, everyone who completed, all bookings — use a report: see [Reports in the Report Builder](reports.md).
 
-Ask the assistant to read out a person's profile details or the roles they hold.
+## A person's profile, roles and courses
+
+Ask the wizard about a person, and it shows the profile details, the courses they are enrolled in and the roles they hold, as far as you may see them.
 
 Example requests:
 
 - "Show me Maria Huber's profile."
-- "What's Tom Berger's email and full name?"
+- "Which courses is Tom Berger enrolled in?"
 - "What roles does Sarah Klein have in this course?"
-- "Is Jonas Weber a teacher or a student here?"
+- "May Jonas Weber add booking options here?"
 
-The assistant shows the profile details and roles you're allowed to see. To find the person first, see [finding people](finding-people.md).
+For a role or a single permission in one place, the wizard checks the chain from the site down to the course or activity, including overrides, and tells you what applies. To find the person first, see [finding people](finding-people.md).
 
-## Grades, completion and enrolments in a course
+## Your own account
 
-Within a course you can ask about a person's grades, their completion progress, and their enrolment details.
+Ask about yourself and the wizard reads back your own account: who you are, your e-mail address, your roles and the courses you are enrolled in.
 
-Example requests for **grades**:
+Example requests:
 
-- "What grades does Tom have here?"
-- "Show me Maria Huber's grades in this course."
-- "How did Sarah Klein do on the assignments?"
+- "Who am I?"
+- "Which courses am I enrolled in?"
 
-Example requests for **completion**:
+## One person in one course
 
-- "Show the completion report for this course."
-- "Has Tom Berger completed this course?"
-- "Who hasn't finished the activities yet?"
+Within a course you can ask about one person's **access**, **enrolment**, **progress** (activity completion) or **grades**.
 
-Example requests for **enrolment details**:
+Example requests:
 
-- "When was Maria enrolled in this course?"
-- "Show me Tom's enrolment in Spring Wellness."
-- "Is Sarah's enrolment active or suspended?"
+- "Can Maria Huber open the Week 3 quiz?"
+- "Is Sarah's enrolment in this course active or suspended?"
+- "Which activities has Tom Berger completed here?"
+- "What grades does Tom have in this course?"
+- "Why is Maria's grade for Assignment 1 missing?"
 
-> **You:** Show the completion report for this course.
+> **You:** Is Sarah's enrolment in Spring Wellness active?
 >
-> **Assistant:** Completion in **Spring Wellness**:
-> - 18 of 24 participants have completed all required activities.
-> - 6 are still in progress.
-> Would you like the list of who hasn't finished?
+> **Wizard:** Sarah Klein is enrolled in **Spring Wellness** through manual enrolment, as *Student*. Her enrolment is active and has no end date.
 
-These all read from the course's records and respect your permissions — for example you'll only see grades if your role lets you view them.
+These read from the course's records and respect your permissions — for example you'll only see grades if your role lets you view them. More on these checks: [diagnosing access and progress](diagnosing-access-and-progress.md).
 
-## Searching course enrolments
+## A course's structure
 
-You can search the enrolments in a course rather than looking up one person at a time — for example to find who's enrolled, or to filter the list.
+Ask what a course contains, and the wizard lists its sections and the activities in them, including which are hidden or restricted. See [course overview](course-overview.md).
 
 Example requests:
 
-- "Who's enrolled in this course?"
-- "Search the enrolments in Spring Wellness for anyone called Klein."
-- "List the active enrolments in First Aid Programme."
-- "Are there any suspended enrolments here?"
+- "What is in this course?"
+- "Show me the sections of the Spring Wellness course."
 
-## Course overview and participants
+## What it doesn't do here
 
-For a picture of a whole course rather than one person, ask for an overview or the participants list.
-
-Example requests for a **participants list**:
-
-- "Show me the participants of this course."
-- "Who's in Spring Wellness?"
-- "List everyone enrolled here and their roles."
-
-Example requests for a **course overview**:
-
-- "Give me an overview of this course."
-- "Summarise Spring Wellness for me."
-- "How many participants and activities does this course have?"
-
-The overview gives you a short summary of the course; the participants list gives you the enrolled people and their roles, as far as you're allowed to see them.
-
-## Site summary
-
-If you have site-level rights, you can ask for a short summary of the whole site.
-
-Example requests:
-
-- "Give me a summary of the site."
-- "How many courses and users are on this site?"
-- "Show me an overview of the whole platform."
-
-This is the broadest lookup, so it needs the most permissions. If your account doesn't have site-level rights, the assistant tells you it can't show this.
+There is no look-up for a whole course's participants, a course-wide completion report, a search across all enrolments, or a site summary. For those, build or open a report — see [Reports in the Report Builder](reports.md). By default only managers can use the report tasks.
 
 ## Permissions
 
-Everything on this page is read-only — the assistant never changes anything here, so there's no confirmation step. But these lookups are permission-dependent:
-
-- Profiles, roles, grades, completion, enrolments and participants generally need teacher or manager rights in the course.
-- The site summary needs site-level rights.
-
-The assistant acts with **your** permissions and shows only what you're allowed to see. If you ask for something out of reach, it says so plainly.
+Everything on this page is read-only — the wizard never changes anything here, so there's no confirmation step. The wizard acts with **your** permissions and shows only what you're allowed to see. If you ask for something out of reach, it says so plainly.
 
 ## Tips
 
-- Chain a lookup after a search: "find Maria Huber" → "show her grades in this course" → "and her completion."
-- For the people-facing side of a booking option (who's booked, free places), see [finding options](finding-options.md) and [booking people](booking-people.md).
-- When a change is what you actually want — enrolling, grouping, messaging — see [enrolment and groups](enrolment-and-groups.md) and [calendar and messages](calendar-and-messages.md); those steps are previewed and confirmed.
+- Chain a lookup after a search: "find Maria Huber" → "which courses is she in?" → "and her grades in Spring Wellness."
+- For a booking option (how many places are booked or free), see [finding options](finding-options.md) *(requires mod_booking)*.
+- When a change is what you actually want — enrolling someone — see [enrolling a person in a course](enrolment-and-groups.md); that step is previewed and confirmed.

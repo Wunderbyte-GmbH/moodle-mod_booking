@@ -1,8 +1,8 @@
 # Reports in the Report Builder
 
-The assistant can show you the custom reports that exist on your site and tell you what the Moodle Report Builder can report on. Every report is built on a **report source**: a data set such as users, courses, badges, or, when the Booking plugin is installed, booking answers and booking options. Which sources exist depends on the plugins your site has installed; the assistant always shows the current state of your site.
+The wizard can show you the custom reports that exist on your site and tell you what the Moodle Report Builder can report on. Every report is built on a **report source**: a data set such as users, courses, badges, or, when the Booking plugin is installed, booking answers and booking options. Which sources exist depends on the plugins your site has installed; the wizard always shows the current state of your site.
 
-Looking things up changes nothing. You see only the reports you are allowed to see; exploring sources needs the permission to create or edit custom reports.
+Looking things up changes nothing. You see only the reports you are allowed to see; exploring sources needs the permission to create or edit custom reports. By default only managers can use the wizard's report tasks; your administrator can grant them to other roles.
 
 ## Finding existing reports
 
@@ -15,7 +15,7 @@ Example requests:
 - "Which reports can I edit?"
 - "Is there already a report built on the users source?"
 
-The side panel shows one card per report with a link to open it. If several reports match a name, the assistant asks which one you mean.
+The side panel shows one card per report with a link to open it. If several reports match a name, the wizard asks which one you mean.
 
 ## Looking into one report
 
@@ -28,7 +28,7 @@ Example requests:
 - "When is the weekly report sent, and to whom?"
 - "How many rows does report 12 currently have?"
 
-The assistant lists the columns, the conditions with their values, the filters, the audiences and the schedules as they are stored. The side panel shows the report itself, live: you can page, sort and use its filters right there.
+The wizard lists the columns, the conditions with their values, the filters, the audiences and the schedules as they are stored. The side panel shows the report itself, live: you can page, sort and use its filters right there.
 
 ## What you can ask
 
@@ -38,7 +38,7 @@ The assistant lists the columns, the conditions with their values, the filters, 
 
 ## Creating a report
 
-Name the report and the data it should be built on. You can also name columns, conditions and filters; without columns the assistant takes the defaults of the source. It shows you what it will create and waits for your confirmation. A new report is visible only to you until you give it an audience.
+Name the report and the data it should be built on. You can also name columns, conditions and filters; without columns the wizard takes the defaults of the source. It shows you what it will create and waits for your confirmation. A new report is visible only to you until you give it an audience.
 
 Example requests:
 
@@ -47,7 +47,7 @@ Example requests:
 - "Make a report of booking answers with the participant, the option and the booking date."
 - "Set up a report of badges awarded in the last three months."
 
-If a column or condition you named does not exist in that source, the assistant lists what the source offers and asks you to pick. After the report is created the side panel shows it live.
+If a column or condition you named does not exist in that source, the wizard lists what the source offers and asks you to pick. After the report is created the side panel shows it live.
 
 ## Changing a report
 
@@ -61,11 +61,11 @@ Example requests:
 - "Only show completed entries in the report."
 - "Rename the report to Quarterly overview."
 
-The assistant shows the planned changes, waits for your confirmation, and then shows the changed report in the side panel.
+The wizard shows the planned changes, waits for your confirmation, and then shows the changed report in the side panel.
 
 ## Deciding who sees a report
 
-A new report is visible only to you. Tell the assistant who else should see it: everyone, people with a role, the members of a cohort, or named persons. You can also take an audience away again.
+A new report is visible only to you. Tell the wizard who else should see it: everyone, people with a role, the members of a cohort, or named persons. You can also take an audience away again.
 
 Example requests:
 
@@ -75,11 +75,11 @@ Example requests:
 - "Give Anna Muster access to the users report."
 - "Remove the all-users audience from the report."
 
-The assistant shows the planned change and waits for your confirmation. Afterwards it tells you how many people each audience covers.
+The wizard shows the planned change and waits for your confirmation. Afterwards it tells you how many people each audience covers.
 
 ## Sending a report on a schedule
 
-Once a report has an audience, the assistant can send it to those people automatically: choose how often, from when, and in which file format. You can also pause, resume or change a schedule, or have the report sent right away.
+Once a report has an audience, the wizard can send it to those people automatically: choose how often, from when, and in which file format. You can also pause, resume or change a schedule, or have the report sent right away.
 
 Example requests:
 
@@ -89,11 +89,11 @@ Example requests:
 - "Pause the weekly report schedule."
 - "Send the report now."
 
-The assistant shows the planned schedule and waits for your confirmation. A report without an audience cannot be scheduled; the assistant asks you to set one first.
+The wizard shows the planned schedule and waits for your confirmation. A report without an audience cannot be scheduled; the wizard asks you to set one first.
 
 ## Counting and looking at the data
 
-Ask how many rows a report returns, with or without filter values. The assistant tells you the number and the columns, and shows the report itself, with its rows, in the side panel. The rows are never part of the assistant's answer.
+Ask how many rows a report returns, with or without filter values. The wizard tells you the number and the columns, and shows the report itself, with its rows, in the side panel. The rows are never part of the wizard's answer.
 
 Example requests:
 
@@ -106,7 +106,7 @@ Filter values you ask for are applied to your own view of the report, exactly as
 
 ## Why someone does not receive a report
 
-Ask the assistant about a specific person and it checks the facts: whether the person is in the report's audience and in the schedule's recipients, whether the schedule is active and when it sends next, and whether the account can receive e-mail.
+Ask the wizard about a specific person and it checks the facts: whether the person is in the report's audience and in the schedule's recipients, whether the schedule is active and when it sends next, and whether the account can receive e-mail.
 
 Example requests:
 
@@ -124,7 +124,7 @@ Example requests:
 - "Show me the report sources of the Booking plugin."
 - "Which plugins provide report builder data sources?"
 
-The side panel shows one card per source, grouped by plugin, with the exact source identifier the assistant uses when it builds a report.
+The side panel shows one card per source, grouped by plugin, with the exact source identifier the wizard uses when it builds a report.
 
 ## Describing one source
 
@@ -137,4 +137,4 @@ Example requests:
 - "Show me the conditions and their operators for the Courses source."
 - "Which aggregations are possible for the columns of the Badges source?"
 
-If the assistant cannot tell which source you mean, it shows the available sources and asks you to pick one. The side panel lists the columns, filters and conditions grouped by the entity they belong to, with the exact identifier of each element.
+If the wizard cannot tell which source you mean, it shows the available sources and asks you to pick one. The side panel lists the columns, filters and conditions grouped by the entity they belong to, with the exact identifier of each element.

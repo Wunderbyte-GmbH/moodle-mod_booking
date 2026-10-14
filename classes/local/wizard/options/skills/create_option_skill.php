@@ -164,7 +164,8 @@ class create_option_skill extends booking_skill_base implements
         $properties = array_merge([
             'text' => [
                 'type' => 'string',
-                'description' => 'Title of the new booking option.',
+                'description' => 'Title in the user\'s language, taken from their own words for what is offered (what it is, '
+                    . 'for whom or when if they say). Ask only if they say nothing of it.',
                 'required' => true,
             ],
             'override' => [

@@ -93,7 +93,16 @@ class create_selflearning_option_skill extends create_option_skill {
             . 'Use it when the user wants a self-paced or e-learning offer with a duration '
             . '(for example 2h, 4h or 14400 seconds).';
         $schema['is'] = 'Duration-based, self-paced offers without fixed dates.';
-        $schema['not'] = 'Dated events or session series (create_option); appointment slots (create_slotbooking_option).';
+        $schema['not'] = 'Dated events or session series (create_option); appointment slots (create_slotbooking_option); '
+            . 'a Moodle course itself (course.create_course).';
+        // Anchors of its own: the inherited sentences describe dated events.
+        $schema['example_utterances'] = [
+            'Create a self-paced e-learning offer people complete on their own, about two hours of material',
+            'Set up a self-study unit without fixed dates, four hours to work through',
+            'Offer a duration-based option with no sessions that anyone can start whenever they want',
+            'Add an online self-learning module as a bookable option, a time budget instead of a date',
+            'Make a bookable self-paced course with a learning window instead of appointments',
+        ];
         $schema['properties'] = self::describe_scoped_creation_fields($properties);
 
         return $schema;

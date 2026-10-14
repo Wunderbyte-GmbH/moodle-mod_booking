@@ -87,6 +87,8 @@ class add_price_category_skill extends booking_skill_base implements skill_trigg
                 'id' => 'mod_booking.pricing',
                 'triggers' => ['price', 'preise', 'preis', 'cost', 'kosten', 'price category', 'pricecat'],
                 'guidance' => [
+                    '- The user\'s words for whom or what the rate is for are its name; the skill derives the key.'
+                        . ' Never ask for a name or a key when the request names whom or what it is for.',
                     '- Use a "prices" object keyed by price category identifier, e.g. {"default": 10, "student": 20}.',
                     '- If a requested price category is unknown, add it via mod_booking.add_price_category.',
                     // W32: "use confirmation_request first" made the constructor answer with a confirmation that
@@ -122,16 +124,16 @@ class add_price_category_skill extends booking_skill_base implements skill_trigg
                 // both counted as clean): asked for a key in a character format, the constructor sent only an identifier
                 // that is not the user's word, and no name. Making the key is the skill's folding, not the model's;
                 // the name is copied as written. Both texts fit the 159-character card window.
+                'name' => [
+                    'type' => 'string',
+                    'description' => 'Never ask for a name when the request says whom or what the rate is for: take the '
+                        . 'user\'s own words for it, exactly as written, never translated or replaced.',
+                    'required' => false,
+                ],
                 'identifier' => [
                     'type' => 'string',
                     'description' => 'Technical key, only when the user gives one. Otherwise leave it out: the skill derives '
                         . 'the key from name.',
-                    'required' => false,
-                ],
-                'name' => [
-                    'type' => 'string',
-                    'description' => 'Name of the category exactly as the user wrote it: same language, same spelling, never '
-                        . 'translated or replaced.',
                     'required' => false,
                 ],
                 'defaultvalue' => [

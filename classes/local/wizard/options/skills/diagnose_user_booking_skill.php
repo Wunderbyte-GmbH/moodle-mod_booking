@@ -160,8 +160,11 @@ class diagnose_user_booking_skill extends booking_skill_base implements skill_tr
                 . 'whether the focused option\'s certificate was actually issued. Every reported option carries the host course '
                 . '(id and name) and booking instance the option lives in.',
             'is' => 'One person\'s booking history.',
-            'not' => 'WHY someone cannot book (diagnose_booking_issue); course progress or grades '
-                . '(course.diagnose_user_in_course); mail plumbing (core.diagnose_notifications).',
+            // The taskflow message diagnosis reads the same mail question; both cards name each other.
+            'not' => 'cannot book (diagnose_booking_issue); course.diagnose_user_in_course; core.diagnose_notifications; '
+                . 'taskflow mails (local_taskflow.diagnose_message_delivery).',
+            'when' => 'The user asks whether one person booked or completed an option, about their history or certificates, '
+                . 'or whether the confirmation or reminder mails of an option reached them.',
             'readonly' => $this->is_read_only(),
             'example_utterances' => [
                 'what is the booking status of this user',
@@ -177,9 +180,8 @@ class diagnose_user_booking_skill extends booking_skill_base implements skill_tr
                     // L48 DBI-4 (thread 16682): the constructor sent "me" and the resolver knows no such person (the
                     // word list went in wave 26). A/B at the recorded call, planner action: "me" in 12/20 runs; with
                     // this text 0/20, the field omitted (= the requester) 20/20.
-                    'description' => 'Name, e-mail or numeric id of the person to diagnose; omit it when the person is '
-                        . 'the requester. If only a name is known and it is ambiguous, provide a more specific name '
-                        . 'or e-mail address instead.',
+                    'description' => 'Name, e-mail or numeric id of the person to diagnose; omit it when the person '
+                        . 'is the requester. If a name is ambiguous, give a more specific one.',
                     'required' => false,
                 ],
                 'userid' => [

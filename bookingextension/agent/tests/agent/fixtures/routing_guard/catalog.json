@@ -218,27 +218,27 @@
         {
             "skill": "mod_booking.create_selflearning_option",
             "anchor_index": 1,
-            "content_hash": "650a2641a27593118098dcbaa48c28861c1c8e7453755e75b427b9b5ab3f87a4"
+            "content_hash": "79bdd8f6415d33ca04c411911aaf561a2e8c07e614f5fee76d878c742639286a"
         },
         {
             "skill": "mod_booking.create_selflearning_option",
             "anchor_index": 2,
-            "content_hash": "db36641860c32089a46b4a302001d1e45c4c83a995eb0a7c467e5e2c202f4196"
+            "content_hash": "aa6336cfaa522f7a65f61491552bc5e67cbb212324a7c078cd6c3505ddc894fd"
         },
         {
             "skill": "mod_booking.create_selflearning_option",
             "anchor_index": 3,
-            "content_hash": "6a852a6f6fd36c55a1d51b2cfe31298903408d1239e46de51e495dee3d22f9a3"
+            "content_hash": "9d74e17ca11918bda5b385f1f167a3994fbe8f4f136315f774523e0575158dac"
         },
         {
             "skill": "mod_booking.create_selflearning_option",
             "anchor_index": 4,
-            "content_hash": "0545f1108600585144fc3e1de400f4686edd786f3ff1c2e7af98410ea53e6654"
+            "content_hash": "d63095f29e9083e7439b9c43386b65b24239c318c68c67301e50a899a7b32735"
         },
         {
             "skill": "mod_booking.create_selflearning_option",
             "anchor_index": 5,
-            "content_hash": "c07cc9e685a463a3810be17624d64bb49f1d1dbb8806283932f6c7d23ac1d461"
+            "content_hash": "235aec27e98368941b226189b5496523c45d2e9dde89dc8c6fe025a0512f42ca"
         },
         {
             "skill": "mod_booking.create_slotbooking_option",

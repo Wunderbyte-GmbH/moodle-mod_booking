@@ -104,7 +104,9 @@ class search_reports_skill extends report_skill_base implements skill_trigger_pr
                 ],
                 'limit' => [
                     'type' => 'integer',
-                    'description' => 'Maximum number of reports to return (default 25, max 50).',
+                    // Wunderbyte-GmbH/Wunderbyte-GmbH#2600: with no field set, Gemma wrote "parameters:{}} (key quote lost);
+                    // asking for limit keeps the object non-empty (SS-4 replay 3/10 -> 10/10 valid).
+                    'description' => 'Maximum number of reports to return. Always set it; 25 is the usual value (max 50).',
                     'required' => false,
                 ],
                 'outputlang' => [

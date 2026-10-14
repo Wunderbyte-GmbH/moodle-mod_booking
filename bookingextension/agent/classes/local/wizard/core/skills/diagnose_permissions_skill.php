@@ -138,8 +138,7 @@ class diagnose_permissions_skill extends core_skill_base implements skill_trigge
                 'capability' => [
                     'type' => 'string',
                     'description' => 'OPTIONAL technical capability name to check, e.g. "mod/booking:addoption", '
-                        . '"moodle/question:add". Map the user\'s everyday wording ("may she add questions?") to the '
-                        . 'technical name yourself. Omit to get the person\'s roles along the context chain.',
+                        . '"moodle/question:add".',
                     'required' => false,
                 ],
             ],

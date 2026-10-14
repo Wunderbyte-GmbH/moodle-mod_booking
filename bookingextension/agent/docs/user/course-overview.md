@@ -1,10 +1,10 @@
 # Getting a course overview
 
-The assistant can give you a read-only overview of a course — what sections it has and which activities are in each — and it can **find courses** for you by name or topic. None of this changes anything, so the assistant answers right away with no confirmation step.
+The wizard can give you a read-only overview of a course — what sections it has and which activities are in each — and it can **find courses** for you by name or topic and list the site's **course categories**. None of this changes anything, so the wizard answers right away with no confirmation step.
 
 ## Seeing a course's structure
 
-Ask the assistant to describe the course you're in, and it lists the sections and the activities inside them.
+Ask the wizard to describe the course you're in, and it lists the sections and the activities inside them.
 
 Example requests:
 
@@ -15,11 +15,11 @@ Example requests:
 - "Show me the structure of this course."
 - "How many activities does this course have, and where?"
 
-The assistant replies with the layout — the sections in order and the activities in each one, such as pages, links, folders, forums, quizzes and booking activities.
+The wizard replies with the layout — the sections in order and the activities in each one, such as pages, links, folders, forums, quizzes and booking activities — and marks what is hidden, restricted or locked.
 
 > **You:** Give me an overview of this course.
 >
-> **Assistant:** *Introduction to Photography* has 4 sections:
+> **Wizard:** *Introduction to Photography* has 4 sections:
 > - **General** — 1 forum (Announcements), 1 page (Welcome)
 > - **Week 1** — 1 page (Camera basics), 1 quiz (Week 1 review)
 > - **Week 2** — 1 folder (Slides), 1 link (Lecture recording)
@@ -37,11 +37,11 @@ Example requests:
 - "What's missing from this course compared to a typical one?"
 - "Where would a new page about assessment best fit?"
 
-You can follow up an overview with a change request — see [adding activities to a course](course-activities.md) — and the assistant adds it (with a preview and confirmation first).
+You can follow up an overview with a change request — see [adding activities to a course](course-activities.md) — and the wizard adds it (with a preview and confirmation first).
 
 ## Finding courses by name or topic
 
-If you're not in the course you mean, ask the assistant to find it. Describe it by name or by what it's about.
+If you're not in the course you mean, ask the wizard to find it. Describe it by name or by what it's about.
 
 Example requests:
 
@@ -52,17 +52,29 @@ Example requests:
 - "List the courses about swimming."
 - "Is there a course called Introduction to Statistics?"
 
-The assistant lists the matching courses. If there are several, it gives you a list you can narrow down — "only the ones I teach" or "the one starting in March" — and then you can ask for an overview of the one you mean:
+The wizard lists the matching courses. If there are several, it gives you a list you can narrow down — "only the ones I teach" or "the one starting in March" — and then you can ask for an overview of the one you mean:
 
 - "Find the first-aid courses." → "Give me an overview of the second one."
 
+## Listing the course categories
+
+Ask which course categories exist, and the wizard lists every category you can see, with its full path (parent and subcategory), how many courses it holds directly, and whether it is hidden. You can narrow the list by a name.
+
+Example requests:
+
+- "Which course categories are there?"
+- "Show me the categories under Languages."
+- "Is there a category for staff training?"
+
+This is handy before you [create a new course](course-activities.md), so you can name the right category.
+
 ## Which course it looks at
 
-By default the assistant describes the course you're currently in. To look at a different one, name it — "give me an overview of the Photography course" — or find it first and then ask about it.
+By default the wizard describes the course you're currently in. To look at a different one, name it — "give me an overview of the Photography course" — or find it first and then ask about it.
 
 ## Permissions
 
-The assistant works within the courses you're allowed to see. If you're allowed to view a course, it can describe it and search for it. If a course isn't one you can access, it won't appear in the results.
+The wizard works within the courses you're allowed to see. If you're allowed to view a course, it can describe it and search for it. If a course isn't one you can access, it won't appear in the results.
 
 ## Tips
 

@@ -1,10 +1,10 @@
 # Finding and reading booking options
 
-The assistant can search your booking options, show you the full details of a single one, and tell you which fields an option has. All of this is read-only — asking these questions never changes anything, so the assistant answers right away.
+The wizard can search your booking options, show you the full details of a single one, and tell you which fields an option has. All of this is read-only — asking these questions never changes anything, so the wizard answers right away.
 
 ## Searching for options by topic
 
-Describe what you're looking for in your own words. The assistant searches the booking options and lists the matches.
+Describe what you're looking for in your own words. The wizard searches the booking options and lists the matches.
 
 Example requests:
 
@@ -14,7 +14,7 @@ Example requests:
 - "Are there any swimming options for beginners?"
 - "Find options about Excel."
 
-The assistant replies with the matching options. If there are many, it gives you a list you can narrow down — just ask a follow-up like "only the ones on Mondays" or "which of those still have free places?"
+The wizard replies with the matching options. If there are many, it gives you a list you can narrow down — just ask a follow-up like "only the ones on Mondays" or "which of those still have free places?"
 
 ## Searching by date or time window
 
@@ -35,7 +35,7 @@ You can combine a topic with a time window in one request:
 
 ## Getting the details of one option
 
-Once you know which option you mean, ask for its details. The assistant reads out the key information about it.
+Once you know which option you mean, ask for its details. The wizard reads out the key information about it.
 
 Example requests:
 
@@ -43,24 +43,24 @@ Example requests:
 - "Tell me everything about First Aid Basics."
 - "What's the price and start date of the pottery workshop?"
 - "Who is the trainer for Beginner Swimming, and how many places are left?"
-- "Give me the full details of the 5 March option, including who is booked."
+- "Give me the full details of the 5 March option, including its sessions."
 
-A details view can include things like the dates, the place, the price, the trainer, the capacity and remaining places, and — if you ask — who is currently booked.
+A details view can include things like the dates and sessions, the place, the price, the trainer, the description, the image, the capacity and the number of booked and free places, and — if you ask — the values of the site's custom option fields. It doesn't list the people who are booked.
 
 > **You:** Tell me everything about the Friday pottery workshop.
 >
-> **Assistant:** *Pottery Workshop* (Course: Spring Crafts)
+> **Wizard:** *Pottery Workshop* (Course: Spring Crafts)
 > - When: Friday 5 March, 10:00–13:00
 > - Place: Studio B
 > - Price: 25.00
 > - Trainer: Anna Vogel
 > - Places: 8 of 12 booked, 4 free
 
-For more on reading the participant list and remaining places, see [booking people](booking-people.md).
+For more on places and on booking people in, see [booking people](booking-people.md).
 
 ## Asking which fields an option has
 
-If you want to know what information an option can hold — for example before you ask to change something — you can ask the assistant to list its fields.
+If you want to know what information an option can hold — for example before you ask to change something — you can ask the wizard to list its fields.
 
 Example requests:
 
@@ -69,11 +69,24 @@ Example requests:
 - "Does this option have a field for the meeting link?"
 - "List the fields of the Tuesday session."
 
-This is helpful when you're about to ask for a change and want to use the right wording. Editing an option's fields is a change, so when you do ask to edit one, the assistant shows you the change and waits for your confirmation first — see [confirmations and safety](confirmations-and-safety.md).
+This is helpful when you're about to ask for a change and want to use the right wording. Editing an option's fields is a change, so when you do ask to edit one, the wizard shows you the change and waits for your confirmation first — see [confirmations and safety](confirmations-and-safety.md).
+
+## Booking option fields of your site
+
+Administrators can define their own **booking option fields** — custom fields every booking option can hold, such as a room, a level or a meeting link. If your role may manage them (by default only managers), the wizard can list them, create a new one and change an existing one. Creating and changing are previewed and confirmed first.
+
+Example requests:
+
+- "Which booking option fields does this site have?"
+- "Show me the field sportlevel and how many options use it."
+- "Create a select field Level with the values beginner and advanced."
+- "Add the value expert to the Level field."
+
+The value of such a field on one option is changed like any other detail — see [editing an option](booking-options-edit.md).
 
 ## Tips
 
 - Searching and reading are always safe — they never change anything, so there's no confirmation step.
 - If your search returns nothing, try a broader word ("first aid" instead of an exact title) or drop the date filter.
-- The assistant searches within the options you're allowed to see. If you're allowed to view more by switching context, see [choosing the right item](choosing-the-right-item.md).
-- You can chain requests: "find all first-aid options" → "show me the details of the second one" → "who's booked into it?"
+- The wizard searches within the options you're allowed to see. If you're allowed to view more by switching context, see [choosing the right item](choosing-the-right-item.md).
+- You can chain requests: "find all first-aid options" → "show me the details of the second one" → "how many places are left?"

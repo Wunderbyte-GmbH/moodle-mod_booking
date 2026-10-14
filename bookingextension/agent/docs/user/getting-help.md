@@ -1,12 +1,14 @@
-# Getting help from the assistant
+# Getting help from the wizard
 
-You don't have to read the manual to find out how something works. You can just ask the assistant. It searches this help and gives you a short, plain answer with the relevant passage, and it can read more to you on request. You can also ask it what it's able to do for you.
+You don't have to read the manual to find out how something works. You can just ask the wizard. It searches this guide and the Booking manual and gives you a short, plain answer with the relevant passage, and it can read more to you on request. You can also ask it what it's able to do for you.
 
-This is all read-only — asking for help never changes anything — so the assistant answers straight away.
+Answering from the documentation is a feature your administrator has to switch on (it also needs a search index of the documentation). If the wizard says it can't look this up, ask your administrator.
+
+This is all read-only — asking for help never changes anything — so the wizard answers straight away.
 
 ## Asking how a feature works
 
-Ask a "how do I…" or "what is…" question in plain language. The assistant searches this help and replies with a short answer, quoting the passage that's most relevant so you can see where the answer comes from.
+Ask a "how do I…" or "what is…" question in plain language. The wizard searches the documentation and replies with a short answer, quoting the passage that's most relevant so you can see where the answer comes from.
 
 Example requests:
 
@@ -15,11 +17,11 @@ Example requests:
 - "How do cancellation deadlines work?"
 - "Can I set different prices for the same option?"
 - "How do I add people to a booking?"
-- "What does the assistant do with personal data?"
+- "What does the wizard do with personal data?"
 
 > **You:** How do cancellation deadlines work?
 >
-> **Assistant:** A cancellation deadline sets how long before a session someone can still cancel. Once it passes, the cancel option is no longer available to them. The relevant help says:
+> **Wizard:** A cancellation deadline sets how long before a session someone can still cancel. Once it passes, the cancel option is no longer available to them. The relevant help says:
 >
 > > A cancellation deadline sets the last moment a booked person can cancel their own place — for example 24 hours before the start.
 >
@@ -34,11 +36,11 @@ Example requests:
 - "Go into more detail on that."
 - "Show me the whole page about prices."
 
-The assistant then reads you more of the relevant help.
+The wizard then reads you more of the relevant help.
 
 ## Asking what it can do for you
 
-If you're not sure where to start, ask the assistant what it can do. It gives you an overview of the kinds of tasks it can help with, so you can pick something and go.
+If you're not sure where to start, ask the wizard what it can do. It gives you an overview of the kinds of tasks it can help with, so you can pick something and go.
 
 Example requests:
 
@@ -50,22 +52,22 @@ Example requests:
 
 > **You:** What can you do?
 >
-> **Assistant:** I can help you with things like:
+> **Wizard:** I can help you with things like:
 > - **Booking options** — create, edit, and manage them, set prices and places.
 > - **People** — find users, add them to bookings, look up their roles.
 > - **Diagnosing problems** — work out why someone can't book, cancel, see an activity, or get notifications.
 > - **Reports** — a person's booking status, grades, or course progress.
-> - **Answering questions** — explain how a feature works from this help.
+> - **Answering questions** — explain how a feature works from the documentation.
 >
 > Tell me what you'd like to do and I'll take it from there.
 
-What you can actually *do* depends on your permissions and how your site is set up, so the overview reflects what's available to you.
+What you can actually *do* depends on your permissions and how your site is set up — for example, tasks that change data are only available once your administrator has enabled them — so the overview reflects what's available to you.
 
 ## How the help answers work
 
-When you ask how something works, the assistant looks through this same set of help pages, finds the part that fits your question, and answers from it — keeping its reply short and pointing you at the passage it used. If your question is broad, it gives you the gist first and offers to go deeper, so you're not flooded with detail you didn't ask for.
+When you ask how something works, the wizard looks through this guide and the Booking manual, finds the part that fits your question, and answers from it — keeping its reply short and pointing you at the passage it used. If your question is broad, it gives you the gist first and offers to go deeper, so you're not flooded with detail you didn't ask for.
 
-It only describes what the assistant can really do, and it always works within your permissions. If something needs rights you don't have, it tells you, rather than describing a feature you can't use.
+It only describes what the wizard can really do, and it always works within your permissions. If something needs rights you don't have, it tells you, rather than describing a feature you can't use.
 
 ## Tips
 
@@ -76,7 +78,7 @@ It only describes what the assistant can really do, and it always works within y
 
 ## Related pages
 
-- [Getting started](getting-started.md) — how to open the assistant and your first requests.
+- [Getting started](getting-started.md) — how to open the wizard and your first requests.
 - [How it works](how-it-works.md) — read-only questions versus changes, and how it acts with your permissions.
-- [Remembering preferences and recalling earlier conversations](remembering-and-history.md) — defaults the assistant keeps for you and how it recalls past work.
+- [Remembering preferences and recalling earlier conversations](remembering-and-history.md) — defaults the wizard keeps for you and how it recalls past work.
 - [Troubleshooting](troubleshooting.md) — what to do when a request doesn't go the way you expected.

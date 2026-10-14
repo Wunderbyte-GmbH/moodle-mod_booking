@@ -1,9 +1,9 @@
 # Finding content across the site
 
-The assistant can search the *content* of your platform — course descriptions, text-and-media
+The wizard can search the *content* of your platform — course descriptions, text-and-media
 areas, HTML blocks and more — by meaning, not just by exact words. Ask for a topic and it finds
 the places where that topic is covered, even when the wording differs. This is read-only, so the
-assistant answers right away without a confirmation step.
+wizard answers right away without a confirmation step.
 
 You only ever get results **you are allowed to see**: the search checks your access to every
 single hit before showing it, and it does not reveal that inaccessible content exists elsewhere.
@@ -19,16 +19,16 @@ Example requests:
 
 > **You:** Is there anything about raccoons on the platform?
 >
-> **Assistant:** Yes — the course *Nature Basics* has a text section "Raccoons are great":
+> **Wizard:** Yes — the course *Nature Basics* has a text section "Raccoons are great":
 > [link]. Would you like more detail?
 
-The assistant searches by meaning: asking about "GDPR" also finds content that talks about
+The wizard searches by meaning: asking about "GDPR" also finds content that talks about
 "data protection" or "Datenschutz".
 
 ## Good to know
 
-- **New content takes a moment to appear.** The search works on an index that is refreshed on a
-  schedule (typically every 30 minutes). Content you created just now may not be findable yet —
+- **New content takes a moment to appear.** The search works on an index that is refreshed once an
+  hour by a scheduled task. Content you created just now may not be findable yet —
   try again a little later.
 - **Access decides visibility.** Content in a course you cannot access never appears in your
   results. If you expect a hit and don't get one, check that you can open the content the normal
@@ -41,10 +41,10 @@ The assistant searches by meaning: asking about "GDPR" also finds content that t
 The feature needs three things, in this order:
 
 1. **An embeddings-capable AI provider.** Configure the Wunderbyte provider with an embedding
-   model, and set the agent's embeddings store to *database* (`embeddingsstore = db` in the
-   agent settings). The [connect page](../../connect_claude.php) area of the plugin and the
-   Moodle AI provider settings (*Site administration → General → AI → AI providers*) are the
-   places to look.
+   model, and set the agent's embeddings store to *database* (`embeddingsstore = db`). The places
+   to look are the Wunderbyte AI provider (*Site administration → General → AI → AI providers*)
+   and the setting *Embeddings storage backend* on the Booking Wizard settings page (*Booking
+   extension: Booking Wizard*).
 2. **Enable content areas and scopes.** On the governance page
    (`/mod/booking/bookingextension/agent/sitesearch_governance.php`) you switch individual
    content areas on (e.g. course summaries, text-and-media areas, HTML blocks) and control the

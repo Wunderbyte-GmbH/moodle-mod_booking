@@ -104,9 +104,8 @@ class list_skills_skill extends core_skill_base implements skill_trigger_provide
                 ],
                 'detail' => [
                     'type' => 'string',
-                    'description' => 'names (default): the short overview, one line per skill with its name only, grouped '
-                        . 'by provider and read/write. full: every skill with its complete description - when the user '
-                        . 'wants to know what the skills do, or one of them is to be chosen from the list next.',
+                    'description' => 'names (default): short overview, one line per skill. full: every skill with '
+                        . 'its description - when the user asks what skills do or will pick one.',
                     'required' => false,
                 ],
                 'outputlang' => [

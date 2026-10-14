@@ -4,12 +4,15 @@ The Booking Wizard is an AI assistant for Moodle. People describe in their own w
 language what they want to do, and the wizard answers or carries it out: it finds content and people,
 sets up courses and activities, creates quizzes and quiz questions, builds and shares reports, and
 diagnoses access, enrolment and notification problems. Every action runs with the permissions of the
-person asking, and nothing is changed before that person has seen a preview and confirmed it.
+person asking. Changes to courses, activities, reports or bookings are shown as a preview and run only after the
+person confirms them. Two exceptions: a fact the user asks the wizard to remember is stored right away, and an admin
+can confirm once for the rest of a session (capability `local/wizard:confirmforsession`, admins only by default).
 
 The plugin runs on any Moodle site. mod_booking is **not** required; when it is installed, the wizard
 also works with booking options, booking rules and bookings.
 
-> **Status:** experimental. The wizard is enabled per site and every skill can be switched off
+> **Status:** experimental. After installation the wizard is on and its read-only skills are active; skills that
+> change data stay off until an admin enables them in *Skill governance*. Every skill can be switched on or off
 > individually.
 
 ## Requirements
@@ -27,7 +30,8 @@ also works with booking options, booking rules and bookings.
    layout: `public/local/wizard`), or install the ZIP through *Site administration > Plugins >
    Install plugins*.
 2. Run the upgrade: `php admin/cli/upgrade.php` or open *Site administration > Notifications*.
-3. Enable the wizard under *Site administration > Plugins > Local plugins > Booking Wizard*.
+3. Review the settings under *Site administration > Plugins > Local plugins > Booking extension: Booking Wizard* (the
+   wizard is enabled by default), and enable the skills that change data in *Skill governance*.
 
 If the bookingextension agent of mod_booking is installed on the same site, local_wizard takes over:
 it adopts the agent's data and settings on install, and the bundled agent stands down.
@@ -50,9 +54,11 @@ get there; the wizard's own panel offers the matching one:
 
 ## Opening the wizard
 
-A magic wand in the top navigation bar opens the wizard on every page for users with the capability
-*See the global Booking Wizard magic wand*. With mod_booking installed it is also available inside
-booking activities.
+A magic wand in the top navigation bar opens the wizard on every page. It shows when the setting *Show magic wand in
+the navbar* is on (the default) and the user holds `local/wizard:seemagicwand`, which only managers have by default.
+Using the wizard needs `local/wizard:useaiinstructions` (editing teachers and managers by default); on a site without
+mod_booking, grant the wand capability to every role that should open it. With mod_booking installed the wizard is also
+available inside booking activities.
 
 ## Skills
 
@@ -69,8 +75,10 @@ switched on or off in the skill governance page and is guarded by its own capabi
 | `report.*` | Report Builder: finding, creating, querying, scheduling and sharing reports |
 | `mod_booking.*` | Booking options, rules and bookings - **only when mod_booking is installed** |
 
-Other plugins can register further skill families through hooks. The complete list with risk classes
-and key inputs is in [docs/skills/README.md](docs/skills/README.md).
+Other plugins can register further skill families through hooks (local_taskflow ships `local_taskflow.*`). The
+documentation question skill `wizard.explain_docs` is not activated automatically: it needs a documentation index
+(docs corpus and embeddings) and an admin who enables it. The complete list with risk classes and key inputs is in
+[docs/skills/README.md](docs/skills/README.md).
 
 ## Capabilities
 
@@ -85,6 +93,7 @@ and key inputs is in [docs/skills/README.md](docs/skills/README.md).
 | `local/wizard:configuresitesearch` | Configure semantic site search indexing |
 | `local/wizard:mcpaccess` | Call wizard skills through the MCP web service |
 | `local/wizard:viewdebug` | View debug information in the chat |
+| `local/wizard:debugskillselection` | Use the skill selection debug tool |
 | `local/wizard:ignoreaiavailability` | Ignore course and activity AI availability settings |
 | `local/wizard:viewbenchmarks`, `runbenchmarks`, `managebenchmarks` | Benchmark reports and runs |
 | `local/wizard:skill_<name>` | Use one specific skill |
@@ -105,11 +114,12 @@ the AI provider:
 
 | Mode | Effect |
 |---|---|
-| Strict (default) | Names and e-mail addresses from the site and those typed by users are replaced by pseudonyms |
+| Strict (setting default) | Names and e-mail addresses from the site and those typed by users are replaced by pseudonyms |
 | Soft | Only data the wizard resolves from the site is anonymised |
 | Off | No anonymisation before the AI provider |
 
-Pseudonyms are resolved back only for display in the user's own chat.
+Pseudonyms are resolved back only for display in the user's own chat. The runtime treats a missing value as *Off*,
+so check the setting on upgraded sites where the settings page has never been saved.
 
 ## Documentation
 

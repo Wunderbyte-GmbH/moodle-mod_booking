@@ -180,11 +180,22 @@ class update_activity_skill extends core_skill_base implements skill_trigger_pro
                     'description' => 'Set true to show the activity, false to hide it. Omit to keep current visibility.',
                     'required' => false,
                 ],
+                // Wunderbyte-GmbH/Wunderbyte-GmbH#2600: the two common module values are flat fields; nested in settings,
+                // Gemma wrote invalid JSON at the closing brackets (replays UA-3 12/20 -> 8/8, AA-3 1/10 -> 8/8 valid).
+                'externalurl' => [
+                    'type' => 'string',
+                    'description' => 'For a URL resource: the link address.',
+                    'required' => false,
+                ],
+                'content' => [
+                    'type' => 'string',
+                    'description' => 'For a Page: the text/body of the page (not intro).',
+                    'required' => false,
+                ],
                 'settings' => [
                     'type' => 'object',
-                    'description' => 'Module-specific fields to change, as an object. Example: for a URL '
-                        . '{"externalurl":"https://…"}; for a Page {"content":"…"}. Only set what should change. '
-                        . 'This is NOT for moving the activity — use "section" for that.',
+                    'description' => 'Other module-specific fields to change, as an object, only when externalurl or '
+                        . 'content do not fit. Only set what should change.',
                     'required' => false,
                 ],
                 'section' => [
@@ -195,10 +206,8 @@ class update_activity_skill extends core_skill_base implements skill_trigger_pro
                 ],
                 'sectiondelta' => [
                     'type' => 'integer',
-                    'description' => 'Move the activity RELATIVE to where it is now: 1 = one section down, '
-                        . '-1 = one section up, 2 = two down. Use this whenever the user describes the movement '
-                        . 'relative ("one section down") instead of naming a number — you do not need to know the '
-                        . 'current section, this skill resolves it. Do not combine with "section".',
+                    'description' => 'Move the activity RELATIVE to where it is now: 1 = one section down, -1 = one '
+                        . 'section up, 2 = two down.',
                     'required' => false,
                 ],
                 'position' => [
@@ -211,7 +220,7 @@ class update_activity_skill extends core_skill_base implements skill_trigger_pro
                 'coursequery' => [
                     'type' => 'string',
                     'description' => 'Target a DIFFERENT course than the current one, ONLY when the user names one. '
-                        . 'The system resolves the name; no course.search_courses lookup first. Leave empty otherwise.',
+                        . 'The system resolves the name; no course.search_courses lookup first.',
                     'required' => false,
                 ],
                 'courseid' => [
@@ -222,7 +231,8 @@ class update_activity_skill extends core_skill_base implements skill_trigger_pro
                 ],
             ],
             'prompt_meta' => [
-                'input_fields_for_prompt' => ['activityquery', 'name', 'intro', 'visible', 'settings', 'section', 'sectiondelta',
+                'input_fields_for_prompt' => ['activityquery', 'name', 'intro', 'visible', 'externalurl', 'content', 'settings',
+                    'section', 'sectiondelta',
                     'position'],
                 'anchor_fields' => ['activityquery', 'coursequery'],
             ],
@@ -271,7 +281,8 @@ class update_activity_skill extends core_skill_base implements skill_trigger_pro
                 'guidance' => [
                     '- course.update_activity edits an EXISTING activity; to create a new one use course.add_activity.',
                     '- Identify the activity via activityquery (its current name) or cmid; if unclear the system asks.',
-                    '- Set only the fields that should change (name, intro, visible, or settings{}); omit the rest —',
+                    '- Set only the fields that should change (name, intro, visible, externalurl, content or settings{});'
+                        . ' omit the rest —',
                     '  they keep their current value. Do NOT invent values.',
                     '- To MOVE the activity to another section/topic, set "section" to the target section number.',
                     '  For a RELATIVE movement ("one section down/up") set "sectiondelta" instead (1 = down, -1 = up);',
@@ -986,8 +997,9 @@ class update_activity_skill extends core_skill_base implements skill_trigger_pro
         if ($intro !== '') {
             $changes['intro'] = $intro;
         }
-        if (is_array($input['settings'] ?? null) && !empty($input['settings'])) {
-            $changes['settings'] = (array)$input['settings'];
+        $settings = module_form_contract::settings_from_input($input);
+        if (!empty($settings)) {
+            $changes['settings'] = $settings;
         }
         if (array_key_exists('visible', $input) && $input['visible'] !== '' && $input['visible'] !== null) {
             $changes['visible'] = $this->parse_visible($input['visible']);

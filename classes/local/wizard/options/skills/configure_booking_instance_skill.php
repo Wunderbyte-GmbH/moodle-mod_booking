@@ -404,23 +404,20 @@ class configure_booking_instance_skill extends booking_skill_base implements ski
             'properties' => [
                 'cmid' => [
                     'type' => 'integer',
-                    'description' => 'Course-module id of the booking activity, when it is known — e.g. from a '
-                        . 'candidate list that names "cmid <id>" or from a link. Takes precedence over '
-                        . 'activityquery; use it to pick one of several activities that share a name.',
+                    'description' => 'Course-module id of the booking activity when known, e.g. from a candidate '
+                        . 'list naming "cmid <id>" or a link. Takes precedence over activityquery.',
                     'required' => false,
                 ],
                 'activityquery' => [
                     'type' => 'string',
-                    'description' => 'Optional: the name of the target booking activity, when it is not the '
-                        . 'current one (e.g. over MCP, which runs at the system context). If omitted and the '
-                        . 'site has a single booking activity in scope it is used automatically.',
+                    'description' => 'Optional: name of the target booking activity when it is not the current one '
+                        . '(e.g. over MCP). If omitted, a single activity in scope is used.',
                     'required' => false,
                 ],
                 'action' => [
                     'type' => 'string',
-                    'description' => 'Required. Always "update" (requires the "changes" array).'
-                        . ' The legacy value "list_fields" is only accepted for compatibility and answers'
-                        . ' with a redirect to the read-only skill mod_booking.list_instance_settings.',
+                    'description' => 'Required. Always "update" (requires the "changes" array). The legacy '
+                        . '"list_fields" only redirects to mod_booking.list_instance_settings.',
                     'required' => true,
                 ],
                 'changes' => [

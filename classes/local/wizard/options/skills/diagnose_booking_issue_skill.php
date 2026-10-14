@@ -122,10 +122,7 @@ class diagnose_booking_issue_skill extends booking_skill_base implements skill_t
                 'userquery' => [
                     'type' => 'string',
                     'description' => 'User reference (name, email, id-like text) when diagnosing for another person. '
-                        . 'Omit (do NOT send empty string) to diagnose for the current user. '
-                        . 'CRITICAL: Omit this field entirely for self-diagnosis. '
-                        . 'Do not send fuzzy phrases like "you", "me", "myself", etc. '
-                        . 'Only send concrete user identifiers (names, emails, user IDs).',
+                        . 'Omit (do NOT send empty string) to diagnose for the current user.',
                     'required' => false,
                 ],
                 'targetuserid' => [

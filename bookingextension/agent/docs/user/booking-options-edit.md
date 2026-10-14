@@ -1,24 +1,24 @@
 # Editing a booking option
 
 Once a booking option exists, you can change almost anything about it just by telling the
-assistant what to change — no need to open a form. You can change the title, the date and time,
-the number of places, the price, the description, the trainer(s) and the header image.
+wizard what to change — no need to open a form. You can change the title, the date and time,
+the number of places, the price, the description, the trainer(s), the header image and entry tickets.
 
-Before it saves any change, the assistant shows you a preview of what will be different and waits
+Before it saves any change, the wizard shows you a preview of what will be different and waits
 for your confirmation. Nothing is changed until you say yes. See
 [confirmations](confirmations-and-safety.md).
 
-> The assistant can change and update options, but it **cannot delete** an option. If you need an
+> The wizard can change and update options, but it **cannot delete** an option. If you need an
 > option removed, do that yourself in Moodle.
 
 ## Point at the right option by its title
 
-The assistant finds an option by its **title**, so name it in your request:
+The wizard finds an option by its **title**, so name it in your request:
 
 - "Change the *Intro to First Aid* option…"
 - "Update *Excel for Beginners*…"
 
-If several options have similar titles, or more than one matches, the assistant lists the
+If several options have similar titles, or more than one matches, the wizard lists the
 candidates and asks you to pick the one you mean. If you're working inside a specific Booking
 activity, it looks there first. See [choosing the right item](choosing-the-right-item.md).
 
@@ -62,7 +62,7 @@ You can set who teaches an option, add another trainer, or swap one out:
 - "Add Tom Berger as a second trainer on the Tuesday session."
 - "Replace the teacher of *Excel for Beginners* with Maria Huber."
 
-Name the people clearly. If a name matches more than one person, the assistant asks you to
+Name the people clearly. If a name matches more than one person, the wizard asks you to
 confirm which one.
 
 ## Add or change the header image
@@ -73,8 +73,15 @@ The header image is the picture shown at the top of an option. To set or replace
 - "Add a header image to *Intro to First Aid*." *(then attach the image)*
 - "Replace the header image on *Excel for Beginners* with this one." *(then attach the image)*
 
-Attaching an image to such a request sets it as the option's header image. The assistant tells
+Attaching an image to such a request sets it as the option's header image. The wizard tells
 you when it's expecting a file.
+
+## Switch on entry tickets
+
+An option can issue an entry ticket — a personal PDF with a QR code — for every booking. Name the ticket design (a certificate template) to switch tickets on:
+
+- "Use the ticket design *Standard ticket* for *Intro to First Aid*."
+- "Let the tickets of the Tuesday session be passed on to someone else." *(tickets are personal by default)*
 
 ## Change several things at once
 
@@ -91,8 +98,8 @@ sessions to 12 places" — see [prices and bulk changes](booking-options-prices-
 
 ## What you're allowed to change
 
-The assistant can only make changes you yourself are permitted to make. If you're allowed to edit
-an option, the assistant can edit it for you; if you're not, it tells you it can't.
+The wizard can only make changes you yourself are permitted to make. If you're allowed to edit
+an option, the wizard can edit it for you; if you're not, it tells you it can't.
 
 ## Related
 

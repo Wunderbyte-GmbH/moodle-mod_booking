@@ -123,9 +123,7 @@ class explain_docs_skill extends core_skill_base implements
                 ],
                 'outputlang' => [
                     'type' => 'string',
-                    'description' => 'ISO 639-1 language code for the user-facing summary (e.g. "de", "en"). '
-                        . 'The documentation corpus may be in a different language — the '
-                        . 'summary is always generated in outputlang regardless.',
+                    'description' => 'ISO 639-1 language code for the user-facing summary (e.g. "de", "en").',
                     'required' => false,
                 ],
                 'search_queries' => [

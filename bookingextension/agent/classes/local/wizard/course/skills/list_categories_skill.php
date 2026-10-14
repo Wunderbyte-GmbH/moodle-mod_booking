@@ -95,7 +95,9 @@ class list_categories_skill extends core_skill_base implements skill_trigger_pro
                 ],
                 'limit' => [
                     'type' => 'integer',
-                    'description' => 'Maximum number of categories to return (default 100).',
+                    // Wunderbyte-GmbH/Wunderbyte-GmbH#2600: with no field set, Gemma wrote "parameters:{}} (key quote lost);
+                    // asking for limit keeps the object non-empty (LC-1 replay 15/20 -> 20/20 valid).
+                    'description' => 'Maximum number of categories to return. Always set it; 100 lists the whole tree.',
                     'required' => false,
                 ],
                 'outputlang' => [

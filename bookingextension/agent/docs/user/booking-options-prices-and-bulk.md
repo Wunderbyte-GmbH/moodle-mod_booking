@@ -2,9 +2,9 @@
 
 Two related jobs are covered here: setting up **prices** (including different prices for
 different groups of people), and making the **same change to many options at once**. The
-assistant handles both from plain-language requests.
+wizard handles both from plain-language requests.
 
-As always, before it changes anything the assistant shows you a preview and waits for your
+As always, before it changes anything the wizard shows you a preview and waits for your
 confirmation. With bulk changes this matters even more: it previews the full set of options that
 will be affected, so you can check the list before anything is applied. See
 [confirmations](confirmations-and-safety.md).
@@ -38,7 +38,7 @@ You can also set a plain single price with no categories at all:
 ## Changing many options at once
 
 When you want the same change applied across a group of options, just describe the group and the
-change. The assistant finds the matching options and prepares the change for all of them.
+change. The wizard finds the matching options and prepares the change for all of them.
 
 Examples:
 
@@ -53,21 +53,21 @@ more, the same way you would for a single option.
 
 ## It previews the whole set before applying
 
-This is the important part of bulk changes. Before anything is saved, the assistant shows you:
+This is the important part of bulk changes. Before anything is saved, the wizard shows you:
 
 - **Which options matched** your description (the full list), and
 - **What will change** for them.
 
-Read the list. If it caught options you didn't mean — or missed some — tell the assistant to
+Read the list. If it caught options you didn't mean — or missed some — tell the wizard to
 narrow or widen it ("only the ones in March", "also include the Saturday session"), and it
 re-previews. Only when you confirm does it apply the change to every option in the set.
 
-If the description is ambiguous and the assistant can't be sure which options you mean, it asks
+If the description is ambiguous and the wizard can't be sure which options you mean, it asks
 you to clarify before previewing. See [choosing the right item](choosing-the-right-item.md).
 
 ## What you're allowed to do
 
-The assistant can only set prices and change options you're permitted to manage. If you're
+The wizard can only set prices and change options you're permitted to manage. If you're
 allowed to, it does it; if not, it tells you. It can change and update options in bulk, but it
 **cannot delete** options.
 

@@ -124,8 +124,7 @@ class diagnose_user_in_course_skill extends core_skill_base implements skill_tri
                 'aspect' => [
                     'type' => 'string',
                     'description' => 'Which facet to diagnose: "access" (can see/open), "enrolment" (is/was '
-                        . 'enrolled), "progress" (activity completion), "grades" (grade items). Pick the one the '
-                        . 'user is asking about. Defaults to access.',
+                        . 'enrolled), "progress" (activity completion), "grades" (grade items).',
                     'required' => false,
                 ],
                 'userquery' => [
@@ -152,15 +151,13 @@ class diagnose_user_in_course_skill extends core_skill_base implements skill_tri
                 ],
                 'activityquery' => [
                     'type' => 'string',
-                    'description' => 'For aspect=access/progress: the name of a specific activity (e.g. "Quiz 3"). '
-                        . 'If it does not match exactly one activity, the course activity list is returned so you can '
-                        . 'pick the right one — then re-call with "activityid". Leave empty for a course-wide view.',
+                    'description' => 'For aspect=access/progress: the name of a specific activity (e.g. "Quiz 3").',
                     'required' => false,
                 ],
                 'activityid' => [
                     'type' => 'integer',
-                    'description' => 'For aspect=access/progress: the resolved course-module id of the activity, when '
-                        . 'you already identified it from the returned activity list. Takes precedence over activityquery.',
+                    'description' => 'For aspect=access/progress: the resolved course-module id of the activity, '
+                        . 'when you already identified it from the returned activity list.',
                     'required' => false,
                 ],
                 'itemquery' => [

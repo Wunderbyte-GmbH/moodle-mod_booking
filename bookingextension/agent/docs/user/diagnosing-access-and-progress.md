@@ -1,12 +1,12 @@
 # Diagnosing access and progress
 
-When a user can't see or do something in a course, isn't getting the emails they should, or you're trying to understand their grades or how far they've got, you can ask the assistant to investigate. It checks the relevant settings and the person's situation and explains, in plain words, what's going on.
+When a user can't see or do something in a course, isn't getting the emails they should, or you're trying to understand their grades or how far they've got, you can ask the wizard to investigate. It checks the relevant settings and the person's situation and explains, in plain words, what's going on.
 
-All of this is **read-only**: the assistant looks and reports, but changes nothing. So it answers right away, with no confirmation step. It only ever uses data **you're allowed to see** — see [privacy](privacy.md).
+All of this is **read-only**: the wizard looks and reports, but changes nothing. So it answers right away, with no confirmation step. It only ever uses data **you're allowed to see** — see [privacy](privacy.md).
 
 ## Why can't this user see or do an activity?
 
-When someone can't open an activity, or can't take part in it, ask the assistant why. It looks at permissions and access — for example whether the person is enrolled, whether their role grants access, whether the activity is hidden or restricted, or whether an access condition isn't met — and tells you what's blocking them.
+When someone can't open an activity, or can't take part in it, ask the wizard why. It looks at permissions and access — for example whether the person is enrolled, whether their role grants access, whether the activity is hidden or restricted, or whether an access condition isn't met — and tells you what's blocking them.
 
 Example requests:
 
@@ -16,28 +16,27 @@ Example requests:
 - "Why isn't Jonas able to submit the workshop task?"
 - "Is this user even enrolled in the course? They say they can't see anything."
 
-The assistant names the user and the activity so you know it checked the right ones, then explains the reason.
+The wizard names the user and the activity so you know it checked the right ones, then explains the reason.
 
 > **You:** Why can't Maria see the First Aid quiz?
 >
-> **Assistant:** Maria Huber can't see the **First Aid quiz** because it's restricted to the group "Cohort B", and she isn't a member of that group. She is enrolled in the course and her role would otherwise allow access.
+> **Wizard:** Maria Huber can't see the **First Aid quiz** because it's restricted to the group "Cohort B", and she isn't a member of that group. She is enrolled in the course and her role would otherwise allow access.
 
-If your request could match more than one user or activity, the assistant asks you to be more specific. See [finding people](finding-people.md) and [choosing the right item](choosing-the-right-item.md).
+If your request could match more than one user or activity, the wizard asks you to be more specific. See [finding people](finding-people.md) and [choosing the right item](choosing-the-right-item.md).
 
 ## Why isn't this user getting notifications?
 
-When someone says they aren't receiving emails or messages they expect — a booking confirmation, a reminder, a course announcement — ask the assistant to look into it. It checks the relevant notification settings and the user's situation and explains why the messages may not be arriving.
+When someone says they aren't receiving emails or notifications from Moodle, ask the wizard to look into it. It checks the person's account — for example a missing or blocked e-mail address, an unconfirmed or suspended account, the "disable all e-mail" setting, or too many bounced e-mails — and, if you are an administrator, the site's mail settings, and explains why the messages may not be arriving. For a booking confirmation or reminder of one booking option, ask for the person's booking status instead — see [diagnosing bookings](diagnosing-bookings.md) *(requires mod_booking)*.
 
 Example requests:
 
-- "Why isn't Tom getting booking confirmation emails?"
-- "Maria says she never gets reminders — can you find out why?"
-- "Why didn't this student receive the cancellation notice?"
+- "Why isn't Tom getting any emails?"
+- "Maria says she never gets notifications — can you find out why?"
 - "Is something stopping Jonas from getting course announcements?"
 
-> **You:** Why isn't Tom getting booking confirmation emails?
+> **You:** Why isn't Tom getting any emails?
 >
-> **Assistant:** Tom Berger isn't receiving booking confirmations because his notification preference for this type of message is switched off in his profile. The booking option itself is set to send confirmations.
+> **Wizard:** Tom Berger's account has the setting "disable all e-mail" switched on, so Moodle sends him no e-mail at all. His e-mail address itself is valid and his account is active.
 
 ## A user's grades
 
@@ -52,7 +51,7 @@ Example requests:
 
 > **You:** What are Maria's grades in the First Aid course?
 >
-> **Assistant:** Maria Huber's grades in **First Aid Programme**:
+> **Wizard:** Maria Huber's grades in **First Aid Programme**:
 > - **Week 1 quiz** — 18 / 20
 > - **Practical assessment** — passed
 > - **Final quiz** — not attempted yet
@@ -70,23 +69,23 @@ Example requests:
 - "Show me this student's completion across the course."
 - "What's left for Maria to finish before the course counts as complete?"
 
-The assistant lists the activities and their completion state, and where something isn't complete it explains what's missing — for example a required activity not yet done, or a passing grade not yet reached.
+The wizard lists the activities and their completion state, and where something isn't complete it explains what's missing — for example a required activity not yet done, or a passing grade not yet reached.
 
 > **You:** Why isn't the First Aid course showing as complete for Maria?
 >
-> **Assistant:** Maria Huber has completed 4 of the 5 required activities in **First Aid Programme**. The course isn't marked complete because the **Final quiz** still needs a passing grade — she hasn't attempted it yet. Everything else is done.
+> **Wizard:** Maria Huber has completed 4 of the 5 required activities in **First Aid Programme**. The course isn't marked complete because the **Final quiz** still needs a passing grade — she hasn't attempted it yet. Everything else is done.
 
 ## What you'll need to give it
 
-For these checks the assistant needs to know **who**, and usually **which course or activity**. Give the person by name, email or username, and name the activity or course where it applies. If anything is ambiguous, it asks a short follow-up.
+For these checks the wizard needs to know **who**, and usually **which course or activity**. Give the person by name, email or username, and name the activity or course where it applies. If anything is ambiguous, it asks a short follow-up.
 
 ## What it won't do here
 
-These are investigations only. The assistant won't enrol the user, change their permissions, adjust a grade, or alter notification settings as part of a diagnosis — it just explains. When you want to act on what you've learned, that's a separate request, and any change is previewed and confirmed first. See [confirmations and safety](confirmations-and-safety.md).
+These are investigations only. The wizard won't enrol the user, change their permissions, adjust a grade, or alter notification settings as part of a diagnosis — it just explains. When you want to act on what you've learned, that's a separate request, and any change is previewed and confirmed first. See [confirmations and safety](confirmations-and-safety.md).
 
 ## Related pages
 
 - [Diagnosing booking problems](diagnosing-bookings.md) — why a person can't book or cancel, and a full per-person booking status.
 - [Finding people](finding-people.md) — looking someone up by name, email or username.
 - [Choosing the right item](choosing-the-right-item.md) — naming a course or activity clearly when several could match.
-- [Privacy](privacy.md) — the assistant only shows data you're allowed to see.
+- [Privacy](privacy.md) — the wizard only shows data you're allowed to see.

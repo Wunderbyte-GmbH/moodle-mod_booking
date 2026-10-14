@@ -109,9 +109,8 @@ class diagnose_cancellation_issue_skill extends booking_skill_base implements sk
                 ],
                 'question' => [
                     'type' => 'string',
-                    'description' => 'The user question in natural language, e.g. "Why can I not cancel option X?". '
-                        . 'Pass the original wording so the task can classify the blocker automatically. '
-                        . 'Omit only when the option is already identified via optionquery or optionid.',
+                    'description' => 'The user question in the original wording (e.g. "Why can I not cancel option '
+                        . 'X?") to classify the blocker. Omit when the option is known.',
                     'required' => false,
                     'from_user_message' => true,
                 ],

@@ -1,10 +1,10 @@
 # The kinds of booking option you can create
 
-Not every bookable thing works the same way. The assistant can create three kinds of booking
+Not every bookable thing works the same way. The wizard can create three kinds of booking
 option, and it picks the right one from how you describe it. This page explains what each kind
 is for, so you can phrase your request to get the one you want.
 
-In all three cases the assistant shows you a preview and waits for your confirmation before
+In all three cases the wizard shows you a preview and waits for your confirmation before
 anything is created. See [confirmations](confirmations-and-safety.md).
 
 ## Standard option — a fixed session
@@ -20,7 +20,7 @@ Example requests:
 - "Add a session *Excel for Beginners*, 10 April 09:00–12:00, room B2, 20 places."
 - "New event: guided museum tour, 18 May 2 pm, max 30 people."
 
-If you don't say otherwise, the assistant assumes you mean a standard option. For full detail on
+If you don't say otherwise, the wizard assumes you mean a standard option. For full detail on
 what you can include, see [creating a booking option](booking-options-create.md).
 
 ## Self-paced (self-learning) option — no fixed date
@@ -40,7 +40,7 @@ Example requests:
 - "Make a self-study module *Workplace Safety*, 2 weeks duration, 50 places."
 
 Say "self-paced" or "self-learning" (or describe it as something people do in their own time)
-and give a duration, so the assistant knows not to ask you for a session date.
+and give a duration, so the wizard knows not to ask you for a session date.
 
 ## Slot / appointment option — bookable time slots
 
@@ -55,7 +55,7 @@ Example requests:
 - "Set up bookable consultation slots for thesis supervision, 30 minutes each."
 - "Add an appointment option *Career Advice*, slots Wednesday afternoon."
 
-Describe it as appointments, slots or consultation hours and the assistant sets up the option so
+Describe it as appointments, slots or consultation hours and the wizard sets up the option so
 people can book individual times.
 
 ## How to choose
@@ -64,7 +64,7 @@ people can book individual times.
 - Something people do in their own time, no fixed hour → **self-paced**.
 - Individual appointments people book one by one → **slot**.
 
-If your wording is ambiguous, the assistant asks a quick question to confirm which kind you mean
+If your wording is ambiguous, the wizard asks a quick question to confirm which kind you mean
 before it builds anything. You can always look at the preview and tell it to switch ("actually,
 make this a slot option").
 

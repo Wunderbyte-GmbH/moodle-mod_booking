@@ -558,10 +558,7 @@ class option_schema_definition {
             ],
             'headerimage_token' => [
                 'type' => 'string',
-                'description' => 'Attachment token for setting the option header image. '
-                    . 'Use the token value from the "[Attachment: <filename> — Attachment-Token: <token>]" hint '
-                    . 'when the user provides an image to use as the booking option header image. '
-                    . 'Do NOT put this token into "text" or "description".',
+                'description' => 'Attachment token for setting the option header image.',
                 'required' => false,
             ],
         ];

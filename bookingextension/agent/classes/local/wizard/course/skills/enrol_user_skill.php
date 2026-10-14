@@ -169,17 +169,14 @@ class enrol_user_skill extends core_skill_base implements skill_trigger_provider
                 ],
                 'role' => [
                     'type' => 'string',
-                    'description' => 'Optional role for the enrolment, verbatim (e.g. "student", "teacher", '
-                        . '"Trainer/in"). Leave empty for the course\'s default enrolment role. The system matches it '
-                        . 'against the roles the acting user may assign and asks if it does not match.',
+                    'description' => 'Optional enrolment role, verbatim (e.g. "student", "teacher"). Leave empty for '
+                        . 'the course default role; the system matches it and asks if needed.',
                     'required' => false,
                 ],
                 'coursequery' => [
                     'type' => 'string',
-                    'description' => 'The course the user named as the target, if any. If the user names a course in '
-                        . 'this message OR an earlier one, you MUST put that exact wording here verbatim — a named '
-                        . 'course is NEVER the same as "the current course". The system resolves the name itself. '
-                        . 'Leave empty ONLY when the user named no course at all (then the current course is used).',
+                    'description' => 'The course the user named, in this message or an earlier one, verbatim - never '
+                        . '"the current course" then. Empty only if no course was named.',
                     'required' => false,
                 ],
                 'courseid' => [
