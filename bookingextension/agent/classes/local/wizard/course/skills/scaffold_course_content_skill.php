@@ -141,6 +141,8 @@ class scaffold_course_content_skill extends core_skill_base implements skill_tri
             'is' => 'The content of a course that already exists, created in one call.',
             'not' => 'Creating the course container (course.create_course); separate add_activity or add_quiz steps for the '
                 . 'same content.',
+            'when' => 'The user wants a named or existing course filled with generated content or turned into a complete, '
+                . 'ready-made course about a topic in one go.',
             'readonly' => false,
             'example_utterances' => [
                 'Fill the Vikings course with interesting content',
