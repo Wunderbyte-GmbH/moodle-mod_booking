@@ -945,19 +945,22 @@ abstract class core_skill_base extends base_skill {
             return [];
         }
 
+        // Accents are ignored on every database family ("federation" finds "Fédération", also on PostgreSQL).
+        [$namelike, $nameparams] = \bookingextension_agent\local\wizard\services\lookup\accent_insensitive_like::contains(
+            'inst.name',
+            'needle',
+            $query
+        );
         $sql = "SELECT cm.id AS cmid, inst.name AS name, c.id AS courseid, c.fullname AS coursename
                   FROM {course_modules} cm
                   JOIN {modules} m ON m.id = cm.module AND m.name = :modname
                   JOIN {" . $modname . "} inst ON inst.id = cm.instance
                   JOIN {course} c ON c.id = cm.course
-                 WHERE " . $DB->sql_like('inst.name', ':needle', false, false) . "
+                 WHERE " . $namelike . "
                    AND cm.deletioninprogress = 0
               ORDER BY c.id, inst.name";
 
-        $rows = $DB->get_records_sql($sql, [
-            'modname' => $modname,
-            'needle' => '%' . $DB->sql_like_escape($query) . '%',
-        ], 0, $limit * 5);
+        $rows = $DB->get_records_sql($sql, ['modname' => $modname] + $nameparams, 0, $limit * 5);
 
         $out = [];
         foreach ($rows as $row) {

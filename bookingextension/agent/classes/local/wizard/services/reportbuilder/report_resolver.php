@@ -72,8 +72,14 @@ final class report_resolver {
         }
         $words = $this->words($query);
         foreach ($words as $i => $word) {
-            $select .= ' AND ' . $DB->sql_like('name', ':w' . $i, false, false);
-            $params['w' . $i] = '%' . $DB->sql_like_escape($word) . '%';
+            // Accents are ignored on every database family, also on PostgreSQL.
+            [$namelike, $nameparams] = \bookingextension_agent\local\wizard\services\lookup\accent_insensitive_like::contains(
+                'name',
+                'w' . $i,
+                $word
+            );
+            $select .= ' AND ' . $namelike;
+            $params += $nameparams;
         }
 
         $records = $DB->get_records_select('reportbuilder_report', $select, $params, 'name ASC, id ASC');
