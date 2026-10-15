@@ -22,7 +22,7 @@ use mod_booking\local\wizard\options\skills\get_option_details_skill;
 use mod_booking\local\wizard\options\skills\search_options_skill;
 
 /**
- * The two option skills that read like a course question on a booking page name the course analysis.
+ * The option skills and the course analysis fence each other off mutually, or not at all.
  *
  * @package mod_booking
  * @category test
@@ -43,15 +43,24 @@ final class wizard_course_content_fence_test extends advanced_testcase {
     }
 
     /**
-     * "What is in course X" on a booking page ranks the option skills first; their cards hand the course
-     * contents to the course analysis so the fence is mutual.
+     * "What is in course X" on a booking page ranks the option details first; its card hands the course contents to
+     * the course analysis, which names the option details back, so the fence is mutual.
      */
-    public function test_the_option_skills_fence_off_the_course_contents(): void {
-        foreach ([new get_option_details_skill(), new search_options_skill()] as $skill) {
-            $not = (string)($skill->get_schema()['not'] ?? '');
+    public function test_the_option_details_fence_off_the_course_contents(): void {
+        $not = (string)((new get_option_details_skill())->get_schema()['not'] ?? '');
 
-            $this->assertStringContainsString('course.analyze_course_structure', $not, $skill->get_name());
-            $this->assertLessThanOrEqual(self::NOT_CAP, core_text::strlen($not), $not);
-        }
+        $this->assertStringContainsString('course.analyze_course_structure', $not);
+        $this->assertLessThanOrEqual(self::NOT_CAP, core_text::strlen($not), $not);
+    }
+
+    /**
+     * The option search does not name the course analysis: the course analysis does not name the search back (naming it
+     * there pulled plain option-list requests away from the search), and a one-sided fence breaks the mutual-fence rule.
+     */
+    public function test_the_option_search_leaves_the_course_analysis_out(): void {
+        $not = (string)((new search_options_skill())->get_schema()['not'] ?? '');
+
+        $this->assertStringNotContainsString('course.analyze_course_structure', $not);
+        $this->assertLessThanOrEqual(self::NOT_CAP, core_text::strlen($not), $not);
     }
 }
