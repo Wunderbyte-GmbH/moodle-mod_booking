@@ -138,13 +138,15 @@ class create_course_skill extends core_skill_base implements
                 . 'named one or only one is available. This creates an EMPTY course — content is added afterwards.',
             'is' => 'The course container.',
             // Wave 32 (SCC-4, mutual fence with course.scaffold_course_content; owner of this card: group A1).
-            'not' => 'Booking options or activities inside an existing course (add_activity, mod_booking.create_option); '
-                . 'content for an existing course (scaffold_course_content).',
+            'not' => 'Adding to an existing course (add_activity, mod_booking.create_option, scaffold_course_content); '
+                . 'a self-paced offer (mod_booking.create_selflearning_option).',
+            'when' => 'The user wants a new, empty Moodle course created that does not exist yet; making a named course '
+                . 'complete is scaffold_course_content.',
             'readonly' => false,
             'example_utterances' => [
                 'Create a new course about the life of the Vikings',
                 'Set up an empty course called Onboarding 2027',
-                'Ich brauche einen neuen Kurs zum Thema Erste Hilfe',
+                'I need a new course on workplace safety',
                 'Create a course and make it bookable',
             ],
             'properties' => [

@@ -113,7 +113,9 @@ class analyze_course_structure_skill extends core_skill_base implements skill_tr
                 . 'into coursequery, no lookup needed. Use for "what is in this course", "show me the sections of course '
                 . 'X". It is the prerequisite for later placing something into a section.',
             'is' => 'Reading what a Moodle course contains, including what is hidden.',
-            'not' => 'Creating or changing anything; the details of a booking option.',
+            'not' => 'Creating or changing anything; a booking option\'s details (mod_booking.get_option_details).',
+            'when' => 'The user asks what a Moodle course contains, which sections, activities or resources it has and '
+                . 'which of them are hidden, also when they name the course.',
             'readonly' => true,
             'example_utterances' => [
                 'what is in this course',
