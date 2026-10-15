@@ -11,7 +11,7 @@ can confirm once for the rest of a session (capability `local/wizard:confirmfors
 The plugin runs on any Moodle site. mod_booking is **not** required; when it is installed, the wizard
 also works with booking options, booking rules and bookings.
 
-> **Status:** experimental. After installation the wizard is on and its read-only skills are active; skills that
+> After installation the wizard is on and its read-only skills are active; skills that
 > change data stay off until an admin enables them in *Skill governance*. Every skill can be switched on or off
 > individually.
 
