@@ -165,6 +165,9 @@ final class analyze_course_structure_test extends advanced_testcase {
         rebuild_course_cache($coursea->id, true);
         rebuild_course_cache($courseb->id, true);
 
+        // The engine runs a skill in the acting user's session; the course search sees what that user may see
+        // (on Moodle 5.2 nothing for a session without a user).
+        $this->setUser($teacher);
         $skill = new analyze_course_structure_skill();
         // Ambient context is course A, but the user names course B.
         $ambientcontextid = (int)context_course::instance($coursea->id)->id;

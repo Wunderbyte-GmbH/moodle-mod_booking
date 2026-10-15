@@ -42,6 +42,8 @@ final class confirm_preview_data_block_test extends advanced_testcase {
      * A create_option confirmation preview must carry the proposed values (title, capacity, price).
      */
     public function test_create_option_preview_carries_the_proposed_values(): void {
+        \bookingextension_agent\local\wizard\testing\mod_booking_dependency::require_installed();
+        \mod_booking\local\wizard\engine_component::ensure_engine_aliases();
         $this->resetAfterTest();
 
         $descriptor = (new create_option_skill())->describe_proposed_action([

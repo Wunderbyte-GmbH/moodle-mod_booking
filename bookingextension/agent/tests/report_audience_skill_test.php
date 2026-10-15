@@ -61,7 +61,9 @@ final class report_audience_skill_test extends advanced_testcase {
      */
     private function create_manager(): \stdClass {
         global $DB;
-        $user = $this->getDataGenerator()->create_user();
+        // A fixed name: the generator's random names include "Svoboda", which the person search for "Bo" in
+        // test_clarifications would count as a third candidate.
+        $user = $this->getDataGenerator()->create_user(['firstname' => 'Report', 'lastname' => 'Manager']);
         $roleid = (int)$DB->get_field('role', 'id', ['shortname' => 'manager'], MUST_EXIST);
         role_assign($roleid, (int)$user->id, context_system::instance()->id);
         return $user;

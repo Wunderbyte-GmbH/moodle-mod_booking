@@ -105,6 +105,8 @@ final class quiz_question_count_clarification_test extends advanced_testcase {
      * (0) is the default and the user is not asked. A create_option without maxanswers must pass.
      */
     public function test_create_option_never_gates_maxanswers(): void {
+        \bookingextension_agent\local\wizard\testing\mod_booking_dependency::require_installed();
+        \mod_booking\local\wizard\engine_component::ensure_engine_aliases();
         $this->resetAfterTest();
         $result = (new create_option_skill())->check_structure(['text' => 'Yoga am Morgen']);
         $this->assertTrue(

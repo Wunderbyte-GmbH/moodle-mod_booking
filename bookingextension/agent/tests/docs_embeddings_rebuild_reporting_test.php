@@ -35,6 +35,9 @@ use bookingextension_agent\local\wizard\services\lookup\docs_embeddings_index_se
 final class docs_embeddings_rebuild_reporting_test extends advanced_testcase {
     protected function setUp(): void {
         parent::setUp();
+        if (!class_exists('\\aiprovider_wunderbyte\\aiactions\\generate_embeddings')) {
+            $this->markTestSkipped('embeddings provider not available');
+        }
         $this->resetAfterTest();
         $this->setAdminUser();
         set_config('aiskillenableall', 1, 'bookingextension_agent');

@@ -77,6 +77,12 @@ final class routing_guard_test extends \advanced_testcase {
         $siteconfigured = array_map(static fn(string $skill): string => $skill . '#0', (array)($meta['site_configured'] ?? []));
         $changed = array_values(array_diff(array_keys(array_diff_assoc($expected, $actual)), $siteconfigured));
         $extra = array_keys(array_diff_key($actual, $expected));
+        // A skill family none of whose skills is registered here belongs to a plugin this site does not have (the
+        // booking or taskflow skills in the standalone plugin, an optional extension); its anchors are absent, not
+        // stale. Every family with at least one registered skill is still compared anchor by anchor.
+        $family = static fn(string $key): string => explode('.', $key, 2)[0];
+        $installed = array_unique(array_map($family, array_keys($expected)));
+        $extra = array_values(array_filter($extra, static fn(string $key): bool => in_array($family($key), $installed, true)));
         $this->assertSame(
             [[], []],
             [$changed, $extra],

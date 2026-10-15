@@ -322,6 +322,9 @@ abstract class abstract_agent_testcase extends agent_testcase_parent {
         string $embeddingendpoint,
         ?int $embeddingdimensions = null
     ): void {
+        if (!class_exists('\\aiprovider_wunderbyte\\provider')) {
+            $this->markTestSkipped('aiprovider_wunderbyte not installed');
+        }
         $embeddingdimensions ??= $this->resolve_test_embedding_dimensions($embeddingmodel);
         $manager = \core\di::get(\core_ai\manager::class);
         $actionconfig = [

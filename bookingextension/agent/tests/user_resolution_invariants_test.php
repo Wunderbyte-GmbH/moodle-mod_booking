@@ -37,6 +37,15 @@ use mod_booking\local\wizard\booking\booking_skill_support;
  */
 final class user_resolution_invariants_test extends advanced_testcase {
     /**
+     * The skills under test live in mod_booking; skip where it is not installed (standalone local_wizard).
+     */
+    protected function setUp(): void {
+        \bookingextension_agent\local\wizard\testing\mod_booking_dependency::require_installed();
+        \mod_booking\local\wizard\engine_component::ensure_engine_aliases();
+        parent::setUp();
+    }
+
+    /**
      * Any unresolved placeholder form fails with a re-ask, never a match.
      */
     public function test_anon_placeholder_never_resolves(): void {

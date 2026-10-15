@@ -50,6 +50,15 @@ final class sitesearch_end_to_end_test extends advanced_testcase {
     }
 
     /**
+     * Indexing needs the embeddings action of aiprovider_wunderbyte, even with an injected embedder.
+     */
+    private function require_embeddings_provider(): void {
+        if (!class_exists('\\aiprovider_wunderbyte\\aiactions\\generate_embeddings')) {
+            $this->markTestSkipped('embeddings provider not available');
+        }
+    }
+
+    /**
      * Keyword embedder: dimension 0 fires on "waschbär", 1 on "segelboot", 2 is baseline noise.
      *
      * @return callable
@@ -87,6 +96,7 @@ final class sitesearch_end_to_end_test extends advanced_testcase {
      */
     public function test_index_and_search_roundtrip(): void {
         global $DB;
+        $this->require_embeddings_provider();
         $this->seed_world();
 
         $report = (new site_content_index_service($this->embedder()))->update();
@@ -110,6 +120,7 @@ final class sitesearch_end_to_end_test extends advanced_testcase {
      * enrolling them makes the same search succeed.
      */
     public function test_access_gate_follows_enrolment(): void {
+        $this->require_embeddings_provider();
         [$coursea] = $this->seed_world();
         (new site_content_index_service($this->embedder()))->update();
         $search = new site_content_search_service($this->embedder());

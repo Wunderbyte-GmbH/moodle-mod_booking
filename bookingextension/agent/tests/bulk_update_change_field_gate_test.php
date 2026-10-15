@@ -37,6 +37,15 @@ use mod_booking\local\wizard\options\skills\bulk_update_options_skill;
  */
 final class bulk_update_change_field_gate_test extends advanced_testcase {
     /**
+     * The skills under test live in mod_booking; skip where it is not installed (standalone local_wizard).
+     */
+    protected function setUp(): void {
+        \bookingextension_agent\local\wizard\testing\mod_booking_dependency::require_installed();
+        \mod_booking\local\wizard\engine_component::ensure_engine_aliases();
+        parent::setUp();
+    }
+
+    /**
      * An invented change key (the observed "available") clarifies instead of passing.
      */
     public function test_unknown_only_change_key_clarifies(): void {

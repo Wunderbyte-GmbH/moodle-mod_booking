@@ -279,6 +279,9 @@ final class report_authoring_skills_test extends advanced_testcase {
      * A write that fails half-way leaves nothing behind (single transaction).
      */
     public function test_create_is_transactional(): void {
+        // On pgsql the test itself runs in a transaction that is rolled back afterwards; the service's
+        // delegated transaction nests in it and its rollback only takes effect at the outer level.
+        $this->preventResetByRollback();
         $manager = $this->create_manager();
         $this->setUser($manager);
         $service = new report_definition_service();

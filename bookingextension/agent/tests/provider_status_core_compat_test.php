@@ -42,6 +42,8 @@ final class provider_status_core_compat_test extends advanced_testcase {
      * Provider status for an unprivileged user must never die on a missing core method.
      */
     public function test_status_survives_missing_core_module_ai_api(): void {
+        \bookingextension_agent\local\wizard\testing\mod_booking_dependency::require_installed();
+        \mod_booking\local\wizard\engine_component::ensure_engine_aliases();
         $this->resetAfterTest();
         $course = $this->getDataGenerator()->create_course();
         $booking = $this->getDataGenerator()->create_module('booking', ['course' => $course->id]);

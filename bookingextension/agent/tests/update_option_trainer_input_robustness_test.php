@@ -36,6 +36,15 @@ use mod_booking\local\wizard\options\skills\update_option_trainer_skill;
  */
 final class update_option_trainer_input_robustness_test extends advanced_testcase {
     /**
+     * The skills under test live in mod_booking; skip where it is not installed (standalone local_wizard).
+     */
+    protected function setUp(): void {
+        \bookingextension_agent\local\wizard\testing\mod_booking_dependency::require_installed();
+        \mod_booking\local\wizard\engine_component::ensure_engine_aliases();
+        parent::setUp();
+    }
+
+    /**
      * scalar_string coerces non-strings to '' and passes strings through.
      */
     public function test_scalar_string_coerces_non_strings(): void {

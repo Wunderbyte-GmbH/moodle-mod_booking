@@ -55,6 +55,8 @@ final class preflight_choices_nested_field_replan_test extends abstract_agent_te
      * Provider and Booking PRO (the cards view needs it).
      */
     protected function setUp(): void {
+        \bookingextension_agent\local\wizard\testing\mod_booking_dependency::require_installed();
+        \mod_booking\local\wizard\engine_component::ensure_engine_aliases();
         parent::setUp();
         $this->enforcegeneratetextassertion = false;
         wb_payment::override_pro_version_for_tests(true);
@@ -78,7 +80,10 @@ final class preflight_choices_nested_field_replan_test extends abstract_agent_te
      */
     protected function tearDown(): void {
         $this->clear_scripted_planner();
-        wb_payment::override_pro_version_for_tests(null);
+        // tearDown also runs after setUp skipped the test on a site without mod_booking.
+        if (class_exists(wb_payment::class)) {
+            wb_payment::override_pro_version_for_tests(null);
+        }
         parent::tearDown();
     }
 
