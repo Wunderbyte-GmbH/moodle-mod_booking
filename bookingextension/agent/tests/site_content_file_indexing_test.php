@@ -313,12 +313,19 @@ final class site_content_file_indexing_test extends advanced_testcase {
         // correction is the backfill's job. Push the cursor past the resource first: with a single
         // document in the index, the "-1" overlap window would otherwise legitimately re-read it
         // (boundary docs are always re-read) and apply the flag opportunistically.
+        // The cursor comes from the stored records, not from time(): with tool_mocktesttime, time() in this namespace
+        // returns the clock frozen at its first call in the process, which lies behind these records in a full suite.
+        global $DB;
+        $stored = max(
+            (int)$DB->get_field('resource', 'timemodified', ['id' => $resource->id]),
+            (int)$DB->get_field('course_modules', 'added', ['id' => $resource->cmid])
+        );
         $resolved = (new embeddings_action_config_resolver())->resolve();
         (new \bookingextension_agent\local\wizard\services\sitesearch\site_content_state_repository())->set_cursor(
             self::AREAKEY,
             (string)$resolved['model'],
             (int)$resolved['dimensions'],
-            time() + 100
+            $stored + 100
         );
         $result = $indexer->update();
         $this->assertSame('ok', $result['status']);

@@ -80,7 +80,7 @@ final class preflight_choices_nested_field_replan_test extends abstract_agent_te
      */
     protected function tearDown(): void {
         $this->clear_scripted_planner();
-        // tearDown also runs after setUp skipped the test on a site without mod_booking.
+        // This also runs after setUp skipped the test on a site without mod_booking.
         if (class_exists(wb_payment::class)) {
             wb_payment::override_pro_version_for_tests(null);
         }

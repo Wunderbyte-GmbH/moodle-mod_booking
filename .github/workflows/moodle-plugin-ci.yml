@@ -74,6 +74,9 @@ jobs:
         moodle-plugin-ci add-plugin --branch master branchup/moodle-filter_shortcodes
         moodle-plugin-ci add-plugin --branch master iarenaza/moodle-filter_multilang2
         moodle-plugin-ci add-plugin --branch MOODLE_500_STABLE moodleworkplace/moodle-tool_certificate
+        # The agent's embeddings path needs the Wunderbyte AI provider (Moodle 5.0+, so not in the 4.5 call);
+        # without it the agent suite's readiness guard fails by design.
+        moodle-plugin-ci add-plugin --branch main Wunderbyte-GmbH/moodle-aiprovider_wunderbyte
 
       # If you need to ignore specific paths (third-party libraries are ignored by default)
       ignore_paths: 'vue3,moodle/tests/fixtures,moodle/Sniffs,moodle/vue3'
@@ -98,6 +101,10 @@ jobs:
       # disable_phpcs: true
       # disable_phplint: true
       # disable_ci_validate: true
+
+      # moodle-plugin-ci phpunit runs the mod_booking suite only; the suites of the bundled subplugins run here.
+      custom_steps: |
+        bash plugin/.github/scripts/subplugin_phpunit.sh
 
       # If you need to enable PHPMD
       enable_phpmd: true
@@ -225,6 +232,10 @@ jobs:
       # disable_phpcs: true
       # disable_phplint: true
       # disable_ci_validate: true
+
+      # moodle-plugin-ci phpunit runs the mod_booking suite only; the suites of the bundled subplugins run here.
+      custom_steps: |
+        bash plugin/.github/scripts/subplugin_phpunit.sh
 
       # If you need to enable PHPMD
       enable_phpmd: true
