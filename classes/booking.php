@@ -32,7 +32,6 @@ use html_writer;
 use local_entities\local\entities\entitydate;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\customfield\booking_handler;
-use mod_booking\local\modechecker;
 use mod_booking\local\slotbooking\slot_availability;
 use mod_booking\teachers_handler;
 use mod_booking\utils\wb_payment;
@@ -1550,7 +1549,7 @@ class booking {
         // phpcs:ignore moodle.Commenting.TodoComment.MissingInfoInline
         // Todo: Now that the SQL has been changed, we need to fix this function!
 
-        global $DB, $USER, $PAGE;
+        global $DB;
 
         // Get the SQL to retrieve all the right IDs.
         $sql = self::return_sql_for_options_dates();
@@ -1619,55 +1618,18 @@ class booking {
             }
 
             $optionsettings = singleton_service::get_instance_of_booking_option_settings($record->optionid);
-
-            if (!modechecker::is_ajax_or_webservice_request()) {
-                $returnurl = $PAGE->url->out();
-            } else {
-                $returnurl = '/';
-            }
-
-            // The current page is not /mod/booking/optionview.php.
-            $link = new moodle_url("/mod/booking/optionview.php", [
-                "optionid" => (int)$optionsettings->id,
-                "cmid" => (int)$optionsettings->cmid,
-                "userid" => (int)$USER->id,
-                'returnto' => 'url',
-                'returnurl' => $returnurl,
-            ]);
-
-            // Invisible options should be in a light gray.
-            $isinvisible = !empty($optionsettings->invisible) ? true : false;
-
-            // If the option is invisible and the user has no right to see it, we continue.
-            if (
-                $isinvisible && !has_capability(
-                    'mod/booking:canseeinvisibleoptions',
-                    context_module::instance($optionsettings->cmid)
-                )
-            ) {
+            if (empty($optionsettings)) {
                 continue;
             }
 
-            $bgcolor = $isinvisible ? "#808080" : "#4285F4";
-            $optiontitle = $optionsettings->get_title_with_prefix();
-            if ($isinvisible) {
-                // Show [invisible] prefix icon before title.
-                $optiontitle = "[" . get_string('invisible', 'mod_booking') . "] " . $optiontitle;
-            }
-
-            $newentittydate = new entitydate(
-                $record->instanceid,
-                'mod_booking',
+            $returnarray[] = self::entitydate_for_option(
+                $optionsettings,
+                (int)$record->instanceid,
                 $record->area,
-                $optiontitle,
-                $record->coursestarttime,
-                $record->courseendtime,
-                (int)($record->status ?? 0),
-                $link,
-                $bgcolor
+                (int)$record->coursestarttime,
+                (int)$record->courseendtime,
+                (int)($record->status ?? 0)
             );
-
-            $returnarray[] = $newentittydate;
         }
 
         // Fallback: an entity linked at OPTION level occupies ALL of its option's session times.
@@ -1699,34 +1661,6 @@ class booking {
                     continue;
                 }
 
-                $isinvisible = !empty($optionsettings->invisible) ? true : false;
-                if (
-                    $isinvisible && !has_capability(
-                        'mod/booking:canseeinvisibleoptions',
-                        context_module::instance($optionsettings->cmid)
-                    )
-                ) {
-                    continue;
-                }
-
-                if (!modechecker::is_ajax_or_webservice_request()) {
-                    $returnurl = $PAGE->url->out();
-                } else {
-                    $returnurl = '/';
-                }
-                $link = new moodle_url("/mod/booking/optionview.php", [
-                    "optionid" => (int)$optionsettings->id,
-                    "cmid" => (int)$optionsettings->cmid,
-                    "userid" => (int)$USER->id,
-                    'returnto' => 'url',
-                    'returnurl' => $returnurl,
-                ]);
-                $bgcolor = $isinvisible ? "#808080" : "#4285F4";
-                $optiontitle = $optionsettings->get_title_with_prefix();
-                if ($isinvisible) {
-                    $optiontitle = "[" . get_string('invisible', 'mod_booking') . "] " . $optiontitle;
-                }
-
                 foreach ($optiondates as $optiondate) {
                     if (isset($explicitoptiondates[(int)$optiondate->id])) {
                         continue; // Optiondate overrides with its own entity relation.
@@ -1734,16 +1668,12 @@ class booking {
                     if (empty($optiondate->coursestarttime) || empty($optiondate->courseendtime)) {
                         continue;
                     }
-                    $returnarray[] = new entitydate(
+                    $returnarray[] = self::entitydate_for_option(
+                        $optionsettings,
                         $optionlevelid,
-                        'mod_booking',
                         'option',
-                        $optiontitle,
                         (int)$optiondate->coursestarttime,
-                        (int)$optiondate->courseendtime,
-                        0,
-                        $link,
-                        $bgcolor
+                        (int)$optiondate->courseendtime
                     );
                 }
             }
@@ -1762,52 +1692,71 @@ class booking {
                 continue;
             }
 
-            $isinvisible = !empty($optionsettings->invisible) ? true : false;
-            if (
-                $isinvisible && !has_capability(
-                    'mod/booking:canseeinvisibleoptions',
-                    context_module::instance($optionsettings->cmid)
-                )
-            ) {
-                continue;
-            }
-
-            if (!modechecker::is_ajax_or_webservice_request()) {
-                $returnurl = $PAGE->url->out();
-            } else {
-                $returnurl = '/';
-            }
-
-            $link = new moodle_url("/mod/booking/optionview.php", [
-                "optionid" => (int)$optionsettings->id,
-                "cmid" => (int)$optionsettings->cmid,
-                "userid" => (int)$USER->id,
-                'returnto' => 'url',
-                'returnurl' => $returnurl,
-            ]);
-
-            $bgcolor = $isinvisible ? "#808080" : "#4285F4";
-            $optiontitle = $optionsettings->get_title_with_prefix();
-            if ($isinvisible) {
-                $optiontitle = "[" . get_string('invisible', 'mod_booking') . "] " . $optiontitle;
-            }
-
             foreach ($bookedranges as $range) {
-                $returnarray[] = new entitydate(
+                $returnarray[] = self::entitydate_for_option(
+                    $optionsettings,
                     (int)$optionsettings->id,
-                    'mod_booking',
                     'slot',
-                    $optiontitle,
                     (int)$range['start'],
-                    (int)$range['end'],
-                    0,
-                    $link,
-                    $bgcolor
+                    (int)$range['end']
                 );
             }
         }
 
         return $returnarray;
+    }
+
+    /**
+     * Builds the entity occupancy date of a booking option for local_entities.
+     *
+     * The result is cached by local_entities across users (entitydates cache) and also feeds the
+     * occupancy checks, so it must not depend on the current user: invisible options are returned
+     * like any other - they occupy their room - and only flagged, together with the capability
+     * that reveals them. local_entities decides per viewer whether the calendar shows the date.
+     * For the same reason the link carries no userid and no return url; optionview.php falls back
+     * to the session user.
+     *
+     * @param booking_option_settings $optionsettings
+     * @param int $itemid the option id, optiondate id or (for booked slots) option id
+     * @param string $area 'option', 'optiondate' or 'slot'
+     * @param int $starttime
+     * @param int $endtime
+     * @param int $status
+     * @return entitydate
+     */
+    private static function entitydate_for_option(
+        booking_option_settings $optionsettings,
+        int $itemid,
+        string $area,
+        int $starttime,
+        int $endtime,
+        int $status = 0
+    ): entitydate {
+        $link = new moodle_url('/mod/booking/optionview.php', [
+            'optionid' => (int)$optionsettings->id,
+            'cmid' => (int)$optionsettings->cmid,
+        ]);
+
+        $date = new entitydate(
+            $itemid,
+            'mod_booking',
+            $area,
+            $optionsettings->get_title_with_prefix(),
+            $starttime,
+            $endtime,
+            $status,
+            $link,
+            '#4285F4'
+        );
+
+        if (!empty($optionsettings->invisible)) {
+            $date->set_invisible(
+                'mod/booking:canseeinvisibleoptions',
+                context_module::instance($optionsettings->cmid)->id
+            );
+        }
+
+        return $date;
     }
 
     /**
