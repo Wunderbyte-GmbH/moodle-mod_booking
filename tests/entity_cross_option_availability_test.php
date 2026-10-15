@@ -1006,6 +1006,139 @@ final class entity_cross_option_availability_test extends booking_advanced_testc
     }
 
     /**
+     * An invisible option occupies its entity for everybody: the overlapping slots of a slot option
+     * on the same entity are unavailable to a student who may not see invisible options, also when
+     * the student is the one who warms the entity dates cache. The cached dates carry no viewer:
+     * the invisible option is flagged, not dropped, and its link names no user.
+     *
+     * @covers \mod_booking\booking::return_array_of_entity_dates
+     * @covers \mod_booking\local\slotbooking\slot_availability::has_entity_conflict_for_slot
+     *
+     * @return void
+     */
+    public function test_invisible_option_blocks_entity_for_everybody(): void {
+        global $CFG;
+
+        require_once($CFG->dirroot . '/mod/booking/lib.php');
+
+        $bdata = [
+            'name' => 'Invisible entity blocking booking',
+            'eventtype' => 'Test event',
+            'bookedtext' => ['text' => 'text'],
+            'waitingtext' => ['text' => 'text'],
+            'notifyemail' => ['text' => 'text'],
+            'statuschangetext' => ['text' => 'text'],
+            'deletedtext' => ['text' => 'text'],
+            'pollurltext' => ['text' => 'text'],
+            'pollurlteacherstext' => ['text' => 'text'],
+            'notificationtext' => ['text' => 'text'],
+            'userleave' => ['text' => 'text'],
+            'tags' => '',
+            'showviews' => ['mybooking,myoptions,optionsiamresponsiblefor,showall,showactive,myinstitution'],
+        ];
+
+        $course = $this->getDataGenerator()->create_course();
+        $teacher = $this->getDataGenerator()->create_user();
+        $student = $this->getDataGenerator()->create_user();
+
+        $bdata['course'] = $course->id;
+        $bdata['bookingmanager'] = $teacher->username;
+
+        $booking = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        $this->setAdminUser();
+        $this->getDataGenerator()->enrol_user($teacher->id, $course->id, 'editingteacher');
+        $this->getDataGenerator()->enrol_user($student->id, $course->id, 'student');
+
+        /** @var \local_entities_generator $entitygenerator */
+        $entitygenerator = self::getDataGenerator()->get_plugin_generator('local_entities');
+        $entityid = $entitygenerator->create_entities([
+            'name' => 'Court 9',
+            'shortname' => 'court9',
+            'description' => 'Shared court',
+            'allocationmode' => 'exclusive',
+            'maxconcurrent' => 1,
+        ]);
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+
+        // Invisible normal option A occupies the entity on 7 Jan 2050, 10:00-11:00.
+        $occupiedstart = strtotime('2050-01-07 10:00:00');
+        $occupiedend = strtotime('2050-01-07 11:00:00');
+
+        $recorda = new stdClass();
+        $recorda->bookingid = $booking->id;
+        $recorda->text = 'Invisible option A';
+        $recorda->invisible = 1;
+        $recorda->chooseorcreatecourse = 1;
+        $recorda->courseid = $course->id;
+        $recorda->description = 'Invisible option A';
+        $recorda->optiondateid_1 = "0";
+        $recorda->daystonotify_1 = "0";
+        $recorda->coursestarttime_1 = $occupiedstart;
+        $recorda->courseendtime_1 = $occupiedend;
+        $recorda->local_entities_entityid_0 = $entityid;
+        $recorda->local_entities_entityid_1 = $entityid;
+        $recorda->local_entities_entityarea_1 = "optiondate";
+        $recorda->er_saverelationsforoptiondates = 1;
+        $optiona = $plugingenerator->create_option($recorda);
+
+        $optionb = $plugingenerator->create_option(
+            (object)$this->slot_option_record($booking->id, $course->id, $entityid, 'Slot option B')
+        );
+
+        singleton_service::destroy_instance();
+        slot_availability::clear_request_cache();
+        \cache::make('local_entities', 'entitydates')->purge();
+
+        $settingsa = singleton_service::get_instance_of_booking_option_settings($optiona->id);
+        $this->assertNotEmpty($settingsa->invisible, 'Precondition: option A is invisible.');
+        $contexta = \context_module::instance($settingsa->cmid);
+
+        // The student may not see invisible options and is the first to read the entity dates.
+        $this->setUser($student);
+        $this->assertFalse(has_capability('mod/booking:canseeinvisibleoptions', $contexta));
+
+        $dates = localentities::get_all_dates_for_entity($entityid);
+        $this->assertCount(1, $dates, 'The invisible option must occupy the entity for a student as well.');
+        $date = reset($dates);
+        $this->assertTrue($date->invisible, 'The date of an invisible option is flagged, not dropped.');
+        $this->assertSame('mod/booking:canseeinvisibleoptions', $date->requiredcapability);
+        $this->assertSame($contexta->id, $date->contextid);
+        $this->assertSame('Invisible option A', $date->name, 'The cached name carries no viewer-language prefix.');
+        $this->assertSame((int)$optiona->id, (int)$date->link->param('optionid'));
+        $this->assertNull($date->link->param('userid'), 'The cached link must not name the viewer.');
+
+        $rangestart = strtotime('2050-01-07 00:00:00');
+        $rangeend = strtotime('2050-01-08 00:00:00');
+        $slots = slot_availability::get_slots_with_status_for_range($optionb->id, $rangestart, $rangeend, $student->id);
+        $this->assertNotEmpty($slots, 'Slot option B should generate slots on 7 Jan 2050.');
+
+        $foundoverlap = false;
+        foreach ($slots as $slot) {
+            $overlaps = ((int)$slot['start'] < $occupiedend) && ((int)$slot['end'] > $occupiedstart);
+            if ($overlaps) {
+                $foundoverlap = true;
+                $this->assertSame(
+                    'unavailable',
+                    $slot['status'],
+                    'A slot overlapping the invisible option must be unavailable to the student.'
+                );
+            } else {
+                $this->assertNotSame('unavailable', $slot['status']);
+            }
+        }
+        $this->assertTrue($foundoverlap, 'Expected at least one slot overlapping the invisible option.');
+
+        // The cache warmed by the student serves the admin the same, viewer-free dates.
+        $this->setAdminUser();
+        $admindates = localentities::get_all_dates_for_entity($entityid);
+        $this->assertCount(1, $admindates);
+        $this->assertSame('Invisible option A', reset($admindates)->name);
+    }
+
+    /**
      * A slot booked on a slotbooking option must create a conflict when a normal option's
      * optiondate is created over it on the same entity (slot -> normal).
      *

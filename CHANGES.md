@@ -1,3 +1,6 @@
+## Version 10.0.4 (2026101500)
+* Bugfix: The dates a booking option reports to local_entities (entity calendar, room occupancy) no longer depend on the current user. Before, invisible options were dropped for users without mod/booking:canseeinvisibleoptions and the links carried the user's id, and local_entities caches these dates across users, so the first viewer of an entity decided for everybody whether invisible options showed up in its calendar. Invisible options are now always reported, flagged for local_entities to hide per viewer, and their links name no user. Consequently an invisible option blocks its room for everybody, also for users who may not see it.
+
 ## Version 10.0.3 (2026101300)
 * Improvement: The booking wizard is off by default on new installations; an admin switches it on with "Enable Booking Wizard". Sites that already have the setting stored keep it. All wizard settings now keep their defaults while the wizard is off and are only hidden. (Wunderbyte-GmbH/Wunderbyte-GmbH#2605)
 * Improvement: Once the standalone Wizard plugin (local_wizard) is installed, the bundled booking wizard shows no settings pages any more; its settings live in the Wizard plugin. (Wunderbyte-GmbH/Wunderbyte-GmbH#2605)
