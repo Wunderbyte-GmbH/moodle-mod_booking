@@ -152,6 +152,7 @@ class select_user_from_event implements booking_rule_condition {
             'bookinganswer_waitingforconfirmation',
             'teacher_added',
             'teacher_removed',
+            'selectusers_user_added',
             'ticket_created',
             'ticket_scanned',
             'ticket_rejected',
