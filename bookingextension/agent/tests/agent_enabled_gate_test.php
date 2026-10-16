@@ -64,25 +64,24 @@ final class agent_enabled_gate_test extends advanced_testcase {
     }
 
     /**
-     * Default on: with agent_enabled never saved the switch reads as enabled.
+     * Default off: with agent_enabled never saved (fresh install) the switch reads as disabled.
      */
-    public function test_unset_agent_enabled_counts_as_enabled(): void {
+    public function test_unset_agent_enabled_counts_as_disabled(): void {
         $this->resetAfterTest();
         unset_config('agent_enabled', 'bookingextension_agent');
 
-        $this->assertTrue(authorization_service::is_agent_enabled());
+        $this->assertFalse(authorization_service::is_agent_enabled());
     }
 
     /**
-     * Default on: with agent_enabled never saved the wand is still injected for a manager.
+     * Default off: with agent_enabled never saved no wand is injected until an admin switches it on.
      */
-    public function test_unset_agent_enabled_keeps_the_wand(): void {
+    public function test_unset_agent_enabled_adds_no_navbar_wand(): void {
         $this->resetAfterTest();
-        $this->skip_unless_this_engine_owns_the_site();
         unset_config('agent_enabled', 'bookingextension_agent');
 
-        $this->assertTrue(authorization_service::is_agent_engine_active());
-        $this->assertStringContainsString('navbar_magic_wand', $this->run_navbar_hook());
+        $this->assertFalse(authorization_service::is_agent_engine_active());
+        $this->assertStringNotContainsString('navbar_magic_wand', $this->run_navbar_hook());
     }
 
     /**
