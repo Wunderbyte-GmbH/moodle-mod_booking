@@ -219,6 +219,79 @@ final class option_form_bulk_test extends advanced_testcase {
     }
 
     /**
+     * Bulk-updating the booking closing time sets the closing time and keeps an existing opening time.
+     *
+     * @covers \mod_booking\form\option_form_bulk::save_options
+     * @covers \mod_booking\option\fields\easy_bookingclosingtime::prepare_save_field
+     */
+    public function test_bulk_update_bookingclosingtime_keeps_openingtime(): void {
+        global $DB;
+
+        [$booking] = $this->create_booking_setup();
+        $optionids = $this->create_three_options($booking);
+
+        $opentime = strtotime('+7 days');
+        $fielddata = new stdClass();
+        $fielddata->restrictanswerperiodopening = 1;
+        $fielddata->bookingopeningtime = $opentime;
+        option_form_bulk::save_options($fielddata, $optionids);
+        singleton_service::destroy_instance();
+
+        // What the bulk form submits when "Easy booking closing time" was chosen.
+        $closetime = strtotime('+14 days');
+        $fielddata = new stdClass();
+        $fielddata->choosefields = 'mod_booking\option\fields\easy_bookingclosingtime';
+        $fielddata->selectedfields_1 = 'mod_booking\option\fields\easy_bookingclosingtime';
+        $fielddata->checkedids = implode(',', $optionids);
+        $fielddata->restrictanswerperiodclosing = 1;
+        $fielddata->bookingclosingtime = $closetime;
+        option_form_bulk::save_options($fielddata, $optionids);
+
+        foreach ($optionids as $optionid) {
+            $record = $DB->get_record('booking_options', ['id' => $optionid]);
+            $this->assertEquals(
+                $closetime,
+                (int)$record->bookingclosingtime,
+                "Option $optionid: bookingclosingtime was not updated by bulk operation."
+            );
+            $this->assertEquals(
+                $opentime,
+                (int)$record->bookingopeningtime,
+                "Option $optionid: bookingopeningtime was changed by the closing time bulk operation."
+            );
+        }
+    }
+
+    /**
+     * The field select of the bulk form is fully localized and the easy closing time shows its own labels.
+     *
+     * @covers \mod_booking\form\option_form_bulk::definition
+     * @covers \mod_booking\option\fields\easy_bookingclosingtime::instance_form_definition
+     */
+    public function test_bulk_form_field_select_is_localized(): void {
+        [$booking] = $this->create_booking_setup();
+        $optionids = $this->create_three_options($booking);
+
+        $ajaxformdata = [
+            'checkedids' => implode(',', $optionids),
+            'choosefields' => 'mod_booking\option\fields\easy_bookingclosingtime',
+        ];
+        $form = new option_form_bulk(null, null, 'post', '', [], true, $ajaxformdata);
+        $html = $form->render();
+
+        // The field select: every option localised, none shown as [[classname]].
+        preg_match('/<select[^>]*name="choosefields".*?<\/select>/s', $html, $select);
+        $this->assertNotEmpty($select, 'The field select was not rendered.');
+        $this->assertStringNotContainsString('[[', $select[0], 'The field select contains an untranslated field name.');
+        $this->assertStringContainsString(get_string('easybookingclosingtime', 'mod_booking'), $select[0]);
+        $this->assertStringContainsString(get_string('easybookingopeningtime', 'mod_booking'), $select[0]);
+        $this->assertStringContainsString(get_string('easyavailabilitypreviouslybooked', 'mod_booking'), $select[0]);
+        // The chosen closing time field is labelled as closing time, not as opening time.
+        $this->assertStringContainsString(get_string('restrictanswerperiodclosing', 'mod_booking'), $html);
+        $this->assertStringNotContainsString(get_string('restrictanswerperiodopening', 'mod_booking'), $html);
+    }
+
+    /**
      * Bulk-updating the beforecompletedtext field applies to all three selected booking options.
      *
      * @covers \mod_booking\form\option_form_bulk::save_options

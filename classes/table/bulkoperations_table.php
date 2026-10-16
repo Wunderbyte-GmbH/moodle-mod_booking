@@ -118,6 +118,16 @@ class bulkoperations_table extends wunderbyte_table {
 
         $wherearray = $bookingid > 0 ? ['bookingid' => $bookingid] : [];
 
+        /* Options of a booking instance whose course module is gone (orphaned rows of a half deleted
+        instance) have no module context to load the forms in and cannot be edited. Leave them out.
+        Option templates (bookingid = 0) stay.
+        The column must not be prefixed with the derived table alias (s1): with a search text,
+        wunderbyte_table wraps s1 in another subquery (fulltextsearchcontainer) and the alias is
+        out of scope there. IN instead of a correlated EXISTS, so nothing refers to the outer row. */
+        $additionalwhere = "(bookingid = 0 OR bookingid IN (SELECT cmx.instance
+                                                            FROM {course_modules} cmx
+                                                            JOIN {modules} mx ON mx.id = cmx.module AND mx.name = 'booking'))";
+
         [$fields, $from, $where, $params, $filter] =
             booking::get_options_filter_sql(
                 0,
@@ -129,7 +139,7 @@ class bulkoperations_table extends wunderbyte_table {
                 $wherearray,
                 null,
                 [],
-                '',
+                $additionalwhere,
                 '',
                 $table
             );
@@ -224,7 +234,8 @@ class bulkoperations_table extends wunderbyte_table {
             // This is important to prevent open redirect vulnerabilities. We only want to allow local URLs.
             $returnurl = clean_param($referer, PARAM_LOCALURL) ?: null;
         } else {
-            $returnurl = $PAGE->url->out(false);
+            // No page URL is set on CLI or in unit tests: then there is nothing to return to.
+            $returnurl = $PAGE->has_set_url() ? $PAGE->url->out(false) : null;
         }
 
         if (empty($values->bookingid)) {
@@ -247,6 +258,10 @@ class bulkoperations_table extends wunderbyte_table {
             }
         } else {
             $bookingsettings = singleton_service::get_instance_of_booking_settings_by_bookingid($values->bookingid);
+            if (empty($bookingsettings->cmid)) {
+                // Orphaned option: its booking instance has no course module any more, so there is no page to edit it on.
+                return '';
+            }
             $urlparams = [
                 'id' => $bookingsettings->cmid,
                 'optionid' => $values->id,
