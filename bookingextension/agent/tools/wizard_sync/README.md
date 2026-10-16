@@ -70,6 +70,11 @@ over the engine and the bundled agent stands down.
    plugin's own documentation: the root README (requirements, installation,
    AI provider, capabilities, skill families) and a docs landing page that
    separates the general guide from the chapters that need mod_booking.
+   `tests/wizard_release_defaults_test.php` pins the artifact's release
+   defaults (switch on, no experimental badge). Because overlays carry the
+   `local_wizard` namespace and `@package`, mod_booking's CI excludes
+   `overlays/` from the Moodle code checker via `tools/.moodle-plugin-ci.yml`
+   (merged by moodle-plugin-ci 4.5.11+, paths relative to `tools/`).
 4b. **Verbatim files** (copied untransformed, exempt from the residual-token
    check): the scaffold's engine-alias-layer templates
    (`classes/local/wizard/services/scaffold/templates/engine_layer/`) — they

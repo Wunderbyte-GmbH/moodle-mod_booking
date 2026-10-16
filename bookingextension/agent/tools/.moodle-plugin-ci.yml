@@ -1,0 +1,9 @@
+# moodle-plugin-ci (4.5.11+) merges this file into the plugin's file filters; notPaths are
+# relative to this directory (bookingextension/agent/tools).
+#
+# The wizard_sync overlays ship verbatim into the generated local_wizard plugin and carry its
+# namespace and @package, so the Moodle code checker must not sniff them as bookingextension_agent.
+# Only phpcs is excluded: phplint and phpmd still cover the overlay files.
+filter-phpcs:
+    notPaths:
+        - wizard_sync/overlays

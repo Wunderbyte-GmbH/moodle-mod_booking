@@ -27,5 +27,9 @@ bookingextension/*/
 # Do not ignore confirmation_supervisor (bundled since 2026-09-29, Wunderbyte-GmbH/Wunderbyte-GmbH#2499)
 !bookingextension/confirmation_supervisor/
 !bookingextension/confirmation_supervisor/**
+
+# Do not ignore agent (vendored since 2026-10-06, the Booking Wizard engine)
+!bookingextension/agent/
+!bookingextension/agent/**
 # Local Claude Code session data and agent worktrees
 .claude/
