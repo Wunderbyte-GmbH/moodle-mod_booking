@@ -342,6 +342,7 @@ $string['eventdesc:bookinganswercancelled'] = 'Nutzer/in "{$a->user}" hat Nutzer
 $string['eventdesc:bookinganswercancelledself'] = 'Nutzer/in "{$a->user}" hat "{$a->title}" storniert.';
 $string['eventdesc:bookinganswercustomformconditionsdeleted'] = 'Nutzer/in "{$a->user}" hat die Daten zu Customform Bedingungen von {$a->relateduser} der Buchungsantwort mit ID "{$a->bookinganswerid}" gelöscht.';
 $string['eventdesc:bookinganswerupdated'] = 'Nutzer/in "{$a->user}" hat bei "{$a->title}" Werte der Spalte "{$a->column}" geändert.';
+$string['eventselectusersuseradded'] = 'Benutzer/in zu "Nur bestimmte Benutzer/in(nen) dürfen buchen" hinzugefügt';
 $string['eventteacheradded'] = 'Trainer/in hinzugefügt';
 $string['eventteacherremoved'] = 'Trainer/in entfernt';
 $string['existingsubscribers'] = 'Vorhandene Nutzer/innen';
@@ -496,6 +497,7 @@ $string['rulesendmailcpf'] = '[Vorschau] E-Mail versenden an User/in mit benutze
 $string['rulesendmailcpf_desc'] = 'Wählen Sie ein Event aus, auf das reagiert werden soll. Legen Sie eine E-Mail-Vorlage an
 (Sie können auch Platzhalter wie {bookingdetails} verwenden) und legen Sie fest, an welche Nutzer/innen die E-Mail versendet werden soll.
 Beispiel: Alle Nutzer/innen, die im benutzerdefinierten Feld "Studienzentrumsleitung" den Wert "SZL Wien" stehen haben.';
+$string['ruletemplateselectusersuseradded'] = 'Template - Benutzer/in zu "Nur bestimmte Benutzer/in(nen) dürfen buchen" hinzugefügt';
 $string['ruletemplatetrainerreminderbody'] = 'Ihre Kurs startet in einigen Tagen:<br>{bookingdetails}<br>Sie haben {numberparticipants} gebuchte Teilnehmer/innen und {numberwaitinglist} Personen auf der Warteliste.<br>Um eine Übersicht über alle Buchungen zu erhalten, klicken Sie auf den folgenden Link:<br>{bookinglink}<br>Hier geht\'s zum Kurs: {courselink}';
 $string['screstoreitemfromreserved_desc'] = 'Dadurch werden Artikel nach dem Löschen des Caches wieder automatisch in den Warenkorb der Nutzer/innen gelegt';
 $string['selectallusers'] = 'Alle Nutzer/innen auswählen';

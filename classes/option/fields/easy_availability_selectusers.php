@@ -146,6 +146,26 @@ class easy_availability_selectusers extends field_base {
     }
 
     /**
+     * Once all changes are collected, trigger an event for every user newly allowed to book.
+     *
+     * @param array $changes
+     * @param object $data
+     * @param object $newoption
+     * @param object $originaloption
+     *
+     * @return void
+     *
+     */
+    public static function changes_collected_action(
+        array $changes,
+        object $data,
+        object $newoption,
+        object $originaloption
+    ) {
+        availability::trigger_selectusers_user_added_events($changes, $data, $newoption);
+    }
+
+    /**
      * This function adds error keys for form validation.
      * @param array $formdata
      * @param array $files

@@ -24,8 +24,10 @@
 
 namespace mod_booking\option\fields;
 
+use context_module;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_option_settings;
+use mod_booking\event\selectusers_user_added;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
 use mod_booking\singleton_service;
@@ -234,7 +236,12 @@ class availability extends field_base {
     }
 
     /**
-     * Check if there is a difference between the former and the new values of the formdata.
+     * Compares the stored availability conditions with the submitted ones, condition by condition.
+     *
+     * The availability JSON holds one object per condition. Only conditions that were added,
+     * removed or changed are reported, each as a change entry of its own, so the change notice
+     * can name the condition and show its old and new settings. Re-serialisation differences
+     * (key order, numeric strings, order of selected ids) are not changes.
      *
      * @param stdClass $formdata
      * @param field_base $self
@@ -266,19 +273,329 @@ class availability extends field_base {
             $formdata->optionid ?? $formdata->id
         );
 
-        if ($settings->availability != $formdata->availability) {
-            $changes = [
+        $oldconditions = self::decode_conditions($settings->availability ?? '');
+        $newconditions = self::decode_conditions($formdata->availability ?? '');
+
+        $conditionids = array_unique(array_merge(array_keys($oldconditions), array_keys($newconditions)));
+        sort($conditionids);
+
+        foreach ($conditionids as $conditionid) {
+            $oldcondition = $oldconditions[$conditionid] ?? [];
+            $newcondition = $newconditions[$conditionid] ?? [];
+            if ($oldcondition == $newcondition) {
+                continue;
+            }
+            $changes[] = [
                 'changes' => [
                     'fieldname' => 'availability',
                     'formkey' => 'availability',
-                    'otherdata' => [
-                        'oldavailability' => $settings->availability,
-                        'newavailability' => $settings->availability,
-                    ],
+                    'conditionid' => $conditionid,
+                    'conditionname' => $newcondition['name'] ?? $oldcondition['name'] ?? '',
+                    'oldvalue' => $oldcondition,
+                    'newvalue' => $newcondition,
                 ],
             ];
         }
-        return $changes;
+
+        if (empty($changes)) {
+            return [];
+        }
+        return ['changes' => $changes];
+    }
+
+    /**
+     * Once all changes are collected, trigger an event for every user newly allowed to book.
+     *
+     * @param array $changes
+     * @param object $data
+     * @param object $newoption
+     * @param object $originaloption
+     *
+     * @return void
+     *
+     */
+    public static function changes_collected_action(
+        array $changes,
+        object $data,
+        object $newoption,
+        object $originaloption
+    ) {
+        self::trigger_selectusers_user_added_events($changes, $data, $newoption);
+    }
+
+    /**
+     * Triggers selectusers_user_added for each user that was added to the "select users" condition.
+     *
+     * Looks through the collected changes of all fields, so it works for the full availability
+     * field as well as for the easy "select users" field. Nothing is triggered for users already
+     * on the list or for removed users.
+     *
+     * @param array $changes all collected changes, keyed by field class
+     * @param object $data the submitted data
+     * @param object $newoption the saved option record
+     *
+     * @return array the ids of the users an event was triggered for
+     *
+     */
+    public static function trigger_selectusers_user_added_events(array $changes, object $data, object $newoption): array {
+        global $USER;
+
+        $addeduserids = [];
+        foreach ($changes as $fieldchanges) {
+            if (!is_array($fieldchanges) || !is_array($fieldchanges['changes'] ?? null)) {
+                continue;
+            }
+            foreach ($fieldchanges['changes'] as $entry) {
+                if (!is_array($entry) || !is_array($entry['changes'] ?? null)) {
+                    continue;
+                }
+                $entry = $entry['changes'];
+                if (
+                    ($entry['fieldname'] ?? '') !== 'availability'
+                    || (int)($entry['conditionid'] ?? 0) !== MOD_BOOKING_BO_COND_JSON_SELECTUSERS
+                ) {
+                    continue;
+                }
+                $olduserids = array_map('intval', (array)($entry['oldvalue']['userids'] ?? []));
+                $newuserids = array_map('intval', (array)($entry['newvalue']['userids'] ?? []));
+                $addeduserids = array_merge($addeduserids, array_diff($newuserids, $olduserids));
+            }
+        }
+        $addeduserids = array_values(array_unique(array_filter($addeduserids)));
+        if (empty($addeduserids)) {
+            return [];
+        }
+
+        $optionid = (int)($newoption->id ?? 0);
+        $cmid = (int)($data->cmid ?? 0);
+        if (empty($cmid) && !empty($optionid)) {
+            $cmid = (int)(singleton_service::get_instance_of_booking_option_settings($optionid)->cmid ?? 0);
+        }
+        if (empty($optionid) || empty($cmid)) {
+            return [];
+        }
+        $context = context_module::instance($cmid);
+
+        foreach ($addeduserids as $userid) {
+            $event = selectusers_user_added::create([
+                'objectid' => $optionid,
+                'context' => $context,
+                'userid' => $USER->id,
+                'relateduserid' => $userid,
+                'other' => [
+                    'cmid' => $cmid,
+                ],
+            ]);
+            $event->trigger();
+        }
+        return $addeduserids;
+    }
+
+    /**
+     * Decodes an availability JSON string into normalised condition arrays keyed by condition id.
+     *
+     * Normalised means: associative arrays with sorted keys, lists sorted by value, so that two
+     * serialisations of the same settings compare equal with ==.
+     *
+     * @param string $json
+     *
+     * @return array
+     *
+     */
+    public static function decode_conditions(string $json): array {
+        $decoded = json_decode($json, true);
+        if (!is_array($decoded)) {
+            return [];
+        }
+        $conditions = [];
+        foreach ($decoded as $condition) {
+            if (!is_array($condition) || !isset($condition['id'])) {
+                continue;
+            }
+            $conditions[(int)$condition['id']] = self::normalise_condition($condition);
+        }
+        return $conditions;
+    }
+
+    /**
+     * Recursively sorts a decoded condition so that key order and list order do not count as changes.
+     *
+     * @param mixed $value
+     *
+     * @return mixed
+     *
+     */
+    private static function normalise_condition($value) {
+        if (!is_array($value)) {
+            return $value;
+        }
+        foreach ($value as $k => $v) {
+            $value[$k] = self::normalise_condition($v);
+        }
+        if (array_is_list($value)) {
+            sort($value);
+        } else {
+            ksort($value);
+        }
+        return $value;
+    }
+
+    /**
+     * Returns the readable change of one availability condition for the change notice.
+     *
+     * @param array $changes
+     *
+     * @return array
+     *
+     */
+    public function get_changes_description(array $changes): array {
+        $fieldname = get_string('availability', 'mod_booking');
+        // Entries restored from the log store may hold objects instead of arrays.
+        $oldvalue = self::to_array($changes['oldvalue'] ?? null);
+        $newvalue = self::to_array($changes['newvalue'] ?? null);
+
+        if (empty($oldvalue) && empty($newvalue)) {
+            return [
+                'info' => get_string('changeinfochanged', 'mod_booking', $fieldname) . '.',
+            ];
+        }
+
+        return [
+            'fieldname' => $fieldname,
+            'oldvalue' => self::describe_condition($oldvalue),
+            'newvalue' => self::describe_condition($newvalue),
+        ];
+    }
+
+    /**
+     * Casts a condition that may be an array, an object or empty to an array.
+     *
+     * @param mixed $value
+     *
+     * @return array
+     *
+     */
+    private static function to_array($value): array {
+        if (is_object($value)) {
+            $value = json_decode(json_encode($value), true);
+        }
+        return is_array($value) ? $value : [];
+    }
+
+    /**
+     * Renders one decoded condition as "label: setting; setting".
+     *
+     * @param array $condition
+     *
+     * @return string
+     *
+     */
+    private static function describe_condition(array $condition): string {
+        if (empty($condition)) {
+            return '';
+        }
+        $label = self::condition_label($condition['name'] ?? '', (int)($condition['id'] ?? 0));
+        $settings = [];
+        foreach ($condition as $key => $value) {
+            switch ($key) {
+                case 'id':
+                case 'name':
+                case 'class':
+                case 'sqlfilter':
+                    break;
+                case 'userids':
+                    $settings[] = get_string('bocondselectusersuserids', 'mod_booking') . ': '
+                        . self::describe_users((array)$value);
+                    break;
+                case 'overrides':
+                    $settings[] = get_string('overrideconditioncheckbox', 'mod_booking') . ': '
+                        . self::describe_overrides((array)$value);
+                    break;
+                case 'overrideoperator':
+                    $settings[] = get_string('overrideoperator', 'mod_booking') . ': ' . $value;
+                    break;
+                default:
+                    $settings[] = $key . ': ' . self::describe_value($value);
+                    break;
+            }
+        }
+        return empty($settings) ? $label : $label . ': ' . implode('; ', $settings);
+    }
+
+    /**
+     * Readable label of a condition: its lang string if there is one, otherwise its name.
+     *
+     * @param string $name
+     * @param int $id
+     *
+     * @return string
+     *
+     */
+    private static function condition_label(string $name, int $id): string {
+        if (empty($name)) {
+            foreach (bo_info::get_conditions() as $condition) {
+                if ((int)$condition->id === $id) {
+                    $name = fields_info::get_class_name(get_class($condition));
+                    break;
+                }
+            }
+        }
+        $identifier = 'bocond' . str_replace('_', '', $name);
+        if (!empty($name) && get_string_manager()->string_exists($identifier, 'mod_booking')) {
+            return get_string($identifier, 'mod_booking');
+        }
+        return $name;
+    }
+
+    /**
+     * Renders user ids as "Firstname Lastname (ID:x)" where the user exists.
+     *
+     * @param array $userids
+     *
+     * @return string
+     *
+     */
+    private static function describe_users(array $userids): string {
+        $names = [];
+        foreach ($userids as $userid) {
+            $user = singleton_service::get_instance_of_user((int)$userid);
+            $names[] = empty($user) ? (string)$userid : get_string('userinfosasstring', 'mod_booking', $user);
+        }
+        return implode(', ', $names);
+    }
+
+    /**
+     * Renders overridden condition ids by their labels.
+     *
+     * @param array $conditionids
+     *
+     * @return string
+     *
+     */
+    private static function describe_overrides(array $conditionids): string {
+        $labels = [];
+        foreach ($conditionids as $conditionid) {
+            $labels[] = self::condition_label('', (int)$conditionid);
+        }
+        return implode(', ', $labels);
+    }
+
+    /**
+     * Renders a scalar or list setting value.
+     *
+     * @param mixed $value
+     *
+     * @return string
+     *
+     */
+    private static function describe_value($value): string {
+        if (is_array($value)) {
+            return implode(', ', array_map([self::class, 'describe_value'], $value));
+        }
+        if (is_bool($value)) {
+            return get_string($value ? 'on' : 'off', 'mod_booking');
+        }
+        return (string)$value;
     }
 
     /**
