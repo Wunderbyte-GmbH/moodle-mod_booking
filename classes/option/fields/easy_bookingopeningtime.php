@@ -160,11 +160,11 @@ class easy_bookingopeningtime extends field_base {
         $mform->setType('restrictanswerperiodopening', PARAM_INT);
         $mform->disabledIf('bookingopeningtime', 'restrictanswerperiodopening', 'neq', "1");
 
-        $mform->addElement(
-            'date_time_selector',
-            'bookingopeningtime',
-            get_string('easyavailability:openingtime', 'local_musi')
-        );
+        // Wording of local_musi when it is installed, otherwise the plugin's own string.
+        $label = get_string_manager()->string_exists('easyavailability:openingtime', 'local_musi')
+            ? get_string('easyavailability:openingtime', 'local_musi')
+            : get_string('bookingopeningtime', 'mod_booking');
+        $mform->addElement('date_time_selector', 'bookingopeningtime', $label);
         $mform->setType('bookingopeningtime', PARAM_INT);
     }
 

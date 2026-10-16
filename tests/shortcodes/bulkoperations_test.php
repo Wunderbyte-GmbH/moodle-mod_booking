@@ -27,7 +27,10 @@
 namespace mod_booking;
 
 use mod_booking\tests\booking_advanced_testcase;
+use mod_booking\table\bulkoperations_table;
+use cache_helper;
 use coding_exception;
+use context_system;
 use local_wunderbyte_table\wunderbyte_table;
 use mod_booking_generator;
 use stdClass;
@@ -56,6 +59,83 @@ final class bulkoperations_test extends booking_advanced_testcase {
         $this->resetAfterTest(true);
         time_mock::set_mock_time(strtotime('now'));
         singleton_service::destroy_instance();
+    }
+
+    /**
+     * Options of a booking instance without course module are left out of the bulk operations table,
+     * its edit column renders nothing for them and the instance filter does not list the instance.
+     *
+     * @covers \mod_booking\table\bulkoperations_table::create_table
+     * @covers \mod_booking\table\bulkoperations_table::col_action
+     * @covers \mod_booking\shortcodes::apply_bookinginstance_filter
+     */
+    public function test_bulkoperations_table_skips_orphaned_options(): void {
+        global $DB, $PAGE;
+        $bdata = self::provide_bdata();
+
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $bookingmanager = $this->getDataGenerator()->create_user();
+        $bdata['course'] = $course->id;
+        $bdata['bookingmanager'] = $bookingmanager->username;
+        $bdata['name'] = 'Intact instance';
+        $intact = $this->getDataGenerator()->create_module('booking', $bdata);
+        $bdata['name'] = 'Orphaned instance';
+        $orphaned = $this->getDataGenerator()->create_module('booking', $bdata);
+        $this->setAdminUser();
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $record = new stdClass();
+        $record->bookingid = $intact->id;
+        $record->text = 'Option of intact instance';
+        $record->maxanswers = 5;
+        $plugingenerator->create_option($record);
+        $record = new stdClass();
+        $record->bookingid = $orphaned->id;
+        $record->text = 'Option of orphaned instance';
+        $record->maxanswers = 5;
+        $orphanedoption = $plugingenerator->create_option($record);
+
+        // A half deleted instance: the course module is gone, the booking row and its options remain.
+        $DB->delete_records('course_modules', ['id' => $orphaned->cmid]);
+        rebuild_course_cache($course->id, true);
+        singleton_service::destroy_instance();
+        cache_helper::purge_by_event('setbackoptionstable');
+
+        $PAGE->set_url(new \moodle_url('/mod/booking/tests/bulkoperations_test.php'));
+        $table = bulkoperations_table::create_table(
+            'bulkoperations_orphan_test',
+            context_system::instance(),
+            []
+        );
+        $html = $table->outhtml(10, true);
+
+        $this->assertStringContainsString('Option of intact instance', $html);
+        $this->assertStringNotContainsString('Option of orphaned instance', $html);
+
+        // With a search text, wunderbyte_table wraps the query in another subquery: the orphan
+        // condition must still work there (no reference to the derived table alias s1).
+        $searchtable = bulkoperations_table::create_table(
+            'bulkoperations_orphan_search_test',
+            context_system::instance(),
+            []
+        );
+        $searchtable->apply_searchtext('instance');
+        $searchtable->printtable($searchtable->pagesize, $searchtable->useinitialsbar, $searchtable->downloadhelpbutton);
+        $this->assertEquals(1, $searchtable->totalrows, 'Searching the bulk operations table failed.');
+
+        // The instance filter: intact instance and option templates, no orphaned instance, ordered by id.
+        $instancefilter = $table->subcolumns['datafields']['bookingid'];
+        $this->assertArrayHasKey($intact->id, $instancefilter);
+        $this->assertArrayHasKey(0, $instancefilter);
+        $this->assertArrayNotHasKey($orphaned->id, $instancefilter);
+        $instanceids = array_values(array_filter(array_keys($instancefilter), 'is_int'));
+        $sorted = $instanceids;
+        sort($sorted);
+        $this->assertSame($sorted, $instanceids, 'The booking instance filter is not ordered by id.');
+
+        $values = (object) ['id' => $orphanedoption->id, 'bookingid' => $orphaned->id];
+        $this->assertSame('', $table->col_action($values));
     }
 
     /**

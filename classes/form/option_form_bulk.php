@@ -34,6 +34,7 @@ use context_system;
 use mod_booking\customfield\booking_handler;
 use mod_booking\option\fields\customfields;
 use mod_booking\option\fields\price;
+use mod_booking\settings\optionformconfig\optionformconfig_info;
 use mod_booking\task\execute_bulkoperations_adhoc;
 use mod_booking\price as Mod_bookingPrice;
 
@@ -120,7 +121,8 @@ class option_form_bulk extends dynamic_form {
                 continue;
             }
 
-            $options[$field] = get_string($name, 'mod_booking');
+            // Same localisation as the option form config (string key is the classname without underscores).
+            $options[$field] = optionformconfig_info::get_classname($field);
         }
 
         // Add customfields.
@@ -140,6 +142,7 @@ class option_form_bulk extends dynamic_form {
         if (isset($submitdata['checkedids'])) {
             // On second load of mform, these keys will be lost.
             $mform->addElement('hidden', 'checkedids', $submitdata['checkedids']);
+            $mform->setType('checkedids', PARAM_SEQUENCE);
         }
 
         if (isset($submitdata['choosefields'])) {
@@ -151,12 +154,15 @@ class option_form_bulk extends dynamic_form {
             foreach ($submitdata as $key => $value) {
                 if (strpos($key, $fieldskey) !== false) {
                     $mform->addElement('hidden', $key, $value);
+                    // Class names of the fields (with backslashes), so no cleaning.
+                    $mform->setType($key, PARAM_RAW);
                     $index = str_replace($fieldskey, '', $key);
                     $index++;
                 }
             }
             // Always append the current field.
             $mform->addElement('hidden', $fieldskey . $index, $submitdata['choosefields']);
+            $mform->setType($fieldskey . $index, PARAM_RAW);
         }
     }
 
