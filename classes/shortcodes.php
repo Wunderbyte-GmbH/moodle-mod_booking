@@ -2027,7 +2027,16 @@ class shortcodes {
      *
      */
     public static function apply_bookinginstance_filter(&$table) {
-        $bookinginstances = singleton_service::get_all_booking_instances();
+        global $DB;
+
+        /* Ordered by id, and only instances that still have a course module: the options of an
+        orphaned instance are not in the table (see bulkoperations_table::create_table()). */
+        $sql = "SELECT b.id, b.name
+                  FROM {booking} b
+                  JOIN {course_modules} cm ON cm.instance = b.id
+                  JOIN {modules} m ON m.id = cm.module AND m.name = :modulename
+              ORDER BY b.id ASC";
+        $bookinginstances = $DB->get_records_sql($sql, ['modulename' => 'booking']);
 
         $filterarray = [];
         foreach ($bookinginstances as $b) {

@@ -118,6 +118,14 @@ class bulkoperations_table extends wunderbyte_table {
 
         $wherearray = $bookingid > 0 ? ['bookingid' => $bookingid] : [];
 
+        /* Options of a booking instance whose course module is gone (orphaned rows of a half deleted
+        instance) have no module context to load the forms in and cannot be edited. Leave them out.
+        Option templates (bookingid = 0) stay. */
+        $additionalwhere = "(bo.bookingid = 0 OR EXISTS (SELECT 1
+                                                         FROM {course_modules} cmx
+                                                         JOIN {modules} mx ON mx.id = cmx.module AND mx.name = 'booking'
+                                                        WHERE cmx.instance = bo.bookingid))";
+
         [$fields, $from, $where, $params, $filter] =
             booking::get_options_filter_sql(
                 0,
@@ -129,7 +137,7 @@ class bulkoperations_table extends wunderbyte_table {
                 $wherearray,
                 null,
                 [],
-                '',
+                $additionalwhere,
                 '',
                 $table
             );
@@ -247,6 +255,10 @@ class bulkoperations_table extends wunderbyte_table {
             }
         } else {
             $bookingsettings = singleton_service::get_instance_of_booking_settings_by_bookingid($values->bookingid);
+            if (empty($bookingsettings->cmid)) {
+                // Orphaned option: its booking instance has no course module any more, so there is no page to edit it on.
+                return '';
+            }
             $urlparams = [
                 'id' => $bookingsettings->cmid,
                 'optionid' => $values->id,

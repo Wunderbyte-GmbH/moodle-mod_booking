@@ -153,7 +153,7 @@ class easy_bookingclosingtime extends field_base {
         $mform->addElement(
             'advcheckbox',
             'restrictanswerperiodclosing',
-            get_string('restrictanswerperiodopening', 'mod_booking')
+            get_string('restrictanswerperiodclosing', 'mod_booking')
         );
         $mform->setType('restrictanswerperiodclosing', PARAM_INT);
         $mform->disabledIf('bookingclosingtime', 'restrictanswerperiodclosing', 'neq', "1");

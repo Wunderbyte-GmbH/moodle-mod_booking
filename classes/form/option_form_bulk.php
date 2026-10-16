@@ -34,6 +34,7 @@ use context_system;
 use mod_booking\customfield\booking_handler;
 use mod_booking\option\fields\customfields;
 use mod_booking\option\fields\price;
+use mod_booking\settings\optionformconfig\optionformconfig_info;
 use mod_booking\task\execute_bulkoperations_adhoc;
 use mod_booking\price as Mod_bookingPrice;
 
@@ -120,7 +121,8 @@ class option_form_bulk extends dynamic_form {
                 continue;
             }
 
-            $options[$field] = get_string($name, 'mod_booking');
+            // Same localisation as the option form config (string key is the classname without underscores).
+            $options[$field] = optionformconfig_info::get_classname($field);
         }
 
         // Add customfields.

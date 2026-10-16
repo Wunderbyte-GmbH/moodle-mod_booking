@@ -1,3 +1,8 @@
+## Version 10.0.4 (2026101401)
+* Bugfix: The bulk operations table ([bulkoperations] shortcode and the bulk operations tab) no longer fails with "booking_settings::__construct(): Argument #1 ($cmid) must be of type int, null given" and leaves out the options of a booking instance whose course module is gone (orphaned rows of a half deleted instance), as they cannot be edited anyway. The "Booking Instance" filter lists only instances that still exist, ordered by id.
+* Bugfix: The "Select field of booking option" dropdown of the bulk edit form shows "Easy booking opening time", "Easy booking closing time" and "Easy already booked condition" instead of the raw identifiers [[easy_bookingopeningtime]] etc. The form localises the field names like the option form config does.
+* Bugfix: The easy closing time field ("Easy booking closing time") labelled its checkbox like the opening time ("Booking is possible only after a certain date"), so in the bulk edit form it looked as if it edited the opening time.
+
 ## Version 10.0.3 (2026101300)
 * Improvement: The booking wizard is off by default on new installations; an admin switches it on with "Enable Booking Wizard". Sites that already have the setting stored keep it. All wizard settings now keep their defaults while the wizard is off and are only hidden. (Wunderbyte-GmbH/Wunderbyte-GmbH#2605)
 * Improvement: Once the standalone Wizard plugin (local_wizard) is installed, the bundled booking wizard shows no settings pages any more; its settings live in the Wizard plugin. (Wunderbyte-GmbH/Wunderbyte-GmbH#2605)
