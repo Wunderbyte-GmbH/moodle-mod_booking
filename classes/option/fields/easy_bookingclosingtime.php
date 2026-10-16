@@ -153,16 +153,16 @@ class easy_bookingclosingtime extends field_base {
         $mform->addElement(
             'advcheckbox',
             'restrictanswerperiodclosing',
-            get_string('restrictanswerperiodopening', 'mod_booking')
+            get_string('restrictanswerperiodclosing', 'mod_booking')
         );
         $mform->setType('restrictanswerperiodclosing', PARAM_INT);
         $mform->disabledIf('bookingclosingtime', 'restrictanswerperiodclosing', 'neq', "1");
 
-        $mform->addElement(
-            'date_time_selector',
-            'bookingclosingtime',
-            get_string('easyavailability:closingtime', 'local_musi')
-        );
+        // Wording of local_musi when it is installed, otherwise the plugin's own string.
+        $label = get_string_manager()->string_exists('easyavailability:closingtime', 'local_musi')
+            ? get_string('easyavailability:closingtime', 'local_musi')
+            : get_string('bookingclosingtime', 'mod_booking');
+        $mform->addElement('date_time_selector', 'bookingclosingtime', $label);
         $mform->setType('bookingclosingtime', PARAM_INT);
     }
 
