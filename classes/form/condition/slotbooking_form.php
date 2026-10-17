@@ -861,24 +861,28 @@ class slotbooking_form extends dynamic_form {
         ))->out(false);
 
         $days = [];
+        // Days are stepped with strtotime('+1 day') rather than += DAYSECS: across a DST change a
+        // day is 23 or 25 hours long, and a fixed step shifted every following day by an hour (the
+        // "28 Oct" entry then really covered 28 Oct 23:00 - 29 Oct 23:00, so bookings showed up on
+        // the wrong day). Same midnight convention as validation()'s userdefined branch.
         $daycursor = strtotime('midnight', $rangestart);
 
-        while ($daycursor < $rangeend) {
+        for (; $daycursor < $rangeend; $daycursor = $nextday) {
+            $nextday = strtotime('+1 day', $daycursor);
             $dayofweek = (int)date('N', $daycursor);
             if (!in_array($dayofweek, $alloweddays, true)) {
-                $daycursor += DAYSECS;
                 continue;
             }
 
-            $openfrom = $daycursor + $openingseconds;
-            $openuntil = $daycursor + $closingseconds;
+            $dayopening = $daycursor + $openingseconds;
+            $openfrom = $dayopening;
+            // A closing time of 24:00 means the next midnight, also on a 23/25-hour day.
+            $openuntil = $closingseconds >= DAYSECS ? $nextday : $daycursor + $closingseconds;
             if ($openuntil <= $openfrom) {
-                $daycursor += DAYSECS;
                 continue;
             }
 
             if ($openuntil <= $rangestart || $openfrom >= $rangeend) {
-                $daycursor += DAYSECS;
                 continue;
             }
 
@@ -892,14 +896,12 @@ class slotbooking_form extends dynamic_form {
             // unaligned openfrom here would make the very FIRST selectable moment of TODAY always
             // fail that check, even though evaluate_slot_for_user() itself has no problem with it.
             // Snap forward to the next valid boundary.
-            $dayopeningforalignment = $daycursor + $openingseconds;
-            if ($openfrom > $dayopeningforalignment) {
-                $stepsfromopening = (int)ceil(($openfrom - $dayopeningforalignment) / $stepseconds);
-                $openfrom = $dayopeningforalignment + ($stepsfromopening * $stepseconds);
+            if ($openfrom > $dayopening) {
+                $stepsfromopening = (int)ceil(($openfrom - $dayopening) / $stepseconds);
+                $openfrom = $dayopening + ($stepsfromopening * $stepseconds);
             }
 
             if ($openuntil <= $openfrom) {
-                $daycursor += DAYSECS;
                 continue;
             }
 
@@ -917,17 +919,21 @@ class slotbooking_form extends dynamic_form {
                 }
             }
 
-            if (!$bookable) {
-                $daycursor += DAYSECS;
-                continue;
-            }
-
             $bookedranges = slot_availability::get_booked_ranges_for_day(
                 $optionid,
                 $daycursor,
-                $daycursor + DAYSECS,
+                $nextday,
                 $userid
             );
+            $hasownbooking = !empty(array_filter($bookedranges, static fn(array $range): bool => !empty($range['mine'])));
+
+            // A day without any free time is left out - unless the user's own booking fills it
+            // (e.g. a full-day or multi-day trip): that day must stay in the calendar, or the
+            // booking would vanish from it. It is sent as not bookable.
+            if (!$bookable && !$hasownbooking) {
+                continue;
+            }
+
             $bookedranges = array_map(static function (array $range) use ($cancelable, $manageurl): array {
                 if (!empty($range['mine'])) {
                     $range['manageurl'] = $cancelable ? $manageurl : '';
@@ -943,7 +949,7 @@ class slotbooking_form extends dynamic_form {
                 'optionid' => $optionid,
                 'optionname' => format_string($settings->text ?? ''),
                 'start' => $daycursor,
-                'end' => $daycursor + DAYSECS,
+                'end' => $nextday,
                 'daylabel' => slot_dto::day_label($daycursor),
                 'timelabel' => slot_dto::time_range_label($openfrom, $openuntil),
                 'openfrom' => $openfrom,
@@ -951,12 +957,10 @@ class slotbooking_form extends dynamic_form {
                 'durationoptions' => $durationoptions,
                 'defaultduration' => $defaultduration,
                 'startintervalminutes' => max(1, (int)($config->slot_start_interval_minutes ?? 30)),
-                'bookable' => 1,
+                'bookable' => $bookable ? 1 : 0,
                 'capacity' => $capacity,
                 'bookedranges' => $bookedranges,
             ];
-
-            $daycursor += DAYSECS;
         }
 
         return $days;

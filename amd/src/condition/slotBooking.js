@@ -1274,17 +1274,29 @@ export async function init(callsiteoptionid) {
             };
 
             if (!calendarRoot.dataset.slotCalendarInitialized) {
+                // Days carrying one of the user's own bookings (bookedranges tagged 'mine' by
+                // get_custom_open_days()) are marked in the grid like the fixed-type calendar marks
+                // the current booking - otherwise they were only visible after opening the day.
+                const hasOwnBooking = (slot) => (Array.isArray(slot.bookedranges) ? slot.bookedranges : [])
+                    .some(range => Boolean(range.mine));
                 customCalendarPicker = initSlotCalendarPicker(calendarRoot, {
                     slots,
                     timezone,
                     maxSelection: 1,
+                    currentKeys: slots.filter(hasOwnBooking).map(slot => slot.key),
+                    currentLabel: legendLabels.mine,
+                    // Marking only - keep opening on today/the first bookable day for a new booking.
+                    openOnCurrentDay: false,
                     dayCountFormatter: (daySlots) => {
                         const candidates = getCustomDayCandidates('', daySlots);
+                        if (candidates.some(hasOwnBooking)) {
+                            return legendLabels.mine;
+                        }
                         return candidates.some(c => c.bookable) ? 'Buchbar' : 'Nicht buchbar';
                     },
                     dayStateResolver: (daySlots) => {
                         const candidates = getCustomDayCandidates('', daySlots);
-                        return candidates.some(c => c.bookable) ? '' : 'full';
+                        return candidates.some(c => c.bookable) || candidates.some(hasOwnBooking) ? '' : 'full';
                     },
                     // This custom-day mode renders its OWN editor below (customEditorRoot) instead
                     // of the picker's built-in slot-list panel - suppress that panel the same way
