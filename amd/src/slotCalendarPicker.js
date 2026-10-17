@@ -43,6 +43,7 @@ const WEEK_DAYS = buildWeekDays();
 // own word order needs them instead of forcing the English "3/5 selected" layout.
 const DEFAULT_LABELS = {
     month: 'Month',
+    day: 'Day',
     week: 'Week',
     weekof: 'Week of {date}',
     pricelegend: 'Price legend:',
@@ -57,8 +58,10 @@ const LABELS_PROMISE = Promise.all([
     getString('slot_calendar_price_legend', 'mod_booking'),
     getString('slot_calendar_slot_count', 'mod_booking', '{count}'),
     getString('slot_calendar_selected_count', 'mod_booking', {selected: '{selected}', max: '{max}'}),
-]).then(([month, week, weekof, pricelegend, slotcount, selectedcount]) => ({
+    getString('slot_calendar_day', 'mod_booking'),
+]).then(([month, week, weekof, pricelegend, slotcount, selectedcount, day]) => ({
     month,
+    day,
     week,
     weekof,
     pricelegend,
@@ -111,6 +114,10 @@ const toDateKeyFromDate = (date) => {
 
 const toMonthLabel = (date) => {
     return date.toLocaleDateString(undefined, {month: 'long', year: 'numeric'});
+};
+
+const toDayLabel = (date) => {
+    return date.toLocaleDateString(undefined, {weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'});
 };
 
 const toMonthKey = (date) => {
@@ -191,6 +198,9 @@ export class SlotCalendarPicker {
         // Keys of the user's currently booked slot(s). Marked distinctly from the (mutable)
         // selection so the booked slot stays visible while the user picks a new one.
         this.currentKeys = new Set(Array.isArray(options.currentKeys) ? options.currentKeys : []);
+        // Whether to open the calendar on the first day holding a current key (see prepareData()).
+        // Callers that only want the days marked pass false.
+        this.openOnCurrentDay = options.openOnCurrentDay !== false;
         // Keys of booked slots past their relative deadline: they stay selected and cannot be removed.
         this.lockedKeys = new Set(Array.isArray(options.lockedKeys) ? options.lockedKeys : []);
         this.currentLabel = options.currentLabel === undefined ? '' : String(options.currentLabel);
@@ -317,7 +327,7 @@ export class SlotCalendarPicker {
         }
 
         // If we know where the user is currently booked, open the calendar on that day.
-        if (this.currentDayKeys.size > 0) {
+        if (this.openOnCurrentDay && this.currentDayKeys.size > 0) {
             const bookedDayKey = Array.from(this.currentDayKeys).sort()[0];
             if (bookedDayKey) {
                 this.activeDay = bookedDayKey;
@@ -400,8 +410,23 @@ export class SlotCalendarPicker {
             this.render();
         });
 
+        // Day view: a single day cell, prev/next step through the days that have slots.
+        this.dayBtn = document.createElement('button');
+        this.dayBtn.type = 'button';
+        this.dayBtn.className = 'btn btn-outline-secondary';
+        this.dayBtn.textContent = this.labels.day;
+        this.dayBtn.addEventListener('click', () => {
+            this.viewMode = 'day';
+            if (this.activeDay) {
+                this.currentDate = cloneDate(new Date(`${this.activeDay}T00:00:00`));
+            }
+            this.alignCurrentDateToAvailableView();
+            this.render();
+        });
+
         this.modeControls.appendChild(this.monthBtn);
         this.modeControls.appendChild(this.weekBtn);
+        this.modeControls.appendChild(this.dayBtn);
 
         this.toolbar.appendChild(this.leftControls);
         this.toolbar.appendChild(this.title);
@@ -435,16 +460,51 @@ export class SlotCalendarPicker {
         this.applyResponsiveStyles();
     }
 
+    /**
+     * Navigation keys of the current view mode: months, weeks or (day view) the days with slots.
+     *
+     * @return {Array<string>}
+     */
+    getViewKeys() {
+        if (this.viewMode === 'day') {
+            return this.allDayKeys;
+        }
+        return this.viewMode === 'week' ? this.availableWeekKeys : this.availableMonthKeys;
+    }
+
+    /**
+     * Key of the given date in the current view mode, comparable with getViewKeys().
+     *
+     * @param {Date} date
+     * @return {string}
+     */
+    toViewKey(date) {
+        if (this.viewMode === 'day') {
+            return toDateKeyFromDate(date);
+        }
+        return this.viewMode === 'week' ? toWeekKey(date) : toMonthKey(date);
+    }
+
+    /**
+     * Move currentDate to the start of the given view key.
+     *
+     * @param {string} targetKey
+     */
+    setCurrentDateFromViewKey(targetKey) {
+        if (this.viewMode === 'month') {
+            this.currentDate = new Date(`${targetKey}-01T00:00:00`);
+        } else {
+            this.currentDate = new Date(`${targetKey}T00:00:00`);
+        }
+    }
+
     shift(direction) {
-        const keys = this.viewMode === 'week' ? this.availableWeekKeys : this.availableMonthKeys;
+        const keys = this.getViewKeys();
         if (!keys.length) {
             return;
         }
 
-        const currentKey = this.viewMode === 'week'
-            ? toWeekKey(this.currentDate)
-            : toMonthKey(this.currentDate);
-        const index = keys.indexOf(currentKey);
+        const index = keys.indexOf(this.toViewKey(this.currentDate));
         const targetIndex = index + direction;
 
         if (index === -1 || targetIndex < 0 || targetIndex >= keys.length) {
@@ -452,57 +512,75 @@ export class SlotCalendarPicker {
         }
 
         const targetKey = keys[targetIndex];
-        if (this.viewMode === 'week') {
-            this.currentDate = new Date(`${targetKey}T00:00:00`);
-        } else {
-            this.currentDate = new Date(`${targetKey}-01T00:00:00`);
+        this.setCurrentDateFromViewKey(targetKey);
+
+        // In day view the shown day is the active day, so stepping also opens it.
+        if (this.viewMode === 'day') {
+            this.selectDay(targetKey);
+            return;
         }
 
         this.render();
     }
 
     alignCurrentDateToAvailableView() {
-        const keys = this.viewMode === 'week' ? this.availableWeekKeys : this.availableMonthKeys;
+        const keys = this.getViewKeys();
         if (!keys.length) {
             return;
         }
 
-        const currentKey = this.viewMode === 'week'
-            ? toWeekKey(this.currentDate)
-            : toMonthKey(this.currentDate);
-
-        if (keys.includes(currentKey)) {
+        if (keys.includes(this.toViewKey(this.currentDate))) {
             return;
         }
 
-        const targetKey = keys[0];
-        if (this.viewMode === 'week') {
-            this.currentDate = new Date(`${targetKey}T00:00:00`);
-        } else {
-            this.currentDate = new Date(`${targetKey}-01T00:00:00`);
-        }
+        this.setCurrentDateFromViewKey(keys[0]);
     }
 
     updateNavigationState() {
-        const keys = this.viewMode === 'week' ? this.availableWeekKeys : this.availableMonthKeys;
+        const keys = this.getViewKeys();
         if (!keys.length) {
             this.prevBtn.disabled = true;
             this.nextBtn.disabled = true;
             return;
         }
 
-        const currentKey = this.viewMode === 'week'
-            ? toWeekKey(this.currentDate)
-            : toMonthKey(this.currentDate);
-        const index = keys.indexOf(currentKey);
+        const index = keys.indexOf(this.toViewKey(this.currentDate));
 
         this.prevBtn.disabled = index <= 0;
         this.nextBtn.disabled = index === -1 || index >= keys.length - 1;
     }
 
+    /**
+     * Open a day as the active day: re-render and notify onDayChange when it changed.
+     * Shared by the day cells and the day view's prev/next buttons.
+     *
+     * @param {string} dayKey "YYYY-MM-DD"
+     */
+    selectDay(dayKey) {
+        const changed = this.activeDay !== dayKey;
+        this.activeDay = dayKey;
+
+        if (changed && this.resetSelectionOnDayChange && this.selected.size > 0) {
+            this.selected.clear();
+            this.emitChange();
+        }
+
+        this.render();
+
+        if (changed) {
+            const rawDaySlots = this.slotsByDay.get(dayKey) || [];
+            const daySlots = this.slotFilter ? rawDaySlots.filter(this.slotFilter) : rawDaySlots;
+            this.onDayChange(dayKey, daySlots);
+        }
+    }
+
     getVisibleDays() {
         const days = [];
         const base = cloneDate(this.currentDate);
+
+        if (this.viewMode === 'day') {
+            return [base];
+        }
 
         if (this.viewMode === 'week') {
             const weekStart = getWeekStartDate(base);
@@ -529,7 +607,7 @@ export class SlotCalendarPicker {
     }
 
     /**
-     * Push the resolved labels into the already rendered DOM. The two view buttons are only
+     * Push the resolved labels into the already rendered DOM. The view buttons are only
      * written in buildLayout(), so they are updated directly; everything else picks the new
      * labels up from the re-render.
      */
@@ -540,6 +618,9 @@ export class SlotCalendarPicker {
         if (this.weekBtn) {
             this.weekBtn.textContent = this.labels.week;
         }
+        if (this.dayBtn) {
+            this.dayBtn.textContent = this.labels.day;
+        }
         if (this.container) {
             this.render();
         }
@@ -548,14 +629,20 @@ export class SlotCalendarPicker {
     render() {
         this.alignCurrentDateToAvailableView();
 
-        this.title.textContent = this.viewMode === 'week'
-            ? this.labels.weekof.replace('{date}', this.currentDate.toLocaleDateString())
-            : toMonthLabel(this.currentDate);
+        if (this.viewMode === 'day') {
+            this.title.textContent = toDayLabel(this.currentDate);
+        } else if (this.viewMode === 'week') {
+            this.title.textContent = this.labels.weekof.replace('{date}', this.currentDate.toLocaleDateString());
+        } else {
+            this.title.textContent = toMonthLabel(this.currentDate);
+        }
 
         this.monthBtn.classList.toggle('btn-primary', this.viewMode === 'month');
         this.monthBtn.classList.toggle('btn-outline-secondary', this.viewMode !== 'month');
         this.weekBtn.classList.toggle('btn-primary', this.viewMode === 'week');
         this.weekBtn.classList.toggle('btn-outline-secondary', this.viewMode !== 'week');
+        this.dayBtn.classList.toggle('btn-primary', this.viewMode === 'day');
+        this.dayBtn.classList.toggle('btn-outline-secondary', this.viewMode !== 'day');
 
         if (this.showPriceLegend) {
             this.renderPriceLegend();
@@ -674,12 +761,16 @@ export class SlotCalendarPicker {
     renderCalendarGrid() {
         this.calendarGrid.innerHTML = '';
 
-        WEEK_DAYS.forEach(label => {
-            const head = document.createElement('div');
-            head.className = 'booking-slot-calendar-head text-center small fw-bold';
-            head.textContent = label;
-            this.calendarGrid.appendChild(head);
-        });
+        // The day view shows one full-width cell; the title already names the weekday.
+        const isDayView = this.viewMode === 'day';
+        if (!isDayView) {
+            WEEK_DAYS.forEach(label => {
+                const head = document.createElement('div');
+                head.className = 'booking-slot-calendar-head text-center small fw-bold';
+                head.textContent = label;
+                this.calendarGrid.appendChild(head);
+            });
+        }
 
         const days = this.getVisibleDays();
         const month = this.currentDate.getMonth();
@@ -702,13 +793,16 @@ export class SlotCalendarPicker {
 
             const cell = document.createElement('div');
             cell.className = 'booking-slot-calendar-cell';
+            if (isDayView) {
+                cell.style.gridColumn = '1 / -1';
+            }
 
             const btn = document.createElement('button');
             btn.type = 'button';
             btn.className = 'btn btn-sm w-100 text-start booking-slot-calendar-day-btn';
             btn.style.minHeight = '3.75rem';
 
-            const inCurrentMonth = date.getMonth() === month || this.viewMode === 'week';
+            const inCurrentMonth = date.getMonth() === month || this.viewMode !== 'month';
             btn.classList.add(inCurrentMonth ? 'btn-light' : 'btn-outline-light');
 
             if (daySlots.length > 0) {
@@ -814,21 +908,7 @@ export class SlotCalendarPicker {
                 }
             }
 
-            btn.addEventListener('click', () => {
-                const changed = this.activeDay !== dayKey;
-                this.activeDay = dayKey;
-
-                if (changed && this.resetSelectionOnDayChange && this.selected.size > 0) {
-                    this.selected.clear();
-                    this.emitChange();
-                }
-
-                this.render();
-
-                if (changed) {
-                    this.onDayChange(dayKey, daySlots);
-                }
-            });
+            btn.addEventListener('click', () => this.selectDay(dayKey));
 
             cell.appendChild(btn);
             this.calendarGrid.appendChild(cell);

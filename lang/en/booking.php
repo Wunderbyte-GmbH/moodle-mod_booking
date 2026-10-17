@@ -4057,6 +4057,7 @@ $string['slot_buffer_cooldown_minutes'] = 'Cool-down after slot (minutes)';
 $string['slot_buffer_cooldown_minutes_help'] = 'Blocks this many minutes after a slot\'s end, e.g. for cleaning or follow-up. 0 disables the cool-down.';
 $string['slot_buffer_warmup_minutes'] = 'Warm-up before slot (minutes)';
 $string['slot_buffer_warmup_minutes_help'] = 'Blocks this many minutes before a slot\'s start, e.g. for preparation. 0 disables the warm-up.';
+$string['slot_calendar_day'] = 'Day';
 $string['slot_calendar_event_title'] = 'Occupancy: {$a}';
 $string['slot_calendar_month'] = 'Month';
 $string['slot_calendar_no_booked_slots'] = 'No booked slots on this day.';

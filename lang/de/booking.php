@@ -4070,6 +4070,7 @@ $string['slot_buffer_cooldown_minutes'] = 'Nachbereitungszeit nach Slot (Minuten
 $string['slot_buffer_cooldown_minutes_help'] = 'Sperrt diese Anzahl an Minuten nach dem Ende eines Slots, z.B. für Reinigung oder Nachbereitung. 0 deaktiviert die Nachbereitungszeit.';
 $string['slot_buffer_warmup_minutes'] = 'Vorbereitungszeit vor Slot (Minuten)';
 $string['slot_buffer_warmup_minutes_help'] = 'Sperrt diese Anzahl an Minuten vor dem Start eines Slots, z.B. für Vorbereitung. 0 deaktiviert die Vorbereitungszeit.';
+$string['slot_calendar_day'] = 'Tag';
 $string['slot_calendar_event_title'] = 'Auslastung: {$a}';
 $string['slot_calendar_month'] = 'Monat';
 $string['slot_calendar_no_booked_slots'] = 'An diesem Tag sind keine Slots gebucht.';
