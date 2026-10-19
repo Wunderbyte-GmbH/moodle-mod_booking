@@ -2014,6 +2014,17 @@ class agent_decision_service {
             return $fallback;
         }
 
+        // An open blocking clarification about an attempted skill: the yes answers that question,
+        // so the step is re-planned once through the selector (no confirmation is waiting).
+        if (trim((string)$this->store->get_thread_metadata_value($threadid, 'clarification_pending_action')) !== '') {
+            $cause = 'confirm_pending without a pending confirmation while a clarification about an attempted skill is open.';
+            $fallback = $this->clarification_result($cause);
+            $fallback['response_type'] = 'error';
+            $fallback['errors'] = [$cause];
+            $fallback['issue_codes'] = ['CONFIRM_PENDING_NO_INTENT_CLARIFICATION'];
+            return $fallback;
+        }
+
         if ($modelmessage !== '' && !$isplaceholdermessage) {
             // Terminal clarification. Deliberately does NOT carry the model's next_step_intent:
             // nothing follows this turn, and a copied intent feeds the synchronizer a false
