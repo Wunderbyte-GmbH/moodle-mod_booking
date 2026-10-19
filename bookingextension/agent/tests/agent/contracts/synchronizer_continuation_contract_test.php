@@ -19,6 +19,7 @@ declare(strict_types=1);
 namespace bookingextension_agent\agent\contracts;
 
 use bookingextension_agent\local\wizard\agent_runtime;
+use bookingextension_agent\local\wizard\conversation_store;
 use bookingextension_agent\local\wizard\orchestrator;
 use bookingextension_agent\local\wizard\queue\queue_manager;
 use bookingextension_agent\local\wizard\services\decision\agent_decision_service;
@@ -366,6 +367,16 @@ final class synchronizer_continuation_contract_test extends TestCase {
         $property = $reflection->getProperty('queuesvc');
         $property->setAccessible(true);
         $property->setValue($service, $queue);
+
+        // No clarification about an attempted skill is open in these cases.
+        $store = $this->getMockBuilder(conversation_store::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['get_thread_metadata_value'])
+            ->getMock();
+        $store->method('get_thread_metadata_value')->willReturn('');
+        $storeproperty = $reflection->getProperty('store');
+        $storeproperty->setAccessible(true);
+        $storeproperty->setValue($service, $store);
 
         return $service;
     }

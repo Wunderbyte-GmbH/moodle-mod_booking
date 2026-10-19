@@ -98,6 +98,9 @@ class agent_runtime {
         // confirmation, thread 558). One re-plan round recovers the series instead of
         // ending the turn and orphaning the remaining steps.
         'CONFIRM_PENDING_NO_INTENT_PLANNED_STEPS',
+        // The same flake on a yes to an open clarification about an attempted skill (thread 5613):
+        // one re-plan round selects that skill again instead of ending the turn as an error.
+        'CONFIRM_PENDING_NO_INTENT_CLARIFICATION',
         // Construction used input keys the skill schema rejects (interpreter structural
         // validation). Deterministically unhealable by repetition of the SAME output, but
         // healable by one retry WITH the repair text naming the canonical keys — which,
@@ -1130,6 +1133,9 @@ class agent_runtime {
                 . 'shown to the user; for a clarification it is the question.',
             'CONFIRM_PENDING_NO_INTENT_PLANNED_STEPS' => 'No confirmation is waiting, so confirm_pending is not possible. '
                 . 'The next planned step is listed in [PENDING PLANNED STEPS].',
+            'CONFIRM_PENDING_NO_INTENT_CLARIFICATION' => 'No confirmation is waiting, so confirm_pending is not possible. '
+                . 'The user\'s reply answers the question in [PENDING CLARIFICATION CONTEXT]: select the attempted skill '
+                . 'with a skill_call.',
         ];
 
         return 'RETRY_HINT: ' . ($hints[$issuecode] ?? 'The previous output did not follow the OUTPUT CONTRACT (see REPAIR).');
