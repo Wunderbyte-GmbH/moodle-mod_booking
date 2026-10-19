@@ -19,6 +19,7 @@ declare(strict_types=1);
 namespace bookingextension_agent\local\wizard\services\questions;
 
 use bookingextension_agent\local\wizard\conversation_store;
+use bookingextension_agent\local\wizard\privacy_anonymizer;
 use bookingextension_agent\local\wizard\services\llm\llm_call_service;
 
 /**
@@ -69,21 +70,36 @@ class question_generation_service {
     ): array {
         $prompt = self::build_prompt($sourcetext, $params, $feedback);
 
+        // Personal data in the source text is masked before the prompt leaves the site (AI privacy mode).
+        $privacy = new privacy_anonymizer($this->store);
         $call = (new llm_call_service($this->store))->invoke_for_context(
             $threadid,
             $contextid,
             $userid,
             'generate_questions',
-            $prompt
+            $threadid > 0 ? (string)$privacy->anonymize_value_for_llm($threadid, $prompt) : $prompt,
+            llm_call_service::content_action_class()
         );
+        $fallback = !empty($call['fallback']);
 
         if (empty($call['success'])) {
-            return ['success' => false, 'gift' => '', 'error' => (string)($call['errormessage'] ?? 'The model call failed.')];
+            return [
+                'success' => false,
+                'gift' => '',
+                'error' => (string)($call['errormessage'] ?? 'The model call failed.'),
+                'fallback' => $fallback,
+            ];
         }
 
-        $gift = self::extract_gift((string)($call['rawcontent'] ?? ''));
+        $raw = (string)($call['rawcontent'] ?? '');
+        $gift = self::extract_gift($threadid > 0 ? (string)$privacy->deanonymize_value_for_display($threadid, $raw) : $raw);
         if ($gift === '') {
-            return ['success' => false, 'gift' => '', 'error' => 'The model did not return any GIFT content.'];
+            return [
+                'success' => false,
+                'gift' => '',
+                'error' => 'The model did not return any GIFT content.',
+                'fallback' => $fallback,
+            ];
         }
         // A reply with more questions than requested (reasoning drafts, a second version) is a failed attempt the
         // caller retries with this feedback - never a silent import of whatever came back (#2493).
@@ -92,6 +108,7 @@ class question_generation_service {
             'success' => $counterror === '',
             'gift' => $counterror === '' ? $gift : '',
             'error' => $counterror,
+            'fallback' => $fallback,
         ];
     }
 
