@@ -500,8 +500,9 @@ class scaffold_course_content_skill extends core_skill_base implements skill_tri
             '',
             (string)($outline['summaryhtml'] ?? '<p></p>')
         );
+        $finalquizcount = 0;
         if (!empty($preparedinput['finalquiz'])) {
-            $questioncount += $this->create_generated_quiz(
+            $finalquizcount = $this->create_generated_quiz(
                 $course,
                 $closingsection,
                 (string)($outline['summarytitle'] ?? 'Final quiz'),
@@ -513,14 +514,18 @@ class scaffold_course_content_skill extends core_skill_base implements skill_tri
                 $ambient,
                 $warnings
             );
+            $questioncount += $finalquizcount;
         }
         $stages[] = 'closing section';
 
         $courseurl = (new moodle_url('/course/view.php', ['id' => $courseid]))->out(false);
+        // The planner may hold a separate "add quiz questions" step: the observation says the quiz is done.
         $detail = 'Course content created in "' . $course->fullname . '" (id=' . $courseid . ', '
             . count($chaptertitles) . ' chapters'
             . ($questioncount > 0 ? ', ' . $questioncount . ' quiz question(s) created' : '')
             . ', link=' . $courseurl . ').'
+            . ($finalquizcount > 0 ? ' The graded final quiz is complete (' . $finalquizcount
+                . ' questions); no separate quiz step is needed.' : '')
             . (empty($warnings) ? '' : ' WARNINGS: ' . implode(' | ', $warnings));
 
         return [
