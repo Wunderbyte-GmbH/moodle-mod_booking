@@ -124,6 +124,102 @@ class llm_call_service {
         string $prompt,
         string $actionclass = generate_text::class
     ): array {
+        $call = $this->invoke_once($threadid, $contextid, $userid, $source, $prompt, $actionclass);
+        // The content model is optional: when its call fails, the default model writes the content and the
+        // caller learns about it through 'fallback'.
+        if (empty($call['success']) && ltrim($actionclass, '\\') === wb_action_names::GENERATE_CONTENT) {
+            $fallback = $this->invoke_once(
+                $threadid,
+                $contextid,
+                $userid,
+                $source . '|fallback',
+                $prompt,
+                generate_text::class
+            );
+            $fallback['fallback'] = true;
+            $fallback['fallbackerror'] = (string)($call['errormessage'] ?? '');
+            return $fallback;
+        }
+        return $call;
+    }
+
+    /**
+     * Whether the content services run on the content model: the admin switch is on and a provider offers the action.
+     *
+     * @return bool
+     */
+    public static function content_model_enabled(): bool {
+        if ((int)get_config('bookingextension_agent', 'contentmodel_enabled') !== 1) {
+            return false;
+        }
+        if (!class_exists(wb_action_names::GENERATE_CONTENT)) {
+            return false;
+        }
+        try {
+            return di::get(ai_manager::class)->is_action_available(wb_action_names::GENERATE_CONTENT);
+        } catch (\Throwable $e) {
+            return false;
+        }
+    }
+
+    /**
+     * The action class the content services call: generate_content while enabled, generate_text otherwise.
+     *
+     * @return string
+     */
+    public static function content_action_class(): string {
+        return self::content_model_enabled() ? wb_action_names::GENERATE_CONTENT : generate_text::class;
+    }
+
+    /**
+     * One tiny call on the content model, run when the admin switches enhanced content generation on.
+     *
+     * @return array{success:bool,error:string,model:string}
+     */
+    public static function probe_content_model(): array {
+        global $USER;
+
+        if (!class_exists(wb_action_names::GENERATE_CONTENT)) {
+            return ['success' => false, 'error' => 'the provider has no generate_content action', 'model' => ''];
+        }
+        try {
+            $actionclass = wb_action_names::GENERATE_CONTENT;
+            $action = new $actionclass(
+                contextid: \context_system::instance()->id,
+                userid: (int)$USER->id,
+                prompttext: 'Reply with the single word OK.',
+            );
+            $response = di::get(ai_manager::class)->process_action($action);
+            $data = (array)$response->get_response_data();
+            return [
+                'success' => (bool)$response->get_success(),
+                'error' => (string)($response->get_errormessage() ?? ''),
+                'model' => (string)($data['model'] ?? ''),
+            ];
+        } catch (\Throwable $e) {
+            return ['success' => false, 'error' => $e->getMessage(), 'model' => ''];
+        }
+    }
+
+    /**
+     * One model call on the given action class.
+     *
+     * @param int $threadid
+     * @param int $contextid
+     * @param int $userid
+     * @param string $source
+     * @param string $prompt
+     * @param string $actionclass
+     * @return array{success:bool,rawcontent:string,errormessage:string,errorcode:int,errorname:string,finishreason:string}
+     */
+    private function invoke_once(
+        int $threadid,
+        int $contextid,
+        int $userid,
+        string $source,
+        string $prompt,
+        string $actionclass
+    ): array {
         // TEST-ONLY deterministic path: return scripted content instead of calling the provider,
         // so run_loop (selector/constructor/synchronizer) can be driven without a live LLM.
         if (self::$testresponder !== null) {
@@ -413,6 +509,7 @@ class llm_call_service {
             self::WB_ACTION_GENERATE_AGENT_REPLY,
             self::WB_ACTION_PLANNER_DECIDE,
             wb_action_names::PLANNER_CONSTRUCT,
+            wb_action_names::GENERATE_CONTENT,
         ];
         $normalizedsupported = array_map(static fn(string $fqcn): string => ltrim($fqcn, '\\'), $supported);
         if (!in_array($normalizedactionclass, $normalizedsupported, true)) {

@@ -115,6 +115,9 @@ class scaffold_course_content_skill extends core_skill_base implements skill_tri
             ['label' => 'Practice quizzes', 'value' => empty($input['practicequizzes']) ? 'no' : 'yes (per chapter)'],
             ['label' => 'Final quiz', 'value' => empty($input['finalquiz']) ? 'no' : 'yes (graded)'],
         ];
+        if (\bookingextension_agent\local\wizard\services\llm\llm_call_service::content_model_enabled()) {
+            $rows[] = ['label' => 'Content model', 'value' => 'enhanced (second model)'];
+        }
 
         return [
             'title' => 'Generate course content for "' . (string)($input['coursefullname'] ?? '') . '"',
@@ -429,6 +432,7 @@ class scaffold_course_content_skill extends core_skill_base implements skill_tri
         $chaptertitles = array_values((array)$outline['chapters']);
         $stages = [];
         $warnings = [];
+        $modelfallback = !empty($outlineresult['fallback']);
 
         // 2) Welcome section (section 0 keeps the course default name).
         $this->ensure_sections($course, count($chaptertitles) + 2);
@@ -464,6 +468,7 @@ class scaffold_course_content_skill extends core_skill_base implements skill_tri
                 count($chaptertitles),
                 $lang
             );
+            $modelfallback = $modelfallback || !empty($chapter['fallback']);
             $pagehtml = !empty($chapter['success'])
                 ? (string)$chapter['html']
                 : '<p>' . get_string('agent_scaffold_chapter_failed', 'bookingextension_agent') . '</p>';
@@ -517,6 +522,9 @@ class scaffold_course_content_skill extends core_skill_base implements skill_tri
             $questioncount += $finalquizcount;
         }
         $stages[] = 'closing section';
+        if ($modelfallback) {
+            $warnings[] = get_string('agent_contentmodel_fallback', 'bookingextension_agent');
+        }
 
         $courseurl = (new moodle_url('/course/view.php', ['id' => $courseid]))->out(false);
         // The planner may hold a separate "add quiz questions" step: the observation says the quiz is done.

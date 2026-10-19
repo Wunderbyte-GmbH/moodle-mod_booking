@@ -19,6 +19,7 @@ declare(strict_types=1);
 namespace bookingextension_agent\local\wizard\services\course;
 
 use bookingextension_agent\local\wizard\conversation_store;
+use bookingextension_agent\local\wizard\privacy_anonymizer;
 use bookingextension_agent\local\wizard\services\llm\llm_call_service;
 
 /**
@@ -92,23 +93,35 @@ class course_content_generation_service {
             $contextid,
             $userid,
             'scaffold_outline',
-            $prompt
+            $this->mask($threadid, $prompt),
+            llm_call_service::content_action_class()
         );
+        $fallback = !empty($call['fallback']);
         if (empty($call['success'])) {
-            return ['success' => false, 'outline' => [], 'error' => (string)($call['errormessage'] ?? 'model call failed')];
+            return [
+                'success' => false,
+                'outline' => [],
+                'error' => (string)($call['errormessage'] ?? 'model call failed'),
+                'fallback' => $fallback,
+            ];
         }
 
-        $outline = $this->extract_json((string)($call['rawcontent'] ?? ''));
+        $outline = $this->extract_json($this->unmask($threadid, (string)($call['rawcontent'] ?? '')));
         $chapterlist = array_values(array_filter(array_map(
             static fn($chapter): string => trim((string)(is_array($chapter) ? ($chapter['title'] ?? '') : $chapter)),
             (array)($outline['chapters'] ?? [])
         )));
         if ($outline === null || empty($chapterlist)) {
-            return ['success' => false, 'outline' => [], 'error' => 'The model did not return a valid outline.'];
+            return [
+                'success' => false,
+                'outline' => [],
+                'error' => 'The model did not return a valid outline.',
+                'fallback' => $fallback,
+            ];
         }
         $outline['chapters'] = array_slice($chapterlist, 0, $chapters);
 
-        return ['success' => true, 'outline' => $outline, 'error' => ''];
+        return ['success' => true, 'outline' => $outline, 'error' => '', 'fallback' => $fallback];
     }
 
     /**
@@ -150,13 +163,20 @@ class course_content_generation_service {
             $contextid,
             $userid,
             'scaffold_chapter',
-            $prompt
+            $this->mask($threadid, $prompt),
+            llm_call_service::content_action_class()
         );
+        $fallback = !empty($call['fallback']);
         if (empty($call['success'])) {
-            return ['success' => false, 'html' => '', 'error' => (string)($call['errormessage'] ?? 'model call failed')];
+            return [
+                'success' => false,
+                'html' => '',
+                'error' => (string)($call['errormessage'] ?? 'model call failed'),
+                'fallback' => $fallback,
+            ];
         }
 
-        $html = trim((string)($call['rawcontent'] ?? ''));
+        $html = trim($this->unmask($threadid, (string)($call['rawcontent'] ?? '')));
         $html = preg_replace('/^\x60{3}(?:html)?\s*|\s*\x60{3}$/m', '', $html) ?? $html;
         $html = trim($html);
 
@@ -164,7 +184,36 @@ class course_content_generation_service {
             'success' => $html !== '',
             'html' => $html,
             'error' => $html === '' ? 'The model returned no chapter content.' : '',
+            'fallback' => $fallback,
         ];
+    }
+
+    /**
+     * Mask personal data in a content prompt before it leaves the site (AI privacy mode, thread token map).
+     *
+     * @param int $threadid
+     * @param string $prompt
+     * @return string
+     */
+    private function mask(int $threadid, string $prompt): string {
+        if ($threadid <= 0) {
+            return $prompt;
+        }
+        return (string)(new privacy_anonymizer($this->store))->anonymize_value_for_llm($threadid, $prompt);
+    }
+
+    /**
+     * Resolve the thread's tokens in generated content before it is stored in the course.
+     *
+     * @param int $threadid
+     * @param string $content
+     * @return string
+     */
+    private function unmask(int $threadid, string $content): string {
+        if ($threadid <= 0) {
+            return $content;
+        }
+        return (string)(new privacy_anonymizer($this->store))->deanonymize_value_for_display($threadid, $content);
     }
 
     /**

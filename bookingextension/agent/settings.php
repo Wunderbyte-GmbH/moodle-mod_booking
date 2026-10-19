@@ -144,6 +144,21 @@ if ($adminroot->fulltree) {
         )
     );
 
+    // Enhanced content generation: course chapters, outlines and quiz questions run on the provider's
+    // generate_content action (a larger model behind the alias wunderbyte-privat-content) instead of the
+    // chat model. Off by default (more tokens, longer runs). Switching it on probes the model once; an
+    // unreachable alias switches it back off.
+    $contentmodel = new admin_setting_configcheckbox(
+        'bookingextension_agent/contentmodel_enabled',
+        get_string('contentmodel_enabled', 'bookingextension_agent'),
+        get_string('contentmodel_enabled_desc', 'bookingextension_agent'),
+        0
+    );
+    $contentmodel->set_updatedcallback(
+        '\\bookingextension_agent\\local\\wizard\\services\\llm\\content_model_switch::on_setting_updated'
+    );
+    $aisettingspage->add($contentmodel);
+
     // Hard cap on the character length of a single user message. Messages longer than this are rejected
     // immediately at the entry point (before any provider/token spend). Keeps the agent public-facing but
     // bounded. Generous by default; can be lowered (e.g. 100) for very tight abuse control.
