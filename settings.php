@@ -1583,6 +1583,21 @@ if ($ADMIN->fulltree) {
                 $courseroleids
             )
         );
+        $conditionssettings->add(
+            new admin_setting_heading(
+                'selectusersheading',
+                get_string('bocondselectusers', 'mod_booking'),
+                ''
+            )
+        );
+        $conditionssettings->add(
+            new admin_setting_configcheckbox(
+                'booking/selectusersremoveafterbooking',
+                get_string('selectusersremoveafterbooking', 'mod_booking'),
+                get_string('selectusersremoveafterbooking_desc', 'mod_booking'),
+                0
+            )
+        );
     } else {
         $conditionssettings->add(
             new admin_setting_heading(
