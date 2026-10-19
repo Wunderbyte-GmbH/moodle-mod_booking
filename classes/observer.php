@@ -28,6 +28,7 @@ use core\event\course_module_updated;
 use local_shopping_cart\event\item_added;
 use local_wunderbyte_table\event\template_switched;
 use local_wunderbyte_table\wunderbyte_table;
+use mod_booking\bo_availability\conditions\selectusers;
 use mod_booking\booking;
 use mod_booking\booking_option;
 use mod_booking\booking_rules\rules_info;
@@ -196,6 +197,8 @@ class mod_booking_observer {
     public static function bookingoption_booked(\mod_booking\event\bookingoption_booked $event) {
         // Idempotent: create_ticket() no-ops when ticketing is off or the option has no ticket template.
         ticket_manager::create_ticket((int) $event->objectid, (int) $event->relateduserid);
+        // No-op unless the site removes booked users from "Only specific user(s) are allowed to book".
+        selectusers::remove_booked_user((int) $event->objectid, (int) $event->relateduserid);
     }
 
     /**
