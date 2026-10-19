@@ -719,12 +719,13 @@ class bo_info {
         }
         // A teacher looking at the list of the options (s)he teaches (teacher page, "options I teach",
         // trainer course list) always sees these options, no matter which conditions they carry.
-        // The WHERE is applied on the derived table s1 of get_options_filter_sql, so s1.id is the option.
+        // The columns must not be prefixed with the derived table alias (s1): with a search text,
+        // wunderbyte_table wraps s1 in another subquery (fulltextsearchcontainer) and the alias is
+        // out of scope there. A bare "id" inside an EXISTS would resolve to bt.id, so we use IN.
         if (!empty($teacherid)) {
-            $bypasses[] = "EXISTS (
-                        SELECT 1 FROM {booking_teachers} bt
-                        WHERE bt.optionid = s1.id
-                        AND bt.userid = :teacherbypass
+            $bypasses[] = "id IN (
+                        SELECT optionid FROM {booking_teachers}
+                        WHERE userid = :teacherbypass
                     )";
             $paramsarray['teacherbypass'] = $teacherid;
         }
@@ -733,7 +734,7 @@ class bo_info {
         $rcuserid = self::responsible_contact_bypass_userid();
         if (!empty($rcuserid)) {
             $bypasses[] = $DB->sql_like(
-                $DB->sql_concat("','", 's1.responsiblecontact', "','"),
+                $DB->sql_concat("','", 'responsiblecontact', "','"),
                 ':responsiblecontactbypass'
             );
             $paramsarray['responsiblecontactbypass'] = '%,' . $rcuserid . ',%';
