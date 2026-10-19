@@ -25,6 +25,7 @@
 namespace mod_booking\option\fields;
 
 use mod_booking\bo_availability\bo_info;
+use mod_booking\bo_availability\conditions\selectusers;
 use mod_booking\booking_option_settings;
 use mod_booking\option\field_base;
 use mod_booking\option\fields_info;
@@ -100,7 +101,13 @@ class easy_availability_selectusers extends field_base {
     ): array {
 
         // Select users condition.
-        if ($formdata->bo_cond_selectusers_restrict == 1 && !empty(($formdata->bo_cond_selectusers_userids))) {
+        if (
+            $formdata->bo_cond_selectusers_restrict == 1
+            && (
+                !empty($formdata->bo_cond_selectusers_userids)
+                || selectusers::removeafterbooking_from_form($formdata)
+            )
+        ) {
             $formdata->bo_cond_selectusers_overrideconditioncheckbox = true; // Can be hardcoded here.
             $formdata->bo_cond_selectusers_overrideoperator = 'OR'; // Can be hardcoded here.
 
@@ -218,6 +225,18 @@ class easy_availability_selectusers extends field_base {
         );
         $mform->hideIf('bo_cond_selectusers_userids', 'bo_cond_selectusers_restrict', 'notchecked');
 
+        // The setting is offered when the site allows it, and kept visible where an option already uses it.
+        $optionid = (int)($formdata['id'] ?? $formdata['optionid'] ?? 0);
+        if (selectusers::remove_after_booking_enabled() || selectusers::stored_removeafterbooking($optionid)) {
+            $mform->addElement(
+                'advcheckbox',
+                'bo_cond_selectusers_removeafterbooking',
+                get_string('bocondselectusersremoveafterbooking', 'mod_booking')
+            );
+            $mform->addHelpButton('bo_cond_selectusers_removeafterbooking', 'bocondselectusersremoveafterbooking', 'mod_booking');
+            $mform->hideIf('bo_cond_selectusers_removeafterbooking', 'bo_cond_selectusers_restrict', 'notchecked');
+        }
+
         // This is to transmit the original availability values.
         if (!$mform->elementExists('availability')) {
             $mform->addElement('hidden', 'availability');
@@ -241,9 +260,10 @@ class easy_availability_selectusers extends field_base {
             foreach ($availabilityarray as $av) {
                 switch ($av->id) {
                     case MOD_BOOKING_BO_COND_JSON_SELECTUSERS:
-                        if (!empty($av->userids)) {
+                        if (!empty($av->userids) || !empty($av->removeafterbooking)) {
                             $formdata->bo_cond_selectusers_restrict = true;
-                            $formdata->bo_cond_selectusers_userids = $av->userids;
+                            $formdata->bo_cond_selectusers_userids = $av->userids ?? [];
+                            $formdata->bo_cond_selectusers_removeafterbooking = !empty($av->removeafterbooking);
                         }
                         if (in_array(MOD_BOOKING_BO_COND_FULLYBOOKED, $av->overrides ?? [])) {
                             $formdata->selectusersoverbookcheckbox = true;

@@ -404,6 +404,23 @@ class rule_react_on_event implements booking_rule {
             return;
         }
 
+        // Changes of the availability concern who may book, not what the option is about.
+        // Rules never react on them, whatever the setting limiting the reactions to selected fields says.
+        if (
+            !empty($datafromevent->eventname)
+            && $datafromevent->eventname == '\\mod_booking\\event\\bookingoption_updated'
+            && !empty($datafromevent->other->changes)
+        ) {
+            $changes = array_values(array_filter(
+                (array) $datafromevent->other->changes,
+                fn($change) => (((array) $change)['fieldname'] ?? '') !== 'availability'
+            ));
+            if (empty($changes)) {
+                return;
+            }
+            $datafromevent->other->changes = $changes;
+        }
+
         // Only execute rules for bookingoption_changed event according to settings.
         if (
             !empty(get_config('booking', 'limitchangestrackinginrules'))

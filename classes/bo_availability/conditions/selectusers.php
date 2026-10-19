@@ -27,11 +27,14 @@
 
 namespace mod_booking\bo_availability\conditions;
 
+use context_module;
 use context_system;
 use mod_booking\bo_availability\bo_condition;
 use mod_booking\bo_availability\freezable_condition;
 use mod_booking\bo_availability\bo_info;
+use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
+use mod_booking\event\selectusers_user_removed;
 use mod_booking\singleton_service;
 use mod_booking\utils\wb_payment;
 use MoodleQuickForm;
@@ -165,11 +168,13 @@ class selectusers implements bo_condition, freezable_condition {
         // This is the return value. Not available to begin with.
         $isavailable = false;
 
-        if (
-            !isset($this->customsettings->userids)
-            || empty($this->customsettings->userids)
-        ) {
+        if (!isset($this->customsettings->userids)) {
             $isavailable = true;
+        } else if (empty($this->customsettings->userids)) {
+            // An empty list normally means no restriction. But when booked users are removed from the list
+            // automatically, an emptied list means: everyone allowed has booked, nobody else may.
+            // This depends on the option only, so switching the site setting off never opens an option.
+            $isavailable = empty($this->customsettings->removeafterbooking);
         } else {
             // Users have been set in condition.
             if (isloggedin()) {
@@ -335,6 +340,21 @@ class selectusers implements bo_condition, freezable_condition {
             $mform->addHelpButton('bo_cond_selectusers_userids', 'bocondselectusersuserids', 'mod_booking');
             $mform->hideIf('bo_cond_selectusers_userids', 'bo_cond_selectusers_restrict', 'notchecked');
 
+            // The setting is offered when the site allows it, and kept visible where an option already uses it.
+            if (self::remove_after_booking_enabled() || self::stored_removeafterbooking($optionid)) {
+                $mform->addElement(
+                    'advcheckbox',
+                    'bo_cond_selectusers_removeafterbooking',
+                    get_string('bocondselectusersremoveafterbooking', 'mod_booking')
+                );
+                $mform->addHelpButton(
+                    'bo_cond_selectusers_removeafterbooking',
+                    'bocondselectusersremoveafterbooking',
+                    'mod_booking'
+                );
+                $mform->hideIf('bo_cond_selectusers_removeafterbooking', 'bo_cond_selectusers_restrict', 'notchecked');
+            }
+
             $mform->addElement(
                 'checkbox',
                 'bo_cond_selectusers_overrideconditioncheckbox',
@@ -456,7 +476,10 @@ class selectusers implements bo_condition, freezable_condition {
 
         if (
             !empty($fromform->bo_cond_selectusers_restrict)
-            && !empty($fromform->bo_cond_selectusers_userids)
+            && (
+                !empty($fromform->bo_cond_selectusers_userids)
+                || self::removeafterbooking_from_form($fromform)
+            )
         ) {
             // Remove the namespace from classname.
             $classname = __CLASS__;
@@ -466,7 +489,10 @@ class selectusers implements bo_condition, freezable_condition {
             $conditionobject->id = $this->id;
             $conditionobject->name = $shortclassname;
             $conditionobject->class = $classname;
-            $conditionobject->userids = $fromform->bo_cond_selectusers_userids;
+            $conditionobject->userids = array_values((array)($fromform->bo_cond_selectusers_userids ?? []));
+            if (self::removeafterbooking_from_form($fromform)) {
+                $conditionobject->removeafterbooking = 1;
+            }
 
             if (!empty($fromform->bo_cond_selectusers_overrideconditioncheckbox)) {
                 $conditionobject->overrides = $fromform->bo_cond_selectusers_overridecondition;
@@ -478,15 +504,135 @@ class selectusers implements bo_condition, freezable_condition {
     }
 
     /**
+     * Whether the site allows removing users from the list once they have booked.
+     *
+     * This only makes the setting available. Whether an option removes its users is decided per option.
+     *
+     * @return bool
+     *
+     */
+    public static function remove_after_booking_enabled(): bool {
+        return !empty(get_config('booking', 'selectusersremoveafterbooking'));
+    }
+
+    /**
+     * Whether the stored select users condition of the option removes users once they have booked.
+     *
+     * @param int $optionid
+     *
+     * @return bool
+     *
+     */
+    public static function stored_removeafterbooking(int $optionid): bool {
+        if (empty($optionid)) {
+            return false;
+        }
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        return self::json_removeafterbooking($settings->availability ?? '');
+    }
+
+    /**
+     * Whether the select users condition in the given availability JSON removes users once they have booked.
+     *
+     * @param string $availability
+     *
+     * @return bool
+     *
+     */
+    private static function json_removeafterbooking(string $availability): bool {
+        $conditions = json_decode($availability);
+        if (!is_array($conditions)) {
+            return false;
+        }
+        foreach ($conditions as $condition) {
+            if ((int)($condition->id ?? 0) === MOD_BOOKING_BO_COND_JSON_SELECTUSERS) {
+                return !empty($condition->removeafterbooking);
+            }
+        }
+        return false;
+    }
+
+    /**
+     * The value of the setting for a form save.
+     *
+     * If the submitted data does not contain the setting, as with imports, web services or the wizard,
+     * the stored value is kept instead of being silently dropped.
+     *
+     * @param stdClass $fromform
+     *
+     * @return bool
+     *
+     */
+    public static function removeafterbooking_from_form(stdClass $fromform): bool {
+        if (isset($fromform->bo_cond_selectusers_removeafterbooking)) {
+            return !empty($fromform->bo_cond_selectusers_removeafterbooking);
+        }
+        return self::stored_removeafterbooking((int)($fromform->id ?? 0));
+    }
+
+    /**
+     * Removes a user who has just booked from the list of users allowed to book.
+     *
+     * Called by the observer of the booked event. Only active if the site allows it and the option has
+     * ticked "Remove users from the list once they have booked". The list may end up empty, which then
+     * blocks everyone. The removal does not go through the option form, so it sends no change
+     * notification. The selectusers_user_removed event records it.
+     *
+     * @param int $optionid
+     * @param int $userid
+     *
+     * @return bool true if the user was removed from the list
+     *
+     */
+    public static function remove_booked_user(int $optionid, int $userid): bool {
+        global $DB, $USER;
+
+        if (!self::remove_after_booking_enabled()) {
+            return false;
+        }
+
+        // Read the stored JSON, not the cache, so a cached older version is never written back.
+        $conditions = json_decode((string)$DB->get_field('booking_options', 'availability', ['id' => $optionid]));
+        foreach ((array)$conditions as $condition) {
+            if (
+                (int)($condition->id ?? 0) !== MOD_BOOKING_BO_COND_JSON_SELECTUSERS
+                || empty($condition->removeafterbooking)
+            ) {
+                continue;
+            }
+            $userids = (array)($condition->userids ?? []);
+            $remaining = array_values(array_filter($userids, fn($id) => (int)$id !== $userid));
+            if (count($remaining) === count($userids)) {
+                return false;
+            }
+            $condition->userids = $remaining;
+            $DB->set_field('booking_options', 'availability', json_encode($conditions), ['id' => $optionid]);
+            booking_option::purge_cache_for_option($optionid);
+
+            $cmid = singleton_service::get_instance_of_booking_option_settings($optionid)->cmid;
+            selectusers_user_removed::create([
+                'objectid' => $optionid,
+                'context' => context_module::instance($cmid),
+                'userid' => $USER->id,
+                'relateduserid' => $userid,
+                'other' => ['cmid' => $cmid],
+            ])->trigger();
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * Set default values to be shown in form when loaded from DB.
      * @param stdClass $defaultvalues the default values
      * @param stdClass $acdefault the condition object from JSON
      */
     public function set_defaults(stdClass &$defaultvalues, stdClass $acdefault) {
 
-        if (!empty($acdefault->userids)) {
+        if (!empty($acdefault->userids) || !empty($acdefault->removeafterbooking)) {
             $defaultvalues->bo_cond_selectusers_restrict = "1";
-            $defaultvalues->bo_cond_selectusers_userids = $acdefault->userids;
+            $defaultvalues->bo_cond_selectusers_userids = $acdefault->userids ?? [];
+            $defaultvalues->bo_cond_selectusers_removeafterbooking = empty($acdefault->removeafterbooking) ? "0" : "1";
         }
         if (!empty($acdefault->overrides)) {
             $defaultvalues->bo_cond_selectusers_overrideconditioncheckbox = "1";
@@ -554,6 +700,8 @@ class selectusers implements bo_condition, freezable_condition {
                 }
             }
 
+            // An emptied list, kept by "Remove users from the list once they have booked", names nobody.
+            $allowedusersstring = '';
             if ($full && !empty($this->customsettings->userids)) {
                 // Get a string of all users who are allowed to book.
                 $allowedusersstringarr = [];
