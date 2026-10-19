@@ -219,6 +219,14 @@ class option_form extends dynamic_form {
 
         if ($context->contextlevel == CONTEXT_MODULE) {
             [$course, $cm] = get_course_and_cm_from_cmid($context->instanceid, 'booking');
+            if ($PAGE->context->id != $context->id) {
+                // Only the site login was validated, so we set the course module for the page here.
+                // This has to happen before the option settings are loaded by the ids check below:
+                // formatting their textarea customfields runs the text filters, and filters like
+                // emoticons initialise the theme, after which the course of the page can no longer
+                // be changed ("The theme has already been set up for this page").
+                $PAGE->set_cm($cm, $course);
+            }
             if (
                 !booking_option_form_ids_match_cm(
                     $cm,
@@ -228,10 +236,6 @@ class option_form extends dynamic_form {
                 )
             ) {
                 throw new moodle_exception('invalidcontext', 'error');
-            }
-            if ($PAGE->context->id != $context->id) {
-                // Only the site login was validated, so we set the course module for the page here.
-                $PAGE->set_cm($cm, $course);
             }
         }
 
