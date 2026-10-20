@@ -162,7 +162,7 @@ class bulk_update_options_skill extends booking_skill_base implements
                 . 'booking options at '
                 . 'once, selected by optionquery (e.g. all cooking classes), optionids or apply_to_all. All provided fields are '
                 . 'applied to every matched option.',
-            'when' => 'The user wants the same fields changed on many booking options at once, also only where a field is still empty.',
+            'when' => 'The user wants the same fields changed on many booking options at once, or only where a field is empty.',
             'is' => 'Many options in one call.',
             'not' => 'One single option (update_option).',
             'readonly' => $this->is_read_only(),
@@ -202,8 +202,8 @@ class bulk_update_options_skill extends booking_skill_base implements
                 ],
                 'optionfield_empty' => [
                     'type' => 'string',
-                    'description' => 'Key of a booking option field; keeps only the matched options where this field '
-                        . 'has no value yet.',
+                    'description' => 'Key of a booking option field: only the options where this field has no value yet; '
+                        . 'on its own it means every option of this instance.',
                     'required' => false,
                 ],
                 'outputlang' => [
@@ -276,8 +276,11 @@ class bulk_update_options_skill extends booking_skill_base implements
             && count($input['optionids']) > 0;
         $hasquery = !empty($input['optionquery']) && trim((string)$input['optionquery']) !== '';
         $applyall = !empty($input['apply_to_all']);
+        // The empty-field scope is a selector of its own: every option of the instance where the field
+        // has no value (#2680, the constructor sends exactly that for "bei allen, bei denen X leer ist").
+        $hasemptyfield = trim((string)($input['optionfield_empty'] ?? '')) !== '';
 
-        if (!$hasids && !$hasquery && !$applyall) {
+        if (!$hasids && !$hasquery && !$applyall && !$hasemptyfield) {
             return [
                 'valid'  => false,
                 'errors' => [get_string('agent_booking_bulk_update_missing_target', 'booking')],
@@ -366,6 +369,15 @@ class bulk_update_options_skill extends booking_skill_base implements
         // confirm preview, so the card shows what execute will write (run 9, P3, #2409).
         if (isset($preparedinput['prices']) && is_numeric($preparedinput['prices'])) {
             $preparedinput['prices'] = ['default' => (float)$preparedinput['prices']];
+        }
+
+        // The empty-field scope on its own means every option of the instance (#2680).
+        if (
+            trim((string)($input['optionfield_empty'] ?? '')) !== ''
+            && empty($input['optionids']) && trim((string)($input['optionquery'] ?? '')) === '' && empty($input['apply_to_all'])
+        ) {
+            $input['apply_to_all'] = true;
+            $preparedinput['apply_to_all'] = true;
         }
 
         $hasids   = !empty($input['optionids']) && is_array($input['optionids'])
