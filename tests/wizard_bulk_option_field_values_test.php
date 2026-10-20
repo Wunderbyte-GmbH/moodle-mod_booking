@@ -112,13 +112,14 @@ final class wizard_bulk_option_field_values_test extends advanced_testcase {
 
         $skill = new bulk_update_options_skill();
         $preflight = $skill->preflight(
-            ['apply_to_all' => true, 'optionfield_empty' => 'kursformat', 'optionfields' => ['kursformat' => 'Online']],
+            ['optionfield_empty' => 'kursformat', 'optionfields' => ['kursformat' => 'Online']],
             $contextid,
             (int)$USER->id
         );
         $this->assertSame('pass', $preflight->status, json_encode($preflight->issues ?? []));
         $prepared = (array)$preflight->preparedinput;
         $this->assertSame([$optionid2], array_map('intval', (array)$prepared['optionids']));
+        $this->assertTrue((bool)($prepared['apply_to_all'] ?? false), 'the scope key alone means every option of the instance');
         $labels = array_column((array)((array)$skill->describe_proposed_action($prepared))['rows'], 'value', 'label');
         $this->assertSame('Kursformat', $labels[get_string('previewlabel_optionfieldempty', 'booking')] ?? null);
 
@@ -126,6 +127,16 @@ final class wizard_bulk_option_field_values_test extends advanced_testcase {
         $this->assertSame('executed', $result['status'] ?? '', (string)($result['detail'] ?? ''));
         $this->assertSame('1', $this->stored_value($optionid1, 'kursformat'));
         $this->assertSame('2', $this->stored_value($optionid2, 'kursformat'));
+
+        // The scope key on its own selects every option of the instance where the field is still empty (the
+        // constructor sends exactly that for "bei allen Optionen, bei denen das Kursformat noch leer ist", OF4).
+        $only = $skill->preflight(
+            ['optionfield_empty' => 'kursformat', 'optionfields' => ['kursformat' => 'Präsenz']],
+            $contextid,
+            (int)$USER->id
+        );
+        $this->assertNotSame('pass', $only->status, 'nothing is empty any more');
+        $this->assertContains('EMPTY_BULK_TARGET_SELECTION', $this->issue_codes($only));
 
         // Nothing left to fill: a clarification, not a confirmable no-op.
         $again = $skill->preflight(
