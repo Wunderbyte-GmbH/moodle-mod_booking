@@ -82,8 +82,7 @@ Feature: In a course add a booking instance and manage it
       | booking  | C1     | My booking | My booking description | teacher1       | Webinar   | 10       | https://pool.loc | showactive | 1        | Confirm booking! |
     And I am on the "My booking" Activity page logged in as admin
     ## Create booking instance template
-    And I click on "More" "link" in the ".secondary-navigation .dropdownmoremenu" "css_element"
-    And I click on "Add booking instance to template" "link" in the "[data-key=\"nav_saveinstanceastemplate\"]" "css_element"
+    And I navigate to "Add booking instance to template" in current page administration
     And I set the field "Name" to "InstanceTemplate"
     And I press "Save changes"
     And I should see "This booking instance was successfully saved as template."
@@ -100,8 +99,7 @@ Feature: In a course add a booking instance and manage it
       | booking  | C1     | My booking | My booking description | teacher1       | Webinar   | 10       | https://pool.loc | showactive | Confirm booking! |
     And I am on the "My booking" Activity page logged in as teacher1
     ## Create booking instance template
-    And I click on "More" "link" in the ".secondary-navigation .dropdownmoremenu" "css_element"
-    And I click on "Add booking instance to template" "link" in the "[data-key=\"nav_saveinstanceastemplate\"]" "css_element"
+    And I navigate to "Add booking instance to template" in current page administration
     And I set the field "Name" to "InstanceTemplate"
     And I press "Save changes"
     And I should see "This booking instance was successfully saved as template."

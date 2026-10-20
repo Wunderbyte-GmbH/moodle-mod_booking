@@ -59,8 +59,7 @@ Feature: In a booking create a template
     And I press "Save"
     ## Required to avoid erros like "invalid session id" on the step next to "New option"
     ## Edit template
-    And I click on "More" "text" in the ".secondary-navigation .moremenu.navigation" "css_element"
-    And I follow "Manage booking option templates"
+    And I navigate to "Manage booking option templates" in current page administration
     And I should see "Option template"
     And I press "Edit"
     And I follow "Price"
@@ -81,8 +80,7 @@ Feature: In a booking create a template
     And I should see "16 May 2050" in the ".allbookingoptionstable_r1" "css_element"
     And I should see "70.00 EUR" in the ".allbookingoptionstable_r1" "css_element"
     ## Delete template
-    And I click on "More" "text" in the ".secondary-navigation .moremenu.navigation" "css_element"
-    And I follow "Manage booking option templates"
+    And I navigate to "Manage booking option templates" in current page administration
     And I press "Delete"
 
   @javascript
@@ -104,8 +102,7 @@ Feature: In a booking create a template
     ## Customize option and add it as template
     And I am on the "My booking" Activity page logged in as teacher1
     And I click on "Edit booking option" "icon" in the ".allbookingoptionstable_r1" "css_element"
-    And I click on "More" "text" in the ".secondary-navigation .moremenu.navigation" "css_element"
-    And I follow "Save booking option as template"
+    And I navigate to "Save booking option as template" in current page administration
     ## Validate rediection
     And I should see "Booking option templates"
     And I should see "SelfLearning" in the "#optiontemplatessettings_r0" "css_element"
