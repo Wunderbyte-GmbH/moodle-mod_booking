@@ -491,7 +491,7 @@ class booking_skill_support {
             $register(MOD_BOOKING_OPTION_FIELD_BOOKUSERS, get_string('bookusers', 'booking'));
         }
 
-        if (self::has_any_input_key($input, ['customfieldvalues'])) {
+        if (self::has_any_input_key($input, ['optionfields', 'optionfieldvalues'])) {
             $register(
                 MOD_BOOKING_OPTION_FIELD_COSTUMFIELDS,
                 get_string('customfields', 'booking')
