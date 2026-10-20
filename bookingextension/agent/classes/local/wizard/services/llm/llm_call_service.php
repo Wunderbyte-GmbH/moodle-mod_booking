@@ -172,6 +172,22 @@ class llm_call_service {
     }
 
     /**
+     * Whether a confirmation for these commands should say that the content model writes the texts.
+     *
+     * @param array $commands Proposed commands (each: {skill, …}).
+     * @return bool
+     */
+    public static function content_model_note_applies(array $commands): bool {
+        $contentskills = ['course.scaffold_course_content', 'question.generate_questions'];
+        foreach ($commands as $command) {
+            if (is_array($command) && in_array((string)($command['skill'] ?? ''), $contentskills, true)) {
+                return self::content_model_enabled();
+            }
+        }
+        return false;
+    }
+
+    /**
      * One tiny call on the content model, run when the admin switches enhanced content generation on.
      *
      * @return array{success:bool,error:string,model:string}

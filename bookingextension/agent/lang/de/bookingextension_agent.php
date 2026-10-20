@@ -221,6 +221,7 @@ $string['agent_configure_intro'] = 'Wunderbyte-Provider für den vollen Funktion
 $string['agent_configure_provider'] = 'Wunderbyte-Provider konfigurieren';
 $string['agent_configure_use_provider'] = 'Zugangsdaten von {$a} übernehmen';
 $string['agent_configure_use_trial'] = 'Wunderbyte-Testversion nutzen';
+$string['agent_confirm_contentmodel_note'] = 'Die Inhalte schreibt das verbesserte Inhaltsmodell (zweites Modell).';
 $string['agent_confirm_operating_context_note'] = 'Hinweis: Dies wird ausgeführt in: {$a}.';
 $string['agent_confirm_target_activity'] = 'Aktivität "{$a->activity}" in Kurs "{$a->course}" (ID {$a->id})';
 $string['agent_confirm_target_course'] = 'Kurs "{$a->name}" (ID {$a->id})';

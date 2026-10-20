@@ -26,6 +26,7 @@ declare(strict_types=1);
 
 namespace bookingextension_agent\local\wizard\services\decision;
 
+use bookingextension_agent\local\wizard\services\llm\llm_call_service;
 use core_text;
 use bookingextension_agent\local\wizard\dto\skill_risk_class;
 use bookingextension_agent\local\wizard\services\risk\risk_class_resolver;
@@ -364,11 +365,15 @@ class agent_decision_service {
             }
         }
 
-        if (empty($labels)) {
-            return '';
+        $note = empty($labels)
+            ? ''
+            : $this->localized('agent_confirm_operating_context_note', implode(', ', array_unique($labels)), $outputlang);
+        // Content skills say in the card itself that the enhanced content model writes the texts.
+        if (llm_call_service::content_model_note_applies($commands)) {
+            $note = trim($note . ' ' . $this->localized('agent_confirm_contentmodel_note', null, $outputlang));
         }
 
-        return $this->localized('agent_confirm_operating_context_note', implode(', ', array_unique($labels)), $outputlang);
+        return $note;
     }
 
     /**
