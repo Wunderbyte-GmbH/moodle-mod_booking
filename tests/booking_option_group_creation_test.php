@@ -231,7 +231,10 @@ final class booking_option_group_creation_test extends booking_advanced_testcase
 
         // Duplicate "Booking instance 1" using the standard Moodle module duplication.
         $cm1 = get_fast_modinfo($course1)->get_cm($booking1->cmid);
-        $newcm = duplicate_module($course1, $cm1);
+        // Moodle 5.2 deprecated duplicate_module() (MDL-86858); 4.5-5.1 have no cmactions::duplicate() yet.
+        $newcm = method_exists(\core_courseformat\local\cmactions::class, 'duplicate')
+            ? \core_courseformat\formatactions::cm($course1->id)->duplicate($cm1->id)
+            : duplicate_module($course1, $cm1);
         $this->assertNotNull($newcm, 'Module duplication must return a valid cm_info object.');
 
         // Rename the duplicated booking instance to "Booking instance 2".

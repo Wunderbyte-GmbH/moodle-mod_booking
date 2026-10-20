@@ -214,7 +214,10 @@ final class duplicate_connected_courses_test extends booking_advanced_testcase {
         global $DB;
 
         $cm = get_fast_modinfo($course)->get_cm($cmid);
-        $newcm = duplicate_module($course, $cm);
+        // Moodle 5.2 deprecated duplicate_module() (MDL-86858); 4.5-5.1 have no cmactions::duplicate() yet.
+        $newcm = method_exists(\core_courseformat\local\cmactions::class, 'duplicate')
+            ? \core_courseformat\formatactions::cm($course->id)->duplicate($cm->id)
+            : duplicate_module($course, $cm);
         $this->assertNotNull($newcm, 'Module duplication must return a valid cm_info object.');
         $this->reset_after_duplication($course);
 
@@ -422,7 +425,10 @@ final class duplicate_connected_courses_test extends booking_advanced_testcase {
         $coursecountbefore = $DB->count_records('course');
 
         $cm = get_fast_modinfo($course)->get_cm($booking->cmid);
-        $newcm = duplicate_module($course, $cm);
+        // Moodle 5.2 deprecated duplicate_module() (MDL-86858); 4.5-5.1 have no cmactions::duplicate() yet.
+        $newcm = method_exists(\core_courseformat\local\cmactions::class, 'duplicate')
+            ? \core_courseformat\formatactions::cm($course->id)->duplicate($cm->id)
+            : duplicate_module($course, $cm);
         $this->reset_after_duplication($course);
 
         $newoption = $DB->get_record('booking_options', ['bookingid' => $newcm->instance], 'id, courseid', MUST_EXIST);
