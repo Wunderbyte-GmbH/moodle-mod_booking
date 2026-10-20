@@ -162,7 +162,7 @@ class bulk_update_options_skill extends booking_skill_base implements
                 . 'booking options at '
                 . 'once, selected by optionquery (e.g. all cooking classes), optionids or apply_to_all. All provided fields are '
                 . 'applied to every matched option.',
-            'when' => 'The user wants the same fields changed on many booking options at once.',
+            'when' => 'The user wants the same fields changed on many booking options at once, also only where a field is still empty.',
             'is' => 'Many options in one call.',
             'not' => 'One single option (update_option).',
             'readonly' => $this->is_read_only(),
@@ -174,6 +174,7 @@ class bulk_update_options_skill extends booking_skill_base implements
                 'Increase the capacity of all workshops to 25 seats',
                 'Make all options visible at once',
                 'Change the teacher for every Tuesday class in one go',
+                'Set the course format to online on every option where it is still empty',
             ],
             'properties' => array_merge([
                 'optionids' => [
