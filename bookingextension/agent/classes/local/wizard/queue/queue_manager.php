@@ -161,11 +161,26 @@ class queue_manager {
 
         // Idempotency: if an equivalent item (same signature) is already in a
         // non-terminal state, return it instead of creating a duplicate.
-        foreach ($items as $existing) {
+        foreach ($items as $idx => $existing) {
             if (
                 (string)($existing['input_signature'] ?? '') === $signature
                 && !queue_status_policy::is_terminal_status((string)($existing['status'] ?? ''))
             ) {
+                // The proposal being staged owns the edges of a reused item. Kept from the proposal
+                // it came from, they pointed at steps the user had just dropped, and the confirm
+                // ended as DEPENDENCY_WAITING with the intent gone (#2679, thread 6342). Only a
+                // cycle keeps the old edges.
+                $olddependson = array_values(array_map('strval', (array)($existing['depends_on'] ?? [])));
+                if ($olddependson !== $dependson) {
+                    $snapshot = $items;
+                    $snapshot[$idx]['depends_on'] = $dependson;
+                    if ($this->validate_depends_on_is_dag($snapshot, $dependson)) {
+                        $items[$idx]['depends_on'] = $dependson;
+                        $items[$idx]['updated_at'] = time();
+                        $this->save_queue_items($threadid, $items);
+                        $existing = $items[$idx];
+                    }
+                }
                 $reused = $existing;
                 $reused['idempotency_reused'] = true;
                 $reused['idempotency_reason'] = 'QUEUE_SIGNATURE_REUSE';

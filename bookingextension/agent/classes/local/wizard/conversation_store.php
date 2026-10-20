@@ -886,6 +886,17 @@ class conversation_store implements agent_conversation_store {
     }
 
     /**
+     * Put a consumed pending intent back as it was (same code, same expiry).
+     *
+     * @param int $threadid
+     * @param array $pendingintent The array consume_pending_intent() returned.
+     * @return void
+     */
+    public function restore_pending_intent(int $threadid, array $pendingintent): void {
+        $this->set_thread_metadata_value($threadid, 'pending_intent', $pendingintent);
+    }
+
+    /**
      * Clear the pending intent for a thread.
      *
      * Must be called after a confirmation is processed or when a new unrelated
