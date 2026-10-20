@@ -127,11 +127,11 @@ final class availability_changes_tracking_test extends advanced_testcase {
     }
 
     /**
-     * The change notice names the condition and lists the users by name.
+     * The change notice names the condition and counts the users without naming them.
      *
      * @return void
      */
-    public function test_changes_description_names_condition_and_users(): void {
+    public function test_changes_description_names_condition_and_counts_users(): void {
         $this->setAdminUser();
         $users = $this->create_users(2);
         $field = new availability();
@@ -151,15 +151,21 @@ final class availability_changes_tracking_test extends advanced_testcase {
         $label = get_string('bocondselectusers', 'mod_booking');
         $this->assertStringStartsWith($label . ': ', $description['oldvalue']);
         $this->assertStringStartsWith($label . ': ', $description['newvalue']);
-        $this->assertStringContainsString(fullname($users[0]), $description['oldvalue']);
-        $this->assertStringNotContainsString(fullname($users[1]), $description['oldvalue']);
-        $this->assertStringContainsString(fullname($users[1]), $description['newvalue']);
+        $userslabel = get_string('bocondselectusersuserids', 'mod_booking');
+        $this->assertStringContainsString($userslabel . ': 1', $description['oldvalue']);
+        $this->assertStringContainsString($userslabel . ': 2', $description['newvalue']);
         $this->assertStringContainsString(get_string('bocondbookingtime', 'mod_booking'), $description['newvalue']);
+        // The notice must not disclose who is allowed to book.
+        foreach ($users as $user) {
+            $this->assertStringNotContainsString(fullname($user), $description['oldvalue']);
+            $this->assertStringNotContainsString(fullname($user), $description['newvalue']);
+            $this->assertStringNotContainsString('(ID:' . $user->id . ')', $description['newvalue']);
+        }
 
         // A removed condition has no new value, an added one no old value.
         $removed = $field->get_changes_description(['fieldname' => 'availability', 'oldvalue' => $old, 'newvalue' => []]);
         $this->assertSame('', $removed['newvalue']);
-        $this->assertStringContainsString(fullname($users[0]), $removed['oldvalue']);
+        $this->assertStringContainsString($userslabel . ': 1', $removed['oldvalue']);
 
         // Objects restored from the log store are handled like arrays.
         $restored = $field->get_changes_description([
@@ -167,7 +173,7 @@ final class availability_changes_tracking_test extends advanced_testcase {
             'oldvalue' => null,
             'newvalue' => (object)$new,
         ]);
-        $this->assertStringContainsString(fullname($users[1]), $restored['newvalue']);
+        $this->assertStringContainsString($userslabel . ': 2', $restored['newvalue']);
     }
 
     /**
@@ -202,10 +208,11 @@ final class availability_changes_tracking_test extends advanced_testcase {
         $this->assertEquals([$users[0]->id], $availabilitychanges[0]['oldvalue']['userids']);
         $this->assertEquals([$users[1]->id], $availabilitychanges[0]['newvalue']['userids']);
 
-        // The rendered event description names both users.
+        // The rendered event description shows the condition but names no user.
         $description = reset($updateevents)->get_description();
-        $this->assertStringContainsString(fullname($users[0]), $description);
-        $this->assertStringContainsString(fullname($users[1]), $description);
+        $this->assertStringContainsString(get_string('bocondselectusers', 'mod_booking'), $description);
+        $this->assertStringNotContainsString(fullname($users[0]), $description);
+        $this->assertStringNotContainsString(fullname($users[1]), $description);
     }
 
     /**
