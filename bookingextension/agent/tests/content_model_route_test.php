@@ -145,6 +145,25 @@ final class content_model_route_test extends \advanced_testcase {
     }
 
     /**
+     * The confirmation note names the content model only for content skills and only while the switch works.
+     */
+    public function test_the_card_note_applies_to_content_skills_only_while_switched_on(): void {
+        $scaffold = [['skill' => 'course.scaffold_course_content', 'input' => []]];
+        $questions = [['skill' => 'question.generate_questions', 'input' => []]];
+        $option = [['skill' => 'mod_booking.create_option', 'input' => []]];
+
+        set_config('contentmodel_enabled', 0, 'bookingextension_agent');
+        $this->assertFalse(llm_call_service::content_model_note_applies($scaffold));
+
+        set_config('contentmodel_enabled', 1, 'bookingextension_agent');
+        $this->create_provider_with_content_action();
+        $this->assertTrue(llm_call_service::content_model_note_applies($scaffold));
+        $this->assertTrue(llm_call_service::content_model_note_applies($questions));
+        $this->assertFalse(llm_call_service::content_model_note_applies($option));
+        $this->assertFalse(llm_call_service::content_model_note_applies([]));
+    }
+
+    /**
      * A Wunderbyte provider instance with the content action enabled.
      *
      * @return \core_ai\provider

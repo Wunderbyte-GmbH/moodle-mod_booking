@@ -223,6 +223,7 @@ $string['agent_configure_intro'] = 'Configure the Wunderbyte provider for the fu
 $string['agent_configure_provider'] = 'Configure Wunderbyte provider';
 $string['agent_configure_use_provider'] = 'Use credentials from {$a}';
 $string['agent_configure_use_trial'] = 'Use a Wunderbyte trial';
+$string['agent_confirm_contentmodel_note'] = 'The content will be written by the enhanced content model (second model).';
 $string['agent_confirm_operating_context_note'] = 'Note: this will be carried out in: {$a}.';
 $string['agent_confirm_target_activity'] = 'activity "{$a->activity}" in course "{$a->course}" (ID {$a->id})';
 $string['agent_confirm_target_course'] = 'course "{$a->name}" (ID {$a->id})';
