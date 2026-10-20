@@ -92,7 +92,11 @@ class question_generation_service {
         }
 
         $raw = (string)($call['rawcontent'] ?? '');
-        $gift = self::extract_gift($threadid > 0 ? (string)$privacy->deanonymize_value_for_display($threadid, $raw) : $raw);
+        // The executor's resolver: originals without the display marker, the questions are stored in the bank.
+        if ($threadid > 0) {
+            $raw = (string)($privacy->deanonymize_command_input($threadid, ['text' => $raw])['text'] ?? $raw);
+        }
+        $gift = self::extract_gift($raw);
         if ($gift === '') {
             return [
                 'success' => false,

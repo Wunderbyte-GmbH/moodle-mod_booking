@@ -213,7 +213,9 @@ class course_content_generation_service {
         if ($threadid <= 0) {
             return $content;
         }
-        return (string)(new privacy_anonymizer($this->store))->deanonymize_value_for_display($threadid, $content);
+        // The executor's resolver: originals without the display marker, this text is stored in the course.
+        $resolved = (new privacy_anonymizer($this->store))->deanonymize_command_input($threadid, ['text' => $content]);
+        return (string)($resolved['text'] ?? $content);
     }
 
     /**
