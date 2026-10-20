@@ -548,7 +548,10 @@ class availability extends field_base {
     }
 
     /**
-     * Renders user ids as "Firstname Lastname (ID:x)" where the user exists.
+     * Renders the allowed users as their number only.
+     *
+     * The change log can be read by everybody who edits the option and the event may be rendered
+     * elsewhere, so the names and ids of the allowed users are not disclosed here.
      *
      * @param array $userids
      *
@@ -556,12 +559,7 @@ class availability extends field_base {
      *
      */
     private static function describe_users(array $userids): string {
-        $names = [];
-        foreach ($userids as $userid) {
-            $user = singleton_service::get_instance_of_user((int)$userid);
-            $names[] = empty($user) ? (string)$userid : get_string('userinfosasstring', 'mod_booking', $user);
-        }
-        return implode(', ', $names);
+        return (string)count(array_unique(array_filter(array_map('intval', $userids))));
     }
 
     /**
