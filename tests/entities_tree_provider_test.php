@@ -56,6 +56,8 @@ final class entities_tree_provider_test extends advanced_testcase {
 
         $this->resetAfterTest();
         $this->preventResetByRollback();
+        // The local_entities generator submits edit_dynamic_form, which requires a logged-in user.
+        $this->setAdminUser();
         entities::reset_caches();
 
         $egen = $this->getDataGenerator()->get_plugin_generator('local_entities');
@@ -292,6 +294,8 @@ final class entities_tree_provider_test extends advanced_testcase {
      */
     public function test_render_location_cell(): void {
         $this->resetAfterTest();
+        // The local_entities generator submits edit_dynamic_form, which requires a logged-in user.
+        $this->setAdminUser();
         entities::reset_caches();
 
         $egen = $this->getDataGenerator()->get_plugin_generator('local_entities');
