@@ -19,6 +19,7 @@ namespace mod_booking\local\wizard\options\skills;
 use mod_booking\local\wizard\booking\booking_skill_mutation_execute_service;
 use mod_booking\local\wizard\booking\booking_skill_support;
 use mod_booking\local\wizard\booking\support\entity_location;
+use mod_booking\local\wizard\booking\support\option_field_values;
 use mod_booking\local\wizard\engine\queue_identity_provider_interface;
 use mod_booking\local\wizard\engine\skill_trigger_provider_interface;
 
@@ -574,6 +575,16 @@ class update_option_skill extends booking_skill_base implements
         );
         if ($entityissue !== null) {
             $issues[] = $entityissue;
+            return $this->invalid($issues);
+        }
+
+        // Option field values are resolved before the card; an unknown field or value is a clarification (#2680).
+        $fieldissue = option_field_values::preflight_issue(
+            $preparedinput,
+            fn(string $id, $a): string => $this->localized_string($id, $a, $lang)
+        );
+        if ($fieldissue !== null) {
+            $issues[] = $fieldissue;
             return $this->invalid($issues);
         }
 

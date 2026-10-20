@@ -21,6 +21,7 @@ use context_user;
 use mod_booking\booking_option;
 use mod_booking\local\wizard\booking\support\booking_mutation_validation;
 use mod_booking\local\wizard\booking\support\entity_location;
+use mod_booking\local\wizard\booking\support\option_field_values;
 use mod_booking\local\wizard\options\skills\bulk_update_options_skill;
 use mod_booking\local\wizard\options\skills\create_option_skill;
 use mod_booking\local\wizard\options\skills\option_input_verification;
@@ -660,6 +661,24 @@ class booking_skill_mutation_execute_service {
                 }
                 $data->bo_cond_customform_deleteinfoscheckboxadmin = !empty($customformjson['deleteinfoscheckboxadmin']) ? 1 : 0;
             }
+        }
+
+        // Option field values (#2680): resolved by the skill preflight into optionfieldvalues, or here for a direct
+        // call; applied in import style so booking_handler maps them to the form elements on save.
+        $optionfieldvalues = is_array($input['optionfieldvalues'] ?? null) ? (array)$input['optionfieldvalues'] : null;
+        if ($optionfieldvalues === null && !empty($input['optionfields'])) {
+            $resolved = option_field_values::resolve(
+                $input['optionfields'],
+                static fn(string $id, $a): string => get_string($id, 'booking', $a)
+            );
+            if ($resolved['issue'] !== null) {
+                return ['status' => 'error', 'detail' => (string)$resolved['issue']['message'], 'resultid' => null];
+            }
+            $optionfieldvalues = $resolved['values'];
+            $input['optionfieldvalues'] = $optionfieldvalues;
+        }
+        if (!empty($optionfieldvalues)) {
+            option_field_values::apply_to_data($data, $optionfieldvalues);
         }
 
         if ($taskname === create_option_skill::TASK_NAME) {
@@ -1496,6 +1515,9 @@ class booking_skill_mutation_execute_service {
         }
         if (!empty($input['headerimage_token'])) {
             $checked[] = 'headerimage_token';
+        }
+        if (!empty($input['optionfieldvalues'])) {
+            $checked[] = 'optionfields';
         }
         if (!empty($input['teacherids']) && is_array($input['teacherids'])) {
             $checked[] = 'teacherids';

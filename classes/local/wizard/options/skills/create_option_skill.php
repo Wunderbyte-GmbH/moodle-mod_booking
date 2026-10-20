@@ -20,6 +20,7 @@ use mod_booking\local\wizard\booking\booking_skill_mutation_execute_service;
 use mod_booking\local\wizard\booking\booking_skill_support;
 use mod_booking\local\wizard\booking\support\booking_mutation_validation;
 use mod_booking\local\wizard\booking\support\entity_location;
+use mod_booking\local\wizard\booking\support\option_field_values;
 use mod_booking\local\wizard\engine\queue_identity_provider_interface;
 use mod_booking\local\wizard\engine\skill_trigger_provider_interface;
 use mod_booking\local\wizard\engine\module_targeted_skill;
@@ -224,8 +225,8 @@ class create_option_skill extends booking_skill_base implements
             // maps an attachment token to the option header image at create time, so "create it
             // with this image" is a supported request — not an invented key.
             $allowed = array_flip([
-                'text', 'description', 'location', 'address', 'coursestarttime', 'courseendtime', 'optiondates',
-                'optiondatesmode',
+                'text', 'description', 'location', 'address', 'optionfields', 'coursestarttime', 'courseendtime',
+                'optiondates', 'optiondatesmode',
                 'maxanswers', 'teacherquery', 'teacheremail', 'prices',
                 'bookingopeningtime', 'bookingclosingtime', 'maxoverbooking',
                 'override', 'outputlang', 'activityquery', 'cmid', 'linkedcoursequery', 'headerimage_token',
@@ -1010,6 +1011,16 @@ class create_option_skill extends booking_skill_base implements
         // save carry the entity link (the form clears location/address without it, #2417); an unknown
         // name is a clarification with the entities as remedies. Without local_entities the free-text
         // location keeps its soft-confirmation.
+        // Option field values are resolved before the card; an unknown field or value is a clarification (#2680).
+        $fieldissue = option_field_values::preflight_issue(
+            $input,
+            fn(string $id, $a): string => $this->localized_string($id, $a, $lang)
+        );
+        if ($fieldissue !== null) {
+            $issues[] = $fieldissue;
+            return $this->invalid($issues);
+        }
+
         $allowemptylocation = in_array('location', $overrides, true) || in_array('address', $overrides, true);
         if (entity_location::installed()) {
             $entityissue = entity_location::preflight_issue(

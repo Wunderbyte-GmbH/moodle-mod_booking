@@ -38,6 +38,12 @@ class option_schema_definition {
             ],
             'location'    => ['type' => 'string', 'description' => 'Location / venue.', 'required' => false],
             'address'     => ['type' => 'string', 'description' => 'Address of the venue.', 'required' => false],
+            'optionfields' => [
+                'type' => 'object',
+                'description' => 'Booking option fields by field key, e.g. {"kursformat": "Präsenz"}; a select field takes '
+                    . 'one of its displayed values.',
+                'required' => false,
+            ],
             'maxanswers'  => ['type' => 'integer', 'description' => 'Maximum number of participants. '
                 . 'Optional — 0 or empty means NO limit, which is the default. Do not ask the user about '
                 . 'capacity and never invent a number; leave it out for unlimited unless they gave one.',

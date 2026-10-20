@@ -44,7 +44,7 @@ class option_preview_builder {
     /** @var string[] Internal / derived keys that carry no user meaning in a preview. */
     private const HIDDEN_KEYS = [
         'outputlang', 'optiontype', 'slot_enabled', 'headerimage_token',
-        'activityquery', 'cmid', 'targetcmid', 'id', 'override',
+        'activityquery', 'cmid', 'targetcmid', 'id', 'override', 'optionfieldvalues',
     ];
 
     /** @var int Hard cap for a single preview value (long texts are truncated). */
@@ -230,6 +230,12 @@ class option_preview_builder {
 
         $rows = self::target_rows($input, $lang);
         self::push_str($rows, 'previewlabel_appliesto', $lang, $target);
+        $emptyfield = trim((string)($input['optionfield_empty'] ?? ''));
+        if ($emptyfield !== '') {
+            $emptyrecord = option_field_support::get_field_by_shortname($emptyfield);
+            $emptyname = $emptyrecord !== null ? (string)$emptyrecord->name : $emptyfield;
+            self::push_str($rows, 'previewlabel_optionfieldempty', $lang, $emptyname);
+        }
         // The resolved match count: the user must see the real scope before confirming.
         if (!empty($optionids) && ($query !== '' || !empty($input['apply_to_all']))) {
             self::push_str(
@@ -713,6 +719,30 @@ class option_preview_builder {
             self::yes_no($input['ticketconfirmidentity'] ?? null, $lang)
         );
         self::push_str($rows, 'previewlabel_ticketextrainfo', $lang, self::text_value($input['ticketextrainfo'] ?? null));
+        foreach (self::option_field_rows($input, $lang) as $row) {
+            $rows[] = $row;
+        }
+        return $rows;
+    }
+
+    /**
+     * One row per booking option field the request sets, labelled with the field's name (#2680).
+     *
+     * @param array $input
+     * @param string $lang
+     * @return array[]
+     */
+    private static function option_field_rows(array $input, string $lang): array {
+        $rows = [];
+        $fields = $input['optionfields'] ?? [];
+        if (is_string($fields)) {
+            $fields = json_decode($fields, true);
+        }
+        foreach ((array)$fields as $key => $value) {
+            $record = option_field_support::get_field_by_shortname((string)$key);
+            $label = $record !== null ? (string)$record->name : self::humanize((string)$key);
+            self::push($rows, $label, self::generic_value($value, $lang));
+        }
         return $rows;
     }
 
@@ -732,6 +762,7 @@ class option_preview_builder {
             'location', 'address', 'teacherquery', 'teacheremail', 'prices',
             'bookingopeningtime', 'bookingclosingtime', 'visibility', 'invisible',
             'ticketdesign', 'ticketpersonalized', 'ticketconfirmidentity', 'ticketextrainfo',
+            'optionfields', 'optionfield_empty',
         ];
 
         // Any other changed key falls back to a humanized label + generic value.
