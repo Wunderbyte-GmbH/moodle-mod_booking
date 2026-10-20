@@ -215,14 +215,17 @@ class create_option_skill extends booking_skill_base implements
             // option fields so parameter construction faces a small, unambiguous schema. The ~70
             // inherited availability/condition fields (cohort/competency/userprofile/customform/…)
             // overwhelm the constructor and are rarely expressed at create time — they can be set
-            // afterwards via update_option. optiontype is set internally and stripped in
-            // check_structure, so it is intentionally NOT prompt-facing.
+            // afterwards via update_option. location/address stay in: a room named in the request or
+            // stored as a default otherwise lands in the description while the card promises it
+            // (#2678). optiontype is set internally and stripped in check_structure, so it is
+            // intentionally NOT prompt-facing.
             // headerimage_token IS prompt-facing: the shared execute service
             // (booking_skill_mutation_execute_service::apply_headerimage_token_to_data) already
             // maps an attachment token to the option header image at create time, so "create it
             // with this image" is a supported request — not an invented key.
             $allowed = array_flip([
-                'text', 'description', 'coursestarttime', 'courseendtime', 'optiondates', 'optiondatesmode',
+                'text', 'description', 'location', 'address', 'coursestarttime', 'courseendtime', 'optiondates',
+                'optiondatesmode',
                 'maxanswers', 'teacherquery', 'teacheremail', 'prices',
                 'bookingopeningtime', 'bookingclosingtime', 'maxoverbooking',
                 'override', 'outputlang', 'activityquery', 'cmid', 'linkedcoursequery', 'headerimage_token',
