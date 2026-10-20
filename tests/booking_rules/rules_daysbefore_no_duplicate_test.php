@@ -174,7 +174,11 @@ final class rules_daysbefore_no_duplicate_test extends booking_advanced_testcase
         // Three minutes later the user logs in and the profile sync updates the user record.
         time_mock::set_mock_time($remindertime + 180);
         $student->firstname = 'Updated';
-        user_update_user($student, false, true);
+        if (method_exists(\core\user::class, 'update_user')) {
+            \core\user::update_user($student, false, true);
+        } else {
+            user_update_user($student, false, true);
+        }
 
         $this->assertSame(0, $this->run_tasks_and_count_reminders($remindertime + 240));
     }
@@ -225,7 +229,11 @@ final class rules_daysbefore_no_duplicate_test extends booking_advanced_testcase
 
         time_mock::set_mock_time($remindertime + 1500);
         $student->firstname = 'Updated';
-        user_update_user($student, false, true);
+        if (method_exists(\core\user::class, 'update_user')) {
+            \core\user::update_user($student, false, true);
+        } else {
+            user_update_user($student, false, true);
+        }
         $this->assertSame(0, $this->run_tasks_and_count_reminders($remindertime + 1560));
     }
 
@@ -254,7 +262,11 @@ final class rules_daysbefore_no_duplicate_test extends booking_advanced_testcase
 
         time_mock::set_mock_time($remindertime + 180);
         $student->firstname = 'Updated';
-        user_update_user($student, false, true);
+        if (method_exists(\core\user::class, 'update_user')) {
+            \core\user::update_user($student, false, true);
+        } else {
+            user_update_user($student, false, true);
+        }
         $this->assertSame(0, $this->run_tasks_and_count_reminders($remindertime + 240));
     }
 
@@ -272,7 +284,11 @@ final class rules_daysbefore_no_duplicate_test extends booking_advanced_testcase
 
         time_mock::set_mock_time($remindertime + 180);
         $student->firstname = 'Updated';
-        user_update_user($student, false, true);
+        if (method_exists(\core\user::class, 'update_user')) {
+            \core\user::update_user($student, false, true);
+        } else {
+            user_update_user($student, false, true);
+        }
         $this->assertSame(0, $this->run_tasks_and_count_reminders($remindertime + 240));
     }
 
