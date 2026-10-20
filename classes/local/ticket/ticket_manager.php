@@ -317,7 +317,9 @@ class ticket_manager {
         if (!isset($user->deleted)) {
             $user->deleted = 0;
         }
-        return user_can_view_profile($user, $course);
+        return method_exists(\core\user::class, 'can_view_profile')
+            ? \core\user::can_view_profile($user, $course)
+            : user_can_view_profile($user, $course);
     }
 
     /**

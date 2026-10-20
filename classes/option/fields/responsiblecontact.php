@@ -141,7 +141,12 @@ class responsiblecontact extends field_base {
                     return get_string('choose...', 'mod_booking');
                 }
                 $user = singleton_service::get_instance_of_user((int)$value);
-                if (!$user || !user_can_view_profile($user)) {
+                if (
+                    !$user
+                    || !(method_exists(\core\user::class, 'can_view_profile')
+                        ? \core\user::can_view_profile($user)
+                        : user_can_view_profile($user))
+                ) {
                     return false;
                 }
                 $details = [
