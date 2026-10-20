@@ -296,7 +296,9 @@ class slot_dto {
         }
 
         $users = !empty($allteacherids)
-            ? user_get_users_by_id(array_values(array_unique($allteacherids)))
+            ? (method_exists(\core\user::class, 'get_users_by_id')
+                ? \core\user::get_users_by_id(array_values(array_unique($allteacherids)))
+                : user_get_users_by_id(array_values(array_unique($allteacherids))))
             : [];
 
         foreach ($rows as $index => $row) {
@@ -453,14 +455,22 @@ class slot_dto {
             }
         }
 
-        $students = !empty($studentids) ? user_get_users_by_id(array_keys($studentids)) : [];
+        $students = !empty($studentids)
+            ? (method_exists(\core\user::class, 'get_users_by_id')
+                ? \core\user::get_users_by_id(array_keys($studentids))
+                : user_get_users_by_id(array_keys($studentids)))
+            : [];
 
         $allteacherids = [];
         foreach ($teacheridsbyslot as $slotteacherids) {
             $allteacherids = array_merge($allteacherids, array_keys($slotteacherids));
         }
         $allteacherids = array_values(array_unique(array_map('intval', $allteacherids)));
-        $teachers = !empty($allteacherids) ? user_get_users_by_id($allteacherids) : [];
+        $teachers = !empty($allteacherids)
+            ? (method_exists(\core\user::class, 'get_users_by_id')
+                ? \core\user::get_users_by_id($allteacherids)
+                : user_get_users_by_id($allteacherids))
+            : [];
 
         $calendarslots = [];
         $details = [];

@@ -90,7 +90,9 @@ class slot_availability {
             return [];
         }
 
-        $users = \user_get_users_by_id($teacherids);
+        $users = method_exists(\core\user::class, 'get_users_by_id')
+            ? \core\user::get_users_by_id($teacherids)
+            : \user_get_users_by_id($teacherids);
         if (empty($users)) {
             return [];
         }

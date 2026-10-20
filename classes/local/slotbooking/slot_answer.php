@@ -133,7 +133,11 @@ class slot_answer {
                 return $id > 0;
             })));
 
-            $teachers = !empty($allteacherids) ? user_get_users_by_id($allteacherids) : [];
+            $teachers = !empty($allteacherids)
+                ? (method_exists(\core\user::class, 'get_users_by_id')
+                    ? \core\user::get_users_by_id($allteacherids)
+                    : user_get_users_by_id($allteacherids))
+                : [];
             $lines = [];
 
             foreach ($slotdata['teachers_per_slot'] as $entry) {
@@ -186,7 +190,9 @@ class slot_answer {
             return '';
         }
 
-        $teachers = user_get_users_by_id($teacherids);
+        $teachers = method_exists(\core\user::class, 'get_users_by_id')
+            ? \core\user::get_users_by_id($teacherids)
+            : user_get_users_by_id($teacherids);
         if (empty($teachers)) {
             return implode(', ', $teacherids);
         }

@@ -295,7 +295,11 @@ class slotbooking extends field_base {
             $userids = array_map(static function ($user): int {
                 return (int)$user->id;
             }, $users);
-            $loadedusers = !empty($userids) ? user_get_users_by_id($userids) : [];
+            $loadedusers = !empty($userids)
+                ? (method_exists(\core\user::class, 'get_users_by_id')
+                    ? \core\user::get_users_by_id($userids)
+                    : user_get_users_by_id($userids))
+                : [];
 
             foreach ($userids as $userid) {
                 if (empty($loadedusers[$userid])) {

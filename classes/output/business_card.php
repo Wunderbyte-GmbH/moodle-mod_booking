@@ -82,7 +82,9 @@ class business_card implements renderable, templatable {
 
         $syscontext = context_system::instance();
 
-        $user = user_get_users_by_id([$userid]);
+        $user = method_exists(\core\user::class, 'get_users_by_id')
+            ? \core\user::get_users_by_id([$userid])
+            : user_get_users_by_id([$userid]);
         $user = reset($user);
 
         // Add safety, if - for some reason - user is  not found.

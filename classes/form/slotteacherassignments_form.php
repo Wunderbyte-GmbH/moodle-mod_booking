@@ -214,7 +214,9 @@ class slotteacherassignments_form extends dynamic_form {
             return;
         }
 
-        $students = user_get_users_by_id($studentids);
+        $students = method_exists(\core\user::class, 'get_users_by_id')
+            ? \core\user::get_users_by_id($studentids)
+            : user_get_users_by_id($studentids);
         usort($students, static function (stdClass $a, stdClass $b): int {
             return strcasecmp(fullname($a), fullname($b));
         });
@@ -343,7 +345,11 @@ class slotteacherassignments_form extends dynamic_form {
             }
         )));
 
-        $teachers = !empty($teacherpool) ? user_get_users_by_id($teacherpool) : [];
+        $teachers = !empty($teacherpool)
+            ? (method_exists(\core\user::class, 'get_users_by_id')
+                ? \core\user::get_users_by_id($teacherpool)
+                : user_get_users_by_id($teacherpool))
+            : [];
         $teacheroptions = [];
         foreach ($teacherpool as $teacherid) {
             if (empty($teachers[$teacherid])) {
