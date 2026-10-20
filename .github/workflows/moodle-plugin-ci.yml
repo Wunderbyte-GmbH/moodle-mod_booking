@@ -6,7 +6,7 @@ jobs:
   # Determines how big the test matrix should be.
   # Full matrix (all Moodle branches x all databases) only for the integration
   # branches listed in FULL_BRANCHES and for pull requests targeting them.
-  # Every other branch/commit gets a reduced matrix (3 combinations).
+  # Every other branch/commit gets a reduced matrix (4 combinations).
   matrix_scope:
     name: determine CI scope
     runs-on: ubuntu-latest
@@ -32,16 +32,17 @@ jobs:
           done
 
           if [ "$full" = "true" ]; then
-            # Full matrix: 5.0/5.1/5.2 on every database (7 jobs) plus 4.5 on
+            # Full matrix: 5.0/5.1/5.2/5.3 on every database (9 jobs) plus 4.5 on
             # every database (3 jobs).
-            matrix_5x='[{"moodle_branches":"MOODLE_500_STABLE MOODLE_501_STABLE MOODLE_502_STABLE","database":""}]'
+            matrix_5x='[{"moodle_branches":"MOODLE_500_STABLE MOODLE_501_STABLE MOODLE_502_STABLE MOODLE_503_STABLE","database":""}]'
             database_405=""
           else
-            # Reduced matrix, 3 combinations in total:
+            # Reduced matrix, 4 combinations in total:
+            #   MOODLE_503_STABLE - pgsql   - php 8.3
             #   MOODLE_502_STABLE - pgsql   - php 8.3
             #   MOODLE_501_STABLE - mariadb - php 8.4  (matrix has no mysqli for 5.1)
             #   MOODLE_405_STABLE - mysqli  - php 8.1
-            matrix_5x='[{"moodle_branches":"MOODLE_502_STABLE","database":"pgsql"},{"moodle_branches":"MOODLE_501_STABLE","database":"mariadb"}]'
+            matrix_5x='[{"moodle_branches":"MOODLE_503_STABLE","database":"pgsql"},{"moodle_branches":"MOODLE_502_STABLE","database":"pgsql"},{"moodle_branches":"MOODLE_501_STABLE","database":"mariadb"}]'
             database_405="mysqli"
           fi
 
@@ -49,7 +50,7 @@ jobs:
           echo "matrix_5x=$matrix_5x" >> "$GITHUB_OUTPUT"
           echo "database_405=$database_405" >> "$GITHUB_OUTPUT"
 
-  moodle500to502:
+  moodle500to503:
     needs: matrix_scope
     strategy:
       fail-fast: false
