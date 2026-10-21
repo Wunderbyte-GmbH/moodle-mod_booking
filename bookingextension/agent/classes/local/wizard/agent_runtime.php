@@ -1030,32 +1030,9 @@ class agent_runtime {
      * @return string
      */
     private function mask_step_observation_for_llm(int $threadid, array $results, string $observation): string {
-        if (trim($observation) === '') {
-            return $observation;
-        }
-
-        $privacy = new privacy_anonymizer($this->store);
-        if (!$privacy->should_anonymize_llm_backend_data()) {
-            return $observation;
-        }
-
-        $allenginestatic = !empty($results);
-        foreach ($results as $entry) {
-            if (!is_array($entry)) {
-                continue;
-            }
-            $carriesobservation = trim((string)($entry['observation_full'] ?? '')) !== ''
-                || trim((string)($entry['detail'] ?? '')) !== '';
-            if ($carriesobservation && empty($entry['observation_engine_static'])) {
-                $allenginestatic = false;
-                break;
-            }
-        }
-        if ($allenginestatic) {
-            return $observation;
-        }
-
-        return (string)$privacy->anonymize_value_for_llm($threadid, $observation);
+        // One rule for the step observation and the synchronizer input (Wunderbyte-GmbH#2614): engine-static entries
+        // stay, entries that declare their persons get the declared treatment, everything else the full detection.
+        return (new privacy_anonymizer($this->store))->mask_observation_for_llm($threadid, $results, $observation);
     }
 
     /**
