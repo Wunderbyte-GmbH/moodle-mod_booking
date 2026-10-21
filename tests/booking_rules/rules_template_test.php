@@ -541,6 +541,8 @@ final class rules_template_test extends booking_advanced_testcase {
 
         // Get messages.
         $messages = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
+        // The task query has no ORDER BY, so sort by id to check the tasks in the order they were queued.
+        ksort($messages);
 
         $this->assertCount(3, $messages);
         // Validate messages. Might be free order.
@@ -682,6 +684,8 @@ final class rules_template_test extends booking_advanced_testcase {
 
         // Get messages.
         $messages = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
+        // The task query has no ORDER BY, so sort by id to check the tasks in the order they were queued.
+        ksort($messages);
 
         $this->assertCount(2, $messages);
         $keys = array_keys($messages);
@@ -711,7 +715,11 @@ final class rules_template_test extends booking_advanced_testcase {
         $this->runAdhocTasks();
         $sentmessages = $messagesink->get_messages();
         $res = ob_get_clean();
-        $this->assertStringContainsString('courseid=' . $course->id, $sentmessages[1]->fullmessagehtml);
+        // The adhoc tasks also run in no fixed order, so find the mail of rule 2 by its subject.
+        $subject2 = json_decode($ruledatanew2['actiondata'])->subject;
+        $completionmails = array_values(array_filter($sentmessages, fn($m) => $m->subject === $subject2));
+        $this->assertCount(1, $completionmails);
+        $this->assertStringContainsString('courseid=' . $course->id, $completionmails[0]->fullmessagehtml);
     }
 
     /**

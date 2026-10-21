@@ -495,6 +495,8 @@ final class rules_test extends booking_advanced_testcase {
 
         // Get messages.
         $messages = \core\task\manager::get_adhoc_tasks('\mod_booking\task\send_mail_by_rule_adhoc');
+        // The task query has no ORDER BY, so sort by id to check the tasks in the order they were queued.
+        ksort($messages);
 
         // Validate adhoc tasks for rule 1.
         $this->assertCount(2, $messages);
