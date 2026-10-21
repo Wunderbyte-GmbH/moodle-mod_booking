@@ -78,7 +78,12 @@ class synchronizer_input_builder {
                 if (!is_array($entry) || !empty($entry['observation_engine_static'])) {
                     continue;
                 }
-                $result['results'][$index] = $anonymizer->anonymize_value_for_llm($threadid, $entry);
+                // A row that declares the persons of its observation (Wunderbyte-GmbH#2614) is masked exactly for
+                // those and for what the map knows; its template words stay. Undeclared rows: as before.
+                $declared = privacy_anonymizer::declared_persons_of($entry);
+                $result['results'][$index] = $declared === null
+                    ? $anonymizer->anonymize_value_for_llm($threadid, $entry)
+                    : $anonymizer->anonymize_value_for_llm_with_declared_persons($threadid, $entry, $declared);
             }
         }
         return $result;
