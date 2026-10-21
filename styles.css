@@ -490,8 +490,9 @@ if there only was one booking option. */
 }
 
 #prepage-booking-tabs li {
-    /*color: lightgray;*/
-    color: #767676;
+    /* #767676 only reached the 4.5:1 contrast on white; on the light grey of Moodle 5.3 it fell to 4.3:1.
+       The Bootstrap secondary text colour also follows the dark mode. The fallback is for Moodle 4.5. */
+    color: var(--bs-secondary-color, #6a6a6a);
     list-style-type: none;
     font-size: 15px;
     /* Share the full width evenly, whatever the number of steps. A fixed width (was 25%)
@@ -2050,4 +2051,12 @@ table[id*="bulkoperationstable"] th {
 
 .mod-booking-confirmation-statusdescription > :last-child {
     margin-bottom: 0;
+}
+
+/* The option links in the report header are only one text line high (22px with the Moodle 5.3 font).
+   WCAG 2.2 asks for click targets of at least 24px. */
+.mod-booking-report-option .h6 > a {
+    display: inline-block;
+    min-width: 24px;
+    min-height: 24px;
 }
