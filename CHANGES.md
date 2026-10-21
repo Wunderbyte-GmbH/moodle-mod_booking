@@ -1,3 +1,6 @@
+## Version 10.0.4 (2026101401)
+* Improvement: The page of the setting "Return page after editing without course login" (editoptionsreturnurl) is also used for responsible contacts who are not enrolled in the course, if "Enrol responsible contact person to connected Moodle course" is disabled. Before, only teachers were taken there; responsible contacts landed on the dashboard after saving or cancelling the booking option form.
+
 ## Version 10.0.3 (2026101300)
 * Improvement: The booking wizard is off by default on new installations; an admin switches it on with "Enable Booking Wizard". Sites that already have the setting stored keep it. All wizard settings now keep their defaults while the wizard is off and are only hidden. (Wunderbyte-GmbH/Wunderbyte-GmbH#2605)
 * Improvement: Once the standalone Wizard plugin (local_wizard) is installed, the bundled booking wizard shows no settings pages any more; its settings live in the Wizard plugin. (Wunderbyte-GmbH/Wunderbyte-GmbH#2605)

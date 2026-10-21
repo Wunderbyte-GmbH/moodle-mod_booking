@@ -396,12 +396,36 @@ final class option_form_courselogin_test extends booking_advanced_testcase {
             booking_editoptions_returnurl($course, (int)$settings->cmid, $otherurl->out(false))->out()
         );
 
-        // The setting is for teachers only: other users still get the dashboard.
-        $this->setUser($this->getDataGenerator()->create_user());
+        // Other users still get the dashboard.
+        $otheruser = $this->getDataGenerator()->create_user();
+        $this->setUser($otheruser);
         $this->assertEquals(
             (new moodle_url('/my/'))->out(),
             booking_editoptions_returnurl($course, (int)$settings->cmid)->out()
         );
+
+        // A responsible contact who is not enrolled gets the page of the setting if the plugin does not enrol
+        // responsible contacts into the course ("responsiblecontactenroltocourse" disabled) ...
+        $DB->set_field('booking_options', 'responsiblecontact', $otheruser->id, ['id' => (int)$settings->id]);
+        set_config('responsiblecontactenroltocourse', 0, 'booking');
+        $this->assertEquals($configurl->out(), booking_editoptions_returnurl($course, (int)$settings->cmid)->out());
+        $this->assertEquals(
+            $configurl->out(),
+            booking_editoptions_returnurl($course, (int)$settings->cmid, $passedviewurl->out(false))->out()
+        );
+        // ... but not if it does enrol them, and never the teacher page if the setting is empty.
+        set_config('responsiblecontactenroltocourse', 1, 'booking');
+        $this->assertEquals(
+            (new moodle_url('/my/'))->out(),
+            booking_editoptions_returnurl($course, (int)$settings->cmid)->out()
+        );
+        set_config('responsiblecontactenroltocourse', 0, 'booking');
+        set_config('editoptionsreturnurl', '', 'booking');
+        $this->assertEquals(
+            (new moodle_url('/my/'))->out(),
+            booking_editoptions_returnurl($course, (int)$settings->cmid)->out()
+        );
+        set_config('editoptionsreturnurl', '/local/mypage/index.php', 'booking');
         $this->setUser($teacher);
 
         // Enrolled users keep the booking instance as fallback and the passed return url, even with the setting.
