@@ -82,18 +82,23 @@ class scaffold_skill extends core_skill_base implements skill_trigger_provider_i
                 // Wave 32 (A3): no sample component name here any more. The old text offered "mod/myplugin", and the
                 // constructor copied it or a variant as the user's plugin when none was named (SCA-1 thread 10587
                 // "mod/myplugin", SCA-2 threads 11376/12721 "local/myplugin") - a template for a plugin nobody has.
+                // 2026-10-21 (SCA-3, threads 6554, 6666-6681, 6700-6703): "mon plugin local_salles" was answered with
+                // "Quel est le composant du plugin ?" in 11 of 14 runs - the text said what the value looks like, not
+                // that a plugin named in the request already is the value. Kept under the 160-char field window.
                 'component' => [
                     'type' => 'string',
-                    'description' => 'Component of the plugin the user named, written type/name or type_name. Never a '
-                        . 'sample or made-up name. Drives namespace, capability and file paths.',
+                    'description' => 'Plugin the skill belongs to, as its component (type_name or type/name). A plugin '
+                        . 'named in the request IS this value: take it, do not ask. Never invent one.',
                     'required' => true,
                 ],
                 // Wave 32 (A3, SCA-4 thread 10581): the constructor asked what "Anwesenheit erfassen" should do although
                 // the command's name was given. The template leaves the behaviour as TODO, so a name is enough.
+                // 2026-10-21 (SCA-3 thread 6554): "qui listera les salles libres" was answered with "Quelle est la
+                // description du skill ?" - the purpose clause of the request is the description.
                 'description' => [
                     'type' => 'string',
-                    'description' => 'What the new skill should do, in natural language. The name or short phrase the '
-                        . 'user gave the command is enough; the template leaves behaviour as TODO.',
+                    'description' => 'What the new skill should do, in natural language. The name, phrase or purpose '
+                        . 'clause the user gave ("that lists free rooms") is enough; behaviour stays TODO.',
                     'required' => true,
                 ],
                 'is' => [
