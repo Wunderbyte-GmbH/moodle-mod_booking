@@ -436,9 +436,30 @@ class planner_phase_service {
                 'required_groups' => (array)($contract['required_groups'] ?? []),
             ];
         }
+        // 2026-10-21 (#2678, A/B MEM4): the facts the user keeps on file reach the constructor as the user's own
+        // earlier turn, in the prompt only (nothing is stored). In the same thread the remembered room reached the
+        // location field 12/12 because the user's sentence stood in the conversation; as a USER MEMORY block alone
+        // it reached it 0/3 (LOC1), 1/6 (rule sentence, MEM1), 3/6 (block header, MEM2), 0/6 (block after the
+        // catalog, MEM3). Rule 1 of the constructor counts "earlier in the conversation" as the user's words.
+        $promptmessages = $messages;
+        $keptfacts = [];
+        foreach ((new user_memory_service())->get_for_scope($userid, user_memory_service::SCOPE_CONSTRUCTION) as $kept) {
+            $fact = trim((string)($kept->memory ?? ''));
+            if ($fact !== '') {
+                $keptfacts[] = '"' . $fact . '"';
+            }
+        }
+        if (!empty($keptfacts)) {
+            array_unshift(
+                $promptmessages,
+                (object)['role' => 'user', 'content' => 'Keep this on file for my requests: ' . implode(' ', $keptfacts)],
+                (object)['role' => 'assistant', 'content' => 'Noted. I keep it on file and use it whenever a request '
+                    . 'of yours leaves such a value open.']
+            );
+        }
         $prompt = $this->build_prompt(
             $systemprompt,
-            $messages,
+            $promptmessages,
             $constructionobservations,
             orchestrator::PHASE_PARAMETER_CONSTRUCTION,
             $runtimeblocks['stable'],

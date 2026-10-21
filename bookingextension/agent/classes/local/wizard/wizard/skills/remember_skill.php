@@ -92,12 +92,15 @@ class remember_skill extends core_skill_base implements skill_trigger_provider_i
                 'remember my personal defaults for creating courses, activities and booking options',
             ],
             'properties' => [
+                // 2026-10-21 (#2678, A/B MEM4/MEM5): "Notier dir: unser Standardraum ist Room 12." was stored as "Our
+                // standard room is Room 12." in 5 of 12 runs - the old text asked for a reworded statement with an
+                // English example. A translated fact was applied to a later German request 0/5, the user's own words
+                // 7/7, and a German "forget" query no longer matched the English entry. Within the 160-char window.
                 'memory' => [
                     'type' => 'string',
-                    'description' => 'The fact/preference/instruction to remember as a COMPLETE, self-contained '
-                        . 'statement that makes sense without the conversation (e.g. "Address the user as '
-                        . '\'Dr. Smith\'", NOT just "Dr. Smith"). Keep it brief and factual '
-                        . '(max ' . user_memory_service::MAX_CHARS_PER_MEMORY . ' characters).',
+                    'description' => 'The fact to remember as one complete statement in the user\'s own words and '
+                        . 'language, exactly as said: never translated or reworded. Brief, max '
+                        . user_memory_service::MAX_CHARS_PER_MEMORY . ' characters.',
                     'required' => true,
                 ],
                 'relevant_for' => [
