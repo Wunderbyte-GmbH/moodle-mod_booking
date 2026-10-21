@@ -90,6 +90,8 @@ final class wizard_diagnose_option_scope_test extends booking_advanced_testcase 
             'optionid' => $this->foreignoptionid,
         ], $this->contexta, (int)get_admin()->id);
 
+        // The report declares its person for the anonymizer: the target user (Wunderbyte-GmbH#2614).
+        $this->assertSame([(int)$this->student->id], $result['observation_persons']);
         $this->assertStringNotContainsString(
             'Fremde Option',
             json_encode($result, JSON_UNESCAPED_UNICODE),

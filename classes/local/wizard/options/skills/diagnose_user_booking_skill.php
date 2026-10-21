@@ -426,6 +426,9 @@ class diagnose_user_booking_skill extends booking_skill_base implements skill_tr
             'detail' => $detail,
             'usermessage' => $detail,
             'observation_full' => $this->build_observation_full($detail, $report),
+            // The persons this observation names (Wunderbyte-GmbH#2614): the target user (links, status lines); course
+            // names are no persons. The engine masks exactly these and runs no single-word guess over the rest.
+            'observation_persons' => [$targetuserid],
             'enrolled_courses' => $enrolledcourses,
             'resultid' => $optionid > 0 ? $optionid : null,
             // Deduplicated (first occurrence wins): a user can have several answer rows per option

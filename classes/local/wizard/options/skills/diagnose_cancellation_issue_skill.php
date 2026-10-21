@@ -530,6 +530,9 @@ class diagnose_cancellation_issue_skill extends booking_skill_base implements sk
                 $coolingoffseconds,
                 $reasons
             ),
+            // The persons this observation names (Wunderbyte-GmbH#2614): the engine masks exactly these and runs no
+            // single-word guess over the template text ("Admin action:" stays, a trainer called Gerda is masked).
+            'observation_persons' => [$diagnosticuserid],
             'debugmessage' => $this->build_task_debug_message(
                 self::TASK_NAME,
                 $input,

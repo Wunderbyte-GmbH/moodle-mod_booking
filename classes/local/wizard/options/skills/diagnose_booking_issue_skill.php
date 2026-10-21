@@ -555,6 +555,9 @@ class diagnose_booking_issue_skill extends booking_skill_base implements skill_t
                 $reasons,
                 $supplementary
             ),
+            // The persons this observation names (Wunderbyte-GmbH#2614): the diagnosed user; the engine masks exactly
+            // these and runs no single-word guess over the template text ("Admin action:", "Supplementary note:").
+            'observation_persons' => [$diagnosticuserid],
             'checklist_rows' => $checklistrows,
             'checklist_title' => $usermessage,
             'requested_userid' => (int)($preparedinput['targetuserid'] ?? 0),
