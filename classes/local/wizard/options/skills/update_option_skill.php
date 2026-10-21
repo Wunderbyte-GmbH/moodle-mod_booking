@@ -139,8 +139,10 @@ class update_option_skill extends booking_skill_base implements
                 . '(headerimage_token).',
             'when' => 'The user wants fields of one existing booking option changed, including its header image.',
             'is' => 'One option.',
+            // 2026-10-21 (Wunderbyte-GmbH#2685): a question what a field holds got an empty update card 11/21 when this
+            // was the only option skill in the selector's catalog.
             'not' => 'Many options at once (bulk_update_options); the field definitions themselves (create_option_field, '
-                . 'update_option_field).',
+                . 'update_option_field); a question what a field of the option contains (get_option_details).',
             'readonly' => $this->is_read_only(),
             'fallback_confirm_string_key' => 'ai_status_confirm_booking_update_option',
             'fallback_taskcall_string_key' => 'ai_status_taskcall_booking_update_option',

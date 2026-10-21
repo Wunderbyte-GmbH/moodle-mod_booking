@@ -107,6 +107,12 @@ class get_option_details_skill extends booking_skill_base implements skill_trigg
                 'Give me all the information about option 1422',
                 'How many seats are left in the cooking class?',
                 'Tell me everything about the First Aid Course',
+                // 2026-10-21 (Wunderbyte-GmbH#2685, session suite S4-3): a question which value ONE field of one option
+                // holds ("Welche Kostenstelle hast du eingetragen?") retrieved report and settings skills and never this
+                // one - the anchors above ask for the whole option, its price or its seats. Intent class "what is stored
+                // in field X of option Y", never the wording of the suite sentence.
+                'What did you enter as the location of the option you just created?',
+                'Which room is stored on the First Aid Course?',
             ],
             'properties' => [
                 'optionid' => [
