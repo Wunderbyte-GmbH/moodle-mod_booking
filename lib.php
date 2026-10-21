@@ -2147,8 +2147,11 @@ function booking_require_editoptions_login(stdClass $course, $cm): void {
  * may edit their options, but view.php still requires the course login, so they would land on the
  * enrolment page after saving or cancelling the form. Callers like the action menu of the options table
  * pass view.php even then, so for these users a missing return url or one to view.php is replaced by
- * the page of the setting "editoptionsreturnurl" (teachers only), or if it is empty by their teacher page,
+ * the page of the setting "editoptionsreturnurl", or if it is empty by their teacher page,
  * or the dashboard if they are not a teacher.
+ *
+ * The page of the setting is used for teachers and, if the setting "responsiblecontactenroltocourse" is
+ * disabled (so they are not enrolled in the course by the plugin), for responsible contacts.
  *
  * @param stdClass $course the course record
  * @param int $cmid the course module id of the booking instance
@@ -2156,7 +2159,7 @@ function booking_require_editoptions_login(stdClass $course, $cm): void {
  * @return moodle_url
  */
 function booking_editoptions_returnurl(stdClass $course, int $cmid, string $returnurl = ''): moodle_url {
-    global $USER;
+    global $DB, $USER;
 
     $viewurl = new moodle_url('/mod/booking/view.php', ['id' => $cmid]);
     if (get_config('booking', 'editoptionsrequirecourselogin') !== '0' || can_access_course($course)) {
@@ -2167,11 +2170,25 @@ function booking_editoptions_returnurl(stdClass $course, int $cmid, string $retu
         return new moodle_url($returnurl);
     }
 
+    $configreturnurl = (string)get_config('booking', 'editoptionsreturnurl');
     if (booking_check_if_teacher()) {
-        $configreturnurl = (string)get_config('booking', 'editoptionsreturnurl');
         return empty($configreturnurl)
             ? new moodle_url('/mod/booking/teacher.php', ['teacherid' => $USER->id])
             : new moodle_url($configreturnurl);
+    }
+
+    // Responsible contacts are only enrolled in the course by the plugin if "responsiblecontactenroltocourse"
+    // is enabled. If it is disabled, responsible contacts of any option get the page of the setting too.
+    if (
+        !empty($configreturnurl)
+        && !get_config('booking', 'responsiblecontactenroltocourse')
+        && $DB->record_exists_select(
+            'booking_options',
+            $DB->sql_like($DB->sql_concat("','", 'responsiblecontact', "','"), ':responsiblecontact'),
+            ['responsiblecontact' => '%,' . (int)$USER->id . ',%']
+        )
+    ) {
+        return new moodle_url($configreturnurl);
     }
 
     return new moodle_url('/my/');
