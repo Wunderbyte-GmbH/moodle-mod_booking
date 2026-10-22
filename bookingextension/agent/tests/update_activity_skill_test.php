@@ -216,6 +216,8 @@ final class update_activity_skill_test extends advanced_testcase {
 
         $result = $skill->execute($pf->preparedinput, $ctxid, (int)$teacher->id);
         $this->assertSame('executed', $result['status']);
+        // No deprecated core API on the way (moveto_module() is deprecated since Moodle 5.2, MDL-86854).
+        $this->assertDebuggingNotCalled();
         $this->assertSame(2, (int)get_fast_modinfo($course)->get_cm((int)$page->cmid)->sectionnum);
         $this->assertStringContainsString('section 2', (string)$result['detail']);
     }
@@ -244,6 +246,41 @@ final class update_activity_skill_test extends advanced_testcase {
         );
         $this->assertSame('hard_block', $pf->status);
         $this->assertContains('UPDATE_ACTIVITY_SECTION_INVALID', $pf->issuecodes);
+    }
+
+    /**
+     * Moving inside the section reorders the activities: "up" moves before the previous one, "bottom" to the end.
+     *
+     * No deprecated core API on the way (moveto_module() is deprecated since Moodle 5.2, MDL-86854).
+     */
+    public function test_move_within_section(): void {
+        global $PAGE;
+        $this->resetAfterTest();
+        $course = $this->getDataGenerator()->create_course(['numsections' => 1, 'format' => 'topics']);
+        $teacher = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->enrol_user($teacher->id, $course->id, 'editingteacher');
+        $cmids = [];
+        foreach (['First page', 'Second page', 'Third page'] as $name) {
+            $page = $this->getDataGenerator()->create_module('page', ['course' => $course->id, 'name' => $name, 'section' => 0]);
+            $cmids[] = (int)$page->cmid;
+        }
+        [$first, $second, $third] = $cmids;
+        $ctxid = (int)context_course::instance($course->id)->id;
+        $this->setUser($teacher);
+        $PAGE->set_context(context_course::instance($course->id));
+        $skill = new update_activity_skill();
+
+        $pf = $skill->preflight(['cmid' => $third, 'position' => 'up'], $ctxid, (int)$teacher->id);
+        $this->assertSame('pass', $pf->status);
+        $this->assertSame('executed', $skill->execute($pf->preparedinput, $ctxid, (int)$teacher->id)['status']);
+        $this->assertSame([$first, $third, $second], array_map('intval', get_fast_modinfo($course->id)->sections[0]));
+
+        $pf = $skill->preflight(['cmid' => $first, 'position' => 'bottom'], $ctxid, (int)$teacher->id);
+        $this->assertSame('pass', $pf->status);
+        $this->assertSame('executed', $skill->execute($pf->preparedinput, $ctxid, (int)$teacher->id)['status']);
+        $this->assertSame([$third, $second, $first], array_map('intval', get_fast_modinfo($course->id)->sections[0]));
+
+        $this->assertDebuggingNotCalled();
     }
 
     /**
