@@ -19,7 +19,7 @@ also works with booking options, booking rules and bookings.
 
 | | |
 |---|---|
-| Moodle | 4.5 to 5.2 (`$plugin->requires` 2024100700) |
+| Moodle | 4.5 to 5.3 (`$plugin->requires` 2024100700) |
 | AI subsystem | Moodle's core AI subsystem with at least one configured AI provider |
 | AI provider | either Moodle's own OpenAI provider (`aiprovider_openai`) or [aiprovider_wunderbyte](https://github.com/Wunderbyte-GmbH/moodle-aiprovider_wunderbyte) (Moodle 5.0 and later) |
 | Optional | mod_booking (booking skills), other plugins that register wizard skills |
