@@ -267,8 +267,11 @@ final class connectedcourse_template_test extends advanced_testcase {
         $this->assertNotEmpty($newcourseid);
         $this->assertNotEquals($templatecourse->id, $newcourseid);
 
-        // Run the async copy task and the finalizer task.
+        // Run the async copy task and the finalizer task. runAdhocTasks() reads the queue without
+        // ORDER BY, so on PostgreSQL the finalizer may come up before its copy and throw (cron would
+        // just retry it). Run the copies first, then everything else.
         ob_start();
+        $this->runAdhocTasks('\core\task\asynchronous_copy_task');
         $this->runAdhocTasks();
         ob_get_clean();
 
@@ -350,7 +353,9 @@ final class connectedcourse_template_test extends advanced_testcase {
         $newcourseid = (int) $settings->courseid;
         $this->assertNotEmpty($newcourseid);
 
+        // Copies first, see above.
         ob_start();
+        $this->runAdhocTasks('\core\task\asynchronous_copy_task');
         $this->runAdhocTasks();
         ob_get_clean();
 
@@ -439,8 +444,9 @@ final class connectedcourse_template_test extends advanced_testcase {
         $this->assertNotEmpty($courseid2);
         $this->assertNotEquals($courseid1, $courseid2);
 
-        // Run the async copy tasks and the finalizers for both options.
+        // Run the async copy tasks and the finalizers for both options. Copies first, see above.
         ob_start();
+        $this->runAdhocTasks('\core\task\asynchronous_copy_task');
         $this->runAdhocTasks();
         ob_get_clean();
         $fullname1 = $DB->get_field('course', 'fullname', ['id' => $courseid1]);

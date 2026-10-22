@@ -577,9 +577,12 @@ final class option_form_noop_save_test extends booking_advanced_testcase {
     /**
      * Returns the sub-element values of a date selector or duration group as a browser posts them.
      *
-     * A select whose current value is not one of its options (e.g. an odd minute with a 5 minute step)
-     * is rendered without a selected option, so the browser posts its first option. The enabled
-     * checkbox of an optional selector is only posted when checked; static parts are never posted.
+     * A select is rendered with the option selected whose value equals the current value the way
+     * HTML_QuickForm_select::toHtml() compares them (loosely, so the zero padded '02' the dates set
+     * selects the option '2'), and the browser posts that option's value. A select whose current
+     * value matches none of its options (e.g. an odd minute with a 5 minute step) is rendered without
+     * a selected option, so the browser posts its first option. The enabled checkbox of an optional
+     * selector is only posted when checked; static parts are never posted.
      *
      * @param \HTML_QuickForm_group $group
      * @return array
@@ -593,10 +596,14 @@ final class option_form_noop_save_test extends booking_advanced_testcase {
                     $current = (array)$sub->getValue();
                     $current = $current === [] ? null : (string)reset($current);
                     $allowed = array_map(fn($option) => (string)$option['attr']['value'], $sub->_options);
-                    if ($current === null || !in_array($current, $allowed, true)) {
-                        $current = $allowed[0] ?? '';
+                    $selected = null;
+                    foreach ($allowed as $option) {
+                        if ($current !== null && $option == $current) {
+                            $selected = $option;
+                            break;
+                        }
                     }
-                    $posted[$subname] = $current;
+                    $posted[$subname] = $selected ?? ($allowed[0] ?? '');
                     break;
                 case 'checkbox':
                     if ($sub->getChecked()) {

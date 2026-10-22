@@ -449,7 +449,11 @@ final class booking_course_connection_test extends booking_advanced_testcase {
         $result = $plugingenerator->create_answer(['optionid' => $option8->id, 'userid' => $student1->id]);
         $this->assertEquals(MOD_BOOKING_BO_COND_ALREADYBOOKED, $result);
 
+        // The async course copies and the finalizers waiting for them are all adhoc tasks. runAdhocTasks()
+        // reads the queue without ORDER BY, so on PostgreSQL a finalizer may come up before its copy and
+        // throw (cron would just retry it). Run the copies first, then everything else.
         ob_start();
+        $this->runAdhocTasks('\core\task\asynchronous_copy_task');
         $this->runAdhocTasks();
         $res = ob_get_clean();
 
