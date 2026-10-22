@@ -532,14 +532,24 @@ class update_activity_skill extends core_skill_base implements skill_trigger_pro
             return;
         }
 
-        // Moodle places the module BEFORE the one handed to moveto_module(); moving to the end passes null.
+        // Moodle places the module BEFORE the given one; without one it goes to the end of the section.
         $remaining = array_values(array_filter($order, static fn(int $id): bool => $id !== (int)$cmrecord->id));
         $beforeid = $remaining[$target] ?? null;
         $beforemod = $beforeid === null
             ? null
             : get_coursemodule_from_id('', (int)$beforeid, (int)$course->id, false, IGNORE_MISSING);
         $section = $modinfo->get_section_info($sectionnum);
-        moveto_module($cmrecord, $section, $beforemod ?: null);
+        // Moodle 5.2 deprecated moveto_module() (MDL-86854); 4.5-5.1 have no cmactions::move_before() yet.
+        if (method_exists(\core_courseformat\local\cmactions::class, 'move_before')) {
+            $cmactions = \core_courseformat\formatactions::cm($course);
+            if ($beforemod) {
+                $cmactions->move_before((int)$cmrecord->id, (int)$beforemod->id);
+            } else {
+                $cmactions->move_end_section((int)$cmrecord->id, (int)$section->id);
+            }
+        } else {
+            moveto_module($cmrecord, $section, $beforemod ?: null);
+        }
     }
 
     /** Movements within a section. */
