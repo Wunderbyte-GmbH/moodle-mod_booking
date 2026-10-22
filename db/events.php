@@ -196,6 +196,18 @@ $observers = [
         'eventname' => '\core\event\course_updated',
         'callback' => 'mod_booking_observer::course_updated',
     ],
+    // Course => booking option auto-creation for linked course categories. Not internal, so the observers only
+    // run once the transaction of the course creation has been committed.
+    [
+        'eventname' => '\core\event\course_created',
+        'callback' => 'mod_booking_observer::course_created',
+        'internal' => false,
+    ],
+    [
+        'eventname' => '\core\event\course_restored',
+        'callback' => 'mod_booking_observer::course_restored',
+        'internal' => false,
+    ],
 ];
 
 if (class_exists('\local_shopping_cart\event\checkout_completed')) {
