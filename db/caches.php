@@ -32,6 +32,14 @@ $definitions = [
         'staticaccelerationsize' => 100,
         'invalidationevents' => ['setbackbookinginstances'],
     ],
+    // Map of linked course categories to booking instance ids (course => booking option auto-creation).
+    // Single key, purged explicitly whenever a booking instance is saved or deleted.
+    'cachedautocreatecategorymap' => [
+        'mode' => cache_store::MODE_APPLICATION,
+        'simplekeys' => true,
+        'staticacceleration' => true,
+        'staticaccelerationsize' => 1,
+    ],
     'cachedprices' => [
         'mode' => cache_store::MODE_APPLICATION,
         'simplekeys' => true,
