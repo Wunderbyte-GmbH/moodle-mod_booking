@@ -333,7 +333,8 @@ body.booking-ai-resizing #booking-ai-wrapper .booking-ai-body-layout {
 }
 
 @keyframes booking-ai-pulse-text {
-    0%, 100% {
+    0%,
+    100% {
         opacity: 1;
     }
     50% {
@@ -361,6 +362,8 @@ body.booking-ai-resizing #booking-ai-wrapper .booking-ai-body-layout {
 }
 
 #booking-ai-wrapper .text-muted {
+    /* Bootstrap's .text-muted sets its colour with !important, so only !important can override it. */
+    /* stylelint-disable-next-line declaration-no-important */
     color: #495057 !important;
 }
 
@@ -418,7 +421,7 @@ body.booking-ai-resizing #booking-ai-wrapper .booking-ai-body-layout {
 #booking-ai-wrapper .booking-ai-debug-log-entry {
     display: block;
     font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Courier New', monospace;
-    background-color: #ffffff;
+    background-color: #fff;
     font-size: 0.8rem;
     line-height: 1.4;
 }
@@ -571,7 +574,8 @@ body.booking-ai-resizing #booking-ai-wrapper .booking-ai-body-layout {
    Bootstrap's own width mechanism (--bs-modal-width). */
 .modal-dialog.bookingextension-agent-wand-modal {
     --bs-modal-width: min(1400px, 95vw);
-    max-width: min(1400px, 95vw);
+    /* Same value through the variable: the CSS validator of the code checks does not know min() here. */
+    max-width: var(--bs-modal-width);
 }
 
 /* "Nearly green" provider pill: Wunderbyte plugin installed but not configured yet — one click
