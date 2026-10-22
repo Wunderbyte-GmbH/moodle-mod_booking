@@ -37,6 +37,7 @@ use mod_booking\elective;
 use mod_booking\event\booking_debug;
 use mod_booking\event\bookinganswer_presencechanged;
 use mod_booking\event\bookinganswer_notesedited;
+use mod_booking\local\autocreateoption;
 use mod_booking\local\calendar\calendar_helper;
 use mod_booking\local\certificateclass;
 use mod_booking\local\certificate_conditions\certificate_conditions;
@@ -818,5 +819,44 @@ class mod_booking_observer {
      */
     public static function course_updated(\core\event\course_updated $event): void {
         reindex::mark_options_of_connected_course_modified((int) $event->objectid);
+    }
+
+    /**
+     * Observer for the course_created event.
+     *
+     * A booking instance can link a course category: every course created there gets a booking option. The
+     * observer only checks a cached map and queues an adhoc task, see \mod_booking\local\autocreateoption.
+     *
+     * @param \core\event\course_created $event
+     * @return void
+     */
+    public static function course_created(\core\event\course_created $event): void {
+        autocreateoption::handle_new_course((int) $event->objectid);
+    }
+
+    /**
+     * Observer for the course_restored event.
+     *
+     * Restoring, duplicating and copying into a new course does not fire course_created, only this event.
+     * Restores into an existing course (e.g. the upload course tool) are ignored.
+     *
+     * @param \core\event\course_restored $event
+     * @return void
+     */
+    public static function course_restored(\core\event\course_restored $event): void {
+        global $CFG;
+
+        if (!class_exists('backup')) {
+            require_once($CFG->dirroot . '/backup/util/includes/backup_includes.php');
+        }
+        if ((int) ($event->other['target'] ?? -1) !== backup::TARGET_NEW_COURSE) {
+            return;
+        }
+        $iscopy = (int) ($event->other['mode'] ?? -1) === backup::MODE_COPY;
+        autocreateoption::handle_new_course(
+            (int) $event->objectid,
+            (int) ($event->other['originalcourseid'] ?? 0),
+            $iscopy
+        );
     }
 }

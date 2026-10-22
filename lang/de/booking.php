@@ -573,6 +573,16 @@ $string['attachment'] = 'Angehängte Dateien';
 $string['autcrheader'] = '[VERALTET] Automatisches Erstellen von Buchungsoptionen';
 $string['autcrwhatitis'] = 'If this option is enabled it automatically creates a new booking option and assigns
  a user as booking manager / teacher to it. Users are selected based on a custom user profile field value.';
+$string['autocreateoptioncategoryid'] = 'Kursbereich: Für jeden neuen Kurs eine Buchungsoption erstellen';
+$string['autocreateoptioncategoryid:disabled'] = 'Keine Buchungsoptionen automatisch erstellen';
+$string['autocreateoptioncategoryid:owncategory'] = 'Der Kursbereich des Kurses, in dem sich diese Buchungsinstanz befindet, kann nicht verknüpft werden, da Buchungsoptionen dieser Instanz dort eigene Kurse anlegen können.';
+$string['autocreateoptioncategoryid_help'] = 'Sobald ein Kurs direkt im gewählten Kursbereich angelegt wird, wird in dieser Buchungsinstanz eine Buchungsoption mit dem Namen des Kurses erstellt. Kurse in Unterbereichen werden nicht berücksichtigt. Die Buchungsoption wird kurz nach dem Anlegen des Kurses von einem Hintergrundprozess erstellt.
+
+Der Kursbereich des Kurses, in dem sich diese Buchungsinstanz befindet, wird nicht angeboten, da Buchungsoptionen dieser Instanz dort eigene verknüpfte Kurse anlegen können, was wiederum weitere Buchungsoptionen auslösen würde.';
+$string['autocreateoptionlinkcourse'] = 'Neuen Kurs mit der erstellten Buchungsoption verknüpfen';
+$string['autocreateoptionlinkcourse_help'] = 'Wenn aktiviert, wird die erstellte Buchungsoption mit dem neuen Kurs verknüpft, sodass Nutzer:innen, die die Option buchen, in den Kurs eingeschrieben werden. Wenn nicht aktiviert, wird die Buchungsoption ohne verknüpften Kurs erstellt.';
+$string['autocreateoptiontemplateid'] = 'Vorlage für automatisch erstellte Buchungsoptionen';
+$string['autocreateoptiontemplateid_help'] = 'Die Buchungsoptionsvorlage, die für Buchungsoptionen neuer Kurse verwendet wird. Der Name der Buchungsoption ist immer der vollständige Name des Kurses.';
 $string['autoenrol'] = 'Nutzer:innen automatisch in verknüpften Kurs einschreiben';
 $string['autoenrol_help'] = 'Falls ausgewählt werden Nutzer:innen automatisch in den Kurs eingeschrieben sobald sie die Buchung durchgeführt haben und wieder ausgetragen, wenn die Buchung storniert wird.';
 $string['automaticbookingoptioncompletion'] = 'Buchungsoption abgeschlossen, wenn Kurs abgeschlossen ist';
@@ -1386,6 +1396,7 @@ $string['cachedef_bookingoptionsettings'] = 'Settings für Buchungsoptionen (Cac
 $string['cachedef_bookingoptionstable'] = 'Tabelle mit gesamten SQL-Abfragen (Cache)';
 $string['cachedef_bulkcheckconfig'] = 'Massenversand-Prüfung: Konfiguration (Cache)';
 $string['cachedef_bulkcheckmails'] = 'Massenversand-Prüfung: zurückgestellte Mails (Cache)';
+$string['cachedef_cachedautocreatecategorymap'] = 'Mit Buchungsinstanzen verknüpfte Kursbereiche (Cache)';
 $string['cachedef_cachedbookinginstances'] = 'Buchungsinstanzen (Cache)';
 $string['cachedef_cachedpricecategories'] = 'Preiskategorien in Booking (Cache)';
 $string['cachedef_cachedprices'] = 'Standardpreise in Booking (Cache)';
@@ -4489,6 +4500,7 @@ $string['taskcleanbookingdb'] = 'Booking: Datenbank aufräumen';
 $string['taskcleanupinvalidscheduledmails'] = 'Booking: Ungültige geplante E-Mails bereinigen';
 $string['taskconfirmbookinganswerbymailbyruleadhoc'] = 'Booking: Freischalten von Warteliste via Regel erteilen (Adhoc-Task)';
 $string['taskcreatecachereportsnapshot'] = 'Booking: Snapshot für den Cache-Bericht erstellen';
+$string['taskcreateoptionfornewcourse'] = 'Booking: Buchungsoption für einen neuen Kurs in einem verknüpften Kursbereich erstellen (Adhoc-Task)';
 $string['taskenrolbookeduserstocourse'] = 'Booking: Gebuchte User in Kurs einschreiben';
 $string['taskexecutebulkoperationsadhoc'] = 'Booking: Bulk-Operationen auf Buchungsoptionen ausführen (Adhoc-Task)';
 $string['taskexpirewaitlistofferadhoc'] = 'Booking: Wartelisten-Angebot ablaufen lassen (Adhoc-Task)';

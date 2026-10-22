@@ -26,6 +26,7 @@ use local_wunderbyte_table\local\customfield\wbt_field_controller_info;
 use mod_booking\booking;
 use mod_booking\customfield\booking_handler;
 use mod_booking\elective;
+use mod_booking\local\autocreateoption;
 use mod_booking\output\eventslist;
 use mod_booking\placeholders\placeholders_info;
 use mod_booking\semester;
@@ -1327,6 +1328,53 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->addHelpButton('addtogroup', 'addtogroup', 'mod_booking');
         $mform->hideIf('addtogroup', 'autoenrol', 'notchecked');
 
+        if ($isproversion) {
+            // Link a course category: every course created there gets a booking option in this instance.
+            // The category of the course this instance lives in is excluded: an option of this instance can create
+            // its own connected course there, which would trigger another option, and so on.
+            $categorylist = core_course_category::make_categories_list();
+            unset($categorylist[$COURSE->category]);
+            $categorylist = [0 => get_string('autocreateoptioncategoryid:disabled', 'mod_booking')] + $categorylist;
+            $mform->addElement(
+                'select',
+                'autocreateoptioncategoryid',
+                get_string('autocreateoptioncategoryid', 'mod_booking'),
+                $categorylist
+            );
+            $mform->setType('autocreateoptioncategoryid', PARAM_INT);
+            $mform->addHelpButton('autocreateoptioncategoryid', 'autocreateoptioncategoryid', 'mod_booking');
+            $mform->setDefault(
+                'autocreateoptioncategoryid',
+                (int)booking::get_value_of_json_by_key($bookingid, autocreateoption::JSONKEY_CATEGORY)
+            );
+
+            // Same template list as the default template above, so no second query.
+            $mform->addElement(
+                'select',
+                'autocreateoptiontemplateid',
+                get_string('autocreateoptiontemplateid', 'mod_booking'),
+                $alloptiontemplates
+            );
+            $mform->setType('autocreateoptiontemplateid', PARAM_INT);
+            $mform->addHelpButton('autocreateoptiontemplateid', 'autocreateoptiontemplateid', 'mod_booking');
+            $mform->setDefault(
+                'autocreateoptiontemplateid',
+                (int)booking::get_value_of_json_by_key($bookingid, autocreateoption::JSONKEY_TEMPLATE)
+            );
+            $mform->hideIf('autocreateoptiontemplateid', 'autocreateoptioncategoryid', 'eq', 0);
+
+            $mform->addElement(
+                'advcheckbox',
+                'autocreateoptionlinkcourse',
+                get_string('autocreateoptionlinkcourse', 'mod_booking')
+            );
+            $mform->setType('autocreateoptionlinkcourse', PARAM_INT);
+            $mform->addHelpButton('autocreateoptionlinkcourse', 'autocreateoptionlinkcourse', 'mod_booking');
+            $linkcourse = booking::get_value_of_json_by_key($bookingid, autocreateoption::JSONKEY_LINKCOURSE);
+            $mform->setDefault('autocreateoptionlinkcourse', $linkcourse === null ? 1 : (int)$linkcourse);
+            $mform->hideIf('autocreateoptionlinkcourse', 'autocreateoptioncategoryid', 'eq', 0);
+        }
+
         // Miscellaneous settings.
         $mform->addElement(
             'header',
@@ -1885,8 +1933,16 @@ class mod_booking_mod_form extends moodleform_mod {
      *
      */
     public function validation($data, $files) {
-        global $DB;
+        global $DB, $COURSE;
         $errors = parent::validation($data, $files);
+
+        // Loop prevention: the category of the course this instance lives in can not be linked.
+        if (
+            !empty($data['autocreateoptioncategoryid'])
+            && (int)$data['autocreateoptioncategoryid'] === (int)$COURSE->category
+        ) {
+            $errors['autocreateoptioncategoryid'] = get_string('autocreateoptioncategoryid:owncategory', 'mod_booking');
+        }
 
         if (empty($data['semesterid']) && (get_config('booking', 'canceldependenton') == "semesterstart")) {
             $errors['semesterid'] = get_string('error:semestermissingbutcanceldependentonsemester', 'mod_booking');

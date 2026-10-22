@@ -44,6 +44,7 @@ use mod_booking\booking_rules\rules_info;
 use mod_booking\booking_rules\booking_rules;
 use local_wunderbyte_table\local\customfield\wbt_field_controller_info;
 use mod_booking\customfield\booking_handler;
+use mod_booking\local\autocreateoption;
 
 // Default fields for bookingoptions in view.php and for download.
 define('MOD_BOOKING_BOOKINGOPTION_DEFAULTFIELDS', "identifier,titleprefix,text,description,teacher,responsiblecontact," .
@@ -799,6 +800,43 @@ function booking_store_slot_change_deadline_default($booking) {
 }
 
 /**
+ * Store the settings of the course => booking option auto-creation in the booking JSON.
+ *
+ * Only runs when the setting was part of the submitted data, so programmatic updates (e.g. from instance
+ * templates or the wizard) never touch the keys. A category of 0 switches the feature off and removes all keys.
+ *
+ * @param object $booking the booking instance data (modified by reference via the json field)
+ * @return void
+ */
+function booking_store_autocreateoption_settings($booking) {
+    if (!isset($booking->autocreateoptioncategoryid)) {
+        return;
+    }
+    $categoryid = (int)$booking->autocreateoptioncategoryid;
+    if ($categoryid <= 0) {
+        booking::remove_key_from_json($booking, autocreateoption::JSONKEY_CATEGORY);
+        booking::remove_key_from_json($booking, autocreateoption::JSONKEY_TEMPLATE);
+        booking::remove_key_from_json($booking, autocreateoption::JSONKEY_LINKCOURSE);
+        return;
+    }
+    booking::add_data_to_json($booking, autocreateoption::JSONKEY_CATEGORY, $categoryid);
+    $templateid = (int)($booking->autocreateoptiontemplateid ?? 0);
+    if ($templateid > 0) {
+        booking::add_data_to_json($booking, autocreateoption::JSONKEY_TEMPLATE, $templateid);
+    } else {
+        booking::remove_key_from_json($booking, autocreateoption::JSONKEY_TEMPLATE);
+    }
+    // The checkbox always submits 0 or 1 when it is part of the form. Programmatic calls that leave it out get the
+    // default: the created option is connected to the new course.
+    if (!isset($booking->autocreateoptionlinkcourse)) {
+        $linkcourse = 1;
+    } else {
+        $linkcourse = empty($booking->autocreateoptionlinkcourse) ? 0 : 1;
+    }
+    booking::add_data_to_json($booking, autocreateoption::JSONKEY_LINKCOURSE, $linkcourse);
+}
+
+/**
  * Store the instance defaults for the sign-in sheet download in the booking JSON.
  *
  * Only runs when the sign-in sheet section of mod_form was part of the submitted
@@ -949,6 +987,8 @@ function booking_add_instance($booking) {
     booking_store_slot_change_deadline_default($booking);
     // Instance defaults for the sign-in sheet download are stored in the JSON.
     booking_store_signinsheet_instance_settings($booking);
+    // Course => booking option auto-creation for a linked course category is stored in the JSON.
+    booking_store_autocreateoption_settings($booking);
 
     if (isset($booking->viewparam)) {
         // Save list view as default value.
@@ -1287,6 +1327,8 @@ function booking_update_instance($booking) {
     booking_store_slot_change_deadline_default($booking);
     // Instance defaults for the sign-in sheet download are stored in the JSON.
     booking_store_signinsheet_instance_settings($booking);
+    // Course => booking option auto-creation for a linked course category is stored in the JSON.
+    booking_store_autocreateoption_settings($booking);
     // View param (list view or card view) is stored in JSON.
     if (empty($booking->viewparam)) {
         // Save list view as default value.

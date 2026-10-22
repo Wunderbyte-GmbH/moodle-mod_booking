@@ -573,6 +573,16 @@ $string['attachment'] = 'Attachments';
 $string['autcrheader'] = '[DEPRECATED] Automatic booking option creation';
 $string['autcrwhatitis'] = 'If this option is enabled it automatically creates a new booking option and assigns
  a user as booking manager / teacher to it. Users are selected based on a custom user profile field value.';
+$string['autocreateoptioncategoryid'] = 'Course category: create a booking option for every new course';
+$string['autocreateoptioncategoryid:disabled'] = 'Do not create booking options automatically';
+$string['autocreateoptioncategoryid:owncategory'] = 'The category of the course this booking instance is in can not be linked, as booking options of this instance may create their own courses there.';
+$string['autocreateoptioncategoryid_help'] = 'Whenever a course is created directly in the selected course category, a booking option with the name of the course is created in this booking instance. Courses in subcategories are not taken into account. The option is created by a background task shortly after the course has been created.
+
+The category of the course this booking instance is in is not offered, because booking options of this instance may create their own connected courses there, which would trigger the creation of further booking options.';
+$string['autocreateoptionlinkcourse'] = 'Connect the new course to the created booking option';
+$string['autocreateoptionlinkcourse_help'] = 'If selected, the created booking option is connected to the new course, so users who book the option are enrolled in the course. If not selected, the booking option is created without a connected course.';
+$string['autocreateoptiontemplateid'] = 'Template for automatically created booking options';
+$string['autocreateoptiontemplateid_help'] = 'The booking option template that is used for booking options created for new courses. The name of the option is always the full name of the course.';
 $string['autoenrol'] = 'Automatically enrol users in connected course';
 $string['autoenrol_help'] = 'If selected, users will be enrolled onto the relevant course as soon as they make the booking and unenrolled from that course as soon as the booking is cancelled.';
 $string['automaticbookingoptioncompletion'] = 'Bookingoption completed when course is completed';
@@ -1386,6 +1396,7 @@ $string['cachedef_bookingoptionsettings'] = 'Booking option settings (cache)';
 $string['cachedef_bookingoptionstable'] = 'Tables of booking options with hashed sql queries (cache)';
 $string['cachedef_bulkcheckconfig'] = 'Bulk send check: configuration (cache)';
 $string['cachedef_bulkcheckmails'] = 'Bulk send check: parked mails (cache)';
+$string['cachedef_cachedautocreatecategorymap'] = 'Course categories linked to booking instances (cache)';
 $string['cachedef_cachedbookinginstances'] = 'Booking instances (cache)';
 $string['cachedef_cachedpricecategories'] = 'Booking price categories (cache)';
 $string['cachedef_cachedprices'] = 'Prices in booking (cache)';
@@ -4477,6 +4488,7 @@ $string['taskcleanbookingdb'] = 'Booking: Clean database';
 $string['taskcleanupinvalidscheduledmails'] = 'Booking: Cleanup invalid scheduled mails';
 $string['taskconfirmbookinganswerbymailbyruleadhoc'] = 'Booking: Confirm booking answer from waitinglist by mail (adhoc task)';
 $string['taskcreatecachereportsnapshot'] = 'Booking: Create cache report snapshot';
+$string['taskcreateoptionfornewcourse'] = 'Booking: Create a booking option for a new course in a linked course category (adhoc task)';
 $string['taskenrolbookeduserstocourse'] = 'Booking: Enrol booked users to course';
 $string['taskexecutebulkoperationsadhoc'] = 'Booking: Execute bulk operations on booking options (adhoc task)';
 $string['taskexpirewaitlistofferadhoc'] = 'Booking: Expire waitlist offer (adhoc task)';

@@ -32,6 +32,8 @@ use html_writer;
 use local_entities\local\entities\entitydate;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\customfield\booking_handler;
+use mod_booking\local\autocreateoption;
+use mod_booking\local\modechecker;
 use mod_booking\local\slotbooking\slot_availability;
 use mod_booking\teachers_handler;
 use mod_booking\utils\wb_payment;
@@ -2100,6 +2102,8 @@ class booking {
         bool $destroysingleton = true
     ) {
         cache_helper::invalidate_by_event('setbackbookinginstances', [$cmid]);
+        // The category => instances map of the option auto-creation is a single key, so it is dropped explicitly.
+        autocreateoption::purge_map();
         cache_helper::purge_by_event('setbackoptionsettings');
         cache_helper::purge_by_event('setbackoptionstable');
         self::purge_eventlog_cache();
