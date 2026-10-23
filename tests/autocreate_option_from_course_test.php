@@ -497,4 +497,218 @@ final class autocreate_option_from_course_test extends advanced_testcase {
         $this->assertSame([], autocreateoption::handle_new_course((int)$course->id));
         $this->assertLessThanOrEqual($reads + 1, $DB->perf_get_reads());
     }
+
+    /**
+     * Creates an auto-created option for a new course in a linked category.
+     *
+     * @return array [booking instance, course, option record]
+     */
+    private function create_autocreated_option(): array {
+        global $DB;
+
+        wb_payment::override_pro_version_for_tests(true);
+        $category = $this->getDataGenerator()->create_category();
+        $booking = $this->create_linked_instance((int)$category->id);
+        $course = $this->getDataGenerator()->create_course(['category' => $category->id]);
+        $this->run_tasks_silently();
+        singleton_service::destroy_instance();
+        $option = $DB->get_record('booking_options', ['bookingid' => $booking->id], '*', MUST_EXIST);
+        $this->assertTrue($this->has_marker($option->json));
+        return [$booking, $course, $option];
+    }
+
+    /**
+     * Whether a JSON string carries the auto-creation marker.
+     *
+     * @param string|null $json
+     * @return bool
+     */
+    private function has_marker(?string $json): bool {
+        $json = empty($json) ? null : json_decode($json);
+        return isset($json->{autocreateoption::OPTIONJSONKEY_SOURCECOURSE});
+    }
+
+    /**
+     * Whether the stored option still carries the marker.
+     *
+     * @param int $optionid
+     * @return bool
+     */
+    private function option_has_marker(int $optionid): bool {
+        global $DB;
+        return $this->has_marker($DB->get_field('booking_options', 'json', ['id' => $optionid], MUST_EXIST));
+    }
+
+    /**
+     * Templates never carry the marker: neither copied with copytotemplate() nor saved via "add as template", and
+     * a template that still carries one (saved before) does not pass it on.
+     *
+     * @return void
+     */
+    public function test_marker_is_not_copied_into_templates(): void {
+        global $DB;
+
+        [$booking, , $option] = $this->create_autocreated_option();
+        $context = \context_module::instance((int)$booking->cmid);
+
+        // Copy to template.
+        $bo = singleton_service::get_instance_of_booking_option((int)$booking->cmid, (int)$option->id);
+        $templateid = (int)$bo->copytotemplate();
+        $this->assertSame(0, (int)$DB->get_field('booking_options', 'bookingid', ['id' => $templateid]));
+        $this->assertFalse($this->option_has_marker($templateid));
+
+        // Saved via "add as template" from the data of the option, as the option form does.
+        $data = (object)[
+            'cmid' => (int)$booking->cmid,
+            'id' => (int)$option->id,
+            'optionid' => (int)$option->id,
+            'bookingid' => (int)$booking->id,
+            'copyoptionid' => 0,
+            'oldcopyoptionid' => 0,
+            'returnurl' => '',
+        ];
+        option\fields_info::set_data($data);
+        $this->assertTrue($this->has_marker($data->json));
+        $data->id = 0;
+        $data->optionid = 0;
+        $data->identifier = '';
+        $data->addastemplate = 1;
+        $data->templatename = 'From auto-created option';
+        foreach (array_keys((array)$data) as $key) {
+            if (strpos($key, MOD_BOOKING_FORM_OPTIONDATEID) !== false) {
+                $data->{$key} = 0;
+            }
+        }
+        $savedid = (int)booking_option::update($data, $context);
+        $this->assertSame(0, (int)$DB->get_field('booking_options', 'bookingid', ['id' => $savedid]));
+        $this->assertFalse($this->option_has_marker($savedid));
+
+        // A template that still carries the marker does not pass it on when applied in the option form.
+        $json = json_decode($DB->get_field('booking_options', 'json', ['id' => $templateid]));
+        $json->{autocreateoption::OPTIONJSONKEY_SOURCECOURSE} = 12345;
+        $DB->set_field('booking_options', 'json', json_encode($json), ['id' => $templateid]);
+        \cache_helper::purge_by_event('setbackoptionsettings');
+        singleton_service::destroy_instance();
+
+        $formdata = (object)[
+            'id' => 0,
+            'cmid' => (int)$booking->cmid,
+            'bookingid' => (int)$booking->id,
+            'btn_changetemplate' => 1,
+            'optiontemplateid' => $templateid,
+        ];
+        try {
+            option\fields\template::set_data($formdata, singleton_service::get_instance_of_booking_option_settings(0));
+            $this->fail('Applying a template reloads the form with an exception.');
+        } catch (\moodle_exception $e) {
+            $this->assertSame('errorloadingtemplate', $e->errorcode);
+        }
+        $this->assertFalse($this->has_marker($formdata->json));
+
+        // The auto-created option itself keeps it.
+        $this->assertTrue($this->option_has_marker((int)$option->id));
+    }
+
+    /**
+     * Duplicating an auto-created option does not copy the marker.
+     *
+     * @return void
+     */
+    public function test_marker_is_not_copied_by_duplication(): void {
+        [$booking, , $option] = $this->create_autocreated_option();
+
+        $formdata = (object)[
+            'id' => 0,
+            'cmid' => (int)$booking->cmid,
+            'bookingid' => (int)$booking->id,
+            'copyoptionid' => (int)$option->id,
+        ];
+        try {
+            option\fields\duplication::set_data($formdata, singleton_service::get_instance_of_booking_option_settings(0));
+            $this->fail('Duplicating reloads the form with an exception.');
+        } catch (\moodle_exception $e) {
+            $this->assertSame('loadtemplate', $e->errorcode);
+        }
+        $this->assertSame($option->text, $formdata->text);
+        $this->assertFalse($this->has_marker($formdata->json));
+        $this->assertTrue($this->option_has_marker((int)$option->id));
+    }
+
+    /**
+     * Recurring children and the options split from the dates of an auto-created option do not get the marker.
+     *
+     * @return void
+     */
+    public function test_marker_is_not_copied_to_recurring_or_split_options(): void {
+        global $DB;
+
+        [$booking, , $option] = $this->create_autocreated_option();
+        $start = strtotime('+1 week 10:00');
+
+        // Give the option two dates and repeat it twice.
+        $record = (object)[
+            'id' => (int)$option->id,
+            'cmid' => (int)$booking->cmid,
+            'bookingid' => (int)$booking->id,
+            'text' => $option->text,
+            'importing' => 1,
+            'optiondateid_1' => 0,
+            'daystonotify_1' => 0,
+            'coursestarttime_1' => $start,
+            'courseendtime_1' => $start + HOURSECS,
+            'optiondateid_2' => 0,
+            'daystonotify_2' => 0,
+            'coursestarttime_2' => $start + DAYSECS,
+            'courseendtime_2' => $start + DAYSECS + HOURSECS,
+            'repeatthisbooking' => 1,
+            'howmanytimestorepeat' => 2,
+            'howoftentorepeat' => WEEKSECS,
+            'requirepreviousoptionstobebooked' => 0,
+        ];
+        booking_option::update($record);
+        singleton_service::destroy_instance();
+
+        $children = $DB->get_records('booking_options', ['bookingid' => $booking->id, 'parentid' => $option->id]);
+        $this->assertCount(2, $children);
+        foreach ($children as $child) {
+            $this->assertFalse($this->has_marker($child->json));
+        }
+        $this->assertTrue($this->option_has_marker((int)$option->id));
+
+        // Split the option into one option per date.
+        $before = array_keys($DB->get_records('booking_options', ['bookingid' => $booking->id], '', 'id'));
+        $bo = singleton_service::get_instance_of_booking_option((int)$booking->cmid, (int)$option->id);
+        $bo->create_booking_options_from_optiondates();
+        $new = $DB->get_records_select(
+            'booking_options',
+            'bookingid = :bookingid AND id NOT IN (' . implode(',', $before) . ')',
+            ['bookingid' => $booking->id]
+        );
+        $this->assertCount(1, $new);
+        $this->assertFalse($this->has_marker(reset($new)->json));
+        $this->assertTrue($this->option_has_marker((int)$option->id));
+    }
+
+    /**
+     * Options restored from a backup (here: duplicating the booking instance) do not carry the marker.
+     *
+     * @return void
+     */
+    public function test_marker_is_not_restored(): void {
+        global $DB;
+
+        [$booking, , $option] = $this->create_autocreated_option();
+        $instancecourse = get_course((int)$booking->course);
+        $cm = get_fast_modinfo($instancecourse)->get_cm($booking->cmid);
+        // Moodle 5.2 deprecated duplicate_module() (MDL-86858); 4.5-5.1 have no cmactions::duplicate() yet.
+        $newcm = method_exists(\core_courseformat\local\cmactions::class, 'duplicate')
+            ? \core_courseformat\formatactions::cm($instancecourse->id)->duplicate($cm->id)
+            : duplicate_module($instancecourse, $cm);
+        $this->run_tasks_silently();
+
+        $restored = $DB->get_records('booking_options', ['bookingid' => $newcm->instance]);
+        $this->assertCount(1, $restored);
+        $this->assertFalse($this->has_marker(reset($restored)->json));
+        $this->assertTrue($this->option_has_marker((int)$option->id));
+    }
 }

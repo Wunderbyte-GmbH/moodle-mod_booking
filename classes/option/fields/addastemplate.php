@@ -24,6 +24,7 @@
 
 namespace mod_booking\option\fields;
 
+use mod_booking\local\autocreateoption;
 use mod_booking\option\fields;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
@@ -97,6 +98,8 @@ class addastemplate extends field_base {
         // When the addastemplate is not null, we set bookingid to 0.
         if (!empty($formdata->addastemplate)) {
             $newoption->bookingid = 0;
+            // Templates never carry the auto-creation marker, it would be copied into every option made from them.
+            autocreateoption::strip_marker($newoption);
 
             /* The $newoption object is a fresh stdClass on every save, so templatename must be handled explicitly:
             - field present and non-empty: write the new value.

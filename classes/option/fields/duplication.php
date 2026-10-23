@@ -25,6 +25,7 @@
 namespace mod_booking\option\fields;
 
 use mod_booking\booking_option_settings;
+use mod_booking\local\autocreateoption;
 use mod_booking\option\fields;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
@@ -168,6 +169,8 @@ class duplication extends field_base {
                     $data->{$key} = $value;
                 }
             }
+            // A duplicate is no auto-created option, even if its source was one.
+            autocreateoption::strip_marker($data);
             throw new moodle_exception('loadtemplate', 'mod_booking');
         }
     }

@@ -38,6 +38,7 @@ use Exception;
 use html_writer;
 use invalid_parameter_exception;
 use local_entities\entitiesrelation_handler;
+use mod_booking\local\autocreateoption;
 use mod_booking\local\entities_compat;
 use mod_booking\bo_availability\conditions\customform;
 use mod_booking\bo_availability\conditions\slotbooking;
@@ -3895,6 +3896,8 @@ class booking_option {
         $templateoption->bookingid = 0;
         $templateoption->identifier = '';
         $templateoption->copytotemplate = true;
+        // Templates never carry the auto-creation marker, it would be copied into every option made from them.
+        autocreateoption::strip_marker($templateoption);
 
         // Reset all optiondateid values to 0 so they are treated as new dates
         // to be inserted rather than matched against (non-existent) sessions
@@ -3937,6 +3940,8 @@ class booking_option {
                 unset($newoption->sessions);
                 unset($newoption->optiondate);
                 unset($newoption->identifier);
+                // Only the original option keeps the auto-creation marker.
+                autocreateoption::strip_marker($newoption);
             }
             self::update($newoption, $context);
             $firstrun = false;

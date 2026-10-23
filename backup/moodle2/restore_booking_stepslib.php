@@ -23,6 +23,7 @@
  */
 
 use mod_booking\booking_option;
+use mod_booking\local\autocreateoption;
 use mod_booking\local\connectedcourse;
 use mod_booking\teachers_handler;
 
@@ -279,6 +280,9 @@ class restore_booking_activity_structure_step extends restore_activity_structure
         // Calendarid should not be copied or set.
         $data->addtocalendar = 0;
         $data->calendarid = 0;
+
+        // A restored option is a copy, no auto-created option. Its course sync rule is not part of the backup either.
+        autocreateoption::strip_marker($data);
 
         // Unique identifier must not be copied, instead we create a new random one.
         if (empty($data->identifier) || $DB->record_exists('booking_options', ['identifier' => $data->identifier])) {
