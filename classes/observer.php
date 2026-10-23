@@ -46,6 +46,7 @@ use mod_booking\local\user_course_state;
 use mod_booking\local\checkanswers\checkanswers;
 use mod_booking\local\mobile\customformstore;
 use mod_booking\local\search\reindex;
+use mod_booking\local\sync\enrolmentsync;
 use mod_booking\option\fields\certificate;
 use mod_booking\output\view;
 use mod_booking\singleton_service;
@@ -858,5 +859,19 @@ class mod_booking_observer {
             (int) ($event->other['originalcourseid'] ?? 0),
             $iscopy
         );
+    }
+
+    /**
+     * Observer for the user_enrolment_created, _updated and _deleted events.
+     *
+     * Users enrolled in a course are booked into the option that was auto-created for it, and removed again when
+     * they have no enrolment left. The observer only checks a cached set of courses and queues one task per
+     * course, see \mod_booking\local\sync\enrolmentsync.
+     *
+     * @param \core\event\base $event
+     * @return void
+     */
+    public static function course_enrolment_sync(\core\event\base $event): void {
+        enrolmentsync::handle_enrolment_event((int) $event->courseid);
     }
 }

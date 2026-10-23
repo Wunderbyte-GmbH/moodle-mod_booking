@@ -581,6 +581,12 @@ $string['autocreateoptioncategoryid_help'] = 'Sobald ein Kurs direkt im gewählt
 Der Kursbereich des Kurses, in dem sich diese Buchungsinstanz befindet, wird nicht angeboten, da Buchungsoptionen dieser Instanz dort eigene verknüpfte Kurse anlegen können, was wiederum weitere Buchungsoptionen auslösen würde.';
 $string['autocreateoptionlinkcourse'] = 'Neuen Kurs mit der erstellten Buchungsoption verknüpfen';
 $string['autocreateoptionlinkcourse_help'] = 'Wenn aktiviert, wird die erstellte Buchungsoption mit dem neuen Kurs verknüpft, sodass Nutzer:innen, die die Option buchen, in den Kurs eingeschrieben werden. Wenn nicht aktiviert, wird die Buchungsoption ohne verknüpften Kurs erstellt.';
+$string['autocreateoptionsyncenrolments'] = 'In den Kurs eingeschriebene Nutzer:innen in die erstellte Buchungsoption buchen';
+$string['autocreateoptionsyncenrolments_help'] = 'Nutzer:innen, die in einen Kurs der verknüpften Kategorie eingeschrieben sind, werden in die Buchungsoption gebucht, die für diesen Kurs erstellt wurde - egal über welche Einschreibemethode (manuell, Selbsteinschreibung, Kohortensynchronisation, Metalink, ...). Kurs-Bearbeiter:innen und Trainer:innen der Buchungsoption werden nicht gebucht. Die Buchungen ignorieren Limits, Bedingungen und Preise der Option und versenden keine Bestätigungsmail; die Buchungsregeln werden ausgeführt.
+
+Sobald eine Nutzerin oder ein Nutzer keine Einschreibung im Kurs mehr hat, wird die Buchung wieder entfernt, ohne Stornierungsmail. Eine gesperrte Einschreibung behält die Buchung. Buchungen, die Nutzer:innen selbst vorgenommen haben, werden nie entfernt. Wer die Buchung storniert hat, wird erst nach einer neuen Einschreibung wieder gebucht.
+
+Die Buchung erfolgt kurz nach der Einschreibung durch einen Hintergrund-Task. Wird diese Einstellung später aktiviert, werden auch die bereits eingeschriebenen Nutzer:innen der Kurse bestehender, automatisch erstellter Optionen gebucht.';
 $string['autocreateoptiontemplateid'] = 'Vorlage für automatisch erstellte Buchungsoptionen';
 $string['autocreateoptiontemplateid_help'] = 'Die Buchungsoptionsvorlage, die für Buchungsoptionen neuer Kurse verwendet wird. Der Name der Buchungsoption ist immer der vollständige Name des Kurses.';
 $string['autoenrol'] = 'Nutzer:innen automatisch in verknüpften Kurs einschreiben';
@@ -1415,6 +1421,7 @@ $string['cachedef_slotrulepricesbyoption'] = 'Slot-Regelpreise pro Option (Cache
 $string['cachedef_slotrulesbyoption'] = 'Slot-Regeln pro Option (Cache)';
 $string['cachedef_sqlfilterrelevance'] = 'Referenzierte Werte der SQL-Verfügbarkeitsfilter-Bedingungen (Cache)';
 $string['cachedef_subbookingforms'] = 'Subbooking Forms (Cache)';
+$string['cachedef_syncrulecourses'] = 'Kurse mit Synchronisation der Kurseinschreibungen (Cache)';
 $string['cachedef_syncrules'] = 'Synchronisations-Regeln (Cache)';
 $string['cachedef_trialnonce'] = 'Test-Nonce (Cache)';
 $string['cachedef_usercompetenciescache'] = 'Kompetenzen von Nutzer:innen (Cache)';
@@ -4462,6 +4469,7 @@ $string['syncrulesource'] = 'Quelle';
 $string['syncsourceselect'] = 'Quelle';
 $string['syncsourcetype'] = 'Quellentyp';
 $string['syncsourcetypecohort'] = 'Kohorte';
+$string['syncsourcetypecourse'] = 'Kurseinschreibung';
 $string['syncsourcetypegroup'] = 'Gruppe';
 $string['syncunenrolaction'] = 'Nutzer:innen ausbuchen, wenn sie von der Quelle entfernt werden';
 $string['system'] = 'System';
@@ -4502,6 +4510,7 @@ $string['taskconfirmbookinganswerbymailbyruleadhoc'] = 'Booking: Freischalten vo
 $string['taskcreatecachereportsnapshot'] = 'Booking: Snapshot für den Cache-Bericht erstellen';
 $string['taskcreateoptionfornewcourse'] = 'Booking: Buchungsoption für einen neuen Kurs in einem verknüpften Kursbereich erstellen (Adhoc-Task)';
 $string['taskenrolbookeduserstocourse'] = 'Booking: Gebuchte User in Kurs einschreiben';
+$string['taskenrolmentsyncinstance'] = 'Booking: Einstellung zur Synchronisation der Kurseinschreibungen einer Buchungsinstanz anwenden (Adhoc-Task)';
 $string['taskexecutebulkoperationsadhoc'] = 'Booking: Bulk-Operationen auf Buchungsoptionen ausführen (Adhoc-Task)';
 $string['taskexpirewaitlistofferadhoc'] = 'Booking: Wartelisten-Angebot ablaufen lassen (Adhoc-Task)';
 $string['taskfinalizeconnectedcoursenaming'] = 'Booking: Benennung des verbundenen Kurses nach dem Kopieren erneut anwenden (Adhoc-Task)';
@@ -4509,6 +4518,7 @@ $string['taskfinalizetemplatecourse'] = 'Booking: Aus Vorlage erstellten Kurs fi
 $string['taskprocesssourcemembershipsyncadhoc'] = 'Booking: Quellenmitgliedschafts-Sync verarbeiten (Adhoc-Task)';
 $string['taskpurgecampaigncaches'] = 'Booking: Caches für Buchungskampagne leeren';
 $string['taskrecalculateprices'] = 'Preise einer Buchungsaktivität werden mit der Preisformel neu berechnet';
+$string['taskreconcilecourseenrolmentsync'] = 'Booking: Kurseinschreibungen erneut mit automatisch erstellten Buchungsoptionen synchronisieren';
 $string['taskremoveactivitycompletion'] = 'Booking: Activitätsabschluss entfernen';
 $string['taskremoveresponsesonunenrol'] = 'Booking: Buchungsantworten nach Kurs-Abmeldung entfernen (Adhoc-Task)';
 $string['tasksendcompletionmails'] = 'Booking: Abschluss-Mails versenden';
@@ -4517,6 +4527,7 @@ $string['tasksendmailbyruleadhoc'] = 'Booking: Mail via Regel versenden (Adhoc-T
 $string['tasksendnotificationmails'] = 'Booking: Benachrichtigungs-Mails versenden';
 $string['tasksendremindermails'] = 'Booking: Erinnerungs-Mails versenden';
 $string['tasksendticketbyruleadhoc'] = 'Booking: Ticket via Regel versenden (Adhoc-Task)';
+$string['tasksynccourseenrolments'] = 'Booking: Kurseinschreibungen mit der automatisch erstellten Buchungsoption synchronisieren (Adhoc-Task)';
 $string['taskupdateteachercalendarentries'] = 'Booking: Kalendereinträge der Trainer:innen aktualisieren (Adhoc-Task)';
 $string['taskwaitlistheartbeat'] = 'Booking: Wartelisten-Heartbeat (Selbstreparatur)';
 $string['teacher'] = 'Trainer:in';

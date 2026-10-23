@@ -696,6 +696,11 @@ if (!$fromform = $mform->get_data()) {
                         'data-ruleid' => (int)$rule->id,
                     ]
                 );
+                // Course rules are managed by the booking instance (option auto-creation), the form only knows
+                // cohorts and groups.
+                if ($rule->sourcetype === \mod_booking\local\sync\enrolmentsync::SOURCETYPE) {
+                    $editbutton = '';
+                }
                 $actioncell = $editbutton . ' ' . $deletebutton;
 
                 $table->data[] = [$sourcecell, $enrolcell, $unenrolcell, $policycell, $activecell, $actioncell];

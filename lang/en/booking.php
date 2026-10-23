@@ -581,6 +581,12 @@ $string['autocreateoptioncategoryid_help'] = 'Whenever a course is created direc
 The category of the course this booking instance is in is not offered, because booking options of this instance may create their own connected courses there, which would trigger the creation of further booking options.';
 $string['autocreateoptionlinkcourse'] = 'Connect the new course to the created booking option';
 $string['autocreateoptionlinkcourse_help'] = 'If selected, the created booking option is connected to the new course, so users who book the option are enrolled in the course. If not selected, the booking option is created without a connected course.';
+$string['autocreateoptionsyncenrolments'] = 'Book the users enrolled in the course into the created booking option';
+$string['autocreateoptionsyncenrolments_help'] = 'Users enrolled in a course of the linked category are booked into the booking option that was created for that course, whatever enrolment method enrolled them (manual, self enrolment, cohort sync, meta link, ...). Course editors and teachers of the booking option are not booked. The bookings ignore the limits, conditions and prices of the option and send no confirmation mail; the booking rules are executed.
+
+As soon as a user has no enrolment left in the course, the booking is removed again, without a cancellation mail. A suspended enrolment keeps the booking. Bookings made by the users themselves are never removed. A user who cancelled the booking is only booked again after a new enrolment.
+
+The users are booked by a background task shortly after the enrolment. If this setting is switched on later, the users already enrolled in the courses of existing automatically created options are booked as well.';
 $string['autocreateoptiontemplateid'] = 'Template for automatically created booking options';
 $string['autocreateoptiontemplateid_help'] = 'The booking option template that is used for booking options created for new courses. The name of the option is always the full name of the course.';
 $string['autoenrol'] = 'Automatically enrol users in connected course';
@@ -1415,6 +1421,7 @@ $string['cachedef_slotrulepricesbyoption'] = 'Slot rule prices by option (cache)
 $string['cachedef_slotrulesbyoption'] = 'Slot rules by option (cache)';
 $string['cachedef_sqlfilterrelevance'] = 'Referenced values of SQL availability filter conditions (cache)';
 $string['cachedef_subbookingforms'] = 'Subbooking Forms (Cache)';
+$string['cachedef_syncrulecourses'] = 'Courses with a course enrolment synchronization (cache)';
 $string['cachedef_syncrules'] = 'Synchronization Rules (Cache)';
 $string['cachedef_trialnonce'] = 'Trial nonce (cache)';
 $string['cachedef_usercompetenciescache'] = 'User competencies (Cache)';
@@ -4450,6 +4457,7 @@ $string['syncrulesource'] = 'Source';
 $string['syncsourceselect'] = 'Source';
 $string['syncsourcetype'] = 'Source type';
 $string['syncsourcetypecohort'] = 'Cohort';
+$string['syncsourcetypecourse'] = 'Course enrolment';
 $string['syncsourcetypegroup'] = 'Group';
 $string['syncunenrolaction'] = 'Unenrol users when removed from source';
 $string['system'] = 'System';
@@ -4490,6 +4498,7 @@ $string['taskconfirmbookinganswerbymailbyruleadhoc'] = 'Booking: Confirm booking
 $string['taskcreatecachereportsnapshot'] = 'Booking: Create cache report snapshot';
 $string['taskcreateoptionfornewcourse'] = 'Booking: Create a booking option for a new course in a linked course category (adhoc task)';
 $string['taskenrolbookeduserstocourse'] = 'Booking: Enrol booked users to course';
+$string['taskenrolmentsyncinstance'] = 'Booking: Apply the course enrolment sync setting of a booking instance (adhoc task)';
 $string['taskexecutebulkoperationsadhoc'] = 'Booking: Execute bulk operations on booking options (adhoc task)';
 $string['taskexpirewaitlistofferadhoc'] = 'Booking: Expire waitlist offer (adhoc task)';
 $string['taskfinalizeconnectedcoursenaming'] = 'Booking: Re-apply the connected course naming after a course copy (adhoc task)';
@@ -4497,6 +4506,7 @@ $string['taskfinalizetemplatecourse'] = 'Booking: Finalize course created from a
 $string['taskprocesssourcemembershipsyncadhoc'] = 'Booking: Process source membership sync (adhoc task)';
 $string['taskpurgecampaigncaches'] = 'Booking: Clean caches for booking campaigns';
 $string['taskrecalculateprices'] = 'Prices of a booking instance are recalculated using the price formula';
+$string['taskreconcilecourseenrolmentsync'] = 'Booking: Re-sync course enrolments to automatically created booking options';
 $string['taskremoveactivitycompletion'] = 'Booking: Remove activity completion';
 $string['taskremoveresponsesonunenrol'] = 'Booking: Remove booking answers after course unenrolment (adhoc task)';
 $string['tasksendcompletionmails'] = 'Booking: Send completion mails';
@@ -4505,6 +4515,7 @@ $string['tasksendmailbyruleadhoc'] = 'Booking: Send mail by rule (adhoc task)';
 $string['tasksendnotificationmails'] = 'Booking: Send notification mails';
 $string['tasksendremindermails'] = 'Booking: Send reminder mails';
 $string['tasksendticketbyruleadhoc'] = 'Booking: Send ticket by rule (adhoc task)';
+$string['tasksynccourseenrolments'] = 'Booking: Sync course enrolments to the automatically created booking option (adhoc task)';
 $string['taskupdateteachercalendarentries'] = 'Booking: Update teacher calendar entries (adhoc task)';
 $string['taskwaitlistheartbeat'] = 'Booking: Waitlist heartbeat (self-healing)';
 $string['teacher'] = 'Teacher';

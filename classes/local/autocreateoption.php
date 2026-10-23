@@ -27,6 +27,7 @@ namespace mod_booking\local;
 use cache;
 use context_module;
 use mod_booking\booking_option;
+use mod_booking\local\sync\enrolmentsync;
 use mod_booking\option\fields_info;
 use mod_booking\singleton_service;
 use mod_booking\task\create_option_for_new_course;
@@ -54,6 +55,9 @@ class autocreateoption {
 
     /** @var string JSON key (booking.json): 1 = connect the created option to the new course, 0 = do not. */
     const JSONKEY_LINKCOURSE = 'autocreateoptionlinkcourse';
+
+    /** @var string JSON key (booking.json): 1 = book the users enrolled in the course into the created option. */
+    const JSONKEY_SYNCENROLMENTS = 'autocreateoptionsyncenrolments';
 
     /** @var string JSON key (booking_options.json): the id of the course the option was created for. */
     const OPTIONJSONKEY_SOURCECOURSE = 'autocreatedfromcourseid';
@@ -240,6 +244,14 @@ class autocreateoption {
 
         $optionid = (int)booking_option::update($data, $context);
         mtrace("autocreateoption: created option $optionid for course $courseid in booking instance $bookingid.");
+
+        // The users enrolled in the course are booked into the option and removed again when unenrolled. The course is
+        // stored in the sync rule, so this works for options without a connected course too. The task books the users
+        // that are enrolled already (e.g. restored or copied with users).
+        if ($optionid > 0 && !empty($json->{self::JSONKEY_SYNCENROLMENTS})) {
+            enrolmentsync::ensure_rule($optionid, (int)$course->id);
+            enrolmentsync::queue_course_sync((int)$course->id);
+        }
 
         return $optionid;
     }

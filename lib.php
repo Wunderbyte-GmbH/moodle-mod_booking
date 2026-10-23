@@ -817,6 +817,7 @@ function booking_store_autocreateoption_settings($booking) {
         booking::remove_key_from_json($booking, autocreateoption::JSONKEY_CATEGORY);
         booking::remove_key_from_json($booking, autocreateoption::JSONKEY_TEMPLATE);
         booking::remove_key_from_json($booking, autocreateoption::JSONKEY_LINKCOURSE);
+        booking::remove_key_from_json($booking, autocreateoption::JSONKEY_SYNCENROLMENTS);
         return;
     }
     booking::add_data_to_json($booking, autocreateoption::JSONKEY_CATEGORY, $categoryid);
@@ -834,6 +835,28 @@ function booking_store_autocreateoption_settings($booking) {
         $linkcourse = empty($booking->autocreateoptionlinkcourse) ? 0 : 1;
     }
     booking::add_data_to_json($booking, autocreateoption::JSONKEY_LINKCOURSE, $linkcourse);
+    // Book the users enrolled in the course into the created option. Off unless explicitly switched on, programmatic
+    // calls that leave the checkbox out keep the stored value.
+    if (!isset($booking->autocreateoptionsyncenrolments)) {
+        return;
+    }
+    if (empty($booking->autocreateoptionsyncenrolments)) {
+        booking::remove_key_from_json($booking, autocreateoption::JSONKEY_SYNCENROLMENTS);
+    } else {
+        booking::add_data_to_json($booking, autocreateoption::JSONKEY_SYNCENROLMENTS, 1);
+    }
+}
+
+/**
+ * Whether the course enrolment sync of the option auto-creation is switched on in a booking JSON.
+ *
+ * @param string|null $json the JSON column of a booking instance
+ * @return bool
+ */
+function booking_autocreateoption_syncs_enrolments(?string $json): bool {
+    $json = empty($json) ? null : json_decode($json);
+    return !empty($json->{autocreateoption::JSONKEY_CATEGORY})
+        && !empty($json->{autocreateoption::JSONKEY_SYNCENROLMENTS});
 }
 
 /**
@@ -1529,6 +1552,18 @@ function booking_update_instance($booking) {
     }
 
     $updated = $DB->update_record('booking', $booking);
+
+    // The course enrolment sync was switched on or off: create or disable the sync rules of the auto-created options.
+    // This can touch many options, so it runs in an adhoc task.
+    if (
+        $updated
+        && booking_autocreateoption_syncs_enrolments($bookingsettings->json ?? null)
+            !== booking_autocreateoption_syncs_enrolments($booking->json ?? null)
+    ) {
+        $task = new \mod_booking\task\enrolmentsync_instance_adhoc();
+        $task->set_custom_data(['bookingid' => (int)$bookingid]);
+        \core\task\manager::queue_adhoc_task($task, true);
+    }
 
     if ($updated) {
         // Refresh plugin and course-module caches after the new instance name is persisted.

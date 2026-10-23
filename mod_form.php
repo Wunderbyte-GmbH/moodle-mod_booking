@@ -1373,6 +1373,19 @@ class mod_booking_mod_form extends moodleform_mod {
             $linkcourse = booking::get_value_of_json_by_key($bookingid, autocreateoption::JSONKEY_LINKCOURSE);
             $mform->setDefault('autocreateoptionlinkcourse', $linkcourse === null ? 1 : (int)$linkcourse);
             $mform->hideIf('autocreateoptionlinkcourse', 'autocreateoptioncategoryid', 'eq', 0);
+
+            $mform->addElement(
+                'advcheckbox',
+                'autocreateoptionsyncenrolments',
+                get_string('autocreateoptionsyncenrolments', 'mod_booking')
+            );
+            $mform->setType('autocreateoptionsyncenrolments', PARAM_INT);
+            $mform->addHelpButton('autocreateoptionsyncenrolments', 'autocreateoptionsyncenrolments', 'mod_booking');
+            $mform->setDefault(
+                'autocreateoptionsyncenrolments',
+                (int)booking::get_value_of_json_by_key($bookingid, autocreateoption::JSONKEY_SYNCENROLMENTS)
+            );
+            $mform->hideIf('autocreateoptionsyncenrolments', 'autocreateoptioncategoryid', 'eq', 0);
         }
 
         // Miscellaneous settings.

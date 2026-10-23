@@ -161,7 +161,7 @@ class booking_enrolment {
 
         $sourcetype = (string)($data->sourcetype ?? '');
         $sourceid = (int)($data->sourceid ?? 0);
-        if (!in_array($sourcetype, ['cohort', 'group']) || $sourceid <= 0) {
+        if (!in_array($sourcetype, ['cohort', 'group', enrolmentsync::SOURCETYPE]) || $sourceid <= 0) {
             throw new \moodle_exception('invalidparameter', 'error');
         }
 
@@ -262,6 +262,9 @@ class booking_enrolment {
         if ($rule->sourcetype === 'cohort') {
             $rule->sourcename = $DB->get_field('cohort', 'name', ['id' => $rule->sourceid]) ?: '?';
             $rule->sourcetypelabel = get_string('syncsourcetypecohort', 'mod_booking');
+        } else if ($rule->sourcetype === enrolmentsync::SOURCETYPE) {
+            $rule->sourcename = format_string($DB->get_field('course', 'fullname', ['id' => $rule->sourceid]) ?: '?');
+            $rule->sourcetypelabel = get_string('syncsourcetypecourse', 'mod_booking');
         } else {
             $rule->sourcename = $DB->get_field('groups', 'name', ['id' => $rule->sourceid]) ?: '?';
             $rule->sourcetypelabel = get_string('syncsourcetypegroup', 'mod_booking');
@@ -393,6 +396,12 @@ class booking_enrolment {
             return ['enrolattempted' => 0, 'unenrolattempted' => 0];
         }
 
+        // Course rules book and remove only the difference, in chunks.
+        if ($rule->sourcetype === enrolmentsync::SOURCETYPE) {
+            $result = enrolmentsync::sync_rule($rule);
+            return ['enrolattempted' => $result['enrolled'], 'unenrolattempted' => $result['unenrolled']];
+        }
+
         $memberids = self::get_source_member_ids((string)$rule->sourcetype, (int)$rule->sourceid);
         $membermap = array_fill_keys($memberids, true);
 
@@ -455,6 +464,10 @@ class booking_enrolment {
             return $DB->record_exists('groups', ['id' => $sourceid]);
         }
 
+        if ($sourcetype === enrolmentsync::SOURCETYPE) {
+            return $DB->record_exists('course', ['id' => $sourceid]);
+        }
+
         return false;
     }
 
@@ -476,6 +489,10 @@ class booking_enrolment {
         if ($sourcetype === 'group') {
             $ids = $DB->get_fieldset_select('groups_members', 'userid', 'groupid = :sourceid', ['sourceid' => $sourceid]);
             return array_map('intval', $ids);
+        }
+
+        if ($sourcetype === enrolmentsync::SOURCETYPE) {
+            return enrolmentsync::get_enrolled_user_ids($sourceid);
         }
 
         return [];
@@ -504,12 +521,15 @@ class booking_enrolment {
                 // Batch fetch all cohort and group names instead of N+1 queries.
                 $cohortids = [];
                 $groupids = [];
+                $courseids = [];
 
                 foreach ($rules as $rule) {
                     if ($rule->sourcetype === 'cohort') {
                         $cohortids[] = (int)$rule->sourceid;
                     } else if ($rule->sourcetype === 'group') {
                         $groupids[] = (int)$rule->sourceid;
+                    } else if ($rule->sourcetype === enrolmentsync::SOURCETYPE) {
+                        $courseids[] = (int)$rule->sourceid;
                     }
                 }
 
@@ -531,6 +551,11 @@ class booking_enrolment {
                     }
                 }
 
+                $courses = [];
+                if (!empty($courseids)) {
+                    $courses = $DB->get_records_list('course', 'id', array_unique($courseids), '', 'id,fullname');
+                }
+
                 // Enrich rules with source names.
                 foreach ($rules as $rule) {
                     if ($rule->sourcetype === 'cohort') {
@@ -539,6 +564,9 @@ class booking_enrolment {
                     } else if ($rule->sourcetype === 'group') {
                         $rule->sourcename = $groups[(int)$rule->sourceid] ?? '?';
                         $rule->sourcetypelabel = get_string('syncsourcetypegroup', 'mod_booking');
+                    } else if ($rule->sourcetype === enrolmentsync::SOURCETYPE) {
+                        $rule->sourcename = format_string($courses[(int)$rule->sourceid]->fullname ?? '?');
+                        $rule->sourcetypelabel = get_string('syncsourcetypecourse', 'mod_booking');
                     }
                 }
             }
@@ -1206,12 +1234,13 @@ class booking_enrolment {
 
         $sql = "SELECT a.*, u.firstname, u.lastname, u.email,
                        r.id AS ruleid, r.sourcetype, r.sourceid,
-                       c.name AS cohortname, g.name AS groupname
+                       c.name AS cohortname, g.name AS groupname, co.fullname AS coursename
                   FROM {booking_sync_attempts} a
                   JOIN {user} u ON u.id = a.userid
              LEFT JOIN {booking_sync_rules} r ON r.id = a.syncruleid
              LEFT JOIN {cohort} c ON c.id = r.sourceid AND r.sourcetype = 'cohort'
              LEFT JOIN {groups} g ON g.id = r.sourceid AND r.sourcetype = 'group'
+             LEFT JOIN {course} co ON co.id = r.sourceid AND r.sourcetype = 'course'
                  WHERE a.bookingoptionid = :optionid
                  ORDER BY a.timecreated DESC";
         $attempts = array_values($DB->get_records_sql($sql, ['optionid' => $optionid], 0, $limit));
@@ -1231,6 +1260,10 @@ class booking_enrolment {
                 $attempt->rulesource = $ruleref . ' - '
                     . get_string('syncsourcetypegroup', 'mod_booking') . ': '
                     . ($attempt->groupname ?? '?');
+            } else if ($attempt->sourcetype === enrolmentsync::SOURCETYPE) {
+                $attempt->rulesource = $ruleref . ' - '
+                    . get_string('syncsourcetypecourse', 'mod_booking') . ': '
+                    . format_string($attempt->coursename ?? '?');
             } else {
                 $attempt->rulesource = $ruleref;
             }
