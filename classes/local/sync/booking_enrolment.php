@@ -18,6 +18,7 @@ namespace mod_booking\local\sync;
 
 use cache_helper;
 use mod_booking\bo_availability\bo_info;
+use mod_booking\booking_option;
 use mod_booking\singleton_service;
 use stdClass;
 
@@ -58,6 +59,12 @@ class booking_enrolment {
 
     /** Reason code: user already has an active booking answer for this option. */
     const REASON_ALREADY_ENROLLED = 'already_enrolled';
+
+    /** Reason code: the booking answer owned by this rule was removed already (e.g. by a parallel sync). */
+    const REASON_ALREADY_REMOVED = 'already_removed';
+
+    /** Reason code: the capacity lock of the option could not be acquired, the next sync retries. */
+    const REASON_BLOCKED_LOCK = 'blocked_lock';
 
     /** Delete mode: reset syncruleid to 0 — answer ownership becomes manual. */
     const DELETE_MODE_MANUALIZE = 'manualize';
@@ -789,15 +796,10 @@ class booking_enrolment {
 
         if ((int)$rule->conditionpolicy === self::CONDITION_POLICY_OVERRIDE) {
             // Override mode: force book regardless of conditions or capacity.
-            $result = $option->user_submit_response(
+            $reasoncode = self::book_under_lock(
+                $option,
                 $user,
-                0,
-                0,
                 MOD_BOOKING_BO_SUBMIT_STATUS_BOOKOTHEROPTION_FORCE,
-                MOD_BOOKING_VERIFIED,
-                '',
-                0,
-                false,
                 (int)$rule->id
             );
         } else {
@@ -843,27 +845,18 @@ class booking_enrolment {
                 );
                 return;
             }
-            $result = $option->user_submit_response(
-                $user,
-                0,
-                0,
-                MOD_BOOKING_BO_SUBMIT_STATUS_DEFAULT,
-                MOD_BOOKING_VERIFIED,
-                '',
-                0,
-                false,
-                (int)$rule->id
-            );
+            $reasoncode = self::book_under_lock($option, $user, MOD_BOOKING_BO_SUBMIT_STATUS_DEFAULT, (int)$rule->id);
         }
 
-        if (!$result) {
+        if ($reasoncode !== self::REASON_OK) {
+            // A parallel sync or booking booked the user first, or the booking was refused.
             self::log_attempt(
                 (int)$rule->id,
                 (int)$rule->bookingoptionid,
                 $userid,
                 self::ACTION_ENROL,
-                self::REASON_BLOCKED_CAPACITY,
-                'user_submit_response returned false'
+                $reasoncode,
+                self::reason_message($reasoncode, (int)$rule->bookingoptionid)
             );
         } else {
             self::log_attempt(
@@ -939,7 +932,21 @@ class booking_enrolment {
             return;
         }
 
-        $option->user_delete_response($userid);
+        $reasoncode = self::remove_under_lock($option, $rule, $userid);
+        if ($reasoncode !== self::REASON_OK) {
+            // A parallel sync removed the answer first, nothing was cancelled a second time.
+            self::log_attempt(
+                (int)$rule->id,
+                (int)$rule->bookingoptionid,
+                $userid,
+                self::ACTION_UNENROL,
+                $reasoncode,
+                self::reason_message($reasoncode, (int)$rule->bookingoptionid)
+            );
+            return;
+        }
+        // Outside the lock, the waiting list sync takes it itself.
+        $option->sync_waiting_list();
 
         // Write sync-origin entry to booking_history. user_delete_response() already wrote one
         // entry with the standard delete status; we add a second with syncaction metadata so the
@@ -1042,15 +1049,10 @@ class booking_enrolment {
 
         if ((int)$rule->conditionpolicy === self::CONDITION_POLICY_OVERRIDE) {
             // Override mode: force book regardless of conditions or capacity.
-            $result = $option->user_submit_response(
+            $reasoncode = self::book_under_lock(
+                $option,
                 $user,
-                0,
-                0,
                 MOD_BOOKING_BO_SUBMIT_STATUS_BOOKOTHEROPTION_FORCE,
-                MOD_BOOKING_VERIFIED,
-                '',
-                0,
-                false,
                 (int)$rule->id
             );
         } else {
@@ -1096,27 +1098,18 @@ class booking_enrolment {
                 );
                 return;
             }
-            $result = $option->user_submit_response(
-                $user,
-                0,
-                0,
-                MOD_BOOKING_BO_SUBMIT_STATUS_DEFAULT,
-                MOD_BOOKING_VERIFIED,
-                '',
-                0,
-                false,
-                (int)$rule->id
-            );
+            $reasoncode = self::book_under_lock($option, $user, MOD_BOOKING_BO_SUBMIT_STATUS_DEFAULT, (int)$rule->id);
         }
 
-        if (!$result) {
+        if ($reasoncode !== self::REASON_OK) {
+            // A parallel sync or booking booked the user first, or the booking was refused.
             self::log_attempt(
                 (int)$rule->id,
                 (int)$rule->bookingoptionid,
                 $userid,
                 self::ACTION_ENROL,
-                self::REASON_BLOCKED_CAPACITY,
-                'user_submit_response returned false'
+                $reasoncode,
+                self::reason_message($reasoncode, (int)$rule->bookingoptionid)
             );
         } else {
             self::log_attempt(
@@ -1164,6 +1157,158 @@ class booking_enrolment {
         ]);
 
         return !empty($answer);
+    }
+
+    /**
+     * Whether the user holds an active booking answer in the option that is owned by the rule.
+     *
+     * Unlike {@see self::is_sync_owned_by_rule()}, a deleted answer does not count.
+     *
+     * @param stdClass $rule
+     * @param int $userid
+     * @return bool
+     */
+    public static function has_active_answer_owned_by_rule(stdClass $rule, int $userid): bool {
+        global $DB;
+
+        [$insql, $params] = $DB->get_in_or_equal([
+            MOD_BOOKING_STATUSPARAM_BOOKED,
+            MOD_BOOKING_STATUSPARAM_WAITINGLIST,
+            MOD_BOOKING_STATUSPARAM_RESERVED,
+        ], SQL_PARAMS_NAMED, 'status');
+
+        return $DB->record_exists_select(
+            'booking_answers',
+            "optionid = :optionid AND userid = :userid AND syncruleid = :ruleid AND waitinglist {$insql}",
+            ['optionid' => (int)$rule->bookingoptionid, 'userid' => $userid, 'ruleid' => (int)$rule->id] + $params
+        );
+    }
+
+    /**
+     * Books a user for a sync rule, atomically against every other booking of the option.
+     *
+     * Two syncs (or a sync and any other booking path) can work on the same user at the same time. The check and
+     * the write therefore run under the capacity lock of the option, which every booking takes. The outcome is
+     * read from the DB before and after, as user_submit_response() returns true for "booked" and "was booked".
+     *
+     * @param booking_option $option
+     * @param stdClass $user
+     * @param int $status one of the MOD_BOOKING_BO_SUBMIT_STATUS_* constants
+     * @param int $ruleid
+     * @param bool $deferbroadcastpurge see {@see booking_option::user_submit_response()}
+     * @param bool $skipuserlimitcheck see {@see booking_option::user_submit_response()}
+     * @return string REASON_OK, REASON_ALREADY_ENROLLED, REASON_BLOCKED_CAPACITY or REASON_BLOCKED_LOCK
+     */
+    public static function book_under_lock(
+        booking_option $option,
+        stdClass $user,
+        int $status,
+        int $ruleid,
+        bool $deferbroadcastpurge = false,
+        bool $skipuserlimitcheck = false
+    ): string {
+        $optionid = (int)$option->optionid;
+        $outcome = self::with_option_lock($optionid, function () use (
+            $option,
+            $user,
+            $status,
+            $ruleid,
+            $deferbroadcastpurge,
+            $skipuserlimitcheck,
+            $optionid
+        ) {
+            if (self::has_active_booking_answer($optionid, (int)$user->id)) {
+                return self::REASON_ALREADY_ENROLLED;
+            }
+            $submit = fn() => $option->user_submit_response(
+                $user,
+                0,
+                0,
+                $status,
+                MOD_BOOKING_VERIFIED,
+                syncruleid: $ruleid,
+                deferbroadcastpurge: $deferbroadcastpurge,
+                lockheld: true,
+                skipuserlimitcheck: $skipuserlimitcheck
+            );
+            if ($submit() && !self::has_active_booking_answer($optionid, (int)$user->id)) {
+                // "Booked" without an answer: the answers of this process are stale (e.g. a long running cron
+                // process missed the removal by another process), user_submit_response() took the user for booked.
+                booking_option::refresh_answers_for_option($optionid);
+                $submit();
+            }
+            return self::has_active_booking_answer($optionid, (int)$user->id)
+                ? self::REASON_OK
+                : self::REASON_BLOCKED_CAPACITY;
+        });
+        return $outcome ?? self::REASON_BLOCKED_LOCK;
+    }
+
+    /**
+     * Removes the booking a sync rule made, atomically against every other booking of the option.
+     *
+     * Only an active answer owned by the rule is removed. user_delete_response() would otherwise run the whole
+     * cancellation (event, rules, after-actions, unenrolment) a second time for an answer removed already. The
+     * waiting list is not synced here, as that takes the same lock: the caller syncs it afterwards.
+     *
+     * @param booking_option $option
+     * @param stdClass $rule
+     * @param int $userid
+     * @return string REASON_OK, REASON_ALREADY_REMOVED or REASON_BLOCKED_LOCK
+     */
+    public static function remove_under_lock(booking_option $option, stdClass $rule, int $userid): string {
+        $outcome = self::with_option_lock((int)$option->optionid, function () use ($option, $rule, $userid) {
+            if (!self::has_active_answer_owned_by_rule($rule, $userid)) {
+                return self::REASON_ALREADY_REMOVED;
+            }
+            $option->user_delete_response($userid, false, false, false);
+            return self::REASON_OK;
+        });
+        return $outcome ?? self::REASON_BLOCKED_LOCK;
+    }
+
+    /**
+     * The message logged with a reason code of {@see self::book_under_lock()} or {@see self::remove_under_lock()}.
+     *
+     * @param string $reasoncode
+     * @param int $optionid
+     * @return string
+     */
+    public static function reason_message(string $reasoncode, int $optionid): string {
+        switch ($reasoncode) {
+            case self::REASON_ALREADY_ENROLLED:
+                return 'User already has an active booking answer for optionid ' . $optionid;
+            case self::REASON_ALREADY_REMOVED:
+                return 'The booking answer owned by the rule was removed already for optionid ' . $optionid;
+            case self::REASON_BLOCKED_LOCK:
+                return 'Could not acquire the capacity lock of optionid ' . $optionid . ', the next sync retries';
+            case self::REASON_BLOCKED_CAPACITY:
+                return 'user_submit_response returned false';
+            default:
+                return '';
+        }
+    }
+
+    /**
+     * Runs a function under the capacity lock of an option, the lock every booking of the option takes.
+     *
+     * @param int $optionid
+     * @param callable $fn
+     * @return mixed the result of $fn, null if the lock could not be acquired
+     */
+    private static function with_option_lock(int $optionid, callable $fn) {
+        $lock = \core\lock\lock_config::get_lock_factory('mod_booking')
+            ->get_lock('bookingoption_capacity_' . $optionid, 10);
+        if (!$lock) {
+            return null;
+        }
+        try {
+            // Answers of this process read before the lock may be outdated, the next read loads them again.
+            singleton_service::destroy_booking_answers($optionid);
+            return $fn();
+        } finally {
+            $lock->release();
+        }
     }
 
     /**
