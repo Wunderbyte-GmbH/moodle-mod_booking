@@ -877,6 +877,102 @@ final class enrolment_sync_course_test extends advanced_testcase {
     }
 
     /**
+     * The end of a user's enrolment in a course, 0 if none.
+     *
+     * @param int $courseid
+     * @param int $userid
+     * @param string $enrol the enrolment method
+     * @return int
+     */
+    private function enrolment_end(int $courseid, int $userid, string $enrol): int {
+        global $DB;
+        $instance = $DB->get_record('enrol', ['courseid' => $courseid, 'enrol' => $enrol], '*', MUST_EXIST);
+        return (int)$DB->get_field('user_enrolments', 'timeend', ['enrolid' => $instance->id, 'userid' => $userid], MUST_EXIST);
+    }
+
+    /**
+     * A self-learning option limits the access of synced users to its duration: the end is set on the enrolment the
+     * user has, where the method allows it. No second enrolment is added, an earlier end is kept, and cohort
+     * enrolments are left alone.
+     *
+     * @return void
+     */
+    public function test_selflearning_duration_limits_synced_enrolment(): void {
+        global $DB;
+
+        [$booking, $category] = $this->create_synced_instance(['autoenrol' => 1]);
+        [$course, $option] = $this->create_course_with_option($booking, $category);
+        $duration = 3 * HOURSECS;
+        $DB->update_record('booking_options', (object)[
+            'id' => $option->id,
+            'type' => 1, // Self-learning course.
+            'duration' => $duration,
+            'enrolmentstatus' => 2,
+        ]);
+        \cache_helper::purge_by_event('setbackoptionsettings');
+        singleton_service::destroy_instance();
+        $this->assertSame(1, (int)singleton_service::get_instance_of_booking_option_settings((int)$option->id)->selflearningcourse);
+
+        $manualuser = $this->getDataGenerator()->create_user();
+        $shorteruser = $this->getDataGenerator()->create_user();
+        $cohortuser = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->enrol_user($manualuser->id, $course->id, 'student');
+        $shorterend = time() + HOURSECS;
+        $this->getDataGenerator()->enrol_user($shorteruser->id, $course->id, 'student', 'manual', 0, $shorterend);
+        $cohort = $this->add_cohort_sync($course);
+        cohort_add_member($cohort->id, $cohortuser->id);
+        $this->run_tasks_silently();
+
+        // Manual enrolment without an end: ends after the duration, counted from the booking.
+        $answer = $this->get_answer((int)$option->id, (int)$manualuser->id);
+        $this->assertSame(MOD_BOOKING_STATUSPARAM_BOOKED, (int)$answer->waitinglist);
+        $this->assertSame((int)$answer->timecreated + $duration, $this->enrolment_end((int)$course->id, (int)$manualuser->id, 'manual'));
+        $this->assertSame(1, $this->count_enrolments((int)$course->id, (int)$manualuser->id));
+
+        // An earlier end is kept.
+        $this->assertSame($shorterend, $this->enrolment_end((int)$course->id, (int)$shorteruser->id, 'manual'));
+
+        // A cohort enrolment can not be edited by booking.
+        $this->assertSame(0, $this->enrolment_end((int)$course->id, (int)$cohortuser->id, 'cohort'));
+        $this->assertSame(1, $this->count_enrolments((int)$course->id, (int)$cohortuser->id));
+
+        // A later enrolment run (course start task, option save) changes nothing.
+        $bo = singleton_service::get_instance_of_booking_option((int)$booking->cmid, (int)$option->id);
+        $bo->enrol_user((int)$manualuser->id);
+        $this->assertSame((int)$answer->timecreated + $duration, $this->enrolment_end((int)$course->id, (int)$manualuser->id, 'manual'));
+        $this->assertSame(1, $this->count_enrolments((int)$course->id, (int)$manualuser->id));
+        $this->assertCount(0, manager::get_adhoc_tasks(sync_course_enrolments_adhoc::class));
+    }
+
+    /**
+     * get_enrolled_user_ids() (the member count of the rule activation form) lists active enrolments of active
+     * accounts only.
+     *
+     * @return void
+     */
+    public function test_get_enrolled_user_ids(): void {
+        global $DB;
+
+        $course = $this->getDataGenerator()->create_course();
+        $active = $this->getDataGenerator()->create_user();
+        $suspendedaccount = $this->getDataGenerator()->create_user(['suspended' => 1]);
+        $suspendedenrolment = $this->getDataGenerator()->create_user();
+        $expired = $this->getDataGenerator()->create_user();
+        $notenrolled = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->enrol_user($active->id, $course->id, 'student');
+        $this->getDataGenerator()->enrol_user($suspendedaccount->id, $course->id, 'student');
+        $this->getDataGenerator()->enrol_user($suspendedenrolment->id, $course->id, 'student', 'manual', 0, 0, ENROL_USER_SUSPENDED);
+        $this->getDataGenerator()->enrol_user($expired->id, $course->id, 'student', 'manual', 0, time() - DAYSECS);
+
+        $this->assertSame([(int)$active->id], enrolmentsync::get_enrolled_user_ids((int)$course->id));
+        $this->assertSame([], enrolmentsync::get_enrolled_user_ids(0));
+        $this->assertSame(
+            [(int)$active->id],
+            booking_enrolment::get_source_member_ids(enrolmentsync::SOURCETYPE, (int)$course->id)
+        );
+    }
+
+    /**
      * Switches the enrolment sync of an instance, like booking_update_instance() does when the setting changed.
      *
      * @param stdClass $booking
