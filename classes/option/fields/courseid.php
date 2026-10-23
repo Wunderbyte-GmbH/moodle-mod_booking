@@ -26,6 +26,7 @@ namespace mod_booking\option\fields;
 
 use context_course;
 use mod_booking\booking_option_settings;
+use mod_booking\local\autocreateoption;
 use mod_booking\local\connectedcourse;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
@@ -108,6 +109,28 @@ class courseid extends field_base {
 
         if (isset($formdata->courseid) && is_array($formdata->courseid)) {
             $formdata->courseid = reset($formdata->courseid);
+        }
+
+        // An auto-created option keeps its course (or none). Enforced here, before any course is created, because
+        // imports, the wizard and web services save options without the form validation. An exception would be
+        // swallowed by fields_info::prepare_save_fields() and leave the other fields with the refused course, so the
+        // stored course is put back instead.
+        $optionid = (int)($formdata->id ?? 0);
+        if (
+            !autocreateoption::connected_course_allowed(
+                $optionid,
+                (int)($formdata->chooseorcreatecourse ?? 1),
+                (int)($formdata->courseid ?? 0)
+            )
+        ) {
+            debugging(
+                'mod_booking: ' . autocreateoption::connected_course_locked_message($optionid),
+                DEBUG_DEVELOPER
+            );
+            $storedcourseid = (int)singleton_service::get_instance_of_booking_option_settings($optionid)->courseid;
+            $formdata->chooseorcreatecourse = $storedcourseid > 0 ? 1 : 0;
+            $formdata->courseid = $storedcourseid;
+            unset($formdata->coursetemplateid, $formdata->createnewmoodlecoursefromtemplatewithusers);
         }
 
         // Capture what was actually submitted BEFORE handle_user_choice() and the fallback below
@@ -280,6 +303,15 @@ class courseid extends field_base {
             $data['courseid'] = reset($data['courseid']);
         }
 
+        // An auto-created option keeps its course (or none).
+        $optionid = (int)($data['id'] ?? 0);
+        $chooseorcreatecourse = (int)($data['chooseorcreatecourse'] ?? 1);
+        $courseid = (int)($data['courseid'] ?? 0);
+        if (!autocreateoption::connected_course_allowed($optionid, $chooseorcreatecourse, $courseid)) {
+            $element = $chooseorcreatecourse === 1 ? 'courseid' : 'chooseorcreatecourse';
+            $errors[$element] = autocreateoption::connected_course_locked_message($optionid);
+        }
+
         return $errors;
     }
 
@@ -312,7 +344,22 @@ class courseid extends field_base {
             3 => get_string('createnewmoodlecoursefromtemplate', 'mod_booking'),
         ];
 
+        // An auto-created option keeps its course (or none), so no new course can be created for it.
+        $optionid = (int)($formdata['id'] ?? 0);
+        $islocked = autocreateoption::get_source_course($optionid) > 0;
+        if ($islocked) {
+            unset($options[2], $options[3]);
+        }
+
         $mform->addElement('select', 'chooseorcreatecourse', get_string("connectedmoodlecourse", "booking"), $options);
+        if ($islocked) {
+            $mform->addElement(
+                'static',
+                'connectedcourselockedinfo',
+                '',
+                autocreateoption::connected_course_locked_message($optionid)
+            );
+        }
 
         $options = [
             'tags' => false,

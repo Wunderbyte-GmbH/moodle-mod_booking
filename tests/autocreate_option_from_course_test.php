@@ -711,4 +711,123 @@ final class autocreate_option_from_course_test extends advanced_testcase {
         $this->assertFalse($this->has_marker(reset($restored)->json));
         $this->assertTrue($this->option_has_marker((int)$option->id));
     }
+
+    /**
+     * Loads the option like the option form does, for a programmatic save.
+     *
+     * @param stdClass $booking
+     * @param int $optionid
+     * @return stdClass
+     */
+    private function load_option_data(stdClass $booking, int $optionid): stdClass {
+        singleton_service::destroy_instance();
+        $data = (object)[
+            'cmid' => (int)$booking->cmid,
+            'id' => $optionid,
+            'optionid' => $optionid,
+            'bookingid' => (int)$booking->id,
+            'copyoptionid' => 0,
+            'oldcopyoptionid' => 0,
+            'returnurl' => '',
+        ];
+        option\fields_info::set_data($data);
+        return $data;
+    }
+
+    /**
+     * An auto-created option can only be connected to its own course or to none, by every save path. Other options
+     * are not affected.
+     *
+     * @return void
+     */
+    public function test_connected_course_of_autocreated_option_is_locked(): void {
+        global $DB;
+
+        [$booking, $course, $option] = $this->create_autocreated_option();
+        $context = \context_module::instance((int)$booking->cmid);
+        $othercourse = $this->getDataGenerator()->create_course();
+        $optionid = (int)$option->id;
+
+        // Saving with the own course is fine.
+        $data = $this->load_option_data($booking, $optionid);
+        $this->assertSame((int)$course->id, (int)$data->courseid);
+        booking_option::update($data, $context);
+        $this->assertSame((int)$course->id, (int)$DB->get_field('booking_options', 'courseid', ['id' => $optionid]));
+
+        // Another course is refused: the option keeps its course, the rest of the data is saved.
+        $data = $this->load_option_data($booking, $optionid);
+        $data->chooseorcreatecourse = 1;
+        $data->courseid = (int)$othercourse->id;
+        $data->text = 'Renamed';
+        booking_option::update($data, $context);
+        $this->assertDebuggingCalled();
+        $this->assertSame((int)$course->id, (int)$DB->get_field('booking_options', 'courseid', ['id' => $optionid]));
+        $this->assertSame('Renamed', $DB->get_field('booking_options', 'text', ['id' => $optionid]));
+
+        // Creating a new course (also from a template) is refused before any course is created.
+        $coursecount = $DB->count_records('course');
+        foreach ([2, 3] as $chooseorcreatecourse) {
+            $data = $this->load_option_data($booking, $optionid);
+            $data->chooseorcreatecourse = $chooseorcreatecourse;
+            $data->coursetemplateid = (int)$othercourse->id;
+            booking_option::update($data, $context);
+            $this->assertDebuggingCalled();
+        }
+        $this->run_tasks_silently();
+        $this->assertSame($coursecount, $DB->count_records('course'));
+        $this->assertSame((int)$course->id, (int)$DB->get_field('booking_options', 'courseid', ['id' => $optionid]));
+
+        // No course, and back to the own course, are fine.
+        $data = $this->load_option_data($booking, $optionid);
+        $data->chooseorcreatecourse = 0;
+        booking_option::update($data, $context);
+        $this->assertSame(0, (int)$DB->get_field('booking_options', 'courseid', ['id' => $optionid]));
+        $data = $this->load_option_data($booking, $optionid);
+        $data->chooseorcreatecourse = 1;
+        $data->courseid = (int)$course->id;
+        booking_option::update($data, $context);
+        $this->assertSame((int)$course->id, (int)$DB->get_field('booking_options', 'courseid', ['id' => $optionid]));
+
+        // The form validation reports the same.
+        $errors = [];
+        $formdata = ['id' => $optionid, 'chooseorcreatecourse' => 1, 'courseid' => [(int)$othercourse->id]];
+        option\fields\courseid::validation($formdata, [], $errors);
+        $this->assertArrayHasKey('courseid', $errors);
+        $errors = [];
+        $formdata = ['id' => $optionid, 'chooseorcreatecourse' => 3];
+        option\fields\courseid::validation($formdata, [], $errors);
+        $this->assertArrayHasKey('chooseorcreatecourse', $errors);
+        $errors = [];
+        $formdata = ['id' => $optionid, 'chooseorcreatecourse' => 1, 'courseid' => [(int)$course->id]];
+        option\fields\courseid::validation($formdata, [], $errors);
+        $this->assertSame([], $errors);
+
+        // The form offers no course creation for it.
+        $mform = new \MoodleQuickForm('optionform', 'post', '');
+        $formdata = ['id' => $optionid];
+        option\fields\courseid::instance_form_definition($mform, $formdata, [], [], false);
+        $choices = array_map(fn($o) => (int)$o['attr']['value'], $mform->getElement('chooseorcreatecourse')->_options);
+        $this->assertSame([0, 1], $choices);
+        $this->assertTrue($mform->elementExists('connectedcourselockedinfo'));
+
+        // A duplicate of it is a normal option: it can be connected to any course.
+        /** @var \mod_booking_generator $plugingenerator */
+        $plugingenerator = $this->getDataGenerator()->get_plugin_generator('mod_booking');
+        $normal = $plugingenerator->create_option([
+            'bookingid' => $booking->id,
+            'text' => 'Normal option',
+            'chooseorcreatecourse' => 1,
+            'courseid' => $course->id,
+        ]);
+        $data = $this->load_option_data($booking, (int)$normal->id);
+        $data->chooseorcreatecourse = 1;
+        $data->courseid = (int)$othercourse->id;
+        booking_option::update($data, $context);
+        $this->assertSame((int)$othercourse->id, (int)$DB->get_field('booking_options', 'courseid', ['id' => $normal->id]));
+        $mform = new \MoodleQuickForm('optionform', 'post', '');
+        $formdata = ['id' => (int)$normal->id];
+        option\fields\courseid::instance_form_definition($mform, $formdata, [], [], false);
+        $this->assertCount(4, $mform->getElement('chooseorcreatecourse')->_options);
+        $this->assertFalse($mform->elementExists('connectedcourselockedinfo'));
+    }
 }
