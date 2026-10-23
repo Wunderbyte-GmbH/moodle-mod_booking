@@ -55,8 +55,11 @@ class enrolmentsync {
     /** @var string Source type of the sync rules of this class. */
     const SOURCETYPE = 'course';
 
-    /** @var string The single key used in the synced courses cache. */
+    /** @var string The key of the synced courses cache for the enabled rules. */
     const CACHEKEY = 'courses';
+
+    /** @var string The key of the synced courses cache for all rules, enabled or not. */
+    const CACHEKEY_ALL = 'allcourses';
 
     /** @var int Number of users booked or removed between two cache broadcasts. */
     const CHUNKSIZE = 100;
@@ -86,26 +89,29 @@ class enrolmentsync {
      * stored explicitly, so sites without the feature never hit the DB. All rule writes purge it via the
      * setbacksyncrules event.
      *
+     * @param bool $includedisabled true to include the courses of disabled rules as well
      * @return array courseid => true
      */
-    public static function get_synced_courses(): array {
+    public static function get_synced_courses(bool $includedisabled = false): array {
         global $DB;
 
+        $key = $includedisabled ? self::CACHEKEY_ALL : self::CACHEKEY;
         $cache = cache::make('mod_booking', 'syncrulecourses');
-        $courses = $cache->get(self::CACHEKEY);
+        $courses = $cache->get($key);
         if (is_array($courses)) {
             return $courses;
         }
 
+        $select = 'sourcetype = :sourcetype' . ($includedisabled ? '' : ' AND isenabled = 1');
         $ids = $DB->get_fieldset_select(
             'booking_sync_rules',
             'DISTINCT sourceid',
-            'sourcetype = :sourcetype AND isenabled = 1',
+            $select,
             ['sourcetype' => self::SOURCETYPE]
         );
         $courses = array_fill_keys(array_map('intval', $ids), true);
 
-        $cache->set(self::CACHEKEY, $courses);
+        $cache->set($key, $courses);
         return $courses;
     }
 
@@ -167,13 +173,22 @@ class enrolmentsync {
     }
 
     /**
-     * Whether the user holds an active answer in the option that a course sync rule of this course created.
+     * Whether booking must not enrol the user manually into the course for the answer in this option.
      *
-     * Such a user is enrolled in the course already, by the method that caused the booking. Booking must not add a
-     * manual enrolment on top: it would keep the user in the course after the real enrolment was removed, and with
-     * it the synced booking.
+     * True when the answer was made by a course or group sync rule while the user holds an active answer, in any
+     * option, that a course sync rule of this course created. Such a user is enrolled in the course already, by the
+     * method that caused the synced booking. A manual enrolment on top would keep the user in the course after the
+     * real enrolment was removed, and with it the synced booking:
+     * - directly: the synced option itself enrols into its course,
+     * - indirectly: synced option -> group (addtogroup) -> group sync rule of another option -> manual enrolment.
      *
-     * @param int $optionid
+     * Bookings made by the user and by cohort rules still enrol: booking never changes cohort memberships, so they
+     * can not be caused by the synced booking, and they must keep the user in the course on their own.
+     *
+     * Disabled course rules count as well: the bookings they made are kept, and a manual enrolment added while the
+     * sync is off would make them permanent once the sync is switched on again.
+     *
+     * @param int $optionid the option booking enrols for
      * @param int $userid
      * @param int $courseid the course booking wants to enrol the user into
      * @return bool
@@ -181,7 +196,26 @@ class enrolmentsync {
     public static function answer_is_course_synced(int $optionid, int $userid, int $courseid): bool {
         global $DB;
 
-        if (!isset(self::get_synced_courses()[$courseid])) {
+        if (!isset(self::get_synced_courses(true)[$courseid])) {
+            return false;
+        }
+
+        // Only answers made by a rule that booking itself can feed (course enrolments, group memberships).
+        [$activesql, $activeparams] = $DB->get_in_or_equal(self::active_statuses(), SQL_PARAMS_NAMED, 'astatus');
+        $sql = "SELECT 1
+                  FROM {booking_answers} ba
+                  JOIN {booking_sync_rules} r ON r.id = ba.syncruleid
+                 WHERE ba.optionid = :optionid
+                   AND ba.userid = :userid
+                   AND ba.waitinglist {$activesql}
+                   AND r.sourcetype IN (:course, :group)";
+        $activeparams += [
+            'optionid' => $optionid,
+            'userid' => $userid,
+            'course' => self::SOURCETYPE,
+            'group' => 'group',
+        ];
+        if (!$DB->record_exists_sql($sql, $activeparams)) {
             return false;
         }
 
@@ -189,13 +223,11 @@ class enrolmentsync {
         $sql = "SELECT 1
                   FROM {booking_answers} ba
                   JOIN {booking_sync_rules} r ON r.id = ba.syncruleid
-                 WHERE ba.optionid = :optionid
-                   AND ba.userid = :userid
+                 WHERE ba.userid = :userid
                    AND ba.waitinglist {$insql}
                    AND r.sourcetype = :sourcetype
                    AND r.sourceid = :courseid";
         $params += [
-            'optionid' => $optionid,
             'userid' => $userid,
             'sourcetype' => self::SOURCETYPE,
             'courseid' => $courseid,
@@ -561,6 +593,7 @@ class enrolmentsync {
         global $DB;
 
         $removed = 0;
+        $allremovedids = [];
 
         foreach (array_chunk($userids, self::CHUNKSIZE) as $chunk) {
             $logs = [];
@@ -600,14 +633,58 @@ class enrolmentsync {
             );
             $DB->insert_records('booking_sync_attempts', $logs);
             $removed += count($removedids);
+            $allremovedids = array_merge($allremovedids, $removedids);
         }
 
         if ($removed > 0) {
             // The freed places go to the waiting list once, not once per removed user.
             $option->sync_waiting_list();
+            self::reenrol_own_bookings((int)$rule->sourceid, $allremovedids);
         }
 
         return $removed;
+    }
+
+    /**
+     * Enrols the removed users again for their group rule bookings of options connected to the course.
+     *
+     * While a user held a synced answer for the course, group rule bookings did not enrol the user manually there,
+     * see {@see self::answer_is_course_synced()}. Those the user still holds need their enrolment once the last
+     * synced answer is gone.
+     *
+     * @param int $courseid
+     * @param int[] $userids
+     * @return void
+     */
+    private static function reenrol_own_bookings(int $courseid, array $userids): void {
+        global $DB;
+
+        if (empty($userids)) {
+            return;
+        }
+
+        [$insql, $params] = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED, 'user');
+        $sql = "SELECT ba.id, ba.optionid, ba.userid, bo.bookingid
+                  FROM {booking_answers} ba
+                  JOIN {booking_options} bo ON bo.id = ba.optionid
+                  JOIN {booking_sync_rules} r ON r.id = ba.syncruleid
+                 WHERE bo.courseid = :courseid
+                   AND ba.waitinglist = :booked
+                   AND ba.userid {$insql}
+                   AND r.sourcetype = :group";
+        $params += [
+            'courseid' => $courseid,
+            'booked' => MOD_BOOKING_STATUSPARAM_BOOKED,
+            'group' => 'group',
+        ];
+        foreach ($DB->get_records_sql($sql, $params) as $answer) {
+            try {
+                $bo = booking_option::create_option_from_optionid((int)$answer->optionid, (int)$answer->bookingid);
+                $bo->enrol_user_coursestart((int)$answer->userid);
+            } catch (\Exception $e) {
+                mtrace("enrolmentsync: option {$answer->optionid}, user {$answer->userid}: " . $e->getMessage());
+            }
+        }
     }
 
     /**
