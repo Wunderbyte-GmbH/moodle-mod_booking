@@ -2724,7 +2724,11 @@ class booking_option {
             enrolmentsync::$bookingisenrolling = true;
             try {
                 if ($issyncedanswer) {
-                    // Nothing to enrol, the groups below are still handled.
+                    // Nothing to enrol, the groups below are still handled. A self-learning course still limits the
+                    // access to its duration: the end is set on the enrolment the user already has.
+                    if (!empty($this->settings->selflearningcourse)) {
+                        $this->limit_synced_enrolment_to_duration($userid, $courseid, $bookinganswers);
+                    }
                 } else if (!empty($this->settings->selflearningcourse) && !$isteacher) {
                     // For self-learning courses, users will be enrolled from the time booked...
                     // ...until the duration of the self-learning course has passed #684.
@@ -2802,6 +2806,44 @@ class booking_option {
                     }
                 }
             }
+        }
+    }
+
+    /**
+     * Sets the end of the self-learning duration on the enrolments a course-synced user already has.
+     *
+     * A user booked by the course enrolment sync was enrolled by somebody else, usually without an end. For a
+     * self-learning course the access ends after the duration, counted from the booking like for a self-booked user
+     * (see enrol_user()). The end is set on every enrolment of the user in the course whose method lets booking
+     * edit it (manual, self). Methods that own their enrolments (cohort, meta, database, ...) are left alone. An
+     * end that is earlier already is kept, the access is never extended.
+     *
+     * @param int $userid
+     * @param int $courseid
+     * @param booking_answers $bookinganswers
+     * @return void
+     */
+    private function limit_synced_enrolment_to_duration(int $userid, int $courseid, booking_answers $bookinganswers): void {
+        global $DB;
+
+        $duration = (int)($this->settings->duration ?? 0);
+        if ($duration <= 0) {
+            return;
+        }
+        $ba = $bookinganswers->user_get_last_active_booking($userid);
+        $end = ($ba ? (int)$ba->timecreated : time()) + $duration;
+
+        // All enrolment methods of the course, disabled ones included: their enrolments keep the user as well.
+        foreach (enrol_get_instances($courseid, false) as $instance) {
+            $plugin = enrol_get_plugin($instance->enrol);
+            if (!$plugin || !$plugin->allow_manage($instance)) {
+                continue;
+            }
+            $ue = $DB->get_record('user_enrolments', ['enrolid' => $instance->id, 'userid' => $userid]);
+            if (!$ue || (!empty($ue->timeend) && $ue->timeend <= $end)) {
+                continue;
+            }
+            $plugin->update_user_enrol($instance, $userid, null, null, $end);
         }
     }
 

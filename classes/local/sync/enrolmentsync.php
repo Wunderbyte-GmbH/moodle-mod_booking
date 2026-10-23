@@ -143,30 +143,28 @@ class enrolmentsync {
      * @return bool true if a task was queued
      */
     public static function queue_course_sync(int $courseid): bool {
-        global $DB;
-
         // A task this process queued can not have started before its delay has passed.
         if (isset(self::$queued[$courseid]) && self::$queued[$courseid] + self::QUEUEDELAY > time()) {
             return false;
         }
 
-        $task = new sync_course_enrolments_adhoc();
-        $task->set_custom_data(['courseid' => $courseid]);
-
-        $record = \core\task\manager::record_from_adhoc_task($task);
-        $select = 'classname = :classname AND timestarted IS NULL AND '
-            . $DB->sql_compare_text('customdata', \core_text::strlen($record->customdata) + 1) . ' = :customdata';
-        $pending = $DB->record_exists_select(
-            'task_adhoc',
-            $select,
-            ['classname' => $record->classname, 'customdata' => $record->customdata]
-        );
+        // Tasks of this class that have not started yet (skiprunning), the course is compared in PHP: there are
+        // only as many as courses with a change in the last 30 seconds.
+        $pending = false;
+        foreach (\core\task\manager::get_adhoc_tasks(sync_course_enrolments_adhoc::class, false, true) as $queued) {
+            if ((int)($queued->get_custom_data()->courseid ?? 0) === $courseid) {
+                $pending = true;
+                break;
+            }
+        }
 
         self::$queued[$courseid] = time();
         if ($pending) {
             return false;
         }
 
+        $task = new sync_course_enrolments_adhoc();
+        $task->set_custom_data(['courseid' => $courseid]);
         $task->set_next_run_time(time() + self::QUEUEDELAY);
         \core\task\manager::queue_adhoc_task($task);
         return true;
@@ -405,19 +403,14 @@ class enrolmentsync {
      * @return int[]
      */
     public static function get_enrolled_user_ids(int $courseid): array {
-        global $DB;
-
         $context = context_course::instance($courseid, IGNORE_MISSING);
         if (!$context) {
             return [];
         }
-        $join = get_enrolled_join($context, 'u.id', true);
-        $sql = "SELECT DISTINCT u.id
-                  FROM {user} u
-                       {$join->joins}
-                 WHERE {$join->wheres}
-                   AND u.suspended = 0";
-        return array_map('intval', $DB->get_fieldset_sql($sql, $join->params));
+        // Active enrolments only (onlyactive); suspended user accounts are no participants either.
+        $users = get_enrolled_users($context, '', 0, 'u.id, u.suspended', null, 0, 0, true);
+        $users = array_filter($users, fn($user) => empty($user->suspended));
+        return array_map('intval', array_keys($users));
     }
 
     /**
@@ -496,25 +489,24 @@ class enrolmentsync {
     private static function get_users_to_unenrol(stdClass $rule): array {
         global $DB;
 
+        // The users the rule booked.
         [$activesql, $params] = $DB->get_in_or_equal(self::active_statuses(), SQL_PARAMS_NAMED, 'status');
-        $sql = "SELECT DISTINCT ba.userid
-                  FROM {booking_answers} ba
-                 WHERE ba.optionid = :optionid
-                   AND ba.syncruleid = :ruleid
-                   AND ba.waitinglist {$activesql}
-                   AND NOT EXISTS (
-                           SELECT 1
-                             FROM {user_enrolments} ue
-                             JOIN {enrol} e ON e.id = ue.enrolid
-                            WHERE e.courseid = :courseid
-                              AND ue.userid = ba.userid
-                       )";
-        $params += [
-            'optionid' => (int)$rule->bookingoptionid,
-            'ruleid' => (int)$rule->id,
-            'courseid' => (int)$rule->sourceid,
-        ];
-        return array_map('intval', $DB->get_fieldset_sql($sql, $params));
+        $params += ['optionid' => (int)$rule->bookingoptionid, 'ruleid' => (int)$rule->id];
+        $bookedids = array_map('intval', $DB->get_fieldset_select(
+            'booking_answers',
+            'DISTINCT userid',
+            "optionid = :optionid AND syncruleid = :ruleid AND waitinglist {$activesql}",
+            $params
+        ));
+        if (empty($bookedids)) {
+            return [];
+        }
+
+        // Of those, the users with any enrolment in the course, whatever its status (onlyactive = false).
+        $enrolled = enrol_get_course_users((int)$rule->sourceid, false, $bookedids);
+        $enrolledids = array_map(fn($user) => (int)$user->id, $enrolled);
+
+        return array_values(array_diff($bookedids, $enrolledids));
     }
 
     /**

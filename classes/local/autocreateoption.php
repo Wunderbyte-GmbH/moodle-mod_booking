@@ -83,10 +83,13 @@ class autocreateoption {
         }
 
         $map = [];
-        $sql = "SELECT id, json
-                  FROM {booking}
-                 WHERE " . $DB->sql_isnotempty('booking', 'json', true, true);
-        $records = $DB->get_records_sql($sql);
+        $records = $DB->get_records_select(
+            'booking',
+            $DB->sql_isnotempty('booking', 'json', true, true),
+            [],
+            '',
+            'id, json'
+        );
         foreach ($records as $record) {
             $json = json_decode($record->json);
             $categoryid = (int)($json->{self::JSONKEY_CATEGORY} ?? 0);
