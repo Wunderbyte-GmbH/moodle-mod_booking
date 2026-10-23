@@ -249,38 +249,68 @@ final class update_activity_skill_test extends advanced_testcase {
     }
 
     /**
-     * Moving inside the section reorders the activities: "up" moves before the previous one, "bottom" to the end.
+     * Create a course with three pages in section 1, acting as an editing teacher in the course context.
      *
-     * No deprecated core API on the way (moveto_module() is deprecated since Moodle 5.2, MDL-86854).
+     * @return array [course, teacher, cmids of the three pages in order, coursecontextid]
      */
-    public function test_move_within_section(): void {
+    private function setup_three_pages_in_section_1(): array {
         global $PAGE;
-        $this->resetAfterTest();
         $course = $this->getDataGenerator()->create_course(['numsections' => 1, 'format' => 'topics']);
         $teacher = $this->getDataGenerator()->create_user();
         $this->getDataGenerator()->enrol_user($teacher->id, $course->id, 'editingteacher');
         $cmids = [];
         foreach (['First page', 'Second page', 'Third page'] as $name) {
-            $page = $this->getDataGenerator()->create_module('page', ['course' => $course->id, 'name' => $name, 'section' => 0]);
+            $page = $this->getDataGenerator()->create_module('page', ['course' => $course->id, 'name' => $name, 'section' => 1]);
             $cmids[] = (int)$page->cmid;
         }
-        [$first, $second, $third] = $cmids;
-        $ctxid = (int)context_course::instance($course->id)->id;
         $this->setUser($teacher);
         $PAGE->set_context(context_course::instance($course->id));
+        return [$course, $teacher, $cmids, (int)context_course::instance($course->id)->id];
+    }
+
+    /**
+     * Moving inside the section reorders the activities: "up" moves before the previous one, "bottom" to the end.
+     *
+     * The activity sits in section 1: the move must find it in its own section, not in section 0, and the result
+     * must name the move (it said "Changed: nothing" before). No deprecated core API on the way (moveto_module() is
+     * deprecated since Moodle 5.2, MDL-86854).
+     */
+    public function test_move_within_section(): void {
+        $this->resetAfterTest();
+        [$course, $teacher, [$first, $second, $third], $ctxid] = $this->setup_three_pages_in_section_1();
         $skill = new update_activity_skill();
 
         $pf = $skill->preflight(['cmid' => $third, 'position' => 'up'], $ctxid, (int)$teacher->id);
         $this->assertSame('pass', $pf->status);
-        $this->assertSame('executed', $skill->execute($pf->preparedinput, $ctxid, (int)$teacher->id)['status']);
-        $this->assertSame([$first, $third, $second], array_map('intval', get_fast_modinfo($course->id)->sections[0]));
+        $result = $skill->execute($pf->preparedinput, $ctxid, (int)$teacher->id);
+        $this->assertSame('executed', $result['status']);
+        $this->assertSame([$first, $third, $second], array_map('intval', get_fast_modinfo($course->id)->sections[1]));
+        $this->assertStringContainsString('moved up within section 1', $result['affected_scope_summary']);
 
         $pf = $skill->preflight(['cmid' => $first, 'position' => 'bottom'], $ctxid, (int)$teacher->id);
         $this->assertSame('pass', $pf->status);
-        $this->assertSame('executed', $skill->execute($pf->preparedinput, $ctxid, (int)$teacher->id)['status']);
-        $this->assertSame([$third, $second, $first], array_map('intval', get_fast_modinfo($course->id)->sections[0]));
+        $result = $skill->execute($pf->preparedinput, $ctxid, (int)$teacher->id);
+        $this->assertSame('executed', $result['status']);
+        $this->assertSame([$third, $second, $first], array_map('intval', get_fast_modinfo($course->id)->sections[1]));
+        $this->assertStringContainsString('moved to the bottom within section 1', $result['affected_scope_summary']);
 
         $this->assertDebuggingNotCalled();
+    }
+
+    /**
+     * Moving the first activity up changes nothing, and the result says so instead of "Changed: nothing".
+     */
+    public function test_move_up_of_the_first_activity_reports_its_position(): void {
+        $this->resetAfterTest();
+        [$course, $teacher, [$first, $second, $third], $ctxid] = $this->setup_three_pages_in_section_1();
+        $skill = new update_activity_skill();
+
+        $pf = $skill->preflight(['cmid' => $first, 'position' => 'up'], $ctxid, (int)$teacher->id);
+        $this->assertSame('pass', $pf->status);
+        $result = $skill->execute($pf->preparedinput, $ctxid, (int)$teacher->id);
+        $this->assertSame('executed', $result['status']);
+        $this->assertSame([$first, $second, $third], array_map('intval', get_fast_modinfo($course->id)->sections[1]));
+        $this->assertStringContainsString('already first in section 1', $result['affected_scope_summary']);
     }
 
     /**
