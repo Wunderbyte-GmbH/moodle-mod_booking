@@ -81,6 +81,16 @@ class schedule_report_skill extends report_skill_base implements skill_trigger_p
     }
 
     /**
+     * Schedules are built on the report schedule types of Moodle 5.1 (core_reportbuilder\local\schedules\base,
+     * fields classname and configdata); before, they had another structure.
+     *
+     * @return int
+     */
+    public function get_required_moodle_branch(): int {
+        return 501;
+    }
+
+    /**
      * Gate 2 (core's per-report edit rule and scheduleviewas on top).
      *
      * @return string[]
