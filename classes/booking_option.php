@@ -2713,8 +2713,9 @@ class booking_option {
             || $isteacher
             || $enrolwithoutba
         ) {
-            // A user booked because of an enrolment in this course (course enrolment sync) is enrolled already. A
-            // second, manual enrolment would keep the user in the course after the real one was removed.
+            // A user booked because of an enrolment in this course (course enrolment sync), directly or via a group
+            // rule, is enrolled already. A second, manual enrolment would keep the user in the course after the real
+            // one was removed.
             $issyncedanswer = !$isteacher
                 && enrolmentsync::answer_is_course_synced((int)$this->optionid, $userid, (int)$courseid);
 
