@@ -27,6 +27,7 @@ namespace mod_booking\option\fields;
 use context_module;
 use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
+use mod_booking\local\autocreateoption;
 use mod_booking\dates;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
@@ -403,6 +404,8 @@ class recurringoptions extends field_base {
             ];
 
             fields_info::set_data($templateoption);
+            // Recurring children are no auto-created options, even if their parent was one.
+            autocreateoption::strip_marker($templateoption);
             $templateoption->parentid = $option->id;
             $restrictoptionid = $option->id;
             [$newoptiondates, $highestindex] = dates::get_list_of_submitted_dates((array)$templateoption);
