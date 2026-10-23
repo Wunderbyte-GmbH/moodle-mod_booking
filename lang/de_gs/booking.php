@@ -69,6 +69,7 @@ $string['allusersbooked'] = 'Alle {$a} Nutzer/innen wurden erfolgreich für dies
 $string['alwaysbookanyonealert'] = 'Sie haben Buchung mit der Einstellung <a href="{$a}" target="_blank">booking | alwaysbookanyone</a> so konfiguriert, dass immer alle Nutzer/innen aller Kurse gebucht werden können.';
 $string['approvalsettings_desc'] = 'Booking unterstützt verschiedene Bestätigungsprozesse, wenn Nutzer/innen sich ihre Buchungen bestätigen lassen müssen. Im Standardprozess können Trainer/innen die Anfragen über die Warteliste bestätigen. Andere Prozesse können über Bookingextension Subplugins nachgeladen werden.';
 $string['assignteachers'] = 'Lehrer/innen zuweisen:';
+$string['autocreateoptionlinkcourse_help'] = 'Wenn aktiviert, wird die erstellte Buchungsoption mit dem neuen Kurs verknüpft, sodass Nutzer/innen, die die Option buchen, in den Kurs eingeschrieben werden. Wenn nicht aktiviert, wird die Buchungsoption ohne verknüpften Kurs erstellt.';
 $string['autoenrol'] = 'Nutzer/innen automatisch in verknüpften Kurs einschreiben';
 $string['autoenrol_help'] = 'Falls ausgewählt werden Nutzer/innen automatisch in den Kurs eingeschrieben sobald sie die Buchung durchgeführt haben und wieder ausgetragen, wenn die Buchung storniert wird.';
 $string['availabilityconditionsstatecolumn_help'] = 'Wählen Sie aus, wie sich jede Verfügbarkeitsbedingung verhalten soll:<br><br>
