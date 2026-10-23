@@ -143,6 +143,20 @@ abstract class base_skill implements skill_interface {
     }
 
     /**
+     * Oldest Moodle branch this skill runs on, in the form of $CFG->branch (e.g. 501 for Moodle 5.1).
+     *
+     * The plugin supports Moodle 4.5 and later. A skill built on a newer core API returns the branch that brought
+     * it. On an older site the skill stays registered but is not executable: the executability gate denies it with
+     * its own reason (moodle_version_unsupported), which the skill governance page and the skill listing name.
+     * Default: 0 (no requirement beyond the plugin's own).
+     *
+     * @return int
+     */
+    public function get_required_moodle_branch(): int {
+        return 0;
+    }
+
+    /**
      * Minimum Moodle context level this skill needs to operate (runtime context switch).
      *
      * Default CONTEXT_MODULE = behaves exactly as today. A skill that must act on a broader

@@ -59,6 +59,9 @@ class skill_contract_validator {
     /** Deny reason: requested skill version is unsupported. */
     public const DENY_SKILL_VERSION_UNSUPPORTED = 'skill_version_unsupported';
 
+    /** Deny reason: the skill needs a newer Moodle version than this site runs. */
+    public const DENY_MOODLE_VERSION_UNSUPPORTED = 'moodle_version_unsupported';
+
     /**
      * Build normalized governance metadata for one skill.
      *
@@ -99,7 +102,36 @@ class skill_contract_validator {
             'readonly' => (bool)$skill->is_read_only(),
             'risk_class' => trim((string)$skill->get_risk_class()),
             'context_scopes' => array_values(array_filter(array_map('strval', (array)($promptcontract['context_scopes'] ?? [])))),
+            // Oldest Moodle branch the skill runs on (0 = no requirement); see requires_newer_moodle().
+            'required_moodle_branch' => method_exists($skill, 'get_required_moodle_branch')
+                ? max(0, (int)$skill->get_required_moodle_branch())
+                : 0,
         ];
+    }
+
+    /**
+     * Whether a skill needs a newer Moodle than this site runs.
+     *
+     * Such a skill stays registered, but the executability gate denies it with DENY_MOODLE_VERSION_UNSUPPORTED,
+     * so the skill governance page and the skill listing name the reason instead of the skill being absent.
+     *
+     * @param array $metadata Skill metadata from build_skill_metadata().
+     * @return bool
+     */
+    public static function requires_newer_moodle(array $metadata): bool {
+        global $CFG;
+        $required = (int)($metadata['required_moodle_branch'] ?? 0);
+        return $required > 0 && (int)$CFG->branch < $required;
+    }
+
+    /**
+     * A Moodle branch number as its version, e.g. 405 as "4.5" and 501 as "5.1".
+     *
+     * @param int $branch
+     * @return string
+     */
+    public static function format_moodle_branch(int $branch): string {
+        return intdiv($branch, 100) . '.' . ($branch % 100);
     }
 
     /**

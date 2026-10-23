@@ -73,6 +73,11 @@ $isprolocked = static function (string $skillname, $meta) use ($hasfullaccess): 
         (string)($meta['component'] ?? '')
     );
 };
+// A skill that needs a newer Moodle than this site runs is not toggleable either: the executability gate denies it
+// anyway, and its stored setting is kept, so after a Moodle upgrade it comes back as the admin left it.
+$isversionlocked = static function ($meta): bool {
+    return \bookingextension_agent\local\wizard\skill_contract_validator::requires_newer_moodle((array)$meta);
+};
 
 // Handle POST actions.
 if (data_submitted() && confirm_sesskey()) {
@@ -92,7 +97,7 @@ if (data_submitted() && confirm_sesskey()) {
         }
     } else if ($bulk === 'enableall') {
         foreach ($contracts as $skillname => $meta) {
-            if ($isprolocked((string)$skillname, $meta)) {
+            if ($isprolocked((string)$skillname, $meta) || $isversionlocked($meta)) {
                 continue;
             }
             $settingname = \bookingextension_agent\local\wizard\skill_registry::get_skill_toggle_setting_name((string)$skillname);
@@ -118,7 +123,7 @@ if (data_submitted() && confirm_sesskey()) {
         $enabledposted = optional_param_array('enabledskills', [], PARAM_RAW);
         $enabledset = array_flip(array_map('strval', $enabledposted));
         foreach ($contracts as $skillname => $meta) {
-            if ($isprolocked((string)$skillname, $meta)) {
+            if ($isprolocked((string)$skillname, $meta) || $isversionlocked($meta)) {
                 // Disabled checkbox: nothing posted for it — keep the stored value untouched.
                 continue;
             }
@@ -307,6 +312,11 @@ $describedeny = static function (array $evaluation) use ($evalcontextid): string
             return get_string('skillgovernance_gate_deny_context_invalid', 'bookingextension_agent', $evalcontextid);
         case \bookingextension_agent\local\wizard\skill_contract_validator::DENY_SKILL_VERSION_UNSUPPORTED:
             return get_string('skillgovernance_gate_deny_version_unsupported', 'bookingextension_agent');
+        case \bookingextension_agent\local\wizard\skill_contract_validator::DENY_MOODLE_VERSION_UNSUPPORTED:
+            return get_string('skillgovernance_gate_deny_moodle_version', 'bookingextension_agent', (object)[
+                'required' => (string)($diagnostics['required_moodle'] ?? ''),
+                'site' => (string)($diagnostics['site_moodle'] ?? ''),
+            ]);
         case \bookingextension_agent\local\wizard\skill_contract_validator::DENY_REQUIRES_PRO:
             return get_string('skillgovernance_gate_deny_requires_pro', 'bookingextension_agent');
         case \bookingextension_agent\local\wizard\skill_contract_validator::DENY_MISSING_CAPABILITY:
@@ -492,6 +502,7 @@ foreach ($contracts as $skillname => $meta) {
         (string)($meta['component'] ?? '')
     );
     $prolocked = $ispro && !$hasfullaccess;
+    $versionlocked = $isversionlocked($meta);
 
     $capabilities = (array)($meta['capabilities'] ?? []);
     $capabilitylabel = implode('<br/>', array_map('s', $capabilities));
@@ -529,17 +540,22 @@ foreach ($contracts as $skillname => $meta) {
     ]);
 
     // Checkbox. PRO-locked skills render disabled (greyed): they cannot run without full access,
-    // so toggling them here would only store dead intent. The save paths skip them accordingly.
+    // so toggling them here would only store dead intent. The same holds for a skill that needs a newer
+    // Moodle. The save paths skip both accordingly.
+    $checkboxtitle = null;
+    if ($versionlocked) {
+        $checkboxtitle = $describedeny($evaluations[(string)$skillname] ?? ['deny_reason' => '']);
+    } else if ($prolocked) {
+        $checkboxtitle = get_string('skillgovernance_gate_deny_requires_pro', 'bookingextension_agent');
+    }
     echo html_writer::start_tag('td', ['style' => 'text-align: center;']);
     echo html_writer::empty_tag('input', [
         'type' => 'checkbox',
         'name' => 'enabledskills[]',
         'value' => (string)$skillname,
         'checked' => $isactive ? 'checked' : null,
-        'disabled' => $prolocked ? 'disabled' : null,
-        'title' => $prolocked
-            ? get_string('skillgovernance_gate_deny_requires_pro', 'bookingextension_agent')
-            : null,
+        'disabled' => ($prolocked || $versionlocked) ? 'disabled' : null,
+        'title' => $checkboxtitle,
     ]);
     echo html_writer::end_tag('td');
 
@@ -572,9 +588,10 @@ foreach ($contracts as $skillname => $meta) {
         // A PRO-locked skill may ALSO be toggled off, but the license lock is the dominant,
         // actionable cause — showing "toggled off" next to a checkbox the admin cannot click
         // would be absurd, so the lock wins regardless of the evaluator's deny ordering.
+        // A skill that needs a newer Moodle cannot be unlocked by a license, so its Moodle reason wins over the lock.
         $denyreason = (string)($evaluation['deny_reason'] ?? '');
-        $showprolock = $prolocked
-            || $denyreason === \bookingextension_agent\local\wizard\skill_contract_validator::DENY_REQUIRES_PRO;
+        $showprolock = !$versionlocked && ($prolocked
+            || $denyreason === \bookingextension_agent\local\wizard\skill_contract_validator::DENY_REQUIRES_PRO);
         $hint = $showprolock
             ? get_string('skillgovernance_gate_deny_requires_pro', 'bookingextension_agent')
             : $describedeny($evaluation);

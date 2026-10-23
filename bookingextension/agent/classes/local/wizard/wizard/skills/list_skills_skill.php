@@ -226,7 +226,10 @@ class list_skills_skill extends core_skill_base implements skill_trigger_provide
         $actions = $listing['available'];
         $unavailableactions = [];
         foreach ($listing['unavailable'] as $unavailable) {
-            $unavailable['deny_reason_label'] = $this->describe_deny_reason((string)($unavailable['deny_reason'] ?? ''));
+            $unavailable['deny_reason_label'] = $this->describe_deny_reason(
+                (string)($unavailable['deny_reason'] ?? ''),
+                (array)($unavailable['diagnostics'] ?? [])
+            );
             $unavailableactions[] = $unavailable;
         }
 
@@ -413,10 +416,16 @@ class list_skills_skill extends core_skill_base implements skill_trigger_provide
      * Return a short human-readable description for a deny reason.
      *
      * @param string $reason
+     * @param array $diagnostics The evaluator's diagnostics for the denied skill.
      * @return string
      */
-    private function describe_deny_reason(string $reason): string {
+    private function describe_deny_reason(string $reason, array $diagnostics = []): string {
         return match ($reason) {
+            skill_contract_validator::DENY_MOODLE_VERSION_UNSUPPORTED => get_string(
+                'ai_list_actions_unavailable_moodle_version',
+                'bookingextension_agent',
+                (string)($diagnostics['required_moodle'] ?? '')
+            ),
             skill_contract_validator::DENY_RUNTIME_DISABLED => get_string(
                 'ai_list_actions_unavailable_runtime_disabled',
                 'bookingextension_agent'
