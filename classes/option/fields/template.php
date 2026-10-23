@@ -25,6 +25,7 @@
 namespace mod_booking\option\fields;
 
 use mod_booking\booking_option_settings;
+use mod_booking\local\autocreateoption;
 use mod_booking\dates;
 use mod_booking\option\fields_info;
 use mod_booking\option\field_base;
@@ -257,6 +258,8 @@ class template extends field_base {
                     $data->{$key} = $value;
                 }
             }
+            // Templates saved before the marker was stripped from them may still carry it.
+            autocreateoption::strip_marker($data);
             throw new moodle_exception('errorloadingtemplate', 'mod_booking');
         }
     }

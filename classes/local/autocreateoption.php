@@ -257,6 +257,22 @@ class autocreateoption {
     }
 
     /**
+     * Removes the auto-creation marker from option data that is copied into a new option.
+     *
+     * The marker travels with the JSON of the option. Only the option the task created for the course may carry it,
+     * so that it reliably identifies auto-created options: duplicates, templates, recurring children, options split
+     * from the dates and restored options are made by people (or from a backup), not for the course.
+     *
+     * @param stdClass $data option data with a json property, modified in place
+     * @return void
+     */
+    public static function strip_marker(stdClass $data): void {
+        if (!empty($data->json)) {
+            booking_option::remove_key_from_json($data, self::OPTIONJSONKEY_SOURCECOURSE);
+        }
+    }
+
+    /**
      * Prepares the option data, either pre-filled from an option template or as a minimal new option.
      *
      * @param int $bookingid
