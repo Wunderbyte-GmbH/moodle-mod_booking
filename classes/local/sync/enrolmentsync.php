@@ -545,22 +545,20 @@ class enrolmentsync {
                         if (empty($users[$userid])) {
                             $reason = booking_enrolment::REASON_BLOCKED_INVALID;
                             $message = 'User not found: ' . $userid;
-                        } else if (
-                            !$option->user_submit_response(
-                                $users[$userid],
-                                0,
-                                0,
-                                MOD_BOOKING_BO_SUBMIT_STATUS_BOOKOTHEROPTION_FORCE,
-                                MOD_BOOKING_VERIFIED,
-                                syncruleid: (int)$rule->id,
-                                deferbroadcastpurge: true,
-                                skipuserlimitcheck: true
-                            )
-                        ) {
-                            $reason = booking_enrolment::REASON_BLOCKED_CAPACITY;
-                            $message = 'user_submit_response returned false';
                         } else {
-                            $bookedids[] = $userid;
+                            // Atomic against a parallel sync of the course: only one of them books (and logs) the user.
+                            $reason = booking_enrolment::book_under_lock(
+                                $option,
+                                $users[$userid],
+                                MOD_BOOKING_BO_SUBMIT_STATUS_BOOKOTHEROPTION_FORCE,
+                                (int)$rule->id,
+                                true,
+                                true
+                            );
+                            $message = booking_enrolment::reason_message($reason, $optionid);
+                            if ($reason === booking_enrolment::REASON_OK) {
+                                $bookedids[] = $userid;
+                            }
                         }
                     } catch (\Exception $e) {
                         $reason = booking_enrolment::REASON_BLOCKED_INVALID;
@@ -605,9 +603,13 @@ class enrolmentsync {
                     $reason = booking_enrolment::REASON_OK;
                     $message = '';
                     try {
-                        // The waiting list is synced once for all users below.
-                        $option->user_delete_response($userid, false, false, false);
-                        $removedids[] = $userid;
+                        // Atomic against a parallel sync of the course: only one of them cancels (and logs) the
+                        // booking. The waiting list is synced once for all users below.
+                        $reason = booking_enrolment::remove_under_lock($option, $rule, $userid);
+                        $message = booking_enrolment::reason_message($reason, (int)$rule->bookingoptionid);
+                        if ($reason === booking_enrolment::REASON_OK) {
+                            $removedids[] = $userid;
+                        }
                     } catch (\Exception $e) {
                         $reason = booking_enrolment::REASON_BLOCKED_INVALID;
                         $message = $e->getMessage();

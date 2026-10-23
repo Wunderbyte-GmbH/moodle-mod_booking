@@ -702,6 +702,181 @@ final class enrolment_sync_course_test extends advanced_testcase {
     }
 
     /**
+     * Calls a private method of enrolmentsync, as a parallel task would reach it.
+     *
+     * @param string $method
+     * @param array $args
+     * @return mixed
+     */
+    private function call_enrolmentsync(string $method, array $args) {
+        $reflection = new \ReflectionMethod(enrolmentsync::class, $method);
+        $reflection->setAccessible(true);
+        return $reflection->invokeArgs(null, $args);
+    }
+
+    /**
+     * Number of sync attempts of a rule and user with the given action and reason.
+     *
+     * @param int $ruleid
+     * @param int $userid
+     * @param string $action
+     * @param string $reasoncode
+     * @return int
+     */
+    private function count_attempts(int $ruleid, int $userid, string $action, string $reasoncode): int {
+        global $DB;
+        return $DB->count_records('booking_sync_attempts', [
+            'syncruleid' => $ruleid,
+            'userid' => $userid,
+            'action' => $action,
+            'reasoncode' => $reasoncode,
+        ]);
+    }
+
+    /**
+     * Two syncs of the same course work on the same user (the second computed its list before the first booked):
+     * the user is booked, logged and written to the history once, and removed once.
+     *
+     * @return void
+     */
+    public function test_parallel_syncs_book_and_remove_each_user_once(): void {
+        global $DB;
+
+        [$booking, $category] = $this->create_synced_instance(['autoenrol' => 0]);
+        [$course, $option] = $this->create_course_with_option($booking, $category);
+        $rule = $this->get_rule((int)$option->id);
+        $user = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->enrol_user($user->id, $course->id, 'student');
+        // The tasks of the enrolment are not run: both "parallel" syncs below have the user on their list.
+        $bo = singleton_service::get_instance_of_booking_option((int)$booking->cmid, (int)$option->id);
+
+        $sink = $this->redirectEvents();
+        $this->assertSame(1, $this->call_enrolmentsync('enrol_users', [$rule, $bo, [(int)$user->id]]));
+        $historyafterfirst = $DB->count_records('booking_history', ['optionid' => $option->id, 'userid' => $user->id]);
+        $this->assertSame(0, $this->call_enrolmentsync('enrol_users', [$rule, $bo, [(int)$user->id]]));
+        $events = $sink->get_events();
+        $sink->close();
+
+        $this->assertSame(1, $DB->count_records('booking_answers', ['optionid' => $option->id, 'userid' => $user->id]));
+        $booked = array_filter($events, fn($e) => $e instanceof \mod_booking\event\bookingoption_booked);
+        $this->assertCount(1, $booked);
+        $this->assertSame(1, $this->count_attempts((int)$rule->id, (int)$user->id, 'enrol', booking_enrolment::REASON_OK));
+        $this->assertSame(1, $this->count_attempts(
+            (int)$rule->id,
+            (int)$user->id,
+            'enrol',
+            booking_enrolment::REASON_ALREADY_ENROLLED
+        ));
+        $this->assertSame(
+            $historyafterfirst,
+            $DB->count_records('booking_history', ['optionid' => $option->id, 'userid' => $user->id])
+        );
+
+        // Both syncs see the user without an enrolment.
+        $instance = $DB->get_record('enrol', ['courseid' => $course->id, 'enrol' => 'manual'], '*', MUST_EXIST);
+        enrol_get_plugin('manual')->unenrol_user($instance, $user->id);
+        singleton_service::destroy_instance();
+        $bo = singleton_service::get_instance_of_booking_option((int)$booking->cmid, (int)$option->id);
+
+        $sink = $this->redirectEvents();
+        $this->assertSame(1, $this->call_enrolmentsync('unenrol_users', [$rule, $bo, [(int)$user->id]]));
+        $historyafterfirst = $DB->count_records('booking_history', ['optionid' => $option->id, 'userid' => $user->id]);
+        $this->assertSame(0, $this->call_enrolmentsync('unenrol_users', [$rule, $bo, [(int)$user->id]]));
+        $events = $sink->get_events();
+        $sink->close();
+
+        $this->assertSame(MOD_BOOKING_STATUSPARAM_DELETED, (int)$this->get_answer((int)$option->id, (int)$user->id)->waitinglist);
+        $cancelled = array_filter($events, fn($e) => $e instanceof \mod_booking\event\bookinganswer_cancelled);
+        $this->assertCount(1, $cancelled);
+        $this->assertSame(1, $this->count_attempts((int)$rule->id, (int)$user->id, 'unenrol', booking_enrolment::REASON_OK));
+        $this->assertSame(1, $this->count_attempts(
+            (int)$rule->id,
+            (int)$user->id,
+            'unenrol',
+            booking_enrolment::REASON_ALREADY_REMOVED
+        ));
+        $this->assertSame(
+            $historyafterfirst,
+            $DB->count_records('booking_history', ['optionid' => $option->id, 'userid' => $user->id])
+        );
+    }
+
+    /**
+     * A cohort rule removes a booking once: a second removal of the same (already deleted) answer cancels nothing.
+     *
+     * @return void
+     */
+    public function test_cohort_rule_removes_each_user_once(): void {
+        global $DB;
+
+        [$booking, $category] = $this->create_synced_instance(['autoenrol' => 0, 'autocreateoptionsyncenrolments' => 0]);
+        [, $option] = $this->create_course_with_option($booking, $category);
+        $cohort = $this->getDataGenerator()->create_cohort();
+        $ruleid = booking_enrolment::save_single_rule((int)$option->id, (object)[
+            'sourcetype' => 'cohort',
+            'sourceid' => $cohort->id,
+            'syncenrolaction' => 1,
+            'syncunenrolaction' => 1,
+            'syncconditionpolicy' => booking_enrolment::CONDITION_POLICY_OVERRIDE,
+        ]);
+        $rule = $DB->get_record('booking_sync_rules', ['id' => $ruleid], '*', MUST_EXIST);
+        $user = $this->getDataGenerator()->create_user();
+        booking_enrolment::enrol_user_by_rule($rule, (int)$user->id);
+        $this->assertSame(MOD_BOOKING_STATUSPARAM_BOOKED, (int)$this->get_answer((int)$option->id, (int)$user->id)->waitinglist);
+
+        $sink = $this->redirectEvents();
+        booking_enrolment::unenrol_user_by_rule($rule, (int)$user->id);
+        $historyafterfirst = $DB->count_records('booking_history', ['optionid' => $option->id, 'userid' => $user->id]);
+        booking_enrolment::unenrol_user_by_rule($rule, (int)$user->id);
+        $events = $sink->get_events();
+        $sink->close();
+
+        $cancelled = array_filter($events, fn($e) => $e instanceof \mod_booking\event\bookinganswer_cancelled);
+        $this->assertCount(1, $cancelled);
+        $this->assertSame(1, $this->count_attempts((int)$rule->id, (int)$user->id, 'unenrol', booking_enrolment::REASON_OK));
+        $this->assertSame(1, $this->count_attempts(
+            (int)$rule->id,
+            (int)$user->id,
+            'unenrol',
+            booking_enrolment::REASON_ALREADY_REMOVED
+        ));
+        $this->assertSame(
+            $historyafterfirst,
+            $DB->count_records('booking_history', ['optionid' => $option->id, 'userid' => $user->id])
+        );
+    }
+
+    /**
+     * Answers that are stale in this process (another process removed the booking) do not make the sync skip the
+     * user: it notices that no answer was written and books with fresh answers.
+     *
+     * @return void
+     */
+    public function test_booking_with_stale_answers_is_retried(): void {
+        global $DB;
+
+        [$booking, $category] = $this->create_synced_instance(['autoenrol' => 0]);
+        [, $option] = $this->create_course_with_option($booking, $category);
+        $rule = $this->get_rule((int)$option->id);
+        $user = $this->getDataGenerator()->create_user();
+        $bo = singleton_service::get_instance_of_booking_option((int)$booking->cmid, (int)$option->id);
+        $this->assertSame(
+            booking_enrolment::REASON_OK,
+            booking_enrolment::book_under_lock($bo, $user, MOD_BOOKING_BO_SUBMIT_STATUS_BOOKOTHEROPTION_FORCE, (int)$rule->id)
+        );
+
+        // Another process removed the booking, this process still has the answers in its cache.
+        $answer = $this->get_answer((int)$option->id, (int)$user->id);
+        $DB->set_field('booking_answers', 'waitinglist', MOD_BOOKING_STATUSPARAM_DELETED, ['id' => $answer->id]);
+
+        $this->assertSame(
+            booking_enrolment::REASON_OK,
+            booking_enrolment::book_under_lock($bo, $user, MOD_BOOKING_BO_SUBMIT_STATUS_BOOKOTHEROPTION_FORCE, (int)$rule->id)
+        );
+        $this->assertSame(MOD_BOOKING_STATUSPARAM_BOOKED, (int)$this->get_answer((int)$option->id, (int)$user->id)->waitinglist);
+    }
+
+    /**
      * Switches the enrolment sync of an instance, like booking_update_instance() does when the setting changed.
      *
      * @param stdClass $booking
