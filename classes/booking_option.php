@@ -44,6 +44,7 @@ use mod_booking\bo_availability\conditions\slotbooking;
 use mod_booking\local\waitinglist\waitinglist_sync_status;
 use mod_booking\local\waitlist\db_waitlist_offer_repository;
 use mod_booking\local\slotbooking\slot_availability;
+use mod_booking\local\sync\enrolmentsync;
 use mod_booking\event\booking_debug;
 use mod_booking\event\booking_rulesexecutionfailed;
 use mod_booking\event\bookinganswer_movedupfromwaitinglist;
@@ -982,7 +983,8 @@ class booking_option {
         // We only send messages for booking answers for individual cancellations!
         // If a whole booking option was cancelled, we can use the new global booking rules...
         // ...and react to the event bookingoption_cancelled instead.
-        if (!$bookingoptioncancel) {
+        // Removals by the course enrolment sync send no cancellation mail either, the booking rules still run.
+        if (!$bookingoptioncancel && !enrolmentsync::$insync) {
             if ($userid == $USER->id) {
                 // Participant cancelled the booking herself.
                 $msgparam = MOD_BOOKING_MSGPARAM_CANCELLED_BY_PARTICIPANT;
@@ -2491,7 +2493,8 @@ class booking_option {
         rules_info::execute_rules_for_option($this->optionid, $user->id);
 
         $bookingsettings = singleton_service::get_instance_of_booking_settings_by_bookingid($this->bookingid);
-        if ($bookingsettings->sendmail) {
+        // Bookings made by the course enrolment sync send no confirmation mail, the booking rules still run.
+        if ($bookingsettings->sendmail && !enrolmentsync::$insync) {
             $this->send_confirm_message($user);
         }
         return true;
@@ -2710,52 +2713,65 @@ class booking_option {
             || $isteacher
             || $enrolwithoutba
         ) {
-            // For self-learning courses, users will be enrolled from the time booked...
-            // ...until the duration of the self-learning course has passed #684.
-            // Use booking_check_if_teacher here instead of $isteacher to make this independent of the function call.
-            if (!empty($this->settings->selflearningcourse) && !$isteacher) {
-                // The inscription time is always from the time the user was actually booked.
-                if ($ba = $bookinganswers->user_get_last_active_booking($userid)) {
-                    // Timecreated is not a perfect solution, because users could have been on the waitinglist.
-                    $now = $ba->timecreated;
-                } else {
-                    $now = time();
-                }
+            // A user booked because of an enrolment in this course (course enrolment sync) is enrolled already. A
+            // second, manual enrolment would keep the user in the course after the real one was removed.
+            $issyncedanswer = !$isteacher
+                && enrolmentsync::answer_is_course_synced((int)$this->optionid, $userid, (int)$courseid);
 
-                $duration = $this->settings->duration ?? 0;
-                $end = empty($duration) ? 0 : $now + $duration;
-                // Enrol using the default role from now until now + duration.
-                $enrol->enrol_user(
-                    $instance,
-                    $userid,
-                    ($roleid > 0 ? $roleid : $instance->roleid),
-                    $now,
-                    $end
-                );
-            } else if (
-                empty($this->settings->semesterid)
-                || $isteacher
-                // Setting defaults to on: only an explicitly saved "0" disables the semester limit.
-                || get_config('booking', 'enrollimitbysemester') === '0'
-            ) {
-                // Enrol using the default role.
-                $enrol->enrol_user($instance, $userid, ($roleid > 0 ? $roleid : $instance->roleid));
-            } else {
-                // If a semester is set for the booking option...
-                // ...then we only want to enrol from semester startdate to semester enddate.
-                if ($semesterobj = $DB->get_record('booking_semesters', ['id' => $this->settings->semesterid])) {
-                    // Enrol using the default role from semester start until semester end.
+            // The course enrolment sync ignores the enrolments booking makes itself.
+            enrolmentsync::$bookingisenrolling = true;
+            try {
+                if ($issyncedanswer) {
+                    // Nothing to enrol, the groups below are still handled.
+                } else if (!empty($this->settings->selflearningcourse) && !$isteacher) {
+                    // For self-learning courses, users will be enrolled from the time booked...
+                    // ...until the duration of the self-learning course has passed #684.
+                    // Use booking_check_if_teacher here instead of $isteacher to make this independent of the call.
+                    // The inscription time is always from the time the user was actually booked.
+                    if ($ba = $bookinganswers->user_get_last_active_booking($userid)) {
+                        // Timecreated is not a perfect solution, because users could have been on the waitinglist.
+                        $now = $ba->timecreated;
+                    } else {
+                        $now = time();
+                    }
+
+                    $duration = $this->settings->duration ?? 0;
+                    $end = empty($duration) ? 0 : $now + $duration;
+                    // Enrol using the default role from now until now + duration.
                     $enrol->enrol_user(
                         $instance,
                         $userid,
                         ($roleid > 0 ? $roleid : $instance->roleid),
-                        $semesterobj->startdate,
-                        $semesterobj->enddate
+                        $now,
+                        $end
                     );
-                } else {
+                } else if (
+                    empty($this->settings->semesterid)
+                    || $isteacher
+                    // Setting defaults to on: only an explicitly saved "0" disables the semester limit.
+                    || get_config('booking', 'enrollimitbysemester') === '0'
+                ) {
                     // Enrol using the default role.
                     $enrol->enrol_user($instance, $userid, ($roleid > 0 ? $roleid : $instance->roleid));
+                } else {
+                    // If a semester is set for the booking option...
+                    // ...then we only want to enrol from semester startdate to semester enddate.
+                    if ($semesterobj = $DB->get_record('booking_semesters', ['id' => $this->settings->semesterid])) {
+                        // Enrol using the default role from semester start until semester end.
+                        $enrol->enrol_user(
+                            $instance,
+                            $userid,
+                            ($roleid > 0 ? $roleid : $instance->roleid),
+                            $semesterobj->startdate,
+                            $semesterobj->enddate
+                        );
+                    } else {
+                        // Enrol using the default role.
+                        $enrol->enrol_user($instance, $userid, ($roleid > 0 ? $roleid : $instance->roleid));
+                    }
                 }
+            } finally {
+                enrolmentsync::$bookingisenrolling = false;
             }
 
             // Enrol into group of related (linked) Course.
@@ -3083,6 +3099,9 @@ class booking_option {
         // so the module context of the file area can be resolved. Instance deletion
         // is covered too: booking_delete_instance() deletes option by option.
         \mod_booking\local\ticket\ticket_manager::delete_tickets_for_option($this->optionid);
+
+        // A course enrolment sync rule of the option would only keep the enrolment observer busy.
+        enrolmentsync::delete_rules_for_option((int)$this->optionid);
 
         $result = true;
         $answers = $this->get_all_users();

@@ -245,6 +245,14 @@ $definitions = [
         'staticaccelerationsize' => 1000,
         'invalidationevents' => ['setbackcustomfields'],
     ],
+    // Ids of the courses with an enabled course enrolment sync rule. Single key, read by every enrolment event.
+    'syncrulecourses' => [
+        'mode' => cache_store::MODE_APPLICATION,
+        'simplekeys' => true,
+        'staticacceleration' => true,
+        'staticaccelerationsize' => 1,
+        'invalidationevents' => ['setbacksyncrules'],
+    ],
     'syncrules' => [ // Caches sync rules for an option with preloaded source names.
         'mode' => cache_store::MODE_APPLICATION,
         'simplekeys' => true,

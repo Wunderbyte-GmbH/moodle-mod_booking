@@ -208,6 +208,22 @@ $observers = [
         'callback' => 'mod_booking_observer::course_restored',
         'internal' => false,
     ],
+    // Course enrolment => booking option sync. Not internal, so the enrolment is committed when the task reads it.
+    [
+        'eventname' => '\core\event\user_enrolment_created',
+        'callback' => 'mod_booking_observer::course_enrolment_sync',
+        'internal' => false,
+    ],
+    [
+        'eventname' => '\core\event\user_enrolment_updated',
+        'callback' => 'mod_booking_observer::course_enrolment_sync',
+        'internal' => false,
+    ],
+    [
+        'eventname' => '\core\event\user_enrolment_deleted',
+        'callback' => 'mod_booking_observer::course_enrolment_sync',
+        'internal' => false,
+    ],
 ];
 
 if (class_exists('\local_shopping_cart\event\checkout_completed')) {
