@@ -488,12 +488,20 @@ class update_activity_skill extends core_skill_base implements skill_trigger_pro
         // 3) Ordering inside the section (up / down / top / bottom). Runs after a section move so the
         // order is computed in the section the activity ends up in.
         $position = trim((string)($preparedinput['position_move'] ?? ''));
+        $positionmoved = null;
         if ($position !== '') {
             try {
-                $cmrecord = get_coursemodule_from_id('', $cmid, $courseid, false, MUST_EXIST);
-                $this->apply_position_move($course, $cmrecord, $position);
+                // With its section number: the order is read from the section the activity is in.
+                $cmrecord = get_coursemodule_from_id('', $cmid, $courseid, true, MUST_EXIST);
+                $positionmoved = $this->apply_position_move($course, $cmrecord, $position);
             } catch (\Throwable $e) {
                 return $this->build_error_result('Could not move the activity within its section. ' . $e->getMessage());
+            }
+            if ($positionmoved === null) {
+                return $this->build_error_result(
+                    'Could not move the activity within its section: it was not found in section '
+                        . (int)$cmrecord->sectionnum . '.'
+                );
             }
         }
 
@@ -507,7 +515,8 @@ class update_activity_skill extends core_skill_base implements skill_trigger_pro
             $changes,
             (array)($preparedinput['before'] ?? []),
             $attempts,
-            $movedto
+            $movedto,
+            $positionmoved
         );
     }
 
@@ -515,11 +524,12 @@ class update_activity_skill extends core_skill_base implements skill_trigger_pro
      * Reorder the activity inside its own section.
      *
      * @param \stdClass $course
-     * @param \stdClass $cmrecord
+     * @param \stdClass $cmrecord Course module record with sectionnum.
      * @param string $move One of POSITION_MOVES.
-     * @return void
+     * @return string|null What happened, for the result ("moved up within section 1"); null when the activity is
+     *     not in its section.
      */
-    private function apply_position_move(\stdClass $course, \stdClass $cmrecord, string $move): void {
+    private function apply_position_move(\stdClass $course, \stdClass $cmrecord, string $move): ?string {
         global $CFG;
         require_once($CFG->dirroot . '/course/lib.php');
 
@@ -528,8 +538,12 @@ class update_activity_skill extends core_skill_base implements skill_trigger_pro
         $order = array_values(array_map('intval', (array)($modinfo->sections[$sectionnum] ?? [])));
         $target = self::target_position_index($order, (int)$cmrecord->id, $move);
         $current = array_search((int)$cmrecord->id, $order, true);
-        if ($target === null || $current === false || $target === $current) {
-            return;
+        if ($target === null || $current === false) {
+            return null;
+        }
+        if ($target === $current) {
+            $edge = in_array($move, ['up', 'top'], true) ? 'first' : 'last';
+            return 'position unchanged (already ' . $edge . ' in section ' . $sectionnum . ')';
         }
 
         // Moodle places the module BEFORE the given one; without one it goes to the end of the section.
@@ -550,6 +564,8 @@ class update_activity_skill extends core_skill_base implements skill_trigger_pro
         } else {
             moveto_module($cmrecord, $section, $beforemod ?: null);
         }
+        $labels = ['up' => 'up', 'down' => 'down', 'top' => 'to the top', 'bottom' => 'to the bottom'];
+        return 'moved ' . ($labels[$move] ?? $move) . ' within section ' . $sectionnum;
     }
 
     /** Movements within a section. */
@@ -1077,6 +1093,7 @@ class update_activity_skill extends core_skill_base implements skill_trigger_pro
      * @param array $before
      * @param int $attempts
      * @param int|null $movedto Target section number when the activity was moved, else null.
+     * @param string|null $positionmoved What the move inside the section did, when one was asked for, else null.
      * @return array
      */
     private function build_success_result(
@@ -1084,7 +1101,8 @@ class update_activity_skill extends core_skill_base implements skill_trigger_pro
         array $changes,
         array $before,
         int $attempts,
-        ?int $movedto = null
+        ?int $movedto = null,
+        ?string $positionmoved = null
     ): array {
         $cmid = (int)($updated['cmid'] ?? 0);
         $modname = (string)($updated['modname'] ?? '');
@@ -1096,7 +1114,7 @@ class update_activity_skill extends core_skill_base implements skill_trigger_pro
             $courseid = $cc ? (int)$cc->instanceid : 0;
         }
 
-        $changed = $this->describe_changes($changes, $before, $movedto);
+        $changed = $this->describe_changes($changes, $before, $movedto, $positionmoved);
         $message = 'Updated the activity "' . $name . '" (' . $modname . '). Changed: ' . $changed . '.';
 
         $observation = implode("\n", [
@@ -1126,9 +1144,15 @@ class update_activity_skill extends core_skill_base implements skill_trigger_pro
      * @param array $changes
      * @param array $before
      * @param int|null $movedto Target section number when the activity was moved, else null.
+     * @param string|null $positionmoved What the move inside the section did, when one was asked for, else null.
      * @return string
      */
-    private function describe_changes(array $changes, array $before, ?int $movedto = null): string {
+    private function describe_changes(
+        array $changes,
+        array $before,
+        ?int $movedto = null,
+        ?string $positionmoved = null
+    ): string {
         $parts = [];
         if (isset($changes['name'])) {
             $parts[] = 'name "' . (string)($before['name'] ?? '') . '" → "' . (string)$changes['name'] . '"';
@@ -1147,6 +1171,9 @@ class update_activity_skill extends core_skill_base implements skill_trigger_pro
         }
         if ($movedto !== null) {
             $parts[] = 'moved from section ' . (int)($before['section'] ?? 0) . ' to section ' . $movedto;
+        }
+        if ($positionmoved !== null) {
+            $parts[] = $positionmoved;
         }
         return empty($parts) ? 'nothing' : implode('; ', $parts);
     }
