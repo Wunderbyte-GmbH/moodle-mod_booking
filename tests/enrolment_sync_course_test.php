@@ -524,6 +524,184 @@ final class enrolment_sync_course_test extends advanced_testcase {
     }
 
     /**
+     * A group sync rule must not close a cycle: synced option -> group of the course -> option with a group rule
+     * that is connected to the same course -> manual enrolment -> synced option.
+     *
+     * Once the user leaves the course by the method that caused the booking, nothing may keep the user in it.
+     *
+     * @return void
+     */
+    public function test_group_sync_rule_does_not_keep_synced_booking_alive(): void {
+        global $DB;
+
+        [$booking, $category] = $this->create_synced_instance(['autoenrol' => 1, 'addtogroup' => 1]);
+        [$course, $option] = $this->create_course_with_option($booking, $category);
+
+        // The synced option adds its users to a group of the course and enrols right away.
+        $group = $this->getDataGenerator()->create_group(['courseid' => $course->id]);
+        $DB->update_record('booking_options', (object)[
+            'id' => $option->id,
+            'groupid' => $group->id,
+            'enrolmentstatus' => 2,
+        ]);
+        \cache_helper::purge_by_event('setbackoptionsettings');
+        singleton_service::destroy_instance();
+
+        // A second option, connected to the same course, books the members of that group.
+        $othercourse = $this->getDataGenerator()->create_course();
+        /** @var \mod_booking_generator $plugingenerator */
+        $plugingenerator = $this->getDataGenerator()->get_plugin_generator('mod_booking');
+        $otherbooking = $plugingenerator->create_instance(['course' => $othercourse->id, 'autoenrol' => 1]);
+        $groupoption = $plugingenerator->create_option([
+            'bookingid' => $otherbooking->id,
+            'text' => 'Group synced option',
+            'chooseorcreatecourse' => 1,
+            'courseid' => $course->id,
+            'enrolmentstatus' => 2,
+        ]);
+        booking_enrolment::save_single_rule((int)$groupoption->id, (object)[
+            'sourcetype' => 'group',
+            'sourceid' => $group->id,
+            'syncenrolaction' => 1,
+            'syncunenrolaction' => 1,
+            'syncconditionpolicy' => booking_enrolment::CONDITION_POLICY_OVERRIDE,
+        ]);
+        singleton_service::destroy_instance();
+
+        // The user enrols himself.
+        $user = $this->getDataGenerator()->create_user();
+        $selfinstance = $DB->get_record('enrol', ['courseid' => $course->id, 'enrol' => 'self'], '*', MUST_EXIST);
+        $selfinstance->status = ENROL_INSTANCE_ENABLED;
+        $DB->update_record('enrol', $selfinstance);
+        $selfplugin = enrol_get_plugin('self');
+        $selfplugin->enrol_user($selfinstance, $user->id, $selfinstance->roleid);
+        $this->run_tasks_silently();
+
+        // The chain ran: synced booking, group membership, booking of the group rule.
+        $this->assertSame(MOD_BOOKING_STATUSPARAM_BOOKED, (int)$this->get_answer((int)$option->id, (int)$user->id)->waitinglist);
+        $this->assertTrue(groups_is_member($group->id, $user->id));
+        $this->assertSame(
+            MOD_BOOKING_STATUSPARAM_BOOKED,
+            (int)$this->get_answer((int)$groupoption->id, (int)$user->id)->waitinglist
+        );
+
+        // The user leaves the course.
+        $selfplugin->unenrol_user($selfinstance, $user->id);
+        $this->run_tasks_silently();
+        // The nightly reconcile changes nothing either.
+        enrolmentsync::sync_course((int)$course->id);
+        $this->run_tasks_silently();
+
+        $this->assertSame(
+            0,
+            $this->count_enrolments((int)$course->id, (int)$user->id),
+            'A booking caused by the course sync keeps the user enrolled in the source course.'
+        );
+        $this->assertSame(
+            MOD_BOOKING_STATUSPARAM_DELETED,
+            (int)$this->get_answer((int)$option->id, (int)$user->id)->waitinglist,
+            'The synced booking is kept alive by an enrolment it caused itself.'
+        );
+    }
+
+    /**
+     * Switching the sync off and on again must not turn synced bookings into permanent ones.
+     *
+     * While the rule is disabled, the enrolment run of booking (scheduled task at course start, every save of the
+     * option) adds a manual enrolment on top of the real one. After switching the sync on again, removing the real
+     * enrolment must still remove the user from the course and the booking.
+     *
+     * @return void
+     */
+    public function test_sync_toggle_leaves_no_manual_enrolment_behind(): void {
+        [$booking, $category] = $this->create_synced_instance(['autoenrol' => 1]);
+        [$course, $option] = $this->create_course_with_option($booking, $category);
+        $cohort = $this->add_cohort_sync($course);
+        $user = $this->getDataGenerator()->create_user();
+        cohort_add_member($cohort->id, $user->id);
+        $this->run_tasks_silently();
+        $this->assertSame(MOD_BOOKING_STATUSPARAM_BOOKED, (int)$this->get_answer((int)$option->id, (int)$user->id)->waitinglist);
+        $this->assertSame(1, $this->count_enrolments((int)$course->id, (int)$user->id));
+
+        // Switched off.
+        $this->set_sync_setting($booking, false);
+        $this->run_tasks_silently();
+        $this->assertSame(0, (int)$this->get_rule((int)$option->id)->isenabled);
+
+        // What enrol_bookedusers_tocourse and every save of the option do for all booked users.
+        $bo = singleton_service::get_instance_of_booking_option((int)$booking->cmid, (int)$option->id);
+        $bo->enrol_user((int)$user->id);
+
+        // Switched on again.
+        $this->set_sync_setting($booking, true);
+        $this->run_tasks_silently();
+        $this->assertSame(1, (int)$this->get_rule((int)$option->id)->isenabled);
+
+        // The user leaves the cohort, the only enrolment that is not booking's own.
+        cohort_remove_member($cohort->id, $user->id);
+        $this->run_tasks_silently();
+        enrolmentsync::sync_course((int)$course->id);
+        $this->run_tasks_silently();
+
+        $this->assertSame(
+            0,
+            $this->count_enrolments((int)$course->id, (int)$user->id),
+            'The manual enrolment added while the sync was off keeps the user in the course.'
+        );
+        $this->assertSame(
+            MOD_BOOKING_STATUSPARAM_DELETED,
+            (int)$this->get_answer((int)$option->id, (int)$user->id)->waitinglist,
+            'The synced booking can no longer be removed by unenrolment.'
+        );
+    }
+
+    /**
+     * A booking the user made in another option connected to the course still enrols the user, so it keeps the user
+     * in the course (and booked) when the synced booking is removed.
+     *
+     * @return void
+     */
+    public function test_own_booking_of_other_option_keeps_its_enrolment(): void {
+        global $DB;
+
+        [$booking, $category] = $this->create_synced_instance(['autoenrol' => 1]);
+        [$course, $option] = $this->create_course_with_option($booking, $category);
+        $cohort = $this->add_cohort_sync($course);
+        $user = $this->getDataGenerator()->create_user();
+        cohort_add_member($cohort->id, $user->id);
+        $this->run_tasks_silently();
+        $this->assertSame(MOD_BOOKING_STATUSPARAM_BOOKED, (int)$this->get_answer((int)$option->id, (int)$user->id)->waitinglist);
+
+        // The user books another option connected to the same course.
+        $othercourse = $this->getDataGenerator()->create_course();
+        /** @var \mod_booking_generator $plugingenerator */
+        $plugingenerator = $this->getDataGenerator()->get_plugin_generator('mod_booking');
+        $otherbooking = $plugingenerator->create_instance(['course' => $othercourse->id, 'autoenrol' => 1]);
+        $otheroption = $plugingenerator->create_option([
+            'bookingid' => $otherbooking->id,
+            'text' => 'Other option',
+            'chooseorcreatecourse' => 1,
+            'courseid' => $course->id,
+            'enrolmentstatus' => 2,
+        ]);
+        singleton_service::destroy_instance();
+        $bo = singleton_service::get_instance_of_booking_option((int)$otherbooking->cmid, (int)$otheroption->id);
+        $bo->user_submit_response($user, 0, 0, MOD_BOOKING_BO_SUBMIT_STATUS_BOOKOTHEROPTION_FORCE, MOD_BOOKING_VERIFIED);
+        $this->assertSame(2, $this->count_enrolments((int)$course->id, (int)$user->id));
+
+        // The user leaves the cohort: the own booking keeps its enrolment.
+        cohort_remove_member($cohort->id, $user->id);
+        $this->run_tasks_silently();
+
+        $this->assertSame(
+            MOD_BOOKING_STATUSPARAM_BOOKED,
+            (int)$this->get_answer((int)$otheroption->id, (int)$user->id)->waitinglist
+        );
+        $manual = $DB->get_record('enrol', ['courseid' => $course->id, 'enrol' => 'manual'], '*', MUST_EXIST);
+        $this->assertTrue($DB->record_exists('user_enrolments', ['enrolid' => $manual->id, 'userid' => $user->id]));
+    }
+
+    /**
      * Switches the enrolment sync of an instance, like booking_update_instance() does when the setting changed.
      *
      * @param stdClass $booking
