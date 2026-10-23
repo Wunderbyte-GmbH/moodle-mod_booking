@@ -1,3 +1,6 @@
+## Version 10.0.4 (2026101401)
+* Bugfix: Saving an existing booking option (option form, editoptions.php and modal) no longer fails with "The theme has already been set up for this page" when a textarea customfield of the option has a value and a text filter that needs the theme is active (emoticons, or a YouTube link with the YouTube player, a TeX formula). With "Require course login for the option form" disabled, the access check of the form loaded the option settings - which format the customfields through the text filters - before it set the course module of the page; it now sets the course module first. Creating a new option was not affected.
+
 ## Version 10.0.3 (2026101300)
 * Improvement: The booking wizard is off by default on new installations; an admin switches it on with "Enable Booking Wizard". Sites that already have the setting stored keep it. All wizard settings now keep their defaults while the wizard is off and are only hidden. (Wunderbyte-GmbH/Wunderbyte-GmbH#2605)
 * Improvement: Once the standalone Wizard plugin (local_wizard) is installed, the bundled booking wizard shows no settings pages any more; its settings live in the Wizard plugin. (Wunderbyte-GmbH/Wunderbyte-GmbH#2605)
