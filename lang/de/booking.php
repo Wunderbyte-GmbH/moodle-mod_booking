@@ -587,6 +587,8 @@ $string['autocreateoptionsyncenrolments_help'] = 'Nutzer:innen, die in einen Kur
 
 Sobald eine Nutzerin oder ein Nutzer keine Einschreibung im Kurs mehr hat, wird die Buchung wieder entfernt, ohne Stornierungsmail. Eine gesperrte Einschreibung behält die Buchung. Buchungen, die Nutzer:innen selbst vorgenommen haben, werden nie entfernt. Wer die Buchung storniert hat, wird erst nach einer neuen Einschreibung wieder gebucht.
 
+Bei einem Selbstlernkurs (einer Option mit Dauer) endet der Zugang einer synchronisierten Nutzerin oder eines Nutzers nach Ablauf der Dauer, gerechnet ab der Buchung: Das Enddatum wird auf der bereits vorhandenen Einschreibung gesetzt. Das ist nur bei bearbeitbaren Einschreibemethoden möglich (manuell, Selbsteinschreibung). Wer über Kohortensynchronisation, Metalink oder eine andere synchronisierte Methode eingeschrieben wurde, behält den Zugang, den diese Methode gewährt.
+
 Die Buchung erfolgt kurz nach der Einschreibung durch einen Hintergrund-Task. Wird diese Einstellung später aktiviert, werden auch die bereits eingeschriebenen Nutzer:innen der Kurse bestehender, automatisch erstellter Optionen gebucht.';
 $string['autocreateoptiontemplateid'] = 'Vorlage für automatisch erstellte Buchungsoptionen';
 $string['autocreateoptiontemplateid_help'] = 'Die Buchungsoptionsvorlage, die für Buchungsoptionen neuer Kurse verwendet wird. Der Name der Buchungsoption ist immer der vollständige Name des Kurses.';

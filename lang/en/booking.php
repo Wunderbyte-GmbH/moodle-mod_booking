@@ -587,6 +587,8 @@ $string['autocreateoptionsyncenrolments_help'] = 'Users enrolled in a course of 
 
 As soon as a user has no enrolment left in the course, the booking is removed again, without a cancellation mail. A suspended enrolment keeps the booking. Bookings made by the users themselves are never removed. A user who cancelled the booking is only booked again after a new enrolment.
 
+For a self-learning course (an option with a duration), the access of a synced user ends after the duration, counted from the booking: the end date is set on the enrolment the user already has. This is only possible for enrolment methods that can be edited (manual, self enrolment). Users enrolled by cohort sync, a meta link or another synchronized method keep the access that method grants.
+
 The users are booked by a background task shortly after the enrolment. If this setting is switched on later, the users already enrolled in the courses of existing automatically created options are booked as well.';
 $string['autocreateoptiontemplateid'] = 'Template for automatically created booking options';
 $string['autocreateoptiontemplateid_help'] = 'The booking option template that is used for booking options created for new courses. The name of the option is always the full name of the course.';
