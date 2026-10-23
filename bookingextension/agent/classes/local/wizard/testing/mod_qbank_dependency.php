@@ -1,0 +1,43 @@
+<?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+namespace bookingextension_agent\local\wizard\testing;
+
+/**
+ * Test-time guard for tests that create a question bank activity (mod_qbank).
+ *
+ * mod_qbank came with Moodle 5.0. On Moodle 4.5 questions live in the course question
+ * bank instead, so tests that create a qbank activity skip there instead of failing on
+ * the missing generator.
+ *
+ * @package     bookingextension_agent
+ * @copyright   2026 Wunderbyte GmbH
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class mod_qbank_dependency {
+    /**
+     * Skip the current test when mod_qbank is not installed.
+     *
+     * @return void
+     */
+    public static function require_installed(): void {
+        if (\core_component::get_component_directory('mod_qbank') !== null) {
+            return;
+        }
+
+        \PHPUnit\Framework\Assert::markTestSkipped('Requires mod_qbank (Moodle 5.0+).');
+    }
+}
