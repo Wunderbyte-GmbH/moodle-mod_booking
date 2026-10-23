@@ -573,6 +573,7 @@ $string['attachment'] = 'Attachments';
 $string['autcrheader'] = '[DEPRECATED] Automatic booking option creation';
 $string['autcrwhatitis'] = 'If this option is enabled it automatically creates a new booking option and assigns
  a user as booking manager / teacher to it. Users are selected based on a custom user profile field value.';
+$string['autocreateoption:connectedcourselocked'] = 'This booking option was created automatically for the course "{$a}". It can only be connected to this course or to no course, otherwise the course enrolment sync could keep users booked and enrolled for good. To use another course, duplicate the booking option.';
 $string['autocreateoptioncategoryid'] = 'Course category: create a booking option for every new course';
 $string['autocreateoptioncategoryid:disabled'] = 'Do not create booking options automatically';
 $string['autocreateoptioncategoryid:owncategory'] = 'The category of the course this booking instance is in can not be linked, as booking options of this instance may create their own courses there.';

@@ -573,6 +573,7 @@ $string['attachment'] = 'Angehängte Dateien';
 $string['autcrheader'] = '[VERALTET] Automatisches Erstellen von Buchungsoptionen';
 $string['autcrwhatitis'] = 'If this option is enabled it automatically creates a new booking option and assigns
  a user as booking manager / teacher to it. Users are selected based on a custom user profile field value.';
+$string['autocreateoption:connectedcourselocked'] = 'Diese Buchungsoption wurde automatisch für den Kurs "{$a}" erstellt. Sie kann nur mit diesem Kurs oder mit keinem Kurs verknüpft werden, sonst könnte die Synchronisation der Kurseinschreibungen Nutzer:innen dauerhaft gebucht und eingeschrieben lassen. Um einen anderen Kurs zu verwenden, duplizieren Sie die Buchungsoption.';
 $string['autocreateoptioncategoryid'] = 'Kursbereich: Für jeden neuen Kurs eine Buchungsoption erstellen';
 $string['autocreateoptioncategoryid:disabled'] = 'Keine Buchungsoptionen automatisch erstellen';
 $string['autocreateoptioncategoryid:owncategory'] = 'Der Kursbereich des Kurses, in dem sich diese Buchungsinstanz befindet, kann nicht verknüpft werden, da Buchungsoptionen dieser Instanz dort eigene Kurse anlegen können.';

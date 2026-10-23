@@ -273,6 +273,68 @@ class autocreateoption {
     }
 
     /**
+     * The course an existing option was auto-created for, 0 if the option was not auto-created.
+     *
+     * @param int $optionid
+     * @return int
+     */
+    public static function get_source_course(int $optionid): int {
+        if ($optionid <= 0) {
+            return 0;
+        }
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        return (int)($settings->jsonobject->{self::OPTIONJSONKEY_SOURCECOURSE} ?? 0);
+    }
+
+    /**
+     * Whether an auto-created option may get this connected course.
+     *
+     * An auto-created option may only be connected to the course it was created for, or to no course. Any other
+     * course would let the course enrolment sync close a cycle: the sync books from course A, the booking enrols
+     * into course B, whose own synced option may enrol back into A - and nobody can be removed any more. This holds
+     * whether the sync is on or not, as switching it on later creates the sync rule for course A.
+     *
+     * @param int $optionid the existing option, 0 for a new one
+     * @param int $chooseorcreatecourse 0 = no course, 1 = existing course, 2 / 3 = create a new course
+     * @param int $courseid the course chosen with 1
+     * @return bool
+     */
+    public static function connected_course_allowed(int $optionid, int $chooseorcreatecourse, int $courseid): bool {
+        $sourcecourseid = self::get_source_course($optionid);
+        if ($sourcecourseid <= 0 || $chooseorcreatecourse === 0) {
+            return true;
+        }
+        if ($chooseorcreatecourse === 1) {
+            return $courseid <= 0 || $courseid === $sourcecourseid;
+        }
+        return false;
+    }
+
+    /**
+     * The message for a connected course that is not allowed, see {@see self::connected_course_allowed()}.
+     *
+     * @param int $optionid
+     * @return string
+     */
+    public static function connected_course_locked_message(int $optionid): string {
+        return get_string('autocreateoption:connectedcourselocked', 'mod_booking', self::get_source_course_name($optionid));
+    }
+
+    /**
+     * The name of the course an option was auto-created for, its id if the course is gone.
+     *
+     * @param int $optionid
+     * @return string
+     */
+    public static function get_source_course_name(int $optionid): string {
+        global $DB;
+
+        $sourcecourseid = self::get_source_course($optionid);
+        $fullname = $DB->get_field('course', 'fullname', ['id' => $sourcecourseid]);
+        return format_string($fullname ?: (string)$sourcecourseid);
+    }
+
+    /**
      * Prepares the option data, either pre-filled from an option template or as a minimal new option.
      *
      * @param int $bookingid
