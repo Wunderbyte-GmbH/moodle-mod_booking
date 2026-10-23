@@ -539,8 +539,12 @@ class add_activity_skill extends core_skill_base implements skill_trigger_provid
         if (section_resolver_service::is_site_front_page($course)) {
             return section_resolver_service::SITE_FRONT_PAGE_SECTION;
         }
-        // Module types that are not displayed on the course page must always be in section 0.
-        if (!\course_modinfo::is_mod_type_visible_on_course($modname)) {
+        // Module types that are not displayed on the course page must always be in section 0. Such types
+        // (FEATURE_CAN_DISPLAY, e.g. mod_qbank) came with Moodle 5.0; on 4.5 every type is displayed.
+        if (
+            method_exists(\course_modinfo::class, 'is_mod_type_visible_on_course')
+            && !\course_modinfo::is_mod_type_visible_on_course($modname)
+        ) {
             return 0;
         }
 

@@ -21,7 +21,6 @@ use core\di;
 use core\clock;
 use core_component;
 use core_reportbuilder\local\helpers\audience as audience_helper;
-use core_reportbuilder\local\helpers\report as report_helper;
 use core_reportbuilder\local\helpers\schedule as schedule_helper;
 use core_reportbuilder\local\models\audience as audience_model;
 use core_reportbuilder\local\models\report;
@@ -462,12 +461,18 @@ final class schedule_service {
             }
         }
         $user = $DB->get_record('user', ['id' => $userid], 'id, deleted, suspended, email, emailstop, confirmed');
-        $classname = (string)$schedule->get('classname');
-        $policies = $this->empty_policies($classname);
-        $config = (array)json_decode((string)$schedule->get('configdata'), true);
+        if (schedule_model::has_property('classname')) {
+            // Moodle 5.1+: the schedule type defines the empty-report policies and configdata holds the choice.
+            $policies = $this->empty_policies((string)$schedule->get('classname'));
+            $config = (array)json_decode((string)$schedule->get('configdata'), true);
+        } else {
+            // Before Moodle 5.1 the schedule itself holds them (REPORT_EMPTY_* constants, field reportempty).
+            $policies = $this->empty_policies(schedule_model::class);
+            $config = ['reportempty' => (int)$schedule->get('reportempty')];
+        }
         $rowcount = null;
         try {
-            $rowcount = report_helper::get_report_row_count($reportid);
+            $rowcount = report_definition_service::count_report_rows($reportid);
         } catch (\Throwable $e) {
             $rowcount = null;
         }

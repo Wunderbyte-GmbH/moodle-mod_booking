@@ -21,7 +21,6 @@ use bookingextension_agent\local\wizard\interfaces\skill_trigger_provider_interf
 use bookingextension_agent\local\wizard\services\reportbuilder\filter_value_codec;
 use bookingextension_agent\local\wizard\services\reportbuilder\report_definition_service;
 use bookingextension_agent\local\wizard\services\reportbuilder\report_preview_renderer;
-use core_reportbuilder\local\helpers\report as report_helper;
 use core_reportbuilder\local\helpers\user_filter_manager;
 use core_reportbuilder\local\models\report;
 use core_reportbuilder\manager;
@@ -257,7 +256,7 @@ class query_report_skill extends report_skill_base implements skill_trigger_prov
         }
 
         manager::reset_caches();
-        $rowcount = report_helper::get_report_row_count($reportid);
+        $rowcount = report_definition_service::count_report_rows($reportid);
         $snapshot = (new report_definition_service($this->resolver(), $this->catalog()))->snapshot($persistent, $userid, false);
         $snapshot['rowcount'] = $rowcount;
         $currentfilters = $applied ?? $this->describe_current_filters($persistent, $userid);
