@@ -30,6 +30,7 @@ use core_ai\manager as ai_manager;
 use bookingextension_agent\local\wizard\dto\agent_context;
 use bookingextension_agent\local\wizard\services\agent_access_service;
 use bookingextension_agent\local\wizard\services\provider_compat;
+use bookingextension_agent\local\wizard\services\provider_instruction_check;
 use bookingextension_agent\local\wizard\services\security\authorization_service;
 
 /**
@@ -94,6 +95,7 @@ class aiready {
         $wbinstanceactive = false;
         $courseenabled = false;
         $contextenabled = false;
+        $instructionconflicts = [];
         // Debug information (the per-thread LLM logs and the per-message runtime meta) is gated by a
         // capability, not just the site-wide aidebugmode setting, so enabling debug logging does not
         // reveal it to every user. Managers see it by default (bookingextension/agent:viewdebug).
@@ -169,6 +171,13 @@ class aiready {
                 $runtimeproviderstatus = $orchestrator->get_runtime_provider_status($this->ctx->id());
 
                 $provideractive = (bool)($runtimeproviderstatus['provideractive'] ?? false);
+
+                // A system instruction on an action the wizard runs with competes with the wizard's own prompt (#2724).
+                if ($provideractive) {
+                    $instructionconflicts = provider_instruction_check::find_conflicts(
+                        array_values($orchestrator->get_routed_action_classes($this->ctx->id()))
+                    );
+                }
 
                 if (
                     method_exists($manager, 'is_ai_tools_enabled_in_course') &&
@@ -270,6 +279,27 @@ class aiready {
                 : get_string('aiready_check_capability_todo', 'bookingextension_agent'),
             $capabilityurl
         );
+
+        // Admins see which action of which provider to fix, with a link to its settings; everyone else a short hint.
+        $instructionwarnings = [];
+        if (!empty($instructionconflicts)) {
+            if ($isplatformadmin) {
+                foreach ($instructionconflicts as $conflict) {
+                    $instructionwarnings[] = [
+                        'text' => get_string('aiready_instruction_warning', 'bookingextension_agent', (object)[
+                            'action' => $conflict['actionname'],
+                            'provider' => $conflict['provider'],
+                        ]),
+                        'url' => $conflict['settingsurl'],
+                    ];
+                }
+            } else {
+                $instructionwarnings[] = [
+                    'text' => get_string('aiready_instruction_warning_user', 'bookingextension_agent'),
+                    'url' => '',
+                ];
+            }
+        }
 
         $introtext = get_string('aiready_intro_text', 'bookingextension_agent');
 
@@ -431,6 +461,8 @@ class aiready {
             'admin_text' => $admintext,
             'nonadmin_text' => $nonadmintext,
             'readiness_checks' => $checks,
+            // System instructions on the provider actions the wizard runs with (#2724): text + settings link (admins).
+            'instruction_warnings' => $instructionwarnings,
             'num_options' => $stats['num_options'],
             'num_booked' => $stats['num_booked'],
             'welcome_text' => $welcometext,
