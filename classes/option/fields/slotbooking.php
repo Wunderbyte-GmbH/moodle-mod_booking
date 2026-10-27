@@ -108,8 +108,11 @@ class slotbooking extends field_base {
         // Only display slot booking settings if the option type is slot booking.
         $fallbacktype = null;
         $currentoptionid = (int)($formdata['optionid'] ?? $formdata['id'] ?? 0);
-        if ($currentoptionid > 0) {
-            $settings = singleton_service::get_instance_of_booking_option_settings($currentoptionid);
+        // A copy is a new option (optionid 0): its type is still unknown while the form is defined,
+        // so it is taken from the copied option.
+        $typesourceid = $currentoptionid > 0 ? $currentoptionid : (int)($formdata['copyoptionid'] ?? 0);
+        if ($typesourceid > 0) {
+            $settings = singleton_service::get_instance_of_booking_option_settings($typesourceid);
             $fallbacktype = (int)($settings->type ?? MOD_BOOKING_OPTIONTYPE_DEFAULT);
         }
         if (type_resolver::resolve_type((object)$formdata, $fallbacktype) !== MOD_BOOKING_OPTIONTYPE_SLOTBOOKING) {
