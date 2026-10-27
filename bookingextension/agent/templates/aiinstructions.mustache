@@ -23,7 +23,8 @@
         "show_trial_button": false,
         "show_trial_activate_button": false,
         "activation_question_text": "",
-        "readiness_checks": []
+        "readiness_checks": [],
+        "instruction_warnings": []
     }
 }}
 <div id="booking-ai-wrapper" class="booking-ai-instructions" data-contextid="{{contextid}}" data-threadid="{{threadid}}" data-sesskey="{{sesskey}}" data-ready-for-chat="{{#ready_for_chat}}1{{/ready_for_chat}}{{^ready_for_chat}}0{{/ready_for_chat}}" data-num-options="{{num_options}}" data-num-booked="{{num_booked}}" data-debug-mode="{{#debug_mode}}1{{/debug_mode}}{{^debug_mode}}0{{/debug_mode}}" data-llm-debug-enabled="{{#llm_debug_enabled}}1{{/llm_debug_enabled}}{{^llm_debug_enabled}}0{{/llm_debug_enabled}}" data-trial-success-default="{{#str}}aitrial_success_activated, bookingextension_agent{{/str}}" data-trial-reloading-label="{{#str}}aitrial_js_reloading, bookingextension_agent{{/str}}" data-trial-failed-default="{{#str}}aitrial_js_failed_default, bookingextension_agent{{/str}}" data-trial-unexpected-error="{{#str}}aitrial_js_unexpected_error, bookingextension_agent{{/str}}" data-trial-activation-question="{{#str}}aitrial_activation_question, bookingextension_agent{{/str}}" data-trial-activate-success="{{#str}}aitrial_activate_success, bookingextension_agent{{/str}}" data-trial-activate-button="{{#str}}aitrial_activate_now, bookingextension_agent{{/str}}" data-privacy-check-running="{{#str}}ai_privacy_check_running, bookingextension_agent{{/str}}" data-privacy-answer-note="{{#str}}ai_privacy_response_note, bookingextension_agent{{/str}}" data-ai-trial-token-invalid-title="{{#str}}ai_trial_token_invalid_title, bookingextension_agent{{/str}}" data-ai-trial-token-invalid-message="{{#str}}ai_trial_token_invalid_message, bookingextension_agent{{/str}}" data-ai-trial-token-invalid-ok="{{#str}}ok, moodle{{/str}}" data-step-planning-label="{{#str}}ai_step_planning, bookingextension_agent{{/str}}" data-step-executing-label="{{#str}}ai_step_executing, bookingextension_agent{{/str}}" data-privacy-mode-active="{{#privacy_mode_active}}1{{/privacy_mode_active}}{{^privacy_mode_active}}0{{/privacy_mode_active}}" data-trial-consent-title="{{#str}}aitrial_consent_title, bookingextension_agent{{/str}}" data-trial-consent-accept="{{#str}}aitrial_consent_accept, bookingextension_agent{{/str}}" data-trial-consent-cancel="{{#str}}aitrial_consent_cancel, bookingextension_agent{{/str}}" data-agent-ready-heading="{{#str}}agent_ready_heading, bookingextension_agent{{/str}}" data-agent-ready-body="{{#str}}agent_ready_body, bookingextension_agent{{/str}}" data-agent-open-agent="{{#str}}agent_open_agent, bookingextension_agent{{/str}}">
@@ -108,6 +109,14 @@
                 {{/provider_manage_available}}
             </div>
         </div>
+
+        {{! A system instruction on a provider action the wizard runs with can make the model ignore the wizard (#2724). }}
+        {{#instruction_warnings}}
+        <div class="alert alert-warning small mb-0 rounded-0 booking-ai-instruction-warning" role="alert">
+            <i class="fa fa-exclamation-triangle mr-1" aria-hidden="true"></i>{{text}}
+            {{#url}}<a href="{{url}}" target="_blank" rel="noopener noreferrer">{{#str}}aiready_instruction_warning_link, bookingextension_agent{{/str}}</a>{{/url}}
+        </div>
+        {{/instruction_warnings}}
 
         {{#provider_configure_available}}
         {{! One-click Wunderbyte auto-config from the chat: the "Configure" pill reveals this inline
