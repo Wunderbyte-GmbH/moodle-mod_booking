@@ -403,8 +403,10 @@ final class enrolment_sync_course_test extends advanced_testcase {
         $this->getDataGenerator()->enrol_user($cohortandmanual->id, $course->id, 'student');
         $this->run_tasks_silently();
         foreach ([$cohortonly, $cohortandmanual, $suspended] as $user) {
-            $this->assertSame((int)$this->get_rule((int)$option->id)->id,
-                (int)$this->get_answer((int)$option->id, (int)$user->id)->syncruleid);
+            $this->assertSame(
+                (int)$this->get_rule((int)$option->id)->id,
+                (int)$this->get_answer((int)$option->id, (int)$user->id)->syncruleid
+            );
         }
 
         $cohortinstance = $DB->get_record('enrol', ['courseid' => $course->id, 'enrol' => 'cohort'], '*', MUST_EXIST);
@@ -417,14 +419,22 @@ final class enrolment_sync_course_test extends advanced_testcase {
         $this->run_tasks_silently();
 
         $this->assertSame(0, $this->count_enrolments((int)$course->id, (int)$cohortonly->id));
-        $this->assertSame(MOD_BOOKING_STATUSPARAM_DELETED,
-            (int)$this->get_answer((int)$option->id, (int)$cohortonly->id)->waitinglist);
-        $this->assertSame(MOD_BOOKING_STATUSPARAM_BOOKED,
-            (int)$this->get_answer((int)$option->id, (int)$cohortandmanual->id)->waitinglist);
-        $this->assertSame(MOD_BOOKING_STATUSPARAM_BOOKED,
-            (int)$this->get_answer((int)$option->id, (int)$suspended->id)->waitinglist);
-        $this->assertSame(MOD_BOOKING_STATUSPARAM_BOOKED,
-            (int)$this->get_answer((int)$option->id, (int)$selfbooked->id)->waitinglist);
+        $this->assertSame(
+            MOD_BOOKING_STATUSPARAM_DELETED,
+            (int)$this->get_answer((int)$option->id, (int)$cohortonly->id)->waitinglist
+        );
+        $this->assertSame(
+            MOD_BOOKING_STATUSPARAM_BOOKED,
+            (int)$this->get_answer((int)$option->id, (int)$cohortandmanual->id)->waitinglist
+        );
+        $this->assertSame(
+            MOD_BOOKING_STATUSPARAM_BOOKED,
+            (int)$this->get_answer((int)$option->id, (int)$suspended->id)->waitinglist
+        );
+        $this->assertSame(
+            MOD_BOOKING_STATUSPARAM_BOOKED,
+            (int)$this->get_answer((int)$option->id, (int)$selfbooked->id)->waitinglist
+        );
         $this->assertSame(0, $messagesink->count());
         $messagesink->close();
     }
@@ -926,7 +936,10 @@ final class enrolment_sync_course_test extends advanced_testcase {
         // Manual enrolment without an end: ends after the duration, counted from the booking.
         $answer = $this->get_answer((int)$option->id, (int)$manualuser->id);
         $this->assertSame(MOD_BOOKING_STATUSPARAM_BOOKED, (int)$answer->waitinglist);
-        $this->assertSame((int)$answer->timecreated + $duration, $this->enrolment_end((int)$course->id, (int)$manualuser->id, 'manual'));
+        $this->assertSame(
+            (int)$answer->timecreated + $duration,
+            $this->enrolment_end((int)$course->id, (int)$manualuser->id, 'manual')
+        );
         $this->assertSame(1, $this->count_enrolments((int)$course->id, (int)$manualuser->id));
 
         // An earlier end is kept.
@@ -939,7 +952,10 @@ final class enrolment_sync_course_test extends advanced_testcase {
         // A later enrolment run (course start task, option save) changes nothing.
         $bo = singleton_service::get_instance_of_booking_option((int)$booking->cmid, (int)$option->id);
         $bo->enrol_user((int)$manualuser->id);
-        $this->assertSame((int)$answer->timecreated + $duration, $this->enrolment_end((int)$course->id, (int)$manualuser->id, 'manual'));
+        $this->assertSame(
+            (int)$answer->timecreated + $duration,
+            $this->enrolment_end((int)$course->id, (int)$manualuser->id, 'manual')
+        );
         $this->assertSame(1, $this->count_enrolments((int)$course->id, (int)$manualuser->id));
         $this->assertCount(0, manager::get_adhoc_tasks(sync_course_enrolments_adhoc::class));
     }
@@ -961,7 +977,8 @@ final class enrolment_sync_course_test extends advanced_testcase {
         $notenrolled = $this->getDataGenerator()->create_user();
         $this->getDataGenerator()->enrol_user($active->id, $course->id, 'student');
         $this->getDataGenerator()->enrol_user($suspendedaccount->id, $course->id, 'student');
-        $this->getDataGenerator()->enrol_user($suspendedenrolment->id, $course->id, 'student', 'manual', 0, 0, ENROL_USER_SUSPENDED);
+        $this->getDataGenerator()
+            ->enrol_user($suspendedenrolment->id, $course->id, 'student', 'manual', 0, 0, ENROL_USER_SUSPENDED);
         $this->getDataGenerator()->enrol_user($expired->id, $course->id, 'student', 'manual', 0, time() - DAYSECS);
 
         $this->assertSame([(int)$active->id], enrolmentsync::get_enrolled_user_ids((int)$course->id));
