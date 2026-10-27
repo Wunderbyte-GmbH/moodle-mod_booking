@@ -356,6 +356,7 @@ class slot_dto {
             'startintervalminutes' => max(1, (int)($config->slot_start_interval_minutes ?? 30)),
             'validfrom' => (int)($config->valid_from ?? 0),
             'validuntil' => (int)($config->valid_until ?? 0),
+            'effectivevaliduntil' => $config ? slot_validity::get_effective_valid_until($config) : 0,
             'timezone' => (string)core_date::get_user_timezone(),
         ];
     }
@@ -381,7 +382,8 @@ class slot_dto {
         $rangeuntil = strtotime('+2 years', time());
         if (!empty($config)) {
             $rangefrom = !empty($config->valid_from) ? (int)$config->valid_from : $rangefrom;
-            $rangeuntil = !empty($config->valid_until) ? ((int)$config->valid_until + DAYSECS) : $rangeuntil;
+            $validuntil = slot_validity::get_effective_valid_until($config);
+            $rangeuntil = $validuntil > 0 ? $validuntil : $rangeuntil;
         }
 
         $slots = slot_availability::get_slots_with_status_for_range($optionid, $rangefrom, $rangeuntil);
