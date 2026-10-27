@@ -30,6 +30,7 @@ use mod_booking\booking_option_settings;
 use mod_booking\semester;
 use mod_booking\singleton_service;
 use mod_booking\local\slotbooking\buffer_math;
+use mod_booking\local\slotbooking\slot_validity;
 use mod_booking\option\field_base;
 use mod_booking\option\type_resolver;
 use html_writer;
@@ -244,10 +245,40 @@ class slotbooking extends field_base {
         $mform->hideIf('slot_valid_from', 'optiontype', 'neq', MOD_BOOKING_OPTIONTYPE_SLOTBOOKING);
         $mform->hideIf('slot_valid_from', 'slot_type', 'eq', 'session');
 
+        $modeoptions = [
+            $mform->createElement('radio', 'slot_valid_mode', '', get_string('slot_valid_mode_fixed', 'mod_booking'), 'fixed'),
+            $mform->createElement('radio', 'slot_valid_mode', '', get_string('slot_valid_mode_rolling', 'mod_booking'), 'rolling'),
+        ];
+        $mform->addGroup($modeoptions, 'slot_valid_mode_group', get_string('slot_valid_mode', 'mod_booking'), ['<br>'], false);
+        $mform->setDefault('slot_valid_mode', 'fixed');
+        $mform->setType('slot_valid_mode', PARAM_ALPHA);
+        $mform->addHelpButton('slot_valid_mode_group', 'slot_valid_mode', 'mod_booking');
+        $mform->hideIf('slot_valid_mode_group', 'optiontype', 'neq', MOD_BOOKING_OPTIONTYPE_SLOTBOOKING);
+        $mform->hideIf('slot_valid_mode_group', 'slot_type', 'eq', 'session');
+
         $mform->addElement('date_selector', 'slot_valid_until', get_string('slot_valid_until', 'mod_booking'));
         $mform->setType('slot_valid_until', PARAM_INT);
         $mform->hideIf('slot_valid_until', 'optiontype', 'neq', MOD_BOOKING_OPTIONTYPE_SLOTBOOKING);
         $mform->hideIf('slot_valid_until', 'slot_type', 'eq', 'session');
+        $mform->hideIf('slot_valid_until', 'slot_valid_mode', 'neq', 'fixed');
+
+        $mform->addElement('text', 'slot_valid_duration_value', get_string('slot_valid_duration', 'mod_booking'), ['size' => 4]);
+        $mform->setType('slot_valid_duration_value', PARAM_INT);
+        $mform->setDefault('slot_valid_duration_value', 3);
+        $mform->hideIf('slot_valid_duration_value', 'optiontype', 'neq', MOD_BOOKING_OPTIONTYPE_SLOTBOOKING);
+        $mform->hideIf('slot_valid_duration_value', 'slot_type', 'eq', 'session');
+        $mform->hideIf('slot_valid_duration_value', 'slot_valid_mode', 'neq', 'rolling');
+
+        $unitoptions = [];
+        foreach (slot_validity::UNITS as $unit) {
+            $unitoptions[$unit] = get_string('slot_valid_unit_' . $unit, 'mod_booking');
+        }
+        $mform->addElement('select', 'slot_valid_duration_unit', get_string('slot_valid_duration_unit', 'mod_booking'), $unitoptions);
+        $mform->setType('slot_valid_duration_unit', PARAM_ALPHA);
+        $mform->setDefault('slot_valid_duration_unit', slot_validity::DEFAULT_UNIT);
+        $mform->hideIf('slot_valid_duration_unit', 'optiontype', 'neq', MOD_BOOKING_OPTIONTYPE_SLOTBOOKING);
+        $mform->hideIf('slot_valid_duration_unit', 'slot_type', 'eq', 'session');
+        $mform->hideIf('slot_valid_duration_unit', 'slot_valid_mode', 'neq', 'rolling');
 
         $mform->addElement('advcheckbox', 'slot_day_1', get_string('slot_day_mon', 'mod_booking'));
         $mform->addElement('advcheckbox', 'slot_day_2', get_string('slot_day_tue', 'mod_booking'));
@@ -470,7 +501,14 @@ class slotbooking extends field_base {
                 $errors['slot_interval_minutes'] = get_string('slot_error_positive', 'mod_booking');
             }
 
-            if ((int)($data['slot_valid_until'] ?? 0) < (int)($data['slot_valid_from'] ?? 0)) {
+            if (($data['slot_valid_mode'] ?? 'fixed') === 'rolling') {
+                if ((int)($data['slot_valid_duration_value'] ?? 0) < 1) {
+                    $errors['slot_valid_duration_value'] = get_string('slot_error_duration_positive', 'mod_booking');
+                }
+                if (!in_array((string)($data['slot_valid_duration_unit'] ?? ''), slot_validity::UNITS, true)) {
+                    $errors['slot_valid_duration_unit'] = get_string('required');
+                }
+            } else if ((int)($data['slot_valid_until'] ?? 0) < (int)($data['slot_valid_from'] ?? 0)) {
                 $errors['slot_valid_until'] = get_string('slot_error_validrange', 'mod_booking');
             }
         }
@@ -557,7 +595,15 @@ class slotbooking extends field_base {
             ? '23:59'
             : (string)($formdata->slot_closing_time ?? '18:00');
         $record->valid_from = $record->slot_type === 'session' ? 0 : (int)($formdata->slot_valid_from ?? 0);
-        $record->valid_until = $record->slot_type === 'session' ? 0 : (int)($formdata->slot_valid_until ?? 0);
+        $isrolling = $record->slot_type !== 'session' && ($formdata->slot_valid_mode ?? 'fixed') === 'rolling';
+        $durationunit = (string)($formdata->slot_valid_duration_unit ?? slot_validity::DEFAULT_UNIT);
+        $record->valid_duration_value = $isrolling ? max(1, (int)($formdata->slot_valid_duration_value ?? 1)) : 0;
+        $record->valid_duration_unit = in_array($durationunit, slot_validity::UNITS, true)
+            ? $durationunit
+            : slot_validity::DEFAULT_UNIT;
+        $record->valid_until = ($record->slot_type === 'session' || $isrolling)
+            ? 0
+            : (int)($formdata->slot_valid_until ?? 0);
         $record->days_of_week = $record->slot_type === 'session' ? '1,2,3,4,5,6,7' : self::extract_days_of_week($formdata);
         $record->slot_max_days_per_slot = max(1, (int)ceil((int)($formdata->slot_custom_max_days ?? DAYSECS) / DAYSECS));
         $record->max_participants_per_slot = max(1, (int)($formdata->slot_max_participants_per_slot ?? 1));
@@ -625,6 +671,9 @@ class slotbooking extends field_base {
             $setifmissing('slot_closing_time', '18:00');
             $setifmissing('slot_valid_from', 0);
             $setifmissing('slot_valid_until', 0);
+            $setifmissing('slot_valid_mode', 'fixed');
+            $setifmissing('slot_valid_duration_value', 3);
+            $setifmissing('slot_valid_duration_unit', slot_validity::DEFAULT_UNIT);
             $setifmissing('slot_max_participants_per_slot', 1);
             $setifmissing('slot_max_slots_per_user', 1);
             $setifmissing('slot_booking_view_mode', 'calendar');
@@ -723,6 +772,9 @@ class slotbooking extends field_base {
         $data->slot_closing_time = '18:00';
         $data->slot_valid_from = 0;
         $data->slot_valid_until = 0;
+        $data->slot_valid_mode = 'fixed';
+        $data->slot_valid_duration_value = 3;
+        $data->slot_valid_duration_unit = slot_validity::DEFAULT_UNIT;
         $data->slot_max_participants_per_slot = 1;
         $data->slot_max_slots_per_user = 1;
         $data->slot_booking_view_mode = 'calendar';
@@ -755,6 +807,11 @@ class slotbooking extends field_base {
                 $data->slot_closing_time = $config->closing_time;
                 $data->slot_valid_from = (int)$config->valid_from;
                 $data->slot_valid_until = (int)$config->valid_until;
+                $data->slot_valid_mode = slot_validity::is_rolling($config) ? 'rolling' : 'fixed';
+                if (slot_validity::is_rolling($config)) {
+                    $data->slot_valid_duration_value = (int)$config->valid_duration_value;
+                }
+                $data->slot_valid_duration_unit = (string)$config->valid_duration_unit;
                 $data->slot_max_participants_per_slot = (int)$config->max_participants_per_slot;
                 $data->slot_max_slots_per_user = (int)$config->max_slots_per_user;
                 $interface = (string)($config->booking_interface ?? 'calendar');
