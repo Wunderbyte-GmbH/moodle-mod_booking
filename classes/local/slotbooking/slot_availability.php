@@ -1025,7 +1025,8 @@ class slot_availability {
             return false;
         }
 
-        if (!empty($config->valid_until) && $slotend > ((int)$config->valid_until + DAYSECS)) {
+        $validuntil = slot_validity::get_effective_valid_until($config);
+        if ($validuntil > 0 && $slotend > $validuntil) {
             return false;
         }
 
@@ -1083,14 +1084,13 @@ class slot_availability {
         }
 
         $validfrom = (int)$config->valid_from;
-        $validuntil = (int)$config->valid_until;
+        $validuntil = slot_validity::get_effective_valid_until($config);
 
         if ($validfrom > 0) {
             $rangestart = max($rangestart, $validfrom);
         }
         if ($validuntil > 0) {
-            // Date selector stores midnight; include the full selected day for slot generation.
-            $rangeend = min($rangeend, $validuntil + DAYSECS);
+            $rangeend = min($rangeend, $validuntil);
         }
 
         if ($rangeend <= $rangestart) {
@@ -1458,8 +1458,9 @@ class slot_availability {
             $rangestart = max($rangestart, (int)$config->valid_from);
         }
 
-        if (!empty($config->valid_until)) {
-            $rangeend = (int)$config->valid_until + DAYSECS;
+        $validuntil = slot_validity::get_effective_valid_until($config);
+        if ($validuntil > 0) {
+            $rangeend = $validuntil;
         }
 
         if ($rangeend <= $rangestart) {
