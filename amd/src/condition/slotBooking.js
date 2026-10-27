@@ -623,6 +623,42 @@ const ensureSelectionSummary = (container, anchor) => {
     return summaryRegion;
 };
 
+/**
+ * Shows the "selection was cleared, only one option at a time" notice directly above the
+ * calendar/list picker. One shared region is reused, so repeated triggers replace the
+ * message instead of stacking copies.
+ *
+ * @param {HTMLElement} container booking form container
+ * @param {string} message notice text
+ */
+const showSwitchedOptionNotice = (container, message) => {
+    let region = container.querySelector('[data-region="slot-switch-notice"]');
+    if (!region) {
+        // Calendar interface: between the month calendar and the day view (the fixed editor is the
+        // sibling right after the calendar). Other interfaces: directly above their picker.
+        const anchor = container.querySelector('[data-region="slot-fixed-editor"]')
+            || container.querySelector('[data-region="slot-calendar-wrapper"]')
+            || container.querySelector('[data-region="slot-list-picker"]');
+        if (!anchor || !anchor.parentNode) {
+            // No picker to anchor on: fall back to the page-level notification area.
+            Notification.addNotification({message, type: 'info'});
+            return;
+        }
+        region = document.createElement('div');
+        region.dataset.region = 'slot-switch-notice';
+        region.setAttribute('role', 'status');
+        // The calendar and the day view sit in a wrapping flex row: take the full row width, so the
+        // notice gets its own line between them instead of becoming a third column.
+        region.style.flex = '1 0 100%';
+        anchor.parentNode.insertBefore(region, anchor);
+    }
+
+    const alert = document.createElement('div');
+    alert.className = 'alert alert-info';
+    alert.textContent = message;
+    region.replaceChildren(alert);
+};
+
 const renderTeacherSelection = async(
     teacherContainer,
     selectedSlotKeys,
@@ -1384,10 +1420,7 @@ export async function init(callsiteoptionid) {
 
             const resolved = selection.filter(key => resolveSlotOptionId(key) === targetOptionId);
             if (resolved.length !== selection.length) {
-                Notification.addNotification({
-                    message: slotbookingSwitchedOptionMessage,
-                    type: 'info',
-                });
+                showSwitchedOptionNotice(container, slotbookingSwitchedOptionMessage);
                 // The picker's own selected keys still hold the dropped, wrong-option entries at
                 // this point (its onChange fired with them already included) - correct its internal
                 // state too, so the calendar doesn't keep highlighting a slot that no longer counts
@@ -1711,10 +1744,7 @@ export async function init(callsiteoptionid) {
                     resolveOptionId: resolveSlotOptionId,
                     toUids: selectionKeysToUids,
                     toWireKeys: uidsToSelectionKeys,
-                    onOptionSwitch: () => Notification.addNotification({
-                        message: slotbookingSwitchedOptionMessage,
-                        type: 'info',
-                    }),
+                    onOptionSwitch: () => showSwitchedOptionNotice(container, slotbookingSwitchedOptionMessage),
                 });
             }
 
@@ -1800,10 +1830,7 @@ export async function init(callsiteoptionid) {
                 resolveOptionId: resolveSlotOptionId,
                 toUids: selectionKeysToUids,
                 toWireKeys: uidsToSelectionKeys,
-                onOptionSwitch: () => Notification.addNotification({
-                    message: slotbookingSwitchedOptionMessage,
-                    type: 'info',
-                }),
+                onOptionSwitch: () => showSwitchedOptionNotice(container, slotbookingSwitchedOptionMessage),
             });
             listController = await renderSlotList(listPickerRoot, slots, fixedSelection);
         }
