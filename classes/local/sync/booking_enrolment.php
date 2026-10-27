@@ -1232,7 +1232,7 @@ class booking_enrolment {
                 skipuserlimitcheck: $skipuserlimitcheck
             );
             if ($submit() && !self::has_active_booking_answer($optionid, (int)$user->id)) {
-                // "Booked" without an answer: the answers of this process are stale (e.g. a long running cron
+                // Booked without an answer: the answers of this process are stale (e.g. a long running cron
                 // process missed the removal by another process), user_submit_response() took the user for booked.
                 booking_option::refresh_answers_for_option($optionid);
                 $submit();
