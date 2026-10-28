@@ -323,6 +323,31 @@ final class option_preview_builder_test extends advanced_testcase {
     }
 
     /**
+     * Names with an ampersand reach the preview unescaped; the panel escapes the row itself
+     * (Wunderbyte-GmbH#2621: "Mandatory &amp; Further Training" in the preview).
+     */
+    public function test_create_descriptor_target_row_is_not_html_escaped(): void {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        $gen = $this->getDataGenerator();
+        $course = $gen->create_course(['fullname' => 'Mandatory & Further Training']);
+        $booking = $gen->create_module('booking', ['course' => $course->id, 'name' => 'Safety & Health']);
+
+        $descriptor = option_preview_builder::create_descriptor([
+            'text' => 'Yoga class',
+            'maxanswers' => 12,
+            'targetcmid' => (int)$booking->cmid,
+            'outputlang' => 'en',
+        ]);
+
+        $rows = $this->rows_map($descriptor);
+        $this->assertStringContainsString('Safety & Health', $rows['Booking activity']);
+        $this->assertStringContainsString('Mandatory & Further Training', $rows['Booking activity']);
+        $this->assertStringNotContainsString('&amp;', $rows['Booking activity']);
+    }
+
+    /**
      * When only the user's activity query is known, it is shown verbatim as the requested target.
      */
     public function test_create_descriptor_requested_target_fallback(): void {

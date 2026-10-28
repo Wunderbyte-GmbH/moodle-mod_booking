@@ -86,6 +86,8 @@ final class wizard_bulk_option_field_values_test extends advanced_testcase {
 
         $result = $skill->execute($prepared, $contextid, (int)$USER->id);
         $this->assertSame('executed', $result['status'] ?? '', (string)($result['detail'] ?? ''));
+        // The success list names the options by title, not only by id (Wunderbyte-GmbH#2621).
+        $this->assertMatchesRegularExpression('/#\\d+ \\("[^"]+" /', (string)$result['detail']);
         foreach ($result['persisted_fields'] as $entry) {
             $this->assertContains('optionfields', (array)$entry['fields']);
         }
