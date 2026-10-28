@@ -1386,6 +1386,26 @@ class mod_booking_mod_form extends moodleform_mod {
                 (int)booking::get_value_of_json_by_key($bookingid, autocreateoption::JSONKEY_SYNCENROLMENTS)
             );
             $mform->hideIf('autocreateoptionsyncenrolments', 'autocreateoptioncategoryid', 'eq', 0);
+
+            // The courses already in the linked category are synced by hand: the observers only cover courses
+            // created after the category was linked. A link, not a form button, as this form is saved by
+            // course/modedit.php; the page uses the stored settings, so unsaved changes have no effect.
+            $storedcategoryid = (int)booking::get_value_of_json_by_key($bookingid, autocreateoption::JSONKEY_CATEGORY);
+            if ($storedcategoryid > 0 && !empty($this->_cm->id)) {
+                $syncurl = new moodle_url('/mod/booking/syncautocreatecategory.php', ['id' => $this->_cm->id]);
+                $synclink = html_writer::link(
+                    $syncurl,
+                    get_string('autocreateoption:syncnow', 'mod_booking'),
+                    ['class' => 'btn btn-secondary']
+                );
+                $synclink .= html_writer::tag(
+                    'div',
+                    get_string('autocreateoption:syncnow_desc', 'mod_booking'),
+                    ['class' => 'form-text text-muted']
+                );
+                $mform->addElement('static', 'autocreateoptionsyncnow', '', $synclink);
+                $mform->hideIf('autocreateoptionsyncnow', 'autocreateoptioncategoryid', 'eq', 0);
+            }
         }
 
         // Miscellaneous settings.

@@ -1746,6 +1746,19 @@ function booking_extend_settings_navigation(settings_navigation $settings, navig
             null,
             'nav_importexcelbutton'
         );
+        // Sync the courses already in the linked course category (option auto-creation), only when one is linked.
+        if (
+            !empty($bookingsettings->jsonobject->{autocreateoption::JSONKEY_CATEGORY})
+            && wb_payment::pro_version_is_activated()
+        ) {
+            $navref->add(
+                get_string('autocreateoption:syncnow', 'mod_booking'),
+                new moodle_url('/mod/booking/syncautocreatecategory.php', ['id' => $cmid]),
+                navigation_node::TYPE_CUSTOM,
+                null,
+                'nav_syncautocreatecategory'
+            );
+        }
         // phpcs:ignore moodle.Commenting.TodoComment.MissingInfoInline
         // TODO: Add capability for changesemester. Only admins should be allowed to do this!
         $navref->add(

@@ -574,10 +574,18 @@ $string['autcrheader'] = '[VERALTET] Automatisches Erstellen von Buchungsoptione
 $string['autcrwhatitis'] = 'If this option is enabled it automatically creates a new booking option and assigns
  a user as booking manager / teacher to it. Users are selected based on a custom user profile field value.';
 $string['autocreateoption:connectedcourselocked'] = 'Diese Buchungsoption wurde automatisch für den Kurs "{$a}" erstellt. Sie kann nur mit diesem Kurs oder mit keinem Kurs verknüpft werden, sonst könnte die Synchronisation der Kurseinschreibungen Nutzer:innen dauerhaft gebucht und eingeschrieben lassen. Um einen anderen Kurs zu verwenden, duplizieren Sie die Buchungsoption.';
+$string['autocreateoption:syncnow'] = 'Verknüpften Kursbereich jetzt synchronisieren';
+$string['autocreateoption:syncnow:button'] = 'Jetzt synchronisieren';
+$string['autocreateoption:syncnow:confirm'] = 'Der Kursbereich "{$a->category}" enthält {$a->courses} Kurs(e), davon {$a->missing} ohne Buchungsoption in dieser Buchungsinstanz. Ein Hintergrundprozess erstellt die fehlenden Buchungsoptionen mit den Namen der Kurse beim nächsten Cron-Lauf.';
+$string['autocreateoption:syncnow:confirmnousers'] = 'Die in die Kurse eingeschriebenen Nutzer:innen werden nicht gebucht, weil "In den Kurs eingeschriebene Nutzer:innen in die erstellte Buchungsoption buchen" in den <a href="{$a}">Einstellungen der Buchungsinstanz</a> deaktiviert ist.';
+$string['autocreateoption:syncnow:confirmusers'] = 'Die in diese Kurse eingeschriebenen Nutzer:innen werden in die Buchungsoptionen gebucht, auch in die bereits zuvor automatisch erstellten Buchungsoptionen.';
+$string['autocreateoption:syncnow:nocategory'] = 'Mit dieser Buchungsinstanz ist kein Kursbereich verknüpft. Verknüpfen Sie zuerst einen in den Einstellungen der Buchungsinstanz.';
+$string['autocreateoption:syncnow:queued'] = 'Die Synchronisation des verknüpften Kursbereichs wurde eingereiht und läuft beim nächsten Cron-Lauf.';
+$string['autocreateoption:syncnow_desc'] = 'Erstellt die fehlenden Buchungsoptionen für die Kurse, die bereits im verknüpften Kursbereich liegen, und bucht, wenn oben aktiviert, die in diese Kurse eingeschriebenen Nutzer:innen. Es werden die gespeicherten Einstellungen verwendet, speichern Sie Ihre Änderungen also zuerst.';
 $string['autocreateoptioncategoryid'] = 'Kursbereich: Für jeden neuen Kurs eine Buchungsoption erstellen';
 $string['autocreateoptioncategoryid:disabled'] = 'Keine Buchungsoptionen automatisch erstellen';
 $string['autocreateoptioncategoryid:owncategory'] = 'Der Kursbereich des Kurses, in dem sich diese Buchungsinstanz befindet, kann nicht verknüpft werden, da Buchungsoptionen dieser Instanz dort eigene Kurse anlegen können.';
-$string['autocreateoptioncategoryid_help'] = 'Sobald ein Kurs direkt im gewählten Kursbereich angelegt wird, wird in dieser Buchungsinstanz eine Buchungsoption mit dem Namen des Kurses erstellt. Kurse in Unterbereichen werden nicht berücksichtigt. Die Buchungsoption wird kurz nach dem Anlegen des Kurses von einem Hintergrundprozess erstellt.
+$string['autocreateoptioncategoryid_help'] = 'Sobald ein Kurs direkt im gewählten Kursbereich angelegt wird, wird in dieser Buchungsinstanz eine Buchungsoption mit dem Namen des Kurses erstellt. Kurse in Unterbereichen werden nicht berücksichtigt. Die Buchungsoption wird kurz nach dem Anlegen des Kurses von einem Hintergrundprozess erstellt. Kurse, die beim Verknüpfen bereits im Kursbereich liegen, erhalten ihre Buchungsoptionen über "Verknüpften Kursbereich jetzt synchronisieren" (Button unten, auch in der Navigation der Buchungsinstanz).
 
 Der Kursbereich des Kurses, in dem sich diese Buchungsinstanz befindet, wird nicht angeboten, da Buchungsoptionen dieser Instanz dort eigene verknüpfte Kurse anlegen können, was wiederum weitere Buchungsoptionen auslösen würde.';
 $string['autocreateoptionlinkcourse'] = 'Neuen Kurs mit der erstellten Buchungsoption verknüpfen';
@@ -4532,6 +4540,7 @@ $string['tasksendmailbyruleadhoc'] = 'Booking: Mail via Regel versenden (Adhoc-T
 $string['tasksendnotificationmails'] = 'Booking: Benachrichtigungs-Mails versenden';
 $string['tasksendremindermails'] = 'Booking: Erinnerungs-Mails versenden';
 $string['tasksendticketbyruleadhoc'] = 'Booking: Ticket via Regel versenden (Adhoc-Task)';
+$string['tasksyncautocreatecategory'] = 'Booking: Kurse eines verknüpften Kursbereichs mit einer Buchungsinstanz synchronisieren (Adhoc-Task)';
 $string['tasksynccourseenrolments'] = 'Booking: Kurseinschreibungen mit der automatisch erstellten Buchungsoption synchronisieren (Adhoc-Task)';
 $string['taskupdateteachercalendarentries'] = 'Booking: Kalendereinträge der Trainer:innen aktualisieren (Adhoc-Task)';
 $string['taskwaitlistheartbeat'] = 'Booking: Wartelisten-Heartbeat (Selbstreparatur)';

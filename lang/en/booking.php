@@ -574,10 +574,18 @@ $string['autcrheader'] = '[DEPRECATED] Automatic booking option creation';
 $string['autcrwhatitis'] = 'If this option is enabled it automatically creates a new booking option and assigns
  a user as booking manager / teacher to it. Users are selected based on a custom user profile field value.';
 $string['autocreateoption:connectedcourselocked'] = 'This booking option was created automatically for the course "{$a}". It can only be connected to this course or to no course, otherwise the course enrolment sync could keep users booked and enrolled for good. To use another course, duplicate the booking option.';
+$string['autocreateoption:syncnow'] = 'Sync the linked course category now';
+$string['autocreateoption:syncnow:button'] = 'Sync now';
+$string['autocreateoption:syncnow:confirm'] = 'The course category "{$a->category}" contains {$a->courses} course(s), {$a->missing} of them without a booking option in this booking instance. A background task creates the missing booking options, named after the courses, with the next cron run.';
+$string['autocreateoption:syncnow:confirmnousers'] = 'The users enrolled in the courses are not booked, because "Book the users enrolled in the course into the created booking option" is switched off in the <a href="{$a}">settings of the booking instance</a>.';
+$string['autocreateoption:syncnow:confirmusers'] = 'The users enrolled in these courses are booked into the booking options, including the booking options that were created automatically before.';
+$string['autocreateoption:syncnow:nocategory'] = 'No course category is linked to this booking instance. Link one in the settings of the booking instance first.';
+$string['autocreateoption:syncnow:queued'] = 'The sync of the linked course category has been queued and runs with the next cron run.';
+$string['autocreateoption:syncnow_desc'] = 'Creates the missing booking options for the courses that are already in the linked course category and, if switched on above, books the users enrolled in these courses. The saved settings are used, so save your changes first.';
 $string['autocreateoptioncategoryid'] = 'Course category: create a booking option for every new course';
 $string['autocreateoptioncategoryid:disabled'] = 'Do not create booking options automatically';
 $string['autocreateoptioncategoryid:owncategory'] = 'The category of the course this booking instance is in can not be linked, as booking options of this instance may create their own courses there.';
-$string['autocreateoptioncategoryid_help'] = 'Whenever a course is created directly in the selected course category, a booking option with the name of the course is created in this booking instance. Courses in subcategories are not taken into account. The option is created by a background task shortly after the course has been created.
+$string['autocreateoptioncategoryid_help'] = 'Whenever a course is created directly in the selected course category, a booking option with the name of the course is created in this booking instance. Courses in subcategories are not taken into account. The option is created by a background task shortly after the course has been created. Courses that are already in the category when it is linked get their booking options with "Sync the linked course category now" (button below, also in the navigation of the booking instance).
 
 The category of the course this booking instance is in is not offered, because booking options of this instance may create their own connected courses there, which would trigger the creation of further booking options.';
 $string['autocreateoptionlinkcourse'] = 'Connect the new course to the created booking option';
@@ -4520,6 +4528,7 @@ $string['tasksendmailbyruleadhoc'] = 'Booking: Send mail by rule (adhoc task)';
 $string['tasksendnotificationmails'] = 'Booking: Send notification mails';
 $string['tasksendremindermails'] = 'Booking: Send reminder mails';
 $string['tasksendticketbyruleadhoc'] = 'Booking: Send ticket by rule (adhoc task)';
+$string['tasksyncautocreatecategory'] = 'Booking: Sync the courses of a linked course category with a booking instance (adhoc task)';
 $string['tasksynccourseenrolments'] = 'Booking: Sync course enrolments to the automatically created booking option (adhoc task)';
 $string['taskupdateteachercalendarentries'] = 'Booking: Update teacher calendar entries (adhoc task)';
 $string['taskwaitlistheartbeat'] = 'Booking: Waitlist heartbeat (self-healing)';
