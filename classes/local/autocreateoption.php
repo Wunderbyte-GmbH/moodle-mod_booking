@@ -27,6 +27,7 @@ namespace mod_booking\local;
 use cache;
 use context_module;
 use mod_booking\booking_option;
+use mod_booking\local\sync\completionsync;
 use mod_booking\local\sync\enrolmentsync;
 use mod_booking\option\fields_info;
 use mod_booking\singleton_service;
@@ -58,6 +59,9 @@ class autocreateoption {
 
     /** @var string JSON key (booking.json): 1 = book the users enrolled in the course into the created option. */
     const JSONKEY_SYNCENROLMENTS = 'autocreateoptionsyncenrolments';
+
+    /** @var string JSON key (booking.json): 1 = complete the booking when the user completes the course. */
+    const JSONKEY_SYNCCOMPLETION = 'autocreateoptionsynccompletion';
 
     /** @var string JSON key (booking_options.json): the id of the course the option was created for. */
     const OPTIONJSONKEY_SOURCECOURSE = 'autocreatedfromcourseid';
@@ -294,10 +298,10 @@ class autocreateoption {
      * tasks. The settings are read at execution time, and a course that can not be handled does not stop the rest.
      *
      * @param int $bookingid
-     * @return array{created:int, skipped:int, syncqueued:int}
+     * @return array{created:int, skipped:int, syncqueued:int, completed:int}
      */
     public static function sync_category(int $bookingid): array {
-        $result = ['created' => 0, 'skipped' => 0, 'syncqueued' => 0];
+        $result = ['created' => 0, 'skipped' => 0, 'syncqueued' => 0, 'completed' => 0];
 
         $settings = singleton_service::get_instance_of_booking_settings_by_bookingid($bookingid);
         if (empty($settings) || empty($settings->cmid)) {
@@ -320,7 +324,8 @@ class autocreateoption {
             return $result;
         }
 
-        foreach (self::get_category_course_ids($categoryid) as $courseid) {
+        $courseids = self::get_category_course_ids($categoryid);
+        foreach ($courseids as $courseid) {
             try {
                 $optionid = self::create_option_for_course($bookingid, $courseid);
             } catch (moodle_exception $e) {
@@ -334,6 +339,14 @@ class autocreateoption {
             }
         }
 
+        // Bookings of users who completed their course already are completed with the date of the course completion.
+        // Bookings the enrolment sync makes later are handled by the enrolment sync task itself.
+        if (!empty($json->{self::JSONKEY_SYNCCOMPLETION})) {
+            foreach ($courseids as $courseid) {
+                $result['completed'] += completionsync::sync_course($courseid, $bookingid);
+            }
+        }
+
         // Options created above got their rule already; this covers the options auto-created before the enrolment
         // sync was switched on, and re-queues the course syncs, which are deduplicated.
         if (!empty($json->{self::JSONKEY_SYNCENROLMENTS})) {
@@ -343,7 +356,7 @@ class autocreateoption {
         mtrace(
             "autocreateoption: synced category $categoryid with booking instance $bookingid, created "
             . "{$result['created']} options, skipped {$result['skipped']} courses, queued {$result['syncqueued']} "
-            . "course enrolment syncs."
+            . "course enrolment syncs, completed {$result['completed']} bookings."
         );
         return $result;
     }
@@ -527,6 +540,38 @@ class autocreateoption {
             'teachersforoption' => [],
             'responsiblecontact' => [],
         ];
+    }
+
+    /**
+     * The options of a booking instance that belong to a course: connected to it, or auto-created for it (and then
+     * maybe not connected). Both lookups are limited to the instance, so they use the bookingid index.
+     *
+     * @param int $bookingid
+     * @param int $courseid
+     * @return int[] option ids
+     */
+    public static function get_option_ids_for_course(int $bookingid, int $courseid): array {
+        global $DB;
+
+        if ($bookingid <= 0 || $courseid <= 0) {
+            return [];
+        }
+        $optionids = array_keys(
+            $DB->get_records('booking_options', ['bookingid' => $bookingid, 'courseid' => $courseid], '', 'id')
+        );
+        $select = "bookingid = :bookingid AND " . $DB->sql_like('json', ':marker');
+        $params = [
+            'bookingid' => $bookingid,
+            'marker' => '%"' . self::OPTIONJSONKEY_SOURCECOURSE . '":' . $courseid . '%',
+        ];
+        foreach ($DB->get_records_select('booking_options', $select, $params, '', 'id, json') as $option) {
+            // The LIKE also matches e.g. course 12 for course 1, so the decoded value decides.
+            $json = json_decode($option->json);
+            if ((int)($json->{self::OPTIONJSONKEY_SOURCECOURSE} ?? 0) === $courseid) {
+                $optionids[] = (int)$option->id;
+            }
+        }
+        return array_values(array_unique(array_map('intval', $optionids)));
     }
 
     /**

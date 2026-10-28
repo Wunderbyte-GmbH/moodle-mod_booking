@@ -818,6 +818,7 @@ function booking_store_autocreateoption_settings($booking) {
         booking::remove_key_from_json($booking, autocreateoption::JSONKEY_TEMPLATE);
         booking::remove_key_from_json($booking, autocreateoption::JSONKEY_LINKCOURSE);
         booking::remove_key_from_json($booking, autocreateoption::JSONKEY_SYNCENROLMENTS);
+        booking::remove_key_from_json($booking, autocreateoption::JSONKEY_SYNCCOMPLETION);
         return;
     }
     booking::add_data_to_json($booking, autocreateoption::JSONKEY_CATEGORY, $categoryid);
@@ -835,15 +836,22 @@ function booking_store_autocreateoption_settings($booking) {
         $linkcourse = empty($booking->autocreateoptionlinkcourse) ? 0 : 1;
     }
     booking::add_data_to_json($booking, autocreateoption::JSONKEY_LINKCOURSE, $linkcourse);
-    // Book the users enrolled in the course into the created option. Off unless explicitly switched on, programmatic
-    // calls that leave the checkbox out keep the stored value.
-    if (!isset($booking->autocreateoptionsyncenrolments)) {
-        return;
+    // Book the users enrolled in the course into the created option, and complete the booking when the course is
+    // completed. Both off unless explicitly switched on, programmatic calls that leave a checkbox out keep its
+    // stored value.
+    if (isset($booking->autocreateoptionsyncenrolments)) {
+        if (empty($booking->autocreateoptionsyncenrolments)) {
+            booking::remove_key_from_json($booking, autocreateoption::JSONKEY_SYNCENROLMENTS);
+        } else {
+            booking::add_data_to_json($booking, autocreateoption::JSONKEY_SYNCENROLMENTS, 1);
+        }
     }
-    if (empty($booking->autocreateoptionsyncenrolments)) {
-        booking::remove_key_from_json($booking, autocreateoption::JSONKEY_SYNCENROLMENTS);
-    } else {
-        booking::add_data_to_json($booking, autocreateoption::JSONKEY_SYNCENROLMENTS, 1);
+    if (isset($booking->autocreateoptionsynccompletion)) {
+        if (empty($booking->autocreateoptionsynccompletion)) {
+            booking::remove_key_from_json($booking, autocreateoption::JSONKEY_SYNCCOMPLETION);
+        } else {
+            booking::add_data_to_json($booking, autocreateoption::JSONKEY_SYNCCOMPLETION, 1);
+        }
     }
 }
 

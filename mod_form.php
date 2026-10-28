@@ -1387,6 +1387,19 @@ class mod_booking_mod_form extends moodleform_mod {
             );
             $mform->hideIf('autocreateoptionsyncenrolments', 'autocreateoptioncategoryid', 'eq', 0);
 
+            $mform->addElement(
+                'advcheckbox',
+                'autocreateoptionsynccompletion',
+                get_string('autocreateoptionsynccompletion', 'mod_booking')
+            );
+            $mform->setType('autocreateoptionsynccompletion', PARAM_INT);
+            $mform->addHelpButton('autocreateoptionsynccompletion', 'autocreateoptionsynccompletion', 'mod_booking');
+            $mform->setDefault(
+                'autocreateoptionsynccompletion',
+                (int)booking::get_value_of_json_by_key($bookingid, autocreateoption::JSONKEY_SYNCCOMPLETION)
+            );
+            $mform->hideIf('autocreateoptionsynccompletion', 'autocreateoptioncategoryid', 'eq', 0);
+
             // The courses already in the linked category are synced by hand: the observers only cover courses
             // created after the category was linked. A link, not a form button, as this form is saved by
             // course/modedit.php; the page uses the stored settings, so unsaved changes have no effect.

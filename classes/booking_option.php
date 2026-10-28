@@ -3554,11 +3554,17 @@ class booking_option {
      * @param int $userid
      * @param int $timebooked // Pass on a timestamp, if we import old data.
      * @param bool $updateansweronimport  // Updates bookinganswer on import.
+     * @param ?int $completiontime // The completion date to store, e.g. of the completed course; null = now (or timebooked).
      *
      * @return bool
      *
      */
-    public function toggle_user_completion(int $userid, int $timebooked = 0, bool $updateansweronimport = false) {
+    public function toggle_user_completion(
+        int $userid,
+        int $timebooked = 0,
+        bool $updateansweronimport = false,
+        ?int $completiontime = null
+    ) {
         global $USER, $DB, $USER;
 
         $cmid = $this->cmid;
@@ -3606,7 +3612,13 @@ class booking_option {
             $userdata->completed = empty($completionold) ? '1' : '0';
         }
         $userdata->timemodified = empty($timebooked) ? time() : $timebooked;
-        $completeddate = empty($userdata->completed) ? null : (empty($timebooked) ? time() : $timebooked);
+        if (empty($userdata->completed)) {
+            $completeddate = null;
+        } else if (!empty($completiontime)) {
+            $completeddate = $completiontime;
+        } else {
+            $completeddate = empty($timebooked) ? time() : $timebooked;
+        }
 
         $data = [
             'id' => $userdata->baid,

@@ -358,6 +358,9 @@ class enrolmentsync {
             $result['unenrolled'] += $ruleresult['unenrolled'];
         }
 
+        // Users who completed the course before they were booked get their booking completed with that date.
+        completionsync::sync_course($courseid);
+
         return $result;
     }
 

@@ -236,7 +236,7 @@ final class autocreate_option_sync_category_test extends advanced_testcase {
         $this->assertFalse($preview['syncenrolments']);
 
         $result = $this->sync_silently($booking);
-        $this->assertSame(['created' => 2, 'skipped' => 1, 'syncqueued' => 0], $result);
+        $this->assertSame(['created' => 2, 'skipped' => 1, 'syncqueued' => 0, 'completed' => 0], $result);
 
         $options = $DB->get_records('booking_options', ['bookingid' => $booking->id]);
         $this->assertCount(3, $options);
@@ -262,7 +262,7 @@ final class autocreate_option_sync_category_test extends advanced_testcase {
         $preview = autocreateoption::get_category_sync_preview((int)$booking->id);
         $this->assertSame(0, $preview['missing']);
         $result = $this->sync_silently($booking);
-        $this->assertSame(['created' => 0, 'skipped' => 3, 'syncqueued' => 0], $result);
+        $this->assertSame(['created' => 0, 'skipped' => 3, 'syncqueued' => 0, 'completed' => 0], $result);
         $this->assertCount(3, $DB->get_records('booking_options', ['bookingid' => $booking->id]));
     }
 
@@ -316,7 +316,7 @@ final class autocreate_option_sync_category_test extends advanced_testcase {
         $this->assertTrue($preview['syncenrolments']);
 
         $result = $this->sync_silently($booking);
-        $this->assertSame(['created' => 2, 'skipped' => 0, 'syncqueued' => 2], $result);
+        $this->assertSame(['created' => 2, 'skipped' => 0, 'syncqueued' => 2, 'completed' => 0], $result);
         $this->run_tasks_silently();
 
         $option1 = $this->get_option($booking, $course1);
@@ -365,7 +365,7 @@ final class autocreate_option_sync_category_test extends advanced_testcase {
         // Switched on directly, so the toggle task of the instance form does not run; the sync does the work.
         $this->set_instance_json($booking, [autocreateoption::JSONKEY_SYNCENROLMENTS => 1]);
         $result = $this->sync_silently($booking);
-        $this->assertSame(['created' => 0, 'skipped' => 1, 'syncqueued' => 1], $result);
+        $this->assertSame(['created' => 0, 'skipped' => 1, 'syncqueued' => 1, 'completed' => 0], $result);
         $this->run_tasks_silently();
 
         $rule = $this->get_rule((int)$option->id);
@@ -390,7 +390,7 @@ final class autocreate_option_sync_category_test extends advanced_testcase {
         $booking = $this->create_linked_instance((int)$category->id);
 
         $result = $this->sync_silently($booking);
-        $this->assertSame(['created' => 1, 'skipped' => 0, 'syncqueued' => 0], $result);
+        $this->assertSame(['created' => 1, 'skipped' => 0, 'syncqueued' => 0, 'completed' => 0], $result);
         $this->run_tasks_silently();
 
         $option = $this->get_option($booking, $course);
@@ -409,7 +409,7 @@ final class autocreate_option_sync_category_test extends advanced_testcase {
 
         $category = $this->getDataGenerator()->create_category();
         $this->getDataGenerator()->create_course(['category' => $category->id]);
-        $nothing = ['created' => 0, 'skipped' => 0, 'syncqueued' => 0];
+        $nothing = ['created' => 0, 'skipped' => 0, 'syncqueued' => 0, 'completed' => 0];
 
         // No category linked.
         $booking = $this->create_linked_instance((int)$category->id);
