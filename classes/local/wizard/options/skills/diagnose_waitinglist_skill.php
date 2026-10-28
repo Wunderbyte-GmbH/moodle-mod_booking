@@ -364,6 +364,9 @@ class diagnose_waitinglist_skill extends booking_skill_base implements skill_tri
         if ($haswaitinglist) {
             $lines[] = "Seats: {$booked} booked of {$maxanswers}, {$waiting} on the waiting list ({$maxoverbooking} places),"
                 . " {$reserved} reserved.";
+            // The capacity as a fact, so the answer does not derive a total of its own from the counts
+            // (Wunderbyte-GmbH#2676: "5 places (3 booked + 2 waiting)" for 3 seats and 5 waiting list places).
+            $lines[] = self::capacity_line($booked, $reserved, $waiting, $maxanswers, $maxoverbooking);
             $lines[] = $overbooked
                 ? 'Overbooked: yes, ' . ($booked + $reserved - $maxanswers) . ' booked above the limit.'
                 : 'Overbooked: no, the booked seats are within the limit.';
@@ -377,6 +380,34 @@ class diagnose_waitinglist_skill extends booking_skill_base implements skill_tri
         }
 
         return implode("\n", $lines);
+    }
+
+    /**
+     * The capacity of the option in one sentence: seats plus waiting list places, how many of them are
+     * taken and how many are free. Booked and waiting are shares of two different pools, so their sum is
+     * never the total number of places.
+     *
+     * @param int $booked
+     * @param int $reserved
+     * @param int $waiting
+     * @param int $maxanswers
+     * @param int $maxoverbooking
+     * @return string
+     */
+    public static function capacity_line(
+        int $booked,
+        int $reserved,
+        int $waiting,
+        int $maxanswers,
+        int $maxoverbooking
+    ): string {
+        $total = $maxanswers + $maxoverbooking;
+        $taken = $booked + $reserved + $waiting;
+        $freeseats = max(0, $maxanswers - $booked - $reserved);
+        $freewaiting = max(0, $maxoverbooking - $waiting);
+        return "Capacity: {$maxanswers} seats plus {$maxoverbooking} waiting list places = {$total} places in total;"
+            . " {$taken} taken ({$booked} booked, {$reserved} reserved, {$waiting} waiting);"
+            . " {$freeseats} seats free, {$freewaiting} waiting list places free.";
     }
 
     /**
