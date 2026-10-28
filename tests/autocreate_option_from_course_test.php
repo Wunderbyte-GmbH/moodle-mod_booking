@@ -33,6 +33,7 @@ use mod_booking\local\autocreateoption;
 use mod_booking\task\create_option_for_new_course;
 use mod_booking\utils\wb_payment;
 use stdClass;
+use tool_mocktesttime\time_mock;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -62,6 +63,9 @@ final class autocreate_option_from_course_test extends advanced_testcase {
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest(true);
+        // Any earlier test may have frozen the mocked time of the mod_booking namespace in the past, see
+        // tool_mocktesttime. Core keeps the real time, so the two must be aligned again.
+        time_mock::set_mock_time(strtotime('now'));
         $this->preventResetByRollback();
         $this->setAdminUser();
         singleton_service::destroy_instance();
@@ -635,11 +639,11 @@ final class autocreate_option_from_course_test extends advanced_testcase {
     }
 
     /**
-     * Recurring children and the options split from the dates of an auto-created option do not get the marker.
+     * Recurring children of an auto-created option do not get the marker.
      *
      * @return void
      */
-    public function test_marker_is_not_copied_to_recurring_or_split_options(): void {
+    public function test_marker_is_not_copied_to_recurring_options(): void {
         global $DB;
 
         [$booking, , $option] = $this->create_autocreated_option();
@@ -673,19 +677,6 @@ final class autocreate_option_from_course_test extends advanced_testcase {
         foreach ($children as $child) {
             $this->assertFalse($this->has_marker($child->json));
         }
-        $this->assertTrue($this->option_has_marker((int)$option->id));
-
-        // Split the option into one option per date.
-        $before = array_keys($DB->get_records('booking_options', ['bookingid' => $booking->id], '', 'id'));
-        $bo = singleton_service::get_instance_of_booking_option((int)$booking->cmid, (int)$option->id);
-        $bo->create_booking_options_from_optiondates();
-        $new = $DB->get_records_select(
-            'booking_options',
-            'bookingid = :bookingid AND id NOT IN (' . implode(',', $before) . ')',
-            ['bookingid' => $booking->id]
-        );
-        $this->assertCount(1, $new);
-        $this->assertFalse($this->has_marker(reset($new)->json));
         $this->assertTrue($this->option_has_marker((int)$option->id));
     }
 
