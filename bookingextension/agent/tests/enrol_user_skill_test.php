@@ -406,4 +406,138 @@ final class enrol_user_skill_test extends advanced_testcase {
         // A token no role carries resolves nothing: the caller reports it as not assignable.
         $this->assertSame([], enrol_user_skill::roles_covering_query('Manager', $assignable, $shortnames));
     }
+    /**
+     * Several people in one wording are enrolled in one confirmation: e-mail, name and id, comma-separated,
+     * as the constructor writes a list it was given (Wunderbyte-GmbH#2682, thread 240: six addresses in one
+     * userquery ended as ENROL_USER_NOT_FOUND and nobody was enrolled).
+     */
+    public function test_several_people_in_one_wording_are_enrolled_together(): void {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+        global $USER;
+
+        $gen = $this->getDataGenerator();
+        $course = $gen->create_course(['fullname' => 'Messe Katalog']);
+        $jonas = $gen->create_user(['firstname' => 'Jonas', 'lastname' => 'Fischer', 'email' => 'messe_jonas@example.com']);
+        $lukas = $gen->create_user(['firstname' => 'Lukas', 'lastname' => 'Maier', 'email' => 'messe_lukas@example.com']);
+        $laura = $gen->create_user(['firstname' => 'Laura', 'lastname' => 'Bauer', 'email' => 'messe_laura@example.com']);
+        $coursecontext = context_course::instance($course->id);
+
+        $skill = new enrol_user_skill();
+        $dto = $skill->preflight(
+            ['userquery' => 'messe_jonas@example.com, Lukas Maier, ' . $laura->id],
+            (int)$coursecontext->id,
+            (int)$USER->id
+        );
+        $this->assertSame('pass', $dto->to_array()['status'], json_encode($dto->issues));
+        $prepared = $dto->preparedinput;
+        $this->assertSame(
+            [(int)$jonas->id, (int)$lukas->id, (int)$laura->id],
+            array_map(static fn(array $p): int => $p['userid'], $prepared['persons'])
+        );
+        $preview = $skill->describe_proposed_action($prepared);
+        $this->assertStringContainsString('Jonas Fischer', $preview['rows'][0]['value']);
+        $this->assertStringContainsString('Laura Bauer', $preview['rows'][0]['value']);
+
+        $result = $skill->execute($prepared, (int)$coursecontext->id, (int)$USER->id);
+
+        $this->assertSame('executed', $result['status'], (string)($result['detail'] ?? ''));
+        foreach ([$jonas, $lukas, $laura] as $user) {
+            $this->assertTrue(is_enrolled($coursecontext, $user->id), fullname($user));
+        }
+        $this->assertSame(
+            [(int)$jonas->id, (int)$lukas->id, (int)$laura->id],
+            $result['produced_outputs']['userids']
+        );
+        $this->assertStringContainsString('3 of 3 people enrolled', (string)$result['observation_full']);
+        $this->assertStringContainsString('Jonas Fischer', (string)$result['detail']);
+        $this->assertStringContainsString('Laura Bauer', (string)$result['detail']);
+    }
+
+    /**
+     * Ids from an earlier observation enrol the people directly; one already enrolled is reported as such.
+     */
+    public function test_userids_from_an_earlier_step_enrol_the_people(): void {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+        global $USER;
+
+        $gen = $this->getDataGenerator();
+        $course = $gen->create_course();
+        $anna = $gen->create_user(['firstname' => 'Anna', 'lastname' => 'Steiner']);
+        $david = $gen->create_user(['firstname' => 'David', 'lastname' => 'Huber']);
+        $gen->enrol_user($anna->id, $course->id);
+        $coursecontext = context_course::instance($course->id);
+
+        $skill = new enrol_user_skill();
+        $dto = $skill->preflight(['userids' => [(int)$anna->id, (int)$david->id]], (int)$coursecontext->id, (int)$USER->id);
+        $this->assertSame('pass', $dto->to_array()['status'], json_encode($dto->issues));
+        $prepared = $dto->preparedinput;
+        $this->assertTrue($prepared['persons'][0]['alreadyenrolled']);
+        $this->assertFalse($prepared['persons'][1]['alreadyenrolled']);
+
+        $result = $skill->execute($prepared, (int)$coursecontext->id, (int)$USER->id);
+
+        $this->assertSame('executed', $result['status']);
+        $this->assertTrue(is_enrolled($coursecontext, $david->id));
+        $this->assertStringContainsString('1 of 2 people enrolled', (string)$result['observation_full']);
+        $this->assertStringContainsString('Already enrolled: userid=' . $anna->id, (string)$result['observation_full']);
+        $this->assertStringContainsString('Anna Steiner', (string)$result['detail']);
+        $this->assertStringContainsString('already enrolled', (string)$result['detail']);
+    }
+
+    /**
+     * One entry of a list that matches nobody ends as a clarification naming that entry and the people that
+     * were resolved; nothing is enrolled and the failure is not a blanket "not found".
+     */
+    public function test_an_unknown_entry_in_a_list_is_named_and_the_rest_kept(): void {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+        global $USER;
+
+        $gen = $this->getDataGenerator();
+        $course = $gen->create_course();
+        $gen->create_user(['firstname' => 'Sophie', 'lastname' => 'Wagner', 'email' => 'messe_sophie@example.com']);
+        $coursecontext = context_course::instance($course->id);
+
+        $dto = (new enrol_user_skill())->preflight(
+            ['userquery' => 'messe_sophie@example.com, nobody_here@example.com'],
+            (int)$coursecontext->id,
+            (int)$USER->id
+        );
+        $result = $dto->to_array();
+
+        $this->assertNotSame('pass', $result['status']);
+        $this->assertContains('ENROL_USER_NOT_FOUND', (array)($result['issue_codes'] ?? []));
+        $message = implode(' ', array_map(static fn($i) => (string)($i['message'] ?? ''), (array)$dto->issues));
+        $this->assertStringContainsString('nobody_here@example.com', $message);
+        $this->assertStringContainsString('Sophie Wagner', $message);
+        $this->assertStringContainsString('1 could not be resolved', $message);
+    }
+
+    /**
+     * Everyone in the list already enrolled is an honest stop, as for one person.
+     */
+    public function test_a_list_of_already_enrolled_people_stops_honestly(): void {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+        global $USER;
+
+        $gen = $this->getDataGenerator();
+        $course = $gen->create_course();
+        $a = $gen->create_user(['firstname' => 'Eva', 'lastname' => 'Berg']);
+        $b = $gen->create_user(['firstname' => 'Tom', 'lastname' => 'Berg']);
+        $gen->enrol_user($a->id, $course->id);
+        $gen->enrol_user($b->id, $course->id);
+
+        $result = (new enrol_user_skill())->preflight(
+            ['userids' => [(int)$a->id, (int)$b->id]],
+            (int)context_course::instance($course->id)->id,
+            (int)$USER->id
+        )->to_array();
+
+        $this->assertNotSame('pass', $result['status']);
+        $this->assertContains('ENROL_ALREADY_ENROLLED', (array)($result['issue_codes'] ?? []));
+    }
+
 }
