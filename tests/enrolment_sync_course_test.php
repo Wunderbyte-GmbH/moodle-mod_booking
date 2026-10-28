@@ -35,6 +35,7 @@ use mod_booking\task\enrolmentsync_instance_adhoc;
 use mod_booking\task\sync_course_enrolments_adhoc;
 use mod_booking\utils\wb_payment;
 use stdClass;
+use tool_mocktesttime\time_mock;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -63,6 +64,9 @@ final class enrolment_sync_course_test extends advanced_testcase {
     public function setUp(): void {
         parent::setUp();
         $this->resetAfterTest(true);
+        // Any earlier test may have frozen the mocked time of the mod_booking namespace in the past, see
+        // tool_mocktesttime. Core keeps the real time, so the two must be aligned again.
+        time_mock::set_mock_time(strtotime('now'));
         $this->preventResetByRollback();
         $this->setAdminUser();
         set_config('enrol_plugins_enabled', 'manual,guest,self,cohort,meta');
@@ -358,14 +362,16 @@ final class enrolment_sync_course_test extends advanced_testcase {
         $this->run_tasks_silently();
         $this->assertSame(MOD_BOOKING_STATUSPARAM_BOOKED, (int)$this->get_answer((int)$option->id, (int)$user->id)->waitinglist);
 
-        // The user cancels and stays enrolled: not booked again.
+        // The user cancels and stays enrolled: not booked again. The enrolment is backdated because its time comes from
+        // the real clock of core, while the cancellation gets the (possibly mocked) time of the mod_booking namespace.
+        global $DB;
+        $DB->set_field('user_enrolments', 'timemodified', time() - 100, ['userid' => $user->id]);
         $bo = singleton_service::get_instance_of_booking_option((int)$booking->cmid, (int)$option->id);
         $bo->user_delete_response((int)$user->id);
         enrolmentsync::sync_course((int)$course->id);
         $this->assertSame(MOD_BOOKING_STATUSPARAM_DELETED, (int)$this->get_answer((int)$option->id, (int)$user->id)->waitinglist);
 
         // Unenrolled and enrolled again later: booked again.
-        global $DB;
         $answer = $this->get_answer((int)$option->id, (int)$user->id);
         $DB->set_field('booking_answers', 'timemodified', time() - 100, ['id' => $answer->id]);
         $instance = $DB->get_record('enrol', ['courseid' => $course->id, 'enrol' => 'manual'], '*', MUST_EXIST);
