@@ -369,6 +369,14 @@ class diagnose_user_booking_skill extends booking_skill_base implements skill_tr
                 'status' => (string)($report['current_status'] ?? 'unknown'),
                 'option' => (string)($report['option_title'] ?? ('#' . $optionid)),
             ], $outputlang);
+            // Which booking rules the option applies: an opt-in restriction with an empty or incomplete list
+            // switches the confirmation mail off, the usual cause of "booked, but no confirmation". The selector
+            // picks this skill for that question as often as diagnose_booking_issue, so the cause is named here
+            // too, next to the received-message history (Wunderbyte-GmbH#2672).
+            $report['notification_rules'] = $this->summarize_notification_rules($optionid, $targetuserid, $outputlang);
+            if (!empty($report['notification_rules']['finding'])) {
+                $detail .= ' ' . $report['notification_rules']['finding'];
+            }
         } else {
             $report = $this->build_userwide_report($cmid, $targetuserid, $includemessages);
             $detail = $this->localized_string('agent_booking_diagnose_user_report_overview', (object)[
@@ -1153,6 +1161,56 @@ class diagnose_user_booking_skill extends booking_skill_base implements skill_tr
      * Build the verbose observation payload for synchronizer reasoning.
      *
      * @param string              $detailmessage
+     * @param array $report
+     * @return string
+     */
+    /**
+     * The booking rules the option applies, and the finding when the confirmation rule is switched off for it.
+     *
+     * @param int $optionid
+     * @param int $targetuserid
+     * @param string $lang
+     * @return array{mode:string,applied_confirmation_rules:int,skipped_confirmation_rules:string,finding:string}
+     */
+    private function summarize_notification_rules(int $optionid, int $targetuserid, string $lang): array {
+        $confirmationtime = 0;
+        try {
+            $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+            $answers = singleton_service::get_instance_of_booking_answers($settings);
+            $status = (string)$answers->user_status_as_string($targetuserid);
+            $answer = $answers->get_users()[$targetuserid] ?? null;
+            if (in_array($status, ['booked', 'waitinglist'], true) && !empty($answer->timemodified)) {
+                $confirmationtime = (int)$answer->timemodified;
+            }
+        } catch (\Throwable $e) {
+            $confirmationtime = 0;
+        }
+        $rules = option_rules_diagnostics::describe($optionid, $confirmationtime);
+        $mode = (int)($rules['mode'] ?? 0);
+        $skipped = (array)($rules['skippedconfirmationrules'] ?? []);
+        $finding = '';
+        if (!empty($skipped)) {
+            $finding = $this->localized_string(
+                'agent_booking_diagnose_reason_rules_mail_skipped_other',
+                option_rules_diagnostics::rule_names($skipped, $lang),
+                $lang
+            ) . ' ' . $this->localized_string('agent_booking_diagnose_reason_rules_mail_skipped_concrete', (object)[
+                'setting' => $this->localized_string('skipbookingrulesmode', null, $lang),
+                'mode' => $this->localized_string($mode === 1 ? 'skipbookingrulesoptin' : 'skipbookingrulesoptout', null, $lang),
+            ], $lang);
+        }
+        return [
+            'mode' => $mode === 1 ? 'only_selected_rules' : ($mode === 2 ? 'all_except_selected' : 'all_rules'),
+            'applied_confirmation_rules' => (int)($rules['appliedconfirmationrulecount'] ?? 0),
+            'skipped_confirmation_rules' => empty($skipped) ? '' : option_rules_diagnostics::rule_names($skipped, $lang),
+            'finding' => $finding,
+        ];
+    }
+
+    /**
+     * The verbatim observation the synchronizer receives: the detail line plus the report as JSON.
+     *
+     * @param string $detailmessage
      * @param array $report
      * @return string
      */
