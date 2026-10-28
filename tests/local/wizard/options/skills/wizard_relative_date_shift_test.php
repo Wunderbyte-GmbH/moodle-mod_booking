@@ -75,6 +75,25 @@ final class wizard_relative_date_shift_test extends \advanced_testcase {
     }
 
     /**
+     * A shift across the DST change keeps the wall-clock time: 09:00 stays 09:00 in the user's timezone
+     * (Wunderbyte-GmbH#2622: a fixed 86400-second day moved it by one hour).
+     */
+    public function test_shift_across_dst_change_keeps_the_local_time(): void {
+        $this->resetAfterTest();
+        $this->setTimezone('Europe/Vienna');
+        $start = (new \DateTime('2026-10-20 09:00', new \DateTimeZone('Europe/Vienna')))->getTimestamp();
+        $end = $start + 2 * HOURSECS;
+
+        $sessions = [(object)['coursestarttime' => $start, 'courseendtime' => $end]];
+        $shifted = update_option_skill::shifted_sessions($sessions, 7);
+
+        $expectedstart = (new \DateTime('2026-10-27 09:00', new \DateTimeZone('Europe/Vienna')))->getTimestamp();
+        $this->assertSame($expectedstart, (int)$shifted[0]['coursestarttime']);
+        $this->assertSame($expectedstart + 2 * HOURSECS, (int)$shifted[0]['courseendtime']);
+        $this->assertSame(7 * DAYSECS + HOURSECS, $expectedstart - $start, 'the week across the change is one hour longer');
+    }
+
+    /**
      * A negative shift moves the sessions earlier.
      */
     public function test_negative_shift_moves_earlier(): void {
