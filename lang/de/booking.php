@@ -749,6 +749,7 @@ $string['bocondenrolledincoursenotcompleted'] = 'Buchen nicht erlaubt, weil Sie 
 $string['bocondenrolledincoursenotcompletedand'] = 'Buchen nicht erlaubt, weil Sie nicht alle der folgenden Kurse abgeschlossen haben: {$a}';
 $string['bocondenrolledincourserequirecompletion'] = 'Abschluss der ausgewählten Kurse erforderlich';
 $string['bocondenrolledincourserequirecompletion_help'] = 'Der Kurs zählt erst, wenn die Person ihn abgeschlossen hat (Kursabschluss). Ein früher erreichter Abschluss zählt auch dann, wenn die Person nicht mehr eingeschrieben ist. Der SQL-Filter lässt sich mit dieser Einstellung nicht kombinieren.';
+$string['bocondextensionrestriction'] = 'extensionrestriction: Eine Booking-Erweiterung erlaubt das Buchen nicht';
 $string['bocondfullybooked'] = 'Ausgebucht';
 $string['bocondfullybookedavailable'] = 'Buchen';
 $string['bocondfullybookedfullavailable'] = 'Buchen möglich';
