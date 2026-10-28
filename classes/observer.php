@@ -46,6 +46,7 @@ use mod_booking\local\user_course_state;
 use mod_booking\local\checkanswers\checkanswers;
 use mod_booking\local\mobile\customformstore;
 use mod_booking\local\search\reindex;
+use mod_booking\local\sync\completionsync;
 use mod_booking\local\sync\enrolmentsync;
 use mod_booking\option\fields\certificate;
 use mod_booking\output\view;
@@ -512,6 +513,16 @@ class mod_booking_observer {
 
         self::user_course_state_changed($event);
 
+        // Booking instances that link the course's category with the completion sync on: the booking in the option
+        // of the course is completed with the completion date of the course. Runs before the site-wide setting
+        // below, which would complete the same answer with the current date.
+        $timecompleted = (int)$DB->get_field('course_completions', 'timecompleted', ['id' => $event->objectid]);
+        $syncedanswerids = completionsync::handle_course_completed(
+            (int) $event->courseid,
+            (int) $event->relateduserid,
+            $timecompleted
+        );
+
         // Check if there is an associated booking_answer with status 'booked' for the userid and courseid.
         $sql = 'SELECT ba.id, ba.userid, bo.courseid, ba.optionid, ba.completed
                 FROM {booking_answers} ba
@@ -549,6 +560,9 @@ class mod_booking_observer {
         if (!empty($bookedanswers) && get_config('booking', 'automaticbookingoptioncompletion')) {
             require_once($CFG->dirroot . '/mod/booking/lib.php');
             foreach ($bookedanswers as $bookedanswer) {
+                if (in_array((int) $bookedanswer->id, $syncedanswerids, true)) {
+                    continue;
+                }
                 $settings = singleton_service::get_instance_of_booking_option_settings($bookedanswer->optionid);
                 $bookingoption = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
                 if (empty($bookedanswer->completed)) {
