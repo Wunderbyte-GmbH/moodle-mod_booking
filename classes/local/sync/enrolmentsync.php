@@ -260,9 +260,9 @@ class enrolmentsync {
      * Setting off: the rules are disabled, the bookings they made are kept.
      *
      * @param int $bookingid
-     * @return void
+     * @return int the number of options that got their rule and a queued course sync, 0 when the setting is off
      */
-    public static function apply_instance_setting(int $bookingid): void {
+    public static function apply_instance_setting(int $bookingid): int {
         global $DB, $USER;
 
         $settings = singleton_service::get_instance_of_booking_settings_by_bookingid($bookingid);
@@ -287,10 +287,11 @@ class enrolmentsync {
             if (!empty($rules)) {
                 cache_helper::purge_by_event('setbacksyncrules');
             }
-            return;
+            return 0;
         }
 
         // Only the instance's options are read (indexed), the JSON marker is checked in PHP.
+        $count = 0;
         $options = $DB->get_records('booking_options', ['bookingid' => $bookingid], '', 'id, json');
         foreach ($options as $option) {
             $json = empty($option->json) ? null : json_decode($option->json);
@@ -300,7 +301,9 @@ class enrolmentsync {
             }
             self::ensure_rule((int)$option->id, $courseid);
             self::queue_course_sync($courseid);
+            $count++;
         }
+        return $count;
     }
 
     /**
