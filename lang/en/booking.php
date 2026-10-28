@@ -2450,7 +2450,7 @@ $string['globalstatuschangetext'] = 'Status change message (global template) <sp
 $string['globaluserleave'] = 'User has cancelled his/her own booking (global template) <span class="badge bg-warning"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Deprecated</span>';
 $string['globalwaitingtext'] = 'Waiting list confirmation (global template) <span class="badge bg-warning"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Deprecated</span>';
 $string['gotobooking'] = '&lt;&lt; Bookings';
-$string['gotobookingoption'] = "Go to bookingoption";
+$string['gotobookingoption'] = "Go to booking option";
 $string['gotobookingoptionlink'] = '{$a}';
 $string['gotomanageresponses'] = '&lt;&lt; Manage bookings';
 $string['gotomoodlecourse'] = 'Go to Moodle course';
