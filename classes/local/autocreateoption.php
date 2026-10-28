@@ -260,6 +260,133 @@ class autocreateoption {
     }
 
     /**
+     * The numbers shown before a linked category is synced by hand, see {@see self::sync_category()}.
+     *
+     * @param int $bookingid
+     * @return array{categoryid:int, courses:int, missing:int, syncenrolments:bool}
+     */
+    public static function get_category_sync_preview(int $bookingid): array {
+        $preview = ['categoryid' => 0, 'courses' => 0, 'missing' => 0, 'syncenrolments' => false];
+
+        $settings = singleton_service::get_instance_of_booking_settings_by_bookingid($bookingid);
+        $json = $settings->jsonobject ?? new stdClass();
+        $categoryid = (int)($json->{self::JSONKEY_CATEGORY} ?? 0);
+        if ($categoryid <= 0) {
+            return $preview;
+        }
+
+        $preview['categoryid'] = $categoryid;
+        $preview['syncenrolments'] = !empty($json->{self::JSONKEY_SYNCENROLMENTS});
+        $courseids = self::get_category_course_ids($categoryid);
+        $preview['courses'] = count($courseids);
+        $covered = self::get_covered_course_ids($bookingid);
+        $preview['missing'] = count(array_diff($courseids, array_keys($covered)));
+        return $preview;
+    }
+
+    /**
+     * Syncs the courses that already exist in the linked category with the booking instance. Called from the adhoc
+     * task that the "Sync the linked course category now" button queues.
+     *
+     * Every course without an option gets one, exactly as if it had just been created (the observers only cover
+     * courses created after the category was linked). When the enrolment sync is on, every auto-created option of
+     * the instance gets its course sync rule and the users enrolled in its course are booked by the course sync
+     * tasks. The settings are read at execution time, and a course that can not be handled does not stop the rest.
+     *
+     * @param int $bookingid
+     * @return array{created:int, skipped:int, syncqueued:int}
+     */
+    public static function sync_category(int $bookingid): array {
+        $result = ['created' => 0, 'skipped' => 0, 'syncqueued' => 0];
+
+        $settings = singleton_service::get_instance_of_booking_settings_by_bookingid($bookingid);
+        if (empty($settings) || empty($settings->cmid)) {
+            mtrace("autocreateoption: booking instance $bookingid no longer exists, nothing to sync.");
+            return $result;
+        }
+        $json = $settings->jsonobject ?? new stdClass();
+        $categoryid = (int)($json->{self::JSONKEY_CATEGORY} ?? 0);
+        if ($categoryid <= 0) {
+            mtrace("autocreateoption: booking instance $bookingid links no course category, nothing to sync.");
+            return $result;
+        }
+        if (!wb_payment::pro_version_is_activated()) {
+            mtrace("autocreateoption: the PRO version is not activated, nothing to sync.");
+            return $result;
+        }
+        // Loop prevention, see create_option_for_course(): the own category is never acted on.
+        if ((int)get_course($settings->course)->category === $categoryid) {
+            mtrace("autocreateoption: booking instance $bookingid lives in the linked category itself, nothing to sync.");
+            return $result;
+        }
+
+        foreach (self::get_category_course_ids($categoryid) as $courseid) {
+            try {
+                $optionid = self::create_option_for_course($bookingid, $courseid);
+            } catch (moodle_exception $e) {
+                mtrace("autocreateoption: could not create the option for course $courseid: " . $e->getMessage());
+                $optionid = 0;
+            }
+            if ($optionid > 0) {
+                $result['created']++;
+            } else {
+                $result['skipped']++;
+            }
+        }
+
+        // Options created above got their rule already; this covers the options auto-created before the enrolment
+        // sync was switched on, and re-queues the course syncs, which are deduplicated.
+        if (!empty($json->{self::JSONKEY_SYNCENROLMENTS})) {
+            $result['syncqueued'] = enrolmentsync::apply_instance_setting($bookingid);
+        }
+
+        mtrace(
+            "autocreateoption: synced category $categoryid with booking instance $bookingid, created "
+            . "{$result['created']} options, skipped {$result['skipped']} courses, queued {$result['syncqueued']} "
+            . "course enrolment syncs."
+        );
+        return $result;
+    }
+
+    /**
+     * The ids of the courses directly in a category, in category order. Subcategories are not taken into account,
+     * like with the observers.
+     *
+     * @param int $categoryid
+     * @return int[]
+     */
+    private static function get_category_course_ids(int $categoryid): array {
+        global $DB;
+
+        $courseids = array_keys($DB->get_records('course', ['category' => $categoryid], 'sortorder', 'id'));
+        return array_map('intval', $courseids);
+    }
+
+    /**
+     * The ids of the courses an option of the instance exists for: connected as its course or auto-created for it.
+     *
+     * @param int $bookingid
+     * @return array courseid => true
+     */
+    private static function get_covered_course_ids(int $bookingid): array {
+        global $DB;
+
+        $covered = [];
+        $options = $DB->get_records('booking_options', ['bookingid' => $bookingid], '', 'id, courseid, json');
+        foreach ($options as $option) {
+            if ((int)$option->courseid > 0) {
+                $covered[(int)$option->courseid] = true;
+            }
+            $json = empty($option->json) ? null : json_decode($option->json);
+            $sourcecourseid = (int)($json->{self::OPTIONJSONKEY_SOURCECOURSE} ?? 0);
+            if ($sourcecourseid > 0) {
+                $covered[$sourcecourseid] = true;
+            }
+        }
+        return $covered;
+    }
+
+    /**
      * Removes the auto-creation marker from option data that is copied into a new option.
      *
      * The marker travels with the JSON of the option. Only the option the task created for the course may carry it,
