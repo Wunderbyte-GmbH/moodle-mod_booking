@@ -84,8 +84,10 @@ class create_report_skill extends report_skill_base implements skill_trigger_pro
                 . 'optionally columns (heading, aggregation, sorting), conditions with values, filters, unique rows and '
                 . 'tags. Without columns the source defaults are used.',
             'is' => 'A new report.',
-            'not' => 'Changing an existing report (update_report); listing sources (list_report_sources) or their '
-                . 'columns (describe_report_source).',
+            // Ticket 2617: "utilization of the Leadership courses" ended as a report proposal; a question about current
+            // figures is a look-up (mod_booking.search_options names the fence back).
+            'not' => 'Changing a report (update_report); listing sources (list_report_sources), columns '
+                . '(describe_report_source); a question about current figures (search_options).',
             'readonly' => false,
             'fallback_skillcall_string_key' => 'ai_status_skillcall_report_create_report',
             'example_utterances' => [
