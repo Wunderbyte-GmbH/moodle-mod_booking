@@ -79,8 +79,11 @@ class search_options_skill extends booking_skill_base implements skill_trigger_p
                 . 'instance. Use this when the user asks what they can book, register for, or attend — e.g. "show all options", '
                 . '"what can I book?", "list available bookings", "show a list of all options", "list all bookings", "show all '
                 . 'bookings".',
-            'when' => 'The user asks what they can book, register for or attend, or wants booking options listed or found.',
-            'is' => 'Bookable offerings inside a booking activity.',
+            // Ticket 2617: "utilization / fill level of the Leadership courses" went to report.create_report because no card
+            // spoke of seats; the seat figures travel in the observation as DB facts.
+            'when' => 'The user asks what they can book, register for or attend, wants options listed or found, or asks '
+                . 'how full options are (seats taken and free).',
+            'is' => 'Bookable offerings inside a booking activity, with their seats taken and free.',
             'not' => 'Moodle courses (course.search_courses); full details of one named option (get_option_details).',
             'readonly' => $this->is_read_only(),
             'fallback_confirm_string_key' => 'ai_status_confirm_booking_search_options',
@@ -352,6 +355,9 @@ class search_options_skill extends booking_skill_base implements skill_trigger_p
             if ($invisible !== 0) {
                 $option['visibility'] = $invisible === MOD_BOOKING_OPTION_VISIBLEWITHLINK ? 'link_only' : 'hidden';
             }
+            // Seats as facts, so a question about fill level or utilization is answered from the list
+            // (Wunderbyte-GmbH#2617); 'maxanswers' 0 means no seat limit.
+            $option += self::seat_figures($optionid);
             $structuredoptions[] = $option;
         }
 
@@ -389,6 +395,31 @@ class search_options_skill extends booking_skill_base implements skill_trigger_p
     }
 
     /**
+     * Booked, waiting and free seats of an option, from the booking answers.
+     *
+     * @param int $optionid
+     * @return array{booked:int,waiting:int,maxanswers:int,free:int|null}
+     */
+    private static function seat_figures(int $optionid): array {
+        try {
+            $settings = \mod_booking\singleton_service::get_instance_of_booking_option_settings($optionid);
+            // The figures come keyed by the asking user's status ("notbooked" for nobody); one entry either way.
+            $all = \mod_booking\singleton_service::get_instance_of_booking_answers($settings)
+                ->return_all_booking_information(0);
+            $info = is_array($all) && !empty($all) ? (array)reset($all) : [];
+        } catch (\Throwable $e) {
+            return [];
+        }
+        $maxanswers = (int)($info['maxanswers'] ?? 0);
+        return [
+            'booked' => (int)($info['booked'] ?? 0),
+            'waiting' => (int)($info['waiting'] ?? 0),
+            'maxanswers' => $maxanswers,
+            'free' => $maxanswers > 0 ? max(0, (int)($info['freeonlist'] ?? ($maxanswers - (int)($info['booked'] ?? 0)))) : null,
+        ];
+    }
+
+    /**
      * Build verbose observation payload for follow-up reasoning steps.
      *
      * @param string $usermessage
@@ -403,7 +434,7 @@ class search_options_skill extends booking_skill_base implements skill_trigger_p
                 'name' => (string)($option['name'] ?? ''),
                 'link' => (string)($option['link'] ?? ''),
             ];
-            foreach (['start', 'nofixeddate', 'visibility'] as $key) {
+            foreach (['start', 'nofixeddate', 'visibility', 'booked', 'waiting', 'maxanswers', 'free'] as $key) {
                 if (isset($option[$key])) {
                     $normalized[$key] = $option[$key];
                 }
