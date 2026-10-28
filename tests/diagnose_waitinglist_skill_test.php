@@ -229,8 +229,8 @@ final class diagnose_waitinglist_skill_test extends advanced_testcase {
         $this->assertStringStartsWith('Diagnosis for option "Waitlist option" (waiting list).', $observation);
         $this->assertStringContainsString('Seats: 10 booked of 10, 10 on the waiting list (10 places), 0 reserved.', $observation);
         $this->assertStringContainsString(
-            'Capacity: 10 seats plus 10 waiting list places = 20 places in total; 20 taken (10 booked, 0 reserved, 10 waiting);'
-            . ' 0 seats free, 0 waiting list places free.',
+            'Capacity: seats 10 of 10 taken (0 reserved), 0 free; waiting list 10 of 10 places taken, 0 free;'
+            . ' both pools together 20 places, 20 taken.',
             $observation
         );
         $this->assertStringContainsString('Overbooked: no', $observation);
@@ -272,8 +272,8 @@ final class diagnose_waitinglist_skill_test extends advanced_testcase {
         $observation = (string)($result['observation_full'] ?? '');
         $this->assertStringContainsString('Seats: 3 booked of 3, 2 on the waiting list (5 places), 0 reserved.', $observation);
         $this->assertStringContainsString(
-            'Capacity: 3 seats plus 5 waiting list places = 8 places in total; 5 taken (3 booked, 0 reserved, 2 waiting);'
-            . ' 0 seats free, 3 waiting list places free.',
+            'Capacity: seats 3 of 3 taken (0 reserved), 0 free; waiting list 2 of 5 places taken, 3 free;'
+            . ' both pools together 8 places, 5 taken.',
             $observation
         );
         // The capacity line follows the seat line directly, before the gate and the findings.
