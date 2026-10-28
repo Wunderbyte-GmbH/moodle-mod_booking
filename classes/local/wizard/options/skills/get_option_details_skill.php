@@ -633,6 +633,18 @@ class get_option_details_skill extends booking_skill_base implements skill_trigg
             $snapshot['waitinglist_free'] = (int)$info['freeonwaitinglist'];
         }
 
+        // One sentence with each pool's own taken/free pair, shared with the waiting-list diagnosis (Ticket 2676):
+        // the raw figures alone were read as "3 of max 5 places taken" when waitinglist_free was 3 (S13-1, 28.10.).
+        if ($maxanswers > 0 && isset($info['maxoverbooking'])) {
+            $snapshot['capacity'] = diagnose_waitinglist_skill::capacity_line(
+                $booked,
+                (int)($info['reserved'] ?? 0),
+                (int)($info['waiting'] ?? 0),
+                $maxanswers,
+                (int)$info['maxoverbooking']
+            );
+        }
+
         return $snapshot;
     }
 
