@@ -6036,7 +6036,16 @@ function xmldb_booking_upgrade($oldversion) {
             $dbman->add_field($table, $field);
         }
 
-        $field = new xmldb_field('valid_duration_unit', XMLDB_TYPE_CHAR, '10', null, XMLDB_NOTNULL, null, 'months', 'valid_duration_value');
+        $field = new xmldb_field(
+            'valid_duration_unit',
+            XMLDB_TYPE_CHAR,
+            '10',
+            null,
+            XMLDB_NOTNULL,
+            null,
+            'months',
+            'valid_duration_value'
+        );
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
