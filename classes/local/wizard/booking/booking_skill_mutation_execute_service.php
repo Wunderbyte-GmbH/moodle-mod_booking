@@ -854,10 +854,11 @@ class booking_skill_mutation_execute_service {
 
             // Entity mentions travel with real moodle_url links — "id (link)" per
             // option, so the synchronizer presents them clickable without inventing URLs.
-            $linklist = static function (array $optionidlist) use ($cmid): string {
+            // The success list carries the titles as the failure lines do, so the answer can name the options
+            // instead of their ids (Wunderbyte-GmbH#2621).
+            $linklist = function (array $optionidlist) use ($cmid): string {
                 return implode(', ', array_map(
-                    static fn(int $id): string => $id . ' ('
-                        . booking_skill_support::build_option_link_for_output($cmid, $id) . ')',
+                    fn(int $id): string => $this->build_bulk_option_label($cmid, $id),
                     array_map('intval', $optionidlist)
                 ));
             };
