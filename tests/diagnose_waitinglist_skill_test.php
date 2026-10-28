@@ -228,6 +228,11 @@ final class diagnose_waitinglist_skill_test extends advanced_testcase {
         $observation = (string)($result['observation_full'] ?? '');
         $this->assertStringStartsWith('Diagnosis for option "Waitlist option" (waiting list).', $observation);
         $this->assertStringContainsString('Seats: 10 booked of 10, 10 on the waiting list (10 places), 0 reserved.', $observation);
+        $this->assertStringContainsString(
+            'Capacity: 10 seats plus 10 waiting list places = 20 places in total; 20 taken (10 booked, 0 reserved, 10 waiting);'
+            . ' 0 seats free, 0 waiting list places free.',
+            $observation
+        );
         $this->assertStringContainsString('Overbooked: no', $observation);
         $this->assertStringContainsString('Blocking gate: none.', $observation);
         $this->assertStringContainsString(
@@ -244,6 +249,36 @@ final class diagnose_waitinglist_skill_test extends advanced_testcase {
         $this->assertFalse($result['diagnosis']['overbooked']);
         $this->assertNull($result['diagnosis']['blockinggate']);
         $this->assertSame([$optionid], $result['previewoptionids']);
+    }
+
+    /**
+     * The observation states the capacity as a fact: seats plus waiting list places, taken and free, so
+     * the answer does not add booked and waiting into a "total" of its own (Wunderbyte-GmbH#2676: option
+     * with 3 seats and 5 waiting list places, 3 booked and 2 waiting, answered "5 places in total").
+     */
+    public function test_observation_states_the_capacity(): void {
+        global $USER;
+        [$contextid, $cmid, $optionid] = $this->seed(['maxanswers' => 3, 'maxoverbooking' => 5]);
+        /** @var \mod_booking_generator $gen */
+        $gen = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        for ($i = 0; $i < 5; $i++) {
+            $user = $this->getDataGenerator()->create_user();
+            $gen->create_answer(['optionid' => $optionid, 'userid' => (int)$user->id]);
+        }
+        singleton_service::destroy_booking_answers($optionid);
+
+        $result = (new diagnose_waitinglist_skill())->execute(['optionid' => $optionid], $contextid, (int)$USER->id);
+
+        $observation = (string)($result['observation_full'] ?? '');
+        $this->assertStringContainsString('Seats: 3 booked of 3, 2 on the waiting list (5 places), 0 reserved.', $observation);
+        $this->assertStringContainsString(
+            'Capacity: 3 seats plus 5 waiting list places = 8 places in total; 5 taken (3 booked, 0 reserved, 2 waiting);'
+            . ' 0 seats free, 3 waiting list places free.',
+            $observation
+        );
+        // The capacity line follows the seat line directly, before the gate and the findings.
+        $this->assertLessThan(strpos($observation, 'Capacity:'), strpos($observation, 'Seats:'));
+        $this->assertLessThan(strpos($observation, 'Blocking gate:'), strpos($observation, 'Capacity:'));
     }
 
     /**
