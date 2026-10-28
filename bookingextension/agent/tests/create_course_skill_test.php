@@ -163,6 +163,29 @@ final class create_course_skill_test extends advanced_testcase {
     }
 
     /**
+     * A category with an ampersand resolves by its name as the user writes it; core hands the names over
+     * HTML-escaped (Wunderbyte-GmbH#2621: "Messe-Demo: Taskflow & Booking" resolved only by id).
+     */
+    public function test_a_category_with_an_ampersand_resolves_by_name(): void {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+        global $USER;
+
+        $gen = $this->getDataGenerator();
+        $target = $gen->create_category(['name' => 'Messe-Demo: Taskflow & Booking']);
+        $gen->create_category(['name' => 'Other category']);
+
+        $dto = (new create_course_skill())->preflight([
+            'fullname' => 'Messe course',
+            'categoryquery' => 'Taskflow & Booking',
+        ], (int)context_system::instance()->id, (int)$USER->id);
+
+        $this->assertSame('pass', $dto->to_array()['status'], json_encode($dto->issues));
+        $this->assertSame((int)$target->id, (int)$dto->preparedinput['categoryid']);
+        $this->assertStringNotContainsString('&amp;', json_encode($dto->preparedinput));
+    }
+
+    /**
      * A duplicate full name soft-blocks once and passes with the override token — the
      * create_option duplicate-title convention.
      */
