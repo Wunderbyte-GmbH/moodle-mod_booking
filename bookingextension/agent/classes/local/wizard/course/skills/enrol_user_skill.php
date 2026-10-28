@@ -30,7 +30,9 @@ use moodle_url;
  * Manual enrolment only, mirroring core's enrol-users dialog: gated by enrol/manual:enrol at
  * the course context, role restricted to what the acting user may assign there (default: the
  * manual instance's configured role, falling back to the student archetype). Resolves the
- * target person from the user's wording (name/email/id) and clarifies on ambiguity; the
+ * target person from the user's wording (name/email/id) and clarifies on ambiguity; several
+ * people at once come as a comma-separated userquery or as userids from an earlier step and are
+ * enrolled in one confirmation (Wunderbyte-GmbH#2682); the
  * course target travels through the generic course_targeted_skill selector. Does NOT create
  * user accounts and does NOT touch booking options (that is mod_booking.book_users).
  *
@@ -101,6 +103,14 @@ class enrol_user_skill extends core_skill_base implements skill_trigger_provider
      */
     public function describe_proposed_action(array $input): ?array {
         $user = trim((string)($input['userfullname'] ?? ($input['userquery'] ?? '')));
+        $persons = (array)($input['persons'] ?? []);
+        if (count($persons) > 1) {
+            $names = [];
+            foreach ($persons as $person) {
+                $names[] = (string)($person['fullname'] ?? '');
+            }
+            $user = implode('; ', $names);
+        }
         $course = trim((string)($input['coursefullname'] ?? ($input['coursequery'] ?? '')));
         $role = trim((string)($input['rolename'] ?? ($input['role'] ?? '')));
 
@@ -157,8 +167,15 @@ class enrol_user_skill extends core_skill_base implements skill_trigger_provider
                     // Wave 32 (EU-3, runs L36-L41): since F81 (e08b63b) "me" is no self-reference any more — an EMPTY
                     // person field is the requester. The old text told the constructor to write "me", and the skill
                     // then searched the site for people matching "me" (ENROL_USER_AMBIGUOUS in six runs).
-                    'description' => 'Who to enrol: a name, an email address or a numeric user id, as the user wrote it. '
-                        . 'Leave it empty when the user means themselves. The system resolves it.',
+                    'description' => 'Who to enrol: name, email or numeric id as the user wrote it; several people '
+                        . 'comma-separated. Empty when the user means themselves.',
+                    'required' => false,
+                ],
+                'userids' => [
+                    'type' => 'array',
+                    'items' => ['type' => 'integer'],
+                    'description' => 'Ids of several people known from an earlier step (e.g. a listing), all of them. '
+                        . 'Never guess an id.',
                     'required' => false,
                 ],
                 'userid' => [
@@ -187,7 +204,7 @@ class enrol_user_skill extends core_skill_base implements skill_trigger_provider
                 ],
             ],
             'prompt_meta' => [
-                'input_fields_for_prompt' => ['userquery', 'role'],
+                'input_fields_for_prompt' => ['userquery', 'userids', 'role'],
                 'anchor_fields' => ['coursequery'],
                 // Mandatory for R2: the write is scoped to one course.
                 'context_scopes' => ['course'],
@@ -240,6 +257,8 @@ class enrol_user_skill extends core_skill_base implements skill_trigger_provider
                     '- Pass the person exactly as the user wrote them (name, email or id) in input.userquery; '
                         . 'leave it empty when the user means themselves. The system resolves and asks when several '
                         . 'people match.',
+                    '- Several people at once: pass all of them, comma-separated in input.userquery or (for long lists '
+                        . 'and ids from an earlier observation) as input.userids; one confirmation enrols them all.',
                     '- Only set input.role when the user named one; otherwise leave it empty for the default role.',
                     '- For booking people into booking OPTIONS use mod_booking.book_users instead, not this skill.',
                 ],
@@ -260,6 +279,9 @@ class enrol_user_skill extends core_skill_base implements skill_trigger_provider
         $userquery = trim((string)($input['userquery'] ?? ''));
         if (strlen($userquery) > 255) {
             $errors[] = 'userquery is too long.';
+        }
+        if (isset($input['userids']) && !is_array($input['userids'])) {
+            $errors[] = 'userids must be a list of user ids.';
         }
         if (strlen(trim((string)($input['role'] ?? ''))) > 100) {
             $errors[] = 'role is too long.';
@@ -302,12 +324,13 @@ class enrol_user_skill extends core_skill_base implements skill_trigger_provider
 
         $course = get_course($coursecontext->instanceid);
 
-        // 3) Resolve the target person.
-        $userresolution = $this->resolve_target_user($input, $userid);
-        if (isset($userresolution['clarify'])) {
-            return $userresolution['clarify'];
+        // 3) Resolve the target person, or several of them (Wunderbyte-GmbH#2682).
+        $persons = $this->resolve_target_persons($input, $userid);
+        if (isset($persons['clarify'])) {
+            return $persons['clarify'];
         }
-        $targetuser = $userresolution['user'];
+        $targetusers = $persons['users'];
+        $targetuser = reset($targetusers);
 
         // 4) An enabled manual enrolment instance must exist.
         $instance = $this->find_manual_instance((int)$course->id);
@@ -319,10 +342,20 @@ class enrol_user_skill extends core_skill_base implements skill_trigger_provider
             );
         }
 
-        // 5) Already enrolled: honest stop before a pointless confirmation round-trip.
-        if (is_enrolled($coursecontext, $targetuser->id)) {
+        // 5) Already enrolled: honest stop before a pointless confirmation round-trip. In a list, the
+        // people already in the course stay listed as such and the others are enrolled.
+        $personrows = [];
+        $toenrol = 0;
+        foreach ($targetusers as $user) {
+            $already = is_enrolled($coursecontext, $user->id);
+            $toenrol += $already ? 0 : 1;
+            $personrows[] = ['userid' => (int)$user->id, 'fullname' => fullname($user), 'alreadyenrolled' => $already];
+        }
+        if ($toenrol === 0) {
+            $names = implode(', ', array_map(static fn(array $row): string => $row['fullname'], $personrows));
             return $this->clarify(
-                fullname($targetuser) . ' is already enrolled in "' . $course->fullname . '" — nothing to do.',
+                $names . (count($personrows) === 1 ? ' is' : ' are') . ' already enrolled in "' . $course->fullname
+                    . '" — nothing to do.',
                 'ENROL_ALREADY_ENROLLED'
             );
         }
@@ -336,6 +369,7 @@ class enrol_user_skill extends core_skill_base implements skill_trigger_provider
         return $this->pass([
             'userid' => (int)$targetuser->id,
             'userfullname' => fullname($targetuser),
+            'persons' => $personrows,
             'courseid' => (int)$course->id,
             'coursefullname' => (string)$course->fullname,
             'enrolinstanceid' => (int)$instance->id,
@@ -368,9 +402,17 @@ class enrol_user_skill extends core_skill_base implements skill_trigger_provider
             return $this->build_error_result('Target course could not be loaded.');
         }
         $coursecontext = \context_course::instance($courseid);
+        $persons = (array)($preparedinput['persons'] ?? []);
+        if (empty($persons)) {
+            $persons = [['userid' => $targetuserid, 'fullname' => (string)($preparedinput['userfullname'] ?? '')]];
+        }
 
         // Idempotency guard for the confirm-time window: a no-op is a truthful success.
-        if (is_enrolled($coursecontext, $targetuserid)) {
+        $pending = array_values(array_filter(
+            $persons,
+            static fn(array $person): bool => !is_enrolled($coursecontext, (int)$person['userid'])
+        ));
+        if (empty($pending)) {
             return $this->build_success_result($preparedinput, $course, true);
         }
 
@@ -389,13 +431,100 @@ class enrol_user_skill extends core_skill_base implements skill_trigger_provider
             );
         }
 
-        try {
-            $enrol->enrol_user($instance, $targetuserid, $roleid > 0 ? $roleid : null);
-        } catch (\Throwable $e) {
-            return $this->build_error_result('Enrolment failed: ' . $e->getMessage());
+        $failed = [];
+        foreach ($pending as $person) {
+            try {
+                $enrol->enrol_user($instance, (int)$person['userid'], $roleid > 0 ? $roleid : null);
+            } catch (\Throwable $e) {
+                $failed[] = (string)$person['fullname'] . ' (' . $e->getMessage() . ')';
+            }
+        }
+        if (!empty($failed) && count($failed) === count($pending)) {
+            return $this->build_error_result('Enrolment failed: ' . implode('; ', $failed));
         }
 
-        return $this->build_success_result($preparedinput, $course, false);
+        return $this->build_success_result($preparedinput, $course, false, $failed);
+    }
+
+    /**
+     * The people to enrol: userids from an earlier step, the explicit userid, and the user's wording, which may
+     * name several people separated by commas or semicolons (the constructor writes the list it was given; no
+     * word of the user's text is interpreted here). One person keeps the single-person clarifications; in a
+     * list, every entry that cannot be resolved is named, with candidates, and the resolvable ones are listed
+     * so the user knows what a corrected request will do (Wunderbyte-GmbH#2682).
+     *
+     * @param array $input
+     * @param int   $actinguserid
+     * @return array{users:\stdClass[]}|array{clarify:array}
+     */
+    private function resolve_target_persons(array $input, int $actinguserid): array {
+        $query = trim((string)($input['userquery'] ?? ''));
+        $explicitids = [];
+        foreach ((array)($input['userids'] ?? []) as $id) {
+            if ((int)$id > 0) {
+                $explicitids[] = (int)$id;
+            }
+        }
+        if ((int)($input['userid'] ?? 0) > 0) {
+            $explicitids[] = (int)$input['userid'];
+        }
+
+        $parts = $query === ''
+            ? []
+            : array_values(array_filter(array_map('trim', preg_split('/\s*[,;]\s*/', $query) ?: [])));
+        $asone = function (array $one): array {
+            return isset($one['user']) ? ['users' => [$one['user']]] : $one;
+        };
+
+        if (empty($explicitids) && count($parts) <= 1) {
+            // One person, or nobody named (the requester): the single-person path and its clarifications.
+            return $asone($this->resolve_target_user($input, $actinguserid));
+        }
+        if (count($explicitids) === 1 && empty($parts)) {
+            return $asone($this->resolve_target_user(['userid' => $explicitids[0]], $actinguserid));
+        }
+
+        $users = [];
+        $unresolved = [];
+        foreach ($explicitids as $id) {
+            $user = \core_user::get_user($id, '*', IGNORE_MISSING);
+            if (!$user || !empty($user->deleted) || isguestuser($user)) {
+                $unresolved[] = 'id ' . $id . ' (no such user)';
+                continue;
+            }
+            $users[(int)$user->id] = $user;
+        }
+        foreach ($parts as $part) {
+            $one = $this->resolve_target_user(['userquery' => $part], $actinguserid);
+            if (isset($one['user'])) {
+                $users[(int)$one['user']->id] = $one['user'];
+                continue;
+            }
+            $candidates = $this->search_user_candidates_for_preview($part, self::MAX_CANDIDATES);
+            $unresolved[] = '"' . $part . '" (' . (empty($candidates)
+                ? 'no match'
+                : 'several match - ' . $this->format_user_candidates($candidates)) . ')';
+        }
+
+        if (!empty($unresolved) && empty($explicitids)) {
+            // A wording like "Muster, Anna" splits into two entries that match nobody but is one person as a whole.
+            $whole = $this->resolve_target_user(['userquery' => $query], $actinguserid);
+            if (isset($whole['user'])) {
+                return ['users' => [$whole['user']]];
+            }
+        }
+        if (!empty($unresolved)) {
+            $resolvednames = array_map(static fn(\stdClass $user): string => fullname($user), $users);
+            return ['clarify' => $this->clarify(
+                'Of the ' . (count($users) + count($unresolved)) . ' people, ' . count($unresolved) . ' could not be '
+                    . 'resolved: ' . implode('; ', $unresolved) . '. Please give the person\'s full name, email address '
+                    . 'or id.' . (empty($resolvednames) ? '' : ' Resolved so far: ' . implode(', ', $resolvednames) . '.'),
+                count(array_filter($unresolved, static fn(string $entry): bool => strpos($entry, 'several match') !== false))
+                    === count($unresolved) ? 'ENROL_USER_AMBIGUOUS' : 'ENROL_USER_NOT_FOUND'
+            )];
+        }
+
+        return ['users' => array_values($users)];
     }
 
     /**
@@ -565,10 +694,61 @@ class enrol_user_skill extends core_skill_base implements skill_trigger_provider
      * @param bool      $wasnoop Whether the user was already enrolled at execute time.
      * @return array
      */
-    private function build_success_result(array $prepared, \stdClass $course, bool $wasnoop): array {
+    private function build_success_result(array $prepared, \stdClass $course, bool $wasnoop, array $failed = []): array {
         $userfullname = (string)($prepared['userfullname'] ?? '');
         $rolename = (string)($prepared['rolename'] ?? '');
         $courseurl = (new moodle_url('/course/view.php', ['id' => (int)$course->id]))->out(false);
+        $persons = (array)($prepared['persons'] ?? []);
+
+        if (count($persons) > 1) {
+            // Several people: one line per person, so the answer can say who was enrolled and who was already in.
+            $enrolled = [];
+            $already = [];
+            $lines = [];
+            foreach ($persons as $person) {
+                $name = (string)($person['fullname'] ?? '');
+                $isalready = $wasnoop || !empty($person['alreadyenrolled']);
+                if ($isalready) {
+                    $already[] = $name;
+                } else {
+                    $enrolled[] = $name;
+                }
+                $lines[] = ($isalready ? 'Already enrolled: ' : 'Enrolled: ') . 'userid=' . (int)($person['userid'] ?? 0)
+                    . ' user="' . $name . '"';
+            }
+            $message = (empty($enrolled) ? '' : 'Enrolled ' . implode(', ', $enrolled) . ' in the course "'
+                    . $course->fullname . '"' . ($rolename !== '' ? ' as ' . $rolename : '') . '.')
+                . (empty($already) ? '' : ' ' . implode(', ', $already) . (count($already) === 1 ? ' was' : ' were')
+                    . ' already enrolled.')
+                . (empty($failed) ? '' : ' Not enrolled: ' . implode('; ', $failed) . '.');
+            $message = trim($message);
+            $observation = implode("\n", array_merge(
+                [count($enrolled) . ' of ' . count($persons) . ' people enrolled in courseid=' . (int)$course->id
+                    . ' course="' . $course->fullname . '"' . ($rolename !== '' ? ' role="' . $rolename . '"' : '')
+                    . (empty($failed) ? '' : '; failed: ' . implode('; ', $failed))],
+                $lines,
+                ['Course URL: ' . $courseurl]
+            ));
+            return [
+                'status' => 'executed',
+                'detail' => $message,
+                'usermessage' => $message . ' You can open the course here: ' . $courseurl,
+                'resultid' => (int)($prepared['userid'] ?? 0),
+                'enrolled_userid' => (int)($prepared['userid'] ?? 0),
+                'enrolled_fullname' => implode(', ', $enrolled),
+                'enrolled_userids' => array_map(static fn(array $p): int => (int)$p['userid'], $persons),
+                'courseid' => (int)$course->id,
+                'coursefullname' => (string)$course->fullname,
+                'rolename' => $rolename,
+                'course_url' => $courseurl,
+                'observation_full' => $observation,
+                'produced_outputs' => [
+                    'userid' => (int)($prepared['userid'] ?? 0),
+                    'userids' => array_map(static fn(array $p): int => (int)$p['userid'], $persons),
+                    'courseid' => (int)$course->id,
+                ],
+            ];
+        }
 
         $message = $wasnoop
             ? $userfullname . ' is already enrolled in "' . $course->fullname . '" — nothing was changed.'
