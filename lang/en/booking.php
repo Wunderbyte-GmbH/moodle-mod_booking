@@ -415,6 +415,7 @@ $string['agent_booking_update_permission_check_failed'] = 'Could not validate up
 $string['agent_booking_update_permission_denied_generic'] = 'You cannot update one or more requested fields.';
 $string['agent_booking_update_permission_denied_groups'] = 'You are not allowed to update these field groups in this booking context: {$a}.';
 $string['agent_booking_user_booked_completion_failed'] = 'User {$a->userid} booked, but completion toggle failed: {$a->error}.';
+$string['agent_booking_user_booked_completion_notonlist'] = 'User {$a} is booked but not on the option\'s user list, so the completion could not be set.';
 $string['agent_booking_user_booking_booked_users'] = 'Booked users: {$a}.';
 $string['agent_booking_user_booking_failed'] = 'User booking failed: {$a}.';
 $string['agent_booking_user_cannot_book_blocked'] = 'User {$a->userid} cannot be booked due to blocking conditions: {$a->conditions} {$a->followup}';
