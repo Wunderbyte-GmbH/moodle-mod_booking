@@ -207,7 +207,10 @@ class list_categories_skill extends core_skill_base implements skill_trigger_pro
         $debugbase = $this->build_skill_debug_message(self::SKILL_NAME, $input);
 
         // Visibility-filtered (what the user may SEE), id => hierarchical path, cached by core.
-        $all = core_course_category::make_categories_list();
+        $all = array_map(
+            static fn($path): string => html_entity_decode((string)$path, ENT_QUOTES | ENT_HTML5, 'UTF-8'),
+            core_course_category::make_categories_list()
+        );
         if (!$listall) {
             $needle = \core_text::strtolower($query);
             $all = array_filter(
