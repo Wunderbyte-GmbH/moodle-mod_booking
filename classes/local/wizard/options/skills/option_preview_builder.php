@@ -525,9 +525,11 @@ class option_preview_builder {
             if (!$cm) {
                 return null;
             }
-            $value = format_string($cm->name);
+            // The panel escapes every row value itself, so the names stay unescaped here ("&", not "&amp;";
+            // Wunderbyte-GmbH#2621).
+            $value = format_string($cm->name, true, ['escape' => false]);
             $course = get_course((int)$cm->course);
-            $coursename = format_string((string)($course->fullname ?? ''));
+            $coursename = format_string((string)($course->fullname ?? ''), true, ['escape' => false]);
             if ($coursename !== '') {
                 $value .= ' (' . self::str('course', $lang, null, 'core') . ': ' . $coursename . ')';
             }
