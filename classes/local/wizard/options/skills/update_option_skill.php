@@ -354,7 +354,14 @@ class update_option_skill extends booking_skill_base implements
      * @return array[] Session payload for optiondates.
      */
     public static function shifted_sessions(array $sessions, int $days): array {
-        $shift = $days * DAYSECS;
+        // Calendar days in the user's timezone, so a shift across a DST change keeps the wall-clock time
+        // (a fixed 86400-second day moved 09:00 to 08:00 or 10:00; Wunderbyte-GmbH#2622).
+        $timezone = \core_date::get_user_timezone_object();
+        $move = static function (int $timestamp) use ($days, $timezone): int {
+            $date = (new \DateTime('@' . $timestamp))->setTimezone($timezone);
+            $date->modify(($days >= 0 ? '+' : '') . $days . ' days');
+            return $date->getTimestamp();
+        };
         $out = [];
         foreach ($sessions as $session) {
             $start = (int)($session->coursestarttime ?? ($session['coursestarttime'] ?? 0));
@@ -363,8 +370,8 @@ class update_option_skill extends booking_skill_base implements
                 continue;
             }
             $out[] = [
-                'coursestarttime' => $start + $shift,
-                'courseendtime' => $end > 0 ? $end + $shift : $end,
+                'coursestarttime' => $move($start),
+                'courseendtime' => $end > 0 ? $move($end) : $end,
             ];
         }
 
