@@ -273,7 +273,12 @@ class slotbooking extends field_base {
         foreach (slot_validity::UNITS as $unit) {
             $unitoptions[$unit] = get_string('slot_valid_unit_' . $unit, 'mod_booking');
         }
-        $mform->addElement('select', 'slot_valid_duration_unit', get_string('slot_valid_duration_unit', 'mod_booking'), $unitoptions);
+        $mform->addElement(
+            'select',
+            'slot_valid_duration_unit',
+            get_string('slot_valid_duration_unit', 'mod_booking'),
+            $unitoptions
+        );
         $mform->setType('slot_valid_duration_unit', PARAM_ALPHA);
         $mform->setDefault('slot_valid_duration_unit', slot_validity::DEFAULT_UNIT);
         $mform->hideIf('slot_valid_duration_unit', 'optiontype', 'neq', MOD_BOOKING_OPTIONTYPE_SLOTBOOKING);
