@@ -828,6 +828,16 @@ $string['bocondoptionhasstartednotavailable'] = 'Already started - booking is no
 $string['bocondotheroptionsavailable'] = 'Linked options not available';
 $string['bocondpreviouslybooked'] = 'User has previously booked a certain option';
 $string['bocondpreviouslybookedavailable'] = 'Book it';
+$string['bocondpreviouslybookedbookednotcompleted'] = 'The option <a href="{$a->url}">{$a->title}</a> is booked but not completed; only users who have completed it are allowed to book.';
+$string['bocondpreviouslybookedbookednotcompletedfull'] = 'The option <a href="{$a->url}">{$a->title}</a> is booked but not completed; only users who have completed it are allowed to book.
+ <br>But you have the right to book a user anyways.';
+$string['bocondpreviouslybookedcompletedfullnotavailable'] = 'Only users who have completed <a href="{$a->url}">{$a->title}</a> are allowed to book.
+ <br>But you have the right to book a user anyways.';
+$string['bocondpreviouslybookedcompletedfullnotavailableall'] = 'Only users who have completed all of the following options are allowed to book: {$a}';
+$string['bocondpreviouslybookedcompletedfullnotavailableany'] = 'Only users who have completed at least one of the following options are allowed to book: {$a}';
+$string['bocondpreviouslybookedcompletednotavailable'] = 'Only users who have completed <a href="{$a->url}">{$a->title}</a> are allowed to book.';
+$string['bocondpreviouslybookedcompletednotavailableall'] = 'Only users who have completed all of the following options are allowed to book: {$a}';
+$string['bocondpreviouslybookedcompletednotavailableany'] = 'Only users who have completed at least one of the following options are allowed to book: {$a}';
 $string['bocondpreviouslybookeddeletedoption'] = 'Deleted booking option (ID {$a})';
 $string['bocondpreviouslybookedfullavailable'] = 'Booking is possible';
 $string['bocondpreviouslybookedfullnotavailable'] = 'Only users who have previously booked <a href="{$a->url}">{$a->title}</a> are allowed to book.
