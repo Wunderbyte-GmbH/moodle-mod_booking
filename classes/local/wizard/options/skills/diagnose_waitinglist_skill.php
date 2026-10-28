@@ -405,9 +405,11 @@ class diagnose_waitinglist_skill extends booking_skill_base implements skill_tri
         $taken = $booked + $reserved + $waiting;
         $freeseats = max(0, $maxanswers - $booked - $reserved);
         $freewaiting = max(0, $maxoverbooking - $waiting);
-        return "Capacity: {$maxanswers} seats plus {$maxoverbooking} waiting list places = {$total} places in total;"
-            . " {$taken} taken ({$booked} booked, {$reserved} reserved, {$waiting} waiting);"
-            . " {$freeseats} seats free, {$freewaiting} waiting list places free.";
+        // Each pool with its own taken/free pair first; the sum over both pools last and labelled as such, so
+        // "5 taken" is never read as the waiting list (x6 of 28.10.: one answer made it "3 of 5 waiting places taken").
+        return "Capacity: seats {$booked} of {$maxanswers} taken ({$reserved} reserved), {$freeseats} free;"
+            . " waiting list {$waiting} of {$maxoverbooking} places taken, {$freewaiting} free;"
+            . " both pools together {$total} places, {$taken} taken.";
     }
 
     /**
