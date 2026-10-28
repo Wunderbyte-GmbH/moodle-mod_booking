@@ -400,7 +400,9 @@ class update_option_skill extends booking_skill_base implements
             }
         }
 
-        $commonerrors = $this->validate_common_mutation_structure($input, false);
+        // Single-option mode: bookusersquery is a field this skill advertises and executes; only the bulk skill
+        // refuses it (Wunderbyte-GmbH#2620).
+        $commonerrors = $this->validate_common_mutation_structure($input, true);
         if (!empty($commonerrors)) {
             return [
                 'valid' => false,

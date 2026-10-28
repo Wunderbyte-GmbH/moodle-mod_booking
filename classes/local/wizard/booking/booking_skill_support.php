@@ -2414,10 +2414,15 @@ class booking_skill_support {
 
             if (!empty($meta['completed'])) {
                 try {
+                    // The answer is looked up on the option's user list, not by its timebooked second, and the
+                    // completion is SET (import mode of toggle_user_completion), never toggled off. A false return
+                    // means the person is not on the list, which is reported, not claimed as done
+                    // (Wunderbyte-GmbH#2620).
+                    singleton_service::destroy_booking_answers((int)$settings->id);
                     $bookingoption = singleton_service::get_instance_of_booking_option($settings->cmid, (int)$settings->id);
-                    $timebooked = (int)($meta['timebooked'] ?? time());
-                    $updateexisting = !empty($meta['updateexisting']);
-                    $bookingoption->toggle_user_completion($targetuserid, $timebooked, $updateexisting);
+                    if ($bookingoption->toggle_user_completion($targetuserid, 0, true) === false) {
+                        throw new \moodle_exception('agent_booking_user_booked_completion_notonlist', 'booking', '', $targetuserid);
+                    }
                 } catch (\Throwable $e) {
                     $errors[] = get_string('agent_booking_user_booked_completion_failed', 'booking', (object)[
                         'userid' => $targetuserid,

@@ -416,6 +416,7 @@ $string['agent_booking_update_permission_check_failed'] = 'Die Berechtigung für
 $string['agent_booking_update_permission_denied_generic'] = 'Sie dürfen ein oder mehrere angeforderte Felder nicht bearbeiten.';
 $string['agent_booking_update_permission_denied_groups'] = 'Sie dürfen diese Feldgruppen in diesem Buchungskontext nicht bearbeiten: {$a}.';
 $string['agent_booking_user_booked_completion_failed'] = 'Benutzer {$a->userid} gebucht, aber Abschluss-Toggle fehlgeschlagen: {$a->error}.';
+$string['agent_booking_user_booked_completion_notonlist'] = 'Nutzer:in {$a} ist gebucht, steht aber nicht auf der Teilnehmerliste der Option, daher konnte der Abschluss nicht gesetzt werden.';
 $string['agent_booking_user_booking_booked_users'] = 'Gebuchte Benutzer: {$a}.';
 $string['agent_booking_user_booking_failed'] = 'Benutzerbuchung fehlgeschlagen: {$a}.';
 $string['agent_booking_user_cannot_book_blocked'] = 'Benutzer {$a->userid} kann aufgrund von Blockierbedingungen nicht gebucht werden: {$a->conditions} {$a->followup}';
