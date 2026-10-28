@@ -281,6 +281,15 @@ class diagnose_booking_issue_skill extends booking_skill_base implements skill_t
         $optionquery = trim((string)($input['optionquery'] ?? ''));
 
         if ($optionid <= 0 && $optionquery === '') {
+            // No option named and the question is about mail (or no issue given): that is the person's mail
+            // delivery in general, which the person-level notification check answers. Asking which option is
+            // wrong then (Wunderbyte-GmbH#2674: the same question got a diagnosis or an option question depending
+            // on which diagnosis skill the selector picked). The booking-specific issues still need the option.
+            $issue = strtolower(trim((string)($input['issue'] ?? '')));
+            if (($issue === '' || $issue === 'missing_email') && self::notification_check_available()) {
+                $preparedinput['generalmailcheck'] = true;
+                return $this->pass($preparedinput);
+            }
             $issues[] = [
                 'code'     => 'OPTION_REFERENCE_REQUIRED',
                 'severity' => 'needs_clarification',
@@ -387,6 +396,20 @@ class diagnose_booking_issue_skill extends booking_skill_base implements skill_t
         // missing_email), or every check when the planner passed none. The question text is never
         // read for it (Wunderbyte-GmbH#2675: no keyword lists).
         $issuetype = $this->resolve_issue_type($preparedinput);
+
+        // Step 3b: No option named, question about mail: the person-level notification check answers it
+        // (Wunderbyte-GmbH#2674); the diagnosed person is declared for the anonymizer as in the option path.
+        if (!empty($preparedinput['generalmailcheck']) && self::notification_check_available()) {
+            $contextid = $cmid > 0 ? (int)\context_module::instance($cmid)->id : (int)\context_system::instance()->id;
+            $classname = self::NOTIFICATION_CHECK_SKILL;
+            $result = (new $classname())->execute(['userid' => $diagnosticuserid], $contextid, $userid);
+            $result['observation_persons'] = [$diagnosticuserid];
+            $result['diagnosis'] = ((array)($result['diagnosis'] ?? [])) + ['issue' => 'missing_email', 'generalmailcheck' => true];
+            $result['debugmessage'] = $this->build_task_debug_message(self::TASK_NAME, $preparedinput, [
+                'General mail check for user ' . $diagnosticuserid . ' (no option named)',
+            ]);
+            return $result;
+        }
 
         // Step 4: Resolve the booking option.
         // Priority: explicit optionid > "last option" session reference > optionquery (DB search).
@@ -729,6 +752,18 @@ class diagnose_booking_issue_skill extends booking_skill_base implements skill_t
         }
 
         return false;
+    }
+
+    /** The person-level notification check of the agent plugin, used when no option is named. */
+    private const NOTIFICATION_CHECK_SKILL = '\\bookingextension_agent\\local\\wizard\\core\\skills\\diagnose_notifications_skill';
+
+    /**
+     * Whether the person-level notification check is installed.
+     *
+     * @return bool
+     */
+    private static function notification_check_available(): bool {
+        return class_exists(self::NOTIFICATION_CHECK_SKILL);
     }
 
     /**
