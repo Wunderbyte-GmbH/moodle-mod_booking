@@ -19,6 +19,7 @@ namespace mod_booking\local\wizard\options\skills;
 use mod_booking\local\wizard\engine\skill_risk_class;
 use core_text;
 use mod_booking\local\wizard\booking\booking_skill_support;
+use bookingextension_agent\local\wizard\services\target_query_normalizer;
 use mod_booking\local\wizard\engine\module_targeted_skill;
 use mod_booking\local\wizard\engine\skill_trigger_provider_interface;
 
@@ -322,6 +323,12 @@ class search_options_skill extends booking_skill_base implements skill_trigger_p
             }));
         }
 
+        // A family named in the plural or as a compound ("Kochkurse", "Yoga-Kurse") matches no title as a whole
+        // (Wunderbyte-GmbH#2730): the words of the query decide, as a person query falls back to its name tokens.
+        if (empty($rows) && $effectivequery !== '' && $exacttitlequery === '') {
+            $rows = self::search_rows_by_query_words($cmid, $effectivequery, $limit, $when, $whenuntil, $meta);
+        }
+
         if (empty($rows)) {
             $usermessage = get_string('searchoptionsnotfound', 'booking');
             return [
@@ -392,6 +399,64 @@ class search_options_skill extends booking_skill_base implements skill_trigger_p
             'pastonly' => $pastonly,
             'debugmessage' => $debugbase . "\n" . implode("\n", $debugextra),
         ];
+    }
+
+    /**
+     * The options whose titles carry the words of a query that found nothing as a whole (Wunderbyte-GmbH#2730).
+     *
+     * First every token on its own, the tokens that match must agree ("Yoga-Kurse": "Yoga" matches, "Kurse"
+     * matches nothing and carries no meaning); then a word that begins with a title word and goes on
+     * ("Kochkurse" meets "Kochkurs"). Both rules live in the engine's target_query_normalizer and compare
+     * against the stored titles only: no word list, no stemming. Nothing matches → nothing found, as before.
+     *
+     * @param int $cmid
+     * @param string $query The query as the constructor sent it.
+     * @param int $limit
+     * @param string $when
+     * @param string $whenuntil
+     * @param array|null $meta Filled like search_option_candidates_for_preview() fills it.
+     * @return array The candidate rows, at most $limit.
+     */
+    private static function search_rows_by_query_words(
+        int $cmid,
+        string $query,
+        int $limit,
+        string $when,
+        string $whenuntil,
+        ?array &$meta
+    ): array {
+        $lookup = static function (string $word, int $wordlimit) use ($cmid, $limit, $when, $whenuntil): array {
+            $candidates = [];
+            $found = booking_skill_support::search_option_candidates_for_preview(
+                $cmid,
+                $word,
+                max($limit, $wordlimit),
+                $when,
+                false,
+                $whenuntil
+            );
+            foreach ($found as $row) {
+                $optionid = (int)($row['optionid'] ?? 0);
+                if ($optionid > 0) {
+                    $candidates[] = ['id' => $optionid, 'name' => (string)($row['text'] ?? ''), 'row' => $row];
+                }
+            }
+            return $candidates;
+        };
+        $candidates = target_query_normalizer::narrow_by_tokens($query, $lookup);
+        if (empty($candidates)) {
+            $candidates = target_query_normalizer::narrow_by_stems($query, $lookup);
+        }
+        $meta = [
+            'total' => count($candidates),
+            'pastonly' => false,
+            'totalhidden' => 0,
+            'windowfull' => false,
+        ];
+        return array_values(array_map(
+            static fn(array $candidate): array => (array)$candidate['row'],
+            array_slice($candidates, 0, $limit)
+        ));
     }
 
     /**
