@@ -189,7 +189,10 @@ class certificateconditionslist implements renderable, templatable {
                 ];
             }
         }
-        $cond->isbuildingblock = !$cond->iscombination && (!$cond->hasaction || !empty($cond->usedin));
+        // "Building block": a condition without own action. A condition with an action that a combination uses as
+        // well stays a condition and is marked as "also used as building block".
+        $cond->isbuildingblock = !$cond->iscombination && !$cond->hasaction;
+        $cond->isalsobuildingblock = !$cond->iscombination && $cond->hasaction && !empty($cond->usedin);
         $cond->isunused = !$cond->iscombination && !$cond->hasaction && empty($cond->usedin);
         $cond->hasusedin = !empty($cond->usedin);
 

@@ -399,12 +399,19 @@ final class certificate_combination_test extends booking_advanced_testcase {
         $modulecontext = context_module::instance($this->bookings['B']->cmid);
         $foreignleaf = $this->insert_instance_leaf('B', 1, null, $modulecontext->id);
         $mismatching = $this->insert_combination([['operator' => 'AND', 'conditionids' => [$foreignleaf]]], 'AND');
+        // A condition with its own action that a combination uses as well.
+        $withaction = $this->insert_instance_leaf('D', 1, $this->certid);
+        $this->insert_combination([['operator' => 'AND', 'conditionids' => [$withaction]]], 'AND');
 
         $list = certificate_conditions::get_rendered_list_of_saved_conditions(context_system::instance()->id);
 
-        // Badges.
+        // Badges: "Building block" only for the conditions without action (A, B, C and the unused one),
+        // "Also used as building block" for the condition with action that a combination uses.
         $this->assertStringContainsString(get_string('certificateconditionbadgecombination', 'mod_booking'), $list);
-        $this->assertStringContainsString(get_string('certificateconditionbadgebuildingblock', 'mod_booking'), $list);
+        // Count the badges themselves; the row label "Building blocks" of a combination contains the same words.
+        $badge = fn(string $identifier) => '">' . get_string($identifier, 'mod_booking') . '</span>';
+        $this->assertSame(4, substr_count($list, $badge('certificateconditionbadgebuildingblock')));
+        $this->assertSame(1, substr_count($list, $badge('certificateconditionbadgealsobuildingblock')));
         $this->assertStringContainsString(get_string('certificateaction_none', 'mod_booking'), $list);
         $this->assertSame(1, substr_count($list, get_string('certificateconditionunused', 'mod_booking')));
         // The mismatch is shown as badge of the combination and as title of the chip of the foreign leaf.
