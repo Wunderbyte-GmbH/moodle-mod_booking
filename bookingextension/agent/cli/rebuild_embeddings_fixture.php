@@ -113,7 +113,7 @@ if (empty($rows)) {
     cli_error('No skill rows generated from registry.');
 }
 
-$existingrows = read_fixture_rows($outputpath);
+$existingrows = bookingextension_agent_read_fixture_rows($outputpath);
 $existingbyskill = [];
 foreach ($existingrows as $row) {
     $skillname = trim((string)($row['skill'] ?? ''));
@@ -247,7 +247,7 @@ foreach ($rows as $idx => $row) {
     unset($rows[$idx]['_embedding_input']);
 }
 
-write_fixture_rows($outputpath, $rows);
+bookingextension_agent_write_fixture_rows($outputpath, $rows);
 
 mtrace('bookingextension_agent fixture rebuild done: ' . $outputpath);
 mtrace('model=' . $model . ', dimensions=' . $dimensions . ', embed=' . ($doembed ? 'yes' : 'no')
@@ -274,7 +274,7 @@ if (!empty($deletedskills)) {
  * @param string $path
  * @return array<int,array<string,string>>
  */
-function read_fixture_rows(string $path): array {
+function bookingextension_agent_read_fixture_rows(string $path): array {
     // Delegate to the repository so reading uses the same RFC-4180 (escape-free) parsing as the
     // runtime; a bespoke reader here previously diverged and silently dropped JSON-bearing rows.
     return (new embeddings_csv_repository($path))->read_rows();
@@ -287,7 +287,7 @@ function read_fixture_rows(string $path): array {
  * @param array $rows
  * @return void
  */
-function write_fixture_rows(string $path, array $rows): void {
+function bookingextension_agent_write_fixture_rows(string $path, array $rows): void {
     $dir = dirname($path);
     if (!is_dir($dir)) {
         if (!mkdir($dir, 0775, true) && !is_dir($dir)) {
