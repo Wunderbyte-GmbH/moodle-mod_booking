@@ -16,8 +16,8 @@
 
 namespace mod_booking\local\certificate_conditions\conditions;
 
-use mod_booking\event\bookingoption_completed;
 use mod_booking\local\certificate_conditions\certificate_conditions_interface;
+use mod_booking\local\certificate_conditions\completion_counter_trait;
 use mod_booking\singleton_service;
 use MoodleQuickForm;
 use stdClass;
@@ -30,6 +30,8 @@ use stdClass;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class bookingoption implements certificate_conditions_interface {
+    use completion_counter_trait;
+
     /**
      * Booking option ID to filter by.
      *
@@ -284,56 +286,49 @@ class bookingoption implements certificate_conditions_interface {
     }
 
     /**
-     * Returns true if the event object corresponds to the configured option id.
+     * Returns true when one of the configured options was completed and enough of them are completed by the user.
      * @param stdClass $context
      * @return bool
      */
     public function evaluate(stdClass $context): bool {
-        $event = $context->event ?? null;
-        if (!$event) {
-            return false;
+        return $this->evaluate_completion($context);
+    }
+
+    /**
+     * Return the configured option ids.
+     *
+     * @return int[]
+     */
+    public function get_targeted_optionids(): array {
+        $optionids = array_map('intval', $this->optionids);
+        if (empty($optionids) && !empty($this->optionid)) {
+            $optionids = [(int)$this->optionid];
         }
-        if ($event instanceof bookingoption_completed) {
-            $candidateoptionids = $this->optionids;
-            if (empty($candidateoptionids) && !empty($this->optionid)) {
-                $candidateoptionids = [$this->optionid];
-            }
+        return array_values(array_unique($optionids));
+    }
 
-            if (empty($candidateoptionids)) {
-                return false;
-            }
+    /**
+     * Return the required number of completed options.
+     *
+     * @return int
+     */
+    public function get_requiredcount(): int {
+        return max(1, (int)$this->requiredcount);
+    }
 
-            // Only the completion of one of this condition's own options may trigger it.
-            if (!in_array((int)($context->optionid ?? 0), $candidateoptionids, true)) {
-                return false;
-            }
-
-            $userid = (int)($context->userid ?? $event->relateduserid ?? $event->userid ?? 0);
-            if (empty($userid)) {
-                return false;
-            }
-
-            $requiredcount = min(max(1, (int)$this->requiredcount), count($candidateoptionids));
-            $completedcount = 0;
-
-            foreach ($candidateoptionids as $candidateoptionid) {
-                $optionsettings = singleton_service::get_instance_of_booking_option_settings((int)$candidateoptionid);
-                if (empty($optionsettings->id)) {
-                    continue;
-                }
-
-                $bookinganswers = singleton_service::get_instance_of_booking_answers($optionsettings);
-                if ((int)$bookinganswers->is_activity_completed($userid) === 1) {
-                    $completedcount++;
-                    if ($completedcount >= $requiredcount) {
-                        return true;
-                    }
-                }
-            }
-
-            return false;
-        }
-        return false;
+    /**
+     * Return a short summary like "2 of 3 selected booking options".
+     *
+     * @param stdClass $record
+     * @return string
+     */
+    public function get_description(stdClass $record): string {
+        $this->set_logicdata($record);
+        $a = (object)[
+            'required' => min($this->get_requiredcount(), max(1, count($this->get_targeted_optionids()))),
+            'total' => count($this->get_targeted_optionids()),
+        ];
+        return get_string('condition_description_bookingoption', 'mod_booking', $a);
     }
 
     /**

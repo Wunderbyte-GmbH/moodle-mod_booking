@@ -112,4 +112,51 @@ interface certificate_conditions_interface {
      *
      */
     public function save_items(int $conditionid, stdClass $data): void;
+
+    /**
+     * Return the ids of all booking options this condition observes.
+     *
+     * Used for gating (only the completion of one of these options may trigger the condition)
+     * and by the combination condition to build the union of its leaves.
+     *
+     * @return int[]
+     */
+    public function get_targeted_optionids(): array;
+
+    /**
+     * Returns true when the completion of the given option may trigger this condition.
+     *
+     * Cheaper than searching get_targeted_optionids() for conditions observing whole booking instances.
+     *
+     * @param int $optionid
+     * @return bool
+     */
+    public function targets_option(int $optionid): bool;
+
+    /**
+     * Return the configured number of completed targeted options required to fulfil the condition (>= 1).
+     *
+     * @return int
+     */
+    public function get_requiredcount(): int;
+
+    /**
+     * Return the ids of the targeted options the user has completed, excluding the given ids.
+     *
+     * The result is sorted ascending by option id so that callers which consume options
+     * (e.g. the combination condition) behave deterministically.
+     *
+     * @param int $userid
+     * @param int[] $excludeoptionids option ids that must not be counted
+     * @return int[]
+     */
+    public function get_completed_optionids_for_user(int $userid, array $excludeoptionids = []): array;
+
+    /**
+     * Return a short human readable summary of the configured condition for the list of conditions.
+     *
+     * @param stdClass $record condition record from booking_cert_cond
+     * @return string
+     */
+    public function get_description(stdClass $record): string;
 }

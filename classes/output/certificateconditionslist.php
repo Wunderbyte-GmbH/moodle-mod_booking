@@ -26,7 +26,9 @@
 namespace mod_booking\output;
 
 use coding_exception;
+use mod_booking\local\certificate_conditions\conditions_info;
 use mod_booking\singleton_service;
+use Throwable;
 use moodle_url;
 use renderer_base;
 use renderable;
@@ -84,7 +86,18 @@ class certificateconditionslist implements renderable, templatable {
             $cond->localizedlogicname = !empty($localizedlogickey) ?
                 get_string($localizedlogickey, $logiccomponent) : '';
             $cond->localizedactionname = !empty($localizedactionkey) ?
-                get_string($localizedactionkey, $actioncomponent) : '';
+                get_string($localizedactionkey, $actioncomponent) : get_string('certificateaction_none', 'mod_booking');
+
+            // Short summary of the configured condition, e.g. the groups of a combination.
+            $cond->logicdescription = '';
+            $conditionhandler = !empty($cond->logicname) ? conditions_info::get_condition($cond->logicname) : null;
+            if ($conditionhandler) {
+                try {
+                    $cond->logicdescription = $conditionhandler->get_description($cond);
+                } catch (Throwable $e) {
+                    debugging('Could not build description of certificate condition ' . $cond->id . ': ' . $e->getMessage());
+                }
+            }
 
             // Filter for conditions of this or other context.
             if ($cond->contextid == $contextid) {
