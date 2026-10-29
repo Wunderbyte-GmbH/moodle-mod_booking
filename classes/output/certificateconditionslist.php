@@ -26,6 +26,7 @@
 namespace mod_booking\output;
 
 use coding_exception;
+use mod_booking\local\certificate_conditions\conditions\combination;
 use mod_booking\local\certificate_conditions\conditions_info;
 use mod_booking\singleton_service;
 use Throwable;
@@ -62,7 +63,24 @@ class certificateconditionslist implements renderable, templatable {
      * @throws coding_exception
      */
     public function __construct(array $conditions, int $contextid, bool $enableaddbutton = true) {
+        global $DB;
         $contexts = [];
+
+        // Relations between combinations and their building blocks (one query for the whole list).
+        $byid = [];
+        foreach ($conditions as $cond) {
+            $byid[(int)$cond->id] = $cond;
+        }
+        $usedin = [];
+        $items = $DB->get_records(
+            'booking_cert_cond_item',
+            ['component' => 'mod_booking', 'area' => combination::ITEM_AREA],
+            '',
+            'id,conditionid,itemid'
+        );
+        foreach ($items as $item) {
+            $usedin[(int)$item->itemid][(int)$item->conditionid] = (int)$item->conditionid;
+        }
 
         foreach ($conditions as $cond) {
             $cond->name = $cond->name ?? '';
@@ -101,6 +119,7 @@ class certificateconditionslist implements renderable, templatable {
 
             // Filter for conditions of this or other context.
             if ($cond->contextid == $contextid) {
+                $this->add_relations($cond, $byid, $usedin[(int)$cond->id] ?? []);
                 $this->conditions[] = (array)$cond;
             } else if (
                 $contextid == 1
@@ -146,6 +165,76 @@ class certificateconditionslist implements renderable, templatable {
         }
         $this->contextid = $contextid;
         $this->enableaddbutton = $enableaddbutton;
+    }
+
+    /**
+     * Add the building block / combination information of a condition for the template.
+     *
+     * @param object $cond condition record (name, logicname, actionname already resolved)
+     * @param array $byid all condition records keyed by id
+     * @param array $usedinids ids of the combinations using this condition
+     * @return void
+     */
+    private function add_relations(object $cond, array $byid, array $usedinids): void {
+        $cond->iscombination = ($cond->logicname === 'combination');
+        $cond->hasaction = !empty($cond->actionname);
+
+        $cond->usedin = [];
+        foreach ($usedinids as $combinationid) {
+            if (isset($byid[$combinationid])) {
+                $cond->usedin[] = [
+                    'id' => $combinationid,
+                    'name' => format_string($byid[$combinationid]->name ?? ''),
+                    'contextid' => (int)$byid[$combinationid]->contextid,
+                ];
+            }
+        }
+        $cond->isbuildingblock = !$cond->iscombination && (!$cond->hasaction || !empty($cond->usedin));
+        $cond->isunused = !$cond->iscombination && !$cond->hasaction && empty($cond->usedin);
+        $cond->hasusedin = !empty($cond->usedin);
+
+        $cond->groups = [];
+        $cond->hascontextmismatch = false;
+        if ($cond->iscombination) {
+            $combination = new combination();
+            $combination->set_logicdata($cond);
+            $operatorstrings = [
+                combination::OP_AND => get_string('condition_combination_and', 'mod_booking'),
+                combination::OP_OR => get_string('condition_combination_or', 'mod_booking'),
+            ];
+            foreach ($combination->get_groups() as $group) {
+                $leaves = [];
+                foreach ($group['conditionids'] as $leafid) {
+                    $leaf = $byid[$leafid] ?? null;
+                    $leafjson = $leaf ? json_decode((string)$leaf->logicjson) : null;
+                    $mismatch = $leaf && (int)$leaf->contextid !== (int)$cond->contextid;
+                    $cond->hascontextmismatch = $cond->hascontextmismatch || $mismatch || !$leaf;
+                    $leaves[] = [
+                        'id' => (int)$leafid,
+                        'name' => $leaf ? format_string($leaf->name ?? '') : '#' . $leafid,
+                        'requiredcount' => max(1, (int)($leafjson->requiredcount ?? 1)),
+                        'contextid' => $leaf ? (int)$leaf->contextid : 0,
+                        'contextmismatch' => $mismatch || !$leaf,
+                        'last' => false,
+                    ];
+                }
+                if (!empty($leaves)) {
+                    $leaves[count($leaves) - 1]['last'] = true;
+                }
+                $cond->groups[] = [
+                    'operator' => $operatorstrings[$group['operator']],
+                    'leaves' => $leaves,
+                    'last' => false,
+                ];
+            }
+            if (!empty($cond->groups)) {
+                $cond->groups[count($cond->groups) - 1]['last'] = true;
+            }
+            $cond->topoperator = $operatorstrings[$combination->operator];
+            $cond->uniqueoptions = $combination->uniqueoptions;
+            // The chips replace the text description.
+            $cond->logicdescription = '';
+        }
     }
 
     /**
