@@ -36,7 +36,7 @@ class actions_info {
      */
     public static function add_actions_to_mform(MoodleQuickForm &$mform, ?array &$ajaxformdata = null) {
         $actions = self::get_actions();
-        // "No action": the condition issues nothing itself and serves as building block of a combination.
+        // No action: the condition issues nothing itself and serves as building block of a combination.
         $actionsforselect = ['0' => get_string('certificateaction_none', 'mod_booking')];
         foreach ($actions as $action) {
             $fullclassname = get_class($action);

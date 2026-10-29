@@ -202,7 +202,7 @@ class certificateconditionsform extends dynamic_form {
         }
 
         $jsonobject = json_decode((string)$record->actionjson);
-        // "0" (no action) is a valid choice, so only fill in the stored action when nothing was submitted.
+        // The value "0" (no action) is a valid choice, so only fill in the stored action when nothing was submitted.
         if (!isset($ajaxformdata['certificateactiontype'])) {
             $ajaxformdata['certificateactiontype'] = $jsonobject->actionname ?? '0';
         }
