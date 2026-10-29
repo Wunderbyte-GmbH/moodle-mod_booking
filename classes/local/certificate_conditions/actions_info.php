@@ -36,6 +36,8 @@ class actions_info {
      */
     public static function add_actions_to_mform(MoodleQuickForm &$mform, ?array &$ajaxformdata = null) {
         $actions = self::get_actions();
+        // "No action": the condition issues nothing itself and serves as building block of a combination.
+        $actionsforselect = ['0' => get_string('certificateaction_none', 'mod_booking')];
         foreach ($actions as $action) {
             $fullclassname = get_class($action);
             $classnameparts = explode('\\', $fullclassname);
@@ -65,11 +67,14 @@ class actions_info {
             $defaultactiontype = end($classnameparts) ?: '0';
         }
 
-        $selectedactiontype = $ajaxformdata['certificateactiontype'] ?? $defaultactiontype;
-        $action = self::get_action((string)$selectedactiontype);
-        if (!$action) {
-            $selectedactiontype = $defaultactiontype;
-            $action = self::get_action((string)$selectedactiontype);
+        $selectedactiontype = (string)($ajaxformdata['certificateactiontype'] ?? $defaultactiontype);
+        $action = null;
+        if ($selectedactiontype !== '0') {
+            $action = self::get_action($selectedactiontype);
+            if (!$action) {
+                $selectedactiontype = $defaultactiontype;
+                $action = self::get_action($selectedactiontype);
+            }
         }
 
         $mform->setDefault('certificateactiontype', $selectedactiontype);
