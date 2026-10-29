@@ -313,16 +313,48 @@ final class certificate_combination_test extends booking_advanced_testcase {
         $this->assertArrayHasKey($leafa, $eligible);
         $this->assertArrayNotHasKey($combinationid, $eligible);
 
-        // A module context only sees system conditions and its own.
+        // Only conditions of the same context are eligible: a module context sees only its own conditions,
+        // the system context only global ones.
         $modulecontext = context_module::instance($this->bookings['A']->cmid);
         $instanceleaf = $this->insert_instance_leaf('A', 1, null, $modulecontext->id);
         $othermodulecontext = context_module::instance($this->bookings['B']->cmid);
         $this->assertArrayHasKey($instanceleaf, combination::get_eligible_leaf_conditions($modulecontext->id));
+        $this->assertArrayNotHasKey($leafa, combination::get_eligible_leaf_conditions($modulecontext->id));
         $this->assertArrayNotHasKey($instanceleaf, combination::get_eligible_leaf_conditions($othermodulecontext->id));
-        $this->assertArrayHasKey($instanceleaf, combination::get_eligible_leaf_conditions($systemcontextid));
+        $this->assertArrayNotHasKey($instanceleaf, combination::get_eligible_leaf_conditions($systemcontextid));
+        // 0 means system context.
+        $this->assertArrayHasKey($leafa, combination::get_eligible_leaf_conditions(0));
 
         $condition = new combination();
         $base = ['contextid' => $systemcontextid, 'id' => $combinationid];
+
+        // An instance leaf is rejected for a global combination and vice versa.
+        $errors = $condition->validate($base + [
+            'condition_combination_group_1_operator' => 'AND',
+            'condition_combination_group_1_conditionids' => [$instanceleaf],
+        ]);
+        $this->assertArrayHasKey('condition_combination_group_1_conditionids', $errors);
+        $errors = $condition->validate([
+            'contextid' => $modulecontext->id,
+            'condition_combination_group_1_operator' => 'AND',
+            'condition_combination_group_1_conditionids' => [$leafa],
+        ]);
+        $this->assertArrayHasKey('condition_combination_group_1_conditionids', $errors);
+        $errors = $condition->validate([
+            'contextid' => $modulecontext->id,
+            'condition_combination_group_1_operator' => 'AND',
+            'condition_combination_group_1_conditionids' => [$instanceleaf],
+        ]);
+        $this->assertEmpty($errors);
+
+        // The context of a saved combination cannot be changed.
+        $errors = $condition->validate([
+            'contextid' => $modulecontext->id,
+            'id' => $combinationid,
+            'condition_combination_group_1_operator' => 'AND',
+            'condition_combination_group_1_conditionids' => [$instanceleaf],
+        ]);
+        $this->assertArrayHasKey('condition_combination_group_1_operator', $errors);
 
         // No group used.
         $errors = $condition->validate($base + ['condition_combination_group_1_operator' => '0']);
@@ -359,13 +391,37 @@ final class certificate_combination_test extends booking_advanced_testcase {
      */
     public function test_rendered_list_shows_description(): void {
         $this->base_scenario();
-        $this->insert_abc_combination();
+        $combinationid = $this->insert_abc_combination();
+        $leafa = $this->leafids['A'];
+        // A condition without action that no combination uses.
+        $unused = $this->insert_instance_leaf('D');
+        // A combination referencing a condition of another context (legacy data) is flagged.
+        $modulecontext = context_module::instance($this->bookings['B']->cmid);
+        $foreignleaf = $this->insert_instance_leaf('B', 1, null, $modulecontext->id);
+        $mismatching = $this->insert_combination([['operator' => 'AND', 'conditionids' => [$foreignleaf]]], 'AND');
 
         $list = certificate_conditions::get_rendered_list_of_saved_conditions(context_system::instance()->id);
-        $this->assertStringContainsString('Leaf A ≥ 1 AND Leaf B ≥ 1 AND Leaf C ≥ 1', $list);
-        $this->assertStringContainsString('Leaf A ≥ 1 OR Leaf B ≥ 1 OR Leaf C ≥ 1', $list);
+
+        // Badges.
+        $this->assertStringContainsString(get_string('certificateconditionbadgecombination', 'mod_booking'), $list);
+        $this->assertStringContainsString(get_string('certificateconditionbadgebuildingblock', 'mod_booking'), $list);
         $this->assertStringContainsString(get_string('certificateaction_none', 'mod_booking'), $list);
+        $this->assertSame(1, substr_count($list, get_string('certificateconditionunused', 'mod_booking')));
+        // The mismatch is shown as badge of the combination and as title of the chip of the foreign leaf.
+        $this->assertSame(2, substr_count($list, get_string('certificateconditioncontextmismatch', 'mod_booking')));
+
+        // Building block chips of the combination (one per leaf and group) and the operators.
+        $this->assertSame(2, substr_count($list, 'data-id="' . $leafa . '"') - 2);
+        $this->assertStringContainsString('Leaf A ≥ 1', $list);
         $this->assertStringContainsString(get_string('condition_combination_uniqueoptionsshort', 'mod_booking'), $list);
+        $this->assertStringContainsString(get_string('certificateconditionbuildingblocks', 'mod_booking'), $list);
+
+        // "Used in" on the leaves points to the combination.
+        $this->assertStringContainsString(get_string('certificateconditionusedin', 'mod_booking'), $list);
+        $this->assertGreaterThanOrEqual(3, substr_count($list, 'data-id="' . $combinationid . '" data-name="Combination"'));
+
+        $this->assertNotEmpty($unused);
+        $this->assertNotEmpty($mismatching);
     }
 
     /**
