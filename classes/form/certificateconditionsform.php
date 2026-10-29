@@ -126,10 +126,8 @@ class certificateconditionsform extends dynamic_form {
                 $errors = array_merge($errors, $logicerrors);
             }
         }
-        // Action is mandatory, so we validate that first and then its specific fields.
-        if ($data['certificateactiontype'] === '0') {
-            $errors['certificateactiontype'] = get_string('error:entervalue', 'mod_booking');
-        } else {
+        // Action is optional ("No action" = building block of a combination); if selected, validate its fields.
+        if ((string)$data['certificateactiontype'] !== '0') {
             $action = actions_info::get_action($data['certificateactiontype']);
             if ($action) {
                 $actionerrors = $action->validate($data);
@@ -204,7 +202,8 @@ class certificateconditionsform extends dynamic_form {
         }
 
         $jsonobject = json_decode((string)$record->actionjson);
-        if (empty($ajaxformdata['certificateactiontype'])) {
+        // "0" (no action) is a valid choice, so only fill in the stored action when nothing was submitted.
+        if (!isset($ajaxformdata['certificateactiontype'])) {
             $ajaxformdata['certificateactiontype'] = $jsonobject->actionname ?? '0';
         }
 

@@ -1,310 +1,140 @@
 # Certificate Conditions System
 
-The certificate conditions system allows you to define conditional rules that automatically issue certificates when booking options are completed, based on filter, logic, and action criteria.
+Certificate conditions issue certificates automatically when booking options are completed. Every saved
+condition (table `booking_cert_cond`) consists of three parts:
 
-## Architecture Overview
+1. **Filter** (optional) – the user must match, e.g. a user profile field value.
+2. **Condition** – what the user must have completed.
+3. **Action** (optional) – what happens when filter and condition pass, e.g. issue a certificate.
+   A condition saved with "No action" never issues anything on its own; it serves as building block
+   of a combination (see below).
 
-The system follows a modular three-part pattern:
-
-1. **Filter** – validates that a user meets specified criteria (e.g., profile field value)
-2. **Logic** – verifies event/context conditions (e.g., specific booking option completed)
-3. **Action** – performs an action when filter and logic both pass (e.g., issue certificate)
-
-Each component is pluggable via a simple interface-based design.
+Each part is pluggable via a simple interface-based design.
 
 ## Directory Structure
 
 ```
 certificate_conditions/
 ├── README.md (this file)
-├── certificate_conditions.php     # Main helper class
-├── filter_interface.php           # Filter interface
-├── logic_interface.php            # Logic interface
-├── action_interface.php           # Action interface
-├── filters_info.php               # Filter discovery/instantiation
-├── logics_info.php                # Logic discovery/instantiation
-├── actions_info.php               # Action discovery/instantiation
+├── certificate_conditions.php           # Main helper class (list, save, delete, evaluate)
+├── certificate_conditions_interface.php # Condition interface
+├── completion_counter_trait.php         # Shared counting/gating for option based conditions
+├── conditions_info.php                  # Condition discovery/instantiation and form selector
+├── option_conditions_info.php           # Info about conditions on the booking option form
+├── filter_interface.php / filters_info.php
+├── action_interface.php / actions_info.php
+├── conditions/
+│   ├── bookingoption.php                # N of the selected booking options completed
+│   ├── instance.php                     # N options of a booking instance completed
+│   ├── taggedoptions.php                # N options tagged with this condition completed
+│   └── combination.php                  # Other conditions combined with AND / OR
 ├── filters/
-│   └── userprofilefield.php       # Example: check user profile field value
-├── logics/
-│   └── bookingoption.php          # Example: verify booking option completed
+│   └── userprofilefield.php
 └── actions/
-    └── createcertificate.php      # Example: issue a certificate
+    └── createcertificate.php
 ```
 
-## Creating Custom Components
+## Storage
 
-### 1. Create a Filter
+- `booking_cert_cond`: `contextid` (1 = site wide, otherwise a booking instance's module context), `name`,
+  `filterjson`, `logicjson`, `actionjson`, `isactive`.
+- `booking_cert_cond_item`: lookup rows per condition (`component`, `area`, `itemid`):
+  - `area = bookingoption`: the options of a `bookingoption` or `taggedoptions` condition,
+  - `area = bookinginstance`: the instance of an `instance` condition (one sentinel row),
+  - `area = certcondition`: the building blocks of a `combination` (one row per leaf).
 
-Filters check whether a user meets specified criteria.
-
-**File:** `filters/myfilter.php`
-
-```php
-<?php
-namespace mod_booking\certificate_conditions\filters;
-
-use mod_booking\certificate_conditions\filter_interface;
-use MoodleQuickForm;
-use stdClass;
-
-class myfilter implements filter_interface {
-    public $myfield = '';
-
-    public function add_filter_to_mform(MoodleQuickForm &$mform, ?array &$ajaxformdata = null) {
-        $mform->addElement('text', 'filter_myfilter_field', 'My Field Label');
-        $mform->setType('filter_myfilter_field', PARAM_TEXT);
-    }
-
-    public function get_name_of_filter(bool $localized = true): string {
-        return $localized ? get_string('filter_myfilter', 'mod_booking') : 'myfilter';
-    }
-
-    public function save_filter(stdClass &$data): void {
-        $obj = new stdClass();
-        $obj->filtername = 'myfilter';
-        $obj->myfield = $data->filter_myfilter_field ?? '';
-        $data->filterjson = json_encode($obj);
-    }
-
-    public function set_defaults(stdClass &$data, stdClass $record) {
-        if (!empty($record->filterjson)) {
-            $this->set_filterdata_from_json($record->filterjson);
-            $obj = json_decode($record->filterjson);
-            $data->filter_myfilter_field = $obj->myfield ?? '';
-        }
-    }
-
-    public function set_filterdata(stdClass $record): void {
-        // Load filter data from database record if needed
-    }
-
-    public function set_filterdata_from_json(string $json): void {
-        $obj = json_decode($json);
-        if ($obj) {
-            $this->myfield = $obj->myfield ?? '';
-        }
-    }
-
-    public function execute(stdClass &$sql, array &$params): void {
-        // Legacy SQL building method (optional)
-    }
-
-    public function evaluate(stdClass $context): bool {
-        // Return true if filter condition passes
-        return true; // Your logic here
-    }
-}
-```
-
-### 2. Create a Logic
-
-Logics verify event/context conditions.
-
-**File:** `logics/mylogic.php`
-
-```php
-<?php
-namespace mod_booking\certificate_conditions\logics;
-
-use mod_booking\certificate_conditions\logic_interface;
-use MoodleQuickForm;
-use stdClass;
-
-class mylogic implements logic_interface {
-    public $myvalue = 0;
-
-    public function add_logic_to_mform(MoodleQuickForm &$mform, ?array &$ajaxformdata = null) {
-        $mform->addElement('text', 'logic_mylogic_value', 'My Value');
-        $mform->setType('logic_mylogic_value', PARAM_INT);
-    }
-
-    public function get_name_of_logic(bool $localized = true): string {
-        return $localized ? get_string('logic_mylogic', 'mod_booking') : 'mylogic';
-    }
-
-    public function save_logic(stdClass &$data): void {
-        $obj = new stdClass();
-        $obj->logicname = 'mylogic';
-        $obj->myvalue = (int)($data->logic_mylogic_value ?? 0);
-        $data->logicjson = json_encode($obj);
-    }
-
-    public function set_defaults(stdClass &$data, stdClass $record) {
-        if (!empty($record->logicjson)) {
-            $this->set_logicdata_from_json($record->logicjson);
-            $obj = json_decode($record->logicjson);
-            $data->logic_mylogic_value = $obj->myvalue ?? 0;
-        }
-    }
-
-    public function set_logicdata(stdClass $record): void {
-        // Load logic data if needed
-    }
-
-    public function set_logicdata_from_json(string $json): void {
-        $obj = json_decode($json);
-        if ($obj) {
-            $this->myvalue = (int)($obj->myvalue ?? 0);
-        }
-    }
-
-    public function execute(stdClass &$sql, array &$params): void {
-        // Legacy SQL building method (optional)
-    }
-
-    public function evaluate(stdClass $context): bool {
-        // Return true if logic condition passes
-        return true; // Your logic here
-    }
-}
-```
-
-### 3. Create an Action
-
-Actions perform tasks when filter and logic both pass.
-
-**File:** `actions/myaction.php`
-
-```php
-<?php
-namespace mod_booking\certificate_conditions\actions;
-
-use mod_booking\certificate_conditions\action_interface;
-use MoodleQuickForm;
-use stdClass;
-
-class myaction implements action_interface {
-    public $myconfig = '';
-
-    public function add_action_to_mform(MoodleQuickForm &$mform, ?array &$ajaxformdata = null) {
-        $mform->addElement('text', 'action_myaction_config', 'Config Value');
-        $mform->setType('action_myaction_config', PARAM_TEXT);
-    }
-
-    public function get_name_of_action(bool $localized = true): string {
-        return $localized ? get_string('action_myaction', 'mod_booking') : 'myaction';
-    }
-
-    public function save_action(stdClass &$data): void {
-        $obj = new stdClass();
-        $obj->actionname = 'myaction';
-        $obj->myconfig = $data->action_myaction_config ?? '';
-        $data->actionjson = json_encode($obj);
-    }
-
-    public function set_defaults(stdClass &$data, stdClass $record) {
-        if (!empty($record->actionjson)) {
-            $this->set_actiondata_from_json($record->actionjson);
-            $obj = json_decode($record->actionjson);
-            $data->action_myaction_config = $obj->myconfig ?? '';
-        }
-    }
-
-    public function set_actiondata(stdClass $record): void {
-        // Load action data if needed
-    }
-
-    public function set_actiondata_from_json(string $json): void {
-        $obj = json_decode($json);
-        if ($obj) {
-            $this->myconfig = $obj->myconfig ?? '';
-        }
-    }
-
-    public function execute(stdClass &$sql, array &$params): void {
-        // Legacy SQL building method (optional)
-    }
-
-    public function execute_action(stdClass $context): void {
-        // Perform the action
-        // $context contains: userid, optionid, event
-        $userid = $context->userid ?? 0;
-        $optionid = $context->optionid ?? 0;
-
-        if ($userid && $optionid) {
-            // Perform your action
-        }
-    }
-}
-```
-
-## Language Strings
-
-Add corresponding language strings to `lang/en/booking.php`:
-
-```php
-// Filter
-$string['filter_myfilter'] = 'My Filter';
-$string['filter_myfilter_field'] = 'My Field';
-
-// Logic
-$string['logic_mylogic'] = 'My Logic';
-$string['logic_mylogic_value'] = 'My Value';
-
-// Action
-$string['action_myaction'] = 'My Action';
-$string['action_myaction_config'] = 'Config Value';
-```
-
-## Integration Points
-
-### Certificate Conditions Helper Class
-
-The main class `certificate_conditions` provides utility methods:
-
-- `get_rendered_list_of_saved_conditions($contextid)` – renders the conditions list
-- `get_list_of_saved_conditions($contextid)` – retrieves saved conditions
-- `save_certificate_condition($data)` – saves a new/updated condition
-- `delete_condition($id)` – deletes a condition
-- `evaluate_and_execute_condition($record, $context, $userid, $optionid)` – evaluates and executes a condition
-
-### Observer Integration
-
-Conditions are automatically evaluated when a booking option is marked as completed via the `bookingoption_completed` event. The observer calls:
-
-```php
-self::evaluate_certificate_conditions($event, $userid, $optionid);
-```
-
-This triggers `certificate_conditions::evaluate_and_execute_condition()` for all active conditions.
+`logicjson` always carries `conditionname` (the short class name) and the condition specific settings.
 
 ## Evaluation Flow
 
-1. User completes a booking option
-2. `bookingoption_completed` event fires
-3. Observer calls `evaluate_certificate_conditions()`
-4. For each active condition:
-   - Instantiate filter, logic, action handlers
-   - Call `filter->evaluate($context)`
-   - Call `logic->evaluate($context)`
-   - If both pass, call `action->execute_action($context)`
+1. A user completes a booking option, `bookingoption_completed` fires (or the manual trigger on the
+   "Manage users" page builds the same event).
+2. `observer::bookingoption_completed()` calls `certificate_conditions::evaluate_certificate_conditions()`
+   unless `certificatemanualtrigger` is set.
+3. For each active condition `evaluate_single_condition()` instantiates filter, condition and action,
+   calls `filter->evaluate($context)` and `condition->evaluate($context)` and, when both pass and an
+   action is configured, `action->execute_action($context, $record)`.
 
-## Context Object
+The context object contains `event`, `userid` and `optionid`. Every option based condition **gates**
+itself: only the completion of one of its own options may trigger it (`targets_option()`), so a
+fulfilled condition does not fire again when the user completes an unrelated option.
 
-The context object passed to evaluate/execute methods contains:
+### Performance
 
-```php
-$context = new stdClass();
-$context->event = $event;         // Core event object
-$context->userid = $userid;       // User ID completing option
-$context->optionid = $optionid;   // Booking option ID
+The evaluation is designed to stay cheap on large sites:
+
+- `certificate_conditions::get_candidate_condition_ids()` uses the lookup rows of `booking_cert_cond_item`
+  to evaluate only the conditions that observe the completed option (its own id, its booking instance,
+  and the combinations built on those). Conditions without lookup rows are always evaluated.
+- The completion state of a user is read with **one query over the user's answers** (by option ids, or by
+  booking id for instance conditions) and reduced with the same precedence rule as `booking_answers`.
+  The answers of the observed options are never loaded, so the cost does not grow with the number of
+  options or bookings of an instance.
+- `instance::targets_option()` compares the booking id of the completed option instead of loading the
+  option list; the list is only loaded (one query, ids only) to cap the required count.
+
+## The condition interface
+
+Besides the form related methods (`add_logic_to_mform`, `save_condition`, `save_items`, `set_defaults`,
+`validate`) and the loaders (`set_logicdata($record)` is the single entry point and also loads the items;
+`set_conditiondata_from_json()` parses JSON only), a condition provides:
+
+- `get_targeted_optionids(): array` – the option ids it observes,
+- `get_requiredcount(): int` – how many of them must be completed,
+- `get_completed_optionids_for_user(int $userid, array $excludeoptionids = []): array` – the completed
+  ones, sorted by option id,
+- `get_description(stdClass $record): string` – a short summary for the list of conditions,
+- `evaluate(stdClass $context): bool`.
+
+`completion_counter_trait` implements the counting, the gating and `evaluate_completion()` on top of
+`get_targeted_optionids()` and `get_requiredcount()`; the three option based conditions use it.
+
+## Combinations (AND / OR)
+
+The `combination` condition references other saved conditions ("leaves") by id and arranges them in
+groups. `logicjson`:
+
+```json
+{
+  "conditionname": "combination",
+  "operator": "AND",
+  "uniqueoptions": 1,
+  "groups": [
+    {"operator": "AND", "conditionids": [11, 12, 13]},
+    {"operator": "OR",  "conditionids": [11, 12, 13]}
+  ]
+}
 ```
 
-## Best Practices
+- Within a group the leaves are combined with the group operator, the groups with the top level operator.
+- `uniqueoptions`: a completed option counts for one leaf only. Leaves are evaluated in order and consume
+  the options they used; a failed group or OR branch consumes nothing. Options observed by several leaves
+  are consumed last, so they stay available for later leaves (greedy, no exact matching).
+- Leaf filters, leaf actions and the active flag of leaves are ignored inside a combination.
+- A combination cannot be a leaf of another combination (prevented in the form and in the evaluator).
+- Deleting a leaf removes it from every combination using it (`combination::remove_leaf_from_combinations()`).
+- Evaluation is state based: the combination is checked at every completion of an option observed by one
+  of its leaves; the "issue multiple certificates" settings decide whether a fulfilled combination issues
+  again.
 
-1. **Validation:** Always validate input in form elements
-2. **Error Handling:** Use try-catch in execute_action to prevent broken conditions from blocking workflows
-3. **Performance:** Cache lookups in set_*_from_json methods
-4. **Localization:** Always use get_string() for user-facing text
-5. **Testing:** Create unit tests in `tests/certificate_conditions/` for your components
+Example "one option in each of the instances A, B and C, then one other option in any of them": three
+`instance` leaves A, B, C (required count 1, action "No action") and a combination with operator AND,
+group 1 = AND(A, B, C), group 2 = OR(A, B, C), unique options enabled.
 
-## Example Workflow
+## Creating Custom Components
 
-To create a condition that issues a certificate when a specific user completes a specific option:
+Add a class to `conditions/`, `filters/` or `actions/` implementing the respective interface; it is
+discovered automatically. Add the language strings `condition_<name>` / `filter_<name>` /
+`action_<name>` (used in the form selectors and the list) to `lang/en/booking.php`. Form element names
+should be prefixed with `condition_<name>_`, `filter_<name>_` or `action_<name>_`.
 
-1. Use filter `userprofilefield` with field=role, value=student
-2. Use logic `bookingoption` with optionid=42
-3. Use action `createcertificate` with certid=5
+## Integration Points
 
-Result: When a student completes booking option 42, a certificate (id 5) is automatically issued.
+- `certificate_conditions::get_rendered_list_of_saved_conditions($contextid)` – renders the list,
+- `certificate_conditions::save_certificate_condition($data)` + `save_items_for_condition($id, $data)`,
+- `certificate_conditions::delete_condition($id)`,
+- `certificate_conditions::evaluate_certificate_conditions($event, $userid, $optionid)`,
+- `option_conditions_info::add_static_info_to_mform()` – lists the conditions (and combinations)
+  targeting a booking option on the option form.
+
+Tests live in `tests/certificates/certificateconditions/`.

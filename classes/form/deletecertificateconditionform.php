@@ -28,6 +28,7 @@ use core_form\dynamic_form;
 use context;
 use context_system;
 use mod_booking\local\certificate_conditions\certificate_conditions;
+use mod_booking\local\certificate_conditions\conditions\combination;
 use moodle_url;
 
 /**
@@ -49,8 +50,16 @@ class deletecertificateconditionform extends dynamic_form {
         $mform->addElement('html', '<div><p>'
             . get_string('deletecertificateconditionconfirmtext', 'mod_booking')
             . '</p><p class="text-danger font-weight-bold">'
-            . $ajaxformdata['name']
+            . s($ajaxformdata['name'] ?? '')
             . '</p></div>');
+
+        $combinations = combination::get_combinations_using((int)($ajaxformdata['id'] ?? 0));
+        if (!empty($combinations)) {
+            $names = implode(', ', array_map('format_string', $combinations));
+            $mform->addElement('html', '<div class="alert alert-warning">'
+                . get_string('deletecertificateconditionusedby', 'mod_booking', s($names))
+                . '</div>');
+        }
     }
 
     /**

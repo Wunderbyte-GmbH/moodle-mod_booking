@@ -19,8 +19,8 @@ namespace mod_booking\local\certificate_conditions\conditions;
 use context_module;
 use core\context;
 use mod_booking\booking;
-use mod_booking\event\bookingoption_completed;
 use mod_booking\local\certificate_conditions\certificate_conditions_interface;
+use mod_booking\local\certificate_conditions\completion_counter_trait;
 use mod_booking\singleton_service;
 use MoodleQuickForm;
 use stdClass;
@@ -33,6 +33,11 @@ use stdClass;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class instance implements certificate_conditions_interface {
+    use completion_counter_trait;
+
+    /** @var int[]|null option ids of the configured instance, loaded once per object */
+    private ?array $targetedoptionids = null;
+
     /**
      * Booking instance ID (booking.id).
      *
@@ -214,6 +219,7 @@ class instance implements certificate_conditions_interface {
     public function set_logicdata(stdClass $record): void {
         $this->bookingid = 0;
         $this->requiredcount = 1;
+        $this->targetedoptionids = null;
 
         if (!empty($record->logicjson)) {
             $jsonobject = json_decode($record->logicjson);
@@ -233,6 +239,7 @@ class instance implements certificate_conditions_interface {
     public function set_conditiondata_from_json(string $json): void {
         $jsonobject = json_decode($json);
         if ($jsonobject) {
+            $this->targetedoptionids = null;
             $this->bookingid = (int)($jsonobject->bookingid ?? 0);
             $this->requiredcount = max(1, (int)($jsonobject->requiredcount ?? 1));
         }
@@ -249,61 +256,100 @@ class instance implements certificate_conditions_interface {
     }
 
     /**
-     * Returns true when the user has completed the required number of options in the booking instance.
+     * Returns true when an option of the instance was completed and the user has completed enough of them.
      *
      * @param stdClass $context
      * @return bool
      */
     public function evaluate(stdClass $context): bool {
-        $event = $context->event ?? null;
-        if (!$event) {
+        return $this->evaluate_completion($context);
+    }
+
+    /**
+     * Return the ids of all options of the configured booking instance.
+     *
+     * @return int[]
+     */
+    public function get_targeted_optionids(): array {
+        $bookingid = (int)$this->bookingid;
+        if (empty($bookingid)) {
+            return [];
+        }
+        if ($this->targetedoptionids === null) {
+            $this->targetedoptionids = array_map('intval', booking::get_all_optionids($bookingid));
+        }
+        return $this->targetedoptionids;
+    }
+
+    /**
+     * Returns true when the option belongs to the configured booking instance (no option list needed).
+     *
+     * @param int $optionid
+     * @return bool
+     */
+    public function targets_option(int $optionid): bool {
+        if (empty($this->bookingid) || empty($optionid)) {
             return false;
         }
+        $optionsettings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        return !empty($optionsettings->id) && (int)$optionsettings->bookingid === (int)$this->bookingid;
+    }
 
-        if (!($event instanceof bookingoption_completed)) {
-            return false;
+    /**
+     * Fetch the user's answers of the whole booking instance with one query and keep the requested options.
+     *
+     * @param int $userid
+     * @param int[] $optionids
+     * @return stdClass[]
+     */
+    protected function fetch_user_answers(int $userid, array $optionids): array {
+        global $DB;
+
+        if (empty($this->bookingid) || empty($optionids)) {
+            return [];
         }
+        [$statussql, $params] = $DB->get_in_or_equal(self::answer_statuses(), SQL_PARAMS_NAMED, 'st');
+        $params['userid'] = $userid;
+        $params['bookingid'] = (int)$this->bookingid;
 
-        if (empty($this->bookingid)) {
-            return false;
+        $answers = $DB->get_records_select(
+            'booking_answers',
+            "userid = :userid AND bookingid = :bookingid AND waitinglist $statussql",
+            $params,
+            'timemodified ASC, id ASC',
+            'id, optionid, waitinglist, completed'
+        );
+        $wanted = array_flip(array_map('intval', $optionids));
+        return array_filter($answers, fn($answer) => isset($wanted[(int)$answer->optionid]));
+    }
+
+    /**
+     * Return the required number of completed options.
+     *
+     * @return int
+     */
+    public function get_requiredcount(): int {
+        return max(1, (int)$this->requiredcount);
+    }
+
+    /**
+     * Return a short summary like "2 options of booking instance «Name»".
+     *
+     * @param stdClass $record
+     * @return string
+     */
+    public function get_description(stdClass $record): string {
+        $this->set_logicdata($record);
+        $name = '';
+        if (!empty($this->bookingid)) {
+            $bookingsettings = singleton_service::get_instance_of_booking_settings_by_bookingid((int)$this->bookingid);
+            $name = format_string($bookingsettings->name ?? '');
         }
-
-        // Only the completion of an option of this booking instance may trigger it.
-        $triggeringsettings = singleton_service::get_instance_of_booking_option_settings((int)($context->optionid ?? 0));
-        if (empty($triggeringsettings->id) || (int)$triggeringsettings->bookingid !== (int)$this->bookingid) {
-            return false;
-        }
-
-        $userid = (int)($context->userid ?? $event->relateduserid ?? $event->userid ?? 0);
-        if (empty($userid)) {
-            return false;
-        }
-
-        // Get all option IDs in this booking instance.
-        $alloptionids = booking::get_all_optionids($this->bookingid);
-        if (empty($alloptionids)) {
-            return false;
-        }
-
-        $requiredcount = min(max(1, (int)$this->requiredcount), count($alloptionids));
-        $completedcount = 0;
-
-        foreach ($alloptionids as $optionid) {
-            $optionsettings = singleton_service::get_instance_of_booking_option_settings((int)$optionid);
-            if (empty($optionsettings->id)) {
-                continue;
-            }
-
-            $bookinganswers = singleton_service::get_instance_of_booking_answers($optionsettings);
-            if ((int)$bookinganswers->is_activity_completed($userid) === 1) {
-                $completedcount++;
-                if ($completedcount >= $requiredcount) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
+        $a = (object)[
+            'required' => $this->get_requiredcount(),
+            'name' => $name,
+        ];
+        return get_string('condition_description_instance', 'mod_booking', $a);
     }
 
     /**

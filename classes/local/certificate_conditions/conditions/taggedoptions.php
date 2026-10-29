@@ -16,9 +16,8 @@
 
 namespace mod_booking\local\certificate_conditions\conditions;
 
-use mod_booking\event\bookingoption_completed;
 use mod_booking\local\certificate_conditions\certificate_conditions_interface;
-use mod_booking\singleton_service;
+use mod_booking\local\certificate_conditions\completion_counter_trait;
 use MoodleQuickForm;
 use stdClass;
 
@@ -30,6 +29,8 @@ use stdClass;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class taggedoptions implements certificate_conditions_interface {
+    use completion_counter_trait;
+
     /**
      * Booking option ID to filter by.
      *
@@ -70,7 +71,7 @@ class taggedoptions implements certificate_conditions_interface {
         $mform->addElement(
             'text',
             'condition_taggedoptions_requiredcount',
-            get_string('condition_bookingoption_requiredcount', 'mod_booking')
+            get_string('condition_taggedoptions_requiredcount', 'mod_booking')
         );
         $mform->setType('condition_taggedoptions_requiredcount', PARAM_INT);
         $mform->setDefault('condition_taggedoptions_requiredcount', 1);
@@ -93,14 +94,13 @@ class taggedoptions implements certificate_conditions_interface {
      * @return void
      */
     public function save_condition(stdClass &$data): void {
-        global $DB;
-        $requiredcount = (int)($data->condition_bookingoption_requiredcount ?? 1);
+        $requiredcount = (int)($data->condition_taggedoptions_requiredcount ?? 1);
         $requiredcount = max(1, $requiredcount);
 
         $jsonobject = new stdClass();
         $jsonobject->conditionname = 'taggedoptions';
         $jsonobject->requiredcount = $requiredcount;
-            $data->conditionjson = json_encode($jsonobject);
+        $data->conditionjson = json_encode($jsonobject);
     }
 
     /**
@@ -119,7 +119,12 @@ class taggedoptions implements certificate_conditions_interface {
             // First we delete old Record.
             $DB->delete_records(
                 'booking_cert_cond_item',
-                ['conditionid' => (int) $targetconditionid, 'itemid' => (int) $data->optionid],
+                [
+                    'conditionid' => (int) $targetconditionid,
+                    'itemid' => (int) $data->optionid,
+                    'component' => 'mod_booking',
+                    'area' => 'bookingoption',
+                ],
             );
             $record = new stdClass();
             $record->conditionid = (int)$targetconditionid;
@@ -140,7 +145,6 @@ class taggedoptions implements certificate_conditions_interface {
      * @return void
      */
     public function set_defaults(stdClass &$data, stdClass $record) {
-        global $DB;
         // Load required count from JSON.
         $requiredcount = 1;
         if (!empty($record->logicjson)) {
@@ -149,7 +153,7 @@ class taggedoptions implements certificate_conditions_interface {
                 $requiredcount = max(1, (int)($jsonobject->requiredcount ?? 1));
             }
         }
-        $data->condition_bookingoption_requiredcount = $requiredcount;
+        $data->condition_taggedoptions_requiredcount = $requiredcount;
     }
 
     /**
@@ -211,55 +215,49 @@ class taggedoptions implements certificate_conditions_interface {
     }
 
     /**
-     * Returns true if the event object corresponds to the configured option id.
+     * Returns true when one of the tagged options was completed and enough of them are completed by the user.
      * @param stdClass $context
      * @return bool
      */
     public function evaluate(stdClass $context): bool {
-        $event = $context->event ?? null;
-        if (!$event) {
-            return false;
+        return $this->evaluate_completion($context);
+    }
+
+    /**
+     * Return the ids of the options tagged with this condition.
+     *
+     * @return int[]
+     */
+    public function get_targeted_optionids(): array {
+        $optionids = array_map('intval', $this->optionids);
+        if (empty($optionids) && !empty($this->optionid)) {
+            $optionids = [(int)$this->optionid];
         }
-        if ($event instanceof bookingoption_completed) {
-            $candidateoptionids = $this->optionids;
-            if (empty($candidateoptionids) && !empty($this->optionid)) {
-                $candidateoptionids = [$this->optionid];
-            }
+        return array_values(array_unique($optionids));
+    }
 
-            if (empty($candidateoptionids)) {
-                return false;
-            }
+    /**
+     * Return the required number of completed options.
+     *
+     * @return int
+     */
+    public function get_requiredcount(): int {
+        return max(1, (int)$this->requiredcount);
+    }
 
-            // Only the completion of one of this condition's own options may trigger it.
-            if (!in_array((int)($context->optionid ?? 0), $candidateoptionids, true)) {
-                return false;
-            }
-
-            $userid = (int)($context->userid ?? $event->relateduserid ?? $event->userid ?? 0);
-            if (empty($userid)) {
-                return false;
-            }
-
-            $requiredcount = min(max(1, (int)$this->requiredcount), count($candidateoptionids));
-            $completedcount = 0;
-
-            foreach ($candidateoptionids as $candidateoptionid) {
-                $optionsettings = singleton_service::get_instance_of_booking_option_settings((int)$candidateoptionid);
-                if (empty($optionsettings->id)) {
-                    continue;
-                }
-
-                $bookinganswers = singleton_service::get_instance_of_booking_answers($optionsettings);
-                if ((int)$bookinganswers->is_activity_completed($userid) === 1) {
-                    $completedcount++;
-                    if ($completedcount >= $requiredcount) {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
-        return false;
+    /**
+     * Return a short summary like "1 of 4 tagged booking options".
+     *
+     * @param stdClass $record
+     * @return string
+     */
+    public function get_description(stdClass $record): string {
+        $this->set_logicdata($record);
+        $a = (object)[
+            'required' => min($this->get_requiredcount(), max(1, count($this->get_targeted_optionids()))),
+            'total' => count($this->get_targeted_optionids()),
+        ];
+        return get_string('condition_description_taggedoptions', 'mod_booking', $a);
     }
 
     /**
