@@ -1546,6 +1546,7 @@ $string['certificatebookingnotes'] = 'Anmerkung zur Buchung';
 $string['certificatecode'] = 'Zertifikatscode';
 $string['certificatecolheader'] = 'Aktuellstes Zertifikat';
 $string['certificatecondition'] = 'Bedingung';
+$string['certificateconditionbadgealsobuildingblock'] = 'Auch als Baustein verwendet';
 $string['certificateconditionbadgebuildingblock'] = 'Baustein';
 $string['certificateconditionbadgecombination'] = 'Kombination';
 $string['certificateconditionbuildingblocks'] = 'Bausteine';
