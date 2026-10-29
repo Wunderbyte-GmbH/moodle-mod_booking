@@ -85,7 +85,8 @@ class search_options_skill extends booking_skill_base implements skill_trigger_p
             'when' => 'The user asks what they can book, register for or attend, wants options listed or found, or asks '
                 . 'how full options are (seats taken and free).',
             'is' => 'Bookable offerings inside a booking activity, with their seats taken and free.',
-            'not' => 'Moodle courses (course.search_courses); full details of one named option (get_option_details).',
+            'not' => 'Moodle courses (course.search_courses); full details of one named option (get_option_details); '
+                . 'building a report (report.create_report).',
             'readonly' => $this->is_read_only(),
             'fallback_confirm_string_key' => 'ai_status_confirm_booking_search_options',
             'fallback_taskcall_string_key' => 'ai_status_taskcall_booking_search_options',
