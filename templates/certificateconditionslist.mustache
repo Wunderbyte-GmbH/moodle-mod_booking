@@ -38,6 +38,7 @@
                 "logicdescription" : "2 of 3 selected booking options",
                 "iscombination": false,
                 "isbuildingblock": true,
+                "isalsobuildingblock": false,
                 "isunused": false,
                 "hasusedin": true,
                 "usedin": [{"id": 2, "name": "Combination", "contextid": 1}],
@@ -75,6 +76,9 @@
                     {{#isbuildingblock}}
                         <span class="badge bg-secondary text-white ml-1">{{#str}} certificateconditionbadgebuildingblock, mod_booking {{/str}}</span>
                     {{/isbuildingblock}}
+                    {{#isalsobuildingblock}}
+                        <span class="badge bg-light text-dark border ml-1">{{#str}} certificateconditionbadgealsobuildingblock, mod_booking {{/str}}</span>
+                    {{/isalsobuildingblock}}
                     {{#isunused}}
                         <span class="badge bg-warning text-dark ml-1">{{#str}} certificateconditionunused, mod_booking {{/str}}</span>
                     {{/isunused}}
