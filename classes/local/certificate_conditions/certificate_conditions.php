@@ -16,8 +16,10 @@
 
 namespace mod_booking\local\certificate_conditions;
 
+use mod_booking\local\certificate_conditions\conditions\combination;
 use mod_booking\local\certificateclass;
 use mod_booking\output\certificateconditionslist;
+use mod_booking\singleton_service;
 use context_system;
 use dml_exception;
 use stdClass;
@@ -94,6 +96,8 @@ class certificate_conditions {
      */
     public static function delete_condition(int $id) {
         global $DB;
+        // Combinations using this condition as building block lose the reference.
+        combination::remove_leaf_from_combinations($id);
         $DB->delete_records('booking_cert_cond_item', ['conditionid' => $id]);
         $DB->delete_records('booking_cert_cond', ['id' => $id]);
         self::$condition = [];
@@ -197,7 +201,10 @@ class certificate_conditions {
         $record->name = $data->name ?? '';
         $record->isactive = isset($data->isactive) ? $data->isactive : 1;
         $record->useastemplate = isset($data->useastemplate) ? $data->useastemplate : 0;
+        // Empty defaults so that an update can clear a previously saved filter, condition or action.
         $record->filterjson = json_encode(new stdClass());
+        $record->logicjson = json_encode(new stdClass());
+        $record->actionjson = json_encode(new stdClass());
         if (!empty($data->certificatefiltertype)) {
             $filter = filters_info::get_filter($data->certificatefiltertype);
             if ($filter) {
@@ -209,14 +216,14 @@ class certificate_conditions {
             $condition = conditions_info::get_condition($data->certificateconditiontype);
             if ($condition) {
                 $condition->save_condition($data);
-                $record->logicjson = $data->conditionjson ?? null;
+                $record->logicjson = $data->conditionjson ?? json_encode(new stdClass());
             }
         }
         if (!empty($data->certificateactiontype)) {
             $action = actions_info::get_action($data->certificateactiontype);
             if ($action) {
                 $action->save_action($data);
-                $record->actionjson = $data->actionjson ?? null;
+                $record->actionjson = $data->actionjson ?? json_encode(new stdClass());
             }
         }
         $now = time();
@@ -293,15 +300,87 @@ class certificate_conditions {
         $eventcontext->optionid = $optionid;
 
         $records = $DB->get_records('booking_cert_cond', ['isactive' => 1]);
+        if (empty($records)) {
+            return false;
+        }
+        $candidates = self::get_candidate_condition_ids($optionid);
         $triggered = false;
 
         foreach ($records as $record) {
+            if (!isset($candidates[(int)$record->id])) {
+                // The option is not observed by this condition, so it cannot have become fulfilled.
+                continue;
+            }
             if (self::evaluate_single_condition($record, $eventcontext, $userid, $optionid)) {
                 $triggered = true;
             }
         }
 
         return $triggered;
+    }
+
+    /**
+     * Return the ids of the active conditions whose evaluation can be triggered by the completion of an option.
+     *
+     * Uses the lookup rows in booking_cert_cond_item: the option itself (bookingoption, taggedoptions), its
+     * booking instance (instance) and the combinations built on those conditions. Conditions without any
+     * lookup rows are always included so that nothing is skipped by accident.
+     *
+     * @param int $optionid
+     * @return array condition id => true
+     */
+    public static function get_candidate_condition_ids(int $optionid): array {
+        global $DB;
+
+        $optionsettings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $bookingid = (int)($optionsettings->bookingid ?? 0);
+
+        $candidates = [];
+        $leafitems = $DB->get_records_select(
+            'booking_cert_cond_item',
+            "component = :component AND ((area = :optionarea AND itemid = :optionid)
+                OR (area = :instancearea AND itemid = :bookingid))",
+            [
+                'component' => 'mod_booking',
+                'optionarea' => 'bookingoption',
+                'optionid' => $optionid,
+                'instancearea' => 'bookinginstance',
+                'bookingid' => $bookingid,
+            ],
+            '',
+            'id, conditionid'
+        );
+        foreach ($leafitems as $item) {
+            $candidates[(int)$item->conditionid] = true;
+        }
+
+        if (!empty($candidates)) {
+            [$insql, $params] = $DB->get_in_or_equal(array_keys($candidates), SQL_PARAMS_NAMED);
+            $params['area'] = combination::ITEM_AREA;
+            $combinationitems = $DB->get_records_select(
+                'booking_cert_cond_item',
+                "area = :area AND itemid $insql",
+                $params,
+                '',
+                'id, conditionid'
+            );
+            foreach ($combinationitems as $item) {
+                $candidates[(int)$item->conditionid] = true;
+            }
+        }
+
+        // Conditions without lookup rows (e.g. created by older versions) are evaluated as before.
+        $withoutitems = $DB->get_fieldset_sql(
+            "SELECT c.id
+               FROM {booking_cert_cond} c
+          LEFT JOIN {booking_cert_cond_item} i ON i.conditionid = c.id
+              WHERE c.isactive = 1 AND i.id IS NULL"
+        );
+        foreach ($withoutitems as $id) {
+            $candidates[(int)$id] = true;
+        }
+
+        return $candidates;
     }
 
     /**

@@ -16,6 +16,7 @@
 
 namespace mod_booking\local\certificate_conditions;
 
+use mod_booking\local\certificate_conditions\conditions\combination;
 use mod_booking\local\certificate_conditions\conditions\taggedoptions;
 use context_module;
 use context_system;
@@ -63,6 +64,9 @@ class option_conditions_info {
                 self::get_condition_infos_targeting_option($optionid),
                 self::get_instance_conditions_for_option($optionid)
             );
+            // Combinations using one of these conditions as building block target the option as well.
+            $leafids = array_unique(array_filter(array_column($conditioninfos, 'id')));
+            $conditioninfos = array_merge($conditioninfos, self::get_combination_infos_for_leafids($leafids));
         }
 
         $items = [];
@@ -98,6 +102,7 @@ class option_conditions_info {
           global $DB;
 
         $sql = "SELECT i.id AS itemrowid,
+                    c.id AS conditionid,
                     c.name,
                     c.contextid,
                     ctx.contextlevel,
@@ -115,26 +120,7 @@ class option_conditions_info {
             return [];
         }
 
-        $conditioninfos = [];
-        foreach ($records as $record) {
-            $url = null;
-
-            if ((int)$record->contextlevel === CONTEXT_SYSTEM) {
-                $url = new moodle_url('/mod/booking/edit_certificateconditions.php', [
-                    'contextid' => (int)$record->contextid,
-                ]);
-            } else if ((int)$record->contextlevel === CONTEXT_MODULE) {
-                $url = new moodle_url('/mod/booking/edit_certificateconditions.php', [
-                    'cmid' => (int)$record->instanceid,
-                ]);
-            }
-
-            $conditioninfos[] = [
-                'name' => (string)($record->name ?? ''),
-                'url' => $url,
-            ];
-        }
-        return $conditioninfos;
+        return self::records_to_condition_infos($records);
     }
 
     /**
@@ -155,6 +141,7 @@ class option_conditions_info {
         }
 
         $sql = "SELECT i.id AS itemrowid,
+                    c.id AS conditionid,
                     c.name,
                     c.contextid,
                     ctx.contextlevel,
@@ -173,6 +160,49 @@ class option_conditions_info {
             return [];
         }
 
+        return self::records_to_condition_infos($records);
+    }
+
+    /**
+     * Return infos of all combinations using one of the given conditions as building block.
+     *
+     * @param array $leafids
+     * @return array
+     */
+    private static function get_combination_infos_for_leafids(array $leafids): array {
+        global $DB;
+
+        $leafids = array_values(array_unique(array_map('intval', $leafids)));
+        if (empty($leafids)) {
+            return [];
+        }
+
+        [$insql, $params] = $DB->get_in_or_equal($leafids, SQL_PARAMS_NAMED);
+        $params['area'] = combination::ITEM_AREA;
+        $sql = "SELECT DISTINCT c.id AS conditionid,
+                    c.name,
+                    c.contextid,
+                    ctx.contextlevel,
+                    ctx.instanceid
+                FROM {booking_cert_cond_item} i
+                JOIN {booking_cert_cond} c
+                    ON c.id = i.conditionid
+            LEFT JOIN {context} ctx
+                    ON ctx.id = c.contextid
+                WHERE i.area = :area
+                  AND i.itemid $insql
+            ORDER BY c.name ASC";
+
+        return self::records_to_condition_infos($DB->get_records_sql($sql, $params));
+    }
+
+    /**
+     * Convert condition records (with conditionid, name, contextid, contextlevel, instanceid) to info arrays.
+     *
+     * @param array $records
+     * @return array list of ['id' => int, 'name' => string, 'url' => moodle_url|null]
+     */
+    private static function records_to_condition_infos(array $records): array {
         $conditioninfos = [];
         foreach ($records as $record) {
             $url = null;
@@ -188,6 +218,7 @@ class option_conditions_info {
             }
 
             $conditioninfos[] = [
+                'id' => (int)$record->conditionid,
                 'name' => (string)($record->name ?? ''),
                 'url' => $url,
             ];
