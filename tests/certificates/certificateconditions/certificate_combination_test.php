@@ -152,7 +152,7 @@ final class certificate_combination_test extends booking_advanced_testcase {
         $leafb = $this->insert_instance_leaf('B');
         $leafc = $this->insert_instance_leaf('C');
 
-        // (A AND B) OR (A OR C): completing only A1 fails group 1 (A consumed, B missing) and must
+        // Groups (A AND B) OR (A OR C): completing only A1 fails group 1 (A consumed, B missing) and must
         // leave A1 available for group 2.
         $first = $this->insert_combination(
             [
@@ -166,7 +166,7 @@ final class certificate_combination_test extends booking_advanced_testcase {
         $this->complete('A1', $userid);
         $this->assertEquals(1, $this->count_certificates($userid));
 
-        // (A AND B) OR (C) is fulfilled by C alone for another user (first combination switched off).
+        // Groups (A AND B) OR (C) are fulfilled by C alone for another user (first combination switched off).
         $DB->set_field('booking_cert_cond', 'isactive', 0, ['id' => $first]);
         $this->insert_combination(
             [
@@ -270,7 +270,7 @@ final class certificate_combination_test extends booking_advanced_testcase {
             $this->assertCount(2, $group->conditionids);
         }
 
-        // (A AND B) AND (A OR B) is now fulfilled by A1, B1, A2.
+        // The remaining (A AND B) AND (A OR B) is now fulfilled by A1, B1, A2.
         $userid = $this->users['student1']->id;
         $this->complete('A1', $userid);
         $this->complete('B1', $userid);
@@ -423,7 +423,7 @@ final class certificate_combination_test extends booking_advanced_testcase {
         $this->assertStringContainsString(get_string('condition_combination_uniqueoptionsshort', 'mod_booking'), $list);
         $this->assertStringContainsString(get_string('certificateconditionbuildingblocks', 'mod_booking'), $list);
 
-        // "Used in" on the leaves points to the combination.
+        // The "Used in" line on the leaves points to the combination.
         $this->assertStringContainsString(get_string('certificateconditionusedin', 'mod_booking'), $list);
         $this->assertGreaterThanOrEqual(3, substr_count($list, 'data-id="' . $combinationid . '" data-name="Combination"'));
 
