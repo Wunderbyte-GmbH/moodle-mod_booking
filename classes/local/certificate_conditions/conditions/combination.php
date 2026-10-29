@@ -110,6 +110,14 @@ class combination implements certificate_conditions_interface {
         $mform->addHelpButton('condition_combination_uniqueoptions', 'condition_combination_uniqueoptions', 'mod_booking');
 
         $eligible = self::get_eligible_leaf_conditions($contextid, $excludeid);
+        if (empty($eligible)) {
+            $mform->addElement(
+                'static',
+                'condition_combination_noleaves',
+                '',
+                html_writer::div(get_string('condition_combination_noleaves', 'mod_booking'), 'alert alert-warning')
+            );
+        }
 
         for ($i = 1; $i <= self::MAX_GROUPS; $i++) {
             $header = "condition_combination_group_{$i}_header";
@@ -558,9 +566,25 @@ class combination implements certificate_conditions_interface {
      * @return array
      */
     public function validate(array $data): array {
+        global $DB;
         $errors = [];
 
-        $eligible = self::get_eligible_leaf_conditions((int)($data['contextid'] ?? 0), (int)($data['id'] ?? 0));
+        $contextid = (int)($data['contextid'] ?? 0);
+        if (empty($contextid)) {
+            $contextid = (int)context_system::instance()->id;
+        }
+        $id = (int)($data['id'] ?? 0);
+        if (!empty($id)) {
+            // The context of a saved combination cannot change; its building blocks are bound to it.
+            $storedcontextid = (int)$DB->get_field('booking_cert_cond', 'contextid', ['id' => $id], IGNORE_MISSING);
+            if (!empty($storedcontextid) && $storedcontextid !== $contextid) {
+                $errors['condition_combination_group_1_operator'] =
+                    get_string('error:condition_combination_context', 'mod_booking');
+                return $errors;
+            }
+        }
+
+        $eligible = self::get_eligible_leaf_conditions($contextid, $id);
         $groups = self::groups_from_formdata((object)$data);
 
         $usedgroups = 0;
@@ -593,31 +617,40 @@ class combination implements certificate_conditions_interface {
     }
 
     /**
+     * Return the groups of this combination after set_logicdata().
+     *
+     * @return array list of ['operator' => string, 'conditionids' => int[]]
+     */
+    public function get_groups(): array {
+        return $this->groups;
+    }
+
+    /**
      * Return the conditions that may be used as building blocks, keyed by id.
      *
-     * In the system context every non-combination condition is eligible. In a module context only the
-     * system conditions and the conditions of that module context are eligible.
+     * Only conditions saved in the same context as the combination are eligible: global combinations use
+     * global conditions, a combination of a booking instance uses the conditions of that instance.
      *
-     * @param int $contextid context of the combination (0 or system id for system level)
+     * @param int $contextid context of the combination (0 = system)
      * @param int $excludeid id of the combination being edited
      * @return array id => "name (type)"
      */
     public static function get_eligible_leaf_conditions(int $contextid, int $excludeid = 0): array {
         global $DB;
 
-        $systemcontextid = context_system::instance()->id;
-        $allowedcontextids = null;
-        if (!empty($contextid) && $contextid !== (int)$systemcontextid) {
-            $allowedcontextids = [(int)$systemcontextid, $contextid];
+        if (empty($contextid)) {
+            $contextid = (int)context_system::instance()->id;
         }
 
-        $records = $DB->get_records('booking_cert_cond', [], 'name ASC', 'id,name,contextid,logicjson');
+        $records = $DB->get_records(
+            'booking_cert_cond',
+            ['contextid' => $contextid],
+            'name ASC',
+            'id,name,contextid,logicjson'
+        );
         $eligible = [];
         foreach ($records as $record) {
             if ((int)$record->id === $excludeid) {
-                continue;
-            }
-            if ($allowedcontextids !== null && !in_array((int)$record->contextid, $allowedcontextids, true)) {
                 continue;
             }
             $jsonobject = json_decode((string)$record->logicjson);

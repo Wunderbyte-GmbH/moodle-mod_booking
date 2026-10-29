@@ -35,7 +35,16 @@
                 "actionname" : "actionname",
                 "localizedfiltername" : "localizedfiltername",
                 "localizedlogicname" : "localizedlogicname",
-                "logicdescription" : "(A ≥ 1 AND B ≥ 1) AND (A ≥ 1 OR B ≥ 1)",
+                "logicdescription" : "2 of 3 selected booking options",
+                "iscombination": false,
+                "isbuildingblock": true,
+                "isunused": false,
+                "hasusedin": true,
+                "usedin": [{"id": 2, "name": "Combination", "contextid": 1}],
+                "groups": [],
+                "topoperator": "AND",
+                "uniqueoptions": true,
+                "hascontextmismatch": false
                 "localizedactionname" : "localizedactionname"
             }
         ],
@@ -60,6 +69,18 @@
             <div class="d-flex justify-content-between">
                 <h5>
                     {{name}}
+                    {{#iscombination}}
+                        <span class="badge bg-info text-white ml-1">{{#str}} certificateconditionbadgecombination, mod_booking {{/str}}</span>
+                    {{/iscombination}}
+                    {{#isbuildingblock}}
+                        <span class="badge bg-secondary text-white ml-1">{{#str}} certificateconditionbadgebuildingblock, mod_booking {{/str}}</span>
+                    {{/isbuildingblock}}
+                    {{#isunused}}
+                        <span class="badge bg-warning text-dark ml-1">{{#str}} certificateconditionunused, mod_booking {{/str}}</span>
+                    {{/isunused}}
+                    {{#hascontextmismatch}}
+                        <span class="badge bg-warning text-dark ml-1">{{#str}} certificateconditioncontextmismatch, mod_booking {{/str}}</span>
+                    {{/hascontextmismatch}}
                 </h5>
                 <div class="btn-group" role="group" aria-label="Certificate condition buttons">
                     <div class="btn btn-sm btn-outline-danger" data-action="delete" data-id="{{id}}" data-name="{{name}}" data-contextid="{{contextid}}" data-certificate="1">
@@ -101,6 +122,47 @@
                         <small>{{localizedlogicname}}{{#logicdescription}}: {{logicdescription}}{{/logicdescription}}</small>
                     </div>
                 </div>
+                {{#iscombination}}
+                <div class="row">
+                    <div class="col-sm-1 text-end">
+                        <small><i class="fa fa-cubes" aria-hidden="true"></i></small>
+                    </div>
+                    <div class="col-sm-11 booking-certcond-groups">
+                        <small>{{#str}} certificateconditionbuildingblocks, mod_booking {{/str}}:</small>
+                        {{#groups}}
+                            <span class="text-nowrap">(
+                            {{#leaves}}
+                                <span class="badge {{#contextmismatch}}bg-warning text-dark{{/contextmismatch}}{{^contextmismatch}}bg-light text-dark border{{/contextmismatch}}"
+                                      role="button" tabindex="0"
+                                      {{#contextmismatch}}title="{{#str}} certificateconditioncontextmismatch, mod_booking {{/str}}"{{/contextmismatch}}
+                                      data-action="edit-or-new" data-id="{{id}}" data-name="{{name}}" data-contextid="{{contextid}}" data-certificate="1">
+                                    <i class="fa fa-pencil" aria-hidden="true"></i> {{name}} ≥ {{requiredcount}}
+                                </span>
+                                {{^last}}<small class="font-weight-bold">{{operator}}</small>{{/last}}
+                            {{/leaves}}
+                            )</span>
+                            {{^last}}<small class="font-weight-bold mx-1">{{topoperator}}</small>{{/last}}
+                        {{/groups}}
+                        {{#uniqueoptions}}<small class="text-muted ml-1">[{{#str}} condition_combination_uniqueoptionsshort, mod_booking {{/str}}]</small>{{/uniqueoptions}}
+                    </div>
+                </div>
+                {{/iscombination}}
+                {{#hasusedin}}
+                <div class="row">
+                    <div class="col-sm-1 text-end">
+                        <small><i class="fa fa-link" aria-hidden="true"></i></small>
+                    </div>
+                    <div class="col-sm-11">
+                        <small>{{#str}} certificateconditionusedin, mod_booking {{/str}}:</small>
+                        {{#usedin}}
+                            <span class="badge bg-info text-white" role="button" tabindex="0"
+                                  data-action="edit-or-new" data-id="{{id}}" data-name="{{name}}" data-contextid="{{contextid}}" data-certificate="1">
+                                <i class="fa fa-pencil" aria-hidden="true"></i> {{name}}
+                            </span>
+                        {{/usedin}}
+                    </div>
+                </div>
+                {{/hasusedin}}
                 <div class="row">
                     <div class="col-sm-1 text-end">
                         <small><i class="fa fa-play" aria-hidden="true"></i></small>
