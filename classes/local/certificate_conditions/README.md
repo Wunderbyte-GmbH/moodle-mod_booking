@@ -115,9 +115,10 @@ groups. `logicjson`:
 - Leaves must be saved in the **same context** as the combination: global combinations use global
   conditions, a combination of a booking instance uses that instance's conditions
   (`combination::get_eligible_leaf_conditions()`, enforced again in `validate()`). The list of conditions
-  marks combinations and building blocks with badges, shows "Used in" on leaves, renders the leaves of a
-  combination as clickable chips and flags conditions without action that are used nowhere, as well as
-  combinations that still reference a condition of another context.
+  marks combinations ("Combination") and conditions without own action ("Building block") with badges; a
+  condition with an action that a combination uses as well is marked "Also used as building block". Leaves
+  show "Used in", the leaves of a combination are rendered as clickable chips, conditions without action
+  that are used nowhere are flagged, as are combinations that still reference a condition of another context.
 - Deleting a leaf removes it from every combination using it (`combination::remove_leaf_from_combinations()`).
 - Evaluation is state based: the combination is checked at every completion of an option observed by one
   of its leaves; the "issue multiple certificates" settings decide whether a fulfilled combination issues
