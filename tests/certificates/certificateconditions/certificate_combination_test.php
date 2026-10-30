@@ -829,6 +829,7 @@ final class certificate_combination_test extends booking_advanced_testcase {
      * @param int $waitinglist
      * @param int $completed
      * @param int $timemodified
+     * @param int|null $completeddate
      * @return int answer id
      */
     private function insert_answer(
@@ -868,6 +869,7 @@ final class certificate_combination_test extends booking_advanced_testcase {
      *
      * @param int $uniqueoptions
      * @param int $issuemultiple 0 = global setting, 1 = prevent, 2 = allow
+     * @param int $strictorder
      * @return int combination id
      */
     private function insert_abc_combination(int $uniqueoptions = 1, int $issuemultiple = 0, int $strictorder = 0): int {
@@ -951,6 +953,7 @@ final class certificate_combination_test extends booking_advanced_testcase {
      * @param string $operator
      * @param int $uniqueoptions
      * @param int $issuemultiple
+     * @param int $strictorder
      * @return int condition id
      */
     private function insert_combination(
