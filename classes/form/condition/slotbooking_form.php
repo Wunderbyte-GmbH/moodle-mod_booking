@@ -32,6 +32,7 @@ use mod_booking\local\mobile\slotbookingstore;
 use mod_booking\bo_availability\conditions\cancelmyself;
 use mod_booking\local\slotbooking\slot_availability;
 use mod_booking\local\slotbooking\slot_dto;
+use mod_booking\local\slotbooking\slot_validity;
 use mod_booking\singleton_service;
 use moodle_url;
 use stdClass;
@@ -835,8 +836,9 @@ class slotbooking_form extends dynamic_form {
             $rangestart = max($rangestart, (int)$config->valid_from);
         }
         $rangeend = strtotime('+90 days', $rangestart);
-        if (!empty($config->valid_until)) {
-            $rangeend = min($rangeend, (int)$config->valid_until + DAYSECS);
+        $validuntil = slot_validity::get_effective_valid_until($config);
+        if ($validuntil > 0) {
+            $rangeend = min($rangeend, $validuntil);
         }
 
         $capacity = max(1, (int)($config->max_participants_per_slot ?? 1));

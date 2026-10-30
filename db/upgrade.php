@@ -6027,5 +6027,32 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2026101401, 'booking');
     }
 
+    if ($oldversion < 2026102700) {
+        // Slot booking: rolling availability window (duration relative to now) as alternative to valid_until.
+        $table = new xmldb_table('booking_slot_config');
+
+        $field = new xmldb_field('valid_duration_value', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'valid_until');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $field = new xmldb_field(
+            'valid_duration_unit',
+            XMLDB_TYPE_CHAR,
+            '10',
+            null,
+            XMLDB_NOTNULL,
+            null,
+            'months',
+            'valid_duration_value'
+        );
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Booking savepoint reached.
+        upgrade_mod_savepoint(true, 2026102700, 'booking');
+    }
+
     return true;
 }

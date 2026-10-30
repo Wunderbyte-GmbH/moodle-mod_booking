@@ -543,6 +543,48 @@ final class slotbooking_form_test extends booking_advanced_testcase {
     }
 
     /**
+     * The open days offered for user-defined slots stop at the end of a rolling window, even though
+     * that window is shorter than the 90 days the picker looks ahead by default.
+     *
+     * @return void
+     */
+    public function test_userdefined_open_days_stop_at_rolling_window(): void {
+        global $DB;
+        $this->setTimezone('Europe/Vienna', 'Europe/Vienna');
+
+        [$option, $userid] = $this->create_slot_option_with_config([
+            'slot_type' => 'userdefined',
+            'booking_interface' => 'calendar',
+            'slot_duration_minutes' => 120,
+            'slot_interval_minutes' => 15,
+            'slot_start_interval_minutes' => 15,
+            'slot_max_days_per_slot' => 1,
+            'opening_time' => '00:00',
+            'closing_time' => '24:00',
+            'valid_from' => 0,
+            'valid_until' => 0,
+            'days_of_week' => '1,2,3,4,5,6,7',
+            'max_participants_per_slot' => 1,
+            'max_slots_per_user' => 1,
+        ]);
+
+        $beforewindow = $this->invoke_private_static(slotbooking_form::class, 'get_custom_open_days', [$option->id, $userid]);
+        $this->assertNotEmpty($beforewindow);
+        $this->assertGreaterThan(time() + 60 * DAYSECS, (int)end($beforewindow)['openuntil'], 'Without a window: 90 days ahead.');
+
+        $DB->set_field('booking_slot_config', 'valid_duration_value', 2, ['optionid' => $option->id]);
+        $DB->set_field('booking_slot_config', 'valid_duration_unit', 'weeks', ['optionid' => $option->id]);
+        booking_option::purge_cache_for_option($option->id);
+        singleton_service::destroy_instance();
+
+        $windowend = (new \DateTimeImmutable('today', new \DateTimeZone('Europe/Vienna')))->modify('+14 days')->getTimestamp();
+        $days = $this->invoke_private_static(slotbooking_form::class, 'get_custom_open_days', [$option->id, $userid]);
+
+        $this->assertNotEmpty($days);
+        $this->assertLessThanOrEqual($windowend, (int)end($days)['openuntil']);
+    }
+
+    /**
      * Create slot booking option and attach slot config.
      *
      * @param array $slotconfig
