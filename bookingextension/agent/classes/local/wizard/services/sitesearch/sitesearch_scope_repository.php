@@ -338,7 +338,7 @@ class sitesearch_scope_repository {
         $this->ensure_legacy_config_migrated();
 
         $index = [];
-        $records = $DB->get_records(self::TABLE, $conditions, 'area ASC', 'id, area, scopetype');
+        $records = $DB->get_recordset(self::TABLE, $conditions, 'area ASC', 'id, area, scopetype');
         foreach ($records as $record) {
             $area = (string)$record->area;
             if (!isset($index[$area])) {
@@ -350,6 +350,7 @@ class sitesearch_scope_repository {
                 $index[$area]['scoped'] = true;
             }
         }
+        $records->close();
         return $index;
     }
 
