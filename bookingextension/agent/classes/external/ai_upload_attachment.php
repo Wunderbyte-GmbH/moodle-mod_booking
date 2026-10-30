@@ -161,7 +161,7 @@ class ai_upload_attachment extends external_api {
         $tmppath = $tmpdir . '/' . $tmpname;
 
         if (file_put_contents($tmppath, $binary) === false) {
-            return self::error_response('Could not store uploaded file.');
+            return self::error_response(get_string('ai_upload_store_failed', 'bookingextension_agent'));
         }
 
         // Create token.

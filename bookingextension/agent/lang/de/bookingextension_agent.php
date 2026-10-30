@@ -580,6 +580,7 @@ $string['ai_trial_token_invalid_title'] = 'Trial-Token ungültig';
 $string['ai_upload_file_too_large'] = 'Datei zu groß. Maximale Größe: {$a}.';
 $string['ai_upload_invalid_type'] = 'Dateityp nicht unterstützt. Bitte ein Bild (JPEG, PNG, WebP, GIF) oder eine PDF-Datei hochladen.';
 $string['ai_upload_no_file'] = 'Keine Datei empfangen. Bitte erneut versuchen.';
+$string['ai_upload_store_failed'] = 'Die hochgeladene Datei konnte nicht gespeichert werden. Bitte erneut versuchen.';
 $string['ai_wait_thread_timeout_message'] = 'Anscheinend gab es ein Problem beim Warten auf den nächsten AI-Planungsschritt. Bitte versuchen Sie es erneut.';
 $string['ai_welcome_empty'] = 'Willkommen! Möchten Sie, dass ich Ihnen bei der Erstellung Ihrer ersten Buchungsoption helfe?';
 $string['ai_welcome_generic'] = 'Willkommen! Wie kann ich Ihnen hier helfen?';
