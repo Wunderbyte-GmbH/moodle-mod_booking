@@ -598,6 +598,7 @@ $string['ai_trial_token_invalid_title'] = 'Trial token invalid';
 $string['ai_upload_file_too_large'] = 'File is too large. Maximum size: {$a}.';
 $string['ai_upload_invalid_type'] = 'File type not supported. Please upload an image (JPEG, PNG, WebP, GIF) or a PDF.';
 $string['ai_upload_no_file'] = 'No file received. Please try again.';
+$string['ai_upload_store_failed'] = 'Could not store the uploaded file. Please try again.';
 $string['ai_wait_thread_timeout_message'] = 'It looks like there was a problem while waiting for the next AI planning step. Please try again.';
 $string['ai_welcome_empty'] = 'Welcome! Would you like me to help you create your first booking option?';
 $string['ai_welcome_generic'] = 'Welcome! How can I help you here?';
