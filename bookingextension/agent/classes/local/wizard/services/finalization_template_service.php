@@ -26,57 +26,7 @@ namespace bookingextension_agent\local\wizard\services;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class finalization_template_service {
-    /** @var array */
-    private const ISSUE_CODE_MESSAGES = [
-        'BUDGET_EXCEEDED' =>
-            'Execution stopped because the loop budget is exhausted. Please simplify your request and try again.',
-        'BLOCKED_TIMEOUT' =>
-            'Confirmation timed out. Please run the request again and confirm the action once more.',
-        'RETRY_EXHAUSTED' =>
-            'Execution failed after multiple retries. Please try again in a moment.',
-        'PERMISSION_ERROR' =>
-            'This action cannot be executed with your current permissions.',
-        'VALIDATION_ERROR' =>
-            'Some required input is missing or invalid. Please provide the needed details and try again.',
-        'CONTEXT_INVALID' =>
-            'This request is not valid in the current context. Please open the target context and try again.',
-        'CONTRACT_SELECTION_SKILL_MISSING' =>
-            'The request could not continue because no next skill was selected. ' .
-            'Please repeat the action or provide the next concrete step.',
-        'TRIAL_TOKEN_INVALID' =>
-            'AI provider authentication failed (trial token or API key is invalid). ' .
-            'Please contact an administrator.',
-        'AI_PROVIDER_QUOTA_EXCEEDED' =>
-            'AI provider quota exceeded. Please try again later.',
-    ];
-
-    /** @var array */
-    private const ERROR_CLASS_MESSAGES = [
-        'provider_unreachable' =>
-            'The AI service is temporarily unreachable. Your request was not processed — ' .
-            'please try again in a moment.',
-        'provider_timeout' =>
-            'The AI provider timed out while processing your request. Please try again.',
-        'transient_io' =>
-            'A temporary connection problem occurred. Please try again.',
-        'auth_failed' =>
-            'The AI provider authentication failed. Please contact an administrator.',
-        'quota_exceeded' =>
-            'The AI provider quota was exceeded. Please try again later.',
-        'runtime_disabled' =>
-            'AI runtime is currently disabled for this context.',
-        // The one class where the old catch-all wording is actually true.
-        'provider_error' =>
-            'The AI provider returned an error. Please try again later.',
-        'internal_contract' =>
-            'An internal planning error occurred. Please try again — your request was not executed.',
-        'internal_status' =>
-            'An internal error occurred while checking the AI status. Please try again or contact an administrator.',
-        'skill_exception' =>
-            'The requested action failed with an internal error. Please try again or rephrase your request.',
-    ];
-
-    /** @var array */
+    /** @var array Error class => language string shown to the user. */
     private const ERROR_CLASS_LANG_KEYS = [
         'auth_failed' => 'error_ai_trial_token_invalid',
         'quota_exceeded' => 'error_ai_provider_quota_exceeded',
@@ -90,11 +40,17 @@ class finalization_template_service {
         'skill_exception' => 'error_ai_skill_exception',
     ];
 
-    /** @var array */
+    /** @var array Issue code => language string shown to the user. */
     private const ISSUE_CODE_LANG_KEYS = [
         'AI_PROVIDER_QUOTA_EXCEEDED' => 'error_ai_provider_quota_exceeded',
+        'BLOCKED_TIMEOUT' => 'error_ai_confirmation_timeout',
+        'BUDGET_EXCEEDED' => 'error_ai_budget_exceeded',
+        'CONTEXT_INVALID' => 'error_ai_request_context_invalid',
+        'CONTRACT_SELECTION_SKILL_MISSING' => 'error_ai_no_next_skill',
         'PERMISSION_ERROR' => 'error_ai_permission_denied',
+        'RETRY_EXHAUSTED' => 'error_ai_retry_exhausted',
         'TRIAL_TOKEN_INVALID' => 'error_ai_trial_token_invalid',
+        'VALIDATION_ERROR' => 'error_ai_invalid_input',
     ];
 
     /**
@@ -116,10 +72,6 @@ class finalization_template_service {
                     break;
                 }
             }
-            if (isset(self::ISSUE_CODE_MESSAGES[$issuecode])) {
-                $msg = self::ISSUE_CODE_MESSAGES[$issuecode];
-                break;
-            }
         }
 
         if ($msg === '') {
@@ -130,9 +82,6 @@ class finalization_template_service {
                     if ($localized !== '' && !str_starts_with($localized, '[[')) {
                         $msg = $localized;
                     }
-                }
-                if ($msg === '' && isset(self::ERROR_CLASS_MESSAGES[$errorclass])) {
-                    $msg = self::ERROR_CLASS_MESSAGES[$errorclass];
                 }
             }
         }
@@ -149,7 +98,7 @@ class finalization_template_service {
                 if (!empty($rawerrors) && is_array($rawerrors)) {
                     $rawerror = trim(implode(' ', $rawerrors));
                     if ($rawerror !== '') {
-                        $msg .= ' (Details: ' . $rawerror . ')';
+                        $msg .= ' ' . get_string('error_ai_admin_details', 'bookingextension_agent', $rawerror);
                     }
                 }
             }
