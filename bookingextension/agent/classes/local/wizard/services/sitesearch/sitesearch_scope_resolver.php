@@ -393,6 +393,9 @@ final class sitesearch_scope_resolver {
     /**
      * Load the course => category map for every course in one minimal-field query.
      *
+     * Read through a recordset: only the int map stays in memory, not one record object per
+     * course (sites can have tens of thousands of courses).
+     *
      * @return void
      */
     private function load_all_courses(): void {
@@ -401,9 +404,11 @@ final class sitesearch_scope_resolver {
             return;
         }
         self::$coursecategories = [];
-        foreach ($DB->get_records('course', null, '', 'id, category') as $record) {
+        $records = $DB->get_recordset('course', null, '', 'id, category');
+        foreach ($records as $record) {
             self::$coursecategories[(int)$record->id] = (int)$record->category;
         }
+        $records->close();
         self::$allcoursesloaded = true;
     }
 
