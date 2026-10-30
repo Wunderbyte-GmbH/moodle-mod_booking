@@ -115,7 +115,9 @@ groups. `logicjson`:
   the previous group became complete (`booking_answers.completeddate`, `timemodified` as fallback). Each
   leaf takes its earliest qualifying completions, an AND group is complete when its last leaf is, an OR
   group takes the leaf that is fulfilled earliest. Without the setting the evaluation ignores times.
-- `combination::get_counted_optionids_for_user()` returns the options the fulfilled groups took.
+- `combination::get_counted_optionids_for_user()` returns the options the fulfilled groups took; the
+  certificate shortcode `[bookingoptionsfromcondition]` uses it in strict mode and lists all completed
+  options of the building blocks otherwise (`shortcodes::get_optionids_for_certificate()`).
 - Leaf filters, leaf actions and the active flag of leaves are ignored inside a combination.
 - A combination cannot be a leaf of another combination (prevented in the form and in the evaluator).
 - Leaves must be saved in the **same context** as the combination: global combinations use global

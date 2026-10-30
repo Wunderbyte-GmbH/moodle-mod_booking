@@ -40,6 +40,9 @@ use local_wunderbyte_table\local\helper\actforuser;
 use local_wunderbyte_table\wunderbyte_table;
 use mod_booking\booking;
 use mod_booking\booking_bookit;
+use mod_booking\booking_option;
+use mod_booking\local\certificate_conditions\conditions\combination;
+use mod_booking\local\certificate_conditions\conditions_info;
 use mod_booking\customfield\hierarchy_manager;
 use mod_booking\form\dynamicdeputyselect;
 use mod_booking\local\shortcode_filterfield;
@@ -1816,38 +1819,87 @@ class shortcodes {
      *
      */
     public static function bookingoptionsfromcondition($shortcode, $args, $content, $env, $next) {
-        global $DB;
         $tempvalues = singleton_service::get_temp_values_for_certificates();
         [$userid, $optionid, $conditionid] = array_pad($tempvalues, 3, null);
         if (empty($userid)) {
             return "PLACEHOLDER";
         }
-        $optionids = $DB->get_fieldset_select(
-            'booking_cert_cond_item',
-            'itemid',
-            'conditionid = :conditionid AND area = :area AND component = :component',
-            ['conditionid' => $conditionid, 'area' => 'bookingoption', 'component' => 'mod_booking']
-        );
+        $optionids = self::get_optionids_for_certificate((int)$userid, (int)$optionid, (int)$conditionid);
         $texts = [];
         foreach ($optionids as $optionid) {
             $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
-            $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
-            $hascompleted = $bookinganswer->is_activity_completed($userid);
-            if ($hascompleted) {
-                $certificateteachers = [];
-                if (!empty($settings->teachers)) {
-                    foreach ($settings->teachers as $teacher) {
-                        $certificateteachers[] = "$teacher->firstname $teacher->lastname";
-                    }
-                    $texts[] = $settings->text
-                    . "<br>" . get_string('teachersbookingoptionsfromcondition', 'mod_booking')
-                    . implode(", ", $certificateteachers);
-                } else {
-                    $texts[] = $settings->text;
+            if (empty($settings->id)) {
+                continue;
+            }
+            $certificateteachers = [];
+            if (!empty($settings->teachers)) {
+                foreach ($settings->teachers as $teacher) {
+                    $certificateteachers[] = "$teacher->firstname $teacher->lastname";
                 }
+                $texts[] = $settings->text
+                . "<br>" . get_string('teachersbookingoptionsfromcondition', 'mod_booking')
+                . implode(", ", $certificateteachers);
+            } else {
+                $texts[] = $settings->text;
             }
         }
         return implode(get_string('delimiterbookingoptionsfromcondition', 'mod_booking'), $texts);
+    }
+
+    /**
+     * The booking options a certificate lists: the completed options of the condition that issued it, in the
+     * order of their completion.
+     *
+     * Resolved through the condition handlers, so it works for every condition type (booking option, tagged
+     * options, booking instance options, combination). A combination with strict order lists exactly the
+     * options that earned the certificate; otherwise all completed options of its building blocks are listed.
+     * Without a condition (certificate stored on the option) the option itself and the completed options it
+     * requires are listed.
+     *
+     * @param int $userid
+     * @param int $optionid the option whose completion issued the certificate
+     * @param int $conditionid the certificate condition, 0 for the certificate stored on the option
+     * @return int[]
+     */
+    public static function get_optionids_for_certificate(int $userid, int $optionid, int $conditionid): array {
+        global $DB;
+
+        if (empty($conditionid)) {
+            $optionids = empty($optionid) ? [] : [$optionid];
+            $requiredoptions = booking_option::get_value_of_json_by_key($optionid, 'certificaterequiresotheroptions') ?? [];
+            foreach ((array)$requiredoptions as $requiredoptionid) {
+                $requiredoptionid = (int)$requiredoptionid;
+                if (empty($requiredoptionid)) {
+                    continue;
+                }
+                $settings = singleton_service::get_instance_of_booking_option_settings($requiredoptionid);
+                if (empty($settings->id)) {
+                    continue;
+                }
+                $bookinganswers = singleton_service::get_instance_of_booking_answers($settings);
+                if ((int)$bookinganswers->is_activity_completed($userid) === 1) {
+                    $optionids[] = $requiredoptionid;
+                }
+            }
+            return array_values(array_unique($optionids));
+        }
+
+        $record = $DB->get_record('booking_cert_cond', ['id' => $conditionid]);
+        if (!$record) {
+            return [];
+        }
+        $jsonobject = json_decode((string)$record->logicjson);
+        $conditionname = (string)($jsonobject->conditionname ?? ($jsonobject->logicname ?? ''));
+        $condition = $conditionname === '' ? null : conditions_info::get_condition($conditionname);
+        if (!$condition) {
+            return [];
+        }
+        $condition->set_logicdata($record);
+
+        if ($condition instanceof combination && $condition->strictorder) {
+            return $condition->get_counted_optionids_for_user($userid);
+        }
+        return array_keys($condition->get_completions_for_user($userid));
     }
 
     /**

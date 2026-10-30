@@ -694,6 +694,99 @@ final class certificate_combination_test extends booking_advanced_testcase {
     }
 
     /**
+     * The certificate shortcode lists the completed options for every condition type, in completion order.
+     *
+     * @covers \mod_booking\shortcodes::bookingoptionsfromcondition
+     * @covers \mod_booking\shortcodes::get_optionids_for_certificate
+     */
+    public function test_shortcode_lists_options_for_every_condition_type(): void {
+        $this->base_scenario();
+        $userid = $this->users['student1']->id;
+        $delimiter = get_string('delimiterbookingoptionsfromcondition', 'mod_booking');
+
+        // The user completed B2 at 50, A1 at 100, A2 at 200 and B1 at 300.
+        foreach (['B2' => 50, 'A1' => 100, 'A2' => 200, 'B1' => 300] as $key => $time) {
+            $this->insert_answer($this->options[$key], $userid, MOD_BOOKING_STATUSPARAM_BOOKED, 1, $time, $time);
+        }
+
+        // Booking option condition.
+        $optionleaf = $this->insert_bookingoption_leaf([$this->options['A1'], $this->options['A2']]);
+        $this->assertSame('Option A1' . $delimiter . 'Option A2', $this->shortcode($userid, $this->options['A1'], $optionleaf));
+
+        // Instance condition (no option rows at all).
+        $instanceleaf = $this->insert_instance_leaf('B');
+        $this->assertSame('Option B2' . $delimiter . 'Option B1', $this->shortcode($userid, $this->options['B1'], $instanceleaf));
+
+        // Tagged options condition.
+        $taggedleaf = $this->insert_tagged_leaf([$this->options['A2'], $this->options['B1']]);
+        $this->assertSame('Option A2' . $delimiter . 'Option B1', $this->shortcode($userid, $this->options['B1'], $taggedleaf));
+
+        // Combination without strict order: all completed options of the building blocks.
+        $leafa = $this->insert_instance_leaf('A');
+        $groups = [
+            ['operator' => 'AND', 'conditionids' => [$leafa]],
+            ['operator' => 'AND', 'conditionids' => [$instanceleaf]],
+        ];
+        $loose = $this->insert_combination($groups, 'AND', 1, 0, 0);
+        $this->assertSame(
+            implode($delimiter, ['Option B2', 'Option A1', 'Option A2', 'Option B1']),
+            $this->shortcode($userid, $this->options['B1'], $loose)
+        );
+
+        // Combination with strict order: only the options that earned the certificate (A1, then B1 after it).
+        $strict = $this->insert_combination($groups, 'AND', 1, 0, 1);
+        $this->assertSame('Option A1' . $delimiter . 'Option B1', $this->shortcode($userid, $this->options['B1'], $strict));
+
+        // Certificate stored on the option (no condition): the option itself.
+        $this->assertSame('Option A1', $this->shortcode($userid, $this->options['A1'], 0));
+
+        // No user in the context.
+        singleton_service::unset_temp_values_for_certificates();
+        $output = shortcodes::bookingoptionsfromcondition('bookingoptionsfromcondition', [], '', null, null);
+        $this->assertSame('PLACEHOLDER', $output);
+    }
+
+    /**
+     * Render the certificate shortcode in the context of an issued certificate.
+     *
+     * @param int $userid
+     * @param int $optionid
+     * @param int $conditionid
+     * @return string
+     */
+    private function shortcode(int $userid, int $optionid, int $conditionid): string {
+        singleton_service::set_temp_values_for_certificates($optionid, $userid, $conditionid);
+        $output = shortcodes::bookingoptionsfromcondition('bookingoptionsfromcondition', [], '', null, null);
+        singleton_service::unset_temp_values_for_certificates();
+        return $output;
+    }
+
+    /**
+     * Insert a tagged options leaf (no action) with the given options tagged.
+     *
+     * @param array $optionids
+     * @return int condition id
+     */
+    private function insert_tagged_leaf(array $optionids): int {
+        global $DB;
+        $id = $DB->insert_record('booking_cert_cond', $this->condition_record(
+            'Leaf tagged',
+            ['conditionname' => 'taggedoptions', 'requiredcount' => 1]
+        ));
+        foreach ($optionids as $optionid) {
+            $DB->insert_record('booking_cert_cond_item', (object)[
+                'conditionid' => $id,
+                'component' => 'mod_booking',
+                'area' => 'bookingoption',
+                'itemid' => $optionid,
+                'sortorder' => 0,
+                'configjson' => json_encode([]),
+            ]);
+        }
+        return $id;
+    }
+
+    /**
      * Evaluate the conditions for a synthetic completion event of the option (as the manual trigger does).
      *
      * @param string $key
