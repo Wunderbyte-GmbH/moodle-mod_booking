@@ -49,6 +49,19 @@ trait completion_counter_trait {
      * @return int[] sorted ascending by option id
      */
     public function get_completed_optionids_for_user(int $userid, array $excludeoptionids = []): array {
+        $completed = array_keys($this->get_completions_for_user($userid, $excludeoptionids));
+        sort($completed);
+        return $completed;
+    }
+
+    /**
+     * Return the completed targeted options of the user with their completion time, excluding the given ids.
+     *
+     * @param int $userid
+     * @param int[] $excludeoptionids
+     * @return array optionid => completion timestamp, sorted by timestamp ASC, option id ASC
+     */
+    public function get_completions_for_user(int $userid, array $excludeoptionids = []): array {
         if (empty($userid)) {
             return [];
         }
@@ -63,9 +76,9 @@ trait completion_counter_trait {
             return [];
         }
 
-        $completed = self::completed_optionids_from_answers($this->fetch_user_answers($userid, array_values($optionids)));
-        sort($completed);
-        return $completed;
+        $completions = self::completions_from_answers($this->fetch_user_answers($userid, array_values($optionids)));
+        uksort($completions, fn($a, $b) => [$completions[$a], $a] <=> [$completions[$b], $b]);
+        return $completions;
     }
 
     /**
@@ -76,7 +89,7 @@ trait completion_counter_trait {
      *
      * @param int $userid
      * @param int[] $optionids
-     * @return stdClass[] records with id, optionid, waitinglist, completed
+     * @return stdClass[] records with id, optionid, waitinglist, completed, completeddate, timemodified
      */
     protected function fetch_user_answers(int $userid, array $optionids): array {
         global $DB;
@@ -93,7 +106,7 @@ trait completion_counter_trait {
             "userid = :userid AND waitinglist $statussql AND optionid $insql",
             $params,
             'timemodified ASC, id ASC',
-            'id, optionid, waitinglist, completed'
+            'id, optionid, waitinglist, completed, completeddate, timemodified'
         );
     }
 
@@ -113,13 +126,14 @@ trait completion_counter_trait {
     }
 
     /**
-     * Reduce answers (oldest first) to the completed option ids, with the same precedence as booking_answers:
-     * the newest answer of an option wins, except that a previously booked answer never shadows an active one.
+     * Reduce answers (oldest first) to the completed options and their completion time, with the same precedence
+     * as booking_answers: the newest answer of an option wins, except that a previously booked answer never shadows
+     * an active one. The completion time is completeddate, or the last modification when it is not stored.
      *
      * @param stdClass[] $answers
-     * @return int[]
+     * @return array optionid => completion timestamp
      */
-    protected static function completed_optionids_from_answers(array $answers): array {
+    protected static function completions_from_answers(array $answers): array {
         $winners = [];
         foreach ($answers as $answer) {
             $optionid = (int)$answer->optionid;
@@ -131,13 +145,13 @@ trait completion_counter_trait {
                 $winners[$optionid] = $answer;
             }
         }
-        $completed = [];
+        $completions = [];
         foreach ($winners as $optionid => $answer) {
             if ((int)$answer->completed === 1) {
-                $completed[] = $optionid;
+                $completions[$optionid] = (int)(($answer->completeddate ?? 0) ?: ($answer->timemodified ?? 0));
             }
         }
-        return $completed;
+        return $completions;
     }
 
     /**
