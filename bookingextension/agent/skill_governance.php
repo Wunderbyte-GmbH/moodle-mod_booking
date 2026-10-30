@@ -399,10 +399,10 @@ echo html_writer::end_div();
 // warning emphasis/subtle tokens (see styles.css) — some themes render it too pale to notice.
 echo html_writer::start_div('bookingextension-agent-governance-notifications');
 if ($highcollisioncount > 0) {
-        $message = 'Warning: There are ' . $highcollisioncount .
-            ' high-similarity embedding collision pair(s) detected. ' .
-            'This may cause prompt selection confusion in the planner.';
-        echo $OUTPUT->notification($message, 'warning');
+    echo $OUTPUT->notification(
+        get_string('skillgovernance_collision_warning', 'bookingextension_agent', $highcollisioncount),
+        'warning'
+    );
 }
 
 if (!$embeddingsprovideravailable) {
@@ -427,7 +427,7 @@ echo html_writer::empty_tag('input', [
     'type' => 'text',
     'id' => 'skill-search-input',
     'class' => 'form-control',
-    'placeholder' => 'Search skills by name, component or capability...',
+    'placeholder' => get_string('skillgovernance_search_placeholder', 'bookingextension_agent'),
 ]);
 echo html_writer::end_div();
 echo html_writer::end_div();
@@ -438,13 +438,21 @@ echo html_writer::start_div('col-md-8 text-right d-flex justify-content-end');
 echo html_writer::start_tag('form', ['method' => 'post', 'action' => $PAGE->url, 'class' => 'mr-2']);
 echo html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'sesskey', 'value' => sesskey()]);
 echo html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'bulk', 'value' => 'enableall']);
-echo html_writer::empty_tag('input', ['type' => 'submit', 'class' => 'btn btn-outline-success mr-1', 'value' => 'Enable All']);
+echo html_writer::empty_tag('input', [
+    'type' => 'submit',
+    'class' => 'btn btn-outline-success mr-1',
+    'value' => get_string('skillgovernance_enable_all', 'bookingextension_agent'),
+]);
 echo html_writer::end_tag('form');
 
 echo html_writer::start_tag('form', ['method' => 'post', 'action' => $PAGE->url, 'class' => 'mr-2']);
 echo html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'sesskey', 'value' => sesskey()]);
 echo html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'bulk', 'value' => 'disableall']);
-echo html_writer::empty_tag('input', ['type' => 'submit', 'class' => 'btn btn-outline-danger mr-1', 'value' => 'Disable All']);
+echo html_writer::empty_tag('input', [
+    'type' => 'submit',
+    'class' => 'btn btn-outline-danger mr-1',
+    'value' => get_string('skillgovernance_disable_all', 'bookingextension_agent'),
+]);
 echo html_writer::end_tag('form');
 
 echo html_writer::start_tag('form', ['method' => 'post', 'action' => $PAGE->url]);
@@ -470,16 +478,16 @@ echo html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'sesskey', '
 echo html_writer::start_tag('table', ['class' => 'table table-hover align-middle', 'id' => 'skills-governance-table']);
 echo html_writer::start_tag('thead');
 echo html_writer::start_tag('tr');
-echo html_writer::tag('th', 'Active', ['style' => 'width: 80px; text-align: center;']);
+echo html_writer::tag('th', get_string('active'), ['style' => 'width: 80px; text-align: center;']);
 echo html_writer::tag('th', get_string('skillgovernance_mcp_column', 'bookingextension_agent'), [
     'style' => 'width: 80px; text-align: center;',
     'title' => get_string('skillgovernance_mcp_column_title', 'bookingextension_agent'),
 ]);
 echo html_writer::tag('th', get_string('skillgovernance_gate_status', 'bookingextension_agent'), ['style' => 'width: 220px;']);
-echo html_writer::tag('th', 'Skill Name / Component');
-echo html_writer::tag('th', 'Required Capabilities');
-echo html_writer::tag('th', 'Collision Status', ['style' => 'width: 200px;']);
-echo html_writer::tag('th', 'Actions', ['style' => 'width: 120px; text-align: center;']);
+echo html_writer::tag('th', get_string('skillgovernance_col_skill', 'bookingextension_agent'));
+echo html_writer::tag('th', get_string('skillgovernance_col_capabilities', 'bookingextension_agent'));
+echo html_writer::tag('th', get_string('skillgovernance_col_collisions', 'bookingextension_agent'), ['style' => 'width: 200px;']);
+echo html_writer::tag('th', get_string('actions'), ['style' => 'width: 120px; text-align: center;']);
 echo html_writer::end_tag('tr');
 echo html_writer::end_tag('thead');
 
@@ -513,7 +521,8 @@ foreach ($contracts as $skillname => $meta) {
     $component = s((string)($meta['component'] ?? ''));
 
     // Collision badge.
-    $collisionshtml = '<span class="badge badge-success">Clear</span>';
+    $collisionshtml = '<span class="badge badge-success">'
+        . s(get_string('skillgovernance_collision_clear', 'bookingextension_agent')) . '</span>';
     $collisionlist = $skillcollisions[$skillname] ?? [];
     if (!empty($collisionlist)) {
         $highestrisk = 'warning';
@@ -528,7 +537,7 @@ foreach ($contracts as $skillname => $meta) {
         $tooltip = implode(', ', $collisiondetails);
         $badgeclass = $highestrisk === 'danger' ? 'badge-danger' : 'badge-warning';
         $collisionshtml = '<span class="badge ' . $badgeclass . '" title="' . $tooltip . '" style="cursor: help;">'
-            . count($collisionlist) . ' Collision(s)</span>';
+            . s(get_string('skillgovernance_collision_count', 'bookingextension_agent', count($collisionlist))) . '</span>';
     }
 
     // Row class for search filtering.
@@ -624,7 +633,11 @@ foreach ($contracts as $skillname => $meta) {
         );
     }
     echo '<br/>';
-    echo html_writer::tag('small', 'Component: ' . $component, ['class' => 'text-muted']);
+    echo html_writer::tag(
+        'small',
+        get_string('skillgovernance_component', 'bookingextension_agent', $component),
+        ['class' => 'text-muted']
+    );
     echo html_writer::end_tag('td');
 
     // Capabilities.
@@ -637,7 +650,7 @@ foreach ($contracts as $skillname => $meta) {
     echo html_writer::start_tag('td', ['style' => 'text-align: center;']);
     echo html_writer::link(
         '#collapse-details-' . $rowindex,
-        'Details',
+        get_string('details'),
         [
             'class' => 'btn btn-sm btn-outline-secondary',
             'data-toggle' => 'collapse',
@@ -671,11 +684,14 @@ foreach ($contracts as $skillname => $meta) {
         }
     }
     $description = s(trim($schemadescription));
-    $bodycontent .= html_writer::tag('h6', 'Description');
-    $bodycontent .= html_writer::tag('p', $description ?: '<span class="text-muted">No description.</span>');
+    $bodycontent .= html_writer::tag('h6', get_string('description'));
+    $bodycontent .= html_writer::tag('p', $description ?: html_writer::span(
+        s(get_string('skillgovernance_detail_no_description', 'bookingextension_agent')),
+        'text-muted'
+    ));
 
     // Example Input.
-    $examplehtml = '<span class="text-muted">No example input.</span>';
+    $examplehtml = html_writer::span(s(get_string('skillgovernance_detail_no_example', 'bookingextension_agent')), 'text-muted');
     if ($skill) {
         try {
             $example = $skill->get_example_input();
@@ -686,14 +702,24 @@ foreach ($contracts as $skillname => $meta) {
                 );
             }
         } catch (\Throwable $e) {
-            $examplehtml = '<span class="text-danger">Error loading example: ' . s($e->getMessage()) . '</span>';
+            $examplehtml = html_writer::span(
+                s(get_string('skillgovernance_detail_example_error', 'bookingextension_agent', $e->getMessage())),
+                'text-danger'
+            );
         }
     }
-    $bodycontent .= html_writer::tag('h6', 'Example Parameter Input', ['class' => 'mt-3']);
+    $bodycontent .= html_writer::tag(
+        'h6',
+        get_string('skillgovernance_detail_example', 'bookingextension_agent'),
+        ['class' => 'mt-3']
+    );
     $bodycontent .= $examplehtml;
 
     // Message Triggers.
-    $triggershtml = '<span class="text-muted">No message triggers.</span>';
+    $triggershtml = html_writer::span(
+        s(get_string('skillgovernance_detail_no_triggers', 'bookingextension_agent')),
+        'text-muted'
+    );
     if ($skill instanceof \bookingextension_agent\local\wizard\interfaces\skill_trigger_provider_interface) {
         try {
             $triggers = $skill->get_message_triggers();
@@ -702,7 +728,13 @@ foreach ($contracts as $skillname => $meta) {
                 foreach ($triggers as $trigger) {
                     $desc = s((string)($trigger['description'] ?? ''));
                     $examples = (array)($trigger['examples'] ?? []);
-                    $exlabel = !empty($examples) ? ' (e.g. "' . implode('", "', array_map('s', $examples)) . '")' : '';
+                    $exlabel = !empty($examples)
+                        ? ' ' . s(get_string(
+                            'skillgovernance_detail_trigger_examples',
+                            'bookingextension_agent',
+                            '"' . implode('", "', $examples) . '"'
+                        ))
+                        : '';
                     $triggeritems[] = html_writer::tag(
                         'li',
                         '<strong>' . s((string)($trigger['id'] ?? '')) . '</strong>: ' . $desc . $exlabel
@@ -711,14 +743,24 @@ foreach ($contracts as $skillname => $meta) {
                 $triggershtml = html_writer::tag('ul', implode('', $triggeritems), ['class' => 'mb-0 pl-3']);
             }
         } catch (\Throwable $e) {
-            $triggershtml = '<span class="text-danger">Error loading triggers: ' . s($e->getMessage()) . '</span>';
+            $triggershtml = html_writer::span(
+                s(get_string('skillgovernance_detail_triggers_error', 'bookingextension_agent', $e->getMessage())),
+                'text-danger'
+            );
         }
     }
-    $bodycontent .= html_writer::tag('h6', 'Message Triggers', ['class' => 'mt-3']);
+    $bodycontent .= html_writer::tag(
+        'h6',
+        get_string('skillgovernance_detail_triggers', 'bookingextension_agent'),
+        ['class' => 'mt-3']
+    );
     $bodycontent .= $triggershtml;
 
     // Guidance / Prompt Packs.
-    $guidancehtml = '<span class="text-muted">No contextual guidance.</span>';
+    $guidancehtml = html_writer::span(
+        s(get_string('skillgovernance_detail_no_guidance', 'bookingextension_agent')),
+        'text-muted'
+    );
     $packs = [];
     if ($skill && method_exists($skill, 'get_contextual_prompt_packs')) {
         try {
@@ -755,7 +797,11 @@ foreach ($contracts as $skillname => $meta) {
             $guidancehtml = html_writer::tag('ul', implode('', $guidanceitems), ['class' => 'mb-0 pl-3']);
         }
     }
-    $bodycontent .= html_writer::tag('h6', 'Contextual Guidance (Prompts)', ['class' => 'mt-3']);
+    $bodycontent .= html_writer::tag(
+        'h6',
+        get_string('skillgovernance_detail_guidance', 'bookingextension_agent'),
+        ['class' => 'mt-3']
+    );
     $bodycontent .= $guidancehtml;
 
     // Output collapsible structure matching htmlcomponents.php.
