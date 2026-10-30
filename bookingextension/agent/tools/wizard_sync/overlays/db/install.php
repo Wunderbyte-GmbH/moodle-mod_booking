@@ -94,15 +94,15 @@ function xmldb_local_wizard_install(): bool {
     }
 
     // Plugin settings: everything except the version marker, never overwriting
-    // a wizard setting that already exists.
+    // a wizard setting that already exists. Read through the config API, which
+    // returns all settings of the agent in one object.
     $copiedsettings = 0;
-    $settings = $DB->get_records('config_plugins', ['plugin' => 'bookingextension_agent']);
-    foreach ($settings as $setting) {
-        if ($setting->name === 'version') {
+    foreach ((array)get_config('bookingextension_agent') as $name => $value) {
+        if ($name === 'version') {
             continue;
         }
-        if (get_config('local_wizard', $setting->name) === false) {
-            set_config($setting->name, $setting->value, 'local_wizard');
+        if (get_config('local_wizard', $name) === false) {
+            set_config($name, $value, 'local_wizard');
             $copiedsettings++;
         }
     }
