@@ -1561,10 +1561,10 @@ $string['certificateconditionsnootherfound'] = 'No certificate conditions found 
 $string['certificateconditionsoptionheading'] = 'Certificate conditions for this booking option';
 $string['certificateconditionsoptionlink'] = 'Open certificate conditions';
 $string['certificateconditionsoptionnone'] = 'This booking option is currently not targeted by any certificate condition.';
-$string['certificateconditionunused'] = 'Not used in any combination';
-$string['certificateconditionusedin'] = 'Used in';
 $string['certificateconditionsothercontextheading'] = 'Certificate conditions in other contexts';
 $string['certificateconditionswithbadge'] = 'Certificate Conditions <span class="badge bg-success text-light"><i class="fa fa-certificate" aria-hidden="true"></i> PRO</span>';
+$string['certificateconditionunused'] = 'Not used in any combination';
+$string['certificateconditionusedin'] = 'Used in';
 $string['certificateexpirationdate'] = 'Expiration date';
 $string['certificatefilter'] = 'Filter';
 $string['certificatefilternorestriction'] = 'No restriction';
