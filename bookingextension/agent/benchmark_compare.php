@@ -59,7 +59,7 @@ $PAGE->set_url(new moodle_url(
 $PAGE->set_title(get_string('benchmark_compare_title', 'bookingextension_agent'));
 $PAGE->set_heading(get_string('benchmark_compare_heading', 'bookingextension_agent', (object)[
     'runa' => $runaid,
-    'runb' => $runb ? '#' . $runb->id : get_string('benchmark_no_baseline', 'bookingextension_agent', 'no baseline'),
+    'runb' => $runb ? '#' . $runb->id : get_string('benchmark_no_baseline', 'bookingextension_agent'),
 ]));
 $PAGE->set_pagelayout('admin');
 
