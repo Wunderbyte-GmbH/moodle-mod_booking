@@ -66,6 +66,9 @@ class combination implements certificate_conditions_interface {
     /** @var bool a completed option counts for one leaf only */
     public bool $uniqueoptions = true;
 
+    /** @var bool the groups must be completed in order: later groups only count completions not earlier than the previous group */
+    public bool $strictorder = false;
+
     /** @var array list of ['operator' => string, 'conditionids' => int[]] */
     public array $groups = [];
 
@@ -108,6 +111,16 @@ class combination implements certificate_conditions_interface {
         );
         $mform->setDefault('condition_combination_uniqueoptions', 1);
         $mform->addHelpButton('condition_combination_uniqueoptions', 'condition_combination_uniqueoptions', 'mod_booking');
+
+        $mform->addElement(
+            'advcheckbox',
+            'condition_combination_strictorder',
+            get_string('condition_combination_strictorder', 'mod_booking')
+        );
+        $mform->setDefault('condition_combination_strictorder', 0);
+        $mform->addHelpButton('condition_combination_strictorder', 'condition_combination_strictorder', 'mod_booking');
+        // An order of the groups only exists when they are combined with AND.
+        $mform->hideIf('condition_combination_strictorder', 'condition_combination_operator', 'eq', self::OP_OR);
 
         $eligible = self::get_eligible_leaf_conditions($contextid, $excludeid);
         if (empty($eligible)) {
@@ -183,6 +196,8 @@ class combination implements certificate_conditions_interface {
         $jsonobject->conditionname = 'combination';
         $jsonobject->operator = self::normalize_operator((string)($data->condition_combination_operator ?? self::OP_AND));
         $jsonobject->uniqueoptions = empty($data->condition_combination_uniqueoptions) ? 0 : 1;
+        $strictorder = !empty($data->condition_combination_strictorder) && $jsonobject->operator === self::OP_AND;
+        $jsonobject->strictorder = $strictorder ? 1 : 0;
         $jsonobject->groups = self::groups_from_formdata($data);
         $data->conditionjson = json_encode($jsonobject);
     }
@@ -233,6 +248,7 @@ class combination implements certificate_conditions_interface {
 
         $data->condition_combination_operator = $this->operator;
         $data->condition_combination_uniqueoptions = $this->uniqueoptions ? 1 : 0;
+        $data->condition_combination_strictorder = $this->strictorder ? 1 : 0;
 
         for ($i = 1; $i <= self::MAX_GROUPS; $i++) {
             $group = $this->groups[$i - 1] ?? null;
@@ -261,6 +277,7 @@ class combination implements certificate_conditions_interface {
     public function set_conditiondata_from_json(string $json): void {
         $this->operator = self::OP_AND;
         $this->uniqueoptions = true;
+        $this->strictorder = false;
         $this->groups = [];
 
         $jsonobject = json_decode($json);
@@ -269,6 +286,7 @@ class combination implements certificate_conditions_interface {
         }
         $this->operator = self::normalize_operator((string)($jsonobject->operator ?? self::OP_AND));
         $this->uniqueoptions = !isset($jsonobject->uniqueoptions) || !empty($jsonobject->uniqueoptions);
+        $this->strictorder = !empty($jsonobject->strictorder) && $this->operator === self::OP_AND;
         $this->groups = self::groups_from_json($jsonobject);
     }
 
@@ -349,31 +367,66 @@ class combination implements certificate_conditions_interface {
      * @return bool
      */
     public function is_fulfilled_for_user(int $userid, array $excludeoptionids = [], ?array $leaves = null): bool {
+        return $this->evaluate_groups($userid, $excludeoptionids, $leaves) !== null;
+    }
+
+    /**
+     * Return the ids of the options that earned the certificate, i.e. the ones the fulfilled groups took.
+     *
+     * With strict order these are the earliest qualifying completions of each group; otherwise the options the
+     * leaves took in evaluation order. Empty when the combination is not fulfilled.
+     *
+     * @param int $userid
+     * @return int[]
+     */
+    public function get_counted_optionids_for_user(int $userid): array {
+        $taken = $this->evaluate_groups($userid);
+        return $taken === null ? [] : array_values(array_unique($taken));
+    }
+
+    /**
+     * Evaluate the groups for the user.
+     *
+     * Every fulfilled leaf "takes" the options it counted. With "unique options" taken options are excluded for the
+     * following leaves. With "strict order" a running frontier timestamp is kept: a later group only counts
+     * completions not earlier than the moment the previous group became complete.
+     *
+     * @param int $userid
+     * @param int[] $excludeoptionids options that must not be counted (treated as already taken)
+     * @param array|null $leaves loaded leaves (id => condition), loaded when null
+     * @return int[]|null the taken option ids (excluding $excludeoptionids) when fulfilled, null otherwise
+     */
+    private function evaluate_groups(int $userid, array $excludeoptionids = [], ?array $leaves = null): ?array {
         $leaves = $leaves ?? $this->load_leaves();
         if (empty($leaves) || empty($this->groups)) {
-            return false;
+            return null;
         }
 
         $overlap = self::build_overlap_map($leaves);
-        $consumed = array_map('intval', $excludeoptionids);
+        $excludeoptionids = array_map('intval', $excludeoptionids);
+        $taken = $excludeoptionids;
+        $frontier = 0;
 
         foreach ($this->groups as $group) {
-            $snapshot = $consumed;
-            $fulfilled = $this->evaluate_group($group, $userid, $leaves, $overlap, $consumed);
+            $snapshot = $taken;
+            $grouptime = 0;
+            $fulfilled = $this->evaluate_group($group, $userid, $leaves, $overlap, $taken, $frontier, $grouptime);
             if (!$fulfilled) {
-                // A failed group must not leave consumed options behind.
-                $consumed = $snapshot;
+                // A failed group must not leave taken options behind.
+                $taken = $snapshot;
+            } else if ($this->strictorder) {
+                $frontier = max($frontier, $grouptime);
             }
             if ($this->operator === self::OP_AND && !$fulfilled) {
-                return false;
+                return null;
             }
             if ($this->operator === self::OP_OR && $fulfilled) {
-                return true;
+                return array_values(array_diff($taken, $excludeoptionids));
             }
         }
 
         // AND: every group passed. OR: no group passed.
-        return $this->operator === self::OP_AND;
+        return $this->operator === self::OP_AND ? array_values(array_diff($taken, $excludeoptionids)) : null;
     }
 
     /**
@@ -383,45 +436,85 @@ class combination implements certificate_conditions_interface {
      * @param int $userid
      * @param array $leaves id => condition
      * @param array $overlap optionid => number of leaves observing it
-     * @param array $consumed consumed option ids, extended on success
+     * @param array $taken taken option ids, extended on success
+     * @param int $frontier completions earlier than this timestamp do not count (strict order only)
+     * @param int $grouptime set to the time the group became complete
      * @return bool
      */
-    private function evaluate_group(array $group, int $userid, array $leaves, array $overlap, array &$consumed): bool {
+    private function evaluate_group(
+        array $group,
+        int $userid,
+        array $leaves,
+        array $overlap,
+        array &$taken,
+        int $frontier,
+        int &$grouptime
+    ): bool {
         $conditionids = $group['conditionids'] ?? [];
         if (empty($conditionids)) {
             return false;
         }
+        $grouptime = 0;
 
         if (($group['operator'] ?? self::OP_AND) === self::OP_OR) {
+            $best = null;
             foreach ($conditionids as $leafid) {
-                $candidate = $consumed;
-                if ($this->evaluate_leaf((int)$leafid, $userid, $leaves, $overlap, $candidate)) {
-                    $consumed = $candidate;
+                $candidate = $taken;
+                $leaftime = 0;
+                if (!$this->evaluate_leaf((int)$leafid, $userid, $leaves, $overlap, $candidate, $frontier, $leaftime)) {
+                    continue;
+                }
+                if (!$this->strictorder) {
+                    // The first fulfilled leaf wins.
+                    $taken = $candidate;
+                    $grouptime = $leaftime;
                     return true;
                 }
+                // Strict order: the leaf that was fulfilled earliest wins, so later groups get the most room.
+                if ($best === null || $leaftime < $best['time']) {
+                    $best = ['taken' => $candidate, 'time' => $leaftime];
+                }
             }
-            return false;
-        }
-
-        foreach ($conditionids as $leafid) {
-            if (!$this->evaluate_leaf((int)$leafid, $userid, $leaves, $overlap, $consumed)) {
+            if ($best === null) {
                 return false;
             }
+            $taken = $best['taken'];
+            $grouptime = $best['time'];
+            return true;
+        }
+
+        // AND: all leaves against the same frontier, the group is complete when the last one is.
+        foreach ($conditionids as $leafid) {
+            $leaftime = 0;
+            if (!$this->evaluate_leaf((int)$leafid, $userid, $leaves, $overlap, $taken, $frontier, $leaftime)) {
+                return false;
+            }
+            $grouptime = max($grouptime, $leaftime);
         }
         return true;
     }
 
     /**
-     * Evaluate one leaf and consume the options it used.
+     * Evaluate one leaf and take the options it counted.
      *
      * @param int $leafid
      * @param int $userid
      * @param array $leaves
      * @param array $overlap
-     * @param array $consumed
+     * @param array $taken taken option ids, extended by the options this leaf counted
+     * @param int $frontier completions earlier than this timestamp do not count (strict order only)
+     * @param int $leaftime set to the completion time of the last option the leaf needed
      * @return bool
      */
-    private function evaluate_leaf(int $leafid, int $userid, array $leaves, array $overlap, array &$consumed): bool {
+    private function evaluate_leaf(
+        int $leafid,
+        int $userid,
+        array $leaves,
+        array $overlap,
+        array &$taken,
+        int $frontier,
+        int &$leaftime
+    ): bool {
         if (!isset($leaves[$leafid])) {
             return false;
         }
@@ -434,16 +527,34 @@ class combination implements certificate_conditions_interface {
         }
         $requiredcount = min(max(1, $leaf->get_requiredcount()), count($targeted));
 
-        $completed = $leaf->get_completed_optionids_for_user($userid, $this->uniqueoptions ? $consumed : []);
-        if (count($completed) < $requiredcount) {
+        // Completions sorted by time, then option id.
+        $completions = $leaf->get_completions_for_user($userid, $this->uniqueoptions ? $taken : []);
+        if ($this->strictorder) {
+            $completions = array_filter($completions, fn($time) => $time >= $frontier);
+        }
+        if (count($completions) < $requiredcount) {
             return false;
         }
 
-        if ($this->uniqueoptions) {
+        $optionids = array_keys($completions);
+        if ($this->strictorder) {
+            // Earliest completions first so that the group is complete as early as possible; among equal
+            // times prefer options no other leaf observes.
+            usort($optionids, fn($a, $b) => [$completions[$a], $overlap[$a] ?? 0, $a]
+                <=> [$completions[$b], $overlap[$b] ?? 0, $b]);
+        } else if ($this->uniqueoptions) {
             // Prefer options that no other leaf observes, so that shared options stay available for later leaves.
-            usort($completed, fn($a, $b) => [$overlap[$a] ?? 0, $a] <=> [$overlap[$b] ?? 0, $b]);
-            $consumed = array_merge($consumed, array_slice($completed, 0, $requiredcount));
+            usort($optionids, fn($a, $b) => [$overlap[$a] ?? 0, $a] <=> [$overlap[$b] ?? 0, $b]);
+        } else {
+            sort($optionids);
         }
+
+        $take = array_slice($optionids, 0, $requiredcount);
+        $leaftime = 0;
+        foreach ($take as $optionid) {
+            $leaftime = max($leaftime, (int)$completions[$optionid]);
+        }
+        $taken = array_merge($taken, $take);
         return true;
     }
 
@@ -512,13 +623,27 @@ class combination implements certificate_conditions_interface {
      * @return int[]
      */
     public function get_completed_optionids_for_user(int $userid, array $excludeoptionids = []): array {
-        $completed = [];
-        foreach ($this->load_leaves() as $leaf) {
-            $completed = array_merge($completed, $leaf->get_completed_optionids_for_user($userid, $excludeoptionids));
-        }
-        $completed = array_values(array_unique(array_map('intval', $completed)));
+        $completed = array_keys($this->get_completions_for_user($userid, $excludeoptionids));
         sort($completed);
         return $completed;
+    }
+
+    /**
+     * Return the union of the completed options of all leaves with their completion time.
+     *
+     * @param int $userid
+     * @param int[] $excludeoptionids
+     * @return array optionid => completion timestamp, sorted by timestamp ASC, option id ASC
+     */
+    public function get_completions_for_user(int $userid, array $excludeoptionids = []): array {
+        $completions = [];
+        foreach ($this->load_leaves() as $leaf) {
+            foreach ($leaf->get_completions_for_user($userid, $excludeoptionids) as $optionid => $time) {
+                $completions[(int)$optionid] = min($completions[(int)$optionid] ?? PHP_INT_MAX, (int)$time);
+            }
+        }
+        uksort($completions, fn($a, $b) => [$completions[$a], $a] <=> [$completions[$b], $b]);
+        return $completions;
     }
 
     /**
@@ -556,6 +681,9 @@ class combination implements certificate_conditions_interface {
         if ($this->uniqueoptions) {
             $description .= ' [' . get_string('condition_combination_uniqueoptionsshort', 'mod_booking') . ']';
         }
+        if ($this->strictorder) {
+            $description .= ' [' . get_string('condition_combination_strictordershort', 'mod_booking') . ']';
+        }
         return $description;
     }
 
@@ -582,6 +710,13 @@ class combination implements certificate_conditions_interface {
                     get_string('error:condition_combination_context', 'mod_booking');
                 return $errors;
             }
+        }
+
+        if (
+            !empty($data['condition_combination_strictorder'])
+            && self::normalize_operator((string)($data['condition_combination_operator'] ?? self::OP_AND)) === self::OP_OR
+        ) {
+            $errors['condition_combination_operator'] = get_string('error:condition_combination_strictorderor', 'mod_booking');
         }
 
         $eligible = self::get_eligible_leaf_conditions($contextid, $id);

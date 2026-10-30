@@ -317,7 +317,7 @@ class instance implements certificate_conditions_interface {
             "userid = :userid AND bookingid = :bookingid AND waitinglist $statussql",
             $params,
             'timemodified ASC, id ASC',
-            'id, optionid, waitinglist, completed'
+            'id, optionid, waitinglist, completed, completeddate, timemodified'
         );
         $wanted = array_flip(array_map('intval', $optionids));
         return array_filter($answers, fn($answer) => isset($wanted[(int)$answer->optionid]));

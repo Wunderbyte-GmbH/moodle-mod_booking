@@ -483,6 +483,217 @@ final class certificate_combination_test extends booking_advanced_testcase {
     }
 
     /**
+     * Strict order: options of a later group completed before the previous group was complete do not count.
+     *
+     * @covers \mod_booking\local\certificate_conditions\conditions\combination::is_fulfilled_for_user
+     * @covers \mod_booking\local\certificate_conditions\conditions\combination::get_description
+     */
+    public function test_strictorder_b_before_a_does_not_count(): void {
+        global $DB;
+        $this->base_scenario();
+        $leafa = $this->insert_instance_leaf('A');
+        $leafb = $this->insert_instance_leaf('B');
+        $groups = [
+            ['operator' => 'AND', 'conditionids' => [$leafa]],
+            ['operator' => 'AND', 'conditionids' => [$leafb]],
+        ];
+        $strict = $this->insert_combination($groups, 'AND', 1, 0, 1);
+        $userid = $this->users['student1']->id;
+
+        // B1 was completed before A1: it does not count for group 2.
+        $this->insert_answer($this->options['B1'], $userid, MOD_BOOKING_STATUSPARAM_BOOKED, 1, 100, 100);
+        $this->insert_answer($this->options['A1'], $userid, MOD_BOOKING_STATUSPARAM_BOOKED, 1, 200, 200);
+        $this->assertFalse($this->evaluate('A1', $userid));
+        $this->assertEquals(0, $this->count_certificates($userid));
+
+        // A further B option after A counts.
+        $this->insert_answer($this->options['B2'], $userid, MOD_BOOKING_STATUSPARAM_BOOKED, 1, 300, 300);
+        $this->assertTrue($this->evaluate('B2', $userid));
+        $this->assertEquals(1, $this->count_certificates($userid));
+
+        // The list shows the marker.
+        $list = certificate_conditions::get_rendered_list_of_saved_conditions(context_system::instance()->id);
+        $this->assertStringContainsString(get_string('condition_combination_strictordershort', 'mod_booking'), $list);
+
+        // The same data without strict order is fulfilled right away.
+        $DB->set_field('booking_cert_cond', 'isactive', 0, ['id' => $strict]);
+        $this->insert_combination($groups, 'AND', 1, 0, 0);
+        $userid2 = $this->users['student2']->id;
+        $this->insert_answer($this->options['B1'], $userid2, MOD_BOOKING_STATUSPARAM_BOOKED, 1, 100, 100);
+        $this->insert_answer($this->options['A1'], $userid2, MOD_BOOKING_STATUSPARAM_BOOKED, 1, 200, 200);
+        $this->assertTrue($this->evaluate('A1', $userid2));
+    }
+
+    /**
+     * Strict order: a completion at the same time the previous group became complete counts.
+     *
+     * @covers \mod_booking\local\certificate_conditions\conditions\combination::is_fulfilled_for_user
+     */
+    public function test_strictorder_same_second_counts(): void {
+        $this->base_scenario();
+        $leafa = $this->insert_instance_leaf('A');
+        $leafb = $this->insert_instance_leaf('B');
+        $this->insert_combination([
+            ['operator' => 'AND', 'conditionids' => [$leafa]],
+            ['operator' => 'AND', 'conditionids' => [$leafb]],
+        ], 'AND', 1, 0, 1);
+        $userid = $this->users['student1']->id;
+
+        $this->insert_answer($this->options['A1'], $userid, MOD_BOOKING_STATUSPARAM_BOOKED, 1, 100, 100);
+        $this->insert_answer($this->options['B1'], $userid, MOD_BOOKING_STATUSPARAM_BOOKED, 1, 100, 100);
+        $this->assertTrue($this->evaluate('B1', $userid));
+    }
+
+    /**
+     * Strict order: an OR group takes the leaf fulfilled earliest, and the next group must follow that moment.
+     *
+     * @covers \mod_booking\local\certificate_conditions\conditions\combination::is_fulfilled_for_user
+     * @covers \mod_booking\local\certificate_conditions\conditions\combination::get_counted_optionids_for_user
+     */
+    public function test_strictorder_or_group_takes_earliest_leaf(): void {
+        $this->base_scenario();
+        $leafa = $this->insert_instance_leaf('A');
+        $leafb = $this->insert_instance_leaf('B');
+        $leafc = $this->insert_instance_leaf('C');
+        $leafd = $this->insert_instance_leaf('D');
+        $combinationid = $this->insert_combination([
+            ['operator' => 'AND', 'conditionids' => [$leafa]],
+            ['operator' => 'OR', 'conditionids' => [$leafb, $leafc]],
+            ['operator' => 'AND', 'conditionids' => [$leafd]],
+        ], 'AND', 1, 0, 1);
+        $userid = $this->users['student1']->id;
+
+        $this->insert_answer($this->options['A1'], $userid, MOD_BOOKING_STATUSPARAM_BOOKED, 1, 100, 100);
+        // B1 is too early for group 2, C1 counts: group 2 is complete at 250.
+        $this->insert_answer($this->options['B1'], $userid, MOD_BOOKING_STATUSPARAM_BOOKED, 1, 50, 50);
+        $this->insert_answer($this->options['C1'], $userid, MOD_BOOKING_STATUSPARAM_BOOKED, 1, 250, 250);
+        // D1 at 200 is before group 2 was complete.
+        $this->insert_answer($this->options['D1'], $userid, MOD_BOOKING_STATUSPARAM_BOOKED, 1, 200, 200);
+        $this->assertFalse($this->evaluate('D1', $userid));
+
+        // Re-completing D1 later counts (same option, new completion date).
+        $this->insert_answer($this->options['D1'], $userid, MOD_BOOKING_STATUSPARAM_BOOKED, 1, 300, 300);
+        $this->assertTrue($this->evaluate('D1', $userid));
+
+        $combination = new combination();
+        $combination->set_logicdata((object)['id' => $combinationid, 'logicjson' => json_encode([
+            'conditionname' => 'combination',
+            'operator' => 'AND',
+            'uniqueoptions' => 1,
+            'strictorder' => 1,
+            'groups' => [
+                ['operator' => 'AND', 'conditionids' => [$leafa]],
+                ['operator' => 'OR', 'conditionids' => [$leafb, $leafc]],
+                ['operator' => 'AND', 'conditionids' => [$leafd]],
+            ],
+        ])]);
+        $this->assertSame(
+            [$this->options['A1'], $this->options['C1'], $this->options['D1']],
+            $combination->get_counted_optionids_for_user($userid)
+        );
+    }
+
+    /**
+     * Strict order together with unique options: each leaf takes its earliest completion, surplus completions
+     * before the group was complete do not count for later groups.
+     *
+     * @covers \mod_booking\local\certificate_conditions\conditions\combination::is_fulfilled_for_user
+     */
+    public function test_strictorder_with_uniqueoptions(): void {
+        global $DB;
+        $this->base_scenario();
+        $strict = $this->insert_abc_combination(1, 0, 1);
+        $userid = $this->users['student1']->id;
+
+        // Group 1 takes A1 (100), B1 (200), C1 (200) and is complete at 200; A2 (150) is too early for group 2.
+        $this->insert_answer($this->options['A1'], $userid, MOD_BOOKING_STATUSPARAM_BOOKED, 1, 100, 100);
+        $this->insert_answer($this->options['A2'], $userid, MOD_BOOKING_STATUSPARAM_BOOKED, 1, 150, 150);
+        $this->insert_answer($this->options['B1'], $userid, MOD_BOOKING_STATUSPARAM_BOOKED, 1, 200, 200);
+        $this->insert_answer($this->options['C1'], $userid, MOD_BOOKING_STATUSPARAM_BOOKED, 1, 200, 200);
+        $this->assertFalse($this->evaluate('C1', $userid));
+
+        $this->insert_answer($this->options['B2'], $userid, MOD_BOOKING_STATUSPARAM_BOOKED, 1, 300, 300);
+        $this->assertTrue($this->evaluate('B2', $userid));
+        $this->assertEquals(1, $this->count_certificates($userid));
+
+        // Without strict order the four completions were enough.
+        $DB->set_field('booking_cert_cond', 'isactive', 0, ['id' => $strict]);
+        $this->insert_abc_combination(1, 0, 0);
+        $userid2 = $this->users['student2']->id;
+        foreach (['A1' => 100, 'A2' => 150, 'B1' => 200, 'C1' => 200] as $key => $time) {
+            $this->insert_answer($this->options[$key], $userid2, MOD_BOOKING_STATUSPARAM_BOOKED, 1, $time, $time);
+        }
+        $this->assertTrue($this->evaluate('C1', $userid2));
+    }
+
+    /**
+     * Strict order: completing an option again (after un-completing it) moves it to the current time.
+     *
+     * @covers \mod_booking\local\certificate_conditions\conditions\combination::is_fulfilled_for_user
+     */
+    public function test_strictorder_recompletion_moves_option(): void {
+        $this->base_scenario();
+        $leafa = $this->insert_instance_leaf('A');
+        $leafb = $this->insert_instance_leaf('B');
+        $this->insert_combination([
+            ['operator' => 'AND', 'conditionids' => [$leafa]],
+            ['operator' => 'AND', 'conditionids' => [$leafb]],
+        ], 'AND', 1, 0, 1);
+        $userid = $this->users['student1']->id;
+
+        $this->insert_answer($this->options['B1'], $userid, MOD_BOOKING_STATUSPARAM_BOOKED, 1, 50, 50);
+        $this->insert_answer($this->options['A1'], $userid, MOD_BOOKING_STATUSPARAM_BOOKED, 1, 100, 100);
+        $this->assertFalse($this->evaluate('A1', $userid));
+
+        // Un-complete and complete B1 again: its completion date is now, which is after A1.
+        $this->setAdminUser();
+        $settings = singleton_service::get_instance_of_booking_option_settings($this->options['B1']);
+        $option = singleton_service::get_instance_of_booking_option($settings->cmid, $settings->id);
+        $this->assertTrue($option->toggle_user_completion($userid));
+        singleton_service::destroy_booking_answers($settings->id);
+        $this->assertTrue($option->toggle_user_completion($userid));
+        singleton_service::destroy_booking_answers($settings->id);
+        global $DB;
+        $answer = $DB->get_record('booking_answers', ['optionid' => $settings->id, 'userid' => $userid], '*', MUST_EXIST);
+        $this->assertEquals(1, $answer->completed);
+        $this->assertGreaterThanOrEqual(100, (int)$answer->completeddate);
+
+        $this->assertTrue($this->evaluate('B1', $userid));
+        $this->assertEquals(1, $this->count_certificates($userid));
+    }
+
+    /**
+     * Strict order is rejected when the groups are combined with OR, and not stored.
+     *
+     * @covers \mod_booking\local\certificate_conditions\conditions\combination::validate
+     * @covers \mod_booking\local\certificate_conditions\conditions\combination::save_condition
+     */
+    public function test_validate_rejects_strictorder_with_or(): void {
+        $this->base_scenario();
+        $leafa = $this->insert_instance_leaf('A');
+        $condition = new combination();
+        $data = [
+            'contextid' => context_system::instance()->id,
+            'condition_combination_operator' => 'OR',
+            'condition_combination_strictorder' => 1,
+            'condition_combination_group_1_operator' => 'AND',
+            'condition_combination_group_1_conditionids' => [$leafa],
+        ];
+        $errors = $condition->validate($data);
+        $this->assertArrayHasKey('condition_combination_operator', $errors);
+
+        $data['condition_combination_operator'] = 'AND';
+        $this->assertEmpty($condition->validate($data));
+        $formdata = (object)$data;
+        $condition->save_condition($formdata);
+        $this->assertSame(1, json_decode($formdata->conditionjson)->strictorder);
+
+        $formdata = (object)array_merge($data, ['condition_combination_operator' => 'OR']);
+        $condition->save_condition($formdata);
+        $this->assertSame(0, json_decode($formdata->conditionjson)->strictorder);
+    }
+
+    /**
      * Evaluate the conditions for a synthetic completion event of the option (as the manual trigger does).
      *
      * @param string $key
@@ -527,7 +738,14 @@ final class certificate_combination_test extends booking_advanced_testcase {
      * @param int $timemodified
      * @return int answer id
      */
-    private function insert_answer(int $optionid, int $userid, int $waitinglist, int $completed, int $timemodified): int {
+    private function insert_answer(
+        int $optionid,
+        int $userid,
+        int $waitinglist,
+        int $completed,
+        int $timemodified,
+        ?int $completeddate = null
+    ): int {
         global $DB;
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
         $id = $DB->insert_record('booking_answers', (object)[
@@ -536,12 +754,15 @@ final class certificate_combination_test extends booking_advanced_testcase {
             'optionid' => $optionid,
             'waitinglist' => $waitinglist,
             'completed' => $completed,
+            'completeddate' => $completed ? ($completeddate ?? $timemodified) : null,
             'timemodified' => $timemodified,
             'timecreated' => $timemodified,
             'timebooked' => $timemodified,
             'status' => 0,
             'places' => 1,
         ]);
+        // The answers of the option may already be cached (also as "empty"), so purge both caches.
+        booking_option::purge_cache_for_answers($optionid);
         singleton_service::destroy_booking_answers($optionid);
         return $id;
     }
@@ -556,7 +777,7 @@ final class certificate_combination_test extends booking_advanced_testcase {
      * @param int $issuemultiple 0 = global setting, 1 = prevent, 2 = allow
      * @return int combination id
      */
-    private function insert_abc_combination(int $uniqueoptions = 1, int $issuemultiple = 0): int {
+    private function insert_abc_combination(int $uniqueoptions = 1, int $issuemultiple = 0, int $strictorder = 0): int {
         $this->leafids = [];
         foreach (['A', 'B', 'C'] as $key) {
             $this->leafids[$key] = $this->insert_instance_leaf($key);
@@ -569,7 +790,8 @@ final class certificate_combination_test extends booking_advanced_testcase {
             ],
             'AND',
             $uniqueoptions,
-            $issuemultiple
+            $issuemultiple,
+            $strictorder
         );
     }
 
@@ -638,12 +860,19 @@ final class certificate_combination_test extends booking_advanced_testcase {
      * @param int $issuemultiple
      * @return int condition id
      */
-    private function insert_combination(array $groups, string $operator, int $uniqueoptions = 1, int $issuemultiple = 0): int {
+    private function insert_combination(
+        array $groups,
+        string $operator,
+        int $uniqueoptions = 1,
+        int $issuemultiple = 0,
+        int $strictorder = 0
+    ): int {
         global $DB;
         $logic = [
             'conditionname' => 'combination',
             'operator' => $operator,
             'uniqueoptions' => $uniqueoptions,
+            'strictorder' => $strictorder,
             'groups' => $groups,
         ];
         $id = $DB->insert_record(
