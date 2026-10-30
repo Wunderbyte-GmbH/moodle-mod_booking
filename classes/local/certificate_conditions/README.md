@@ -110,6 +110,12 @@ groups. `logicjson`:
 - `uniqueoptions`: a completed option counts for one leaf only. Leaves are evaluated in order and consume
   the options they used; a failed group or OR branch consumes nothing. Options observed by several leaves
   are consumed last, so they stay available for later leaves (greedy, no exact matching).
+- `strictorder` ("Groups must be completed in order", only with operator AND): the groups are evaluated with
+  a running frontier timestamp. A completion counts for a group only when it is not earlier than the moment
+  the previous group became complete (`booking_answers.completeddate`, `timemodified` as fallback). Each
+  leaf takes its earliest qualifying completions, an AND group is complete when its last leaf is, an OR
+  group takes the leaf that is fulfilled earliest. Without the setting the evaluation ignores times.
+- `combination::get_counted_optionids_for_user()` returns the options the fulfilled groups took.
 - Leaf filters, leaf actions and the active flag of leaves are ignored inside a combination.
 - A combination cannot be a leaf of another combination (prevented in the form and in the evaluator).
 - Leaves must be saved in the **same context** as the combination: global combinations use global

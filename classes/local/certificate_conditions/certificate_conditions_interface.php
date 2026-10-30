@@ -153,6 +153,15 @@ interface certificate_conditions_interface {
     public function get_completed_optionids_for_user(int $userid, array $excludeoptionids = []): array;
 
     /**
+     * Return the completed targeted options of the user with their completion time, excluding the given ids.
+     *
+     * @param int $userid
+     * @param int[] $excludeoptionids option ids that must not be counted
+     * @return array optionid => completion timestamp, sorted by timestamp ASC, option id ASC
+     */
+    public function get_completions_for_user(int $userid, array $excludeoptionids = []): array;
+
+    /**
      * Return a short human readable summary of the configured condition for the list of conditions.
      *
      * @param stdClass $record condition record from booking_cert_cond

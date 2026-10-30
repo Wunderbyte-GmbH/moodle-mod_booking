@@ -1706,6 +1706,9 @@ $string['condition_combination_hint'] = 'Select saved conditions as building blo
 $string['condition_combination_noleaves'] = 'There are no conditions in this context that could be used as building blocks. Create them here first (e.g. with the action "No action"), then set up the combination.';
 $string['condition_combination_operator'] = 'Combine the groups with';
 $string['condition_combination_or'] = 'OR';
+$string['condition_combination_strictorder'] = 'Groups must be completed in order';
+$string['condition_combination_strictorder_help'] = 'If enabled, the groups must be completed one after the other: a completed booking option only counts for a group if it was completed at the time the previous group became complete, or later. Earlier completions do not count for later groups. Within a group the order does not matter. Completing an option again (after it was set to not completed) moves it to the current time. Only available when the groups are combined with AND.';
+$string['condition_combination_strictordershort'] = 'in order';
 $string['condition_combination_uniqueoptions'] = 'Each completed booking option counts only once';
 $string['condition_combination_uniqueoptions_help'] = 'If enabled, a booking option that was already counted for one condition cannot be counted again for another condition of this combination. Example: "1 option of instance A" in group 1 and "1 option of instance A" in group 2 then require two different completed options of instance A.';
 $string['condition_combination_uniqueoptionsshort'] = 'each option counts once';
@@ -2263,6 +2266,7 @@ $string['error:choosevalue'] = 'You have to choose a value here.';
 $string['error:condition_combination_context'] = 'The context of a combination cannot be changed.';
 $string['error:condition_combination_invalidleaf'] = 'One of the selected conditions cannot be used here (it does not exist, is a combination itself, is this condition, or belongs to another context).';
 $string['error:condition_combination_nogroup'] = 'At least one group with at least one condition is required.';
+$string['error:condition_combination_strictorderor'] = 'The order of the groups can only be enforced when the groups are combined with AND.';
 $string['error:confirmthatyouaresure'] = 'Please confirm that you are sure.';
 $string['error:coursecategoryvaluemissing'] = 'You need to choose a value here as it is needed as course category
 for the automatically created Moodle course.';

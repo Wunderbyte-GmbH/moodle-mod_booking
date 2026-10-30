@@ -1707,6 +1707,9 @@ $string['condition_combination_hint'] = 'Wählen Sie gespeicherte Bedingungen al
 $string['condition_combination_noleaves'] = 'In diesem Kontext gibt es keine Bedingungen, die als Bausteine verwendet werden könnten. Legen Sie diese zuerst hier an (z.B. mit der Aktion "Keine Aktion") und richten Sie dann die Kombination ein.';
 $string['condition_combination_operator'] = 'Gruppen verknüpfen mit';
 $string['condition_combination_or'] = 'ODER';
+$string['condition_combination_strictorder'] = 'Gruppen müssen in der Reihenfolge abgeschlossen werden';
+$string['condition_combination_strictorder_help'] = 'Wenn aktiviert, müssen die Gruppen nacheinander abgeschlossen werden: Eine abgeschlossene Buchungsoption zählt für eine Gruppe nur, wenn sie zu dem Zeitpunkt, an dem die vorherige Gruppe vollständig war, oder später abgeschlossen wurde. Frühere Abschlüsse zählen für spätere Gruppen nicht. Innerhalb einer Gruppe spielt die Reihenfolge keine Rolle. Wird eine Option erneut abgeschlossen (nachdem sie auf nicht abgeschlossen gesetzt wurde), gilt der aktuelle Zeitpunkt. Nur verfügbar, wenn die Gruppen mit UND verknüpft sind.';
+$string['condition_combination_strictordershort'] = 'in Reihenfolge';
 $string['condition_combination_uniqueoptions'] = 'Jede abgeschlossene Buchungsoption zählt nur einmal';
 $string['condition_combination_uniqueoptions_help'] = 'Wenn aktiviert, kann eine Buchungsoption, die bereits für eine Bedingung gezählt wurde, nicht noch einmal für eine andere Bedingung dieser Kombination gezählt werden. Beispiel: "1 Option der Instanz A" in Gruppe 1 und "1 Option der Instanz A" in Gruppe 2 erfordern dann zwei verschiedene abgeschlossene Optionen der Instanz A.';
 $string['condition_combination_uniqueoptionsshort'] = 'jede Option zählt einmal';
@@ -2264,6 +2267,7 @@ $string['error:choosevalue'] = 'Sie müssen hier einen Wert auswählen.';
 $string['error:condition_combination_context'] = 'Der Kontext einer Kombination kann nicht geändert werden.';
 $string['error:condition_combination_invalidleaf'] = 'Eine der ausgewählten Bedingungen kann hier nicht verwendet werden (sie existiert nicht, ist selbst eine Kombination, ist diese Bedingung oder gehört zu einem anderen Kontext).';
 $string['error:condition_combination_nogroup'] = 'Mindestens eine Gruppe mit mindestens einer Bedingung ist erforderlich.';
+$string['error:condition_combination_strictorderor'] = 'Die Reihenfolge der Gruppen kann nur erzwungen werden, wenn die Gruppen mit UND verknüpft sind.';
 $string['error:confirmthatyouaresure'] = 'Bitte bestätigen Sie, dass Sie wissen, was Sie tun.';
 $string['error:coursecategoryvaluemissing'] = 'Sie müssen hier einen Wert auswählen, da dieser als Kurskategorie für den
 automatisch erstellten Moodle-Kurs benötigt wird.';
