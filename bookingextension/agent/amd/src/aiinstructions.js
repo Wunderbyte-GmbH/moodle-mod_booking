@@ -25,7 +25,79 @@ import Ajax from 'core/ajax';
 import Notification from 'core/notification';
 import Templates from 'core/templates';
 import Fragment from 'core/fragment';
-import {getString} from 'core/str';
+import {getString, getStrings} from 'core/str';
+
+/** Strings of the chat panel as [key, component]; init() loads them once into uiStrings. */
+const UI_STRING_KEYS = [
+    ['ai_js_ambiguity_heading', 'bookingextension_agent'],
+    ['ai_js_ambiguity_intro', 'bookingextension_agent'],
+    ['ai_js_copied', 'bookingextension_agent'],
+    ['ai_js_copy_failed', 'bookingextension_agent'],
+    ['ai_js_debug_copy', 'bookingextension_agent'],
+    ['ai_js_debug_copy_failed', 'bookingextension_agent'],
+    ['ai_js_debug_copy_title', 'bookingextension_agent'],
+    ['ai_js_debug_entry', 'bookingextension_agent'],
+    ['ai_js_debug_heading', 'bookingextension_agent'],
+    ['ai_js_debug_logs_heading', 'bookingextension_agent'],
+    ['ai_js_debug_request', 'bookingextension_agent'],
+    ['ai_js_debug_response', 'bookingextension_agent'],
+    ['ai_js_debug_skill_json', 'bookingextension_agent'],
+    ['ai_js_debug_thread_logs', 'bookingextension_agent'],
+    ['ai_js_discard_error', 'bookingextension_agent'],
+    ['ai_js_discard_failed', 'bookingextension_agent'],
+    ['ai_js_discarded', 'bookingextension_agent'],
+    ['ai_js_doc_loading', 'bookingextension_agent'],
+    ['ai_js_doc_no_content', 'bookingextension_agent'],
+    ['ai_js_doc_preview_title', 'bookingextension_agent'],
+    ['ai_js_done', 'bookingextension_agent'],
+    ['ai_js_missing_queue_item', 'bookingextension_agent'],
+    ['ai_js_preview_error', 'bookingextension_agent'],
+    ['ai_js_proposed_actions', 'bookingextension_agent'],
+    ['ai_js_request_failed', 'bookingextension_agent'],
+    ['ai_js_result_email', 'bookingextension_agent'],
+    ['ai_js_result_name', 'bookingextension_agent'],
+    ['ai_js_skill_label', 'bookingextension_agent'],
+    ['ai_js_upload_failed', 'bookingextension_agent'],
+    ['ai_attachment_remove', 'bookingextension_agent'],
+    ['ai_welcome_empty', 'bookingextension_agent'],
+    ['ai_welcome_with_options', 'bookingextension_agent'],
+    ['remove', 'moodle'],
+];
+/** Loaded chat panel strings by key, with their '{$a}' placeholders kept. */
+const uiStrings = {};
+
+/**
+ * Load the chat panel strings once.
+ *
+ * @returns {Promise<Object>}
+ */
+const loadUiStrings = () => getStrings(UI_STRING_KEYS.map(([key, component]) => ({key, component})))
+    .then((values) => {
+        UI_STRING_KEYS.forEach(([key], index) => {
+            uiStrings[key] = String(values[index] || '');
+        });
+        return uiStrings;
+    })
+    .catch(() => uiStrings);
+
+/**
+ * A loaded chat panel string with its placeholders filled.
+ *
+ * @param {string} key String key from UI_STRING_KEYS.
+ * @param {*} a Value for {$a}, or an object whose properties fill {$a->name}.
+ * @returns {string}
+ */
+const uiString = (key, a = null) => {
+    let text = String(uiStrings[key] || '');
+    if (a !== null && typeof a === 'object') {
+        Object.keys(a).forEach((name) => {
+            text = text.split('{$a->' + name + '}').join(String(a[name]));
+        });
+    } else if (a !== null) {
+        text = text.split('{$a}').join(String(a));
+    }
+    return text;
+};
 
 /** Pending commands waiting for user confirmation. */
 let pendingCommands = null;
@@ -40,10 +112,11 @@ let currentThreadId = 0;
 let currentContextId = 0;
 let debugModeEnabled = false;
 let sessionAutoConfirmEnabled = false;
-let privacyCheckRunningLabel = 'Privacy check running...';
-let privacyAnswerNoteLabel = 'Privacy note: personal data in this response was de-anonymized for display.';
-let stepPlanningLabel = 'Planning...';
-let stepExecutingLabel = 'Executing...';
+// Server-rendered labels from the panel's data attributes, set by init().
+let privacyCheckRunningLabel = '';
+let privacyAnswerNoteLabel = '';
+let stepPlanningLabel = '';
+let stepExecutingLabel = '';
 let defaultThinkingLabel = '';
 let forceNewThreadOnFirstMessage = true;
 let trialTokenInvalidMessageLabel = '';
@@ -170,7 +243,7 @@ const renderMessageDebugJson = (meta) => {
     }
 
     return '<details class="booking-ai-debug-json">'
-        + '<summary>LLM Skill JSON</summary>'
+        + `<summary>${escapeHtml(uiString('ai_js_debug_skill_json'))}</summary>`
         + `<pre>${escapeHtml(pretty)}</pre>`
         + '</details>';
 };
@@ -189,14 +262,14 @@ const renderDebugLogs = (debugLogs) => {
     const plainTextLogs = formatDebugLogsForClipboard(debugLogs);
 
     let html = '<details class="booking-ai-debug-logs">'
-        + `<summary>LLM Debug Logs (${debugLogs.length})</summary>`
+        + `<summary>${escapeHtml(uiString('ai_js_debug_logs_heading', debugLogs.length))}</summary>`
         + '<div class="p-3">';
 
     // Add copy button
     html += '<button type="button" '
         + 'class="btn btn-sm btn-outline-secondary mb-2 booking-ai-copy-debug-logs" '
-        + 'title="Copy all debug logs to clipboard">'
-        + '📋 Copy All Logs'
+        + `title="${escapeHtml(uiString('ai_js_debug_copy_title'))}">`
+        + `📋 ${escapeHtml(uiString('ai_js_debug_copy'))}`
         + '</button>'
         + `<pre class="booking-ai-debug-logs-plain d-none">${escapeHtml(plainTextLogs)}</pre>`;
 
@@ -209,13 +282,14 @@ const renderDebugLogs = (debugLogs) => {
         const borderClass = Number(entry.success) === 1 ? 'border-success' : 'border-danger';
 
         html += `<div class="booking-ai-debug-log-entry mb-3 p-2 border rounded ${borderClass}">`;
-        html += `<strong>Entry ${index + 1}</strong> [${success}] <code>${escapeHtml(source)}</code> `
+        html += `<strong>${escapeHtml(uiString('ai_js_debug_entry', index + 1))}</strong> [${success}] `
+            + `<code>${escapeHtml(source)}</code> `
             + `<small class="text-muted">${timestamp}</small>`;
 
         const requesttext = String(entry.requesttext || '').trim();
         if (requesttext) {
             html += '<details class="ml-3 mt-2">'
-                + '<summary>Request</summary>'
+                + `<summary>${escapeHtml(uiString('ai_js_debug_request'))}</summary>`
                 + `<pre class="bg-light p-2 small mb-0"><code>${escapeHtml(requesttext)}</code></pre>`
                 + '</details>';
         }
@@ -223,7 +297,7 @@ const renderDebugLogs = (debugLogs) => {
         const responsetext = String(entry.responsetext || '').trim();
         if (responsetext) {
             html += '<details class="ml-3 mt-2">'
-                + '<summary>Response</summary>'
+                + `<summary>${escapeHtml(uiString('ai_js_debug_response'))}</summary>`
                 + `<pre class="bg-light p-2 small mb-0"><code>${escapeHtml(responsetext)}</code></pre>`
                 + '</details>';
         }
@@ -436,8 +510,8 @@ const renderAmbiguityOptionsHtml = (options = []) => {
     }
 
     return '<div class="booking-ai-ambiguity-options mt-3 p-3 border rounded bg-light">'
-        + '<div class="font-weight-bold mb-1">Please select the topic you mean</div>'
-        + '<div class="small text-muted mb-2">I found multiple matching documentation entries.</div>'
+        + `<div class="font-weight-bold mb-1">${escapeHtml(uiString('ai_js_ambiguity_heading'))}</div>`
+        + `<div class="small text-muted mb-2">${escapeHtml(uiString('ai_js_ambiguity_intro'))}</div>`
         + `<div class="d-flex flex-wrap">${buttons}</div>`
         + '</div>';
 };
@@ -649,12 +723,13 @@ registerPreviewRenderer('command_list', async (payload) => {
     let items = commands.map((cmd) => {
         const skill = escapeHtml(cmd.skill || '');
         const inputDesc = escapeHtml(JSON.stringify(cmd.input || {}));
-        return `<li><strong>Skill:</strong> ${skill}<br/><small class="text-muted">${inputDesc}</small></li>`;
+        return `<li><strong>${escapeHtml(uiString('ai_js_skill_label'))}</strong> ${skill}`
+            + `<br/><small class="text-muted">${inputDesc}</small></li>`;
     }).join('');
 
     return '<div class="booking-ai-run-status-inline card mb-0">'
         + '<div class="card-body p-3">'
-        + '<h6 class="mb-2">Proposed Actions</h6>'
+        + `<h6 class="mb-2">${escapeHtml(uiString('ai_js_proposed_actions'))}</h6>`
         + `<ul class="mb-0 pl-3">${items}</ul>`
         + '</div></div>';
 });
@@ -734,7 +809,9 @@ export const dispatchSkillPreview = async (previewDescriptor, contextid) => {
                 setSidePreviewHtml(html);
             }
         } catch (e) {
-            setSidePreviewHtml(`<div class="text-danger small">Error: ${escapeHtml(e.message)}</div>`);
+            setSidePreviewHtml(
+                `<div class="text-danger small">${escapeHtml(uiString('ai_js_preview_error', e.message))}</div>`
+            );
         }
         return;
     }
@@ -1253,7 +1330,8 @@ const loadUrlInSidePreview = (url) => {
         '<iframe class="booking-ai-side-preview-frame"'
         + ` src="${escapeHtml(safeUrl)}"`
         + ' loading="lazy" referrerpolicy="no-referrer"'
-        + ' style="width:100%;min-height:420px;border:0;" title="Documentation preview"></iframe>'
+        + ' style="width:100%;min-height:420px;border:0;"'
+        + ` title="${escapeHtml(uiString('ai_js_doc_preview_title'))}"></iframe>`
     );
 };
 
@@ -1327,7 +1405,9 @@ const loadDocInPreview = (docpath, corpusid, fallbackUrl = '', fragment = '') =>
         return;
     }
 
-    setSidePreviewHtml('<div class="booking-doc-loading p-3 text-muted">Loading documentation…</div>');
+    setSidePreviewHtml(
+        `<div class="booking-doc-loading p-3 text-muted">${escapeHtml(uiString('ai_js_doc_loading'))}</div>`
+    );
 
     Ajax.call([{
         methodname: 'bookingextension_agent_ai_get_doc_content',
@@ -1350,7 +1430,9 @@ const loadDocInPreview = (docpath, corpusid, fallbackUrl = '', fragment = '') =>
         } else if (fallbackUrl !== '') {
             loadUrlInSidePreview(fallbackUrl);
         } else {
-            setSidePreviewHtml('<div class="p-3 text-muted small">No content available.</div>');
+            setSidePreviewHtml(
+                `<div class="p-3 text-muted small">${escapeHtml(uiString('ai_js_doc_no_content'))}</div>`
+            );
         }
         return resp;
     }).catch(() => {
@@ -1426,8 +1508,8 @@ const buildFriendlyRunMessage = (status, message, results = []) => {
     }
 
     return safeStatus === 'failed'
-        ? 'The request failed. Please check the details below.'
-        : 'Done.';
+        ? uiString('ai_js_request_failed')
+        : uiString('ai_js_done');
 };
 
 /**
@@ -1454,7 +1536,7 @@ const buildDebugRunHtml = (status, message, results = []) => {
     if (debugMessages.length > 0) {
         const items = debugMessages.map((debugMessage) => `<li>${renderTextWithLinks(debugMessage)}</li>`).join('');
         return '<div class="booking-ai-run-status-inline alert alert-secondary mb-0">'
-            + '<strong>Debug</strong>'
+            + `<strong>${escapeHtml(uiString('ai_js_debug_heading'))}</strong>`
             + `<ul class="mb-0">${items}</ul>`
             + '</div>';
     }
@@ -1754,10 +1836,12 @@ const showRunStatus = (status, message, results = []) => {
 
             let extraHtml = '';
             if (result.fullname) {
-                extraHtml += `<div><strong>Name:</strong> ${escapeHtml(String(result.fullname))}</div>`;
+                extraHtml += `<div><strong>${escapeHtml(uiString('ai_js_result_name'))}</strong> `
+                    + `${escapeHtml(String(result.fullname))}</div>`;
             }
             if (result.email) {
-                extraHtml += `<div><strong>E-Mail:</strong> ${escapeHtml(String(result.email))}</div>`;
+                extraHtml += `<div><strong>${escapeHtml(uiString('ai_js_result_email'))}</strong> `
+                    + `${escapeHtml(String(result.email))}</div>`;
             }
 
             return `<li><strong>${resultStatus}</strong>${resultDetail ? `: ${resultDetail}` : ''}`
@@ -1914,7 +1998,7 @@ const refreshThreadDebugLogs = () => {
                         'booking-ai-all-debug-logs', 'mt-3'
                     );
                     div.innerHTML = '<div class="alert alert-secondary mb-0">'
-                        + '<strong>📋 All LLM Debug Logs (Thread)</strong>'
+                        + `<strong>📋 ${escapeHtml(uiString('ai_js_debug_thread_logs'))}</strong>`
                         + `${debugHtml}`
                         + '</div>';
                     list.appendChild(div);
@@ -1953,7 +2037,8 @@ const renderAttachmentTray = () => {
             ${thumb || icon}
             <span class="booking-ai-attachment-name">${name}</span>
             <button type="button" class="booking-ai-attachment-remove" data-idx="${idx}"
-                    aria-label="Remove attachment" title="Remove">&#10005;</button>
+                    aria-label="${escapeHtml(uiString('ai_attachment_remove'))}"
+                    title="${escapeHtml(uiString('remove'))}">&#10005;</button>
         </span>`;
     }).join('');
 };
@@ -1978,7 +2063,7 @@ const uploadAttachment = (file) => {
         }])[0].then((resp) => {
             if (!resp.success) {
                 Notification.addNotification({
-                    message: resp.message || 'Upload failed.',
+                    message: resp.message || uiString('ai_js_upload_failed'),
                     type: 'error',
                 });
                 return resp;
@@ -1992,7 +2077,7 @@ const uploadAttachment = (file) => {
             renderAttachmentTray();
             return resp;
         }).catch((err) => {
-            Notification.addNotification({message: 'File upload failed.', type: 'error'});
+            Notification.addNotification({message: uiString('ai_js_upload_failed'), type: 'error'});
             return err;
         });
     };
@@ -2480,7 +2565,7 @@ const confirmRun = (allowSession = false) => {
     }
 
     if (pendingQueueItemId === '') {
-        showRunStatus('failed', 'Missing queue item id. Please confirm the latest assistant proposal again.');
+        showRunStatus('failed', uiString('ai_js_missing_queue_item'));
         return;
     }
 
@@ -2584,17 +2669,16 @@ const discardPendingConfirmation = () => {
         const ok = Boolean(resp && resp.success);
         hideConfirmPanel(true);
         if (!ok) {
-            const message = String((resp && resp.message) || 'Unable to discard pending confirmation.');
+            const message = String((resp && resp.message) || uiString('ai_js_discard_failed'));
             showRunStatus('failed', message);
             return resp;
         }
 
-        const message = String((resp && resp.message) || 'Pending confirmation was discarded.');
+        const message = String((resp && resp.message) || uiString('ai_js_discarded'));
         appendFriendlyAssistantMessage(message);
         return resp;
     }).catch((err) => {
-        const fallbackMessage = 'Discard failed. Pending confirmation is still active. '
-            + 'If this happened after an update, run the Moodle plugin upgrade and reload the page.';
+        const fallbackMessage = uiString('ai_js_discard_error');
         appendFriendlyAssistantMessage(fallbackMessage);
         Notification.exception(err);
     });
@@ -3049,13 +3133,9 @@ const displayWelcomeMessage = (numOptions, numBooked) => {
         return;
     }
 
-    let message = '';
-    if (numOptions === 0) {
-        message = 'Welcome! Would you like me to help you create your first booking option?';
-    } else {
-        message = `Welcome! You have ${numOptions} booking options here, and ${numBooked} people are already booked. ` +
-            'How can I help you?';
-    }
+    const message = numOptions === 0
+        ? uiString('ai_welcome_empty')
+        : uiString('ai_welcome_with_options', {numoptions: numOptions, numbooked: numBooked});
 
     const p = document.createElement('p');
     p.textContent = message;
@@ -3145,10 +3225,10 @@ const handleBodyClick = (event) => {
         const plainText = plain ? String(plain.textContent || '') : '';
 
         copyTextToClipboard(plainText).then(() => {
-            showButtonFeedback(copyBtn, 'Copied!', 'btn-success');
+            showButtonFeedback(copyBtn, uiString('ai_js_copied'), 'btn-success');
         }).catch(() => {
-            showButtonFeedback(copyBtn, 'Copy failed', 'btn-danger');
-            Notification.alert('Failed to copy debug logs to clipboard.');
+            showButtonFeedback(copyBtn, uiString('ai_js_copy_failed'), 'btn-danger');
+            Notification.alert(uiString('ai_js_debug_copy_failed'));
         });
         return;
     }
@@ -3481,16 +3561,15 @@ export const init = (jsModulesOrConfig = {}, config = null) => {
             num_options: Number(wrapper.dataset.numOptions || 0),
             num_booked: Number(wrapper.dataset.numBooked || 0),
             debug_mode: String(wrapper.dataset.debugMode || '0') === '1',
-            privacy_check_running: String(wrapper.dataset.privacyCheckRunning || 'Privacy check running...'),
-            privacy_answer_note: String(
-                wrapper.dataset.privacyAnswerNote
-                || 'Privacy note: personal data in this response was de-anonymized for display.'
-            ),
+            privacy_check_running: String(wrapper.dataset.privacyCheckRunning || ''),
+            privacy_answer_note: String(wrapper.dataset.privacyAnswerNote || ''),
             trial_token_invalid_message: String(wrapper.dataset.aiTrialTokenInvalidMessage || ''),
             step_planning_label: String(wrapper.dataset.stepPlanningLabel || ''),
             step_executing_label: String(wrapper.dataset.stepExecutingLabel || ''),
         };
     }
+
+    const uiStringsLoaded = loadUiStrings();
 
     currentContextId = runtimeConfig.contextid || 0;
     currentThreadId = runtimeConfig.threadid || 0;
@@ -3505,9 +3584,9 @@ export const init = (jsModulesOrConfig = {}, config = null) => {
     if (thinking) {
         const thinkingLabel = document.getElementById('booking-ai-thinking-label');
         if (thinkingLabel) {
-            defaultThinkingLabel = String(thinkingLabel.textContent || '').trim() || 'Thinking...';
+            defaultThinkingLabel = String(thinkingLabel.textContent || '').trim();
         } else {
-            defaultThinkingLabel = String(thinking.textContent || '').trim() || 'Thinking...';
+            defaultThinkingLabel = String(thinking.textContent || '').trim();
         }
     }
 
@@ -3524,8 +3603,11 @@ export const init = (jsModulesOrConfig = {}, config = null) => {
     initMobilePreviewSwitch();
     initAttachmentHandlers();
 
-    // Display welcome message based on booking statistics.
-    displayWelcomeMessage(runtimeConfig.num_options || 0, runtimeConfig.num_booked || 0);
+    // Display welcome message based on booking statistics, once the panel strings are loaded.
+    uiStringsLoaded.then(() => {
+        displayWelcomeMessage(runtimeConfig.num_options || 0, runtimeConfig.num_booked || 0);
+        return null;
+    }).catch(Notification.exception);
 
     initDebugRefreshButton();
 
