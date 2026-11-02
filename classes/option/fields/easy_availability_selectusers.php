@@ -255,6 +255,10 @@ class easy_availability_selectusers extends field_base {
             );
             $mform->addHelpButton('bo_cond_selectusers_removeafterbooking', 'bocondselectusersremoveafterbooking', 'mod_booking');
             $mform->hideIf('bo_cond_selectusers_removeafterbooking', 'bo_cond_selectusers_restrict', 'notchecked');
+            // Ticked by default while the site allows it. A stored value of the option still wins.
+            if (selectusers::remove_after_booking_enabled()) {
+                $mform->setDefault('bo_cond_selectusers_removeafterbooking', 1);
+            }
         }
 
         // This is to transmit the original availability values.

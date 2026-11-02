@@ -353,6 +353,10 @@ class selectusers implements bo_condition, freezable_condition {
                     'mod_booking'
                 );
                 $mform->hideIf('bo_cond_selectusers_removeafterbooking', 'bo_cond_selectusers_restrict', 'notchecked');
+                // Ticked by default while the site allows it. A stored value of the option still wins.
+                if (self::remove_after_booking_enabled()) {
+                    $mform->setDefault('bo_cond_selectusers_removeafterbooking', 1);
+                }
             }
 
             $mform->addElement(
