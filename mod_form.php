@@ -1329,6 +1329,13 @@ class mod_booking_mod_form extends moodleform_mod {
         $mform->hideIf('addtogroup', 'autoenrol', 'notchecked');
 
         if ($isproversion) {
+            // Course category sync.
+            $mform->addElement(
+                'header',
+                'coursecategorysynchdr',
+                get_string('coursecategorysync', 'mod_booking')
+            );
+
             // Link a course category: every course created there gets a booking option in this instance.
             // The category of the course this instance lives in is excluded: an option of this instance can create
             // its own connected course there, which would trigger another option, and so on.

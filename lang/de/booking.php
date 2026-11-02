@@ -1836,6 +1836,7 @@ $string['copytotemplate'] = 'Buchungsoption als Vorlage speichern';
 $string['copytotemplatesucesfull'] = 'Buchungsoption erfolgreich als Vorlage gespeichert';
 $string['course'] = 'Moodle-Kurs';
 $string['coursecalendarurl'] = "Kurskalenderlink";
+$string['coursecategorysync'] = 'Kursbereichs-Synchronisation';
 $string['coursedate'] = 'Kurstermin';
 $string['coursedoesnotexist'] = 'Die Kursnummer {$a} existiert nicht';
 $string['courseduplicating'] = 'Diesen Eintrag NICHT ENTFERNEN. Moodle-Kurs wird mit der nächsten Ausführung des CRON-Tasks kopiert.';
