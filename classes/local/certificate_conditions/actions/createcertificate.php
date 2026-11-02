@@ -229,10 +229,12 @@ class createcertificate implements action_interface {
                 return;
             }
         }
+        // Awarded on the day the last counting option was completed, not the moment of the evaluation.
+        $completeddate = certificateclass::get_latest_completion_for_certificate($userid, $optionid, (int)$condition->id);
         certificateclass::issue_certificate(
             $optionid,
             $userid,
-            time(),
+            $completeddate ?: time(),
             (int)$this->certid,
             (int)$this->expirydatetype,
             (int)$this->expirydateabsolute,

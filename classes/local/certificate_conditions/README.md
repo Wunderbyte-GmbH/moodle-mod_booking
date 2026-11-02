@@ -117,7 +117,10 @@ groups. `logicjson`:
   group takes the leaf that is fulfilled earliest. Without the setting the evaluation ignores times.
 - `combination::get_counted_optionids_for_user()` returns the options the fulfilled groups took; the
   certificate shortcode `[bookingoptionsfromcondition]` uses it in strict mode and lists all completed
-  options of the building blocks otherwise (`shortcodes::get_optionids_for_certificate()`).
+  options of the building blocks otherwise (`certificateclass::get_completions_for_certificate()`).
+- The "Awarded on" date (`timeawarded`) of a certificate issued by a condition is the completion time of the
+  latest option the certificate lists (`certificateclass::get_latest_completion_for_certificate()`), not the
+  moment of the evaluation, so backdated completions and manual triggers keep the real completion date.
 - Leaf filters, leaf actions and the active flag of leaves are ignored inside a combination.
 - A combination cannot be a leaf of another combination (prevented in the form and in the evaluator).
 - Leaves must be saved in the **same context** as the combination: global combinations use global

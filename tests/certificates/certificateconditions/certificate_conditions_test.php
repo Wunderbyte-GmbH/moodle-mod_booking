@@ -33,6 +33,7 @@ use mod_booking_generator;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\event\certificate_issued;
 use mod_booking\local\certificate_conditions\certificate_conditions;
+use mod_booking\local\certificateclass;
 use context_module;
 use context_system;
 use stdClass;
@@ -147,6 +148,60 @@ final class certificate_conditions_test extends booking_advanced_testcase {
 
         // We should have now two certificate issues in total because both student1 and student2 completed the condition.
         $this->assertEquals(2, $DB->count_records('tool_certificate_issues'));
+
+        self::teardown();
+    }
+
+    /**
+     * The "awarded on" date of a certificate issued by a condition is the latest completion among the options
+     * that count, not the moment of the evaluation: a backdated completion that triggers the condition keeps
+     * the newer completion date of the option completed before it.
+     *
+     * @covers \mod_booking\local\certificate_conditions\actions\createcertificate::execute_action
+     * @covers \mod_booking\local\certificateclass::get_latest_completion_for_certificate
+     * @covers \mod_booking\local\certificateclass::get_completions_for_certificate
+     */
+    public function test_condition_certificate_awarded_on_latest_completion(): void {
+        global $DB;
+        $this->base_scenario();
+        $certificate = $this->get_certificate_generator()->create_template((object)['name' => 'Certificate 1']);
+        $data = $this->set_bookingoption_condition($certificate);
+        $conditionid = $DB->insert_record('booking_cert_cond', $data);
+        $this->set_condition_items($conditionid);
+        $userid = $this->users['student1']->id;
+
+        $settings1 = singleton_service::get_instance_of_booking_option_settings($this->bookingoptions[0]->id);
+        $settings2 = singleton_service::get_instance_of_booking_option_settings($this->bookingoptions[1]->id);
+        $this->setUser($this->users['student1']);
+        booking_bookit::bookit('option', $settings1->id, $userid);
+        booking_bookit::bookit('option', $settings1->id, $userid);
+        booking_bookit::bookit('option', $settings2->id, $userid);
+        booking_bookit::bookit('option', $settings2->id, $userid);
+        $this->setAdminUser();
+
+        // Option 1 was completed five days ago, option 2 ten days ago; option 2 is entered last and fires the condition.
+        $latest = strtotime('2024-03-15 10:00');
+        $earlier = strtotime('2024-03-10 10:00');
+        $option1 = singleton_service::get_instance_of_booking_option($settings1->cmid, $settings1->id);
+        $option1->toggle_user_completion($userid, 0, false, $latest);
+        singleton_service::destroy_booking_answers($option1->id);
+        $this->assertEquals(0, $DB->count_records('tool_certificate_issues', ['userid' => $userid]));
+
+        $option2 = singleton_service::get_instance_of_booking_option($settings2->cmid, $settings2->id);
+        $option2->toggle_user_completion($userid, 0, false, $earlier);
+        singleton_service::destroy_booking_answers($option2->id);
+
+        $issues = $DB->get_records('tool_certificate_issues', ['userid' => $userid]);
+        $this->assertCount(1, $issues);
+        $issuedata = json_decode(reset($issues)->data, true);
+        $format = get_string('timeawardedformat', 'mod_booking');
+        $this->assertSame(userdate($latest, $format, 99, false), $issuedata['timeawarded']);
+        $this->assertNotSame(userdate(time(), $format, 99, false), $issuedata['timeawarded']);
+
+        // The helper itself: both completions with their stored dates, the latest one wins.
+        $completions = certificateclass::get_completions_for_certificate($userid, $settings2->id, $conditionid);
+        $this->assertSame([$settings2->id => $earlier, $settings1->id => $latest], $completions);
+        $this->assertSame($latest, certificateclass::get_latest_completion_for_certificate($userid, $settings2->id, $conditionid));
 
         self::teardown();
     }

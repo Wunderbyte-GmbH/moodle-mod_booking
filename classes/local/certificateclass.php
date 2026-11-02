@@ -32,6 +32,8 @@ use mod_booking\option\dates_handler;
 use mod_booking\placeholders\placeholders\customfields;
 use mod_booking\singleton_service;
 use mod_booking\customfield\booking_handler;
+use mod_booking\local\certificate_conditions\conditions\combination;
+use mod_booking\local\certificate_conditions\conditions_info;
 use tool_certificate\template;
 use tool_certificate\certificate as toolCertificate;
 use stdClass;
@@ -571,6 +573,89 @@ class certificateclass {
         $notes = $DB->get_field_sql($sql, $params, IGNORE_MULTIPLE);
 
         return (string) ($notes ?? '');
+    }
+
+    /**
+     * The completed options a certificate covers and the time each was completed: the completed options of the
+     * condition that issued it, in the order of their completion.
+     *
+     * Resolved through the condition handlers, so it works for every condition type (booking option, tagged
+     * options, booking instance options, combination). A combination with strict order lists exactly the
+     * options that earned the certificate; otherwise all completed options of its building blocks are listed.
+     * Without a condition (certificate stored on the option) the option itself and the completed options it
+     * requires are listed.
+     *
+     * @param int $userid
+     * @param int $optionid the option whose completion issued the certificate
+     * @param int $conditionid the certificate condition, 0 for the certificate stored on the option
+     * @return array optionid => completion timestamp
+     */
+    public static function get_completions_for_certificate(int $userid, int $optionid, int $conditionid): array {
+        global $DB;
+
+        if (empty($conditionid)) {
+            $optionids = empty($optionid) ? [] : [$optionid];
+            $requiredoptions = booking_option::get_value_of_json_by_key($optionid, 'certificaterequiresotheroptions') ?? [];
+            foreach ((array)$requiredoptions as $requiredoptionid) {
+                if (!empty((int)$requiredoptionid)) {
+                    $optionids[] = (int)$requiredoptionid;
+                }
+            }
+            $completions = [];
+            foreach (array_unique($optionids) as $id) {
+                $settings = singleton_service::get_instance_of_booking_option_settings($id);
+                if (empty($settings->id)) {
+                    continue;
+                }
+                $bookinganswers = singleton_service::get_instance_of_booking_answers($settings);
+                if ((int)$bookinganswers->is_activity_completed($userid) === 1) {
+                    $answer = $bookinganswers->get_users()[$userid];
+                    $completions[$id] = (int)(($answer->completeddate ?? 0) ?: ($answer->timemodified ?? 0));
+                } else if ($id === $optionid) {
+                    // The option itself is always listed, even when its completion is not stored yet.
+                    $completions[$id] = 0;
+                }
+            }
+            return $completions;
+        }
+
+        $record = $DB->get_record('booking_cert_cond', ['id' => $conditionid]);
+        if (!$record) {
+            return [];
+        }
+        $jsonobject = json_decode((string)$record->logicjson);
+        $conditionname = (string)($jsonobject->conditionname ?? ($jsonobject->logicname ?? ''));
+        $condition = $conditionname === '' ? null : conditions_info::get_condition($conditionname);
+        if (!$condition) {
+            return [];
+        }
+        $condition->set_logicdata($record);
+
+        $completions = $condition->get_completions_for_user($userid);
+        if ($condition instanceof combination && $condition->strictorder) {
+            $counted = [];
+            foreach ($condition->get_counted_optionids_for_user($userid) as $id) {
+                $counted[(int)$id] = (int)($completions[(int)$id] ?? 0);
+            }
+            return $counted;
+        }
+        return array_map('intval', $completions);
+    }
+
+    /**
+     * The completion time of the last option that counts for a certificate, 0 when none is known.
+     *
+     * Used as the "awarded on" date of certificates issued by a condition, so that backdated completions
+     * (imports, course completion sync) and manual triggers do not report the moment of the evaluation.
+     *
+     * @param int $userid
+     * @param int $optionid the option whose completion issued the certificate
+     * @param int $conditionid the certificate condition, 0 for the certificate stored on the option
+     * @return int
+     */
+    public static function get_latest_completion_for_certificate(int $userid, int $optionid, int $conditionid): int {
+        $completions = self::get_completions_for_certificate($userid, $optionid, $conditionid);
+        return empty($completions) ? 0 : (int)max($completions);
     }
 
     /**
