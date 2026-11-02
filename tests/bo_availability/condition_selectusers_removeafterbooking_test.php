@@ -20,7 +20,9 @@ use advanced_testcase;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\bo_availability\conditions\selectusers;
 use mod_booking\event\selectusers_user_removed;
+use mod_booking\option\fields\easy_availability_selectusers;
 use mod_booking_generator;
+use MoodleQuickForm;
 use stdClass;
 
 /**
@@ -34,6 +36,8 @@ use stdClass;
  * @covers \mod_booking\bo_availability\conditions\selectusers::is_available
  * @covers \mod_booking\bo_availability\conditions\selectusers::get_condition_object_for_json
  * @covers \mod_booking\bo_availability\conditions\selectusers::set_defaults
+ * @covers \mod_booking\bo_availability\conditions\selectusers::add_condition_to_mform
+ * @covers \mod_booking\option\fields\easy_availability_selectusers::instance_form_definition
  * @covers \mod_booking\event\selectusers_user_removed
  */
 final class condition_selectusers_removeafterbooking_test extends advanced_testcase {
@@ -228,6 +232,36 @@ final class condition_selectusers_removeafterbooking_test extends advanced_testc
         $defaults = new stdClass();
         $condition->set_defaults($defaults, (object) ['userids' => []]);
         $this->assertObjectNotHasProperty('bo_cond_selectusers_restrict', $defaults);
+    }
+
+    /**
+     * With the site setting on, the setting is ticked by default in both option forms.
+     *
+     * @return void
+     */
+    public function test_form_default_follows_site_setting(): void {
+        $this->setAdminUser();
+        $formdata = [];
+
+        // Site setting on: ticked by default for a new option.
+        set_config('selectusersremoveafterbooking', 1, 'booking');
+        $mform = new MoodleQuickForm('optionform', 'post', '');
+        selectusers::instance()->add_condition_to_mform($mform, 0);
+        $this->assertSame(1, $mform->getElementValue('bo_cond_selectusers_removeafterbooking'));
+
+        $mform = new MoodleQuickForm('easyform', 'post', '');
+        easy_availability_selectusers::instance_form_definition($mform, $formdata, [], [], false);
+        $this->assertSame(1, $mform->getElementValue('bo_cond_selectusers_removeafterbooking'));
+
+        // Site setting off: not offered for a new option.
+        set_config('selectusersremoveafterbooking', 0, 'booking');
+        $mform = new MoodleQuickForm('optionform', 'post', '');
+        selectusers::instance()->add_condition_to_mform($mform, 0);
+        $this->assertFalse($mform->elementExists('bo_cond_selectusers_removeafterbooking'));
+
+        $mform = new MoodleQuickForm('easyform', 'post', '');
+        easy_availability_selectusers::instance_form_definition($mform, $formdata, [], [], false);
+        $this->assertFalse($mform->elementExists('bo_cond_selectusers_removeafterbooking'));
     }
 
     /**
