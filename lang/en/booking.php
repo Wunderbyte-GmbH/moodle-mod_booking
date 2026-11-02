@@ -1840,6 +1840,7 @@ $string['copytotemplate'] = 'Save booking option as template';
 $string['copytotemplatesucesfull'] = 'Booking option was successfully saved as template.';
 $string['course'] = 'Moodle course';
 $string['coursecalendarurl'] = "URL for course calendar";
+$string['coursecategorysync'] = 'Course category sync';
 $string['coursedate'] = 'Date';
 $string['coursedoesnotexist'] = 'The Coursenumber {$a} does not exist';
 $string['courseduplicating'] = 'DO NOT REMOVE this item. Moodle course is being copied with next run of CRON task.';
