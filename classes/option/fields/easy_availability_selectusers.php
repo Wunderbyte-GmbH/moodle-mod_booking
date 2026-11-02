@@ -208,9 +208,17 @@ class easy_availability_selectusers extends field_base {
 
         // Add the selectusers condition:
         // Select users who can override booking_time condition.
-        $mform->addElement('advcheckbox', 'bo_cond_selectusers_restrict', get_string('easyavailability:selectusers', 'local_musi'));
+        // Wording of local_musi when it is installed, otherwise the plugin's own strings.
+        $stringman = get_string_manager();
+        $restrictlabel = $stringman->string_exists('easyavailability:selectusers', 'local_musi')
+            ? get_string('easyavailability:selectusers', 'local_musi')
+            : get_string('easyavailability:selectusers', 'mod_booking');
+        $overbooklabel = $stringman->string_exists('easyavailability:overbook', 'local_musi')
+            ? get_string('easyavailability:overbook', 'local_musi')
+            : get_string('easyavailability:overbook', 'mod_booking');
+        $mform->addElement('advcheckbox', 'bo_cond_selectusers_restrict', $restrictlabel);
 
-        $mform->addElement('checkbox', 'selectusersoverbookcheckbox', get_string('easyavailability:overbook', 'local_musi'));
+        $mform->addElement('checkbox', 'selectusersoverbookcheckbox', $overbooklabel);
         $mform->setDefault('selectusersoverbookcheckbox', 'checked');
         $mform->hideIf('selectusersoverbookcheckbox', 'bo_cond_selectusers_restrict', 'notchecked');
 
