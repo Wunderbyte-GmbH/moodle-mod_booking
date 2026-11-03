@@ -38,6 +38,8 @@ The current implementation has no shortcode-specific parameters.
 - The options are listed in the order of their completion.
 - Output is built from the booking option title, and if teachers are assigned, a teacher list is appended.
 - Multiple matching items are joined with the translated delimiter `delimiterbookingoptionsfromcondition`.
+- To show the completion date of every option as well, use
+  [`[bookingoptionsfromconditionwithdate]`](bookingoptionsfromconditionwithdate.md).
 
 ---
 
@@ -54,5 +56,6 @@ You have completed the following booking options:
 
 ## Related docs
 
-- [Booking conditions](../booking_conditions/README.md)
+- [`[bookingoptionsfromconditionwithdate]`](bookingoptionsfromconditionwithdate.md)
+- [Certificates and certificate conditions](../certificates/README.md)
 - [Placeholders](../placeholders/README.md)

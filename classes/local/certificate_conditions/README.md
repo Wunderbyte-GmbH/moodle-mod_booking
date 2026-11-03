@@ -11,6 +11,8 @@ condition (table `booking_cert_cond`) consists of three parts:
 
 Each part is pluggable via a simple interface-based design.
 
+The user documentation of the feature lives in `docs/user/certificates/README.md`.
+
 ## Directory Structure
 
 ```
@@ -99,6 +101,7 @@ groups. `logicjson`:
   "conditionname": "combination",
   "operator": "AND",
   "uniqueoptions": 1,
+  "uniqueleaves": 0,
   "groups": [
     {"operator": "AND", "conditionids": [11, 12, 13]},
     {"operator": "OR",  "conditionids": [11, 12, 13]}
@@ -110,6 +113,10 @@ groups. `logicjson`:
 - `uniqueoptions`: a completed option counts for one leaf only. Leaves are evaluated in order and consume
   the options they used; a failed group or OR branch consumes nothing. Options observed by several leaves
   are consumed last, so they stay available for later leaves (greedy, no exact matching).
+- `uniqueleaves` ("Each building block counts only once", default off): a leaf that counted for a fulfilled group is
+  skipped in all later groups; the evaluator carries the taken leaf ids next to the taken option ids, with the
+  same snapshot on failed groups and the same per-branch copies in OR groups. Use it with one leaf per course
+  (all dates of the course) when "one more" must be another course, not another date.
 - `strictorder` ("Groups must be completed in order", only with operator AND): the groups are evaluated with
   a running frontier timestamp. A completion counts for a group only when it is not earlier than the moment
   the previous group became complete (`booking_answers.completeddate`, `timemodified` as fallback). Each
