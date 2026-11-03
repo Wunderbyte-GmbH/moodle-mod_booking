@@ -1114,10 +1114,10 @@ final class rules_waitinglist_notification_test extends booking_advanced_testcas
                     'numberoftasksexecuted' => 2,
                     'studentexpectedtobebooked' => true,
                     'nstudentbooked' => 2,
-                    // 2026-08-26: 1, not 0 - progression::autobook() (K3) notifies the autobooked
-                    // candidate directly (messaging_gateway::notify_autobooked()), unlike the old
-                    // chain which sent nothing for an instant-booked user.
-                    'mailssend' => 1,
+                    // 2026-11-02: 0 - progression::autobook() (K3) notifies the autobooked candidate
+                    // via the legacy status-changed mail (messaging_gateway::notify_autobooked()),
+                    // which is only sent with uselegacymailtemplates turned on (off here).
+                    'mailssend' => 0,
                 ],
             ],
             'first user on waitinglist has price, send mail with confirmation' => [

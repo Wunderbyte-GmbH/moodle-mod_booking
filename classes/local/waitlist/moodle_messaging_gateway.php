@@ -94,6 +94,11 @@ final class moodle_messaging_gateway implements messaging_gateway {
      * @return void
      */
     public function notify_autobooked(booking_waitlist_candidate $candidate, int $ruleid): void {
+        // The status-changed mail is a legacy mail template - with them turned off, only rules send mails.
+        if (!get_config('booking', 'uselegacymailtemplates')) {
+            return;
+        }
+
         $settings = singleton_service::get_instance_of_booking_option_settings($candidate->optionid);
         if (empty($settings)) {
             return;
