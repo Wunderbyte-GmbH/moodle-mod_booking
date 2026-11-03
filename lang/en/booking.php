@@ -1185,6 +1185,7 @@ $string['bookingoptionnamewithoutprefix'] = 'Name (without prefix)';
 $string['bookingoptionprice'] = 'Price';
 $string['bookingoptionsall'] = 'Shortcode to show all bookingoptions.';
 $string['bookingoptionsfromcondition'] = 'Shortcode to show bookingoptions from certificate condition.';
+$string['bookingoptionsfromconditionwithdate'] = 'Shortcode to show bookingoptions from certificate condition with their completion dates.';
 $string['bookingoptionsfromtemplatemenu'] = 'New booking option from template';
 $string['bookingoptionsmenu'] = 'Booking options';
 $string['bookingoptionstart'] = 'Start of booking option';
@@ -3114,6 +3115,7 @@ $string['optionvisibility'] = 'Visibility';
 $string['optionvisibility_help'] = 'Here you can choose whether the option should be visible for everyone or if it should be hidden from normal users and be visible to entitled users only.';
 $string['optionvisible'] = 'Visible to everyone (default)';
 $string['optionvisibledirectlink'] = 'Normal users can only see this option with a direct link';
+$string['optionwithdatebookingoptionsfromcondition'] = '{$a->text} ({$a->date})';
 $string['organizatorname'] = 'Organizer name';
 $string['organizatorname_help'] = 'You can either enter the organizer name manually or choose from a list of previous organizers.
 You can choose one organizer only. Once you save, the organizer will be added to the list.';

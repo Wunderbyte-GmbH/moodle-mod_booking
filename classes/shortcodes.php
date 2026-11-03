@@ -1821,28 +1821,63 @@ class shortcodes {
      *
      */
     public static function bookingoptionsfromcondition($shortcode, $args, $content, $env, $next) {
+        return self::render_bookingoptionsfromcondition(false);
+    }
+
+    /**
+     * Renders all completed booking options of a condition as a list, each with its completion date.
+     *
+     * Same as [bookingoptionsfromcondition], but every option is followed by the date it was completed on,
+     * in the format of the "Awarded on" date (timeawardedformat).
+     *
+     * @param string $shortcode
+     * @param array $args
+     * @param string|null $content
+     * @param object $env
+     * @param Closure $next
+     * @return string
+     *
+     */
+    public static function bookingoptionsfromconditionwithdate($shortcode, $args, $content, $env, $next) {
+        return self::render_bookingoptionsfromcondition(true);
+    }
+
+    /**
+     * Renders the completed booking options of the certificate currently being issued.
+     *
+     * @param bool $withdate whether to show the completion date of each option
+     * @return string
+     */
+    private static function render_bookingoptionsfromcondition(bool $withdate): string {
         $tempvalues = singleton_service::get_temp_values_for_certificates();
         [$userid, $optionid, $conditionid] = array_pad($tempvalues, 3, null);
         if (empty($userid)) {
             return "PLACEHOLDER";
         }
-        $optionids = self::get_optionids_for_certificate((int)$userid, (int)$optionid, (int)$conditionid);
+        $completions = certificateclass::get_completions_for_certificate((int)$userid, (int)$optionid, (int)$conditionid);
         $texts = [];
-        foreach ($optionids as $optionid) {
+        foreach ($completions as $optionid => $completeddate) {
             $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
             if (empty($settings->id)) {
                 continue;
+            }
+            $text = $settings->text;
+            if ($withdate && !empty($completeddate)) {
+                $text = get_string('optionwithdatebookingoptionsfromcondition', 'mod_booking', (object)[
+                    'text' => $settings->text,
+                    'date' => userdate((int)$completeddate, get_string('timeawardedformat', 'mod_booking'), 99, false),
+                ]);
             }
             $certificateteachers = [];
             if (!empty($settings->teachers)) {
                 foreach ($settings->teachers as $teacher) {
                     $certificateteachers[] = "$teacher->firstname $teacher->lastname";
                 }
-                $texts[] = $settings->text
+                $texts[] = $text
                 . "<br>" . get_string('teachersbookingoptionsfromcondition', 'mod_booking')
                 . implode(", ", $certificateteachers);
             } else {
-                $texts[] = $settings->text;
+                $texts[] = $text;
             }
         }
         return implode(get_string('delimiterbookingoptionsfromcondition', 'mod_booking'), $texts);
