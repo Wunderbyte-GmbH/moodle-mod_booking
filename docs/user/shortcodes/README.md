@@ -92,6 +92,7 @@ The shortcode parser can pass many attributes, but each callback only uses the a
 | `[supervisorteam]` | [supervisorteam.md](supervisorteam.md) | Show bookings of users in a supervisor's team | `mod_booking\shortcodes::supervisorteam()` |
 | `[executeservice]` | [executeservice.md](executeservice.md) | Run an internal service class | `mod_booking\shortcodes::executeservice()` |
 | `[bookingoptionsfromcondition]` | [bookingoptionsfromcondition.md](bookingoptionsfromcondition.md) | Output completed options inside certificate-condition context | `mod_booking\shortcodes::bookingoptionsfromcondition()` |
+| `[bookingoptionsfromconditionwithdate]` | [bookingoptionsfromconditionwithdate.md](bookingoptionsfromconditionwithdate.md) | Same as above, each option with its completion date | `mod_booking\shortcodes::bookingoptionsfromconditionwithdate()` |
 | `[bookingoptionview]` | [bookingoptionview.md](bookingoptionview.md) | Render one direct booking button / booking option CTA | `mod_booking\shortcodes::bookingoptionview()` |
 | `[aiinstructions]` | [aiinstructions.md](aiinstructions.md) | Render the inline Booking Agent UI for one booking activity | `mod_booking\shortcodes::aiinstructions()` |
 
@@ -217,6 +218,7 @@ These shortcodes render other booking UI blocks instead of the booking options t
 - [aiinstructions](aiinstructions.md)
 - [executeservice](executeservice.md)
 - [bookingoptionsfromcondition](bookingoptionsfromcondition.md)
+- [bookingoptionsfromconditionwithdate](bookingoptionsfromconditionwithdate.md)
 
 ---
 

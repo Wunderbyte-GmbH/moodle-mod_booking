@@ -39,6 +39,8 @@ use stdClass;
  *
  * Leaf filters, leaf actions and the active flag of leaves are ignored here; the combination's own
  * filter, action and active flag govern. A combination cannot be a leaf of another combination.
+ * With "each building block counts only once" a leaf that counted for a fulfilled group is skipped in all
+ * later groups, so that e.g. a leaf standing for a course with several dates cannot count as "one more course".
  *
  * @package    mod_booking
  * @copyright  2026 Wunderbyte GmbH <info@wunderbyte.at>,
@@ -65,6 +67,9 @@ class combination implements certificate_conditions_interface {
 
     /** @var bool a completed option counts for one leaf only */
     public bool $uniqueoptions = true;
+
+    /** @var bool a leaf that counted for a fulfilled group cannot count again for a later group */
+    public bool $uniqueleaves = false;
 
     /** @var bool the groups must be completed in order: later groups only count completions not earlier than the previous group */
     public bool $strictorder = false;
@@ -111,6 +116,14 @@ class combination implements certificate_conditions_interface {
         );
         $mform->setDefault('condition_combination_uniqueoptions', 1);
         $mform->addHelpButton('condition_combination_uniqueoptions', 'condition_combination_uniqueoptions', 'mod_booking');
+
+        $mform->addElement(
+            'advcheckbox',
+            'condition_combination_uniqueleaves',
+            get_string('condition_combination_uniqueleaves', 'mod_booking')
+        );
+        $mform->setDefault('condition_combination_uniqueleaves', 0);
+        $mform->addHelpButton('condition_combination_uniqueleaves', 'condition_combination_uniqueleaves', 'mod_booking');
 
         $mform->addElement(
             'advcheckbox',
@@ -196,6 +209,7 @@ class combination implements certificate_conditions_interface {
         $jsonobject->conditionname = 'combination';
         $jsonobject->operator = self::normalize_operator((string)($data->condition_combination_operator ?? self::OP_AND));
         $jsonobject->uniqueoptions = empty($data->condition_combination_uniqueoptions) ? 0 : 1;
+        $jsonobject->uniqueleaves = empty($data->condition_combination_uniqueleaves) ? 0 : 1;
         $strictorder = !empty($data->condition_combination_strictorder) && $jsonobject->operator === self::OP_AND;
         $jsonobject->strictorder = $strictorder ? 1 : 0;
         $jsonobject->groups = self::groups_from_formdata($data);
@@ -248,6 +262,7 @@ class combination implements certificate_conditions_interface {
 
         $data->condition_combination_operator = $this->operator;
         $data->condition_combination_uniqueoptions = $this->uniqueoptions ? 1 : 0;
+        $data->condition_combination_uniqueleaves = $this->uniqueleaves ? 1 : 0;
         $data->condition_combination_strictorder = $this->strictorder ? 1 : 0;
 
         for ($i = 1; $i <= self::MAX_GROUPS; $i++) {
@@ -277,6 +292,7 @@ class combination implements certificate_conditions_interface {
     public function set_conditiondata_from_json(string $json): void {
         $this->operator = self::OP_AND;
         $this->uniqueoptions = true;
+        $this->uniqueleaves = false;
         $this->strictorder = false;
         $this->groups = [];
 
@@ -286,6 +302,7 @@ class combination implements certificate_conditions_interface {
         }
         $this->operator = self::normalize_operator((string)($jsonobject->operator ?? self::OP_AND));
         $this->uniqueoptions = !isset($jsonobject->uniqueoptions) || !empty($jsonobject->uniqueoptions);
+        $this->uniqueleaves = !empty($jsonobject->uniqueleaves);
         $this->strictorder = !empty($jsonobject->strictorder) && $this->operator === self::OP_AND;
         $this->groups = self::groups_from_json($jsonobject);
     }
@@ -388,7 +405,8 @@ class combination implements certificate_conditions_interface {
      * Evaluate the groups for the user.
      *
      * Every fulfilled leaf "takes" the options it counted. With "unique options" taken options are excluded for the
-     * following leaves. With "strict order" a running frontier timestamp is kept: a later group only counts
+     * following leaves. With "unique leaves" a leaf that counted for a fulfilled group is skipped in the following
+     * groups. With "strict order" a running frontier timestamp is kept: a later group only counts
      * completions not earlier than the moment the previous group became complete.
      *
      * @param int $userid
@@ -405,15 +423,27 @@ class combination implements certificate_conditions_interface {
         $overlap = self::build_overlap_map($leaves);
         $excludeoptionids = array_map('intval', $excludeoptionids);
         $taken = $excludeoptionids;
+        $takenleaves = [];
         $frontier = 0;
 
         foreach ($this->groups as $group) {
             $snapshot = $taken;
+            $snapshotleaves = $takenleaves;
             $grouptime = 0;
-            $fulfilled = $this->evaluate_group($group, $userid, $leaves, $overlap, $taken, $frontier, $grouptime);
+            $fulfilled = $this->evaluate_group(
+                $group,
+                $userid,
+                $leaves,
+                $overlap,
+                $taken,
+                $takenleaves,
+                $frontier,
+                $grouptime
+            );
             if (!$fulfilled) {
-                // A failed group must not leave taken options behind.
+                // A failed group must not leave taken options or leaves behind.
                 $taken = $snapshot;
+                $takenleaves = $snapshotleaves;
             } else if ($this->strictorder) {
                 $frontier = max($frontier, $grouptime);
             }
@@ -437,6 +467,7 @@ class combination implements certificate_conditions_interface {
      * @param array $leaves id => condition
      * @param array $overlap optionid => number of leaves observing it
      * @param array $taken taken option ids, extended on success
+     * @param array $takenleaves ids of the leaves that counted so far, extended on success
      * @param int $frontier completions earlier than this timestamp do not count (strict order only)
      * @param int $grouptime set to the time the group became complete
      * @return bool
@@ -447,6 +478,7 @@ class combination implements certificate_conditions_interface {
         array $leaves,
         array $overlap,
         array &$taken,
+        array &$takenleaves,
         int $frontier,
         int &$grouptime
     ): bool {
@@ -460,25 +492,39 @@ class combination implements certificate_conditions_interface {
             $best = null;
             foreach ($conditionids as $leafid) {
                 $candidate = $taken;
+                $candidateleaves = $takenleaves;
                 $leaftime = 0;
-                if (!$this->evaluate_leaf((int)$leafid, $userid, $leaves, $overlap, $candidate, $frontier, $leaftime)) {
+                if (
+                    !$this->evaluate_leaf(
+                        (int)$leafid,
+                        $userid,
+                        $leaves,
+                        $overlap,
+                        $candidate,
+                        $candidateleaves,
+                        $frontier,
+                        $leaftime
+                    )
+                ) {
                     continue;
                 }
                 if (!$this->strictorder) {
                     // The first fulfilled leaf wins.
                     $taken = $candidate;
+                    $takenleaves = $candidateleaves;
                     $grouptime = $leaftime;
                     return true;
                 }
                 // Strict order: the leaf that was fulfilled earliest wins, so later groups get the most room.
                 if ($best === null || $leaftime < $best['time']) {
-                    $best = ['taken' => $candidate, 'time' => $leaftime];
+                    $best = ['taken' => $candidate, 'leaves' => $candidateleaves, 'time' => $leaftime];
                 }
             }
             if ($best === null) {
                 return false;
             }
             $taken = $best['taken'];
+            $takenleaves = $best['leaves'];
             $grouptime = $best['time'];
             return true;
         }
@@ -486,7 +532,18 @@ class combination implements certificate_conditions_interface {
         // AND: all leaves against the same frontier, the group is complete when the last one is.
         foreach ($conditionids as $leafid) {
             $leaftime = 0;
-            if (!$this->evaluate_leaf((int)$leafid, $userid, $leaves, $overlap, $taken, $frontier, $leaftime)) {
+            if (
+                !$this->evaluate_leaf(
+                    (int)$leafid,
+                    $userid,
+                    $leaves,
+                    $overlap,
+                    $taken,
+                    $takenleaves,
+                    $frontier,
+                    $leaftime
+                )
+            ) {
                 return false;
             }
             $grouptime = max($grouptime, $leaftime);
@@ -502,6 +559,7 @@ class combination implements certificate_conditions_interface {
      * @param array $leaves
      * @param array $overlap
      * @param array $taken taken option ids, extended by the options this leaf counted
+     * @param array $takenleaves ids of the leaves that counted so far, extended by this leaf on success
      * @param int $frontier completions earlier than this timestamp do not count (strict order only)
      * @param int $leaftime set to the completion time of the last option the leaf needed
      * @return bool
@@ -512,10 +570,15 @@ class combination implements certificate_conditions_interface {
         array $leaves,
         array $overlap,
         array &$taken,
+        array &$takenleaves,
         int $frontier,
         int &$leaftime
     ): bool {
         if (!isset($leaves[$leafid])) {
+            return false;
+        }
+        if ($this->uniqueleaves && in_array($leafid, $takenleaves, true)) {
+            // The leaf already counted for an earlier group.
             return false;
         }
         /** @var certificate_conditions_interface $leaf */
@@ -555,6 +618,7 @@ class combination implements certificate_conditions_interface {
             $leaftime = max($leaftime, (int)$completions[$optionid]);
         }
         $taken = array_merge($taken, $take);
+        $takenleaves[] = $leafid;
         return true;
     }
 
@@ -680,6 +744,9 @@ class combination implements certificate_conditions_interface {
         $description = implode(' ' . $operatorstrings[$this->operator] . ' ', $groupstrings);
         if ($this->uniqueoptions) {
             $description .= ' [' . get_string('condition_combination_uniqueoptionsshort', 'mod_booking') . ']';
+        }
+        if ($this->uniqueleaves) {
+            $description .= ' [' . get_string('condition_combination_uniqueleavesshort', 'mod_booking') . ']';
         }
         if ($this->strictorder) {
             $description .= ' [' . get_string('condition_combination_strictordershort', 'mod_booking') . ']';

@@ -45,6 +45,7 @@
                 "groups": [],
                 "topoperator": "AND",
                 "uniqueoptions": true,
+                "uniqueleaves": false,
                 "strictorder": false,
                 "hascontextmismatch": false,
                 "localizedactionname" : "localizedactionname"
@@ -149,6 +150,7 @@
                             {{^last}}<small class="font-weight-bold mx-1">{{#strictorder}}&rarr;{{/strictorder}}{{^strictorder}}{{topoperator}}{{/strictorder}}</small>{{/last}}
                         {{/groups}}
                         {{#uniqueoptions}}<small class="text-muted ml-1">[{{#str}} condition_combination_uniqueoptionsshort, mod_booking {{/str}}]</small>{{/uniqueoptions}}
+                        {{#uniqueleaves}}<small class="text-muted ml-1">[{{#str}} condition_combination_uniqueleavesshort, mod_booking {{/str}}]</small>{{/uniqueleaves}}
                         {{#strictorder}}<small class="text-muted ml-1">[{{#str}} condition_combination_strictordershort, mod_booking {{/str}}]</small>{{/strictorder}}
                     </div>
                 </div>

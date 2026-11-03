@@ -663,6 +663,105 @@ final class certificate_combination_test extends booking_advanced_testcase {
     }
 
     /**
+     * "Each building block counts only once": a leaf that counted for a group is skipped in later groups, so a
+     * second date of the same course (same leaf) does not count as "one more course".
+     *
+     * @covers \mod_booking\local\certificate_conditions\conditions\combination::is_fulfilled_for_user
+     * @covers \mod_booking\local\certificate_conditions\conditions\combination::get_description
+     */
+    public function test_uniqueleaves_requires_another_building_block(): void {
+        global $DB;
+        $this->base_scenario();
+        // A course with several dates is one leaf over all its dates.
+        $leafa = $this->insert_bookingoption_leaf([$this->options['A1']]);
+        $leafb = $this->insert_bookingoption_leaf([$this->options['B1'], $this->options['B2']]);
+        $leafc = $this->insert_bookingoption_leaf([$this->options['C1'], $this->options['C2']]);
+        $leafd = $this->insert_bookingoption_leaf([$this->options['D1']]);
+        $leafe = $this->insert_bookingoption_leaf([$this->options['A2']]);
+        $groups = [
+            ['operator' => 'AND', 'conditionids' => [$leafa]],
+            ['operator' => 'OR', 'conditionids' => [$leafb]],
+            ['operator' => 'OR', 'conditionids' => [$leafc]],
+            ['operator' => 'OR', 'conditionids' => [$leafd]],
+            ['operator' => 'OR', 'conditionids' => [$leafb, $leafc, $leafd, $leafe]],
+        ];
+        $combinationid = $this->insert_combination($groups, 'AND', 1, 0, 0, 1);
+        $userid = $this->users['student1']->id;
+
+        $this->complete('A1', $userid);
+        $this->complete('B1', $userid);
+        $this->complete('C1', $userid);
+        $this->complete('D1', $userid);
+        $this->assertEquals(0, $this->count_certificates($userid), 'One course of each, "one more" missing');
+
+        // Second dates of courses already counted do not count as "one more".
+        $this->complete('B2', $userid);
+        $this->assertEquals(0, $this->count_certificates($userid), 'Second date of course B does not count');
+        $this->complete('C2', $userid);
+        $this->assertEquals(0, $this->count_certificates($userid), 'Second date of course C does not count');
+
+        // Another course does.
+        $this->complete('A2', $userid);
+        $this->assertEquals(1, $this->count_certificates($userid), 'Issued with a different course');
+
+        // The description and the list carry the marker.
+        $record = $DB->get_record('booking_cert_cond', ['id' => $combinationid]);
+        $this->assertStringContainsString(
+            get_string('condition_combination_uniqueleavesshort', 'mod_booking'),
+            (new combination())->get_description($record)
+        );
+        $list = certificate_conditions::get_rendered_list_of_saved_conditions(context_system::instance()->id);
+        $this->assertStringContainsString(get_string('condition_combination_uniqueleavesshort', 'mod_booking'), $list);
+
+        // Without the setting the second date of course B already issues the certificate.
+        $DB->set_field('booking_cert_cond', 'isactive', 0, ['id' => $combinationid]);
+        $this->insert_combination($groups, 'AND', 1, 0, 0, 0);
+        $userid2 = $this->users['student2']->id;
+        $this->complete('A1', $userid2);
+        $this->complete('B1', $userid2);
+        $this->complete('C1', $userid2);
+        $this->complete('D1', $userid2);
+        $this->assertEquals(0, $this->count_certificates($userid2));
+        $this->complete('B2', $userid2);
+        $this->assertEquals(1, $this->count_certificates($userid2), 'Option-level uniqueness lets another date count');
+    }
+
+    /**
+     * Unique leaves together with strict order: the OR group keeps the taken leaves of its winning branch, a leaf
+     * already taken is skipped even when it has later completions.
+     *
+     * @covers \mod_booking\local\certificate_conditions\conditions\combination::is_fulfilled_for_user
+     */
+    public function test_uniqueleaves_with_strictorder(): void {
+        $this->base_scenario();
+        $leafa = $this->insert_bookingoption_leaf([$this->options['A1']]);
+        $leafb = $this->insert_bookingoption_leaf([$this->options['B1'], $this->options['B2']]);
+        $leafe = $this->insert_bookingoption_leaf([$this->options['A2']]);
+        $this->insert_combination([
+            ['operator' => 'AND', 'conditionids' => [$leafa]],
+            ['operator' => 'AND', 'conditionids' => [$leafb]],
+            ['operator' => 'OR', 'conditionids' => [$leafb, $leafe]],
+        ], 'AND', 1, 0, 1, 1);
+        $userid = $this->users['student1']->id;
+
+        $this->insert_answer($this->options['A1'], $userid, MOD_BOOKING_STATUSPARAM_BOOKED, 1, 100, 100);
+        $this->insert_answer($this->options['B1'], $userid, MOD_BOOKING_STATUSPARAM_BOOKED, 1, 200, 200);
+        // A2 before group 2 was complete does not count for group 3.
+        $this->insert_answer($this->options['A2'], $userid, MOD_BOOKING_STATUSPARAM_BOOKED, 1, 150, 150);
+        $this->assertFalse($this->evaluate('A2', $userid));
+
+        // A later second date of course B does not count either: leaf B already counted for group 2.
+        $this->insert_answer($this->options['B2'], $userid, MOD_BOOKING_STATUSPARAM_BOOKED, 1, 300, 300);
+        $this->assertFalse($this->evaluate('B2', $userid));
+        $this->assertEquals(0, $this->count_certificates($userid));
+
+        // Re-completing A2 after group 2 counts.
+        $this->insert_answer($this->options['A2'], $userid, MOD_BOOKING_STATUSPARAM_BOOKED, 1, 400, 400);
+        $this->assertTrue($this->evaluate('A2', $userid));
+        $this->assertEquals(1, $this->count_certificates($userid));
+    }
+
+    /**
      * Strict order is rejected when the groups are combined with OR, and not stored.
      *
      * @covers \mod_booking\local\certificate_conditions\conditions\combination::validate
@@ -1008,6 +1107,7 @@ final class certificate_combination_test extends booking_advanced_testcase {
      * @param int $uniqueoptions
      * @param int $issuemultiple
      * @param int $strictorder
+     * @param int $uniqueleaves
      * @return int condition id
      */
     private function insert_combination(
@@ -1015,7 +1115,8 @@ final class certificate_combination_test extends booking_advanced_testcase {
         string $operator,
         int $uniqueoptions = 1,
         int $issuemultiple = 0,
-        int $strictorder = 0
+        int $strictorder = 0,
+        int $uniqueleaves = 0
     ): int {
         global $DB;
         $logic = [
@@ -1023,6 +1124,7 @@ final class certificate_combination_test extends booking_advanced_testcase {
             'operator' => $operator,
             'uniqueoptions' => $uniqueoptions,
             'strictorder' => $strictorder,
+            'uniqueleaves' => $uniqueleaves,
             'groups' => $groups,
         ];
         $id = $DB->insert_record(
