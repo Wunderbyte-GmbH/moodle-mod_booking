@@ -4026,10 +4026,12 @@ $string['signinsheethtmldescription'] = 'You can use the following placeholders 
 [[fullname]], [[firstname]], [[lastname]], [[email]], [[signature]], [[institution]], [[description]], [[city]], [[country]], [[idnumber]], [[phone1]], [[department]], [[address]], [[places]], [[userpic]] and custom user profile fields via their shortname, e.g. [[myshortname]]<br>
 <br>
 <b>Outside of [[users]]:</b><br>
-[[location]], [[dayofweektime]], [[teachers]], [[dates]], [[logourl]], [[tablename]]<br>
+[[location]], [[dayofweektime]], [[teachers]], [[dates]], [[logourl]], [[footerlogourl]], [[tablename]]<br>
 Additionally, the placeholders of the booking rules listed below can be used outside of [[users]] - written with double square brackets instead of curly braces, e.g. [[bookingoptionname]], [[startdate]], [[numberparticipants]] or custom booking option fields via their shortname ([[myshortname]]). Custom user profile fields and other placeholders referring to a user (e.g. [[firstname]]) are only available inside of [[users]].<br>
 <br>
 Use only basic HTML that is supported by TCPDF / PhpWord. To insert signatures into a table, use the CSS class <code>"signaturetable"</code>.';
+$string['signinsheethtmlfooter'] = 'HTML template for the footer of the sign-in sheet';
+$string['signinsheethtmlfooterdescription'] = 'Printed at the bottom of every page of the sign-in sheet generated from the HTML template. Leave empty for no footer. All placeholders available outside of [[users]] can be used, additionally [[page]] (number of the current page), [[pages]] (number of pages) and [[footerlogourl]] (the logo in the footer, see below). In Word documents the footer is added as plain text: tags and images are dropped, every line of the HTML becomes a line of the footer.';
 $string['signinsheetlocation'] = 'Location: ';
 $string['signinsheetmode'] = 'Sign-in sheet mode';
 $string['signinsheetmode_desc'] = 'Select the mode for downloading the sign-in sheet: HTML template or Legacy mode.';

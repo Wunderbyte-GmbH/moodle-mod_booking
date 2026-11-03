@@ -43,6 +43,8 @@ require_once($CFG->libdir . '/pdflib.php');
  *
  */
 class signin_pdf extends pdf {
+    use html_footer_trait;
+
     /**
      * $file
      *
@@ -64,6 +66,11 @@ class signin_pdf extends pdf {
      * Page footer
      */
     public function footer() {
+        // The footer of the HTML template (sign-in sheet HTML template mode) replaces the footer logo.
+        if ($this->footerhtml !== '') {
+            $this->print_html_footer();
+            return;
+        }
         // Position at 15 mm from bottom.
         $this->SetY(-20);
 

@@ -78,4 +78,14 @@ class bookedplaces extends \mod_booking\placeholders\placeholder_base {
     public static function is_applicable(): bool {
         return true;
     }
+
+    /**
+     * The number of booked places is a value of the option, so it can be used in the sign-in sheet
+     * template (e.g. as the number of participants).
+     *
+     * @return bool
+     */
+    public static function for_signinsheet(): bool {
+        return true;
+    }
 }

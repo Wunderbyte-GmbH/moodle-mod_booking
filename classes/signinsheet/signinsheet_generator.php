@@ -245,9 +245,21 @@ class signinsheet_generator {
      * from the placeholder engine (see render_rule_placeholders()) because their values differ
      * from the booking rules placeholders of the same name: [[dates]] follows the "sessions"
      * download setting, [[teachers]] is a plain comma separated list of names, [[location]]
-     * includes the entity, [[tablename]] follows the "title" download setting.
+     * includes the entity, [[tablename]] follows the "title" download setting. [[footerlogourl]] is
+     * the footer logo of the sign-in sheet settings; [[page]] and [[pages]] are left to the PDF class
+     * (see html_footer_trait), only TCPDF knows the page numbers.
      */
-    private const TEMPLATE_PLACEHOLDERS = ['location', 'dayofweektime', 'teachers', 'dates', 'logourl', 'tablename'];
+    private const TEMPLATE_PLACEHOLDERS = [
+        'location',
+        'dayofweektime',
+        'teachers',
+        'dates',
+        'logourl',
+        'footerlogourl',
+        'tablename',
+        'page',
+        'pages',
+    ];
 
     /**
      * Marks the position of the [[users]] section until the generated user rows are inserted.
@@ -573,9 +585,48 @@ class signinsheet_generator {
         // placeholder engine nor the replacements of the template placeholders ever parse user data.
         $htmloutput = preg_replace('/\[\[users\]\].*?\[\[\/users\]\]/si', self::USERROWS_MARKER, $confightml);
 
+        $htmloutput = $this->render_template_placeholders($htmloutput, $settings);
+
+        // Finally the user rows (str_replace: user data must not be treated as a regex replacement).
+        $htmloutput = str_replace(self::USERROWS_MARKER, $userrows, $htmloutput);
+
+        return $htmloutput;
+    }
+
+    /**
+     * Renders the footer of the sign-in sheet from the configured template (setting signinsheethtmlfooter).
+     *
+     * The footer is printed at the bottom of every page of the PDF (see html_footer_trait) and as
+     * plain text in the footer of the Word document (see add_word_footer()). All placeholders outside
+     * of [[users]] are resolved like in the sheet template; [[page]] and [[pages]] stay for the PDF
+     * class, a [[users]] section is dropped.
+     *
+     * @return string the footer HTML, '' when no footer is configured
+     */
+    public function render_footer_html(): string {
+        $footerhtml = (string) get_config('booking', 'signinsheethtmlfooter');
+        // A footer consisting of a logo only is a footer, too.
+        if (trim(strip_tags($footerhtml, '<img>')) === '') {
+            return '';
+        }
+        $settings = singleton_service::get_instance_of_booking_option_settings($this->optionid);
+        $footerhtml = preg_replace('/\[\[users\]\].*?\[\[\/users\]\]/si', '', $footerhtml);
+        return $this->render_template_placeholders($footerhtml, $settings);
+    }
+
+    /**
+     * Resolves all placeholders outside of [[users]]: custom booking option fields and the booking rules
+     * placeholders (see render_rule_placeholders()) first, then the placeholders of the template mode
+     * (TEMPLATE_PLACEHOLDERS) with their own values. Shared by the sheet template and the footer template.
+     *
+     * @param string $html template HTML without user data
+     * @param booking_option_settings $settings
+     * @return string
+     */
+    private function render_template_placeholders(string $html, booking_option_settings $settings): string {
         // Custom booking option fields and all other placeholders of the booking rules. Runs before
         // the template placeholders are replaced, so their values are never parsed for placeholders.
-        $htmloutput = $this->render_rule_placeholders($htmloutput, $settings);
+        $html = $this->render_rule_placeholders($html, $settings);
 
         // Determine the header title.
         if ($this->title == 2) {
@@ -604,29 +655,36 @@ class signinsheet_generator {
         // classic PDF MultiCell); in HTML they need to become <br> tags.
         $dates = $this->pdfsessions != -1 && $this->pdfsessions != -2 ? nl2br($this->sessionsstring) : '';
 
-        $htmloutput = str_ireplace('[[location]]', $location, $htmloutput);
-        $htmloutput = str_ireplace('[[dayofweektime]]', $dayofweektime, $htmloutput);
-        $htmloutput = str_ireplace('[[teachers]]', $teachers, $htmloutput);
-        $htmloutput = str_ireplace('[[dates]]', $dates, $htmloutput);
+        $html = str_ireplace('[[location]]', $location, $html);
+        $html = str_ireplace('[[dayofweektime]]', $dayofweektime, $html);
+        $html = str_ireplace('[[teachers]]', $teachers, $html);
+        $html = str_ireplace('[[dates]]', $dates, $html);
         // Add the logo to the HTML as a data URI, so TCPDF and PhpWord can render
         // it without fetching a pluginfile URL (which would require a login session).
         if ($this->get_signinsheet_logo()) {
             $src = 'data:' . $this->signinsheetlogo->get_mimetype() . ';base64,' .
                 base64_encode($this->signinsheetlogo->get_content());
-            $htmloutput = str_ireplace('[[logourl]]', $src, $htmloutput);
+            $html = str_ireplace('[[logourl]]', $src, $html);
         } else {
             // No logo configured: drop the img tag, an unresolved placeholder would make PhpWord throw.
-            $htmloutput = preg_replace('/<img[^>]*\[\[logourl\]\][^>]*>/i', '', $htmloutput);
-            $htmloutput = str_ireplace('[[logourl]]', '', $htmloutput);
+            $html = preg_replace('/<img[^>]*\[\[logourl\]\][^>]*>/i', '', $html);
+            $html = str_ireplace('[[logourl]]', '', $html);
+        }
+
+        // The footer logo of the sign-in sheet settings (instance, then site), inlined like the header logo.
+        $footerlogo = $this->get_signinsheet_logo_footer_file();
+        if ($footerlogo) {
+            $src = 'data:' . $footerlogo->get_mimetype() . ';base64,' . base64_encode($footerlogo->get_content());
+            $html = str_ireplace('[[footerlogourl]]', $src, $html);
+        } else {
+            $html = preg_replace('/<img[^>]*\[\[footerlogourl\]\][^>]*>/i', '', $html);
+            $html = str_ireplace('[[footerlogourl]]', '', $html);
         }
 
         // Replace table name placeholder.
-        $htmloutput = str_ireplace('[[tablename]]', $headertitle, $htmloutput);
+        $html = str_ireplace('[[tablename]]', $headertitle, $html);
 
-        // Finally the user rows (str_replace: user data must not be treated as a regex replacement).
-        $htmloutput = str_replace(self::USERROWS_MARKER, $userrows, $htmloutput);
-
-        return $htmloutput;
+        return $html;
     }
 
     /**
@@ -743,15 +801,7 @@ class signinsheet_generator {
      * @return void
      */
     private function download_word_from_html($htmloutput, $settings) {
-        $worddoc = new \PhpOffice\PhpWord\PhpWord();
-        \PhpOffice\PhpWord\Settings::setOutputEscapingEnabled(true);
-        $pageorientation = ($this->orientation === 'L') ? 'landscape' : 'portrait';
-        $sectionstyle = [
-        'orientation' => $pageorientation,
-        ];
-        $section = $worddoc->addSection($sectionstyle);
-
-        \PhpOffice\PhpWord\Shared\Html::addHtml($section, $htmloutput, false, false);
+        $worddoc = $this->create_word_from_html((string) $htmloutput);
 
         // PhpWord can only write the docx (a zip archive) to a real file, so use a
         // per-request directory: Moodle removes it automatically after the request,
@@ -762,6 +812,63 @@ class signinsheet_generator {
         send_temp_file($temppath, $downloadfilename);
     }
 
+    /**
+     * Builds the sign-in sheet Word document from the given HTML, with the footer of the template.
+     *
+     * @param string $htmloutput HTML as returned by render_html()
+     * @return \PhpOffice\PhpWord\PhpWord the finished document, ready to be saved
+     */
+    public function create_word_from_html(string $htmloutput): \PhpOffice\PhpWord\PhpWord {
+        $worddoc = new \PhpOffice\PhpWord\PhpWord();
+        \PhpOffice\PhpWord\Settings::setOutputEscapingEnabled(true);
+        $pageorientation = ($this->orientation === 'L') ? 'landscape' : 'portrait';
+        $sectionstyle = [
+        'orientation' => $pageorientation,
+        ];
+        $section = $worddoc->addSection($sectionstyle);
+
+        \PhpOffice\PhpWord\Shared\Html::addHtml($section, $htmloutput, false, false);
+        $this->add_word_footer($section, $this->render_footer_html());
+
+        return $worddoc;
+    }
+
+    /**
+     * Adds the footer of the template to the Word document as plain text.
+     *
+     * Word renders page numbers only as fields, which PhpWord writes with "preserve text" paragraphs
+     * that cannot hold HTML. So the footer HTML is reduced to text: line breaks and the ends of block
+     * elements and table rows become lines, tags and images are dropped, [[page]] and [[pages]] become
+     * the fields PAGE and NUMPAGES. Each line is centered.
+     *
+     * @param \PhpOffice\PhpWord\Element\Section $section
+     * @param string $footerhtml as returned by render_footer_html()
+     * @return void
+     */
+    private function add_word_footer(\PhpOffice\PhpWord\Element\Section $section, string $footerhtml): void {
+        if ($footerhtml === '') {
+            return;
+        }
+        // Style rules would otherwise survive strip_tags() as text, and their braces would be read as fields.
+        $text = preg_replace('/<style\b[^>]*>.*?<\/style>/si', '', $footerhtml);
+        $text = preg_replace('/<br\s*\/?>|<\/(p|div|tr|li|h[1-6]|table)>/i', "\n", $text);
+        // The cells of a row stay on one line.
+        $text = preg_replace('/<\/t[dh]>/i', ' ', $text);
+        $text = html_entity_decode(strip_tags($text), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        // PreserveText writes every {...} as a field, so braces of the template itself are removed.
+        $text = str_replace(['{', '}'], '', $text);
+        $text = str_ireplace(['[[pages]]', '[[page]]'], ['{NUMPAGES}', '{PAGE}'], $text);
+
+        $footer = $section->addFooter();
+        foreach (preg_split('/\R/u', $text) as $line) {
+            $line = trim(preg_replace('/[\s\x{00A0}]+/u', ' ', $line));
+            if ($line === '') {
+                continue;
+            }
+            $footer->addPreserveText($line, null, ['alignment' => \PhpOffice\PhpWord\SimpleType\Jc::CENTER]);
+        }
+    }
+
 
 
     /**
@@ -769,19 +876,22 @@ class signinsheet_generator {
      *
      * With the setting local_wunderbyte_table/pdfaenabled the document is PDF/A-2b (see {@see pdfa_pdf}:
      * all fonts embedded, core font names in the template mapped to the embeddable
-     * FreeFonts); otherwise it is generated exactly as before.
+     * FreeFonts); otherwise it is generated exactly as before. The footer of the template
+     * (see render_footer_html()) is printed on every page.
      *
      * @param string $htmloutput HTML as returned by render_html()
      * @return \pdf the finished document, ready for Output()
      */
     public function create_pdf_from_html(string $htmloutput): \pdf {
         if (pdfa_pdf::enabled()) {
-            $pdf = new pdfa_pdf($this->orientation, PDF_UNIT, PDF_PAGE_FORMAT);
+            $pdf = new pdfa_signin_pdf($this->orientation, PDF_UNIT, PDF_PAGE_FORMAT);
         } else {
             $pdf = new signin_pdf($this->orientation, PDF_UNIT, PDF_PAGE_FORMAT);
         }
         $pdf->setPrintHeader(false);
         $pdf->setPrintFooter(false);
+        // The footer of the template is printed on every page; without one the pages have no footer, as before.
+        $pdf->set_html_footer($this->render_footer_html());
         $pdf->AddPage();
         $pdf->writeHTML($htmloutput, true, false, true, false, '');
         return $pdf;
@@ -1353,6 +1463,20 @@ class signinsheet_generator {
      */
     public function get_signinsheet_logo_footer() {
         $fileuse = false;
+        $file = $this->get_signinsheet_logo_footer_file();
+        if ($file) {
+            $this->pdf->setfooterimage($file);
+        }
+        return $fileuse;
+    }
+
+    /**
+     * The footer logo of the sign-in sheet: the logo of the booking instance, otherwise the logo of
+     * the site settings (signinlogofooter).
+     *
+     * @return \stored_file|null
+     */
+    public function get_signinsheet_logo_footer_file(): ?\stored_file {
         $fs = get_file_storage();
         $context = \context_module::instance($this->bookingoption->booking->cm->id);
         $files = $fs->get_area_files(
@@ -1376,10 +1500,9 @@ class signinsheet_generator {
         }
 
         if ($files) {
-            $file = reset($files);
-            $this->pdf->setfooterimage($file);
+            return reset($files);
         }
-        return $fileuse;
+        return null;
     }
 
     /**

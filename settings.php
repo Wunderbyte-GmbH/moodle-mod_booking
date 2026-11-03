@@ -3004,6 +3004,15 @@ if ($ADMIN->fulltree) {
     );
     $settings->add(
         new admin_setting_configtextarea(
+            'booking/signinsheethtmlfooter',
+            get_string('signinsheethtmlfooter', 'mod_booking'),
+            get_string('signinsheethtmlfooterdescription', 'mod_booking'),
+            '',
+            PARAM_RAW
+        )
+    );
+    $settings->add(
+        new admin_setting_configtextarea(
             'booking/checklisthtml',
             get_string('checklisthtml', 'mod_booking'),
             get_string('checklisthtmldescription', 'mod_booking') . '<br>' . get_string('pdfahint', 'mod_booking'),

@@ -4039,10 +4039,12 @@ $string['signinsheethtmldescription'] = 'Sie können die folgenden Platzhalter v
 [[fullname]], [[firstname]], [[lastname]], [[email]], [[signature]], [[institution]], [[description]], [[city]], [[country]], [[idnumber]], [[phone1]], [[department]], [[address]], [[places]], [[userpic]] sowie benutzerdefinierte Profilfelder über ihren Kurznamen, z.B. [[meinkurzname]]<br>
 <br>
 <b>Außerhalb von [[users]]:</b><br>
-[[location]], [[dayofweektime]], [[teachers]], [[dates]], [[logourl]], [[tablename]]<br>
+[[location]], [[dayofweektime]], [[teachers]], [[dates]], [[logourl]], [[footerlogourl]], [[tablename]]<br>
 Zusätzlich können außerhalb von [[users]] die unten aufgelisteten Platzhalter der Buchungsregeln verwendet werden - mit doppelten eckigen Klammern statt geschweifter Klammern geschrieben, z.B. [[bookingoptionname]], [[startdate]], [[numberparticipants]] oder benutzerdefinierte Felder der Buchungsoption über ihren Kurznamen ([[meinkurzname]]). Benutzerdefinierte Profilfelder und andere personenbezogene Platzhalter (z.B. [[firstname]]) stehen nur innerhalb von [[users]] zur Verfügung.<br>
 <br>
 Verwenden Sie nur einfaches HTML, das von TCPDF / PhpWord unterstützt wird. Um Unterschriften in eine Tabelle einzufügen, verwenden Sie die CSS-Klasse <code>"signaturetable"</code>.';
+$string['signinsheethtmlfooter'] = 'HTML-Vorlage für die Fußzeile der Unterschriftenliste';
+$string['signinsheethtmlfooterdescription'] = 'Wird am unteren Rand jeder Seite der aus der HTML-Vorlage erstellten Unterschriftenliste ausgegeben. Leer lassen für keine Fußzeile. Alle außerhalb von [[users]] verfügbaren Platzhalter können verwendet werden, zusätzlich [[page]] (Nummer der aktuellen Seite), [[pages]] (Anzahl der Seiten) und [[footerlogourl]] (das Logo in der Fußzeile, siehe unten). In Word-Dokumenten wird die Fußzeile als reiner Text eingefügt: Tags und Bilder entfallen, jede Zeile des HTML wird eine Zeile der Fußzeile.';
 $string['signinsheetlocation'] = 'Ort: ';
 $string['signinsheetmode'] = 'Anwesenheitsliste Modus';
 $string['signinsheetmode_desc'] = 'Wählen Sie den Modus für das Herunterladen der Anwesenheitsliste: HTML-Vorlage oder Legacy-Modus.';
