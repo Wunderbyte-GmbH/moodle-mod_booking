@@ -235,6 +235,7 @@ class certificateconditionslist implements renderable, templatable {
             }
             $cond->topoperator = $operatorstrings[$combination->operator];
             $cond->uniqueoptions = $combination->uniqueoptions;
+            $cond->uniqueleaves = $combination->uniqueleaves;
             $cond->strictorder = $combination->strictorder;
             // The chips replace the text description.
             $cond->logicdescription = '';
