@@ -747,16 +747,70 @@ final class certificate_combination_test extends booking_advanced_testcase {
     }
 
     /**
+     * The shortcode with dates lists the same options, each with its completion date in the "Awarded on" format.
+     *
+     * @covers \mod_booking\shortcodes::bookingoptionsfromconditionwithdate
+     */
+    public function test_shortcode_with_date_lists_options_and_completion_dates(): void {
+        $this->base_scenario();
+        $userid = $this->users['student1']->id;
+        $delimiter = get_string('delimiterbookingoptionsfromcondition', 'mod_booking');
+        $format = get_string('timeawardedformat', 'mod_booking');
+
+        // The user completed A1 at 100 and A2 at 200 (completeddate), B1 with a completeddate differing from timemodified.
+        $this->insert_answer($this->options['A1'], $userid, MOD_BOOKING_STATUSPARAM_BOOKED, 1, 100, 100);
+        $this->insert_answer($this->options['A2'], $userid, MOD_BOOKING_STATUSPARAM_BOOKED, 1, 200, 200);
+        $this->insert_answer($this->options['B1'], $userid, MOD_BOOKING_STATUSPARAM_BOOKED, 1, 300, 86400 * 400);
+
+        $withdate = function (string $text, int $time) use ($format): string {
+            return get_string('optionwithdatebookingoptionsfromcondition', 'mod_booking', (object)[
+                'text' => $text,
+                'date' => userdate($time, $format, 99, false),
+            ]);
+        };
+
+        // Booking option condition: the dates are the completion dates, same format as "Awarded on".
+        $optionleaf = $this->insert_bookingoption_leaf([$this->options['A1'], $this->options['A2']]);
+        $this->assertSame(
+            $withdate('Option A1', 100) . $delimiter . $withdate('Option A2', 200),
+            $this->shortcode($userid, $this->options['A1'], $optionleaf, true)
+        );
+
+        // The stored completeddate wins over timemodified.
+        $instanceleaf = $this->insert_instance_leaf('B');
+        $this->assertSame(
+            $withdate('Option B1', 86400 * 400),
+            $this->shortcode($userid, $this->options['B1'], $instanceleaf, true)
+        );
+
+        // Certificate stored on the option (no condition) before the completion is stored: no date.
+        $this->assertSame('Option B2', $this->shortcode($userid, $this->options['B2'], 0, true));
+
+        // The shortcode without date is unchanged.
+        $this->assertSame('Option A1' . $delimiter . 'Option A2', $this->shortcode($userid, $this->options['A1'], $optionleaf));
+
+        // No user in the context.
+        singleton_service::unset_temp_values_for_certificates();
+        $output = shortcodes::bookingoptionsfromconditionwithdate('bookingoptionsfromconditionwithdate', [], '', null, null);
+        $this->assertSame('PLACEHOLDER', $output);
+    }
+
+    /**
      * Render the certificate shortcode in the context of an issued certificate.
      *
      * @param int $userid
      * @param int $optionid
      * @param int $conditionid
+     * @param bool $withdate render [bookingoptionsfromconditionwithdate] instead of [bookingoptionsfromcondition]
      * @return string
      */
-    private function shortcode(int $userid, int $optionid, int $conditionid): string {
+    private function shortcode(int $userid, int $optionid, int $conditionid, bool $withdate = false): string {
         singleton_service::set_temp_values_for_certificates($optionid, $userid, $conditionid);
-        $output = shortcodes::bookingoptionsfromcondition('bookingoptionsfromcondition', [], '', null, null);
+        if ($withdate) {
+            $output = shortcodes::bookingoptionsfromconditionwithdate('bookingoptionsfromconditionwithdate', [], '', null, null);
+        } else {
+            $output = shortcodes::bookingoptionsfromcondition('bookingoptionsfromcondition', [], '', null, null);
+        }
         singleton_service::unset_temp_values_for_certificates();
         return $output;
     }

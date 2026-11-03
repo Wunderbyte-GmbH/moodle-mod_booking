@@ -83,6 +83,10 @@ $shortcodes = [
         'callback' => 'mod_booking\shortcodes::bookingoptionsfromcondition',
         'description' => 'bookingoptionsfromcondition',
     ],
+    'bookingoptionsfromconditionwithdate' => [
+        'callback' => 'mod_booking\shortcodes::bookingoptionsfromconditionwithdate',
+        'description' => 'bookingoptionsfromconditionwithdate',
+    ],
     'bookingoptionview' => [
         'callback' => 'mod_booking\shortcodes::bookingoptionview',
         'description' => 'bookingoptionview',
