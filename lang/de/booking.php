@@ -1182,6 +1182,7 @@ $string['bookingoptionnamewithoutprefix'] = 'Name (ohne Präfix)';
 $string['bookingoptionprice'] = 'Preis';
 $string['bookingoptionsall'] = 'Shortcode um alle Buchungsoptionen anzuzeigen.';
 $string['bookingoptionsfromcondition'] = 'Shortcode um alle abgeschlossenen Kurse einer Zertifikatsbedingung zu rendern.';
+$string['bookingoptionsfromconditionwithdate'] = 'Shortcode um alle abgeschlossenen Kurse einer Zertifikatsbedingung mit ihrem Abschlussdatum zu rendern.';
 $string['bookingoptionsfromtemplatemenu'] = 'Neue Buchungsoption aus Vorlage erstellen';
 $string['bookingoptionsmenu'] = 'Buchungsoptionen';
 $string['bookingoptionstart'] = 'Start der Buchungsoption';
@@ -3123,6 +3124,7 @@ $string['optionvisibility'] = 'Sichtbarkeit';
 $string['optionvisibility_help'] = 'Stellen Sie ein, ob die Buchungsoption für jede:n sichtbar sein soll oder nur für berechtigte Nutzer:innen.';
 $string['optionvisible'] = 'Für alle sichtbar (Standard)';
 $string['optionvisibledirectlink'] = 'Für nicht berechtigte Personen nur mit direktem Link sichtbar';
+$string['optionwithdatebookingoptionsfromcondition'] = '{$a->text} ({$a->date})';
 $string['organizatorname'] = 'Name des Organisators';
 $string['organizatorname_help'] = 'Sie können den Namen des Organisators/der Organisatorin manuell eingeben oder aus einer Liste von
 früheren Organisator:innen auswählen. Sie können nur eine/n Organisator/in angeben. Sobald

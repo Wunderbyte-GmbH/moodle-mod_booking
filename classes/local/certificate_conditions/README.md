@@ -118,6 +118,8 @@ groups. `logicjson`:
 - `combination::get_counted_optionids_for_user()` returns the options the fulfilled groups took; the
   certificate shortcode `[bookingoptionsfromcondition]` uses it in strict mode and lists all completed
   options of the building blocks otherwise (`certificateclass::get_completions_for_certificate()`).
+  `[bookingoptionsfromconditionwithdate]` lists the same options, each followed by its completion date in
+  the format of the "Awarded on" date (`timeawardedformat`).
 - The "Awarded on" date (`timeawarded`) of a certificate issued by a condition is the completion time of the
   latest option the certificate lists (`certificateclass::get_latest_completion_for_certificate()`), not the
   moment of the evaluation, so backdated completions and manual triggers keep the real completion date.
