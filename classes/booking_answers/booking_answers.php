@@ -34,6 +34,7 @@ use mod_booking\booking;
 use mod_booking\booking_option;
 use mod_booking\singleton_service;
 use mod_booking\booking_option_settings;
+use mod_booking\option\dates_handler;
 use mod_booking\booking_answers\scope_base;
 use Throwable;
 
@@ -1105,6 +1106,48 @@ class booking_answers {
 
         // Do not count reserved options.
         return count($answers);
+    }
+
+    /**
+     * Returns the titles of the booking options a user has booked (booked or on the waiting list)
+     * in a booking instance, each followed by the dates of the option in parentheses, e.g.
+     * "Yoga (4 November 2026, 10:00 - 12:00, 11 November 2026, 10:00 - 12:00)".
+     * Meant for messages that explain why the maximum number of bookings per user is reached.
+     * Options without dates are listed by their title only. The list is sorted by title.
+     *
+     * @param int $userid
+     * @param int $bookingid not cmid
+     * @return string[] one entry per booked option
+     */
+    public static function get_booked_option_titles_with_dates(int $userid, int $bookingid): array {
+        global $DB;
+
+        $bookedoptions = $DB->get_records_sql(
+            "SELECT ba.id AS answerid, bo.id AS optionid, bo.text
+            FROM {booking_answers} ba
+            JOIN {booking_options} bo ON bo.id = ba.optionid
+            WHERE ba.userid = :userid
+            AND ba.bookingid = :bookingid
+            AND ba.waitinglist < :reserved",
+            [
+                'userid' => $userid,
+                'bookingid' => $bookingid,
+                'reserved' => MOD_BOOKING_STATUSPARAM_RESERVED,
+            ]
+        );
+
+        $titles = [];
+        foreach ($bookedoptions as $bookedoption) {
+            $title = format_string($bookedoption->text);
+            $datestrings = dates_handler::return_array_of_sessions_datestrings((int)$bookedoption->optionid);
+            if (!empty($datestrings)) {
+                $title .= ' (' . implode(', ', $datestrings) . ')';
+            }
+            $titles[] = $title;
+        }
+        // Sorted by title, locale-aware (ORDER BY on the text column would be DB dependent).
+        \core_collator::asort($titles);
+        return array_values($titles);
     }
 
     /**

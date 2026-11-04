@@ -214,25 +214,17 @@ if (!$agree && empty($formsubmitted) && (!empty($bookingoption->booking->setting
                 // Renders "Firstname Lastname: condition descriptions" for one user. When the max
                 // number of bookings per user is among the blockers, the options the user already
                 // booked are appended, so the agent knows what they confirm resp. why it blocks.
-                $formatunmetuser = function ($user, array $descriptions) use ($DB, $bookingoption): string {
+                $formatunmetuser = function ($user, array $descriptions) use ($bookingoption): string {
                     $item = "{$user->firstname} {$user->lastname}: " . implode('; ', $descriptions);
                     if (isset($descriptions[MOD_BOOKING_BO_COND_MAX_NUMBER_OF_BOOKINGS])) {
-                        $bookedoptions = $DB->get_records_sql(
-                            'SELECT ba.id answerid, bo.text
-                            FROM {booking_answers} ba
-                            LEFT JOIN {booking_options} bo ON bo.id = ba.optionid
-                            WHERE ba.userid = ? AND ba.waitinglist < ?
-                            AND ba.bookingid = ?',
-                            [
-                                $user->id,
-                                MOD_BOOKING_STATUSPARAM_RESERVED,
-                                $bookingoption->booking->id,
-                            ]
+                        // Each title carries the dates of the option in parentheses.
+                        $bookedoptions = booking_answers::get_booked_option_titles_with_dates(
+                            (int)$user->id,
+                            (int)$bookingoption->booking->id
                         );
                         if (!empty($bookedoptions)) {
-                            $optionnames = array_map('format_string', array_column($bookedoptions, 'text'));
-                            $item .= ' (' . get_string('enrolledinoptions', 'mod_booking')
-                                . implode(', ', $optionnames) . ')';
+                            $item .= ' - ' . get_string('enrolledinoptions', 'mod_booking')
+                                . implode(', ', $bookedoptions);
                         }
                     }
                     return $item;
@@ -354,26 +346,14 @@ if (!$agree && empty($formsubmitted) && (!empty($bookingoption->booking->setting
                     if (!empty($notsubscribedusers)) {
                         $output = '<br>';
                         foreach ($notsubscribedusers as $user) {
-                            $result = $DB->get_records_sql(
-                                'SELECT ba.id answerid, bo.text
-                                FROM {booking_answers} ba
-                                LEFT JOIN {booking_options} bo ON bo.id = ba.optionid
-                                WHERE ba.userid = ? AND ba.waitinglist < ?
-                                AND ba.bookingid = ?',
-                                [
-                                    $user->id,
-                                    MOD_BOOKING_STATUSPARAM_RESERVED,
-                                    $bookingoption->booking->id,
-                                    ]
+                            $bookedoptions = booking_answers::get_booked_option_titles_with_dates(
+                                (int)$user->id,
+                                (int)$bookingoption->booking->id
                             );
                             $output .= "{$user->firstname} {$user->lastname}";
-                            if (!empty($result)) {
-                                $r = [];
-                                foreach ($result as $v) {
-                                    $r[] = $v->text;
-                                }
-                                $output .= '&nbsp;' . get_string('enrolledinoptions', 'mod_booking') .
-                                         implode(', ', $r);
+                            if (!empty($bookedoptions)) {
+                                $output .= ' - ' . get_string('enrolledinoptions', 'mod_booking') .
+                                         implode(', ', $bookedoptions);
                             }
                             $output .= " <br>";
                         }

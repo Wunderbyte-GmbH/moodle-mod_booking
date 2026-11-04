@@ -29,6 +29,8 @@ use mod_booking\tests\booking_advanced_testcase;
 use context_module;
 use mod_booking_generator;
 use mod_booking\bo_availability\bo_info;
+use mod_booking\booking_answers\booking_answers;
+use mod_booking\option\dates_handler;
 use stdClass;
 use tool_mocktesttime\time_mock;
 
@@ -287,6 +289,142 @@ final class bookotherusers_availability_test extends booking_advanced_testcase {
             'userid' => $student1->id,
             'waitinglist' => MOD_BOOKING_STATUSPARAM_BOOKED,
         ]));
+    }
+
+    /**
+     * The options a user already booked in an instance are listed by title, each followed by the
+     * dates of the option in parentheses, for the warning resp. error about the maximum number
+     * of bookings per user. Bookings on the waiting list count, cancelled bookings do not.
+     *
+     * @covers \mod_booking\booking_answers\booking_answers::get_booked_option_titles_with_dates
+     *
+     * @param array $bdata
+     * @throws \coding_exception
+     * @throws \dml_exception
+     *
+     * @dataProvider booking_common_settings_provider
+     */
+    public function test_booked_option_titles_with_dates(array $bdata): void {
+        global $DB, $PAGE;
+
+        singleton_service::destroy_instance();
+
+        $course1 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+
+        $student1 = $this->getDataGenerator()->create_user();
+        $student2 = $this->getDataGenerator()->create_user();
+        $bookingmanager = $this->getDataGenerator()->create_user();
+
+        $bdata['course'] = $course1->id;
+        $bdata['bookingmanager'] = $bookingmanager->username;
+
+        $booking1 = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        $this->setAdminUser();
+
+        $this->getDataGenerator()->enrol_user($student1->id, $course1->id);
+        $this->getDataGenerator()->enrol_user($student2->id, $course1->id);
+        $this->getDataGenerator()->enrol_user($bookingmanager->id, $course1->id);
+
+        [$course, $cm] = get_course_and_cm_from_cmid($booking1->cmid);
+        $PAGE->set_cm($cm, $course);
+        $PAGE->set_context(context_module::instance($booking1->cmid));
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+
+        // Option with two dates.
+        $record = new stdClass();
+        $record->bookingid = $booking1->id;
+        $record->text = 'Option with two dates';
+        $record->chooseorcreatecourse = 1;
+        $record->courseid = $course1->id;
+        $record->optiondateid_0 = "0";
+        $record->daystonotify_0 = "0";
+        $record->coursestarttime_0 = strtotime('10 June 2050 10:00');
+        $record->courseendtime_0 = strtotime('10 June 2050 12:00');
+        $record->optiondateid_1 = "0";
+        $record->daystonotify_1 = "0";
+        $record->coursestarttime_1 = strtotime('17 June 2050 10:00');
+        $record->courseendtime_1 = strtotime('17 June 2050 12:00');
+        $option1 = $plugingenerator->create_option($record);
+
+        // Option with one date and a single place, so that student2 lands on the waiting list.
+        $record = new stdClass();
+        $record->bookingid = $booking1->id;
+        $record->text = 'Option with one date';
+        $record->chooseorcreatecourse = 1;
+        $record->courseid = $course1->id;
+        $record->maxanswers = 1;
+        $record->maxoverbooking = 1;
+        $record->optiondateid_0 = "0";
+        $record->daystonotify_0 = "0";
+        $record->coursestarttime_0 = strtotime('24 June 2050 14:00');
+        $record->courseendtime_0 = strtotime('24 June 2050 16:00');
+        $option2 = $plugingenerator->create_option($record);
+
+        // Option the user books and cancels again.
+        $record = new stdClass();
+        $record->bookingid = $booking1->id;
+        $record->text = 'Cancelled option';
+        $record->chooseorcreatecourse = 1;
+        $record->courseid = $course1->id;
+        $record->optiondateid_0 = "0";
+        $record->daystonotify_0 = "0";
+        $record->coursestarttime_0 = strtotime('1 July 2050 14:00');
+        $record->courseendtime_0 = strtotime('1 July 2050 16:00');
+        $option3 = $plugingenerator->create_option($record);
+
+        $settings1 = singleton_service::get_instance_of_booking_option_settings($option1->id);
+        $settings2 = singleton_service::get_instance_of_booking_option_settings($option2->id);
+        $settings3 = singleton_service::get_instance_of_booking_option_settings($option3->id);
+
+        // Student1 takes the only place of option 2, student2 ends up on its waiting list.
+        $this->setUser($student1);
+        booking_bookit::bookit('option', $settings2->id, $student1->id);
+        booking_bookit::bookit('option', $settings2->id, $student1->id);
+
+        $this->setUser($student2);
+        booking_bookit::bookit('option', $settings1->id, $student2->id);
+        booking_bookit::bookit('option', $settings1->id, $student2->id);
+        booking_bookit::bookit('option', $settings2->id, $student2->id);
+        booking_bookit::bookit('option', $settings2->id, $student2->id);
+        booking_bookit::bookit('option', $settings3->id, $student2->id);
+        booking_bookit::bookit('option', $settings3->id, $student2->id);
+        $this->assertTrue($DB->record_exists('booking_answers', [
+            'optionid' => $option2->id,
+            'userid' => $student2->id,
+            'waitinglist' => MOD_BOOKING_STATUSPARAM_WAITINGLIST,
+        ]));
+
+        $this->setAdminUser();
+        $option3obj = singleton_service::get_instance_of_booking_option($booking1->cmid, $option3->id);
+        $option3obj->user_delete_response($student2->id);
+
+        $titles = booking_answers::get_booked_option_titles_with_dates((int)$student2->id, (int)$booking1->id);
+
+        $this->assertCount(2, $titles);
+        // Ordered by title, every date of the option in parentheses, separated by ", ".
+        $this->assertSame(
+            'Option with one date ('
+                . dates_handler::prettify_datetime($settings2->coursestarttime, $settings2->courseendtime)->datestring
+                . ')',
+            $titles[0]
+        );
+        $expecteddates = [];
+        foreach ($settings1->sessions as $session) {
+            $expecteddates[] = dates_handler::prettify_datetime(
+                $session->coursestarttime,
+                $session->courseendtime
+            )->datestring;
+        }
+        $this->assertCount(2, $expecteddates);
+        $this->assertSame('Option with two dates (' . implode(', ', $expecteddates) . ')', $titles[1]);
+
+        // Student1 has only booked option 2.
+        $titles = booking_answers::get_booked_option_titles_with_dates((int)$student1->id, (int)$booking1->id);
+        $this->assertCount(1, $titles);
+        $this->assertStringStartsWith('Option with one date (', $titles[0]);
     }
 
     /**
