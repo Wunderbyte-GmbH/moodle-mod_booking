@@ -99,7 +99,8 @@ class responsiblecontact extends field_base {
         $changes = $instance->check_for_changes($formdata, $instance, $mockclass);
 
         // Here to convert the multiple contacts array and save it as string.
-        if (!empty($formdata->responsiblecontact)) {
+        // The value may already be a string (import, or data that went through this method before).
+        if (!empty($formdata->responsiblecontact) && is_array($formdata->responsiblecontact)) {
             $formdata->responsiblecontact = implode(',', $formdata->responsiblecontact);
         }
         parent::prepare_save_field($formdata, $newoption, $updateparam, 0);

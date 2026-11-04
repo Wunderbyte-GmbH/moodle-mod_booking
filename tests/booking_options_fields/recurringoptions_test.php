@@ -142,6 +142,12 @@ final class recurringoptions_test extends booking_advanced_testcase {
         $record->id = $option1->id;
         $record->cmid = $settings->cmid;
         $record->importing = 1;
+        // Edit the parent in the same submit: the children must be created from the saved parent,
+        // not from the settings loaded before the save.
+        $record->text = 'Test option1 edited';
+        // Multi-value field as submitted by the option form. Creating more than one child used to
+        // fail with "implode(): Argument #2 must be of type ?array, string given".
+        $record->responsiblecontact = [$teacher->id, $bookingmanager->id];
 
         $record->repeatthisbooking = $data['repeatthisbooking'];
         $record->howmanytimestorepeat = $data['howmanytimestorepeat'];
@@ -165,8 +171,11 @@ final class recurringoptions_test extends booking_advanced_testcase {
             $optionjson = json_decode($option->json);
             $this->assertEquals($data['howoftentorepeat'], $optionjson->recurringchilddata->delta);
 
-            // Title.
-            $this->assertEquals($record->text, $option->text);
+            // Title (as edited in the submit that created the children).
+            $this->assertEquals('Test option1 edited', $option->text);
+
+            // Responsible contacts (added in the same submit) are copied to every child.
+            $this->assertEquals($teacher->id . ',' . $bookingmanager->id, $option->responsiblecontact);
 
             // Starttime and Endtime correspond to delta and index as defined in json.
             $i = $optionjson->recurringchilddata->index;

@@ -24,6 +24,7 @@
 
 namespace mod_booking\option\fields;
 
+use cache_helper;
 use context_module;
 use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
@@ -389,6 +390,14 @@ class recurringoptions extends field_base {
 
         $changes = [];
         if (!empty($data->repeatthisbooking)) {
+            // The children are built from the settings of the parent (fields_info::set_data below).
+            // booking_option::update() loads these settings BEFORE the parent is saved (it needs the old
+            // values for the change log) and purges them only after all POSTSAVE fields have run, so at
+            // this point the singleton and the cache still hold the values from before the edit.
+            // Drop both, so the template is loaded from the parent as it was just saved.
+            cache_helper::invalidate_by_event('setbackoptionsettings', [$option->id]);
+            singleton_service::destroy_booking_option_singleton($option->id);
+
             $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
             $context = context_module::instance($settings->cmid);
 
@@ -441,7 +450,10 @@ class recurringoptions extends field_base {
                     $templateoption->bookingclosingtime = strtotime("+ $i $delta", $data->bookingclosingtime);
                 }
 
-                $restrictoptionid = booking_option::update((object) $templateoption, $context);
+                // Pass a copy: the fields pipeline normalises multi-value fields in place
+                // (e.g. responsiblecontact array => "1,2"), which would otherwise corrupt
+                // the shared template for the next iteration.
+                $restrictoptionid = booking_option::update(clone $templateoption, $context);
             }
         }
         if (!empty($data->deleteallchildren)) {
