@@ -1687,6 +1687,16 @@ if ($ADMIN->fulltree) {
             ]
         )
     );
+    // Transfer users modal: force the "Only future booking options" restriction of the target option search.
+    // Off by default, so the checkbox in the modal stays free to choose.
+    $settings->add(
+        new admin_setting_configcheckbox(
+            'booking/transferonlyfuture',
+            get_string('transferonlyfutureglobal', 'mod_booking'),
+            get_string('transferonlyfutureglobal_desc', 'mod_booking'),
+            0
+        )
+    );
 
     // PRO feature: Workflow confirmation settings.
     if ($proversion) {

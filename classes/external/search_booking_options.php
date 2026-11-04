@@ -41,6 +41,12 @@ class search_booking_options extends external_api {
             'query' => new external_value(PARAM_TEXT, 'The search query', VALUE_REQUIRED),
             'bookingid' => new external_value(PARAM_INT, 'Optional booking instance id filter', VALUE_DEFAULT, 0),
             'cmid' => new external_value(PARAM_INT, 'Optional course module id filter', VALUE_DEFAULT, 0),
+            'onlyfuture' => new external_value(
+                PARAM_BOOL,
+                'If true, booking options that have already ended are left out (options without dates are kept)',
+                VALUE_DEFAULT,
+                false
+            ),
         ]);
     }
 
@@ -50,14 +56,16 @@ class search_booking_options extends external_api {
      * @param string $query The search request.
      * @param int $bookingid Optional booking instance id filter.
      * @param int $cmid Optional course module id filter.
+     * @param bool $onlyfuture If true, booking options that have already ended are left out.
      * @return array
      */
-    public static function execute(string $query, int $bookingid = 0, int $cmid = 0): array {
+    public static function execute(string $query, int $bookingid = 0, int $cmid = 0, bool $onlyfuture = false): array {
 
         $params = self::validate_parameters(self::execute_parameters(), [
             'query' => $query,
             'bookingid' => $bookingid,
             'cmid' => $cmid,
+            'onlyfuture' => $onlyfuture,
         ]);
 
         // This autocomplete backend searches across all booking options,
@@ -68,7 +76,8 @@ class search_booking_options extends external_api {
         return booking_option::load_booking_options_filtered(
             $params['query'],
             (int)$params['bookingid'],
-            (int)$params['cmid']
+            (int)$params['cmid'],
+            (bool)$params['onlyfuture']
         );
     }
 

@@ -33,13 +33,7 @@ import {render as renderTemplate} from "core/templates";
  * @return {Number}
  */
 function readNumericDataAttribute(selector, name) {
-  let element = null;
-
-  if (selector && typeof selector === "string") {
-    element = document.querySelector(selector);
-  } else if (selector && selector.dataset) {
-    element = selector;
-  }
+  const element = resolveElement(selector);
 
   if (!element || !element.dataset) {
     return 0;
@@ -47,6 +41,57 @@ function readNumericDataAttribute(selector, name) {
 
   const value = Number(element.dataset[name] || 0);
   return Number.isFinite(value) ? value : 0;
+}
+
+/**
+ * Resolve the selector argument of the autocomplete to the original select element.
+ *
+ * @param {String|HTMLElement} selector
+ * @return {HTMLElement|null}
+ */
+function resolveElement(selector) {
+  if (selector && typeof selector === "string") {
+    return document.querySelector(selector);
+  }
+  if (selector && selector.dataset) {
+    return selector;
+  }
+  return null;
+}
+
+/**
+ * Decide whether only future booking options are requested.
+ *
+ * Two ways are supported on the select element, checked in this order:
+ * - data-onlyfuture="1": always restrict to future options (e.g. forced by a site setting).
+ * - data-onlyfuturecheckbox="<fieldname>": read the live state of a checkbox with this name
+ *   in the same form, so the user can switch the restriction on and off next to the field.
+ *
+ * @param {String|HTMLElement} selector
+ * @return {Boolean}
+ */
+function readOnlyFuture(selector) {
+  const element = resolveElement(selector);
+  if (!element || !element.dataset) {
+    return false;
+  }
+
+  if (readNumericDataAttribute(element, "onlyfuture") === 1) {
+    return true;
+  }
+
+  const checkboxname = element.dataset.onlyfuturecheckbox;
+  if (checkboxname) {
+    const scope = element.closest("form") || document;
+    const checkbox = scope.querySelector(
+      `input[type="checkbox"][name="${checkboxname}"]`
+    );
+    if (checkbox) {
+      return checkbox.checked;
+    }
+  }
+
+  return false;
 }
 
 /**
@@ -60,6 +105,7 @@ function readNumericDataAttribute(selector, name) {
 export async function transport(selector, query, callback, failure) {
   const bookingid = readNumericDataAttribute(selector, "bookingid");
   const cmid = readNumericDataAttribute(selector, "cmid");
+  const onlyfuture = readOnlyFuture(selector);
 
   const request = {
     methodname: "mod_booking_search_booking_options",
@@ -67,6 +113,7 @@ export async function transport(selector, query, callback, failure) {
       query: query,
       bookingid: bookingid,
       cmid: cmid,
+      onlyfuture: onlyfuture,
     },
   };
 
@@ -74,9 +121,6 @@ export async function transport(selector, query, callback, failure) {
     const response = await Ajax.call([request])[0];
 
     let labels = [];
-
-    // eslint-disable-next-line no-console
-    console.log(response);
 
     if (response.warnings.length > 0) {
         callback(response.warnings);

@@ -126,6 +126,50 @@ class modal_transfer_users extends dynamic_form {
         $mform->addRule('targetoptionid', null, 'required', null, 'client');
         $mform->addHelpButton('targetoptionid', 'transfertargetoption', 'mod_booking');
 
+        // Checkbox right below the autocomplete: restrict the suggestions to booking options that have
+        // not ended yet. Unticked by default, so the search behaves as before. The autocomplete JS reads
+        // the live state of the checkbox (data-onlyfuturecheckbox) on every search request.
+        $mform->addElement(
+            'advcheckbox',
+            'onlyfuture',
+            '',
+            get_string('transferonlyfuture', 'mod_booking')
+        );
+        $mform->setType('onlyfuture', PARAM_BOOL);
+
+        if (!empty(get_config('booking', 'transferonlyfuture'))) {
+            // The site setting forces the restriction: the checkbox is shown ticked and frozen (rendered disabled,
+            // the constant value travels in a hidden input), and the autocomplete gets the static data-onlyfuture
+            // flag, which the JS honours before looking at any checkbox. setConstant() wins over submitted values,
+            // so the box stays ticked when the form is re-rendered with warnings.
+            $mform->setConstant('onlyfuture', 1);
+            $mform->freeze('onlyfuture');
+            $mform->getElement('targetoptionid')->updateAttributes([
+                'data-onlyfuture' => 1,
+            ]);
+
+            // Tell the user why the box cannot be changed; admins get a link to the setting.
+            $hint = get_string('transferonlyfutureforcedhint', 'mod_booking');
+            if (has_capability('moodle/site:config', context_system::instance())) {
+                $hint .= ' ' . \html_writer::link(
+                    new moodle_url('/admin/settings.php', ['section' => 'modsettingbooking'], 'admin-transferonlyfuture'),
+                    get_string('transferonlyfutureforcedhint_link', 'mod_booking'),
+                    ['target' => '_blank']
+                );
+            }
+            $mform->addElement(
+                'static',
+                'onlyfuturehint',
+                '',
+                \html_writer::div($hint, 'small text-muted bg-light rounded p-2 mb-0')
+            );
+        } else {
+            $mform->setDefault('onlyfuture', 0);
+            $mform->getElement('targetoptionid')->updateAttributes([
+                'data-onlyfuturecheckbox' => 'onlyfuture',
+            ]);
+        }
+
         // If a target has been chosen, compute warnings and show them together with an override checkbox.
         $targetoptionid = (int) ($submitdata['targetoptionid'] ?? 0);
         if (!empty($targetoptionid) && $targetoptionid !== $optionid) {

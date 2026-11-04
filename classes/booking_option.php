@@ -5111,9 +5111,16 @@ class booking_option {
      * @param string $query
      * @param int $bookingid Optional booking instance id filter
      * @param int $cmid Optional course module id filter
+     * @param bool $onlyfuture If true, options that have already ended are left out. Options without
+     *                         dates (courseendtime 0) are kept, because they are never "in the past".
      * @return array
      */
-    public static function load_booking_options_filtered(string $query, int $bookingid = 0, int $cmid = 0) {
+    public static function load_booking_options_filtered(
+        string $query,
+        int $bookingid = 0,
+        int $cmid = 0,
+        bool $onlyfuture = false
+    ) {
 
         global $DB;
 
@@ -5136,42 +5143,58 @@ class booking_option {
             );
         }
 
+        // The nullable columns are coalesced: CONCAT (MySQL/MariaDB) and || (PostgreSQL) return NULL as soon as
+        // one operand is NULL, so an option without titleprefix (imports, webservices, generator) would never
+        // match the search.
         $fullsql = $DB->sql_concat(
             '\' \'',
             'bo.id',
             '\' \'',
-            'bo.titleprefix',
+            'COALESCE(bo.titleprefix, \'\')',
             '\' \'',
             'bo.text',
             '\' \'',
-            'b.name',
+            'COALESCE(b.name, \'\')',
             '\' \''
         );
 
         $sql = "SELECT * FROM (
-                    SELECT bo.id, bo.titleprefix, bo.text, b.name instancename, $fullsql AS fulltextstring
+                    SELECT bo.id, bo.titleprefix, bo.text, bo.courseendtime, b.name instancename,
+                           $fullsql AS fulltextstring
                     FROM {booking_options} bo
                     LEFT JOIN {booking} b
                     ON bo.bookingid = b.id
                 ) AS fulltexttable";
 
+        // All conditions are collected first and joined with AND, so none of them has to
+        // know whether it is the first one (and has to write the WHERE).
+        $wheres = [];
+
         if (!empty($bookingid)) {
-            $sql .= " WHERE id IN (SELECT bo2.id FROM {booking_options} bo2 WHERE bo2.bookingid = :bookingidfilter) ";
+            $wheres[] = "id IN (SELECT bo2.id FROM {booking_options} bo2 WHERE bo2.bookingid = :bookingidfilter)";
             $params['bookingidfilter'] = $bookingid;
+        }
+
+        if ($onlyfuture) {
+            // Same notion of "future" as the futureonly argument of the shortcodes (courseendtime > now),
+            // plus options without any dates, which have courseendtime 0 (or NULL) and are never over.
+            $wheres[] = "(COALESCE(courseendtime, 0) = 0 OR courseendtime > :now)";
+            $params['now'] = time();
         }
 
         if (!empty($query)) {
             // We search for every word extra to get better results.
-            $firstrun = empty($bookingid);
             $counter = 1;
             foreach ($values as $value) {
-                $sql .= $firstrun ? ' WHERE ' : ' AND ';
-                $sql .= " " . $DB->sql_like('fulltextstring', ':param' . $counter, false) . " ";
+                $wheres[] = $DB->sql_like('fulltextstring', ':param' . $counter, false);
                 // If it's numeric, we search for the full number - so we need to add blanks.
                 $params['param' . $counter] = is_numeric($value) ? "% $value %" : "%$value%";
-                $firstrun = false;
                 $counter++;
             }
+        }
+
+        if (!empty($wheres)) {
+            $sql .= " WHERE " . implode(" AND ", $wheres);
         }
 
         // We don't return more than 100 records, so we don't need to fetch more from db.
