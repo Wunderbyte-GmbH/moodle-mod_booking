@@ -117,7 +117,10 @@ Feature: Availability conditions on the book other users page
     And I click on "Student Two (student2@example.com)" "text"
     When I click on "Add" "button"
     Then I should see "The following users do not meet the availability conditions of this booking option:"
-    And I should see "Student Two: User has reached the max number of bookings (already booked in booking options: Limit option 1)"
+    ## The booked options follow after " - ", each title with the dates of the option in parentheses.
+    ## The dates are relative to now, so only the fixed part and the month of the start date are asserted.
+    And I should see "Student Two: User has reached the max number of bookings - already booked in booking options: Limit option 1 ("
+    And I should see "## +2 days ##%B %Y##" in the "//li[contains(., 'Limit option 1 (')]" "xpath_element"
     When I press "Book anyway"
     Then I should see "All 1 selected users have successfully been assigned to this booking option." in the "#user-notifications" "css_element"
     And I should see "student2@example.com" in the "#removeselect" "css_element"
