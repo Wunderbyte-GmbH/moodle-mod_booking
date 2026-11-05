@@ -39,13 +39,6 @@ namespace mod_booking\signinsheet;
  */
 trait html_footer_trait {
     /**
-     * Distance between the end of the page content and the top of the footer in mm.
-     *
-     * @var float
-     */
-    protected const FOOTER_GAP = 5;
-
-    /**
      * Footer HTML as rendered by signinsheet_generator::render_footer_html(), '' for no footer.
      *
      * @var string
@@ -70,11 +63,23 @@ trait html_footer_trait {
         }
         $height = $this->measure_html_footer();
         // The footer starts $footermargin above the lower edge of the paper and ends PDF_MARGIN_FOOTER
-        // (10 mm) above it, like the default footer of TCPDF; the content breaks FOOTER_GAP above it.
+        // (10 mm) above it, like the default footer of TCPDF; the content breaks get_footer_gap() above it.
         $footermargin = $height + PDF_MARGIN_FOOTER;
         $this->setFooterMargin($footermargin);
-        $this->setAutoPageBreak(true, $footermargin + self::FOOTER_GAP);
+        $this->setAutoPageBreak(true, $footermargin + $this->get_footer_gap());
         $this->setPrintFooter(true);
+    }
+
+    /**
+     * Distance between the end of the page content and the top of the footer in mm.
+     *
+     * A method instead of a constant, because traits cannot have constants before PHP 8.2 and the
+     * plugin supports Moodle 4.5 on PHP 8.1. A class using the trait may override it.
+     *
+     * @return float
+     */
+    protected function get_footer_gap(): float {
+        return 5.0;
     }
 
     /**
