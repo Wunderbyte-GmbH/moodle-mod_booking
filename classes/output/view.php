@@ -1340,7 +1340,7 @@ class view implements renderable, templatable {
         array $args = []
     ): void {
 
-        global $PAGE, $DB;
+        global $PAGE;
 
         if (!empty($cmid)) {
             $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
@@ -1446,26 +1446,10 @@ class view implements renderable, templatable {
             }
             if (!empty($additionalsearchcolumns)) {
                 // Additional search columns can be either columns of booking_options or customfield shortnames.
-                $validcolumns = array_keys($DB->get_columns('booking_options', true));
-                $customfieldshortnames = array_map(
-                    fn($field) => $field->shortname,
-                    booking_handler::get_customfields()
-                );
-                foreach ($additionalsearchcolumns as $column) {
-                    $column = clean_param(trim($column), PARAM_ALPHANUMEXT);
-                    if (
-                        in_array($column, $validcolumns, true)
-                        || in_array($column, $customfieldshortnames, true)
-                    ) {
-                        $fulltextsearchcolumns[] = $column;
-                    } else if (!empty($column)) {
-                        debugging(
-                            "Invalid column '$column' in fulltextsearchcolumns shortcode argument was ignored.",
-                            DEBUG_DEVELOPER
-                        );
-                    }
-                }
-                $fulltextsearchcolumns = array_values(array_unique($fulltextsearchcolumns));
+                $fulltextsearchcolumns = array_values(array_unique(array_merge(
+                    $fulltextsearchcolumns,
+                    booking::get_valid_fulltextsearchcolumns($additionalsearchcolumns)
+                )));
             }
             $bowbtable->define_fulltextsearchcolumns($fulltextsearchcolumns);
         }

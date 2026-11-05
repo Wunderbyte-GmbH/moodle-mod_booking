@@ -2456,4 +2456,47 @@ class booking {
 
         return array_values(array_unique($requiredcustomfields));
     }
+
+    /**
+     * Returns those of the given columns that may be added to the full text search of a booking options table.
+     *
+     * The names come from user input (shortcode argument fulltextsearchcolumns, instance setting) and end up
+     * unescaped in the SQL of the table, so only known names are accepted: columns of the table booking_options
+     * and shortnames of booking customfields. Anything else is ignored with a debugging message for developers.
+     *
+     * Public API: also used by other plugins that build their own booking options tables (e.g. local_musi).
+     *
+     * @param array $columns column names, e.g. the exploded value of the shortcode argument
+     * @return array list of valid column names without duplicates
+     */
+    public static function get_valid_fulltextsearchcolumns(array $columns): array {
+        global $DB;
+
+        if (empty($columns)) {
+            return [];
+        }
+
+        $validcolumns = array_keys($DB->get_columns('booking_options', true));
+        $customfieldshortnames = array_map(
+            fn($field) => $field->shortname,
+            booking_handler::get_customfields()
+        );
+
+        $fulltextsearchcolumns = [];
+        foreach ($columns as $column) {
+            $column = clean_param(trim((string)$column), PARAM_ALPHANUMEXT);
+            if (
+                in_array($column, $validcolumns, true)
+                || in_array($column, $customfieldshortnames, true)
+            ) {
+                $fulltextsearchcolumns[] = $column;
+            } else if (!empty($column)) {
+                debugging(
+                    "Invalid column '$column' in fulltextsearchcolumns shortcode argument was ignored.",
+                    DEBUG_DEVELOPER
+                );
+            }
+        }
+        return array_values(array_unique($fulltextsearchcolumns));
+    }
 }
