@@ -6027,8 +6027,10 @@ function xmldb_booking_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2026101401, 'booking');
     }
 
-    if ($oldversion < 2026102700) {
+    if ($oldversion < 2026110501) {
         // Slot booking: rolling availability window (duration relative to now) as alternative to valid_until.
+        // The step was written as 2026102700, but 10.0.6 (2026110300) and 10.0.7 (2026110500) were released
+        // without it. With the old number these sites would skip it, so it runs above the last release.
         $table = new xmldb_table('booking_slot_config');
 
         $field = new xmldb_field('valid_duration_value', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'valid_until');
@@ -6051,7 +6053,7 @@ function xmldb_booking_upgrade($oldversion) {
         }
 
         // Booking savepoint reached.
-        upgrade_mod_savepoint(true, 2026102700, 'booking');
+        upgrade_mod_savepoint(true, 2026110501, 'booking');
     }
 
     return true;
