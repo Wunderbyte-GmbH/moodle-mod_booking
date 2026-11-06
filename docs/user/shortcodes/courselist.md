@@ -35,6 +35,7 @@ This is the main shortcode for embedding the option list of a single booking ins
 | `type="cards"` | Use `list`, `cards`, `imageleft`, `imageright`, or `imagelefthalf`. |
 | `search="1"` | Show full-text search. |
 | `fulltextsearchcolumns="description,shortname1"` | Add booking option fields and/or booking custom field shortnames to the full-text search. Implicitly enables the search box. |
+| `priority="titleprefix,text"` | Order the full-text search results by these booking option fields and/or booking custom field shortnames: options where the first column equals the search text first, then options where it contains every word, then the same for the next column, then all other results. The columns must also be searched. |
 | `sort="1"` | Show sort controls. |
 | `filter="1"` | Show standard filters. |
 | `filterbookablenextdays="28"` | Add a toggle filter switch that shows only bookable options starting within the next N days (requires `filter="1"`). |
@@ -114,6 +115,22 @@ This is the main shortcode for embedding the option list of a single booking ins
 ```
 
 Adds the `description` field and the values of the booking custom fields with the shortnames `sporttype` and `organizer` to the full-text search. The search box is shown even without `search="1"`.
+
+### Order of the search results
+
+```text
+[courselist cmid="42" search="1" priority="titleprefix,text"]
+```
+
+When a user searches for "424", the options are shown in this order:
+
+1. The prefix (`titleprefix`) is "424".
+2. The prefix contains "424", e.g. "4240".
+3. The title (`text`) is "424".
+4. The title contains "424".
+5. All other results, e.g. options with "424" only in the description.
+
+With several words, "contains" means that every word is in the column, in any order. Inside each group the normal sorting applies. A column in `priority` must also be searched: `titleprefix` and `text` always are, other columns have to be added with `fulltextsearchcolumns`.
 
 ---
 
