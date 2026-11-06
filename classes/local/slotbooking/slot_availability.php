@@ -759,9 +759,10 @@ class slot_availability {
             return $result;
         }
 
-        // A session slot that has already ended cannot be booked. The picker does not offer it
-        // (see get_default_slot_range()), but a request can still send it directly.
-        if ((string)($config->slot_type ?? 'fixed') === 'session' && $slotend <= time()) {
+        // A slot that has already ended cannot be booked, whatever the slot type. The pickers do
+        // not offer it (see get_default_slot_range()), but a request can still send it directly.
+        // A running slot (start in the past, end in the future) stays bookable.
+        if ($slotend <= time()) {
             $result['errormessage'] = get_string('slot_error_selected_unavailable', 'mod_booking');
             return $result;
         }
