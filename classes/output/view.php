@@ -1340,7 +1340,7 @@ class view implements renderable, templatable {
         array $args = []
     ): void {
 
-        global $PAGE;
+        global $PAGE, $DB;
 
         if (!empty($cmid)) {
             $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid($cmid);
