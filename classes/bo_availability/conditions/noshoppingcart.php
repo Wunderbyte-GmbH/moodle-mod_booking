@@ -237,12 +237,22 @@ class noshoppingcart implements bo_condition {
         bool $fullwidth = true
     ): array {
 
+        global $USER;
+
         $user = singleton_service::get_instance_of_user($userid);
+
+        // An id without a user record (e.g. a deleted user) resolves to false, which neither
+        // price::get_price() nor the returned userid can work with. Fall back to the current user.
+        if (empty($user->id)) {
+            $user = $USER;
+        }
 
         $priceitem = price::get_price('option', $settings->id, $user);
 
         // And add them to the returned array.
         $returnarray['priceitems'] = $priceitem;
+        // The button is rendered for the user the price was resolved for.
+        $returnarray['userid'] = $user->id;
 
         if ($fullwidth) {
             $returnarray['fullwidth'] = $fullwidth;
