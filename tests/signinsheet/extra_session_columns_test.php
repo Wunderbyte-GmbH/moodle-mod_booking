@@ -91,11 +91,12 @@ final class extra_session_columns_test extends booking_advanced_testcase {
      *
      * @param booking_option $bookingoption
      * @param int $extrasessioncols 0 = all sessions, -1 = none, otherwise the id of one session
+     * @param string $template the HTML template (setting signinsheethtml), '' for the default template
      * @return string
      */
-    private function render(booking_option $bookingoption, int $extrasessioncols): string {
+    private function render(booking_option $bookingoption, int $extrasessioncols, string $template = ''): string {
         set_config('signinsheetmode', 'htmltemplate', 'booking');
-        set_config('signinsheethtml', '', 'booking');
+        set_config('signinsheethtml', $template, 'booking');
         $pdfoptions = signinsheet_config::pdfoptions_from_config(['signinextrasessioncols' => $extrasessioncols]);
         $pdfoptions->saveasformat = 'pdf';
         return (new signinsheet_generator($pdfoptions, $bookingoption))->render_html();
@@ -151,6 +152,106 @@ final class extra_session_columns_test extends booking_advanced_testcase {
 
         // No extra columns at all.
         $this->assertSame([], $this->column_headers($this->render($env['bookingoption'], -1)));
+    }
+
+    /**
+     * The extra columns belong to the table with the class "signaturetable": header cells and the
+     * empty cells in the rows of the participants are added together or not at all.
+     *
+     * @param string $tableattributes attributes of the table of participants in the template
+     * @param bool $expectcolumns whether the table gets the columns for the dates
+     *
+     * @dataProvider signaturetable_class_provider
+     */
+    public function test_columns_depend_on_signaturetable_class(string $tableattributes, bool $expectcolumns): void {
+        $env = $this->create_option_with_sessions();
+        $template = '<h1>[[tablename]]</h1><table' . $tableattributes . '><tr><th>Name</th><th>Signature</th></tr>'
+            . '[[users]]<tr><td>[[fullname]]</td><td></td></tr>[[/users]]</table>';
+
+        $html = $this->render($env['bookingoption'], 0, $template);
+
+        if ($expectcolumns) {
+            // Five header cells and five empty cells per participant.
+            $this->assertCount(5, $this->column_headers($html));
+            $this->assertStringContainsString(
+                '<tr><td>Bianchi, Anna</td><td></td>' . str_repeat('<td></td>', 5) . '</tr>',
+                $html
+            );
+        } else {
+            // The table is printed as the template defines it.
+            $this->assertSame([], $this->column_headers($html));
+            $this->assertStringContainsString('<tr><th>Name</th><th>Signature</th></tr>', $html);
+            $this->assertStringContainsString('<tr><td>Bianchi, Anna</td><td></td></tr>', $html);
+        }
+    }
+
+    /**
+     * Attributes of the table of participants and whether they make it the signature table.
+     *
+     * @return array
+     */
+    public static function signaturetable_class_provider(): array {
+        return [
+            'no class at all' => [' border="1"', false],
+            'other class' => [' class="participants"', false],
+            'only the class' => [' class="signaturetable"', true],
+            'class among other attributes' => [' border="1" class="signaturetable" width="100%"', true],
+            'first of several classes' => [' class="signaturetable table-bordered"', true],
+            'last of several classes' => [' class="table signaturetable"', true],
+            'between other classes' => [" class=\"table\tsignaturetable  wide\"", true],
+            'single quotes' => [" class='table signaturetable'", true],
+            'spaces around the equals sign' => [' class = "signaturetable"', true],
+            'uppercase tag and attribute' => [' CLASS="signaturetable"', true],
+            'part of a longer class name (suffix)' => [' class="signaturetable-wide"', false],
+            'part of a longer class name (prefix)' => [' class="my_signaturetable"', false],
+            'part of a longer class name (letters)' => [' class="nosignaturetables"', false],
+            'part of a longer class name among classes' => [' class="table signaturetable2 wide"', false],
+            'empty class' => [' class=""', false],
+            'literal dots as class' => [' class="..."', false],
+            'other attribute with the word' => [' data-class="signaturetable"', false],
+            'word in another attribute only' => [' class="participants" title="signaturetable"', false],
+        ];
+    }
+
+    /**
+     * A signature table without a header row in front of [[users]] gets no columns at all: the row
+     * template of the participants is not a header row, and neither is a row of a following table.
+     */
+    public function test_no_columns_without_header_row(): void {
+        $env = $this->create_option_with_sessions();
+        $template = '<table class="signaturetable">[[users]]<tr><td>[[fullname]]</td><td></td></tr>[[/users]]</table>'
+            . '<table><tr><td>Notes</td></tr></table>';
+
+        $html = $this->render($env['bookingoption'], 0, $template);
+
+        $this->assertSame(
+            '<table class="signaturetable"><tr><td>Bianchi, Anna</td><td></td></tr></table>'
+            . '<table><tr><td>Notes</td></tr></table>',
+            $html
+        );
+    }
+
+    /**
+     * Only the signature table gets the columns: a layout table in front of it and a table after
+     * it stay untouched, and the header row may sit in a thead.
+     */
+    public function test_columns_only_in_signaturetable(): void {
+        $env = $this->create_option_with_sessions();
+        $template = '<table><tr><td>[[tablename]]</td></tr></table>'
+            . '<table class="signaturetable"><thead><tr><th>Name</th></tr></thead><tbody>'
+            . '[[users]]<tr><td>[[fullname]]</td></tr>[[/users]]</tbody></table>'
+            . '<table><tr><td>Notes</td></tr></table>';
+
+        $html = $this->render($env['bookingoption'], 0, $template);
+
+        $this->assertCount(5, $this->column_headers($html));
+        $this->assertStringContainsString('<table><tr><td>Booking 1: Sessions option</td></tr></table>', $html);
+        $this->assertMatchesRegularExpression(
+            '/<thead><tr><th>Name<\/th>(<th class="vertical-text"[^>]*>[^<]+<\/th>){5}<\/tr>/',
+            $html
+        );
+        $this->assertStringContainsString('<tr><td>Bianchi, Anna</td>' . str_repeat('<td></td>', 5) . '</tr>', $html);
+        $this->assertStringContainsString('<table><tr><td>Notes</td></tr></table>', $html);
     }
 
     /**
