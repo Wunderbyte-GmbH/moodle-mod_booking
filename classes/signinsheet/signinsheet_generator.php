@@ -269,6 +269,25 @@ class signinsheet_generator {
     private const USERROWS_MARKER = '@@signinsheet_userrows@@';
 
     /**
+     * Finds the header row of the table with the CSS class "signaturetable", the row that gets the
+     * header cells of the session columns ("start" is everything up to the end of its last cell,
+     * "end" its closing tag).
+     *
+     * - "signaturetable" has to be a class of its own in the value of the class attribute, i.e. between
+     *   its quotes (either kind), alone or separated from other classes by whitespace:
+     *   class="signaturetable", class="table signaturetable", class='signaturetable wide'.
+     *   A longer class name that merely contains the word (signaturetable-wide, my_signaturetable)
+     *   does not count, and neither does the word in another attribute (data-class, title).
+     * - The header row is the first row of the table in front of the [[users]] section. The search
+     *   stops at [[users]] and at the end of the table, so a table without a header row is not
+     *   matched at all - neither the row template of the users nor a row of a following table
+     *   is taken for its header.
+     */
+    private const SIGNATURETABLE_HEADERROW_REGEX = '/(?<start><table\b[^>]*\sclass\s*=\s*(?<quote>["\'])'
+        . '(?:(?!\k<quote>).)*?(?<![^\s\"\'])signaturetable(?![^\s\"\'])(?:(?!\k<quote>).)*\k<quote>[^>]*>'
+        . '(?:(?!\[\[users\]\]|<\/table>).)*?<tr\b[^>]*>(?:(?!\[\[users\]\]|<\/table>).)*?)(?<end><\/tr>)/si';
+
+    /**
      * Protect the curly braces of the template itself (e.g. css rules) from the placeholder engine.
      */
     private const BRACE_MARKERS = ['@@signinsheet_lbrace@@', '@@signinsheet_rbrace@@'];
@@ -520,14 +539,26 @@ class signinsheet_generator {
                 . $sessiondate . '</th>';
         }
 
+        // The session columns belong to the table with the class "signaturetable": header cells and the
+        // empty cells of the user rows are added together or not at all. $sessionheadersadded counts
+        // the header rows that got the cells; it stays 0 when the template has no such table.
+        $sessionheadersadded = 0;
         if (count($extrasessioncols) > 0) {
-            // Target only the header row inside the table with class "signaturetable".
-            $confightml = preg_replace(
-                '/(<table[^>]*class="signaturetable"[^>]*>.*?<tr[^>]*>.*?)(<\/tr>)/s',
-                '$1' . $sessionheader . '$2',
-                $confightml
+            $withsessionheader = preg_replace_callback(
+                self::SIGNATURETABLE_HEADERROW_REGEX,
+                // A callback instead of a replacement string: the labels are inserted literally.
+                fn(array $match): string => $match['start'] . $sessionheader . $match['end'],
+                $confightml,
+                -1,
+                $sessionheadersadded
             );
+            // On a PCRE error (null) the template stays as it is, and no columns are added.
+            if ($withsessionheader !== null) {
+                $confightml = $withsessionheader;
+            }
         }
+        // One empty cell per session column for every user row - only below a header that has the columns.
+        $sessioncols = $sessionheadersadded > 0 ? str_repeat('<td></td>', count($extrasessioncols)) : '';
 
         // Generate user rows with session columns.
         $userrows = '';
@@ -575,7 +606,6 @@ class signinsheet_generator {
                 $replacements['[[userpic]]'] = '<img src="data:image/jpeg;base64,' .
                     base64_encode($imagedata) . '" width="56" height="56"/>';
             }
-            $sessioncols = str_repeat('<td></td>', count($extrasessioncols));
             foreach ($replacements as $placeholder => $realvalue) {
                 $row = str_ireplace($placeholder, $realvalue, $row);
             }
