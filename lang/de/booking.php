@@ -516,6 +516,7 @@ $string['alloptionsinreport'] = 'Report über alle Buchungen einer Instanz <span
 $string['alloptionsinreportdesc'] = 'Der Report einer Buchungsoption beinhaltet alle Buchungen der ganzen Instanz';
 $string['alloptionsmustbebooked'] = 'Alle ausgewählten Buchungsoptionen müssen gebucht sein';
 $string['allowbookingafterstart'] = 'Buchen nach Kursbeginn erlauben';
+$string['allowbookingafterstart_help'] = 'Gilt nicht für Slot-Buchungen.';
 $string['allowoverbooking'] = 'Überbuchen erlauben';
 $string['allowoverbookingheader'] = 'Buchungsoptionen überbuchen <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['allowoverbookingheader_desc'] = 'Berechtigten Nutzer:innen erlauben, Kurse zu überbuchen.
@@ -754,6 +755,7 @@ $string['bocondfullybooked'] = 'Ausgebucht';
 $string['bocondfullybookedavailable'] = 'Buchen';
 $string['bocondfullybookedfullavailable'] = 'Buchen möglich';
 $string['bocondfullybookedfullnotavailable'] = 'Ausgebucht';
+$string['bocondfullybookednomoredates'] = 'Keine Termine mehr verfügbar';
 $string['bocondfullybookednotavailable'] = 'Ausgebucht';
 $string['bocondfullybookedoverride'] = 'fullybookedoverride: Kann überbucht werden.';
 $string['bocondfullybookedoverrideavailable'] = 'Buchen';

@@ -58,6 +58,9 @@ class fullybooked implements bo_condition {
     /** @var bool $overwrittenbybillboard Indicates if the condition can be overwritten by the billboard. */
     public $overwrittenbybillboard = false;
 
+    /** @var bool $noslotsleft Set by is_available(): a slot booking option has no slot left at all. */
+    private $noslotsleft = false;
+
     /**
      * Get the condition id.
      *
@@ -115,6 +118,7 @@ class fullybooked implements bo_condition {
 
         // This is the return value. Available to begin with.
         $isavailable = true;
+        $this->noslotsleft = false;
 
         // Get the booking answers for this instance.
         $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
@@ -134,6 +138,9 @@ class fullybooked implements bo_condition {
                     $hasopenslots = true;
                 } else {
                     $slots = slot_availability::get_slots_with_status((int)$settings->id, $userid);
+                    // No slot at all (e.g. every session has ended): not "full", there are no
+                    // more dates. Only changes the message, see get_description_string().
+                    $this->noslotsleft = empty($slots);
                     foreach ($slots as $slot) {
                         if (in_array((string)($slot['status'] ?? ''), ['open', 'warning'], true)) {
                             $hasopenslots = true;
@@ -315,6 +322,8 @@ class fullybooked implements bo_condition {
         if ($isavailable) {
             $description = $full ? get_string('bocondfullybookedfullavailable', 'mod_booking') :
                 get_string('bocondfullybookedavailable', 'mod_booking');
+        } else if ($this->noslotsleft) {
+            $description = get_string('bocondfullybookednomoredates', 'mod_booking');
         } else {
             $description = $full ? get_string('bocondfullybookedfullnotavailable', 'mod_booking') :
                 get_string('bocondfullybookednotavailable', 'mod_booking');

@@ -1102,6 +1102,7 @@ class mod_booking_mod_form extends moodleform_mod {
         );
 
         $mform->addElement('advcheckbox', 'allowupdate', get_string('allowbookingafterstart', 'mod_booking'));
+        $mform->addHelpButton('allowupdate', 'allowbookingafterstart', 'mod_booking');
 
         $mform->addElement('advcheckbox', 'disablecancel', get_string('disablecancelforinstance', 'mod_booking'));
         $mform->setType('disablecancel', PARAM_INT);
