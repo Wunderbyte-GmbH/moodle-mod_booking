@@ -515,6 +515,7 @@ $string['alloptionsinreport'] = 'One report for a booking activity <span class="
 $string['alloptionsinreportdesc'] = 'The report of one booking option will include all the bookings of all booking options within this instance.';
 $string['alloptionsmustbebooked'] = 'All selected booking options must be booked';
 $string['allowbookingafterstart'] = 'Allow booking after course start';
+$string['allowbookingafterstart_help'] = 'Does not apply to slot booking options.';
 $string['allowoverbooking'] = 'Allow overbooking';
 $string['allowoverbookingheader'] = 'Overbooking of booking options <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['allowoverbookingheader_desc'] = 'Allow administrators and entitled users to overbook booking options.
@@ -754,6 +755,7 @@ $string['bocondfullybooked'] = 'Fully booked';
 $string['bocondfullybookedavailable'] = 'Book it';
 $string['bocondfullybookedfullavailable'] = 'Booking is possible';
 $string['bocondfullybookedfullnotavailable'] = 'Fully booked';
+$string['bocondfullybookednomoredates'] = 'No more dates available';
 $string['bocondfullybookednotavailable'] = 'Fully booked';
 $string['bocondfullybookedoverride'] = 'fullybookedoverride: Can be overbooked by staff';
 $string['bocondfullybookedoverrideavailable'] = 'Book it';
