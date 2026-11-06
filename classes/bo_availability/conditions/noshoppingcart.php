@@ -243,6 +243,7 @@ class noshoppingcart implements bo_condition {
 
         // And add them to the returned array.
         $returnarray['priceitems'] = $priceitem;
+        $returnarray['userid'] = $user->id;
 
         if ($fullwidth) {
             $returnarray['fullwidth'] = $fullwidth;

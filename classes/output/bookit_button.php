@@ -68,16 +68,17 @@ class bookit_button implements renderable, templatable {
             $data['main']['class'] = 'btn btn-primary';
         }
 
+        // Resolve the user before preparing the label or the user's price category.
+        if (empty($data['userid'])) {
+            $data['userid'] = $USER->id;
+        }
+
         if (empty($data['main']['foruser'])) {
             $data['main']['foruser'] = bo_info::get_for_user_button_string($data['userid']);
         }
 
         if (empty($data['area'])) {
             $data['area'] = 'option';
-        }
-
-        if (empty($data['userid'])) {
-            $data['userid'] = $USER->id;
         }
 
         if (empty($data['componentname'])) {
