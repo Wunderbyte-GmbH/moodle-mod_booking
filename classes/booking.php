@@ -2452,6 +2452,12 @@ class booking {
             if (in_array($customfield, $columns, true)) {
                 $requiredcustomfields[] = $customfield;
             }
+
+            // 6. Check priority columns of the search (shortcode argument priority) if there are any custom fields.
+            $columns = empty($tableinstance) ? [] : ($tableinstance->prioritycolumns ?? []);
+            if (in_array($customfield, $columns, true)) {
+                $requiredcustomfields[] = $customfield;
+            }
         }
 
         return array_values(array_unique($requiredcustomfields));
@@ -2460,16 +2466,21 @@ class booking {
     /**
      * Returns those of the given columns that may be added to the full text search of a booking options table.
      *
-     * The names come from user input (shortcode argument fulltextsearchcolumns, instance setting) and end up
-     * unescaped in the SQL of the table, so only known names are accepted: columns of the table booking_options
-     * and shortnames of booking customfields. Anything else is ignored with a debugging message for developers.
+     * The names come from user input (shortcode arguments fulltextsearchcolumns and priority, instance setting)
+     * and end up unescaped in the SQL of the table, so only known names are accepted: columns of the table
+     * booking_options and shortnames of booking customfields. Anything else is ignored with a debugging message
+     * for developers.
      *
      * Public API: also used by other plugins that build their own booking options tables (e.g. local_musi).
      *
      * @param array $columns column names, e.g. the exploded value of the shortcode argument
+     * @param string $argumentname name of the shortcode argument, for the debugging message
      * @return array list of valid column names without duplicates
      */
-    public static function get_valid_fulltextsearchcolumns(array $columns): array {
+    public static function get_valid_fulltextsearchcolumns(
+        array $columns,
+        string $argumentname = 'fulltextsearchcolumns'
+    ): array {
         global $DB;
 
         if (empty($columns)) {
@@ -2492,7 +2503,7 @@ class booking {
                 $fulltextsearchcolumns[] = $column;
             } else if (!empty($column)) {
                 debugging(
-                    "Invalid column '$column' in fulltextsearchcolumns shortcode argument was ignored.",
+                    "Invalid column '$column' in $argumentname shortcode argument was ignored.",
                     DEBUG_DEVELOPER
                 );
             }

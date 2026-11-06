@@ -112,6 +112,7 @@ These parameters are used by the table-based shortcodes that render booking opti
 | `sort="1"` | Show sort controls | Only in shortcodes that expose optional sort UI. |
 | `search="1"` | Show full-text search | Only in shortcodes that expose optional search UI. |
 | `fulltextsearchcolumns="description,shortname1"` | Add columns to the full-text search | Comma-separated list of booking option fields and/or booking custom field shortnames. Setting this implicitly enables the search box. Invalid column names are ignored. |
+| `priority="titleprefix,text"` | Order of the full-text search results | Comma-separated list of booking option fields and/or booking custom field shortnames, the most important first. While searching, options whose first column equals the search text come first, then options whose first column contains every word of the search text (in any order), then the same for the next column, then all other results. Inside each group the normal sorting applies. The comparison ignores the case; select custom fields compare the label of the option. The columns must also be searched (default search columns or `fulltextsearchcolumns`). Invalid column names are ignored. |
 | `filter="1"` | Show standard filters | In some shortcodes this is a boolean toggle; in `[bulkoperations]` it is a comma-separated filter definition. |
 | `sortby="coursestarttime"` | Default sort column | Sanitised to alphanumeric / underscore / dash characters. |
 | `sortorder="asc"` / `sortorder="desc"` | Default sort direction | Default is ascending. |

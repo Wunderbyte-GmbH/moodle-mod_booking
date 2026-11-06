@@ -2110,6 +2110,15 @@ class shortcodes {
         } else {
             $table->sortable(true, 'text', $defaultorder);
         }
+
+        // Columns that decide the order of the search results, e.g. priority="titleprefix,text".
+        // The column names end up in the SQL of the table, so only known names pass.
+        if (!empty($args['priority'])) {
+            $table->define_priority_columns(
+                booking::get_valid_fulltextsearchcolumns(explode(',', (string)$args['priority']), 'priority')
+            );
+        }
+
         if (isset($args['requirelogin']) && $args['requirelogin'] == "false") {
             $table->requirelogin = false;
         }
