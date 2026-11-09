@@ -287,8 +287,8 @@ class create_option_skill extends booking_skill_base implements
         return [
             [
                 'id' => 'mod_booking.create_option_canonical_fallback',
-                'description' => 'The user wants a normal dated booking option, or a numbered weekday series of dated events,'
-                    . ' created in this booking instance.',
+                'description' => 'The user wants a normal dated booking option created in this booking instance: one event,'
+                    . ' or a series booked once as one option with several dates.',
             ],
             [
                 'id' => 'mod_booking.force_create_duplicate_title',
