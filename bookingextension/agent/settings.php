@@ -134,7 +134,7 @@ if ($adminroot->fulltree) {
     );
 
     // Navbar magic-wand toggle, directly below the enable checkbox; like the rest of the agent
-    // settings it is only shown while the agent is on (see the hide_if loop below).
+    // settings it is only shown while the agent is on (see the hidden-settings loop below).
     $aisettingspage->add(
         new admin_setting_configcheckbox(
             'bookingextension_agent/inject_in_navbar',
@@ -242,7 +242,8 @@ $benchmarksettingsurl = new moodle_url('/admin/settings.php', ['section' => 'boo
 
 // The agent's settings are always registered, also while the agent is switched off, so that their defaults
 // (privacy mode, prompts, retention, ...) are stored on install and upgrade. Enabling the agent later - also via
-// CLI - therefore never runs it without them. While the agent is off they are only hidden (hide_if below).
+// CLI - therefore never runs it without them. While the agent is off they are only hidden on the page (see the
+// end of this block).
 if ($adminroot->fulltree) {
     if ($agentenabled) {
         $agentpageslist = html_writer::alist([
@@ -570,6 +571,7 @@ if ($adminroot->fulltree) {
     );
 
     // Everything but the enable switch and the one-time announcement is hidden while the agent is off.
+    $hiddensettings = [];
     foreach ($aisettingspage->settings as $setting) {
         if ($setting instanceof admin_setting_heading) {
             continue;
@@ -578,7 +580,25 @@ if ($adminroot->fulltree) {
         if (in_array($settingname, ['bookingextension_agent/agent_enabled', 'bookingextension_agent/hideupdatehint'], true)) {
             continue;
         }
-        $aisettingspage->hide_if($settingname, 'bookingextension_agent/agent_enabled');
+        $hiddensettings[$settingname] = $setting;
+    }
+    if (!\bookingextension_agent\admin\setting_hide_when_disabled::core_passes_rules_as_js_argument()) {
+        foreach (array_keys($hiddensettings) as $settingname) {
+            $aisettingspage->hide_if($settingname, 'bookingextension_agent/agent_enabled');
+        }
+    } else {
+        // Older cores (4.5, 5.0.0-5.0.4, 5.1.0-5.1.1) pass all hide_if rules of a page as one js_call_amd
+        // argument; for this page it is longer than 1024 characters and shows a developer warning. The
+        // same rules go into one hidden setting that passes only an element id. The "depends on" note
+        // under each setting is added here, as hide_if would do.
+        foreach ($hiddensettings as $setting) {
+            $setting->add_dependent_on('bookingextension_agent | agent_enabled');
+        }
+        $aisettingspage->add(new \bookingextension_agent\admin\setting_hide_when_disabled(
+            'bookingextension_agent_hidewhendisabled',
+            'bookingextension_agent/agent_enabled',
+            array_keys($hiddensettings)
+        ));
     }
 }
 
