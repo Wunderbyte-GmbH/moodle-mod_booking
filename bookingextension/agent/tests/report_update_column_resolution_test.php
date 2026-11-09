@@ -17,6 +17,7 @@
 namespace bookingextension_agent;
 
 use advanced_testcase;
+use bookingextension_agent\local\wizard\report\skills\create_report_skill;
 use bookingextension_agent\local\wizard\report\skills\report_skill_base;
 use bookingextension_agent\local\wizard\report\skills\update_report_skill;
 use bookingextension_agent\local\wizard\services\reportbuilder\report_source_catalog_service;
@@ -24,7 +25,8 @@ use bookingextension_agent\local\wizard\skill_registry_factory;
 use context_system;
 
 /**
- * update_report resolves a close column identifier itself and offers candidates when it cannot.
+ * update_report resolves a close column identifier itself and offers candidates when it cannot; the source
+ * clarification offers its choice the same way.
  *
  * demo2 thread 21 (2026-11-04, #2763): the constructor wrote "enrol:enrolmentdate", the clarification said "pick one
  * of the available columns" and offered none, because the skill stored its choices under `options` while the engine
@@ -37,6 +39,7 @@ use context_system;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @covers     \bookingextension_agent\local\wizard\report\skills\update_report_skill
  * @covers     \bookingextension_agent\local\wizard\report\skills\report_skill_base
+ * @covers     \bookingextension_agent\local\wizard\report\skills\create_report_skill
  */
 final class report_update_column_resolution_test extends advanced_testcase {
     /** FQCN of the users datasource core ships. */
@@ -125,6 +128,27 @@ final class report_update_column_resolution_test extends advanced_testcase {
         $this->assertContains('user:phone1', $candidates);
         $this->assertContains('user:idnumber', $candidates);
         $this->assertNotContains('user:fullname', $candidates);
+    }
+
+    /**
+     * The source clarification carries its choice under the engine's key as well (live probe 2026-11-09: "Datenquelle
+     * Kursteilnehmer" ended in "pick one of the available sources" with nothing to pick).
+     */
+    public function test_unknown_source_offers_candidates(): void {
+        $dto = (new create_report_skill())->preflight(
+            ['name' => 'Plattformuser', 'source' => 'Kursteilnehmer'],
+            (int)context_system::instance()->id,
+            $this->userid
+        );
+        $this->assertNotSame('pass', $dto->status);
+        $issue = $dto->issues[0];
+        $this->assertSame(report_skill_base::CODE_SOURCE_VALIDATION_ERROR, $issue['code']);
+        $this->assertNotEmpty($issue['candidates'] ?? [], 'the source clarification must offer a choice');
+        $this->assertLessThanOrEqual(50, count($issue['candidates']));
+        $optionids = array_column($issue['options'], 'id');
+        foreach ($issue['candidates'] as $candidate) {
+            $this->assertContains($candidate['id'], $optionids);
+        }
     }
 
     /**
