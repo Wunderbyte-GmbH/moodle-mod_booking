@@ -258,8 +258,8 @@ class create_option_skill extends booking_skill_base implements
                 . 'as one option with several dates.',
             // Ticket #2762: the selector plans one create step per separately bookable event (planned_steps),
             // instead of folding n numbered events into the sessions of one option.
-            'when' => 'A dated option; for n numbered events booked one by one (one per weekday): the first event is this '
-                . 'step, each further event one planned step named with its number and its date.',
+            'when' => 'A series booked once is ONE option, no planned steps. For n events booked one by one (one per '
+                . 'weekday): the first is this step, the others planned steps named with number and date.',
             'not' => 'Slots (create_slotbooking_option); self-paced offers (create_selflearning_option); a price category '
                 . '(add_price_category); a course (course.create_course).',
             'readonly' => $this->is_read_only(),
