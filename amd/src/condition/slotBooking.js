@@ -21,6 +21,7 @@
 
 import DynamicForm from 'core_form/dynamicform';
 import {init as initSlotCalendarPicker} from 'mod_booking/slotCalendarPicker';
+import {init as initCompactCalendar} from 'mod_booking/slotbooking/compact_calendar_picker';
 import {
     saveSelection,
     allowAddItemToCart,
@@ -860,6 +861,16 @@ export async function init(callsiteoptionid) {
         return;
     }
 
+    // With calendar="compact" in the bookingoptionview shortcode, the calendar of local_entities replaces
+    // the month grid and the day timeline (see compact_calendar_picker.js). The container is not
+    // part of the reloaded form, so this holds for every setupInteractiveUi() run.
+    const compactCalendar = container.dataset.calendar === 'compact';
+    const compactCalendarDisplay = {
+        locale: container.dataset.calendarLocale || 'en',
+        firstDay: Number(container.dataset.calendarFirstday || 1),
+        hour12: container.dataset.calendarHour12 === '1',
+    };
+
     // Multi-option sidebar: container.dataset.optionids (JSON array, primary id first) is only
     // present when the calendar merges more than one option's slots - see
     // templates/condition/slotbooking.mustache and bo_availability/conditions/slotbooking.php.
@@ -1348,6 +1359,62 @@ export async function init(callsiteoptionid) {
                 });
             };
 
+            // With calendar="compact", the time range is dragged (or a start clicked) in the calendar of
+            // local_entities. Like renderChosenCustomDay, the chosen day decides the option and its
+            // durations; the range gives the start and the nearest duration that option offers.
+            const chooseCustomRange = (daySlot, start, end) => {
+                lastCustomDaySlot = daySlot;
+                lastChosenCustomOptionId = Number(daySlot.optionid || optionid);
+                setActiveOptionId(lastChosenCustomOptionId);
+                applyCustomDurationOptions(daySlot);
+
+                const durations = Array.from(customDurationSelect.options)
+                    .map(option => Number(option.value || 0))
+                    .filter(value => value > 0);
+                if (durations.length === 0) {
+                    return;
+                }
+                const wanted = Math.max(1, end - start);
+                const duration = durations.reduce((best, value) => (
+                    Math.abs(value - wanted) < Math.abs(best - wanted) ? value : best
+                ));
+                const intervalSeconds = Math.max(1, Number(daySlot.startintervalminutes || 30)) * 60;
+                customDurationSelect.value = String(duration);
+                customStartInput.value = String(snapStartTimestamp(
+                    start,
+                    Number(daySlot.openfrom || 0),
+                    Number(daySlot.openuntil || 0),
+                    duration,
+                    intervalSeconds
+                ));
+                // Programmatic values fire no 'change' - the live validation listens for it.
+                customDurationSelect.dispatchEvent(new Event('change', {bubbles: true}));
+                customStartInput.dispatchEvent(new Event('change', {bubbles: true}));
+            };
+
+            if (compactCalendar && !calendarRoot.dataset.slotCalendarInitialized) {
+                customEditorRoot.style.display = 'none';
+                customCalendarPicker = await initCompactCalendar(calendarRoot, {
+                    slots,
+                    mode: 'custom',
+                    optionColors,
+                    // Only the active option's days, like the standard calendar (see setupCustomOptionSidebar).
+                    slotFilter: (slot) => Number(slot.optionid || optionid) === lastChosenCustomOptionId,
+                    display: compactCalendarDisplay,
+                    // The chosen time is shown only for the option it was chosen in.
+                    getCustomChoice: () => {
+                        const start = Number(customStartInput.value || 0);
+                        const duration = Number(customDurationSelect.value || 0);
+                        const sameOption = lastCustomDaySlot
+                            && Number(lastCustomDaySlot.optionid || optionid) === lastChosenCustomOptionId;
+                        return (start > 0 && duration > 0 && sameOption) ? {start, end: start + duration} : null;
+                    },
+                    onCustomRange: chooseCustomRange,
+                });
+                calendarRoot.dataset.slotCalendarInitialized = '1';
+                setupCustomOptionSidebar();
+            }
+
             if (!calendarRoot.dataset.slotCalendarInitialized) {
                 customCalendarPicker = initSlotCalendarPicker(calendarRoot, {
                     slots,
@@ -1770,28 +1837,55 @@ export async function init(callsiteoptionid) {
             }, 300);
         };
 
-        if (calendarRoot && !calendarRoot.dataset.slotCalendarInitialized) {
+        // The selection adapter of the calendar: the day timeline, the compact calendar and the
+        // remove button of the summary all toggle slots through it.
+        const createFixedSelection = () => {
             const maxInput = container.querySelector('input[name="slot_max_selection"]');
             const maxSlots = Number(maxInput?.value || 1);
             // Resolves to whichever option currently owns the selection - falls back to the primary
             // option's maxSlots when nothing is selected yet.
             const resolveMaxSlots = (optId) => optionMaxMap.get(Number(optId)) || maxSlots;
+            return createHiddenInputSelection(selectionInput, resolveMaxSlots, {
+                resolveOptionId: resolveSlotOptionId,
+                toUids: selectionKeysToUids,
+                toWireKeys: uidsToSelectionKeys,
+                onOptionSwitch: () => Notification.addNotification({
+                    message: slotbookingSwitchedOptionMessage,
+                    type: 'info',
+                }),
+            });
+        };
+
+        // With calendar="compact", the calendar of local_entities is shown instead of the month grid and the day
+        // timeline. It marks the calendar as initialized, so the standard calendar below is skipped.
+        if (compactCalendar && calendarRoot && fixedEditorRoot && !calendarRoot.dataset.slotCalendarInitialized) {
+            fixedSelection = createFixedSelection();
+            fixedEditorRoot.style.display = 'none';
+            calendarPickerInstance = await initCompactCalendar(calendarRoot, {
+                slots,
+                mode: 'fixed',
+                selection: fixedSelection,
+                optionColors,
+                display: compactCalendarDisplay,
+            });
+            // The summary's remove button repaints the calendar through this.
+            refreshFixedEditor = () => calendarPickerInstance.refresh();
+            calendarRoot.dataset.slotCalendarInitialized = '1';
+            setupSidebar(calendarPickerInstance);
+        }
+
+        if (calendarRoot && !calendarRoot.dataset.slotCalendarInitialized) {
+            const maxInput = container.querySelector('input[name="slot_max_selection"]');
+            const maxSlots = Number(maxInput?.value || 1);
 
             // ONE adapter for the whole setupInteractiveUi() run (see the declaration above),
             // instead of a new one per day render. Must exist before initSlotCalendarPicker below:
             // the picker fires onDayChange from inside its own constructor, which lands in
             // renderFixedEditorForDay and needs it immediately.
             if (fixedEditorRoot) {
-                fixedSelection = createHiddenInputSelection(selectionInput, resolveMaxSlots, {
-                    resolveOptionId: resolveSlotOptionId,
-                    toUids: selectionKeysToUids,
-                    toWireKeys: uidsToSelectionKeys,
-                    onOptionSwitch: () => Notification.addNotification({
-                        message: slotbookingSwitchedOptionMessage,
-                        type: 'info',
-                    }),
-                });
+                fixedSelection = createFixedSelection();
             }
+
 
             const selectedDayLabel = await getString('slot_selection_selectedday', 'mod_booking');
 

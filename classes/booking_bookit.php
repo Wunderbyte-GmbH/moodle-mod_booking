@@ -70,6 +70,7 @@ class booking_bookit {
      * @param int|null $viewparam the view currently being rendered (MOD_BOOKING_VIEW_PARAM_*), null if unknown
      * @param array $additionaloptionids additional option ids to be passed to the button (e.g. for elective booking)
      * @param bool $hidesidebar if true, the sidebar is hidden
+     * @param string $calendarstyle 'compact' shows the calendar of local_entities in the slot booking
      * @return string
      */
     public static function render_bookit_button(
@@ -78,7 +79,8 @@ class booking_bookit {
         string $inlinestartpage = '',
         ?int $viewparam = null,
         array $additionaloptionids = [],
-        bool $hidesidebar = false
+        bool $hidesidebar = false,
+        string $calendarstyle = ''
     ) {
 
         global $PAGE;
@@ -92,7 +94,8 @@ class booking_bookit {
             $inlinestartpage,
             $viewparam,
             $additionaloptionids,
-            $hidesidebar
+            $hidesidebar,
+            $calendarstyle
         );
 
         $html = '';
@@ -123,6 +126,7 @@ class booking_bookit {
      * @param int|null $viewparam the view currently being rendered (MOD_BOOKING_VIEW_PARAM_*), null if unknown
      * @param array $additionaloptionids additional option ids to be passed to the button (e.g. for elective booking)
      * @param bool $hidesidebar if true, the sidebar is hidden
+     * @param string $calendarstyle 'compact' shows the calendar of local_entities in the slot booking
      * @return array
      */
     public static function render_bookit_template_data(
@@ -132,7 +136,8 @@ class booking_bookit {
         string $inlinestartpage = '',
         ?int $viewparam = null,
         array $additionaloptionids = [],
-        bool $hidesidebar = false
+        bool $hidesidebar = false,
+        string $calendarstyle = ''
     ) {
         global $PAGE;
 
@@ -244,7 +249,8 @@ class booking_bookit {
                         $settings->id,
                         $userid,
                         $additionaloptionids,
-                        $hidesidebar
+                        $hidesidebar,
+                        $calendarstyle
                     );
                 } else {
                     $conditionrenderdata = $skipcondition->render_page($settings->id, $userid);
@@ -323,7 +329,8 @@ class booking_bookit {
                 $settings->id,
                 $userid,
                 $additionaloptionids,
-                $hidesidebar
+                $hidesidebar,
+                $calendarstyle
             );
 
             /** @var renderer $output */
