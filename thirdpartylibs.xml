@@ -9,4 +9,13 @@
         <licenseversion>3.0</licenseversion>
         <repository>https://github.com/smalot/pdfparser</repository>
     </library>
+        <library>
+        <location>thirdparty/fullcalendar</location>
+        <name>FullCalendar</name>
+        <description>Calendar of the compact slot booking view ([bookingoptionview ... calendar="compact"]). Global build with all standard plugins, its stylesheet and all locales, unchanged from the npm package.</description>
+        <version>5.11.3</version>
+        <license>MIT</license>
+        <licenseversion></licenseversion>
+        <repository>https://github.com/fullcalendar/fullcalendar</repository>
+    </library>
 </libraries>

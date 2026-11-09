@@ -270,13 +270,15 @@ class slotbooking implements bo_condition {
      * @param int $userid user id
      * @param array $additionaloptionids further option ids to merge into the calendar (sidebar filter)
      * @param bool $hidesidebar suppress the sidebar even when multiple option ids are given
+     * @param string $calendarstyle 'compact' shows the calendar of local_entities, '' the standard calendar
      * @return array
      */
     public function render_page(
         int $optionid,
         int $userid = 0,
         array $additionaloptionids = [],
-        bool $hidesidebar = false
+        bool $hidesidebar = false,
+        string $calendarstyle = ''
     ) {
         $optionids = array_values(array_unique(array_merge([$optionid], $additionaloptionids)));
         $ismultioption = count($optionids) > 1;
@@ -286,6 +288,19 @@ class slotbooking implements bo_condition {
             'userid' => $userid,
             'multioption' => $ismultioption,
         ];
+
+        // The compact calendar is the calendar of local_entities, so it is only offered when that
+        // plugin is there. Anything but 'compact' keeps the standard calendar.
+        $compact = $calendarstyle === 'compact'
+            && class_exists(\local_entities\output\entity_view::class);
+        $data['calendarstyle'] = $compact ? 'compact' : '';
+        if ($compact) {
+            // Shown like on the unavailability page of local_entities.
+            $display = \local_entities\output\entity_view::calendar_display_settings();
+            $data['calendarlocale'] = str_replace('_', '-', current_language());
+            $data['calendarfirstday'] = (int)$display['calendarfirstday'];
+            $data['calendarhour12'] = (int)$display['calendartimeformat'] === 12 ? 1 : 0;
+        }
 
         if ($ismultioption) {
             $data['optionidsjson'] = json_encode($optionids);

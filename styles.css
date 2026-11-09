@@ -1030,6 +1030,116 @@ div.checkbox:has(label[for^="id_bo_cond_allowedtobookininstance_capabilitynotnee
     cursor: default;
 }
 
+/* Compact slot calendar (calendar="compact", see compact_calendar_picker.js). Scoped to the slot
+   booking, so other FullCalendar calendars on the same page keep their look. An entry has the colour
+   of its option in the sidebar (--booking-option-color, set on each entry): a stripe and a tint,
+   the full colour when it is selected, grey when it is booked. */
+.booking-slotbooking-prepage .fc .fc-toolbar {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.booking-slotbooking-prepage .fc .fc-toolbar-chunk {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.booking-slotbooking-prepage .fc .fc-toolbar-title {
+    font-size: 1.15rem;
+}
+
+.booking-slotbooking-prepage .fc .fc-button {
+    padding: 0.2rem 0.55rem;
+    font-size: 0.85rem;
+}
+
+/* Higher rows (one row = 30 minutes), so even a 10 minute tile has room for its time. */
+.booking-slotbooking-prepage .fc .fc-timegrid-slot {
+    height: 2.75em;
+}
+
+.booking-slotbooking-prepage .fc .fc-event.booking-slot-compact {
+    --booking-option-color: rgb(25, 135, 84);
+    border: 1px solid color-mix(in srgb, var(--booking-option-color) 45%, transparent);
+    border-left: 4px solid var(--booking-option-color);
+    background-color: color-mix(in srgb, var(--booking-option-color) 14%, #fff);
+    box-shadow: none;
+    cursor: pointer;
+}
+
+.booking-slotbooking-prepage .fc .fc-event.booking-slot-compact .fc-event-main {
+    padding: 1px 3px;
+    color: color-mix(in srgb, var(--booking-option-color) 70%, #000);
+}
+
+.booking-slotbooking-prepage .fc .fc-event.booking-slot-compact.booking-slot--selected {
+    background-color: var(--booking-option-color);
+    border-color: var(--booking-option-color);
+}
+
+.booking-slotbooking-prepage .fc .fc-event.booking-slot-compact.booking-slot--selected .fc-event-main {
+    color: #fff;
+}
+
+.booking-slotbooking-prepage .fc .booking-slot-compact.booking-slot--booked {
+    background-color: rgba(108, 117, 125, 0.22);
+    border-color: rgba(108, 117, 125, 0.8);
+    cursor: default;
+}
+
+.booking-slotbooking-prepage .fc .fc-event.booking-slot-compact.booking-slot--booked .fc-event-main {
+    color: rgb(73, 80, 87);
+}
+
+.booking-slotbooking-prepage .fc .fc-event.booking-slot-compact-choice {
+    cursor: move;
+}
+
+/* Content of an entry: the time, then price and status. */
+.booking-slotbooking-prepage .fc .booking-slot-compact-content {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 0.35rem;
+    overflow: hidden;
+    font-size: 0.75rem;
+    line-height: 1.2;
+}
+
+.booking-slotbooking-prepage .fc .booking-slot-compact-time {
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.booking-slotbooking-prepage .fc .booking-slot-compact-extra {
+    white-space: nowrap;
+}
+
+/* Short entries (see sizeClass() in compact_calendar_picker.js): one line, smaller text, cut off
+   instead of running over the entry. */
+.booking-slotbooking-prepage .fc .booking-slot-compact-sm .fc-event-main,
+.booking-slotbooking-prepage .fc .booking-slot-compact-xs .fc-event-main {
+    padding: 0 3px;
+    overflow: hidden;
+}
+
+.booking-slotbooking-prepage .fc .booking-slot-compact-sm .booking-slot-compact-content {
+    flex-wrap: nowrap;
+    font-size: 0.7rem;
+    line-height: 1.1;
+}
+
+.booking-slotbooking-prepage .fc .booking-slot-compact-xs .booking-slot-compact-content {
+    flex-wrap: nowrap;
+    font-size: 0.65rem;
+    line-height: 1;
+}
+
+/* User-defined slots: the opening hours behind the calendar. */
+.booking-slotbooking-prepage .fc .booking-slot-compact-open {
+    background-color: rgba(25, 135, 84, 0.15);
+}
+
 /* Warmup/cooldown buffer separator: a static, non-bookable, content-free marker that a buffer
    applies here (see slot_day_renderers.js). Now drawn to scale like everything else on the
    shared timeline - it's positioned absolutely the same way real slots are. Subdued grey so it

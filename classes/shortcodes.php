@@ -722,6 +722,9 @@ class shortcodes {
 
         $inlinestartpage = !empty($args['inlinestartpage']) ? (string)$args['inlinestartpage'] : '';
         $hidesidebar = !empty($args['hidesidebar']);
+        // calendar="compact" shows the calendar of local_entities instead of the month grid and day
+        // timeline of the slot booking. Unknown values are dropped in slotbooking::render_page().
+        $calendarstyle = !empty($args['calendar']) ? (string)$args['calendar'] : '';
         $userid = $USER->id;
 
         try {
@@ -762,7 +765,8 @@ class shortcodes {
                 $inlinestartpage,
                 null,
                 $additionaloptionids,
-                $hidesidebar
+                $hidesidebar,
+                $calendarstyle
             );
         } catch (Throwable $e) {
             $out = get_string('shortcode:error', 'mod_booking');
