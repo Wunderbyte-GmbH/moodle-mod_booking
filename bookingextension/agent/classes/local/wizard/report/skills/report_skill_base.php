@@ -56,6 +56,9 @@ abstract class report_skill_base extends core_skill_base {
     /** Issue code: several visible reports match the name. */
     public const CODE_REPORT_AMBIGUOUS = 'REPORT_TARGET_AMBIGUOUS';
 
+    /** Most choices a definition clarification offers (engine contract, wave 30; #2763). */
+    protected const MAX_CANDIDATES = 50;
+
     /** Issue code: a column identifier is not offered by the source. */
     public const CODE_COLUMN_VALIDATION_ERROR = 'REPORT_COLUMN_VALIDATION_ERROR';
 
@@ -292,8 +295,95 @@ abstract class report_skill_base extends core_skill_base {
         $issue = ['code' => $code, 'severity' => 'needs_clarification', 'message' => $message];
         if (!empty($problem['options'])) {
             $issue['options'] = array_values((array)$problem['options']);
+            // The engine offers the choices of a clarification from `candidates` {id, label}
+            // (agent_decision_service::offered_choices, wave 30); `options` alone never reached the user (#2763,
+            // demo2 thread 21). Narrowed to the tokens of the value the constructor wrote, best hits first.
+            $issue['candidates'] = array_slice(
+                self::narrow_choices($value !== '' ? $value : $identifier, $issue['options']),
+                0,
+                self::MAX_CANDIDATES
+            );
         }
         return $this->invalid([$issue]);
+    }
+
+    /**
+     * Tokens of an identifier or label as written: runs of letters or digits of three characters or more, lower
+     * case; "enrol:enrolmentdate" is enrol and enrolmentdate. Structural, no word list.
+     *
+     * @param string $value
+     * @return string[]
+     */
+    protected static function identifier_tokens(string $value): array {
+        preg_match_all('/[\p{L}\p{N}]{3,}/u', \core_text::strtolower($value), $found);
+        return array_values(array_unique($found[0] ?? []));
+    }
+
+    /**
+     * The choices ({id, label} rows) whose id or label carries at least half of the value's tokens, most hits
+     * first and otherwise in their given order; the whole list when no row carries a token.
+     *
+     * @param string $value identifier or label the user or the constructor wrote
+     * @param array $options {id, label} rows
+     * @return array
+     */
+    protected static function narrow_choices(string $value, array $options): array {
+        $options = array_values(array_filter($options, 'is_array'));
+        $tokens = self::identifier_tokens($value);
+        if (empty($tokens)) {
+            return $options;
+        }
+        $scored = [];
+        foreach ($options as $index => $option) {
+            $hits = self::token_hits($tokens, $option);
+            if ($hits > 0 && $hits * 2 >= count($tokens)) {
+                $scored[] = [$hits, $index, $option];
+            }
+        }
+        if (empty($scored)) {
+            return $options;
+        }
+        usort($scored, static fn(array $a, array $b): int => [$b[0], $a[1]] <=> [$a[0], $b[1]]);
+        return array_map(static fn(array $row): array => $row[2], $scored);
+    }
+
+    /**
+     * The id of the one choice that carries every token of the value; null when none or several do.
+     *
+     * @param string $value
+     * @param array $options {id, label} rows
+     * @return string|null
+     */
+    protected static function resolve_choice(string $value, array $options): ?string {
+        $tokens = self::identifier_tokens($value);
+        if (empty($tokens)) {
+            return null;
+        }
+        $full = [];
+        foreach ($options as $option) {
+            if (is_array($option) && self::token_hits($tokens, $option) === count($tokens)) {
+                $full[] = (string)($option['id'] ?? '');
+            }
+        }
+        return count($full) === 1 && $full[0] !== '' ? $full[0] : null;
+    }
+
+    /**
+     * How many of the tokens occur in the row's id or label.
+     *
+     * @param string[] $tokens
+     * @param array $option {id, label}
+     * @return int
+     */
+    private static function token_hits(array $tokens, array $option): int {
+        $haystack = \core_text::strtolower((string)($option['id'] ?? '') . ' ' . (string)($option['label'] ?? ''));
+        $hits = 0;
+        foreach ($tokens as $token) {
+            if (\core_text::strpos($haystack, $token) !== false) {
+                $hits++;
+            }
+        }
+        return $hits;
     }
 
     /**
