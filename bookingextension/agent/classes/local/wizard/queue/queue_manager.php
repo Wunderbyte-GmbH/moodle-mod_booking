@@ -1120,6 +1120,58 @@ class queue_manager {
     }
 
     /**
+     * The step of a multi-step plan the thread is at, from the queue alone (#2762).
+     *
+     * Completed steps are the succeeded placeholders, remaining steps the planned ones. The current step is the
+     * realizing placeholder when the turn's real command is already enqueued and bound (preflight time); before
+     * that (construction time) it is the oldest planned placeholder, the one {@see self::bind_next_placeholder()}
+     * binds next, and it leaves the remaining list. On the first turn of a plan, before any placeholder exists,
+     * the result is empty; at preflight time of that turn the placeholders exist but the current command has no
+     * placeholder, so `current` is '' and the index is 1. `total` counts completed, current and remaining steps.
+     *
+     * @param int $threadid
+     * @param bool $currentbound Whether the current command is already enqueued (and bound) in the queue.
+     * @return array {index:int,total:int,current:string,remaining:string[],completed:string[]} or []
+     */
+    public function plan_step_context(int $threadid, bool $currentbound): array {
+        $planned = [];
+        $realizing = [];
+        $completed = [];
+        foreach ($this->get_queue_items($threadid) as $item) {
+            if ((string)($item['skill'] ?? '') !== '__placeholder__') {
+                continue;
+            }
+            $intent = trim((string)($item['input']['intent'] ?? ''));
+            $status = (string)($item['status'] ?? '');
+            if (queue_status_policy::is_planned_status($status)) {
+                $planned[] = $intent;
+            } else if (queue_status_policy::is_realizing_status($status)) {
+                $realizing[] = $intent;
+            } else if (queue_status_policy::is_succeeded_status($status)) {
+                $completed[] = $intent;
+            }
+        }
+        if (empty($planned) && empty($realizing) && empty($completed)) {
+            return [];
+        }
+        $current = '';
+        if (!empty($realizing)) {
+            $current = (string)$realizing[0];
+        } else if (!$currentbound && !empty($planned)) {
+            $current = (string)array_shift($planned);
+        }
+        $planned = array_values(array_filter($planned, static fn(string $i): bool => $i !== ''));
+        $completed = array_values(array_filter($completed, static fn(string $i): bool => $i !== ''));
+        return [
+            'index' => count($completed) + 1,
+            'total' => count($completed) + 1 + count($planned),
+            'current' => $current,
+            'remaining' => $planned,
+            'completed' => $completed,
+        ];
+    }
+
+    /**
      * Build deterministic input signature plus debug metadata.
      *
      * @param string $skill
