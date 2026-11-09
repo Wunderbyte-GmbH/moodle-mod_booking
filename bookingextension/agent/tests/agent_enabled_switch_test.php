@@ -17,6 +17,7 @@
 namespace bookingextension_agent;
 
 use advanced_testcase;
+use bookingextension_agent\admin\setting_hide_when_disabled;
 use context_system;
 use core\hook\output\before_standard_head_html_generation;
 use bookingextension_agent\local\hooks\page_injection;
@@ -140,16 +141,44 @@ final class agent_enabled_switch_test extends advanced_testcase {
         }
         $this->assertContains('s_bookingextension_agent_aiprivacymode', $names);
 
-        $hidden = [];
-        foreach ((new \ReflectionProperty($page, 'dependencies'))->getValue($page) as $dependency) {
-            $this->assertSame('s_bookingextension_agent_agent_enabled', $dependency->dependenton);
-            $hidden[] = $dependency->settingname;
-        }
         $expected = array_values(array_diff($names, [
             's_bookingextension_agent_agent_enabled',
             's_bookingextension_agent_hideupdatehint',
         ]));
+
+        $hiders = array_values(array_filter(
+            (array)$page->settings,
+            fn($setting) => $setting instanceof setting_hide_when_disabled
+        ));
+
+        if (!setting_hide_when_disabled::core_passes_rules_as_js_argument()) {
+            // Core reads the hide_if rules from the page (MDL-76975): hide_if is used as is.
+            $this->assertSame([], $hiders);
+            $hidden = [];
+            foreach ((new \ReflectionProperty($page, 'dependencies'))->getValue($page) as $dependency) {
+                $this->assertSame('s_bookingextension_agent_agent_enabled', $dependency->dependenton);
+                $hidden[] = $dependency->settingname;
+            }
+            $this->assertEqualsCanonicalizing($expected, $hidden);
+            return;
+        }
+
+        // Older cores pass all hide_if rules as one js_call_amd argument (over 1024 characters for this
+        // page): the page has no hide_if rules, one hidden setting carries them instead.
+        $this->assertFalse($page->has_dependencies());
+        $this->assertCount(1, $hiders);
+        $hidden = array_map(
+            fn($name) => 's_' . str_replace('/', '_', $name),
+            $hiders[0]->get_hidden_settings()
+        );
         $this->assertEqualsCanonicalizing($expected, $hidden);
+
+        // Each hidden setting still shows the "depends on" note that hide_if would add.
+        foreach ($page->settings as $setting) {
+            if (in_array('s_' . $setting->plugin . '_' . $setting->name, $expected, true)) {
+                $this->assertContains('bookingextension_agent | agent_enabled', $setting->get_dependent_on());
+            }
+        }
     }
 
     /**
