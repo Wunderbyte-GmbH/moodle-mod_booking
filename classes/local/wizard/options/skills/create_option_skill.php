@@ -995,10 +995,10 @@ class create_option_skill extends booking_skill_base implements
             $resolvedtype = 'normal';
         }
 
-        // Ticket #2762: a step of a multi-step plan that carries exactly as many sessions as the plan has steps has
-        // most likely been given the dates of ALL steps ("one event per weekday" read as the sessions of each
-        // option). Which date belongs to which step is not engine state, so the skill offers the sessions as a
-        // choice (P6a) instead of guessing or creating the option with every date; the override all_sessions
+        // Ticket #2762: a step of a multi-step plan that carries several sessions has most likely been given the
+        // dates of other steps too ("one event per weekday" read as the sessions of each option; thread 9104 got
+        // four of five). Which date belongs to which step is not engine state, so the skill offers the sessions
+        // as a choice (P6a) instead of guessing or creating the option with every date; the override all_sessions
         // keeps them all on this step when a series inside a plan really is one option.
         $choice = $this->plan_step_sessions_choice($input, $overrides, $lang);
         if ($choice !== null) {
@@ -1514,12 +1514,12 @@ class create_option_skill extends booking_skill_base implements
     }
 
     /**
-     * The sessions of a plan step as a choice when the step carries one session per plan step (#2762).
+     * The sessions of a plan step as a choice when the step carries more than one session (#2762).
      *
      * Structural check only: the engine's plan step ({@see base_skill::plan_step()}) says this command is step
-     * index of total; if the input has exactly total sessions and total is above one, the user (through the
+     * index of total; if total is above one and the input has more than one session, the user (through the
      * planner) picks the session of this step, or keeps all of them with the override all_sessions. Outside a
-     * plan, with another number of sessions, or with the override, nothing is asked.
+     * plan, with a single session, or with the override, nothing is asked.
      *
      * @param array $input Normalized input.
      * @param string[] $overrides Normalized override tokens.
@@ -1530,7 +1530,7 @@ class create_option_skill extends booking_skill_base implements
         $planstep = method_exists($this, 'plan_step') ? $this->plan_step() : [];
         $total = (int)($planstep['total'] ?? 0);
         $sessions = isset($input['optiondates']) && is_array($input['optiondates']) ? array_values($input['optiondates']) : [];
-        if ($total < 2 || count($sessions) !== $total || in_array('all_sessions', $overrides, true)) {
+        if ($total < 2 || count($sessions) < 2 || in_array('all_sessions', $overrides, true)) {
             return null;
         }
         $candidates = [];
@@ -1559,7 +1559,7 @@ class create_option_skill extends booking_skill_base implements
             'candidates'    => $candidates,
             // Planner-only repair channel (F3): how to apply the choice to the canonical field.
             'repair'        => 'This command is step ' . $a->index . ' of ' . $total . ' of the plan and carries '
-                . $a->count . ' sessions, one per step. Put the chosen session into optiondates as its '
+                . $a->count . ' sessions. Put the chosen session into optiondates as its '
                 . '{coursestarttime, courseendtime} pair; if all sessions belong to this step, keep them and add '
                 . '"all_sessions" to override.',
         ];

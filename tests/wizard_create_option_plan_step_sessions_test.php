@@ -27,13 +27,13 @@ global $CFG;
 require_once($CFG->dirroot . '/mod/booking/lib.php');
 
 /**
- * A plan step with one session per plan step offers the sessions as a choice instead of creating them all.
+ * A plan step with more than one session offers the sessions as a choice instead of creating them all.
  *
  * #2762 (2026-11-09, threads 9024/9078): in a plan of five numbered events the constructor gave every option all
  * five weekdays. Which date belongs to which step is not engine state, so the skill asks, with the sessions as
- * candidates and "all sessions" as a way out. Structural checks only: status, issue code, field, candidate count
- * and shape, the question from the language pack; nothing asked outside a plan, with another count, or with the
- * override.
+ * candidates and "all sessions" as a way out (thread 9104 slipped four of five dates past an equality check, so any
+ * number above one asks). Structural checks only: status, issue code, field, candidate count and shape, the question
+ * from the language pack; nothing asked outside a plan, with a single session, or with the override.
  *
  * @package    mod_booking
  * @category   test
@@ -133,13 +133,22 @@ final class wizard_create_option_plan_step_sessions_test extends booking_advance
     }
 
     /**
-     * Nothing is asked outside a plan, with another number of sessions, or with the override.
+     * Fewer sessions than steps still ask: four of five dates are as wrong for one event as five (thread 9104).
      */
-    public function test_no_choice_outside_a_plan_with_another_count_or_with_the_override(): void {
+    public function test_fewer_sessions_than_steps_still_offer_the_choice(): void {
+        $dto = $this->preflight($this->input(4), $this->step_two_of_five());
+        $codes = array_column($dto->issues, 'code');
+        $this->assertContains(self::CODE, $codes, json_encode($dto->issues));
+        $this->assertCount(5, $dto->issues[array_search(self::CODE, $codes, true)]['candidates'], 'four sessions and the way out');
+    }
+
+    /**
+     * Nothing is asked outside a plan, with a single session, or with the override.
+     */
+    public function test_no_choice_outside_a_plan_with_a_single_session_or_with_the_override(): void {
         $cases = [
             'no plan' => [$this->input(5), []],
             'one session' => [$this->input(1), $this->step_two_of_five()],
-            'three of five' => [$this->input(3), $this->step_two_of_five()],
             'override' => [$this->input(5, ['override' => ['all_sessions']]), $this->step_two_of_five()],
         ];
         foreach ($cases as $name => [$input, $planstep]) {
