@@ -141,8 +141,13 @@ class create_option_skill extends booking_skill_base implements
      */
     protected static function describe_scoped_creation_fields(array $properties): array {
         if (isset($properties['text'])) {
-            $properties['text']['description'] = 'Title in the user\'s language, taken from their own words for what '
-                . 'is offered (what it is, for whom or when if they say). Ask only if they say nothing of it.';
+            $properties['text']['description'] = 'Title in the user\'s words and language; ONE event only, with its own '
+                . 'number if they number them, never a list of titles. Ask only if nothing says it.';
+        }
+        if (isset($properties['optiondates'])) {
+            // Ticket #2762: n separately bookable events are n options; the sessions list belongs to ONE option.
+            $properties['optiondates']['description'] = 'Sessions of THIS one option as {coursestarttime, courseendtime} '
+                . 'pairs (ISO 8601). Separately bookable events are separate options: only this one\'s own date.';
         }
         if (isset($properties['activityquery'])) {
             // The phrase "In this or an earlier message" is constructor RULES 1 (frozen prompts); not repeated here.
@@ -165,8 +170,8 @@ class create_option_skill extends booking_skill_base implements
         $properties = array_merge([
             'text' => [
                 'type' => 'string',
-                'description' => 'Title in the user\'s language, taken from their own words for what is offered (what it is, '
-                    . 'for whom or when if they say). Ask only if they say nothing of it.',
+                'description' => 'Title in the user\'s words and language; ONE event only, with its own number if they '
+                    . 'number them, never a list of titles. Ask only if nothing says it.',
                 'required' => true,
             ],
             'override' => [
@@ -232,6 +237,10 @@ class create_option_skill extends booking_skill_base implements
                 'override', 'outputlang', 'activityquery', 'cmid', 'linkedcoursequery', 'headerimage_token',
             ]);
             $properties = array_intersect_key($properties, $allowed);
+            // Ticket #2762: the sessions list belongs to ONE option booked once; n separately bookable events are n
+            // options, each with its own date (same text as describe_scoped_creation_fields() for the siblings).
+            $properties['optiondates']['description'] = 'Sessions of THIS one option as {coursestarttime, courseendtime} '
+                . 'pairs (ISO 8601). Separately bookable events are separate options: only this one\'s own date.';
         }
 
         $schema = [
@@ -245,7 +254,12 @@ class create_option_skill extends booking_skill_base implements
                 . 'event series with fixed start/end times, numbered titles (for example "Lecture 1, Lecture 2, ..."), trainer '
                 . 'assignment, and capacity. New options are created as invisible by default and can be made visible later via '
                 . 'update.',
-            'is' => 'Options with fixed dates and times, including recurring series.',
+            'is' => 'Options with fixed dates and times; one option per separately bookable event, a series booked once '
+                . 'as one option with several dates.',
+            // Ticket #2762: the selector plans one create step per separately bookable event (planned_steps),
+            // instead of folding n numbered events into the sessions of one option.
+            'when' => 'A dated option; for n numbered events booked one by one (one per weekday), one create_option step '
+                . 'per event, each with its own date and number.',
             'not' => 'Slots (create_slotbooking_option); self-paced offers (create_selflearning_option); a price category '
                 . '(add_price_category); a course (course.create_course).',
             'readonly' => $this->is_read_only(),

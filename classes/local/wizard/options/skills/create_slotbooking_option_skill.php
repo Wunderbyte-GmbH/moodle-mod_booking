@@ -120,8 +120,8 @@ class create_slotbooking_option_skill extends create_option_skill {
             . 'Use it for consultation slots, court appointments, office-hour availability or any '
             . 'recurring bookable time window.';
         $schema['is'] = 'Reusable availability windows people pick a slot from.';
-        $schema['not'] = 'Dated events or numbered series like Lecture 1..n (create_option); self-paced duration offers '
-            . '(create_selflearning_option).';
+        $schema['not'] = 'Dated events, numbered series like Lecture 1..n or one option per weekday (create_option); '
+            . 'self-paced duration offers (create_selflearning_option).';
         $schema['properties'] = self::describe_scoped_creation_fields($properties);
 
         $schema['example_utterances'] = [
