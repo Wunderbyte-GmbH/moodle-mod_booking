@@ -155,6 +155,7 @@ $string['agent_booking_create_option_which_title_question'] = 'Welchen Titel sol
 $string['agent_booking_create_selflearning_missing_duration'] = 'Für den Selbstlerntyp bitte eine Dauer (in Sekunden) angeben.';
 $string['agent_booking_create_selflearning_missing_maxanswers'] = 'Für den Selbstlerntyp bitte die maximale Teilnehmerzahl angeben.';
 $string['agent_booking_create_selflearning_missing_teacher'] = 'Für den Selbstlerntyp bitte einen Lehrenden oder eine Lehrenden-E-Mail angeben.';
+$string['agent_booking_create_slotbooking_duration_equals_window'] = 'Die Slot-Dauer ({$a->slotminutes} Min.) deckt das gesamte tägliche Zeitfenster {$a->opening}-{$a->closing} ({$a->windowminutes} Min.) ab, es gäbe also nur einen Slot pro Tag. Ist eine kürzere Slot-Dauer gemeint (z. B. 30 Minuten), oder soll wirklich ein einziger Slot das ganze Fenster abdecken?';
 $string['agent_booking_create_slotbooking_missing_custom_duration'] = 'Für den benutzerdefinierten Slot-Typ bitte die maximale Slot-Dauer in Sekunden angeben (slot_custom_max_duration).';
 $string['agent_booking_create_slotbooking_missing_duration'] = 'Für den Slot-Buchungstyp bitte die Slot-Dauer in Minuten angeben (slot_duration_minutes).';
 $string['agent_booking_create_slotbooking_missing_participants'] = 'Für den Slot-Buchungstyp bitte angeben, wie viele Personen jeden Slot buchen können (slot_max_participants_per_slot).';
