@@ -588,6 +588,36 @@ abstract class base_skill implements skill_interface {
     }
 
     /**
+     * The step of a multi-step plan this command realizes, set by the engine right before preflight (#2762).
+     *
+     * Shape: {index, total, current, remaining[], completed[]} as {@see queue_manager::plan_step_context()} builds it;
+     * empty outside a plan. A skill may check its input against it (e.g. as many sessions as the plan has steps)
+     * and offer a choice instead of guessing. Engine state only; the skill never names other skills from it.
+     *
+     * @var array
+     */
+    private array $planstep = [];
+
+    /**
+     * Engine hook: the plan step this command realizes (empty outside a plan). Called by the preflight pipeline.
+     *
+     * @param array $planstep
+     * @return void
+     */
+    final public function set_plan_step(array $planstep): void {
+        $this->planstep = $planstep;
+    }
+
+    /**
+     * The plan step this command realizes, for the skill's own preflight checks.
+     *
+     * @return array {index:int,total:int,current:string,remaining:string[],completed:string[]} or []
+     */
+    protected function plan_step(): array {
+        return $this->planstep;
+    }
+
+    /**
      * DTO-free deep preflight. Concrete skills override THIS (returning a primitive
      * array via pass()/invalid()/confirmable()) instead of preflight(), so they never
      * name an engine DTO type. The default reproduces the structure-check behaviour.

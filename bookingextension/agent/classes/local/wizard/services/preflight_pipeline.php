@@ -33,6 +33,7 @@ use bookingextension_agent\local\wizard\services\security\skill_operating_contex
 use bookingextension_agent\local\wizard\services\security\context_target_unresolved_exception;
 use bookingextension_agent\local\wizard\dto\context_target_resolution;
 use bookingextension_agent\local\wizard\services\security\native_capability_guard;
+use bookingextension_agent\local\wizard\queue\queue_manager;
 
 /**
  * Unified preflight pipeline for mutating command batches.
@@ -528,7 +529,21 @@ class preflight_pipeline {
                 continue;
             }
 
-            $preflightresult = $skill->preflight($input, $operatingcontextid, $userid);
+            // Ticket #2762: the step of a multi-step plan this command realizes, for a skill that checks its input
+            // against the plan (declarative hook; reset right after, the registry shares the skill instances).
+            $planstep = $threadid > 0
+                ? (new queue_manager($this->store, $this->registry))->plan_step_context($threadid, true)
+                : [];
+            if (method_exists($skill, 'set_plan_step')) {
+                $skill->set_plan_step($planstep);
+            }
+            try {
+                $preflightresult = $skill->preflight($input, $operatingcontextid, $userid);
+            } finally {
+                if (method_exists($skill, 'set_plan_step')) {
+                    $skill->set_plan_step([]);
+                }
+            }
             foreach ($preflightresult->issuecodes as $code) {
                 if ($code !== '') {
                     $issuecodes[] = $code;
