@@ -154,6 +154,7 @@ $string['agent_booking_create_option_which_title_question'] = 'What title should
 $string['agent_booking_create_selflearning_missing_duration'] = 'For self-learning type, please provide a duration (in seconds).';
 $string['agent_booking_create_selflearning_missing_maxanswers'] = 'For self-learning type, please provide the maximum number of participants.';
 $string['agent_booking_create_selflearning_missing_teacher'] = 'For self-learning type, please provide a teacher or teacher email.';
+$string['agent_booking_create_slotbooking_duration_equals_window'] = 'The slot duration ({$a->slotminutes} min) covers the entire daily window {$a->opening}-{$a->closing} ({$a->windowminutes} min), which would create only one slot per day. Did you mean a shorter slot duration (e.g. 30 minutes), or do you really want a single slot covering the whole window?';
 $string['agent_booking_create_slotbooking_missing_custom_duration'] = 'For custom slot type, please provide the maximum slot duration in seconds (slot_custom_max_duration).';
 $string['agent_booking_create_slotbooking_missing_duration'] = 'For slot booking type, please provide the slot duration in minutes (slot_duration_minutes).';
 $string['agent_booking_create_slotbooking_missing_participants'] = 'For slot booking type, please provide how many people can book each slot (slot_max_participants_per_slot).';

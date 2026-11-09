@@ -986,7 +986,7 @@ class create_option_skill extends booking_skill_base implements
 
         // Slot-booking sanity (soft issues only).
         if ($resolvedtype === 'slotbooking') {
-            $slotissues = self::validate_slotbooking_sanity($input);
+            $slotissues = $this->validate_slotbooking_sanity($input, $lang);
             if (!empty($slotissues)) {
                 $issues = array_merge($issues, $slotissues);
             }
@@ -1282,9 +1282,10 @@ class create_option_skill extends booking_skill_base implements
      * Only checks things that cannot be expressed as hard validation errors.
      *
      * @param array $input
+     * @param string $lang Output language of the question (empty: current language).
      * @return array Array of issues.
      */
-    private static function validate_slotbooking_sanity(array $input): array {
+    private function validate_slotbooking_sanity(array $input, string $lang): array {
         $issues = [];
 
         // Check: slot_duration_minutes covers the entire daily window → only 1 slot per day.
@@ -1300,11 +1301,16 @@ class create_option_skill extends booking_skill_base implements
             if ($windowmins > 0 && $slotmins >= $windowmins) {
                 $issues[] = self::build_issue(
                     'SLOTBOOKING_DURATION_EQUALS_WINDOW',
-                    'The slot duration (' . $slotmins . ' min) covers the entire availability window '
-                        . $input['slot_opening_time'] . '-' . $input['slot_closing_time']
-                        . ' (' . $windowmins . ' min), which would create only 1 slot per day. '
-                        . 'Did you mean a shorter slot duration (e.g. 30 minutes), '
-                        . 'or do you really want just 1 slot covering the whole window?',
+                    $this->localized_string(
+                        'agent_booking_create_slotbooking_duration_equals_window',
+                        (object)[
+                            'slotminutes' => $slotmins,
+                            'opening' => (string)$input['slot_opening_time'],
+                            'closing' => (string)$input['slot_closing_time'],
+                            'windowminutes' => $windowmins,
+                        ],
+                        $lang
+                    ),
                     ['SET_SHORTER_SLOT_DURATION', 'CONFIRM_SINGLE_SLOT_PER_DAY']
                 );
             }
