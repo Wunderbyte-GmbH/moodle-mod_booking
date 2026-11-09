@@ -469,7 +469,8 @@ class planner_phase_service {
             $runtimeblocks['volatile'],
             $selectedskillisreadonly,
             [],
-            $selectedskillinput
+            $selectedskillinput,
+            $this->resolve_plan_step($threadid, $selectionstate)
         );
 
         $historycount = count(
@@ -958,6 +959,45 @@ class planner_phase_service {
             'lang' => (string)($selectionstate['lang'] ?? ''),
             'user_lang' => (string)($selectionstate['user_lang'] ?? ''),
         ];
+    }
+
+    /**
+     * The plan step this construction realizes, from engine state (#2762, thread 8947).
+     *
+     * Follow-up turns: the oldest planned placeholder is the step the decision service binds to the first real
+     * mutating command of the turn ({@see queue_manager::bind_next_placeholder()}), so it is the current step;
+     * the other planned placeholders remain, the succeeded ones are done. First turn of a plan (no placeholders
+     * yet): the selected command itself is the current step (unnamed - next_step_intent is not a reliable name for
+     * it) and the selector's planned_steps are the remaining ones. Single-step turns, also those after an earlier
+     * plan finished, yield an empty array and no block.
+     *
+     * @param int $threadid
+     * @param array $selectionstate
+     * @return array{current:string,remaining:string[],completed:string[]}|array{}
+     */
+    private function resolve_plan_step(int $threadid, array $selectionstate): array {
+        $queuesvc = new queue_manager($this->store, $this->registry);
+        $remaining = $queuesvc->get_planned_placeholder_intents($threadid);
+        $completed = $queuesvc->get_completed_placeholder_intents($threadid);
+        $current = '';
+        if (!empty($remaining)) {
+            $current = (string)array_shift($remaining);
+        } else {
+            // First turn of a plan: the current step is the selected command itself. It is NOT named from
+            // next_step_intent - the selector uses that field for the current step, for the first future step
+            // or for a collapsed rest (26 live outputs, 2026-11-09) - and the planned steps are listed as declared.
+            foreach ((array)($selectionstate['planned_steps'] ?? []) as $plannedstep) {
+                $intent = trim((string)(is_array($plannedstep) ? ($plannedstep['intent'] ?? '') : $plannedstep));
+                if ($intent !== '') {
+                    $remaining[] = $intent;
+                }
+            }
+            if (empty($remaining)) {
+                // No plan in flight and none declared: a single-step turn, also after an earlier plan finished.
+                return [];
+            }
+        }
+        return ['current' => $current, 'remaining' => array_values($remaining), 'completed' => $completed];
     }
 
     /**

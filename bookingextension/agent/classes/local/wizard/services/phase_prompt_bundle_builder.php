@@ -212,6 +212,8 @@ class phase_prompt_bundle_builder {
      *                     when no clarification chain is open. Selection phase only.
      * @param  array|null  $selectedskillinput Input contract of the selected skill ({required_input,
      *                     required_groups}); construction phase only, null when unknown (wave 30).
+     * @param  array       $planstep #2762: the plan step under construction ({current, remaining[], completed[]});
+     *                     construction phase only, empty for a single-step turn.
      * @return string
      */
     public function build_prompt(
@@ -226,7 +228,8 @@ class phase_prompt_bundle_builder {
         string $runtimestate = '',
         ?bool $selectedskillisreadonly = null,
         array $pendingclarification = [],
-        ?array $selectedskillinput = null
+        ?array $selectedskillinput = null,
+        array $planstep = []
     ): string {
         $trimmedmessages = $this->promptprofilesvc->select_history_messages($messages, $phase);
 
@@ -303,6 +306,34 @@ class phase_prompt_bundle_builder {
                 $lines[] = ($i + 1) . '. ' . $intent;
             }
             $parts[] = "[PENDING PLANNED STEPS]\n" . implode("\n", $lines);
+        }
+
+        // Ticket #2762 (thread 8947): the constructor of a multi-step plan never learned which step it was building and
+        // returned the first step with all dates six times. Engine state only: the step the next real command
+        // binds (the oldest planned placeholder; on the first turn the selector's own step), the steps still
+        // planned and the steps already executed. Construction phase only; the selector has [PENDING PLANNED STEPS].
+        $currentstep = trim((string)($planstep['current'] ?? ''));
+        $remainingsteps = array_values(array_filter(array_map('strval', (array)($planstep['remaining'] ?? []))));
+        $completedsteps = array_values(array_filter(array_map('strval', (array)($planstep['completed'] ?? []))));
+        if (
+            $phase === orchestrator_prompt_profile_service::PHASE_PARAMETER_CONSTRUCTION
+            && ($currentstep !== '' || !empty($remainingsteps))
+        ) {
+            $lines = ['This construction builds the command for ONE step of a multi-step plan; every other step of the plan '
+                . 'gets a construction of its own, later.'];
+            $lines[] = 'Current step: '
+                . ($currentstep !== '' ? $currentstep : 'the first step of the plan (the command built now)');
+            if (!empty($remainingsteps)) {
+                $lines[] = 'Remaining steps, each a separate command built later - nothing of them (their dates, titles or '
+                    . 'numbers) is part of this command:';
+                foreach ($remainingsteps as $i => $remaining) {
+                    $lines[] = ($i + 1) . '. ' . $remaining;
+                }
+            }
+            if (!empty($completedsteps)) {
+                $lines[] = 'Completed steps (already executed): ' . implode('; ', $completedsteps);
+            }
+            $parts[] = "[CURRENT PLAN STEP]\n" . implode("\n", $lines);
         }
 
         $reminder = $this->build_output_contract_reminder($phase, $autoconfirmmode, $selectedskillisreadonly, $selectedskillinput);

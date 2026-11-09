@@ -1095,6 +1095,31 @@ class queue_manager {
     }
 
     /**
+     * Intents of the placeholders whose step already executed (status succeeded), oldest first.
+     *
+     * Together with {@see self::get_planned_placeholder_intents()} this is the plan as the engine knows it,
+     * handed to the constructor so a step of a series is built as that step (#2762).
+     *
+     * @param int $threadid
+     * @return string[]
+     */
+    public function get_completed_placeholder_intents(int $threadid): array {
+        $intents = [];
+        foreach ($this->get_queue_items($threadid) as $item) {
+            if (
+                (string)($item['skill'] ?? '') === '__placeholder__'
+                && queue_status_policy::is_succeeded_status((string)($item['status'] ?? ''))
+            ) {
+                $intent = trim((string)($item['input']['intent'] ?? ''));
+                if ($intent !== '') {
+                    $intents[] = $intent;
+                }
+            }
+        }
+        return $intents;
+    }
+
+    /**
      * Build deterministic input signature plus debug metadata.
      *
      * @param string $skill
