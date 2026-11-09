@@ -517,8 +517,8 @@ abstract class report_skill_base extends core_skill_base {
     }
 
     /**
-     * Clarification asking which report source is meant, with the candidate list as options and
-     * as a side-panel card list (preview source C).
+     * Clarification asking which report source is meant, with the candidate list as options, as the
+     * engine's selectable candidates and as a side-panel card list (preview source C).
      *
      * @param string $lang
      * @param string $reference What the planner sent ('' when nothing).
@@ -534,6 +534,9 @@ abstract class report_skill_base extends core_skill_base {
             'severity' => 'needs_clarification',
             'message' => $message,
             'options' => $options,
+            // The engine offers the choices from `candidates` (#2763); the source list narrowed to the tokens of the
+            // reference the planner sent, the whole list when nothing matches or nothing was sent.
+            'candidates' => array_slice(self::narrow_choices($reference, $options), 0, self::MAX_CANDIDATES),
         ];
         $html = (new report_cards_renderer($lang))->render_sources($this->catalog()->list_sources(false));
         if ($html !== '') {
