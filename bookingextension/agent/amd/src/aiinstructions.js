@@ -2694,6 +2694,34 @@ const revealKeyEntryFallback = () => {
 };
 
 /**
+ * Render a setup screen template into the setup result area.
+ *
+ * @param {HTMLElement} target The result area.
+ * @param {string} template Template name.
+ * @param {Object} context Template context.
+ * @returns {Promise}
+ */
+const renderSetupResult = (target, template, context) => Templates.renderForPromise(template, context)
+    .then(({html, js}) => {
+        Templates.replaceNodeContents(target, html.trim(), js);
+        return null;
+    })
+    .catch(Notification.exception);
+
+/**
+ * Show the red error box in the setup result area.
+ *
+ * @param {HTMLElement} target The result area.
+ * @param {string} text The error text; URLs in it become links.
+ * @param {boolean} showicon Whether the error icon is shown before the text.
+ * @returns {Promise}
+ */
+const showSetupError = (target, text, showicon) => renderSetupResult(target, 'bookingextension_agent/setup_error', {
+    showicon,
+    messagehtml: renderTextWithLinks(text),
+});
+
+/**
  * Request a trial key and advance the setup wizard.
  *
  * @param {String} strategy Chosen provider path: 'wunderbyte', 'openai', or '' to auto-detect.
@@ -2730,11 +2758,7 @@ const requestTrialKey = (strategy) => {
         }
         if (ctx.trialResult) {
             ctx.trialResult.classList.remove('d-none');
-            ctx.trialResult.innerHTML =
-                '<div class="alert alert-danger mb-0">'
-                + '<i class="fa fa-exclamation-circle mr-2" aria-hidden="true"></i>'
-                + renderTextWithLinks((resp && resp.message) || ctx.trialFailedDefault)
-                + '</div>';
+            showSetupError(ctx.trialResult, (resp && resp.message) || ctx.trialFailedDefault, true);
         }
         revealKeyEntryFallback();
         buttons.forEach((btn) => {
@@ -2747,10 +2771,7 @@ const requestTrialKey = (strategy) => {
         }
         if (ctx.trialResult) {
             ctx.trialResult.classList.remove('d-none');
-            ctx.trialResult.innerHTML =
-                '<div class="alert alert-danger mb-0">'
-                    + renderTextWithLinks(err.message || ctx.trialUnexpectedError)
-                + '</div>';
+            showSetupError(ctx.trialResult, err.message || ctx.trialUnexpectedError, false);
         }
         revealKeyEntryFallback();
         buttons.forEach((btn) => {
@@ -2910,20 +2931,13 @@ const activateTrialContext = () => {
             ctx.trialResult.classList.remove('d-none');
             if (resp && resp.success) {
                 // Step 3 "Ready": explicit confirmation, then the user opens the agent themselves.
-                ctx.trialResult.innerHTML =
-                    '<div class="alert alert-success mb-0">'
-                    + '<i class="fa fa-check-circle mr-2" aria-hidden="true"></i>'
-                    + '<strong>' + escapeHtml(ctx.readyHeading) + '</strong> '
-                    + escapeHtml(ctx.readyBody)
-                    + '<div class="mt-2"><button type="button" id="booking-ai-open-agent-btn"'
-                    + ' class="btn btn-primary btn-sm">' + escapeHtml(ctx.openAgentLabel) + '</button></div>'
-                    + '</div>';
+                renderSetupResult(ctx.trialResult, 'bookingextension_agent/setup_ready', {
+                    heading: ctx.readyHeading,
+                    body: ctx.readyBody,
+                    openlabel: ctx.openAgentLabel,
+                });
             } else {
-                ctx.trialResult.innerHTML =
-                    '<div class="alert alert-danger mb-0">'
-                    + '<i class="fa fa-exclamation-circle mr-2" aria-hidden="true"></i>'
-                    + renderTextWithLinks((resp && resp.message) || ctx.trialFailedDefault)
-                    + '</div>';
+                showSetupError(ctx.trialResult, (resp && resp.message) || ctx.trialFailedDefault, true);
                 ctx.activateBtn.disabled = false;
             }
         }
@@ -2934,10 +2948,7 @@ const activateTrialContext = () => {
         }
         if (ctx.trialResult) {
             ctx.trialResult.classList.remove('d-none');
-            ctx.trialResult.innerHTML =
-                '<div class="alert alert-danger mb-0">'
-                + renderTextWithLinks(err.message || ctx.trialUnexpectedError)
-                + '</div>';
+            showSetupError(ctx.trialResult, err.message || ctx.trialUnexpectedError, false);
         }
         ctx.activateBtn.disabled = false;
         Notification.exception(err);
@@ -2979,11 +2990,7 @@ const configureFromExistingProvider = () => {
         }
         if (ctx.trialResult) {
             ctx.trialResult.classList.remove('d-none');
-            ctx.trialResult.innerHTML =
-                '<div class="alert alert-danger mb-0">'
-                + '<i class="fa fa-exclamation-circle mr-2" aria-hidden="true"></i>'
-                + renderTextWithLinks((resp && resp.message) || ctx.trialFailedDefault)
-                + '</div>';
+            showSetupError(ctx.trialResult, (resp && resp.message) || ctx.trialFailedDefault, true);
         }
         if (cloneBtn) {
             cloneBtn.disabled = false;
@@ -2995,10 +3002,7 @@ const configureFromExistingProvider = () => {
         }
         if (ctx.trialResult) {
             ctx.trialResult.classList.remove('d-none');
-            ctx.trialResult.innerHTML =
-                '<div class="alert alert-danger mb-0">'
-                + renderTextWithLinks(err.message || ctx.trialUnexpectedError)
-                + '</div>';
+            showSetupError(ctx.trialResult, err.message || ctx.trialUnexpectedError, false);
         }
         if (cloneBtn) {
             cloneBtn.disabled = false;
@@ -3526,6 +3530,8 @@ export const init = (jsModulesOrConfig = {}, config = null) => {
         'bookingextension_agent/embed_preview',
         'bookingextension_agent/followup_options',
         'bookingextension_agent/proposed_action',
+        'bookingextension_agent/setup_error',
+        'bookingextension_agent/setup_ready',
     ]);
 
     currentContextId = runtimeConfig.contextid || 0;
