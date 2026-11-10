@@ -1,0 +1,54 @@
+{{!
+    Confirmation cards of a proposed change, shown in the side pane before the user confirms it:
+    per action a title, a one-line summary and a table of the values that will be set.
+
+    Rendered by aiinstructions.js (preview type proposed_action).
+
+    @template bookingextension_agent/proposed_action
+
+    @package    bookingextension_agent
+    @copyright  2026 Wunderbyte GmbH <info@wunderbyte.at>
+    @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+
+    Context variables required for this template:
+    * actions - List of proposed actions, each with:
+      * title - Card title (may be empty).
+      * summary - One-line summary (may be empty).
+      * hasrows - Whether the action has value rows.
+      * rows - List of value rows, each with label and value.
+
+    Example context (json):
+    {
+        "actions": [
+            {
+                "title": "Create course",
+                "summary": "A new course is created.",
+                "hasrows": true,
+                "rows": [
+                    {"label": "Full name", "value": "Test course"},
+                    {"label": "Short name", "value": "TEST"}
+                ]
+            }
+        ]
+    }
+}}
+{{#actions}}
+<div class="booking-ai-proposed-action card mb-2">
+    <div class="card-body p-3">
+        {{#title}}<h6 class="mb-2">{{title}}</h6>{{/title}}
+        {{#summary}}<p class="text-muted small mb-2">{{summary}}</p>{{/summary}}
+        {{#hasrows}}
+        <table class="table table-sm mb-0">
+            <tbody>
+                {{#rows}}
+                <tr>
+                    <th class="font-weight-normal text-muted pr-3 align-top">{{label}}</th>
+                    <td>{{value}}</td>
+                </tr>
+                {{/rows}}
+            </tbody>
+        </table>
+        {{/hasrows}}
+    </div>
+</div>
+{{/actions}}
