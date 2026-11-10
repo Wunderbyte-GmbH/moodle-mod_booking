@@ -769,25 +769,22 @@ registerPreviewRenderer('proposed_action', async (payload) => {
         return '';
     }
 
-    const cards = actions.map((action) => {
-        const title = escapeHtml(action.title || '');
-        const summary = escapeHtml(action.summary || '');
-        const rows = Array.isArray(action.rows) ? action.rows : [];
-        const rowsHtml = rows.map((row) =>
-            '<tr>'
-            + `<th class="font-weight-normal text-muted pr-3 align-top">${escapeHtml(row.label || '')}</th>`
-            + `<td>${escapeHtml(row.value || '')}</td>`
-            + '</tr>'
-        ).join('');
-
-        return '<div class="booking-ai-proposed-action card mb-2"><div class="card-body p-3">'
-            + (title ? `<h6 class="mb-2">${title}</h6>` : '')
-            + (summary ? `<p class="text-muted small mb-2">${summary}</p>` : '')
-            + (rowsHtml ? `<table class="table table-sm mb-0"><tbody>${rowsHtml}</tbody></table>` : '')
-            + '</div></div>';
-    }).join('');
-
-    return cards;
+    const context = {
+        actions: actions.map((action) => {
+            const rows = (Array.isArray(action.rows) ? action.rows : []).map((row) => ({
+                label: String(row.label || ''),
+                value: String(row.value || ''),
+            }));
+            return {
+                title: String(action.title || ''),
+                summary: String(action.summary || ''),
+                hasrows: rows.length > 0,
+                rows,
+            };
+        }),
+    };
+    const {html} = await Templates.renderForPromise('bookingextension_agent/proposed_action', context);
+    return html.trim();
 });
 
 export const dispatchSkillPreview = async (previewDescriptor, contextid) => {
