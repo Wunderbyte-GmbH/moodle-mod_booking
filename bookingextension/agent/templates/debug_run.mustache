@@ -1,0 +1,33 @@
+{{!
+    Debug mode only: the debug messages that the skills of a run reported, as a grey box below the
+    result.
+
+    Rendered by aiinstructions.js as its own chat message.
+
+    @template bookingextension_agent/debug_run
+
+    @package    bookingextension_agent
+    @copyright  2026 Wunderbyte GmbH <info@wunderbyte.at>
+    @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+
+    Context variables required for this template:
+    * heading - Heading of the box.
+    * messages - List of debug messages, each with:
+      * html - The message as HTML: already escaped, with URLs turned into links.
+
+    Example context (json):
+    {
+        "heading": "Debug",
+        "messages": [
+            {"html": "Resolved option 12 from the query."}
+        ]
+    }
+}}
+<div class="booking-ai-run-status-inline alert alert-secondary mb-0">
+    <strong>{{heading}}</strong>
+    <ul class="mb-0">
+        {{#messages}}
+        <li>{{{html}}}</li>
+        {{/messages}}
+    </ul>
+</div>
