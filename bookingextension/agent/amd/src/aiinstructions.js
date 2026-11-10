@@ -50,9 +50,7 @@ const UI_STRING_KEYS = [
     ['ai_js_done', 'bookingextension_agent'],
     ['ai_js_missing_queue_item', 'bookingextension_agent'],
     ['ai_js_preview_error', 'bookingextension_agent'],
-    ['ai_js_proposed_actions', 'bookingextension_agent'],
     ['ai_js_request_failed', 'bookingextension_agent'],
-    ['ai_js_skill_label', 'bookingextension_agent'],
     ['ai_js_upload_failed', 'bookingextension_agent'],
     ['ai_attachment_remove', 'bookingextension_agent'],
     ['ai_welcome_empty', 'bookingextension_agent'],
@@ -735,18 +733,13 @@ registerPreviewRenderer('command_list', async (payload) => {
         return '';
     }
 
-    let items = commands.map((cmd) => {
-        const skill = escapeHtml(cmd.skill || '');
-        const inputDesc = escapeHtml(JSON.stringify(cmd.input || {}));
-        return `<li><strong>${escapeHtml(uiString('ai_js_skill_label'))}</strong> ${skill}`
-            + `<br/><small class="text-muted">${inputDesc}</small></li>`;
-    }).join('');
-
-    return '<div class="booking-ai-run-status-inline card mb-0">'
-        + '<div class="card-body p-3">'
-        + `<h6 class="mb-2">${escapeHtml(uiString('ai_js_proposed_actions'))}</h6>`
-        + `<ul class="mb-0 pl-3">${items}</ul>`
-        + '</div></div>';
+    const {html} = await Templates.renderForPromise('bookingextension_agent/command_list', {
+        commands: commands.map((cmd) => ({
+            skill: String(cmd.skill || ''),
+            input: JSON.stringify(cmd.input || {}),
+        })),
+    });
+    return html.trim();
 });
 
 // Anonymizer collision clarification (#2226): two decision chips for the suspect word.
@@ -3527,6 +3520,7 @@ export const init = (jsModulesOrConfig = {}, config = null) => {
     // Load the chat panel templates now, so rendering them later needs no extra round trip.
     Templates.prefetchTemplates([
         'bookingextension_agent/ambiguity_options',
+        'bookingextension_agent/command_list',
         'bookingextension_agent/embed_preview',
         'bookingextension_agent/followup_options',
         'bookingextension_agent/proposed_action',
