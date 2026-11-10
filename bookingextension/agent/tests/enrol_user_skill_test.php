@@ -539,5 +539,4 @@ final class enrol_user_skill_test extends advanced_testcase {
         $this->assertNotSame('pass', $result['status']);
         $this->assertContains('ENROL_ALREADY_ENROLLED', (array)($result['issue_codes'] ?? []));
     }
-
 }
