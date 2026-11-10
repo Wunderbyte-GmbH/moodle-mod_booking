@@ -145,7 +145,14 @@ final class llm_boundary_masking_test extends advanced_testcase {
             'errors' => ['Command #1: I was about to interpret "Herbst" as a person\'s name.'],
         ]);
 
-        $records = $DB->get_records('bx_agent_ai_messages', ['threadid' => $threadid, 'role' => 'assistant'], 'id DESC', '*', 0, 1);
+        $records = $DB->get_records(
+            'bx_agent_ai_messages',
+            ['threadid' => $threadid, 'role' => 'assistant'],
+            'id DESC',
+            '*',
+            0,
+            1
+        );
         $record = reset($records);
         $this->assertNotFalse($record);
         $this->assertStringNotContainsString('Herbst', (string)$record->content);
@@ -177,7 +184,14 @@ final class llm_boundary_masking_test extends advanced_testcase {
             'message' => $text,
         ]);
 
-        $records = $DB->get_records('bx_agent_ai_messages', ['threadid' => $threadid, 'role' => 'assistant'], 'id DESC', '*', 0, 1);
+        $records = $DB->get_records(
+            'bx_agent_ai_messages',
+            ['threadid' => $threadid, 'role' => 'assistant'],
+            'id DESC',
+            '*',
+            0,
+            1
+        );
         $record = reset($records);
         $this->assertSame($text, (string)$record->content, 'Unmapped single words must be stored as written.');
         $after = count((array)($store->get_thread_metadata_value($threadid, 'privacy_anon_map')['entries'] ?? []));
@@ -200,7 +214,14 @@ final class llm_boundary_masking_test extends advanced_testcase {
             'errors' => ['Two people match: Annabel Maierhofer.'],
         ]);
 
-        $records = $DB->get_records('bx_agent_ai_messages', ['threadid' => $threadid, 'role' => 'assistant'], 'id DESC', '*', 0, 1);
+        $records = $DB->get_records(
+            'bx_agent_ai_messages',
+            ['threadid' => $threadid, 'role' => 'assistant'],
+            'id DESC',
+            '*',
+            0,
+            1
+        );
         $record = reset($records);
         $this->assertStringNotContainsString('Maierhofer', (string)$record->content);
         $this->assertStringNotContainsString('Maierhofer', (string)$record->structuredjson);
