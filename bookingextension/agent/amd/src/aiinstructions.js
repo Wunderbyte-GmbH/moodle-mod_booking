@@ -243,64 +243,34 @@ const renderMessageDebugJson = (meta) => {
 };
 
 /**
- * Render collapsible LLM debug logs (source, request, response).
+ * Template context for the collapsible LLM debug logs of the thread (source, request, response).
  *
  * @param {Array} debugLogs Array of debug log objects {id, timecreated, source, success, requesttext, responsetext}
- * @returns {string}
+ * @returns {Object|null} Context for bookingextension_agent/debug_logs, or null when there is nothing to show.
  */
-const renderDebugLogs = (debugLogs) => {
+const debugLogsContext = (debugLogs) => {
     if (!debugModeEnabled || !Array.isArray(debugLogs) || debugLogs.length === 0) {
-        return '';
+        return null;
     }
 
-    const plainTextLogs = formatDebugLogsForClipboard(debugLogs);
-
-    let html = '<details class="booking-ai-debug-logs">'
-        + `<summary>${escapeHtml(uiString('ai_js_debug_logs_heading', debugLogs.length))}</summary>`
-        + '<div class="p-3">';
-
-    // Add copy button
-    html += '<button type="button" '
-        + 'class="btn btn-sm btn-outline-secondary mb-2 booking-ai-copy-debug-logs" '
-        + `title="${escapeHtml(uiString('ai_js_debug_copy_title'))}">`
-        + `📋 ${escapeHtml(uiString('ai_js_debug_copy'))}`
-        + '</button>'
-        + `<pre class="booking-ai-debug-logs-plain d-none">${escapeHtml(plainTextLogs)}</pre>`;
-
-    debugLogs.forEach((entry, index) => {
-        const source = String(entry.source || '').trim();
-        const success = Number(entry.success) === 1 ? '✓' : '✗';
-        const timestamp = entry.timecreated
-            ? new Date(entry.timecreated * 1000).toLocaleTimeString()
-            : 'N/A';
-        const borderClass = Number(entry.success) === 1 ? 'border-success' : 'border-danger';
-
-        html += `<div class="booking-ai-debug-log-entry mb-3 p-2 border rounded ${borderClass}">`;
-        html += `<strong>${escapeHtml(uiString('ai_js_debug_entry', index + 1))}</strong> [${success}] `
-            + `<code>${escapeHtml(source)}</code> `
-            + `<small class="text-muted">${timestamp}</small>`;
-
-        const requesttext = String(entry.requesttext || '').trim();
-        if (requesttext) {
-            html += '<details class="ml-3 mt-2">'
-                + `<summary>${escapeHtml(uiString('ai_js_debug_request'))}</summary>`
-                + `<pre class="bg-light p-2 small mb-0"><code>${escapeHtml(requesttext)}</code></pre>`
-                + '</details>';
-        }
-
-        const responsetext = String(entry.responsetext || '').trim();
-        if (responsetext) {
-            html += '<details class="ml-3 mt-2">'
-                + `<summary>${escapeHtml(uiString('ai_js_debug_response'))}</summary>`
-                + `<pre class="bg-light p-2 small mb-0"><code>${escapeHtml(responsetext)}</code></pre>`
-                + '</details>';
-        }
-
-        html += '</div>';
-    });
-
-    html += '</div></details>';
-    return html;
+    return {
+        threadheading: uiString('ai_js_debug_thread_logs'),
+        logsheading: uiString('ai_js_debug_logs_heading', debugLogs.length),
+        copytitle: uiString('ai_js_debug_copy_title'),
+        copylabel: uiString('ai_js_debug_copy'),
+        plaintext: formatDebugLogsForClipboard(debugLogs),
+        requestlabel: uiString('ai_js_debug_request'),
+        responselabel: uiString('ai_js_debug_response'),
+        entries: debugLogs.map((entry, index) => ({
+            label: uiString('ai_js_debug_entry', index + 1),
+            mark: Number(entry.success) === 1 ? '✓' : '✗',
+            borderclass: Number(entry.success) === 1 ? 'border-success' : 'border-danger',
+            source: String(entry.source || '').trim(),
+            time: entry.timecreated ? new Date(entry.timecreated * 1000).toLocaleTimeString() : 'N/A',
+            requesttext: String(entry.requesttext || '').trim(),
+            responsetext: String(entry.responsetext || '').trim(),
+        })),
+    };
 };
 
 /**
@@ -1518,37 +1488,26 @@ const buildFriendlyRunMessage = (status, message, results = []) => {
 };
 
 /**
- * Build a skill-authored debug bubble for developer mode.
+ * Template context for the skill-authored debug bubble in developer mode.
  *
- * @param {string} status
- * @param {string} message
  * @param {Array} results
- * @returns {string}
+ * @returns {Object|null} Context for bookingextension_agent/debug_run, or null when there is nothing to show.
  */
-const buildDebugRunHtml = (status, message, results = []) => {
+const debugRunContext = (results = []) => {
     if (!debugModeEnabled) {
-        return '';
+        return null;
     }
 
-    const debugMessages = [];
+    const messages = [];
     (Array.isArray(results) ? results : []).forEach((result) => {
         const debugMessage = String((result && result.debugmessage) || '').trim();
         if (debugMessage !== '') {
-            debugMessages.push(debugMessage);
+            messages.push({html: renderTextWithLinks(debugMessage)});
         }
     });
 
-    if (debugMessages.length > 0) {
-        const items = debugMessages.map((debugMessage) => `<li>${renderTextWithLinks(debugMessage)}</li>`).join('');
-        return '<div class="booking-ai-run-status-inline alert alert-secondary mb-0">'
-            + `<strong>${escapeHtml(uiString('ai_js_debug_heading'))}</strong>`
-            + `<ul class="mb-0">${items}</ul>`
-            + '</div>';
-    }
-
-    // No skill-authored debug payload available.
-    // Avoid duplicating the already rendered assistant message in debug mode.
-    return '';
+    // Without a skill-authored debug payload there is no box: the assistant message is already shown.
+    return messages.length > 0 ? {heading: uiString('ai_js_debug_heading'), messages} : null;
 };
 
 /**
@@ -1770,9 +1729,9 @@ const showRunStatus = (status, message, results = []) => {
         appendFriendlyAssistantMessage(friendlyMessage);
     }
 
-    const debugHtml = buildDebugRunHtml(status, message, results);
-    if (debugHtml) {
-        appendMessageHtml('assistant', debugHtml, {
+    const debugContext = debugRunContext(results);
+    if (debugContext) {
+        appendTemplateMessage('bookingextension_agent/debug_run', debugContext, {
             response_type: 'execution_debug',
             status: String(status || ''),
             source: 'showRunStatus',
@@ -1921,32 +1880,29 @@ const refreshThreadDebugLogs = () => {
             debugLogs = [];
         }
 
-        if (Array.isArray(debugLogs) && debugLogs.length > 0) {
-            const debugHtml = renderDebugLogs(debugLogs);
-            if (debugHtml) {
-                const list = document.getElementById('booking-ai-messages');
-                if (list) {
-                    // Remove any existing debug logs panel
-                    const existingPanel = list.querySelector('.booking-ai-all-debug-logs');
-                    if (existingPanel) {
-                        existingPanel.remove();
-                    }
-
-                    // Add new debug logs panel
-                    const div = document.createElement('div');
-                    div.classList.add(
-                        'booking-ai-msg', 'assistant',
-                        'booking-ai-all-debug-logs', 'mt-3'
-                    );
-                    div.innerHTML = '<div class="alert alert-secondary mb-0">'
-                        + `<strong>📋 ${escapeHtml(uiString('ai_js_debug_thread_logs'))}</strong>`
-                        + `${debugHtml}`
-                        + '</div>';
-                    list.appendChild(div);
-                    list.scrollTop = list.scrollHeight;
-                }
-            }
+        const context = debugLogsContext(debugLogs);
+        return context ? Templates.renderForPromise('bookingextension_agent/debug_logs', context) : null;
+    }).then((rendered) => {
+        const list = document.getElementById('booking-ai-messages');
+        if (!rendered || !list) {
+            return null;
         }
+
+        // Replace any existing debug logs panel.
+        const existingPanel = list.querySelector('.booking-ai-all-debug-logs');
+        if (existingPanel) {
+            existingPanel.remove();
+        }
+
+        const div = document.createElement('div');
+        div.classList.add(
+            'booking-ai-msg', 'assistant',
+            'booking-ai-all-debug-logs', 'mt-3'
+        );
+        list.appendChild(div);
+        Templates.replaceNodeContents(div, rendered.html.trim(), rendered.js);
+        list.scrollTop = list.scrollHeight;
+        return null;
     }).catch(() => {
         // Silently fail if API not available or debug mode off
     });
@@ -2371,9 +2327,9 @@ const sendMessage = (message, resume = false) => {
                 );
                 renderIntoMessage(clarificationDiv, 'bookingextension_agent/ambiguity_options', ambiguityContext);
 
-                const debugHtml = buildDebugRunHtml('completed', messageText, results);
-                if (debugHtml) {
-                    appendMessageHtml('assistant', debugHtml, {
+                const debugContext = debugRunContext(results);
+                if (debugContext) {
+                    appendTemplateMessage('bookingextension_agent/debug_run', debugContext, {
                         response_type: 'execution_debug',
                         status: 'completed',
                         source: 'ai_send_message',
@@ -2418,13 +2374,9 @@ const sendMessage = (message, resume = false) => {
                 meta
             );
 
-            const debugHtml = buildDebugRunHtml(
-                isError ? 'failed' : 'completed',
-                String(resp.displaymessage || resp.message || ''),
-                results
-            );
-            if (debugHtml) {
-                appendMessageHtml('assistant', debugHtml, {
+            const debugContext = debugRunContext(results);
+            if (debugContext) {
+                appendTemplateMessage('bookingextension_agent/debug_run', debugContext, {
                     response_type: 'execution_debug',
                     status: isError ? 'failed' : 'completed',
                     source: 'ai_send_message',
@@ -3521,6 +3473,8 @@ export const init = (jsModulesOrConfig = {}, config = null) => {
     Templates.prefetchTemplates([
         'bookingextension_agent/ambiguity_options',
         'bookingextension_agent/command_list',
+        'bookingextension_agent/debug_logs',
+        'bookingextension_agent/debug_run',
         'bookingextension_agent/embed_preview',
         'bookingextension_agent/followup_options',
         'bookingextension_agent/proposed_action',

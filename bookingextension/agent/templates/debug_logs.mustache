@@ -1,0 +1,77 @@
+{{!
+    Debug mode only: the LLM debug logs of the current thread. A collapsible list with a button that
+    copies all logs as plain text, and per LLM call its source, result, time, request and response.
+
+    Rendered by aiinstructions.js into its own chat message (refresh of the thread debug logs).
+
+    @template bookingextension_agent/debug_logs
+
+    @package    bookingextension_agent
+    @copyright  2026 Wunderbyte GmbH <info@wunderbyte.at>
+    @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+
+    Context variables required for this template:
+    * threadheading - Heading of the whole box.
+    * logsheading - Summary of the collapsible list (with the number of entries).
+    * copytitle - Tooltip of the copy button.
+    * copylabel - Label of the copy button.
+    * plaintext - All logs as plain text, copied by the copy button.
+    * requestlabel - Summary of a request block.
+    * responselabel - Summary of a response block.
+    * entries - List of log entries, each with:
+      * label - Entry heading, e.g. "Entry 1".
+      * mark - ✓ or ✗.
+      * borderclass - border-success or border-danger.
+      * source - The source of the LLM call.
+      * time - The time of the call.
+      * requesttext - The request (may be empty).
+      * responsetext - The response (may be empty).
+
+    Example context (json):
+    {
+        "threadheading": "All LLM debug logs (thread)",
+        "logsheading": "LLM debug logs (1)",
+        "copytitle": "Copy all debug logs to clipboard",
+        "copylabel": "Copy all logs",
+        "plaintext": "LLM DEBUG LOGS",
+        "requestlabel": "Request",
+        "responselabel": "Response",
+        "entries": [
+            {
+                "label": "Entry 1",
+                "mark": "✓",
+                "borderclass": "border-success",
+                "source": "orchestrator",
+                "time": "10:15:00",
+                "requesttext": "PROMPT",
+                "responsetext": "RESPONSE"
+            }
+        ]
+    }
+}}
+<div class="alert alert-secondary mb-0">
+    <strong>📋 {{threadheading}}</strong><details class="booking-ai-debug-logs">
+        <summary>{{logsheading}}</summary>
+        <div class="p-3">
+            <button type="button" class="btn btn-sm btn-outline-secondary mb-2 booking-ai-copy-debug-logs" title="{{copytitle}}">📋 {{copylabel}}</button>
+            <pre class="booking-ai-debug-logs-plain d-none">{{plaintext}}</pre>
+            {{#entries}}
+            <div class="booking-ai-debug-log-entry mb-3 p-2 border rounded {{borderclass}}">
+                <strong>{{label}}</strong> [{{mark}}] <code>{{source}}</code> <small class="text-muted">{{time}}</small>
+                {{#requesttext}}
+                <details class="ml-3 mt-2">
+                    <summary>{{requestlabel}}</summary>
+                    <pre class="bg-light p-2 small mb-0"><code>{{requesttext}}</code></pre>
+                </details>
+                {{/requesttext}}
+                {{#responsetext}}
+                <details class="ml-3 mt-2">
+                    <summary>{{responselabel}}</summary>
+                    <pre class="bg-light p-2 small mb-0"><code>{{responsetext}}</code></pre>
+                </details>
+                {{/responsetext}}
+            </div>
+            {{/entries}}
+        </div>
+    </details>
+</div>
