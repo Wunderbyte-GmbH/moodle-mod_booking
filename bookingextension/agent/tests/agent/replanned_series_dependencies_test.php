@@ -153,8 +153,11 @@ final class replanned_series_dependencies_test extends abstract_agent_testcase {
 
         $payload = $service->confirm($contextid, 0, $threadid, (int)$this->teacher->id, $bid, false);
         $this->assertContains('DEPENDENCY_WAITING', (array)($payload['issue_codes'] ?? []));
-        $this->assertSame($code, (string)($intents->get($threadid)['confirmationcode'] ?? ''),
-            'intent survives a waiting dependency');
+        $this->assertSame(
+            $code,
+            (string)($intents->get($threadid)['confirmationcode'] ?? ''),
+            'intent survives a waiting dependency'
+        );
 
         $queuesvc->update_status($threadid, $aid, 'succeeded');
         $payload = $service->confirm($contextid, 0, $threadid, (int)$this->teacher->id, $bid, false);
