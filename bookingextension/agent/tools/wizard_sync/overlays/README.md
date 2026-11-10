@@ -118,8 +118,8 @@ the AI provider:
 | Soft | Only data the wizard resolves from the site is anonymised |
 | Off | No anonymisation before the AI provider |
 
-Pseudonyms are resolved back only for display in the user's own chat. The runtime treats a missing value as *Off*,
-so check the setting on upgraded sites where the settings page has never been saved.
+Pseudonyms are resolved back only for display in the user's own chat. If the setting has no value (for example on an
+upgraded site where the settings page has never been saved) or an unknown value, the wizard uses *Strict*.
 
 ## Documentation
 
