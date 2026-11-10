@@ -70,7 +70,7 @@ class booking_bookit {
      * @param int|null $viewparam the view currently being rendered (MOD_BOOKING_VIEW_PARAM_*), null if unknown
      * @param array $additionaloptionids additional option ids to be passed to the button (e.g. for elective booking)
      * @param bool $hidesidebar if true, the sidebar is hidden
-     * @param string $calendarstyle 'compact' shows the calendar of local_entities in the slot booking
+     * @param string $calendarstyle 'compact' shows the compact calendar in the slot booking
      * @return string
      */
     public static function render_bookit_button(
@@ -126,7 +126,7 @@ class booking_bookit {
      * @param int|null $viewparam the view currently being rendered (MOD_BOOKING_VIEW_PARAM_*), null if unknown
      * @param array $additionaloptionids additional option ids to be passed to the button (e.g. for elective booking)
      * @param bool $hidesidebar if true, the sidebar is hidden
-     * @param string $calendarstyle 'compact' shows the calendar of local_entities in the slot booking
+     * @param string $calendarstyle 'compact' shows the compact calendar in the slot booking
      * @return array
      */
     public static function render_bookit_template_data(
