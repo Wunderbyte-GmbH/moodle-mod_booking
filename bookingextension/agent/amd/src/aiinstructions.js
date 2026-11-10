@@ -54,8 +54,6 @@ const UI_STRING_KEYS = [
     ['ai_js_preview_error', 'bookingextension_agent'],
     ['ai_js_proposed_actions', 'bookingextension_agent'],
     ['ai_js_request_failed', 'bookingextension_agent'],
-    ['ai_js_result_email', 'bookingextension_agent'],
-    ['ai_js_result_name', 'bookingextension_agent'],
     ['ai_js_skill_label', 'bookingextension_agent'],
     ['ai_js_upload_failed', 'bookingextension_agent'],
     ['ai_attachment_remove', 'bookingextension_agent'],
@@ -1787,78 +1785,14 @@ const showRunStatus = (status, message, results = []) => {
 
 
 
+    // Every caller passes 'completed' or 'failed', and for these buildFriendlyRunMessage() always
+    // returns text: the result reads as one calm message in the chat and in the side pane.
     if (friendlyMessage && (status === 'completed' || status === 'failed')) {
         setSidePreviewHtml(
             `<div class="booking-ai-run-status-inline alert alert-light mb-0">`
             + `${renderTextWithLinks(friendlyMessage)}</div>`
         );
-        return;
     }
-
-    // Errors/failures are rendered in the same neutral style as any other message —
-    // never red. A failed run reads as a normal, calm notice, not an alarm.
-    const alertClass = (status === 'completed') ? 'alert-success'
-                     : (status === 'failed')    ? 'alert-light'
-                     : 'alert-info';
-    const statusLabel = escapeHtml(String(status || 'info'));
-    let html = `<div class="booking-ai-run-status-inline alert ${alertClass} mb-0">`;
-    if (Array.isArray(results) && results.length > 0) {
-        const items = results.map((result) => {
-            const properties = Array.isArray(result.properties) ? result.properties : [];
-            if (properties.length > 0) {
-                return properties.map((property) => {
-                    const label = escapeHtml(String(property.label || property.name || '-'));
-                    return `<li>${label}</li>`;
-                }).join('');
-            }
-
-            const actions = Array.isArray(result.actions) ? result.actions : [];
-            if (actions.length > 0) {
-                return actions.map((action) => {
-                    const label = escapeHtml(String(action.label || action.skill || '-'));
-                    return `<li>${label}</li>`;
-                }).join('');
-            }
-
-            const resultStatus = escapeHtml(String(result.status || status));
-            const resultDetail = renderTextWithLinks(String(result.detail || ''));
-
-            const options = Array.isArray(result.options) ? result.options : [];
-            let optionsHtml = '';
-            if (options.length > 0) {
-                optionsHtml = options.map((option) => {
-                    const optionName = escapeHtml(String(option.name || '-'));
-                    const optionId = Number(option.id || 0);
-                    const optionLink = escapeHtml(String(option.link || '#'));
-                    return `<a href="${optionLink}" target="_blank" rel="noopener noreferrer">${optionName} (${optionId})</a>`;
-                }).join('<br>');
-            }
-
-            let extraHtml = '';
-            if (result.fullname) {
-                extraHtml += `<div><strong>${escapeHtml(uiString('ai_js_result_name'))}</strong> `
-                    + `${escapeHtml(String(result.fullname))}</div>`;
-            }
-            if (result.email) {
-                extraHtml += `<div><strong>${escapeHtml(uiString('ai_js_result_email'))}</strong> `
-                    + `${escapeHtml(String(result.email))}</div>`;
-            }
-
-            return `<li><strong>${resultStatus}</strong>${resultDetail ? `: ${resultDetail}` : ''}`
-                + `${extraHtml ? `<div class="mt-1">${extraHtml}</div>` : ''}`
-                + `${optionsHtml ? `<div class="mt-1">${optionsHtml}</div>` : ''}`
-                + '</li>';
-        }).join('');
-        html += `<ul class="mb-0">${items}</ul>`;
-    } else {
-        html += `<strong>${statusLabel}</strong>: ${renderTextWithLinks(message || status)}`;
-    }
-    html += '</div>';
-    appendMessageHtml('assistant', html);
-
-    // Keep execution output visible in the dedicated preview pane.
-    // If a richer option/table preview arrives later, it will replace this content.
-    setSidePreviewHtml(html);
 };
 
 /**
