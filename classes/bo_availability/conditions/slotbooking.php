@@ -270,7 +270,7 @@ class slotbooking implements bo_condition {
      * @param int $userid user id
      * @param array $additionaloptionids further option ids to merge into the calendar (sidebar filter)
      * @param bool $hidesidebar suppress the sidebar even when multiple option ids are given
-     * @param string $calendarstyle 'compact' shows the calendar of local_entities, '' the standard calendar
+     * @param string $calendarstyle 'compact' shows the compact calendar, '' the standard calendar
      * @return array
      */
     public function render_page(
@@ -289,17 +289,20 @@ class slotbooking implements bo_condition {
             'multioption' => $ismultioption,
         ];
 
-        // The compact calendar is the calendar of local_entities, so it is only offered when that
-        // plugin is there. Anything but 'compact' keeps the standard calendar.
-        $compact = $calendarstyle === 'compact'
-            && class_exists(\local_entities\output\entity_view::class);
+        // Anything but 'compact' keeps the standard calendar. The compact calendar ships with
+        // mod_booking and follows the Moodle calendar: first day of the week and time format.
+        $compact = $calendarstyle === 'compact';
         $data['calendarstyle'] = $compact ? 'compact' : '';
         if ($compact) {
-            // Shown like on the unavailability page of local_entities.
-            $display = \local_entities\output\entity_view::calendar_display_settings();
+            global $CFG;
+            require_once($CFG->dirroot . '/calendar/lib.php');
+            $timeformat = get_user_preferences('calendar_timeformat');
+            if (empty($timeformat)) {
+                $timeformat = get_config(null, 'calendar_site_timeformat');
+            }
             $data['calendarlocale'] = str_replace('_', '-', current_language());
-            $data['calendarfirstday'] = (int)$display['calendarfirstday'];
-            $data['calendarhour12'] = (int)$display['calendartimeformat'] === 12 ? 1 : 0;
+            $data['calendarfirstday'] = (int)calendar_get_starting_weekday();
+            $data['calendarhour12'] = $timeformat === CALENDAR_TF_12 ? 1 : 0;
         }
 
         if ($ismultioption) {
