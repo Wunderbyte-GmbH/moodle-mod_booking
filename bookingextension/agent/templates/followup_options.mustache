@@ -1,0 +1,36 @@
+{{!
+    Follow-up suggestions below a result: an optional message and one button per suggestion; clicking a
+    button sends its query as the next message. A skill provides them in its result (suggestions,
+    followupmessage).
+
+    Rendered by aiinstructions.js as its own assistant bubble.
+
+    @template bookingextension_agent/followup_options
+
+    @package    bookingextension_agent
+    @copyright  2026 Wunderbyte GmbH <info@wunderbyte.at>
+    @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+
+    Context variables required for this template:
+    * message - Optional text above the buttons (may be empty).
+    * suggestions - List of suggestions, each with:
+      * query - The text that is sent when the button is clicked (also the tooltip).
+      * label - The button text.
+
+    Example context (json):
+    {
+        "message": "What would you like to do next?",
+        "suggestions": [
+            {"query": "Show the bookings of this option", "label": "Show bookings"},
+            {"query": "Book Anna into this option", "label": "Book Anna"}
+        ]
+    }
+}}
+<div class="booking-ai-followup-options mt-3 p-3 border rounded bg-light">
+    {{#message}}<div class="font-weight-bold mb-2">{{message}}</div>{{/message}}
+    <div class="d-flex flex-wrap">
+        {{#suggestions}}
+        <button type="button" class="btn btn-sm btn-outline-secondary mr-2 mb-2 booking-ai-followup-option" data-query="{{query}}" title="{{query}}">{{label}}</button>
+        {{/suggestions}}
+    </div>
+</div>
