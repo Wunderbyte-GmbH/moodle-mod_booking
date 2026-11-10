@@ -1,6 +1,6 @@
-# Booking Wizard (local_wizard)
+# Wizard (local_wizard)
 
-The Booking Wizard is an AI assistant for Moodle. People describe in their own words and their own
+The Wizard is an AI assistant for Moodle. People describe in their own words and their own
 language what they want to do, and the wizard answers or carries it out: it finds content and people,
 sets up courses and activities, creates quizzes and quiz questions, builds and shares reports, and
 diagnoses access, enrolment and notification problems. Every action runs with the permissions of the
@@ -30,7 +30,7 @@ also works with booking options, booking rules and bookings.
    layout: `public/local/wizard`), or install the ZIP through *Site administration > Plugins >
    Install plugins*.
 2. Run the upgrade: `php admin/cli/upgrade.php` or open *Site administration > Notifications*.
-3. Review the settings under *Site administration > Plugins > Local plugins > Booking extension: Booking Wizard* (the
+3. Review the settings under *Site administration > Plugins > Local plugins > Wizard* (the
    wizard is enabled by default), and enable the skills that change data in *Skill governance*.
 
 If the bookingextension agent of mod_booking is installed on the same site, local_wizard takes over:
@@ -100,7 +100,7 @@ documentation question skill `wizard.explain_docs` is not activated automaticall
 
 ## Administration pages
 
-Under *Site administration > Plugins > Local plugins > Booking Wizard*: the main settings, skill
+Under *Site administration > Plugins > Local plugins > Wizard*: the main settings, skill
 governance, site search governance, the skill selection debug tool, and the AI benchmark report and
 settings.
 
