@@ -679,12 +679,15 @@ const setSidePreviewHtml = async (html, js) => {
             ev.preventDefault();
             const url = String(btn.getAttribute('data-embed-url') || '');
             const title = String(btn.getAttribute('data-embed-title') || '');
-            preview.innerHTML = '<div class="d-flex justify-content-between align-items-center mb-1">'
-                + '<strong class="small">' + escapeHtml(title) + '</strong>'
-                + '<a href="' + escapeHtml(url) + '" target="_blank" class="small">'
-                + escapeHtml(url.replace(/^https?:\/\/[^/]+/, '')) + '</a></div>'
-                + '<iframe src="' + escapeHtml(url) + '#toolbar=0&navpanes=0&view=FitH"'
-                + ' style="width:100%;height:60vh;border:1px solid #dee2e6;"></iframe>';
+            Templates.renderForPromise('bookingextension_agent/embed_preview', {
+                title,
+                url,
+                path: url.replace(/^https?:\/\/[^/]+/, ''),
+            }).then(({html, js}) => {
+                // Trim the template's trailing newline so the pane holds exactly the rendered markup.
+                Templates.replaceNodeContents(preview, html.trim(), js);
+                return null;
+            }).catch(Notification.exception);
         });
     }
     if (String(html || '').trim() !== '') {
