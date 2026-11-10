@@ -1,0 +1,34 @@
+{{!
+    Clickable choices below a clarification message: when a request matches several entries, each
+    choice is a button; clicking it sends its query as the next message.
+
+    Rendered by aiinstructions.js into the clarification bubble, after its text.
+
+    @template bookingextension_agent/ambiguity_options
+
+    @package    bookingextension_agent
+    @copyright  2026 Wunderbyte GmbH <info@wunderbyte.at>
+    @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+
+    Context variables required for this template:
+    * options - List of choices, each with:
+      * query - The text that is sent when the button is clicked (also the tooltip).
+      * label - The button text.
+
+    Example context (json):
+    {
+        "options": [
+            {"query": "booking rules", "label": "Booking rules"},
+            {"query": "booking options", "label": "Booking options"}
+        ]
+    }
+}}
+<div class="booking-ai-ambiguity-options mt-3 p-3 border rounded bg-light">
+    <div class="font-weight-bold mb-1">{{#str}}ai_js_ambiguity_heading, bookingextension_agent{{/str}}</div>
+    <div class="small text-muted mb-2">{{#str}}ai_js_ambiguity_intro, bookingextension_agent{{/str}}</div>
+    <div class="d-flex flex-wrap">
+        {{#options}}
+        <button type="button" class="btn btn-sm btn-outline-primary mr-2 mb-2 booking-ai-ambiguity-option" data-query="{{query}}" title="{{query}}">{{label}}</button>
+        {{/options}}
+    </div>
+</div>

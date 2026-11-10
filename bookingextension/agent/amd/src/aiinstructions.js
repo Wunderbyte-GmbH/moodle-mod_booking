@@ -29,8 +29,6 @@ import {getString, getStrings} from 'core/str';
 
 /** Strings of the chat panel as [key, component]; init() loads them once into uiStrings. */
 const UI_STRING_KEYS = [
-    ['ai_js_ambiguity_heading', 'bookingextension_agent'],
-    ['ai_js_ambiguity_intro', 'bookingextension_agent'],
     ['ai_js_copied', 'bookingextension_agent'],
     ['ai_js_copy_failed', 'bookingextension_agent'],
     ['ai_js_debug_copy', 'bookingextension_agent'],
@@ -479,82 +477,98 @@ const maybeShowTrialTokenInvalidAlert = (response, errors = [], issueCodes = [])
 };
 
 /**
- * Render clickable ambiguity options below a clarification message.
+ * Template context for the clickable ambiguity options below a clarification message.
  *
  * @param {Array<Object>} options
- * @returns {string}
+ * @returns {Object|null} Context for bookingextension_agent/ambiguity_options, or null when no option is usable.
  */
-const renderAmbiguityOptionsHtml = (options = []) => {
+const ambiguityOptionsContext = (options = []) => {
     const entries = Array.isArray(options) ? options : [];
-    if (entries.length === 0) {
-        return '';
-    }
-
-    const buttons = entries.map((entry) => {
+    const choices = entries.map((entry) => {
         const query = String((entry && entry.query) || '').trim();
         const title = String((entry && entry.title) || '').trim();
         const label = String((entry && entry.label) || title || query).trim();
-        if (query === '' || label === '') {
-            return '';
-        }
+        return {query, label};
+    }).filter((choice) => choice.query !== '' && choice.label !== '');
 
-        return '<button type="button" class="btn btn-sm btn-outline-primary mr-2 mb-2 booking-ai-ambiguity-option"'
-            + ` data-query="${escapeHtml(query)}"`
-            + ` title="${escapeHtml(query)}">${escapeHtml(label)}</button>`;
-    }).filter((button) => button !== '').join('');
-
-    if (buttons === '') {
-        return '';
-    }
-
-    return '<div class="booking-ai-ambiguity-options mt-3 p-3 border rounded bg-light">'
-        + `<div class="font-weight-bold mb-1">${escapeHtml(uiString('ai_js_ambiguity_heading'))}</div>`
-        + `<div class="small text-muted mb-2">${escapeHtml(uiString('ai_js_ambiguity_intro'))}</div>`
-        + `<div class="d-flex flex-wrap">${buttons}</div>`
-        + '</div>';
+    return choices.length > 0 ? {options: choices} : null;
 };
 
 /**
- * Render clickable follow-up suggestions below a completed assistant response.
+ * Template context for the clickable follow-up suggestions below a completed assistant response.
  *
  * @param {Array<Object>} results
- * @returns {string}
+ * @returns {Object|null} Context for bookingextension_agent/followup_options, or null when there is no usable suggestion.
  */
-const renderFollowUpSuggestionsHtml = (results = []) => {
+const followUpSuggestionsContext = (results = []) => {
     const entries = Array.isArray(results) ? results : [];
     const resultWithSuggestions = entries.find(
         (entry) => Array.isArray(entry && entry.suggestions) && entry.suggestions.length > 0
     );
     if (!resultWithSuggestions) {
-        return '';
+        return null;
     }
 
-    const suggestions = Array.isArray(resultWithSuggestions.suggestions) ? resultWithSuggestions.suggestions : [];
-    const buttons = suggestions.map((entry) => {
+    const suggestions = resultWithSuggestions.suggestions.map((entry) => {
         const query = String((entry && entry.query) || '').trim();
         const label = String((entry && entry.label) || query).trim();
-        if (query === '' || label === '') {
-            return '';
-        }
-
-        return '<button type="button" class="btn btn-sm btn-outline-secondary mr-2 mb-2 booking-ai-followup-option"'
-            + ` data-query="${escapeHtml(query)}"`
-            + ` title="${escapeHtml(query)}">${escapeHtml(label)}</button>`;
-    }).filter((button) => button !== '').join('');
-
-    if (buttons === '') {
-        return '';
+        return {query, label};
+    }).filter((suggestion) => suggestion.query !== '' && suggestion.label !== '');
+    if (suggestions.length === 0) {
+        return null;
     }
 
-    const followUpMessage = String((resultWithSuggestions && resultWithSuggestions.followupmessage) || '').trim();
-    const introHtml = followUpMessage !== ''
-        ? `<div class="font-weight-bold mb-2">${escapeHtml(followUpMessage)}</div>`
-        : '';
+    return {
+        message: String(resultWithSuggestions.followupmessage || '').trim(),
+        suggestions,
+    };
+};
 
-    return '<div class="booking-ai-followup-options mt-3 p-3 border rounded bg-light">'
-        + introHtml
-        + `<div class="d-flex flex-wrap">${buttons}</div>`
-        + '</div>';
+/**
+ * Render a template and append it to the bubble of a chat message that is already on the page.
+ *
+ * The message keeps its place in the chat while the template renders; a hidden message (see
+ * appendTemplateMessage) is shown once its content is in.
+ *
+ * @param {HTMLElement|null} messageDiv The chat message element (from appendMessageHtml).
+ * @param {string} template Template name.
+ * @param {Object} context Template context.
+ * @returns {Promise}
+ */
+const renderIntoMessage = (messageDiv, template, context) => {
+    const bubble = messageDiv ? messageDiv.querySelector('.bubble') : null;
+    if (!bubble) {
+        return Promise.resolve();
+    }
+    return Templates.renderForPromise(template, context)
+        .then(({html, js}) => {
+            Templates.appendNodeContents(bubble, html.trim(), js);
+            messageDiv.classList.remove('d-none');
+            const list = document.getElementById('booking-ai-messages');
+            if (list) {
+                list.scrollTop = list.scrollHeight;
+            }
+            return null;
+        })
+        .catch(Notification.exception);
+};
+
+/**
+ * Append an assistant message whose whole content is a rendered template.
+ *
+ * The message is added at once, hidden, so it keeps its place in the chat; it shows when the
+ * template has rendered (no empty bubble flashes up).
+ *
+ * @param {string} template Template name.
+ * @param {Object} context Template context.
+ * @param {Object|null} meta Compact debug metadata.
+ */
+const appendTemplateMessage = (template, context, meta = null) => {
+    const messageDiv = appendMessageHtml('assistant', '', meta);
+    if (messageDiv) {
+        messageDiv.classList.add('d-none');
+        renderIntoMessage(messageDiv, template, context);
+    }
 };
 
 /**
@@ -1773,9 +1787,9 @@ const showRunStatus = (status, message, results = []) => {
         });
     }
 
-    const followUpHtml = renderFollowUpSuggestionsHtml(results);
-    if (followUpHtml && (status === 'completed' || status === 'failed')) {
-        appendMessageHtml('assistant', followUpHtml, {
+    const followUpContext = followUpSuggestionsContext(results);
+    if (followUpContext && (status === 'completed' || status === 'failed')) {
+        appendTemplateMessage('bookingextension_agent/followup_options', followUpContext, {
             response_type: 'execution_followup',
             status: String(status || ''),
             source: 'showRunStatus_followup',
@@ -2344,12 +2358,13 @@ const sendMessage = (message, resume = false) => {
             }
             const ambiguityOptions = parseJsonObjectList(resp.ambiguityoptionsjson || '[]');
             const messageText = String(resp.displaymessage || resp.message || '');
-            const ambiguityOptionsHtml = renderAmbiguityOptionsHtml(ambiguityOptions);
+            const ambiguityContext = ambiguityOptionsContext(ambiguityOptions);
 
-            if (ambiguityOptionsHtml !== '' && resp.response_type === 'clarification') {
-                appendMessageHtml(
+            if (ambiguityContext && resp.response_type === 'clarification') {
+                // The clarification text shows at once; the option buttons follow into the same bubble.
+                const clarificationDiv = appendMessageHtml(
                     'assistant',
-                    `${renderAssistantMessageHtml(messageText)}${ambiguityOptionsHtml}`,
+                    renderAssistantMessageHtml(messageText),
                     {
                         response_type: resp.response_type || '',
                         threadid: Number(resp.threadid || currentThreadId || 0),
@@ -2361,6 +2376,7 @@ const sendMessage = (message, resume = false) => {
                         time: (new Date()).toISOString(),
                     }
                 );
+                renderIntoMessage(clarificationDiv, 'bookingextension_agent/ambiguity_options', ambiguityContext);
 
                 const debugHtml = buildDebugRunHtml('completed', messageText, results);
                 if (debugHtml) {
@@ -2372,9 +2388,9 @@ const sendMessage = (message, resume = false) => {
                     });
                 }
 
-                const followUpHtml = renderFollowUpSuggestionsHtml(results);
-                if (followUpHtml) {
-                    appendMessageHtml('assistant', followUpHtml, {
+                const followUpContext = followUpSuggestionsContext(results);
+                if (followUpContext) {
+                    appendTemplateMessage('bookingextension_agent/followup_options', followUpContext, {
                         response_type: 'execution_followup',
                         status: 'completed',
                         source: 'ai_send_message_followup',
@@ -2423,9 +2439,9 @@ const sendMessage = (message, resume = false) => {
                 });
             }
 
-            const followUpHtml = renderFollowUpSuggestionsHtml(results);
-            if (followUpHtml) {
-                appendMessageHtml('assistant', followUpHtml, {
+            const followUpContext = followUpSuggestionsContext(results);
+            if (followUpContext) {
+                appendTemplateMessage('bookingextension_agent/followup_options', followUpContext, {
                     response_type: 'execution_followup',
                     status: isError ? 'failed' : 'completed',
                     source: 'ai_send_message_followup',
@@ -3504,6 +3520,13 @@ export const init = (jsModulesOrConfig = {}, config = null) => {
     }
 
     const uiStringsLoaded = loadUiStrings();
+    // Load the chat panel templates now, so rendering them later needs no extra round trip.
+    Templates.prefetchTemplates([
+        'bookingextension_agent/ambiguity_options',
+        'bookingextension_agent/embed_preview',
+        'bookingextension_agent/followup_options',
+        'bookingextension_agent/proposed_action',
+    ]);
 
     currentContextId = runtimeConfig.contextid || 0;
     currentThreadId = runtimeConfig.threadid || 0;
