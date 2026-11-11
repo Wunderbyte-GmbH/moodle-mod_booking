@@ -997,9 +997,16 @@ class create_option_skill extends booking_skill_base implements
 
         // Ticket #2762: a step of a multi-step plan that carries several sessions has most likely been given the
         // dates of other steps too ("one event per weekday" read as the sessions of each option; thread 9104 got
-        // four of five). Which date belongs to which step is not engine state, so the skill offers the sessions
-        // as a choice (P6a) instead of guessing or creating the option with every date; the override all_sessions
-        // keeps them all on this step when a series inside a plan really is one option.
+        // four of five). With exactly one session per plan step, each on a day of its own, the step number is
+        // engine state and decides: step n keeps session n (thread 9232: the re-planned construction repeated the
+        // same five dates, so the question always reached the user); the confirmation card shows the date.
+        // In every other case which date belongs to which step is not engine state, so the skill offers the
+        // sessions as a choice (P6a) instead of guessing or creating the option with every date. The override
+        // all_sessions keeps them all on this step when a series inside a plan really is one option.
+        $ownsession = $this->plan_step_own_session($input, $overrides);
+        if ($ownsession !== null) {
+            $input['optiondates'] = [$ownsession];
+        }
         $choice = $this->plan_step_sessions_choice($input, $overrides, $lang);
         if ($choice !== null) {
             return $this->invalid([$choice]);
@@ -1511,6 +1518,47 @@ class create_option_skill extends booking_skill_base implements
         }
 
         return trim((string)$value) !== '';
+    }
+
+    /**
+     * The session of a plan step when the step carries exactly one session per plan step (#2762).
+     *
+     * Structural check only: the engine's plan step ({@see base_skill::plan_step()}) says this command is step
+     * index of total. If the input has exactly total sessions and they lie on total different days, the sessions
+     * in the order of their start are the events of the plan in the order of its steps, and step index keeps
+     * session index. Any other count, two sessions on one day, an unreadable start or the override all_sessions
+     * leave the input as it is (the choice below then asks).
+     *
+     * @param array $input Normalized input.
+     * @param string[] $overrides Normalized override tokens.
+     * @return array|null The session of this step, or null.
+     */
+    private function plan_step_own_session(array $input, array $overrides): ?array {
+        $planstep = method_exists($this, 'plan_step') ? $this->plan_step() : [];
+        $total = (int)($planstep['total'] ?? 0);
+        $index = (int)($planstep['index'] ?? 0);
+        $sessions = isset($input['optiondates']) && is_array($input['optiondates']) ? array_values($input['optiondates']) : [];
+        if ($total < 2 || $index < 1 || $index > $total || count($sessions) !== $total) {
+            return null;
+        }
+        if (in_array('all_sessions', $overrides, true)) {
+            return null;
+        }
+        $bystart = [];
+        $days = [];
+        foreach ($sessions as $session) {
+            $start = is_array($session) ? strtotime(trim((string)($session['coursestarttime'] ?? ''))) : false;
+            if ($start === false || isset($bystart[$start])) {
+                return null;
+            }
+            $bystart[$start] = $session;
+            $days[date('Y-m-d', $start)] = true;
+        }
+        if (count($days) !== $total) {
+            return null;
+        }
+        ksort($bystart);
+        return array_values($bystart)[$index - 1];
     }
 
     /**
