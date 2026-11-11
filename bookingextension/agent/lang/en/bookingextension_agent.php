@@ -243,7 +243,7 @@ $string['agent_diagnose_permissions_siteadmin_alsoroles'] = 'Has this capability
 $string['agent_diagnose_permissions_siteadmin_onlyadmin'] = 'Has this capability only as site administrator; no role grants it here. Role overrides, including PROHIBIT, do not apply to site administrators.';
 $string['agent_diagnose_permissions_siteadmin_refused'] = 'Site administrator, but this capability is still refused here (for example by a context lock that also applies to administrators).';
 $string['agent_display_name'] = 'Booking Wizard';
-$string['agent_enabled'] = 'Enable Booking Wizard <span class="badge bg-danger text-light"><i class="fa fa-flask" aria-hidden="true"></i> Experimental</span>';
+$string['agent_enabled'] = 'Enable Booking Wizard';
 $string['agent_enabled_desc'] = 'If disabled, all other Booking Wizard settings are hidden.';
 $string['agent_enrol_role_ambiguous'] = 'Several roles match "{$a->query}". Which one should the person get? Candidates: {$a->candidates}.';
 $string['agent_executor_run_already_executed'] = 'Run already executed (idempotency key matched).';
@@ -765,7 +765,6 @@ $string['aitrial_support_firewall'] = 'Sorry, that did not work. One possible re
 $string['aitrial_token_expired_subscription'] = 'Your trial token has expired. You can buy a subscription here: {$a}';
 $string['aitrial_token_received'] = 'Your trial token has been received from Wunderbyte. You can now activate AI for this course and this course module.';
 $string['aitrial_unexpected_response'] = 'Unexpected response from server.';
-$string['badge_experimental'] = '<span class="badge bg-danger text-light"><i class="fa fa-flask" aria-hidden="true"></i> Experimental</span>';
 $string['benchmark_actions'] = 'Actions';
 $string['benchmark_back_all_runs'] = '← All Runs';
 $string['benchmark_baseline_label'] = 'Baseline Label';

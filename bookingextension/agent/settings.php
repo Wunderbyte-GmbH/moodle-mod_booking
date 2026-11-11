@@ -91,8 +91,7 @@ if ($adminroot->fulltree) {
                 // The "Booking 10" pill is mod_booking's branding: shown only where mod_booking provides it, so the
                 // page also builds in an engine installed without mod_booking.
                 . (get_string_manager()->string_exists('badge:booking10', 'mod_booking')
-                    ? ' ' . get_string('badge:booking10', 'mod_booking') : '')
-                . ' ' . get_string('badge_experimental', 'bookingextension_agent'),
+                    ? ' ' . get_string('badge:booking10', 'mod_booking') : ''),
             get_string('aisettings_desc', 'bookingextension_agent')
         )
     );
