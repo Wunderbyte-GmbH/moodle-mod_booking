@@ -14,7 +14,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * The compact slot calendar: shows the slots of a slot booking in the calendar of local_entities
+ * The compact slot calendar: shows the slots of a slot booking in its own FullCalendar
  * (day, week and month view) instead of the month grid and the day timeline of slotCalendarPicker.
  *
  * It answers the same calls condition/slotBooking.js makes on slotCalendarPicker (setSlotFilter,
@@ -32,9 +32,9 @@
 import {get_strings as getStrings} from 'core/str';
 import Config from 'core/config';
 
-// The stylesheet of the calendar library. The unavailability page loads it with $PAGE->requires->css,
-// which is too late inside a shortcode (the page head is already printed), so it is added here.
-const STYLESHEET = '/local/entities/js/main.css';
+// The stylesheet of the calendar library shipped with mod_booking. $PAGE->requires->css is too late
+// inside a shortcode (the page head is already printed), so it is added here.
+const STYLESHEET = '/mod/booking/thirdparty/fullcalendar/main.min.css';
 
 // Below this width per shown day the week view gets too narrow to read, so the day view is opened.
 const MIN_DAY_COLUMN_PX = 110;
@@ -73,7 +73,7 @@ const loadStylesheet = () => {
 };
 
 /**
- * The texts the calendar of local_entities needs, from the same strings its own page uses.
+ * The texts the calendar needs.
  *
  * @returns {Promise<Object>}
  */
@@ -82,11 +82,11 @@ const loadLabels = async() => {
         {key: 'today', component: 'core'},
         {key: 'week', component: 'core'},
         {key: 'month', component: 'core'},
-        {key: 'unavailability_allday', component: 'local_entities'},
-        {key: 'unavailability_day', component: 'local_entities'},
-        {key: 'unavailability_showweek', component: 'local_entities'},
-        {key: 'unavailability_showmonth', component: 'local_entities'},
-        {key: 'unavailability_more', component: 'local_entities'},
+        {key: 'slot_compactcalendar_allday', component: 'mod_booking'},
+        {key: 'slot_compactcalendar_day', component: 'mod_booking'},
+        {key: 'slot_compactcalendar_showweek', component: 'mod_booking'},
+        {key: 'slot_compactcalendar_showmonth', component: 'mod_booking'},
+        {key: 'slot_compactcalendar_more', component: 'mod_booking'},
     ]);
     return {today, week, month, allday, day, showweek, showmonth, more};
 };
@@ -159,7 +159,7 @@ export class CompactCalendarPicker {
      * Constructor. Use init() instead, it loads the calendar library first.
      *
      * @param {HTMLElement} root where the calendar is drawn
-     * @param {Function} CalendarView the calendar of local_entities
+     * @param {Function} CalendarView the calendar (mod_booking/slotbooking/calendar_view)
      * @param {Object} labels texts of the calendar
      * @param {Object} options see init()
      */
@@ -192,7 +192,7 @@ export class CompactCalendarPicker {
     }
 
     /**
-     * Fit the calendar of local_entities to the slots: only the hours and week days that have
+     * Fit the calendar to the slots: only the hours and week days that have
      * slots, own content of the entries, a moveable choice for user-defined slots, and the view
      * that fits the space.
      */
@@ -435,7 +435,7 @@ export class CompactCalendarPicker {
                     end: new Date(Number(range.end) * 1000),
                     display: 'background',
                     classNames: ['booking-slot-compact', 'booking-slot--booked'],
-                    // The calendar of local_entities does not let a range be marked over 'occupation'.
+                    // The calendar does not let a range be marked over 'occupation'.
                     extendedProps: {kind: 'occupation'},
                 });
             });
@@ -623,10 +623,11 @@ export class CompactCalendarPicker {
  * @returns {Promise<CompactCalendarPicker>}
  */
 export const init = async(root, options) => {
-    // The path to the calendar library is set by the config module of local_entities.
-    await import('local_entities/config');
+    // The calendar library ships with mod_booking, it has to be loaded before the calendar is drawn.
+    const {load} = await import('mod_booking/slotbooking/fullcalendar');
+    await load();
     // Moodle builds a module that only has a default export so that it returns the class itself.
-    const calendarModule = await import('local_entities/unavailability/calendar_view');
+    const calendarModule = await import('mod_booking/slotbooking/calendar_view');
     const CalendarView = calendarModule.default || calendarModule;
     loadStylesheet();
     const labels = await loadLabels();
