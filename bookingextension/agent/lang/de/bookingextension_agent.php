@@ -241,7 +241,7 @@ $string['agent_diagnose_permissions_siteadmin_alsoroles'] = 'Hat diese Berechtig
 $string['agent_diagnose_permissions_siteadmin_onlyadmin'] = 'Hat diese Berechtigung nur als Website-Administrator/in; keine Rolle erteilt sie hier. Rollen-Überschreibungen, auch PROHIBIT, gelten nicht für Website-Administrator/innen.';
 $string['agent_diagnose_permissions_siteadmin_refused'] = 'Website-Administrator/in, aber diese Berechtigung wird hier trotzdem verweigert (zum Beispiel durch eine Kontextsperre, die auch für Administrator/innen gilt).';
 $string['agent_display_name'] = 'Booking Wizard';
-$string['agent_enabled'] = 'Booking Wizard aktivieren <span class="badge bg-danger text-light"><i class="fa fa-flask" aria-hidden="true"></i> Experimentell</span>';
+$string['agent_enabled'] = 'Booking Wizard aktivieren';
 $string['agent_enabled_desc'] = 'Wenn deaktiviert, werden alle weiteren Booking-Wizard-Einstellungen ausgeblendet.';
 $string['agent_enrol_role_ambiguous'] = 'Mehrere Rollen passen zu „{$a->query}“. Welche soll die Person erhalten? Zur Auswahl: {$a->candidates}.';
 $string['agent_executor_run_already_executed'] = 'Ausführung bereits erfolgt (Idempotenzschlüssel stimmt überein).';
@@ -747,7 +747,6 @@ $string['aitrial_support_firewall'] = 'Entschuldigung, das hat nicht funktionier
 $string['aitrial_token_expired_subscription'] = 'Ihr Trial-Token ist abgelaufen. Hier können Sie ein Abonnement kaufen: {$a}';
 $string['aitrial_token_received'] = 'Ihr Trial-Token wurde von Wunderbyte empfangen. Sie können jetzt AI für diesen Kurs und dieses Kursmodul aktivieren.';
 $string['aitrial_unexpected_response'] = 'Unerwartete Serverantwort.';
-$string['badge_experimental'] = '<span class="badge bg-danger text-light"><i class="fa fa-flask" aria-hidden="true"></i> Experimentell</span>';
 $string['benchmark_actions'] = 'Aktionen';
 $string['benchmark_back_all_runs'] = '← Alle Durchläufe';
 $string['benchmark_baseline_label'] = 'Baseline-Label';

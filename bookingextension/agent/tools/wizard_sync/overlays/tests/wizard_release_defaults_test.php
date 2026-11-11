@@ -20,10 +20,10 @@ use advanced_testcase;
 use local_wizard\local\wizard\services\security\authorization_service;
 
 /**
- * Release defaults of the standalone Wizard: switched on, no experimental badge.
+ * Release defaults of the standalone Wizard: switched on.
  *
  * This file is an OVERLAY maintained in the source plugin under tools/wizard_sync/overlays/; it exists only in the
- * generated local_wizard artifact. The bundled engine keeps its own defaults (off, experimental badge).
+ * generated local_wizard artifact. The bundled engine keeps its own default (off).
  *
  * @package    local_wizard
  * @covers     ::xmldb_local_wizard_upgrade
@@ -50,18 +50,6 @@ final class wizard_release_defaults_test extends advanced_testcase {
     public function test_install_stores_switch_on(): void {
         $this->assertSame('1', get_config('local_wizard', 'agent_enabled'));
         $this->assertTrue(authorization_service::is_agent_enabled());
-    }
-
-    /**
-     * Neither the switch label nor the settings badge carries the experimental badge markup.
-     */
-    public function test_no_experimental_badge(): void {
-        foreach (['en', 'de'] as $lang) {
-            foreach (['agent_enabled', 'badge_experimental'] as $key) {
-                $string = get_string_manager()->get_string($key, 'local_wizard', null, $lang);
-                $this->assertStringNotContainsString('badge', $string, "{$lang}/{$key}");
-            }
-        }
     }
 
     /**
