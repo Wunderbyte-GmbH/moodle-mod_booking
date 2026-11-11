@@ -17,6 +17,7 @@
 namespace mod_booking\checklist;
 
 use mod_booking\singleton_service;
+use mod_booking\local\pdf_download;
 use local_wunderbyte_table\local\pdf\pdfa_pdf;
 use mod_booking\booking_option;
 use stdClass;
@@ -158,7 +159,7 @@ class checklist_generator {
      */
     public function download_pdf_from_html(string $html) {
         $pdf = $this->create_pdf_from_html($html);
-        $pdf->Output('checklist.pdf', 'D');
+        pdf_download::send($pdf, 'checklist.pdf');
     }
 
     /**
