@@ -207,9 +207,10 @@ final class condition_previouslybooked_completion_description_test extends booki
      */
     public function test_strings_exist_in_all_three_languages(): void {
         $manager = get_string_manager();
-        foreach (['bookednotcompleted', 'bookednotcompletedfull', 'completednotavailable', 'completedfullnotavailable',
+        $suffixes = ['bookednotcompleted', 'bookednotcompletedfull', 'completednotavailable', 'completedfullnotavailable',
             'completednotavailableany', 'completedfullnotavailableany', 'completednotavailableall',
-            'completedfullnotavailableall'] as $suffix) {
+            'completedfullnotavailableall'];
+        foreach ($suffixes as $suffix) {
             foreach (['en', 'de', 'de_gs'] as $lang) {
                 $this->assertTrue(
                     $manager->string_exists('bocondpreviouslybooked' . $suffix, 'mod_booking'),
