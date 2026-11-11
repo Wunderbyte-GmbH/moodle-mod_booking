@@ -257,9 +257,49 @@ final class plan_step_construction_context_test extends abstract_agent_testcase 
     }
 
     /**
-     * The preflight pipeline hands the plan step to the skill: five sessions in step 1 of a five-step plan end in
-     * the skill's session choice (OPTIONDATES_PLAN_STEP_CHOICE), the engine re-plans once with the candidates, and
-     * the construction that picks one session is staged. Needs the create_option skill of mod_booking on this
+     * The preflight pipeline hands the plan step to the skill: five sessions on five days in step 1 of a five-step
+     * plan are one session per step, so the skill keeps the first one and the step is staged with it in the same
+     * round, without a question. Needs the create_option skill of mod_booking on this checkout.
+     */
+    public function test_plan_step_reaches_the_preflight_and_one_session_per_step_is_staged(): void {
+        $this->setUser($this->teacher);
+        $_POST['sesskey'] = sesskey();
+        [$store, , $threadid] = $this->build_runtime();
+        $threadid = (int)$threadid;
+        $contextid = (int)context_module::instance((int)$this->booking->cmid)->id;
+        $monday = strtotime('next monday');
+        $alldates = [];
+        for ($i = 0; $i < 5; $i++) {
+            $day = date('Y-m-d', $monday + $i * DAYSECS);
+            $alldates[] = ['coursestarttime' => $day . 'T11:00:00', 'courseendtime' => $day . 'T13:00:00'];
+        }
+        $this->install_scripted_planner([
+            $this->selector_skill_call('mod_booking.create_option', self::FUTURE, 'create_option_MooDuell_1'),
+            $this->constructor_confirmation_request('mod_booking.create_option', [
+                'text' => 'MooDuell 1', 'maxanswers' => 40, 'optiondates' => $alldates,
+            ]),
+        ]);
+        $turn = ai_send_message::execute(
+            $contextid,
+            'Nächste Woche haben wir fünf getrennt buchbare Veranstaltungen, fortlaufend nummeriert "MooDuell 1" etc., '
+                . 'an jedem Werktag von 11 bis 13h, 40 Leute dürfen kommen.',
+            $threadid
+        );
+        $this->assertSame('confirmation_request', (string)($turn['response_type'] ?? ''), json_encode($turn));
+        $this->assertSame('SC', $this->scripted_phase_sequence_from_actions(), 'no re-plan round');
+        $queuesvc = new queue_manager($store);
+        $item = $this->newest_real_item($queuesvc, $threadid, 'blocked_confirmation');
+        // The prepared input is what the card shows and the executor runs (queue_command_mapper).
+        $staged = array_values((array)($item['prepared_input']['optiondates'] ?? []));
+        $this->assertCount(1, $staged, 'the staged step carries one session');
+        $this->assertSame($alldates[0]['coursestarttime'], (string)($staged[0]['coursestarttime'] ?? ''), 'the first one');
+        $this->assertSame(self::FUTURE, $queuesvc->get_planned_placeholder_intents($threadid), 'the plan is untouched');
+    }
+
+    /**
+     * Four sessions in step 1 of a five-step plan are not one per step: the skill's session choice
+     * (OPTIONDATES_PLAN_STEP_CHOICE) ends the round, the engine re-plans once with the candidates, and the
+     * construction that picks one session is staged. Needs the create_option skill of mod_booking on this
      * checkout (its preflight carries the check since #2762).
      */
     public function test_plan_step_reaches_the_preflight_and_the_session_choice_is_replanned(): void {
@@ -270,7 +310,7 @@ final class plan_step_construction_context_test extends abstract_agent_testcase 
         $contextid = (int)context_module::instance((int)$this->booking->cmid)->id;
         $monday = strtotime('next monday');
         $alldates = [];
-        for ($i = 0; $i < 5; $i++) {
+        for ($i = 0; $i < 4; $i++) {
             $day = date('Y-m-d', $monday + $i * DAYSECS);
             $alldates[] = ['coursestarttime' => $day . 'T11:00:00', 'courseendtime' => $day . 'T13:00:00'];
         }
