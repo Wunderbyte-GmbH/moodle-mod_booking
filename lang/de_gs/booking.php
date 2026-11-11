@@ -54,6 +54,7 @@ $string['agent_booking_diagnose_reason_maxperuser_exceeded_other'] = 'Die ausgew
 $string['agent_booking_diagnose_reason_option_invisible'] = 'Diese Buchungsoption ist auf unsichtbar gestellt und für normale Nutzer/innen nicht sichtbar.';
 $string['agent_booking_diagnose_reason_option_invisible_other'] = 'Die ausgewählte Buchungsoption ist auf unsichtbar gestellt und für normale Nutzer/innen nicht sichtbar.';
 $string['agent_booking_resolve_user_ambiguous'] = 'Mehrere Nutzer/innen wurden gefunden: {$a}. Bitte geben Sie eine spezifischere Nutzerabfrage an (z. B. mit E-Mail oder Nutzer-ID).';
+$string['agent_booking_user_booked_completion_notonlist'] = 'Nutzer/in {$a} ist gebucht, steht aber nicht auf der Teilnehmerliste der Option, daher konnte der Abschluss nicht gesetzt werden.';
 $string['ai_property_bookuserscompleted'] = 'Nutzer/innen buchen: als abgeschlossen markieren';
 $string['ai_property_bookuserstimebooked'] = 'Nutzer/innen buchen: Buchungszeit';
 $string['ai_property_bookusersupdateexisting'] = 'Nutzer/innen buchen: bestehende Buchungen aktualisieren';
