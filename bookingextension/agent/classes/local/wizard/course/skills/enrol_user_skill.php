@@ -692,6 +692,7 @@ class enrol_user_skill extends core_skill_base implements skill_trigger_provider
      * @param array     $prepared
      * @param \stdClass $course
      * @param bool      $wasnoop Whether the user was already enrolled at execute time.
+     * @param string[]  $failed  People that could not be enrolled, each as "name (reason)".
      * @return array
      */
     private function build_success_result(array $prepared, \stdClass $course, bool $wasnoop, array $failed = []): array {
