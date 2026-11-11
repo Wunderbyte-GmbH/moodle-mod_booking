@@ -75,17 +75,35 @@ over the engine and the bundled agent stands down.
    `local_wizard` namespace and `@package`, mod_booking's CI excludes
    `overlays/` from the Moodle code checker via `tools/.moodle-plugin-ci.yml`
    (merged by moodle-plugin-ci 4.5.11+, paths relative to `tools/`).
+4a. **No license in the standalone Wizard** (Wunderbyte-GmbH/moodle-local_wizard#2):
+   local_wizard is a free plugin. The engine bundled with mod_booking keeps its
+   PRO license; the generator removes every part of it:
+   - code between a `// BEGIN bundled-engine-only: …` and a
+     `// END bundled-engine-only.` line is cut out (`BUNDLED_ONLY_BLOCKS`: the
+     license key field in `settings.php`, the license check and its `use` line
+     in `agent_access_service.php`). Each listed file must hold exactly that
+     many blocks and every other file none, otherwise the run stops;
+   - `classes/local/wb_license.php` and its test are not shipped (see 5);
+   - the seven strings of the license key setting are removed in every
+     language (`LANG_REMOVED_KEYS`), and the four strings that name a "PRO
+     license" name only the Wunderbyte LLM subscription (`LANG_OVERRIDES`).
+   In local_wizard full access therefore comes from the Wunderbyte LLM gateway
+   only (and from test runs); the overlay `tests/wizard_no_license_test.php`
+   pins this in the artifact.
 4b. **Verbatim files** (copied untransformed, exempt from the residual-token
    check): the scaffold's engine-alias-layer templates
    (`classes/local/wizard/services/scaffold/templates/engine_layer/`) — they
    are engine-universal by design and must keep naming both engine components
    in either plugin.
 5. **Excluded**: `.git`, `.github` (CI is agent-specific), `.claude`,
-   `node_modules`, `tools/`, and `classes/agent.php` (mod_booking subplugin
-   registration, load-fatal standalone).
+   `node_modules`, `tools/`, `classes/agent.php` (mod_booking subplugin
+   registration, load-fatal standalone), and `classes/local/wb_license.php`
+   with `tests/wb_license_constant_parity_test.php` (the PRO license, see 4a).
 6. **Built-in verification** (non-zero exit on failure): no residual
    `bookingextension`/`bx_agent` token anywhere, install.xml table names
-   `local_wizard_*` and ≤ 28 chars, config.php require depths correct.
+   `local_wizard_*` and ≤ 28 chars, config.php require depths correct; no
+   `wb_license`, `licensekey` or bundled-engine-only marker anywhere and no
+   string value that speaks of a license (overlays excepted).
 7. **Manifest** (`.wizard_sync_manifest.json` in the target): SHA-256 per
    generated file. The next run refuses to overwrite hand-edited files
    (exit 2) unless `--force` is given, and deletes files that are no longer

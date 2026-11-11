@@ -262,6 +262,7 @@ if ($adminroot->fulltree) {
         );
     }
 
+    // BEGIN bundled-engine-only: the PRO license key (the local_wizard generator removes this block).
     // License key (same mechanism as Booking PRO; products 'wbagent' or combined
     // 'bookingagent'). A combined key in Booking's licensekey field also unlocks
     // the agent — the status text reflects whichever candidate key is valid.
@@ -321,6 +322,7 @@ if ($adminroot->fulltree) {
             ''
         )
     );
+    // END bundled-engine-only.
 
     // Auto-generate a security token the first time so the [wizard] shortcode is
     // protected out of the box; an admin can rotate it by clearing/editing the field.

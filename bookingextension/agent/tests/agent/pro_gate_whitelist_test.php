@@ -34,8 +34,8 @@ use bookingextension_agent\local\wizard\skill_contract_validator;
  * Deterministic coverage for the full-access (PRO) whitelist.
  *
  * These assertions are license-independent: the predicate under test is pure, and the catalog
- * split operates on a hand-built contract array. That matters because in PHPUnit the license
- * check always reports "activated" (wb_license), so the gate branch is otherwise never exercised.
+ * split operates on a hand-built contract array. That matters because in PHPUnit every run has
+ * full access (agent_access_service::has_full_access()), so the gate branch is otherwise never exercised.
  *
  * @group bookingextension_agent
  * @group bookingextension_agent_agent
