@@ -623,6 +623,7 @@ class previouslybooked implements bo_condition, freezable_condition {
      * @param bool $isavailable
      * @param bool $full
      * @param booking_option_settings $settings
+     * @param int $userid The user the text is for; 0 gives the text without the user-specific variant.
      * @return string
      */
     public function get_description_string(bool $isavailable, bool $full, booking_option_settings $settings, int $userid = 0) {
