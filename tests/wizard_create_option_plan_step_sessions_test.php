@@ -105,10 +105,35 @@ final class wizard_create_option_plan_step_sessions_test extends booking_advance
     }
 
     /**
-     * Five sessions in step 2 of 5: a clarification with the five sessions and "all" as candidates.
+     * One session per plan step on distinct ascending days: step n keeps session n, nothing is asked
+     * (thread 9232: the re-planned construction repeated the same five dates, so the question always reached the
+     * user although the step number is engine state and the confirmation card shows the date).
      */
-    public function test_one_session_per_plan_step_offers_the_sessions_as_a_choice(): void {
-        $dto = $this->preflight($this->input(5), $this->step_two_of_five());
+    public function test_one_session_per_plan_step_keeps_the_session_of_the_step(): void {
+        $input = $this->input(5);
+        $dto = $this->preflight($input, $this->step_two_of_five());
+        $this->assertNotContains(self::CODE, array_column($dto->issues, 'code'), json_encode($dto->issues));
+        $this->assertSame([$input['optiondates'][1]], array_values((array)$dto->preparedinput['optiondates']));
+
+        $first = $this->step_two_of_five();
+        $first['index'] = 1;
+        $first['current'] = '';
+        $dto = $this->preflight($input, $first);
+        $this->assertNotContains(self::CODE, array_column($dto->issues, 'code'), json_encode($dto->issues));
+        $this->assertSame([$input['optiondates'][0]], array_values((array)$dto->preparedinput['optiondates']));
+    }
+
+    /**
+     * One session per plan step, but not one day each (two sessions share a day): the order says nothing about
+     * the steps, so the five sessions and "all" are offered as candidates.
+     */
+    public function test_sessions_sharing_a_day_offer_the_sessions_as_a_choice(): void {
+        $input = $this->input(5);
+        $input['optiondates'][4] = [
+            'coursestarttime' => substr($input['optiondates'][3]['coursestarttime'], 0, 10) . 'T15:00:00',
+            'courseendtime' => substr($input['optiondates'][3]['coursestarttime'], 0, 10) . 'T17:00:00',
+        ];
+        $dto = $this->preflight($input, $this->step_two_of_five());
         $this->assertNotSame('pass', $dto->status);
         $codes = array_column($dto->issues, 'code');
         $this->assertContains(self::CODE, $codes, json_encode($dto->issues));
