@@ -223,6 +223,12 @@ final class report_multistep_series_test extends abstract_agent_testcase {
         $this->confirm_step($store, $contextid, $threadid, 'report.set_report_audience');
         $this->assertSame(1, audience_model::count_records(['reportid' => $reportid]));
 
+        // The schedule skill needs the report schedule types of Moodle 5.1. On an older core the
+        // first three turns above are still verified, the schedule turn is skipped.
+        if (!class_exists(\core_reportbuilder\local\schedules\base::class)) {
+            $this->markTestSkipped('Report schedule types and the schedule skill need Moodle 5.1.');
+        }
+
         // Turn 4: schedule (possible only now that an audience exists).
         $this->install_scripted_planner([
             $this->selector_skill_call('report.schedule_report', [], 'Send it weekly'),
