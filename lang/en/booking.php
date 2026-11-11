@@ -4105,6 +4105,11 @@ $string['slot_change_deadline_minutes'] = 'Move/cancel deadline (relative to slo
 $string['slot_change_deadline_minutes_desc'] = 'Site-wide default in minutes for the slot move/cancel deadline, relative to each slot start (positive = before start, 0 = until start, negative = after start). Booking instances and options can override this.';
 $string['slot_change_deadline_minutes_help'] = 'Until when participants may move or cancel a booked slot, relative to that slot\'s start. Each slot is evaluated individually. "Use default" inherits the booking instance or site default.';
 $string['slot_closing_time'] = 'Closing time (HH:MM)';
+$string['slot_compactcalendar_allday'] = 'All day';
+$string['slot_compactcalendar_day'] = 'Day';
+$string['slot_compactcalendar_more'] = 'more';
+$string['slot_compactcalendar_showmonth'] = 'Show the month';
+$string['slot_compactcalendar_showweek'] = 'Show the week';
 $string['slot_custom_duration'] = 'Duration';
 $string['slot_custom_duration_step_minutes'] = 'Slot duration step (minutes)';
 $string['slot_custom_duration_step_minutes_help'] = 'Granularity of the selectable slot length between the minimal and maximal slot length. For example, with a minimum of 15 minutes, a maximum of 30 minutes, and a step of 5 minutes, users can choose a duration of 15, 20, 25 or 30 minutes.';

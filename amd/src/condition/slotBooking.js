@@ -861,7 +861,7 @@ export async function init(callsiteoptionid) {
         return;
     }
 
-    // With calendar="compact" in the bookingoptionview shortcode, the calendar of local_entities replaces
+    // With calendar="compact" in the bookingoptionview shortcode, the compact calendar replaces
     // the month grid and the day timeline (see compact_calendar_picker.js). The container is not
     // part of the reloaded form, so this holds for every setupInteractiveUi() run.
     const compactCalendar = container.dataset.calendar === 'compact';
@@ -1359,8 +1359,8 @@ export async function init(callsiteoptionid) {
                 });
             };
 
-            // With calendar="compact", the time range is dragged (or a start clicked) in the calendar of
-            // local_entities. Like renderChosenCustomDay, the chosen day decides the option and its
+            // With calendar="compact", the time range is dragged (or a start clicked) in the compact
+            // calendar. Like renderChosenCustomDay, the chosen day decides the option and its
             // durations; the range gives the start and the nearest duration that option offers.
             const chooseCustomRange = (daySlot, start, end) => {
                 lastCustomDaySlot = daySlot;
@@ -1856,7 +1856,7 @@ export async function init(callsiteoptionid) {
             });
         };
 
-        // With calendar="compact", the calendar of local_entities is shown instead of the month grid and the day
+        // With calendar="compact", the compact calendar is shown instead of the month grid and the day
         // timeline. It marks the calendar as initialized, so the standard calendar below is skipped.
         if (compactCalendar && calendarRoot && fixedEditorRoot && !calendarRoot.dataset.slotCalendarInitialized) {
             fixedSelection = createFixedSelection();

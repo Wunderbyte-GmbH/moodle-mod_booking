@@ -4118,6 +4118,11 @@ $string['slot_change_deadline_minutes'] = 'Frist zum Umbuchen/Stornieren (relati
 $string['slot_change_deadline_minutes_desc'] = 'Websiteweiter Standard in Minuten für die Umbuch-/Storno-Frist, relativ zum Start jedes Slots (positiv = vor Start, 0 = bis Start, negativ = nach Start). Buchungsinstanzen und Optionen können dies überschreiben.';
 $string['slot_change_deadline_minutes_help'] = 'Bis wann Teilnehmer:innen einen gebuchten Slot umbuchen oder stornieren dürfen, relativ zum Start des jeweiligen Slots. Jeder Slot wird einzeln geprüft. „Standard verwenden" erbt den Wert der Buchungsinstanz bzw. der Website.';
 $string['slot_closing_time'] = 'Schließzeit (HH:MM)';
+$string['slot_compactcalendar_allday'] = 'Ganztägig';
+$string['slot_compactcalendar_day'] = 'Tag';
+$string['slot_compactcalendar_more'] = 'weitere';
+$string['slot_compactcalendar_showmonth'] = 'Monat anzeigen';
+$string['slot_compactcalendar_showweek'] = 'Woche anzeigen';
 $string['slot_custom_duration'] = 'Dauer';
 $string['slot_custom_duration_step_minutes'] = 'Schrittweite der Slot-Dauer (Minuten)';
 $string['slot_custom_duration_step_minutes_help'] = 'Granularität der wählbaren Slot-Länge zwischen minimaler und maximaler Slot-Dauer. Beispiel: Bei einem Minimum von 15 Minuten, einem Maximum von 30 Minuten und einer Schrittweite von 5 Minuten können Nutzer:innen eine Dauer von 15, 20, 25 oder 30 Minuten wählen.';
