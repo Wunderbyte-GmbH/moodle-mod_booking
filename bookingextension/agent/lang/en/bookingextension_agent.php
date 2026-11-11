@@ -825,6 +825,7 @@ $string['cachedef_aiprivacynames'] = 'AI privacy names (cache)';
 $string['cachedef_aiwaitmailbox'] = 'AI wait mailbox (session cache)';
 $string['cachedef_aiwaitstate'] = 'AI wait state (session cache)';
 $string['cachedef_attachment_tokens'] = 'Attachment tokens (cache)';
+$string['cachedef_mcpratelimit'] = 'MCP tool calls per user and minute, rate limit (cache)';
 $string['cachedef_sitesearchestimates'] = 'Site search indexing estimates (cache)';
 $string['cachedef_trialnonce'] = 'Trial nonce (cache)';
 $string['claudeconnect_altheader_code_command'] = 'claude mcp add --transport http moodle-booking-wizard {$a->serverurl} --header "X-Moodle-Token: YOUR_TOKEN"';

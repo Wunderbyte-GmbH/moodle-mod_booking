@@ -31,20 +31,27 @@ namespace mod_booking;
  * but only on the admin pages that list the definitions (Plugins > Caching > Configuration).
  * Using the cache works without the string, so a forgotten one is not noticed during development.
  *
+ * Covers mod_booking and every booking extension (bookingextension/<name>) shipped with it.
+ *
  * @coversNothing
  */
 final class cache_definition_strings_test extends \basic_testcase {
+    /** @var string[] The language packs that have to be complete: en is the fallback of all others, de is maintained with it. */
+    private const LANGS = ['en', 'de'];
+
     /**
-     * Each definition has a non-empty cachedef_ string in the given language pack of the plugin.
+     * Each definition has a non-empty cachedef_ string in the given language pack of the component.
      *
-     * @dataProvider lang_provider
+     * @dataProvider component_lang_provider
+     * @param string $dir absolute directory of the component
+     * @param string $langfile file name of its language file, e.g. booking.php
      * @param string $lang directory name below lang/
      */
-    public function test_every_cache_definition_has_its_string(string $lang): void {
-        $definitions = self::load_array(self::plugin_dir() . '/db/caches.php', 'definitions');
-        $strings = self::load_array(self::plugin_dir() . "/lang/$lang/booking.php", 'string');
+    public function test_every_cache_definition_has_its_string(string $dir, string $langfile, string $lang): void {
+        $definitions = self::load_array("$dir/db/caches.php", 'definitions');
+        $strings = self::load_array("$dir/lang/$lang/$langfile", 'string');
 
-        $this->assertNotEmpty($definitions, 'No cache definitions found in db/caches.php.');
+        $this->assertNotEmpty($definitions, "No cache definitions found in $dir/db/caches.php.");
 
         $missing = [];
         foreach (array_keys($definitions) as $name) {
@@ -56,26 +63,56 @@ final class cache_definition_strings_test extends \basic_testcase {
         $this->assertSame(
             [],
             $missing,
-            "lang/$lang/booking.php lacks the name of cache definitions from db/caches.php."
+            "$dir/lang/$lang/$langfile lacks the name of cache definitions from db/caches.php."
         );
     }
 
     /**
-     * The language packs that have to be complete: en is the fallback of all others, de is maintained with it.
+     * The provider finds mod_booking and the booking extensions that define caches.
+     *
+     * Guards the directory scan of the provider: if the extensions moved, the scan would find
+     * nothing and the test above would pass without checking them.
+     */
+    public function test_provider_covers_mod_booking_and_extensions(): void {
+        $cases = self::component_lang_provider();
+
+        foreach (self::LANGS as $lang) {
+            $this->assertArrayHasKey("mod_booking ($lang)", $cases);
+            $this->assertArrayHasKey("bookingextension_agent ($lang)", $cases);
+        }
+    }
+
+    /**
+     * One case per component with a db/caches.php and language pack.
+     *
+     * The extensions are found by scanning bookingextension/, so a new extension, or an existing
+     * one that gets its first cache, is covered without touching this test.
      *
      * @return array
      */
-    public static function lang_provider(): array {
-        return [
-            'en' => ['en'],
-            'de' => ['de'],
-        ];
+    public static function component_lang_provider(): array {
+        $components = ['mod_booking' => [self::plugin_dir(), 'booking.php']];
+        foreach (glob(self::plugin_dir() . '/bookingextension/*/db/caches.php') as $cachesfile) {
+            $dir = dirname($cachesfile, 2);
+            $component = 'bookingextension_' . basename($dir);
+            $components[$component] = [$dir, "$component.php"];
+        }
+
+        $cases = [];
+        foreach ($components as $component => [$dir, $langfile]) {
+            foreach (self::LANGS as $lang) {
+                $cases["$component ($lang)"] = [$dir, $langfile, $lang];
+            }
+        }
+        return $cases;
     }
 
     /**
      * Includes a PHP file that fills an array variable and returns that array.
      *
      * The include happens in the scope of this method, so the variable does not leak.
+     * A file that does not exist (e.g. a missing language pack) yields an empty array,
+     * which the test reports as missing strings.
      *
      * @param string $file absolute path
      * @param string $variable name of the array the file fills, e.g. "string" for $string
@@ -83,7 +120,9 @@ final class cache_definition_strings_test extends \basic_testcase {
      */
     private static function load_array(string $file, string $variable): array {
         $$variable = [];
-        include($file);
+        if (is_readable($file)) {
+            include($file);
+        }
         return $$variable;
     }
 
