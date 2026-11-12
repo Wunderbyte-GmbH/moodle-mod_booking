@@ -35,9 +35,8 @@ global $CFG;
 require_once("$CFG->dirroot/mod/booking/lib.php");
 
 /**
- * The checkbox is free (unticked) by default; the site setting booking/transferonlyfuture forces it
- * ticked and frozen, flags the autocomplete statically and shows a hint, with a link to the setting
- * for users who may change it.
+ * The checkbox is always free to change and wired to the autocomplete; the site setting
+ * booking/transferonlyfuture only decides whether it is ticked when the dialog opens.
  *
  * @package mod_booking
  * @category test
@@ -56,7 +55,7 @@ final class modal_transfer_users_onlyfuture_test extends \advanced_testcase {
     }
 
     /**
-     * Setting off: the checkbox is unticked, enabled and wired to the autocomplete; no hint.
+     * Setting off: the checkbox is unticked, enabled and wired to the autocomplete.
      */
     public function test_checkbox_is_free_by_default(): void {
         $this->setAdminUser();
@@ -69,7 +68,6 @@ final class modal_transfer_users_onlyfuture_test extends \advanced_testcase {
         $this->assertStringNotContainsString('disabled', $checkbox);
         $this->assertStringContainsString('data-onlyfuturecheckbox="onlyfuture"', $html);
         $this->assertStringNotContainsString('data-onlyfuture="1"', $html);
-        $this->assertStringNotContainsString(get_string('transferonlyfutureforcedhint', 'mod_booking'), $html);
 
         // A ticked checkbox survives the re-rendering of the dynamic form (e.g. with warnings).
         $html = $this->render_form($booking, $option, ['onlyfuture' => 1]);
@@ -77,47 +75,38 @@ final class modal_transfer_users_onlyfuture_test extends \advanced_testcase {
     }
 
     /**
-     * Setting on, admin: ticked, frozen, static flag on the autocomplete, hint with a link to the setting.
+     * Setting on: the checkbox is ticked when the dialog opens, but stays enabled and wired to the autocomplete.
      */
-    public function test_setting_forces_checkbox_with_link_for_admins(): void {
+    public function test_setting_ticks_checkbox_by_default(): void {
         set_config('transferonlyfuture', 1, 'booking');
         $this->setAdminUser();
         [$booking, $option] = $this->create_option();
-
-        // Even a submitted 0 cannot untick the forced box.
-        $html = $this->render_form($booking, $option, ['onlyfuture' => 0]);
-
-        $checkbox = $this->checkbox_tag($html);
-        $this->assertStringContainsString('checked', $checkbox);
-        $this->assertStringContainsString('disabled', $checkbox);
-        // The frozen value is submitted through a hidden input, so the server sees 1 as well.
-        $this->assertMatchesRegularExpression('/<input type="hidden" name="onlyfuture" value="1">/', $html);
-        $this->assertStringContainsString('data-onlyfuture="1"', $html);
-        $this->assertStringNotContainsString('data-onlyfuturecheckbox', $html);
-        $this->assertStringContainsString(get_string('transferonlyfutureforcedhint', 'mod_booking'), $html);
-        $this->assertStringContainsString('section=modsettingbooking', $html);
-        $this->assertStringContainsString('#admin-transferonlyfuture', $html);
-    }
-
-    /**
-     * Setting on, user without site:config: same hint, but no link to the setting.
-     */
-    public function test_setting_forces_checkbox_without_link_for_teachers(): void {
-        set_config('transferonlyfuture', 1, 'booking');
-        $this->setAdminUser();
-        [$booking, $option, $course] = $this->create_option();
-
-        $teacher = $this->getDataGenerator()->create_user();
-        $this->getDataGenerator()->enrol_user($teacher->id, $course->id, 'editingteacher');
-        $this->setUser($teacher);
 
         $html = $this->render_form($booking, $option);
 
         $checkbox = $this->checkbox_tag($html);
         $this->assertStringContainsString('checked', $checkbox);
-        $this->assertStringContainsString('disabled', $checkbox);
-        $this->assertStringContainsString(get_string('transferonlyfutureforcedhint', 'mod_booking'), $html);
-        $this->assertStringNotContainsString('admin-transferonlyfuture', $html);
+        $this->assertStringNotContainsString('disabled', $checkbox);
+        // The search follows the live state of the checkbox, there is no static restriction any more.
+        $this->assertStringContainsString('data-onlyfuturecheckbox="onlyfuture"', $html);
+        $this->assertStringNotContainsString('data-onlyfuture="1"', $html);
+        // Not frozen: no hidden input that would submit a constant 1.
+        $this->assertDoesNotMatchRegularExpression('/<input type="hidden" name="onlyfuture" value="1">/', $html);
+    }
+
+    /**
+     * Setting on: a user who unticks the box keeps it unticked when the form is re-rendered (e.g. with warnings).
+     */
+    public function test_setting_does_not_override_unticked_checkbox(): void {
+        set_config('transferonlyfuture', 1, 'booking');
+        $this->setAdminUser();
+        [$booking, $option] = $this->create_option();
+
+        $html = $this->render_form($booking, $option, ['onlyfuture' => 0]);
+
+        $checkbox = $this->checkbox_tag($html);
+        $this->assertStringNotContainsString('checked', $checkbox);
+        $this->assertStringNotContainsString('disabled', $checkbox);
     }
 
     /**

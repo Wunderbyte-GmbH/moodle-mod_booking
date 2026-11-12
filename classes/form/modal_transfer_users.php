@@ -127,8 +127,8 @@ class modal_transfer_users extends dynamic_form {
         $mform->addHelpButton('targetoptionid', 'transfertargetoption', 'mod_booking');
 
         // Checkbox right below the autocomplete: restrict the suggestions to booking options that have
-        // not ended yet. Unticked by default, so the search behaves as before. The autocomplete JS reads
-        // the live state of the checkbox (data-onlyfuturecheckbox) on every search request.
+        // not ended yet. The autocomplete JS reads the live state of the checkbox (data-onlyfuturecheckbox)
+        // on every search request, so the user can always change it.
         $mform->addElement(
             'advcheckbox',
             'onlyfuture',
@@ -136,39 +136,12 @@ class modal_transfer_users extends dynamic_form {
             get_string('transferonlyfuture', 'mod_booking')
         );
         $mform->setType('onlyfuture', PARAM_BOOL);
-
-        if (!empty(get_config('booking', 'transferonlyfuture'))) {
-            // The site setting forces the restriction: the checkbox is shown ticked and frozen (rendered disabled,
-            // the constant value travels in a hidden input), and the autocomplete gets the static data-onlyfuture
-            // flag, which the JS honours before looking at any checkbox. setConstant() wins over submitted values,
-            // so the box stays ticked when the form is re-rendered with warnings.
-            $mform->setConstant('onlyfuture', 1);
-            $mform->freeze('onlyfuture');
-            $mform->getElement('targetoptionid')->updateAttributes([
-                'data-onlyfuture' => 1,
-            ]);
-
-            // Tell the user why the box cannot be changed; admins get a link to the setting.
-            $hint = get_string('transferonlyfutureforcedhint', 'mod_booking');
-            if (has_capability('moodle/site:config', context_system::instance())) {
-                $hint .= ' ' . \html_writer::link(
-                    new moodle_url('/admin/settings.php', ['section' => 'modsettingbooking'], 'admin-transferonlyfuture'),
-                    get_string('transferonlyfutureforcedhint_link', 'mod_booking'),
-                    ['target' => '_blank']
-                );
-            }
-            $mform->addElement(
-                'static',
-                'onlyfuturehint',
-                '',
-                \html_writer::div($hint, 'small text-muted bg-light rounded p-2 mb-0')
-            );
-        } else {
-            $mform->setDefault('onlyfuture', 0);
-            $mform->getElement('targetoptionid')->updateAttributes([
-                'data-onlyfuturecheckbox' => 'onlyfuture',
-            ]);
-        }
+        // The site setting only decides the initial state of the checkbox. A default (unlike a constant)
+        // is overridden by submitted values, so the user's choice survives the re-rendering with warnings.
+        $mform->setDefault('onlyfuture', empty(get_config('booking', 'transferonlyfuture')) ? 0 : 1);
+        $mform->getElement('targetoptionid')->updateAttributes([
+            'data-onlyfuturecheckbox' => 'onlyfuture',
+        ]);
 
         // If a target has been chosen, compute warnings and show them together with an override checkbox.
         $targetoptionid = (int) ($submitdata['targetoptionid'] ?? 0);

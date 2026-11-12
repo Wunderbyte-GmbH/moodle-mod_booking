@@ -1687,8 +1687,8 @@ if ($ADMIN->fulltree) {
             ]
         )
     );
-    // Transfer users modal: force the "Only future booking options" restriction of the target option search.
-    // Off by default, so the checkbox in the modal stays free to choose.
+    // Transfer users modal: default state of the checkbox "Only future booking options" of the target option
+    // search. The checkbox itself always stays free to choose.
     $settings->add(
         new admin_setting_configcheckbox(
             'booking/transferonlyfuture',
