@@ -60,11 +60,14 @@ final class wizard_no_license_test extends advanced_testcase {
     public function test_settings_page_has_no_license_key(): void {
         global $CFG;
         require_once($CFG->libdir . '/adminlib.php');
+        $this->resetAfterTest();
         $this->setAdminUser();
 
         $page = admin_get_root(true, true)->locate('local_wizard_aisettings');
         $this->assertNotNull($page, 'The Wizard settings page exists.');
-        $names = array_map(static fn($setting) => $setting->name, $page->settings);
+        // The settings of an admin page are an object keyed by the setting name.
+        $names = array_map(static fn($setting) => $setting->name, array_values((array)$page->settings));
+        $this->assertNotEmpty($names, 'The Wizard settings page lists its settings.');
         $this->assertNotContains('licensekey', $names);
         $this->assertFalse(get_config('local_wizard', 'licensekey'));
     }
