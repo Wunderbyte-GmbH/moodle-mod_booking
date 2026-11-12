@@ -217,6 +217,80 @@ final class courselist_test extends booking_advanced_testcase {
     }
 
     /**
+     * The search finds teachers by their names only.
+     *
+     * The teachers of an option are selected as JSON (column teacherobjects, e.g. {"id":81, "firstname":"Pia", ...}).
+     * Searching this column found the ids of the users (a search for "81" found the options of the teacher
+     * with the user id 81) and the keys of the JSON. So the search uses the column teachernames.
+     *
+     * @covers \mod_booking\booking_option_settings::return_sql_for_teachers
+     * @covers \mod_booking\output\view::inittableforcourses
+     */
+    public function test_search_finds_teachers_by_name_only(): void {
+        $bdata = self::provide_bdata();
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $bookingmanager = $this->getDataGenerator()->create_user();
+        $teacher1 = $this->getDataGenerator()->create_user(['firstname' => 'Pia', 'lastname' => 'Berger']);
+        $teacher2 = $this->getDataGenerator()->create_user(['firstname' => 'Ida', 'lastname' => 'Fischer']);
+        $bdata['course'] = $course->id;
+        $bdata['bookingmanager'] = $bookingmanager->username;
+        $booking = $this->getDataGenerator()->create_module('booking', $bdata);
+        $this->setAdminUser();
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $options = [
+            ['text' => 'Option one', 'teachersforoption' => $teacher1->username],
+            ['text' => 'Option two', 'teachersforoption' => $teacher1->username . ',' . $teacher2->username],
+            ['text' => 'Option three'],
+        ];
+        foreach ($options as $option) {
+            $record = (object) $option;
+            $record->bookingid = $booking->id;
+            $plugingenerator->create_option($record);
+        }
+
+        $env = new stdClass();
+        $next = function () {
+        };
+        $args = ['cmid' => $booking->cmid, 'all' => 1, 'search' => 1];
+        $shortcode = shortcodes::courselist('courselist', $args, null, $env, $next);
+        preg_match('/<div[^>]*\sdata-encodedtable=["\']?([^"\'>\s]+)["\']?/i', $shortcode, $matches);
+        $this->assertNotEmpty($matches, 'The table was not rendered.');
+
+        $table = wunderbyte_table::instantiate_from_tablecache_hash($matches[1]);
+        $this->assertContains('teachernames', $table->fulltextsearchcolumns);
+        $this->assertNotContains('teacherobjects', $table->fulltextsearchcolumns);
+
+        $searches = [
+            // The names are found, in every order of the words.
+            'Berger' => 2,
+            'pia' => 2,
+            'Pia Berger' => 2,
+            'Berger, Pia' => 2,
+            'Fischer' => 1,
+            'Ida Berger' => 1,
+            // The ids of the users and the keys of the JSON are not.
+            (string) $teacher1->id => 0,
+            (string) $teacher2->id => 0,
+            'firstname' => 0,
+            'lastname' => 0,
+            'name' => 0,
+            '"id"' => 0,
+        ];
+        foreach ($searches as $searchtext => $numberofrecords) {
+            $searchtable = wunderbyte_table::instantiate_from_tablecache_hash($matches[1]);
+            $searchtable->apply_searchtext((string) $searchtext);
+            $searchtable->printtable($searchtable->pagesize, $searchtable->useinitialsbar, $searchtable->downloadhelpbutton);
+            $this->assertEquals(
+                $numberofrecords,
+                $searchtable->totalrows,
+                "Unexpected number of records when searching for '$searchtext'"
+            );
+        }
+    }
+
+    /**
      * Data provider for test_courselist_shortcode
      *
      * @return array
@@ -327,7 +401,7 @@ final class courselist_test extends booking_advanced_testcase {
                         'description',
                         'location',
                         'institution',
-                        'teacherobjects',
+                        'teachernames',
                         'customcat',
                     ],
                     // Only three options have the customfield value "Text 2".
@@ -354,7 +428,7 @@ final class courselist_test extends booking_advanced_testcase {
                         'description',
                         'location',
                         'institution',
-                        'teacherobjects',
+                        'teachernames',
                     ],
                     // Without the customfield in the search columns, "Text 2" matches nothing.
                     'searchresults' => [

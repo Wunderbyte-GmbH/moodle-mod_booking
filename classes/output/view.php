@@ -1442,7 +1442,8 @@ class view implements renderable, templatable {
                 $fulltextsearchcolumns[] = 'institution';
             }
             if (in_array('teacher', $optionsfields)) {
-                $fulltextsearchcolumns[] = 'teacherobjects';
+                // Only the names: teacherobjects is JSON, a search in it also finds user ids and the keys of the JSON.
+                $fulltextsearchcolumns[] = 'teachernames';
             }
             if (!empty($additionalsearchcolumns)) {
                 // Additional search columns can be either columns of booking_options or customfield shortnames.
