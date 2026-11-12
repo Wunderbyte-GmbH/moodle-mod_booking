@@ -2588,7 +2588,8 @@ class shortcodes {
             $customfields,
             false, // Sent messages.
             $perpage,
-            true // Lazy load the tables so the page can be sent before the queries run.
+            true, // Lazy load the tables so the page can be sent before the queries run.
+            !empty($args['futureonly']) // Only booking options which have not ended yet.
         );
 
         /** @var renderer $renderer */
