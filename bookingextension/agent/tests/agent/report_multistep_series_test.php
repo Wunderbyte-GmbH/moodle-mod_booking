@@ -168,13 +168,17 @@ final class report_multistep_series_test extends abstract_agent_testcase {
         $this->assertSame(report_preview_renderer::PREVIEW_TYPE, $preview1['type'] ?? '');
         $this->assertSame(1, substr_count((string)$preview1['html'], 'bx-agent-report-preview-header'));
 
-        // Turn 2a: the update step names a column the source does not have → clarification, plan kept.
+        // Turn 2a: the update step names a column the source does not have → clarification, plan kept. Since #2763
+        // the skill offers the matching columns as candidates and the engine re-plans once with them
+        // (PREFLIGHT_CHOICES_OFFERED): the selector keeps the skill, the constructor asks which column is meant.
         $this->install_scripted_planner([
             $this->selector_skill_call('report.update_report', [], 'Add the e-mail column'),
             $this->constructor_confirmation_request('report.update_report', [
                 'reportid' => $reportid,
                 'add_columns' => [['identifier' => 'user:electronicmail']],
             ]),
+            $this->selector_skill_call('report.update_report', [], 'Add the e-mail column'),
+            $this->constructor_clarification('Which of the listed columns is the e-mail column?'),
         ]);
         $turn2a = ai_send_message::execute($contextid, 'Now add the e-mail column.', $threadid);
         $this->assertSame('clarification', (string)($turn2a['response_type'] ?? ''));
@@ -218,6 +222,12 @@ final class report_multistep_series_test extends abstract_agent_testcase {
         $this->assertSame('confirmation_request', (string)($turn3['response_type'] ?? ''));
         $this->confirm_step($store, $contextid, $threadid, 'report.set_report_audience');
         $this->assertSame(1, audience_model::count_records(['reportid' => $reportid]));
+
+        // The schedule skill needs the report schedule types of Moodle 5.1. On an older core the
+        // first three turns above are still verified, the schedule turn is skipped.
+        if (!class_exists(\core_reportbuilder\local\schedules\base::class)) {
+            $this->markTestSkipped('Report schedule types and the schedule skill need Moodle 5.1.');
+        }
 
         // Turn 4: schedule (possible only now that an audience exists).
         $this->install_scripted_planner([

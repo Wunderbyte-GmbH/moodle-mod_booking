@@ -273,6 +273,7 @@ final class generate_questions_skill_test extends advanced_testcase {
      * @return int[]
      */
     private function add_writable_categories(\stdClass $course, int $count): array {
+        \bookingextension_agent\local\wizard\testing\mod_qbank_dependency::require_installed();
         $qbank = $this->getDataGenerator()->create_module('qbank', ['course' => $course->id]);
         $bankcontext = \context_module::instance($qbank->cmid);
         /** @var \core_question_generator $questiongenerator */
@@ -312,6 +313,7 @@ final class generate_questions_skill_test extends advanced_testcase {
 
         $generator = $this->getDataGenerator();
         $course = $generator->create_course();
+        \bookingextension_agent\local\wizard\testing\mod_qbank_dependency::require_installed();
         $qbank = $generator->create_module('qbank', ['course' => $course->id]);
         $bankcontext = \context_module::instance($qbank->cmid);
 
@@ -579,6 +581,7 @@ final class generate_questions_skill_test extends advanced_testcase {
      * @return array{0:int,1:int[]} default category id, extra category ids
      */
     private function add_bank_with_default(\stdClass $course, int $extra): array {
+        \bookingextension_agent\local\wizard\testing\mod_qbank_dependency::require_installed();
         $qbank = $this->getDataGenerator()->create_module('qbank', ['course' => $course->id]);
         $bankcontext = \context_module::instance($qbank->cmid);
         $default = question_get_default_category($bankcontext->id, true);

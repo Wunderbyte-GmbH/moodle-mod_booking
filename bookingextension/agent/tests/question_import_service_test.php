@@ -37,6 +37,7 @@ final class question_import_service_test extends advanced_testcase {
         $this->setAdminUser();
 
         $course = $this->getDataGenerator()->create_course();
+        \bookingextension_agent\local\wizard\testing\mod_qbank_dependency::require_installed();
         $qbank = $this->getDataGenerator()->create_module('qbank', ['course' => $course->id]);
         $context = \context_module::instance($qbank->cmid);
 
@@ -72,6 +73,7 @@ final class question_import_service_test extends advanced_testcase {
         $this->setAdminUser();
 
         $course = $this->getDataGenerator()->create_course();
+        \bookingextension_agent\local\wizard\testing\mod_qbank_dependency::require_installed();
         $qbank = $this->getDataGenerator()->create_module('qbank', ['course' => $course->id]);
         $context = \context_module::instance($qbank->cmid);
 

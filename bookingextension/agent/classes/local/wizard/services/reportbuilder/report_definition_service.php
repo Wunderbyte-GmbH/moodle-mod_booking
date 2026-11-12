@@ -629,20 +629,43 @@ final class report_definition_service {
                 'timenextsend' => (int)$schedule->get('timenextsend'),
                 'timelastsent' => (int)$schedule->get('timelastsent'),
                 'audiences' => is_array($audienceids) ? array_map('intval', $audienceids) : [],
-                'type' => $this->short_class((string)$schedule->get('classname')),
+                // Schedule types (the classname field) came with Moodle 5.1; before, every schedule sends the report.
+                'type' => schedule_model::has_property('classname')
+                    ? $this->short_class((string)$schedule->get('classname'))
+                    : '',
             ];
         }
 
         $snapshot['rowcount'] = null;
         if ($withrowcount) {
             try {
-                $snapshot['rowcount'] = report_helper::get_report_row_count($reportid);
+                $snapshot['rowcount'] = self::count_report_rows($reportid);
             } catch (\Throwable $e) {
                 $snapshot['rowcount'] = null;
             }
         }
 
         return $snapshot;
+    }
+
+    /**
+     * Number of rows a custom report shows its viewer.
+     *
+     * Moodle 5.0 added report::get_report_row_count(). On Moodle 4.5 the count runs on the count SQL of the
+     * same report table, which is what that method does as well.
+     *
+     * @param int $reportid
+     * @return int
+     */
+    public static function count_report_rows(int $reportid): int {
+        global $DB;
+
+        if (method_exists(report_helper::class, 'get_report_row_count')) {
+            return report_helper::get_report_row_count($reportid);
+        }
+        $table = \core_reportbuilder\table\custom_report_table_view::create($reportid);
+        $table->setup();
+        return (int)$DB->count_records_sql($table->countsql, $table->countparams);
     }
 
     /**

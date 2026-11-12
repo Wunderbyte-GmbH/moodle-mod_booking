@@ -133,6 +133,13 @@ class generate_questions_skill extends core_skill_base implements skill_trigger_
             preview_support::str('previewlabel_number', $lang),
             preview_support::posint($input['count'] ?? null)
         );
+        if (\bookingextension_agent\local\wizard\services\llm\llm_call_service::content_model_enabled()) {
+            preview_support::push(
+                $rows,
+                preview_support::str('previewlabel_contentmodel', $lang),
+                preview_support::str('previewvalue_contentmodel', $lang)
+            );
+        }
         preview_support::push(
             $rows,
             preview_support::str('previewlabel_types', $lang),
@@ -748,7 +755,7 @@ class generate_questions_skill extends core_skill_base implements skill_trigger_
             );
             if (!empty($imported['success'])) {
                 // Moodle 4.5 course-context target: cm is null, the bank label is the course name.
-                return $this->build_success_result(
+                $result = $this->build_success_result(
                     (int)$imported['imported'],
                     array_map('intval', (array)$imported['questionids']),
                     $target['cm'] !== null ? (int)$target['cm']->id : 0,
@@ -761,6 +768,12 @@ class generate_questions_skill extends core_skill_base implements skill_trigger_
                     !empty($preparedinput['sourcetruncated']),
                     (int)$target['course']->id
                 );
+                if (!empty($generated['fallback'])) {
+                    $note = ' ' . get_string('agent_contentmodel_fallback', 'bookingextension_agent');
+                    $result['detail'] = (string)($result['detail'] ?? '') . $note;
+                    $result['usermessage'] = (string)($result['usermessage'] ?? '') . $note;
+                }
+                return $result;
             }
 
             $lasterror = (string)$imported['errors'];

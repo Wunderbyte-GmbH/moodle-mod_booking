@@ -103,6 +103,8 @@ final class wizard_diagnose_booking_issue_visibility_test extends advanced_testc
         );
 
         $this->assertSame('executed', $result['status']);
+        // The diagnosed person is declared for the anonymizer (Wunderbyte-GmbH#2614).
+        $this->assertSame([(int)$student->id], $result['observation_persons']);
         $checks = $result['diagnosis']['instance_checks'];
         $this->assertArrayHasKey('activityuservisible', $checks);
         $this->assertArrayHasKey('activityavailableinfo', $checks);

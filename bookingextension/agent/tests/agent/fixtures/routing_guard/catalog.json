@@ -1,9 +1,7 @@
 {
     "model": "bge-multilingual-gemma2",
     "dimensions": 3584,
-    "site_configured": [
-        "oneclick.create_instance"
-    ],
+    "site_configured": [],
     "rows": [
         {
             "skill": "mod_booking.add_price_category",
@@ -88,7 +86,7 @@
         {
             "skill": "mod_booking.bulk_update_options",
             "anchor_index": 0,
-            "content_hash": "94ea1eb0f13778b1b26989f14ebd4a87c3fede9548b322e5fc3bc5c1a31e27b1"
+            "content_hash": "9cba423173d666609e0dc0d020958c46914c62c5633b7cd66e1cadb1b7894948"
         },
         {
             "skill": "mod_booking.bulk_update_options",
@@ -114,6 +112,11 @@
             "skill": "mod_booking.bulk_update_options",
             "anchor_index": 5,
             "content_hash": "c75ceb49239d036879ab95d4feeb558d71358350fa583467279da2a07597fef7"
+        },
+        {
+            "skill": "mod_booking.bulk_update_options",
+            "anchor_index": 6,
+            "content_hash": "5884c330b807b81aafb3cae563c2574c2a05f8e3ecabc78d31f33e1e446c4fbe"
         },
         {
             "skill": "mod_booking.configure_booking_instance",
@@ -429,6 +432,16 @@
             "skill": "mod_booking.get_option_details",
             "anchor_index": 5,
             "content_hash": "d2a3b0e84d0d0df4cd01061c09d655e333aa20a13126ef4e7632651331d6889a"
+        },
+        {
+            "skill": "mod_booking.get_option_details",
+            "anchor_index": 6,
+            "content_hash": "324a84f9aca4d7671c8fa555cd11932b07734810400cddfc9d1efe99c22e2bca"
+        },
+        {
+            "skill": "mod_booking.get_option_details",
+            "anchor_index": 7,
+            "content_hash": "f9e103d5b4ad2fcfcf7d0716a82641cf8968f0d6bccb1aa0abef8e6e13fa8d5f"
         },
         {
             "skill": "mod_booking.list_instance_settings",
@@ -2744,21 +2757,6 @@
             "skill": "wizard.search_skills",
             "anchor_index": 0,
             "content_hash": "ca5d6561da842bfdd53edaa45d4a8e355e626b2e4f899860fc99653861e0327a"
-        },
-        {
-            "skill": "oneclick.create_instance",
-            "anchor_index": 0,
-            "content_hash": "597f37ed06fd4bb7ad8e24047207214688390968dc7e25eb18e78c6123205973"
-        },
-        {
-            "skill": "oneclick.delete_instance",
-            "anchor_index": 0,
-            "content_hash": "92620045124757eb4e7e259a4e2895d1bf9180b7d0d5075c351cf54ff13b0b1f"
-        },
-        {
-            "skill": "oneclick.list_instances",
-            "anchor_index": 0,
-            "content_hash": "f2ab21ceae540445c52853b286001da959dbfde4c0c6b94975f8b83a9e3fe371"
         }
     ]
 }

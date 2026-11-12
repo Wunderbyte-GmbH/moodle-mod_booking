@@ -287,6 +287,8 @@ class runtime_context_block_builder {
 
             $enginestatic = !empty($row['engine_static']);
             unset($row['engine_static']);
+            $declaredpersons = is_array($row['declared_persons'] ?? null) ? (array)$row['declared_persons'] : null;
+            unset($row['declared_persons']);
 
             if ($enginestatic) {
                 // Engine-generated instructional text (e.g. search_skills catalog
@@ -297,6 +299,11 @@ class runtime_context_block_builder {
                 unset($row['observation']);
                 $row = (array)$privacy->anonymize_value_for_llm($threadid, $row);
                 $row['observation'] = $observation;
+            } else if ($declaredpersons !== null) {
+                // The skill declared the persons of this observation (Wunderbyte-GmbH#2614): masked for exactly
+                // these and for what the map knows; a template word that is also an account name stays. Without
+                // this the ledger re-minted "Admin" from "Admin action:" one call after the step had kept it.
+                $row = (array)$privacy->anonymize_value_for_llm_with_declared_persons($threadid, $row, $declaredpersons);
             } else {
                 $row = (array)$privacy->anonymize_value_for_llm($threadid, $row);
             }

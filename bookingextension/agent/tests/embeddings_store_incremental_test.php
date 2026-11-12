@@ -360,7 +360,12 @@ final class embeddings_store_incremental_test extends advanced_testcase {
         $this->assertSame(2, $store->count_rows(self::AREA, self::MODEL, self::DIMS));
 
         require_once($CFG->dirroot . '/course/lib.php');
-        course_delete_module($page->cmid);
+        // Moodle 5.2 deprecated course_delete_module() (MDL-86856); 4.5-5.1 have no cmactions::delete() yet.
+        if (method_exists(\core_courseformat\local\cmactions::class, 'delete')) {
+            \core_courseformat\formatactions::cm($course->id)->delete((int)$page->cmid);
+        } else {
+            course_delete_module($page->cmid);
+        }
 
         $this->assertSame(0, $store->count_rows(self::AREA, self::MODEL, self::DIMS));
     }

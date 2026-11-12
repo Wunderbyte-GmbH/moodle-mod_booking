@@ -161,11 +161,26 @@ class queue_manager {
 
         // Idempotency: if an equivalent item (same signature) is already in a
         // non-terminal state, return it instead of creating a duplicate.
-        foreach ($items as $existing) {
+        foreach ($items as $idx => $existing) {
             if (
                 (string)($existing['input_signature'] ?? '') === $signature
                 && !queue_status_policy::is_terminal_status((string)($existing['status'] ?? ''))
             ) {
+                // The proposal being staged owns the edges of a reused item. Kept from the proposal
+                // it came from, they pointed at steps the user had just dropped, and the confirm
+                // ended as DEPENDENCY_WAITING with the intent gone (#2679, thread 6342). Only a
+                // cycle keeps the old edges.
+                $olddependson = array_values(array_map('strval', (array)($existing['depends_on'] ?? [])));
+                if ($olddependson !== $dependson) {
+                    $snapshot = $items;
+                    $snapshot[$idx]['depends_on'] = $dependson;
+                    if ($this->validate_depends_on_is_dag($snapshot, $dependson)) {
+                        $items[$idx]['depends_on'] = $dependson;
+                        $items[$idx]['updated_at'] = time();
+                        $this->save_queue_items($threadid, $items);
+                        $existing = $items[$idx];
+                    }
+                }
                 $reused = $existing;
                 $reused['idempotency_reused'] = true;
                 $reused['idempotency_reason'] = 'QUEUE_SIGNATURE_REUSE';
@@ -1077,6 +1092,83 @@ class queue_manager {
             }
         }
         return $intents;
+    }
+
+    /**
+     * Intents of the placeholders whose step already executed (status succeeded), oldest first.
+     *
+     * Together with {@see self::get_planned_placeholder_intents()} this is the plan as the engine knows it,
+     * handed to the constructor so a step of a series is built as that step (#2762).
+     *
+     * @param int $threadid
+     * @return string[]
+     */
+    public function get_completed_placeholder_intents(int $threadid): array {
+        $intents = [];
+        foreach ($this->get_queue_items($threadid) as $item) {
+            if (
+                (string)($item['skill'] ?? '') === '__placeholder__'
+                && queue_status_policy::is_succeeded_status((string)($item['status'] ?? ''))
+            ) {
+                $intent = trim((string)($item['input']['intent'] ?? ''));
+                if ($intent !== '') {
+                    $intents[] = $intent;
+                }
+            }
+        }
+        return $intents;
+    }
+
+    /**
+     * The step of a multi-step plan the thread is at, from the queue alone (#2762).
+     *
+     * Completed steps are the succeeded placeholders, remaining steps the planned ones. The current step is the
+     * realizing placeholder when the turn's real command is already enqueued and bound (preflight time); before
+     * that (construction time) it is the oldest planned placeholder, the one {@see self::bind_next_placeholder()}
+     * binds next, and it leaves the remaining list. On the first turn of a plan, before any placeholder exists,
+     * the result is empty; at preflight time of that turn the placeholders exist but the current command has no
+     * placeholder, so `current` is '' and the index is 1. `total` counts completed, current and remaining steps.
+     *
+     * @param int $threadid
+     * @param bool $currentbound Whether the current command is already enqueued (and bound) in the queue.
+     * @return array {index:int,total:int,current:string,remaining:string[],completed:string[]} or []
+     */
+    public function plan_step_context(int $threadid, bool $currentbound): array {
+        $planned = [];
+        $realizing = [];
+        $completed = [];
+        foreach ($this->get_queue_items($threadid) as $item) {
+            if ((string)($item['skill'] ?? '') !== '__placeholder__') {
+                continue;
+            }
+            $intent = trim((string)($item['input']['intent'] ?? ''));
+            $status = (string)($item['status'] ?? '');
+            if (queue_status_policy::is_planned_status($status)) {
+                $planned[] = $intent;
+            } else if (queue_status_policy::is_realizing_status($status)) {
+                $realizing[] = $intent;
+            } else if (queue_status_policy::is_succeeded_status($status)) {
+                $completed[] = $intent;
+            }
+        }
+        if (empty($planned) && empty($realizing) && empty($completed)) {
+            return [];
+        }
+        $current = '';
+        if (!empty($realizing)) {
+            $current = (string)$realizing[0];
+        } else if (!$currentbound && !empty($planned)) {
+            $current = (string)array_shift($planned);
+        }
+        $planned = array_values(array_filter($planned, static fn(string $i): bool => $i !== ''));
+        $completed = array_values(array_filter($completed, static fn(string $i): bool => $i !== ''));
+        return [
+            'index' => count($completed) + 1,
+            'total' => count($completed) + 1 + count($planned),
+            'current' => $current,
+            'remaining' => $planned,
+            'completed' => $completed,
+        ];
     }
 
     /**

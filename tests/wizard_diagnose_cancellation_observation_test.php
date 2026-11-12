@@ -147,4 +147,15 @@ final class wizard_diagnose_cancellation_observation_test extends booking_advanc
         $this->assertStringContainsString('disablecancel: option no, instance no', $observation);
         $this->assertStringContainsString('Findings:', $observation);
     }
+
+    /**
+     * The result declares the diagnosed person (Wunderbyte-GmbH#2614): the engine masks exactly this account in the
+     * observation and runs no single-word guess over the template text ("Admin action:" stays).
+     */
+    public function test_result_declares_the_diagnosed_person(): void {
+        $result = $this->run_skill();
+
+        $this->assertSame('executed', $result['status']);
+        $this->assertSame([(int)$this->student->id], $result['observation_persons']);
+    }
 }

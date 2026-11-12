@@ -464,7 +464,12 @@ class create_course_skill extends core_skill_base implements
      * @return array{id?:int,name?:string,clarify?:array}
      */
     private function resolve_category(string $categoryquery, int $userid): array {
-        $writable = core_course_category::make_categories_list('moodle/course:create');
+        // Core escapes the names ("Taskflow &amp; Booking"); the user's wording and the clarification carry
+        // the plain text, so the list is decoded once here (Wunderbyte-GmbH#2621).
+        $writable = array_map(
+            static fn($name): string => html_entity_decode((string)$name, ENT_QUOTES | ENT_HTML5, 'UTF-8'),
+            core_course_category::make_categories_list('moodle/course:create')
+        );
         if (empty($writable)) {
             return ['clarify' => $this->clarify(
                 'You have no course category where you may create courses.',

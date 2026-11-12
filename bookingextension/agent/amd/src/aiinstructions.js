@@ -25,7 +25,73 @@ import Ajax from 'core/ajax';
 import Notification from 'core/notification';
 import Templates from 'core/templates';
 import Fragment from 'core/fragment';
-import {getString} from 'core/str';
+import {getString, getStrings} from 'core/str';
+
+/** Strings of the chat panel as [key, component]; init() loads them once into uiStrings. */
+const UI_STRING_KEYS = [
+    ['ai_js_copied', 'bookingextension_agent'],
+    ['ai_js_copy_failed', 'bookingextension_agent'],
+    ['ai_js_debug_copy', 'bookingextension_agent'],
+    ['ai_js_debug_copy_failed', 'bookingextension_agent'],
+    ['ai_js_debug_copy_title', 'bookingextension_agent'],
+    ['ai_js_debug_entry', 'bookingextension_agent'],
+    ['ai_js_debug_heading', 'bookingextension_agent'],
+    ['ai_js_debug_logs_heading', 'bookingextension_agent'],
+    ['ai_js_debug_request', 'bookingextension_agent'],
+    ['ai_js_debug_response', 'bookingextension_agent'],
+    ['ai_js_debug_skill_json', 'bookingextension_agent'],
+    ['ai_js_debug_thread_logs', 'bookingextension_agent'],
+    ['ai_js_discard_error', 'bookingextension_agent'],
+    ['ai_js_discard_failed', 'bookingextension_agent'],
+    ['ai_js_discarded', 'bookingextension_agent'],
+    ['ai_js_doc_loading', 'bookingextension_agent'],
+    ['ai_js_doc_no_content', 'bookingextension_agent'],
+    ['ai_js_doc_preview_title', 'bookingextension_agent'],
+    ['ai_js_done', 'bookingextension_agent'],
+    ['ai_js_missing_queue_item', 'bookingextension_agent'],
+    ['ai_js_preview_error', 'bookingextension_agent'],
+    ['ai_js_request_failed', 'bookingextension_agent'],
+    ['ai_js_upload_failed', 'bookingextension_agent'],
+    ['ai_attachment_remove', 'bookingextension_agent'],
+    ['ai_welcome_empty', 'bookingextension_agent'],
+    ['ai_welcome_with_options', 'bookingextension_agent'],
+    ['remove', 'moodle'],
+];
+/** Loaded chat panel strings by key, with their '{$a}' placeholders kept. */
+const uiStrings = {};
+
+/**
+ * Load the chat panel strings once.
+ *
+ * @returns {Promise<Object>}
+ */
+const loadUiStrings = () => getStrings(UI_STRING_KEYS.map(([key, component]) => ({key, component})))
+    .then((values) => {
+        UI_STRING_KEYS.forEach(([key], index) => {
+            uiStrings[key] = String(values[index] || '');
+        });
+        return uiStrings;
+    })
+    .catch(() => uiStrings);
+
+/**
+ * A loaded chat panel string with its placeholders filled.
+ *
+ * @param {string} key String key from UI_STRING_KEYS.
+ * @param {*} a Value for {$a}, or an object whose properties fill {$a->name}.
+ * @returns {string}
+ */
+const uiString = (key, a = null) => {
+    let text = String(uiStrings[key] || '');
+    if (a !== null && typeof a === 'object') {
+        Object.keys(a).forEach((name) => {
+            text = text.split('{$a->' + name + '}').join(String(a[name]));
+        });
+    } else if (a !== null) {
+        text = text.split('{$a}').join(String(a));
+    }
+    return text;
+};
 
 /** Pending commands waiting for user confirmation. */
 let pendingCommands = null;
@@ -40,10 +106,11 @@ let currentThreadId = 0;
 let currentContextId = 0;
 let debugModeEnabled = false;
 let sessionAutoConfirmEnabled = false;
-let privacyCheckRunningLabel = 'Privacy check running...';
-let privacyAnswerNoteLabel = 'Privacy note: personal data in this response was de-anonymized for display.';
-let stepPlanningLabel = 'Planning...';
-let stepExecutingLabel = 'Executing...';
+// Server-rendered labels from the panel's data attributes, set by init().
+let privacyCheckRunningLabel = '';
+let privacyAnswerNoteLabel = '';
+let stepPlanningLabel = '';
+let stepExecutingLabel = '';
 let defaultThinkingLabel = '';
 let forceNewThreadOnFirstMessage = true;
 let trialTokenInvalidMessageLabel = '';
@@ -170,69 +237,40 @@ const renderMessageDebugJson = (meta) => {
     }
 
     return '<details class="booking-ai-debug-json">'
-        + '<summary>LLM Skill JSON</summary>'
+        + `<summary>${escapeHtml(uiString('ai_js_debug_skill_json'))}</summary>`
         + `<pre>${escapeHtml(pretty)}</pre>`
         + '</details>';
 };
 
 /**
- * Render collapsible LLM debug logs (source, request, response).
+ * Template context for the collapsible LLM debug logs of the thread (source, request, response).
  *
  * @param {Array} debugLogs Array of debug log objects {id, timecreated, source, success, requesttext, responsetext}
- * @returns {string}
+ * @returns {Object|null} Context for bookingextension_agent/debug_logs, or null when there is nothing to show.
  */
-const renderDebugLogs = (debugLogs) => {
+const debugLogsContext = (debugLogs) => {
     if (!debugModeEnabled || !Array.isArray(debugLogs) || debugLogs.length === 0) {
-        return '';
+        return null;
     }
 
-    const plainTextLogs = formatDebugLogsForClipboard(debugLogs);
-
-    let html = '<details class="booking-ai-debug-logs">'
-        + `<summary>LLM Debug Logs (${debugLogs.length})</summary>`
-        + '<div class="p-3">';
-
-    // Add copy button
-    html += '<button type="button" '
-        + 'class="btn btn-sm btn-outline-secondary mb-2 booking-ai-copy-debug-logs" '
-        + 'title="Copy all debug logs to clipboard">'
-        + '📋 Copy All Logs'
-        + '</button>'
-        + `<pre class="booking-ai-debug-logs-plain d-none">${escapeHtml(plainTextLogs)}</pre>`;
-
-    debugLogs.forEach((entry, index) => {
-        const source = String(entry.source || '').trim();
-        const success = Number(entry.success) === 1 ? '✓' : '✗';
-        const timestamp = entry.timecreated
-            ? new Date(entry.timecreated * 1000).toLocaleTimeString()
-            : 'N/A';
-        const borderClass = Number(entry.success) === 1 ? 'border-success' : 'border-danger';
-
-        html += `<div class="booking-ai-debug-log-entry mb-3 p-2 border rounded ${borderClass}">`;
-        html += `<strong>Entry ${index + 1}</strong> [${success}] <code>${escapeHtml(source)}</code> `
-            + `<small class="text-muted">${timestamp}</small>`;
-
-        const requesttext = String(entry.requesttext || '').trim();
-        if (requesttext) {
-            html += '<details class="ml-3 mt-2">'
-                + '<summary>Request</summary>'
-                + `<pre class="bg-light p-2 small mb-0"><code>${escapeHtml(requesttext)}</code></pre>`
-                + '</details>';
-        }
-
-        const responsetext = String(entry.responsetext || '').trim();
-        if (responsetext) {
-            html += '<details class="ml-3 mt-2">'
-                + '<summary>Response</summary>'
-                + `<pre class="bg-light p-2 small mb-0"><code>${escapeHtml(responsetext)}</code></pre>`
-                + '</details>';
-        }
-
-        html += '</div>';
-    });
-
-    html += '</div></details>';
-    return html;
+    return {
+        threadheading: uiString('ai_js_debug_thread_logs'),
+        logsheading: uiString('ai_js_debug_logs_heading', debugLogs.length),
+        copytitle: uiString('ai_js_debug_copy_title'),
+        copylabel: uiString('ai_js_debug_copy'),
+        plaintext: formatDebugLogsForClipboard(debugLogs),
+        requestlabel: uiString('ai_js_debug_request'),
+        responselabel: uiString('ai_js_debug_response'),
+        entries: debugLogs.map((entry, index) => ({
+            label: uiString('ai_js_debug_entry', index + 1),
+            mark: Number(entry.success) === 1 ? '✓' : '✗',
+            borderclass: Number(entry.success) === 1 ? 'border-success' : 'border-danger',
+            source: String(entry.source || '').trim(),
+            time: entry.timecreated ? new Date(entry.timecreated * 1000).toLocaleTimeString() : 'N/A',
+            requesttext: String(entry.requesttext || '').trim(),
+            responsetext: String(entry.responsetext || '').trim(),
+        })),
+    };
 };
 
 /**
@@ -407,82 +445,98 @@ const maybeShowTrialTokenInvalidAlert = (response, errors = [], issueCodes = [])
 };
 
 /**
- * Render clickable ambiguity options below a clarification message.
+ * Template context for the clickable ambiguity options below a clarification message.
  *
  * @param {Array<Object>} options
- * @returns {string}
+ * @returns {Object|null} Context for bookingextension_agent/ambiguity_options, or null when no option is usable.
  */
-const renderAmbiguityOptionsHtml = (options = []) => {
+const ambiguityOptionsContext = (options = []) => {
     const entries = Array.isArray(options) ? options : [];
-    if (entries.length === 0) {
-        return '';
-    }
-
-    const buttons = entries.map((entry) => {
+    const choices = entries.map((entry) => {
         const query = String((entry && entry.query) || '').trim();
         const title = String((entry && entry.title) || '').trim();
         const label = String((entry && entry.label) || title || query).trim();
-        if (query === '' || label === '') {
-            return '';
-        }
+        return {query, label};
+    }).filter((choice) => choice.query !== '' && choice.label !== '');
 
-        return '<button type="button" class="btn btn-sm btn-outline-primary mr-2 mb-2 booking-ai-ambiguity-option"'
-            + ` data-query="${escapeHtml(query)}"`
-            + ` title="${escapeHtml(query)}">${escapeHtml(label)}</button>`;
-    }).filter((button) => button !== '').join('');
-
-    if (buttons === '') {
-        return '';
-    }
-
-    return '<div class="booking-ai-ambiguity-options mt-3 p-3 border rounded bg-light">'
-        + '<div class="font-weight-bold mb-1">Please select the topic you mean</div>'
-        + '<div class="small text-muted mb-2">I found multiple matching documentation entries.</div>'
-        + `<div class="d-flex flex-wrap">${buttons}</div>`
-        + '</div>';
+    return choices.length > 0 ? {options: choices} : null;
 };
 
 /**
- * Render clickable follow-up suggestions below a completed assistant response.
+ * Template context for the clickable follow-up suggestions below a completed assistant response.
  *
  * @param {Array<Object>} results
- * @returns {string}
+ * @returns {Object|null} Context for bookingextension_agent/followup_options, or null when there is no usable suggestion.
  */
-const renderFollowUpSuggestionsHtml = (results = []) => {
+const followUpSuggestionsContext = (results = []) => {
     const entries = Array.isArray(results) ? results : [];
     const resultWithSuggestions = entries.find(
         (entry) => Array.isArray(entry && entry.suggestions) && entry.suggestions.length > 0
     );
     if (!resultWithSuggestions) {
-        return '';
+        return null;
     }
 
-    const suggestions = Array.isArray(resultWithSuggestions.suggestions) ? resultWithSuggestions.suggestions : [];
-    const buttons = suggestions.map((entry) => {
+    const suggestions = resultWithSuggestions.suggestions.map((entry) => {
         const query = String((entry && entry.query) || '').trim();
         const label = String((entry && entry.label) || query).trim();
-        if (query === '' || label === '') {
-            return '';
-        }
-
-        return '<button type="button" class="btn btn-sm btn-outline-secondary mr-2 mb-2 booking-ai-followup-option"'
-            + ` data-query="${escapeHtml(query)}"`
-            + ` title="${escapeHtml(query)}">${escapeHtml(label)}</button>`;
-    }).filter((button) => button !== '').join('');
-
-    if (buttons === '') {
-        return '';
+        return {query, label};
+    }).filter((suggestion) => suggestion.query !== '' && suggestion.label !== '');
+    if (suggestions.length === 0) {
+        return null;
     }
 
-    const followUpMessage = String((resultWithSuggestions && resultWithSuggestions.followupmessage) || '').trim();
-    const introHtml = followUpMessage !== ''
-        ? `<div class="font-weight-bold mb-2">${escapeHtml(followUpMessage)}</div>`
-        : '';
+    return {
+        message: String(resultWithSuggestions.followupmessage || '').trim(),
+        suggestions,
+    };
+};
 
-    return '<div class="booking-ai-followup-options mt-3 p-3 border rounded bg-light">'
-        + introHtml
-        + `<div class="d-flex flex-wrap">${buttons}</div>`
-        + '</div>';
+/**
+ * Render a template and append it to the bubble of a chat message that is already on the page.
+ *
+ * The message keeps its place in the chat while the template renders; a hidden message (see
+ * appendTemplateMessage) is shown once its content is in.
+ *
+ * @param {HTMLElement|null} messageDiv The chat message element (from appendMessageHtml).
+ * @param {string} template Template name.
+ * @param {Object} context Template context.
+ * @returns {Promise}
+ */
+const renderIntoMessage = (messageDiv, template, context) => {
+    const bubble = messageDiv ? messageDiv.querySelector('.bubble') : null;
+    if (!bubble) {
+        return Promise.resolve();
+    }
+    return Templates.renderForPromise(template, context)
+        .then(({html, js}) => {
+            Templates.appendNodeContents(bubble, html.trim(), js);
+            messageDiv.classList.remove('d-none');
+            const list = document.getElementById('booking-ai-messages');
+            if (list) {
+                list.scrollTop = list.scrollHeight;
+            }
+            return null;
+        })
+        .catch(Notification.exception);
+};
+
+/**
+ * Append an assistant message whose whole content is a rendered template.
+ *
+ * The message is added at once, hidden, so it keeps its place in the chat; it shows when the
+ * template has rendered (no empty bubble flashes up).
+ *
+ * @param {string} template Template name.
+ * @param {Object} context Template context.
+ * @param {Object|null} meta Compact debug metadata.
+ */
+const appendTemplateMessage = (template, context, meta = null) => {
+    const messageDiv = appendMessageHtml('assistant', '', meta);
+    if (messageDiv) {
+        messageDiv.classList.add('d-none');
+        renderIntoMessage(messageDiv, template, context);
+    }
 };
 
 /**
@@ -605,12 +659,15 @@ const setSidePreviewHtml = async (html, js) => {
             ev.preventDefault();
             const url = String(btn.getAttribute('data-embed-url') || '');
             const title = String(btn.getAttribute('data-embed-title') || '');
-            preview.innerHTML = '<div class="d-flex justify-content-between align-items-center mb-1">'
-                + '<strong class="small">' + escapeHtml(title) + '</strong>'
-                + '<a href="' + escapeHtml(url) + '" target="_blank" class="small">'
-                + escapeHtml(url.replace(/^https?:\/\/[^/]+/, '')) + '</a></div>'
-                + '<iframe src="' + escapeHtml(url) + '#toolbar=0&navpanes=0&view=FitH"'
-                + ' style="width:100%;height:60vh;border:1px solid #dee2e6;"></iframe>';
+            Templates.renderForPromise('bookingextension_agent/embed_preview', {
+                title,
+                url,
+                path: url.replace(/^https?:\/\/[^/]+/, ''),
+            }).then(({html, js}) => {
+                // Trim the template's trailing newline so the pane holds exactly the rendered markup.
+                Templates.replaceNodeContents(preview, html.trim(), js);
+                return null;
+            }).catch(Notification.exception);
         });
     }
     if (String(html || '').trim() !== '') {
@@ -646,17 +703,13 @@ registerPreviewRenderer('command_list', async (payload) => {
         return '';
     }
 
-    let items = commands.map((cmd) => {
-        const skill = escapeHtml(cmd.skill || '');
-        const inputDesc = escapeHtml(JSON.stringify(cmd.input || {}));
-        return `<li><strong>Skill:</strong> ${skill}<br/><small class="text-muted">${inputDesc}</small></li>`;
-    }).join('');
-
-    return '<div class="booking-ai-run-status-inline card mb-0">'
-        + '<div class="card-body p-3">'
-        + '<h6 class="mb-2">Proposed Actions</h6>'
-        + `<ul class="mb-0 pl-3">${items}</ul>`
-        + '</div></div>';
+    const {html} = await Templates.renderForPromise('bookingextension_agent/command_list', {
+        commands: commands.map((cmd) => ({
+            skill: String(cmd.skill || ''),
+            input: JSON.stringify(cmd.input || {}),
+        })),
+    });
+    return html.trim();
 });
 
 // Anonymizer collision clarification (#2226): two decision chips for the suspect word.
@@ -691,25 +744,22 @@ registerPreviewRenderer('proposed_action', async (payload) => {
         return '';
     }
 
-    const cards = actions.map((action) => {
-        const title = escapeHtml(action.title || '');
-        const summary = escapeHtml(action.summary || '');
-        const rows = Array.isArray(action.rows) ? action.rows : [];
-        const rowsHtml = rows.map((row) =>
-            '<tr>'
-            + `<th class="font-weight-normal text-muted pr-3 align-top">${escapeHtml(row.label || '')}</th>`
-            + `<td>${escapeHtml(row.value || '')}</td>`
-            + '</tr>'
-        ).join('');
-
-        return '<div class="booking-ai-proposed-action card mb-2"><div class="card-body p-3">'
-            + (title ? `<h6 class="mb-2">${title}</h6>` : '')
-            + (summary ? `<p class="text-muted small mb-2">${summary}</p>` : '')
-            + (rowsHtml ? `<table class="table table-sm mb-0"><tbody>${rowsHtml}</tbody></table>` : '')
-            + '</div></div>';
-    }).join('');
-
-    return cards;
+    const context = {
+        actions: actions.map((action) => {
+            const rows = (Array.isArray(action.rows) ? action.rows : []).map((row) => ({
+                label: String(row.label || ''),
+                value: String(row.value || ''),
+            }));
+            return {
+                title: String(action.title || ''),
+                summary: String(action.summary || ''),
+                hasrows: rows.length > 0,
+                rows,
+            };
+        }),
+    };
+    const {html} = await Templates.renderForPromise('bookingextension_agent/proposed_action', context);
+    return html.trim();
 });
 
 export const dispatchSkillPreview = async (previewDescriptor, contextid) => {
@@ -734,7 +784,9 @@ export const dispatchSkillPreview = async (previewDescriptor, contextid) => {
                 setSidePreviewHtml(html);
             }
         } catch (e) {
-            setSidePreviewHtml(`<div class="text-danger small">Error: ${escapeHtml(e.message)}</div>`);
+            setSidePreviewHtml(
+                `<div class="text-danger small">${escapeHtml(uiString('ai_js_preview_error', e.message))}</div>`
+            );
         }
         return;
     }
@@ -1253,7 +1305,8 @@ const loadUrlInSidePreview = (url) => {
         '<iframe class="booking-ai-side-preview-frame"'
         + ` src="${escapeHtml(safeUrl)}"`
         + ' loading="lazy" referrerpolicy="no-referrer"'
-        + ' style="width:100%;min-height:420px;border:0;" title="Documentation preview"></iframe>'
+        + ' style="width:100%;min-height:420px;border:0;"'
+        + ` title="${escapeHtml(uiString('ai_js_doc_preview_title'))}"></iframe>`
     );
 };
 
@@ -1327,7 +1380,9 @@ const loadDocInPreview = (docpath, corpusid, fallbackUrl = '', fragment = '') =>
         return;
     }
 
-    setSidePreviewHtml('<div class="booking-doc-loading p-3 text-muted">Loading documentation…</div>');
+    setSidePreviewHtml(
+        `<div class="booking-doc-loading p-3 text-muted">${escapeHtml(uiString('ai_js_doc_loading'))}</div>`
+    );
 
     Ajax.call([{
         methodname: 'bookingextension_agent_ai_get_doc_content',
@@ -1350,7 +1405,9 @@ const loadDocInPreview = (docpath, corpusid, fallbackUrl = '', fragment = '') =>
         } else if (fallbackUrl !== '') {
             loadUrlInSidePreview(fallbackUrl);
         } else {
-            setSidePreviewHtml('<div class="p-3 text-muted small">No content available.</div>');
+            setSidePreviewHtml(
+                `<div class="p-3 text-muted small">${escapeHtml(uiString('ai_js_doc_no_content'))}</div>`
+            );
         }
         return resp;
     }).catch(() => {
@@ -1426,42 +1483,31 @@ const buildFriendlyRunMessage = (status, message, results = []) => {
     }
 
     return safeStatus === 'failed'
-        ? 'The request failed. Please check the details below.'
-        : 'Done.';
+        ? uiString('ai_js_request_failed')
+        : uiString('ai_js_done');
 };
 
 /**
- * Build a skill-authored debug bubble for developer mode.
+ * Template context for the skill-authored debug bubble in developer mode.
  *
- * @param {string} status
- * @param {string} message
  * @param {Array} results
- * @returns {string}
+ * @returns {Object|null} Context for bookingextension_agent/debug_run, or null when there is nothing to show.
  */
-const buildDebugRunHtml = (status, message, results = []) => {
+const debugRunContext = (results = []) => {
     if (!debugModeEnabled) {
-        return '';
+        return null;
     }
 
-    const debugMessages = [];
+    const messages = [];
     (Array.isArray(results) ? results : []).forEach((result) => {
         const debugMessage = String((result && result.debugmessage) || '').trim();
         if (debugMessage !== '') {
-            debugMessages.push(debugMessage);
+            messages.push({html: renderTextWithLinks(debugMessage)});
         }
     });
 
-    if (debugMessages.length > 0) {
-        const items = debugMessages.map((debugMessage) => `<li>${renderTextWithLinks(debugMessage)}</li>`).join('');
-        return '<div class="booking-ai-run-status-inline alert alert-secondary mb-0">'
-            + '<strong>Debug</strong>'
-            + `<ul class="mb-0">${items}</ul>`
-            + '</div>';
-    }
-
-    // No skill-authored debug payload available.
-    // Avoid duplicating the already rendered assistant message in debug mode.
-    return '';
+    // Without a skill-authored debug payload there is no box: the assistant message is already shown.
+    return messages.length > 0 ? {heading: uiString('ai_js_debug_heading'), messages} : null;
 };
 
 /**
@@ -1683,9 +1729,9 @@ const showRunStatus = (status, message, results = []) => {
         appendFriendlyAssistantMessage(friendlyMessage);
     }
 
-    const debugHtml = buildDebugRunHtml(status, message, results);
-    if (debugHtml) {
-        appendMessageHtml('assistant', debugHtml, {
+    const debugContext = debugRunContext(results);
+    if (debugContext) {
+        appendTemplateMessage('bookingextension_agent/debug_run', debugContext, {
             response_type: 'execution_debug',
             status: String(status || ''),
             source: 'showRunStatus',
@@ -1693,9 +1739,9 @@ const showRunStatus = (status, message, results = []) => {
         });
     }
 
-    const followUpHtml = renderFollowUpSuggestionsHtml(results);
-    if (followUpHtml && (status === 'completed' || status === 'failed')) {
-        appendMessageHtml('assistant', followUpHtml, {
+    const followUpContext = followUpSuggestionsContext(results);
+    if (followUpContext && (status === 'completed' || status === 'failed')) {
+        appendTemplateMessage('bookingextension_agent/followup_options', followUpContext, {
             response_type: 'execution_followup',
             status: String(status || ''),
             source: 'showRunStatus_followup',
@@ -1705,76 +1751,14 @@ const showRunStatus = (status, message, results = []) => {
 
 
 
+    // Every caller passes 'completed' or 'failed', and for these buildFriendlyRunMessage() always
+    // returns text: the result reads as one calm message in the chat and in the side pane.
     if (friendlyMessage && (status === 'completed' || status === 'failed')) {
         setSidePreviewHtml(
             `<div class="booking-ai-run-status-inline alert alert-light mb-0">`
             + `${renderTextWithLinks(friendlyMessage)}</div>`
         );
-        return;
     }
-
-    // Errors/failures are rendered in the same neutral style as any other message —
-    // never red. A failed run reads as a normal, calm notice, not an alarm.
-    const alertClass = (status === 'completed') ? 'alert-success'
-                     : (status === 'failed')    ? 'alert-light'
-                     : 'alert-info';
-    const statusLabel = escapeHtml(String(status || 'info'));
-    let html = `<div class="booking-ai-run-status-inline alert ${alertClass} mb-0">`;
-    if (Array.isArray(results) && results.length > 0) {
-        const items = results.map((result) => {
-            const properties = Array.isArray(result.properties) ? result.properties : [];
-            if (properties.length > 0) {
-                return properties.map((property) => {
-                    const label = escapeHtml(String(property.label || property.name || '-'));
-                    return `<li>${label}</li>`;
-                }).join('');
-            }
-
-            const actions = Array.isArray(result.actions) ? result.actions : [];
-            if (actions.length > 0) {
-                return actions.map((action) => {
-                    const label = escapeHtml(String(action.label || action.skill || '-'));
-                    return `<li>${label}</li>`;
-                }).join('');
-            }
-
-            const resultStatus = escapeHtml(String(result.status || status));
-            const resultDetail = renderTextWithLinks(String(result.detail || ''));
-
-            const options = Array.isArray(result.options) ? result.options : [];
-            let optionsHtml = '';
-            if (options.length > 0) {
-                optionsHtml = options.map((option) => {
-                    const optionName = escapeHtml(String(option.name || '-'));
-                    const optionId = Number(option.id || 0);
-                    const optionLink = escapeHtml(String(option.link || '#'));
-                    return `<a href="${optionLink}" target="_blank" rel="noopener noreferrer">${optionName} (${optionId})</a>`;
-                }).join('<br>');
-            }
-
-            let extraHtml = '';
-            if (result.fullname) {
-                extraHtml += `<div><strong>Name:</strong> ${escapeHtml(String(result.fullname))}</div>`;
-            }
-            if (result.email) {
-                extraHtml += `<div><strong>E-Mail:</strong> ${escapeHtml(String(result.email))}</div>`;
-            }
-
-            return `<li><strong>${resultStatus}</strong>${resultDetail ? `: ${resultDetail}` : ''}`
-                + `${extraHtml ? `<div class="mt-1">${extraHtml}</div>` : ''}`
-                + `${optionsHtml ? `<div class="mt-1">${optionsHtml}</div>` : ''}`
-                + '</li>';
-        }).join('');
-        html += `<ul class="mb-0">${items}</ul>`;
-    } else {
-        html += `<strong>${statusLabel}</strong>: ${renderTextWithLinks(message || status)}`;
-    }
-    html += '</div>';
-    appendMessageHtml('assistant', html);
-
-    // Keep execution output visible in the dedicated preview pane.
-    // If a richer option/table preview arrives later, it will replace this content.
-    setSidePreviewHtml(html);
 };
 
 /**
@@ -1896,32 +1880,29 @@ const refreshThreadDebugLogs = () => {
             debugLogs = [];
         }
 
-        if (Array.isArray(debugLogs) && debugLogs.length > 0) {
-            const debugHtml = renderDebugLogs(debugLogs);
-            if (debugHtml) {
-                const list = document.getElementById('booking-ai-messages');
-                if (list) {
-                    // Remove any existing debug logs panel
-                    const existingPanel = list.querySelector('.booking-ai-all-debug-logs');
-                    if (existingPanel) {
-                        existingPanel.remove();
-                    }
-
-                    // Add new debug logs panel
-                    const div = document.createElement('div');
-                    div.classList.add(
-                        'booking-ai-msg', 'assistant',
-                        'booking-ai-all-debug-logs', 'mt-3'
-                    );
-                    div.innerHTML = '<div class="alert alert-secondary mb-0">'
-                        + '<strong>📋 All LLM Debug Logs (Thread)</strong>'
-                        + `${debugHtml}`
-                        + '</div>';
-                    list.appendChild(div);
-                    list.scrollTop = list.scrollHeight;
-                }
-            }
+        const context = debugLogsContext(debugLogs);
+        return context ? Templates.renderForPromise('bookingextension_agent/debug_logs', context) : null;
+    }).then((rendered) => {
+        const list = document.getElementById('booking-ai-messages');
+        if (!rendered || !list) {
+            return null;
         }
+
+        // Replace any existing debug logs panel.
+        const existingPanel = list.querySelector('.booking-ai-all-debug-logs');
+        if (existingPanel) {
+            existingPanel.remove();
+        }
+
+        const div = document.createElement('div');
+        div.classList.add(
+            'booking-ai-msg', 'assistant',
+            'booking-ai-all-debug-logs', 'mt-3'
+        );
+        list.appendChild(div);
+        Templates.replaceNodeContents(div, rendered.html.trim(), rendered.js);
+        list.scrollTop = list.scrollHeight;
+        return null;
     }).catch(() => {
         // Silently fail if API not available or debug mode off
     });
@@ -1953,7 +1934,8 @@ const renderAttachmentTray = () => {
             ${thumb || icon}
             <span class="booking-ai-attachment-name">${name}</span>
             <button type="button" class="booking-ai-attachment-remove" data-idx="${idx}"
-                    aria-label="Remove attachment" title="Remove">&#10005;</button>
+                    aria-label="${escapeHtml(uiString('ai_attachment_remove'))}"
+                    title="${escapeHtml(uiString('remove'))}">&#10005;</button>
         </span>`;
     }).join('');
 };
@@ -1978,7 +1960,7 @@ const uploadAttachment = (file) => {
         }])[0].then((resp) => {
             if (!resp.success) {
                 Notification.addNotification({
-                    message: resp.message || 'Upload failed.',
+                    message: resp.message || uiString('ai_js_upload_failed'),
                     type: 'error',
                 });
                 return resp;
@@ -1992,7 +1974,7 @@ const uploadAttachment = (file) => {
             renderAttachmentTray();
             return resp;
         }).catch((err) => {
-            Notification.addNotification({message: 'File upload failed.', type: 'error'});
+            Notification.addNotification({message: uiString('ai_js_upload_failed'), type: 'error'});
             return err;
         });
     };
@@ -2325,12 +2307,13 @@ const sendMessage = (message, resume = false) => {
             }
             const ambiguityOptions = parseJsonObjectList(resp.ambiguityoptionsjson || '[]');
             const messageText = String(resp.displaymessage || resp.message || '');
-            const ambiguityOptionsHtml = renderAmbiguityOptionsHtml(ambiguityOptions);
+            const ambiguityContext = ambiguityOptionsContext(ambiguityOptions);
 
-            if (ambiguityOptionsHtml !== '' && resp.response_type === 'clarification') {
-                appendMessageHtml(
+            if (ambiguityContext && resp.response_type === 'clarification') {
+                // The clarification text shows at once; the option buttons follow into the same bubble.
+                const clarificationDiv = appendMessageHtml(
                     'assistant',
-                    `${renderAssistantMessageHtml(messageText)}${ambiguityOptionsHtml}`,
+                    renderAssistantMessageHtml(messageText),
                     {
                         response_type: resp.response_type || '',
                         threadid: Number(resp.threadid || currentThreadId || 0),
@@ -2342,10 +2325,11 @@ const sendMessage = (message, resume = false) => {
                         time: (new Date()).toISOString(),
                     }
                 );
+                renderIntoMessage(clarificationDiv, 'bookingextension_agent/ambiguity_options', ambiguityContext);
 
-                const debugHtml = buildDebugRunHtml('completed', messageText, results);
-                if (debugHtml) {
-                    appendMessageHtml('assistant', debugHtml, {
+                const debugContext = debugRunContext(results);
+                if (debugContext) {
+                    appendTemplateMessage('bookingextension_agent/debug_run', debugContext, {
                         response_type: 'execution_debug',
                         status: 'completed',
                         source: 'ai_send_message',
@@ -2353,9 +2337,9 @@ const sendMessage = (message, resume = false) => {
                     });
                 }
 
-                const followUpHtml = renderFollowUpSuggestionsHtml(results);
-                if (followUpHtml) {
-                    appendMessageHtml('assistant', followUpHtml, {
+                const followUpContext = followUpSuggestionsContext(results);
+                if (followUpContext) {
+                    appendTemplateMessage('bookingextension_agent/followup_options', followUpContext, {
                         response_type: 'execution_followup',
                         status: 'completed',
                         source: 'ai_send_message_followup',
@@ -2390,13 +2374,9 @@ const sendMessage = (message, resume = false) => {
                 meta
             );
 
-            const debugHtml = buildDebugRunHtml(
-                isError ? 'failed' : 'completed',
-                String(resp.displaymessage || resp.message || ''),
-                results
-            );
-            if (debugHtml) {
-                appendMessageHtml('assistant', debugHtml, {
+            const debugContext = debugRunContext(results);
+            if (debugContext) {
+                appendTemplateMessage('bookingextension_agent/debug_run', debugContext, {
                     response_type: 'execution_debug',
                     status: isError ? 'failed' : 'completed',
                     source: 'ai_send_message',
@@ -2404,9 +2384,9 @@ const sendMessage = (message, resume = false) => {
                 });
             }
 
-            const followUpHtml = renderFollowUpSuggestionsHtml(results);
-            if (followUpHtml) {
-                appendMessageHtml('assistant', followUpHtml, {
+            const followUpContext = followUpSuggestionsContext(results);
+            if (followUpContext) {
+                appendTemplateMessage('bookingextension_agent/followup_options', followUpContext, {
                     response_type: 'execution_followup',
                     status: isError ? 'failed' : 'completed',
                     source: 'ai_send_message_followup',
@@ -2480,7 +2460,7 @@ const confirmRun = (allowSession = false) => {
     }
 
     if (pendingQueueItemId === '') {
-        showRunStatus('failed', 'Missing queue item id. Please confirm the latest assistant proposal again.');
+        showRunStatus('failed', uiString('ai_js_missing_queue_item'));
         return;
     }
 
@@ -2584,17 +2564,16 @@ const discardPendingConfirmation = () => {
         const ok = Boolean(resp && resp.success);
         hideConfirmPanel(true);
         if (!ok) {
-            const message = String((resp && resp.message) || 'Unable to discard pending confirmation.');
+            const message = String((resp && resp.message) || uiString('ai_js_discard_failed'));
             showRunStatus('failed', message);
             return resp;
         }
 
-        const message = String((resp && resp.message) || 'Pending confirmation was discarded.');
+        const message = String((resp && resp.message) || uiString('ai_js_discarded'));
         appendFriendlyAssistantMessage(message);
         return resp;
     }).catch((err) => {
-        const fallbackMessage = 'Discard failed. Pending confirmation is still active. '
-            + 'If this happened after an update, run the Moodle plugin upgrade and reload the page.';
+        const fallbackMessage = uiString('ai_js_discard_error');
         appendFriendlyAssistantMessage(fallbackMessage);
         Notification.exception(err);
     });
@@ -2660,6 +2639,34 @@ const revealKeyEntryFallback = () => {
 };
 
 /**
+ * Render a setup screen template into the setup result area.
+ *
+ * @param {HTMLElement} target The result area.
+ * @param {string} template Template name.
+ * @param {Object} context Template context.
+ * @returns {Promise}
+ */
+const renderSetupResult = (target, template, context) => Templates.renderForPromise(template, context)
+    .then(({html, js}) => {
+        Templates.replaceNodeContents(target, html.trim(), js);
+        return null;
+    })
+    .catch(Notification.exception);
+
+/**
+ * Show the red error box in the setup result area.
+ *
+ * @param {HTMLElement} target The result area.
+ * @param {string} text The error text; URLs in it become links.
+ * @param {boolean} showicon Whether the error icon is shown before the text.
+ * @returns {Promise}
+ */
+const showSetupError = (target, text, showicon) => renderSetupResult(target, 'bookingextension_agent/setup_error', {
+    showicon,
+    messagehtml: renderTextWithLinks(text),
+});
+
+/**
  * Request a trial key and advance the setup wizard.
  *
  * @param {String} strategy Chosen provider path: 'wunderbyte', 'openai', or '' to auto-detect.
@@ -2696,11 +2703,7 @@ const requestTrialKey = (strategy) => {
         }
         if (ctx.trialResult) {
             ctx.trialResult.classList.remove('d-none');
-            ctx.trialResult.innerHTML =
-                '<div class="alert alert-danger mb-0">'
-                + '<i class="fa fa-exclamation-circle mr-2" aria-hidden="true"></i>'
-                + renderTextWithLinks((resp && resp.message) || ctx.trialFailedDefault)
-                + '</div>';
+            showSetupError(ctx.trialResult, (resp && resp.message) || ctx.trialFailedDefault, true);
         }
         revealKeyEntryFallback();
         buttons.forEach((btn) => {
@@ -2713,10 +2716,7 @@ const requestTrialKey = (strategy) => {
         }
         if (ctx.trialResult) {
             ctx.trialResult.classList.remove('d-none');
-            ctx.trialResult.innerHTML =
-                '<div class="alert alert-danger mb-0">'
-                    + renderTextWithLinks(err.message || ctx.trialUnexpectedError)
-                + '</div>';
+            showSetupError(ctx.trialResult, err.message || ctx.trialUnexpectedError, false);
         }
         revealKeyEntryFallback();
         buttons.forEach((btn) => {
@@ -2876,20 +2876,13 @@ const activateTrialContext = () => {
             ctx.trialResult.classList.remove('d-none');
             if (resp && resp.success) {
                 // Step 3 "Ready": explicit confirmation, then the user opens the agent themselves.
-                ctx.trialResult.innerHTML =
-                    '<div class="alert alert-success mb-0">'
-                    + '<i class="fa fa-check-circle mr-2" aria-hidden="true"></i>'
-                    + '<strong>' + escapeHtml(ctx.readyHeading) + '</strong> '
-                    + escapeHtml(ctx.readyBody)
-                    + '<div class="mt-2"><button type="button" id="booking-ai-open-agent-btn"'
-                    + ' class="btn btn-primary btn-sm">' + escapeHtml(ctx.openAgentLabel) + '</button></div>'
-                    + '</div>';
+                renderSetupResult(ctx.trialResult, 'bookingextension_agent/setup_ready', {
+                    heading: ctx.readyHeading,
+                    body: ctx.readyBody,
+                    openlabel: ctx.openAgentLabel,
+                });
             } else {
-                ctx.trialResult.innerHTML =
-                    '<div class="alert alert-danger mb-0">'
-                    + '<i class="fa fa-exclamation-circle mr-2" aria-hidden="true"></i>'
-                    + renderTextWithLinks((resp && resp.message) || ctx.trialFailedDefault)
-                    + '</div>';
+                showSetupError(ctx.trialResult, (resp && resp.message) || ctx.trialFailedDefault, true);
                 ctx.activateBtn.disabled = false;
             }
         }
@@ -2900,10 +2893,7 @@ const activateTrialContext = () => {
         }
         if (ctx.trialResult) {
             ctx.trialResult.classList.remove('d-none');
-            ctx.trialResult.innerHTML =
-                '<div class="alert alert-danger mb-0">'
-                + renderTextWithLinks(err.message || ctx.trialUnexpectedError)
-                + '</div>';
+            showSetupError(ctx.trialResult, err.message || ctx.trialUnexpectedError, false);
         }
         ctx.activateBtn.disabled = false;
         Notification.exception(err);
@@ -2945,11 +2935,7 @@ const configureFromExistingProvider = () => {
         }
         if (ctx.trialResult) {
             ctx.trialResult.classList.remove('d-none');
-            ctx.trialResult.innerHTML =
-                '<div class="alert alert-danger mb-0">'
-                + '<i class="fa fa-exclamation-circle mr-2" aria-hidden="true"></i>'
-                + renderTextWithLinks((resp && resp.message) || ctx.trialFailedDefault)
-                + '</div>';
+            showSetupError(ctx.trialResult, (resp && resp.message) || ctx.trialFailedDefault, true);
         }
         if (cloneBtn) {
             cloneBtn.disabled = false;
@@ -2961,10 +2947,7 @@ const configureFromExistingProvider = () => {
         }
         if (ctx.trialResult) {
             ctx.trialResult.classList.remove('d-none');
-            ctx.trialResult.innerHTML =
-                '<div class="alert alert-danger mb-0">'
-                + renderTextWithLinks(err.message || ctx.trialUnexpectedError)
-                + '</div>';
+            showSetupError(ctx.trialResult, err.message || ctx.trialUnexpectedError, false);
         }
         if (cloneBtn) {
             cloneBtn.disabled = false;
@@ -3049,13 +3032,9 @@ const displayWelcomeMessage = (numOptions, numBooked) => {
         return;
     }
 
-    let message = '';
-    if (numOptions === 0) {
-        message = 'Welcome! Would you like me to help you create your first booking option?';
-    } else {
-        message = `Welcome! You have ${numOptions} booking options here, and ${numBooked} people are already booked. ` +
-            'How can I help you?';
-    }
+    const message = numOptions === 0
+        ? uiString('ai_welcome_empty')
+        : uiString('ai_welcome_with_options', {numoptions: numOptions, numbooked: numBooked});
 
     const p = document.createElement('p');
     p.textContent = message;
@@ -3145,10 +3124,10 @@ const handleBodyClick = (event) => {
         const plainText = plain ? String(plain.textContent || '') : '';
 
         copyTextToClipboard(plainText).then(() => {
-            showButtonFeedback(copyBtn, 'Copied!', 'btn-success');
+            showButtonFeedback(copyBtn, uiString('ai_js_copied'), 'btn-success');
         }).catch(() => {
-            showButtonFeedback(copyBtn, 'Copy failed', 'btn-danger');
-            Notification.alert('Failed to copy debug logs to clipboard.');
+            showButtonFeedback(copyBtn, uiString('ai_js_copy_failed'), 'btn-danger');
+            Notification.alert(uiString('ai_js_debug_copy_failed'));
         });
         return;
     }
@@ -3481,16 +3460,27 @@ export const init = (jsModulesOrConfig = {}, config = null) => {
             num_options: Number(wrapper.dataset.numOptions || 0),
             num_booked: Number(wrapper.dataset.numBooked || 0),
             debug_mode: String(wrapper.dataset.debugMode || '0') === '1',
-            privacy_check_running: String(wrapper.dataset.privacyCheckRunning || 'Privacy check running...'),
-            privacy_answer_note: String(
-                wrapper.dataset.privacyAnswerNote
-                || 'Privacy note: personal data in this response was de-anonymized for display.'
-            ),
+            privacy_check_running: String(wrapper.dataset.privacyCheckRunning || ''),
+            privacy_answer_note: String(wrapper.dataset.privacyAnswerNote || ''),
             trial_token_invalid_message: String(wrapper.dataset.aiTrialTokenInvalidMessage || ''),
             step_planning_label: String(wrapper.dataset.stepPlanningLabel || ''),
             step_executing_label: String(wrapper.dataset.stepExecutingLabel || ''),
         };
     }
+
+    const uiStringsLoaded = loadUiStrings();
+    // Load the chat panel templates now, so rendering them later needs no extra round trip.
+    Templates.prefetchTemplates([
+        'bookingextension_agent/ambiguity_options',
+        'bookingextension_agent/command_list',
+        'bookingextension_agent/debug_logs',
+        'bookingextension_agent/debug_run',
+        'bookingextension_agent/embed_preview',
+        'bookingextension_agent/followup_options',
+        'bookingextension_agent/proposed_action',
+        'bookingextension_agent/setup_error',
+        'bookingextension_agent/setup_ready',
+    ]);
 
     currentContextId = runtimeConfig.contextid || 0;
     currentThreadId = runtimeConfig.threadid || 0;
@@ -3505,9 +3495,9 @@ export const init = (jsModulesOrConfig = {}, config = null) => {
     if (thinking) {
         const thinkingLabel = document.getElementById('booking-ai-thinking-label');
         if (thinkingLabel) {
-            defaultThinkingLabel = String(thinkingLabel.textContent || '').trim() || 'Thinking...';
+            defaultThinkingLabel = String(thinkingLabel.textContent || '').trim();
         } else {
-            defaultThinkingLabel = String(thinking.textContent || '').trim() || 'Thinking...';
+            defaultThinkingLabel = String(thinking.textContent || '').trim();
         }
     }
 
@@ -3524,8 +3514,11 @@ export const init = (jsModulesOrConfig = {}, config = null) => {
     initMobilePreviewSwitch();
     initAttachmentHandlers();
 
-    // Display welcome message based on booking statistics.
-    displayWelcomeMessage(runtimeConfig.num_options || 0, runtimeConfig.num_booked || 0);
+    // Display welcome message based on booking statistics, once the panel strings are loaded.
+    uiStringsLoaded.then(() => {
+        displayWelcomeMessage(runtimeConfig.num_options || 0, runtimeConfig.num_booked || 0);
+        return null;
+    }).catch(Notification.exception);
 
     initDebugRefreshButton();
 

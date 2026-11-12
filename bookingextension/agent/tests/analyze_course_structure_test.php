@@ -240,7 +240,13 @@ final class analyze_course_structure_test extends advanced_testcase {
         $gen->create_module('page', ['course' => $course->id, 'section' => 1, 'name' => 'Visible page']);
         $gen->create_module('page', ['course' => $course->id, 'section' => 1, 'name' => 'Secret page', 'visible' => 0]);
         $gen->create_module('page', ['course' => $course->id, 'section' => 2, 'name' => 'In hidden section']);
-        set_section_visible($course->id, 2, 0);
+        // Moodle 5.2 deprecated set_section_visible() (MDL-86861); 4.5-5.1 have no sectionactions::set_visibility() yet.
+        if (method_exists(\core_courseformat\local\sectionactions::class, 'set_visibility')) {
+            \core_courseformat\formatactions::section($course->id)
+                ->set_visibility(get_fast_modinfo($course->id)->get_section_info(2), false);
+        } else {
+            set_section_visible($course->id, 2, 0);
+        }
 
         rebuild_course_cache($course->id, true);
         return [$course, $teacher, $student];

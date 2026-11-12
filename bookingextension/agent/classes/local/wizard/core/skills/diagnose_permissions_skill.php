@@ -326,6 +326,12 @@ class diagnose_permissions_skill extends core_skill_base implements skill_trigge
 
         $rows = [];
         $can = has_capability($capability, $targetcontext, $targetuser->id);
+        // A site administrator holds every capability without a role, and role overrides (PROHIBIT too) do not
+        // apply (#2625). has_capability() with $doanything = false leaves the admin rule out, so it tells whether
+        // the roles alone would grant it. For everybody else $doanything changes nothing.
+        $siteadmin = is_siteadmin((int)$targetuser->id);
+        $byroles = $siteadmin ? has_capability($capability, $targetcontext, $targetuser->id, false) : $can;
+        $grantedby = !$can ? 'none' : ($byroles ? 'roles' : 'siteadmin');
         // Person-correct verb: "You HAVE / do NOT have", "<Name> HAS / does NOT have".
         $subject = $isself ? 'You' : fullname($targetuser);
         $verb = $can
@@ -342,6 +348,14 @@ class diagnose_permissions_skill extends core_skill_base implements skill_trigge
                 $actinguserid
             )
         );
+        if ($siteadmin) {
+            $rows[] = $this->siteadmin_row(match (true) {
+                // Still refused, e.g. by a context lock that also applies to administrators.
+                !$can => get_string('agent_diagnose_permissions_siteadmin_refused', 'bookingextension_agent'),
+                $byroles => get_string('agent_diagnose_permissions_siteadmin_alsoroles', 'bookingextension_agent'),
+                default => get_string('agent_diagnose_permissions_siteadmin_onlyadmin', 'bookingextension_agent'),
+            }, $can ? 'ok' : 'warn');
+        }
 
         // Overrides for this capability along the chain, limited to the user's roles.
         $chainids = $targetcontext->get_parent_context_ids(true);
@@ -370,7 +384,15 @@ class diagnose_permissions_skill extends core_skill_base implements skill_trigge
             }
         }
 
-        return $this->build_result($targetcontext, $targetuser, $isself, $rows, 'Capability check', 'capability');
+        return $this->build_result(
+            $targetcontext,
+            $targetuser,
+            $isself,
+            $rows,
+            'Capability check',
+            'capability',
+            ['siteadmin' => $siteadmin, 'granted_by' => $grantedby]
+        );
     }
 
     /**
@@ -391,6 +413,11 @@ class diagnose_permissions_skill extends core_skill_base implements skill_trigge
         int $actinguserid
     ): array {
         $rows = [];
+        // A site administrator holds every capability without any role; say so before the role rows (#2625).
+        $siteadmin = is_siteadmin((int)$targetuser->id);
+        if ($siteadmin) {
+            $rows[] = $this->siteadmin_row(get_string('agent_diagnose_permissions_siteadmin_allcaps', 'bookingextension_agent'));
+        }
         $chainids = array_reverse($targetcontext->get_parent_context_ids(true)); // System → … → target.
         $chainnames = [];
         $anyrole = false;
@@ -415,8 +442,9 @@ class diagnose_permissions_skill extends core_skill_base implements skill_trigge
         }
         if (!$anyrole) {
             // The chain is named so that "nothing here" is never read as "nothing anywhere".
+            // For a site administrator no role is not a problem (the admin row says why), so no warning.
             $rows[] = diagnostic_result_builder::row(
-                'warn',
+                $siteadmin ? 'ok' : 'warn',
                 'No role assignments along this chain',
                 'Checked: ' . implode(', ', $chainnames) . '. Other courses and activities are not part of this chain.',
                 $links->if_capable(
@@ -430,7 +458,30 @@ class diagnose_permissions_skill extends core_skill_base implements skill_trigge
         foreach ($this->roles_elsewhere($chainids, $targetuser, $isself, $actinguserid) as $row) {
             $rows[] = $row;
         }
-        return $this->build_result($targetcontext, $targetuser, $isself, $rows, 'Role assignments', 'roles');
+        return $this->build_result(
+            $targetcontext,
+            $targetuser,
+            $isself,
+            $rows,
+            'Role assignments',
+            'roles',
+            ['siteadmin' => $siteadmin]
+        );
+    }
+
+    /**
+     * The site administrator row (#2625).
+     *
+     * @param string $finding
+     * @param string $status
+     * @return array
+     */
+    private function siteadmin_row(string $finding, string $status = 'ok'): array {
+        return diagnostic_result_builder::row(
+            $status,
+            get_string('agent_diagnose_permissions_siteadmin', 'bookingextension_agent'),
+            $finding
+        );
     }
 
     /**
@@ -697,6 +748,7 @@ class diagnose_permissions_skill extends core_skill_base implements skill_trigge
      * @param array[] $rows
      * @param string $titleprefix
      * @param string $mode
+     * @param array $facts Structured facts for the diagnosis block (siteadmin, granted_by).
      * @return array
      */
     private function build_result(
@@ -705,7 +757,8 @@ class diagnose_permissions_skill extends core_skill_base implements skill_trigge
         bool $isself,
         array $rows,
         string $titleprefix,
-        string $mode
+        string $mode,
+        array $facts = []
     ): array {
         $subject = $isself ? 'you' : fullname($targetuser);
         $ctxname = $targetcontext->get_context_name();
@@ -736,7 +789,7 @@ class diagnose_permissions_skill extends core_skill_base implements skill_trigge
                 'targetuserid' => (int)$targetuser->id,
                 'mode' => $mode,
                 'checklist' => $rows,
-            ],
+            ] + $facts,
             'checklist_rows' => $rows,
             'checklist_title' => $titleprefix . ': ' . $subject . ' · ' . $ctxname,
             'observation_full' => implode("\n", $lines),

@@ -2043,9 +2043,10 @@ final class rules_test extends booking_advanced_testcase {
         $messages = $sink->get_messages();
         $res = ob_get_clean();
         $sink->close();
-        // If this causes failures because of the order, make less strict comparison. Maybe first message is send to first deputy...
-        $this->assertEquals($deputy2->id, $messages[0]->useridto);
-        $this->assertEquals($deputy->id, $messages[1]->useridto);
+        // Neither the recipient query nor the adhoc tasks have a fixed order: each deputy gets exactly one mail.
+        $this->assertCount(2, $messages);
+        $recipients = array_map(fn($message) => (int)$message->useridto, $messages);
+        $this->assertEqualsCanonicalizing([(int)$deputy->id, (int)$deputy2->id], $recipients);
     }
 
     /**
@@ -2181,9 +2182,10 @@ final class rules_test extends booking_advanced_testcase {
         $messages = $sink->get_messages();
         $res = ob_get_clean();
         $sink->close();
-        // If this causes failures because of the order, make less strict comparison. Maybe first message is send to first deputy...
-        $this->assertEquals($deputy2->id, $messages[0]->useridto);
-        $this->assertEquals($deputy->id, $messages[1]->useridto);
+        // Neither the recipient query nor the adhoc tasks have a fixed order: each deputy gets exactly one mail.
+        $this->assertCount(2, $messages);
+        $recipients = array_map(fn($message) => (int)$message->useridto, $messages);
+        $this->assertEqualsCanonicalizing([(int)$deputy->id, (int)$deputy2->id], $recipients);
     }
 
     /**

@@ -216,6 +216,33 @@ class orchestrator {
     }
 
     /**
+     * The AI action each phase runs with in this context: selection, construction, reply.
+     *
+     * Read-only: the same routing the phases use, so a check on these actions (provider_instruction_check) looks at
+     * exactly what will be called.
+     *
+     * @param int $contextid Moodle context id.
+     * @return array{selection:string, construction:string, reply:string}
+     */
+    public function get_routed_action_classes(int $contextid): array {
+        $manager = di::get(ai_manager::class);
+        $context = context::instance_by_id($contextid);
+        return [
+            'selection' => (string)$this->orchestratorroutingsvc->resolve_action_class_for_phase(
+                $manager,
+                $context,
+                orchestrator_routing_service::PHASE_SELECTION
+            )['actionclass'],
+            'construction' => (string)$this->orchestratorroutingsvc->resolve_action_class_for_phase(
+                $manager,
+                $context,
+                orchestrator_routing_service::PHASE_PARAMETER_CONSTRUCTION
+            )['actionclass'],
+            'reply' => (string)$this->resolve_synchronizer_action_class($manager, $context)['actionclass'],
+        ];
+    }
+
+    /**
      * Process a user message: call the LLM and interpret the response.
      *
      * @param  int      $threadid     Thread id.

@@ -1,0 +1,23 @@
+{{!
+    Red error box on the AI setup screen: shown when requesting the trial, activating it or taking
+    over an existing provider fails.
+
+    Rendered by aiinstructions.js into the setup result area.
+
+    @template bookingextension_agent/setup_error
+
+    @package    bookingextension_agent
+    @copyright  2026 Wunderbyte GmbH <info@wunderbyte.at>
+    @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+
+    Context variables required for this template:
+    * showicon - Whether the error icon is shown before the text.
+    * messagehtml - The error text as HTML: already escaped, with URLs turned into links.
+
+    Example context (json):
+    {
+        "showicon": true,
+        "messagehtml": "The trial could not be started. See <a href=\"https://example.com\">example.com</a>."
+    }
+}}
+<div class="alert alert-danger mb-0">{{#showicon}}<i class="fa fa-exclamation-circle mr-2" aria-hidden="true"></i>{{/showicon}}{{{messagehtml}}}</div>

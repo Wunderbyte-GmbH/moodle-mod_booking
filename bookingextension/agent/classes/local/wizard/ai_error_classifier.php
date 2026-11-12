@@ -46,7 +46,7 @@ class ai_error_classifier {
      * Returns issue codes derived from the HTTP error code and error message.
      *
      * @param  string $errormessage  Human-readable error from the provider.
-     * @param  int    $errorcode     HTTP-like numeric error code (e.g. 401, 429).
+     * @param  int    $errorcode     HTTP-like numeric error code (e.g. 401, 402, 429).
      * @param  string $errorname     Short error name/type string from the provider.
      * @return string[]  Issue code strings, or empty array when no match.
      */
@@ -59,7 +59,9 @@ class ai_error_classifier {
             return ['TRIAL_TOKEN_INVALID'];
         }
 
-        if ($errorcode === 429) {
+        // 402 Payment Required: out of credit (e.g. DeepSeek "Insufficient Balance"). Checked by code
+        // because core_ai (5.1+) replaces the provider message with a generic one outside developer debug.
+        if ($errorcode === 429 || $errorcode === 402) {
             return ['AI_PROVIDER_QUOTA_EXCEEDED'];
         }
 

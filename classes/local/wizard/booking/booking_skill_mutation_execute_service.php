@@ -21,6 +21,7 @@ use context_user;
 use mod_booking\booking_option;
 use mod_booking\local\wizard\booking\support\booking_mutation_validation;
 use mod_booking\local\wizard\booking\support\entity_location;
+use mod_booking\local\wizard\booking\support\option_field_values;
 use mod_booking\local\wizard\options\skills\bulk_update_options_skill;
 use mod_booking\local\wizard\options\skills\create_option_skill;
 use mod_booking\local\wizard\options\skills\option_input_verification;
@@ -662,6 +663,24 @@ class booking_skill_mutation_execute_service {
             }
         }
 
+        // Option field values (#2680): resolved by the skill preflight into optionfieldvalues, or here for a direct
+        // call; applied in import style so booking_handler maps them to the form elements on save.
+        $optionfieldvalues = is_array($input['optionfieldvalues'] ?? null) ? (array)$input['optionfieldvalues'] : null;
+        if ($optionfieldvalues === null && !empty($input['optionfields'])) {
+            $resolved = option_field_values::resolve(
+                $input['optionfields'],
+                static fn(string $id, $a): string => get_string($id, 'booking', $a)
+            );
+            if ($resolved['issue'] !== null) {
+                return ['status' => 'error', 'detail' => (string)$resolved['issue']['message'], 'resultid' => null];
+            }
+            $optionfieldvalues = $resolved['values'];
+            $input['optionfieldvalues'] = $optionfieldvalues;
+        }
+        if (!empty($optionfieldvalues)) {
+            option_field_values::apply_to_data($data, $optionfieldvalues);
+        }
+
         if ($taskname === create_option_skill::TASK_NAME) {
             $data->id = 0;
             if (empty($data->text)) {
@@ -835,10 +854,11 @@ class booking_skill_mutation_execute_service {
 
             // Entity mentions travel with real moodle_url links — "id (link)" per
             // option, so the synchronizer presents them clickable without inventing URLs.
-            $linklist = static function (array $optionidlist) use ($cmid): string {
+            // The success list carries the titles as the failure lines do, so the answer can name the options
+            // instead of their ids (Wunderbyte-GmbH#2621).
+            $linklist = function (array $optionidlist) use ($cmid): string {
                 return implode(', ', array_map(
-                    static fn(int $id): string => $id . ' ('
-                        . booking_skill_support::build_option_link_for_output($cmid, $id) . ')',
+                    fn(int $id): string => $this->build_bulk_option_label($cmid, $id),
                     array_map('intval', $optionidlist)
                 ));
             };
@@ -1496,6 +1516,9 @@ class booking_skill_mutation_execute_service {
         }
         if (!empty($input['headerimage_token'])) {
             $checked[] = 'headerimage_token';
+        }
+        if (!empty($input['optionfieldvalues'])) {
+            $checked[] = 'optionfields';
         }
         if (!empty($input['teacherids']) && is_array($input['teacherids'])) {
             $checked[] = 'teacherids';

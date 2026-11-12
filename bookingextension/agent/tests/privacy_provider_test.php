@@ -153,4 +153,48 @@ final class privacy_provider_test extends \core_privacy\tests\provider_testcase 
         $this->assertFalse($DB->record_exists('bx_agent_ai_threads', ['contextid' => $coursectx->id]));
         $this->assertEquals(0, $DB->count_records('bx_agent_ai_messages'));
     }
+
+    /**
+     * Each conversation thread is exported into its own folder with only its own messages, runs and
+     * debug logs, so the export holds one thread in memory at a time (Wunderbyte-GmbH/Wunderbyte-GmbH#2729).
+     */
+    public function test_export_writes_each_thread_into_its_own_folder(): void {
+        global $DB;
+        $this->resetAfterTest();
+
+        $user = $this->getDataGenerator()->create_user();
+        $course = $this->getDataGenerator()->create_course();
+        $coursectx = \context_course::instance($course->id);
+
+        // Two threads of the same user in the same context: close the first, then start the second.
+        $store = new conversation_store();
+        $first = (int)$store->get_or_create_thread((int)$user->id, (int)$coursectx->id)->id;
+        $store->add_message($first, 'user', 'First thread question.');
+        $store->add_message($first, 'assistant', 'First thread answer.');
+        $store->create_run($first, (int)$user->id, (int)$coursectx->id, 'idem-key-first', [['skill' => 'noop']]);
+        $store->add_llm_debug_entry($first, (int)$user->id, (int)$coursectx->id, 'orchestrator', 'PROMPT 1', 'RESPONSE 1', 1);
+        $DB->set_field('bx_agent_ai_threads', 'status', 'closed', ['id' => $first]);
+
+        $second = (int)$store->get_or_create_thread((int)$user->id, (int)$coursectx->id)->id;
+        $this->assertNotSame($first, $second);
+        $store->add_message($second, 'user', 'Second thread question.');
+
+        $this->export_context_data_for_user((int)$user->id, $coursectx, 'bookingextension_agent');
+        $writer = writer::with_context($coursectx);
+        $folder = get_string('privacy:metadata:bx_agent_ai_threads', 'bookingextension_agent');
+
+        $firstdata = $writer->get_data([$folder, (string)$first]);
+        $this->assertNotEmpty($firstdata, 'The first thread has its own folder.');
+        $this->assertSame('closed', $firstdata->status);
+        $this->assertCount(2, $firstdata->messages);
+        $this->assertCount(1, $firstdata->runs);
+        $this->assertCount(1, $firstdata->debuglogs);
+
+        $seconddata = $writer->get_data([$folder, (string)$second]);
+        $this->assertNotEmpty($seconddata, 'The second thread has its own folder.');
+        $this->assertSame('active', $seconddata->status);
+        $this->assertCount(1, $seconddata->messages);
+        $this->assertCount(0, $seconddata->runs);
+        $this->assertCount(0, $seconddata->debuglogs);
+    }
 }

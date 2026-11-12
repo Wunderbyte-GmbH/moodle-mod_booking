@@ -326,6 +326,51 @@ final class wizard_option_skill_result_fields_test extends booking_advanced_test
     }
 
     /**
+     * With a waiting list the availability carries one capacity sentence naming each pool's own taken/free pair,
+     * so "3 free waiting places" is never read as "3 of 5 taken" (Ticket 2676 follow-up, S13-1 of 28.10.).
+     *
+     * @return void
+     */
+    public function test_get_option_details_capacity_line_names_both_pools(): void {
+        $env = $this->setup_booking('Capacity booking');
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $record = new stdClass();
+        $record->bookingid = (int)$env['booking']->id;
+        $record->text = 'Capacity option';
+        $record->chooseorcreatecourse = 1;
+        $record->courseid = (int)$env['course']->id;
+        $record->useprice = 0;
+        $record->maxanswers = 3;
+        $record->maxoverbooking = 5;
+        $record->optiondateid_0 = "0";
+        $record->daystonotify_0 = "0";
+        $record->coursestarttime_0 = strtotime('now + 3 days');
+        $record->courseendtime_0 = strtotime('now + 6 days');
+        $option = $plugingenerator->create_option($record);
+        for ($i = 0; $i < 5; $i++) {
+            $this->book_user((int)$option->id, (int)self::getDataGenerator()->create_user()->id);
+        }
+
+        $this->setAdminUser();
+        $result = (new get_option_details_skill())->execute(
+            ['optionid' => (int)$option->id, 'includesessions' => false],
+            (int)$env['modulecontext']->id,
+            (int)get_admin()->id
+        );
+
+        $this->assertSame('executed', $result['status']);
+        $availability = (array)($result['optiondetails'][0]['standard_fields']['availability'] ?? []);
+        $this->assertSame(3, $availability['booked']);
+        $this->assertSame(2, $availability['waiting']);
+        $this->assertSame(5, $availability['waitinglist_max']);
+        $this->assertSame(
+            'Capacity: seats 3 of 3 taken (0 reserved), 0 free; waiting list 2 of 5 places taken, 3 free;'
+            . ' both pools together 8 places, 5 taken.',
+            $availability['capacity']
+        );
+    }
+
+    /**
      * Create a booking option with maxanswers 4 in the given environment.
      *
      * @param array $env The setup_booking() environment.

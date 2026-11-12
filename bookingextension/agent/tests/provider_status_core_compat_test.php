@@ -72,6 +72,7 @@ final class provider_status_core_compat_test extends advanced_testcase {
      * The aiready module-toggle helper treats a missing core API as "enabled", not "disabled".
      */
     public function test_module_toggle_helper_assumes_enabled_without_core_api(): void {
+        \bookingextension_agent\local\wizard\testing\mod_booking_dependency::require_installed();
         $this->resetAfterTest();
         if (method_exists(\core_ai\manager::class, 'get_ai_fields_from_course_module')) {
             $this->markTestSkipped('core provides the module AI-fields API — nothing to pin here');

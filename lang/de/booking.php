@@ -125,6 +125,7 @@ $string['agent_booking_bulk_update_no_matches'] = 'Keine Buchungsoptionen in die
 $string['agent_booking_bulk_update_no_options'] = 'Diese Buchungsinstanz hat keine Optionen, die geändert werden könnten.';
 $string['agent_booking_bulk_update_no_preview'] = 'Es stehen keine kürzlich vorgeschauten Buchungsoptionen für diese Folgeanfrage zur Verfügung.';
 $string['agent_booking_bulk_update_option_not_in_instance'] = 'Option id {$a} existiert nicht in dieser Buchungsinstanz.';
+$string['agent_booking_bulk_update_optionfield_none_empty'] = 'Jede passende Buchungsoption hat für das Feld "{$a}" schon einen Wert.';
 $string['agent_booking_cohort_multiple_match'] = 'Mehrere Kohorten stimmen mit "{$a->query}" überein: {$a->candidates}.';
 $string['agent_booking_cohort_no_match'] = 'Keine Kohorte für die Suchanfrage "{$a}" gefunden.';
 $string['agent_booking_competency_multiple_match'] = 'Mehrere Kompetenzen stimmen mit "{$a->query}" überein: {$a->candidates}.';
@@ -150,10 +151,13 @@ $string['agent_booking_create_option_location_not_found_question'] = 'Wenn diese
 $string['agent_booking_create_option_missing_title'] = 'Bitte geben Sie einen Titel für die Buchungsoption an.';
 $string['agent_booking_create_option_placeholder_override_required'] = 'Die Felder "{$a->labels}" sind leer. Um fortzufahren, fügen Sie bitte die Overrides ["{$a->fields}"] in den Befehl ein.';
 $string['agent_booking_create_option_placeholder_override_required_single'] = 'Das Feld "{$a->label}" ist leer. Um fortzufahren, fügen Sie bitte das Override ["{$a->field}"] in den Befehl ein.';
+$string['agent_booking_create_option_plan_step_all_sessions'] = 'Alle Termine gehören zu dieser einen Option';
+$string['agent_booking_create_option_plan_step_sessions_question'] = 'Diese Option ist Schritt {$a->index} von {$a->total} eines Plans und trägt {$a->count} Termine. Welcher Termin gehört zu diesem Schritt, oder gehören alle zu dieser einen Option?';
 $string['agent_booking_create_option_which_title_question'] = 'Welchen Titel soll die neue Buchungsoption haben?';
 $string['agent_booking_create_selflearning_missing_duration'] = 'Für den Selbstlerntyp bitte eine Dauer (in Sekunden) angeben.';
 $string['agent_booking_create_selflearning_missing_maxanswers'] = 'Für den Selbstlerntyp bitte die maximale Teilnehmerzahl angeben.';
 $string['agent_booking_create_selflearning_missing_teacher'] = 'Für den Selbstlerntyp bitte einen Lehrenden oder eine Lehrenden-E-Mail angeben.';
+$string['agent_booking_create_slotbooking_duration_equals_window'] = 'Die Slot-Dauer ({$a->slotminutes} Min.) deckt das gesamte tägliche Zeitfenster {$a->opening}-{$a->closing} ({$a->windowminutes} Min.) ab, es gäbe also nur einen Slot pro Tag. Ist eine kürzere Slot-Dauer gemeint (z. B. 30 Minuten), oder soll wirklich ein einziger Slot das ganze Fenster abdecken?';
 $string['agent_booking_create_slotbooking_missing_custom_duration'] = 'Für den benutzerdefinierten Slot-Typ bitte die maximale Slot-Dauer in Sekunden angeben (slot_custom_max_duration).';
 $string['agent_booking_create_slotbooking_missing_duration'] = 'Für den Slot-Buchungstyp bitte die Slot-Dauer in Minuten angeben (slot_duration_minutes).';
 $string['agent_booking_create_slotbooking_missing_participants'] = 'Für den Slot-Buchungstyp bitte angeben, wie viele Personen jeden Slot buchen können (slot_max_participants_per_slot).';
@@ -353,6 +357,8 @@ $string['agent_booking_optionfield_target_required'] = 'Bitte sagen Sie, welches
 $string['agent_booking_optionfield_type_required'] = 'Das Feld braucht einen Typ.';
 $string['agent_booking_optionfield_type_unknown'] = 'Der Feldtyp "{$a->type}" ist auf dieser Website nicht installiert. Verfügbar sind: {$a->installed}. Welcher davon soll verwendet werden?';
 $string['agent_booking_optionfield_updated'] = 'Das Buchungsoptionsfeld "{$a}" wurde geändert.';
+$string['agent_booking_optionfield_value_invalid'] = 'Das Feld "{$a->field}" kann den Wert "{$a->value}" nicht annehmen. Mögliche Werte: {$a->allowed}.';
+$string['agent_booking_optionfield_value_question'] = 'Welchen Wert soll das Feld "{$a->field}" bekommen: {$a->allowed}?';
 $string['agent_booking_previouslybookedquery_resolve_failed'] = 'previouslybookedquery konnte nicht aufgelöst werden.';
 $string['agent_booking_price_negative'] = 'Preis für Kategorie "{$a}" darf nicht negativ sein.';
 $string['agent_booking_price_not_numeric'] = 'Preis für Kategorie "{$a}" muss numerisch sein.';
@@ -413,6 +419,7 @@ $string['agent_booking_update_permission_check_failed'] = 'Die Berechtigung für
 $string['agent_booking_update_permission_denied_generic'] = 'Sie dürfen ein oder mehrere angeforderte Felder nicht bearbeiten.';
 $string['agent_booking_update_permission_denied_groups'] = 'Sie dürfen diese Feldgruppen in diesem Buchungskontext nicht bearbeiten: {$a}.';
 $string['agent_booking_user_booked_completion_failed'] = 'Benutzer {$a->userid} gebucht, aber Abschluss-Toggle fehlgeschlagen: {$a->error}.';
+$string['agent_booking_user_booked_completion_notonlist'] = 'Nutzer:in {$a} ist gebucht, steht aber nicht auf der Teilnehmerliste der Option, daher konnte der Abschluss nicht gesetzt werden.';
 $string['agent_booking_user_booking_booked_users'] = 'Gebuchte Benutzer: {$a}.';
 $string['agent_booking_user_booking_failed'] = 'Benutzerbuchung fehlgeschlagen: {$a}.';
 $string['agent_booking_user_cannot_book_blocked'] = 'Benutzer {$a->userid} kann aufgrund von Blockierbedingungen nicht gebucht werden: {$a->conditions} {$a->followup}';
@@ -427,6 +434,7 @@ $string['agent_booking_verify_field_headerimage_failed'] = 'Das Header-Bild konn
 $string['agent_booking_verify_field_location_failed'] = 'Feld "location" konnte nach dem Speichern nicht bestätigt werden. Angefordert: "{$a->requested}", gespeichert: "{$a->actual}". Wenn local_entities aktiv ist, bedeutet dies normalerweise, dass noch keine passende Entität vorhanden ist. Legen Sie die Entität zuerst an und führen Sie booking.update_option erneut mit demselben Ort aus.';
 $string['agent_booking_verify_field_maxanswers_failed'] = 'Feld "maxanswers" konnte nach dem Speichern nicht bestätigt werden. Angefordert: "{$a->requested}", gespeichert: "{$a->actual}".';
 $string['agent_booking_verify_field_maxoverbooking_failed'] = 'Feld "maxoverbooking" konnte nach dem Speichern nicht bestätigt werden. Angefordert: "{$a->requested}", gespeichert: "{$a->actual}".';
+$string['agent_booking_verify_field_optionfield_failed'] = 'Das Feld "{$a->field}" enthält "{$a->actual}" statt "{$a->requested}".';
 $string['agent_booking_verify_field_text_failed'] = 'Feld "text" konnte nach dem Speichern nicht bestätigt werden. Angefordert: "{$a->requested}", gespeichert: "{$a->actual}".';
 $string['agent_booking_verify_field_ticketdesign_failed'] = 'Das Feld „ticketdesign“ konnte nach dem Speichern nicht bestätigt werden. Angefordert „{$a->requested}“, gespeichert „{$a->actual}“.';
 $string['agent_booking_waitinglist_nothing_blocking'] = 'Es blockiert nichts die Warteliste: Die Option hat eine Warteliste, kein globaler Schalter ist aus und kein optionsspezifisches Gate greift. Die Platz- und Wartelistenzahlen zeigen, ob eine Reduktion gewirkt hat.';
@@ -823,6 +831,16 @@ $string['bocondoptionhasstartednotavailable'] = 'Bereits begonnen - Buchen nicht
 $string['bocondotheroptionsavailable'] = 'Verknüpfte Buchungsoptionen nicht verfügbar';
 $string['bocondpreviouslybooked'] = 'Benutzer:in hat früher eine bestimmte Option gebucht';
 $string['bocondpreviouslybookedavailable'] = 'Buchen';
+$string['bocondpreviouslybookedbookednotcompleted'] = 'Die Option <a href="{$a->url}">{$a->title}</a> ist gebucht, aber nicht abgeschlossen; nur Benutzer:innen, die sie abgeschlossen haben, dürfen buchen.';
+$string['bocondpreviouslybookedbookednotcompletedfull'] = 'Die Option <a href="{$a->url}">{$a->title}</a> ist gebucht, aber nicht abgeschlossen; nur Benutzer:innen, die sie abgeschlossen haben, dürfen buchen.
+ <br>Sie haben aber das Recht dennoch zu buchen.';
+$string['bocondpreviouslybookedcompletedfullnotavailable'] = 'Nur Benutzer:innen, die <a href="{$a->url}">{$a->title}</a> bereits abgeschlossen haben, dürfen buchen.
+ <br>Sie haben aber das Recht dennoch zu buchen.';
+$string['bocondpreviouslybookedcompletedfullnotavailableall'] = 'Nur Benutzer:innen, die alle folgenden Optionen bereits abgeschlossen haben, dürfen buchen: {$a}';
+$string['bocondpreviouslybookedcompletedfullnotavailableany'] = 'Nur Benutzer:innen, die zumindest eine der folgenden Optionen bereits abgeschlossen haben, dürfen buchen: {$a}';
+$string['bocondpreviouslybookedcompletednotavailable'] = 'Nur Benutzer:innen, die <a href="{$a->url}">{$a->title}</a> bereits abgeschlossen haben, dürfen buchen.';
+$string['bocondpreviouslybookedcompletednotavailableall'] = 'Nur Benutzer:innen, die alle folgenden Optionen bereits abgeschlossen haben, dürfen buchen: {$a}';
+$string['bocondpreviouslybookedcompletednotavailableany'] = 'Nur Benutzer:innen, die zumindest eine der folgenden Optionen bereits abgeschlossen haben, dürfen buchen: {$a}';
 $string['bocondpreviouslybookeddeletedoption'] = 'Gelöschte Buchungsoption (ID {$a})';
 $string['bocondpreviouslybookedfullavailable'] = 'Buchen möglich';
 $string['bocondpreviouslybookedfullnotavailable'] = 'Nur Benutzer:innen, die früher bereits <a href="{$a->url}">{$a->title}</a> gebucht haben, dürfen buchen.
@@ -3201,6 +3219,7 @@ $string['previewlabel_mailsubject'] = 'E-Mail-Betreff';
 $string['previewlabel_markcompleted'] = 'Als abgeschlossen markieren';
 $string['previewlabel_matchcount'] = 'Passende Optionen';
 $string['previewlabel_name'] = 'Name';
+$string['previewlabel_optionfieldempty'] = 'Nur wo das Feld leer ist';
 $string['previewlabel_options'] = 'Optionen';
 $string['previewlabel_participants'] = 'Teilnehmende';
 $string['previewlabel_prices'] = 'Preise';

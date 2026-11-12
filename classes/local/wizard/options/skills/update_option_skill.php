@@ -19,6 +19,7 @@ namespace mod_booking\local\wizard\options\skills;
 use mod_booking\local\wizard\booking\booking_skill_mutation_execute_service;
 use mod_booking\local\wizard\booking\booking_skill_support;
 use mod_booking\local\wizard\booking\support\entity_location;
+use mod_booking\local\wizard\booking\support\option_field_values;
 use mod_booking\local\wizard\engine\queue_identity_provider_interface;
 use mod_booking\local\wizard\engine\skill_trigger_provider_interface;
 
@@ -138,8 +139,10 @@ class update_option_skill extends booking_skill_base implements
                 . '(headerimage_token).',
             'when' => 'The user wants fields of one existing booking option changed, including its header image.',
             'is' => 'One option.',
-            'not' => 'Many options at once (bulk_update_options); the field definitions themselves (create_option_field, '
-                . 'update_option_field).',
+            // 2026-10-21 (Wunderbyte-GmbH#2685): a question what a field holds got an empty update card 11/21 when this
+            // was the only option skill in the selector's catalog.
+            'not' => 'Many options at once (bulk_update_options); field definitions (create_option_field, '
+                . 'update_option_field); what a field contains (get_option_details).',
             'readonly' => $this->is_read_only(),
             'fallback_confirm_string_key' => 'ai_status_confirm_booking_update_option',
             'fallback_taskcall_string_key' => 'ai_status_taskcall_booking_update_option',
@@ -351,7 +354,14 @@ class update_option_skill extends booking_skill_base implements
      * @return array[] Session payload for optiondates.
      */
     public static function shifted_sessions(array $sessions, int $days): array {
-        $shift = $days * DAYSECS;
+        // Calendar days in the user's timezone, so a shift across a DST change keeps the wall-clock time
+        // (a fixed 86400-second day moved 09:00 to 08:00 or 10:00; Wunderbyte-GmbH#2622).
+        $timezone = \core_date::get_user_timezone_object();
+        $move = static function (int $timestamp) use ($days, $timezone): int {
+            $date = (new \DateTime('@' . $timestamp))->setTimezone($timezone);
+            $date->modify(($days >= 0 ? '+' : '') . $days . ' days');
+            return $date->getTimestamp();
+        };
         $out = [];
         foreach ($sessions as $session) {
             $start = (int)($session->coursestarttime ?? ($session['coursestarttime'] ?? 0));
@@ -360,8 +370,8 @@ class update_option_skill extends booking_skill_base implements
                 continue;
             }
             $out[] = [
-                'coursestarttime' => $start + $shift,
-                'courseendtime' => $end > 0 ? $end + $shift : $end,
+                'coursestarttime' => $move($start),
+                'courseendtime' => $end > 0 ? $move($end) : $end,
             ];
         }
 
@@ -397,7 +407,9 @@ class update_option_skill extends booking_skill_base implements
             }
         }
 
-        $commonerrors = $this->validate_common_mutation_structure($input, false);
+        // Single-option mode: bookusersquery is a field this skill advertises and executes; only the bulk skill
+        // refuses it (Wunderbyte-GmbH#2620).
+        $commonerrors = $this->validate_common_mutation_structure($input, true);
         if (!empty($commonerrors)) {
             return [
                 'valid' => false,
@@ -574,6 +586,16 @@ class update_option_skill extends booking_skill_base implements
         );
         if ($entityissue !== null) {
             $issues[] = $entityissue;
+            return $this->invalid($issues);
+        }
+
+        // Option field values are resolved before the card; an unknown field or value is a clarification (#2680).
+        $fieldissue = option_field_values::preflight_issue(
+            $preparedinput,
+            fn(string $id, $a): string => $this->localized_string($id, $a, $lang)
+        );
+        if ($fieldissue !== null) {
+            $issues[] = $fieldissue;
             return $this->invalid($issues);
         }
 

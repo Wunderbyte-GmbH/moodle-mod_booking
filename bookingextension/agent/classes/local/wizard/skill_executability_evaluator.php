@@ -74,6 +74,16 @@ class skill_executability_evaluator {
             ]);
         }
 
+        // A skill built on a newer core API than this Moodle has. Checked before the activation state, so the
+        // real cause is named even when an admin switched the skill on.
+        if (skill_contract_validator::requires_newer_moodle($meta)) {
+            global $CFG;
+            return $this->deny_result($skillname, skill_contract_validator::DENY_MOODLE_VERSION_UNSUPPORTED, [
+                'required_moodle' => skill_contract_validator::format_moodle_branch((int)$meta['required_moodle_branch']),
+                'site_moodle' => skill_contract_validator::format_moodle_branch((int)$CFG->branch),
+            ]);
+        }
+
         if (!$this->registry->is_skill_active($skillname)) {
             return $this->deny_result($skillname, skill_contract_validator::DENY_INACTIVE, [
                 'active' => false,

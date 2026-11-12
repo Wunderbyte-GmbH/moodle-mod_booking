@@ -1,0 +1,25 @@
+{{!
+    In-pane document view of a file hit from the site content search: the file title, a link
+    to the file and the file itself in an iframe.
+
+    Rendered by aiinstructions.js when the user clicks "Open document preview" on a file hit.
+
+    @template bookingextension_agent/embed_preview
+
+    @package    bookingextension_agent
+    @copyright  2026 Wunderbyte GmbH <info@wunderbyte.at>
+    @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+
+    Context variables required for this template:
+    * title - The file title.
+    * url - The URL of the file resource.
+    * path - The URL without scheme and host, shown as the link text.
+
+    Example context (json):
+    {
+        "title": "Working",
+        "url": "https://example.com/mod/resource/view.php?id=25",
+        "path": "/mod/resource/view.php?id=25"
+    }
+}}
+<div class="d-flex justify-content-between align-items-center mb-1"><strong class="small">{{title}}</strong><a href="{{url}}" target="_blank" class="small">{{path}}</a></div><iframe src="{{url}}#toolbar=0&amp;navpanes=0&amp;view=FitH" style="width:100%;height:60vh;border:1px solid #dee2e6;"></iframe>
