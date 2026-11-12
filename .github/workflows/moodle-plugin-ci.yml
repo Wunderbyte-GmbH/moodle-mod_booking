@@ -161,6 +161,24 @@ jobs:
         PATCH
         # END OF WORKAROUND 03/08/2026
 
+        # WORKAROUND 12/11/2026: tool_certificate (MOODLE_500_STABLE, release 5.0.11)
+        # still uses the global external classes from before Moodle 4.2
+        # (\external_api, \external_value, \external_multiple_structure, ...).
+        # Moodle 5.3 no longer aliases them in lib/externallib.php (MDL-81225), so
+        # the autoloader emits "Class 'external_multiple_structure' has been renamed
+        # for the autoloader and is now deprecated", which fails PHPUnit and Behat.
+        # Rewrite the names to \core_external\... in the installed copy; lines that
+        # already import from core_external are left alone. Harmless on 5.0-5.2.
+        # Remove once tool_certificate has released a fix (try without this block).
+        CERTDIR=$(find "$GITHUB_WORKSPACE/moodle" -type d -path '*/admin/tool/certificate' | head -n 1)
+        if [ -n "$CERTDIR" ]; then
+          find "$CERTDIR" -name '*.php' -print0 | xargs -0 perl -pi -e 'next if /^\s*use\s+\\?core_external\b/; s/(?<![\w\\\$>:])\\?(external_(?:api|description|value|format_value|single_structure|multiple_structure|function_parameters|files|warnings|settings)|restricted_context_exception)\b/\\core_external\\$1/g'
+          echo "tool_certificate patched to use core_external classes in $CERTDIR"
+        else
+          echo "tool_certificate not found below $GITHUB_WORKSPACE/moodle - core_external patch skipped"
+        fi
+        # END OF WORKAROUND 12/11/2026
+
         # WORKAROUND 17/04/2025: The following code is a workaround for the "File is stale and needs to be rebuilt" error
         # This occurs when AMD modules import Moodle core dependencies
         # See issue: https://github.com/moodlehq/moodle-plugin-ci/issues/350
