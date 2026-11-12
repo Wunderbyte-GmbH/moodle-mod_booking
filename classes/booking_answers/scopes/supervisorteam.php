@@ -149,6 +149,16 @@ class supervisorteam extends optionstoconfirm {
     }
 
     /**
+     * The supervisor sees the status of the whole team, so already approved answers are not hidden here.
+     *
+     * @return string
+     *
+     */
+    public function get_wherenotyetapproved_sql(): string {
+        return '';
+    }
+
+    /**
      * This functions defines the columns for each scope.
      *
      * @param int $statusparam
