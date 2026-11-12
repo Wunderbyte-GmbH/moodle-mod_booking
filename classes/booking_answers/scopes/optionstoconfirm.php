@@ -339,6 +339,7 @@ class optionstoconfirm extends option {
                     ba.notes,
                     bo.text,
                     bo.coursestarttime,
+                    bo.courseendtime,
                     $selectpresencecount
                     ba.timemodified,
                     ba.timecreated,
