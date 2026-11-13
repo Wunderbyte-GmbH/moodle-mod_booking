@@ -1843,6 +1843,136 @@ class shortcodes {
     }
 
     /**
+     * Renders all completed booking options of a condition as an HTML list or table.
+     *
+     * Arguments:
+     * - type: "ul" (default) renders one list item per option, "table" one table row per option.
+     * - fields: comma separated list of what is shown per option, in this order. Possible entries are
+     *   "title", "date" (completion date), "teachers" and the shortnames of booking option customfields.
+     *   Default: title,date,teachers.
+     *
+     * The options are listed in the order of their completion, like in [bookingoptionsfromcondition].
+     *
+     * @param string $shortcode
+     * @param array $args
+     * @param string|null $content
+     * @param object $env
+     * @param Closure $next
+     * @return string
+     *
+     */
+    public static function bookingoptionsfromconditionlist($shortcode, $args, $content, $env, $next) {
+        $tempvalues = singleton_service::get_temp_values_for_certificates();
+        [$userid, $optionid, $conditionid] = array_pad($tempvalues, 3, null);
+        if (empty($userid)) {
+            return "PLACEHOLDER";
+        }
+
+        $args = is_array($args) ? $args : [];
+        $fields = [];
+        foreach (explode(',', (string)($args['fields'] ?? '')) as $field) {
+            $field = trim($field);
+            if ($field !== '' && !in_array($field, $fields, true)) {
+                $fields[] = $field;
+            }
+        }
+        if (empty($fields)) {
+            $fields = ['title', 'date', 'teachers'];
+        }
+
+        // Collect the values of every option, keyed by field. Labels are only needed for customfields.
+        $completions = certificateclass::get_completions_for_certificate((int)$userid, (int)$optionid, (int)$conditionid);
+        $rows = [];
+        $labels = [];
+        $known = [];
+        foreach ($completions as $completedoptionid => $completeddate) {
+            $settings = singleton_service::get_instance_of_booking_option_settings($completedoptionid);
+            if (empty($settings->id)) {
+                continue;
+            }
+            $row = [];
+            foreach ($fields as $field) {
+                switch ($field) {
+                    case 'title':
+                        $row[$field] = format_string((string)$settings->text);
+                        break;
+                    case 'date':
+                        $row[$field] = empty($completeddate) ? '' :
+                            userdate((int)$completeddate, get_string('timeawardedformat', 'mod_booking'), 99, false);
+                        break;
+                    case 'teachers':
+                        $teachers = [];
+                        foreach ($settings->teachers ?? [] as $teacher) {
+                            $teachers[] = s("$teacher->firstname $teacher->lastname");
+                        }
+                        $row[$field] = implode(', ', $teachers);
+                        break;
+                    default:
+                        $customfield = $settings->customfieldsfortemplates[$field] ?? null;
+                        if ($customfield === null) {
+                            // Not a customfield of this option. Kept as an empty cell if another option knows it.
+                            $row[$field] = '';
+                            continue 2;
+                        }
+                        $value = $customfield['value'] ?? '';
+                        $row[$field] = is_array($value) ? implode(', ', $value) : (string)$value;
+                        $labels[$field] = format_string((string)($customfield['label'] ?? $field));
+                        break;
+                }
+                $known[$field] = true;
+            }
+            $rows[] = $row;
+        }
+
+        // Unknown entries are ignored. The teachers are left out when no listed option has any.
+        $fields = array_values(array_filter($fields, function ($field) use ($known, $rows) {
+            if (empty($known[$field])) {
+                return false;
+            }
+            return $field !== 'teachers' || !empty(array_filter(array_column($rows, 'teachers')));
+        }));
+        if (empty($rows) || empty($fields)) {
+            return '';
+        }
+
+        if (($args['type'] ?? 'ul') === 'table') {
+            // Plain attributes only: the certificate is rendered by TCPDF, which supports little CSS.
+            $count = count($fields);
+            $titlewidth = $count > 1 && in_array('title', $fields, true) ? 40 : 0;
+            $otherwidth = (int)floor((100 - $titlewidth) / ($titlewidth ? $count - 1 : $count));
+            $html = '<table border="0" cellpadding="2" width="100%">';
+            foreach ($rows as $row) {
+                $html .= '<tr>';
+                foreach ($fields as $field) {
+                    $width = $titlewidth && $field === 'title' ? $titlewidth : $otherwidth;
+                    $html .= '<td width="' . $width . '%">' . $row[$field] . '</td>';
+                }
+                $html .= '</tr>';
+            }
+            return $html . '</table>';
+        }
+
+        $html = '<ul>';
+        foreach ($rows as $row) {
+            $parts = [];
+            foreach ($fields as $field) {
+                if ($row[$field] === '') {
+                    continue;
+                }
+                if ($field === 'teachers') {
+                    $parts[] = get_string('teachersbookingoptionsfromcondition', 'mod_booking') . $row[$field];
+                } else if (isset($labels[$field])) {
+                    $parts[] = $labels[$field] . ': ' . $row[$field];
+                } else {
+                    $parts[] = $row[$field];
+                }
+            }
+            $html .= '<li>' . implode(get_string('separatorbookingoptionsfromconditionlist', 'mod_booking'), $parts) . '</li>';
+        }
+        return $html . '</ul>';
+    }
+
+    /**
      * Renders the completed booking options of the certificate currently being issued.
      *
      * @param bool $withdate whether to show the completion date of each option

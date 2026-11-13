@@ -127,6 +127,10 @@ groups. `logicjson`:
   options of the building blocks otherwise (`certificateclass::get_completions_for_certificate()`).
   `[bookingoptionsfromconditionwithdate]` lists the same options, each followed by its completion date in
   the format of the "Awarded on" date (`timeawardedformat`).
+  `[bookingoptionsfromconditionlist]` lists the same options in the same order as an HTML list (`type=ul`,
+  default) or as a table without header and border (`type=table`). `fields` defines what is shown per option
+  and in which order: `title`, `date`, `teachers` and shortnames of booking option customfields
+  (default `title,date,teachers`), e.g. `[bookingoptionsfromconditionlist type=table fields=date,title,hours]`.
 - The "Awarded on" date (`timeawarded`) of a certificate issued by a condition is the completion time of the
   latest option the certificate lists (`certificateclass::get_latest_completion_for_certificate()`), not the
   moment of the evaluation, so backdated completions and manual triggers keep the real completion date.
