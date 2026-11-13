@@ -26,6 +26,7 @@ global $CFG;
 use context;
 use context_system;
 use core_form\dynamic_form;
+use mod_booking\booking_rules\local\userprofilefield_change;
 use mod_booking\booking_rules\optionfield_filter;
 use mod_booking\booking_rules\rules_info;
 use moodle_url;
@@ -178,6 +179,8 @@ class rulesform extends dynamic_form {
             case 'rule_react_on_event':
                 if ($data['rule_react_on_event_event'] == '0') {
                     $errors['rule_react_on_event_event'] = get_string('error:choosevalue', 'mod_booking');
+                } else if ($data['rule_react_on_event_event'] === userprofilefield_change::EVENTNAME) {
+                    userprofilefield_change::validation($data, $errors);
                 }
                 break;
         }

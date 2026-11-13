@@ -31,6 +31,7 @@ use local_wunderbyte_table\wunderbyte_table;
 use mod_booking\bo_availability\conditions\selectusers;
 use mod_booking\booking;
 use mod_booking\booking_option;
+use mod_booking\booking_rules\local\userprofilefield_change;
 use mod_booking\booking_rules\rules_info;
 use mod_booking\calendar;
 use mod_booking\elective;
@@ -69,6 +70,9 @@ class mod_booking_observer {
 
         // Check if any booking rules apply for this new user.
         rules_info::execute_rules_for_user($userid);
+
+        // Rules can react on changes of custom user profile fields. An adhoc task remembers the values new users start with.
+        userprofilefield_change::queue_missing_baselines();
     }
 
     /**
@@ -85,6 +89,10 @@ class mod_booking_observer {
 
         // Check if any booking rules apply for this new user.
         rules_info::execute_rules_for_user($userid);
+
+        // Rules can react on the change of a custom user profile field of a user who is booked or on a waiting list.
+        // Only the check for a relevant change happens here, the events are triggered by an adhoc task.
+        userprofilefield_change::queue_events_for_user((int) $userid);
     }
 
     /**
