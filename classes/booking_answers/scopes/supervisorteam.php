@@ -36,6 +36,13 @@ class supervisorteam extends optionstoconfirm {
     public $scope = 'supervisorteam';
 
     /**
+     * Only show answers of booking options which have not ended yet.
+     * Booking options without dates are still shown.
+     * @var bool
+     */
+    public $futureonly = false;
+
+    /**
      * Render users table based on status param
      *
      * @param string $scope
@@ -62,7 +69,7 @@ class supervisorteam extends optionstoconfirm {
     ) {
         [$fields, $from, $where, $params] = $this->return_sql_for_booked_users($scope, $scopeid, $statusparam, $customfields);
 
-        $tablename = "{$tablenameprefix}_{$scope}_{$scopeid}";
+        $tablename = "{$tablenameprefix}_{$scope}_{$scopeid}" . ($this->futureonly ? '_future' : '');
         $table = new manageusers_table($tablename);
 
         $table->define_cache('mod_booking', "bookedusertable");
@@ -96,6 +103,30 @@ class supervisorteam extends optionstoconfirm {
     }
 
     /**
+     * Returns the sql to fetch booked users, optionally restricted to booking options which have not ended yet.
+     *
+     * @param string $scope
+     * @param int $scopeid
+     * @param int $statusparam
+     * @param array $customfields
+     *
+     * @return array
+     */
+    public function return_sql_for_booked_users(string $scope, int $scopeid, int $statusparam, array $customfields = []): array {
+        [$fields, $from, $where, $params] = parent::return_sql_for_booked_users($scope, $scopeid, $statusparam, $customfields);
+
+        if ($this->futureonly) {
+            // Booking options without dates (self-paced) never end, so we keep them.
+            $where = " (COALESCE(s1.courseendtime, 0) = 0 OR s1.courseendtime > :futureonlynow) AND " . $where;
+            // We use the start of the current minute, so the cache of the table is not bypassed on every request.
+            $now = time();
+            $params['futureonlynow'] = $now - ($now % MINSECS);
+        }
+
+        return [$fields, $from, $where, $params];
+    }
+
+    /**
      * Returns the DB dependent restriction to only return answers which supervisor can see.
      * @param array $params
      *
@@ -115,6 +146,16 @@ class supervisorteam extends optionstoconfirm {
         $class->supervisorteam = true;
         $where = $class->return_where_sql($params);
         return "( {$where} )";
+    }
+
+    /**
+     * The supervisor sees the status of the whole team, so already approved answers are not hidden here.
+     *
+     * @return string
+     *
+     */
+    public function get_wherenotyetapproved_sql(): string {
+        return '';
     }
 
     /**

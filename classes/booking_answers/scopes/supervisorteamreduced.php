@@ -63,7 +63,7 @@ class supervisorteamreduced extends supervisorteam {
     ) {
         [$fields, $from, $where, $params] = $this->return_sql_for_booked_users($scope, $scopeid, $statusparam, $customfields);
 
-        $tablename = "{$tablenameprefix}_{$scope}_{$scopeid}";
+        $tablename = "{$tablenameprefix}_{$scope}_{$scopeid}" . ($this->futureonly ? '_future' : '');
         $table = new manageusers_table($tablename);
 
         $table->define_cache('mod_booking', "bookedusertable");

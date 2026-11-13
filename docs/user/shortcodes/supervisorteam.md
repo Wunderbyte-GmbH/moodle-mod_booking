@@ -13,6 +13,7 @@ The shortcode renders the `booked_users` UI in `supervisorteam` or `supervisorte
 ```text
 [supervisorteam]
 [supervisorteam reduced="1" cfinclude="department,costcenter"]
+[supervisorteam futureonly="1"]
 ```
 
 ---
@@ -23,6 +24,7 @@ The shortcode renders the `booked_users` UI in `supervisorteam` or `supervisorte
 |-----------|---------|
 | `reduced="1"` | Use the reduced supervisor-team view. |
 | `cfinclude="shortname1,shortname2"` | Include these custom fields in the output. |
+| `futureonly="1"` | Only show bookings of booking options that have not ended yet. Booking options without dates are still shown. |
 | `perpage="10"` | Number of rows per page (default: 100). The tables are loaded via AJAX after the page is displayed. |
 
 ---

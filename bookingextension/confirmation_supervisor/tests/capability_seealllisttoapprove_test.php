@@ -189,6 +189,88 @@ final class capability_seealllisttoapprove_test extends advanced_testcase {
     }
 
     /**
+     * An answer which was approved but could not be booked (option fully booked) stays on the waiting list.
+     * As there is nothing left to approve, it must not show up in the listtoapprove anymore.
+     *
+     * @covers \mod_booking\booking_answers\scopes\optionstoconfirm::get_wherenotyetapproved_sql
+     */
+    public function test_approved_answers_on_waitinglist_are_hidden(): void {
+        global $DB;
+
+        $this->resetAfterTest(true);
+        $this->preventResetByRollback();
+        singleton_service::destroy_instance();
+
+        $this->setAdminUser();
+        set_config('confirmationsupervisorenabled', 1, 'bookingextension_confirmation_supervisor');
+
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $students = [];
+        for ($i = 1; $i <= 3; $i++) {
+            $students[$i] = $this->getDataGenerator()->create_user();
+            $this->getDataGenerator()->enrol_user($students[$i]->id, $course->id, 'student');
+        }
+
+        $booking = $this->getDataGenerator()->create_module('booking', ['course' => $course->id]);
+        /** @var mod_booking_generator $generator */
+        $generator = $this->getDataGenerator()->get_plugin_generator('mod_booking');
+        $option = $generator->create_option((object)[
+            'bookingid' => $booking->id,
+            'text' => 'Test option',
+            'courseid' => $course->id,
+            'chooseorcreatecourse' => 1,
+            'maxanswers' => 1,
+            'maxoverbooking' => 5,
+            'waitforconfirmation' => 1,
+            'confirmationsupervisorenabled' => 1,
+        ]);
+        $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
+
+        foreach ($students as $student) {
+            $this->setUser($student);
+            booking_bookit::bookit('option', $settings->id, $student->id); // Attempt to book.
+            booking_bookit::bookit('option', $settings->id, $student->id); // Confirm to book.
+        }
+
+        $this->setAdminUser();
+        $this->assertCount(3, $this->get_booked_users_table()->rawdata);
+
+        // Approve student 1 (gets the only place) and student 2 (approved, but the option is full now).
+        $table = new manageusers_table('test');
+        foreach ([1, 2] as $i) {
+            $baid = $DB->get_field(
+                'booking_answers',
+                'id',
+                [
+                    'optionid' => $settings->id,
+                    'userid' => $students[$i]->id,
+                    'waitinglist' => MOD_BOOKING_STATUSPARAM_WAITINGLIST,
+                ],
+                MUST_EXIST
+            );
+            $result = $table->action_confirmbooking(0, json_encode(['id' => $baid]));
+            $this->assertEquals(1, $result['success']);
+        }
+
+        // Student 1 is booked, student 2 is approved but still on the waiting list.
+        $this->assertTrue($DB->record_exists('booking_answers', [
+            'optionid' => $settings->id,
+            'userid' => $students[1]->id,
+            'waitinglist' => MOD_BOOKING_STATUSPARAM_BOOKED,
+        ]));
+        $this->assertTrue($DB->record_exists('booking_answers', [
+            'optionid' => $settings->id,
+            'userid' => $students[2]->id,
+            'waitinglist' => MOD_BOOKING_STATUSPARAM_WAITINGLIST,
+        ]));
+
+        // Only the not yet approved answer of student 3 is left in the list.
+        $rawdata = $this->get_booked_users_table()->rawdata;
+        $this->assertCount(1, $rawdata);
+        $this->assertEquals($students[3]->id, reset($rawdata)->userid);
+    }
+
+    /**
      * This function returns the table that the approver will see in the UI.
      * With this table, we can determine the actual records that will be returned to the approver.
      *
