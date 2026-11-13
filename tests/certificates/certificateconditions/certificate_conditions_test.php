@@ -207,6 +207,62 @@ final class certificate_conditions_test extends booking_advanced_testcase {
     }
 
     /**
+     * The "startdate" of a certificate is the date booked. When a condition covers several options,
+     * it is the earliest booking among them, no matter which option triggered the certificate.
+     *
+     * @covers \mod_booking\local\certificateclass::build_certificate_data
+     * @covers \mod_booking\local\certificateclass::return_startdate_for_certificate
+     */
+    public function test_condition_certificate_startdate_is_earliest_booking(): void {
+        global $DB;
+        $this->base_scenario();
+        $certificate = $this->get_certificate_generator()->create_template((object)['name' => 'Certificate 1']);
+        $data = $this->set_bookingoption_condition($certificate);
+        $conditionid = $DB->insert_record('booking_cert_cond', $data);
+        $this->set_condition_items($conditionid);
+        $userid = $this->users['student1']->id;
+
+        $settings1 = singleton_service::get_instance_of_booking_option_settings($this->bookingoptions[0]->id);
+        $settings2 = singleton_service::get_instance_of_booking_option_settings($this->bookingoptions[1]->id);
+        $this->setUser($this->users['student1']);
+        booking_bookit::bookit('option', $settings1->id, $userid);
+        booking_bookit::bookit('option', $settings1->id, $userid);
+        booking_bookit::bookit('option', $settings2->id, $userid);
+        booking_bookit::bookit('option', $settings2->id, $userid);
+        $this->setAdminUser();
+
+        // Option 1 was booked first, option 2 later.
+        $firstbooked = strtotime('2024-02-01 10:00');
+        $laterbooked = strtotime('2024-02-20 10:00');
+        $DB->set_field('booking_answers', 'timebooked', $firstbooked, ['optionid' => $settings1->id, 'userid' => $userid]);
+        $DB->set_field('booking_answers', 'timebooked', $laterbooked, ['optionid' => $settings2->id, 'userid' => $userid]);
+        singleton_service::destroy_booking_answers($settings1->id);
+        singleton_service::destroy_booking_answers($settings2->id);
+
+        // Option 2 (booked later) is completed last and fires the condition.
+        $option1 = singleton_service::get_instance_of_booking_option($settings1->cmid, $settings1->id);
+        $option1->toggle_user_completion($userid);
+        singleton_service::destroy_booking_answers($option1->id);
+        $this->assertEquals(0, $DB->count_records('tool_certificate_issues', ['userid' => $userid]));
+
+        $option2 = singleton_service::get_instance_of_booking_option($settings2->cmid, $settings2->id);
+        $option2->toggle_user_completion($userid);
+        singleton_service::destroy_booking_answers($option2->id);
+
+        $issues = $DB->get_records('tool_certificate_issues', ['userid' => $userid]);
+        $this->assertCount(1, $issues);
+        $issuedata = json_decode(reset($issues)->data, true);
+        $format = get_string('timeawardedformat', 'mod_booking');
+        $this->assertSame(userdate($firstbooked, $format, 99, false), $issuedata['startdate']);
+
+        // Without a condition, it is the date booked of the option itself.
+        $data = certificateclass::build_certificate_data($settings2, $userid);
+        $this->assertSame(userdate($laterbooked, $format, 99, false), $data['startdate']);
+
+        self::teardown();
+    }
+
+    /**
      * Test booking option condition with user profile filter.
      *
      * @covers \mod_booking\local\certificate_conditions\filters\userprofilefield

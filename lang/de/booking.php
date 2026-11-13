@@ -1625,6 +1625,7 @@ $string['certificaterequiresone'] = 'Aktivieren Sie diese Option, wenn nur eine 
 $string['certificaterequiresotheroptions'] = 'Zertifikat nur bei zusätzlichem Abschluss folgender Optionen ausstellen:';
 $string['certificaterequiresotheroptions_help'] = 'Wählen Sie hier zusätzliche Buchungsoptionen aus, die Nutzer:innen abschließen müssen, um das Zertifikat zu erhalten. Wenn keine Buchungsoption ausgewählt ist, wird das Zertifikat ausgestellt, sobald die Buchungsoption abgeschlossen ist.';
 $string['certificatesissued'] = 'Ausgestellte Zertifikate';
+$string['certificatestartdate'] = 'Buchungsdatum';
 $string['certificatestriggered'] = 'Zeritifikaterstellung durchgeführt';
 $string['certificateurl'] = 'Zeritifikat URL';
 $string['certificatewithexpiration'] = 'Ablaufdatum: {$a}';

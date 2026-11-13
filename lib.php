@@ -3505,6 +3505,13 @@ function mod_booking_tool_certificate_fields() {
         get_string('timeawarded', 'mod_booking'),
     );
     $handler->ensure_field_exists(
+        'startdate',
+        'text',
+        get_string('certificatestartdate', 'mod_booking'),
+        true,
+        get_string('certificatestartdate', 'mod_booking'),
+    );
+    $handler->ensure_field_exists(
         'competencies',
         'text',
         get_string('competencies', 'mod_booking'),
