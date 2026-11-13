@@ -276,6 +276,7 @@ class certificateclass {
             'timeawarded' => self::return_timeawarded_for_certificate($settings, $userid, $completeddate),
             'competencies' => self::return_competencies_for_certificate($settings->competencies ?? ''),
             'bookingnotes' => self::return_notes_for_certificate($settings->id, $userid),
+            'startdate' => self::return_startdate_for_certificate($settings->id, $userid, (int)($condition->id ?? 0)),
         ];
         if (!empty($condition)) {
             $conditionfields = [
@@ -573,6 +574,54 @@ class certificateclass {
         $notes = $DB->get_field_sql($sql, $params, IGNORE_MULTIPLE);
 
         return (string) ($notes ?? '');
+    }
+
+    /**
+     * Helper function to return the date booked ("startdate") for the certificate.
+     *
+     * When the certificate covers several options (issued by a condition), it is the earliest booking date
+     * among them. Per option the current booking counts, not records of previous bookings.
+     *
+     * @param int $optionid the option whose completion issued the certificate
+     * @param int $userid
+     * @param int $conditionid the certificate condition, 0 for the certificate stored on the option
+     *
+     * @return string
+     *
+     */
+    private static function return_startdate_for_certificate(int $optionid, int $userid, int $conditionid): string {
+        if (empty($optionid) || empty($userid)) {
+            return '';
+        }
+
+        $optionids = array_keys(self::get_completions_for_certificate($userid, $optionid, $conditionid));
+        $optionids[] = $optionid;
+
+        $dates = [];
+        foreach (array_unique(array_map('intval', $optionids)) as $id) {
+            $settings = singleton_service::get_instance_of_booking_option_settings($id);
+            if (empty($settings->id)) {
+                continue;
+            }
+            // The users of the booking answers hold the current answer: An active one wins over previously booked ones.
+            $answer = singleton_service::get_instance_of_booking_answers($settings)->get_users()[$userid] ?? null;
+            if (
+                empty($answer)
+                || !in_array($answer->waitinglist, [MOD_BOOKING_STATUSPARAM_BOOKED, MOD_BOOKING_STATUSPARAM_PREVIOUSLYBOOKED])
+            ) {
+                continue;
+            }
+            // Old records have no timebooked.
+            $date = (int)(($answer->timebooked ?? 0) ?: ($answer->timecreated ?? 0));
+            if (!empty($date)) {
+                $dates[] = $date;
+            }
+        }
+        if (empty($dates)) {
+            return '';
+        }
+
+        return userdate(min($dates), get_string('timeawardedformat', 'mod_booking'), 99, false);
     }
 
     /**
