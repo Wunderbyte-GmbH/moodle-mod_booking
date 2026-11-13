@@ -895,6 +895,123 @@ final class certificate_combination_test extends booking_advanced_testcase {
     }
 
     /**
+     * The list shortcode renders the options as list or table, with the fields in the order given in the shortcode.
+     *
+     * @covers \mod_booking\shortcodes::bookingoptionsfromconditionlist
+     */
+    public function test_shortcode_list_renders_ul_and_table_with_fields(): void {
+        // A booking option customfield, created before the options.
+        $category = $this->getDataGenerator()->create_custom_field_category([
+            'name' => 'BookCustomCat1',
+            'component' => 'mod_booking',
+            'area' => 'booking',
+            'itemid' => 0,
+            'contextid' => context_system::instance()->id,
+        ]);
+        $category->save();
+        $field = $this->getDataGenerator()->create_custom_field([
+            'categoryid' => $category->get('id'),
+            'name' => 'Hours',
+            'shortname' => 'hours',
+            'type' => 'text',
+            'configdata' => '',
+        ]);
+        $field->save();
+
+        $this->base_scenario();
+        $userid = $this->users['student1']->id;
+        $teacher = $this->getDataGenerator()->create_user(['firstname' => 'Tina', 'lastname' => 'Teacher']);
+        $format = get_string('timeawardedformat', 'mod_booking');
+        $separator = get_string('separatorbookingoptionsfromconditionlist', 'mod_booking');
+        $teacherprefix = get_string('teachersbookingoptionsfromcondition', 'mod_booking');
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $optiondata = [
+            'bookingid' => $this->bookings['A']->id,
+            'courseid' => $this->course->id,
+            'coursestarttime_0' => strtotime('now + 1 day'),
+            'courseendtime_0' => strtotime('now + 2 day'),
+            'importing' => 1,
+            'useprice' => 0,
+        ];
+        // E1 has a customfield value and a teacher, E2 has neither.
+        $e1 = (int)$plugingenerator->create_option((object)array_merge($optiondata, [
+            'text' => 'Option E1',
+            'customfield_hours' => '8',
+            'teachersforoption' => $teacher->username,
+        ]))->id;
+        $e2 = (int)$plugingenerator->create_option((object)array_merge($optiondata, ['text' => 'Option E2']))->id;
+
+        // The user completed E2 first (day 100), then E1 (day 200).
+        $this->insert_answer($e2, $userid, MOD_BOOKING_STATUSPARAM_BOOKED, 1, 100, 86400 * 100);
+        $this->insert_answer($e1, $userid, MOD_BOOKING_STATUSPARAM_BOOKED, 1, 200, 86400 * 200);
+        $leaf = $this->insert_bookingoption_leaf([$e1, $e2]);
+        $date1 = userdate(86400 * 200, $format, 99, false);
+        $date2 = userdate(86400 * 100, $format, 99, false);
+
+        $render = function (array $args) use ($userid, $e1, $leaf): string {
+            singleton_service::set_temp_values_for_certificates($e1, $userid, $leaf);
+            $output = shortcodes::bookingoptionsfromconditionlist('bookingoptionsfromconditionlist', $args, '', null, null);
+            singleton_service::unset_temp_values_for_certificates();
+            return $output;
+        };
+
+        // Default: a list with title, date and teachers, in completion order.
+        $this->assertSame(
+            '<ul><li>Option E2' . $separator . $date2 . '</li>'
+            . '<li>Option E1' . $separator . $date1 . $separator . $teacherprefix . 'Tina Teacher</li></ul>',
+            $render([])
+        );
+
+        // The list follows the order of the fields, customfields get their label, empty values are skipped.
+        $this->assertSame(
+            '<ul><li>' . $date2 . $separator . 'Option E2</li>'
+            . '<li>' . $date1 . $separator . 'Hours: 8' . $separator . 'Option E1</li></ul>',
+            $render(['type' => 'ul', 'fields' => 'date, hours,title'])
+        );
+
+        // Table: one row per option, cells in the order of the fields, empty values keep their cell.
+        $this->assertSame(
+            '<table border="0" cellpadding="2" width="100%">'
+            . '<tr><td width="20%">' . $date2 . '</td><td width="40%">Option E2</td><td width="20%"></td><td width="20%"></td></tr>'
+            . '<tr><td width="20%">' . $date1 . '</td><td width="40%">Option E1</td><td width="20%">8</td>'
+            . '<td width="20%">Tina Teacher</td></tr>'
+            . '</table>',
+            $render(['type' => 'table', 'fields' => 'date,title,hours,teachers'])
+        );
+
+        // Fields that are left out are not shown, unknown and repeated entries are ignored.
+        $this->assertSame(
+            '<table border="0" cellpadding="2" width="100%">'
+            . '<tr><td width="40%">Option E2</td><td width="60%"></td></tr>'
+            . '<tr><td width="40%">Option E1</td><td width="60%">8</td></tr>'
+            . '</table>',
+            $render(['type' => 'table', 'fields' => 'title,nosuchfield,hours,title'])
+        );
+
+        // The teachers column is dropped when no listed option has teachers.
+        $leafe2 = $this->insert_bookingoption_leaf([$e2]);
+        singleton_service::set_temp_values_for_certificates($e2, $userid, $leafe2);
+        $output = shortcodes::bookingoptionsfromconditionlist(
+            'bookingoptionsfromconditionlist',
+            ['type' => 'table', 'fields' => 'title,teachers'],
+            '',
+            null,
+            null
+        );
+        singleton_service::unset_temp_values_for_certificates();
+        $this->assertSame(
+            '<table border="0" cellpadding="2" width="100%"><tr><td width="100%">Option E2</td></tr></table>',
+            $output
+        );
+
+        // No user in the context.
+        $output = shortcodes::bookingoptionsfromconditionlist('bookingoptionsfromconditionlist', [], '', null, null);
+        $this->assertSame('PLACEHOLDER', $output);
+    }
+
+    /**
      * Render the certificate shortcode in the context of an issued certificate.
      *
      * @param int $userid

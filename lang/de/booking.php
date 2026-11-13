@@ -1185,6 +1185,7 @@ $string['bookingoptionnamewithoutprefix'] = 'Name (ohne Präfix)';
 $string['bookingoptionprice'] = 'Preis';
 $string['bookingoptionsall'] = 'Shortcode um alle Buchungsoptionen anzuzeigen.';
 $string['bookingoptionsfromcondition'] = 'Shortcode um alle abgeschlossenen Kurse einer Zertifikatsbedingung zu rendern.';
+$string['bookingoptionsfromconditionlist'] = 'Shortcode um alle abgeschlossenen Kurse einer Zertifikatsbedingung als Liste (type=ul, Standard) oder als Tabelle (type=table) zu rendern. Das Argument "fields" legt fest, was pro Buchungsoption in welcher Reihenfolge angezeigt wird: title, date (Abschlussdatum), teachers und die Kurznamen von benutzerdefinierten Feldern der Buchungsoption, z.B. fields=date,title,meinfeld,teachers.';
 $string['bookingoptionsfromconditionwithdate'] = 'Shortcode um alle abgeschlossenen Kurse einer Zertifikatsbedingung mit ihrem Abschlussdatum zu rendern.';
 $string['bookingoptionsfromtemplatemenu'] = 'Neue Buchungsoption aus Vorlage erstellen';
 $string['bookingoptionsmenu'] = 'Buchungsoptionen';
@@ -3999,6 +4000,7 @@ $string['sendreminderemail'] = 'Erinnerungs-E-Mail senden';
 $string['sendreminderemailsuccess'] = 'Benachrichtung wurde per E-Mail versandt';
 $string['sendticket'] = 'Ticket senden';
 $string['sendticket_desc'] = 'Sendet das Eintrittsticket der Buchungsoption an die ausgewählten Personen, mit dem Ticket-PDF im Anhang.';
+$string['separatorbookingoptionsfromconditionlist'] = ' – ';
 $string['session'] = 'Termin';
 $string['sessionnotifications'] = 'E-Mail-Benachrichtigungen für Einzeltermine';
 $string['sessionremindermailmessage'] = '<p>Erinnerung: Sie haben den folgenden Termin gebucht:</p>

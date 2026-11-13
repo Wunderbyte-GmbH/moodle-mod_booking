@@ -1185,6 +1185,7 @@ $string['bookingoptionnamewithoutprefix'] = 'Name (without prefix)';
 $string['bookingoptionprice'] = 'Price';
 $string['bookingoptionsall'] = 'Shortcode to show all bookingoptions.';
 $string['bookingoptionsfromcondition'] = 'Shortcode to show bookingoptions from certificate condition.';
+$string['bookingoptionsfromconditionlist'] = 'Shortcode to show bookingoptions from certificate condition as a list (type=ul, default) or as a table (type=table). The argument "fields" defines what is shown per booking option and in which order: title, date (completion date), teachers and the shortnames of booking option custom fields, e.g. fields=date,title,myfield,teachers.';
 $string['bookingoptionsfromconditionwithdate'] = 'Shortcode to show bookingoptions from certificate condition with their completion dates.';
 $string['bookingoptionsfromtemplatemenu'] = 'New booking option from template';
 $string['bookingoptionsmenu'] = 'Booking options';
@@ -3986,6 +3987,7 @@ $string['sendreminderemail'] = "Send reminder e-mail";
 $string['sendreminderemailsuccess'] = 'Notification e-mail has been sent!';
 $string['sendticket'] = 'Send ticket';
 $string['sendticket_desc'] = 'Sends the entry ticket of the booking option to the selected users, with the ticket PDF attached.';
+$string['separatorbookingoptionsfromconditionlist'] = ' – ';
 $string['session'] = 'Date';
 $string['sessionnotifications'] = 'E-mail notifications for each session';
 $string['sessionremindermailmessage'] = '<p>Keep in mind: You are booked for the following session:</p>
