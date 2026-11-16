@@ -205,7 +205,7 @@ class ai_privacy_precheck extends external_api {
         $attachmentreport = (new attachment_privacy_check($anonymizer))
             ->report($attachmentlist, (int)$USER->id, $contextid, $threadid);
         if (!$needsdecision) {
-            // "Nothing needed anonymization" is about the message; with findings in the attachments it would mislead.
+            // The "nothing needed anonymization" sentence is about the message; with findings in the attachments it would mislead.
             if ($count === 0 && array_sum($attachmentreport) > 0) {
                 $summary = '';
             }
