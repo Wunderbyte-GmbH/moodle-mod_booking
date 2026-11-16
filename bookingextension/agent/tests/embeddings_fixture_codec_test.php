@@ -80,12 +80,16 @@ final class embeddings_fixture_codec_test extends advanced_testcase {
         embeddings_fixture_codec::pack($path);
         $packed = file_get_contents($path);
 
+        // Fixed times for all three files: the test does not depend on the clock of the machine.
+        touch(embeddings_fixture_codec::index_path($path), 1700000000);
+        touch(embeddings_fixture_codec::vector_path($path), 1700000000);
+
         file_put_contents($path, 'edited');
-        touch($path, time() + 10);
+        touch($path, 1700000100);
         embeddings_fixture_codec::unpack($path);
         $this->assertSame('edited', file_get_contents($path));
 
-        touch($path, time() - 100);
+        touch($path, 1699999900);
         embeddings_fixture_codec::unpack_directory(dirname($path));
         $this->assertSame($packed, file_get_contents($path));
     }

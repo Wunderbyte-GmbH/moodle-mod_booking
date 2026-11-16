@@ -107,6 +107,8 @@ class embeddings_fixture_codec {
         if (!is_readable($indexpath) || !is_readable($vectorpath)) {
             return is_readable($csvpath);
         }
+        // The times are read fresh: a cached one would keep a CSV file that has just become outdated.
+        clearstatcache();
         $newest = max((int)filemtime($indexpath), (int)filemtime($vectorpath));
         if (is_readable($csvpath) && (int)filemtime($csvpath) >= $newest) {
             return true;
