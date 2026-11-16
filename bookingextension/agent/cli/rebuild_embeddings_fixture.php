@@ -15,7 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * CLI helper to rebuild the skill-catalog embeddings fixture CSV for tests.
+ * CLI helper to rebuild the skill-catalog embeddings fixture for tests.
+ *
+ * The fixture is committed in a compact form (index file and half-float vectors, see
+ * embeddings_fixture_codec). The script works on the CSV file and writes the compact form next to it.
  *
  * @package    bookingextension_agent
  * @copyright  2026 Wunderbyte GmbH <info@wunderbyte.at>
@@ -31,6 +34,7 @@ require_once($CFG->libdir . '/clilib.php');
 
 use bookingextension_agent\local\wizard\embeddings_action_config_resolver;
 use bookingextension_agent\local\wizard\services\embeddings\embeddings_catalog_builder_service;
+use bookingextension_agent\local\wizard\services\embeddings\embeddings_fixture_codec;
 use bookingextension_agent\local\wizard\embeddings_csv_repository;
 use bookingextension_agent\local\wizard\orchestrator;
 use bookingextension_agent\local\wizard\skill_registry_factory;
@@ -115,6 +119,7 @@ if (empty($rows)) {
     cli_error('No skill rows generated from registry.');
 }
 
+embeddings_fixture_codec::unpack($outputpath);
 $existingrows = bookingextension_agent_read_fixture_rows($outputpath);
 $existingbyskill = [];
 foreach ($existingrows as $row) {
@@ -250,6 +255,7 @@ foreach ($rows as $idx => $row) {
 }
 
 bookingextension_agent_write_fixture_rows($outputpath, $rows);
+embeddings_fixture_codec::pack($outputpath);
 
 mtrace('bookingextension_agent fixture rebuild done: ' . $outputpath);
 mtrace('model=' . $model . ', dimensions=' . $dimensions . ', embed=' . ($doembed ? 'yes' : 'no')

@@ -1,0 +1,2545 @@
+{
+    "dimensions": 3584,
+    "rows": [
+        {
+            "skill": "mod_booking.add_price_category",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Create a new price category (for example student, member, external) that can be used in booking option pricing. Use this when users ask to add or manage named price types. Requires site-level configuration capability.",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "ddd8a36fafb3fb542060287188876e6909d9e990940b09c2c319cd1eac1a947f",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.analyze_rules",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Read-only analysis of booking rules and notification behavior in the current booking context. Use this for natural-language questions like \"what emails are sent\", \"which rules are active\", or \"how are confirmations/reminders configured\".",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "c5532178689e4c0cc82c352c79aff2a2701b195775d20c1d61014b423b1d85a7",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.analyze_rules",
+            "anchor_index": "1",
+            "anchor_kind": "utterance",
+            "anchor_text": "What emails does this booking send out?",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "fba73bbe5f1befdafa3268ec38f569e93145e2cae5e9caee0c977be961764f4c",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.analyze_rules",
+            "anchor_index": "2",
+            "anchor_kind": "utterance",
+            "anchor_text": "Which rules are currently set up here?",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "aef96bb811b68930336f1032279569a56c2335f36aef4d83a627742a4fb7e74e",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.analyze_rules",
+            "anchor_index": "3",
+            "anchor_kind": "utterance",
+            "anchor_text": "Show me how the reminders are configured",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "cdbc24e6d23ed6717d361dc9e66fc72d2a97348ebef24c6860f4b4a67bc96779",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.analyze_rules",
+            "anchor_index": "4",
+            "anchor_kind": "utterance",
+            "anchor_text": "List the notification rules on this booking",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "7956c55ec506cc69803831a1e0b7c0a99f3b271b9d5f280799ebd06b4b5edd6a",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.analyze_rules",
+            "anchor_index": "5",
+            "anchor_kind": "utterance",
+            "anchor_text": "Explain what automations are active on this instance",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "1f932702bc33019b0814e44181ddc26e1c37b5d7da5f154a64a933fe106262fd",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.book_users",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Book one or more users into an existing booking option. All booking conditions are enforced. Use bookusersquery to name the users and optionquery to name the target option directly (a title or fragment, e.g. the course/event name) — this skill resolves the option itself, so do NOT run a separate search/find step first; call it directly even when only the option name is known.",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "20b56dff77fdb20a50b4c6126be224115d058e34e7bf8d6e7207b0542aa01a53",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.book_users",
+            "anchor_index": "1",
+            "anchor_kind": "utterance",
+            "anchor_text": "Enrol Maria into the Tuesday cooking course",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "5a87847a2dd29f2a90eac67b2a36fa854e68bb186e6611f77ef0c4a65b1287e9",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.book_users",
+            "anchor_index": "2",
+            "anchor_kind": "utterance",
+            "anchor_text": "Book John and Sarah into the Spring Workshop",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "8991b682b17e562951d4a823740afd110507f755b7a34387a5419aafc390f9db",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.book_users",
+            "anchor_index": "3",
+            "anchor_kind": "utterance",
+            "anchor_text": "Add three participants to this option",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "b945231c8956a4dcd059977e4308418dde298b9701c904197c372fa1ca314f8f",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.book_users",
+            "anchor_index": "4",
+            "anchor_kind": "utterance",
+            "anchor_text": "Register the student with email anna@example.com for the First Aid Course",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "effb7b29de6fa4d76c0a4024f45f63620e6ee857509fdde811aa80ad8bf98d71",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.book_users",
+            "anchor_index": "5",
+            "anchor_kind": "utterance",
+            "anchor_text": "Sign me up for the yoga class",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "4dfbf5bacc5c58c43f0ed70f8bb52c1e35621db31a57103f68dad824d97b269a",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.bulk_update_options",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Update multiple booking options at once. All provided fields are applied to every matched option. Requires optionids, optionquery, or apply_to_all=true to select targets.",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "a76e84eba393233455ee7098f3824d2add43a326ab70dcb264647371c6e26ffe",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.bulk_update_options",
+            "anchor_index": "1",
+            "anchor_kind": "utterance",
+            "anchor_text": "Set the price to 30 euros for all yoga options",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "d21d481c0e1e1d19187b542c79be95dcee2b4f44b2ed71a40ac3b8ea4438e050",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.bulk_update_options",
+            "anchor_index": "2",
+            "anchor_kind": "utterance",
+            "anchor_text": "Apply the same end date to every option in this activity",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "a901c376e1ef94dfdf299e6ab1e366fe6896a0bddacbfbc0c82340e30e8f3e6f",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.bulk_update_options",
+            "anchor_index": "3",
+            "anchor_kind": "utterance",
+            "anchor_text": "Increase the capacity of all workshops to 25 seats",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "9743270926ba69954cbbdf37631bc3641f36b00b7a1dc7bcb395c427356473b1",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.bulk_update_options",
+            "anchor_index": "4",
+            "anchor_kind": "utterance",
+            "anchor_text": "Make all options visible at once",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "9028f2e4f96921a58c7ce3af6546672ae7dd897bf41be6370356016a3e1614a8",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.bulk_update_options",
+            "anchor_index": "5",
+            "anchor_kind": "utterance",
+            "anchor_text": "Change the teacher for every Tuesday class in one go",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "c75ceb49239d036879ab95d4feeb558d71358350fa583467279da2a07597fef7",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.configure_booking_instance",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "UPDATE the current booking activity instance settings (write-only). Use action=update with a changes array to apply concrete changes (\"change X to Y\"). This skill does NOT list settings: for read requests like \"what can I configure\" or \"show the current settings\", call the read-only skill mod_booking.list_instance_settings instead — it returns the field catalog with current values and needs no confirmation.",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "47b1ea5d4a54f33395befd218f7978c084f4f77109244d513509c300bd966119",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.configure_booking_instance",
+            "anchor_index": "1",
+            "anchor_kind": "utterance",
+            "anchor_text": "Change the settings of this booking activity",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "6c1cd24f35f5881f1580aa1bde0356e7d4e65d92cb3c5404c82f27a540fdce80",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.configure_booking_instance",
+            "anchor_index": "2",
+            "anchor_kind": "utterance",
+            "anchor_text": "Set the maximum bookings per user to 3",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "35276f29cc54378b69197c9f535c27a431fe272e4ecf1112cf69c8e01bf69dfb",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.configure_booking_instance",
+            "anchor_index": "3",
+            "anchor_kind": "utterance",
+            "anchor_text": "Turn off the confirmation emails of this booking instance",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "01b068003d4f90b8c1bd6d42778f3301a83dcd6001f43b8fd77f90ff6dc1123d",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.configure_booking_instance",
+            "anchor_index": "4",
+            "anchor_kind": "utterance",
+            "anchor_text": "Rename the booking activity and adjust its defaults",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "f4c0837b556459a12a91fbc7366e7b9a446a38a900b27a95c7cf45c50a07b929",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.create_option",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Create a new booking option in the current booking activity. Canonical keys for normal dated options are text, coursestarttime, courseendtime, maxanswers and optiondates; to target a named booking activity use activityquery (never invent keys like coursequery; to LINK a Moodle course that participants enter after booking use linkedcoursequery). Do not use non-canonical keys like day/date/start/end for this task. Use this general create task when the user asks for a standard dated option (for example \"create a workshop next Tuesday from 10:00 to 12:00\"). Also use this task for recurring weekday event series with fixed start/end times, numbered titles (for example \"Lecture 1, Lecture 2, ...\"), trainer assignment, and capacity. Use the specialized slot-booking task for appointment-slot availability and the specialized self-learning task for duration-based self-learning offers. New options are created as invisible by default and can be made visible later via update.",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "40180f3ef428dc792ab5d126e6d5d63081244e62291df49d626510100224487f",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.create_option",
+            "anchor_index": "1",
+            "anchor_kind": "utterance",
+            "anchor_text": "Create a new booking option for a workshop next Tuesday from 10:00 to 12:00",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "afbaff84f9b7cfe3f8b8894be6a270c6caef34c58541f4d97c6b92baf7736e81",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.create_option",
+            "anchor_index": "2",
+            "anchor_kind": "utterance",
+            "anchor_text": "Add a bookable event titled \"First Aid Course\" with 20 seats",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "b9dbe3360866572e4279def16e54b1c0f0838f9a80d301496b7b5ed2cc9b913f",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.create_option",
+            "anchor_index": "3",
+            "anchor_kind": "utterance",
+            "anchor_text": "Set up a weekday lecture series Monday to Friday next week",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "096e211d00ba4c5f1d5fb25d4aee59a0e996dd6515c9b8adf7f420855bbf5d03",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.create_option",
+            "anchor_index": "4",
+            "anchor_kind": "utterance",
+            "anchor_text": "I want to create a course that people can book",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "5ce477bb87eafc9ce953c5c30c4bfabc53df712dfdbc61bfb872604768b3df19",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.create_option",
+            "anchor_index": "5",
+            "anchor_kind": "utterance",
+            "anchor_text": "Make a new dated event with a start and end time",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "8fc8e339a7c303a51caae42d1ebb1b699247170f01766dfa14ba4a4cf5aeeb10",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.create_rule_from_template",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Create a booking rule from a booking-rule template via the existing server-side rules form pipeline. Use this for natural-language requests like adding a booking confirmation, reminder, waitlist, or cancellation notification rule. If the user explicitly asks for a booking confirmation, resolve templatequery directly to \"booking confirmation\" without asking for template type again. If the user says \"with the name ...\", map that value to rulename (not to optionquery).",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "57ec094ad1c31c7d60cfca804bc5a7491d5a7288ed73b4fa2b50f810287242f4",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.create_rule_from_template",
+            "anchor_index": "1",
+            "anchor_kind": "utterance",
+            "anchor_text": "Set up a confirmation email when someone books",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "f8d31234167a4ff90d0d590874da545762fc4c0f9dfa4922cd07edddb929c969",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.create_rule_from_template",
+            "anchor_index": "2",
+            "anchor_kind": "utterance",
+            "anchor_text": "Add a reminder rule one day before the course starts",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "ab41caf8a92f4c8cc58e47673f584febd22f31b09d2ca439e37f700598baa3b2",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.create_rule_from_template",
+            "anchor_index": "3",
+            "anchor_kind": "utterance",
+            "anchor_text": "Create a notification rule for the waiting list",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "96b1bf48c42d23d334a4e8ba07e4ccaadcde4f436d97c615d2d58ff0690d15d8",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.create_rule_from_template",
+            "anchor_index": "4",
+            "anchor_kind": "utterance",
+            "anchor_text": "I want a new rule that emails participants on cancellation",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "0b0de41fdba0471a40e9f3691a068573e2ff1af017645da309ee5faf76baf276",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.create_rule_from_template",
+            "anchor_index": "5",
+            "anchor_kind": "utterance",
+            "anchor_text": "Add an automatic booking confirmation message",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "f340f8f8204a25a512579d37f2b9b4845325d738870f61cc07532c64bff2f85d",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.create_selflearning_option",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Create a self-learning booking option for duration-based participation. Use this task when the user wants a self-paced or e-learning style offer with a duration (for example 2h, 4h, or 14400 seconds) instead of fixed appointment slots. This is the canonical self-learning create task and should be preferred over the general create_option task whenever the request is about a course-like learning period.",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "f41cec769db248db2a6a94c512354b2da4725b4d4e0487429232369010daa8ad",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.create_selflearning_option",
+            "anchor_index": "1",
+            "anchor_kind": "utterance",
+            "anchor_text": "Create a new booking option for a workshop next Tuesday from 10:00 to 12:00",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "650a2641a27593118098dcbaa48c28861c1c8e7453755e75b427b9b5ab3f87a4",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.create_selflearning_option",
+            "anchor_index": "2",
+            "anchor_kind": "utterance",
+            "anchor_text": "Add a bookable event titled \"First Aid Course\" with 20 seats",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "db36641860c32089a46b4a302001d1e45c4c83a995eb0a7c467e5e2c202f4196",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.create_selflearning_option",
+            "anchor_index": "3",
+            "anchor_kind": "utterance",
+            "anchor_text": "Set up a weekday lecture series Monday to Friday next week",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "6a852a6f6fd36c55a1d51b2cfe31298903408d1239e46de51e495dee3d22f9a3",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.create_selflearning_option",
+            "anchor_index": "4",
+            "anchor_kind": "utterance",
+            "anchor_text": "I want to create a course that people can book",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "0545f1108600585144fc3e1de400f4686edd786f3ff1c2e7af98410ea53e6654",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.create_selflearning_option",
+            "anchor_index": "5",
+            "anchor_kind": "utterance",
+            "anchor_text": "Make a new dated event with a start and end time",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "c07cc9e685a463a3810be17624d64bb49f1d1dbb8806283932f6c7d23ac1d461",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.create_slotbooking_option",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Create a slot-based booking option for appointment scheduling with reusable availability windows, slot duration, validity range and per-slot capacity. Use this canonical task for requests like consultation slots, court appointments, office-hour availability, or any recurring bookable time window. Do not use it for fixed dated event series with trainer/capacity and numbered titles (for example Lecture 1..n on specific weekdays); those are normal dated options. Do not use it for single dated events or normal course sessions; those belong to the general create_option task.",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "dbce15afa8c2d9a3404d0281d81db196a5118c658b3f5aaad68b0e4dcf42dfdc",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.create_slotbooking_option",
+            "anchor_index": "1",
+            "anchor_kind": "utterance",
+            "anchor_text": "Create bookable consultation slots every Monday from 10:00 to 14:00",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "0628c1831d33a314b4c2ac90cc105aef1245e623783ebdb9b3051e0944fd9ef7",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.create_slotbooking_option",
+            "anchor_index": "2",
+            "anchor_kind": "utterance",
+            "anchor_text": "Set up 30-minute appointment slots for office hours",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "8ae79e8b19b34791851821671dc61bd6d793dd6d7b492d79ab1455754c45eb21",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.create_slotbooking_option",
+            "anchor_index": "3",
+            "anchor_kind": "utterance",
+            "anchor_text": "Make a slot-based option for court appointments next month",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "d09e705a0c6551d62746b338432af429f673ea76990620c24f5552b2f035901c",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.create_slotbooking_option",
+            "anchor_index": "4",
+            "anchor_kind": "utterance",
+            "anchor_text": "Offer reusable availability windows people can book individual time slots in",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "fa5f09a32862ba1dc311742b0744dc383c5fbcb07cd256ab2fb5c2714c122e4a",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.create_slotbooking_option",
+            "anchor_index": "5",
+            "anchor_kind": "utterance",
+            "anchor_text": "Create 25-minute meeting slots on Mondays and Wednesdays in July",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "955b9f58fcbd567772d9829cbd5fa1f6fb8ac34fc2de9bd54e7e59b52ad60645",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.diagnose_booking_issue",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Diagnose why the current user (or a specified target user) is not booked, cannot book, or did not receive email for a booking option or have any other issue regarding a booking option. PATTERN: If user asks \"why can [Name] not book [Option]\", extract Name→userquery, Option→optionquery. Do NOT ask for clarification if both are identifiable in the user message; supply them directly.",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "0359399e894744f451fedc1ec96b55c518ead94dbd27da89bc2ca8aea1be4e54",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.diagnose_booking_issue",
+            "anchor_index": "1",
+            "anchor_kind": "utterance",
+            "anchor_text": "Why is this person stuck on the waiting list?",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "59b75c94bf36da5b5a82445623b8c510d77796208ca6e15605c25bb80ae723b0",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.diagnose_booking_issue",
+            "anchor_index": "2",
+            "anchor_kind": "utterance",
+            "anchor_text": "The booking didn't confirm for this user",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "af3adac9896e1c68b57be4e69022b7fa0cc20c3552af0de586c7fdfddcd431dd",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.diagnose_booking_issue",
+            "anchor_index": "3",
+            "anchor_kind": "utterance",
+            "anchor_text": "Why can't Maria book this course?",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "41c53713986a5f59a8a633eed1877149d6b1a639c726abded92bf5cdeddbf113",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.diagnose_booking_issue",
+            "anchor_index": "4",
+            "anchor_kind": "utterance",
+            "anchor_text": "A participant says they never got the confirmation email",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "f89ff68dc8821e431e2b48d83a01ebd405f31279baacbadc9f5805cfdd89de69",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.diagnose_booking_issue",
+            "anchor_index": "5",
+            "anchor_kind": "utterance",
+            "anchor_text": "Why am I not enrolled even though I booked?",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "6191ba1ff69d5f166f561352251506e100a11ef16bcab2f3d62d7b5dbec2a32f",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.diagnose_booking_issue",
+            "anchor_index": "6",
+            "anchor_kind": "utterance",
+            "anchor_text": "This user booked but isn't showing as participant",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "e23ebfb6ec46736ee56e8124a78d18e13979e456b19e70ed4e1fa1962875fcb8",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.diagnose_cancellation_issue",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Diagnose why the current user cannot cancel their own booking for a booking option.",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "1d6c3a794b85bb8a4d4e9c3633453d26010a4f6e31ec8aaf2535b60fd0e3529e",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.diagnose_cancellation_issue",
+            "anchor_index": "1",
+            "anchor_kind": "utterance",
+            "anchor_text": "Why can't I cancel my booking?",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "97ede7270cc31c525231d3b303ab3677abd221da8d7077df6d1aeb1bc0385f74",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.diagnose_cancellation_issue",
+            "anchor_index": "2",
+            "anchor_kind": "utterance",
+            "anchor_text": "Why didn't my refund go through?",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "2ab12702baf408122d86f6d8cda9b216e53b4362f800410a77bff7f1f9caa58c",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.diagnose_cancellation_issue",
+            "anchor_index": "3",
+            "anchor_kind": "utterance",
+            "anchor_text": "The cancel button is greyed out for me",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "9a7d389129462380eadfcdd2af03611010417e7c791f4d9485a1b1069e621856",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.diagnose_cancellation_issue",
+            "anchor_index": "4",
+            "anchor_kind": "utterance",
+            "anchor_text": "I cancelled but wasn't removed from the option",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "33f8c2182b77d1d41000bb529d720e48fe60b6ea4b76ef99f02f054306cf3f8c",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.diagnose_cancellation_issue",
+            "anchor_index": "5",
+            "anchor_kind": "utterance",
+            "anchor_text": "Why is the cancellation deadline blocking me?",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "fe50fe3cbd739810fa3b7566fe95bfee55bf79a8469ab2a9ed5acbdd6a2d9b21",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.diagnose_user_booking",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Diagnose a person's booking status and history and return a detailed status report. Use this when the user asks about ONE specific person: whether/when they booked, whether they completed, their waiting-list/cancelled/previous bookings, their submitted booking form data, and which notification messages they received. If a specific booking option is named, the report focuses on that option (including the full received-message history); if no option is named, it returns an instance-wide overview of all the person's bookings (e.g. \"how many options has Billy completed\"). The report also includes the certificates (tool_certificate) issued to the person, including whether the focused option's certificate was actually issued. Every reported option carries the host course (id and name) and booking instance the option lives in.",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "1934bd07bbf64e3e1b4aff05c5acb6868d5aa8e5b1b0918cd682483509c6256b",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.diagnose_user_booking",
+            "anchor_index": "1",
+            "anchor_kind": "utterance",
+            "anchor_text": "what is the booking status of this user",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "30c7e3a844df31b228f6e9185c6742d7f77cd2215a4c54178847e278e5750c52",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.diagnose_user_booking",
+            "anchor_index": "2",
+            "anchor_kind": "utterance",
+            "anchor_text": "has Billy booked and completed this option",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "31b00e4217c8788b3b3986f248d7be3039ebc68ac28c3929df95257505f7c33e",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.diagnose_user_booking",
+            "anchor_index": "3",
+            "anchor_kind": "utterance",
+            "anchor_text": "show me this person's booking history and waiting-list entries",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "522d4d42a64814c44aafd5237b0df543ad4fa349dad47d7db44716a8224f035e",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.diagnose_user_booking",
+            "anchor_index": "4",
+            "anchor_kind": "utterance",
+            "anchor_text": "did this participant receive their certificate",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "42657d4a8d2d9d2a081cfe2d6e9b8f694ff91e214de3f4c8ef1723f8afe674a6",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.diagnose_user_booking",
+            "anchor_index": "5",
+            "anchor_kind": "utterance",
+            "anchor_text": "which notification messages did this user get for this booking",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "f22ec22fcf052fdb4a5f233f1a2327569e7b230b38429b40689f294ac812f0e3",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.diagnose_user_booking",
+            "anchor_index": "6",
+            "anchor_kind": "utterance",
+            "anchor_text": "how many options has this person completed",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "a9842a170bcb609edd062963ce6c1772d246469c5e4b0e566ea8c8f98eaa4903",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.get_option_details",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Get detailed information for one or more booking options via booking option APIs.",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "46daa38091b32f29cc695754f39cbb41917b8e012913532cc7937eb4acd40666",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.get_option_details",
+            "anchor_index": "1",
+            "anchor_kind": "utterance",
+            "anchor_text": "Show me the full details of the Spring Workshop",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "581df4040991096dd49d7af83e529998fa11dac49a1591b03e25708cb478bb35",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.get_option_details",
+            "anchor_index": "2",
+            "anchor_kind": "utterance",
+            "anchor_text": "What is the price and teacher for the yoga course?",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "129bc83496deadd34c451ea27916d95d9d257abb9f8f1b46707f23682cc71bb4",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.get_option_details",
+            "anchor_index": "3",
+            "anchor_kind": "utterance",
+            "anchor_text": "Give me all the information about option 1422",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "01ffabdf36ccafcca812f6f3ad6324f3b4733e7cc066a54c75823421a6e82f8e",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.get_option_details",
+            "anchor_index": "4",
+            "anchor_kind": "utterance",
+            "anchor_text": "How many seats are left in the cooking class?",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "22897934b2c9bb7e7edd02736061a98e22305e13a9386722051424537aec3e39",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.get_option_details",
+            "anchor_index": "5",
+            "anchor_kind": "utterance",
+            "anchor_text": "Tell me everything about the First Aid Course",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "d2a3b0e84d0d0df4cd01061c09d655e333aa20a13126ef4e7632651331d6889a",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.list_instance_settings",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "List the configurable settings of a booking activity instance: the full field catalog (name, label, type, description) with the current values. Read-only — use this for questions like \"what can I configure\" or \"show the current settings\". To CHANGE a setting, use mod_booking.configure_booking_instance (action=update) afterwards.",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "1fc3afdd6c90cce82222dea93d689bd4700fa2b0ff43d82cbfb9ae4517f93dc9",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.list_instance_settings",
+            "anchor_index": "1",
+            "anchor_kind": "utterance",
+            "anchor_text": "What can I configure for this booking instance?",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "29e65912b69df2aec73d82c0155921b22ca2d944ca8b0b0eb9564b00c3d9735c",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.list_instance_settings",
+            "anchor_index": "2",
+            "anchor_kind": "utterance",
+            "anchor_text": "Show the current activity-level settings",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "2e8a7206ebeb368567d78e9d63c4072ad07a20f5b7e5ab6106c134c9aa56bf89",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.list_instance_settings",
+            "anchor_index": "3",
+            "anchor_kind": "utterance",
+            "anchor_text": "Which settings does this booking activity have?",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "ebf8c07b78050eeda7b534fff29e9afb97d1909009440e240877e37ae250881a",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.list_instance_settings",
+            "anchor_index": "4",
+            "anchor_kind": "utterance",
+            "anchor_text": "List the instance settings of the booking activity",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "6ccb7f719a487b3c99de70f7bcc211e5c2ab684fe1c1e49af23d4a39554f2993",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.list_option_properties",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "List booking option properties derived from create/update task schemas.",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "1475f12097bd8318d8e5131d0a8e0ad0a1bddc8ddf23de08b70d968a496a7dee",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.search_options",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Search and list the bookable OPTIONS (events, workshops, sessions) available in this booking instance. Use this when the user asks what they can book, register for, or attend — e.g. \"show all options\", \"what can I book?\", \"list available bookings\", \"show a list of all options\", \"list all bookings\", \"show all bookings\". This lists bookable offerings, not Moodle course containers (use search_courses for those).",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "348f97b022bc09da3c8fcf042e9485f8b1a23522ebacf0f674c18d7ff586e1c2",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.search_options",
+            "anchor_index": "1",
+            "anchor_kind": "utterance",
+            "anchor_text": "Show me all the options I can book",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "c39922d7b0cd05e155ef20190b08122dc2e6c839dbc8a8967949251a58cac5b3",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.search_options",
+            "anchor_index": "2",
+            "anchor_kind": "utterance",
+            "anchor_text": "List the bookable options in this activity",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "2a8fe8b879e56a4f8fc69bfded14ab214c393f5d4a0b39d1fe449700229f0539",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.search_options",
+            "anchor_index": "3",
+            "anchor_kind": "utterance",
+            "anchor_text": "Which workshops are happening next week?",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "c6da60c95833fb36135eb19b80d7f58e7c4904cd900db5cc9e38a75637387a83",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.search_options",
+            "anchor_index": "4",
+            "anchor_kind": "utterance",
+            "anchor_text": "Find all options that contain the word \"yoga\"",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "065e2381aab9586bf1159d02b635646ad0c910050ce797e21dbc9d6c624a3f98",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.search_options",
+            "anchor_index": "5",
+            "anchor_kind": "utterance",
+            "anchor_text": "What can I register for?",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "4e6f000fad314a5bfa7b7149d70cc2884369a5a77e5bcf0713344c10d35acf6a",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.search_options",
+            "anchor_index": "6",
+            "anchor_kind": "utterance",
+            "anchor_text": "Find the booking option called \"First Aid Basic Course\"",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "61c9d85ab29d3f618396be9a92382bea638fad2d21ec0bc952de93c787835a7b",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.search_options",
+            "anchor_index": "7",
+            "anchor_kind": "utterance",
+            "anchor_text": "Look up the booking option for the cooking class",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "a84e1a20c66e131908968a1dfa451ebce046e5cf1260fa8473aaace3d735546e",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.search_options",
+            "anchor_index": "8",
+            "anchor_kind": "utterance",
+            "anchor_text": "Identify the option titled \"Spring Workshop\"",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "28a09beefa4f57784bf6c0e5d23ac818b0d626deb172282a799f88d1ec361c78",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.update_option",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Update an existing booking option in the current booking instance. Also use this to add, set or replace the option's header/cover image from an uploaded image attachment (pass the attachment token as headerimage_token).",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "e871a94ab94d05c1b573fdf20288b9c55b35b301bd835e92c958dd17ade31e69",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.update_option",
+            "anchor_index": "1",
+            "anchor_kind": "utterance",
+            "anchor_text": "Change the price of the yoga course to 50 euros",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "d9f768860938d388e877694aecc50232e71f4749dd2bff9e18f57cca28789f4b",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.update_option",
+            "anchor_index": "2",
+            "anchor_kind": "utterance",
+            "anchor_text": "Rename the \"Spring Workshop\" option to \"Summer Workshop\"",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "68d31e0d8c76b41c62fa01e036d36f74540eda6261b6f2cb131534fe05761fc2",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.update_option",
+            "anchor_index": "3",
+            "anchor_kind": "utterance",
+            "anchor_text": "Move the start date of the cooking class to next Friday",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "173b2a1796206bffa6dee639f03205127bb65dc68be1ebc691d614ff68c4ce5f",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.update_option",
+            "anchor_index": "4",
+            "anchor_kind": "utterance",
+            "anchor_text": "Set this uploaded picture as the header image of the option",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "e21199e23b906375ecbe5ef8f80cae8ca198fba2b57cdca74f441a41e954b334",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.update_option",
+            "anchor_index": "5",
+            "anchor_kind": "utterance",
+            "anchor_text": "Update the description of the First Aid Course",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "77274db027a89f294785a815e65f81c7db3a37abcdd9c6ba519f56a15fb47401",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.update_option",
+            "anchor_index": "6",
+            "anchor_kind": "utterance",
+            "anchor_text": "Hide the Tuesday option from the list",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "8eb5afb713bdc1ace1137d57b5a5d93497359a69e4a429725d1fa2f61d2c93f0",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.update_option_trainer",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Assign or replace trainer(s) for an existing booking option. This task only updates trainer assignment and does not change other option fields.",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "55c7d4816bf879b14e1d557cb0c02d28c8bb6fd79dc39f3dd2773bf0f945b1cf",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.update_rule_from_template",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Update an existing booking rule in the current booking context, optionally by reapplying a template first. Use this for natural-language requests like \"rename this reminder rule\", \"disable that confirmation rule\", or \"change the template for this rule\".",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "ce62b7351bbb9a3c189d2c9486b9e3d75887e89c1dae92bfc1d380c057d62c3b",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.update_rule_from_template",
+            "anchor_index": "1",
+            "anchor_kind": "utterance",
+            "anchor_text": "Rename the existing reminder rule",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "4a4c99ee317babc4a8cc2dc096be4c6eb7e9d42c061f451e31a63d1ed9071bb9",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.update_rule_from_template",
+            "anchor_index": "2",
+            "anchor_kind": "utterance",
+            "anchor_text": "Turn off the confirmation rule on this booking",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "86a469eb9b94704f7073f400664106ea280c7d1ce95a92cd8017c23cfe47f4ef",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.update_rule_from_template",
+            "anchor_index": "3",
+            "anchor_kind": "utterance",
+            "anchor_text": "Change the timing of the reminder that already exists",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "fa76ef90214007ca151e06e705f9686fb7ae36775a804dcd06f252dc5420649d",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.update_rule_from_template",
+            "anchor_index": "4",
+            "anchor_kind": "utterance",
+            "anchor_text": "Edit the message text of my cancellation rule",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "bcf637bcec980f3ab31954ab2db3d5865cfb9126e07a796333c2d40a4362c40b",
+            "has_vector": true
+        },
+        {
+            "skill": "mod_booking.update_rule_from_template",
+            "anchor_index": "5",
+            "anchor_kind": "utterance",
+            "anchor_text": "Disable that notification rule for now",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "d52418222b9d00337a9b8d1997d350f6d0b7a7750c6906c4a8d3d7d5e503bfe4",
+            "has_vector": true
+        },
+        {
+            "skill": "core.diagnose_notifications",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Explain why a person may NOT be receiving e-mails or notifications from Moodle. Checks user-level blockers (missing/blocked e-mail, unconfirmed or suspended account, \"disable all e-mail\" setting, bounce threshold) and, for admins, the site mail switches and mail task health. Use for \"why does Maria get no e-mails\", \"why does Tom get no notifications\". For booking confirmation/reminder mails about a specific option, mod_booking.diagnose_user_booking is better.",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "e09ed7b6cfd4c5b3dad4b2a2e19bae4fa84bae4f648ab9500937749e3067294b",
+            "has_vector": true
+        },
+        {
+            "skill": "core.diagnose_notifications",
+            "anchor_index": "1",
+            "anchor_kind": "utterance",
+            "anchor_text": "the confirmation email never arrived",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "bf44c52f444fddf879eeb2ed870f5849467f7a9e9d3ac406fefc89216fa3740e",
+            "has_vector": true
+        },
+        {
+            "skill": "core.diagnose_notifications",
+            "anchor_index": "2",
+            "anchor_kind": "utterance",
+            "anchor_text": "why does this user get no emails from the system",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "6ac46a947fad3f3eea07f5f25449e457d7d87eb5897dc1d4a37ed9b7bc0256e6",
+            "has_vector": true
+        },
+        {
+            "skill": "core.diagnose_notifications",
+            "anchor_index": "3",
+            "anchor_kind": "utterance",
+            "anchor_text": "she isn't receiving any notifications",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "49ceea6c18af1e263ab8db42e3519fecd0e858e6eba177c5eed97a06b95aaa9e",
+            "has_vector": true
+        },
+        {
+            "skill": "core.diagnose_notifications",
+            "anchor_index": "4",
+            "anchor_kind": "utterance",
+            "anchor_text": "no reminder emails are reaching him",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "cf021448acfa1e326ed020c1eac68b071fe6c230441d8fd7f1cb50a73400f306",
+            "has_vector": true
+        },
+        {
+            "skill": "core.diagnose_notifications",
+            "anchor_index": "5",
+            "anchor_kind": "utterance",
+            "anchor_text": "why aren't my Moodle emails coming through",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "0e8152a1ff5f47743cbe3431fe4e9c413d3814f9905accfc01ea7cc0b635793a",
+            "has_vector": true
+        },
+        {
+            "skill": "core.diagnose_notifications",
+            "anchor_index": "6",
+            "anchor_kind": "utterance",
+            "anchor_text": "this account stopped getting email alerts",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "024e6462c76033799539e76105115d5def2753f5423e977a8dc36ff875f2ecec",
+            "has_vector": true
+        },
+        {
+            "skill": "core.diagnose_permissions",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Inspect a person's ROLES and CAPABILITIES (permissions) across the context chain (system → category → course → activity). Answers \"what roles does X have here\", and \"may X do <capability> at course Y\" including the ALLOW/PREVENT/PROHIBIT overrides on the chain. For a capability question, pass the technical capability name in `capability` (e.g. mod/booking:addoption). NOT for \"who all has right Z\" and not for access/enrolment/grades.",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "e59f702bf44ec609b2e49c6ad806e924e6e3223fa922ed0f4d94f35cf2da45c2",
+            "has_vector": true
+        },
+        {
+            "skill": "core.diagnose_permissions",
+            "anchor_index": "1",
+            "anchor_kind": "utterance",
+            "anchor_text": "why can't this teacher edit the activity",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "f9aff8a1913af9cc25117bbd8fa082baa178811647ba4d4032b2869c2929c105",
+            "has_vector": true
+        },
+        {
+            "skill": "core.diagnose_permissions",
+            "anchor_index": "2",
+            "anchor_kind": "utterance",
+            "anchor_text": "what roles does this user have in the course",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "407986aab614d5a7869b59594f0f1d86ed8c674aa18396b6e87fcee8dbd760ea",
+            "has_vector": true
+        },
+        {
+            "skill": "core.diagnose_permissions",
+            "anchor_index": "3",
+            "anchor_kind": "utterance",
+            "anchor_text": "is she allowed to add booking options here",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "b6da762f7244aeae0cae4ffdae9cbb4c07fb297f552eb112761fa2bf83f4d033",
+            "has_vector": true
+        },
+        {
+            "skill": "core.diagnose_permissions",
+            "anchor_index": "4",
+            "anchor_kind": "utterance",
+            "anchor_text": "why is this user missing the permission to grade",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "91ebb25aa5850d49e890918a072ad6232f6c79edf701d10fcc6ea773f0a6e872",
+            "has_vector": true
+        },
+        {
+            "skill": "core.diagnose_permissions",
+            "anchor_index": "5",
+            "anchor_kind": "utterance",
+            "anchor_text": "which role is preventing him from doing this",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "7b0a188166443cae791b969697bcff9ecf28ce6a8a9073259552a5a791d46e84",
+            "has_vector": true
+        },
+        {
+            "skill": "core.diagnose_permissions",
+            "anchor_index": "6",
+            "anchor_kind": "utterance",
+            "anchor_text": "does this person have the capability to manage the course",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "3944d2c9c8a34e741d9cad52cd4b61a67cb4f12b791ec72000fe4703624d0e74",
+            "has_vector": true
+        },
+        {
+            "skill": "core.find_content",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Semantic search across the site's indexed content (pages, forum posts, course summaries, glossaries, ... — whatever an admin enabled for indexing). Finds content by MEANING, not just keywords, and returns per hit the title, a deep link, the course link, ids and a snippet. Results are access-checked: users only find what they may already see. Stateless and cheap — iterate freely: search BROAD first, then re-run with a refined query, areas or courseid, and set includecontent=true (fewer hits, full text) for the hits you want to work with. NOT for finding users, courses by name, or booking options — use the dedicated search skills.",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "70b99cbe6c0d41b751e4543e62690d7bda17bf7a8c7f123680436653c9bd76f9",
+            "has_vector": true
+        },
+        {
+            "skill": "core.find_content",
+            "anchor_index": "1",
+            "anchor_kind": "utterance",
+            "anchor_text": "find the page about assessment criteria",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "ac022fac464471d3fde842687751d97755f8ed80411740014511dbbb4ae8c5a7",
+            "has_vector": true
+        },
+        {
+            "skill": "core.find_content",
+            "anchor_index": "2",
+            "anchor_kind": "utterance",
+            "anchor_text": "in welchem Kurs geht es um Photosynthese",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "fb63dfc85c577d2dffd6108c55936e92606fc29d3fa2118c6d9e7a6b77043e78",
+            "has_vector": true
+        },
+        {
+            "skill": "core.find_content",
+            "anchor_index": "3",
+            "anchor_kind": "utterance",
+            "anchor_text": "such den Forumsbeitrag über die Exkursion",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "985ddafc15e8d26ba2b05cc1c2be6e0aa21d64a88b36d3115bb297b66617e7df",
+            "has_vector": true
+        },
+        {
+            "skill": "core.find_content",
+            "anchor_index": "4",
+            "anchor_kind": "utterance",
+            "anchor_text": "finde Inhalte zu Datenschutz",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "9c4b5b8f2bccf9425af6d33055f2f84e20c54b380a1b5167160e540845af775a",
+            "has_vector": true
+        },
+        {
+            "skill": "core.find_content",
+            "anchor_index": "5",
+            "anchor_kind": "utterance",
+            "anchor_text": "where on this site is the enrolment procedure explained",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "1a95b9e3666961512b9f2c91c6348cfb6a58f504dcea54948fe04666d65628ae",
+            "has_vector": true
+        },
+        {
+            "skill": "core.find_content",
+            "anchor_index": "6",
+            "anchor_kind": "utterance",
+            "anchor_text": "which course covers statistics basics",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "1e929b49e94162682a3c28e3f4f7e7311ba6078f9988b4b8a740aea783f48162",
+            "has_vector": true
+        },
+        {
+            "skill": "core.get_current_user",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Get information about the current executor user.",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "337d9c53a377fcb79c98be7e09e10982871fccfa2f3285620fcde6c751f44362",
+            "has_vector": true
+        },
+        {
+            "skill": "core.get_current_user",
+            "anchor_index": "1",
+            "anchor_kind": "utterance",
+            "anchor_text": "who am I",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "70546343268e77f8458eccda17d43e3019805782fc11631e29dc7769fc434d61",
+            "has_vector": true
+        },
+        {
+            "skill": "core.get_current_user",
+            "anchor_index": "2",
+            "anchor_kind": "utterance",
+            "anchor_text": "what is my email address",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "9b66996ec04ed124ddb3f63d0859f2aeab9b09e033676155949de4d92341d861",
+            "has_vector": true
+        },
+        {
+            "skill": "core.get_current_user",
+            "anchor_index": "3",
+            "anchor_kind": "utterance",
+            "anchor_text": "show my own profile",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "8a14a5f2d8d069e9f0f41864462a8741fbef819abbd4ad5149f09fae3f4cf21c",
+            "has_vector": true
+        },
+        {
+            "skill": "core.get_current_user",
+            "anchor_index": "4",
+            "anchor_kind": "utterance",
+            "anchor_text": "what is my role here",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "63080a5844a6a9a40699d5f04a009a9671ef57f8f1b9061f9cca915021345d1f",
+            "has_vector": true
+        },
+        {
+            "skill": "core.get_current_user",
+            "anchor_index": "5",
+            "anchor_kind": "utterance",
+            "anchor_text": "what account am I logged in as",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "ab7138e9c1590f5eaf74cafafeaed8db6c094c2d134568b34f01eb8be082d0bf",
+            "has_vector": true
+        },
+        {
+            "skill": "core.search_users",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Search users and return resolved candidates with profile data, enrolled courses, roles, and profile URL. Use this first when a follow-up skill needs a concrete user identity.",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "4bcd5fe44a2a277b147d4376fc1dab6fac643159d86583a84f3dd2e378593e99",
+            "has_vector": true
+        },
+        {
+            "skill": "core.search_users",
+            "anchor_index": "1",
+            "anchor_kind": "utterance",
+            "anchor_text": "find the user named John Smith",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "cc2e6de93e140127b8a542e009a57441298163dfa61e7bc20a3b71afbf188540",
+            "has_vector": true
+        },
+        {
+            "skill": "core.search_users",
+            "anchor_index": "2",
+            "anchor_kind": "utterance",
+            "anchor_text": "look up a user by their email address",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "9773fb18a9cfbdb05b2500ee092f11e88a0542d6e9a0ab08eb24f2400480c14b",
+            "has_vector": true
+        },
+        {
+            "skill": "core.search_users",
+            "anchor_index": "3",
+            "anchor_kind": "utterance",
+            "anchor_text": "search for a person in the system",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "6e9dc73cdd548eb944ea4c5a1654de9f4419f6350a1f1608c388f0af2bf50725",
+            "has_vector": true
+        },
+        {
+            "skill": "core.search_users",
+            "anchor_index": "4",
+            "anchor_kind": "utterance",
+            "anchor_text": "which user has the id 42",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "e9445a9fcfd900b3c81487b62024201be39e08e46977dfb0fb3f6ad4a41f2d51",
+            "has_vector": true
+        },
+        {
+            "skill": "core.search_users",
+            "anchor_index": "5",
+            "anchor_kind": "utterance",
+            "anchor_text": "find another teacher account",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "2009247e27473925f229398561f4c8575fd8d9aebabdd3bf9a880b7355cdf438",
+            "has_vector": true
+        },
+        {
+            "skill": "core.search_users",
+            "anchor_index": "6",
+            "anchor_kind": "utterance",
+            "anchor_text": "which courses is this user enrolled in",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "b357e9bc6dcc4fd8123f50488edc65d3120ea5881045e0167835c91c51d57c7d",
+            "has_vector": true
+        },
+        {
+            "skill": "core.search_users",
+            "anchor_index": "7",
+            "anchor_kind": "utterance",
+            "anchor_text": "list the courses that person is enrolled in",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "f99bcb3ce9518e862dc0fc7b2ad4fd945970c1364125000466de1c92950e9f14",
+            "has_vector": true
+        },
+        {
+            "skill": "course.add_activity",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Add (create) an activity or resource in a Moodle course — a Page, URL/link, Text/label, Book, Folder or Forum. Use this whenever the user wants to add, create or insert an activity or resource into a course (e.g. \"add a page\", \"add a URL/link\", \"create a forum\", \"create a label\"). It does NOT create quiz questions (use question.generate_questions for that).",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "a2f70df1489840f5249c7b9cee6c25417b0622caf1dbb82f1c6a92cf7315dc13",
+            "has_vector": true
+        },
+        {
+            "skill": "course.add_activity",
+            "anchor_index": "1",
+            "anchor_kind": "utterance",
+            "anchor_text": "add a page to week 2",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "76e52140953a48bada1248fe83dd4b7a2d266253dc91e1cce97fcbb897e1b810",
+            "has_vector": true
+        },
+        {
+            "skill": "course.add_activity",
+            "anchor_index": "2",
+            "anchor_kind": "utterance",
+            "anchor_text": "put a forum in this course",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "02928cd4ab053b861ca3329367cd66a3c261b3dad5676c6fed428c494a998c6b",
+            "has_vector": true
+        },
+        {
+            "skill": "course.add_activity",
+            "anchor_index": "3",
+            "anchor_kind": "utterance",
+            "anchor_text": "create a label with some intro text",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "82461bbf755c13a524c627029687a8166bf7c16c5861dbfabbf792d0460bbe2e",
+            "has_vector": true
+        },
+        {
+            "skill": "course.add_activity",
+            "anchor_index": "4",
+            "anchor_kind": "utterance",
+            "anchor_text": "add a link to our syllabus PDF",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "613d229759dc12aa8626b87171a4521e0b34fe4792152e69eb56c3be9138364c",
+            "has_vector": true
+        },
+        {
+            "skill": "course.add_activity",
+            "anchor_index": "5",
+            "anchor_kind": "utterance",
+            "anchor_text": "insert a folder into the introduction section",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "e857ba2b7e6a0470732541661aacbd5438594fb0fec688cd13563476f895939e",
+            "has_vector": true
+        },
+        {
+            "skill": "course.add_activity",
+            "anchor_index": "6",
+            "anchor_kind": "utterance",
+            "anchor_text": "add a book resource to the course",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "ff3eea7440d9d1d45888e48a11b0ef60619380bc33ba23d1f24251cabbdbd514",
+            "has_vector": true
+        },
+        {
+            "skill": "course.add_quiz",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Create a quiz/test in a course and optionally fill it with questions. Use for \"create a quiz\", \"make a quiz from this PDF\". The quiz can be created empty (add questions later) or populated from one of three sources: newly generated questions (from a document/PDF or a topic), specific existing questions, or random questions from a question category. To only add questions to the bank (no quiz) use question.generate_questions.",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "593ca60a2c6ea1929b56ec50958922ab2e36479c5011d11a297d091232efa7f6",
+            "has_vector": true
+        },
+        {
+            "skill": "course.add_quiz",
+            "anchor_index": "1",
+            "anchor_kind": "utterance",
+            "anchor_text": "create a quiz for this course",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "9de539fa19f7c87db58ee81e916fb809c33cbb23e8a891b905c2f7e2bb75db6b",
+            "has_vector": true
+        },
+        {
+            "skill": "course.add_quiz",
+            "anchor_index": "2",
+            "anchor_kind": "utterance",
+            "anchor_text": "add a new test with 10 questions",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "fe972616a7284ab33f0e224a586b6f8e99aa653ae5f2bf821045119076344b1f",
+            "has_vector": true
+        },
+        {
+            "skill": "course.add_quiz",
+            "anchor_index": "3",
+            "anchor_kind": "utterance",
+            "anchor_text": "make a quiz from this PDF",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "4eb9a35d27870dce546c89f34d65905c43147b4db5bdb9037779db621e8b92f8",
+            "has_vector": true
+        },
+        {
+            "skill": "course.add_quiz",
+            "anchor_index": "4",
+            "anchor_kind": "utterance",
+            "anchor_text": "set up an empty quiz I can fill later",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "76e072f0e8a54a010722e73bf78a8ff2de9ef127485c8e8aafca4ef127dc3ada",
+            "has_vector": true
+        },
+        {
+            "skill": "course.add_quiz",
+            "anchor_index": "5",
+            "anchor_kind": "utterance",
+            "anchor_text": "build a quiz from the photosynthesis topic",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "f0afc645b4924f692ce9a30416c87a2e3d39d4e532b40d4e7fd5b997780b5fa8",
+            "has_vector": true
+        },
+        {
+            "skill": "course.analyze_course_structure",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Analyse / list the STRUCTURE of a course: its sections (topics/weeks) and the activities & resources in them — names, types, descriptions, links — plus whether each is hidden, availability-restricted, group-restricted or locked for the viewer. Use for \"what is in this course\", \"show me the structure/sections of course X\", \"which activities/sections does the course have\", \"what is in the Mathematics course\". It is the prerequisite for later placing something into a section. It only READS; it never creates or changes anything.",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "39d84580afdd33fd652f998edf9e9c2b0a127becf919e0096b804b38a80d5570",
+            "has_vector": true
+        },
+        {
+            "skill": "course.analyze_course_structure",
+            "anchor_index": "1",
+            "anchor_kind": "utterance",
+            "anchor_text": "what is in this course",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "2b1f9374c1306dd7b72398852e6ed73d04cd2c2fb5ef9c22dfa6843967653f50",
+            "has_vector": true
+        },
+        {
+            "skill": "course.analyze_course_structure",
+            "anchor_index": "2",
+            "anchor_kind": "utterance",
+            "anchor_text": "show me the sections and activities of this course",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "5147780f5b6580cc4e84b14db59dad0c8d828458811188f26debbcd8ce63e54c",
+            "has_vector": true
+        },
+        {
+            "skill": "course.analyze_course_structure",
+            "anchor_index": "3",
+            "anchor_kind": "utterance",
+            "anchor_text": "give me an overview of the course structure",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "f84b083aed35d4858b4f294b727b4469c307995ff9749944f8cae5dd8753652e",
+            "has_vector": true
+        },
+        {
+            "skill": "course.analyze_course_structure",
+            "anchor_index": "4",
+            "anchor_kind": "utterance",
+            "anchor_text": "list the topics in the Biology course",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "a39f25ac79c77eb9dafece2622c47e9037c59530f3d444f9ef06738a3baabc4e",
+            "has_vector": true
+        },
+        {
+            "skill": "course.analyze_course_structure",
+            "anchor_index": "5",
+            "anchor_kind": "utterance",
+            "anchor_text": "which activities does this course contain",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "86cd829a08bce9b12c660618614ed8d768f28750693c873d4ec47c99b8db647a",
+            "has_vector": true
+        },
+        {
+            "skill": "course.create_course",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Create a NEW Moodle course (the course container itself). Use when the user asks to create/set up a course, e.g. \"create a course about the Vikings\". The system asks which course category to use unless the user named one or only one is available. This creates an EMPTY course — content is added afterwards (activities via the add-activity/quiz skills); a bookable option linking the course is created via mod_booking create skills with linkedcoursequery. NOT for creating booking options or activities inside an existing course.",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "163e67a913e19ee933c2bd6ddfdbd930a5109119be552b2407718a270170fe5a",
+            "has_vector": true
+        },
+        {
+            "skill": "course.create_course",
+            "anchor_index": "1",
+            "anchor_kind": "utterance",
+            "anchor_text": "Create a new course about the life of the Vikings",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "dc861259aa4be7b0162cbcb1d4b0464a2b336752476c889d2fdbf2592b694c27",
+            "has_vector": true
+        },
+        {
+            "skill": "course.create_course",
+            "anchor_index": "2",
+            "anchor_kind": "utterance",
+            "anchor_text": "Set up an empty course called Onboarding 2027",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "ce77975c0648b1135675a13e653831dfcd07bb8296f8daf04f2431eb6362143d",
+            "has_vector": true
+        },
+        {
+            "skill": "course.create_course",
+            "anchor_index": "3",
+            "anchor_kind": "utterance",
+            "anchor_text": "Ich brauche einen neuen Kurs zum Thema Erste Hilfe",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "e079bf4e98a632c7c003151cfb0ceab666e54c0b2c80468dce29fa044f069a2c",
+            "has_vector": true
+        },
+        {
+            "skill": "course.create_course",
+            "anchor_index": "4",
+            "anchor_kind": "utterance",
+            "anchor_text": "Create a course and make it bookable",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "f7116bda3a9de196473603ec5bc064ce4c30bbe049113ad6ed19dc0ebb93d6aa",
+            "has_vector": true
+        },
+        {
+            "skill": "course.diagnose_user_in_course",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Diagnose a person's situation in a course (read-only): why they can or cannot ACCESS/see/open the course or an activity (aspect=access); why ENROLMENT did or did not happen — self-enrolment, cohort sync, suspended/expired, OR which/how many courses a person is enrolled in (aspect=enrolment; omit the course to list all of the person's courses); their PROGRESS / activity completion (aspect=progress); or a missing/wrong GRADE (aspect=grades). Set \"aspect\" to the facet asked about. NOT for booking options (that is mod_booking.diagnose_booking_issue).",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "279fb7c63a02351982d29298ae4ab7dd97d97536a6074d36c74c9b14a02413c2",
+            "has_vector": true
+        },
+        {
+            "skill": "course.diagnose_user_in_course",
+            "anchor_index": "1",
+            "anchor_kind": "utterance",
+            "anchor_text": "why can't this student open the quiz",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "558d62828da685ba59b3b37ed1ad99161e0c1cf811cb04ebd358c84c50328b5d",
+            "has_vector": true
+        },
+        {
+            "skill": "course.diagnose_user_in_course",
+            "anchor_index": "2",
+            "anchor_kind": "utterance",
+            "anchor_text": "why is the activity greyed out for her",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "f0382c2e2d0012b6d6f36b6e27b080a263fe544cd442b006ac05246d9aad969a",
+            "has_vector": true
+        },
+        {
+            "skill": "course.diagnose_user_in_course",
+            "anchor_index": "3",
+            "anchor_kind": "utterance",
+            "anchor_text": "why wasn't he auto-enrolled in the course",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "3ff16ed533bdda903236ec004efc0fc0a6e6afd47c2318b8d61d3d3afadface3",
+            "has_vector": true
+        },
+        {
+            "skill": "course.diagnose_user_in_course",
+            "anchor_index": "4",
+            "anchor_kind": "utterance",
+            "anchor_text": "his enrolment expired and he's no longer in the course",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "4988b29d4959fedb8e5b54b1f4a661a498d9ba1f52ebefc22675f90bdbf39081",
+            "has_vector": true
+        },
+        {
+            "skill": "course.diagnose_user_in_course",
+            "anchor_index": "5",
+            "anchor_kind": "utterance",
+            "anchor_text": "which courses is this user enrolled in",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "60ecbb7a7a5ff649c65f3c58a5f8777c68db646158701a7ecd38eb138c55da89",
+            "has_vector": true
+        },
+        {
+            "skill": "course.diagnose_user_in_course",
+            "anchor_index": "6",
+            "anchor_kind": "utterance",
+            "anchor_text": "list the courses he is enrolled in",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "df2295e4a4d0102728dbb1c4c510c4776dcb73101ec297fbb75c41f7f45c291f",
+            "has_vector": true
+        },
+        {
+            "skill": "course.diagnose_user_in_course",
+            "anchor_index": "7",
+            "anchor_kind": "utterance",
+            "anchor_text": "how far has this learner progressed in the course",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "987c86bf207dd57f1cde972ef0024073abbd49150eef99c9b714501faf94072d",
+            "has_vector": true
+        },
+        {
+            "skill": "course.diagnose_user_in_course",
+            "anchor_index": "8",
+            "anchor_kind": "utterance",
+            "anchor_text": "why is the activity not marked complete for her",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "3705ff7f045d14e612eb4c9a2a395e7b6af7cc78d3bbfea526b88f223483b844",
+            "has_vector": true
+        },
+        {
+            "skill": "course.diagnose_user_in_course",
+            "anchor_index": "9",
+            "anchor_kind": "utterance",
+            "anchor_text": "he completed the quiz but is not advancing to the next activity",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "dec1c70e04a42d7c130154d31515b0bdb12d9f165311c2a0d91ab96d1c722a5f",
+            "has_vector": true
+        },
+        {
+            "skill": "course.diagnose_user_in_course",
+            "anchor_index": "10",
+            "anchor_kind": "utterance",
+            "anchor_text": "why can't the student see their grade",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "44d9cbe130aaddaf364c96308b3ef36c620a4789eaeff0f82c59713d245490d1",
+            "has_vector": true
+        },
+        {
+            "skill": "course.diagnose_user_in_course",
+            "anchor_index": "11",
+            "anchor_kind": "utterance",
+            "anchor_text": "her grade for the assignment is missing",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "a88b64df0cb7db91bb4a3e2c8e6e4021a5f002eb120d706670b0a3e484c4fc9c",
+            "has_vector": true
+        },
+        {
+            "skill": "course.scaffold_course_content",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Fill a course with AI-generated content in ONE step: a welcome section, N chapter pages and a closing section, optionally practice quizzes per chapter and a graded final quiz. Use after course.create_course (or for an existing course) when the user wants an interesting/ready-to-use course about a topic. Do NOT plan add_activity/add_quiz steps for the same content — this skill creates all of it in one call.",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "8a9070ed65b3e7038c40c5b5c1692d7f465b2966a7f4abe61b829aa15f0cb2ca",
+            "has_vector": true
+        },
+        {
+            "skill": "course.scaffold_course_content",
+            "anchor_index": "1",
+            "anchor_kind": "utterance",
+            "anchor_text": "Fill the Vikings course with interesting content",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "d3dd8bbe7d4dfa931963bd70d0b5dff8d0113dbeb9cb67a46e393d736993b650",
+            "has_vector": true
+        },
+        {
+            "skill": "course.scaffold_course_content",
+            "anchor_index": "2",
+            "anchor_kind": "utterance",
+            "anchor_text": "Generate 5 chapters with a final quiz about first aid in this course",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "21105eb74ff7d82a13189230f2900bffa85c54e7e2d2b45bc36df7588cbefcb6",
+            "has_vector": true
+        },
+        {
+            "skill": "course.scaffold_course_content",
+            "anchor_index": "3",
+            "anchor_kind": "utterance",
+            "anchor_text": "Erstelle Inhalte für den Kurs, mit Übungsquiz pro Kapitel",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "62bd370606291d677a7bdece88a4c48e2e7d185f32cd41fdcc214ae12e7bf84e",
+            "has_vector": true
+        },
+        {
+            "skill": "course.scaffold_course_content",
+            "anchor_index": "4",
+            "anchor_kind": "utterance",
+            "anchor_text": "Make me an interesting course about the life of the Vikings",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "c5ef792880e2d7a6716f485233aba092e3910b02e349477aa08ff5c0fd83a651",
+            "has_vector": true
+        },
+        {
+            "skill": "course.search_courses",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Resolve an existing Moodle COURSE (the platform course container) by name and return its identity: courseid, shortname, fullname, course URL and active enrolment count. Use this only to find WHICH Moodle course is meant — typically to obtain a course id or link for a follow-up step. NOT for listing what a user can book or attend (that is a booking option — use search_options), and NOT for enrolling or booking anyone into anything.",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "852492fbc6357657baa9546345d39fc5ef308156e60a0e6deb3adba6548f010a",
+            "has_vector": true
+        },
+        {
+            "skill": "course.search_courses",
+            "anchor_index": "1",
+            "anchor_kind": "utterance",
+            "anchor_text": "find the Moodle course called Biology 101",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "c0a68570d6e5782a7c321d8635d053d2acbad19135e1474ca0fd0d79a9297ce9",
+            "has_vector": true
+        },
+        {
+            "skill": "course.search_courses",
+            "anchor_index": "2",
+            "anchor_kind": "utterance",
+            "anchor_text": "what is the course id of Intro to Programming",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "f346076cc9642ae8af1857ba14016defa027f6dbf5ffccdb827a20c4b0d1aaf2",
+            "has_vector": true
+        },
+        {
+            "skill": "course.search_courses",
+            "anchor_index": "3",
+            "anchor_kind": "utterance",
+            "anchor_text": "get the link to the Mathematics course",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "bfd82221af3b9649ba25e3960a682dff4503eceaf9f965cac0c5b79b02682911",
+            "has_vector": true
+        },
+        {
+            "skill": "course.search_courses",
+            "anchor_index": "4",
+            "anchor_kind": "utterance",
+            "anchor_text": "which Moodle course matches the name Data Science",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "755646d5754175fc47fcbf9321c9b9ed5d09d0fc1c3d315a5bbfae98ec459808",
+            "has_vector": true
+        },
+        {
+            "skill": "course.update_activity",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Edit / change an existing activity or resource in a course — rename it, change its description, show or hide it, change a module-specific setting (e.g. a URL's link), or MOVE it to a different section/topic. Use for \"rename the page to X\", \"hide the forum\", \"change the activity's URL\", \"hide the quiz\", \"move the label to section 2\", \"move the page one section down\". Only the fields you give are changed. To CREATE a new activity use course.add_activity instead.",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "03c41cc498697580ab4960fa95e5e1b33c1656499696c73283bc481652507f85",
+            "has_vector": true
+        },
+        {
+            "skill": "course.update_activity",
+            "anchor_index": "1",
+            "anchor_kind": "utterance",
+            "anchor_text": "rename the Welcome page to Course intro",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "2219979342d227cc0ea6671396e256d626cb3d1f1816b086a8b16c99a5c6c778",
+            "has_vector": true
+        },
+        {
+            "skill": "course.update_activity",
+            "anchor_index": "2",
+            "anchor_kind": "utterance",
+            "anchor_text": "hide the forum from students",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "9a7fc1494d4cd3e60213f008aa1d6f100c036bb1f2c944c6598133f1ad70a342",
+            "has_vector": true
+        },
+        {
+            "skill": "course.update_activity",
+            "anchor_index": "3",
+            "anchor_kind": "utterance",
+            "anchor_text": "change the description of the folder",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "2da44a60a263108ad50d8158b87e213401f679881e31cd6ff5b1f10b0433eaf0",
+            "has_vector": true
+        },
+        {
+            "skill": "course.update_activity",
+            "anchor_index": "4",
+            "anchor_kind": "utterance",
+            "anchor_text": "make the link point to a new URL",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "eaca1d8b668b12d833c20e841bd419d8729b5a156d60df7189805fa49ec3990c",
+            "has_vector": true
+        },
+        {
+            "skill": "course.update_activity",
+            "anchor_index": "5",
+            "anchor_kind": "utterance",
+            "anchor_text": "show the page that is currently hidden",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "1012f5cb8e2cca4442a96b507d6a75cc4d9baedb2d7d579802ca2f65a2760cef",
+            "has_vector": true
+        },
+        {
+            "skill": "course.update_activity",
+            "anchor_index": "6",
+            "anchor_kind": "utterance",
+            "anchor_text": "move the label to section 1",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "494cabde2191ef06510d2d9dd134c7208f12989ed49f0fcfaa31a69d916c2226",
+            "has_vector": true
+        },
+        {
+            "skill": "course.update_activity",
+            "anchor_index": "7",
+            "anchor_kind": "utterance",
+            "anchor_text": "move the page one section down",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "f7537cdb0458fabf0fd779f58ccb5909f1af9076a06903c5bd9c13559392787a",
+            "has_vector": true
+        },
+        {
+            "skill": "course.update_quiz",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Edit an existing quiz and/or add questions to it. Rename it, change its description, show/hide it, and/or add questions (newly generated, specific existing ones, or random from a category). Use for \"add 5 questions to Quiz 3\", \"rename the quiz\", \"add questions to the quiz\", \"hide the quiz\". To CREATE a new quiz use course.add_quiz.",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "5f8398e8e573ee6e013a04e965101768aae0570f1eca70cab0c10895d433f7d2",
+            "has_vector": true
+        },
+        {
+            "skill": "course.update_quiz",
+            "anchor_index": "1",
+            "anchor_kind": "utterance",
+            "anchor_text": "add 5 questions to the existing quiz",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "1438e09e45fa9e37ba1c8930104f82cb6ff0ac03e30306374db4c186c1703312",
+            "has_vector": true
+        },
+        {
+            "skill": "course.update_quiz",
+            "anchor_index": "2",
+            "anchor_kind": "utterance",
+            "anchor_text": "put more questions into Chapter 1 quiz",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "a263a476d31aba8771344be45d03bbb0adc344855ea3519c28be010570417927",
+            "has_vector": true
+        },
+        {
+            "skill": "course.update_quiz",
+            "anchor_index": "3",
+            "anchor_kind": "utterance",
+            "anchor_text": "rename Quiz 3 to Final exam",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "aed136567f24b865ee7856cd9ea5e02d1224b6305181e69f00ec9e31581ea3e4",
+            "has_vector": true
+        },
+        {
+            "skill": "course.update_quiz",
+            "anchor_index": "4",
+            "anchor_kind": "utterance",
+            "anchor_text": "hide the quiz from students",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "e1c23bd0004dd207e5a140c794e8172ec4f5070a61437bcbe45a905d90fec193",
+            "has_vector": true
+        },
+        {
+            "skill": "course.update_quiz",
+            "anchor_index": "5",
+            "anchor_kind": "utterance",
+            "anchor_text": "add questions from the algebra category to the quiz",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "e60c9d50fad0d827c8c277d69d697eebae50acde4f6b59c41a10679ae33c324c",
+            "has_vector": true
+        },
+        {
+            "skill": "question.generate_questions",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Generate Moodle quiz/test questions (multiple choice, true/false, short answer) and save them into the course question bank. The questions can be based on a document/PDF the user uploaded, on the PDF files already stored IN the target course as resource activities (set usecoursepdfs, or resourcecmid for one specific file — the system reads them itself, no re-upload needed), OR on a topic, facts, or an explicit question and answer the user provides directly in the chat — an upload is NOT required. Use this whenever the user wants a question, quiz or test created or inserted into Moodle (e.g. \"make me a question\", \"create a question\", \"create a quiz\", \"create questions from the document\", \"create a quiz from the PDFs in the course\", \"insert a question in Moodle\").",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "d1447f9a9747ff0d13632a5605c8d1af96bbb88aca567322391a8aa78fd49e08",
+            "has_vector": true
+        },
+        {
+            "skill": "question.generate_questions",
+            "anchor_index": "1",
+            "anchor_kind": "utterance",
+            "anchor_text": "create quiz questions from this PDF",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "608289d9afe1ed7aa60374c8fb185417a945865e84fa630c052abb47002d3ff5",
+            "has_vector": true
+        },
+        {
+            "skill": "question.generate_questions",
+            "anchor_index": "2",
+            "anchor_kind": "utterance",
+            "anchor_text": "make me a multiple choice question about photosynthesis",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "8ba704b1e18d47aa3717d602106ccf79c34e44f61d6aa4873de8801898d6d83a",
+            "has_vector": true
+        },
+        {
+            "skill": "question.generate_questions",
+            "anchor_index": "3",
+            "anchor_kind": "utterance",
+            "anchor_text": "generate 10 test questions from the document",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "cb6fc45ef7dca746475f7c87c4efbfeb137a5700ebf97496ee4161336346e25a",
+            "has_vector": true
+        },
+        {
+            "skill": "question.generate_questions",
+            "anchor_index": "4",
+            "anchor_kind": "utterance",
+            "anchor_text": "create a quiz from the PDFs in the course",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "218d266a20cb8df6dda001c248d9dfcabb52987ef74177616bd7b83da4ce8f94",
+            "has_vector": true
+        },
+        {
+            "skill": "question.generate_questions",
+            "anchor_index": "5",
+            "anchor_kind": "utterance",
+            "anchor_text": "make questions from the handout file in course Biology 101",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "acc581ac0718fd65ee080639025beb94c4c940ac9533c8594882490f70a6d1c9",
+            "has_vector": true
+        },
+        {
+            "skill": "question.generate_questions",
+            "anchor_index": "6",
+            "anchor_kind": "utterance",
+            "anchor_text": "add some questions to the question bank",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "536a6862bfb2892b5e3320d7ecbcc1be18f6b7e73f9713e26d7af190f031e69e",
+            "has_vector": true
+        },
+        {
+            "skill": "question.generate_questions",
+            "anchor_index": "7",
+            "anchor_kind": "utterance",
+            "anchor_text": "turn this material into a quiz",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "4da53990a4c779f7b9d4bc5d27e0da3817b51a79970b2c1ab3c85302d821d019",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.explain_docs",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Search the plugin documentation and return a relevant excerpt that answers the user's question. Works in any language — queries are matched against the documentation corpus language-agnostically. Use this skill whenever the user asks how something works, how to configure a feature, or what a term means in the context of this plugin. Documentation answers are strictly grounded: only the returned excerpt counts — never answer such questions from general knowledge.",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "40f927665670a49e2e5f2142b7122e41327a86671334d0fa2032f747ede50f58",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.explain_docs",
+            "anchor_index": "1",
+            "anchor_kind": "utterance",
+            "anchor_text": "how do I set up a booking rule",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "94780935e48daa6f6096c55586db36335bcd4290a122db966a3e101ec7a4573a",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.explain_docs",
+            "anchor_index": "2",
+            "anchor_kind": "utterance",
+            "anchor_text": "how does the waiting list work",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "7f1112b509f5927fe3d7ea3d1a59f85c550da0dc78a2c5a5781f297e88847336",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.explain_docs",
+            "anchor_index": "3",
+            "anchor_kind": "utterance",
+            "anchor_text": "what does the placeholder feature mean",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "ec3fc9bebc5db05e9e59cd1ea3587b44c7f80972f588eaacf1cd33f24f9b6731",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.explain_docs",
+            "anchor_index": "4",
+            "anchor_kind": "utterance",
+            "anchor_text": "where do I configure booking conditions",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "400cdc5e923ca305782bea72a48839c6ab16ce3f0ee894a8e6c536943a2a1a66",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.explain_docs",
+            "anchor_index": "5",
+            "anchor_kind": "utterance",
+            "anchor_text": "explain how option dates work",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "a666bb9033dde8abec515bafdbd3ad4f250ed3a44ce616a47f44924e3f7f30bb",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.forget",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Delete a previously stored user-stated memory/preference (e.g. \"forget that I prefer morning bookings\"). Resolves by query or explicit id and always asks for confirmation before deleting. This manages stored facts the user told the agent — it is NOT for previous conversation. User isolation is strict; userid is never taken from input.",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "0a0848ffbf0abf6012ca6020768b2f4e4efeb5d89e62802b13ee4221b3edcb61",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.forget",
+            "anchor_index": "1",
+            "anchor_kind": "utterance",
+            "anchor_text": "forget that I prefer morning bookings",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "0556243e30c94001c8ef9fd138a5c95b413e62c00a638a6c41a435e3f5ad0ca0",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.forget",
+            "anchor_index": "2",
+            "anchor_kind": "utterance",
+            "anchor_text": "delete the preference about room B",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "1d5d29a9dc174c20c1ab6c0809969d3b67ea66d69d0c76b53ae41f0e836eaafb",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.forget",
+            "anchor_index": "3",
+            "anchor_kind": "utterance",
+            "anchor_text": "stop remembering my employee id",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "26d81b508096f5f353e59ff232834da16934a4c14aa9c104851d0facb24f1d8b",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.forget",
+            "anchor_index": "4",
+            "anchor_kind": "utterance",
+            "anchor_text": "forget everything you know about me",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "dddda5112540d0cf962c83ebd3728dd9465b68a955fe5a4e1a0c29ba50374bd4",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.forget",
+            "anchor_index": "5",
+            "anchor_kind": "utterance",
+            "anchor_text": "remove that saved fact",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "1a52461ab8d1c35a1423e90d704f7c1e57839838694d9dd153e9257b8df6bfc5",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.list_memories",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "List the stored facts/preferences the user previously asked the agent to remember (e.g. \"what do you know about me?\"). These are stored user-stated facts, NOT previous conversation (use wizard.recall_memory for past conversation). User isolation is strict; userid is never taken from input.",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "94c775c42634b23609b2a55c0f2d8d42e858420f2f9c448a7c860b9db21afffd",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.list_memories",
+            "anchor_index": "1",
+            "anchor_kind": "utterance",
+            "anchor_text": "what do you know about me",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "01d224d27c1bc7bddf33187e332fc10e0d87d40f7b9c50f14d087208ec999e75",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.list_memories",
+            "anchor_index": "2",
+            "anchor_kind": "utterance",
+            "anchor_text": "what have you remembered about me",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "f5909e828489c739d58878f40fc65f35e8c57c97f46172d5aa0792d0c69d5c8e",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.list_memories",
+            "anchor_index": "3",
+            "anchor_kind": "utterance",
+            "anchor_text": "list everything you have stored about me",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "718cff4595c7d9b77dceca7a5acb4610134049a99e079bbeb9f81b1205c241a2",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.list_memories",
+            "anchor_index": "4",
+            "anchor_kind": "utterance",
+            "anchor_text": "show me my saved preferences",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "947ad50cd92bf0c5c917775867f6d978a7d1e2d4a19add983fe5b7f8d5d83383",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.list_memories",
+            "anchor_index": "5",
+            "anchor_kind": "utterance",
+            "anchor_text": "what facts have I asked you to keep",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "f44601271f36768fcb7452be9038cc130c5005dda6c13f3ffc400464154077c9",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.list_skills",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "List the AI agent capabilities and skill names that this booking agent supports. Use this ONLY when the user asks what the agent CAN DO or which agent skills/commands exist. Do NOT use for regular entity listing requests; use the appropriate search/list skill instead.",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "768a12af01b4dcb95e6072028d676e71e5cc6da2c902c2d538f4ba428a9955f3",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.list_skills",
+            "anchor_index": "1",
+            "anchor_kind": "utterance",
+            "anchor_text": "what can you do",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "7693d2f727c13fbc05b2f3ebd78f23ad75370efd754b00fcae0db64acecff24b",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.list_skills",
+            "anchor_index": "2",
+            "anchor_kind": "utterance",
+            "anchor_text": "what are you capable of",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "f9ce128a8807f5558f4682dc6b1b5937d71552851477b4de79b879a6e8b99ca9",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.list_skills",
+            "anchor_index": "3",
+            "anchor_kind": "utterance",
+            "anchor_text": "list the actions this agent supports",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "16a603a0da44e1cfd9f6ed951fcae2bbbaf0e28f858253a28578b5d34c40a3ec",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.list_skills",
+            "anchor_index": "4",
+            "anchor_kind": "utterance",
+            "anchor_text": "which commands do you understand",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "0b38f604b7dbdee1ff2267380cb44ea1b0fad7407ac00e141a7455e48f56bd05",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.list_skills",
+            "anchor_index": "5",
+            "anchor_kind": "utterance",
+            "anchor_text": "show me everything you can help with",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "1e27376bf259501f6cd5b0c91d3ceee6aabcc6043ec55b9d188ae4c69efed6fa",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.recall_memory",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Recall previous user-only conversation memory. Use mode=\"last_thread\" for requests like \"last time/yesterday\" and mode=\"date_window\" only for date-specific requests. When mode=\"date_window\", date_hint is mandatory. User isolation is strict and userid is never accepted from input.",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "43ece8460a0b87416753fc43e769dbb4148809da0f5ef5885ff080a0351ad699",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.recall_memory",
+            "anchor_index": "1",
+            "anchor_kind": "utterance",
+            "anchor_text": "what did we talk about last time",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "aedc21ab6e500e083d43ed7a8f0ef505d3c667f6c19f35874a4aeda44840f1d0",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.recall_memory",
+            "anchor_index": "2",
+            "anchor_kind": "utterance",
+            "anchor_text": "what did we discuss yesterday",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "3a8d41e4fb92e8b1dde7abe45374fb409cbd5bab99c5be2975ee6bda29068a29",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.recall_memory",
+            "anchor_index": "3",
+            "anchor_kind": "utterance",
+            "anchor_text": "remind me what we covered last Friday",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "2a84befb323344a961e6cb473bf7789f874a35beb3169080a27078dc60c32f72",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.recall_memory",
+            "anchor_index": "4",
+            "anchor_kind": "utterance",
+            "anchor_text": "show me that document we looked at earlier",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "1dce849402274e91f3e822d9f760797e383e00fc43940642e6d7360cb9912a43",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.recall_memory",
+            "anchor_index": "5",
+            "anchor_kind": "utterance",
+            "anchor_text": "did we discuss user X before",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "5c108bf6f74776a54d88afa08e0bc40ba2126a8a4065db784960d7390a6b9505",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.recreate_skill_catalog",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Recreate the embeddings skill catalog CSV used for vector skill retrieval. Queues an adhoc rebuild job and can be used when the catalog is stale or missing.",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "9ba8f4b25c8075956588fa594d28b01938c1c567ae27ee9b4a243bc6957882ea",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.remember",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Store a fact, preference or standing instruction the user explicitly asks the agent to remember for future planning (e.g. \"remember that I prefer morning bookings\"). This stores user-stated facts — it is NOT for recalling previous conversation (use wizard.recall_memory for that). User isolation is strict; userid is never taken from input.",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "247d93d11562388a4eb69afd4e67fe5236d265ca55cdb310bd6b92a3a10dc50d",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.remember",
+            "anchor_index": "1",
+            "anchor_kind": "utterance",
+            "anchor_text": "remember that I prefer morning bookings",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "4d9c2c8414461ec6db7791c743ed60ea0a806ea0857524abaee2f24bf719539f",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.remember",
+            "anchor_index": "2",
+            "anchor_kind": "utterance",
+            "anchor_text": "keep in mind that my employee id is 12345",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "a3c0b94618ccfbab7c8bba8abf2f4b64cfadd5c98d53197a33a16e0e7cf56382",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.remember",
+            "anchor_index": "3",
+            "anchor_kind": "utterance",
+            "anchor_text": "always address me as Dr. Smith",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "0ffeb8a87c802e870befcdcb63381c82737eddfdd6abdf0bd6aca5c7c7b5878b",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.remember",
+            "anchor_index": "4",
+            "anchor_kind": "utterance",
+            "anchor_text": "note that I always need room B",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "2f0b06da41310f1b43d44b2f9cac607c96b808881602f08c65f8742e144a6db3",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.remember",
+            "anchor_index": "5",
+            "anchor_kind": "utterance",
+            "anchor_text": "save this preference for next time",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "11294a73a0b77d311e4e32747ae6fe47ad9cf41cea309a5130f87ea3f5bcbd31",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.scaffold_skill",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Create / scaffold a NEW custom agent skill: generate a downloadable starter template for a new AI agent skill (action/command) in a third-party plugin. Use this when the user wants to BUILD or ADD their own skill, capability, command or action to the agent (e.g. \"I want to create my own skill that ...\"). Fills the skill contract (name, schema, risk class, capability, triggers) with guided comments; it does not implement the behaviour and does not run the new skill. NOT for using an existing skill — only for authoring a new one.",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "a622529b179c628053a6e86b43bde96edb39829dc6f53e1a6b1aa9d4942fc47f",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.scaffold_skill",
+            "anchor_index": "1",
+            "anchor_kind": "utterance",
+            "anchor_text": "I want to create my own skill to see all users in a course",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "5cb8eafa41124057d35f97d22aa7764b4f4e826c573700da198200dc1d1f47fa",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.scaffold_skill",
+            "anchor_index": "2",
+            "anchor_kind": "utterance",
+            "anchor_text": "How do I build a custom agent skill for my plugin?",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "dae9ab82e26bbb01a44c27a611e9a688641169fa0de12b119f4be58aaa6ac49e",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.scaffold_skill",
+            "anchor_index": "3",
+            "anchor_kind": "utterance",
+            "anchor_text": "Scaffold a new skill that exports bookings to CSV",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "f586f11e9573cd5e588968e46e9d72c1ab6ef2d522a12b2164b88e2cf74933cc",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.scaffold_skill",
+            "anchor_index": "4",
+            "anchor_kind": "utterance",
+            "anchor_text": "Add a new command / action to the agent",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "106ba98c9fc9d5a813a222b4caba6c7765c3b6709cbe151f04b80a3df3afd45a",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.scaffold_skill",
+            "anchor_index": "5",
+            "anchor_kind": "utterance",
+            "anchor_text": "Generate a starter template for a new agent skill",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "004b0eb263049fd25ba7ae1bb12d68a3015078a802c441dc9d73b39cfaa948bc",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.scaffold_skill",
+            "anchor_index": "6",
+            "anchor_kind": "utterance",
+            "anchor_text": "Create my own skill",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "6561443a65a71a75fe1a43e018d32a3131ef2b7876ec1e34e5ba1beaaf848911",
+            "has_vector": true
+        },
+        {
+            "skill": "wizard.search_skills",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Last-resort capability discovery. Use this ONLY when none of the other listed skills can fulfil the request — i.e. the user wants an action or capability that no available skill represents (for example: downloading or issuing a certificate, exporting or importing data, a feature with no matching skill in the list). Pass a descriptive query of the wanted capability; it searches the full tool registry for skills not currently shown. Always prefer a concrete matching skill when one exists — pick this only as the fallback, never for a request another listed skill already covers.",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "73e78a1a96f6306b3eff111720f5fcfa6eb44673040d79716df605e4019d0e0f",
+            "has_vector": true
+        },
+        {
+            "skill": "oneclick.create_instance",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Create a personal trial Moodle/Booking instance for the current user. Use this when the user asks to create their own Moodle or Booking site/instance, optionally giving it a name. Use this for \"i want a trial/test\". The instance is provisioned externally and becomes available after a couple of minutes.",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "597f37ed06fd4bb7ad8e24047207214688390968dc7e25eb18e78c6123205973",
+            "has_vector": true
+        },
+        {
+            "skill": "oneclick.delete_instance",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "Delete (remove) the user's own trial Moodle/Booking instance. The user's own active instance is resolved automatically; this irreversibly tears it down.",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "92620045124757eb4e7e259a4e2895d1bf9180b7d0d5075c351cf54ff13b0b1f",
+            "has_vector": true
+        },
+        {
+            "skill": "oneclick.list_instances",
+            "anchor_index": "0",
+            "anchor_kind": "description",
+            "anchor_text": "List the current user's own trial Moodle/Booking instances and their status. Read-only: it only reports the user's existing instances and changes nothing.",
+            "embedding_model": "bge-multilingual-gemma2",
+            "embedding_dimensions": "3584",
+            "content_hash": "f2ab21ceae540445c52853b286001da959dbfde4c0c6b94975f8b83a9e3fe371",
+            "has_vector": true
+        }
+    ]
+}

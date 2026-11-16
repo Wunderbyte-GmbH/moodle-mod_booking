@@ -244,6 +244,10 @@ final class embeddings_store_migration_test extends advanced_testcase {
         $resolved = (new embeddings_action_config_resolver())->resolve();
         $model = (string)$resolved['model'];
         $dims = (int)$resolved['dimensions'];
+        // The fixture is committed in a compact form; the store reads the CSV file built from it.
+        \bookingextension_agent\local\wizard\services\embeddings\embeddings_fixture_codec::unpack_directory(
+            __DIR__ . '/agent/fixtures'
+        );
         if (!$this->csv_store()->exists(skill_row_mapper::AREA, $model, $dims)) {
             $this->markTestSkipped('no skills CSV fixture for the active embeddings variant');
         }
