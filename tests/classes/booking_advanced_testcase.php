@@ -25,6 +25,7 @@
 
 namespace mod_booking\tests;
 
+use mod_booking\placeholders\placeholders_info;
 use mod_booking\singleton_service;
 use tool_mocktesttime\time_mock;
 
@@ -52,5 +53,7 @@ abstract class booking_advanced_testcase extends \advanced_testcase {
         $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
         $plugingenerator->teardown();
         singleton_service::destroy_instance();
+        // The values of placeholders are cached by user id, and the ids are the same in every test.
+        placeholders_info::$placeholders = [];
     }
 }

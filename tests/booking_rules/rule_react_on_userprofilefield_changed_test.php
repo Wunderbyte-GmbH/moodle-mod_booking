@@ -407,7 +407,7 @@ final class rule_react_on_userprofilefield_changed_test extends booking_advanced
     }
 
     /**
-     * The operator "contains" matches values like "extern@example.com".
+     * The operator "contains" matches values which contain the text, like the mail address of an external user.
      */
     public function test_operator_contains(): void {
         $this->create_rule(['operator' => '~', 'value' => 'ext']);
