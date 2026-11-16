@@ -181,6 +181,7 @@ $string['bookingoptionbookedsameuserwaitinglistdesc'] = 'Nutzer/in mit ID {$a->u
 $string['bookingoptionbookedviaautoenroldesc'] = 'Nutzer/in mit ID {$a->userid} wurde in die Buchungsoption Nr. {$a->objectid} via Einschreibelink angemeldet';
 $string['bookingoptionconfirmed:description'] = 'Nutzer/in mit ID {$a->userid} hat Nutzer/in mit ID {$a->relateduserid} für die Buchung der Option Nr. {$a->objectid} freigeschaltet.';
 $string['bookingoptiondenied:description'] = 'Nutzer/in mit ID {$a->userid} hat Nutzer/in mit ID {$a->relateduserid} für die Buchung der Option Nr. {$a->objectid} verweigert.';
+$string['bookingoptionsfromconditionlist'] = 'Shortcode um alle abgeschlossenen Kurse einer Zertifikatsbedingung als Liste (type=ul, Standard) oder als Tabelle (type=table) zu rendern. Das Argument "fields" legt fest, was pro Buchungsoption in welcher Reihenfolge angezeigt wird: title, date (Abschlussdatum), teachers und die Kurznamen von benutzerdefinierten Feldern der Buchungsoption, z.B. fields=date,title,meinfeld,teachers. Mit headings=1 erhält die Tabelle eine Überschriftenzeile: benutzerdefinierte Felder mit ihrem Namen, die übrigen Felder mit „Buchungsoption“, „Abschlussdatum“ und „Referent/innen“.';
 $string['bookingoptionupdateddesc'] = 'Nutzer/in mit ID "{$a->userid}" hat Buchungsoption "{$a->objectid}" aktualisiert.';
 $string['bookingplacesinfotextsinfo'] = 'Wählen Sie aus, wie die Platzverfügbarkeit für Nutzer/innen angezeigt werden soll.';
 $string['bookingpollurlteachers'] = 'Link zur Trainer/innen-Umfrage';
@@ -619,6 +620,7 @@ mit ihrem eigenen Mail-Programm an gebuchte Nutzer/innen senden - die E-Mail-Adr
 <span class="text-danger"><b>Achtung:</b> Dies könnte ein Datenschutz-Problem darstellen. Aktivieren Sie dies nur,
 wenn es die Datenschutzbestimmungen Ihrer Organisation erlauben.</span>';
 $string['teachersbookingoptionsfromcondition'] = 'Referent/innen: ';
+$string['teacherscertificate'] = 'Referent/innen';
 $string['teacherscommaseparated'] = 'Trainer/innen (durch Komma getrennt)';
 $string['teachersettings'] = 'Trainer/innen <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['teachersettings_desc'] = 'Trainer/innen-spezifische Einstellungen.';

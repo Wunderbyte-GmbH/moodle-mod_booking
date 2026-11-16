@@ -1160,6 +1160,7 @@ $string['bookingoptioncalendarentry'] = '<a href="{$a}" class="btn btn-primary">
 $string['bookingoptioncanbecancelleduntil'] = 'Sie können bis zum {$a} stornieren.';
 $string['bookingoptioncancelled'] = "Buchungsoption für alle storniert";
 $string['bookingoptioncantbecancelledanymore'] = 'Stornierung war bis zum {$a} möglich.';
+$string['bookingoptioncertificate'] = 'Buchungsoption';
 $string['bookingoptioncompleted'] = 'Buchungsoption abgeschlossen';
 $string['bookingoptionconfirmed'] = 'Buchungsoption bestätigt';
 $string['bookingoptionconfirmed:description'] = 'Nutzer:in mit ID {$a->userid} hat Nutzer:in mit ID {$a->relateduserid} für die Buchung der Option Nr. {$a->objectid} freigeschaltet.';
@@ -1185,7 +1186,7 @@ $string['bookingoptionnamewithoutprefix'] = 'Name (ohne Präfix)';
 $string['bookingoptionprice'] = 'Preis';
 $string['bookingoptionsall'] = 'Shortcode um alle Buchungsoptionen anzuzeigen.';
 $string['bookingoptionsfromcondition'] = 'Shortcode um alle abgeschlossenen Kurse einer Zertifikatsbedingung zu rendern.';
-$string['bookingoptionsfromconditionlist'] = 'Shortcode um alle abgeschlossenen Kurse einer Zertifikatsbedingung als Liste (type=ul, Standard) oder als Tabelle (type=table) zu rendern. Das Argument "fields" legt fest, was pro Buchungsoption in welcher Reihenfolge angezeigt wird: title, date (Abschlussdatum), teachers und die Kurznamen von benutzerdefinierten Feldern der Buchungsoption, z.B. fields=date,title,meinfeld,teachers.';
+$string['bookingoptionsfromconditionlist'] = 'Shortcode um alle abgeschlossenen Kurse einer Zertifikatsbedingung als Liste (type=ul, Standard) oder als Tabelle (type=table) zu rendern. Das Argument "fields" legt fest, was pro Buchungsoption in welcher Reihenfolge angezeigt wird: title, date (Abschlussdatum), teachers und die Kurznamen von benutzerdefinierten Feldern der Buchungsoption, z.B. fields=date,title,meinfeld,teachers. Mit headings=1 erhält die Tabelle eine Überschriftenzeile: benutzerdefinierte Felder mit ihrem Namen, die übrigen Felder mit „Buchungsoption“, „Abschlussdatum“ und „Referent:innen“.';
 $string['bookingoptionsfromconditionwithdate'] = 'Shortcode um alle abgeschlossenen Kurse einer Zertifikatsbedingung mit ihrem Abschlussdatum zu rendern.';
 $string['bookingoptionsfromtemplatemenu'] = 'Neue Buchungsoption aus Vorlage erstellen';
 $string['bookingoptionsmenu'] = 'Buchungsoptionen';
@@ -1726,6 +1727,7 @@ $string['competencynonefound'] = 'Bisher keine Kompetenzen angelegt';
 $string['completed'] = 'Abgeschlossen';
 $string['completedcomments'] = 'Nur diejenigen, die Aktivität abgeschlossen haben';
 $string['completeddate'] = 'Abschlussdatum';
+$string['completeddatecertificate'] = 'Abschlussdatum';
 $string['completedratings'] = 'Nur diejenigen, die Aktivität abgeschlossen haben';
 $string['completionchanged'] = 'Abschlussänderung';
 $string['completionchangedhistory'] = 'Der Abschluss wurde von "{$a->completionold}" zu "{$a->completionnew}" geändert';
@@ -4664,6 +4666,7 @@ mit ihrem eigenen Mail-Programm an gebuchte Nutzer:innen senden - die E-Mail-Adr
 <span class="text-danger"><b>Achtung:</b> Dies könnte ein Datenschutz-Problem darstellen. Aktivieren Sie dies nur,
 wenn es die Datenschutzbestimmungen Ihrer Organisation erlauben.</span>';
 $string['teachersbookingoptionsfromcondition'] = 'Referent:innen: ';
+$string['teacherscertificate'] = 'Referent:innen';
 $string['teacherscommaseparated'] = 'Trainer:innen (durch Komma getrennt)';
 $string['teachersettings'] = 'Trainer:innen <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['teachersettings_desc'] = 'Trainer:innen-spezifische Einstellungen.';

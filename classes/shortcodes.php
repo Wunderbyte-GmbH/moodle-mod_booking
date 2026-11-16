@@ -1850,6 +1850,9 @@ class shortcodes {
      * - fields: comma separated list of what is shown per option, in this order. Possible entries are
      *   "title", "date" (completion date), "teachers" and the shortnames of booking option customfields.
      *   Default: title,date,teachers.
+     * - headings: "1" adds a heading row to the table (type=table only). Customfields are headed by their
+     *   name, the other fields by the certificate strings "bookingoptioncertificate",
+     *   "completeddatecertificate" and "teacherscertificate" of mod_booking.
      *
      * The options are listed in the order of their completion, like in [bookingoptionsfromcondition].
      *
@@ -1941,6 +1944,20 @@ class shortcodes {
             $titlewidth = $count > 1 && in_array('title', $fields, true) ? 40 : 0;
             $otherwidth = (int)floor((100 - $titlewidth) / ($titlewidth ? $count - 1 : $count));
             $html = '<table border="0" cellpadding="2" width="100%">';
+            if (!empty($args['headings']) && $args['headings'] !== 'false') {
+                // Customfields are headed by their name, the other fields by the certificate strings.
+                $headings = $labels + [
+                    'title' => get_string('bookingoptioncertificate', 'mod_booking'),
+                    'date' => get_string('completeddatecertificate', 'mod_booking'),
+                    'teachers' => get_string('teacherscertificate', 'mod_booking'),
+                ];
+                $html .= '<tr>';
+                foreach ($fields as $field) {
+                    $width = $titlewidth && $field === 'title' ? $titlewidth : $otherwidth;
+                    $html .= '<td width="' . $width . '%"><b>' . $headings[$field] . '</b></td>';
+                }
+                $html .= '</tr>';
+            }
             foreach ($rows as $row) {
                 $html .= '<tr>';
                 foreach ($fields as $field) {

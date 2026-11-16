@@ -1160,6 +1160,7 @@ $string['bookingoptioncalendarentry'] = '<a href="{$a}" class="btn btn-primary">
 $string['bookingoptioncanbecancelleduntil'] = 'You can cancel until {$a}.';
 $string['bookingoptioncancelled'] = "Booking option cancelled for all";
 $string['bookingoptioncantbecancelledanymore'] = 'Cancelling was possible until {$a}.';
+$string['bookingoptioncertificate'] = 'Booking option';
 $string['bookingoptioncompleted'] = 'Booking option completed';
 $string['bookingoptionconfirmed'] = 'Booking option confirmed';
 $string['bookingoptionconfirmed:description'] = 'User with ID {$a->userid} enabled booking of booking option {$a->objectid} for user with ID {$a->relateduserid}.';
@@ -1185,7 +1186,7 @@ $string['bookingoptionnamewithoutprefix'] = 'Name (without prefix)';
 $string['bookingoptionprice'] = 'Price';
 $string['bookingoptionsall'] = 'Shortcode to show all bookingoptions.';
 $string['bookingoptionsfromcondition'] = 'Shortcode to show bookingoptions from certificate condition.';
-$string['bookingoptionsfromconditionlist'] = 'Shortcode to show bookingoptions from certificate condition as a list (type=ul, default) or as a table (type=table). The argument "fields" defines what is shown per booking option and in which order: title, date (completion date), teachers and the shortnames of booking option custom fields, e.g. fields=date,title,myfield,teachers.';
+$string['bookingoptionsfromconditionlist'] = 'Shortcode to show bookingoptions from certificate condition as a list (type=ul, default) or as a table (type=table). The argument "fields" defines what is shown per booking option and in which order: title, date (completion date), teachers and the shortnames of booking option custom fields, e.g. fields=date,title,myfield,teachers. With headings=1 the table gets a heading row: custom fields are headed by their name, the other fields by "Booking option", "Completion date" and "Teachers".';
 $string['bookingoptionsfromconditionwithdate'] = 'Shortcode to show bookingoptions from certificate condition with their completion dates.';
 $string['bookingoptionsfromtemplatemenu'] = 'New booking option from template';
 $string['bookingoptionsmenu'] = 'Booking options';
@@ -1725,6 +1726,7 @@ $string['competencynonefound'] = 'No competencies defined yet';
 $string['completed'] = 'Completed';
 $string['completedcomments'] = 'Only with completed activity';
 $string['completeddate'] = 'Completion date';
+$string['completeddatecertificate'] = 'Completion date';
 $string['completedratings'] = 'Only with completed activity';
 $string['completionchanged'] = 'Update of completion status';
 $string['completionchangedhistory'] = 'The completion status was changed from "{$a->completionold}" zu "{$a->completionnew}" geändert';
@@ -4652,6 +4654,7 @@ $string['teachersallowmailtobookedusers_desc'] = 'If you activate this setting, 
     <span class="text-danger"><b>Be careful:</b> This might be a privacy issue. Only activate this,
     if you are sure it corresponds with your organization\'s privacy policy.</span>';
 $string['teachersbookingoptionsfromcondition'] = 'Teachers: ';
+$string['teacherscertificate'] = 'Teachers';
 $string['teacherscommaseparated'] = 'Teachers (comma separated)';
 $string['teachersettings'] = 'Teachers <span class="badge bg-success text-light"><i class="fa fa-cogs" aria-hidden="true"></i> PRO</span>';
 $string['teachersettings_desc'] = 'Teacher-specific settings.';

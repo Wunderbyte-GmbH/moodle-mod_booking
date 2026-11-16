@@ -982,6 +982,20 @@ final class certificate_combination_test extends booking_advanced_testcase {
             $render(['type' => 'table', 'fields' => 'date,title,hours,teachers'])
         );
 
+        // Headings: customfields are headed by their name, the other fields by the certificate strings.
+        $this->assertSame(
+            '<table border="0" cellpadding="2" width="100%">'
+            . '<tr><td width="20%"><b>' . get_string('completeddatecertificate', 'mod_booking') . '</b></td>'
+            . '<td width="40%"><b>' . get_string('bookingoptioncertificate', 'mod_booking') . '</b></td>'
+            . '<td width="20%"><b>Hours</b></td>'
+            . '<td width="20%"><b>' . get_string('teacherscertificate', 'mod_booking') . '</b></td></tr>'
+            . '<tr><td width="20%">' . $date2 . '</td><td width="40%">Option E2</td><td width="20%"></td><td width="20%"></td></tr>'
+            . '<tr><td width="20%">' . $date1 . '</td><td width="40%">Option E1</td><td width="20%">8</td>'
+            . '<td width="20%">Tina Teacher</td></tr>'
+            . '</table>',
+            $render(['type' => 'table', 'fields' => 'date,title,hours,teachers', 'headings' => '1'])
+        );
+
         // Fields that are left out are not shown, unknown and repeated entries are ignored.
         $this->assertSame(
             '<table border="0" cellpadding="2" width="100%">'
