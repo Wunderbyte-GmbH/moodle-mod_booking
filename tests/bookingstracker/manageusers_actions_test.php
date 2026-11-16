@@ -145,6 +145,53 @@ final class manageusers_actions_test extends booking_advanced_testcase {
     }
 
     /**
+     * Unsubscribing a booked user with the bulk action "Unsubscribe" frees the
+     * place for the waiting list, exactly like a cancellation by the user: the
+     * user who waits moves up.
+     *
+     * @covers \mod_booking\table\manageusers_table::action_delete_checked_booking_answers
+     */
+    public function test_delete_checked_moves_up_user_from_waitinglist(): void {
+        global $DB;
+
+        $this->setAdminUser();
+        [$optionid, $bookeduser, $waitinguser] = $this->create_full_option_with_waitinglist();
+
+        $answerid = $DB->get_field(
+            'booking_answers',
+            'id',
+            ['optionid' => $optionid, 'userid' => $bookeduser->id, 'waitinglist' => MOD_BOOKING_STATUSPARAM_BOOKED],
+            MUST_EXIST
+        );
+
+        $table = new manageusers_table('actionstest');
+        $result = $table->action_delete_checked_booking_answers(-1, json_encode(['checkedids' => [$answerid]]));
+        $this->assertEquals(1, $result['success']);
+
+        $this->assert_user_moved_up($optionid, $bookeduser, $waitinguser);
+    }
+
+    /**
+     * The trash button of a single row behaves the same way: the place of the
+     * unsubscribed user goes to the user on the waiting list.
+     *
+     * @covers \mod_booking\table\manageusers_table::action_deletebooking
+     */
+    public function test_deletebooking_moves_up_user_from_waitinglist(): void {
+        $this->setAdminUser();
+        [$optionid, $bookeduser, $waitinguser] = $this->create_full_option_with_waitinglist();
+
+        $table = new manageusers_table('actionstest');
+        $result = $table->action_deletebooking(
+            -1,
+            json_encode(['userid' => $bookeduser->id, 'optionid' => $optionid])
+        );
+        $this->assertEquals(1, $result['success']);
+
+        $this->assert_user_moved_up($optionid, $bookeduser, $waitinguser);
+    }
+
+    /**
      * Triggering certificates requires tool/certificate:manage server-side
      * (the button gate alone is not enough, the report is readable by more
      * users than may issue certificates); with certificates disabled the
@@ -224,5 +271,93 @@ final class manageusers_actions_test extends booking_advanced_testcase {
         $this->assertCount(2, $answerids, 'Precondition: both students must be booked.');
 
         return [$settings, $answerids, [$student1, $student2], $course];
+    }
+
+    /**
+     * Helper: free option with a single place, one booked user and one user on
+     * the waiting list (automatic moving up, no confirmation).
+     *
+     * @return array{0: int, 1: stdClass, 2: stdClass} option id, booked user, user on the waiting list
+     */
+    private function create_full_option_with_waitinglist(): array {
+        global $DB;
+
+        $course = $this->getDataGenerator()->create_course();
+        $booking = $this->getDataGenerator()->create_module('booking', [
+            'course' => $course->id,
+            'name' => 'Table actions waiting list booking',
+        ]);
+
+        $bookeduser = $this->getDataGenerator()->create_user();
+        $waitinguser = $this->getDataGenerator()->create_user();
+        $this->getDataGenerator()->enrol_user($bookeduser->id, $course->id, 'student');
+        $this->getDataGenerator()->enrol_user($waitinguser->id, $course->id, 'student');
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $option = $plugingenerator->create_option((object)[
+            'bookingid' => $booking->id,
+            'courseid' => $course->id,
+            'text' => 'Single place option',
+            'description' => 'Single place option',
+            'chooseorcreatecourse' => 0,
+            'coursestarttime_0' => strtotime('now + 1 day'),
+            'courseendtime_0' => strtotime('now + 2 day'),
+            'limitanswers' => 1,
+            'maxanswers' => 1,
+            'maxoverbooking' => 5,
+            'waitforconfirmation' => 0,
+        ]);
+
+        $optionobj = singleton_service::get_instance_of_booking_option((int)$booking->cmid, (int)$option->id);
+        $optionobj->user_submit_response($bookeduser, 0, 0, 0, MOD_BOOKING_VERIFIED);
+        $optionobj->user_submit_response($waitinguser, 0, 0, 0, MOD_BOOKING_VERIFIED);
+
+        $this->assertTrue(
+            $DB->record_exists('booking_answers', [
+                'optionid' => $option->id,
+                'userid' => $waitinguser->id,
+                'waitinglist' => MOD_BOOKING_STATUSPARAM_WAITINGLIST,
+            ]),
+            'Precondition: the second user must be on the waiting list.'
+        );
+
+        return [(int)$option->id, $bookeduser, $waitinguser];
+    }
+
+    /**
+     * Asserts that the unsubscribed user is deleted and the user who waited is booked.
+     *
+     * @param int $optionid
+     * @param stdClass $unsubscribeduser
+     * @param stdClass $waitinguser
+     */
+    private function assert_user_moved_up(int $optionid, stdClass $unsubscribeduser, stdClass $waitinguser): void {
+        global $DB;
+
+        $this->assertFalse(
+            $DB->record_exists('booking_answers', [
+                'optionid' => $optionid,
+                'userid' => $unsubscribeduser->id,
+                'waitinglist' => MOD_BOOKING_STATUSPARAM_BOOKED,
+            ]),
+            'The unsubscribed user must not be booked any more.'
+        );
+        $this->assertTrue(
+            $DB->record_exists('booking_answers', [
+                'optionid' => $optionid,
+                'userid' => $waitinguser->id,
+                'waitinglist' => MOD_BOOKING_STATUSPARAM_BOOKED,
+            ]),
+            'The user on the waiting list must move up to the freed place.'
+        );
+        $this->assertFalse(
+            $DB->record_exists('booking_answers', [
+                'optionid' => $optionid,
+                'userid' => $waitinguser->id,
+                'waitinglist' => MOD_BOOKING_STATUSPARAM_WAITINGLIST,
+            ]),
+            'The user who moved up must not be on the waiting list any more.'
+        );
     }
 }

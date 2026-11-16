@@ -154,13 +154,12 @@ class checkanswers {
         int $action,
         int $userid = 0
     ): array {
-        global $DB;
-
         $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
 
         $ba = singleton_service::get_instance_of_booking_answers($settings);
 
         $log = [];
+        $answerdeleted = false;
         $bookinganswers = $ba->get_answers();
         foreach ($bookinganswers as $answer) {
             if (
@@ -172,13 +171,26 @@ class checkanswers {
 
             $checkresult = self::check_answer($answer, $check);
 
+            // Reset per answer, so the result of a previous answer is never logged for this one.
+            $actionresult = false;
             if (!empty($checkresult)) {
                 $actionresult = self::perform_action($answer, $action);
+                if (in_array(self::ACTION_DELETE, $actionresult)) {
+                    $answerdeleted = true;
+                }
             }
             $log[$answer->userid] = [
                 'check' => $checkresult,
-                'action' => $actionresult ?? false,
+                'action' => $actionresult,
             ];
+        }
+
+        // The delete action does not sync the waiting list itself: a user on the waiting list could move
+        // up and be deleted a moment later, when the loop reaches her own invalid answer. We sync once,
+        // after all invalid answers are gone, so only users who passed the checks get the freed places.
+        if ($answerdeleted) {
+            $option = singleton_service::get_instance_of_booking_option($settings->cmid, $optionid);
+            $option->sync_waiting_list();
         }
 
         return $log;

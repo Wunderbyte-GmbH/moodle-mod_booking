@@ -723,9 +723,10 @@ class manageusers_table extends wunderbyte_table {
                 ['userid' => $userid, 'optionid' => $optionid, 'waitinglist' => MOD_BOOKING_STATUSPARAM_RESERVED]
             )
         ) {
-            $option->user_delete_response($userid, true, false, false);
+            $option->user_delete_response($userid, true);
         } else {
-            $option->user_delete_response($userid, false, false, false);
+            // Like a cancellation by the user: the freed place goes to the waiting list ($syncwaitinglist = true).
+            $option->user_delete_response($userid);
         }
 
         return [
@@ -840,9 +841,10 @@ class manageusers_table extends wunderbyte_table {
                 $option = singleton_service::get_instance_of_booking_option($settings->cmid, $optionid);
 
                 if ($answerrecord->waitinglist == MOD_BOOKING_STATUSPARAM_RESERVED) {
-                    $option->user_delete_response($userid, true, false, false);
+                    $option->user_delete_response($userid, true);
                 } else {
-                    $option->user_delete_response($userid, false, false, false);
+                    // Like a cancellation by the user: the freed place goes to the waiting list ($syncwaitinglist = true).
+                    $option->user_delete_response($userid);
                 }
             } else {
                 throw new moodle_exception(

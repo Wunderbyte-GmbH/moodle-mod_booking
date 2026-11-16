@@ -54,9 +54,10 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * still be offered right away - but must no longer re-fire the landing event/rules for person 2.
  *
  * Step 6 ("Person 3 wird von der Warteliste gelöscht"): the "trash" button calls
- * user_delete_response($userid, false, false, false) - same removal path already covered by
- * waitlist_offer_released_on_leave_test, just with the exact argument list the button uses
- * ($syncwaitinglist=false). Re-verified here end-to-end with a NEW joiner taking the freed seat,
+ * user_delete_response($userid) - same removal path already covered by
+ * waitlist_offer_released_on_leave_test, with the exact argument list the button uses
+ * (the waiting list is synced, like for a cancellation by the user). Re-verified here end-to-end
+ * with a NEW joiner taking the freed seat,
  * to lock in the actual manual-test step: a new candidate must be offered immediately, not after
  * the stale 24h interval.
  *
@@ -168,7 +169,7 @@ final class waitlist_unconfirm_and_trash_reoffer_test extends booking_advanced_t
 
     /**
      * Step 6: removing the offer holder via the "trash" button (manageusers_table::
-     * action_deletebooking(), user_delete_response($id, false, false, false)) must free the offer
+     * action_deletebooking(), user_delete_response($id)) must free the offer
      * immediately - a newly joining candidate must be offered right away, not after the stale 24h
      * interval of the removed person's offer.
      */
@@ -177,7 +178,7 @@ final class waitlist_unconfirm_and_trash_reoffer_test extends booking_advanced_t
 
         // Same call the "trash" button ends in for a plain (non-reserved) waiting-list answer.
         $this->setAdminUser();
-        $s->optionobj->user_delete_response($s->person2->id, false, false, false);
+        $s->optionobj->user_delete_response($s->person2->id);
         singleton_service::destroy_booking_option_singleton($s->option->id);
         singleton_service::destroy_booking_answers($s->option->id);
         $this->setAdminUser();
