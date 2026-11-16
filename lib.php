@@ -1015,6 +1015,12 @@ function booking_add_instance($booking) {
         booking::add_data_to_json($booking, "fulltextsearchcolumns", array_values($booking->fulltextsearchcolumns));
     }
 
+    // Priority of the search results. The form of a new instance presets "titleprefix,text".
+    $searchprioritycolumns = booking::prepare_searchprioritycolumns($booking->searchprioritycolumns ?? []);
+    if (!empty($searchprioritycolumns)) {
+        booking::add_data_to_json($booking, "searchprioritycolumns", $searchprioritycolumns);
+    }
+
     if (isset($booking->addtogroupofcurrentcourse)) {
         // This will store the correct JSON to $optionvalues->json.
         booking::add_data_to_json($booking, "addtogroupofcurrentcourse", $booking->addtogroupofcurrentcourse);
@@ -1402,6 +1408,17 @@ function booking_update_instance($booking) {
         booking::remove_key_from_json($booking, "fulltextsearchcolumns");
     } else {
         booking::add_data_to_json($booking, "fulltextsearchcolumns", array_values($booking->fulltextsearchcolumns));
+    }
+
+    // Priority of the search results: only changed when the setting was submitted (the instance form always
+    // submits it), so updates from other code never change the search of an existing instance.
+    if (isset($booking->searchprioritycolumns)) {
+        $searchprioritycolumns = booking::prepare_searchprioritycolumns($booking->searchprioritycolumns);
+        if (empty($searchprioritycolumns)) {
+            booking::remove_key_from_json($booking, "searchprioritycolumns");
+        } else {
+            booking::add_data_to_json($booking, "searchprioritycolumns", $searchprioritycolumns);
+        }
     }
 
     if (empty($booking->addtogroupofcurrentcourse)) {

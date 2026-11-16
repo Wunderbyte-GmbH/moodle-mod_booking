@@ -381,6 +381,9 @@ class booking_settings {
     /** @var array $fulltextsearchcolumns columns added to the full text search of the booking options table */
     public $fulltextsearchcolumns = null;
 
+    /** @var array $searchprioritycolumns columns that decide the order of the results of the full text search */
+    public $searchprioritycolumns = null;
+
     /** @var string $toporientation */
     public $toporientation = null;
 

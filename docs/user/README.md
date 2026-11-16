@@ -24,3 +24,4 @@ Index of the user and admin documentation chapters. For developer topics see the
 | Allow external links to bypass profile-field restrictions | [Override user field](override_user_field/README.md) |
 | Build or install a booking extension (subplugin) | [Booking extensions](booking_extensions/README.md) |
 | Make booking options findable with Moodle's global search | [Global search](globalsearch/README.md) |
+| Decide where the search of the booking options looks and how its results are ordered | [Search in the booking options](search/README.md) |

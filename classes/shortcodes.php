@@ -2117,10 +2117,26 @@ class shortcodes {
 
         // Columns that decide the order of the search results, e.g. priority="titleprefix,text".
         // The column names end up in the SQL of the table, so only known names pass.
+        // Without the argument, a shortcode of exactly one booking instance (cmid="42") uses the instance setting
+        // "Priority of the search results". The argument replaces the setting, its columns are not appended.
         if (!empty($args['priority'])) {
             $table->define_priority_columns(
                 booking::get_valid_fulltextsearchcolumns(explode(',', (string)$args['priority']), 'priority')
             );
+        } else if (
+            !empty($args['cmid'])
+            && is_number(trim((string)$args['cmid']))
+            && get_coursemodule_from_id('booking', (int)$args['cmid'])
+        ) {
+            $bookingsettings = singleton_service::get_instance_of_booking_settings_by_cmid((int)$args['cmid']);
+            if (!empty($bookingsettings->searchprioritycolumns)) {
+                $table->define_priority_columns(
+                    booking::get_valid_fulltextsearchcolumns(
+                        (array)$bookingsettings->searchprioritycolumns,
+                        'searchprioritycolumns'
+                    )
+                );
+            }
         }
 
         if (isset($args['requirelogin']) && $args['requirelogin'] == "false") {

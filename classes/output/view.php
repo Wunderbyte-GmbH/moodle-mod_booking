@@ -1453,6 +1453,22 @@ class view implements renderable, templatable {
                 )));
             }
             $bowbtable->define_fulltextsearchcolumns($fulltextsearchcolumns);
+
+            // Order of the search results: the instance setting applies, unless the shortcode argument priority
+            // already defined the columns (see shortcodes::set_common_table_options_from_arguments()).
+            if (
+                !empty($cmid)
+                && empty($bowbtable->prioritycolumns)
+                && empty($args['priority'])
+                && !empty($bookingsettings->searchprioritycolumns)
+            ) {
+                $bowbtable->define_priority_columns(
+                    booking::get_valid_fulltextsearchcolumns(
+                        (array)$bookingsettings->searchprioritycolumns,
+                        'searchprioritycolumns'
+                    )
+                );
+            }
         }
 
         if ($filter) {

@@ -35,7 +35,7 @@ This is the main shortcode for embedding the option list of a single booking ins
 | `type="cards"` | Use `list`, `cards`, `imageleft`, `imageright`, or `imagelefthalf`. |
 | `search="1"` | Show full-text search. |
 | `fulltextsearchcolumns="description,shortname1"` | Add booking option fields and/or booking custom field shortnames to the full-text search. Implicitly enables the search box. |
-| `priority="titleprefix,text"` | Order the full-text search results by these booking option fields and/or booking custom field shortnames: options where the first column equals the search text first, then options where it contains every word, then the same for the next column, then all other results. The columns must also be searched. |
+| `priority="titleprefix,text"` | Order the full-text search results by these booking option fields, the teachers (`teachernames`, also `teacher` or `teachers`) and/or booking custom field shortnames: options where the first column equals the search text first, then options where it contains every word, then the same for the next column, then all other results. The columns must also be searched. Without the argument, a shortcode of exactly one booking instance (`cmid="42"`) uses the instance setting "Priority of the search results"; the argument replaces that setting. |
 | `sort="1"` | Show sort controls. |
 | `filter="1"` | Show standard filters. |
 | `filterbookablenextdays="28"` | Add a toggle filter switch that shows only bookable options starting within the next N days (requires `filter="1"`). |
@@ -131,6 +131,8 @@ When a user searches for "424", the options are shown in this order:
 5. All other results, e.g. options with "424" only in the description.
 
 With several words, "contains" means that every word is in the column, in any order. Inside each group the normal sorting applies. A column in `priority` must also be searched: `titleprefix` and `text` always are, other columns have to be added with `fulltextsearchcolumns`.
+
+Without the argument, the instance setting "Priority of the search results" of the booking instance applies. See [Search in the booking options](../search/README.md) for the search columns, the instance settings and the column names.
 
 ---
 

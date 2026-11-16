@@ -740,6 +740,44 @@ class mod_booking_mod_form extends moodleform_mod {
             (array)booking::get_value_of_json_by_key($bookingid, 'fulltextsearchcolumns')
         );
 
+        // Priority of the search results: the order of the columns decides, so the value is a comma separated
+        // list in a text field. With JavaScript, mod_booking/searchpriority replaces the text field by a list
+        // with buttons to add, move and remove columns.
+        // The unique identifier is searchable, but of no use for the order of the results. The teachers are always
+        // searched by their names (column teachernames), so they are offered here and not in the list above.
+        $searchprioritycolumnoptions = array_merge(
+            [
+                'titleprefix' => get_string('titleprefix', 'mod_booking'),
+                'text' => get_string('bookingoptionname', 'mod_booking'),
+                'teachernames' => get_string('teachers', 'mod_booking'),
+            ],
+            array_diff_key($fulltextsearchcolumnoptions, ['identifier' => true])
+        );
+        $mform->addElement(
+            'text',
+            'searchprioritycolumns',
+            get_string('searchprioritycolumns', 'mod_booking'),
+            ['size' => 60, 'data-region' => 'searchpriority-input']
+        );
+        $mform->setType('searchprioritycolumns', PARAM_TEXT);
+        $mform->addHelpButton('searchprioritycolumns', 'searchprioritycolumns', 'mod_booking');
+        // Only new instances get the default, existing instances keep what they have (nothing, if never set).
+        $mform->setDefault(
+            'searchprioritycolumns',
+            empty($bookingid)
+                ? implode(',', booking::DEFAULT_SEARCHPRIORITYCOLUMNS)
+                : implode(',', (array)booking::get_value_of_json_by_key($bookingid, 'searchprioritycolumns'))
+        );
+        $searchpriorityoptions = [];
+        foreach ($searchprioritycolumnoptions as $column => $label) {
+            $searchpriorityoptions[] = ['column' => $column, 'label' => $label];
+        }
+        $mform->addElement(
+            'html',
+            $OUTPUT->render_from_template('mod_booking/searchpriority', ['options' => $searchpriorityoptions])
+        );
+        $PAGE->requires->js_call_amd('mod_booking/searchpriority', 'init');
+
         // Fields for download of booking option overview.
         $options = [
             'multiple' => true,
@@ -1909,6 +1947,17 @@ class mod_booking_mod_form extends moodleform_mod {
 
         if ($data['paginationnum'] < 1) {
                 $errors['paginationnum'] = get_string('errorpagination', 'mod_booking');
+        }
+
+        if (!empty($data['searchprioritycolumns'])) {
+            [, $invalidcolumns] = booking::split_fulltextsearchcolumns(explode(',', $data['searchprioritycolumns']));
+            if (!empty($invalidcolumns)) {
+                $errors['searchprioritycolumns'] = get_string(
+                    'searchprioritycolumns:invalid',
+                    'mod_booking',
+                    s(implode(', ', $invalidcolumns))
+                );
+            }
         }
 
         if (strlen($data['pollurlteachers']) > 0) {
