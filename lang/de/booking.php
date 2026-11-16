@@ -2921,7 +2921,7 @@ $string['notfullybooked'] = 'Nicht ausgebucht';
 $string['noticketselected'] = 'Kein Ticket-Design ausgewählt';
 $string['notificationlist'] = 'Benachrichtigungsliste';
 $string['notificationlistdesc'] = 'Wenn es bei einer Buchungsoption keine verfügbaren Plätze mehr gibt,
- können sich Teilnehmer:innnen registrieren lassen, um eine Benachrichtung zu erhalten, sobald wieder
+ können sich Teilnehmer:innen registrieren lassen, um eine Benachrichtigung zu erhalten, sobald wieder
  Plätze verfügbar sind.';
 $string['notificationtext'] = 'Benachrichtigungstext';
 $string['notifyemail'] = 'Teilnehmer:innen-Benachrichtigung vor dem Beginn';

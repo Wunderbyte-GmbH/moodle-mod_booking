@@ -87,4 +87,35 @@ final class genderslash_test extends \advanced_testcase {
                 . 'php mod/booking/cli/generate_de_gs_lang.php'
         );
     }
+
+    /**
+     * Every gender form in the German strings must be covered by the slash rewrite.
+     *
+     * Catches typos like "Teilnehmer:innnen" that the rewrite rules do not match, so the string
+     * would silently stay in colon spelling in de_gs (and tempt someone to patch de_gs by hand).
+     */
+    public function test_all_de_gender_forms_are_converted(): void {
+        global $CFG;
+
+        $string = [];
+        include($CFG->dirroot . '/mod/booking/lang/de/booking.php');
+
+        // Colon/asterisk followed by "in...", underscore gap forms, and Binnen-I.
+        $leftover = '/[A-Za-zäöüß](?:[:*]in|_innen\b|_in\b)|[a-zäöüß]In(?:n|e?n?\b)/u';
+
+        $unconverted = [];
+        foreach ($string as $key => $value) {
+            $slashed = genderslash::to_slash((string) $value);
+            if (preg_match_all($leftover, $slashed, $matches)) {
+                $unconverted[] = $key . ': ' . implode(', ', array_unique($matches[0]));
+            }
+        }
+
+        $this->assertSame(
+            [],
+            $unconverted,
+            'German strings with gender forms the de_gs rewrite does not handle - fix the spelling '
+                . 'in lang/de/booking.php (or extend genderslash::get_patterns()) and regenerate de_gs.'
+        );
+    }
 }
