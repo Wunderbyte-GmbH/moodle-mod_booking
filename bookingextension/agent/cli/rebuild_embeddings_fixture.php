@@ -48,7 +48,7 @@ Options:
   --force            With --embed: regenerate embeddings for all current skills.
   --model=MODEL      Embedding model override.
   --dimensions=N     Embedding dimensions override.
-    --output=PATH      Output CSV path (default: tests/agent/fixtures/skill_catalog_embeddings.csv).
+    --output=PATH      Output CSV path (default: tests/agent/fixtures/skill_catalog_embeddings__<model>__<dimensions>.csv).
   --help             Show this help.
 
 Default behavior (without --embed):
@@ -82,11 +82,6 @@ if ($force && !$doembed) {
     mtrace('Warning: --force has no effect without --embed.');
 }
 
-$outputpath = trim((string)$options['output']);
-if ($outputpath === '') {
-    $outputpath = dirname(__DIR__) . '/tests/agent/fixtures/skill_catalog_embeddings.csv';
-}
-
 $resolver = new embeddings_action_config_resolver();
 $resolved = $resolver->resolve();
 
@@ -104,6 +99,13 @@ if ($dimensions < 1) {
 }
 if ($dimensions < 1) {
     $dimensions = orchestrator::EMBEDDINGS_DEFAULT_DIMENSIONS;
+}
+
+// The tests read one fixture per model and dimensions, so that is the file the script writes by default.
+$outputpath = trim((string)$options['output']);
+if ($outputpath === '') {
+    $variantkey = embeddings_csv_repository::normalize_variant_key($model . '__' . $dimensions);
+    $outputpath = dirname(__DIR__) . '/tests/agent/fixtures/skill_catalog_embeddings__' . $variantkey . '.csv';
 }
 
 $registry = skill_registry_factory::get_default();
