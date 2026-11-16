@@ -2155,6 +2155,7 @@ const sendMessage = (message, resume = false) => {
             message,
             forcenewthread: forceNewThreadOnFirstMessage ? 1 : 0,
             anonworddecision: JSON.stringify(pendingAnonWordDecision || {}),
+            attachments: JSON.stringify(pendingAttachments.map((a) => ({token: a.token, type: a.type}))),
         },
     }])[0].then((precheck) => {
         forceNewThreadOnFirstMessage = false;
@@ -2180,7 +2181,10 @@ const sendMessage = (message, resume = false) => {
 
         const strictMode = Number(precheck.strictmode || 0) === 1;
         const anonymizedCount = Number(precheck.anonymizedcount || 0);
-        if (strictMode || anonymizedCount > 0) {
+        // What was masked in the attached files, and attachments that could not be checked, are told too.
+        const attachmentFindings = Number(precheck.attachmentnames || 0) + Number(precheck.attachmentemails || 0)
+            + Number(precheck.attachmentsunchecked || 0);
+        if (strictMode || anonymizedCount > 0 || attachmentFindings > 0) {
             appendPrivacyNote(precheck.message || '', {
                 response_type: 'privacy_precheck',
                 threadid: Number(precheck.threadid || currentThreadId || 0),

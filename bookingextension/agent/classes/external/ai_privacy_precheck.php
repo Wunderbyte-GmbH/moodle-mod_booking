@@ -35,6 +35,7 @@ use core_external\external_value;
 use bookingextension_agent\local\wizard\services\security\authorization_service;
 use bookingextension_agent\local\wizard\conversation_store;
 use bookingextension_agent\local\wizard\privacy_anonymizer;
+use bookingextension_agent\local\wizard\services\attachment\attachment_privacy_check;
 
 /**
  * Precheck endpoint for user message privacy anonymization.
@@ -63,6 +64,13 @@ class ai_privacy_precheck extends external_api {
                 VALUE_DEFAULT,
                 '{}'
             ),
+            'attachments' => new external_value(
+                PARAM_RAW,
+                'Optional JSON array [{"token":"...","type":"pdf"|"image"}] of the attachments that wait '
+                    . 'for this message, so the answer can say what will be masked in them.',
+                VALUE_DEFAULT,
+                '[]'
+            ),
         ]);
     }
 
@@ -73,13 +81,15 @@ class ai_privacy_precheck extends external_api {
      * @param string $message
      * @param int $forcenewthread
      * @param string $anonworddecision
+     * @param string $attachments
      * @return array
      */
     public static function execute(
         int $contextid,
         string $message,
         int $forcenewthread = 0,
-        string $anonworddecision = '{}'
+        string $anonworddecision = '{}',
+        string $attachments = '[]'
     ): array {
         global $USER;
 
@@ -90,11 +100,14 @@ class ai_privacy_precheck extends external_api {
             'message' => $message,
             'forcenewthread' => $forcenewthread,
             'anonworddecision' => $anonworddecision,
+            'attachments' => $attachments,
         ]);
         $contextid = (int)$params['contextid'];
         $message = trim((string)$params['message']);
         $forcenewthread = (int)$params['forcenewthread'];
         $anonworddecision = (string)($params['anonworddecision'] ?? '{}');
+        $attachmentlist = json_decode((string)($params['attachments'] ?? '[]'), true);
+        $attachmentlist = is_array($attachmentlist) ? $attachmentlist : [];
 
         $authz = new authorization_service();
         if ($problem = $authz->check_use_readiness((int)$USER->id, $contextid)) {
@@ -186,6 +199,32 @@ class ai_privacy_precheck extends external_api {
             );
         }
 
+        // Attachments: the text of a PDF is masked when the message is sent. The user is told here what
+        // will be masked, and which attachments cannot be checked (an image, a PDF without readable
+        // text). Numbers only; nothing is stored and nothing is held back.
+        $attachmentreport = (new attachment_privacy_check($anonymizer))
+            ->report($attachmentlist, (int)$USER->id, $contextid, $threadid);
+        if (!$needsdecision) {
+            // "Nothing needed anonymization" is about the message; with findings in the attachments it would mislead.
+            if ($count === 0 && array_sum($attachmentreport) > 0) {
+                $summary = '';
+            }
+            if ($attachmentreport['names'] + $attachmentreport['emails'] > 0) {
+                $summary .= ' ' . get_string('ai_attachment_privacy_masked', 'bookingextension_agent', (object)[
+                    'names' => $attachmentreport['names'],
+                    'emails' => $attachmentreport['emails'],
+                ]);
+            }
+            if ($attachmentreport['unchecked'] > 0) {
+                $summary .= ' ' . get_string(
+                    'ai_attachment_privacy_unchecked',
+                    'bookingextension_agent',
+                    $attachmentreport['unchecked']
+                );
+            }
+            $summary = trim($summary);
+        }
+
         return [
             'status' => $needsdecision ? 'needs_decision' : 'ok',
             'message' => $summary,
@@ -197,6 +236,9 @@ class ai_privacy_precheck extends external_api {
             'threadid' => $threadid,
             'suspects' => $suspects,
             'strictmode' => $anonymizer->should_anonymize_user_input() ? 1 : 0,
+            'attachmentnames' => $attachmentreport['names'],
+            'attachmentemails' => $attachmentreport['emails'],
+            'attachmentsunchecked' => $attachmentreport['unchecked'],
         ];
     }
 
@@ -227,6 +269,24 @@ class ai_privacy_precheck extends external_api {
                 'Low-confidence single-word suspects of THIS message for the chip UI.',
                 VALUE_DEFAULT,
                 []
+            ),
+            'attachmentnames' => new external_value(
+                PARAM_INT,
+                'Full names of site users that will be masked in the text of the attached PDFs.',
+                VALUE_DEFAULT,
+                0
+            ),
+            'attachmentemails' => new external_value(
+                PARAM_INT,
+                'E-mail addresses that will be masked in the text of the attached PDFs.',
+                VALUE_DEFAULT,
+                0
+            ),
+            'attachmentsunchecked' => new external_value(
+                PARAM_INT,
+                'Attachments that cannot be checked for personal data: images and PDFs without readable text.',
+                VALUE_DEFAULT,
+                0
             ),
         ]);
     }

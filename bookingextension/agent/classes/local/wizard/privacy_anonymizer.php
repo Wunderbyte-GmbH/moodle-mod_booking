@@ -304,6 +304,39 @@ class privacy_anonymizer {
     }
 
     /**
+     * Mask the text of an uploaded document before it becomes part of the user message.
+     *
+     * Full names of site users and e-mail addresses are replaced by tokens of the thread, as in a
+     * user message. A single word that happens to be a first or last name is left alone: in a long
+     * text such words are mostly ordinary words, and nobody is there to be asked about each of them.
+     *
+     * @param int $threadid
+     * @param string $text
+     * @param bool $persist False to count only: the tokens are not added to the thread.
+     * @return array{text:string, names:int, emails:int}
+     */
+    public function anonymize_document_text(int $threadid, string $text, bool $persist = true): array {
+        if (!$this->should_anonymize_llm_backend_data() || trim($text) === '') {
+            return ['text' => $text, 'names' => 0, 'emails' => 0];
+        }
+
+        $tokenmap = $this->get_token_map($threadid);
+        $previous = $this->storagemode;
+        $this->storagemode = true;
+        try {
+            [$sanitized, $emails] = $this->anonymize_emails(self::valid_utf8($text), $tokenmap);
+            [$sanitized, $names] = $this->anonymize_names($sanitized, $tokenmap);
+        } finally {
+            $this->storagemode = $previous;
+        }
+        if ($persist) {
+            $this->set_token_map($threadid, $tokenmap);
+        }
+
+        return ['text' => (string)$sanitized, 'names' => (int)$names, 'emails' => (int)$emails];
+    }
+
+    /**
      * Replace ANON_USER tokens in command input recursively with original values.
      *
      * @param int $threadid

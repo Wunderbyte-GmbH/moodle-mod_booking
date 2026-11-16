@@ -22,6 +22,7 @@ use bookingextension_agent\local\wizard\conversation_store;
 use bookingextension_agent\local\wizard\dto\skill_risk_class;
 use bookingextension_agent\local\wizard\dto\target_selector;
 use bookingextension_agent\local\wizard\interfaces\skill_trigger_provider_interface;
+use bookingextension_agent\local\wizard\privacy_anonymizer;
 use bookingextension_agent\local\wizard\services\questions\course_pdf_source;
 use bookingextension_agent\local\wizard\services\questions\question_bank_target_resolver;
 use bookingextension_agent\local\wizard\services\questions\question_generation_service;
@@ -868,7 +869,12 @@ class generate_questions_skill extends core_skill_base implements skill_trigger_
             }
             $document = self::parse_document_block((string)($message->content ?? ''));
             if ($document !== null) {
-                return $document;
+                // The stored message carries the document with the tokens of the thread. The command is
+                // prepared with the original text, as with a course PDF: the executor resolves tokens in the
+                // input, so a text that still carried them would no longer match its execution guard. The
+                // generation masks the text again before it calls the model.
+                $resolved = (new privacy_anonymizer($store))->deanonymize_command_input($threadid, ['text' => $document]);
+                return (string)($resolved['text'] ?? $document);
             }
         }
 

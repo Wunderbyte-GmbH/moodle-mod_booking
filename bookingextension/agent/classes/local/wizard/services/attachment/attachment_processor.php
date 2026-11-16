@@ -44,9 +44,19 @@ class attachment_processor {
      * @param array  $attachments Array of ['token'=>string, 'type'=>string] entries.
      * @param int    $userid      Current user id (for token ownership check).
      * @param int    $contextid   Moodle context id.
+     * @param \bookingextension_agent\local\wizard\privacy_anonymizer|null $anonymizer Masks the document
+     *      text like a user message (full names of site users, e-mail addresses); null leaves it as it is.
+     * @param int    $threadid    Thread whose tokens the masking uses.
      * @return string Augmented message ready to store.
      */
-    public function augment_message(string $message, array $attachments, int $userid, int $contextid): string {
+    public function augment_message(
+        string $message,
+        array $attachments,
+        int $userid,
+        int $contextid,
+        ?\bookingextension_agent\local\wizard\privacy_anonymizer $anonymizer = null,
+        int $threadid = 0
+    ): string {
         if (empty($attachments)) {
             return $message;
         }
@@ -81,6 +91,9 @@ class attachment_processor {
                 // Token is consumed here — the PDF file is not needed again.
                 try {
                     $text = $extractor->extract((string)$resolved['path']);
+                    if ($anonymizer !== null && $threadid > 0) {
+                        $text = $anonymizer->anonymize_document_text($threadid, $text)['text'];
+                    }
                     $prefixes[] = "--- DOCUMENT: {$filename} ---\n{$text}\n--- END DOCUMENT ---";
                 } catch (\moodle_exception $e) {
                     $prefixes[] = "--- DOCUMENT: {$filename} ---\n"
