@@ -4027,6 +4027,13 @@ class booking_option {
             $usersonlist = $answers->get_usersonlist();
             if (!empty($usersonlist) && $messageparam !== MOD_BOOKING_MSGPARAM_REMINDER_TEACHER) {
                 foreach ($usersonlist as $currentuser) {
+                    // Session slot options: the message about a session only goes to users who booked it.
+                    if (
+                        !empty($optiondateid)
+                        && !slot_answer::user_booked_session($this->optionid, $optiondateid, (int)$currentuser->userid)
+                    ) {
+                        continue;
+                    }
                     $tmpuser = new stdClass();
                     $tmpuser->id = $currentuser->userid;
                     $allusers[] = $tmpuser;

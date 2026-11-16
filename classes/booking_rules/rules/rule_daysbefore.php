@@ -24,6 +24,7 @@ use mod_booking\booking_rules\actions_info;
 use mod_booking\booking_rules\booking_rule;
 use mod_booking\booking_rules\conditions_info;
 use mod_booking\booking_rules\optionfield_filter;
+use mod_booking\local\slotbooking\slot_answer;
 use mod_booking\option\fields\applybookingrules;
 use mod_booking\singleton_service;
 use MoodleQuickForm;
@@ -509,6 +510,7 @@ class rule_daysbefore implements booking_rule {
 
         $records = $DB->get_records_sql($sqlstring, $params);
 
-        return $records;
+        // Session slot options: a user is only reminded of the sessions (slots) they booked.
+        return slot_answer::filter_session_records($records);
     }
 }
