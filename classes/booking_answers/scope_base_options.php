@@ -26,6 +26,7 @@ namespace mod_booking\booking_answers;
 
 use local_wunderbyte_table\wunderbyte_table;
 use mod_booking\table\manageusers_table;
+use mod_booking\local\bookingstracker\optiondate_level;
 
 /**
  * Scope base class for aggregated options view.
@@ -106,7 +107,7 @@ class scope_base_options extends scope_base {
         $columns['answerscount'] = get_string('answerscount', 'mod_booking');
 
         // Only for actual bookings, we need the presence counter.
-        if (get_config('booking', 'bookingstrackerpresencecounter') && $statusparam == 0) {
+        if (optiondate_level::presence_counter_enabled() && $statusparam == 0) {
             $columns['presencecount'] = get_string('presencecount', 'mod_booking');
         }
         return $columns;

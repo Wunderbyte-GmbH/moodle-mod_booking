@@ -1215,10 +1215,13 @@ $string['bookingstracker'] = "Bookings tracker";
 $string['bookingstrackerdefault'] = 'Bookings tracker instead of "Manage bookings"';
 $string['bookingstrackerdefault_desc'] = 'Links to the booked users of a booking option (option menu, navigation, option lists, placeholders in e-mails, log entries, back links) lead to the Bookings tracker instead of the old page "Manage bookings". "Manage bookings" stays reachable and links to the Bookings tracker.';
 $string['bookingstrackerdelete'] = 'Unsubscribe';
+$string['bookingstrackerdisableoptiondatelevel'] = 'No tracking per date in the Bookings tracker';
+$string['bookingstrackerdisableoptiondatelevel_desc'] = 'By default, the Bookings tracker has a separate view for every date of a booking option, in which presence and notes are tracked per date. Tick this setting if presence should only be tracked for the whole booking option: the selection of dates and the view of a single date are no longer available (links to a date lead to the booking option), and the presence counter, which counts the presences of the dates, is hidden. Presences and notes already stored for dates are kept and are shown again when the setting is unticked. The ticket scanner is not affected.';
 $string['bookingstrackermessagesender'] = 'Sender of messages from the bookings tracker';
 $string['bookingstrackermessagesender:bookingmanager'] = 'Booking manager of the booking instance (default)';
 $string['bookingstrackermessagesender:currentuser'] = 'Logged-in user (the user actually sending the message)';
 $string['bookingstrackermessagesender_desc'] = 'This user is used as the sender of messages sent from the bookings tracker ("Send message", "Send message to teacher(s)", "Send message to responsible contact(s)"), so recipients can reply directly to the right person. If no valid booking manager is set, the logged-in user is used as fallback.';
+$string['bookingstrackeroptiondateleveldisabled'] = 'Bookings are not tracked per date on this site. The Bookings tracker shows the whole booking option instead.';
 $string['bookingstrackerpresencecounter'] = 'Count presences';
 $string['bookingstrackerpresencecounter_desc'] = 'Display a counter that shows the total number of presences.
 Define in the next setting which presence status should be counted.';

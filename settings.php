@@ -37,6 +37,8 @@ require_once($CFG->dirroot . '/user/profile/lib.php');
 use mod_booking\booking;
 use mod_booking\plugininfo\bookingextension_interface;
 use mod_booking\local\checkanswers\checkanswers;
+use mod_booking\local\bookingstracker\optiondate_level;
+use mod_booking\local\bookingstracker\responses_url;
 use mod_booking\price;
 use mod_booking\settings\optionformconfig\optionformconfig_info;
 use mod_booking\signinsheet\signinsheet_config;
@@ -1327,7 +1329,7 @@ if ($ADMIN->fulltree) {
             // "presence count" column when it equals the check-in status.
             $checkinstatus = \mod_booking\local\ticket\ticket_manager::get_checkin_status();
             $countedstatus = (int) get_config('booking', 'bookingstrackerpresencecountervaluetocount');
-            if (get_config('booking', 'bookingstrackerpresencecounter') && $countedstatus !== $checkinstatus) {
+            if (optiondate_level::presence_counter_enabled() && $countedstatus !== $checkinstatus) {
                 $settings->add(
                     new admin_setting_description(
                         'booking/bookingticketcounterhint',
@@ -1655,9 +1657,22 @@ if ($ADMIN->fulltree) {
         1
     );
     $bookingstrackerdefault->set_updatedcallback(function () {
-        \mod_booking\local\bookingstracker\responses_url::purge_caches();
+        responses_url::purge_caches();
     });
     $settings->add($bookingstrackerdefault);
+    // Switches off the level of a single date (optiondate) in the Bookings tracker: presence is then only
+    // tracked for the whole booking option. Not ticked by default, so the Bookings tracker keeps all levels.
+    $disableoptiondatelevel = new admin_setting_configcheckbox(
+        'booking/' . optiondate_level::SETTING,
+        get_string('bookingstrackerdisableoptiondatelevel', 'mod_booking'),
+        get_string('bookingstrackerdisableoptiondatelevel_desc', 'mod_booking'),
+        0
+    );
+    // The tables of the Bookings tracker are cached with their columns (presence counter).
+    $disableoptiondatelevel->set_updatedcallback(function () {
+        responses_url::purge_caches();
+    });
+    $settings->add($disableoptiondatelevel);
     $settings->add(
         new admin_setting_configcheckbox(
             'booking/bookingstrackerpresencecounter',
@@ -1665,6 +1680,12 @@ if ($ADMIN->fulltree) {
             get_string('bookingstrackerpresencecounter_desc', 'mod_booking'),
             0
         )
+    );
+    // The presence counter counts the presences of the dates, so it needs the level of a date.
+    $settings->hide_if(
+        'booking/bookingstrackerpresencecounter',
+        'booking/' . optiondate_level::SETTING,
+        'checked'
     );
     $settings->add(
         new admin_setting_configselect(
@@ -1674,6 +1695,11 @@ if ($ADMIN->fulltree) {
             0,
             booking::get_possible_presences(true)
         )
+    );
+    $settings->hide_if(
+        'booking/bookingstrackerpresencecountervaluetocount',
+        'booking/' . optiondate_level::SETTING,
+        'checked'
     );
     $settings->add(
         new admin_setting_configselect(

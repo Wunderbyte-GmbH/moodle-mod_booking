@@ -26,6 +26,7 @@
 namespace mod_booking;
 
 use mod_booking\form\optiondates\modal_change_notes;
+use mod_booking\local\bookingstracker\optiondate_level;
 use mod_booking\tests\booking_advanced_testcase;
 use mod_booking_generator;
 use moodle_exception;
@@ -136,6 +137,45 @@ final class modal_change_notes_test extends booking_advanced_testcase {
             'checkedids' => implode(',', $answerids),
             'notes' => 'Should not be saved',
         ]);
+    }
+
+    /**
+     * Without the level of a date in the Bookings tracker (site setting), the notes of a single date
+     * cannot be changed - not even with a hand-made request. The option scope keeps working.
+     *
+     * @covers \mod_booking\form\optiondates\modal_change_notes::check_access_for_dynamic_submission
+     */
+    public function test_optiondate_scope_is_rejected_without_the_optiondate_level(): void {
+        global $DB;
+
+        $this->setAdminUser();
+        [$settings, $answerids, $optiondateid, $students] = $this->create_booked_option_with_session();
+        set_config(optiondate_level::SETTING, 1, 'booking');
+
+        // Option scope: still allowed.
+        $this->submit_modal([
+            'cmid' => (int)$settings->cmid,
+            'optionid' => (int)$settings->id,
+            'scope' => 'option',
+            'checkedids' => implode(',', $answerids),
+            'notes' => 'Should not be saved',
+        ]);
+
+        // Optiondate scope: rejected, nothing is stored for the date.
+        try {
+            $this->submit_modal([
+                'cmid' => (int)$settings->cmid,
+                'optionid' => (int)$settings->id,
+                'optiondateid' => $optiondateid,
+                'scope' => 'optiondate',
+                'checkedids' => $settings->id . '-' . $optiondateid . '-' . $students[0]->id,
+                'notes' => 'Should not be saved',
+            ]);
+            $this->fail('The optiondate scope must be rejected while the level of a date is switched off.');
+        } catch (moodle_exception $e) {
+            $this->assertSame('bookingstrackeroptiondateleveldisabled', $e->errorcode);
+        }
+        $this->assertFalse($DB->record_exists('booking_optiondates_answers', ['optiondateid' => $optiondateid]));
     }
 
     /**

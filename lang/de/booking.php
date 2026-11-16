@@ -1215,10 +1215,13 @@ $string['bookingstracker'] = "Buchungstracker";
 $string['bookingstrackerdefault'] = 'Buchungstracker statt „Buchungen verwalten“';
 $string['bookingstrackerdefault_desc'] = 'Links auf die gebuchten Nutzer:innen einer Buchungsoption (Optionsmenü, Navigation, Optionslisten, Platzhalter in E-Mails, Log-Einträge, Zurück-Links) führen zum Buchungstracker statt zur alten Seite „Buchungen verwalten“. „Buchungen verwalten“ bleibt erreichbar und verlinkt auf den Buchungstracker.';
 $string['bookingstrackerdelete'] = 'Abmelden';
+$string['bookingstrackerdisableoptiondatelevel'] = 'Keine Erfassung pro Termin im Buchungstracker';
+$string['bookingstrackerdisableoptiondatelevel_desc'] = 'Standardmäßig hat der Buchungstracker für jeden Termin einer Buchungsoption eine eigene Ansicht, in der Anwesenheit und Notizen pro Termin erfasst werden. Aktivieren Sie diese Einstellung, wenn die Anwesenheit nur für die gesamte Buchungsoption erfasst werden soll: Die Terminauswahl und die Ansicht eines einzelnen Termins stehen dann nicht mehr zur Verfügung (Links auf einen Termin führen zur Buchungsoption), und der Anwesenheitszähler, der die Anwesenheiten der Termine zählt, wird ausgeblendet. Bereits für Termine gespeicherte Anwesenheiten und Notizen bleiben erhalten und werden wieder angezeigt, sobald die Einstellung deaktiviert wird. Der Ticket-Scanner ist davon nicht betroffen.';
 $string['bookingstrackermessagesender'] = 'Absender von Nachrichten aus dem Buchungstracker';
 $string['bookingstrackermessagesender:bookingmanager'] = 'Buchungsverwalter:in der Buchungsinstanz (Standard)';
 $string['bookingstrackermessagesender:currentuser'] = 'Eingeloggte:r Nutzer:in (Person, die die Nachricht tatsächlich sendet)';
 $string['bookingstrackermessagesender_desc'] = 'Diese Person wird als Absender:in der Nachrichten verwendet, die aus dem Buchungstracker gesendet werden ("Nachricht senden", "E-Mail an Trainer:innen", "E-Mail an Kontaktperson(en)"). Empfänger:innen können so direkt der richtigen Person antworten. Ist kein:e gültige:r Buchungsverwalter:in gesetzt, wird die eingeloggte Person als Absender:in verwendet.';
+$string['bookingstrackeroptiondateleveldisabled'] = 'Auf dieser Website werden Buchungen nicht pro Termin erfasst. Der Buchungstracker zeigt stattdessen die gesamte Buchungsoption.';
 $string['bookingstrackerpresencecounter'] = 'Anwesenheiten zählen';
 $string['bookingstrackerpresencecounter_desc'] = 'Zähler anzeigen, der die Gesamtzahl der Anwesenheiten anzeigt.
 Definieren Sie in der nächsten Einstellung, welcher Anwesenheitsstatus gezählt werden soll.';

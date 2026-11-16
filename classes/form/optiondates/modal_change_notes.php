@@ -39,6 +39,7 @@ use context;
 use context_system;
 use context_module;
 use core_form\dynamic_form;
+use mod_booking\local\bookingstracker\optiondate_level;
 use mod_booking\local\bookingstracker\report2_access;
 use mod_booking\local\optiondates\optiondate_answer;
 use moodle_exception;
@@ -101,6 +102,9 @@ class modal_change_notes extends dynamic_form {
      * @return void
      */
     protected function check_access_for_dynamic_submission(): void {
+        // Presence and notes of a single date need the level of a date, which can be switched off for the site.
+        optiondate_level::require_scope_enabled((string)($this->_ajaxformdata['scope'] ?? ''));
+
         $context = $this->get_module_context();
         $optionid = (int)($this->_ajaxformdata['optionid'] ?? 0);
         if (!report2_access::can_manage_option_answers($context, $optionid)) {

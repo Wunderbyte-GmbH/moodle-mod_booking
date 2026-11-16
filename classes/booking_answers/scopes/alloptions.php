@@ -29,6 +29,7 @@ use context_system;
 use local_wunderbyte_table\wunderbyte_table;
 use mod_booking\table\manageusers_table;
 use moodle_url;
+use mod_booking\local\bookingstracker\optiondate_level;
 
 /**
  * Booking answers scope: alloptions.
@@ -163,7 +164,7 @@ class alloptions extends option {
         // If presence counter is activated, we add that to SQL.
         $selectpresencecount = '';
         $presencecountsqlpart = '';
-        if (get_config('booking', 'bookingstrackerpresencecounter')) {
+        if (optiondate_level::presence_counter_enabled()) {
             $selectpresencecount = 'pcnt.presencecount,';
             $presencecountsqlpart =
                 "LEFT JOIN (
