@@ -938,7 +938,8 @@ final class certificate_combination_test extends booking_advanced_testcase {
         // E1 has a customfield value and a teacher, E2 has neither.
         $e1 = (int)$plugingenerator->create_option((object)array_merge($optiondata, [
             'text' => 'Option E1',
-            'customfield_hours' => '8',
+            // In import mode customfields are passed by their bare shortname.
+            'hours' => '8',
             'teachersforoption' => $teacher->username,
         ]))->id;
         $e2 = (int)$plugingenerator->create_option((object)array_merge($optiondata, ['text' => 'Option E2']))->id;
