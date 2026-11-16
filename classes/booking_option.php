@@ -4308,7 +4308,7 @@ class booking_option {
         bool $forbookeduser = false
     ): array {
 
-        global $CFG;
+        global $CFG, $USER;
 
         $baseurl = $CFG->wwwroot;
 
@@ -4316,7 +4316,10 @@ class booking_option {
             case MOD_BOOKING_DESCRIPTION_WEBSITE:
             case MOD_BOOKING_DESCRIPTION_OPTIONVIEW:
                 // We don't want to show these Buttons at all if the user is not booked.
-                if (!$forbookeduser) {
+                if (
+                    !$forbookeduser
+                    || !slot_answer::user_booked_session($this->optionid, $sessionid, (int)$USER->id)
+                ) {
                     return [
                         'name' => null,
                         'value' => get_string('onlineoptiondate', 'mod_booking'),
@@ -4426,6 +4429,11 @@ class booking_option {
 
         if ($bookinganswers->user_status($USER->id) != MOD_BOOKING_STATUSPARAM_BOOKED) {
                 return false;
+        }
+
+        // For session slot options, the user must have booked this very session (slot).
+        if ($sessionid && !slot_answer::user_booked_session($this->optionid, $sessionid, (int)$USER->id)) {
+            return false;
         }
 
         $now = time();

@@ -24,6 +24,8 @@
 
 namespace mod_booking\local\slotbooking;
 
+use mod_booking\singleton_service;
+
 /**
  * Helper class to read and write slot data in booking_answers.json.
  */
@@ -45,6 +47,45 @@ class slot_answer {
         }
 
         return $payload['slot'];
+    }
+
+    /**
+     * Whether the user has booked the given session of a session slot option.
+     *
+     * Only options with slot type "session" restrict per session. For every other option the
+     * session counts as booked, so callers keep their option-level booking check.
+     *
+     * @param int $optionid booking option id
+     * @param int $sessionid booking_optiondates id
+     * @param int $userid user id
+     * @return bool
+     */
+    public static function user_booked_session(int $optionid, int $sessionid, int $userid): bool {
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        if ((string)($settings->slotconfig->slot_type ?? '') !== 'session') {
+            return true;
+        }
+
+        $session = $settings->sessions[$sessionid] ?? null;
+        if (empty($session)) {
+            return false;
+        }
+
+        $answers = singleton_service::get_instance_of_booking_answers($settings);
+        foreach ($answers->get_answers() as $answer) {
+            if ((int)$answer->userid !== $userid || (int)$answer->waitinglist !== MOD_BOOKING_STATUSPARAM_BOOKED) {
+                continue;
+            }
+            foreach (slot_availability::extract_booked_ranges_from_answer($answer) as $range) {
+                if (
+                    $range['start'] === (int)$session->coursestarttime
+                    && $range['end'] === (int)$session->courseendtime
+                ) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**
