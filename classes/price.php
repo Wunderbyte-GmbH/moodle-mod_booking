@@ -1099,6 +1099,54 @@ class price {
     }
 
     /**
+     * Returns the price the user really paid for a booking option via shopping cart.
+     *
+     * The current price of an option depends on the price category of the user, which may change
+     * after the purchase. Whenever we need to know if an option was paid for, this is the source.
+     * All purchases of a user are fetched once and kept in the session cache "userpurchases".
+     *
+     * @param int $optionid
+     * @param int $userid
+     * @return float|null null if there is no successful purchase of this option, else the paid price
+     */
+    public static function get_purchased_price(int $optionid, int $userid): ?float {
+        global $CFG, $DB;
+
+        if (!class_exists('local_shopping_cart\shopping_cart')) {
+            return null;
+        }
+
+        $cache = cache::make('mod_booking', 'userpurchases');
+        $purchases = $cache->get($userid);
+
+        if (!is_array($purchases)) {
+            require_once($CFG->dirroot . '/local/shopping_cart/lib.php');
+
+            $records = $DB->get_records(
+                'local_shopping_cart_history',
+                [
+                    'componentname' => 'mod_booking',
+                    'area' => 'option',
+                    'userid' => $userid,
+                    'paymentstatus' => LOCAL_SHOPPING_CART_PAYMENT_SUCCESS,
+                ],
+                'timecreated ASC, id ASC',
+                'id, itemid, price'
+            );
+
+            // The most recent purchase of an option wins, like in get_most_recent_historyitem().
+            $purchases = [];
+            foreach ($records as $record) {
+                $purchases[(int)$record->itemid] = (float)$record->price;
+            }
+            // Users without purchases are stored as well, so we don't query again.
+            $cache->set($userid, $purchases);
+        }
+
+        return $purchases[$optionid] ?? null;
+    }
+
+    /**
      * Return the cache or DB records of all prices for the option.
      * This function also applies price changes from campaigns.
      * As these changes can now be also individually adjusted, we take care of this, too.

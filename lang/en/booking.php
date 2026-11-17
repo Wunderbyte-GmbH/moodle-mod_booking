@@ -1415,6 +1415,7 @@ $string['cachedef_trialnonce'] = 'Trial nonce (cache)';
 $string['cachedef_usercompetenciescache'] = 'User competencies (Cache)';
 $string['cachedef_usercoursestate'] = 'User course state: enrolments and completions (Cache)';
 $string['cachedef_usercoursestaterequest'] = 'User course state, request layer (Cache)';
+$string['cachedef_userpurchases'] = 'Prices paid by users for booking options (Cache)';
 $string['cachereport'] = 'Booking: Cache report';
 $string['cachereportactioncheckcron'] = 'Check that cron and adhoc tasks are running on this site.';
 $string['cachereportactioncontactwb'] = 'Please contact Wunderbyte to analyse this.';

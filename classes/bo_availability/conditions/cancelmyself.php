@@ -400,6 +400,13 @@ class cancelmyself implements bo_condition {
         ) {
             $user = singleton_service::get_instance_of_user($userid);
             $price = price::get_price('option', $settings->id, $user);
+            if (empty((float)($price['price'] ?? 0))) {
+                // The price category of the user may have changed since the purchase: what was paid counts.
+                $purchasedprice = price::get_purchased_price($settings->id, $userid);
+                if (!empty($purchasedprice)) {
+                    $price['price'] = $purchasedprice;
+                }
+            }
 
             if (
                 !empty((float)($price['price'] ?? 0))
