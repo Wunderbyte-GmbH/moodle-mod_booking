@@ -973,37 +973,50 @@ final class certificate_combination_test extends booking_advanced_testcase {
         );
 
         // Table: one row per option, cells in the order of the fields, empty values keep their cell.
+        // A thin spacer row keeps the distance between the rows.
+        $table = '<table border="0" cellpadding="3" cellspacing="0" width="100%">';
+        $cell = function (int $width, string $text, bool $heading = false): string {
+            return '<td width="' . $width . '%">' . ($heading ? "<b>$text</b>" : $text) . '</td>';
+        };
+        $row = function (string ...$cells): string {
+            return '<tr nobr="true">' . implode('', $cells) . '</tr>';
+        };
+        $spacer = function (int $columns): string {
+            return '<tr><td colspan="' . $columns . '" style="font-size:8px;">&nbsp;</td></tr>';
+        };
+        $datarows = $row($cell(20, $date2), $cell(40, 'Option E2'), $cell(20, ''), $cell(20, ''))
+            . $spacer(4)
+            . $row($cell(20, $date1), $cell(40, 'Option E1'), $cell(20, '8'), $cell(20, 'Tina Teacher'));
         $this->assertSame(
-            '<table border="0" cellpadding="2" width="100%">'
-            . '<tr><td width="20%">' . $date2 . '</td><td width="40%">Option E2</td><td width="20%"></td><td width="20%"></td></tr>'
-            . '<tr><td width="20%">' . $date1 . '</td><td width="40%">Option E1</td><td width="20%">8</td>'
-            . '<td width="20%">Tina Teacher</td></tr>'
-            . '</table>',
-            $render(['type' => 'table', 'fields' => 'date,title,hours,teachers'])
+            $table . $datarows . '</table>',
+            $render(['type' => 'table', 'fields' => 'date,title,hours,teachers', 'widths' => '20,40,20,20'])
         );
 
         // Headings: customfields are headed by their name, the other fields by the certificate strings.
         $this->assertSame(
-            '<table border="0" cellpadding="2" width="100%">'
-            . '<tr><td width="20%"><b>' . get_string('completeddatecertificate', 'mod_booking') . '</b></td>'
-            . '<td width="40%"><b>' . get_string('bookingoptioncertificate', 'mod_booking') . '</b></td>'
-            . '<td width="20%"><b>Hours</b></td>'
-            . '<td width="20%"><b>' . get_string('teacherscertificate', 'mod_booking') . '</b></td></tr>'
-            . '<tr><td width="20%">' . $date2 . '</td><td width="40%">Option E2</td><td width="20%"></td><td width="20%"></td></tr>'
-            . '<tr><td width="20%">' . $date1 . '</td><td width="40%">Option E1</td><td width="20%">8</td>'
-            . '<td width="20%">Tina Teacher</td></tr>'
-            . '</table>',
-            $render(['type' => 'table', 'fields' => 'date,title,hours,teachers', 'headings' => '1'])
+            $table
+            . $row(
+                $cell(20, get_string('completeddatecertificate', 'mod_booking'), true),
+                $cell(40, get_string('bookingoptioncertificate', 'mod_booking'), true),
+                $cell(20, 'Hours', true),
+                $cell(20, get_string('teacherscertificate', 'mod_booking'), true)
+            )
+            . $spacer(4) . $datarows . '</table>',
+            $render(['type' => 'table', 'fields' => 'date,title,hours,teachers', 'headings' => '1', 'widths' => '20, 40,20,20'])
         );
 
         // Fields that are left out are not shown, unknown and repeated entries are ignored.
-        $this->assertSame(
-            '<table border="0" cellpadding="2" width="100%">'
-            . '<tr><td width="40%">Option E2</td><td width="60%"></td></tr>'
-            . '<tr><td width="40%">Option E1</td><td width="60%">8</td></tr>'
-            . '</table>',
-            $render(['type' => 'table', 'fields' => 'title,nosuchfield,hours,title'])
-        );
+        // Without (matching) widths the columns follow the length of their texts: 9 characters to (at least) 8.
+        foreach ([[], ['widths' => '50,20,30']] as $extraargs) {
+            $this->assertSame(
+                $table
+                . $row($cell(53, 'Option E2'), $cell(47, ''))
+                . $spacer(2)
+                . $row($cell(53, 'Option E1'), $cell(47, '8'))
+                . '</table>',
+                $render(['type' => 'table', 'fields' => 'title,nosuchfield,hours,title'] + $extraargs)
+            );
+        }
 
         // The teachers column is dropped when no listed option has teachers.
         $leafe2 = $this->insert_bookingoption_leaf([$e2]);
@@ -1016,10 +1029,7 @@ final class certificate_combination_test extends booking_advanced_testcase {
             null
         );
         singleton_service::unset_temp_values_for_certificates();
-        $this->assertSame(
-            '<table border="0" cellpadding="2" width="100%"><tr><td width="100%">Option E2</td></tr></table>',
-            $output
-        );
+        $this->assertSame($table . $row($cell(100, 'Option E2')) . '</table>', $output);
 
         // No user in the context.
         $output = shortcodes::bookingoptionsfromconditionlist('bookingoptionsfromconditionlist', [], '', null, null);

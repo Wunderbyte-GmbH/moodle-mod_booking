@@ -1853,6 +1853,8 @@ class shortcodes {
      * - headings: "1" adds a heading row to the table (type=table only). Customfields are headed by their
      *   name, the other fields by the certificate strings "bookingoptioncertificate",
      *   "completeddatecertificate" and "teacherscertificate" of mod_booking.
+     * - widths: comma separated column widths in percent (type=table only), one per displayed column,
+     *   e.g. widths=30,50,20. Without it the widths follow the length of the texts of every column.
      *
      * The options are listed in the order of their completion, like in [bookingoptionsfromcondition].
      *
@@ -1939,33 +1941,37 @@ class shortcodes {
         }
 
         if (($args['type'] ?? 'ul') === 'table') {
-            // Plain attributes only: the certificate is rendered by TCPDF, which supports little CSS.
-            $count = count($fields);
-            $titlewidth = $count > 1 && in_array('title', $fields, true) ? 40 : 0;
-            $otherwidth = (int)floor((100 - $titlewidth) / ($titlewidth ? $count - 1 : $count));
-            $html = '<table border="0" cellpadding="2" width="100%">';
+            // Customfields are headed by their name, the other fields by the certificate strings.
+            $headings = [];
             if (!empty($args['headings']) && $args['headings'] !== 'false') {
-                // Customfields are headed by their name, the other fields by the certificate strings.
                 $headings = $labels + [
                     'title' => get_string('bookingoptioncertificate', 'mod_booking'),
                     'date' => get_string('completeddatecertificate', 'mod_booking'),
                     'teachers' => get_string('teacherscertificate', 'mod_booking'),
                 ];
-                $html .= '<tr>';
-                foreach ($fields as $field) {
-                    $width = $titlewidth && $field === 'title' ? $titlewidth : $otherwidth;
-                    $html .= '<td width="' . $width . '%"><b>' . $headings[$field] . '</b></td>';
-                }
-                $html .= '</tr>';
             }
+            $widths = self::get_widths_for_conditionlist($fields, $rows, $headings, (string)($args['widths'] ?? ''));
+
+            // Plain attributes only: the certificate is rendered by TCPDF, which supports little CSS.
+            // TCPDF knows no vertical padding, so a thin spacer row keeps the distance between the rows.
+            $spacer = '<tr><td colspan="' . count($fields) . '" style="font-size:8px;">&nbsp;</td></tr>';
+            $html = '<table border="0" cellpadding="3" cellspacing="0" width="100%">';
+            if (!empty($headings)) {
+                $html .= '<tr nobr="true">';
+                foreach ($fields as $field) {
+                    $html .= '<td width="' . $widths[$field] . '%"><b>' . $headings[$field] . '</b></td>';
+                }
+                $html .= '</tr>' . $spacer;
+            }
+            $tablerows = [];
             foreach ($rows as $row) {
-                $html .= '<tr>';
+                $tablerow = '<tr nobr="true">';
                 foreach ($fields as $field) {
-                    $width = $titlewidth && $field === 'title' ? $titlewidth : $otherwidth;
-                    $html .= '<td width="' . $width . '%">' . $row[$field] . '</td>';
+                    $tablerow .= '<td width="' . $widths[$field] . '%">' . $row[$field] . '</td>';
                 }
-                $html .= '</tr>';
+                $tablerows[] = $tablerow . '</tr>';
             }
+            $html .= implode($spacer, $tablerows);
             return $html . '</table>';
         }
 
@@ -1987,6 +1993,47 @@ class shortcodes {
             $html .= '<li>' . implode(get_string('separatorbookingoptionsfromconditionlist', 'mod_booking'), $parts) . '</li>';
         }
         return $html . '</ul>';
+    }
+
+    /**
+     * Returns the column widths (in percent) of the table rendered by [bookingoptionsfromconditionlist].
+     *
+     * The widths given in the shortcode are used when there is exactly one per displayed column. Otherwise
+     * the widths follow the longest text of every column (heading included), so that short columns
+     * stay narrow and a long heading is not broken in the middle of a word.
+     *
+     * @param array $fields the displayed fields
+     * @param array $rows the values of every option, keyed by field
+     * @param array $headings the headings keyed by field, empty when no heading row is shown
+     * @param string $widthsarg the "widths" argument of the shortcode, e.g. "30,50,20"
+     * @return array the width of every column in percent, keyed by field
+     */
+    private static function get_widths_for_conditionlist(array $fields, array $rows, array $headings, string $widthsarg): array {
+        $weights = [];
+        foreach (explode(',', $widthsarg) as $width) {
+            if ((float)$width > 0) {
+                $weights[] = (float)$width;
+            }
+        }
+        if (count($weights) !== count($fields)) {
+            $weights = [];
+            foreach ($fields as $field) {
+                $longest = 0;
+                foreach (array_merge([$headings[$field] ?? ''], array_column($rows, $field)) as $text) {
+                    $longest = max($longest, \core_text::strlen(html_entity_decode(strip_tags((string)$text))));
+                }
+                // No column gets too narrow, and a long text (usually the title) wraps instead of taking all the space.
+                $weights[] = min(max($longest, 8), 30);
+            }
+        }
+        $sum = array_sum($weights);
+        $widths = [];
+        foreach ($fields as $index => $field) {
+            $widths[$field] = (int)round($weights[$index] * 100 / $sum);
+        }
+        // Rounding differences go to the last column.
+        $widths[$field] += 100 - array_sum($widths);
+        return $widths;
     }
 
     /**
