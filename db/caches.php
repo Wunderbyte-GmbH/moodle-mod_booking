@@ -167,6 +167,15 @@ $definitions = [
         'staticaccelerationsize' => 100,
         'invalidationevents' => ['setbackconfirms'],
     ],
+    // What a user really paid for booking options via shopping cart, key = userid.
+    // The value is an array of optionid => paid price. It is set back with every booking or cancellation.
+    'userpurchases' => [
+        'mode' => cache_store::MODE_SESSION,
+        'simplekeys' => true,
+        'staticacceleration' => true,
+        'staticaccelerationsize' => 100,
+        'invalidationevents' => ['setbacksessionanswers'],
+    ],
     'electivebookingorder' => [
         'mode' => cache_store::MODE_SESSION,
         'simplekeys' => true,

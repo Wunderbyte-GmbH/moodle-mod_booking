@@ -196,6 +196,7 @@ $string['cachedef_bookedusertable'] = 'Gebuchte Nutzer/innen-Tabelle (Cache)';
 $string['cachedef_usercompetenciescache'] = 'Kompetenzen von Nutzer/innen (Cache)';
 $string['cachedef_usercoursestate'] = 'Kursstatus von Nutzer/innen: Einschreibungen und Abschlüsse (Cache)';
 $string['cachedef_usercoursestaterequest'] = 'Kursstatus von Nutzer/innen, Request-Ebene (Cache)';
+$string['cachedef_userpurchases'] = 'Von Nutzer/innen bezahlte Preise für Buchungsoptionen (Cache)';
 $string['cachereportfindingkeysharingcritical'] = 'Nahezu jede erfasste Person erzeugt eigene Cache-Einträge ({$a} unterschiedliche Key-Stämme). Die Caches wachsen mit der Anzahl der Benutzer/innen.';
 $string['cachereportfindingkeysharingok'] = 'Cache-Keys werden gut zwischen den Benutzer/innen geteilt ({$a} unterschiedliche Key-Stämme).';
 $string['cachereportfindingkeysharingwarning'] = 'Cache-Keys werden nur teilweise zwischen den Benutzer/innen geteilt ({$a} unterschiedliche Key-Stämme).';
