@@ -58,6 +58,7 @@ use mod_booking\option\dates_handler;
 use mod_booking\bo_actions\actions_info;
 use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_rules\rules_info;
+use mod_booking\option\fields\canceluntil;
 use mod_booking\option\fields\certificate;
 use mod_booking\option\fields\sharedplaces;
 use mod_booking\option\fields\competencies;
@@ -5556,6 +5557,9 @@ class booking_option {
 
         // Only now, we can purge.
         self::purge_cache_for_option($newoption->id);
+
+        // The deadline in effect is known only now. Does nothing unless a cashier asked for it in the form.
+        canceluntil::apply_to_existing_purchases($data, (int)$newoption->id);
 
         $option = singleton_service::get_instance_of_booking_option($data->cmid, $optionid);
 

@@ -26,13 +26,18 @@
 namespace mod_booking;
 
 use cache;
+use context_module;
+use local_shopping_cart\event\canceluntil_changed;
 use local_shopping_cart\local\cartstore;
 use local_shopping_cart\shopping_cart;
 use local_shopping_cart\shopping_cart_history;
 use mod_booking\bo_availability\conditions\cancelmyself;
+use mod_booking\option\fields\canceluntil;
+use mod_booking\option\fields_info;
 use mod_booking\output\bookingoption_description;
 use mod_booking\tests\booking_advanced_testcase;
 use mod_booking_generator;
+use MoodleQuickForm;
 use stdClass;
 use tool_mocktesttime\time_mock;
 
@@ -338,6 +343,261 @@ final class cancelmyself_history_canceluntil_test extends booking_advanced_testc
     }
 
     /**
+     * The new feature: a cashier saves the option form with "Also apply to existing purchases" and confirms.
+     * The purchase that kept the passed date of the booking time gets the new date of the option, the
+     * cancel button is back, cancelling works and the change is logged.
+     *
+     * @covers \mod_booking\option\fields\canceluntil::apply_to_existing_purchases
+     * @covers \mod_booking\booking_option::update
+     * @covers \local_shopping_cart\shopping_cart_history::extend_canceluntil_for_item
+     */
+    public function test_extended_date_reaches_existing_purchase_when_cashier_confirms(): void {
+        global $USER;
+
+        $olddate = time() - DAYSECS;
+        ['settings' => $settings, 'student' => $student] = $this->create_priced_option($olddate);
+        $historyitem = $this->buy_option($settings->id, (int)$student->id);
+        $this->assertEquals($olddate, (int)$historyitem->canceluntil);
+
+        [$buttonshown, $allowed] = $this->cancel_state($settings->id, $student, (int)$historyitem->id);
+        $this->assertFalse($buttonshown);
+        $this->assertFalse($allowed);
+
+        $this->setAdminUser();
+        $newdate = time() + 30 * DAYSECS;
+        $sink = $this->redirectEvents();
+        $this->save_option_form($settings->id, $newdate, ['canceluntilapplytopurchases' => 1, 'canceluntilapplyconfirmed' => 1]);
+        $events = array_values(array_filter($sink->get_events(), fn($event) => $event instanceof canceluntil_changed));
+        $sink->close();
+
+        $this->assertEquals($newdate, $this->history_canceluntil((int)$historyitem->id));
+
+        $this->assertCount(1, $events, 'The change of the purchase is logged.');
+        $this->assertEquals($USER->id, $events[0]->userid);
+        $this->assertEquals($student->id, $events[0]->relateduserid);
+        $this->assertSame($olddate, $events[0]->other['oldcanceluntil']);
+        $this->assertSame($newdate, $events[0]->other['newcanceluntil']);
+
+        [$buttonshown, $allowed] = $this->cancel_state($settings->id, $student, (int)$historyitem->id);
+        $this->assertTrue($buttonshown, 'The cancel button is shown again.');
+        $this->assertTrue($allowed, 'Shopping cart allows the cancellation again.');
+    }
+
+    /**
+     * Safeguards: without the checkbox, without the confirmation and for a user who is no cashier the
+     * existing purchase keeps the date of the booking time, as before.
+     *
+     * @covers \mod_booking\option\fields\canceluntil::apply_to_existing_purchases
+     * @covers \mod_booking\option\fields\canceluntil::can_apply_to_purchases
+     *
+     * @dataProvider not_applied_provider
+     * @param array $flags the fields of the form
+     * @param bool $ascashier
+     */
+    public function test_existing_purchase_keeps_date_without_checkbox_confirmation_or_capability(
+        array $flags,
+        bool $ascashier
+    ): void {
+        $olddate = time() - DAYSECS;
+        ['settings' => $settings, 'student' => $student, 'manager' => $manager] = $this->create_priced_option($olddate);
+        $historyitem = $this->buy_option($settings->id, (int)$student->id);
+
+        if ($ascashier) {
+            $this->setAdminUser();
+        } else {
+            // An editing teacher may edit the option, but is no cashier.
+            $this->setUser($manager);
+        }
+        $newdate = time() + 30 * DAYSECS;
+        $sink = $this->redirectEvents();
+        $this->save_option_form($settings->id, $newdate, $flags);
+        $events = array_filter($sink->get_events(), fn($event) => $event instanceof canceluntil_changed);
+        $sink->close();
+
+        // The option itself is changed in every case.
+        singleton_service::destroy_instance();
+        $this->assertEquals($newdate, (int)singleton_service::get_instance_of_booking_option_settings($settings->id)->canceluntil);
+
+        $this->assertEquals($olddate, $this->history_canceluntil((int)$historyitem->id));
+        $this->assertCount(0, $events);
+    }
+
+    /**
+     * Data provider for test_existing_purchase_keeps_date_without_checkbox_confirmation_or_capability.
+     *
+     * @return array
+     */
+    public static function not_applied_provider(): array {
+        return [
+            'checkbox not ticked' => [[], true],
+            'ticked but not confirmed' => [['canceluntilapplytopurchases' => 1], true],
+            'confirmation without checkbox' => [['canceluntilapplyconfirmed' => 1], true],
+            'import' => [['canceluntilapplytopurchases' => 1, 'canceluntilapplyconfirmed' => 1, 'importing' => 1], true],
+            'no cashier' => [['canceluntilapplytopurchases' => 1, 'canceluntilapplyconfirmed' => 1], false],
+        ];
+    }
+
+    /**
+     * Deadlines are only extended: a purchase with a later date keeps it when the date of the option is earlier.
+     *
+     * @covers \mod_booking\option\fields\canceluntil::apply_to_existing_purchases
+     */
+    public function test_existing_purchase_is_never_shortened(): void {
+        $laterdate = time() + 60 * DAYSECS;
+        ['settings' => $settings, 'student' => $student] = $this->create_priced_option($laterdate);
+        $historyitem = $this->buy_option($settings->id, (int)$student->id);
+        $this->assertEquals($laterdate, (int)$historyitem->canceluntil);
+
+        $this->setAdminUser();
+        $earlierdate = time() + 10 * DAYSECS;
+        $this->save_option_form(
+            $settings->id,
+            $earlierdate,
+            ['canceluntilapplytopurchases' => 1, 'canceluntilapplyconfirmed' => 1]
+        );
+
+        $this->assertEquals($laterdate, $this->history_canceluntil((int)$historyitem->id));
+    }
+
+    /**
+     * The form refuses the checkbox without the confirmation of the dialog and for users who are no cashiers.
+     *
+     * @covers \mod_booking\option\fields\canceluntil::validation
+     */
+    public function test_validation_requires_confirmation_and_capability(): void {
+        ['settings' => $settings, 'student' => $student, 'manager' => $manager]
+            = $this->create_priced_option(time() - DAYSECS);
+        $this->buy_option($settings->id, (int)$student->id);
+        $data = ['id' => $settings->id, 'cmid' => $settings->cmid, 'canceluntilapplytopurchases' => 1];
+
+        $this->setAdminUser();
+        $errors = [];
+        canceluntil::validation($data, [], $errors);
+        $this->assertSame(
+            get_string('canceluntilapplytopurchasesnotconfirmed', 'mod_booking'),
+            $errors['canceluntilapplytopurchases'] ?? null
+        );
+
+        $errors = [];
+        canceluntil::validation($data + ['canceluntilapplyconfirmed' => 1], [], $errors);
+        $this->assertSame([], $errors);
+
+        $errors = [];
+        canceluntil::validation(['canceluntilapplytopurchases' => 0] + $data, [], $errors);
+        $this->assertSame([], $errors, 'Without the checkbox there is nothing to confirm.');
+
+        $this->setUser($manager);
+        $errors = [];
+        canceluntil::validation($data + ['canceluntilapplyconfirmed' => 1], [], $errors);
+        $this->assertSame(
+            get_string('canceluntilapplytopurchasesnopermission', 'mod_booking'),
+            $errors['canceluntilapplytopurchases'] ?? null
+        );
+    }
+
+    /**
+     * The checkbox is only offered to cashiers and only when the option has purchases with a deadline.
+     * It is never ticked by default, also not right after it was used.
+     *
+     * @covers \mod_booking\option\fields\canceluntil::instance_form_definition
+     * @covers \mod_booking\option\fields\canceluntil::set_data
+     */
+    public function test_checkbox_is_only_offered_to_cashiers_for_options_with_purchases(): void {
+        ['settings' => $settings, 'student' => $student, 'student2' => $student2, 'manager' => $manager]
+            = $this->create_priced_option(time() + DAYSECS);
+
+        $this->setAdminUser();
+        $this->assertFalse($this->option_form_has_checkbox($settings->id), 'No purchases yet, nothing to apply to.');
+
+        $this->buy_option($settings->id, (int)$student->id);
+        $this->buy_option($settings->id, (int)$student2->id);
+
+        $this->setAdminUser();
+        $mform = $this->option_form_part($settings->id);
+        $this->assertTrue($mform->elementExists('canceluntilapplytopurchases'));
+        $this->assertTrue($mform->elementExists('canceluntilapplyconfirmed'));
+        $checkbox = $mform->getElement('canceluntilapplytopurchases');
+        $this->assertEquals(2, $checkbox->getAttribute('data-purchases'));
+        $this->assertEmpty($checkbox->getChecked());
+
+        // The data of a form that was just saved with the checkbox is used to load the form again.
+        $data = (object)['id' => $settings->id, 'canceluntilapplytopurchases' => 1, 'canceluntilapplyconfirmed' => 1];
+        canceluntil::set_data($data, singleton_service::get_instance_of_booking_option_settings($settings->id));
+        $this->assertEmpty($data->canceluntilapplytopurchases);
+        $this->assertEmpty($data->canceluntilapplyconfirmed);
+
+        $this->setUser($manager);
+        $this->assertFalse($this->option_form_has_checkbox($settings->id), 'The right to edit the option is not enough.');
+    }
+
+    /**
+     * Returns the part of the option form the field canceluntil adds for the current user.
+     *
+     * @param int $optionid
+     * @return MoodleQuickForm
+     */
+    private function option_form_part(int $optionid): MoodleQuickForm {
+        global $CFG;
+        require_once($CFG->libdir . '/formslib.php');
+
+        $mform = new MoodleQuickForm('optionform', 'post', '');
+        $formdata = ['id' => $optionid];
+        canceluntil::instance_form_definition($mform, $formdata, [], [], false);
+        return $mform;
+    }
+
+    /**
+     * Whether the option form offers "Also apply to existing purchases" to the current user.
+     *
+     * @param int $optionid
+     * @return bool
+     */
+    private function option_form_has_checkbox(int $optionid): bool {
+        return $this->option_form_part($optionid)->elementExists('canceluntilapplytopurchases');
+    }
+
+    /**
+     * Saves the option like the option form does (no import), with a new canceluntil date.
+     *
+     * @param int $optionid
+     * @param int $canceluntil
+     * @param array $fields further fields of the form
+     */
+    private function save_option_form(int $optionid, int $canceluntil, array $fields): void {
+        singleton_service::destroy_instance();
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+
+        $data = (object)[
+            'id' => $optionid,
+            'optionid' => $optionid,
+            'cmid' => (int)$settings->cmid,
+            'bookingid' => (int)$settings->bookingid,
+        ];
+        // What the form shows: the stored values of all fields.
+        fields_info::set_data($data);
+        // What the user changes.
+        $data->canceluntilcheckbox = 1;
+        $data->canceluntil = $canceluntil;
+        foreach ($fields as $key => $value) {
+            $data->{$key} = $value;
+        }
+
+        booking_option::update($data, context_module::instance((int)$settings->cmid));
+        singleton_service::destroy_instance();
+    }
+
+    /**
+     * Returns the canceluntil date stored with a purchase.
+     *
+     * @param int $historyid
+     * @return int
+     */
+    private function history_canceluntil(int $historyid): int {
+        global $DB;
+        return (int)$DB->get_field('local_shopping_cart_history', 'canceluntil', ['id' => $historyid]);
+    }
+
+    /**
      * Returns what the cancel button shows and what shopping cart allows for the given user.
      *
      * @param int $optionid
@@ -382,7 +642,7 @@ final class cancelmyself_history_canceluntil_test extends booking_advanced_testc
      * Creates a booking with one priced option which has the given canceluntil date.
      *
      * @param int $canceluntil
-     * @return array settings, student, student2 (a second user who books later)
+     * @return array settings, student, student2 (a second user who books later), manager (teacher, no cashier)
      */
     private function create_priced_option(int $canceluntil): array {
         set_config('cancelationfee', 0, 'local_shopping_cart');
@@ -438,7 +698,7 @@ final class cancelmyself_history_canceluntil_test extends booking_advanced_testc
 
         $this->assertEquals($canceluntil, (int)$settings->canceluntil, 'The option has the canceluntil date we set.');
 
-        return ['settings' => $settings, 'student' => $student, 'student2' => $student2];
+        return ['settings' => $settings, 'student' => $student, 'student2' => $student2, 'manager' => $bookingmanager];
     }
 
     /**

@@ -24,6 +24,9 @@
 
 namespace mod_booking\option\fields;
 
+use context_system;
+use core\notification;
+use local_shopping_cart\shopping_cart_history;
 use mod_booking\booking_option;
 use mod_booking\booking_option_settings;
 use mod_booking\option\fields_info;
@@ -142,6 +145,134 @@ class canceluntil extends field_base {
         $mform->setDefault('canceluntil', time_handler::prettytime(time()));
         $mform->disabledIf('canceluntil', 'canceluntilcheckbox');
         $mform->setType('canceluntil', PARAM_INT);
+
+        // Purchases via shopping cart keep the deadline they were bought with. A cashier can pass
+        // the deadline of the option on to them, see apply_to_existing_purchases().
+        $purchases = self::count_purchases_with_deadline((int)$optionid);
+        if ($purchases > 0 && self::can_apply_to_purchases((int)$optionid)) {
+            $mform->addElement(
+                'advcheckbox',
+                'canceluntilapplytopurchases',
+                get_string('canceluntilapplytopurchases', 'mod_booking'),
+                '',
+                // The number is shown in the confirmation dialog (mod_booking/dynamiceditoptionform).
+                ['data-purchases' => $purchases]
+            );
+            $mform->setDefault('canceluntilapplytopurchases', 0);
+            $mform->addHelpButton('canceluntilapplytopurchases', 'canceluntilapplytopurchases', 'mod_booking');
+            if ($mform->elementExists('disablecancel')) {
+                $mform->disabledIf('canceluntilapplytopurchases', 'disablecancel', 'checked');
+            }
+            // Set by the confirmation dialog only, validation() insists on it.
+            $mform->addElement('hidden', 'canceluntilapplyconfirmed', 0);
+            $mform->setType('canceluntilapplyconfirmed', PARAM_INT);
+        }
+    }
+
+    /**
+     * The deadline is only passed on to existing purchases after an explicit confirmation by a cashier.
+     *
+     * @param array $data
+     * @param array $files
+     * @param array $errors
+     * @return void
+     */
+    public static function validation(array $data, array $files, array &$errors) {
+
+        if (empty($data['canceluntilapplytopurchases']) || !empty($data['importing'])) {
+            return;
+        }
+
+        if (!self::can_apply_to_purchases((int)($data['id'] ?? 0))) {
+            $errors['canceluntilapplytopurchases'] = get_string('canceluntilapplytopurchasesnopermission', 'mod_booking');
+        } else if (empty($data['canceluntilapplyconfirmed'])) {
+            $errors['canceluntilapplytopurchases'] = get_string('canceluntilapplytopurchasesnotconfirmed', 'mod_booking');
+        }
+    }
+
+    /**
+     * Whether the current user may pass the cancellation deadline of an option on to its existing purchases.
+     *
+     * The purchases belong to local_shopping_cart, so its cashier capability decides (a cashier may cancel
+     * any purchase regardless of the deadline anyway). The right to edit the option is not enough.
+     *
+     * @param int $optionid
+     * @return bool
+     */
+    public static function can_apply_to_purchases(int $optionid): bool {
+        return !empty($optionid)
+            && class_exists(shopping_cart_history::class)
+            // Older versions of local_shopping_cart do not offer this.
+            && method_exists(shopping_cart_history::class, 'extend_canceluntil_for_item')
+            && has_capability('local/shopping_cart:cashier', context_system::instance());
+    }
+
+    /**
+     * Number of paid or pending purchases of the option that have a cancellation deadline.
+     *
+     * @param int $optionid
+     * @return int
+     */
+    private static function count_purchases_with_deadline(int $optionid): int {
+        if (
+            empty($optionid)
+            || !class_exists(shopping_cart_history::class)
+            || !method_exists(shopping_cart_history::class, 'get_purchases_with_earlier_canceluntil')
+        ) {
+            return 0;
+        }
+        // No deadline (0) is later than every deadline, so this returns all purchases that have one.
+        return count(shopping_cart_history::get_purchases_with_earlier_canceluntil('mod_booking', 'option', $optionid, 0));
+    }
+
+    /**
+     * Passes the cancellation deadline of the option on to its existing purchases, if this was requested.
+     *
+     * Shopping cart stores the deadline with every purchase at checkout and only checks that stored date,
+     * so a deadline changed afterwards does not reach users who already bought. Has to be called after the
+     * option is saved and its cache is purged, because the deadline that is applied is the one that is in
+     * effect now: the date of the option or, without one, the date calculated from the booking instance.
+     * Deadlines are only extended, never shortened.
+     *
+     * @param stdClass $formdata data of the option form
+     * @param int $optionid
+     * @return int number of changed purchases
+     */
+    public static function apply_to_existing_purchases(stdClass $formdata, int $optionid): int {
+
+        // Only for a confirmed request from the option form, never for imports and webservices.
+        if (
+            empty($formdata->canceluntilapplytopurchases)
+            || empty($formdata->canceluntilapplyconfirmed)
+            || !empty($formdata->importing)
+            || !self::can_apply_to_purchases($optionid)
+        ) {
+            return 0;
+        }
+
+        $canceluntil = (int)booking_option::return_cancel_until_date($optionid);
+
+        // Shopping cart checks the capability again and logs every changed purchase.
+        $changed = shopping_cart_history::extend_canceluntil_for_item('mod_booking', 'option', $optionid, $canceluntil);
+
+        if ($changed > 0) {
+            // The cancel button depends on the date stored with the purchase.
+            booking_option::purge_cache_for_option($optionid);
+        }
+
+        $a = (object)[
+            'count' => $changed,
+            'date' => empty($canceluntil)
+                ? get_string('canceluntilapplytopurchasesnodeadline', 'mod_booking')
+                : userdate($canceluntil, get_string('strftimedatetime', 'langconfig')),
+        ];
+        if ($changed > 0) {
+            notification::success(get_string('canceluntilapplytopurchasesdone', 'mod_booking', $a));
+        } else {
+            notification::info(get_string('canceluntilapplytopurchasesnone', 'mod_booking', $a));
+        }
+
+        return $changed;
     }
 
     /**
@@ -169,6 +300,9 @@ class canceluntil extends field_base {
                 $data->canceluntilcheckbox = 1;
                 $data->canceluntil = $canceluntil;
             }
+            // A one-time action, not a setting: the form reloaded after saving must not offer it ticked again.
+            $data->canceluntilapplytopurchases = 0;
+            $data->canceluntilapplyconfirmed = 0;
         }
     }
 
