@@ -28,6 +28,7 @@ namespace mod_booking\local;
 use cache_helper;
 use core_course_external;
 use core_text;
+use mod_booking\booking_option;
 use mod_booking\placeholders\placeholders_info;
 use mod_booking\singleton_service;
 use moodle_exception;
@@ -384,13 +385,16 @@ class connectedcourse {
      * apply_naming_scheme() just did. Callers which name a freshly copied course therefore have
      * to queue this as well - naming it only once would look right until the next cron run.
      *
+     * It is queued even without a naming scheme: if the copy fails, core deletes the target
+     * course and the finalizer disconnects the option from it (see unlink_deleted_course()).
+     *
      * @param int $courseid the copied course
      * @param int $optionid the booking option the course belongs to
      * @return void
      */
     public static function queue_naming_finalizer(int $courseid, int $optionid) {
 
-        if (empty($courseid) || empty($optionid) || !self::has_naming_scheme()) {
+        if (empty($courseid) || empty($optionid)) {
             return;
         }
 
@@ -400,6 +404,31 @@ class connectedcourse {
             'optionid' => $optionid,
         ]);
         \core\task\manager::queue_adhoc_task($task);
+    }
+
+    /**
+     * Disconnect all booking options from a course that no longer exists.
+     *
+     * The connected course is linked to the option before the async copy has run. If that copy
+     * fails, core's asynchronous_copy_task deletes the half-built target course, leaving the
+     * option pointing at a missing courseid (the option form then fails with dmlmissingrecord).
+     *
+     * @param int $courseid the deleted course
+     * @return void
+     */
+    public static function unlink_deleted_course(int $courseid) {
+        global $DB;
+
+        if (empty($courseid) || $DB->record_exists('course', ['id' => $courseid])) {
+            return;
+        }
+
+        $optionids = $DB->get_fieldset_select('booking_options', 'id', 'courseid = :courseid', ['courseid' => $courseid]);
+        foreach ($optionids as $optionid) {
+            $DB->set_field('booking_options', 'courseid', 0, ['id' => $optionid]);
+            booking_option::purge_cache_for_option((int) $optionid);
+            mtrace("Booking option $optionid was connected to deleted course $courseid, connection removed.");
+        }
     }
 
     /**

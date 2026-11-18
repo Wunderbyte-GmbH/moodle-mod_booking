@@ -122,6 +122,8 @@ class finalize_connected_course_naming extends \core\task\adhoc_task {
         // Both might have been deleted in the meantime.
         if (!$DB->record_exists('course', ['id' => $courseid])) {
             mtrace("finalize_connected_course_naming: course $courseid no longer exists, nothing to do.");
+            // E.g. the async copy failed and core deleted its target course.
+            connectedcourse::unlink_deleted_course((int) $courseid);
             return;
         }
         if (!$DB->record_exists('booking_options', ['id' => $optionid])) {

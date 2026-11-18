@@ -101,6 +101,8 @@ class finalize_template_course extends \core\task\adhoc_task {
         // The course might have been deleted in the meantime.
         if (!$DB->record_exists('course', ['id' => $newcourseid])) {
             mtrace("finalize_template_course: course $newcourseid no longer exists, nothing to do.");
+            // E.g. the async copy failed and core deleted its target course.
+            connectedcourse::unlink_deleted_course((int) $newcourseid);
             return;
         }
 

@@ -261,12 +261,13 @@ final class connectedcourse_naming_cron_test extends advanced_testcase {
     }
 
     /**
-     * Without a naming scheme configured nothing is queued, so sites which never configured
-     * anything keep exactly the behaviour they had.
+     * Without a naming scheme configured the finalizer is still queued (to clean up after a
+     * failed copy), but it leaves the course names untouched, so sites which never configured
+     * anything keep exactly the naming they had.
      *
      * @return void
      */
-    public function test_no_finalizer_without_naming_scheme(): void {
+    public function test_finalizer_without_naming_scheme_keeps_names(): void {
         set_config('duplicatemoodlecourses', 1, 'booking');
 
         [$option, $connectedcourse] = $this->create_option_with_connected_course('Math', 'PF1');
@@ -278,7 +279,39 @@ final class connectedcourse_naming_cron_test extends advanced_testcase {
         $optionrecord = (object) ['id' => $option->id, 'courseid' => $connectedcourse->id];
         courseid::save_data($formdata, $optionrecord);
 
-        $this->assertCount(0, \core\task\manager::get_adhoc_tasks(finalize_connected_course_naming::class));
+        $this->assertCount(1, \core\task\manager::get_adhoc_tasks(finalize_connected_course_naming::class));
+
+        ob_start();
+        $this->run_all_adhoc_tasks();
+        ob_end_clean();
+
+        $course = $this->reload_course($connectedcourse->id);
+        $this->assertSame($connectedcourse->fullname, $course->fullname);
+        $this->assertSame($connectedcourse->shortname, $course->shortname);
+    }
+
+    /**
+     * When the async copy fails, core deletes the target course. The finalizer then disconnects
+     * the option from it, otherwise the option form fails with "dmlmissingrecord".
+     *
+     * @return void
+     */
+    public function test_finalizer_unlinks_course_deleted_by_failed_copy(): void {
+        global $DB;
+
+        [$option, $connectedcourse] = $this->create_option_with_connected_course('Math', 'PF1');
+        $DB->set_field('booking_options', 'courseid', $connectedcourse->id, ['id' => $option->id]);
+
+        connectedcourse::queue_naming_finalizer((int) $connectedcourse->id, (int) $option->id);
+
+        // What asynchronous_copy_task does when the copy fails.
+        delete_course($connectedcourse->id, false);
+
+        ob_start();
+        $this->run_all_adhoc_tasks();
+        ob_end_clean();
+
+        $this->assertEquals(0, $DB->get_field('booking_options', 'courseid', ['id' => $option->id]));
     }
 
     /**

@@ -242,7 +242,8 @@ class groupid extends field_base {
             // connected course can be offered - after a course change, save first.
             $settings = empty($optionid) ? null : singleton_service::get_instance_of_booking_option_settings($optionid);
             $groupoptions = [];
-            if (!empty($settings->courseid)) {
+            // The connected course may be gone (e.g. a failed async course copy deletes its target course).
+            if (!empty($settings->courseid) && $DB->record_exists('course', ['id' => $settings->courseid])) {
                 foreach (groups_get_all_groups($settings->courseid) as $groupid => $group) {
                     $groupoptions[$groupid] = $group->name;
                 }
