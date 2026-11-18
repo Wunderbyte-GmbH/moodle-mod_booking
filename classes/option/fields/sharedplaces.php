@@ -164,25 +164,7 @@ class sharedplaces extends field_base {
                 'multiple' => true,
                 'noselectionstring' => get_string('choose...', 'mod_booking'),
                 'ajax' => 'mod_booking/form_booking_options_selector',
-                'valuehtmlcallback' => function ($value) {
-                    global $OUTPUT;
-                    if (empty($value)) {
-                        return get_string('choose...', 'mod_booking');
-                    }
-                    $optionsettings = singleton_service::get_instance_of_booking_option_settings((int)$value);
-                    $instancesettings = singleton_service::get_instance_of_booking_settings_by_cmid($optionsettings->cmid);
-
-                    $details = (object)[
-                        'id' => $optionsettings->id,
-                        'titleprefix' => $optionsettings->titleprefix,
-                        'text' => $optionsettings->text,
-                        'instancename' => $instancesettings->name,
-                    ];
-                    return $OUTPUT->render_from_template(
-                        'mod_booking/form_booking_options_selector_suggestion',
-                        $details
-                    );
-                },
+                'valuehtmlcallback' => fn($value) => booking_option::get_suggestion_html((int)$value),
             ];
             $mform->addElement(
                 'autocomplete',

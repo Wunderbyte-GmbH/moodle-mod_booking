@@ -5112,6 +5112,62 @@ class booking_option {
     }
 
     /**
+     * Date range of a booking option for the suggestions of the booking option autocomplete:
+     * start of the first date until end of the last date (coursestarttime - courseendtime).
+     *
+     * Formatted in the language and timezone of the current user. The date is shown only once
+     * when start and end are on the same day. Options without dates return an empty string,
+     * so the template can leave the line out.
+     *
+     * @param int $coursestarttime Start of the first date (0 if the option has no dates).
+     * @param int $courseendtime End of the last date (0 if the option has no dates).
+     * @return string
+     */
+    public static function get_suggestion_dates(int $coursestarttime, int $courseendtime): string {
+        if (empty($coursestarttime)) {
+            return '';
+        }
+        return dates_handler::prettify_optiondates_start_end(
+            $coursestarttime,
+            $courseendtime,
+            current_language(),
+            false
+        );
+    }
+
+    /**
+     * HTML of one booking option as shown in the booking option autocomplete (title with prefix, id,
+     * booking instance and date range), for the 'valuehtmlcallback' of the form elements.
+     *
+     * It renders the same template with the same fields as the ajax suggestions built from
+     * {@see self::load_booking_options_filtered()}, so a chosen option looks like its suggestion.
+     *
+     * @param int $optionid Id of the booking option, 0 if nothing is selected.
+     * @return string
+     */
+    public static function get_suggestion_html(int $optionid): string {
+        global $OUTPUT;
+
+        if (empty($optionid)) {
+            return get_string('choose...', 'mod_booking');
+        }
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        $instancename = '';
+        if (!empty($settings->cmid)) {
+            $instancename = singleton_service::get_instance_of_booking_settings_by_cmid($settings->cmid)->name ?? '';
+        }
+
+        return $OUTPUT->render_from_template('mod_booking/form_booking_options_selector_suggestion', [
+            'id' => $settings->id,
+            'titleprefix' => $settings->titleprefix,
+            'text' => $settings->text,
+            'instancename' => $instancename,
+            'dates' => self::get_suggestion_dates((int)$settings->coursestarttime, (int)$settings->courseendtime),
+        ]);
+    }
+
+    /**
      * Function to lazyload a list of booking options for autocomplete.
      *
      * @param string $query
@@ -5175,7 +5231,7 @@ class booking_option {
         );
 
         $sql = "SELECT * FROM (
-                    SELECT bo.id, bo.titleprefix, bo.text, bo.courseendtime, b.name instancename,
+                    SELECT bo.id, bo.titleprefix, bo.text, bo.coursestarttime, bo.courseendtime, b.name instancename,
                            $fullsql AS fulltextstring
                     FROM {booking_options} bo
                     LEFT JOIN {booking} b
@@ -5226,6 +5282,7 @@ class booking_option {
                 'titleprefix' => $record->titleprefix,
                 'text' => $record->text,
                 'instancename' => $record->instancename,
+                'dates' => self::get_suggestion_dates((int)$record->coursestarttime, (int)$record->courseendtime),
             ];
 
             $count++;

@@ -26,17 +26,19 @@
     * none
 
     Context variables required for this template:
-    * id int user id
-    * firstname string user's first name
-    * lastname string user's last name
-    * email string user email field
+    * id int id of the booking option
+    * titleprefix string prefix of the booking option title (optional)
+    * text string title of the booking option
+    * instancename string name of the booking instance
+    * dates string start of the first date until end of the last date (optional, empty without dates)
 
     Example context (json):
     {
         "id": 1,
         "titleprefix": "123",
         "text": "Name of the Booking option",
-        "instancename": "Bookinginstance 1"
+        "instancename": "Bookinginstance 1",
+        "dates": "4 November 2026, 10:00 AM - 11 November 2026, 12:00 PM"
     }
 }}
 <span>
@@ -44,4 +46,5 @@
         {{#titleprefix}}{{.}} - {{/titleprefix}}{{text}}<small> ID: {{id}}</small>
     </span>
     <div><small>{{instancename}}</small></div>
+    {{#dates}}<div><small>{{.}}</small></div>{{/dates}}
 </span>

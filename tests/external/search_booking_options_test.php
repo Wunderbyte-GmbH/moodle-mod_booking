@@ -25,7 +25,9 @@
 
 namespace mod_booking\external;
 
+use core_external\external_api;
 use mod_booking\booking_option;
+use mod_booking\option\dates_handler;
 use mod_booking\singleton_service;
 use mod_booking_generator;
 use stdClass;
@@ -46,6 +48,8 @@ require_once("$CFG->dirroot/mod/booking/lib.php");
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @covers \mod_booking\external\search_booking_options
  * @covers \mod_booking\booking_option::load_booking_options_filtered
+ * @covers \mod_booking\booking_option::get_suggestion_dates
+ * @covers \mod_booking\booking_option::get_suggestion_html
  */
 final class search_booking_options_test extends \advanced_testcase {
     /**
@@ -101,6 +105,97 @@ final class search_booking_options_test extends \advanced_testcase {
         // The same query without the future filter still finds the past option.
         $result = booking_option::load_booking_options_filtered('ended', 0, (int)$booking->cmid, false);
         $this->assertSame([$past->id], array_keys($result['list']));
+    }
+
+    /**
+     * Every suggestion carries the date range of its option (first start - last end); options without dates none.
+     */
+    public function test_suggestions_contain_dates(): void {
+        $this->setAdminUser();
+        [$past, $future, $dateless] = $this->create_options();
+
+        $result = search_booking_options::execute('Searchfilter');
+        $list = $result['list'];
+
+        foreach ([$past, $future] as $option) {
+            $settings = singleton_service::get_instance_of_booking_option_settings($option->id);
+            $expected = dates_handler::prettify_optiondates_start_end(
+                (int)$settings->coursestarttime,
+                (int)$settings->courseendtime,
+                current_language(),
+                false
+            );
+            $this->assertNotEmpty($expected);
+            $this->assertSame($expected, $list[$option->id]->dates);
+            // Start and end are on different days, so both dates are part of the range.
+            $this->assertStringContainsString(userdate((int)$settings->coursestarttime, '%Y'), $list[$option->id]->dates);
+            $this->assertStringContainsString(' - ', $list[$option->id]->dates);
+        }
+        $this->assertSame('', $list[$dateless->id]->dates);
+
+        // The return structure of the web service accepts the new field.
+        $clean = external_api::clean_returnvalue(search_booking_options::execute_returns(), $result);
+        $this->assertContains($list[$future->id]->dates, array_column($clean['list'], 'dates'));
+    }
+
+    /**
+     * The suggestion template prints the dates in a line of their own and leaves the line out without dates.
+     */
+    public function test_suggestion_template_shows_dates(): void {
+        global $OUTPUT;
+
+        $context = ['id' => 7, 'titleprefix' => '', 'text' => 'Yoga', 'instancename' => 'Sports'];
+
+        $html = $OUTPUT->render_from_template(
+            'mod_booking/form_booking_options_selector_suggestion',
+            $context + ['dates' => 'DATES-OF-OPTION']
+        );
+        $this->assertStringContainsString('<div><small>DATES-OF-OPTION</small></div>', $html);
+
+        $html = $OUTPUT->render_from_template(
+            'mod_booking/form_booking_options_selector_suggestion',
+            $context + ['dates' => '']
+        );
+        $this->assertSame(1, substr_count($html, '<div>'));
+    }
+
+    /**
+     * The chosen value of the autocomplete fields is rendered like its suggestion, including the dates.
+     */
+    public function test_get_suggestion_html(): void {
+        $this->setAdminUser();
+        [, $future, $dateless, $booking] = $this->create_options();
+
+        $this->assertSame(get_string('choose...', 'mod_booking'), booking_option::get_suggestion_html(0));
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($future->id);
+        $dates = booking_option::get_suggestion_dates((int)$settings->coursestarttime, (int)$settings->courseendtime);
+        $html = booking_option::get_suggestion_html((int)$future->id);
+        $this->assertStringContainsString('Searchfilter future option', $html);
+        $this->assertStringContainsString('ID: ' . $future->id, $html);
+        $this->assertStringContainsString('<div><small>' . $booking->name . '</small></div>', $html);
+        $this->assertStringContainsString('<div><small>' . $dates . '</small></div>', $html);
+
+        // No dates: only the line with the booking instance.
+        $html = booking_option::get_suggestion_html((int)$dateless->id);
+        $this->assertStringContainsString('Searchfilter dateless option', $html);
+        $this->assertSame(1, substr_count($html, '<div>'));
+    }
+
+    /**
+     * The helper returns nothing without a start and shows the date only once for a single day.
+     */
+    public function test_get_suggestion_dates(): void {
+        $this->setAdminUser();
+
+        $this->assertSame('', booking_option::get_suggestion_dates(0, 0));
+
+        $start = strtotime('2030-05-06 10:00');
+        $sameday = booking_option::get_suggestion_dates($start, strtotime('2030-05-06 12:00'));
+        $otherday = booking_option::get_suggestion_dates($start, strtotime('2030-05-08 12:00'));
+
+        $this->assertSame(1, substr_count($sameday, '2030'));
+        $this->assertSame(2, substr_count($otherday, '2030'));
     }
 
     /**

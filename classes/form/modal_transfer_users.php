@@ -40,8 +40,10 @@ require_once("$CFG->libdir/formslib.php");
 /**
  * Modal dynamic form to transfer selected booked users to another booking option in report2.php.
  *
- * The target option is chosen through an ajax autocomplete that searches booking options across
- * all instances (showing title prefix, option id and instance name). Before the transfer is
+ * The target option is chosen through an ajax autocomplete (showing title prefix, option id,
+ * instance name and the date range of the option). A booking instance filter above it restricts
+ * the search to one instance; it is preset to the instance of the source option and offers
+ * "All booking instances" as well. Before the transfer is
  * carried out, non-blocking warnings are shown if the target has a different option type, if a
  * user filled out a custom form (data loss) or if the target has a different price. The admin can
  * override the warnings by ticking the "transfer anyway" checkbox.
@@ -77,6 +79,34 @@ class modal_transfer_users extends dynamic_form {
     }
 
     /**
+     * Choices of the booking instance filter: "All booking instances" (0) followed by every booking instance.
+     *
+     * The course short name is appended, because instances in different courses often share their name.
+     * Instances whose course module is being deleted are left out.
+     *
+     * @return array<int, string> booking instance id => label
+     */
+    private function get_booking_instance_choices(): array {
+        global $DB;
+
+        $sql = "SELECT b.id, b.name, c.shortname, cm.id AS cmid
+                  FROM {booking} b
+                  JOIN {course} c ON c.id = b.course
+                  JOIN {course_modules} cm ON cm.instance = b.id
+                  JOIN {modules} m ON m.id = cm.module AND m.name = :modname
+                 WHERE cm.deletioninprogress = 0
+              ORDER BY b.name, c.shortname, b.id";
+        $records = $DB->get_records_sql($sql, ['modname' => 'booking']);
+
+        $choices = [0 => get_string('transferallbookinginstances', 'mod_booking')];
+        foreach ($records as $record) {
+            $name = format_string($record->name, true, ['context' => context_module::instance($record->cmid)]);
+            $choices[(int) $record->id] = $name . ' (' . $record->shortname . ')';
+        }
+        return $choices;
+    }
+
+    /**
      * Form definition.
      */
     public function definition() {
@@ -95,26 +125,32 @@ class modal_transfer_users extends dynamic_form {
         $mform->addElement('hidden', 'checkedids', $submitdata['checkedids'] ?? '');
         $mform->setType('checkedids', PARAM_TEXT);
 
-        // Searchable autocomplete for the target booking option (searches all instances).
+        // Filter for the target option search: one booking instance or all of them. It is preset to the
+        // instance of the source option, because most transfers stay within the same instance. A static
+        // autocomplete (no ajax) keeps long instance lists searchable. The filter only narrows the
+        // suggestions; it is not part of the validation, so a target chosen before stays valid.
+        $instancechoices = $this->get_booking_instance_choices();
+        $currentbookingid = 0;
+        if (!empty($optionid)) {
+            $currentbookingid = (int) singleton_service::get_instance_of_booking_option_settings($optionid)->bookingid;
+        }
+        $mform->addElement(
+            'autocomplete',
+            'bookinginstancefilter',
+            get_string('transferbookinginstancefilter', 'mod_booking'),
+            $instancechoices,
+            ['multiple' => false, 'tags' => false]
+        );
+        $mform->setType('bookinginstancefilter', PARAM_INT);
+        $mform->setDefault('bookinginstancefilter', isset($instancechoices[$currentbookingid]) ? $currentbookingid : 0);
+        $mform->addHelpButton('bookinginstancefilter', 'transferbookinginstancefilter', 'mod_booking');
+
+        // Searchable autocomplete for the target booking option.
         $options = [
             'multiple' => false,
             'tags' => false,
             'ajax' => 'mod_booking/form_booking_options_selector',
-            'valuehtmlcallback' => function ($value) {
-                global $OUTPUT, $DB;
-                $value = (int) $value;
-                if (empty($value)) {
-                    return get_string('choose...', 'mod_booking');
-                }
-                $settings = singleton_service::get_instance_of_booking_option_settings($value);
-                $instancename = $DB->get_field('booking', 'name', ['id' => $settings->bookingid]);
-                return $OUTPUT->render_from_template('mod_booking/form_booking_options_selector_suggestion', [
-                    'id' => $settings->id,
-                    'titleprefix' => $settings->titleprefix,
-                    'text' => $settings->text,
-                    'instancename' => $instancename ?: '',
-                ]);
-            },
+            'valuehtmlcallback' => fn($value) => booking_option::get_suggestion_html((int)$value),
         ];
         $mform->addElement(
             'autocomplete',
@@ -139,7 +175,10 @@ class modal_transfer_users extends dynamic_form {
         // The site setting only decides the initial state of the checkbox. A default (unlike a constant)
         // is overridden by submitted values, so the user's choice survives the re-rendering with warnings.
         $mform->setDefault('onlyfuture', empty(get_config('booking', 'transferonlyfuture')) ? 0 : 1);
+        // Both filters are read live by the autocomplete JS on every search request: the name of the
+        // instance select (data-bookingidselect) and of the checkbox (data-onlyfuturecheckbox).
         $mform->getElement('targetoptionid')->updateAttributes([
+            'data-bookingidselect' => 'bookinginstancefilter',
             'data-onlyfuturecheckbox' => 'onlyfuture',
         ]);
 
