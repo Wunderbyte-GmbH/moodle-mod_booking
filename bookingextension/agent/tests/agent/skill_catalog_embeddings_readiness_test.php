@@ -137,8 +137,7 @@ final class skill_catalog_embeddings_readiness_test extends abstract_agent_testc
     /**
      * Discover the committed skill-catalog fixture variants as [model, dimensions] pairs.
      *
-     * The fixtures are named skill_catalog_embeddings__<model>__<dims>.csv (the unversioned
-     * skill_catalog_embeddings.csv is the legacy default and is skipped — it has no variant key).
+     * The fixtures are named skill_catalog_embeddings__<model>__<dims>.csv.
      *
      * @return array[] List of [string model, int dimensions].
      */

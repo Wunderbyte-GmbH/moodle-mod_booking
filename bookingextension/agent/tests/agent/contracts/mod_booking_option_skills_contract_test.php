@@ -466,7 +466,9 @@ final class mod_booking_option_skills_contract_test extends option_skills_contra
         $roleid = (int)$role->id;
 
         assign_capability('mod/booking:addoption', CAP_ALLOW, $roleid, $contextid, true);
-        assign_capability('mod/booking:addeditownoption', CAP_ALLOW, $roleid, $contextid, true);
+        // Newer mod_booking versions replaced addeditownoption with editownoption; older ones only have addeditownoption.
+        $owncap = get_capability_info('mod/booking:editownoption') ? 'mod/booking:editownoption' : 'mod/booking:addeditownoption';
+        assign_capability($owncap, CAP_ALLOW, $roleid, $contextid, true);
         role_assign($roleid, $userid, $contextid);
 
         accesslib_clear_all_caches(true);

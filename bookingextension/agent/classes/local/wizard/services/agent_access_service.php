@@ -26,7 +26,9 @@ declare(strict_types=1);
 
 namespace bookingextension_agent\local\wizard\services;
 
+// BEGIN bundled-engine-only: the PRO license check (the local_wizard generator removes this block).
 use bookingextension_agent\local\wb_license;
+// END bundled-engine-only.
 use bookingextension_agent\local\wizard\wb_action_names;
 use core\di;
 use core_ai\aiactions\generate_text;
@@ -37,12 +39,14 @@ use core_text;
 /**
  * Decides whether the agent runs with full access or readonly-only skills.
  *
- * Full access is granted when either
+ * Full access is granted when
  *  - the agent's LLM calls actually hit the Wunderbyte LLM gateway (trial or
  *    subscription — enforcement of the subscription itself happens server-side
  *    at that gateway), or
- *  - a valid PRO license is set (product 'wizard' or combined 'bookingagent',
- *    see wb_license).
+ *  - in the engine bundled with mod_booking only: a valid PRO license is set (the
+ *    bundled-engine-only block in has_full_access()). The standalone local_wizard
+ *    plugin has no license check at all: there only the gateway counts, or
+ *  - it is a test run (PHPUnit, Behat), so every skill can be tested.
  *
  * Without full access only readonly skills are executable; mutating skills are
  * surfaced as UNAVAILABLE so replies can point at the upgrade path.
@@ -84,11 +88,23 @@ class agent_access_service {
             return self::$fullaccess;
         }
 
-        // The license check is local and cheap and also carries the
-        // PHPUnit/Behat override, so it goes first.
-        self::$fullaccess = wb_license::agent_license_is_activated() || self::runs_on_wunderbyte_llm();
+        $fullaccess = self::is_test_run();
+        // BEGIN bundled-engine-only: the PRO license check (the local_wizard generator removes this block).
+        // The check is local and cheap, so it goes before the gateway lookup.
+        $fullaccess = $fullaccess || wb_license::agent_license_is_activated();
+        // END bundled-engine-only.
+        self::$fullaccess = $fullaccess || self::runs_on_wunderbyte_llm();
 
         return self::$fullaccess;
+    }
+
+    /**
+     * Whether this is a test run (PHPUnit or Behat), which always gets full access.
+     *
+     * @return bool
+     */
+    private static function is_test_run(): bool {
+        return (defined('BEHAT_SITE_RUNNING') && BEHAT_SITE_RUNNING) || (defined('PHPUNIT_TEST') && PHPUNIT_TEST);
     }
 
     /**

@@ -98,8 +98,8 @@ class get_option_details_skill extends booking_skill_base implements skill_trigg
             'description' => 'Full details of ONE named booking option (optionquery or optionid): dates, seats, price, teachers, '
                 . 'description, link. Reads via the booking option APIs.',
             'is' => 'One named booking option: dates, seats, price, teachers.',
-            'not' => 'A list of options (search_options); a taskflow rule of this name (local_taskflow.get_rule_details); '
-                . 'a course\'s contents (course.analyze_course_structure).',
+            'not' => 'Option lists (search_options); changing one (update_option); a taskflow rule '
+                . '(local_taskflow.get_rule_details); a course (course.analyze_course_structure).',
             'readonly' => $this->is_read_only(),
             'example_utterances' => [
                 'Show me the full details of the Spring Workshop',
@@ -107,6 +107,12 @@ class get_option_details_skill extends booking_skill_base implements skill_trigg
                 'Give me all the information about option 1422',
                 'How many seats are left in the cooking class?',
                 'Tell me everything about the First Aid Course',
+                // 2026-10-21 (Wunderbyte-GmbH#2685, session suite S4-3): a question which value ONE field of one option
+                // holds ("Welche Kostenstelle hast du eingetragen?") retrieved report and settings skills and never this
+                // one - the anchors above ask for the whole option, its price or its seats. Intent class "what is stored
+                // in field X of option Y", never the wording of the suite sentence.
+                'What did you enter as the location of the option you just created?',
+                'Which room is stored on the First Aid Course?',
             ],
             'properties' => [
                 'optionid' => [
@@ -625,6 +631,18 @@ class get_option_details_skill extends booking_skill_base implements skill_trigg
         if (isset($info['freeonwaitinglist'])) {
             // The value -1 is the sentinel for an unlimited waiting list; pass it through unchanged.
             $snapshot['waitinglist_free'] = (int)$info['freeonwaitinglist'];
+        }
+
+        // One sentence with each pool's own taken/free pair, shared with the waiting-list diagnosis (Ticket 2676):
+        // the raw figures alone were read as "3 of max 5 places taken" when waitinglist_free was 3 (S13-1, 28.10.).
+        if ($maxanswers > 0 && isset($info['maxoverbooking'])) {
+            $snapshot['capacity'] = diagnose_waitinglist_skill::capacity_line(
+                $booked,
+                (int)($info['reserved'] ?? 0),
+                (int)($info['waiting'] ?? 0),
+                $maxanswers,
+                (int)$info['maxoverbooking']
+            );
         }
 
         return $snapshot;

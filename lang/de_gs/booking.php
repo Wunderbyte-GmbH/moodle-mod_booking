@@ -54,6 +54,7 @@ $string['agent_booking_diagnose_reason_maxperuser_exceeded_other'] = 'Die ausgew
 $string['agent_booking_diagnose_reason_option_invisible'] = 'Diese Buchungsoption ist auf unsichtbar gestellt und für normale Nutzer/innen nicht sichtbar.';
 $string['agent_booking_diagnose_reason_option_invisible_other'] = 'Die ausgewählte Buchungsoption ist auf unsichtbar gestellt und für normale Nutzer/innen nicht sichtbar.';
 $string['agent_booking_resolve_user_ambiguous'] = 'Mehrere Nutzer/innen wurden gefunden: {$a}. Bitte geben Sie eine spezifischere Nutzerabfrage an (z. B. mit E-Mail oder Nutzer-ID).';
+$string['agent_booking_user_booked_completion_notonlist'] = 'Nutzer/in {$a} ist gebucht, steht aber nicht auf der Teilnehmerliste der Option, daher konnte der Abschluss nicht gesetzt werden.';
 $string['ai_property_bookuserscompleted'] = 'Nutzer/innen buchen: als abgeschlossen markieren';
 $string['ai_property_bookuserstimebooked'] = 'Nutzer/innen buchen: Buchungszeit';
 $string['ai_property_bookusersupdateexisting'] = 'Nutzer/innen buchen: bestehende Buchungen aktualisieren';
@@ -104,6 +105,16 @@ $string['bocondmaxnumberofbookingsfullnotavailable'] = 'Nutzer/in hat die max. B
 $string['bocondonnotifylistfullnotavailable'] = 'Ausgebucht - Nutzer/in ist auf der Benachrichtigungliste';
 $string['bocondonwaitinglistfullnotavailable'] = 'Nutzer/in ist auf der Warteliste';
 $string['bocondpreviouslybooked'] = 'Benutzer/in hat früher eine bestimmte Option gebucht';
+$string['bocondpreviouslybookedbookednotcompleted'] = 'Die Option <a href="{$a->url}">{$a->title}</a> ist gebucht, aber nicht abgeschlossen; nur Benutzer/innen, die sie abgeschlossen haben, dürfen buchen.';
+$string['bocondpreviouslybookedbookednotcompletedfull'] = 'Die Option <a href="{$a->url}">{$a->title}</a> ist gebucht, aber nicht abgeschlossen; nur Benutzer/innen, die sie abgeschlossen haben, dürfen buchen.
+ <br>Sie haben aber das Recht dennoch zu buchen.';
+$string['bocondpreviouslybookedcompletedfullnotavailable'] = 'Nur Benutzer/innen, die <a href="{$a->url}">{$a->title}</a> bereits abgeschlossen haben, dürfen buchen.
+ <br>Sie haben aber das Recht dennoch zu buchen.';
+$string['bocondpreviouslybookedcompletedfullnotavailableall'] = 'Nur Benutzer/innen, die alle folgenden Optionen bereits abgeschlossen haben, dürfen buchen: {$a}';
+$string['bocondpreviouslybookedcompletedfullnotavailableany'] = 'Nur Benutzer/innen, die zumindest eine der folgenden Optionen bereits abgeschlossen haben, dürfen buchen: {$a}';
+$string['bocondpreviouslybookedcompletednotavailable'] = 'Nur Benutzer/innen, die <a href="{$a->url}">{$a->title}</a> bereits abgeschlossen haben, dürfen buchen.';
+$string['bocondpreviouslybookedcompletednotavailableall'] = 'Nur Benutzer/innen, die alle folgenden Optionen bereits abgeschlossen haben, dürfen buchen: {$a}';
+$string['bocondpreviouslybookedcompletednotavailableany'] = 'Nur Benutzer/innen, die zumindest eine der folgenden Optionen bereits abgeschlossen haben, dürfen buchen: {$a}';
 $string['bocondpreviouslybookedfullnotavailable'] = 'Nur Benutzer/innen, die früher bereits <a href="{$a->url}">{$a->title}</a> gebucht haben, dürfen buchen.
  <br>Sie haben aber das Recht dennoch zu buchen.';
 $string['bocondpreviouslybookedfullnotavailableall'] = 'Nur Benutzer/innen, die früher bereits alle folgenden Optionen gebucht haben, dürfen buchen: {$a}';

@@ -277,7 +277,15 @@ class ai_send_message extends external_api {
         // Augment message with any file attachments (images → token hint, PDFs → extracted text).
         $attachmentlist = @json_decode($attachments, true);
         if (is_array($attachmentlist) && count($attachmentlist) > 0) {
-            $message = (new attachment_processor())->augment_message($message, $attachmentlist, (int)$USER->id, $contextid);
+            // The text of a PDF is masked like the message itself before it is stored and sent.
+            $message = (new attachment_processor())->augment_message(
+                $message,
+                $attachmentlist,
+                (int)$USER->id,
+                $contextid,
+                $anonymizer,
+                $threadid
+            );
         }
 
         $store->add_message($threadid, 'user', $message);

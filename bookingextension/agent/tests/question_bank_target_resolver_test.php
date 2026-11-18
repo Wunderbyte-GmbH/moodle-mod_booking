@@ -43,8 +43,14 @@ final class question_bank_target_resolver_test extends advanced_testcase {
         $resolver = new question_bank_target_resolver();
         $r1 = $resolver->resolve_for_context($ambient);
 
-        $this->assertInstanceOf(\context_module::class, $r1['context']);
-        $this->assertSame('qbank', $r1['cm']->modname);
+        if (\core_component::get_component_directory('mod_qbank') !== null) {
+            $this->assertInstanceOf(\context_module::class, $r1['context']);
+            $this->assertSame('qbank', $r1['cm']->modname);
+        } else {
+            // Moodle 4.5 has no mod_qbank: the course question bank is the target.
+            $this->assertInstanceOf(\context_course::class, $r1['context']);
+            $this->assertNull($r1['cm']);
+        }
         $this->assertSame((int)$course->id, (int)$r1['course']->id);
 
         $r2 = $resolver->resolve_for_context($ambient);
@@ -62,6 +68,7 @@ final class question_bank_target_resolver_test extends advanced_testcase {
         $page = $this->getDataGenerator()->create_module('page', ['course' => $course->id]);
         $ambient = \context_module::instance($page->cmid);
 
+        \bookingextension_agent\local\wizard\testing\mod_qbank_dependency::require_installed();
         $qbank = $this->getDataGenerator()->create_module('qbank', ['course' => $course->id]);
         $bankcontext = \context_module::instance($qbank->cmid);
         /** @var \core_question_generator $qgen */
@@ -94,6 +101,7 @@ final class question_bank_target_resolver_test extends advanced_testcase {
         $page = $this->getDataGenerator()->create_module('page', ['course' => $course->id]);
         $ambient = \context_module::instance($page->cmid);
 
+        \bookingextension_agent\local\wizard\testing\mod_qbank_dependency::require_installed();
         $qbank = $this->getDataGenerator()->create_module('qbank', ['course' => $course->id]);
         $bankcontext = \context_module::instance($qbank->cmid);
         /** @var \core_question_generator $qgen */
@@ -118,6 +126,7 @@ final class question_bank_target_resolver_test extends advanced_testcase {
         $this->setAdminUser();
 
         $course = $this->getDataGenerator()->create_course();
+        \bookingextension_agent\local\wizard\testing\mod_qbank_dependency::require_installed();
         $qbank = $this->getDataGenerator()->create_module('qbank', ['course' => $course->id]);
         $bankcontext = \context_module::instance($qbank->cmid);
         /** @var \core_question_generator $qgen */

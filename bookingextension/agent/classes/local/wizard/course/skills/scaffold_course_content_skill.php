@@ -115,6 +115,9 @@ class scaffold_course_content_skill extends core_skill_base implements skill_tri
             ['label' => 'Practice quizzes', 'value' => empty($input['practicequizzes']) ? 'no' : 'yes (per chapter)'],
             ['label' => 'Final quiz', 'value' => empty($input['finalquiz']) ? 'no' : 'yes (graded)'],
         ];
+        if (\bookingextension_agent\local\wizard\services\llm\llm_call_service::content_model_enabled()) {
+            $rows[] = ['label' => 'Content model', 'value' => 'enhanced (second model)'];
+        }
 
         return [
             'title' => 'Generate course content for "' . (string)($input['coursefullname'] ?? '') . '"',
@@ -429,6 +432,7 @@ class scaffold_course_content_skill extends core_skill_base implements skill_tri
         $chaptertitles = array_values((array)$outline['chapters']);
         $stages = [];
         $warnings = [];
+        $modelfallback = !empty($outlineresult['fallback']);
 
         // 2) Welcome section (section 0 keeps the course default name).
         $this->ensure_sections($course, count($chaptertitles) + 2);
@@ -464,6 +468,7 @@ class scaffold_course_content_skill extends core_skill_base implements skill_tri
                 count($chaptertitles),
                 $lang
             );
+            $modelfallback = $modelfallback || !empty($chapter['fallback']);
             $pagehtml = !empty($chapter['success'])
                 ? (string)$chapter['html']
                 : '<p>' . get_string('agent_scaffold_chapter_failed', 'bookingextension_agent') . '</p>';
@@ -500,8 +505,9 @@ class scaffold_course_content_skill extends core_skill_base implements skill_tri
             '',
             (string)($outline['summaryhtml'] ?? '<p></p>')
         );
+        $finalquizcount = 0;
         if (!empty($preparedinput['finalquiz'])) {
-            $questioncount += $this->create_generated_quiz(
+            $finalquizcount = $this->create_generated_quiz(
                 $course,
                 $closingsection,
                 (string)($outline['summarytitle'] ?? 'Final quiz'),
@@ -513,14 +519,21 @@ class scaffold_course_content_skill extends core_skill_base implements skill_tri
                 $ambient,
                 $warnings
             );
+            $questioncount += $finalquizcount;
         }
         $stages[] = 'closing section';
+        if ($modelfallback) {
+            $warnings[] = get_string('agent_contentmodel_fallback', 'bookingextension_agent');
+        }
 
         $courseurl = (new moodle_url('/course/view.php', ['id' => $courseid]))->out(false);
+        // The planner may hold a separate "add quiz questions" step: the observation says the quiz is done.
         $detail = 'Course content created in "' . $course->fullname . '" (id=' . $courseid . ', '
             . count($chaptertitles) . ' chapters'
             . ($questioncount > 0 ? ', ' . $questioncount . ' quiz question(s) created' : '')
             . ', link=' . $courseurl . ').'
+            . ($finalquizcount > 0 ? ' The graded final quiz is complete (' . $finalquizcount
+                . ' questions); no separate quiz step is needed.' : '')
             . (empty($warnings) ? '' : ' WARNINGS: ' . implode(' | ', $warnings));
 
         return [

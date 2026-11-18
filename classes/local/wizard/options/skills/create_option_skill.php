@@ -20,6 +20,7 @@ use mod_booking\local\wizard\booking\booking_skill_mutation_execute_service;
 use mod_booking\local\wizard\booking\booking_skill_support;
 use mod_booking\local\wizard\booking\support\booking_mutation_validation;
 use mod_booking\local\wizard\booking\support\entity_location;
+use mod_booking\local\wizard\booking\support\option_field_values;
 use mod_booking\local\wizard\engine\queue_identity_provider_interface;
 use mod_booking\local\wizard\engine\skill_trigger_provider_interface;
 use mod_booking\local\wizard\engine\module_targeted_skill;
@@ -140,8 +141,13 @@ class create_option_skill extends booking_skill_base implements
      */
     protected static function describe_scoped_creation_fields(array $properties): array {
         if (isset($properties['text'])) {
-            $properties['text']['description'] = 'Title in the user\'s language, taken from their own words for what '
-                . 'is offered (what it is, for whom or when if they say). Ask only if they say nothing of it.';
+            $properties['text']['description'] = 'Title in the user\'s words and language; ONE event only, with its own '
+                . 'number if they number them, never a list of titles. Ask only if nothing says it.';
+        }
+        if (isset($properties['optiondates'])) {
+            // Ticket #2762: n separately bookable events are n options; the sessions list belongs to ONE option.
+            $properties['optiondates']['description'] = 'Sessions of THIS one option as {coursestarttime, courseendtime} '
+                . 'pairs (ISO 8601). Separately bookable events are separate options: only this one\'s own date.';
         }
         if (isset($properties['activityquery'])) {
             // The phrase "In this or an earlier message" is constructor RULES 1 (frozen prompts); not repeated here.
@@ -164,8 +170,8 @@ class create_option_skill extends booking_skill_base implements
         $properties = array_merge([
             'text' => [
                 'type' => 'string',
-                'description' => 'Title in the user\'s language, taken from their own words for what is offered (what it is, '
-                    . 'for whom or when if they say). Ask only if they say nothing of it.',
+                'description' => 'Title in the user\'s words and language; ONE event only, with its own number if they '
+                    . 'number them, never a list of titles. Ask only if nothing says it.',
                 'required' => true,
             ],
             'override' => [
@@ -215,19 +221,26 @@ class create_option_skill extends booking_skill_base implements
             // option fields so parameter construction faces a small, unambiguous schema. The ~70
             // inherited availability/condition fields (cohort/competency/userprofile/customform/…)
             // overwhelm the constructor and are rarely expressed at create time — they can be set
-            // afterwards via update_option. optiontype is set internally and stripped in
-            // check_structure, so it is intentionally NOT prompt-facing.
+            // afterwards via update_option. location/address stay in: a room named in the request or
+            // stored as a default otherwise lands in the description while the card promises it
+            // (#2678). optiontype is set internally and stripped in check_structure, so it is
+            // intentionally NOT prompt-facing.
             // headerimage_token IS prompt-facing: the shared execute service
             // (booking_skill_mutation_execute_service::apply_headerimage_token_to_data) already
             // maps an attachment token to the option header image at create time, so "create it
             // with this image" is a supported request — not an invented key.
             $allowed = array_flip([
-                'text', 'description', 'coursestarttime', 'courseendtime', 'optiondates', 'optiondatesmode',
+                'text', 'description', 'location', 'address', 'optionfields', 'coursestarttime', 'courseendtime',
+                'optiondates', 'optiondatesmode',
                 'maxanswers', 'teacherquery', 'teacheremail', 'prices',
                 'bookingopeningtime', 'bookingclosingtime', 'maxoverbooking',
                 'override', 'outputlang', 'activityquery', 'cmid', 'linkedcoursequery', 'headerimage_token',
             ]);
             $properties = array_intersect_key($properties, $allowed);
+            // Ticket #2762: the sessions list belongs to ONE option booked once; n separately bookable events are n
+            // options, each with its own date (same text as describe_scoped_creation_fields() for the siblings).
+            $properties['optiondates']['description'] = 'Sessions of THIS one option as {coursestarttime, courseendtime} '
+                . 'pairs (ISO 8601). Separately bookable events are separate options: only this one\'s own date.';
         }
 
         $schema = [
@@ -241,7 +254,12 @@ class create_option_skill extends booking_skill_base implements
                 . 'event series with fixed start/end times, numbered titles (for example "Lecture 1, Lecture 2, ..."), trainer '
                 . 'assignment, and capacity. New options are created as invisible by default and can be made visible later via '
                 . 'update.',
-            'is' => 'Options with fixed dates and times, including recurring series.',
+            'is' => 'Options with fixed dates and times; one option per separately bookable event, a series booked once '
+                . 'as one option with several dates.',
+            // Ticket #2762: the selector plans one create step per separately bookable event (planned_steps),
+            // instead of folding n numbered events into the sessions of one option.
+            'when' => 'A series booked once is ONE option, no planned steps. For n events booked one by one (one per '
+                . 'weekday): the first is this step, the others planned steps named with number and date.',
             'not' => 'Slots (create_slotbooking_option); self-paced offers (create_selflearning_option); a price category '
                 . '(add_price_category); a course (course.create_course).',
             'readonly' => $this->is_read_only(),
@@ -269,8 +287,8 @@ class create_option_skill extends booking_skill_base implements
         return [
             [
                 'id' => 'mod_booking.create_option_canonical_fallback',
-                'description' => 'The user wants a normal dated booking option, or a numbered weekday series of dated events,'
-                    . ' created in this booking instance.',
+                'description' => 'The user wants a normal dated booking option created in this booking instance: one event,'
+                    . ' or a series booked once as one option with several dates.',
             ],
             [
                 'id' => 'mod_booking.force_create_duplicate_title',
@@ -977,12 +995,29 @@ class create_option_skill extends booking_skill_base implements
             $resolvedtype = 'normal';
         }
 
+        // Ticket #2762: a step of a multi-step plan that carries several sessions has most likely been given the
+        // dates of other steps too ("one event per weekday" read as the sessions of each option; thread 9104 got
+        // four of five). With exactly one session per plan step, each on a day of its own, the step number is
+        // engine state and decides: step n keeps session n (thread 9232: the re-planned construction repeated the
+        // same five dates, so the question always reached the user); the confirmation card shows the date.
+        // In every other case which date belongs to which step is not engine state, so the skill offers the
+        // sessions as a choice (P6a) instead of guessing or creating the option with every date. The override
+        // all_sessions keeps them all on this step when a series inside a plan really is one option.
+        $ownsession = $this->plan_step_own_session($input, $overrides);
+        if ($ownsession !== null) {
+            $input['optiondates'] = [$ownsession];
+        }
+        $choice = $this->plan_step_sessions_choice($input, $overrides, $lang);
+        if ($choice !== null) {
+            return $this->invalid([$choice]);
+        }
+
         // Intentionally no required-field preflight beyond title.
         // Missing teacher/location/schedule/capacity must not block creation.
 
         // Slot-booking sanity (soft issues only).
         if ($resolvedtype === 'slotbooking') {
-            $slotissues = self::validate_slotbooking_sanity($input);
+            $slotissues = $this->validate_slotbooking_sanity($input, $lang);
             if (!empty($slotissues)) {
                 $issues = array_merge($issues, $slotissues);
             }
@@ -1007,6 +1042,16 @@ class create_option_skill extends booking_skill_base implements
         // save carry the entity link (the form clears location/address without it, #2417); an unknown
         // name is a clarification with the entities as remedies. Without local_entities the free-text
         // location keeps its soft-confirmation.
+        // Option field values are resolved before the card; an unknown field or value is a clarification (#2680).
+        $fieldissue = option_field_values::preflight_issue(
+            $input,
+            fn(string $id, $a): string => $this->localized_string($id, $a, $lang)
+        );
+        if ($fieldissue !== null) {
+            $issues[] = $fieldissue;
+            return $this->invalid($issues);
+        }
+
         $allowemptylocation = in_array('location', $overrides, true) || in_array('address', $overrides, true);
         if (entity_location::installed()) {
             $entityissue = entity_location::preflight_issue(
@@ -1268,9 +1313,10 @@ class create_option_skill extends booking_skill_base implements
      * Only checks things that cannot be expressed as hard validation errors.
      *
      * @param array $input
+     * @param string $lang Output language of the question (empty: current language).
      * @return array Array of issues.
      */
-    private static function validate_slotbooking_sanity(array $input): array {
+    private function validate_slotbooking_sanity(array $input, string $lang): array {
         $issues = [];
 
         // Check: slot_duration_minutes covers the entire daily window → only 1 slot per day.
@@ -1286,11 +1332,16 @@ class create_option_skill extends booking_skill_base implements
             if ($windowmins > 0 && $slotmins >= $windowmins) {
                 $issues[] = self::build_issue(
                     'SLOTBOOKING_DURATION_EQUALS_WINDOW',
-                    'The slot duration (' . $slotmins . ' min) covers the entire availability window '
-                        . $input['slot_opening_time'] . '-' . $input['slot_closing_time']
-                        . ' (' . $windowmins . ' min), which would create only 1 slot per day. '
-                        . 'Did you mean a shorter slot duration (e.g. 30 minutes), '
-                        . 'or do you really want just 1 slot covering the whole window?',
+                    $this->localized_string(
+                        'agent_booking_create_slotbooking_duration_equals_window',
+                        (object)[
+                            'slotminutes' => $slotmins,
+                            'opening' => (string)$input['slot_opening_time'],
+                            'closing' => (string)$input['slot_closing_time'],
+                            'windowminutes' => $windowmins,
+                        ],
+                        $lang
+                    ),
                     ['SET_SHORTER_SLOT_DURATION', 'CONFIRM_SINGLE_SLOT_PER_DAY']
                 );
             }
@@ -1467,6 +1518,99 @@ class create_option_skill extends booking_skill_base implements
         }
 
         return trim((string)$value) !== '';
+    }
+
+    /**
+     * The session of a plan step when the step carries exactly one session per plan step (#2762).
+     *
+     * Structural check only: the engine's plan step ({@see base_skill::plan_step()}) says this command is step
+     * index of total. If the input has exactly total sessions and they lie on total different days, the sessions
+     * in the order of their start are the events of the plan in the order of its steps, and step index keeps
+     * session index. Any other count, two sessions on one day, an unreadable start or the override all_sessions
+     * leave the input as it is (the choice below then asks).
+     *
+     * @param array $input Normalized input.
+     * @param string[] $overrides Normalized override tokens.
+     * @return array|null The session of this step, or null.
+     */
+    private function plan_step_own_session(array $input, array $overrides): ?array {
+        $planstep = method_exists($this, 'plan_step') ? $this->plan_step() : [];
+        $total = (int)($planstep['total'] ?? 0);
+        $index = (int)($planstep['index'] ?? 0);
+        $sessions = isset($input['optiondates']) && is_array($input['optiondates']) ? array_values($input['optiondates']) : [];
+        if ($total < 2 || $index < 1 || $index > $total || count($sessions) !== $total) {
+            return null;
+        }
+        if (in_array('all_sessions', $overrides, true)) {
+            return null;
+        }
+        $bystart = [];
+        $days = [];
+        foreach ($sessions as $session) {
+            $start = is_array($session) ? strtotime(trim((string)($session['coursestarttime'] ?? ''))) : false;
+            if ($start === false || isset($bystart[$start])) {
+                return null;
+            }
+            $bystart[$start] = $session;
+            $days[date('Y-m-d', $start)] = true;
+        }
+        if (count($days) !== $total) {
+            return null;
+        }
+        ksort($bystart);
+        return array_values($bystart)[$index - 1];
+    }
+
+    /**
+     * The sessions of a plan step as a choice when the step carries more than one session (#2762).
+     *
+     * Structural check only: the engine's plan step ({@see base_skill::plan_step()}) says this command is step
+     * index of total; if total is above one and the input has more than one session, the user (through the
+     * planner) picks the session of this step, or keeps all of them with the override all_sessions. Outside a
+     * plan, with a single session, or with the override, nothing is asked.
+     *
+     * @param array $input Normalized input.
+     * @param string[] $overrides Normalized override tokens.
+     * @param string $lang Output language.
+     * @return array|null The clarification issue with candidates, or null.
+     */
+    private function plan_step_sessions_choice(array $input, array $overrides, string $lang): ?array {
+        $planstep = method_exists($this, 'plan_step') ? $this->plan_step() : [];
+        $total = (int)($planstep['total'] ?? 0);
+        $sessions = isset($input['optiondates']) && is_array($input['optiondates']) ? array_values($input['optiondates']) : [];
+        if ($total < 2 || count($sessions) < 2 || in_array('all_sessions', $overrides, true)) {
+            return null;
+        }
+        $candidates = [];
+        foreach ($sessions as $i => $session) {
+            $start = trim((string)(is_array($session) ? ($session['coursestarttime'] ?? '') : ''));
+            $end = trim((string)(is_array($session) ? ($session['courseendtime'] ?? '') : ''));
+            $candidates[] = [
+                'id' => 'session_' . ($i + 1),
+                'label' => $start . ($end !== '' ? ' - ' . $end : ''),
+                'coursestarttime' => $start,
+                'courseendtime' => $end,
+            ];
+        }
+        $candidates[] = [
+            'id' => 'all_sessions',
+            'label' => $this->localized_string('agent_booking_create_option_plan_step_all_sessions', null, $lang),
+        ];
+        $a = (object)['index' => (int)($planstep['index'] ?? 0), 'total' => $total, 'count' => count($sessions)];
+        $question = $this->localized_string('agent_booking_create_option_plan_step_sessions_question', $a, $lang);
+        return [
+            'code'          => 'OPTIONDATES_PLAN_STEP_CHOICE',
+            'severity'      => 'needs_clarification',
+            'message'       => $question,
+            'user_question' => $question,
+            'field'         => 'optiondates',
+            'candidates'    => $candidates,
+            // Planner-only repair channel (F3): how to apply the choice to the canonical field.
+            'repair'        => 'This command is step ' . $a->index . ' of ' . $total . ' of the plan and carries '
+                . $a->count . ' sessions. Put the chosen session into optiondates as its '
+                . '{coursestarttime, courseendtime} pair; if all sessions belong to this step, keep them and add '
+                . '"all_sessions" to override.',
+        ];
     }
 
     /**

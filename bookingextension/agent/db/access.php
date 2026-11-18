@@ -115,29 +115,39 @@ $capabilities = [
 // moved to mod_booking (their capabilities are mod/booking:skill_mod_booking_* in that
 // plugin's access.php), and the example skills were removed; dropping the definitions makes
 // capabilities_cleanup() delete the stale capabilities from upgraded sites automatically.
+// Every skill declares its own capability type and risks ([context level, captype, riskbitmask]): admins grant
+// capabilities by the risk icons of the roles page, so the flags state what the skill does, nothing more
+// (ticket 2779: a shared default had put data loss and XSS on every skill). captype is read for a read-only
+// skill. Risks follow Moodle's meaning and the native capability the skill needs at Gate 2: RISK_PERSONAL
+// where the skill shows personal data of other users, RISK_XSS where it stores text as content of a course
+// (as moodle/course:manageactivities), RISK_SPAM where it creates content or mail others receive (as
+// moodle/question:add), RISK_CONFIG for site-wide configuration. No skill of this plugin destroys content.
+// Pinned by tests/skill_capability_risk_test.php.
 $teacherskills = [
-    'core_diagnose_notifications' => CONTEXT_SYSTEM,
-    'core_diagnose_permissions' => CONTEXT_SYSTEM,
-    'core_find_content' => CONTEXT_SYSTEM,
-    'core_get_current_user' => CONTEXT_SYSTEM,
-    'core_search_users' => CONTEXT_SYSTEM,
-    'course_add_activity' => CONTEXT_COURSE,
-    'course_add_quiz' => CONTEXT_COURSE,
-    'course_analyze_course_structure' => CONTEXT_COURSE,
-    'course_diagnose_user_in_course' => CONTEXT_COURSE,
-    'course_enrol_user' => CONTEXT_COURSE,
+    'core_diagnose_notifications' => [CONTEXT_SYSTEM, 'read', RISK_PERSONAL],
+    'core_diagnose_permissions' => [CONTEXT_SYSTEM, 'read', RISK_PERSONAL],
+    'core_find_content' => [CONTEXT_SYSTEM, 'read', 0],
+    'core_get_current_user' => [CONTEXT_SYSTEM, 'read', 0],
+    'core_search_users' => [CONTEXT_SYSTEM, 'read', RISK_PERSONAL],
+    'course_add_activity' => [CONTEXT_COURSE, 'write', RISK_XSS],
+    'course_add_quiz' => [CONTEXT_COURSE, 'write', RISK_SPAM | RISK_XSS],
+    'course_analyze_course_structure' => [CONTEXT_COURSE, 'read', 0],
+    'course_diagnose_user_in_course' => [CONTEXT_COURSE, 'read', RISK_PERSONAL],
+    'course_enrol_user' => [CONTEXT_COURSE, 'write', 0],
     // Lists all course categories visible to the user (site-wide read).
-    'course_list_categories' => CONTEXT_SYSTEM,
-    'course_scaffold_course_content' => CONTEXT_COURSE,
+    'course_list_categories' => [CONTEXT_SYSTEM, 'read', 0],
+    'course_scaffold_course_content' => [CONTEXT_COURSE, 'write', RISK_SPAM | RISK_XSS],
     // Searches across all courses on the site.
-    'course_search_courses' => CONTEXT_SYSTEM,
-    'course_update_activity' => CONTEXT_COURSE,
-    'course_update_quiz' => CONTEXT_COURSE,
-    'question_generate_questions' => CONTEXT_COURSE,
-    'wizard_explain_docs' => CONTEXT_SYSTEM,
-    'wizard_list_skills' => CONTEXT_SYSTEM,
-    'wizard_recall_memory' => CONTEXT_SYSTEM,
-    'wizard_scaffold_skill' => CONTEXT_SYSTEM,
+    'course_search_courses' => [CONTEXT_SYSTEM, 'read', 0],
+    'course_update_activity' => [CONTEXT_COURSE, 'write', RISK_XSS],
+    'course_update_quiz' => [CONTEXT_COURSE, 'write', RISK_SPAM | RISK_XSS],
+    'question_generate_questions' => [CONTEXT_COURSE, 'write', RISK_SPAM | RISK_XSS],
+    'wizard_explain_docs' => [CONTEXT_SYSTEM, 'read', 0],
+    'wizard_list_skills' => [CONTEXT_SYSTEM, 'read', 0],
+    // The user's own earlier conversation.
+    'wizard_recall_memory' => [CONTEXT_SYSTEM, 'read', 0],
+    // Returns a downloadable template, writes nothing to the site.
+    'wizard_scaffold_skill' => [CONTEXT_SYSTEM, 'read', 0],
 ];
 
 $managerskills = [
@@ -145,40 +155,46 @@ $managerskills = [
     // capability is manager-only (fail-closed; Gate 2 additionally requires
     // moodle/course:create at the resolved category). Declared at CONTEXT_SYSTEM because the
     // category is resolved in preflight, not from the thread context.
-    'course_create_course' => CONTEXT_SYSTEM,
+    'course_create_course' => [CONTEXT_SYSTEM, 'write', RISK_XSS],
     // Moodle Report Builder family (report.*): custom reports live in the system context and
     // core grants moodle/reportbuilder:view/edit to managers only, so the skill capabilities
     // mirror that (fail-closed; Gate 2 additionally requires the native reportbuilder
-    // capabilities and core_reportbuilder\permission checks for the acting user).
-    'report_create_report' => CONTEXT_SYSTEM,
-    'report_describe_report_source' => CONTEXT_SYSTEM,
-    'report_get_report_details' => CONTEXT_SYSTEM,
-    'report_list_report_sources' => CONTEXT_SYSTEM,
-    'report_query_report' => CONTEXT_SYSTEM,
-    'report_schedule_report' => CONTEXT_SYSTEM,
-    'report_search_reports' => CONTEXT_SYSTEM,
-    'report_set_report_audience' => CONTEXT_SYSTEM,
-    'report_update_report' => CONTEXT_SYSTEM,
+    // capabilities and core_reportbuilder\permission checks for the acting user). A report shows
+    // rows about other users, so every skill that shows, defines or shares report data carries
+    // RISK_PERSONAL; the two source skills only describe datasources.
+    'report_create_report' => [CONTEXT_SYSTEM, 'write', RISK_PERSONAL],
+    'report_describe_report_source' => [CONTEXT_SYSTEM, 'read', 0],
+    'report_get_report_details' => [CONTEXT_SYSTEM, 'read', RISK_PERSONAL],
+    'report_list_report_sources' => [CONTEXT_SYSTEM, 'read', 0],
+    'report_query_report' => [CONTEXT_SYSTEM, 'read', RISK_PERSONAL],
+    // Sends the report by mail to its audiences.
+    'report_schedule_report' => [CONTEXT_SYSTEM, 'write', RISK_PERSONAL | RISK_SPAM],
+    'report_search_reports' => [CONTEXT_SYSTEM, 'read', 0],
+    'report_set_report_audience' => [CONTEXT_SYSTEM, 'write', RISK_PERSONAL],
+    'report_update_report' => [CONTEXT_SYSTEM, 'write', RISK_PERSONAL],
     // Rebuilds the site-global skill-catalog embeddings (cost-bearing) — manager/admin only,
     // not teacher-grantable (audit CAP-03). Execution additionally requires moodle/site:config
     // via the skill's native capability (Gate 2).
-    'wizard_recreate_skill_catalog' => CONTEXT_SYSTEM,
+    'wizard_recreate_skill_catalog' => [CONTEXT_SYSTEM, 'write', RISK_CONFIG],
 ];
 
-// Authorized-user skills: act only on the acting user's own data (e.g. their stored agent
-// memories), so any authenticated user permitted to use the agent may run them.
+// Authorized-user skills: act only on the acting user's own data (their stored agent memories), so any
+// authenticated user permitted to use the agent may run them, and they carry no risk.
 $authorizeduserskills = [
-    'wizard_forget' => CONTEXT_SYSTEM,
-    'wizard_list_memories' => CONTEXT_SYSTEM,
-    'wizard_remember' => CONTEXT_SYSTEM,
+    'wizard_forget' => [CONTEXT_SYSTEM, 'write', 0],
+    'wizard_list_memories' => [CONTEXT_SYSTEM, 'read', 0],
+    'wizard_remember' => [CONTEXT_SYSTEM, 'write', 0],
 ];
 
-$buildskillcapability = static function (string $skillsuffix, string $role, int $contextlevel): array {
+$buildskillcapability = static function (string $skillsuffix, string $role, array $declaration): array {
+    [$contextlevel, $captype, $riskbitmask] = $declaration;
     $definition = [
-        'riskbitmask' => RISK_DATALOSS | RISK_XSS,
-        'captype' => 'write',
+        'captype' => $captype,
         'contextlevel' => $contextlevel,
     ];
+    if ($riskbitmask !== 0) {
+        $definition['riskbitmask'] = $riskbitmask;
+    }
 
     if ($role === 'teacher') {
         $definition['archetypes'] = [
@@ -201,8 +217,8 @@ $buildskillcapability = static function (string $skillsuffix, string $role, int 
     return ['bookingextension/agent:skill_' . $skillsuffix => $definition];
 };
 
-foreach ($teacherskills as $skillsuffix => $contextlevel) {
-    $capabilities += $buildskillcapability($skillsuffix, 'teacher', $contextlevel);
+foreach ($teacherskills as $skillsuffix => $declaration) {
+    $capabilities += $buildskillcapability($skillsuffix, 'teacher', $declaration);
 }
 
 // Read-only discovery fallback: every agent user holds it; admins can still withdraw per role.
@@ -217,12 +233,12 @@ $capabilities['bookingextension/agent:skill_wizard_search_skills'] = [
     ],
 ];
 
-foreach ($managerskills as $skillsuffix => $contextlevel) {
-    $capabilities += $buildskillcapability($skillsuffix, 'manager', $contextlevel);
+foreach ($managerskills as $skillsuffix => $declaration) {
+    $capabilities += $buildskillcapability($skillsuffix, 'manager', $declaration);
 }
 
-foreach ($authorizeduserskills as $skillsuffix => $contextlevel) {
-    $capabilities += $buildskillcapability($skillsuffix, 'authorizeduser', $contextlevel);
+foreach ($authorizeduserskills as $skillsuffix => $declaration) {
+    $capabilities += $buildskillcapability($skillsuffix, 'authorizeduser', $declaration);
 }
 
 // Benchmark capabilities.

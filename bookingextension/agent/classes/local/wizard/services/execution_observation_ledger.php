@@ -135,6 +135,9 @@ class execution_observation_ledger {
                 // Engine-generated instructional observations (duck-typed result flag,
                 // e.g. wizard.search_skills catalog text) are exempt from anonymization.
                 'engine_static' => !empty($entry['observation_engine_static']),
+                // The persons the skill declared for its observation (Wunderbyte-GmbH#2614), null when undeclared:
+                // the runtime context masks a declared row for exactly these, never with the single-word guess.
+                'declared_persons' => \bookingextension_agent\local\wizard\privacy_anonymizer::declared_persons_of($entry),
                 'created_at' => $now,
             ];
 
@@ -211,6 +214,9 @@ class execution_observation_ledger {
             }
             if (!empty($entry['engine_static'])) {
                 $row['engine_static'] = true;
+            }
+            if (is_array($entry['declared_persons'] ?? null)) {
+                $row['declared_persons'] = array_values(array_map('intval', (array)$entry['declared_persons']));
             }
             if ($withcreated) {
                 $row['_created_at'] = (int)($entry['created_at'] ?? 0);

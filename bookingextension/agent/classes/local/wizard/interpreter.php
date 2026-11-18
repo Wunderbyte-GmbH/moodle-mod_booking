@@ -459,7 +459,8 @@ class interpreter implements agent_interpreter {
 
         if (in_array($responsetype, ['clarification', 'confirm_pending', 'sufficient', 'error'], true)) {
             $message = $this->safe_string($parsed['message'] ?? '');
-            if ($responsetype !== 'sufficient' && $message === '') {
+            // The selector contract sends confirm_pending with an empty message; the runtime fills it.
+            if (!in_array($responsetype, ['sufficient', 'confirm_pending'], true) && $message === '') {
                 return $this->error_result_with_issue_code(
                     'Selection phase returned an empty message for non-sufficient response_type.',
                     'CONTRACT_EMPTY_SELECTION_MESSAGE'

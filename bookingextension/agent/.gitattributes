@@ -1,0 +1,6 @@
+# The embeddings fixtures and the two tests that cannot run without them stay out of the release package.
+tests/agent/fixtures/skill_catalog_embeddings__*.f16 export-ignore
+tests/agent/fixtures/skill_catalog_embeddings__*.json export-ignore
+tests/agent/fixtures/routing_guard export-ignore
+tests/agent/routing_guard_test.php export-ignore
+tests/agent/skill_catalog_embeddings_readiness_test.php export-ignore

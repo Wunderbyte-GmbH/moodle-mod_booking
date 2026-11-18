@@ -77,6 +77,17 @@ class pending_intent_service {
     }
 
     /**
+     * Give a consumed intent back unchanged when nothing ran on it.
+     *
+     * @param int $threadid
+     * @param array $pendingintent
+     * @return void
+     */
+    public function restore(int $threadid, array $pendingintent): void {
+        $this->store->restore_pending_intent($threadid, $pendingintent);
+    }
+
+    /**
      * Persist a pending intent and return confirmation code.
      *
      * @param int $threadid

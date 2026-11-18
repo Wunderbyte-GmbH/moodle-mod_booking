@@ -273,7 +273,8 @@ final class readonly_preflight_runs_before_execution_test extends abstract_agent
 
         $this->assertNotSame('clarification', (string)($decision['response_type'] ?? ''), json_encode($decision));
         $this->assertSame(1, $DB->count_records('bx_agent_ai_runs', ['threadid' => $threadid]));
-        $run = reset($DB->get_records('bx_agent_ai_runs', ['threadid' => $threadid]));
+        $runs = $DB->get_records('bx_agent_ai_runs', ['threadid' => $threadid]);
+        $run = reset($runs);
         $this->assertStringNotContainsString('"error"', (string)$run->resultsjson, 'the skill ran cleanly');
     }
 }

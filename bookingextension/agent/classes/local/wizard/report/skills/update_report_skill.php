@@ -20,6 +20,7 @@ use bookingextension_agent\local\wizard\dto\skill_risk_class;
 use bookingextension_agent\local\wizard\interfaces\skill_trigger_provider_interface;
 use bookingextension_agent\local\wizard\services\reportbuilder\report_definition_service;
 use bookingextension_agent\local\wizard\services\reportbuilder\report_preview_renderer;
+use core_reportbuilder\datasource;
 use core_reportbuilder\local\models\report;
 use core_reportbuilder\manager;
 use core_reportbuilder\permission;
@@ -343,7 +344,10 @@ class update_report_skill extends report_skill_base implements skill_trigger_pro
                 'label' => $column['heading'] !== '' ? $column['heading'] : $column['title']];
         }
 
-        $adds = $service->normalize_columns($instance, (array)($input['add_columns'] ?? []));
+        $adds = $service->normalize_columns(
+            $instance,
+            $this->resolve_column_identifiers($instance, (array)($input['add_columns'] ?? []))
+        );
         if ($adds['problem'] !== null) {
             return $this->definition_problem_clarification($adds['problem'], $lang);
         }
@@ -594,6 +598,48 @@ class update_report_skill extends report_skill_base implements skill_trigger_pro
             }
         }
         return null;
+    }
+
+    /**
+     * Columns whose identifier the source does not offer are matched against the source's available columns by
+     * their tokens (entity, identifier, label); only an identifier every token of which points at ONE column is
+     * replaced ("user:email_address" -> user:email). Anything else stays as written and ends in the clarification
+     * with candidates (#2763, demo2 thread 21: "enrol:enrolmentdate" for enrolment:timecreated).
+     *
+     * @param datasource $instance
+     * @param array $columns add_columns as given (strings or {identifier, ...} rows)
+     * @return array
+     */
+    private function resolve_column_identifiers(datasource $instance, array $columns): array {
+        $available = null;
+        foreach ($columns as $index => $spec) {
+            $identifier = is_string($spec) ? trim($spec) : trim((string)((array)$spec)['identifier'] ?? '');
+            if ($identifier === '') {
+                continue;
+            }
+            $column = $instance->get_column($identifier);
+            if ($column !== null && $column->get_is_available()) {
+                continue;
+            }
+            if ($available === null) {
+                $available = [];
+                foreach ($instance->get_columns() as $candidate) {
+                    if ($candidate->get_is_available()) {
+                        $available[] = ['id' => $candidate->get_unique_identifier(), 'label' => $candidate->get_title()];
+                    }
+                }
+            }
+            $resolved = self::resolve_choice($identifier, $available);
+            if ($resolved === null) {
+                continue;
+            }
+            if (is_string($spec)) {
+                $columns[$index] = $resolved;
+            } else if (is_array($spec)) {
+                $columns[$index]['identifier'] = $resolved;
+            }
+        }
+        return $columns;
     }
 
     /**

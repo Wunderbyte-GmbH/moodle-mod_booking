@@ -1,0 +1,29 @@
+{{!
+    Green box on the AI setup screen after the trial was activated: a short confirmation and a button
+    that opens the wizard.
+
+    Rendered by aiinstructions.js into the setup result area.
+
+    @template bookingextension_agent/setup_ready
+
+    @package    bookingextension_agent
+    @copyright  2026 Wunderbyte GmbH <info@wunderbyte.at>
+    @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+
+    Context variables required for this template:
+    * heading - Bold first words of the confirmation.
+    * body - The rest of the confirmation text.
+    * openlabel - Label of the button that opens the wizard.
+
+    Example context (json):
+    {
+        "heading": "Ready.",
+        "body": "AI is now active for this course.",
+        "openlabel": "Open the wizard"
+    }
+}}
+<div class="alert alert-success mb-0">
+    <i class="fa fa-check-circle mr-2" aria-hidden="true"></i><strong>{{heading}}</strong> {{body}}<div class="mt-2">
+        <button type="button" id="booking-ai-open-agent-btn" class="btn btn-primary btn-sm">{{openlabel}}</button>
+    </div>
+</div>

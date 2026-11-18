@@ -19,6 +19,7 @@ namespace mod_booking\local\wizard\options\skills;
 use mod_booking\local\wizard\booking\booking_skill_mutation_execute_service;
 use mod_booking\local\wizard\booking\booking_skill_support;
 use mod_booking\local\wizard\booking\support\entity_location;
+use mod_booking\local\wizard\booking\support\option_field_values;
 use mod_booking\local\wizard\engine\queue_identity_provider_interface;
 use mod_booking\local\wizard\engine\skill_trigger_provider_interface;
 
@@ -157,10 +158,11 @@ class bulk_update_options_skill extends booking_skill_base implements
         return [
             'version' => 1,
             // First 240 characters = selector window (#2423, BU-1 "all cooking classes get 18 seats").
-            'description' => 'CHANGE fields (maxanswers seats, prices, visibility, location, dates) on MANY booking options at '
+            'description' => 'CHANGE fields (maxanswers seats, prices, visibility, location, dates, option fields) on MANY '
+                . 'booking options at '
                 . 'once, selected by optionquery (e.g. all cooking classes), optionids or apply_to_all. All provided fields are '
                 . 'applied to every matched option.',
-            'when' => 'The user wants the same fields changed on many booking options at once.',
+            'when' => 'The user wants the same fields changed on many booking options at once, or only where a field is empty.',
             'is' => 'Many options in one call.',
             'not' => 'One single option (update_option).',
             'readonly' => $this->is_read_only(),
@@ -172,6 +174,7 @@ class bulk_update_options_skill extends booking_skill_base implements
                 'Increase the capacity of all workshops to 25 seats',
                 'Make all options visible at once',
                 'Change the teacher for every Tuesday class in one go',
+                'Set the course format to online on every option where it is still empty',
             ],
             'properties' => array_merge([
                 'optionids' => [
@@ -195,6 +198,12 @@ class bulk_update_options_skill extends booking_skill_base implements
                     'type' => 'boolean',
                     'description' => 'Set to true to update ALL options in this booking instance. '
                         . 'Must be set when neither optionids nor optionquery is provided.',
+                    'required' => false,
+                ],
+                'optionfield_empty' => [
+                    'type' => 'string',
+                    'description' => 'Key of a booking option field: only the options where this field has no value yet; '
+                        . 'on its own it means every option of this instance.',
                     'required' => false,
                 ],
                 'outputlang' => [
@@ -250,7 +259,7 @@ class bulk_update_options_skill extends booking_skill_base implements
      */
     private const BULK_CONTROL_KEYS = [
         'optionids', 'resolvedoptionids', 'optionquery', 'activityquery', 'optionwhen', 'apply_to_all',
-        'outputlang', 'override',
+        'optionfield_empty', 'outputlang', 'override',
     ];
 
     /**
@@ -267,8 +276,11 @@ class bulk_update_options_skill extends booking_skill_base implements
             && count($input['optionids']) > 0;
         $hasquery = !empty($input['optionquery']) && trim((string)$input['optionquery']) !== '';
         $applyall = !empty($input['apply_to_all']);
+        // The empty-field scope is a selector of its own: every option of the instance where the field
+        // has no value (#2680, the constructor sends exactly that for "bei allen, bei denen X leer ist").
+        $hasemptyfield = trim((string)($input['optionfield_empty'] ?? '')) !== '';
 
-        if (!$hasids && !$hasquery && !$applyall) {
+        if (!$hasids && !$hasquery && !$applyall && !$hasemptyfield) {
             return [
                 'valid'  => false,
                 'errors' => [get_string('agent_booking_bulk_update_missing_target', 'booking')],
@@ -357,6 +369,15 @@ class bulk_update_options_skill extends booking_skill_base implements
         // confirm preview, so the card shows what execute will write (run 9, P3, #2409).
         if (isset($preparedinput['prices']) && is_numeric($preparedinput['prices'])) {
             $preparedinput['prices'] = ['default' => (float)$preparedinput['prices']];
+        }
+
+        // The empty-field scope on its own means every option of the instance (#2680).
+        if (
+            trim((string)($input['optionfield_empty'] ?? '')) !== ''
+            && empty($input['optionids']) && trim((string)($input['optionquery'] ?? '')) === '' && empty($input['apply_to_all'])
+        ) {
+            $input['apply_to_all'] = true;
+            $preparedinput['apply_to_all'] = true;
         }
 
         $hasids   = !empty($input['optionids']) && is_array($input['optionids'])
@@ -480,6 +501,47 @@ class bulk_update_options_skill extends booking_skill_base implements
             return $this->invalid($issues);
         }
 
+        // Option field values are resolved before the card; an unknown field or value is a clarification, and
+        // optionfield_empty narrows the scope to the options without a value for that field (#2680).
+        $fieldissue = option_field_values::preflight_issue(
+            $preparedinput,
+            fn(string $id, $a): string => $this->localized_string($id, $a, $lang)
+        );
+        if ($fieldissue !== null) {
+            $issues[] = $fieldissue;
+            return $this->invalid($issues);
+        }
+        $emptyfield = trim((string)($input['optionfield_empty'] ?? ''));
+        if ($emptyfield !== '') {
+            $emptyrecord = option_field_support::get_field_by_shortname($emptyfield);
+            if ($emptyrecord === null) {
+                $issues[] = option_field_values::unknown_field_issue(
+                    $emptyfield,
+                    fn(string $id, $a): string => $this->localized_string($id, $a, $lang)
+                );
+                return $this->invalid($issues);
+            }
+            $preparedinput['optionids'] = option_field_values::option_ids_without_value(
+                (array)$preparedinput['optionids'],
+                (int)$emptyrecord->id
+            );
+            if (empty($preparedinput['optionids'])) {
+                $noneempty = $this->localized_string(
+                    'agent_booking_bulk_update_optionfield_none_empty',
+                    $emptyrecord->name,
+                    $lang
+                );
+                $issues[] = [
+                    'code' => 'EMPTY_BULK_TARGET_SELECTION',
+                    'severity' => 'needs_clarification',
+                    'message' => $noneempty,
+                    'user_question' => $noneempty . ' '
+                        . $this->localized_string('agent_booking_bulk_update_issue_user_question', null, $lang),
+                ];
+                return $this->invalid($issues);
+            }
+        }
+
         // Run service-level preflight (teacher resolution, dates, etc.) and enrich prepared_input.
         return $this->apply_service_preflight(self::TASK_NAME, $preparedinput, $cmid, $userid, $issues, $lang);
     }
@@ -507,6 +569,8 @@ class bulk_update_options_skill extends booking_skill_base implements
                         . 'as in booking.update_option and are applied to every matched option.',
                     '- For hide/show requests, map to visibility/invisible:',
                     '  invisible|hidden -> invisible=1, visible -> invisible=0, direct-link-only -> invisible=2.',
+                    '- optionfields sets booking option fields, e.g. {"kursformat": "Präsenz"}; optionfield_empty '
+                        . 'narrows the scope to the options where that field is still empty.',
                     '- Do not use bookusersquery with bulk_update_options.',
                     '- Use confirmation_request for bulk mutations and follow structured validation issues when returned.',
                 ],

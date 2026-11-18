@@ -1,6 +1,6 @@
-# Booking Wizard (local_wizard)
+# Wizard (local_wizard)
 
-The Booking Wizard is an AI assistant for Moodle. People describe in their own words and their own
+The Wizard is an AI assistant for Moodle. People describe in their own words and their own
 language what they want to do, and the wizard answers or carries it out: it finds content and people,
 sets up courses and activities, creates quizzes and quiz questions, builds and shares reports, and
 diagnoses access, enrolment and notification problems. Every action runs with the permissions of the
@@ -19,7 +19,7 @@ also works with booking options, booking rules and bookings.
 
 | | |
 |---|---|
-| Moodle | 4.5 to 5.2 (`$plugin->requires` 2024100700) |
+| Moodle | 4.5 to 5.3 (`$plugin->requires` 2024100700) |
 | AI subsystem | Moodle's core AI subsystem with at least one configured AI provider |
 | AI provider | either Moodle's own OpenAI provider (`aiprovider_openai`) or [aiprovider_wunderbyte](https://github.com/Wunderbyte-GmbH/moodle-aiprovider_wunderbyte) (Moodle 5.0 and later) |
 | Optional | mod_booking (booking skills), other plugins that register wizard skills |
@@ -30,7 +30,7 @@ also works with booking options, booking rules and bookings.
    layout: `public/local/wizard`), or install the ZIP through *Site administration > Plugins >
    Install plugins*.
 2. Run the upgrade: `php admin/cli/upgrade.php` or open *Site administration > Notifications*.
-3. Review the settings under *Site administration > Plugins > Local plugins > Booking extension: Booking Wizard* (the
+3. Review the settings under *Site administration > Plugins > Local plugins > Wizard* (the
    wizard is enabled by default), and enable the skills that change data in *Skill governance*.
 
 If the bookingextension agent of mod_booking is installed on the same site, local_wizard takes over:
@@ -100,7 +100,7 @@ documentation question skill `wizard.explain_docs` is not activated automaticall
 
 ## Administration pages
 
-Under *Site administration > Plugins > Local plugins > Booking Wizard*: the main settings, skill
+Under *Site administration > Plugins > Local plugins > Wizard*: the main settings, skill
 governance, site search governance, the skill selection debug tool, and the AI benchmark report and
 settings.
 
@@ -118,8 +118,8 @@ the AI provider:
 | Soft | Only data the wizard resolves from the site is anonymised |
 | Off | No anonymisation before the AI provider |
 
-Pseudonyms are resolved back only for display in the user's own chat. The runtime treats a missing value as *Off*,
-so check the setting on upgraded sites where the settings page has never been saved.
+Pseudonyms are resolved back only for display in the user's own chat. If the setting has no value (for example on an
+upgraded site where the settings page has never been saved) or an unknown value, the wizard uses *Strict*.
 
 ## Documentation
 
