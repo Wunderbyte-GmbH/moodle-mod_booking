@@ -441,3 +441,74 @@ function booking_add_fixed_canceluntil_to_purchases_without_dates_2026111800(): 
 
     return $changed;
 }
+
+/**
+ * Deletes the calendar events of cancelled booking options.
+ *
+ * Until now cancelling a booking option only deleted the calendar events of the booked users. The
+ * instance-wide events (course or site events) and the events of the teachers stayed in the calendar.
+ * Cancelling deletes all of them now, this does the same for the options that are already cancelled.
+ *
+ * Deleted are the instance-wide events of the option (found by their uuid "optionid-optiondateid" and
+ * by the reference in booking_optiondates) and all its user events (tracked in booking_userevents).
+ * Events of other components and of options that are not cancelled are not touched. Running it again
+ * changes nothing.
+ *
+ * Plain SQL on purpose: an upgrade step must not rely on the classes of the plugin (they expect the
+ * final database structure).
+ *
+ * @return array number of deleted calendar events, indexed by the id of the cancelled booking option
+ */
+function booking_delete_calendar_events_of_cancelled_options_2026111801(): array {
+    global $DB;
+
+    $deleted = [];
+    // Status 1 is cancelled, see booking_option::cancelbookingoption().
+    $optionids = $DB->get_fieldset_select('booking_options', 'id', 'status = 1', [], 'id ASC');
+    foreach ($optionids as $optionid) {
+        // Instance-wide events by uuid. Events of other components (e.g. imported iCal events) may have a
+        // uuid starting the same way, so the component is part of the condition.
+        $eventids = $DB->get_fieldset_select(
+            'event',
+            'id',
+            "component = 'mod_booking' AND eventtype <> 'user' AND " . $DB->sql_like('uuid', ':pattern'),
+            ['pattern' => $DB->sql_like_escape($optionid . '-') . '%']
+        );
+        // Instance-wide events the dates of the option refer to.
+        $eventids = array_merge($eventids, $DB->get_fieldset_sql(
+            "SELECT od.eventid
+               FROM {booking_optiondates} od
+              WHERE od.optionid = :optionid AND od.eventid > 0",
+            ['optionid' => $optionid]
+        ));
+        // User events of teachers (and of booked users, if any are left).
+        $eventids = array_merge($eventids, $DB->get_fieldset_sql(
+            "SELECT bue.eventid
+               FROM {booking_userevents} bue
+              WHERE bue.optionid = :optionid AND bue.eventid > 0",
+            ['optionid' => $optionid]
+        ));
+        $eventids = array_unique(array_map('intval', $eventids));
+
+        $count = 0;
+        // In chunks, databases limit the number of parameters of a query.
+        foreach (array_chunk($eventids, 1000) as $chunk) {
+            [$insql, $inparams] = $DB->get_in_or_equal($chunk, SQL_PARAMS_NAMED);
+            $count += $DB->count_records_select('event', "id $insql", $inparams);
+            $DB->delete_records_select('event', "id $insql", $inparams);
+        }
+
+        // The references to the deleted events.
+        $DB->delete_records('booking_userevents', ['optionid' => $optionid]);
+        $DB->set_field_select('booking_optiondates', 'eventid', null, 'optionid = :optionid AND eventid IS NOT NULL', [
+            'optionid' => $optionid,
+        ]);
+        $DB->set_field_select('booking_options', 'calendarid', 0, 'id = :id AND calendarid <> 0', ['id' => $optionid]);
+
+        if ($count > 0) {
+            $deleted[(int)$optionid] = $count;
+        }
+    }
+
+    return $deleted;
+}

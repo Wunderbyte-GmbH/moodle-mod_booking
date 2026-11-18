@@ -26,6 +26,7 @@
 namespace mod_booking\local\calendar;
 
 use context_module;
+use mod_booking\calendar;
 use mod_booking\event\bookingoptiondate_created;
 use mod_booking\output\description\description_calendarevent;
 use mod_booking\singleton_service;
@@ -94,19 +95,71 @@ class calendar_helper {
         global $DB;
 
         // Just to be safe, we also delete via uuid (which is set for course and site events alike).
-        $courseeventsql = "SELECT * FROM {event} WHERE uuid LIKE " .
-            $DB->sql_concat((string)$optionid, "'-%'");
+        // The uuid of our events is "optionid-optiondateid". Events of other components (e.g. imported
+        // iCal events) may have a uuid starting the same way, so we only touch our own events.
+        $courseeventsql = "SELECT * FROM {event}
+                            WHERE component = 'mod_booking'
+                              AND eventtype <> 'user'
+                              AND uuid LIKE " . $DB->sql_concat((string)$optionid, "'-%'");
         $courseevents = $DB->get_records_sql($courseeventsql);
         foreach ($courseevents as $courseevent) {
             $DB->delete_records('event', ['id' => $courseevent->id]);
         }
 
-        // Also remove the reference in booking_option!
+        // Also remove the references in booking_option and in the dates of the option.
         $data = new stdClass();
         $data->id = $optionid;
         $data->calendarid = 0;
         $DB->update_record('booking_options', $data);
+        $DB->set_field('booking_optiondates', 'eventid', null, ['optionid' => $optionid]);
         return;
+    }
+
+    /**
+     * Whether a booking option is cancelled. A cancelled option has no calendar events:
+     * they are deleted when it is cancelled and must not be created while it is cancelled.
+     *
+     * @param int $optionid
+     * @return bool
+     */
+    public static function option_is_cancelled(int $optionid): bool {
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        // Status 1 means cancelled, see booking_option::cancelbookingoption().
+        return (int)($settings->status ?? 0) === 1;
+    }
+
+    /**
+     * Creates the calendar events of an option that do not depend on a booking: the instance-wide event
+     * (course or site event, if the option is added to the calendar) and the user events of the teachers,
+     * for every date of the option. This is needed when the cancellation of an option is undone.
+     *
+     * The function can be called at any time: dates that already have their instance-wide event are skipped,
+     * existing user events of teachers are replaced, and nothing happens for a cancelled option.
+     *
+     * @param int $optionid
+     */
+    public static function option_create_instance_and_teacher_calendar_events(int $optionid): void {
+        global $DB;
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($optionid);
+        // Templates have no cmid and therefore no calendar events.
+        if (empty($settings->cmid) || self::option_is_cancelled($optionid)) {
+            return;
+        }
+
+        $addtocalendar = (int)$settings->addtocalendar;
+        $optiondates = $DB->get_records('booking_optiondates', ['optionid' => $optionid], 'coursestarttime ASC, id ASC');
+        foreach ($optiondates as $optiondate) {
+            if (
+                calendar::instance_eventtype($addtocalendar) !== null
+                && (empty($optiondate->eventid) || !$DB->record_exists('event', ['id' => $optiondate->eventid]))
+            ) {
+                calendar::booking_optiondate_add_to_cal((int)$settings->cmid, $optionid, $optiondate, 0, 0, $addtocalendar);
+            }
+            foreach ($settings->teacherids as $teacherid) {
+                calendar::create_user_event_for_optiondate((int)$settings->cmid, $optionid, $optiondate, (int)$teacherid);
+            }
+        }
     }
 
     /**

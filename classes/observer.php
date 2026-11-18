@@ -232,6 +232,14 @@ class mod_booking_observer {
      * @throws dml_exception
      */
     public static function bookingoption_cancelled(\mod_booking\event\bookingoption_cancelled $event) {
+        // The settings singleton has to know that the option is cancelled before anything else happens.
+        booking_option::purge_cache_for_option($event->objectid);
+
+        // A cancelled option does not take place, so it has no business in any calendar: we delete the
+        // instance-wide events (course or site events) and the user events of booked users and teachers.
+        // This happens right away and not in the deferred function below, which only runs with the booking rules.
+        calendar_helper::option_delete_all_calendar_events($event->objectid);
+
         rules_info::$eventstoexecute[] = function () use ($event) {
             $optionid = $event->objectid;
             $settings = singleton_service::get_instance_of_booking_option_settings($optionid);

@@ -52,6 +52,7 @@ use mod_booking\event\bookinganswer_presencechanged;
 use mod_booking\event\bookinganswer_notesedited;
 use mod_booking\event\bookinganswer_waitingforconfirmation;
 use mod_booking\event\bookingoption_bookedviaautoenrol;
+use mod_booking\local\calendar\calendar_helper;
 use mod_booking\local\certificateclass;
 use mod_booking\local\confirmationworkflow\confirmation;
 use mod_booking\option\dates_handler;
@@ -4737,7 +4738,14 @@ class booking_option {
             }
             $event = \mod_booking\event\bookingoption_cancelled::create($eventdata);
             $event->trigger();
-            // Deletion of booking answers and user events needs to happen in event observer.
+            // Deletion of booking answers and calendar events needs to happen in event observer.
+        } else {
+            // The option takes place again, so it gets back the calendar events that were deleted when it was
+            // cancelled: the course or site events and the events of the teachers. The bookings were deleted with
+            // the cancellation, so there are no events of booked users to restore.
+            // The settings singleton has to know that the option is no longer cancelled before the events are created.
+            self::purge_cache_for_option($optionid);
+            calendar_helper::option_create_instance_and_teacher_calendar_events($optionid);
         }
 
         // At the end, we have to invalidate caches!
