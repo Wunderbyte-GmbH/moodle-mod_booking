@@ -26,7 +26,7 @@
  *
  */
 
-require_once(__DIR__ . '/../../config.php');
+require_once(__DIR__ . '/../../config.php'); // phpcs:ignore moodle.Files.RequireLogin.Missing
 require_once($CFG->dirroot . '/mod/booking/locallib.php');
 
 use core\output\notification;
@@ -66,11 +66,14 @@ $formsubmitted = optional_param('submitbutton', '', PARAM_TEXT);
 (bool) $subscribesuccess = false;
 (bool) $unsubscribesuccess = false;
 
-require_login($course, true, $cm);
+// Course login (enrolment or guest access) by default; a site login is enough if the
+// setting "reportrequirecourselogin" is disabled, like on report.php and report2.php.
+// The capability checks below still apply. The helper also sets the page context
+// (system context for users who cannot access the course).
+booking_require_report_login($course, $cm);
 
 // Print the page header.
 $context = context_module::instance($cm->id);
-$PAGE->set_context($context);
 
 // In Moodle 4.0+ we want to turn the instance description off on every page except view.php.
 $PAGE->activityheader->disable();
