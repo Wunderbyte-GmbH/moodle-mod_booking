@@ -736,12 +736,12 @@ $string['bocondelectivenotbookable'] = 'electivenotbookable: Wahlfach nicht buch
 $string['bocondenrolledincohorts'] = 'Benutzer:in ist in bestimmte(n) globale(n) Gruppe(n) eingeschrieben';
 $string['bocondenrolledincohortsavailable'] = 'Buchen';
 $string['bocondenrolledincohortsfullavailable'] = 'Buchen möglich';
-$string['bocondenrolledincohortsfullnotavailable'] = 'Nur Benutzer:innen, die in mindestens eine der folgenden globalen Grupppen eingeschrieben sind, dürfen buchen: {$a}
+$string['bocondenrolledincohortsfullnotavailable'] = 'Nur Benutzer:innen, die in mindestens eine der folgenden globalen Gruppen eingeschrieben sind, dürfen buchen: {$a}
     <br>Sie haben aber das Recht dennoch zu buchen.';
-$string['bocondenrolledincohortsfullnotavailableand'] = 'Nur Benutzer:innen, die in alle folgenden globalen Grupppen eingeschrieben sind, dürfen buchen: {$a}
+$string['bocondenrolledincohortsfullnotavailableand'] = 'Nur Benutzer:innen, die in alle folgenden globalen Gruppen eingeschrieben sind, dürfen buchen: {$a}
 <br>Sie haben aber das Recht dennoch zu buchen.';
-$string['bocondenrolledincohortsnotavailable'] = 'Buchen nicht möglich, da Sie in mindestens eine der folgenden globalen Grupppen nicht eingeschrieben sind: {$a}';
-$string['bocondenrolledincohortsnotavailableand'] = 'Buchen nicht möglich, da Sie nicht in alle der folgenden globalen Grupppen eingeschrieben sind: {$a}';
+$string['bocondenrolledincohortsnotavailable'] = 'Buchen nicht möglich, da Sie in mindestens eine der folgenden globalen Gruppen nicht eingeschrieben sind: {$a}';
+$string['bocondenrolledincohortsnotavailableand'] = 'Buchen nicht möglich, da Sie nicht in alle der folgenden globalen Gruppen eingeschrieben sind: {$a}';
 $string['bocondenrolledincohortswarning'] = 'Sie haben eine sehr hohe Anzahl an Globalen Gruppen auf Ihrem System. Nicht alle werden als Auswahl angezeigt. Wenn das ein Problem für Sie ist, kontaktieren Sie <a mailto="info@wunderyte.at">Wunderbyte</a>';
 $string['bocondenrolledincourse'] = 'Benutzer:in ist in bestimmte(n) Kurs(e) eingeschrieben';
 $string['bocondenrolledincourseavailable'] = 'Buchen';

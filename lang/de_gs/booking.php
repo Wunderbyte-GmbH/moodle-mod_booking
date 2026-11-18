@@ -83,9 +83,9 @@ $string['bocondalreadybookedfullavailable'] = 'Nutzer/in hat noch nicht gebucht'
 $string['bocondcustomuserprofilefieldfullnotavailable'] = 'Nur Benutzer/innen, bei denen das benutzerdefinierte Profilfeld
  {$a->profilefield} auf den Wert {$a->value} gesetzt ist, dürfen buchen.<br>Sie haben aber das Recht dennoch zu buchen.';
 $string['bocondenrolledincohorts'] = 'Benutzer/in ist in bestimmte(n) globale(n) Gruppe(n) eingeschrieben';
-$string['bocondenrolledincohortsfullnotavailable'] = 'Nur Benutzer/innen, die in mindestens eine der folgenden globalen Grupppen eingeschrieben sind, dürfen buchen: {$a}
+$string['bocondenrolledincohortsfullnotavailable'] = 'Nur Benutzer/innen, die in mindestens eine der folgenden globalen Gruppen eingeschrieben sind, dürfen buchen: {$a}
     <br>Sie haben aber das Recht dennoch zu buchen.';
-$string['bocondenrolledincohortsfullnotavailableand'] = 'Nur Benutzer/innen, die in alle folgenden globalen Grupppen eingeschrieben sind, dürfen buchen: {$a}
+$string['bocondenrolledincohortsfullnotavailableand'] = 'Nur Benutzer/innen, die in alle folgenden globalen Gruppen eingeschrieben sind, dürfen buchen: {$a}
 <br>Sie haben aber das Recht dennoch zu buchen.';
 $string['bocondenrolledincourse'] = 'Benutzer/in ist in bestimmte(n) Kurs(e) eingeschrieben';
 $string['bocondenrolledincoursefullnotavailable'] = 'Nur Benutzer/innen, die in mindestens einen der folgenden Kurs(e) eingeschrieben sind, dürfen buchen: {$a}
