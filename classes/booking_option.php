@@ -4982,8 +4982,20 @@ class booking_option {
             return (int)$optionsettings->canceluntil;
         }
 
+        // A fixed cancellation date of the booking instance does not depend on any date of the booking option.
+        // So it is applied before the start time is looked at: booking options without dates (e.g. subscriptions)
+        // have no start time and would get no cancellation date otherwise.
+        if (
+            isset($bookingsettings->cancelrelativedate)
+            && $bookingsettings->cancelrelativedate == MOD_BOOKING_CANCANCELBOOK_ABSOLUTE
+            && !empty($bookingsettings->allowupdatetimestamp)
+        ) {
+            return (int)$bookingsettings->allowupdatetimestamp;
+        }
+
         $canceluntil = 0;
 
+        // From here on the cancellation date is relative to a date of the booking option (or of the semester).
         // Default: We use the booking option coursestarttime field.
         $starttime = $optionsettings->coursestarttime;
 
@@ -5043,15 +5055,6 @@ class booking_option {
                 $datestring = "midnight + $allowupdatedays days"; // Midnight reduces the time to 00:00 of same day.
             }
             $canceluntil = strtotime($datestring, $starttime);
-        } else if (
-            isset($bookingsettings->cancelrelativedate) &&
-            empty($bookingsettings->cancelrelativedate) &&
-            isset($bookingsettings->allowupdatetimestamp) &&
-            !empty($bookingsettings->allowupdatetimestamp)
-        ) {
-            $canceluntil = $bookingsettings->allowupdatetimestamp;
-        } else {
-            $canceluntil = 0;
         }
 
         return $canceluntil;

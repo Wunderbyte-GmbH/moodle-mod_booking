@@ -362,3 +362,82 @@ function booking_performance_measurements_notnull_2026101401(): void {
         }
     }
 }
+
+/**
+ * Adds the missing cancellation deadline to purchases of booking options without dates.
+ *
+ * A fixed cancellation date of the booking instance ("Cancelling is only possible until certain date")
+ * was not applied to booking options without a start time and to self-learning courses. Shopping cart
+ * stores the deadline with every purchase at checkout and only checks this stored date, so these
+ * purchases were stored without a deadline and can be cancelled forever. This sets the fixed date of
+ * the instance for them, as it would have been stored at checkout.
+ *
+ * Only purchases without a deadline are changed and only paid and pending ones. Booking options
+ * with dates never were affected: their purchases without a deadline were made while the instance
+ * had no limit, so they keep it. Running it again changes nothing.
+ *
+ * Plain SQL on purpose: an upgrade step must not rely on the classes of the plugin (they expect the
+ * final database structure) and there is no cashier logged in whom the API of shopping cart asks for.
+ *
+ * @return array ids of the changed rows of local_shopping_cart_history, grouped by the deadline that was set
+ */
+function booking_add_fixed_canceluntil_to_purchases_without_dates_2026111800(): array {
+    global $DB;
+
+    // Shopping cart is optional.
+    if (!$DB->get_manager()->table_exists('local_shopping_cart_history')) {
+        return [];
+    }
+
+    // The cancel mode and the fixed date of an instance are stored in its json.
+    $bookings = $DB->get_records_select(
+        'booking',
+        $DB->sql_like('json', ':needle'),
+        ['needle' => '%allowupdatetimestamp%'],
+        'id ASC',
+        'id, json'
+    );
+
+    $changed = [];
+    foreach ($bookings as $booking) {
+        $json = json_decode($booking->json ?? '');
+        // The mode "fixed date" (MOD_BOOKING_CANCANCELBOOK_ABSOLUTE) is 0, so the key has to exist.
+        if (
+            !is_object($json)
+            || !isset($json->cancelrelativedate)
+            || (int)$json->cancelrelativedate !== 0
+            || empty($json->allowupdatetimestamp)
+        ) {
+            continue;
+        }
+        $canceluntil = (int)$json->allowupdatetimestamp;
+
+        // Payment status 0 is pending, 2 is paid (LOCAL_SHOPPING_CART_PAYMENT_PENDING and ..._SUCCESS).
+        // Booking option type 1 is a self-learning course, its start time is only used for sorting.
+        $historyids = $DB->get_fieldset_sql(
+            "SELECT h.id
+               FROM {local_shopping_cart_history} h
+               JOIN {booking_options} bo ON bo.id = h.itemid
+              WHERE h.componentname = :componentname
+                    AND h.area = :area
+                    AND h.paymentstatus IN (0, 2)
+                    AND (h.canceluntil IS NULL OR h.canceluntil = 0)
+                    AND bo.bookingid = :bookingid
+                    AND (bo.coursestarttime IS NULL OR bo.coursestarttime = 0 OR bo.type = 1)
+           ORDER BY h.id ASC",
+            ['componentname' => 'mod_booking', 'area' => 'option', 'bookingid' => $booking->id]
+        );
+
+        // In chunks, databases limit the number of parameters of a query.
+        foreach (array_chunk($historyids, 1000) as $chunk) {
+            [$insql, $inparams] = $DB->get_in_or_equal($chunk, SQL_PARAMS_NAMED);
+            $DB->set_field_select('local_shopping_cart_history', 'canceluntil', $canceluntil, "id $insql", $inparams);
+        }
+
+        if (!empty($historyids)) {
+            $changed[$canceluntil] = array_merge($changed[$canceluntil] ?? [], array_map('intval', $historyids));
+        }
+    }
+
+    return $changed;
+}
