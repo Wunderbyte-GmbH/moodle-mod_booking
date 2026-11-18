@@ -1259,8 +1259,9 @@ class bo_info {
      * option the user actually clicked instead of the page they started on.
      *
      * When a return feature is enabled the button points at the option's optionview.php with
-     * forcelogin=1: a logged-out click makes optionview call require_login(), which stores the
-     * current URL in $SESSION->wantsurl and returns there after login. The session must NOT be
+     * forcelogin=1: a click by a logged-out user or a guest makes optionview call
+     * {@see self::force_real_login()}, which stores the return target in $SESSION->wantsurl and
+     * sends the user to the login page; after login the user returns there. The session must NOT be
      * written here: this runs while rendering, and on a list/shortcode page every rendered card
      * would overwrite $SESSION->wantsurl, so a plain login would jump to whichever option rendered
      * last. (A wantsurl GET parameter on /login/index.php does not work either - core only reads
@@ -1302,6 +1303,44 @@ class bo_info {
         }
 
         return (new moodle_url('/login/index.php'))->out(false);
+    }
+
+    /**
+     * Whether the current user still has to log in with a real account.
+     *
+     * A guest counts as logged in for Moodle (isloggedin() is true), but a guest can not book.
+     * So "logged in" is not enough here: logged-out visitors AND guests need the login page.
+     *
+     * @return bool true for logged-out visitors and for guests
+     */
+    public static function needs_real_login(): bool {
+        return !isloggedin() || isguestuser();
+    }
+
+    /**
+     * Send logged-out visitors and guests to the login page and bring them back afterwards.
+     *
+     * This replaces require_login() wherever a real account is needed. require_login() only
+     * guarantees "some session": with $CFG->autologinguests it silently logs a visitor in as
+     * guest and returns, and a user who already is a guest passes it right away - in both cases
+     * no login page is shown. Users with a real account pass this function without any effect.
+     *
+     * The return target is stored in $SESSION->wantsurl, which login/index.php follows after a
+     * successful login. Call this only as the reaction to a request of the user (a click), never
+     * while rendering: see {@see self::set_login_returnurl()}.
+     *
+     * @param moodle_url|null $returnurl where to go after login, defaults to the current page
+     * @return void
+     */
+    public static function force_real_login(?moodle_url $returnurl = null): void {
+        global $SESSION;
+
+        if (!self::needs_real_login()) {
+            return;
+        }
+
+        $SESSION->wantsurl = $returnurl ? $returnurl->out(false) : qualified_me();
+        redirect(get_login_url());
     }
 
     /**

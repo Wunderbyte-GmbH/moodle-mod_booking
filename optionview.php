@@ -23,6 +23,7 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use mod_booking\bo_availability\bo_info;
 use mod_booking\booking_option;
 use mod_booking\local\connectedcourse;
 use mod_booking\local\override_user_field;
@@ -74,13 +75,23 @@ $PAGE->set_context($syscontext);
 $url = new moodle_url('/mod/booking/optionview.php', ['cmid' => $cmid, 'optionid' => $optionid]);
 $PAGE->set_url($url);
 
+// Where a user who has to log in first returns to afterwards. $PAGE->url only holds cmid and
+// optionid, so the redirecttocourse flag of the login button has to be added again: without it
+// the user would stay on this page after login instead of being sent on to the course.
+$loginreturnurl = new moodle_url($url);
+if ($redirecttocourse === 1) {
+    $loginreturnurl->param('redirecttocourse', 1);
+}
+
 // A login button on a booking option (the bo_availability isloggedin condition) links here with
 // forcelogin=1 so clicking it sends a logged-out user to the login page and back to this option
-// afterwards. require_login() stores the current URL in $SESSION->wantsurl, which is the correct
-// per-click moment to set it - unlike writing the session while rendering a whole list of cards,
-// where every card would overwrite it and a plain login would jump to the last one rendered.
-if ($forcelogin && (!isloggedin() || isguestuser())) {
-    require_login();
+// afterwards. This click is the correct moment to set $SESSION->wantsurl - unlike writing the
+// session while rendering a whole list of cards, where every card would overwrite it and a plain
+// login would jump to the last one rendered.
+// require_login() is not enough here: a guest counts as logged in, and with autologinguests a
+// logged-out visitor is silently turned into a guest, so the same page would be shown again.
+if ($forcelogin) {
+    bo_info::force_real_login($loginreturnurl);
 }
 
 $booking = singleton_service::get_instance_of_booking_by_cmid($cmid);
@@ -117,10 +128,9 @@ if ($settings && !empty($settings->id)) {
     // Booked users (booked, waiting list, reserved) can always see their own booking's details.
     // Access is always judged for the VIEWER, even when the buy-for target is someone else.
     if (!booking_option::can_view_option_details($optionid, (int)$USER->id)) {
-        if (!isloggedin() || isguestuser()) {
-            // Not logged in (or guest): send the user to the login page.
-            require_login();
-        }
+        // Not logged in (or guest): send the user to the login page. Guests pass require_login(),
+        // so they would get a missing capability error below instead of the login form.
+        bo_info::force_real_login($loginreturnurl);
 
         require_capability('mod/booking:view', $modcontext);
     }

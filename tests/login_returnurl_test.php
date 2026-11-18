@@ -30,6 +30,7 @@ use mod_booking\bo_availability\conditions\isloggedin;
 use mod_booking\bo_availability\conditions\isloggedinprice;
 use mod_booking\tests\booking_advanced_testcase;
 use mod_booking_generator;
+use moodle_exception;
 use moodle_url;
 use stdClass;
 
@@ -44,16 +45,19 @@ require_once($CFG->dirroot . '/mod/booking/lib.php');
  * A booking shortcode/list renders a login button for every option a logged-out user sees. If the
  * return target were written to $SESSION->wantsurl while building each button, the last rendered
  * card would win and a plain frontpage login would redirect there instead of staying put. Instead
- * the button links to the option's optionview.php with forcelogin=1; a logged-out click makes
- * optionview call require_login(), which stores the target in $SESSION->wantsurl at click time and
- * returns there after login. (A wantsurl GET parameter on /login/index.php would not work: core
- * only reads that parameter under BEHAT_SITE_RUNNING.)
+ * the button links to the option's optionview.php with forcelogin=1; a click by a logged-out user
+ * or a guest makes optionview call bo_info::force_real_login(), which stores the target in
+ * $SESSION->wantsurl at click time and returns there after login. (A wantsurl GET parameter on
+ * /login/index.php would not work: core only reads that parameter under BEHAT_SITE_RUNNING.)
+ * require_login() can not be used for this: a guest counts as logged in for it.
  *
  * @package    mod_booking
  * @category   test
  * @copyright  2026 Wunderbyte GmbH <info@wunderbyte.at>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @covers \mod_booking\bo_availability\bo_info::set_login_returnurl
+ * @covers \mod_booking\bo_availability\bo_info::force_real_login
+ * @covers \mod_booking\bo_availability\bo_info::needs_real_login
  * @covers \mod_booking\bo_availability\conditions\isloggedin::render_button
  * @covers \mod_booking\bo_availability\conditions\isloggedinprice::render_button
  */
@@ -248,6 +252,116 @@ final class login_returnurl_test extends booking_advanced_testcase {
         $this->assertTrue(empty($SESSION->wantsurl));
         $this->assertStringContainsString('/login/index.php', $url->out(false));
         $this->assertEmpty($url->param('forcelogin'));
+    }
+
+    /**
+     * A guest is sent to the login page, although a guest counts as logged in for Moodle.
+     *
+     * This is the bug of sites with "auto-login guests": require_login() let the guest pass, so
+     * the click on the login button only reloaded the option page.
+     *
+     * @return void
+     */
+    public function test_force_real_login_redirects_guest(): void {
+        global $SESSION;
+
+        $this->resetAfterTest();
+        $this->setGuestUser();
+        unset($SESSION->wantsurl);
+
+        $this->assertTrue(isloggedin());
+        $this->assertTrue(bo_info::needs_real_login());
+
+        $returnurl = new moodle_url('/mod/booking/optionview.php', ['cmid' => 1, 'optionid' => 2]);
+        $this->assert_redirects_to_login($returnurl);
+
+        $this->assertSame($returnurl->out(false), $SESSION->wantsurl);
+    }
+
+    /**
+     * A logged-out visitor is sent to the login page too, also when auto-login guests is active.
+     *
+     * @return void
+     */
+    public function test_force_real_login_redirects_logged_out_user_with_autologinguests(): void {
+        global $CFG, $SESSION;
+
+        $this->resetAfterTest();
+        $CFG->autologinguests = 1;
+        $this->setUser(0);
+        unset($SESSION->wantsurl);
+
+        $this->assertTrue(bo_info::needs_real_login());
+
+        // The redirecttocourse flag of the login button has to survive the login.
+        $returnurl = new moodle_url(
+            '/mod/booking/optionview.php',
+            ['cmid' => 1, 'optionid' => 2, 'redirecttocourse' => 1]
+        );
+        $this->assert_redirects_to_login($returnurl);
+
+        // The visitor was not turned into a guest on the way.
+        $this->assertFalse(isloggedin());
+        $this->assertSame($returnurl->out(false), $SESSION->wantsurl);
+        $this->assertEquals(1, (new moodle_url($SESSION->wantsurl))->param('redirecttocourse'));
+    }
+
+    /**
+     * Without a return url, the current page is the return target.
+     *
+     * @return void
+     */
+    public function test_force_real_login_defaults_to_current_page(): void {
+        global $PAGE, $SESSION;
+
+        $this->resetAfterTest();
+        $this->setGuestUser();
+        unset($SESSION->wantsurl);
+
+        $pageurl = new moodle_url('/mod/booking/optionview.php', ['cmid' => 3, 'optionid' => 4]);
+        $PAGE->set_url($pageurl);
+
+        $this->assert_redirects_to_login(null);
+
+        $this->assertSame($pageurl->out(false), $SESSION->wantsurl);
+    }
+
+    /**
+     * A user with a real account passes: no redirect, and the session is not touched.
+     *
+     * @return void
+     */
+    public function test_force_real_login_lets_real_user_pass(): void {
+        global $SESSION;
+
+        $this->resetAfterTest();
+        $user = $this->getDataGenerator()->create_user();
+        $this->setUser($user);
+        unset($SESSION->wantsurl);
+
+        $this->assertFalse(bo_info::needs_real_login());
+
+        // No exception means no redirect.
+        bo_info::force_real_login(new moodle_url('/mod/booking/optionview.php', ['cmid' => 1, 'optionid' => 2]));
+
+        $this->assertTrue(empty($SESSION->wantsurl));
+    }
+
+    /**
+     * Call force_real_login() and make sure it redirects.
+     *
+     * redirect() can not send headers in a unit test, core throws an exception instead.
+     *
+     * @param moodle_url|null $returnurl
+     * @return void
+     */
+    private function assert_redirects_to_login(?moodle_url $returnurl): void {
+        try {
+            bo_info::force_real_login($returnurl);
+            $this->fail('force_real_login() has to redirect to the login page.');
+        } catch (moodle_exception $e) {
+            $this->assertSame('redirecterrordetected', $e->errorcode);
+        }
     }
 
     /**
