@@ -730,23 +730,22 @@ div.checkbox:has(label[for^="id_bo_cond_allowedtobookininstance_capabilitynotnee
     margin: 0 !important;
 }
 
-/* With many columns, the table must scroll horizontally inside its container instead
-   of blowing it up: the container is a css grid and grid items do not shrink below
-   their content width unless min-width is reset. Applies to the Bookings Tracker (report2.php),
-   the old report (report.php) and "Book other users" (subscribeusers.php), which all render
-   the same user tables. */
+/* With many columns, the table must not blow up its container: the container is a css grid
+   and grid items do not shrink below their content width unless min-width is reset. The
+   horizontal scrolling itself happens in local_wunderbyte_table's .wunderbyte-table-scrollbox,
+   which wraps only the table, so action buttons and pagination stay in place. Applies to the
+   Bookings Tracker (report2.php), the old report (report.php) and "Book other users"
+   (subscribeusers.php), which all render the same user tables. */
 #page-mod-booking-report .wunderbyte_table_container,
 #page-mod-booking-report2 .wunderbyte_table_container,
 #page-mod-booking-subscribeusers .wunderbyte_table_container {
     max-width: 100%;
-    overflow-x: auto;
 }
 
 #page-mod-booking-report .wunderbyte_table_container .wunderbyteTableClass,
 #page-mod-booking-report2 .wunderbyte_table_container .wunderbyteTableClass,
 #page-mod-booking-subscribeusers .wunderbyte_table_container .wunderbyteTableClass {
     min-width: 0;
-    overflow-x: auto;
 }
 
 /* Tables with a sticky header (waiting list, deleted bookings) scroll inside a box that is at
