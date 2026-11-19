@@ -153,6 +153,7 @@ class select_user_from_event implements booking_rule_condition {
             'teacher_added',
             'teacher_removed',
             'selectusers_user_added',
+            'certificate_issued',
             'ticket_created',
             'ticket_scanned',
             'ticket_rejected',

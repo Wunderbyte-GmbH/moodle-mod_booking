@@ -84,6 +84,16 @@ class rule_react_on_event implements booking_rule {
     public const NOTFULLWAITINGLIST = 4;
 
     /**
+     * Events which are typically triggered after the end of the booking option. Rules reacting on them
+     * ignore "Number of days after end of booking option, where rule still applies".
+     *
+     * @var string[]
+     */
+    public const EVENTS_WITHOUT_TIME_WINDOW = [
+        '\\mod_booking\\event\\certificate_issued',
+    ];
+
+    /**
      * Load json data from DB into the object.
      * @param stdClass $record a rule record from DB
      */
@@ -263,7 +273,13 @@ class rule_react_on_event implements booking_rule {
             '\mod_booking\event\rest_script_success',
         ];
 
-        $mform->hideIf('rule_react_on_event_after_completion', 'rule_react_on_event_event', 'in', $notborelatedevents);
+        // The setting is also hidden for the events which ignore the time window.
+        $mform->hideIf(
+            'rule_react_on_event_after_completion',
+            'rule_react_on_event_event',
+            'in',
+            array_merge($notborelatedevents, self::EVENTS_WITHOUT_TIME_WINDOW)
+        );
 
         $rules = booking_rules::get_list_of_saved_rules_by_context($ajaxformdata['contextid'] ?? 1);
 
@@ -586,6 +602,11 @@ class rule_react_on_event implements booking_rule {
     public static function get_time_window_end(object $ruledata, object $bookingoption): ?int {
         // Self-learning courses only use sorting date, so we cannot do this check.
         if (!empty($bookingoption->selflearningcourse)) {
+            return null;
+        }
+
+        // Certificates are issued after the end of the booking option, often days later.
+        if (in_array($ruledata->ruledata->boevent ?? '', self::EVENTS_WITHOUT_TIME_WINDOW, true)) {
             return null;
         }
 
