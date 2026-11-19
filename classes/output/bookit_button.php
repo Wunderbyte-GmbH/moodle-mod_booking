@@ -68,16 +68,20 @@ class bookit_button implements renderable, templatable {
             $data['main']['class'] = 'btn btn-primary';
         }
 
+        // Some conditions (e.g. noshoppingcart, which blocks a priced option without the
+        // shopping cart) only return price data, without a userid. The userid has to be
+        // resolved before it is used to build the "for user" label, otherwise null is
+        // passed on and get_for_user_button_string() throws a TypeError.
+        if (empty($data['userid'])) {
+            $data['userid'] = $USER->id;
+        }
+
         if (empty($data['main']['foruser'])) {
             $data['main']['foruser'] = bo_info::get_for_user_button_string($data['userid']);
         }
 
         if (empty($data['area'])) {
             $data['area'] = 'option';
-        }
-
-        if (empty($data['userid'])) {
-            $data['userid'] = $USER->id;
         }
 
         if (empty($data['componentname'])) {
