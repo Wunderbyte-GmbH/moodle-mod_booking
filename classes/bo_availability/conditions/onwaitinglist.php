@@ -286,6 +286,21 @@ class onwaitinglist implements bo_condition {
 
         $label = $this->get_description_string(false, $full, $userid, $settings);
 
+        // In the button, users waiting for confirmation see their place on the waiting list
+        // instead, if the ranked waiting list is enabled. A billboard text keeps precedence.
+        if (
+            get_config('booking', 'waitinglistshowplaceonwaitinglist')
+            && $this->is_waiting_for_confirmation($settings, $userid)
+            && !($this->overwrittenbybillboard && !empty(bo_info::apply_billboard($this, $settings)))
+        ) {
+            $bookinganswer = singleton_service::get_instance_of_booking_answers($settings);
+            $label = get_string(
+                'yourplaceonwaitinglist',
+                'mod_booking',
+                $bookinganswer->return_place_on_waitinglist($userid)
+            );
+        }
+
         return bo_info::render_button(
             $settings,
             $userid,
@@ -322,21 +337,9 @@ class onwaitinglist implements bo_condition {
             $description = $full ? get_string('bocondonwaitinglistfullavailable', 'mod_booking') :
                 get_string('bocondonwaitinglistavailable', 'mod_booking');
         } else {
-            if ($settings->waitforconfirmation > 0) {
-                // We need a separate string when waitinglist is only waiting for confirmation.
-                $ba = singleton_service::get_instance_of_booking_answers($settings);
-                // The answer will have the confirmation key.
-                $usersonwaitinglist = $ba->get_usersonwaitinglist();
-                if ($useranswer = $usersonwaitinglist[$userid] ?? false) {
-                    $jsonobject = !empty($useranswer->json) ? json_decode($useranswer->json) : (object)[];
-                    $confirmationcount = confirmation::get_required_confirmation_count($settings->id);
-                    if (
-                        empty($jsonobject->confirmationcount)
-                        || $jsonobject->confirmationcount < $confirmationcount
-                    ) {
-                        return get_string('bocondonwaitinglistwaitforconfirmation', 'mod_booking');
-                    }
-                }
+            // We need a separate string when waitinglist is only waiting for confirmation.
+            if ($this->is_waiting_for_confirmation($settings, $userid)) {
+                return get_string('bocondonwaitinglistwaitforconfirmation', 'mod_booking');
             }
 
             if (get_config('booking', 'waitinglistshowplaceonwaitinglist')) {
@@ -351,5 +354,28 @@ class onwaitinglist implements bo_condition {
         }
 
         return $description;
+    }
+
+    /**
+     * Whether the user is on the waiting list and still lacks (some of) the required confirmations.
+     *
+     * @param booking_option_settings $settings
+     * @param int $userid
+     * @return bool
+     */
+    private function is_waiting_for_confirmation(booking_option_settings $settings, int $userid): bool {
+        if (empty($settings->waitforconfirmation) || $settings->waitforconfirmation <= 0) {
+            return false;
+        }
+        $ba = singleton_service::get_instance_of_booking_answers($settings);
+        // The answer will have the confirmation key.
+        $usersonwaitinglist = $ba->get_usersonwaitinglist();
+        if (!$useranswer = $usersonwaitinglist[$userid] ?? false) {
+            return false;
+        }
+        $jsonobject = !empty($useranswer->json) ? json_decode($useranswer->json) : (object)[];
+        $confirmationcount = confirmation::get_required_confirmation_count($settings->id);
+        return empty($jsonobject->confirmationcount)
+            || $jsonobject->confirmationcount < $confirmationcount;
     }
 }
