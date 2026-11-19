@@ -1795,13 +1795,17 @@ class bo_info {
      */
     public static function get_for_user_button_string(int|string|null $userid): string {
         global $USER;
-        // An empty userid means "the current user", so no "for user" label is needed.
-        if (empty($userid) || (int)$userid === (int)$USER->id) {
+        // Normalise once: null, '', '0' and non-numeric strings all become 0. From here on only
+        // the integer is used, because singleton_service::get_instance_of_user(0) returns the
+        // current user and would put the own name on the button.
+        $userid = (int)$userid;
+        // No userid means "the current user", so no "for user" label is needed.
+        if ($userid === 0 || $userid === (int)$USER->id) {
             return '';
         }
-        // Dispaly name of the user if buying is for another user.
+        // Display the name of the user if buying is for another user.
         $foruser = '';
-        $user = singleton_service::get_instance_of_user((int)$userid);
+        $user = singleton_service::get_instance_of_user($userid);
         if (!empty($user)) {
             $fullname = fullname($user);
             $foruser = "{$fullname} (ID:$user->id)";
