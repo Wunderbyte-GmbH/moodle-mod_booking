@@ -140,6 +140,41 @@ final class semesters_holidays_forms_test extends booking_advanced_testcase {
     }
 
     /**
+     * A holiday without name (the column allows null) is shown with an empty name and causes no PHP deprecation.
+     *
+     * @covers \mod_booking\form\dynamicholidaysform::set_data_for_dynamic_submission
+     */
+    public function test_holidaysform_holiday_without_name(): void {
+        global $DB;
+
+        $this->setAdminUser();
+
+        $start = make_timestamp(2026, 5, 1);
+        $DB->insert_record('booking_holidays', (object) ['startdate' => $start, 'enddate' => $start, 'name' => null]);
+
+        // PHPUnit does not turn deprecations into errors here, so collect the ones raised by the form.
+        $deprecations = [];
+        set_error_handler(
+            function (int $errno, string $errstr, string $errfile, int $errline) use (&$deprecations): bool {
+                if (str_ends_with($errfile, 'dynamicholidaysform.php')) {
+                    $deprecations[] = "$errstr (line $errline)";
+                    return true;
+                }
+                return false;
+            },
+            E_DEPRECATED
+        );
+        try {
+            [$html] = $this->build_and_render(dynamicholidaysform::class);
+        } finally {
+            restore_error_handler();
+        }
+
+        $this->assertSame([], $deprecations);
+        $this->assertSame('', $this->get_form_values($html)['holidayname'][0]);
+    }
+
+    /**
      * Saving the semesters form unchanged keeps all stored dates.
      *
      * @covers \mod_booking\form\dynamicsemestersform::set_data_for_dynamic_submission
