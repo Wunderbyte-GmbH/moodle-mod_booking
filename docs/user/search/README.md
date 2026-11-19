@@ -93,14 +93,12 @@ Priority `titleprefix,text`, a user searches for **424**:
 The setting is an ordered list. The first entry has the highest priority.
 
 - **Add a column:** choose it in the select box and press **Add column**.
-- **Change the order:** use the arrow buttons of an entry (move up / move down).
+- **Change the order:** use the arrow buttons of an entry (move up / move down), or drag the entry
+  by its handle on the left. A click on the handle opens a dialogue to choose the new position.
 - **Remove a column:** use the bin button of the entry.
 
 The select box offers the prefix, the booking option name, the teachers, description, location,
-institution and all booking custom fields.
-
-Without JavaScript the setting is a text field: enter the column names separated by commas,
-e.g. `titleprefix,text`. Unknown column names are rejected when the form is saved.
+institution and all booking custom fields. Only these columns can be chosen.
 
 | Booking instance | Priority |
 |------------------|----------|

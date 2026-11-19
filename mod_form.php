@@ -26,6 +26,7 @@ use local_wunderbyte_table\local\customfield\wbt_field_controller_info;
 use mod_booking\booking;
 use mod_booking\customfield\booking_handler;
 use mod_booking\elective;
+use mod_booking\form\element\sortableselect;
 use mod_booking\output\eventslist;
 use mod_booking\placeholders\placeholders_info;
 use mod_booking\semester;
@@ -740,9 +741,8 @@ class mod_booking_mod_form extends moodleform_mod {
             (array)booking::get_value_of_json_by_key($bookingid, 'fulltextsearchcolumns')
         );
 
-        // Priority of the search results: the order of the columns decides, so the value is a comma separated
-        // list in a text field. With JavaScript, mod_booking/searchpriority replaces the text field by a list
-        // with buttons to add, move and remove columns.
+        // Priority of the search results: the order of the columns decides, so the setting is a sortable select.
+        // Its value is the list of the chosen columns in their order.
         // The unique identifier is searchable, but of no use for the order of the results. The teachers are always
         // searched by their names (column teachernames), so they are offered here and not in the list above.
         $searchprioritycolumnoptions = array_merge(
@@ -753,30 +753,29 @@ class mod_booking_mod_form extends moodleform_mod {
             ],
             array_diff_key($fulltextsearchcolumnoptions, ['identifier' => true])
         );
+        sortableselect::register();
         $mform->addElement(
-            'text',
+            'sortableselect',
             'searchprioritycolumns',
             get_string('searchprioritycolumns', 'mod_booking'),
-            ['size' => 60, 'data-region' => 'searchpriority-input']
+            $searchprioritycolumnoptions,
+            [
+                'noselectionstring' => get_string('searchprioritycolumns:empty', 'mod_booking'),
+                'choosestring' => get_string('searchprioritycolumns:choose', 'mod_booking'),
+                'addstring' => get_string('searchprioritycolumns:add', 'mod_booking'),
+            ]
         );
         $mform->setType('searchprioritycolumns', PARAM_TEXT);
         $mform->addHelpButton('searchprioritycolumns', 'searchprioritycolumns', 'mod_booking');
         // Only new instances get the default, existing instances keep what they have (nothing, if never set).
+        // Columns that were stored earlier and are not offered above (other fields of booking options) are kept
+        // by the element until the user removes them.
         $mform->setDefault(
             'searchprioritycolumns',
             empty($bookingid)
-                ? implode(',', booking::DEFAULT_SEARCHPRIORITYCOLUMNS)
-                : implode(',', (array)booking::get_value_of_json_by_key($bookingid, 'searchprioritycolumns'))
+                ? booking::DEFAULT_SEARCHPRIORITYCOLUMNS
+                : (array)booking::get_value_of_json_by_key($bookingid, 'searchprioritycolumns')
         );
-        $searchpriorityoptions = [];
-        foreach ($searchprioritycolumnoptions as $column => $label) {
-            $searchpriorityoptions[] = ['column' => $column, 'label' => $label];
-        }
-        $mform->addElement(
-            'html',
-            $OUTPUT->render_from_template('mod_booking/searchpriority', ['options' => $searchpriorityoptions])
-        );
-        $PAGE->requires->js_call_amd('mod_booking/searchpriority', 'init');
 
         // Fields for download of booking option overview.
         $options = [
@@ -1950,7 +1949,9 @@ class mod_booking_mod_form extends moodleform_mod {
         }
 
         if (!empty($data['searchprioritycolumns'])) {
-            [, $invalidcolumns] = booking::split_fulltextsearchcolumns(explode(',', $data['searchprioritycolumns']));
+            [, $invalidcolumns] = booking::split_fulltextsearchcolumns(
+                sortableselect::clean_values($data['searchprioritycolumns'])
+            );
             if (!empty($invalidcolumns)) {
                 $errors['searchprioritycolumns'] = get_string(
                     'searchprioritycolumns:invalid',

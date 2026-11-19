@@ -1,0 +1,74 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_booking/form/sortableselect_item
+
+    One chosen entry of the form element "sortable select". The hidden input submits the value: the order of
+    the entries in the list is the order of the submitted values. Rendered by PHP for the stored value and by
+    mod_booking/form/sortableselect when an entry is added.
+
+    Context variables required for this template:
+    * name - name of the form element
+    * value - value of the entry
+    * label - label of the entry
+    * position - position in the list, starting with 1
+    * first - whether it is the first entry
+    * last - whether it is the last entry
+    * legacy - whether the value is no longer offered as an option
+
+    Example context (json):
+    {
+        "name": "searchprioritycolumns",
+        "value": "titleprefix",
+        "label": "Prefix",
+        "position": 1,
+        "first": true,
+        "last": false,
+        "legacy": false
+    }
+}}
+<li class="list-group-item d-flex align-items-center py-1 px-2" data-region="sortableselect-item"
+    data-value="{{value}}" data-label="{{label}}">
+    <input type="hidden" name="{{name}}[]" value="{{value}}">
+    <button type="button" class="btn btn-icon me-1 mr-1" data-drag-type="move" aria-haspopup="true"
+        title="{{#str}} sortableselect:move, mod_booking, {{label}} {{/str}}"
+        aria-label="{{#str}} sortableselect:move, mod_booking, {{label}} {{/str}}">
+        {{#pix}} i/dragdrop, core {{/pix}}
+    </button>
+    <span class="badge bg-secondary badge-secondary me-2 mr-2" data-region="sortableselect-position" aria-hidden="true">{{position}}</span>
+    <span class="flex-grow-1">
+        {{label}}
+        {{#legacy}}
+            <span class="badge bg-warning badge-warning text-dark ms-1 ml-1">{{#str}} sortableselect:legacy, mod_booking {{/str}}</span>
+        {{/legacy}}
+    </span>
+    <button type="button" class="btn btn-sm btn-outline-secondary ms-1 ml-1" data-action="up" {{#first}}disabled{{/first}}
+        title="{{#str}} sortableselect:moveup, mod_booking, {{label}} {{/str}}"
+        aria-label="{{#str}} sortableselect:moveup, mod_booking, {{label}} {{/str}}">
+        <i class="fa fa-arrow-up" aria-hidden="true"></i>
+    </button>
+    <button type="button" class="btn btn-sm btn-outline-secondary ms-1 ml-1" data-action="down" {{#last}}disabled{{/last}}
+        title="{{#str}} sortableselect:movedown, mod_booking, {{label}} {{/str}}"
+        aria-label="{{#str}} sortableselect:movedown, mod_booking, {{label}} {{/str}}">
+        <i class="fa fa-arrow-down" aria-hidden="true"></i>
+    </button>
+    <button type="button" class="btn btn-sm btn-outline-secondary ms-1 ml-1" data-action="remove"
+        title="{{#str}} sortableselect:remove, mod_booking, {{label}} {{/str}}"
+        aria-label="{{#str}} sortableselect:remove, mod_booking, {{label}} {{/str}}">
+        <i class="fa fa-trash" aria-hidden="true"></i>
+    </button>
+</li>

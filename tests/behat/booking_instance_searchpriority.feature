@@ -27,9 +27,9 @@ Feature: As admin - configure the priority of the search results of a booking in
   Scenario: Booking: a new booking instance presets the priority, an existing booking instance has none
     Given I am on the "Booking0" "booking activity editing" page logged in as admin
     ## Existing booking instances are not changed.
-    Then the field "Priority of the search results" matches value ""
+    Then "[data-region='sortableselect-item']" "css_element" should not exist
     And I add a "booking" activity to course "Course 1" section "1"
-    And the field "Priority of the search results" matches value "titleprefix,text"
+    And "Prefix" "text" should appear before "Booking option name" "text" in the "[data-region='sortableselect-list']" "css_element"
 
   @javascript
   Scenario: Booking: order the priority columns of a booking instance and search as student
@@ -45,15 +45,22 @@ Feature: As admin - configure the priority of the search results of a booking in
     And I press "Add column"
     And I set the field "Choose column..." to "Prefix"
     And I press "Add column"
-    And "Booking option name" "text" should appear before "Prefix" "text" in the "[data-region='searchpriority-list']" "css_element"
+    And "Booking option name" "text" should appear before "Prefix" "text" in the "[data-region='sortableselect-list']" "css_element"
     When I click on "Move up: Prefix" "button"
-    Then "Prefix" "text" should appear before "Booking option name" "text" in the "[data-region='searchpriority-list']" "css_element"
+    Then "Prefix" "text" should appear before "Booking option name" "text" in the "[data-region='sortableselect-list']" "css_element"
+    ## The handle of an entry moves it by drag and drop, a click on it opens a dialogue with the possible positions.
+    And I click on "Move: Booking option name" "button"
+    And I click on "To the top of the list" "link" in the "Move: Booking option name" "dialogue"
+    And "Booking option name" "text" should appear before "Prefix" "text" in the "[data-region='sortableselect-list']" "css_element"
+    And I click on "Move: Booking option name" "button"
+    And I click on "After \"Prefix\"" "link" in the "Move: Booking option name" "dialogue"
+    And "Prefix" "text" should appear before "Booking option name" "text" in the "[data-region='sortableselect-list']" "css_element"
     And I press "Save and display"
     ## The order is kept.
     And I am on the "Booking0" "booking activity editing" page
     And I expand all fieldsets
     And I wait until ".collapsing" "css_element" does not exist
-    And "Prefix" "text" should appear before "Booking option name" "text" in the "[data-region='searchpriority-list']" "css_element"
+    And "Prefix" "text" should appear before "Booking option name" "text" in the "[data-region='sortableselect-list']" "css_element"
     And I log out
     ## Prefix equals the search text, then name equals, then name contains.
     And I am on the "Booking0" Activity page logged in as student1

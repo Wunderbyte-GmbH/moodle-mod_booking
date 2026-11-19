@@ -1,0 +1,58 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_booking/form/sortableselect_frozen
+
+    Frozen form element "sortable select": the chosen entries as a list that cannot be changed. With
+    "persistent", hidden inputs submit the value, so it is not lost when the form is saved.
+
+    Context variables required for this template:
+    * id - id of the element
+    * name - name of the element
+    * emptyvalue - value that is submitted for an empty list
+    * hasitems - whether entries are chosen
+    * items - the chosen entries: value, label
+    * noselectionstring - text shown while nothing is chosen
+    * persistent - whether the value is submitted
+
+    Example context (json):
+    {
+        "id": "id_searchprioritycolumns",
+        "name": "searchprioritycolumns",
+        "emptyvalue": "_qf__force_multiselect_submission",
+        "hasitems": true,
+        "items": [
+            {"value": "titleprefix", "label": "Prefix"},
+            {"value": "text", "label": "Booking option name"}
+        ],
+        "noselectionstring": "Nothing selected",
+        "persistent": true
+    }
+}}
+<div class="mod-booking-sortableselect w-100" id="{{id}}" data-region="sortableselect-frozen">
+    {{#persistent}}<input type="hidden" name="{{name}}" value="{{emptyvalue}}">{{/persistent}}
+    {{#hasitems}}
+        <ol class="mb-0 ps-3 pl-3">
+            {{#items}}
+                <li>{{label}}{{#persistent}}<input type="hidden" name="{{name}}[]" value="{{value}}">{{/persistent}}</li>
+            {{/items}}
+        </ol>
+    {{/hasitems}}
+    {{^hasitems}}
+        <span class="text-muted">{{noselectionstring}}</span>
+    {{/hasitems}}
+</div>
