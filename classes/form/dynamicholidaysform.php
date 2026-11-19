@@ -114,7 +114,8 @@ class dynamicholidaysform extends dynamic_form {
                     $data->holidayendactive[] = 1;
                 }
                 $data->holidayend[] = $existingholiday->enddate;
-                $data->holidayname[] = trim($existingholiday->name);
+                // The name is optional and can be null in the DB.
+                $data->holidayname[] = trim($existingholiday->name ?? '');
             }
         } else {
             // No holidays found in DB.
