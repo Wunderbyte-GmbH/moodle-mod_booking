@@ -359,8 +359,7 @@ class askforconfirmation implements bo_condition {
             'button',
             'option',
             false,
-            'noforward',
-            priceinlabel: true
+            'noforward'
         );
     }
 

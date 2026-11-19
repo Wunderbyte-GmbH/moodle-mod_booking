@@ -1063,8 +1063,6 @@ class bo_info {
      * @param string $link
      * @param string $showicon
      * @param array $showdetaildots
-     * @param bool $priceinlabel Append the user's price to the main label ("Booked (Price: 12.00 EUR)").
-     *                           Only takes effect when the shopping cart is installed and the price is > 0.
      * @return array
      */
     public static function render_button(
@@ -1080,8 +1078,7 @@ class bo_info {
         string $dataaction = '', // Use 'noforward' to disable automatic forwarding.
         string $link = '',
         string $showicon = '',
-        array $showdetaildots = [],
-        bool $priceinlabel = false
+        array $showdetaildots = []
     ) {
 
         global $USER;
@@ -1138,7 +1135,6 @@ class bo_info {
             || get_config('booking', 'bookonlyondetailspage'))
             && $settings->useprice
         ) {
-            $mainlabel = $label;
             $label = "";
             if (
                 (!isloggedin()
@@ -1164,22 +1160,6 @@ class bo_info {
                     'class' => ' text-center ',
                     'role' => '',
                 ];
-            }
-
-            // With the shopping cart the price is also part of the label itself ("Booked (Price: 12.00 EUR)").
-            // This is independent of the price line below, which stays as it is.
-            if (
-                $priceinlabel
-                && (isloggedin() && !isguestuser())
-                && class_exists('local_shopping_cart\shopping_cart')
-                && !empty($priceitem = price::get_price('option', $settings->id, $user))
-                && (float)($priceitem['price'] ?? 0) > 0
-            ) {
-                $currstring = isset($priceitem["currency"]) ? " " . $priceitem["currency"] : '';
-                $data['main']['label'] = get_string('buttonlabelwithprice', 'mod_booking', [
-                    'label' => $mainlabel,
-                    'price' => format_float((float)$priceitem['price'], 2) . $currstring,
-                ]);
             }
         }
 

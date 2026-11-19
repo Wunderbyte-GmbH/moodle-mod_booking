@@ -307,8 +307,7 @@ class alreadybooked implements bo_condition {
             '',
             $link,
             'fa-play',
-            $detaildots,
-            priceinlabel: $link === ''
+            $detaildots
         );
     }
 

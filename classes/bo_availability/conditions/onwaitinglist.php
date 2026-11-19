@@ -309,8 +309,7 @@ class onwaitinglist implements bo_condition {
             true,
             $fullwidth,
             'alert',
-            'option',
-            priceinlabel: true
+            'option'
         );
     }
 
