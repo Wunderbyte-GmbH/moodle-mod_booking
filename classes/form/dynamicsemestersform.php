@@ -29,6 +29,7 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 require_once("$CFG->libdir/formslib.php");
+require_once("$CFG->libdir/form/dateselector.php");
 
 use cache_helper;
 use coding_exception;
@@ -38,6 +39,7 @@ use core_form\dynamic_form;
 use html_writer;
 use moodle_exception;
 use moodle_url;
+use MoodleQuickForm_date_selector;
 use stdClass;
 
 /**
@@ -206,12 +208,18 @@ class dynamicsemestersform extends dynamic_form {
         // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
         /* $repeateloptions['semestername']['helpbutton'] = ['semestername', 'mod_booking']; */
 
-        $repeatedsemesters[] = $mform->createElement('date_selector', 'semesterstart', get_string('semesterstart', 'booking'));
+        // Info: The date selectors are created with "new" and not with $mform->createElement() on purpose.
+        // A date selector created by the form keeps a reference to the form, and repeat_elements()
+        // clones each element with serialize(). So every clone would copy the whole form built so far,
+        // and memory would grow quadratically with the number of semesters.
+        // The clones get their reference to the form when repeat_elements() adds them to the form.
+        $repeatedsemesters[] = new MoodleQuickForm_date_selector('semesterstart', get_string('semesterstart', 'booking'));
         // Info: Help buttons in repeat_elements groups are causing problems with Moodle 4.0.
         // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
         /* $repeateloptions['semesterstart']['helpbutton'] = ['semesterstart', 'mod_booking']; */
 
-        $repeatedsemesters[] = $mform->createElement('date_selector', 'semesterend', get_string('semesterend', 'booking'));
+        // Created with "new" for the same reason as the start date.
+        $repeatedsemesters[] = new MoodleQuickForm_date_selector('semesterend', get_string('semesterend', 'booking'));
         // Info: Help buttons in repeat_elements groups are causing problems with Moodle 4.0.
         // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
         /* $repeateloptions['semesterend']['helpbutton'] = ['semesterend', 'mod_booking']; */

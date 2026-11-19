@@ -29,6 +29,7 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 require_once("$CFG->libdir/formslib.php");
+require_once("$CFG->libdir/form/dateselector.php");
 
 use cache_helper;
 use context;
@@ -36,6 +37,7 @@ use context_system;
 use core_form\dynamic_form;
 use html_writer;
 use moodle_url;
+use MoodleQuickForm_date_selector;
 use stdClass;
 
 /**
@@ -190,7 +192,12 @@ class dynamicholidaysform extends dynamic_form {
         $mform->setType('holidayid', PARAM_INT);
 
         // Holiday start date.
-        $repeatedholidays[] = $mform->createElement('date_selector', 'holidaystart', get_string('holidaystart', 'mod_booking'));
+        // Info: The date selectors are created with "new" and not with $mform->createElement() on purpose.
+        // A date selector created by the form keeps a reference to the form, and repeat_elements()
+        // clones each element with serialize(). So every clone would copy the whole form built so far,
+        // and memory would grow quadratically with the number of holidays (fatal error with ~50 holidays).
+        // The clones get their reference to the form when repeat_elements() adds them to the form.
+        $repeatedholidays[] = new MoodleQuickForm_date_selector('holidaystart', get_string('holidaystart', 'mod_booking'));
 
         // Checkbox for end date.
         $repeatedholidays[] = $mform->createElement(
@@ -203,8 +210,8 @@ class dynamicholidaysform extends dynamic_form {
         );
         $repeateloptions['holidayend']['hideif'] = ['holidayendactive', 'eq', 0];
 
-        // Holiday end date.
-        $repeatedholidays[] = $mform->createElement('date_selector', 'holidayend', get_string('holidayend', 'mod_booking'));
+        // Holiday end date. Created with "new" for the same reason as the start date.
+        $repeatedholidays[] = new MoodleQuickForm_date_selector('holidayend', get_string('holidayend', 'mod_booking'));
 
         // Holiday name.
         $repeatedholidays[] = $mform->createElement('text', 'holidayname', get_string('holidayname', 'booking'));
