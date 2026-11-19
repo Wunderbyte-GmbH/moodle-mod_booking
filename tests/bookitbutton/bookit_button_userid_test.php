@@ -16,6 +16,7 @@
 
 namespace mod_booking;
 
+use mod_booking\bo_availability\bo_info;
 use mod_booking\bo_availability\conditions\noshoppingcart;
 use mod_booking\output\bookit_button;
 use mod_booking\tests\booking_advanced_testcase;
@@ -146,6 +147,61 @@ final class bookit_button_userid_test extends booking_advanced_testcase {
         $this->assertEquals($target->id, $button->data['userid']);
         $this->assertStringContainsString(fullname($target), $button->data['main']['foruser']);
         $this->assertStringContainsString("ID:{$target->id}", $button->data['main']['foruser']);
+    }
+
+    /**
+     * The label helper itself, called directly as bo_info::render_button() does: a value that
+     * names no user (missing, empty, zero, not a number) or the current user gives no label
+     * and does not crash. Before, null and '' threw a TypeError and 0 put the own name on
+     * the button, because singleton_service::get_instance_of_user(0) returns the current user.
+     *
+     * @covers \mod_booking\bo_availability\bo_info::get_for_user_button_string
+     * @dataProvider no_label_userid_provider
+     * @param mixed $userid a fixed value, or 'own' for the id of the current user
+     */
+    public function test_for_user_string_is_empty_without_other_user($userid): void {
+        $user = $this->getDataGenerator()->create_user();
+        $this->setUser($user);
+
+        if ($userid === 'own') {
+            $userid = $user->id;
+        } else if ($userid === 'ownstring') {
+            $userid = (string) $user->id;
+        }
+
+        $this->assertSame('', bo_info::get_for_user_button_string($userid));
+    }
+
+    /**
+     * User ids that must not produce a "for user" label.
+     *
+     * @return array
+     */
+    public static function no_label_userid_provider(): array {
+        return [
+            'null' => [null],
+            'empty string' => [''],
+            'zero' => [0],
+            'zero as string' => ['0'],
+            'not a number' => ['abc'],
+            'own id' => ['own'],
+            'own id as string' => ['ownstring'],
+            'id without user record' => [99999999],
+        ];
+    }
+
+    /**
+     * Another user is named on the button, whether the id comes as int or as string.
+     *
+     * @covers \mod_booking\bo_availability\bo_info::get_for_user_button_string
+     */
+    public function test_for_user_string_names_other_user(): void {
+        $target = $this->getDataGenerator()->create_user(['firstname' => 'Tara', 'lastname' => 'Target']);
+        $this->setUser($this->getDataGenerator()->create_user());
+
+        $expected = fullname($target) . " (ID:{$target->id})";
+        $this->assertSame($expected, bo_info::get_for_user_button_string((int) $target->id));
+        $this->assertSame($expected, bo_info::get_for_user_button_string((string) $target->id));
     }
 
     /**
