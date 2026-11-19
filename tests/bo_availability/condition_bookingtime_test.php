@@ -237,6 +237,141 @@ final class condition_bookingtime_test extends booking_advanced_testcase {
     }
 
     /**
+     * Test the day-bucketed visibility of the bookingtime SQL filter.
+     *
+     * The SQL filter compares against the bounds of the current day (00:00 and 23:59),
+     * so an option has to be visible on every day its booking period touches - no matter
+     * if there are days between opening and closing or if both are on the same day.
+     *
+     * @covers \mod_booking\bo_availability\conditions\booking_time::return_sql
+     *
+     * @param bool $onlypast value of the sqlfilterbookingtimeonlypast setting
+     * @param string|null $opening strtotime string of the booking opening time, null for no opening restriction
+     * @param string|null $closing strtotime string of the booking closing time, null for no closing restriction
+     * @param bool $expectedvisible if the student is expected to see the option
+     * @throws \coding_exception
+     * @throws \dml_exception
+     *
+     * @dataProvider bookingtime_sqlfilter_visibility_provider
+     */
+    public function test_bookingtime_sqlfilter_visibility(
+        bool $onlypast,
+        ?string $opening,
+        ?string $closing,
+        bool $expectedvisible
+    ): void {
+        global $PAGE;
+
+        set_config('usesqlfilteravailability', 1, 'booking');
+        set_config('sqlfilterbookingtimeonlypast', $onlypast ? 1 : 0, 'booking');
+
+        $bdata = self::booking_common_settings_provider()['bdata'][0];
+
+        $course1 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $course2 = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+
+        $student1 = $this->getDataGenerator()->create_user();
+        $bookingmanager = $this->getDataGenerator()->create_user();
+
+        $bdata['course'] = $course1->id;
+        $bdata['bookingmanager'] = $bookingmanager->username;
+
+        $booking1 = $this->getDataGenerator()->create_module('booking', $bdata);
+
+        $this->setAdminUser();
+        $this->getDataGenerator()->enrol_user($student1->id, $course1->id);
+        $this->getDataGenerator()->enrol_user($bookingmanager->id, $course1->id);
+
+        $record = new stdClass();
+        $record->bookingid = $booking1->id;
+        $record->text = 'Test option (sqlfilter visibility)';
+        $record->chooseorcreatecourse = 1; // Required.
+        $record->courseid = $course2->id;
+        $record->maxanswers = 2;
+        $record->restrictanswerperiodopening = $opening === null ? 0 : 1;
+        $record->restrictanswerperiodclosing = $closing === null ? 0 : 1;
+        if ($opening !== null) {
+            $record->bookingopeningtime = strtotime($opening);
+        }
+        if ($closing !== null) {
+            $record->bookingclosingtime = strtotime($closing);
+        }
+        // Add SQL filter for booking time.
+        $record->bo_cond_booking_time_sqlfiltercheck = 1;
+
+        [$course, $cm] = get_course_and_cm_from_cmid($booking1->cmid);
+
+        // Before the creation, we need to fix the Page context.
+        $PAGE->set_cm($cm, $course);
+        $PAGE->set_context(context_module::instance($booking1->cmid));
+
+        /** @var mod_booking_generator $plugingenerator */
+        $plugingenerator = self::getDataGenerator()->get_plugin_generator('mod_booking');
+        $option1 = $plugingenerator->create_option($record);
+
+        $settings = singleton_service::get_instance_of_booking_option_settings($option1->id);
+        $this->assertEquals(MOD_BOOKING_SQL_FILTER_ACTIVE_BO_TIME, $settings->sqlfilter);
+        $this->assertEquals($opening === null ? 0 : strtotime($opening), (int)$settings->bookingopeningtime);
+        $this->assertEquals($closing === null ? 0 : strtotime($closing), (int)$settings->bookingclosingtime);
+
+        // The admin can always see the option.
+        $rawdata = $plugingenerator->create_table_for_one_option($settings->id);
+        $this->assertEquals(1, count($rawdata));
+
+        $this->setUser($student1);
+        $rawdata = $plugingenerator->create_table_for_one_option($settings->id);
+        $this->assertEquals($expectedvisible ? 1 : 0, count($rawdata));
+    }
+
+    /**
+     * Data provider for test_bookingtime_sqlfilter_visibility.
+     *
+     * All times are anchored to fixed times of a day, so the results do not depend on the time the test is run.
+     *
+     * @return array
+     */
+    public static function bookingtime_sqlfilter_visibility_provider(): array {
+        return [
+            // Opening to closing mode (sqlfilterbookingtimeonlypast off).
+            'between: several days, today in between' => [false, 'today 10:00 - 3 day', 'today 10:00 + 3 day', true],
+            'between: opened yesterday, closes tomorrow' => [false, 'yesterday 23:58', 'tomorrow 00:01', true],
+            'between: opens today early, closes in some days' => [false, 'today 00:01', 'today 10:00 + 3 day', true],
+            'between: opens today late, closes in some days' => [false, 'today 23:58', 'today 10:00 + 3 day', true],
+            'between: opened days ago, closes today early' => [false, 'today 10:00 - 3 day', 'today 00:01', true],
+            'between: opened days ago, closes today late' => [false, 'today 10:00 - 3 day', 'today 23:58', true],
+            'between: same day, whole day' => [false, 'today 00:01', 'today 23:58', true],
+            'between: same day, morning' => [false, 'today 00:01', 'today 00:02', true],
+            'between: same day, noon' => [false, 'today 12:00', 'today 12:30', true],
+            'between: same day, evening' => [false, 'today 23:57', 'today 23:58', true],
+            'between: closed days ago' => [false, 'today 10:00 - 5 day', 'today 10:00 - 3 day', false],
+            'between: closed yesterday late' => [false, 'today 10:00 - 3 day', 'yesterday 23:58', false],
+            'between: same day yesterday' => [false, 'yesterday 10:00', 'yesterday 16:00', false],
+            'between: opens tomorrow early' => [false, 'tomorrow 00:01', 'today 10:00 + 3 day', false],
+            'between: same day tomorrow' => [false, 'tomorrow 10:00', 'tomorrow 16:00', false],
+            'between: opens in some days' => [false, 'today 10:00 + 3 day', 'today 10:00 + 5 day', false],
+            'between: only opening, days ago' => [false, 'today 10:00 - 3 day', null, true],
+            'between: only opening, today' => [false, 'today 23:58', null, true],
+            'between: only opening, tomorrow' => [false, 'tomorrow 00:01', null, false],
+            'between: only closing, in some days' => [false, null, 'today 10:00 + 3 day', true],
+            'between: only closing, today' => [false, null, 'today 00:01', true],
+            'between: only closing, yesterday' => [false, null, 'yesterday 23:58', false],
+            // Only past mode (sqlfilterbookingtimeonlypast on): only the closing time counts.
+            'onlypast: several days, today in between' => [true, 'today 10:00 - 3 day', 'today 10:00 + 3 day', true],
+            'onlypast: closes today early' => [true, 'today 10:00 - 3 day', 'today 00:01', true],
+            'onlypast: closes today late' => [true, 'today 10:00 - 3 day', 'today 23:58', true],
+            'onlypast: same day today' => [true, 'today 12:00', 'today 12:30', true],
+            'onlypast: opens tomorrow' => [true, 'tomorrow 00:01', 'today 10:00 + 3 day', true],
+            'onlypast: same day tomorrow' => [true, 'tomorrow 10:00', 'tomorrow 16:00', true],
+            'onlypast: closed yesterday late' => [true, 'today 10:00 - 3 day', 'yesterday 23:58', false],
+            'onlypast: same day yesterday' => [true, 'yesterday 10:00', 'yesterday 16:00', false],
+            'onlypast: closed days ago' => [true, 'today 10:00 - 5 day', 'today 10:00 - 3 day', false],
+            'onlypast: only opening, tomorrow' => [true, 'tomorrow 00:01', null, true],
+            'onlypast: only closing, today' => [true, null, 'today 00:01', true],
+            'onlypast: only closing, yesterday' => [true, null, 'yesterday 23:58', false],
+        ];
+    }
+
+    /**
      * Test bookingtime relative mode.
      *
      * @covers \mod_booking\bo_availability\conditions\booking_time::is_available

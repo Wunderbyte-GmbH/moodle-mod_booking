@@ -188,30 +188,34 @@ class booking_time implements bo_condition, freezable_condition {
                         sqlfilter <> 2
 
                         OR (
-                            bookingclosingtime < 1 OR bookingclosingtime > :bookingopeningtimenow2
+                            bookingclosingtime < 1 OR bookingclosingtime > :bookingopeningtimenow1
                         )
                       )";
 
             // Using realtime here would destroy our caching.
             // Cache would be invalidated every second.
-            // Therefore, closing goes on timestamp of 23:59.
-            $nowend = strtotime('today 23:59');
+            // Therefore, closing is compared against the start of today (00:00):
+            // an option closing at any time today stays visible for the whole day
+            // and is only hidden from the following day on.
+            $nowstart = strtotime('today 00:00');
 
-            $params['bookingopeningtimenow2'] = $nowend;
+            $params['bookingopeningtimenow1'] = $nowstart;
         } else {
             $where = "(
                         sqlfilter <> 2
 
                         OR (
-                            (bookingopeningtime < 1 OR bookingopeningtime < :bookingopeningtimenow1)
-                            AND (bookingclosingtime < 1 OR bookingclosingtime > :bookingopeningtimenow2)
+                            (bookingopeningtime < 1 OR bookingopeningtime < :bookingopeningtimenow2)
+                            AND (bookingclosingtime < 1 OR bookingclosingtime > :bookingopeningtimenow1)
                         )
                       )";
 
             // Using realtime here would destroy our caching.
             // Cache would be invalidated every second.
-            // Therefore, the filter of bookingopeningtime goes on the timestamp of 00:00.
-            // Closing on 23:59.
+            // Therefore we compare against the bounds of the current day:
+            // the option is shown when the booking period overlaps today, i.e.
+            // it opens before the end of today (23:59) and closes after the start of today (00:00).
+            // This covers periods spanning several days as well as opening and closing on the same day.
             $nowstart = strtotime('today 00:00');
             $nowend = strtotime('today 23:59');
 
